@@ -1,11 +1,11 @@
 {
-  "name": "neptis",
+  "name": "cigrp-prototype",
   "version": "1.0.0",
-  "homepage": "https://github.com/Vizzuality/neptis-geoweb",
+  "homepage": "https://github.com/Vizzuality/cigrp-prototype",
   "authors": [
     "Vizzuality <info@vizzuality.com>"
   ],
-  "description": "Neptis geoweb",
+  "description": "",
   "license": "MIT",
   "ignore": [
     "**/.*",
