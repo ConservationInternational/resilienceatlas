@@ -1,0 +1,20 @@
+#utm_built_1971_2006_130509{
+  polygon-opacity: 0;
+  line-width: 0;
+  line-opacity: 0;
+}
+#utm_built_1971_2006_130509[year=1971] {
+  polygon-fill: #E1E1E1;
+}
+#utm_built_1971_2006_130509[year=1981] {
+  polygon-fill: #CCCCCC;
+}
+#utm_built_1971_2006_130509[year=1991] {
+  polygon-fill: #9C9C9C;
+}
+#utm_built_1971_2006_130509[year=2001] {
+  polygon-fill: #828282;
+}
+#utm_built_1971_2006_130509[year=2006] {
+  polygon-fill: #4E4E4E;
+}

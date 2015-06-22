@@ -1,0 +1,7 @@
+#utm_rural_agr_hollandmarsh_130509{
+  polygon-fill: #FCF77F;
+  polygon-opacity: 1;
+  line-color: #FFF;
+  line-width: 0;
+  line-opacity: 0;
+}

@@ -1,0 +1,18 @@
+default: &default
+  adapter: postgresql
+  encoding: unicode
+  pool: 5
+  timeout: 5000
+  username: <%= ENV["DB_USER"] %>
+  password:
+
+development:
+  <<: *default
+  database: netptis_dev
+
+test:
+  <<: *default
+  database: netptis_test
+
+production:
+  url: <%= ENV["DATABASE_URL"] %>

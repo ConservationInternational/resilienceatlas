@@ -1,0 +1,11 @@
+#utm_urban_growth_130621{
+  marker-fill-opacity: 1;
+  marker-line-color: #000;
+  marker-line-width: 0.5;
+  marker-line-opacity: 1;
+  marker-placement: point;
+  marker-type: ellipse;
+  marker-width: 10;
+  marker-fill: #F4A831;
+  marker-allow-overlap: true;
+}

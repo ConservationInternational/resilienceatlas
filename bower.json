@@ -1,0 +1,29 @@
+{
+  "name": "neptis",
+  "version": "1.0.0",
+  "homepage": "https://github.com/Vizzuality/neptis-geoweb",
+  "authors": [
+    "Vizzuality <info@vizzuality.com>"
+  ],
+  "description": "Neptis geoweb",
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "vendor/assets/bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "underscore": "~1.8.3",
+    "backbone": "~1.1.2",
+    "text": "~2.0.14",
+    "uri.js": "~1.15.0",
+    "foundation": "~5.5.1",
+    "handlebars": "~3.0.0",
+    "moment": "~2.10.2",
+    "d3": "~3.5.5",
+    "leaflet-draw": "~0.2.4"
+  }
+}

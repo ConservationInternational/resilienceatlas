@@ -1,0 +1,32 @@
+#utm_trans_roadsmajor_130509 {
+   line-width: 2;
+   line-opacity: 0.9;
+}
+
+#utm_trans_roadsmajor_130509[roadclass="ETR"] {
+   line-color: #A6CEE3;
+}
+#utm_trans_roadsmajor_130509[roadclass="FERRY"] {
+   line-color: #1F78B4;
+}
+#utm_trans_roadsmajor_130509[roadclass="MJR"] {
+   line-color: #B2DF8A;
+}
+#utm_trans_roadsmajor_130509[roadclass="MJR-UC"] {
+   line-color: #33A02C;
+}
+#utm_trans_roadsmajor_130509[roadclass="MLD"] {
+   line-color: #CC3332;
+}
+#utm_trans_roadsmajor_130509[roadclass="MLD-UC"] {
+   line-color: #E31A1C;
+}
+#utm_trans_roadsmajor_130509[roadclass="MNR-HS"] {
+   line-color: #FFFFFF;
+}
+#utm_trans_roadsmajor_130509[roadclass="MNR-LS"] {
+   line-color: #FFFFFF;
+}
+#utm_trans_roadsmajor_130509[roadclass=null] {
+   line-color: #CAB2D6;
+}

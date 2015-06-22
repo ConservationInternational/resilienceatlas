@@ -1,0 +1,7 @@
+#utm_rural_whitebelt_130509{
+  polygon-fill: #9CC79A;
+  polygon-opacity: 1;
+  line-color: #FFF;
+  line-width: 0;
+  line-opacity: 0;
+}

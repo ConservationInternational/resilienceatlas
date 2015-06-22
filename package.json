@@ -1,0 +1,32 @@
+{
+  "name": "netptis",
+  "version": "1.0.0",
+  "description": "A geoweb",
+  "main": "app/assets/application.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "grunt test",
+    "postinstall": "./node_modules/bower/bin/bower install"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Vizzuality/neptis-geoweb.git"
+  },
+  "author": "Vizzuality <info@vizzuality.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Vizzuality/neptis-geoweb/issues"
+  },
+  "homepage": "https://github.com/Vizzuality/neptis-geoweb",
+  "devDependencies": {
+    "grunt": "^0.4.5",
+    "grunt-contrib-jshint": "^0.11.2",
+    "jshint-stylish": "^1.0.1",
+    "load-grunt-tasks": "^3.1.0"
+  },
+  "dependencies": {
+    "bower": "^1.4.1"
+  }
+}

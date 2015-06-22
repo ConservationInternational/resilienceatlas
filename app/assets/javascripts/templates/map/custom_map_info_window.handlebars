@@ -1,0 +1,14 @@
+<div class="cartodb-popup">
+  <a href="#close" class="cartodb-popup-close-button close">x</a>
+
+   <div class="cartodb-popup-content-wrapper">
+     <div class="cartodb-popup-content">
+
+        <% _.each(content.fields, function(item, key) { %>
+          <p><%= colNames[key] %>: <%= item.value %></p>
+        <% }); %>
+
+     </div>
+   </div>
+   <div class="cartodb-popup-tip-container"></div>
+</div>

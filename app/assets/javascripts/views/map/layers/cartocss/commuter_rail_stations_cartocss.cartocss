@@ -1,0 +1,21 @@
+#utm_trans_go_pt_130621 {
+   marker-fill-opacity: 1;
+   marker-line-color: #31621a;
+   marker-line-width: 1;
+   marker-line-opacity: 1;
+   marker-placement: point;
+   marker-type: ellipse;
+   marker-width: 7;
+   marker-allow-overlap: true;
+}
+
+#utm_trans_go_pt_130621[active_201="NO"] {
+   marker-fill: #40ad4b;
+}
+#utm_trans_go_pt_130621[active_201="YES"] {
+   marker-fill: #40ad4b;
+}
+#utm_trans_go_pt_130621[active_201=null] {
+   marker-line-color: #4E7A36 ;
+   marker-fill: #a6fda8;
+}

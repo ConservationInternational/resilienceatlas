@@ -1,0 +1,7 @@
+#null{
+  polygon-fill: #F7C872;
+  polygon-opacity: 1;
+  line-color: #000;
+  line-width: 0.5;
+  line-opacity: 1;
+}

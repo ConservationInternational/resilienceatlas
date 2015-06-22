@@ -1,0 +1,2 @@
+SELECT * 
+FROM utm_built_1971_2006_130509  

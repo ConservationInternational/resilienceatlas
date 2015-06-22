@@ -1,0 +1,32 @@
+#utm_trans_subway_130514 {
+  ::case {
+    line-width: 3.5;
+    line-color: #151514;
+  }
+  ::fill {
+    line-width: 2.5;
+    line-color: #FEFFBE;
+  }
+}
+
+#utm_trans_subway_130514[line_name="Bloor-Danforth"] {
+}
+#utm_trans_subway_130514[line_name="Scarborough RT"] {
+  ::case {
+    line-width: 4;
+    line-color: #151514;
+  }
+  ::line {
+    line-width: 2.5;
+    line-color: #feffbe;
+  }
+  ::dash {
+    line-color: #F4A900;
+    line-width: 2.5;
+    line-dasharray: 6, 6;
+  }
+}
+#utm_trans_subway_130514[line_name="Sheppard"] {
+}
+#utm_trans_subway_130514[line_name="Yonge-University"] {
+}

@@ -1,0 +1,8 @@
+#utm_provplan_lakesimcoe_130509{
+  polygon-fill: #FFFFFF;
+  polygon-opacity: 0;
+  line-color: #8400A9;
+  line-width: 2;
+  line-opacity: 1;
+  line-dasharray: 10, 3, 2, 3;
+}

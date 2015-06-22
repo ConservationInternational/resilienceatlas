@@ -1,0 +1,24 @@
+doctype html
+
+html lang="#{I18n.locale}"
+  head
+    title CIGRP Prototype
+    meta charset="utf-8"
+    meta name="description" content=""
+    meta name="viewport" content="width=device-width"
+    = stylesheet_link_tag "http://libs.cartocdn.com/cartodb.js/v3/3.13/themes/css/cartodb.css", media: "all"
+    = stylesheet_link_tag "application", media: "all"
+    = csrf_meta_tags
+
+  body
+    header
+      nav.top-bar role="navigation" data-topbar="true"
+        ul.title-area
+          li.name: h1: a(href="/") CIGRP Prototype
+        section.top-bar-section
+          ul.right
+            li: a.current(href="#") Map
+    #pageView.page-map
+      == yield
+    = javascript_include_tag "http://libs.cartocdn.com/cartodb.js/v3/3.13/cartodb.js"
+    = requirejs_include_tag "application"

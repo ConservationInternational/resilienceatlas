@@ -1,0 +1,184 @@
+.m-timeline {
+  
+  $timeline-bg: #FFFEFF;
+  $timeline-handler-bg: rgba(29, 130, 165, 0.125);
+  $timeline-main-color: #1D82A5;
+  $timeline-main-border: #DEDEDE;
+
+  width: 100%;
+  height: 0;
+  position: absolute;
+  bottom: 0;
+  overflow: hidden;
+  transform: translate3d(0,0,0);
+  z-index: 2;
+  transition-property: height;
+  transition: .4s ease-out;
+
+  &.dragging {
+    cursor: move;
+  }
+
+  .is-timeline-active & {
+    transition: .2s ease-in;
+    height: rem-calc(90px);
+  }
+
+  .handler {
+    width: 20px;
+    height: 70px;
+    position: absolute;
+    z-index: 3;
+    cursor: move;
+    transform: translate3d(0,0,0);
+    top: 0;
+  }
+
+  .handler-bg {
+    width: 20px;
+    height: 57px;
+    position: absolute;
+    z-index: 0;
+    transform: translate3d(0,0,0);
+    top: 0;
+    left: 0;
+    background: $timeline-handler-bg;
+
+    &:after {
+      content: "";
+      top: 0;
+      left: -4px;
+      position: absolute;
+      z-index: 1;
+      width: 0;
+      height: 0;
+      border-style: solid;
+      border-width: 9px 5px 0 5px;
+      border-color: $timeline-main-color transparent transparent transparent;
+    }
+
+    &:before {
+      content: "";
+      top: 0;
+      right: -4px;
+      position: absolute;
+      z-index: 1;
+      width: 0;
+      height: 0;
+      border-style: solid;
+      border-width: 9px 5px 0 5px;
+      border-color: $timeline-main-color transparent transparent transparent;
+    }
+  }
+
+  .timeline-content {
+    width: 100%;
+    height: 50px;
+    background: $timeline-bg;
+    position: absolute;
+    bottom: 0;
+    border-top: 1px solid $timeline-main-border;
+    user-select: none;
+
+    .dragging & {
+      cursor: move;
+    }
+
+    .timeline-structure {
+      width: 100%;
+      height: 42px;
+      transform: translate3d(0,0,0);
+      position: relative;
+      z-index: 1;
+      user-select: none;
+      cursor: default;
+
+      .dragging & {
+        cursor: move;
+      }
+
+      .step-margin {
+        width: auto;
+        height: 10px;
+        float: left;
+        position: relative;
+      }
+
+      .steps {
+        width: 100%;
+        height: 30px;
+        margin: 0;
+        position: relative;
+        z-index: 0;
+        padding-top: rem-calc(20px);
+
+        .step {
+          width: auto;
+          height: 10px;
+          float: left;
+          top: 0;
+          position: relative;
+          text-align: center;
+
+          .step-item-data {
+            width: rem-calc(7px);
+            height: rem-calc(7px);
+            border-radius: rem-calc(3.5px);
+            background: $timeline-main-color;
+            margin: auto;
+            position: absolute;
+            top: rem-calc(-30px);
+            left: rem-calc(-0.25px);
+            bottom: 0;
+            right: 0;
+            z-index: 4;
+            transform: rotate(45deg);
+            cursor: pointer;  
+
+            .dragging & {
+              cursor: move;
+            }
+
+            &.selected {
+              width: rem-calc(10px);
+              height: rem-calc(10px);
+              border-radius: rem-calc(5px);              
+              background: #fff;
+              border: 1px solid $timeline-main-color;
+            }
+          }
+
+          .step-value {
+            width: 2px;
+            height: 3px;
+            margin: 0 auto;
+            background: $main-text;
+
+            &.step-group {
+              width: 3px;
+              height: 7px;
+            }
+          }
+
+          .step-item-group {
+            height: 0;
+            font-size: rem-calc(12px);
+            font-weight: 700;
+            margin: auto;
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+          }
+
+          &.currentStep {
+            .step-value {
+              background: none;
+            }
+          }
+        }
+      }
+    }
+  }
+}

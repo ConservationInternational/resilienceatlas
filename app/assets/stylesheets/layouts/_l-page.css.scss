@@ -1,0 +1,10 @@
+.l-page {
+  padding-top: rem-calc(40px);
+
+  h1 {
+    font-family: $font-main;
+    font-size: rem-calc(40px);
+    font-weight: 600;
+    color: $page-title;
+  }
+}

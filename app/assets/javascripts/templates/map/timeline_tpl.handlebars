@@ -1,0 +1,27 @@
+<div class="handler handlerLeft" data-handler="handlerLeft"></div>
+<div class="handler handlerRight" data-handler="handlerRight"></div>
+
+<div class="timeline-content">
+  
+  <div class="timeline-structure">
+
+    <div class="steps">
+      <div class="step-margin" style="width:{{data.stepWidth}}%;"></div>
+      {{#each data.steps}}
+        <div class="step" style="width:{{../data.stepWidth}}%;" data-step-position="{{@index}}">
+          {{#if itemData}}
+            <div class="step-item-data" data-item-data="{{itemData}}"></div>
+          {{/if}}
+          {{#if group}}
+            <div class="step-item-group">{{step}}</div>          
+          {{/if}}          
+          <div class="step-value {{groupClass}}" data-date="{{step}}"></div>
+        </div>
+      {{/each}}
+      <div class="step-margin" style="width:{{data.stepWidth}}%;"></div>
+    </div>
+  </div>
+
+  <div class="handler-bg"></div>
+
+</div>

@@ -1,0 +1,16 @@
+#utm_bnd_munilower_info_130509 {
+  polygon-opacity: 0;
+  line-color: #FFF;
+  line-width: 0;
+  line-opacity: 0;
+  text-face-name: "DejaVu Sans Book";
+  text-fill:#817349;
+  text-size:7;
+  text-transform:uppercase;
+  text-halo-fill:rgba(255,255,255,1);
+  text-halo-radius:1;
+  text-line-spacing:1;
+  text-wrap-width:20;
+  text-allow-overlap:false;
+  text-name:"[commonname]"; 
+}
