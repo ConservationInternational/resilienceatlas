@@ -1,0 +1,48 @@
+%switcher {
+  display: inline-block;
+  position: relative;
+
+  label {
+    width: 20px;
+    height: 10px;
+    border: 1px solid $medium-grey;
+    background-color: $white;
+    border-radius: 20px;
+    cursor: pointer;
+
+    &:before {
+      @extend %centery;
+      content: '';
+      z-index: 1;
+      left: 2px;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background-color: $white;
+      transition: .3s ease-in;
+    }
+  }
+
+  input {
+    @extend %form-field-reset;
+    @extend %centery;
+    position: absolute;
+    right: 2px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: $white;
+  }
+
+  input['checked'] {
+    right: 6px;
+
+    & + label {
+      background-color: $color-1;
+
+      &:before {
+        left: 6px;
+      }
+    }
+  }
+}

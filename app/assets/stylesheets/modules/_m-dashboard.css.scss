@@ -1,0 +1,12 @@
+.m-dashboard {
+  position: absolute;
+  top: rem($margin-medium);
+  bottom: rem($margin-medium);
+  left: rem($margin-medium);
+  right: rem($margin-medium);
+  overflow: scroll;
+
+  .switcher-wrapper {
+    @extend %switcher;
+  }
+}

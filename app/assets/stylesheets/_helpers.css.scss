@@ -30,6 +30,7 @@
   background: none;
   border: 0;
   border-radius: 0;
+  margin: 0;
 }
 
 %list-reset {
@@ -88,16 +89,17 @@
 }
 
 //Fonts includer
-@mixin font-face($font-name, $font-file, $font-weight) {
+@mixin font-face($font-name, $font-file, $weight, $style: "normal") {
   @font-face {
     font-family: $font-name;
-    src: url("../fonts/#{$font-file}.eot");
-    src: url("../fonts/#{$font-file}.eot?#iefix") format("embedded-opentype"),
-         url("../fonts/#{$font-file}.woff2") format("woff2"),
-         url("../fonts/#{$font-file}.woff") format("woff"),
-         url("../fonts/#{$font-file}.ttf") format("truetype"),
-         url("../fonts/#{$font-file}.svg") format("svg");
-    font-weight: $font-weight;
+    src: font-url("#{$font-file}.eot");
+    src: font-url("#{$font-file}.eot?#iefix") format("embedded-opentype"),
+         font-url("#{$font-file}.woff2") format("woff2"),
+         font-url("#{$font-file}.woff") format("woff"),
+         font-url("#{$font-file}.ttf") format("truetype"),
+         font-url("#{$font-file}.svg") format("svg");
+    font-weight: $weight;
+    font-style: $style;
   }
 }
 

@@ -1,9 +1,13 @@
+/* Layout common values */
+$header-height: rem(60px);
+
 /* Header */
 .l-header {
   display: flex;
   display: -ms-box;
   width: 100%;
-  height: rem-calc(60px);
+  padding: 0 rem($margin-medium);
+  height: $header-height;
   align-content: space-between;
   border-bottom: 1px solid $light-grey;
 
@@ -14,34 +18,42 @@
     width: 100%;
 
     a {
-      display: block
+      display: block;
     }
-  }
-
-  h1 {
-    width: rem-calc(190px);
-    height: rem-calc(60px);
-    background: image-url("logo.jpg");
-    background-repeat: no-repeat;
-    background-position: center;
-    text-indent: -99999px;
-    margin-left: rem-calc(20);
   }
 }
 
 /* Dashboard */
 .l-dashboard {
+  position: absolute;
+  top: $header-height + rem($margin-medium);
+  bottom: rem($margin-medium);
+  right: rem($margin-medium);
+  width: 25%;
+  z-index: 2;
+  background-color: $white;
+  transition: all .2s ease-out;
+  overflow: hidden;
 }
 
 /* Map */
 .l-map {
-
+  position: absolute;
+  top: $header-height;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1;
+  transition: all .2s ease-out;
 }
 
 /* Footer */
 .l-footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
   display: flex;
   display: -ms-box;
-  height: rem-calc(80px);
+  height: rem(40px);
   border-top: 1px solid $light-grey;
 }

@@ -131,7 +131,7 @@ define([
       return _.map(layer.sublayers, function(sublayer) {
         sublayer.activeColor = (sublayer.color && sublayer.active) ? sublayer.color : '';
         sublayer.activeCheck = sublayer.active ? 'checked' : '';
-        sublayer.locateLayer = sublayer.locateLayer; 
+        sublayer.locateLayer = sublayer.locateLayer;
 
         if(sublayer.active) {
           layer.activeColor = layer.color;
@@ -143,7 +143,7 @@ define([
 
         if(sublayer.layers) {
           sublayer.layers = _.map(sublayer.layers, function(secondSubLayer) {
-            secondSubLayer.activeColor = (secondSubLayer.color && 
+            secondSubLayer.activeColor = (secondSubLayer.color &&
               secondSubLayer.active) ? sublayer.color : '';
             secondSubLayer.activeCheck = secondSubLayer.active ? 'checked' : '';
             return secondSubLayer;

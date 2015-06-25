@@ -1,5 +1,5 @@
 <div class="tabsContainer">
-  <ul class="tabs vertical" data-tab data-options="scroll_to_content:false"> 
+  <ul class="tabs vertical" data-tab data-options="scroll_to_content:false">
     <li class="tab-title tab-layer"><a href="#layers"><div class="ic-active-layers">0</div>Layers</a></li>
     <li class="tab-title tab-basemap"><a href="#basemaps"><div class="ic-active-layers">0</div>Basemap</a></li>
     <li class="tab-title tab-context"><a href="#context"><div class="ic-active-layers">0</div>Context</a></li>
@@ -54,7 +54,7 @@
                     {{/if}}
                   </div>
 
-                  <div class="switch round small">
+                  <div class="switcher-wrapper round small">
                     <input id="{{slug}}" class="{{#if sublayers}}sublayer-switch parent{{else}}layer-switch{{/if}}" data-layer-slug="{{slug}}" type="checkbox" {{activeCheck}}>
                     <label for="{{slug}}" style="background-color:{{activeColor}};border-color:{{activeColor}}"></label>
                   </div>

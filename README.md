@@ -41,6 +41,7 @@ First time execute:
 To run application:
 
     bundle exec rails server
+    start postgres:  postgres -D /usr/local/var/postgres9.4
 
 ## Contributing
 
