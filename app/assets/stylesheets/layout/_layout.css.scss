@@ -1,0 +1,47 @@
+/* Header */
+.l-header {
+  display: flex;
+  display: -ms-box;
+  width: 100%;
+  height: rem-calc(60px);
+  align-content: space-between;
+  border-bottom: 1px solid $light-grey;
+
+  nav {
+    display: flex;
+    display: -ms-box;
+    justify-content: space-between;
+    width: 100%;
+
+    a {
+      display: block
+    }
+  }
+
+  h1 {
+    width: rem-calc(190px);
+    height: rem-calc(60px);
+    background: image-url("logo.jpg");
+    background-repeat: no-repeat;
+    background-position: center;
+    text-indent: -99999px;
+    margin-left: rem-calc(20);
+  }
+}
+
+/* Dashboard */
+.l-dashboard {
+}
+
+/* Map */
+.l-map {
+
+}
+
+/* Footer */
+.l-footer {
+  display: flex;
+  display: -ms-box;
+  height: rem-calc(80px);
+  border-top: 1px solid $light-grey;
+}

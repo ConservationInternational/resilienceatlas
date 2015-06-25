@@ -1,0 +1,40 @@
+/*
+ * General rules for all hover the proyect
+ */
+@include font-face($font-face-1, "proxima_nova_light-webfont", 200);
+@include font-face($font-face-1, "proxima_nova_reg-webfont", 400);
+@include font-face($font-face-1, "proximanova-sbold-webfont", 600);
+
+body {
+  font-family: $font-color-1, Helvetica, Arial, sans-serif;
+  color: $font-color-1;
+  font-size: $font-size;
+  -webkit-font-smoothing: antialiased;
+}
+
+a, button, input, select, textarea {
+  &:focus {
+    outline: 0;
+  }
+}
+
+a {
+	text-decoration: none;
+	color: $font-color-1;
+}
+
+ul {
+	@extend %list-reset;
+}
+
+////////////////////
+//**** utils  ****//
+////////////////////
+.is-flex {
+  display: flex;
+  display: -ms-box;
+}
+
+.is-bold {
+  font-weight: bold;
+}

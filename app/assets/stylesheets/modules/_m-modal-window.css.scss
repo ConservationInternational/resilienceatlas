@@ -1,0 +1,51 @@
+.m-modal-window {
+  display: flex;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: 0;
+}
+
+.modal-background {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 10;
+
+  background: #000;
+  opacity: .5;
+}
+
+.modal-wrapper {
+  box-sizing: border-box;
+  position: relative;
+  display: flex;
+  margin: auto;
+  z-index: 14;
+  width: 75%;
+  height: 75%;
+}
+
+.modal-container {
+  padding-right: 10px; //Margen para el scroll de windows
+  overflow: scroll;
+  background-color: #fff;
+}
+
+.btn-close-modal {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 1;
+
+  cursor: pointer;
+  font-weight: bold;
+  color: #000;
+  font-size: 32px;
+  line-height: .5em;
+}
+
+

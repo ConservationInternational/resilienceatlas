@@ -1,0 +1,78 @@
+/*
+ * Reset chosen. Just in case you are using
+ * chosen.js.
+ */
+.chosen-container {
+  width: 150px;
+  height: 40px;
+  float: right;
+}
+
+.chosen-container-single .chosen-single {
+  border: 0;
+  background: none;
+  color: white;
+  box-shadow: none;
+
+  height: 40px;
+  line-height: 40px;
+}
+
+.chosen-with-drop {
+  background: none;
+  border: 0;
+  box-shadow: none;
+}
+
+.chosen-container-active.chosen-with-drop .chosen-single {
+  background: transparent;
+  box-shadow: none;
+  border: none;
+}
+
+.chosen-container-single .chosen-single div b {
+  background: none;
+  position: relative;
+}
+
+.chosen-container-single .chosen-single div {
+  &:after {
+    content: '';
+    display: block;
+    position: absolute;
+    top: 18px;
+    right: 20px;
+    // @include arrow (rem(5px), $text-color-0, rem(2px), 225deg);
+
+    transition: .2s ease-in;
+    transform-origin: 2px 2px;
+  }
+}
+
+.chosen-with-drop .chosen-single div:after {
+  transform: rotate(45deg);
+}
+
+.chosen-container-single .chosen-single span {
+  text-transform: uppercase;
+}
+
+.chosen-container.chosen-with-drop .chosen-drop {
+  border: 0;
+  border-radius: 0;
+}
+
+.chosen-container .chosen-results li {
+
+  &:first-child {
+    margin-top: rem(5px);
+  }
+
+  &.highlighted {
+    // background: rgba($text-color-0, .3);
+  }
+}
+
+.chosen-search {
+  display: none;
+}
