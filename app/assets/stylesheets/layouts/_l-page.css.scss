@@ -3,8 +3,8 @@
 
   h1 {
     font-family: $font-main;
-    font-size: rem-calc(40px);
+    font-size: rem-calc($font-size-big);
     font-weight: 600;
-    color: $page-title;
+    color: $font-color-1;
   }
 }

@@ -1,0 +1,8 @@
+.number {
+  font-family: $font-main;
+}
+
+.number-big {
+  @extend .number;
+  font-size: $font-size-extra-big;
+}

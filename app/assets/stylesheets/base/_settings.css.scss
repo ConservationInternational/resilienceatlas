@@ -1,0 +1,48 @@
+////////////////////
+//**** Fonts ****//
+////////////////////
+$font-main: "Raleway";
+
+@include font-face("Raleway", "raleway-medium-webfont", 500);
+@include font-face("Raleway", "raleway-semibold-webfont", 600);
+@include font-face("Raleway", "raleway-bold-webfont", 700);
+@include font-face("Raleway", "raleway-extrabold-webfont", 800);
+
+//Font sizes
+$font-size-extra-big: 52px;
+$font-size-big: 40px;
+$font-size-medium: 26px;
+$font-size: 15px;
+$font-size-small: 12px;
+
+
+////////////////////
+//**** Colors ****//
+////////////////////
+$white: #fff;
+$black: #000;
+$navy-blue: #1A3398;
+$dark-blue: #303F5A;
+$fucsia: #A80041;
+
+//Theme colors
+$color-1: $navy-blue;
+$color-2: $fucsia;
+$color-3: $dark-blue;
+
+$dark-grey: #474444;
+$medium-grey: #595959;
+$soft-grey: #afafaf;
+$light-grey: #dedede;
+
+$font-color-1: $dark-grey;
+$font-color-2: $white;
+$font-color-3: $medium-grey;
+
+////////////////////
+//**** Margins ***//
+////////////////////
+$margin-extra-large: 40px;
+$margin-large: 30px;
+$margin-medium: 20px;
+$margin-small: 10px;

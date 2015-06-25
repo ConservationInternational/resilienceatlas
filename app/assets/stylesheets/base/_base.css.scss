@@ -1,12 +1,34 @@
-// Fonts
-$font-main: "Raleway";
+// Body
+body {
+  min-width: rem-calc(840px);
+  margin: 0;
+  font-family: $font-main;
+  font-weight: 500;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
 
-$title-dark: #1D82A5;
-$main-color: #64d1b8;
-$main-text: #474444;
-$page-title: #333333;
+p {
+  font-size: rem-calc($font-size);
+}
 
-@include font-face("Raleway", "raleway-medium-webfont", 500);
-@include font-face("Raleway", "raleway-semibold-webfont", 600);
-@include font-face("Raleway", "raleway-bold-webfont", 700);
-@include font-face("Raleway", "raleway-extrabold-webfont", 800);
+h1 {
+  font-size: rem-calc($font-size-big);
+  font-family: $font-main;
+  font-weight: bold;
+
+  &.title {
+    text-align: center;
+  }
+}
+
+h2 {
+  font-size: $font-size-medium;
+}
+
+figcaption {
+  font-size: $font-size-small;
+  color: $font-color-3;
+  text-align: right;
+}

@@ -9,9 +9,11 @@
   // Base
   "mixins",
 
+  "base/settings",
   "base/base",
   "base/icons",
   "base/components",
+  "base/buttons",
 
   // Layout
   "layouts/l-application",
@@ -24,5 +26,8 @@
   "modules/m-legend",
   "modules/m-dashboard-timeline",
   "modules/m-timeline",
-  "modules/m-custom-info-window",
-  "modules/m-search";
+  "modules/m-index-grid",
+  "modules/m-topic",
+  "modules/m-search",
+  "modules/m-profile-menu";
+

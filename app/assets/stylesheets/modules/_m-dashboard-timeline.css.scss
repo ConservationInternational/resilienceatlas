@@ -1,7 +1,7 @@
 .m-dashboard-timeline {
-  $timeline-bg: #E0E0E0;
-  $timeline-handler-bg: rgba(29, 130, 165, 0.125);
-  $timeline-main-color: #A80041;
+  $timeline-bg: $light-grey;
+  $timeline-handler-bg: rgba($color-1, 0.125);
+  $timeline-main-color: $color-2;
 
   width: 90%;
   height: rem-calc(70px);
@@ -42,7 +42,7 @@
     transform: translate3d(0,0,0);
     top: 0;
     left: 0;
-    background: #A80041;
+    background: $color-2;
 
     &:after {
       content: "";
@@ -73,7 +73,7 @@
   .timeline-content {
     width: 100%;
     height: 58px;
-    background: #fff;
+    background: $white;
     position: absolute;
     bottom: 0;
     user-select: none;
@@ -117,12 +117,12 @@
 
           .group-text {
             text-align: center;
-            font-size: rem-calc(12px);
+            font-size: rem-calc($font-size-small);
             font-weight: 700;
             letter-spacing: rem-calc(0.52px);
-            line-height: rem-calc(12px);
+            line-height: rem-calc($font-size-small);
             margin-top: rem-calc(15px);
-            color: $main-text;
+            color: $font-color-1;
           }
 
           &:first-child {
@@ -167,7 +167,7 @@
           .step-item-data {
             width: 9px;
             height: 9px;
-            background: #333;
+            background: $dark-grey;
             margin: auto;
             position: absolute;
             top: -12px; left: 0; bottom: 0; right: 0;
@@ -182,8 +182,8 @@
             &.selected {
               width: 13px;
               height: 13px;
-              background: #fff;
-              border: 1px solid #333;
+              background: $white;
+              border: 1px solid $dark-grey;
             }
           }
 
@@ -191,12 +191,11 @@
             width: 1px;
             height: 10px;
             margin: 0 auto;
-
           }
 
           .step-item-group {
             height: 0;
-            font-size: rem-calc(12px);
+            font-size: rem-calc($font-size-small);
             font-weight: 700;
             margin: auto;
             position: absolute;

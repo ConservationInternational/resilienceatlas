@@ -1,24 +1,11 @@
-// Body
-
-body {
-  margin: 0;
-  font-family: $font-main;
-  font-weight: 500;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  min-width: rem-calc(840px);
-}
-
 // Header
-
 header {
-  $header-background: #FFFFFF;
-  $header-border: #DEDEDE;
-  $menu-text: #474444;
-  $menu-current: $main-color;
-  $menu-hover: #EFEFEF;
-  $menu-hover-text: #FFFFFF;
+  $header-background: $white;
+  $header-border: $light-grey;
+  $menu-text: $font-color-1;
+  $menu-current: $color-1;
+  $menu-hover: $light-grey;
+  $menu-hover-text: $white;
 
   .top-bar {
     height: rem-calc(57px);
@@ -27,20 +14,13 @@ header {
 
     .name {
       h1 {
-        color: $main-text;
-        // width: rem-calc(190px);
-        // height: rem-calc(57px);
-        // background: image-url("logo.png");
-        // background-size: rem-calc(190px 30px);
-        // background-repeat: no-repeat;
-        // background-position: center;
-        // text-indent: -99999px;
-        margin-left: rem-calc(20px);
-        line-height: rem-calc(57px);
+        width: rem-calc(190px);
+        height: rem-calc(57px);
+        margin-left: rem-calc(20);
+      }
 
-        a {
-          color: $main-text;
-        }
+      a {
+        color: $color-1;
       }
     }
   }
@@ -51,14 +31,14 @@ header {
 
         a:not(.button) {
           font-family: $font-main;
-          font-size: rem-calc(15px);
+          font-size: rem-calc($font-size);
           font-weight: 700;
           letter-spacing: 0.65px;
-          line-height: rem-calc(15px);
+          line-height: rem-calc($font-size);
           text-transform: uppercase;
           color: $menu-text;
           background: $header-background;
-          padding-top: rem-calc(21px);
+          padding-top: rem-calc(20px);
           padding-bottom: rem-calc(20px);
           position: relative;
 
@@ -88,7 +68,7 @@ header {
 
           a:not(.button) {
             text-transform: uppercase;
-            border: 1px solid #DEDEDE;
+            border: 1px solid $light-grey;
             border-radius: 3px;
             padding: rem-calc(9px 11px 8px 11px);
           }
@@ -98,3 +78,61 @@ header {
     }
   }
 }
+
+/* Content */
+
+.l-content-wide {
+  width: 100%;
+  display: inline-block;
+  padding: $margin-extra-large 0 $margin-extra-large 0;
+}
+
+.l-content-wide-2 {
+  @extend .l-content-wide;
+  background: $light-grey;
+}
+
+/* Profiles */
+
+.l-profile-menu {
+  width: rem-calc(50px);
+  top: 0;
+  bottom: 0;
+  position: absolute;
+  background: $color-3;
+}
+
+.l-profile-map {
+  width: calc(100% - 50px);
+  height: rem-calc(345px);
+  float: right;
+  display: block;
+  border-bottom: 1px solid $light-grey;
+}
+
+.l-profile-description,
+.l-profile-economy,
+.l-profile-environment,
+.l-profile-housing {
+  @extend .l-content-wide;
+}
+
+.l-profile-demographics,
+.l-profile-settlement,
+.l-profile-transportation {
+  @extend .l-content-wide-2;
+}
+
+/* Topics */
+.l-topics {
+  @extend .l-content-wide;
+}
+
+.l-topics-banner {
+  @extend .l-content-wide;
+  height: rem-calc(400px);
+  background: url(/assets/motorway-484105.jpg) no-repeat top;
+  background-size: cover;
+}
+
+

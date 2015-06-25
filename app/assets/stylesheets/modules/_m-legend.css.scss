@@ -1,7 +1,7 @@
 .m-legend {
-  $legend-bg: #FFFFFF;
-  $btn-border: #DEDEDE;
-  $default-icon-bg: #A80041;
+  $legend-bg: $white;
+  $btn-border: $light-grey;
+  $default-icon-bg: $color-2;
 
   background: $legend-bg;
   position: absolute;
@@ -25,11 +25,11 @@
       width: auto;
       text-transform: uppercase;
       font-weight: 800;
-      font-size: rem-calc(15px);
-      line-height: rem-calc(15px);
+      font-size: rem-calc($font-size);
+      line-height: rem-calc($font-size);
       letter-spacing: rem-calc(0.65px);
       padding: rem-calc(10px 12px 8px 12px);
-      color: $main-text;
+      color: $font-color-1;
       display: inline-block;
       cursor: pointer;
       user-select: none;
@@ -51,7 +51,7 @@
     width: rem-calc(260px);
     height: rem-calc(280px);
     background: $legend-bg;
-    box-shadow: 0px 0px 0px 1px rgba(0,0,0,0.10), 0px 2px 10px 0px rgba(0,0,0,0.15); 
+    box-shadow: 0px 0px 0px 1px rgba(0,0,0,0.10), 0px 2px 10px 0px rgba(0,0,0,0.15);
     overflow: hidden;
 
     .legend-top {
@@ -60,11 +60,11 @@
       text-align: left;
       display: inline-block;
       position: relative;
-      font-size: rem-calc(15px);
+      font-size: rem-calc($font-size);
       font-weight: 800;
       text-transform: uppercase;
       letter-spacing: rem-calc(0.65px);
-      color: $main-color;
+      color: $color-1;
 
       .legend-title {
         width: 80%;
@@ -87,7 +87,7 @@
       height: rem-calc(230px);
       padding: rem-calc(0 10px 10px 18px);
       overflow-y: scroll;
-      overflow-x: hidden;      
+      overflow-x: hidden;
     }
 
     .group {
@@ -96,18 +96,18 @@
 
       .group-name {
         width: 100%;
-        font-size: rem-calc(15px);
+        font-size: rem-calc($font-size);
         font-weight: 700;
-        color: $main-text;
+        color: $font-color-1;
         margin-bottom: rem-calc(5px);
       }
 
       .group-items {
         .group-item {
           width: 100%;
-          font-size: rem-calc(15px);
+          font-size: rem-calc($font-size);
           font-weight: 500;
-          color: $main-text;
+          color: $font-color-1;
           margin-bottom: rem-calc(3px);
 
           .item-icon {

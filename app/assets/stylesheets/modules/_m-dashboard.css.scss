@@ -1,17 +1,17 @@
 .m-dashboard {
 
   // Tabs
-  $background-color: #FFFFFF;
-  $background-tab: $main-color;
-  $background-tab-active: #FFFFFF;;
-  $text-tab: #F7F8FC;
-  $text-tab-active: $main-color;
+  $background-color: $white;
+  $background-tab: $color-3;
+  $background-tab-active: $white;
+  $text-tab: $light-grey;
+  $text-tab-active: $color-1;
 
   // Collapsibles
-  $collapsible-icon-color: #595959;
+  $collapsible-icon-color: $medium-grey;
   $collapsible-bg-main-category: transparent;
-  $collapsible-text-main-category: $main-color;
-  $collapsible-btn-info-color: #9B9B9B;
+  $collapsible-text-main-category: $color-1;
+  $collapsible-btn-info-color: $soft-grey;
 
   width: 37px;
   max-width: rem-calc(415px);
@@ -92,7 +92,7 @@
           margin-right: rem-calc(6px);
           padding-left: rem-calc(1px);
           color: $text-tab-active;
-          font-size: rem-calc(11px);
+          font-size: rem-calc($font-size-small);
           font-weight: 700;
           line-height: rem-calc(13.5px);
           display: inline-block;
@@ -154,7 +154,7 @@
           background: transparent;
           text-align: center;
           font-family: $font-main;
-          font-size: rem-calc(15px);
+          font-size: rem-calc($font-size);
           font-weight: 700;
           letter-spacing: 0.65px;
           line-height: rem-calc(40px);
@@ -193,7 +193,7 @@
         background: transparent;
         text-align: left;
         font-weight: bold;
-        font-size: rem-calc(10px);
+        font-size: rem-calc($font-size-small);
         font-family: Georgia, Arial;
         font-style: italic;
         line-height: rem-calc(13px);
@@ -252,7 +252,7 @@
               background: $collapsible-bg-main-category;
               position: relative;
               font-family: $font-main;
-              font-size: rem-calc(15px);
+              font-size: rem-calc($font-size);
               font-weight: 800;
               color: $collapsible-text-main-category;
               text-transform: uppercase;
@@ -316,9 +316,9 @@
 
             .layer-item-name {
               font-family: $font-main;
-              font-size: rem-calc(14px);
+              font-size: rem-calc($font-size);
               font-weight: 500;
-              color: $main-text;
+              color: $font-color-1;
               margin-bottom: rem-calc(5px);
               float: left;
               max-width: rem-calc(266px);
@@ -381,7 +381,7 @@
           padding-left: 0;
           background: $collapsible-bg-main-category;
           position: relative;
-          font-size: rem-calc(14px);
+          font-size: rem-calc($font-size);
           font-weight: bold;
           color: $collapsible-text-main-category;
           text-transform: uppercase;

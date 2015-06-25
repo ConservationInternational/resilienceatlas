@@ -1,16 +1,16 @@
 .m-analysis {
-  $background-color: #FFFFFF;
+  $background-color: $white;
 
   width: 33%;
   max-width: rem-calc(300px);
-  top: 0px;
+  top: 0;
   right: 0;
   bottom: 0;
   position: absolute;
   z-index: 1;
   margin: 0;
   background: $background-color;
-  box-shadow: 0px 1px 3px 0px rgba(0,0,0,0.30);
+  box-shadow: 0px 1px 3px 0px rgba($black, 0.30);
   overflow-y: scroll;
   overflow-x: hidden;
   transition-property: width;
@@ -21,35 +21,38 @@
     transform: translate(0,0);
   }
 
-  h2{
+  h2 {
     font-size: 0.9375rem;
     padding: 0.25em 1em;
     line-height: 2.5rem;
-    color: #FFF;
+    color: $white;
     text-transform: uppercase;
-    background: $main-color;
+    background: $color-1;
     margin: 0;
   }
 
-  .button-container{
+  .button-container {
     margin: 1em;
   }
 
-  .accordion{
+  .accordion {
     list-style: none;
     margin: 0;
     padding: 0;
-    li{
-      h3{
-        font-size: 0.9375rem;
+
+    li {
+
+      h3 {
+        font-size: rem-calc($font-size);
         padding: 0.25em 1em;
         line-height: 2.5rem;
         text-transform: uppercase;
-        color: $main-color;
+        color: $color-1;
         margin: 0;
         position: relative;
         cursor: pointer;
-        &:after{
+
+        &:after {
           content: "";
           position: absolute;
           top: 50%;
@@ -58,28 +61,33 @@
           height: 0;
           border-left: 4px solid transparent;
           border-right: 4px solid transparent;
-          border-top: 6px solid $title-dark;
+          border-top: 6px solid $color-1;
           transform: translate(0,-50%) rotate(-90deg);
         }
-        &.active{
-          &:after{
+
+        &.active {
+          &:after {
             transform: translate(0,-50%) rotate(0deg);
           }
         }
       }
-      .tab-content{
+
+      .tab-content {
         display: none;
         padding: 0 1em;
-        &.active{
+
+        &.active {
           display: block;
         }
-        p{
-          font-size: 0.9em;
+
+        p {
+          font-size: rem-calc($font-size);
           margin: 0;
         }
-        .result{
+
+        .result {
           text-align: center;
-          font-size: 2.5em;
+          font-size: $font-size-big;
           margin: 0 0 0.25em;
         }
       }

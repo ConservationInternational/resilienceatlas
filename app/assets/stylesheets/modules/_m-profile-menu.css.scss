@@ -1,0 +1,15 @@
+.m-profile-menu {
+  nav {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+
+    a {
+      width: 100%;
+      height: rem-calc(70px);
+      float: left;
+      border-bottom: 1px solid $medium-grey;
+      text-indent: -99999px;
+    }
+  }
+}
