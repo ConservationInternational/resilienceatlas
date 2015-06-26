@@ -187,7 +187,7 @@ define([
     update: function(ev, element) {
       var currentEl = ev ? ev.currentTarget : element;
       var $el = $(currentEl);
-      var $parent = $el.parent('.switch');
+      var $parent = $el.parent('.switcher');
       var $switchEl = $parent.find('label');
       var slug = $el.data('layer-slug');
       var layers = _.clone(this.layers);

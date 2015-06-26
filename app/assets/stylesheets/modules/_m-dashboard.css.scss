@@ -6,7 +6,7 @@
   right: rem($margin-medium);
   overflow: scroll;
 
-  .switcher-wrapper {
-    @extend %switcher;
+  .switcher {
+    @include switcher(20px, 12px, $soft-grey, $white, $color-1);
   }
 }

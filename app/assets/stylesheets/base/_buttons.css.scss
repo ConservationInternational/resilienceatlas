@@ -33,3 +33,8 @@
 .btn-i-am-a-button {
   @extend %btn-blue;
 }
+
+.btn-info {
+  display: block;
+  @include circle(15px, $soft-grey, 1px, $soft-grey, border)
+}
