@@ -35,6 +35,6 @@
 }
 
 .btn-info {
-  display: block;
-  @include circle(15px, $soft-grey, 1px, $soft-grey, border)
+  @include circle(15px, $soft-grey, 1px, $soft-grey, border);
+  font-size: $font-size-small;
 }

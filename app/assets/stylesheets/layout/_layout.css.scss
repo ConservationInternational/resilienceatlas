@@ -31,6 +31,7 @@ $header-height: rem(60px);
   right: rem($margin-medium);
   width: 25%;
   z-index: 2;
+  border: 1px solid $light-grey;
   background-color: $white;
   transition: all .2s ease-out;
   overflow: hidden;
