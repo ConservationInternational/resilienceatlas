@@ -49,7 +49,6 @@ define([
     },
 
     close: function() {
-      console.log('hola');
       $('.m-modal-window').remove();
       this.toogleState();
     },
