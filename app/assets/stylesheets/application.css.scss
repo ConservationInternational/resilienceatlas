@@ -1,33 +1,22 @@
-//= require foundation/css/normalize
-//= require foundation/css/foundation
-//= require leaflet-draw/dist/leaflet.draw
-
-@import "foundation/scss/foundation/functions";
-
 @import
+  "settings",
+  "helpers",
+  "components",
 
-  // Base
-  "mixins",
+  "layout/layout",
+  "layout/grid",
 
-  "base/settings",
-  "base/base",
-  "base/icons",
-  "base/components",
+  "base/general",
   "base/buttons",
+  "base/icons",
+  "base/form",
+  "base/table",
 
-  // Layout
-  "layouts/l-application",
-  "layouts/l-page",
-
-  // Modules
-  "modules/m-map",
   "modules/m-dashboard",
-  "modules/m-analysis",
-  "modules/m-legend",
-  "modules/m-dashboard-timeline",
-  "modules/m-timeline",
-  "modules/m-index-grid",
-  "modules/m-topic",
-  "modules/m-search",
-  "modules/m-profile-menu";
+  "modules/m-loader",
+  "modules/m-main-menu",
+  "modules/m-map",
+  "modules/m-map-controlers",
+  "modules/m-modal-window",
 
+  "states";

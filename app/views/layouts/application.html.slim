@@ -11,14 +11,27 @@ html lang="#{I18n.locale}"
     = csrf_meta_tags
 
   body
-    header
-      nav.top-bar role="navigation" data-topbar="true"
-        ul.title-area
-          li.name: h1: a(href="/") CIGRP Prototype
-        section.top-bar-section
-          ul.right
-            li: a.current(href="#") Map
-    #pageView.page-map
-      == yield
+    header.l-header
+      nav
+        h1 
+          = link_to 'CIGRP Prototype', root_path
+        .small-5.columns.is-flex
+          ul.m-main-menu
+            li 
+              = link_to 'map', root_path, class: controller_name == 'map' ? 'is-current' : ''
+            
+    == yield
+
+    footer.l-footer
+      .row
+        .small-3.columns.is-flex
+          a.logo-bn href="/"  
+        .small-3.columns.is-flex
+          ul.m-main-menu
+            li 
+              = link_to 'map', root_path, class: controller_name == 'map' ? 'is-current' : ''
+
     = javascript_include_tag "http://libs.cartocdn.com/cartodb.js/v3/3.13/cartodb.js"
     = requirejs_include_tag "application"
+
+

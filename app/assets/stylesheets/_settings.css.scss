@@ -1,12 +1,31 @@
+/*
+ * Add here values that
+ * affect the whole proyect
+ */
+////////////////////
+//**** Screen ****//
+////////////////////
+$screen-s: 540px;
+$screen-m: 768px;
+$screen-l: 960px;
+$screen-xl: 1200px;
+
+
+////////////////////
+//****  Grid  ****//
+////////////////////
+$grid-columns: 12;
+$grid-max-width: 960px;
+$grid-gutter-width: 1%;
+$grid-padding: 0;
+$wrap-padding: 0;
+
+
 ////////////////////
 //**** Fonts ****//
 ////////////////////
-$font-main: "Raleway";
-
-@include font-face("Raleway", "raleway-medium-webfont", 500);
-@include font-face("Raleway", "raleway-semibold-webfont", 600);
-@include font-face("Raleway", "raleway-bold-webfont", 700);
-@include font-face("Raleway", "raleway-extrabold-webfont", 800);
+$font-face-1: "Raleway";
+$font-numbers: "Lato";
 
 //Font sizes
 $font-size-extra-big: 52px;
@@ -34,10 +53,13 @@ $dark-grey: #474444;
 $medium-grey: #595959;
 $soft-grey: #afafaf;
 $light-grey: #dedede;
+$ultra-light-grey: #F0F0F0;
 
+//Font colors
 $font-color-1: $dark-grey;
 $font-color-2: $white;
-$font-color-3: $medium-grey;
+$font-color-3: $soft-grey;
+
 
 ////////////////////
 //**** Margins ***//
