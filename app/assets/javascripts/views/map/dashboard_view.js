@@ -3,8 +3,9 @@ define([
   'backbone',
   'handlebars',
   'foundation',
+  'views/helpers/modal_window_view',
   'text!templates/map/dashboard_tpl.handlebars'
-], function(_, Backbone, Handlebars, foundation, TPL) {
+], function(_, Backbone, Handlebars, foundation, ModalWindowView, TPL) {
 
   'use strict';
 
@@ -307,11 +308,14 @@ define([
       ev.stopPropagation();
 
       var $el = $(ev.currentTarget);
-      var $modalBox = $('#modalBox');
+      // var $modalBox = $('#modalBox');
       var info = $el.data('info');
 
-      $modalBox.find('.modal-content').html(info);
-      $modalBox.foundation('reveal', 'open');
+      // $modalBox.find('.modal-content').html(info);
+      // $modalBox.foundation('reveal', 'open');
+      new ModalWindowView ({
+        'data': info
+      });
     },
 
     renderLayerComponents: function(layers) {

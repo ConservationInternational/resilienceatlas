@@ -25,27 +25,28 @@
   display: flex;
   margin: auto;
   z-index: 14;
-  width: 75%;
-  height: 75%;
 }
 
 .modal-container {
-  padding-right: 10px; //Margen para el scroll de windows
+  padding: $margin-medium $margin-large; //Minimun, 10px, cause windows scroll.
   overflow: scroll;
   background-color: #fff;
+  //optional, min size.
+  min-width: 500px;
+  min-height: 200px;
 }
 
 .btn-close-modal {
   position: absolute;
-  top: 20px;
-  right: 20px;
+  top: $margin-small;
+  right: $margin-small;
   z-index: 1;
 
-  cursor: pointer;
   font-weight: bold;
   color: #000;
   font-size: 32px;
   line-height: .5em;
+  cursor: pointer;
 }
 
 
