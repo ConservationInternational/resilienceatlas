@@ -155,6 +155,10 @@ DEPENDENCIES
   spring
   teaspoon
   uglifier (>= 1.3.0)
+<<<<<<< HEAD
 
 BUNDLED WITH
    1.10.4
+=======
+  web-console (~> 2.0)
+>>>>>>> 7275d64e5dfef0451f7763c67503a157245fa8ab

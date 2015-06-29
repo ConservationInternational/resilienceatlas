@@ -1,5 +1,5 @@
 <div class="tabsContainer">
-  <ul class="tabs vertical" data-tab data-options="scroll_to_content:false"> 
+  <ul class="tabs vertical" data-tab data-options="scroll_to_content:false">
     <li class="tab-title tab-layer"><a href="#layers"><div class="ic-active-layers">0</div>Layers</a></li>
     <li class="tab-title tab-basemap"><a href="#basemaps"><div class="ic-active-layers">0</div>Basemap</a></li>
     <li class="tab-title tab-context"><a href="#context"><div class="ic-active-layers">0</div>Context</a></li>
@@ -54,7 +54,7 @@
                     {{/if}}
                   </div>
 
-                  <div class="switch round small">
+                  <div class="switcher">
                     <input id="{{slug}}" class="{{#if sublayers}}sublayer-switch parent{{else}}layer-switch{{/if}}" data-layer-slug="{{slug}}" type="checkbox" {{activeCheck}}>
                     <label for="{{slug}}" style="background-color:{{activeColor}};border-color:{{activeColor}}"></label>
                   </div>
@@ -79,7 +79,7 @@
                       {{#if locateLayer}}
                         <div class="locate-layer"></div>
                       {{/if}}
-                      <div class="switch round small">
+                      <div class="switcher">
                         <input id="{{slug}}" class="sublayer-switch main" data-layer-slug="{{slug}}" data-parent-slug="{{../slug}}" data-layer-color="{{color}}" type="checkbox" {{activeCheck}}>
                         <label for="{{slug}}" style="background-color:{{activeColor}};border-color:{{activeColor}}"></label>
                       </div>
@@ -100,7 +100,7 @@
                           {{#if locateLayer}}
                             <div class="locate-layer"></div>
                           {{/if}}
-                          <div class="switch round small">
+                          <div class="switcher">
                             <input id="{{slug}}" class="sublayer-switch" data-layer-slug="{{slug}}" data-parent-slug="{{../slug}}" data-layer-color="{{color}}" type="checkbox" {{activeCheck}}>
                             <label for="{{slug}}" style="background-color:{{activeColor}};border-color:{{activeColor}}"></label>
                           </div>
@@ -145,12 +145,12 @@
                 </div>
 
                 {{#if ../groupLayer}}
-                  <div class="switch round small">
+                  <div class="switcher">
                     <input id="{{slug}}" class="{{#if sublayers}}sublayer-switch parent{{else}}layer-switch{{/if}}" data-layer-slug="{{slug}}" data-layer-color="{{color}}" type="checkbox" {{activeCheck}}>
                     <label for="{{slug}}" style="background-color:{{activeColor}};border-color:{{activeColor}}"></label>
                   </div>
                 {{else}}
-                  <div class="switch small round">
+                  <div class="switcher">
                     <input id="{{slug}}" class="basemap-switch" data-layer-slug="{{slug}}" type="radio" name="basemapGroup" {{activeCheck}}>
                     <label for="{{slug}}"></label>
                   </div>
@@ -169,7 +169,7 @@
                       {{/if}}
                     </div>
 
-                    <div class="switch round small">
+                    <div class="switcher">
                       <input id="{{slug}}" class="sublayer-switch" data-layer-slug="{{slug}}" data-parent-slug="{{../slug}}" type="checkbox" {{activeCheck}}>
                       <label for="{{slug}}" style="background-color:{{activeColor}};border-color:{{activeColor}}"></label>
                     </div>
@@ -200,7 +200,7 @@
               <div class="layer-item-name">{{name}}</div>
             </div>
 
-            <div class="switch round small">
+            <div class="switcher">
               <input id="{{slug}}" class="layer-switch" data-layer-slug="{{slug}}" type="checkbox" {{activeCheck}}>
               <label for="{{slug}}"></label>
             </div>
@@ -224,7 +224,7 @@
                     {{/if}}
                   </div>
 
-                  <div class="switch round small">
+                  <div class="switcher">
                     <input id="{{slug}}" class="layer-switch" data-layer-slug="{{slug}}" type="checkbox" {{activeCheck}}>
                     <label for="{{slug}}"></label>
                   </div>

@@ -1,0 +1,10 @@
+.m-loader {
+  position: absolute;
+  top: rem($margin-medium);
+  left: rem($margin-medium);
+  z-index: 1;
+  padding: rem($margin-small);
+  border: 1px solid $soft-grey;
+  background-color: $white;
+  text-transform: uppercase;
+}
