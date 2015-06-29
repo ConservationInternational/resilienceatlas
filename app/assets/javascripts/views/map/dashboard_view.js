@@ -57,12 +57,12 @@ define([
       var dataByCategories = this.layers.getByCategoryAndGroup();
       var layers = this.formatLayers(dataByCategories.layer);
       var basemaps = this.formatLayers(dataByCategories.basemap);
-      var context = this.formatLayers(dataByCategories.context);
+      // var context = this.formatLayers(dataByCategories.context);
 
       var data = {
         layers: layers,
         basemaps: basemaps,
-        context: context
+        // context: context
       };
 
       this.$el.html(this.template(data));
