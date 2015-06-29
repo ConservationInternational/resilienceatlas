@@ -14,5 +14,5 @@ gem 'autoprefixer-rails'
 group :development, :test do
   gem 'spring'
   gem 'teaspoon'
-  gem 'dotenv-rails'
+  # gem 'dotenv-rails'
 end
