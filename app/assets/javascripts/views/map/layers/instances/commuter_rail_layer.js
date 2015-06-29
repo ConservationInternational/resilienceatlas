@@ -10,7 +10,6 @@ define([
   'use strict';
 
   var CommuterRailLayer = CartoDBLayer.extend({
-
     options: {
       params: {
         q: SQL,
