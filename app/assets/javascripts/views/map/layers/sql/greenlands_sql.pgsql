@@ -1,2 +1,0 @@
-SELECT * 
-FROM utm_env_neptisgrnlnds_protection_130509
