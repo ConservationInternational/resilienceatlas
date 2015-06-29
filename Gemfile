@@ -10,6 +10,7 @@ gem 'requirejs-rails'
 gem 'jquery-rails'
 gem 'slim-rails'
 gem 'autoprefixer-rails'
+gem 'rails_12factor'
 
 group :development, :test do
   gem 'spring'
