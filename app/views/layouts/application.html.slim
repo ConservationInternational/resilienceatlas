@@ -6,7 +6,7 @@ html lang="#{I18n.locale}"
     meta charset="utf-8"
     meta name="description" content=""
     meta name="viewport" content="width=device-width"
-    = stylesheet_link_tag "http://libs.cartocdn.com/cartodb.js/v3/3.13/themes/css/cartodb.css", media: "all"
+    = stylesheet_link_tag "https://cartodb-libs.global.ssl.fastly.net/cartodb.js/v3/3.15/themes/css/cartodb.css", media: "all"
     = stylesheet_link_tag "application", media: "all"
     = csrf_meta_tags
 
@@ -38,7 +38,7 @@ html lang="#{I18n.locale}"
             li 
               = link_to 'map', root_path, class: controller_name == 'map' ? 'is-current' : ''
 
-    = javascript_include_tag "http://libs.cartocdn.com/cartodb.js/v3/3.13/cartodb.js"
+    = javascript_include_tag "https://cartodb-libs.global.ssl.fastly.net/cartodb.js/v3/3.15/cartodb.js"
     = requirejs_include_tag "application"
 
 
