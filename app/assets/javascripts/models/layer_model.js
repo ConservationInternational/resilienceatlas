@@ -8,7 +8,8 @@ define([
   //WATER
   'views/map/layers/instances/horn_africa_dry_coef_var_layer',
   //ECONOMY
-  'views/map/layers/instances/africa_total_export_crop_value_layer'
+  'views/map/layers/instances/africa_total_export_crop_value_layer',
+  'views/map/layers/instances/total_production_crop_value_layer'
 ], function(_,
   Backbone,
    //CONFLICTS
@@ -18,7 +19,8 @@ define([
   //WATER
   HornAfricaDryCoefChangeLayer,
   //ECONOMY
-  AfricaTotalExportCropValueLayer
+  AfricaTotalExportCropValueLayer,
+  TotalProductionCropValueLayer
   ){
 
   'use strict';
@@ -28,7 +30,8 @@ define([
     { slug: 'overall_gpi_scores', Instance: OverallGpiScoresLayer},
     { slug: 'africa_livelihoodzones', Instance: AfricaLivelihoodZonesLayer},
     { slug: 'horn_africa_dry_coef_var', Instance: HornAfricaDryCoefChangeLayer},
-    { slug: 'total_export_crop_value', Instance: AfricaTotalExportCropValueLayer}
+    { slug: 'total_export_crop_value', Instance: AfricaTotalExportCropValueLayer},
+    { slug: 'total_production_crop_value', Instance: TotalProductionCropValueLayer}
   ];
 
   var LayerModel = Backbone.Model.extend({

@@ -102,7 +102,7 @@
     "info": "This is the info for Economy",
     "layers": [
       {
-        "name": "Total export crops value",
+        "name": "Total export crops value in 2011",
         "slug": "total_export_crop_value",
         "type": "layer",
         "zindex": 10,
