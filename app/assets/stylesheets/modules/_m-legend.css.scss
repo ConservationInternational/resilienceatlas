@@ -4,7 +4,7 @@
 
   position: absolute;
   left: rem(20px);
-  bottom: rem(30px);
+  bottom: rem(20px);
   z-index: 1;
   text-align: center;
   display: none;
@@ -139,4 +139,9 @@
     }
   }
 
+}
+
+.cartodb-logo {
+  bottom: 1.25rem !important;
+  left: 150px !important;
 }
