@@ -1,0 +1,2 @@
+SELECT ST_ColorMap(ST_Union(the_raster_webmercator),'bluered') the_raster_webmercator
+FROM horn_dry_coefvariation_change

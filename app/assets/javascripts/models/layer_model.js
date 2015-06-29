@@ -4,13 +4,21 @@ define([
    //CONFLICTS
   'views/map/layers/instances/overall_gpi_scores_layer',
   //FOOD SECURITY
-  'views/map/layers/instances/africa_livelihoodzones_layer'
+  'views/map/layers/instances/africa_livelihoodzones_layer',
+  //WATER
+  'views/map/layers/instances/horn_africa_dry_coef_var_layer',
+  //ECONOMY
+  'views/map/layers/instances/africa_total_export_crop_value_layer'
 ], function(_,
   Backbone,
    //CONFLICTS
   OverallGpiScoresLayer,
   //FOOD SECURITY
-  AfricaLivelihoodZonesLayer
+  AfricaLivelihoodZonesLayer,
+  //WATER
+  HornAfricaDryCoefChangeLayer,
+  //ECONOMY
+  AfricaTotalExportCropValueLayer
   ){
 
   'use strict';
@@ -18,7 +26,9 @@ define([
   var layersInstances = [
     //CONFLICTS
     { slug: 'overall_gpi_scores', Instance: OverallGpiScoresLayer},
-    { slug: 'africa_livelihoodzones', Instance: AfricaLivelihoodZonesLayer}
+    { slug: 'africa_livelihoodzones', Instance: AfricaLivelihoodZonesLayer},
+    { slug: 'horn_africa_dry_coef_var', Instance: HornAfricaDryCoefChangeLayer},
+    { slug: 'total_export_crop_value', Instance: AfricaTotalExportCropValueLayer}
   ];
 
   var LayerModel = Backbone.Model.extend({

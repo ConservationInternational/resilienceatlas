@@ -60,7 +60,7 @@
     "group": "Food security",
     "slug": "food_security",
     "category": "layer",
-    "active": true,
+    "active": false,
     "order": 5,
     "info": "This is the info for Food security",
     "layers": [
@@ -69,12 +69,62 @@
         "slug": "africa_livelihoodzones",
         "type": "layer",
         "zindex": 10,
-        "active": true,
+        "active": false,
         "timeline": false,
         "info": "Overall GPI scores",
         "interactivity": {
           "GPI value": "overall"
         },
+        "color": "#775C32"
+      }
+    ]
+  },
+  {
+    "group": "Water",
+    "slug": "water",
+    "category": "layer",
+    "active": false,
+    "order": 5,
+    "info": "This is the info for Water",
+    "layers": [
+      {
+        "name": "Horn of Africa Dry season coefvariation change",
+        "slug": "horn_africa_dry_coef_var",
+        "type": "layer",
+        "zindex": 10,
+        "active": false,
+        "timeline": false,
+        "info": "Overall GPI scores",
+        "color": "#775C32"
+      }
+    ]
+  },
+  {
+    "group": "Economy",
+    "slug": "economy",
+    "category": "layer",
+    "active": false,
+    "order": 5,
+    "info": "This is the info for Economy",
+    "layers": [
+      {
+        "name": "Total export crops value",
+        "slug": "total_export_crop_value",
+        "type": "layer",
+        "zindex": 10,
+        "active": false,
+        "timeline": false,
+        "info": "Total export crops value info",
+        "color": "#775C32"
+      },
+      {
+        "name": "Total crops production in 2012",
+        "slug": "total_production_crop_value",
+        "type": "layer",
+        "zindex": 10,
+        "active": false,
+        "timeline": false,
+        "info": "Total export crops value info",
         "color": "#775C32"
       }
     ]
