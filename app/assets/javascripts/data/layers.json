@@ -12,8 +12,8 @@
         "slug": "topography",
         "type": "basemap",
         "zindex": 1,
-        "active": false,
-        "order": 0        
+        "active": true,
+        "order": 0
       },
       {
         "name": "Satellite",
@@ -21,15 +21,15 @@
         "type": "basemap",
         "zindex": 1,
         "active": false,
-        "order": 0        
+        "order": 0
       },
       {
         "name": "Terrain",
         "slug": "terrain",
         "type": "basemap",
         "zindex": 1,
-        "active": true,
-        "order": 0        
+        "active": false,
+        "order": 0
       }
     ]
   },
@@ -45,13 +45,10 @@
         "name": "Overall GPI scores",
         "slug": "overall_gpi_scores",
         "type": "layer",
-        "zindex": 2,
-        "active": true,
+        "zindex": 0,
+        "active": false,
         "timeline": false,
         "info": "Overall GPI scores",
-        "interactivity": {
-          "GPI value": "overall"
-        },
         "color": "#775C32"
       }
     ]
@@ -72,9 +69,6 @@
         "active": false,
         "timeline": false,
         "info": "Overall GPI scores",
-        "interactivity": {
-          "GPI value": "overall"
-        },
         "color": "#775C32"
       }
     ]

@@ -16,5 +16,5 @@ group :development, :test do
   gem 'spring'
   gem 'teaspoon'
   gem 'teaspoon-mocha'
-  # gem 'dotenv-rails'
+  gem 'dotenv-rails'
 end
