@@ -1,52 +1,50 @@
 {{#each layers}}
   {{#if noGroup}}
 
-    <div class="accordion-navigation-nogroup">
+    <div class="accordion-navigation-nogroup accordion category">
 
       <div class="layer-item">
         <div class="layer-item-content">
-          {{#if info}}
-            <div class="btn-info" data-info="{{info}}">i</div>
-          {{/if}}
+          <div class="switcher">
+            <input id="{{slug}}" class="layer-switch" data-layer-slug="{{slug}}" type="checkbox" {{activeCheck}}>
+            <label for="{{slug}}"></label>
+          </div>
           {{#if locateLayer}}
             <div class="locate-layer"></div>
           {{/if}}
           <div class="layer-item-name">{{name}}</div>
         </div>
+        {{#if info}}
+          <div class="btn-info" data-info="{{info}}">i</div>
+        {{/if}}
 
-        <div class="switch round small">
-          <input id="{{slug}}" class="layer-switch" data-layer-slug="{{slug}}" type="checkbox" {{activeCheck}}>
-          <label for="{{slug}}"></label>
-        </div>
       </div>
-
     </div>
 
   {{else}}
     <ul class="accordion category" data-accordion>
       <li class="accordion-navigation {{active}}">
-        <a href="#dashboard-layers-item-{{slug}}">
+        <a href="#dashboard-layers-item-{{slug}}" class="accordion-category-title">
           {{name}}
           {{#if info}}
             <div class="btn-info" data-info="{{info}}">i</div>
           {{/if}}
         </a>
-        <div id="dashboard-layers-item-{{slug}}" class="content {{active}}">
+        <div id="dashboard-layers-item-{{slug}}" class="content {{active}} layers-group">
           {{#each layers}}
 
             <div class="layer-item{{#if sublayers}} sublayer{{/if}}">
+
               <div class="layer-item-content">
+                <div class="switcher">
+                  <input id="{{slug}}" class="{{#if sublayers}}sublayer-switch parent{{else}}layer-switch{{/if}}" data-layer-slug="{{slug}}" type="checkbox" {{activeCheck}}>
+                  <label for="{{slug}}" style="background-color:{{activeColor}};border-color:{{activeColor}}"></label>
+                </div>
                 <div class="layer-item-name">{{name}}</div>
-
-                {{#if info}}
-                  <div class="btn-info" data-info="{{info}}">i</div>
-                {{/if}}
               </div>
-
-              <div class="switcher">
-                <input id="{{slug}}" class="{{#if sublayers}}sublayer-switch parent{{else}}layer-switch{{/if}}" data-layer-slug="{{slug}}" type="checkbox" {{activeCheck}}>
-                <label for="{{slug}}" style="background-color:{{activeColor}};border-color:{{activeColor}}"></label>
-              </div>
+              {{#if info}}
+                <div class="btn-info" data-info="{{info}}">i</div>
+              {{/if}}
             </div>
 
             {{#if timeline}}
@@ -57,21 +55,20 @@
               <div class="sublayers" data-parent-slug="{{slug}}">
               {{#each sublayers}}
                 <div class="layer-item" data-layer-slug="{{slug}}">
+
                   <div class="layer-item-content">
+                    <div class="switcher">
+                      <input id="{{slug}}" class="sublayer-switch main" data-layer-slug="{{slug}}" data-parent-slug="{{../slug}}" data-layer-color="{{color}}" type="checkbox" {{activeCheck}}>
+                      <label for="{{slug}}" style="background-color:{{activeColor}};border-color:{{activeColor}}"></label>
+                    </div>
                     <div class="layer-item-name">{{name}}</div>
-
-                    {{#if info}}
-                      <div class="btn-info" data-info="{{info}}">i</div>
-                    {{/if}}
                   </div>
-
+                  {{#if info}}
+                    <div class="btn-info" data-info="{{info}}">i</div>
+                  {{/if}}
                   {{#if locateLayer}}
                     <div class="locate-layer"></div>
                   {{/if}}
-                  <div class="switcher">
-                    <input id="{{slug}}" class="sublayer-switch main" data-layer-slug="{{slug}}" data-parent-slug="{{../slug}}" data-layer-color="{{color}}" type="checkbox" {{activeCheck}}>
-                    <label for="{{slug}}" style="background-color:{{activeColor}};border-color:{{activeColor}}"></label>
-                  </div>
                 </div>
 
                 {{#if layers}}
@@ -79,20 +76,20 @@
                   {{#each layers}}
                     <div class="layer-item" data-layer-slug="{{slug}}">
                       <div class="layer-item-content">
+                        <div class="switcher">
+                          <input id="{{slug}}" class="sublayer-switch" data-layer-slug="{{slug}}" data-parent-slug="{{../slug}}" data-layer-color="{{color}}" type="checkbox" {{activeCheck}}>
+                          <label for="{{slug}}" style="background-color:{{activeColor}};border-color:{{activeColor}}"></label>
+                        </div>
                         <div class="layer-item-name">{{name}}</div>
-
-                        {{#if info}}
-                          <div class="btn-info" data-info="{{info}}">i</div>
-                        {{/if}}
                       </div>
+
+                      {{#if info}}
+                        <div class="btn-info" data-info="{{info}}">i</div>
+                      {{/if}}
 
                       {{#if locateLayer}}
                         <div class="locate-layer"></div>
                       {{/if}}
-                      <div class="switcher">
-                        <input id="{{slug}}" class="sublayer-switch" data-layer-slug="{{slug}}" data-parent-slug="{{../slug}}" data-layer-color="{{color}}" type="checkbox" {{activeCheck}}>
-                        <label for="{{slug}}" style="background-color:{{activeColor}};border-color:{{activeColor}}"></label>
-                      </div>
                     </div>
                   {{/each}}
                   </div>
