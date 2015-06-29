@@ -40,6 +40,7 @@ module ConservationInternational
 
     # Heroku Asset Pippeline
     config.assets.initialize_on_precompile = true
+
     # config.requirejs.loader = :almond
     config.requirejs.logical_path_patterns += [/\.handlebars$/]
     config.requirejs.logical_path_patterns += [/\.pgsql$/]
