@@ -116,7 +116,7 @@ select {
 
 .accordion-navigation {
   .btn-info {
-    display: block;
+    display: inline-block;
   }
 }
 
@@ -129,17 +129,64 @@ select {
 .accordion .accordion-navigation > a,
 .accordion dd > a {
   display: block;
-  padding: 1rem;
+  padding: rem($margin-small);
+}
+
+.accordion-navigation-nogroup {
+  padding: rem($margin-small);
+}
+
+.accordion-navigation {
+
+  .accordion-category-title {
+    font-weight: bold;
+    text-transform: uppercase;
+
+    &:before {
+      content: '';
+      display: inline-block;
+      @include equi-triangle (5px, $black, right);
+      transition: all .2s ease-out;
+    }
+  }
+
+  &.active {
+    .accordion-category-title:before {
+      transform: rotate(90deg);
+    }
+  }
 }
 
 .accordion .accordion-navigation > .content,
 .accordion dd > .content {
   display: none;
-  padding: 0.9375em;
 }
 
 .accordion .accordion-navigation > .content.active,
 .accordion dd > .content.active {
   display: block;
+}
+
+.layers-group {
+  padding-left: rem($margin-medium);
+}
+
+.layer-item {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: rem($margin-small);
+}
+
+.layer-item-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  .layer-item-name {
+    max-width: 88%;
+    margin-left: rem($margin-small);
+  }
 }
 

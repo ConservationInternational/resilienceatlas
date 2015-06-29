@@ -1,9 +1,8 @@
-@import "accordion";
-
 @import
   "settings",
   "helpers",
   "components",
+  "accordion",
 
   "layout/layout",
   "layout/grid",
@@ -20,5 +19,8 @@
   "modules/m-map",
   "modules/m-map-controlers",
   "modules/m-modal-window",
+  "modules/m-search",
+  "modules/m-share",
+  "modules/m-map-infowindow",
 
   "states";

@@ -76,3 +76,10 @@
 .chosen-search {
   display: none;
 }
+
+input {
+  @extend %form-field-reset;
+  border: 1px solid $light-grey;
+  border-radius: 3px;
+  background-color: $white;
+}

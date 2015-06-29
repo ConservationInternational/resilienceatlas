@@ -4,7 +4,7 @@ define([
   'handlebars',
   'moment',
   'lib/utils',
-  'collections/search_collection',  
+  'collections/search_collection',
   'text!templates/map/search_tpl.handlebars',
   'text!data/upper_lower_categories.json'
 ], function(Backbone, _, Handlebars, moment, utils, SearchCollection, TPL, CategoriesJSON) {
@@ -28,12 +28,12 @@ define([
       this.categories = new SearchCollection(categoriesData, { parse: true });
 
       var $TPL = $(TPL);
-      var TPLSearch = $TPL.filter('#search-tpl').html();
-      var TPLResults = $TPL.filter('#search-results-tpl').html();
+      // var TPLSearch = $TPL.filter('#search-tpl').html();
+      // var TPLResults = $TPL.filter('#search-results-tpl').html();
       var TPLSuggestions = $TPL.filter('#search-suggestions-tpl').html();
 
-      this.tpl = Handlebars.compile(TPLSearch);
-      this.tplResults = Handlebars.compile(TPLResults);
+      this.tpl = Handlebars.compile(TPL);
+      // this.tplResults = Handlebars.compile(TPLResults);
       this.tplSuggestions = Handlebars.compile(TPLSuggestions);
 
       this.render();
@@ -52,11 +52,11 @@ define([
     },
 
     show: function() {
-      this.$el.addClass('visible');
+      this.$el.addClass('is-hidden');
     },
 
     hide: function() {
-      this.$el.removeClass('visible');
+      this.$el.removeClass('is-hidden');
     },
 
     generateAlphaFilter: function() {
@@ -75,7 +75,7 @@ define([
           active = false;
         }
         filteredAlphabet.push({
-          value: a, 
+          value: a,
           active: active
         });
       });
@@ -85,9 +85,9 @@ define([
 
     getUpperTier: function() {
       var upperTier = this.categories.getByCategory('Upper Tier');
-      this.$('.search-result').html(this.tplResults({data: upperTier}));
+      // this.$('.search-result').html(this.tplResults({data: upperTier}));
       this.$el.find('.search-selector').removeClass('search-lower-tier');
-    }, 
+    },
 
     getLowerTier: function(character) {
       var lowerTier = this.categories.getByCategory('Lower Tier');
@@ -150,6 +150,7 @@ define([
     clearSuggestions: function() {
       var $searchSuggestions = this.$('.search-suggestions');
       $searchSuggestions.html('');
+      $('.search-suggestions').addClass('is-hidden');
     },
 
     filterByCharacter: function(ev) {
@@ -183,6 +184,7 @@ define([
           }
         });
         this.$('.search-suggestions').html(this.tplSuggestions({data: search}));
+        $('.search-suggestions').removeClass('is-hidden');
       }, this), 100);
     }
   });
