@@ -77,9 +77,11 @@
   display: none;
 }
 
-input {
+input:not([type = "checkbox"]){
   @extend %form-field-reset;
   border: 1px solid $light-grey;
   border-radius: 3px;
   background-color: $white;
+  min-height: 40px;
+  padding: 0 rem($margin-small);
 }

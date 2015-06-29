@@ -11,9 +11,19 @@ define([
 
     el: 'body',
 
-    events: {
-      'click input': 'highlightInput',
-      'click .btn-close-modal': 'close'
+    events: function() {
+      if (window.ontouchstart) {
+        return  {
+          'touchstart .btn-close-modal': 'close',
+          'touchstart .modal-background': 'close',
+          'click .btn-copy--url': 'copyUrl'
+        };
+      }
+      return {
+        'click .btn-close-modal': 'close',
+        'click .modal-background': 'close',
+        'click .btn-copy--url': 'copyUrl'
+      };
     },
 
     template: Handlebars.compile(tpl),
@@ -33,11 +43,6 @@ define([
     close: function() {
       $('.m-modal-window').remove();
       this.toogleState();
-    },
-
-    highlightInput: function(e) {
-      e.preventDefault();
-      e.currentTarget.select();
     },
 
     toogleState: function() {
