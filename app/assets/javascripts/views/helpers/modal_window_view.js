@@ -37,7 +37,12 @@ define([
 
     render: function(data) {
       this.$el.append(this.template(data));
+
       this.toogleState();
+    },
+
+    getEmbedInfo: function() {
+      new ShareWindow();
     },
 
     onKeyUp: function(e) {
