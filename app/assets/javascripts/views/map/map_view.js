@@ -129,7 +129,7 @@ define([
     checkLoadQueue: function() {
       var queue = this.model.get('loadQueue');
       var $loader = $('#loader');
-      
+
       if(queue.length > 0) {
         $loader.addClass('visible');
       } else {
@@ -150,7 +150,7 @@ define([
 
       if(index > -1) {
         queue.splice(index, 1);
-        this.model.set('loadQueue', queue);        
+        this.model.set('loadQueue', queue);
       }
     },
 
@@ -244,7 +244,6 @@ define([
 
       this.map.addLayer(this.drawnItems);
       this.drawingListeners();
-
     },
 
     drawingListeners: function(){

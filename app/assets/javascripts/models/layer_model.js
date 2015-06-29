@@ -5,20 +5,19 @@ define([
   'views/map/layers/instances/overall_gpi_scores_layer',
   //FOOD SECURITY
   'views/map/layers/instances/africa_livelihoodzones_layer'
-], function(_,
-  Backbone,
-   //CONFLICTS
+], function(_, Backbone,
+  //CONFLICTS
   OverallGpiScoresLayer,
   //FOOD SECURITY
   AfricaLivelihoodZonesLayer
-  ){
+){
 
   'use strict';
 
   var layersInstances = [
     //CONFLICTS
-    { slug: 'overall_gpi_scores', Instance: OverallGpiScoresLayer},
-    { slug: 'africa_livelihoodzones', Instance: AfricaLivelihoodZonesLayer}
+    { slug: 'overall_gpi_scores', Instance: OverallGpiScoresLayer },
+    { slug: 'africa_livelihoodzones', Instance: AfricaLivelihoodZonesLayer }
   ];
 
   var LayerModel = Backbone.Model.extend({

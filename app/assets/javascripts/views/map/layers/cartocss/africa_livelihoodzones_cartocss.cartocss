@@ -3,6 +3,7 @@
    line-color: #FFF;
    line-width: 0;
    line-opacity: 1;
+   polygon-fill: #A6CEE3;
 }
 
 #grp_africa_livelihoodzones[lz_type="Agro-Forestry"] {
