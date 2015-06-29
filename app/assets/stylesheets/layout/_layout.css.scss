@@ -2,7 +2,7 @@
 $header-height: rem(60px);
 
 /* Header */
-.l-header {
+.l-main-header {
   display: flex;
   display: -ms-box;
   width: 100%;
@@ -21,6 +21,10 @@ $header-height: rem(60px);
       display: block;
     }
   }
+}
+
+.l-header {
+
 }
 
 /* Dashboard */
