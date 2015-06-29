@@ -37,7 +37,7 @@
     "group": "Conflicts",
     "slug": "conflicts",
     "category": "layer",
-    "active": true,
+    "active": false,
     "order": 1,
     "info": "This is the info for Conflicts",
     "layers": [
