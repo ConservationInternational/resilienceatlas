@@ -8,11 +8,11 @@ default: &default
 
 development:
   <<: *default
-  database: netptis_dev
+  database: cigrp_dev
 
 test:
   <<: *default
-  database: netptis_test
+  database: cigrp_test
 
 production:
   url: <%= ENV["DATABASE_URL"] %>

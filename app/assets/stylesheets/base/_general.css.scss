@@ -1,0 +1,46 @@
+/*
+ * General rules for all hover the proyect
+ */
+ @include font-face("Raleway", "raleway-medium-webfont", 500);
+ @include font-face("Raleway", "raleway-semibold-webfont", 600);
+ @include font-face("Raleway", "raleway-bold-webfont", 700);
+ @include font-face("Raleway", "raleway-extrabold-webfont", 800);
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: $font-face-1, Helvetica, Arial, sans-serif;
+  color: $font-color-1;
+  font-size: $font-size;
+  -webkit-font-smoothing: antialiased;
+}
+
+a, button, input, select, textarea {
+  &:focus {
+    outline: 0;
+  }
+}
+
+a {
+	text-decoration: none;
+	color: $font-color-1;
+}
+
+ul {
+	@extend %list-reset;
+}
+
+////////////////////
+//**** utils  ****//
+////////////////////
+.is-flex {
+  display: flex;
+  display: -ms-box;
+}
+
+.is-bold {
+  font-weight: bold;
+}

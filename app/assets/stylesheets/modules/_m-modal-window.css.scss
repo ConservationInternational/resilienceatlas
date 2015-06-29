@@ -1,0 +1,52 @@
+.m-modal-window {
+  display: flex;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: 0;
+}
+
+.modal-background {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 10;
+
+  background: #000;
+  opacity: .5;
+}
+
+.modal-wrapper {
+  box-sizing: border-box;
+  position: relative;
+  display: flex;
+  margin: auto;
+  z-index: 14;
+}
+
+.modal-container {
+  padding: $margin-medium $margin-large; //Minimun, 10px, cause windows scroll.
+  overflow: scroll;
+  background-color: #fff;
+  //optional, min size.
+  min-width: 500px;
+  min-height: 200px;
+}
+
+.btn-close-modal {
+  position: absolute;
+  top: $margin-small;
+  right: $margin-small;
+  z-index: 1;
+
+  font-weight: bold;
+  color: #000;
+  font-size: 32px;
+  line-height: .5em;
+  cursor: pointer;
+}
+
+
