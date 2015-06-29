@@ -28,8 +28,11 @@ define([
   var layersInstances = [
     //CONFLICTS
     { slug: 'overall_gpi_scores', Instance: OverallGpiScoresLayer},
+    //FOOD SECURITY
     { slug: 'africa_livelihoodzones', Instance: AfricaLivelihoodZonesLayer},
+    //WATER
     { slug: 'horn_africa_dry_coef_var', Instance: HornAfricaDryCoefChangeLayer},
+    //ECONOMY
     { slug: 'total_export_crop_value', Instance: AfricaTotalExportCropValueLayer},
     { slug: 'total_production_crop_value', Instance: TotalProductionCropValueLayer}
   ];
