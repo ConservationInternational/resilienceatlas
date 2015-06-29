@@ -1,0 +1,1 @@
+SELECT l.the_geom, l.iso3, i.overall, i.year FROM gpi_scores_longformat i Left join grpcountries_250k_polygon l on i.iso3=l.iso3

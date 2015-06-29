@@ -11,9 +11,9 @@ define([
 
     defaults: {
       map: {
-        center: [43.872158236415416, -79.56024169921875],
-        zoom: 9,
-        minZoom: 8,
+        center: [19.335937499999996, 12.554563528593656],
+        zoom: 3,
+        minZoom: 3,
         zoomControl: false,
         drawControl: false
       },

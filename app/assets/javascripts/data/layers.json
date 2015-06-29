@@ -37,43 +37,22 @@
     "group": "Conflicts",
     "slug": "conflicts",
     "category": "layer",
-    "active": false,
+    "active": true,
     "order": 5,
     "info": "This is the info for Conflicts",
     "layers": [
       {
-        "name": "Upper-Tier/Single-Tier Municipalities",
-        "slug": "upper_tier_municipalities",
-        "type": "layer",
-        "zindex": 3,
-        "active": true,
-        "color": "#775C32"
-      }
-    ]
-  },
-  {
-    "group": "Food security",
-    "slug": "food_security",
-    "category": "layer",
-    "active": false,
-    "order": 1,
-    "info": "Food security info",
-    "layers": [
-      {
-        "name": "Upper-Tier/Single-Tier Municipalities",
-        "slug": "upper_tier_municipalities",
+        "name": "Overall GPI scores",
+        "slug": "overall_gpi_scores",
         "type": "layer",
         "zindex": "",
-        "active": false,
+        "active": true,
+        "timeline": false,
+        "info": "Overall GPI scores",
+        "interactivity": {
+          "GPI value": "overall"
+        },
         "color": "#775C32"
-      },
-      {
-        "name": "Lower-Tier Municipalities",
-        "slug": "lower_tier_municipalities",
-        "type": "layer",
-        "zindex": 100,
-        "active": false,
-        "color": "#927241"
       }
     ]
   }
