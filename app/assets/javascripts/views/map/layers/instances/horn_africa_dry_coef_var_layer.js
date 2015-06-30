@@ -12,7 +12,8 @@ define([
       params: {
         q: SQL,
         cartocss: CartoCSS,
-        type: ''
+        type: '',
+        raster: true
       }
     }
 
