@@ -11,9 +11,9 @@ define([
 
     defaults: {
       map: {
-        center: [43.872158236415416, -79.56024169921875],
-        zoom: 9,
-        minZoom: 8,
+        center: [19.335937499999996, 12.554563528593656],
+        zoom: 3,
+        minZoom: 3,
         zoomControl: false,
         drawControl: false
       },
@@ -129,7 +129,7 @@ define([
     checkLoadQueue: function() {
       var queue = this.model.get('loadQueue');
       var $loader = $('#loader');
-      
+
       if(queue.length > 0) {
         $loader.addClass('visible');
       } else {
@@ -150,7 +150,7 @@ define([
 
       if(index > -1) {
         queue.splice(index, 1);
-        this.model.set('loadQueue', queue);        
+        this.model.set('loadQueue', queue);
       }
     },
 
@@ -244,7 +244,6 @@ define([
 
       this.map.addLayer(this.drawnItems);
       this.drawingListeners();
-
     },
 
     drawingListeners: function(){

@@ -4,7 +4,7 @@ define(['backbone'], function(Backbone) {
 
   var TimelineModel = Backbone.Model.extend({
 
-    url: 'http://neptis.cartodb.com/api/v2/sql',
+    url: 'http://cigrp.cartodb.com/api/v2/sql',
 
     defaults: {
       step: '',

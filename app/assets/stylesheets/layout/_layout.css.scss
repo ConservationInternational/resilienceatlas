@@ -1,5 +1,6 @@
 /* Layout common values */
 $header-height: rem(60px);
+$toolbar-height: rem(60px);
 
 /* Header */
 .l-main-header {
@@ -27,10 +28,19 @@ $header-height: rem(60px);
 
 }
 
+.l-map-toolbar {
+  position: absolute;
+  top: $header-height + rem($margin-medium);
+  right: rem($margin-medium);
+  height: $toolbar-height;
+  width: 25%;
+  z-index: 3;
+  padding: rem($margin-small) 0;
+}
 /* Dashboard */
 .l-dashboard {
   position: absolute;
-  top: $header-height + rem($margin-medium);
+  top: $header-height + $toolbar-height + rem($margin-medium);
   bottom: rem($margin-medium);
   right: rem($margin-medium);
   width: 25%;
@@ -51,6 +61,7 @@ $header-height: rem(60px);
   z-index: 1;
   transition: all .2s ease-out;
 }
+
 
 /* Footer */
 .l-footer {

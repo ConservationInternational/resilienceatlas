@@ -9,9 +9,10 @@ define([
   'views/map/legend_view',
   'views/map/analysis_view',
   'views/map/search_view',
+  'views/map/toolbar_view',
   'text!data/layers.json'
 ], function(_, Backbone, PageModel, LayersCollection,
-  MapView, DashboardView, TimelineView, LegendView, AnalysisView, SearchView, layers) {
+  MapView, DashboardView, TimelineView, LegendView, AnalysisView, SearchView, ToolbarView, layers) {
 
   'use strict';
 
@@ -39,7 +40,7 @@ define([
         layers: this.layers,
         map: this.map
       });
-      
+
       this.timeline = new TimelineView({
         el: '#timelineView',
         map: this.map
@@ -55,6 +56,8 @@ define([
       this.search = new SearchView({
         el: '#searchView'
       });
+
+      this.toolbar = new ToolbarView();
     },
 
     setParams: function() {

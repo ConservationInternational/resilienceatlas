@@ -48,6 +48,10 @@ GEM
       coffee-script-source
       execjs
     coffee-script-source (1.9.1.1)
+    dotenv (2.0.2)
+    dotenv-rails (2.0.2)
+      dotenv (= 2.0.2)
+      railties (~> 4.0)
     erubis (2.7.0)
     execjs (2.5.2)
     globalid (0.3.5)
@@ -145,6 +149,7 @@ PLATFORMS
 DEPENDENCIES
   autoprefixer-rails
   coffee-rails (~> 4.1.0)
+  dotenv-rails
   jquery-rails
   rails (= 4.2.1)
   rails_12factor
@@ -157,4 +162,4 @@ DEPENDENCIES
   uglifier (>= 1.3.0)
 
 BUNDLED WITH
-   1.10.4
+   1.10.5

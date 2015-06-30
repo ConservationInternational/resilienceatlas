@@ -9,7 +9,7 @@ define([
   var CartoDBLayer = Class.extend({
 
     defaults: {
-      username: 'neptis'
+      username: 'cigrp'
     },
 
     init: function(settings) {
@@ -35,7 +35,7 @@ define([
       Backbone.Events.trigger('layer:loading', slug);
 
       cartodb.createLayer(map, {
-        user_name: options.username,
+        user_name: 'cigrp',
         type: 'cartodb',
         sublayers: [{
           sql: options.params.q,
@@ -98,8 +98,8 @@ define([
       var names = JSON.stringify(_.values(interactivity));
       var tpl = '<% var colNames = %1 %>'.format(names) + infoWindowTPL;
 
-      this.infoWindow = cdb.vis.Vis.addInfowindow(this.map, 
-        sublayer, 
+      this.infoWindow = cdb.vis.Vis.addInfowindow(this.map,
+        sublayer,
         columns, {
           infowindowTemplate: tpl,
           templateType: 'underscore',

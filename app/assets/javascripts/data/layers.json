@@ -3,7 +3,7 @@
     "group": "Base",
     "slug": "base",
     "category": "basemap",
-    "active": false,
+    "active": true,
     "order": 0,
     "info": "Base info",
     "layers": [
@@ -12,8 +12,8 @@
         "slug": "topography",
         "type": "basemap",
         "zindex": 1,
-        "active": false,
-        "order": 0        
+        "active": true,
+        "order": 0
       },
       {
         "name": "Satellite",
@@ -21,607 +21,105 @@
         "type": "basemap",
         "zindex": 1,
         "active": false,
-        "order": 0        
+        "order": 0
       },
       {
         "name": "Terrain",
         "slug": "terrain",
         "type": "basemap",
         "zindex": 1,
-        "active": true,
-        "order": 0        
+        "active": false,
+        "order": 0
       }
     ]
   },
   {
-    "group": "Stories",
-    "slug": "",
+    "group": "Conflicts",
+    "slug": "conflicts",
+    "category": "layer",
+    "active": false,
+    "order": 1,
+    "info": "This is the info for Conflicts",
+    "layers": [
+      {
+        "name": "Overall GPI scores",
+        "slug": "overall_gpi_scores",
+        "type": "layer",
+        "zindex": 0,
+        "active": false,
+        "timeline": false,
+        "info": "Overall GPI scores",
+        "color": "#775C32"
+      }
+    ]
+  },
+  {
+    "group": "Food security",
+    "slug": "food_security",
     "category": "layer",
     "active": false,
     "order": 5,
-    "info": "This is the info for Stories",
+    "info": "This is the info for Food security",
     "layers": [
       {
-        "name": "Stories",
-        "slug": "stories",
-        "type": "layer",
-        "zindex": 1,
-        "active": false
-      }
-    ]
-  },
-  {
-    "group": "Boundaries",
-    "slug": "boundaries",
-    "category": "basemap",
-    "active": false,
-    "order": 1,
-    "info": "Boundaries info",
-    "layers": [
-      {
-        "name": "Upper-Tier/Single-Tier Municipalities",
-        "slug": "upper_tier_municipalities",
-        "type": "layer",
-        "zindex": "",
-        "active": false,
-        "color": "#775C32",
-        "layers": [
-          {
-            "name": "Layer",
-            "slug": "upper_tier_municipalities_layer",
-            "type": "layer",
-            "zindex": 99,
-            "active": true,
-            "color": "#734C00"
-          },
-          {
-            "name": "Labels",
-            "slug": "upper_tier_municipalities_labels",
-            "type": "layer",
-            "zindex": 100,
-            "active": true,
-            "color": "#825F1B"
-          }
-        ]
-      },
-      {
-        "name": "Lower-Tier Municipalities",
-        "slug": "lower_tier_municipalities",
-        "type": "layer",
-        "zindex": 100,
-        "active": false,
-        "color": "#927241",
-        "layers": [
-          {
-            "name": "Layer",
-            "slug": "lower_tier_municipalities_layer",
-            "type": "layer",
-            "zindex": 97,
-            "active": true,
-            "color": "#C6B074"
-          },
-          {
-            "name": "Labels",
-            "slug": "lower_tier_municipalities_labels",
-            "type": "layer",
-            "zindex": 98,
-            "active": true,
-            "color": "#817349"
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "group": "Settlements",
-    "slug": "settlements",
-    "category": "layer",
-    "active": false,
-    "order": 2,
-    "info": "This is the info for Urban Settlements",
-    "layers": [
-      {
-        "name": "Built-up Area",
-        "slug": "built_up_area",
-        "type": "layer",
-        "zindex": 5,
-        "opacity": 1,
-        "active": false,
-        "timeline": true,
-        "info": "Built-up area",
-        "color": "#9C9C9C",
-        "order": 1,
-        "interactivity": {
-          "shape_area": "Area"
-        }
-      },
-      {
-        "name": "Settlement Area",
-        "slug": "settlement_area",
+        "name": "Livelihood zones",
+        "slug": "africa_livelihoodzones",
         "type": "layer",
         "zindex": 10,
         "active": false,
-        "order": 2,
-        "color": "#D5B9CB",
-        "info": "Includes built-up area and designated lands (urban and rural)"
-      },
-      {
-        "name": "Urban Growth Centre (location)",
-        "slug": "urban_growth_centre_location",
-        "type": "layer",
-        "zindex": 110,
-        "active": false,
-        "order": 3,
-        "color": "#F4A831",
-        "info": "Existing/emerging \"downtown\" that are required to meet density targets"
-      },
-      {
-        "name": "Urban Growth Centre (detailed)",
-        "slug": "urban_growth_centre_detailed",
-        "type": "layer",
-        "zindex": 20,
-        "active": false,
-        "order": 4,
-        "color": "#F7C872",
-        "info": "Existing/emerging \"downtown\" that are required to meet density targets",
-        "interactivity": {
-          "name_1": "Name",
-          "_2006_densi": "2006 Density Target",
-          "growth_pla": "2031 Density Target",
-          "area__hect": "Area hect"
-        }
+        "timeline": false,
+        "info": "Overall GPI scores",
+        "color": "#775C32"
       }
     ]
   },
   {
-    "group": "Environment",
-    "slug": "environmental_conservation",
+    "group": "Water",
+    "slug": "water",
     "category": "layer",
-    "active": false,
-    "order": 3,
-    "info": "This is the info for Environmental",
-    "layers": [
-      {
-        "name": "Conservation area boundaries (political)",
-        "slug": "conservation_area_boundaries_political",
-        "type": "layer",
-        "zindex": 1,
-        "active": false,
-        "color": "",
-        "info": "Conservation area boundaries (political)"
-      },
-      {
-        "group": "Watershed",
-        "slug": "watershed",
-        "category": "layer",
-        "active": false,
-        "color": "#D8D8D8",
-        "info": "Watershed boundaries based on rivers info",
-        "layers": [
-          {
-            "name": "Watershed Boundaries",
-            "slug": "watershed_boundaries",
-            "type": "layer",
-            "zindex": 1,
-            "active": false,
-            "color": "#3B68FF",
-            "interactivity": {
-              "label": "Label"
-            },
-            "info": "Indicates the extent of the drainage area for each of the main river systems in Southern Ontario"
-          },  
-          {
-            "name": "Rivers",
-            "slug": "rivers",
-            "type": "layer",
-            "zindex": 1,
-            "active": false,
-            "color": "#99CCFF",
-            "interactivity": {
-              "name_1": "Name"
-            },
-            "info": "Watercourses in Southern Ontario, including creeks and streams"
-          }
-        ]
-      },
-      {
-        "group": "Greenbelt",
-        "slug": "greenbelt",
-        "category": "layer",
-        "active": false,
-        "info": "Greenbelt",
-        "color": "#D8D8D8",
-        "layers": [
-          {
-            "name": "Greenbelt Plan Area (2005)",
-            "slug": "greenbelt_2005",
-            "type": "layer",
-            "zindex": 1,
-            "active": false,
-            "color": "#B22121",
-            "interactivity": {
-              "shape_area": "Area"
-            },
-            "info": "Lands protected form certain kinds of development under provincial legislation"
-          },
-          {
-            "name": "Niagara Escarpment Plan Area (1973)",
-            "slug": "niagara_escarpment_plan_1973",
-            "type": "layer",
-            "zindex": 1,
-            "active": false,
-            "color": "#8CD48A",
-            "interactivity": {
-              "shape_area": "Area"
-            },
-            "info": "Lands protected form certain kinds of development under provincial legislation",
-            "layers": [
-              {
-                "name": "Ecological",
-                "slug": "ecological",
-                "type": "layer",
-                "zindex": 1,
-                "active": false,
-                "color": "#8CD48A",
-                "info": "Lands protected form certain kinds of development under provincial legislation"
-              }
-            ]
-          },
-          {
-            "name": "Oak Ridges Moraine Plan Area (2002)",
-            "slug": "oak_ridges_moraine_2002",
-            "type": "layer",
-            "zindex": 1,
-            "active": false,
-            "color": "#D3E88F",
-            "interactivity": {
-              "shape_area": "Area"
-            },
-            "info": "Lands protected form certain kinds of development under provincial legislation"
-          },
-          {
-            "name": "Protected Countryside",
-            "slug": "protected_countryside",
-            "type": "layer",
-            "zindex": 1,
-            "active": false,
-            "color": "#D5DCAE",
-            "interactivity": {
-              "shape_area": "Area"
-            },
-            "info": "Agricultural lands not otherwise protected under Niagara Escarpment or Oakridges Moraines Plan",
-            "layers": [
-              {
-                "name": "Subcategories",
-                "slug": "layer_subcategories",
-                "type": "layer",
-                "zindex": 1,
-                "active": false,
-                "color": "#D5DCAE"
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "group": "Prime Agricultural Areas",
-        "slug": "prime_agricultural",
-        "category": "layer",
-        "active": false,
-        "info": "Prime Agricultural Areas",
-        "color": "#D8D8D8",
-        "layers": [
-          {
-            "name": "Prime Agricultural Areas",
-            "slug": "prime_agricultural_areas",
-            "type": "layer",
-            "zindex": 1,
-            "active": false,
-            "order": 0,
-            "color": "#EBDC84",
-            "info": "Agricultural areas as identified by Canada Land Inventory"
-          },
-          {
-            "name": "Niagara Peninsula Grape/Fruit Lands",
-            "slug": "niagara_peninsula_grape_lands",
-            "type": "layer",
-            "zindex": 1,
-            "active": false,
-            "order": 0,
-            "color": "#FAE894",
-            "info": "Lands characterized by fertile soils and microclimates",
-            "locateLayer": true,
-            "interactivity": {
-              "shape_area": "Shape Area"
-            }
-          },
-          {
-            "name": "Holland Marsh",
-            "slug": "holland_marsh",
-            "type": "layer",
-            "zindex": 1,
-            "active": false,
-            "order": 0,
-            "color": "#FCF77F",
-            "info": "A wetland and agricultural area",
-            "locateLayer": true,
-            "interactivity": {
-              "shape_area": "Shape Area"
-            }
-          }
-        ]
-      },
-      {
-        "name": "Lake Simcoe Protection Plan Area (2009)",
-        "slug": "lake_simcoe_protection_2009",
-        "type": "layer",
-        "zindex": 1,
-        "active": false,
-        "color": "#8400A9",
-        "interactivity": {
-          "area": "Area"
-        },
-        "info": "Protection plan for Lake Simcoe and surrounding watersheds"
-      },
-      {
-        "name": "Geology",
-        "slug": "geology",
-        "type": "layer",
-        "zindex": 1,
-        "active": false,
-        "color": "",
-        "info": "Geology"
-      },
-      {
-        "group": "Greenlands",
-        "slug": "greenlands",
-        "category": "layer",
-        "active": false,
-        "info": "Areas protected form development to some extent (ex. Wetlands, fish habitat, woodlands, etc.)",
-        "layers": [
-          {
-            "name": "Greenlands (2004)",
-            "slug": "greenlands_2004",
-            "type": "layer",
-            "zindex": 1,
-            "active": false,
-            "color": "#D1E0A8",
-            "interactivity": {
-              "shape_area": "Area"
-            },
-            "info": "Greenlands"
-          },
-          {
-            "name": "Wetlands",
-            "slug": "wetlands",
-            "type": "layer",
-            "zindex": 1,
-            "active": false,
-            "color": "",
-            "info": "Wetlands"
-          },
-          {
-            "name": "Forests",
-            "slug": "forests",
-            "type": "layer",
-            "zindex": 1,
-            "active": false,
-            "color": "",
-            "info": "Forests"
-          }
-        ]
-      }
-    ]
-  },  
-  {
-    "group": "Infrastructure",
-    "slug": "infrastructure",
-    "category": "layer",
-    "active": false,
-    "order": 4,
-    "info": "Infrastructure info",
-    "layers": [
-      {
-        "group": "Transportation",
-        "slug": "transportation",
-        "category": "layer",
-        "active": false,
-        "info": "Transportation",
-        "layers": [
-          {
-            "name": "Roads",
-            "slug": "roads",
-            "type": "layer",
-            "zindex": 1,
-            "active": false,
-            "order": 0,
-            "color": "#CC3332",
-            "info": "Expressways, highways and major arterial roads"
-          },
-          {
-            "name": "Commuter Rail (Stations)",
-            "slug": "commuter_rail_stations",
-            "type": "layer",
-            "zindex": 110,
-            "active": false,
-            "order": 2,
-            "color": "  #40ad4b",
-            "info": "Inter-regional public rail transit (GO Transit) - stations"
-          },
-          {
-            "name": "Railway",
-            "slug": "railway",
-            "type": "layer",
-            "zindex": 3,
-            "active": false,
-            "order": 3,
-            "color": "#727272",
-            "info": "Active railway lines in Southern Ontario"
-          },
-          {
-            "name": "Subway",
-            "slug": "subway",
-            "type": "layer",
-            "zindex": 4,
-            "active": false,
-            "order": 4,
-            "color": "#F4A900",
-            "info": "Toronto Transit Commission subway lines"
-          },
-          {
-            "name": "International Airport",
-            "slug": "international_airport",
-            "type": "layer",
-            "zindex": 110,
-            "active": false,
-            "order": 5,
-            "info": "Airports designated for flights to and from other countries"
-          },
-          {
-            "name": "Welland Canal",
-            "slug": "welland_canal",
-            "type": "layer",
-            "zindex": 1,
-            "active": false,
-            "order": 6,
-            "color": "#254DA8",
-            "info": "A ship canal linking Lake Ontario and Lake Erie"
-          },
-          {
-            "name": "Intermodal Terminals",
-            "slug": "intermodal_terminals",
-            "type": "layer",
-            "zindex": 100,
-            "active": false,
-            "order": 7,
-            "color": "#7B00B4",
-            "info": "Intermodal terminals",
-            "interactivity": {
-              "name": "Name"
-            }
-          },
-          {
-            "name": "Major Ports",
-            "slug": "major_ports",
-            "type": "layer",
-            "zindex": 100,
-            "active": false,
-            "order": 8,
-            "color": "#FF6600",
-            "info": "Major Ports",
-            "interactivity": {
-              "name": "Name"
-            }
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "group": "Countryside",
-    "slug": "countryside",
-    "category": "context",
-    "active": false,
-    "order": 1,
-    "layers": [
-      {
-        "name": "Whitebelt Lands",
-        "slug": "whitebelt_lands",
-        "type": "layer",
-        "zindex": 1,
-        "active": false,
-        "order": 0,
-        "color": "#9CC79A",
-        "info": "Lands between outer edge of urban area and Greenbelt Plan area. Lands are undeveloped and not protected from future development",
-        "interactivity": {
-          "legalname1": "Legal name",
-          "shape_area": "Shape Area"
-        }
-      }
-    ]
-  },
-  {
-    "group": "Dissemination Areas",
-    "slug": "",
-    "category": "context",
-    "active": false,
-    "order": 2,
-    "info": "Census data with multiple variables - demogrpahics, housing, labour force and occupation, etc.",
-    "layers": [
-      {
-        "name": "Dissemination Areas",
-        "slug": "dissemination_areas",
-        "type": "layer",
-        "zindex": 1,
-        "active": false
-      }
-    ]
-  },
-  {
-    "group": "Census Tracts",
-    "slug": "",
-    "category": "context",
-    "active": false,
-    "order": 3,
-    "info": "Census data with multiple variables - demograpahics, housing, labour force and occupation, etc.",
-    "layers": [
-      {
-        "name": "Census Tracts",
-        "slug": "census_tracts",
-        "type": "layer",
-        "zindex": 1,
-        "active": false
-      }
-    ]
-  },
-  {
-    "group": "Census Subdivisions",
-    "slug": "",
-    "category": "context",
-    "active": false,
-    "order": 4,
-    "info": "Census data with multiple variables - demograpahics, housing, labour force and occupation, etc.",
-    "layers": [
-      {
-        "name": "Census Subdivisions",
-        "slug": "census_subdivisions",
-        "type": "layer",
-        "zindex": 1,
-        "active": false
-      }
-    ]
-  },
-  {
-    "group": "Census Divisions",
-    "slug": "",
-    "category": "context",
     "active": false,
     "order": 5,
-    "info": "Census data with multiple variables - demograpahics, housing, labour force and occupation, etc.",
+    "info": "This is the info for Water",
     "layers": [
       {
-        "name": "Census Divisions",
-        "slug": "census_divisions",
+        "name": "Horn of Africa Dry season coefvariation change",
+        "slug": "horn_africa_dry_coef_var",
         "type": "layer",
-        "zindex": 1,
-        "active": false
+        "zindex": 10,
+        "active": false,
+        "timeline": false,
+        "info": "Overall GPI scores",
+        "color": "#775C32"
       }
     ]
   },
   {
-    "group": "Traffic Zones",
-    "slug": "",
-    "category": "context",
+    "group": "Economy",
+    "slug": "economy",
+    "category": "layer",
     "active": false,
-    "order": 6,
-    "info": "Transportation Tomorrow Survey (TTS) includes data on travel behaviour - origin, destination, mode of transportation, start time of trip, etc. Traffic Zones are generally a bit larger than census tracts",
+    "order": 5,
+    "info": "This is the info for Economy",
     "layers": [
       {
-        "name": "Traffic Zones",
-        "slug": "traffic_zones",
+        "name": "Total export crops value in 2011",
+        "slug": "total_export_crop_value",
         "type": "layer",
-        "zindex": 1,
-        "active": false
+        "zindex": 10,
+        "active": false,
+        "timeline": false,
+        "info": "Total export crops value info",
+        "color": "#775C32"
+      },
+      {
+        "name": "Total crops production in 2012",
+        "slug": "total_production_crop_value",
+        "type": "layer",
+        "zindex": 10,
+        "active": false,
+        "timeline": false,
+        "info": "Total export crops value info",
+        "color": "#775C32"
       }
     ]
   }

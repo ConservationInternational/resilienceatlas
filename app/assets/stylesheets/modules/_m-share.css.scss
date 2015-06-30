@@ -1,0 +1,15 @@
+.m-share {
+  position: relative;
+  width: 49%;
+  height: 40px;
+  float: left;
+
+  .btn-share {
+    @extend %button-reset;
+    height: 40px;
+    width: 100%;
+    border: 1px solid $light-grey;
+    border-radius: 3px;
+    background-color: $white;
+  }
+}

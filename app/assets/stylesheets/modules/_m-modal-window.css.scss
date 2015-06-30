@@ -37,16 +37,16 @@
 }
 
 .btn-close-modal {
+  @extend %btn-close;
   position: absolute;
   top: $margin-small;
   right: $margin-small;
   z-index: 1;
+}
 
-  font-weight: bold;
-  color: #000;
-  font-size: 32px;
-  line-height: .5em;
-  cursor: pointer;
+.share-url {
+  width: 100%;
+  height: rem(40px);
 }
 
 
