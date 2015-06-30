@@ -140,7 +140,7 @@ select {
 
   .accordion-category-title {
     font-weight: bold;
-    text-transform: uppercase;
+    text-transform: capitalize;
 
     &:before {
       content: '';
