@@ -50,6 +50,7 @@ $dashboard-width: rem(350px);
   z-index: 3;
   padding: rem($margin-small) 0;
 }
+
 /* Dashboard */
 .l-dashboard {
   position: absolute;
@@ -75,11 +76,12 @@ $dashboard-width: rem(350px);
   transition: all .2s ease-out;
 }
 
+.l-content {
+  margin: rem($margin-extra-large);
+}
 
 /* Footer */
 .l-footer {
-  position: absolute;
-  bottom: 0;
   width: 100%;
   display: flex;
   display: -ms-box;

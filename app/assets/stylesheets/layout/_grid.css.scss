@@ -23,6 +23,7 @@
 }
 
 @for $column from 1 through $grid-columns {
+  .grid-#{$column},
   .grid-s-#{$column},
   .grid-m-#{$column},
   .grid-l-#{$column},

@@ -81,7 +81,7 @@
 }
 
 @function grid_space($column) {
-  @return $column * (100 / $grid-columns) - $grid-gutter-width * 2;
+  @return $column * (100 / $grid-columns) * 1%;
 }
 
 @function offset_space($column) {
