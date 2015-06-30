@@ -23,7 +23,7 @@
 
     span {
       width: auto;
-      text-transform: uppercase;
+      text-transform: capitalize;
       font-weight: 800;
       font-size: rem($font-size);
       line-height: rem($font-size);
@@ -62,13 +62,14 @@
       position: relative;
       font-size: rem($font-size);
       font-weight: 800;
-      text-transform: uppercase;
+      text-transform: capitalize;
       letter-spacing: rem(0.65px);
       color: $font-color-1;
 
       .legend-title {
         width: 80%;
         float: left;
+        color: $color-1;
       }
 
       .legend-btn-close {
@@ -117,6 +118,7 @@
             background: $default-icon-bg;
             margin-right: rem(5px);
             margin-bottom: rem(1px);
+            background-color: $soft-grey !important;
           }
         }
       }

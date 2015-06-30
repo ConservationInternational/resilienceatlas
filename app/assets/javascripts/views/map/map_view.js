@@ -39,7 +39,7 @@ define([
       satellite: 'http://server.arcgisonline.com' +
         '/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
       terrain: 'http://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
-      topography: 'http://{s}.tile.osm.org/{z}/{x}/{y}.png'
+      topography: 'http://{s}.api.cartocdn.com/base-light/{z}/{x}/{y}.png'
     },
 
     initialize: function(settings) {
@@ -73,7 +73,7 @@ define([
       L.control.zoom(this.options.zoom).addTo(this.map)
 
       this.map.fitBounds(bounds);
-      
+
       // drawing
       this.createMapControls();
       this.addDrawControl();
