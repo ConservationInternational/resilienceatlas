@@ -9,7 +9,7 @@ define([
   var NativeLayer = Class.extend({
 
     defaults: {
-      username: 'neptis'
+      username: 'cigrp'
     },
 
     init: function(settings) {

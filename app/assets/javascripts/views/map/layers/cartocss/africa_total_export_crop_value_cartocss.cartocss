@@ -1,0 +1,22 @@
+#trade_crops_livestock_e_all_data_grp{
+  polygon-fill: #EDF8FB;
+  polygon-opacity: 0.8;
+  line-color: #FFF;
+  line-width: 0.5;
+  line-opacity: 1;
+}
+#trade_crops_livestock_e_all_data_grp [ total <= 466119747] {
+   polygon-fill: #006D2C;
+}
+#trade_crops_livestock_e_all_data_grp [ total <= 4421593] {
+   polygon-fill: #2CA25F;
+}
+#trade_crops_livestock_e_all_data_grp [ total <= 1429396] {
+   polygon-fill: #66C2A4;
+}
+#trade_crops_livestock_e_all_data_grp [ total <= 530962] {
+   polygon-fill: #B2E2E2;
+}
+#trade_crops_livestock_e_all_data_grp [ total <= 168474] {
+   polygon-fill: #EDF8FB;
+}

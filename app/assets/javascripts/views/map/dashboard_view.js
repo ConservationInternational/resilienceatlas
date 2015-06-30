@@ -57,12 +57,12 @@ define([
       var dataByCategories = this.layers.getByCategoryAndGroup();
       var layers = this.formatLayers(dataByCategories.layer);
       var basemaps = this.formatLayers(dataByCategories.basemap);
-      var context = this.formatLayers(dataByCategories.context);
+      // var context = this.formatLayers(dataByCategories.context);
 
       var data = {
         layers: layers,
         basemaps: basemaps,
-        context: context
+        // context: context
       };
 
       this.$el.html(this.template(data));
@@ -74,15 +74,15 @@ define([
     renderSelectedLayers: function() {
       var $layer = this.$('.tab-layer .ic-active-layers');
       var $basemap = this.$('.tab-basemap .ic-active-layers');
-      var $context = this.$('.tab-context .ic-active-layers');
+      // var $context = this.$('.tab-context .ic-active-layers');
 
       var numLayers = this.layers.where({category: 'layer', active: true});
       var numBasemaps = this.layers.where({category: 'basemap', active: true});
-      var numContext = this.layers.where({category: 'context', active: true});
+      // var numContext = this.layers.where({category: 'context', active: true});
 
       $layer.html(numLayers.length || '');
       $basemap.html(numBasemaps.length || '');
-      $context.html(numContext.length || '');
+      // $context.html(numContext.length || '');
     },
 
     afterRender: function() {
