@@ -19,6 +19,12 @@
   }
 }
 
+.is-stretch {
+  display: -ms-box;
+  display: flex;
+  align-items: stretch;
+}
+
 // Mobile devices
 @media screen and (max-width: $screen-s) {
 

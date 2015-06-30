@@ -30,13 +30,14 @@ html lang="#{I18n.locale}"
     == yield
 
     footer.l-footer
-      .row
-        .small-3.columns.is-flex
-          a.logo-bn href="/"  
-        .small-3.columns.is-flex
-          ul.m-main-menu
-            li 
-              = link_to 'map', root_path, class: controller_name == 'map' ? 'is-current' : ''
+      .wrap
+        .row
+          .grid-6
+
+          .grid-6
+            ul.m-main-menu
+              li 
+                = link_to 'map', root_path, class: controller_name == 'map' ? 'is-current' : ''
 
     = javascript_include_tag "https://cartodb-libs.global.ssl.fastly.net/cartodb.js/v3/3.15/cartodb.js"
     = requirejs_include_tag "application"

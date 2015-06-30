@@ -3,15 +3,13 @@
  */
 %btn {
   @extend %button-reset;
-  box-sizing: border-box;
-  padding: rem-calc($margin-small) rem-calc($margin-medium);
+  padding: rem($margin-small) rem($margin-medium);
   border: 1px solid $light-grey;
   border-radius: 3px;
-  box-shadow: 0,1px,1px, rgba($black, .1);
   font-family: $font-face-1;
   font-size: $font-size;
   font-weight: bold;
-  text-transform: uppercase;
+  text-transform: capitalize;
 }
 
 %btn-close {
@@ -50,5 +48,10 @@
   cursor: pointer;
   font-family: Georgia;
   text-transform: none !important;
+}
+
+.btn-download {
+  @extend %btn;
+  width: 100%;
 }
 
