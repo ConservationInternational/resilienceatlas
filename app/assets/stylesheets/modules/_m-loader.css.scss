@@ -5,6 +5,7 @@
   height: rem(35px);
   z-index: 1;
   padding: rem($margin-small);
+  padding-left: 35px;
   border: 1px solid $light-grey;
   background-color: $white;
   text-transform: capitalize;
@@ -14,5 +15,10 @@
 
   &.visible {
     opacity: 1;
+    @include spinner (20px, 3px, $color-1);
+
+    &:after {
+      left: 5px;
+    }
   }
 }

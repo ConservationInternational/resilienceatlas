@@ -7,7 +7,7 @@
 }
 
 .is-loading {
-  @include spinner(40px, 5px);
+  @include spinner(40px, 5px, $color-1);
 }
 
 .is-inactive  {
