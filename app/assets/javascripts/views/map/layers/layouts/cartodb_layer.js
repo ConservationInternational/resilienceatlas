@@ -75,6 +75,10 @@ define([
         if(interactivity) {
           self.addInfoWindow(interactivity);
         }
+
+        if(options.params.legend) {
+          self.addLegend(options);
+        }
       });
     },
 
@@ -145,6 +149,26 @@ define([
       if(bounds) {
         this.map.fitBounds(bounds, {maxZoom: this.map.getZoom()});
       }
+    },
+
+    addLegend: function(options) {
+      var dataLegend = [
+        { value: options.params.legend.min },
+        { value: options.params.legend.max }
+      ];
+
+      _.each(options.params.legend.bucket, function(bucket, i) {
+        dataLegend.push({
+          name: "color"+i,
+          value: bucket
+        })
+      });
+
+      this.legend = new cdb.geo.ui.Legend({
+         type: "choropleth",
+         data: dataLegend
+       });
+       $('#legend-'+options.slug).html(this.legend.render().el);
     },
 
     addInfoWindow: function(interactivity) {

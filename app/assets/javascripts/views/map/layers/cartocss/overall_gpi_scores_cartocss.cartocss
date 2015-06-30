@@ -1,28 +1,28 @@
 #gpi_scores_longformat{
-  polygon-fill: #FFFFB2;
+  polygon-fill: #0080ff;
   polygon-opacity: 0.8;
   line-color: #FFF;
   line-width: 0.5;
   line-opacity: 1;
 }
 #gpi_scores_longformat [ overall <= 3.486] {
-   polygon-fill: #B10026;
+   polygon-fill: #ff4d4d;
 }
 #gpi_scores_longformat [ overall <= 2.94] {
-   polygon-fill: #E31A1C;
+   polygon-fill: #ff7a7a;
 }
 #gpi_scores_longformat [ overall <= 2.52] {
-   polygon-fill: #FC4E2A;
+   polygon-fill: #ffa6a6;
 }
 #gpi_scores_longformat [ overall <= 2.38] {
-   polygon-fill: #FD8D3C;
+   polygon-fill: #fff2cc;
 }
 #gpi_scores_longformat [ overall <= 2.229] {
-   polygon-fill: #FEB24C;
+   polygon-fill: #7fbfff;
 }
 #gpi_scores_longformat [ overall <= 2.058] {
-   polygon-fill: #FED976;
+   polygon-fill: #40a0ff;
 }
 #gpi_scores_longformat [ overall <= 1.899] {
-   polygon-fill: #FFFFB2;
+   polygon-fill: #0080ff;
 }

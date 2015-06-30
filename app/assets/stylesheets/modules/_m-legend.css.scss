@@ -146,3 +146,16 @@
   bottom: 1.25rem !important;
   left: 150px !important;
 }
+
+.cartodb-legend {
+  &.choropleth {
+    position: relative;
+    top: 0;
+    right: 0;
+    left: 0;
+    bottom: 0;
+    box-shadow: none;
+    border: 0;
+    padding: 5px 5px 0px 0px !important;
+  }
+}
