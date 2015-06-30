@@ -2,13 +2,15 @@
   position: absolute;
   top: rem($margin-medium);
   left: rem($margin-medium);
+  height: rem(35px);
   z-index: 1;
   padding: rem($margin-small);
-  border: 1px solid $soft-grey;
+  border: 1px solid $light-grey;
   background-color: $white;
-  text-transform: uppercase;
+  text-transform: capitalize;
   opacity: 0;
   pointer-events: none;
+  color: $color-1;
 
   &.visible {
     opacity: 1;

@@ -34,15 +34,19 @@
   //optional, min size.
   min-width: 500px;
   min-height: 200px;
+
+  a {
+    color: $color-1;
+  }
 }
 
 .btn-close-modal {
   @extend %btn-close;
   position: absolute;
-  top: $margin-small;
+  top: 15px;
   right: $margin-small;
   z-index: 1;
-  font-size: 32px;
+  font-size: 25px;
 }
 
 .share-url {

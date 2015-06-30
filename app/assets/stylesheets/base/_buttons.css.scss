@@ -21,6 +21,7 @@
   line-height: .5em;
   cursor: pointer;
   text-align: center;
+  color: $color-1;
 }
 
 /*
@@ -47,5 +48,7 @@
   @include circle(15px, $soft-grey, 1px, $soft-grey, border);
   font-size: $font-size-small;
   cursor: pointer;
+  font-family: Georgia;
+  text-transform: none !important;
 }
 

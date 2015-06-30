@@ -145,7 +145,7 @@ select {
     &:before {
       content: '';
       display: inline-block;
-      @include equi-triangle (5px, $black, right);
+      @include equi-triangle (5px, $color-1, right);
       transition: all .2s ease-out;
     }
   }
@@ -186,6 +186,7 @@ select {
 
   .layer-item-name {
     max-width: 88%;
+    font-weight: regular;
     margin-left: rem($margin-small);
   }
 }
