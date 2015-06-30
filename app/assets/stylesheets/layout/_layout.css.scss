@@ -1,6 +1,7 @@
 /* Layout common values */
 $header-height: rem(80px);
 $toolbar-height: rem(60px);
+$dashboard-width: rem(350px);
 
 /* Header */
 .l-main-header {
@@ -45,7 +46,7 @@ $toolbar-height: rem(60px);
   top: $header-height + rem($margin-medium);
   right: rem($margin-medium);
   height: $toolbar-height;
-  width: 350px;
+  width: $dashboard-width;
   z-index: 3;
   padding: rem($margin-small) 0;
 }
@@ -55,7 +56,7 @@ $toolbar-height: rem(60px);
   top: $header-height + $toolbar-height + rem($margin-medium);
   bottom: rem($margin-medium);
   right: rem($margin-medium);
-  width: 350px;
+  width: $dashboard-width;
   z-index: 2;
   border: 1px solid $light-grey;
   background-color: $white;
