@@ -1,5 +1,5 @@
 define([
-  'Backbone',
+  'backbone',
   'views/helpers/share_window_view'
 ], function(Backbone, ShareWindow) {
 
