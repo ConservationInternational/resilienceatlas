@@ -7,7 +7,16 @@
 }
 
 .is-loading {
-  @include spinner(40px, 5px);
+  @include spinner(40px, 5px, $color-1);
+}
+
+.is-inactive  {
+  color: $font-color-3;
+  pointer-events: none;
+
+  a {
+    color: $font-color-3 !important;
+  }
 }
 
 // Mobile devices

@@ -8,6 +8,17 @@
     height: 40px;
     position: relative;
     width: 100%;
+
+    &:after {
+      content: '';
+      display: block;
+      position: absolute;
+      right: 10px;
+      bottom: 0;
+      width: 20px;
+      height: 40px;
+      background: image-url("icon-search.svg") no-repeat center;
+    }
   }
 
   .btn-clear {
@@ -46,6 +57,14 @@
     li {
       padding-bottom: rem($margin-small);
       cursor: pointer;
+    }
+  }
+
+  &.is-inactive {
+    pointer-events: none;
+
+    input {
+      background-color: $ultra-light-grey;
     }
   }
 }

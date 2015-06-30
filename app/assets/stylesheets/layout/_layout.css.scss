@@ -1,5 +1,5 @@
 /* Layout common values */
-$header-height: rem(60px);
+$header-height: rem(80px);
 $toolbar-height: rem(60px);
 
 /* Header */
@@ -11,6 +11,18 @@ $toolbar-height: rem(60px);
   height: $header-height;
   align-content: space-between;
   border-bottom: 1px solid $light-grey;
+
+  h1 {
+    margin: 0;
+
+    a {
+      height: $header-height;
+      background: image-url("grp-wordmark.png");
+      background-repeat: no-repeat;
+      background-position: left center;
+      text-indent: -99999px;
+    }
+  }
 
   nav {
     display: flex;

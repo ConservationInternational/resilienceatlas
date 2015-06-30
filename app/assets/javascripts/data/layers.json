@@ -49,7 +49,7 @@
         "active": false,
         "timeline": false,
         "info": "Overall GPI scores",
-        "color": "#775C32",
+        "color": "#49853E",
         "interactivity": {
           "year": "Year",
           "overall": "Overall"
@@ -73,7 +73,7 @@
         "active": false,
         "timeline": false,
         "info": "Overall GPI scores",
-        "color": "#775C32",
+        "color": "#49853E",
         "interactivity": {
           "lz_value": "Value",
           "lz_type": "Type"
@@ -97,7 +97,7 @@
         "active": false,
         "timeline": false,
         "info": "Horn of Africa chrips long rains decada",
-        "color": "#775C32"
+        "color": "#49853E"
       },
       {
         "name": "Horn of Africa chrips long rains total",
@@ -107,7 +107,7 @@
         "active": false,
         "timeline": false,
         "info": "Horn of Africa chrips long rains total",
-        "color": "#775C32"
+        "color": "#49853E"
       },
       {
         "name": "Horn of Africa chrips long rains coefvariation change",
@@ -117,7 +117,7 @@
         "active": false,
         "timeline": false,
         "info": "Horn of Africa chrips long rains coefvariation change",
-        "color": "#775C32"
+        "color": "#49853E"
       },
       {
         "name": "Horn of Africa chrips dry total",
@@ -127,7 +127,7 @@
         "active": false,
         "timeline": false,
         "info": "Horn of Africa chrips dry total",
-        "color": "#775C32"
+        "color": "#49853E"
       },
       {
         "name": "Horn of Africa chrips dry decada",
@@ -137,7 +137,7 @@
         "active": false,
         "timeline": false,
         "info": "Horn of Africa chrips dry decada",
-        "color": "#775C32"
+        "color": "#49853E"
       },
       {
         "name": "Horn of Africa Dry season coefvariation change",
@@ -147,7 +147,7 @@
         "active": false,
         "timeline": false,
         "info": "Overall GPI scores",
-        "color": "#775C32"
+        "color": "#49853E"
       }
     ]
   },
@@ -167,7 +167,7 @@
         "active": false,
         "timeline": false,
         "info": "Total export crops value info",
-        "color": "#775C32",
+        "color": "#49853E",
         "interactivity": {
           "total": "Total"
         }
@@ -180,7 +180,7 @@
         "active": false,
         "timeline": false,
         "info": "Total export crops value info",
-        "color": "#775C32",
+        "color": "#49853E",
         "interactivity": {
           "total": "Total"
         }

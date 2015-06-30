@@ -4,17 +4,26 @@
   display: -ms-box;
   justify-content: space-between;
   width: 100%;
-  text-transform: uppercase;
+  text-transform: capitalize;
 
   li {
     display: flex;
     display: -ms-box;
     align-items: center;
     position: relative;
+
+    &:hover {
+      background-color: $light-grey;
+
+      a {
+        color: $color-2;
+      }
+    }
   }
 
   .l-main-header & {
     a {
+      padding: 0 $margin-small;
       color: $font-color-1;
       font-size: $font-size;
       font-weight: bold;

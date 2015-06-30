@@ -163,7 +163,7 @@
 }
 
 //Loader
-@mixin spinner ($size, $border-width){
+@mixin spinner ($size, $border-width, $color){
 
   &:before {
     content: '';
@@ -187,7 +187,7 @@
     margin: -($size/2) 0 0 -($size/2);
     transition: all .75s ease 0s;
     border-radius: 100%;
-    border-top: $border-width solid #444;
+    border-top: $border-width solid $color;
     border-right: $border-width solid #eee;
     border-bottom: $border-width solid #eee;
     border-left: $border-width solid #eee;
