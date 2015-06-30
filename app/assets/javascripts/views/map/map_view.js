@@ -11,11 +11,15 @@ define([
 
     defaults: {
       map: {
-        center: [19.335937499999996, 12.554563528593656],
+        center: [6.053161295714079, 49.5703125],
         zoom: 3,
         minZoom: 3,
         zoomControl: false,
         drawControl: false
+      },
+      bounds: {
+        south: [-26.667095801104804, -15.8203125],
+        north: [36.73888412439431, 115.400390625]
       },
       zoom: {
         position: 'topright'
@@ -61,8 +65,14 @@ define([
     },
 
     createMap: function() {
+      var southWest = L.latLng(this.options.bounds.south),
+          northEast = L.latLng(this.options.bounds.north),
+          bounds = L.latLngBounds(southWest, northEast);
+
       this.map = L.map(this.el, this.options.map);
-      L.control.zoom(this.options.zoom).addTo(this.map);
+      L.control.zoom(this.options.zoom).addTo(this.map)
+
+      this.map.fitBounds(bounds);
 
       // drawing
       this.createMapControls();
