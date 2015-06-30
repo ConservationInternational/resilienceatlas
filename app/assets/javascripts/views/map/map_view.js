@@ -11,15 +11,15 @@ define([
 
     defaults: {
       map: {
-        center: [6.053161295714079, 49.5703125],
+        center: [6.577303118123887, 92.8125],
         zoom: 3,
         minZoom: 3,
         zoomControl: false,
         drawControl: false
       },
       bounds: {
-        south: [-26.667095801104804, -15.8203125],
-        north: [36.73888412439431, 115.400390625]
+        south: [-47.8721439688873, -34.27734375],
+        north: [55.97379820507658, 219.90234375]
       },
       zoom: {
         position: 'topright'
@@ -73,7 +73,7 @@ define([
       L.control.zoom(this.options.zoom).addTo(this.map)
 
       this.map.fitBounds(bounds);
-
+      
       // drawing
       this.createMapControls();
       this.addDrawControl();
