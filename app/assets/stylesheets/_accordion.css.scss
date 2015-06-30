@@ -140,12 +140,12 @@ select {
 
   .accordion-category-title {
     font-weight: bold;
-    text-transform: uppercase;
+    text-transform: capitalize;
 
     &:before {
       content: '';
       display: inline-block;
-      @include equi-triangle (5px, $black, right);
+      @include equi-triangle (5px, $color-1, right);
       transition: all .2s ease-out;
     }
   }
@@ -177,16 +177,25 @@ select {
   justify-content: space-between;
   align-items: center;
   margin-bottom: rem($margin-small);
+
+
+  .switcher {
+    float: left;
+
+  }
 }
 
 .layer-item-content {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  // display: flex;
+  // align-items: center;
+  // justify-content: space-between;
+  width: 90%;
 
   .layer-item-name {
     max-width: 88%;
+    font-weight: regular;
     margin-left: rem($margin-small);
+    float: left;
   }
 }
 

@@ -6,6 +6,11 @@ define([
   //FOOD SECURITY
   'views/map/layers/instances/africa_livelihoodzones_layer',
   //WATER
+  'views/map/layers/instances/horn_africa_chirps_long_rains_decada_layer',
+  'views/map/layers/instances/horn_africa_chirps_long_rains_total_layer',
+  'views/map/layers/instances/horn_africa_chirps_long_rains_coefvariation_change_layer',
+  'views/map/layers/instances/horn_africa_chirps_dry_total_layer',
+  'views/map/layers/instances/horn_africa_chirps_dry_decada_layer',
   'views/map/layers/instances/horn_africa_dry_coef_var_layer',
   //ECONOMY
   'views/map/layers/instances/africa_total_export_crop_value_layer',
@@ -17,6 +22,11 @@ define([
   //FOOD SECURITY
   AfricaLivelihoodZonesLayer,
   //WATER
+  HornAfricaChirpsLongRainsDecadaLayer,
+  HornAfricaChirpsLongRainsTotalLayer,
+  HornAfricaChirpsLongRainsCoefvariationChangeLayer,
+  HornAfricaChirpsDryTotalLayer,
+  HornAfricaChirpsDryDecadaLayer,
   HornAfricaDryCoefChangeLayer,
   //ECONOMY
   AfricaTotalExportCropValueLayer,
@@ -29,6 +39,11 @@ define([
     //CONFLICTS
     { slug: 'overall_gpi_scores', Instance: OverallGpiScoresLayer},
     { slug: 'africa_livelihoodzones', Instance: AfricaLivelihoodZonesLayer},
+    { slug: 'horn_africa_chirps_long_rains_decada', Instance: HornAfricaChirpsLongRainsDecadaLayer},
+    { slug: 'horn_africa_chirps_long_rains_total', Instance: HornAfricaChirpsLongRainsTotalLayer},
+    { slug: 'horn_africa_chirps_long_rains_coefvariation_change', Instance: HornAfricaChirpsLongRainsCoefvariationChangeLayer},
+    { slug: 'horn_africa_chirps_dry_total', Instance: HornAfricaChirpsDryTotalLayer},
+    { slug: 'horn_africa_chirps_dry_decada', Instance: HornAfricaChirpsDryDecadaLayer},
     { slug: 'horn_africa_dry_coef_var', Instance: HornAfricaDryCoefChangeLayer},
     { slug: 'total_export_crop_value', Instance: AfricaTotalExportCropValueLayer},
     { slug: 'total_production_crop_value', Instance: TotalProductionCropValueLayer}
