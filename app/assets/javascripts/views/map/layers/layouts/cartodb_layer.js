@@ -43,7 +43,6 @@ define([
       var opacity = options.opacity;
       var interactivity = options.interactivity;
       var locateLayer = options.locateLayer;
-      var slug = options.slug;
 
       var cartoParams = {
         user_name: this.defaults.username,
@@ -63,7 +62,7 @@ define([
         self.layer = layer;
 
         layer.bind('load', function() {
-          Backbone.Events.trigger('layer:finishLoading', slug);
+          Backbone.Events.trigger('layer:finishLoading', options.slug);
         });
 
         if(locateLayer) {
@@ -116,12 +115,12 @@ define([
           self.layer = L.tileLayer(tilesEndpoint, {
           }).addTo(self.map);
 
-          self.layer.bind('load', function() {
-            Backbone.Events.trigger('layer:finishLoading', slug);
+          self.layer.on('load', function() {
+            Backbone.Events.trigger('layer:finishLoading', options.slug);
           });
         },
         error: function(){
-          Backbone.Events.trigger('layer:finishLoading', slug);
+          Backbone.Events.trigger('layer:finishLoading', options.slug);
         }
       });
     },
