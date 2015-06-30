@@ -90,6 +90,56 @@
     "info": "This is the info for Water",
     "layers": [
       {
+        "name": "Horn of Africa chrips long rains decada",
+        "slug": "horn_africa_chirps_long_rains_decada",
+        "type": "layer",
+        "zindex": 10,
+        "active": false,
+        "timeline": false,
+        "info": "Horn of Africa chrips long rains decada",
+        "color": "#775C32"
+      },
+      {
+        "name": "Horn of Africa chrips long rains total",
+        "slug": "horn_africa_chirps_long_rains_total",
+        "type": "layer",
+        "zindex": 10,
+        "active": false,
+        "timeline": false,
+        "info": "Horn of Africa chrips long rains total",
+        "color": "#775C32"
+      },
+      {
+        "name": "Horn of Africa chrips long rains coefvariation change",
+        "slug": "horn_africa_chirps_long_rains_coefvariation_change",
+        "type": "layer",
+        "zindex": 10,
+        "active": false,
+        "timeline": false,
+        "info": "Horn of Africa chrips long rains coefvariation change",
+        "color": "#775C32"
+      },
+      {
+        "name": "Horn of Africa chrips dry total",
+        "slug": "horn_africa_chirps_dry_total",
+        "type": "layer",
+        "zindex": 10,
+        "active": false,
+        "timeline": false,
+        "info": "Horn of Africa chrips dry total",
+        "color": "#775C32"
+      },
+      {
+        "name": "Horn of Africa chrips dry decada",
+        "slug": "horn_africa_chirps_dry_decada",
+        "type": "layer",
+        "zindex": 10,
+        "active": false,
+        "timeline": false,
+        "info": "Horn of Africa chrips dry decada",
+        "color": "#775C32"
+      },
+      {
         "name": "Horn of Africa Dry season coefvariation change",
         "slug": "horn_africa_dry_coef_var",
         "type": "layer",
