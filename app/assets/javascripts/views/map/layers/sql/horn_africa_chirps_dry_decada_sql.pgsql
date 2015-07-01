@@ -1,0 +1,2 @@
+SELECT ST_ColorMap(ST_Union(the_raster_webmercator),'bluered') the_raster_webmercator
+FROM hornofafrica_chirps_dry_decadalslope

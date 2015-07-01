@@ -1,10 +1,7 @@
 define([
-  'jquery',
-  'underscore',
-  'uri/URI',
   'views/map/layers/layouts/native_layer',
   'text!views/map/layers/sql/international_airport_sql.pgsql'
-], function($, _, URI, NativeLayer, SQL) {
+], function(NativeLayer, SQL) {
 
   'use strict';
 

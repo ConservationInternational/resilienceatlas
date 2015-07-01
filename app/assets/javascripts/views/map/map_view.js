@@ -11,11 +11,15 @@ define([
 
     defaults: {
       map: {
-        center: [19.335937499999996, 12.554563528593656],
+        center: [6.577303118123887, 92.8125],
         zoom: 3,
         minZoom: 3,
         zoomControl: false,
         drawControl: false
+      },
+      bounds: {
+        south: [-47.8721439688873, -34.27734375],
+        north: [55.97379820507658, 219.90234375]
       },
       zoom: {
         position: 'topright'
@@ -35,7 +39,7 @@ define([
       satellite: 'http://server.arcgisonline.com' +
         '/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
       terrain: 'http://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
-      topography: 'http://{s}.tile.osm.org/{z}/{x}/{y}.png'
+      topography: 'http://{s}.api.cartocdn.com/base-light/{z}/{x}/{y}.png'
     },
 
     initialize: function(settings) {
@@ -61,8 +65,14 @@ define([
     },
 
     createMap: function() {
+      var southWest = L.latLng(this.options.bounds.south),
+          northEast = L.latLng(this.options.bounds.north),
+          bounds = L.latLngBounds(southWest, northEast);
+
       this.map = L.map(this.el, this.options.map);
-      L.control.zoom(this.options.zoom).addTo(this.map);
+      L.control.zoom(this.options.zoom).addTo(this.map)
+
+      this.map.fitBounds(bounds);
 
       // drawing
       this.createMapControls();

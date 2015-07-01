@@ -12,7 +12,20 @@ define([
       params: {
         q: SQL,
         cartocss: CartoCSS,
-        type: ''
+        type: '',
+        legend: {
+          min: '1.90',
+          max: '3.49',
+          bucket: [
+            '#007FFE',
+            '#419FFE',
+            '#7DBEFE',
+            '#FEF1CB',
+            '#FEA5A5',
+            '#FF7A7A',
+            '#FF4D4D'
+          ]
+        }
       }
     }
 
