@@ -12,7 +12,17 @@ define([
       params: {
         q: SQL,
         cartocss: CartoCSS,
-        type: ''
+        type: ''/*,
+        legend: {
+         type: 'custom'
+         data: [
+           { name: 'category', value: '#color' },
+           { name: 'category', value: '#color' },
+           { name: 'category', value: '#color' },
+           { name: 'category', value: '#color' },
+           { name: 'category', value: '#color' },
+         ]
+       }*/
       }
     }
 

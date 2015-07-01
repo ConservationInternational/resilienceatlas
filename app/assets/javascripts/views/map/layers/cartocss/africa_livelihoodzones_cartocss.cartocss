@@ -1,40 +1,39 @@
 #grp_africa_livelihoodzones {
-   polygon-opacity: 0.7;
+   polygon-opacity: 0.8;
    line-color: #FFF;
    line-width: 0;
    line-opacity: 1;
-   polygon-fill: #A6CEE3;
 }
 
 #grp_africa_livelihoodzones[lz_type="Agro-Forestry"] {
-   polygon-fill: #A6CEE3;
+   polygon-fill: #135e11;
 }
 #grp_africa_livelihoodzones[lz_type="Agro-Pastoral"] {
-   polygon-fill: #1F78B4;
+   polygon-fill: #229A00;
 }
 #grp_africa_livelihoodzones[lz_type="Arid"] {
-   polygon-fill: #B2DF8A;
+   polygon-fill: #ffefb2;
 }
 #grp_africa_livelihoodzones[lz_type="Crops - Floodzone"] {
-   polygon-fill: #33A02C;
+   polygon-fill: #B81609;
 }
 #grp_africa_livelihoodzones[lz_type="Crops - Irrigated"] {
    polygon-fill: #FB9A99;
 }
 #grp_africa_livelihoodzones[lz_type="Crops - Rainfed"] {
-   polygon-fill: #E31A1C;
+   polygon-fill: #F84F40;
 }
 #grp_africa_livelihoodzones[lz_type="Fishery"] {
-   polygon-fill: #FDBF6F;
+   polygon-fill: #2E5387;
 }
 #grp_africa_livelihoodzones[lz_type="National Park"] {
-   polygon-fill: #FF7F00;
+   polygon-fill: #A53ED5;
 }
 #grp_africa_livelihoodzones[lz_type="Pastoral"] {
-   polygon-fill: #CAB2D6;
+   polygon-fill: #b0e5a0;
 }
 #grp_africa_livelihoodzones[lz_type="Urban"] {
-   polygon-fill: #6A3D9A;
+   polygon-fill: #4c4b4b;
 }
 #grp_africa_livelihoodzones {
    polygon-fill: #DDDDDD;
