@@ -12,6 +12,10 @@ define([
       username: 'cigrp'
     },
 
+    cartoLegends: {
+
+    },
+
     init: function(settings) {
       var options = settings && settings.options ? settings.options : {};
       this.options = _.extend(this.defaults, this.options || {}, options);
@@ -152,6 +156,7 @@ define([
     },
 
     addLegend: function(options) {
+
       var dataLegend = [
         { value: options.params.legend.min },
         { value: options.params.legend.max }
@@ -165,10 +170,21 @@ define([
       });
 
       this.legend = new cdb.geo.ui.Legend({
-         type: "choropleth",
+         type: options.params.legend.type,
          data: dataLegend
        });
-       $('#legend-'+options.slug).html(this.legend.render().el);
+
+      var legendHtml = this.legend.render().el;
+      var currentSlug = options.slug;
+
+      this.keepCartoLegend(currentSlug, legendHtml);
+      $.each(this.cartoLegends, function(slug, legend) {
+        $('#legend-'+slug).html(legend);
+      });
+    },
+
+    keepCartoLegend: function(currentSlug, legendHtml) {
+      this.cartoLegends[currentSlug] = legendHtml;
     },
 
     addInfoWindow: function(interactivity) {

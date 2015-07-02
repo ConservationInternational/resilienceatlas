@@ -123,6 +123,10 @@
         }
       }
     }
+
+    .legend-item {
+      margin-bottom: $margin-medium;
+    }
   }
 
   &.legend-visible {

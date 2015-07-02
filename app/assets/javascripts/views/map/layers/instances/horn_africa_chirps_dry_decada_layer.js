@@ -17,6 +17,7 @@ define([
         legend: {
           min: 'less',
           max: 'more',
+          type: 'raster',
           bucket: [
             '#007FFE',
             '#419FFE',

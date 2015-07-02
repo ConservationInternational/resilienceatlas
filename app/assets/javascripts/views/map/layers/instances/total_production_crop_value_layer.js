@@ -16,6 +16,7 @@ define([
         legend: {
           min: '4604',
           max: '1056680',
+          type: 'choropleth',
           bucket: [
             '#FFFFCC',
             '#A1DAB4',
