@@ -20,11 +20,11 @@ html lang="#{I18n.locale}"
           ul.m-main-menu
             li 
               = link_to 'map', root_path, class: controller_name == 'map' ? 'is-current' : ''
-            li
-              = link_to 'country profiles', country_index_path, class: controller_name == 'country' ? 'is-current' : ''
-            li 
+            li.is-inactive
+              = link_to 'regional Profiles', country_index_path, class: controller_name == 'country' ? 'is-current' : ''
+            li.is-inactive 
               = link_to 'explore data', explore_data_path, class: controller_name == 'explore_data' ? 'is-current' : ''
-            li 
+            li.is-inactive 
               = link_to 'about', about_index_path, class: controller_name == 'about' ? 'is-current' : ''
             
     == yield
