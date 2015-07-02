@@ -1,4 +1,4 @@
-define([ 
+define([
   'views/map/layers/layouts/cartodb_layer',
   'text!views/map/layers/cartocss/africa_livelihoodzones_cartocss.cartocss',
   'text!views/map/layers/sql/africa_livelihoodzones_sql.pgsql'
@@ -14,7 +14,7 @@ define([
         cartocss: CartoCSS,
         type: '',
         legend: {
-         type: 'custom'
+         type: 'custom',
          data: [
            { name: 'Agro-Forestry', value: '#135e11' },
            { name: 'Agro-Pastoral', value: '#229A00' },

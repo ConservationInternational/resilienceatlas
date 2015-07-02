@@ -129,6 +129,10 @@ define([
           Backbone.Events.trigger('layer:finishLoading', options.slug);
         }
       });
+
+      if(options.params.legend) {
+        self.addLegend(options);
+      }
     },
 
     /**
@@ -161,12 +165,16 @@ define([
         { value: options.params.legend.max }
       ];
 
-      _.each(options.params.legend.bucket, function(bucket, i) {
-        dataLegend.push({
-          name: "color"+i,
-          value: bucket
-        })
-      });
+      if (options.params.legend.type === 'choropleth' || options.params.legend.type === 'raster') {
+        _.each(options.params.legend.bucket, function(bucket, i) {
+          dataLegend.push({
+            name: "color"+i,
+            value: bucket
+          })
+        });
+      } else if (options.params.legend.type === 'custom') {
+        dataLegend = options.params.legend.data
+      }
 
       this.legend = new cdb.geo.ui.Legend({
          type: options.params.legend.type,
@@ -177,8 +185,6 @@ define([
       var currentSlug = options.slug;
 
       this.keepCartoLegend(currentSlug, legendHtml);
-
-
     },
 
     keepCartoLegend: function(currentSlug, legendHtml) {

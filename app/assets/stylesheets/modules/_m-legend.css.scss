@@ -154,6 +154,7 @@
 }
 
 .cartodb-legend {
+  &.custom,
   &.choropleth {
     position: relative;
     top: 0;
@@ -164,4 +165,11 @@
     border: 0;
     padding: 5px 5px 0px 0px !important;
   }
+}
+
+div.cartodb-legend.custom ul li .bullet {
+  width: 20px;
+  height: 10px;
+  border-radius: 0;
+  border: 0;
 }
