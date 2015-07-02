@@ -75,7 +75,6 @@
         "info": "Overall GPI scores",
         "color": "#49853E",
         "interactivity": {
-          "lz_value": "Value",
           "lz_type": "Type"
         }
       }
