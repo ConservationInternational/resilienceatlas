@@ -12,9 +12,7 @@ define([
       username: 'cigrp'
     },
 
-    cartoLegends: {
-
-    },
+    cartoLegends: {},
 
     init: function(settings) {
       var options = settings && settings.options ? settings.options : {};
@@ -140,6 +138,8 @@ define([
       if (this.map && this.layer) {
         this.map.removeLayer(this.layer);
       }
+
+      this.renderCartoLegends();
     },
 
     updateLayer: function() {
@@ -156,7 +156,6 @@ define([
     },
 
     addLegend: function(options) {
-
       var dataLegend = [
         { value: options.params.legend.min },
         { value: options.params.legend.max }
@@ -178,13 +177,22 @@ define([
       var currentSlug = options.slug;
 
       this.keepCartoLegend(currentSlug, legendHtml);
-      $.each(this.cartoLegends, function(slug, legend) {
-        $('#legend-'+slug).html(legend);
-      });
+
+
     },
 
     keepCartoLegend: function(currentSlug, legendHtml) {
       this.cartoLegends[currentSlug] = legendHtml;
+
+      this.renderCartoLegends();
+    },
+
+    renderCartoLegends: function() {
+      if (!_.isEmpty(this.cartoLegends)) {
+        $.each(this.cartoLegends, function(slug, legend) {
+          $('#legend-'+slug).html(legend);
+        });
+      }
     },
 
     addInfoWindow: function(interactivity) {
