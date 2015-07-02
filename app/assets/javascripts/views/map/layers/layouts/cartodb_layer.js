@@ -161,7 +161,7 @@ define([
         { value: options.params.legend.max }
       ];
 
-      if (options.params.legend.type === 'choropleth') {
+      if (options.params.legend.type === 'choropleth' || options.params.legend.type === 'raster') {
         _.each(options.params.legend.bucket, function(bucket, i) {
           dataLegend.push({
             name: "color"+i,
@@ -172,14 +172,10 @@ define([
         dataLegend = options.params.legend.data
       }
 
-      console.log(dataLegend);
-
       this.legend = new cdb.geo.ui.Legend({
          type: options.params.legend.type,
          data: dataLegend
        });
-
-      console.log(this.legend)
 
       var legendHtml = this.legend.render().el;
       var currentSlug = options.slug;
