@@ -16,6 +16,7 @@ define([
         legend: {
           min: '168.474 million US$',
           max: '466119.747 million US$',
+          type: 'choropleth',
           bucket: [
             '#EDF8FB',
             '#B2E2E2',

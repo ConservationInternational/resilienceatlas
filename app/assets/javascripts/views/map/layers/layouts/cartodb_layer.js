@@ -12,6 +12,8 @@ define([
       username: 'cigrp'
     },
 
+    cartoLegends: {},
+
     init: function(settings) {
       var options = settings && settings.options ? settings.options : {};
       this.options = _.extend(this.defaults, this.options || {}, options);
@@ -136,6 +138,8 @@ define([
       if (this.map && this.layer) {
         this.map.removeLayer(this.layer);
       }
+
+      this.renderCartoLegends();
     },
 
     updateLayer: function() {
@@ -165,10 +169,30 @@ define([
       });
 
       this.legend = new cdb.geo.ui.Legend({
-         type: "choropleth",
+         type: options.params.legend.type,
          data: dataLegend
        });
-       $('#legend-'+options.slug).html(this.legend.render().el);
+
+      var legendHtml = this.legend.render().el;
+      var currentSlug = options.slug;
+
+      this.keepCartoLegend(currentSlug, legendHtml);
+
+
+    },
+
+    keepCartoLegend: function(currentSlug, legendHtml) {
+      this.cartoLegends[currentSlug] = legendHtml;
+
+      this.renderCartoLegends();
+    },
+
+    renderCartoLegends: function() {
+      if (!_.isEmpty(this.cartoLegends)) {
+        $.each(this.cartoLegends, function(slug, legend) {
+          $('#legend-'+slug).html(legend);
+        });
+      }
     },
 
     addInfoWindow: function(interactivity) {

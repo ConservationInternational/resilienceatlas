@@ -17,6 +17,7 @@ define([
         legend: {
           min: 'less',
           max: 'more',
+          type: 'custom',
           bucket: [
             '#007FFE',
             '#419FFE',

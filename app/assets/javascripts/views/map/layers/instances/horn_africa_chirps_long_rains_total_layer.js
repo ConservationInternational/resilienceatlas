@@ -13,10 +13,11 @@ define([
         q: SQL,
         cartocss: CartoCSS,
         type: '',
-        
+        raster: true,
         legend: {
           min: 'less',
           max: 'more',
+          type: 'raster',
           bucket: [
             '#007FFE',
             '#419FFE',
@@ -26,8 +27,7 @@ define([
             '#FF7A7A',
             '#FF4D4D'
           ]
-        },
-        raster: true
+        }
       }
     }
 
