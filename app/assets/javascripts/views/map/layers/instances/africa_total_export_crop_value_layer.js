@@ -12,7 +12,18 @@ define([
       params: {
         q: SQL,
         cartocss: CartoCSS,
-        type: ''
+        type: '',
+        legend: {
+          min: '168.474 million US$',
+          max: '466119.747 million US$',
+          bucket: [
+            '#EDF8FB',
+            '#B2E2E2',
+            '#66C2A4',
+            '#2CA25F',
+            '#006D2C'
+          ]
+        }
       }
     }
 

@@ -1,2 +1,6 @@
-SELECT ST_ColorMap(ST_Union(the_raster_webmercator),'bluered') the_raster_webmercator
-FROM horn_dry_coefvariation_change
+with geom as (
+  select st_memunion(the_geom_webmercator) as the_geom_webmercator from 
+grpcountries_250k_polygon where region = 'Horn')
+
+select ST_ColorMap( ST_Union(ST_clip( t.the_raster_webmercator,geom.the_geom_webmercator, true)),'bluered') the_raster_webmercator 
+from horn_dry_coefvariation_change t, geom  
