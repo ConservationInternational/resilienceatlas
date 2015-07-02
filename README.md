@@ -28,7 +28,8 @@ Install project dependencies:
 
 To run application:
 
-    bundle exec rails server
+    start postgres:  postgres -D /usr/local/var/postgres9.4
+    start rails: bundle exec rails server
 
 ## Contributing
 

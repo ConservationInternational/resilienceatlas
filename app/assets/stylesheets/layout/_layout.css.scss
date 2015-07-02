@@ -1,6 +1,7 @@
 /* Layout common values */
 $header-height: rem(80px);
 $toolbar-height: rem(60px);
+$dashboard-width: rem(350px);
 
 /* Header */
 .l-main-header {
@@ -37,7 +38,7 @@ $toolbar-height: rem(60px);
 }
 
 .l-header {
-
+  margin-top: rem($margin-extra-large);
 }
 
 .l-map-toolbar {
@@ -45,17 +46,18 @@ $toolbar-height: rem(60px);
   top: $header-height + rem($margin-medium);
   right: rem($margin-medium);
   height: $toolbar-height;
-  width: 350px;
+  width: $dashboard-width;
   z-index: 3;
   padding: rem($margin-small) 0;
 }
+
 /* Dashboard */
 .l-dashboard {
   position: absolute;
   top: $header-height + $toolbar-height + rem($margin-medium);
   bottom: rem($margin-medium);
   right: rem($margin-medium);
-  width: 350px;
+  width: $dashboard-width;
   z-index: 2;
   border: 1px solid $light-grey;
   background-color: $white;
@@ -74,11 +76,12 @@ $toolbar-height: rem(60px);
   transition: all .2s ease-out;
 }
 
+.l-content {
+  margin: rem($margin-extra-large);
+}
 
 /* Footer */
 .l-footer {
-  position: absolute;
-  bottom: 0;
   width: 100%;
   display: flex;
   display: -ms-box;
