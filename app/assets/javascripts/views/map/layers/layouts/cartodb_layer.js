@@ -161,24 +161,30 @@ define([
         { value: options.params.legend.max }
       ];
 
-      _.each(options.params.legend.bucket, function(bucket, i) {
-        dataLegend.push({
-          name: "color"+i,
-          value: bucket
-        })
-      });
+      if (options.params.legend.type === 'choropleth') {
+        _.each(options.params.legend.bucket, function(bucket, i) {
+          dataLegend.push({
+            name: "color"+i,
+            value: bucket
+          })
+        });
+      } else if (options.params.legend.type === 'custom') {
+        dataLegend = options.params.legend.data
+      }
+
+      console.log(dataLegend);
 
       this.legend = new cdb.geo.ui.Legend({
          type: options.params.legend.type,
          data: dataLegend
        });
 
+      console.log(this.legend)
+
       var legendHtml = this.legend.render().el;
       var currentSlug = options.slug;
 
       this.keepCartoLegend(currentSlug, legendHtml);
-
-
     },
 
     keepCartoLegend: function(currentSlug, legendHtml) {
