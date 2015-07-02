@@ -129,6 +129,10 @@ define([
           Backbone.Events.trigger('layer:finishLoading', options.slug);
         }
       });
+
+      if(options.params.legend) {
+        self.addLegend(options);
+      }
     },
 
     /**
