@@ -14,7 +14,9 @@ define([
   'views/map/layers/instances/horn_africa_dry_coef_var_layer',
   //ECONOMY
   'views/map/layers/instances/africa_total_export_crop_value_layer',
-  'views/map/layers/instances/total_production_crop_value_layer'
+  'views/map/layers/instances/total_production_crop_value_layer',
+  //HEALTH
+  'views/map/layers/instances/africa_women_mass_media_layer'
 ], function(_,
   Backbone,
    //CONFLICTS
@@ -30,7 +32,9 @@ define([
   HornAfricaDryCoefChangeLayer,
   //ECONOMY
   AfricaTotalExportCropValueLayer,
-  TotalProductionCropValueLayer
+  TotalProductionCropValueLayer,
+  //HEALTH
+  AfricaWomenMassMediaAccessLayer
   ){
 
   'use strict';
@@ -49,7 +53,9 @@ define([
     { slug: 'horn_africa_dry_coef_var', Instance: HornAfricaDryCoefChangeLayer},
     //ECONOMY
     { slug: 'total_export_crop_value', Instance: AfricaTotalExportCropValueLayer},
-    { slug: 'total_production_crop_value', Instance: TotalProductionCropValueLayer}
+    { slug: 'total_production_crop_value', Instance: TotalProductionCropValueLayer},
+    //HEALTH
+    { slug: 'africa_women_mass_media_access', Instance: AfricaWomenMassMediaAccessLayer},
   ];
 
   var LayerModel = Backbone.Model.extend({

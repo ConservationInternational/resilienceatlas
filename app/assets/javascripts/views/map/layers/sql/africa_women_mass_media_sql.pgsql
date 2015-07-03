@@ -1,0 +1,1 @@
+SELECT l.byvariableid,characteristiclabel, l.value, l.surveyyear, dhs_horn.the_geom_webmercator FROM dhs_export l inner join dhs_horn on characteristiclabel=dhsregen where region = 'Horn'
