@@ -185,5 +185,28 @@
         }
       }
     ]
+  },
+  {
+    "group": "Health",
+    "slug": "health",
+    "category": "layer",
+    "active": false,
+    "order": 6,
+    "info": "This is the info for Health",
+    "layers": [
+      {
+        "name": "Women with no access to mass media",
+        "slug": "africa_women_mass_media_access",
+        "type": "layer",
+        "zindex": 9,
+        "active": false,
+        "timeline": false,
+        "info": "Women with no access to mass media info",
+        "color": "#41253E",
+        "interactivity": {
+          "value": "Value"
+        }
+      }
+    ]
   }
 ]

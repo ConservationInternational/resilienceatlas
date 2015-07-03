@@ -1,0 +1,28 @@
+#dhs_export{
+  polygon-fill: #1a9850;
+  polygon-opacity: 0.8;
+  line-color: #FFF;
+  line-width: 0.5;
+  line-opacity: 1;
+}
+#dhs_export [ value <= 135] {
+   polygon-fill: #d73027;
+}
+#dhs_export [ value <= 80.7] {
+   polygon-fill: #f79272;
+}
+#dhs_export [ value <= 62.4] {
+   polygon-fill: #fed6b0;
+}
+#dhs_export [ value <= 46.2] {
+   polygon-fill: #fff2cc;
+}
+#dhs_export [ value <= 33.1] {
+   polygon-fill: #d2ecb4;
+}
+#dhs_export [ value <= 21.9] {
+   polygon-fill: #8cce8a;
+}
+#dhs_export [ value <= 10.6] {
+   polygon-fill: #1a9850;
+}
