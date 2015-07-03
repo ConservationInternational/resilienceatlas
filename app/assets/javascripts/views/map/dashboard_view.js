@@ -3,8 +3,9 @@ define([
   'backbone',
   'handlebars',
   'foundation',
+  'views/helpers/modal_window_view',
   'text!templates/map/dashboard_tpl.handlebars'
-], function(_, Backbone, Handlebars, foundation, TPL) {
+], function(_, Backbone, Handlebars, foundation, ModalWindowView, TPL) {
 
   'use strict';
 
@@ -56,12 +57,12 @@ define([
       var dataByCategories = this.layers.getByCategoryAndGroup();
       var layers = this.formatLayers(dataByCategories.layer);
       var basemaps = this.formatLayers(dataByCategories.basemap);
-      var context = this.formatLayers(dataByCategories.context);
+      // var context = this.formatLayers(dataByCategories.context);
 
       var data = {
         layers: layers,
         basemaps: basemaps,
-        context: context
+        // context: context
       };
 
       this.$el.html(this.template(data));
@@ -73,15 +74,15 @@ define([
     renderSelectedLayers: function() {
       var $layer = this.$('.tab-layer .ic-active-layers');
       var $basemap = this.$('.tab-basemap .ic-active-layers');
-      var $context = this.$('.tab-context .ic-active-layers');
+      // var $context = this.$('.tab-context .ic-active-layers');
 
       var numLayers = this.layers.where({category: 'layer', active: true});
       var numBasemaps = this.layers.where({category: 'basemap', active: true});
-      var numContext = this.layers.where({category: 'context', active: true});
+      // var numContext = this.layers.where({category: 'context', active: true});
 
       $layer.html(numLayers.length || '');
       $basemap.html(numBasemaps.length || '');
-      $context.html(numContext.length || '');
+      // $context.html(numContext.length || '');
     },
 
     afterRender: function() {
@@ -131,7 +132,7 @@ define([
       return _.map(layer.sublayers, function(sublayer) {
         sublayer.activeColor = (sublayer.color && sublayer.active) ? sublayer.color : '';
         sublayer.activeCheck = sublayer.active ? 'checked' : '';
-        sublayer.locateLayer = sublayer.locateLayer; 
+        sublayer.locateLayer = sublayer.locateLayer;
 
         if(sublayer.active) {
           layer.activeColor = layer.color;
@@ -143,7 +144,7 @@ define([
 
         if(sublayer.layers) {
           sublayer.layers = _.map(sublayer.layers, function(secondSubLayer) {
-            secondSubLayer.activeColor = (secondSubLayer.color && 
+            secondSubLayer.activeColor = (secondSubLayer.color &&
               secondSubLayer.active) ? sublayer.color : '';
             secondSubLayer.activeCheck = secondSubLayer.active ? 'checked' : '';
             return secondSubLayer;
@@ -187,7 +188,7 @@ define([
     update: function(ev, element) {
       var currentEl = ev ? ev.currentTarget : element;
       var $el = $(currentEl);
-      var $parent = $el.parent('.switch');
+      var $parent = $el.parent('.switcher');
       var $switchEl = $parent.find('label');
       var slug = $el.data('layer-slug');
       var layers = _.clone(this.layers);
@@ -307,11 +308,14 @@ define([
       ev.stopPropagation();
 
       var $el = $(ev.currentTarget);
-      var $modalBox = $('#modalBox');
+      // var $modalBox = $('#modalBox');
       var info = $el.data('info');
 
-      $modalBox.find('.modal-content').html(info);
-      $modalBox.foundation('reveal', 'open');
+      // $modalBox.find('.modal-content').html(info);
+      // $modalBox.foundation('reveal', 'open');
+      new ModalWindowView ({
+        'data': info
+      });
     },
 
     renderLayerComponents: function(layers) {

@@ -6,19 +6,40 @@ html lang="#{I18n.locale}"
     meta charset="utf-8"
     meta name="description" content=""
     meta name="viewport" content="width=device-width"
-    = stylesheet_link_tag "http://libs.cartocdn.com/cartodb.js/v3/3.13/themes/css/cartodb.css", media: "all"
+    = stylesheet_link_tag "https://cartodb-libs.global.ssl.fastly.net/cartodb.js/v3/3.15/themes/css/cartodb.css", media: "all"
     = stylesheet_link_tag "application", media: "all"
     = csrf_meta_tags
 
   body
-    header
-      nav.top-bar role="navigation" data-topbar="true"
-        ul.title-area
-          li.name: h1: a(href="/") CIGRP Prototype
-        section.top-bar-section
-          ul.right
-            li: a.current(href="#") Map
-    #pageView.page-map
-      == yield
-    = javascript_include_tag "http://libs.cartocdn.com/cartodb.js/v3/3.13/cartodb.js"
+    header.l-main-header
+      nav
+        .grid-8
+          h1 
+            = link_to 'CIGRP Prototype', root_path
+        .grid-4.is-flex
+          ul.m-main-menu
+            li 
+              = link_to 'map', root_path, class: controller_name == 'map' ? 'is-current' : ''
+            li.is-inactive
+              = link_to 'regional Profiles', country_index_path, class: controller_name == 'country' ? 'is-current' : ''
+            li.is-inactive 
+              = link_to 'explore data', explore_data_path, class: controller_name == 'explore_data' ? 'is-current' : ''
+            li.is-inactive 
+              = link_to 'about', about_index_path, class: controller_name == 'about' ? 'is-current' : ''
+            
+    == yield
+
+    footer.l-footer
+      .wrap
+        .row
+          .grid-6
+
+          .grid-6
+            ul.m-main-menu
+              li 
+                = link_to 'map', root_path, class: controller_name == 'map' ? 'is-current' : ''
+
+    = javascript_include_tag "https://cartodb-libs.global.ssl.fastly.net/cartodb.js/v3/3.15/cartodb.js"
     = requirejs_include_tag "application"
+
+

@@ -1,41 +1,16 @@
 <div id="search-tpl">
   <div class="search-content">
-    <h3>Local search</h3>
 
     <div class="search-box">
-      <div class="btn-clear">clear</div>
+      <div class="btn-clear is-hidden">x</div>
       <input id="search" type="text" placeholder="Search area" />
     </div>
 
-    <div class="search-selector">
-      <ul class="button-group">
-        <li><a href="#" data-category="upper-tier" class="button selector-category selected">Upper-tier</a></li>
-        <li><a href="#" data-category="lower-tier" class="button selector-category">Lower-tier</a></li>
-      </ul>
-
-      <ul class="letter-filter">
-        {{#each aplhabet}}
-          <li class="{{#if active}}active{{/if}}" data-value="{{value}}">{{value}}</li>
-        {{/each}}
-      </ul>
-    </div>
-
     <div class="search-result"></div>
-    <div class="search-suggestions"></div>
+    <div class="search-suggestions is-hidden">
+    </div>
   </div>
   <div class="search-bottom"></div>
-</div>
-
-<div id="search-results-tpl">
-  {{#if data}}
-    <ul>
-      {{#each data}}
-        <li title="{{name}}">{{name}}</li>
-      {{/each}}
-    </ul>
-  {{else}}
-    <div class="no-results">No results</div>
-  {{/if}}
 </div>
 
 <div id="search-suggestions-tpl">
@@ -45,7 +20,7 @@
         <li title="{{title}}">{{{name}}}, <span class="category">{{type}}</span></li>
       {{/each}}
     </ul>
-  {{else}}
-    <div class="no-results">No results</div>
+  {{!-- {{else}}
+    <div class="no-results">No results</div> --}}
   {{/if}}
 </div>

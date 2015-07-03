@@ -1,0 +1,41 @@
+/*
+ * States are modes that can change
+ */
+
+.is-hidden {
+  @extend %hidden;
+}
+
+.is-loading {
+  @include spinner(40px, 5px, $color-1);
+}
+
+.is-inactive  {
+  color: $font-color-3;
+  pointer-events: none;
+
+  a {
+    color: $font-color-3 !important;
+  }
+}
+
+.is-stretch {
+  display: -ms-box;
+  display: flex;
+  align-items: stretch;
+}
+
+// Mobile devices
+@media screen and (max-width: $screen-s) {
+
+}
+
+// Small devices (tablets, 768px)
+@media screen and (min-width: $screen-m) {
+
+}
+
+// Large devices (desktop)
+@media screen and (min-width: $screen-l) {
+
+}

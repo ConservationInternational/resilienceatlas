@@ -4,8 +4,8 @@
 
 <div class="legend-box">
   <div class="legend-top">
-    <div class="legend-title">Legend</div>
-    <div class="legend-btn-close"></div>
+    <div class="legend-title">legend</div>
+    <div class="legend-btn-close">x</div>
   </div>
   <div class="legend-content">
     {{#each layers}}
@@ -14,9 +14,10 @@
         <div class="group-items">
           {{#each this}}
             <div class="group-item"><div style="background-color:{{color}}" class="item-icon"></div>{{name}}</div>
+            <div id="legend-{{slug}}" class="legend-item"></div>
           {{/each}}
         </div>
       </div>
     {{/each}}
   </div>
-</div> 
+</div>

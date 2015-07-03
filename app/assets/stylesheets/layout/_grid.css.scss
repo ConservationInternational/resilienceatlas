@@ -1,0 +1,107 @@
+.wrap {
+  display: block;
+  max-width: rem($grid-max-width);
+  margin: 0 auto;
+  padding: 0 $grid-padding;
+
+  @media screen and (min-width: $screen-xl) {
+    padding: 0 $wrap-padding;
+  }
+}
+
+.row {
+  position: relative;
+  margin: 0 ($grid-gutter-width * -1);
+  @extend %clearfix;
+}
+
+%grid {
+  float: left;
+  padding: 0 $grid-gutter-width;
+  position: relative;
+  min-height: 1px;
+}
+
+@for $column from 1 through $grid-columns {
+  .grid-#{$column},
+  .grid-s-#{$column},
+  .grid-m-#{$column},
+  .grid-l-#{$column},
+  .grid-xl-#{$column} {
+    @extend %grid;
+  }
+}
+
+/*
+ * Use this one if you don´t need adaptative grid
+ */
+@for $column from 1 through $grid-columns {
+  .grid-#{$column} {
+    @include grid($column);
+  }
+  .offset-#{$column} {
+    @include offset($column);
+  }
+}
+
+/*
+ * Use those ones if you need adaptative grid.
+ * This is a mobile first grid.
+ */
+// Small devices (mobiles, < 540px)
+@for $column from 1 through $grid-columns {
+  .grid-s-#{$column} {
+    @include grid($column);
+  }
+  .offset-s-#{$column} {
+    @include offset($column);
+  }
+}
+
+// Medium devices (540px and up)
+@for $column from 1 through $grid-columns {
+  @media screen and (min-width: $screen-s) {
+    .grid-m-#{$column} {
+      @include grid($column);
+    }
+    .offset-m-#{$column} {
+      @include offset($column);
+    }
+  }
+}
+
+// Medium devices (768px and up)
+@for $column from 1 through $grid-columns {
+  @media screen and (min-width: $screen-m) {
+    .grid-m-#{$column} {
+      @include grid($column);
+    }
+    .offset-m-#{$column} {
+      @include offset($column);
+    }
+  }
+}
+
+// Large devices (desktops, 960px and up)
+@for $column from 1 through $grid-columns {
+  @media screen and (min-width: $screen-l) {
+    .grid-l-#{$column} {
+      @include grid($column);
+    }
+    .offset-l-#{$column} {
+      @include offset($column);
+    }
+  }
+}
+
+// Extra large devices (desktops, 1200px and up)
+@for $column from 1 through $grid-columns {
+  @media screen and (min-width: $screen-xl) {
+    .grid-xl-#{$column} {
+      @include grid($column);
+    }
+    .offset-xl-#{$column} {
+      @include offset($column);
+    }
+  }
+}

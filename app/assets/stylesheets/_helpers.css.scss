@@ -1,0 +1,231 @@
+ ////////////////////
+ //*** extends  ***//
+ ////////////////////
+
+/**
+ * Extends
+ * Place here in alphabetic order.
+ * Abstract classes to extend.
+ */
+%clearfix {
+  &:before, &:after {
+    display: table;
+    content: '';
+  }
+  &:after {
+    clear: both;
+  }
+}
+
+%button-reset {
+  appearance: none;
+  margin: 0;
+  line-height: 1em;
+}
+
+%form-field-reset {
+  -webkit-appearance: none;
+  appearance: none;
+  box-shadow: none;
+  background: none;
+  border: 0;
+  border-radius: 0;
+  margin: 0;
+}
+
+%list-reset {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+%center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  -webkit-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+}
+
+%centerx {
+  position: absolute;
+  left: 50%;
+  -webkit-transform: translateX(-50%);
+  transform: translateX(-50%);
+}
+
+%centery {
+  position: absolute;
+  top: 50%;
+  -webkit-transform: translateY(-50%);
+  transform: translateY(-50%);
+}
+
+%hidden {
+  display: none !important;
+  visibility: hidden;
+}
+
+
+////////////////////
+//**** Mixins ****//
+////////////////////
+
+//Structure mixins
+@mixin grid($column) {
+  width: grid_space($column);
+}
+
+@mixin offset($column) {
+  margin-left: offset_space($column);
+}
+
+@function grid_space($column) {
+  @return $column * (100 / $grid-columns) * 1%;
+}
+
+@function offset_space($column) {
+  @return $column * (100 / $grid-columns) * 1%;
+}
+
+//Fonts includer
+@mixin font-face($font-name, $font-file, $weight, $style: "normal") {
+  @font-face {
+    font-family: $font-name;
+    src: font-url("#{$font-file}.eot");
+    src: font-url("#{$font-file}.eot?#iefix") format("embedded-opentype"),
+         font-url("#{$font-file}.woff2") format("woff2"),
+         font-url("#{$font-file}.woff") format("woff"),
+         font-url("#{$font-file}.ttf") format("truetype"),
+         font-url("#{$font-file}.svg") format("svg");
+    font-weight: $weight;
+    font-style: $style;
+  }
+}
+
+//Forms mixins
+@mixin placeholder() {
+  &::-webkit-input-placeholder {@content}
+  &:-moz-placeholder {@content}
+  &::-moz-placeholder {@content}
+  &:-ms-input-placeholder {@content}
+}
+
+//Text
+@mixin ellipsis($max-width) {
+  max-width: $max-width;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+//Decoration
+@mixin fade ($color) {
+  background-image: -webkit-gradient(linear, left bottom, left top, color-stop(0, $color), color-stop(1, rgba($color, 0)));
+  background-image: -o-linear-gradient(left, $color 0, rgba($color, 0) 100%);
+  background-image: -moz-linear-gradient(left, $color 0, rgba($color, 0) 100%);
+  background-image: -webkit-linear-gradient(left, $color 0, rgba($color, 0) 100%);
+  background-image: -ms-linear-gradient(left, $color 0, rgba($color, 0) 100%);
+  background-image: linear-gradient(to left, $color 0, rgba($color, 0) 100%);
+  pointer-events: none;
+}
+
+//Shapes
+@mixin arrow ($width, $color, $border-width, $deg) {
+  width: $width;
+  height: $width;
+  border-top: $border-width solid $color;
+  border-left: $border-width solid $color;
+  transform: rotate($deg);
+  pointer-events: none;
+}
+
+@mixin equi-triangle ($width, $color, $direction) {
+  width: 0;
+  height: 0;
+  @if $direction == 'top' {
+    border-left: $width solid transparent;
+    border-right: $width solid transparent;
+    border-bottom: $width solid $color;
+  } @else if $direction == 'bottom' {
+    border-left: $width solid transparent;
+    border-right: $width solid transparent;
+    border-top: $width solid $color;
+  } @else if $direction == 'left' {
+    border-top: $width solid transparent;
+    border-bottom: $width solid transparent;
+    border-right: $width solid $color;
+  } @if $direction == 'right' {
+    border-top: $width solid transparent;
+    border-bottom: $width solid transparent;
+    border-left: $width solid $color;
+  }
+}
+
+//Loader
+@mixin spinner ($size, $border-width, $color){
+
+  &:before {
+    content: '';
+    z-index: 1;
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    opacity: .6;
+  }
+
+  &:after {
+    z-index: 2;
+    content: '';
+    height: $size;
+    width: $size;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin: -($size/2) 0 0 -($size/2);
+    transition: all .75s ease 0s;
+    border-radius: 100%;
+    border-top: $border-width solid $color;
+    border-right: $border-width solid #eee;
+    border-bottom: $border-width solid #eee;
+    border-left: $border-width solid #eee;
+    animation: spinner .75s infinite linear;
+    -webkit-animation: standard .75s infinite linear;
+    transform-origin: center;
+  }
+}
+
+@-webkit-keyframes standard {
+  from {
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+
+  to {
+    -webkit-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes standard {
+  from {
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+
+  to {
+    -webkit-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
+}
+
+////////////////////
+//*** Functions **//
+////////////////////
+
+//rem converter
+@function rem($px, $base: 16px) {
+  @return ($px / $base) * 1rem;
+}

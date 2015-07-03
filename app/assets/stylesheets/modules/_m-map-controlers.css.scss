@@ -1,0 +1,40 @@
+.leaflet-top.leaflet-right {
+  position: static; //Lets zoom control to take position after map container.
+}
+
+.leaflet-right .leaflet-control {
+  margin: 0;
+}
+
+.leaflet-control-zoom {
+  position: absolute;
+  bottom: rem($margin-medium);
+  right: $dashboard-width + rem($margin-extra-large);
+  z-index: 1;
+}
+
+.leaflet-bar {
+  box-shadow: none;
+  border-radius: 0;
+
+  a {
+    color: $color-1;
+
+    &:first-child {
+      border-top-left-radius: 0;
+      border-top-right-radius: 0;
+      border-bottom: 0;
+    }
+
+    &:last-child {
+      border-bottom-left-radius: 0;
+      border-bottom-right-radius: 0;
+      border: 1px solid $light-grey;
+    }
+  }
+}
+
+.leaflet-control-zoom-in,
+.leaflet-control-zoom-out {
+  border: 1px solid $light-grey;
+}

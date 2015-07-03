@@ -1,0 +1,90 @@
+/* Layout common values */
+$header-height: rem(80px);
+$toolbar-height: rem(60px);
+$dashboard-width: rem(350px);
+
+/* Header */
+.l-main-header {
+  display: flex;
+  display: -ms-box;
+  width: 100%;
+  padding: 0 rem($margin-medium);
+  height: $header-height;
+  align-content: space-between;
+  border-bottom: 1px solid $light-grey;
+
+  h1 {
+    margin: 0;
+
+    a {
+      height: $header-height;
+      background: image-url("grp-wordmark.png");
+      background-repeat: no-repeat;
+      background-position: left center;
+      text-indent: -99999px;
+    }
+  }
+
+  nav {
+    display: flex;
+    display: -ms-box;
+    justify-content: space-between;
+    width: 100%;
+
+    a {
+      display: block;
+    }
+  }
+}
+
+.l-header {
+  margin-top: rem($margin-extra-large);
+}
+
+.l-map-toolbar {
+  position: absolute;
+  top: $header-height + rem($margin-medium);
+  right: rem($margin-medium);
+  height: $toolbar-height;
+  width: $dashboard-width;
+  z-index: 3;
+  padding: rem($margin-small) 0;
+}
+
+/* Dashboard */
+.l-dashboard {
+  position: absolute;
+  top: $header-height + $toolbar-height + rem($margin-medium);
+  bottom: rem($margin-medium);
+  right: rem($margin-medium);
+  width: $dashboard-width;
+  z-index: 2;
+  border: 1px solid $light-grey;
+  background-color: $white;
+  transition: all .2s ease-out;
+  overflow: hidden;
+}
+
+/* Map */
+.l-map {
+  position: absolute;
+  top: $header-height;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1;
+  transition: all .2s ease-out;
+}
+
+.l-content {
+  margin: rem($margin-extra-large);
+}
+
+/* Footer */
+.l-footer {
+  width: 100%;
+  display: flex;
+  display: -ms-box;
+  height: rem(40px);
+  border-top: 1px solid $light-grey;
+}

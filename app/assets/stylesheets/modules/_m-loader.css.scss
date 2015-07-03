@@ -1,0 +1,25 @@
+.m-loader {
+  position: absolute;
+  top: rem($margin-medium);
+  left: rem($margin-medium);
+  height: rem(35px);
+  z-index: 1;
+  padding: rem($margin-small);
+  padding-left: 35px;
+  border: 1px solid $light-grey;
+  background-color: $white;
+  text-transform: capitalize;
+  opacity: 0;
+  pointer-events: none;
+  color: $color-1;
+
+  &.visible {
+    opacity: 1;
+    @include spinner (20px, 3px, $color-1);
+
+    &:after {
+      left: 5px;
+      top: 42%;
+    }
+  }
+}
