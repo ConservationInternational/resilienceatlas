@@ -18,13 +18,13 @@ define([
           max: '135',
           type: 'choropleth',
           bucket: [
-            '#d73027',
-            '#f79272',
-            '#fed6b0',
-            '#fff2cc',
-            '#d2ecb4',
+            '#1a9850',
             '#8cce8a',
-            '#1a9850'
+            '#d2ecb4',
+            '#fff2cc',
+            '#fed6b0',
+            '#f79272',
+            '#d73027'
           ]
         }
       }

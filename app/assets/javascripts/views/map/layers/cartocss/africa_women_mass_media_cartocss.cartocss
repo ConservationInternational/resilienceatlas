@@ -1,6 +1,6 @@
 #dhs_export{
   polygon-fill: #1a9850;
-  polygon-opacity: 0.8;
+  polygon-opacity: 1;
   line-color: #FFF;
   line-width: 0.5;
   line-opacity: 1;
