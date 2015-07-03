@@ -26,7 +26,7 @@
     @extend %form-field-reset;
     @extend %centery;
     z-index: 1;
-    right: 2px;
+    left: 2px;
     width: $height - 4px;
     height: $height - 4px;
     border-radius: 50%;
@@ -35,7 +35,7 @@
   }
 
   input:checked {
-    right: $width - $height + 1px;
+    left: $width - $height + 1px;
     background-color: $white;
 
     & + label {
