@@ -1,1 +1,1 @@
-SELECT * FROM grp_africa_livelihoodzones
+SELECT * FROM grp_africa_livelihoodzones where region = 'Horn'
