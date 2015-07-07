@@ -69,6 +69,8 @@ define([
       this.afterRender();
       this.renderLayerComponents();
       this.renderSelectedLayers();
+
+      this.addActiveState();
     },
 
     renderSelectedLayers: function() {
@@ -379,6 +381,12 @@ define([
       if(layer) {
         layer.panToLayer();
       }
+    },
+
+    addActiveState: function() {
+      var activeEl = $('.m-dashboard').find('#dashboard-layers-item-food_security');
+      $(activeEl).parents('.accordion-navigation').addClass('active');
+      $(activeEl).addClass('active');
     }
 
   });
