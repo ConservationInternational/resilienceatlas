@@ -98,6 +98,7 @@ define([
           }
         }]
       };
+
       var url = 'http://'+this.defaults.username+'.cartodb.com/api/v1/map';
       $.ajax({
         type: 'POST',

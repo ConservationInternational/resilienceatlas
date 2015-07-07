@@ -369,8 +369,6 @@ define([
     }
     // END DRAWING MANAGER //
 
-
-
   });
 
   return MapView;
