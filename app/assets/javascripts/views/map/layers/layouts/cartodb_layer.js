@@ -17,6 +17,7 @@ define([
     init: function(settings) {
       var options = settings && settings.options ? settings.options : {};
       this.options = _.extend(this.defaults, this.options || {}, options);
+      this.infoWindow = null;
     },
 
     /**
@@ -141,6 +142,10 @@ define([
      */
     removeLayer: function() {
       if (this.map && this.layer) {
+        if(this.infoWindow) {
+          this.infoWindow.remove();
+          this.infoWindow = null;
+        }
         this.map.removeLayer(this.layer);
       }
 
@@ -203,10 +208,6 @@ define([
     },
 
     addInfoWindow: function(interactivity) {
-      if(this.infoWindow) {
-        this.infoWindow.remove();
-      }
-
       var sublayer = this.layer.getSubLayer(0);
       var columns = _.allKeys(interactivity);
       var names = JSON.stringify(_.values(interactivity));
