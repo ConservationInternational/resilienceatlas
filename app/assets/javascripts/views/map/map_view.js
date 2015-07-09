@@ -80,8 +80,6 @@ define([
     },
 
     changeLayers: function() {
-      console.log('map => changeLayers');
-
       var currentBasemap = this.layers.findWhere({
         type: 'basemap', active: true
       });
@@ -105,8 +103,6 @@ define([
     },
 
     renderLayer: function(layerModel) {
-      console.log('map => renderLayer');
-
       if (layerModel.attributes.type === 'basemap') {
         return;
       }

@@ -13,23 +13,17 @@ define([
       return _.groupBy(data.rows, 'region');
     },
 
-    getByRegions: function() {
+    getByRegions: function(callback) {
       var options = {
         data: {
           q: QUERY,
           format: 'json'
         },
-        success: function() {
-          console.log('READY')
-        }
+        success: callback
       };
 
       this.fetch(options);
     },
-
-    initialize: function() {
-      this.getByRegions();
-    }
 
   });
 

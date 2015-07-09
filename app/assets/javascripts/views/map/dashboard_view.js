@@ -58,7 +58,6 @@ define([
     },
 
     render: function() {
-      console.log(this.data)
       this.$el.html(this.template(this.data));
       this.afterRender();
       this.renderLayerComponents();
@@ -155,6 +154,8 @@ define([
 
       if (params && params.hasOwnProperty('tab')) {
 
+        this.desactivateLayers();
+
         switch(params.tab) {
           case 'layers':
             console.info('getting layers...');
@@ -167,10 +168,11 @@ define([
           case 'regions':
             console.info('getting regions...');
             this.getRegions();
+            console.log('READY')
             break;
         }
 
-        this.render();
+        //this.render();
       };
     },
 
@@ -209,44 +211,50 @@ define([
         // context: context
       };
 
+      this.render();
+
       //this.layers.reset(layersCollection.models);
     },
 
     getTopics: function(params) {
-      this.data = {
-        topics: true
-      };
 
-      // var layers = this.layers.toJSON();
+      this.topics.getTopics(_.bind(function() {
 
-      // layers.forEach(function(layer) {
-      //   if (layer.type === 'layer' && layer.active === true) {
-      //     layer.active = false;
-      //   }
-      // });
+        this.data = {
+          topics: true,
+          data: this.topics.toJSON()
+        };
 
-      // this.layers.reset(layers);
+        this.render();
+
+      }, this));
     },
 
     getRegions: function(params) {
-      this.data = {
-        regions: true,
-        data: this.regions.toJSON()
-      };
+
+      this.regions.getByRegions(_.bind(function() {
+
+        this.data = {
+          regions: true,
+          data: this.regions.toJSON()
+        };
+
+        this.render();
+
+      }, this));
+    },
+
+    desactivateLayers: function() {
+      var layers = this.layers.toJSON();
+
+      layers.forEach(function(layer) {
+        if (layer.type === 'layer' && layer.active === true) {
+          layer.active = false;
+        }
+      });
 
 
-      console.log(this.regions);
-
-      // var layers = this.layers.toJSON();
-
-      // layers.forEach(function(layer) {
-      //   if (layer.type === 'layer' && layer.active === true) {
-      //     layer.active = false;
-      //   }
-      // });
-
-
-      // this.layers.reset(layers);
+      this.layers.reset(layers);
     },
 
     update: function(ev, element) {
@@ -448,7 +456,7 @@ define([
     },
 
     addActiveState: function() {
-      var activeEl = $('.m-dashboard').find('#dashboard-layers-item-food_security');
+      //var activeEl = $('.m-dashboard').find('#dashboard-layers-item-food_security');
       $(activeEl).parents('.accordion-navigation').addClass('active');
       $(activeEl).addClass('active');
     }

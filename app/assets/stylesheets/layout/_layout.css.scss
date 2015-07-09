@@ -58,6 +58,7 @@ $dashboard-width: rem(350px);
 
 /* Dashboard */
 .l-dashboard {
+  overflow-y: scroll;
   position: absolute;
   top: $header-height;
   bottom: 0;
@@ -68,7 +69,6 @@ $dashboard-width: rem(350px);
   border-top: 0;
   background-color: $white;
   transition: all .2s ease-out;
-  overflow: hidden;
 }
 
 /* Map */

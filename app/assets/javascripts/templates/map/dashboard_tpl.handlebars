@@ -107,13 +107,12 @@
   {{/if}}
 {{/each}}
 
-<button class="btn-access">Access to Data</button>
+<button class="btn-access is-hidden">Access to Data</button>
 
 
 {{#if topics}}
 
   <p>You are in topics!</p>
-
 
 {{/if}}
 
@@ -121,11 +120,11 @@
 
   {{#each data}}
     {{#each this}}
-      <p>{{@key}}</p>
+      <p class="region-name">{{@key}}</p>
       {{#each this}}
           <div class="container-country">
             <span>country_image</span>
-            <p>{{country}}</p>
+            <p class="country-name">{{country}}</p>
           </div>
       {{/each}}
     {{/each}}
