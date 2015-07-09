@@ -1,9 +1,10 @@
 .m-dashboard {
-  position: absolute;
-  top: rem($margin-medium);
-  bottom: rem($margin-medium);
-  left: rem($margin-medium);
-  right: rem($margin-medium);
+  margin: rem($margin-medium);
+  // position: absolute;
+  // top: rem($margin-medium);
+  // bottom: rem($margin-medium);
+  // left: rem($margin-medium);
+  // right: rem($margin-medium);
   overflow-y: scroll;
 
   .switcher {

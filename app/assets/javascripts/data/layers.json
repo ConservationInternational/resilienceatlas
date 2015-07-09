@@ -70,7 +70,7 @@
         "slug": "africa_livelihoodzones",
         "type": "layer",
         "zindex": 10,
-        "active": true,
+        "active": false,
         "timeline": false,
         "info": "Overall GPI scores",
         "color": "#49853E",

@@ -9,7 +9,8 @@ define([
   var Router = Backbone.Router.extend({
 
     routes: {
-      '': 'index'
+      //'': 'map',
+      'map(/:tab)': 'map'
     },
 
     initialize: function() {
@@ -24,6 +25,21 @@ define([
       var params = new URI(location.href).search(true);
       var mapPageView = new MapPageView({ el: '#pageView' });
       mapPageView.model.set({ title: 'Map', params: params });
+    },
+
+    map: function(tab) {
+
+      if (!this.mapPageView) {
+        this.mapPageView = new MapPageView({ el: '#pageView' });
+      }
+
+      var params = new URI((new URI(location.href).fragment())).search(true);
+
+      if (tab) {
+        _.extend(params, { tab: tab});
+      }
+
+      this.mapPageView.model.set({ title: 'Map', params: params });
     },
 
     update: function(params) {

@@ -117,11 +117,11 @@ define([
           stepData.group = true;
           stepData.groupClass = 'step-group';
           contSteps = 0;
-        } 
+        }
 
         if(i === 0 || i === self.steps.length-1) {
           stepData.group = true;
-          stepData.groupClass = 'step-group'; 
+          stepData.groupClass = 'step-group';
         }
 
         stepsData.push(stepData);
@@ -134,11 +134,11 @@ define([
     },
 
     dataChange: function() {
-      if (this.model.hasChanged('currentStartDate') || 
+      if (this.model.hasChanged('currentStartDate') ||
         this.model.hasChanged('currentEndDate')) {
         var date = this.model.get('date');
-        Backbone.Events.trigger('timeline:changed', 
-          this.model.get('currentStartDate'), 
+        Backbone.Events.trigger('timeline:changed',
+          this.model.get('currentStartDate'),
           this.model.get('currentEndDate'));
       }
     },
@@ -312,7 +312,7 @@ define([
       });
 
       this.dashboardTimelines[layerSlug].listenTo(
-        this.dashboardTimelines[layerSlug], 
+        this.dashboardTimelines[layerSlug],
         'timeline:step', this.setStepFromTimeline.bind(this));
 
       this.updateLayer();

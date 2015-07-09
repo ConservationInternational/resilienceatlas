@@ -19,7 +19,7 @@ define([
       'change .sublayer-switch': 'updateSublayer',
       'click .btn-info': 'openLayerInfo',
       'click .locate-layer': 'locateLayer',
-      'click .tabs li': 'toggleTabs'
+      'click .tabs a': 'toggleTabs'
     },
 
     template: Handlebars.compile(TPL),
@@ -28,12 +28,16 @@ define([
       var options = settings && settings.options ? settings.options : settings;
       this.options = _.extend(this.defaults, options);
       this.layers = this.options.layers;
+      this.topics = this.options.topics;
+      this.regions = this.options.regions;
       this.params = this.options.params;
       this.map = this.options.map;
       this.render();
     },
 
     toggleTabs: function(ev) {
+      ev.preventDefault();
+
       var $tab = $(ev.currentTarget);
       var $tabs = this.$('.tabs > li');
       var $body = $('body');
@@ -47,25 +51,15 @@ define([
         $tab.removeClass('opened');
       } else {
         $tabs.removeClass('opened');
-        $tab.addClass('opened');;
+        $tab.addClass('opened');
       }
 
       this.renderSelectedLayers();
     },
 
     render: function() {
-      var dataByCategories = this.layers.getByCategoryAndGroup();
-      var layers = this.formatLayers(dataByCategories.layer);
-      var basemaps = this.formatLayers(dataByCategories.basemap);
-      // var context = this.formatLayers(dataByCategories.context);
-
-      var data = {
-        layers: layers,
-        basemaps: basemaps,
-        // context: context
-      };
-
-      this.$el.html(this.template(data));
+      console.log(this.data)
+      this.$el.html(this.template(this.data));
       this.afterRender();
       this.renderLayerComponents();
       this.renderSelectedLayers();
@@ -158,36 +152,106 @@ define([
     },
 
     setUrlParams: function(params) {
-      if(params) {
-        var self = this;
-        var layersParams = _.flatten(_.values(params));
-        var layersCollection = _.clone(this.layers);
 
-        _.each(layersParams, function(currentLayer) {
-          var layer = {slug: currentLayer};
-          var layerModel = layersCollection.findWhere(layer);
+      if (params && params.hasOwnProperty('tab')) {
 
-          if(layerModel) {
-            var category = layerModel.get('category');
+        switch(params.tab) {
+          case 'layers':
+            console.info('getting layers...');
+            this.getLayers(params);
+            break;
+          case 'topics':
+            console.info('getting topics...');
+            this.getTopics();
+            break;
+          case 'regions':
+            console.info('getting regions...');
+            this.getRegions();
+            break;
+        }
 
-            if(category === 'basemap') {
-              _.map(layersCollection.models, function(model){
-                if(model.get('category') === 'basemap') {
-                  model.set({active: false});
-                }
-              });
-            }
-
-            layerModel.set({active: true});
-          }
-        });
-
-        this.layers.reset(layersCollection.models);
         this.render();
-      }
+      };
+    },
+
+    getLayers: function(params) {
+      var self = this;
+      var layersParams = _.flatten(_.values(params));
+      var layersCollection = _.clone(this.layers);
+
+      _.each(layersParams, function(currentLayer) {
+        var layer = {slug: currentLayer};
+        var layerModel = layersCollection.findWhere(layer);
+
+        if(layerModel) {
+          var category = layerModel.get('category');
+
+          if(category === 'basemap') {
+            _.map(layersCollection.models, function(model){
+              if(model.get('category') === 'basemap') {
+                model.set({active: false});
+              }
+            });
+          }
+
+          layerModel.set({active: true});
+        }
+      });
+
+      var dataByCategories = this.layers.getByCategoryAndGroup();
+      var layers = this.formatLayers(dataByCategories.layer);
+      var basemaps = this.formatLayers(dataByCategories.basemap);
+      // var context = this.formatLayers(dataByCategories.context);
+
+      this.data = {
+        layers: layers,
+        basemaps: basemaps,
+        // context: context
+      };
+
+      //this.layers.reset(layersCollection.models);
+    },
+
+    getTopics: function(params) {
+      this.data = {
+        topics: true
+      };
+
+      // var layers = this.layers.toJSON();
+
+      // layers.forEach(function(layer) {
+      //   if (layer.type === 'layer' && layer.active === true) {
+      //     layer.active = false;
+      //   }
+      // });
+
+      // this.layers.reset(layers);
+    },
+
+    getRegions: function(params) {
+      this.data = {
+        regions: true,
+        data: this.regions.toJSON()
+      };
+
+
+      console.log(this.regions);
+
+      // var layers = this.layers.toJSON();
+
+      // layers.forEach(function(layer) {
+      //   if (layer.type === 'layer' && layer.active === true) {
+      //     layer.active = false;
+      //   }
+      // });
+
+
+      // this.layers.reset(layers);
     },
 
     update: function(ev, element) {
+      console.log(this.regions.toJSON())
+      console.log('dashbaord => update');
       var currentEl = ev ? ev.currentTarget : element;
       var $el = $(currentEl);
       var $parent = $el.parent('.switcher');

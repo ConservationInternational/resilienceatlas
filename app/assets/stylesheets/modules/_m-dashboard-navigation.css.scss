@@ -1,0 +1,35 @@
+.m-dashboard-navigation {
+  display: flex;
+  height: 60px;
+  .tabs {
+    display: flex;
+    flex-grow: 1;
+    justify-content: center;
+    align-items: center;
+    border-bottom: 1px solid $light-grey;
+    &.active {
+      border-bottom: 0;
+      border-left: 1px solid $light-grey;
+      border-right: 1px solid $light-grey;
+    }
+
+    &:first-child {
+      &.active {
+        border-bottom: 0;
+        border-left: 0;
+        border-right: 1px solid $light-grey;
+      }
+    }
+
+    &:last-child {
+      &.active {
+        border-bottom: 0;
+        border-left: 1px solid $light-grey;
+      }
+    }
+
+    a {
+      text-transform: uppercase;
+    }
+  }
+}

@@ -3,7 +3,10 @@ define([
   'backbone',
   'models/page_model',
   'collections/layers_collection',
+  'collections/topics_collection',
+  'collections/regions_collection',
   'views/map/map_view',
+  'views/map/dashboard_navigation_view',
   'views/map/dashboard_view',
   'views/map/timeline_view',
   'views/map/legend_view',
@@ -11,8 +14,9 @@ define([
   'views/map/search_view',
   'views/map/toolbar_view',
   'text!data/layers.json'
-], function(_, Backbone, PageModel, LayersCollection,
-  MapView, DashboardView, TimelineView, LegendView, AnalysisView, SearchView, ToolbarView, layers) {
+], function(_, Backbone, PageModel, LayersCollection, TopicsCollection,
+  RegionsCollection, MapView, DashboardNavigationView, DashboardView,
+  TimelineView, LegendView, AnalysisView, SearchView, ToolbarView, layers) {
 
   'use strict';
 
@@ -22,6 +26,8 @@ define([
       var layersData = JSON.parse(layers);
       this.model = new PageModel();
       this.layers = new LayersCollection(layersData, { validate: true, parse: true });
+      this.topics = new TopicsCollection();
+      this.regions = new RegionsCollection();
       this.setListeners();
       this.instanceModules();
     },
@@ -33,11 +39,22 @@ define([
     },
 
     instanceModules: function() {
-      this.map = new MapView({ el: '#mapView', layers: this.layers });
+
+      this.map = new MapView({
+        el: '#mapView',
+        layers: this.layers,
+        topics: this.topics
+      });
+
+      this.navigationDashboard = new DashboardNavigationView({
+        el: '#navigationDashboard'
+      });
 
       this.dashboard = new DashboardView({
         el: '#dashboardView',
         layers: this.layers,
+        topics: this.topics,
+        regions: this.regions,
         map: this.map
       });
 
@@ -61,6 +78,7 @@ define([
     },
 
     setParams: function() {
+      this.navigationDashboard.setUrlParams(this.model.attributes.params);
       this.dashboard.setUrlParams(this.model.attributes.params);
     }
 

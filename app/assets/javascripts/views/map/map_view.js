@@ -70,7 +70,7 @@ define([
           bounds = L.latLngBounds(southWest, northEast);
 
       this.map = L.map(this.el, this.options.map);
-      L.control.zoom(this.options.zoom).addTo(this.map)
+      L.control.zoom(this.options.zoom).addTo(this.map);
 
       this.map.fitBounds(bounds);
 
@@ -80,6 +80,8 @@ define([
     },
 
     changeLayers: function() {
+      console.log('map => changeLayers');
+
       var currentBasemap = this.layers.findWhere({
         type: 'basemap', active: true
       });
@@ -103,15 +105,20 @@ define([
     },
 
     renderLayer: function(layerModel) {
+      console.log('map => renderLayer');
+
       if (layerModel.attributes.type === 'basemap') {
         return;
       }
+
       var latestLayer = this.model.get(layerModel.attributes.slug);
+
       if (latestLayer && layerModel.attributes.active !== true) {
         latestLayer.removeLayer();
         this.removeFromLoadingQueue(layerModel.attributes.slug);
         this.model.set(layerModel.attributes.slug, null, { silent: true });
       } else if (!latestLayer && layerModel.attributes.active === true) {
+
         var Instance = layerModel.attributes.Instance;
 
         if (Instance) {
@@ -128,7 +135,9 @@ define([
           this.model.set(layerModel.attributes.slug, layerInstance, {
             silent: true
           });
+
         } else {
+
           console.warn(
             '%1 layer doesn\'t exist'.format(layerModel.attributes.name)
           );
