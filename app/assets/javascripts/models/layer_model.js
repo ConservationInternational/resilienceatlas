@@ -17,7 +17,10 @@ define([
   'views/map/layers/instances/total_production_crop_value_layer',
   //HEALTH
   'views/map/layers/instances/africa_women_mass_media_layer',
-  'views/map/layers/instances/africa_children_stunted_layer'
+  'views/map/layers/instances/africa_children_stunted_layer',
+  'views/map/layers/instances/africa_infant_mortality_rate_layer'
+  //'views/map/layers/instances/africa_children_stunted_layer',
+  //'views/map/layers/instances/africa_children_stunted_layer'
 ], function(_,
   Backbone,
    //CONFLICTS
@@ -36,7 +39,8 @@ define([
   TotalProductionCropValueLayer,
   //HEALTH
   AfricaWomenMassMediaAccessLayer,
-  AfricaChildrenStuntedLayer
+  AfricaChildrenStuntedLayer,
+  AfricaInfantMortalityRateLayer
   ){
 
   'use strict';
@@ -59,6 +63,7 @@ define([
     //HEALTH
     { slug: 'africa_women_mass_media_access', Instance: AfricaWomenMassMediaAccessLayer},
     { slug: 'africa_children_stunted', Instance: AfricaChildrenStuntedLayer},
+    { slug: 'africa_infant_mortality_rate', Instance: AfricaInfantMortalityRateLayer},
   ];
 
   var LayerModel = Backbone.Model.extend({
