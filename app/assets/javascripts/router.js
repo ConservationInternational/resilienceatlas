@@ -35,9 +35,9 @@ define([
 
       var params = new URI((new URI(location.href).fragment())).search(true);
 
-      if (tab) {
-        _.extend(params, { tab: tab});
-      }
+      tab = tab ? tab : 'layers';
+
+      _.extend(params, { tab: tab});
 
       this.mapPageView.model.set({ title: 'Map', params: params });
     },

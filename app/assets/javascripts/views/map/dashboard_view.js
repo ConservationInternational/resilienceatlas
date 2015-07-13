@@ -242,6 +242,8 @@ define([
           data: this.topics.toJSON()
         };
 
+        console.log(this.data)
+
         this.render();
 
       }, this));

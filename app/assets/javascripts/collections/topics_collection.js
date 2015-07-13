@@ -1,26 +1,19 @@
 define([
-  'backbone',
-  'text!queries/topics_query.pgsql'
-], function(Backbone, QUERY) {
+  'backbone'
+], function(Backbone, data) {
+
+  'use strict';
 
   var TopicsCollection = Backbone.Collection.extend({
 
     url: 'http://cigrp.cartodb.com/api/v2/sql',
 
     parse: function(data) {
-      return data.rows;
+      return data;
     },
 
     getTopics: function() {
-
-      var options = {
-        data: {
-          q: QUERY,
-          format: 'json'
-        }
-      };
-
-      this.fetch(options);
+      return _.groupBy(this.toJSON(), 'category');
     }
 
   });

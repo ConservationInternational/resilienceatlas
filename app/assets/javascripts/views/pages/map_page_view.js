@@ -13,10 +13,11 @@ define([
   'views/map/analysis_view',
   'views/map/search_view',
   'views/map/toolbar_view',
-  'text!data/layers.json'
+  'text!data/layers.json',
+  'text!data/topics.json',
 ], function(_, Backbone, PageModel, LayersCollection, TopicsCollection,
   RegionsCollection, MapView, DashboardNavigationView, DashboardView,
-  TimelineView, LegendView, AnalysisView, SearchView, ToolbarView, layers) {
+  TimelineView, LegendView, AnalysisView, SearchView, ToolbarView, layers, topics) {
 
   'use strict';
 
@@ -24,9 +25,10 @@ define([
 
     initialize: function() {
       var layersData = JSON.parse(layers);
+      var topicsData = JSON.parse(topics);
       this.model = new PageModel();
       this.layers = new LayersCollection(layersData, { validate: true, parse: true });
-      this.topics = new TopicsCollection();
+      this.topics = new TopicsCollection(topicsData, { validate: true, parse: true });
       this.regions = new RegionsCollection();
       this.setListeners();
       this.instanceModules();
