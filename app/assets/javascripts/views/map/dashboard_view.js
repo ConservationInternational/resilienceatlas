@@ -3,9 +3,10 @@ define([
   'backbone',
   'handlebars',
   'foundation',
+  'uri/URI',
   'views/helpers/modal_window_view',
   'text!templates/map/dashboard_tpl.handlebars'
-], function(_, Backbone, Handlebars, foundation, ModalWindowView, TPL) {
+], function(_, Backbone, Handlebars, foundation, URI, ModalWindowView, TPL) {
 
   'use strict';
 
@@ -32,7 +33,8 @@ define([
       this.regions = this.options.regions;
       this.params = this.options.params;
       this.map = this.options.map;
-      this.render();
+
+      //this.render();
     },
 
     toggleTabs: function(ev) {
@@ -168,7 +170,6 @@ define([
           case 'regions':
             console.info('getting regions...');
             this.getRegions();
-            console.log('READY')
             break;
         }
 
@@ -212,6 +213,22 @@ define([
       };
 
       this.render();
+
+      if (params && params.hasOwnProperty('active')) {
+
+        var layersByUrl = params.active.split(','),
+          layers = layersCollection.toJSON();
+
+        layersByUrl.forEach(_.bind(function(l) {
+          _.each(layers, _.bind(function(layer) {
+            if (layer.type === 'layer' && layer.slug === l) {
+              this.addActiveState.apply($('#dashboard-layers-item-' + layer.groupSlug));
+              $('#dashboard-layers-item-' + layer.groupSlug).find('#' + layer.slug).prop('checked', 'checked');
+              this.update(false, $('#dashboard-layers-item-' + layer.groupSlug).find('#' + layer.slug));
+            }
+          }, this));
+        }, this));
+      }
 
       //this.layers.reset(layersCollection.models);
     },
@@ -258,8 +275,6 @@ define([
     },
 
     update: function(ev, element) {
-      console.log(this.regions.toJSON())
-      console.log('dashbaord => update');
       var currentEl = ev ? ev.currentTarget : element;
       var $el = $(currentEl);
       var $parent = $el.parent('.switcher');
@@ -283,6 +298,11 @@ define([
       } else {
         $switchEl.attr('style', '');
       }
+
+      Backbone.Events.trigger('dashboard:change', {
+        layerValue: layerValue,
+        slug: slug
+      });
 
       this.renderLayerComponents(layers.models);
     },
@@ -456,9 +476,9 @@ define([
     },
 
     addActiveState: function() {
-      //var activeEl = $('.m-dashboard').find('#dashboard-layers-item-food_security');
-      $(activeEl).parents('.accordion-navigation').addClass('active');
-      $(activeEl).addClass('active');
+      // var activeEl = $('.m-dashboard').find('#dashboard-layers-item-food_security');
+      $(this).parents('.accordion-navigation').addClass('active');
+      $(this).addClass('active');
     }
 
   });
