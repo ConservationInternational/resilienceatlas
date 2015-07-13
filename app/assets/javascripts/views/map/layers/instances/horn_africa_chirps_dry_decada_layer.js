@@ -15,8 +15,8 @@ define([
         type: '',
         raster: true,
         legend: {
-          min: 'less',
-          max: 'more',
+          min: '-30%',
+          max: '30%',
           type: 'choropleth',
           bucket: [
             '#007FFE',

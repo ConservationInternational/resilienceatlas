@@ -3,9 +3,11 @@ define([
   'backbone',
    //CONFLICTS
   'views/map/layers/instances/overall_gpi_scores_layer',
-  //FOOD SECURITY
+  'views/map/layers/instances/africa_political_inestability_layer',
+  'views/map/layers/instances/africa_organized_conflict_internal_layer',
+  //LIVELIHOOD
   'views/map/layers/instances/africa_livelihoodzones_layer',
-  //WATER
+  //CLIMATE
   'views/map/layers/instances/horn_africa_chirps_long_rains_decada_layer',
   'views/map/layers/instances/horn_africa_chirps_long_rains_total_layer',
   'views/map/layers/instances/horn_africa_chirps_long_rains_coefvariation_change_layer',
@@ -16,14 +18,20 @@ define([
   'views/map/layers/instances/africa_total_export_crop_value_layer',
   'views/map/layers/instances/total_production_crop_value_layer',
   //HEALTH
-  'views/map/layers/instances/africa_women_mass_media_layer'
+  'views/map/layers/instances/africa_women_mass_media_layer',
+  'views/map/layers/instances/africa_children_stunted_layer',
+  'views/map/layers/instances/africa_infant_mortality_rate_layer',
+  'views/map/layers/instances/africa_men_secondary_education_layer',
+  'views/map/layers/instances/africa_women_secondary_education_layer'
 ], function(_,
   Backbone,
    //CONFLICTS
   OverallGpiScoresLayer,
-  //FOOD SECURITY
+  AfricaPoliticalInestabilityLayer,
+  AfricaOrganizedConflictInternalLayer,
+  //LIVELIHOOD
   AfricaLivelihoodZonesLayer,
-  //WATER
+  //CLIMATE
   HornAfricaChirpsLongRainsDecadaLayer,
   HornAfricaChirpsLongRainsTotalLayer,
   HornAfricaChirpsLongRainsCoefvariationChangeLayer,
@@ -34,7 +42,11 @@ define([
   AfricaTotalExportCropValueLayer,
   TotalProductionCropValueLayer,
   //HEALTH
-  AfricaWomenMassMediaAccessLayer
+  AfricaWomenMassMediaAccessLayer,
+  AfricaChildrenStuntedLayer,
+  AfricaInfantMortalityRateLayer,
+  AfricaMenSecondaryEducationLayer,
+  AfricaWomenSecondaryEducationLayer
   ){
 
   'use strict';
@@ -42,9 +54,11 @@ define([
   var layersInstances = [
     //CONFLICTS
     { slug: 'overall_gpi_scores', Instance: OverallGpiScoresLayer},
-    //FOOD SECURITY
+    { slug: 'africa_political_inestability', Instance: AfricaPoliticalInestabilityLayer},
+    { slug: 'africa_organized_conflict_internal', Instance: AfricaOrganizedConflictInternalLayer},
+    //LIVELIHOOD
     { slug: 'africa_livelihoodzones', Instance: AfricaLivelihoodZonesLayer},
-    //WATER
+    //CLIMATE
     { slug: 'horn_africa_chirps_long_rains_decada', Instance: HornAfricaChirpsLongRainsDecadaLayer},
     { slug: 'horn_africa_chirps_long_rains_total', Instance: HornAfricaChirpsLongRainsTotalLayer},
     { slug: 'horn_africa_chirps_long_rains_coefvariation_change', Instance: HornAfricaChirpsLongRainsCoefvariationChangeLayer},
@@ -56,6 +70,10 @@ define([
     { slug: 'total_production_crop_value', Instance: TotalProductionCropValueLayer},
     //HEALTH
     { slug: 'africa_women_mass_media_access', Instance: AfricaWomenMassMediaAccessLayer},
+    { slug: 'africa_children_stunted', Instance: AfricaChildrenStuntedLayer},
+    { slug: 'africa_infant_mortality_rate', Instance: AfricaInfantMortalityRateLayer},
+    { slug: 'africa_men_secondary_education', Instance: AfricaMenSecondaryEducationLayer},
+    { slug: 'africa_women_secondary_education', Instance: AfricaWomenSecondaryEducationLayer},
   ];
 
   var LayerModel = Backbone.Model.extend({
