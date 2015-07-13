@@ -3,9 +3,11 @@ define([
   'backbone',
    //CONFLICTS
   'views/map/layers/instances/overall_gpi_scores_layer',
-  //FOOD SECURITY
+  'views/map/layers/instances/africa_political_inestability_layer',
+  'views/map/layers/instances/africa_organized_conflict_internal_layer',
+  //LIVELIHOOD
   'views/map/layers/instances/africa_livelihoodzones_layer',
-  //WATER
+  //CLIMATE
   'views/map/layers/instances/horn_africa_chirps_long_rains_decada_layer',
   'views/map/layers/instances/horn_africa_chirps_long_rains_total_layer',
   'views/map/layers/instances/horn_africa_chirps_long_rains_coefvariation_change_layer',
@@ -25,9 +27,11 @@ define([
   Backbone,
    //CONFLICTS
   OverallGpiScoresLayer,
-  //FOOD SECURITY
+  AfricaPoliticalInestabilityLayer,
+  AfricaOrganizedConflictInternalLayer,
+  //LIVELIHOOD
   AfricaLivelihoodZonesLayer,
-  //WATER
+  //CLIMATE
   HornAfricaChirpsLongRainsDecadaLayer,
   HornAfricaChirpsLongRainsTotalLayer,
   HornAfricaChirpsLongRainsCoefvariationChangeLayer,
@@ -50,9 +54,11 @@ define([
   var layersInstances = [
     //CONFLICTS
     { slug: 'overall_gpi_scores', Instance: OverallGpiScoresLayer},
-    //FOOD SECURITY
+    { slug: 'africa_political_inestability', Instance: AfricaPoliticalInestabilityLayer},
+    { slug: 'africa_organized_conflict_internal', Instance: AfricaOrganizedConflictInternalLayer},
+    //LIVELIHOOD
     { slug: 'africa_livelihoodzones', Instance: AfricaLivelihoodZonesLayer},
-    //WATER
+    //CLIMATE
     { slug: 'horn_africa_chirps_long_rains_decada', Instance: HornAfricaChirpsLongRainsDecadaLayer},
     { slug: 'horn_africa_chirps_long_rains_total', Instance: HornAfricaChirpsLongRainsTotalLayer},
     { slug: 'horn_africa_chirps_long_rains_coefvariation_change', Instance: HornAfricaChirpsLongRainsCoefvariationChangeLayer},

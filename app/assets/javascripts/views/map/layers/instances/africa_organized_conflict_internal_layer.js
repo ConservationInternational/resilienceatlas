@@ -1,12 +1,12 @@
 define([
   'views/map/layers/layouts/cartodb_layer',
-  'text!views/map/layers/cartocss/overall_gpi_scores_cartocss.cartocss',
-  'text!views/map/layers/sql/overall_gpi_scores_sql.pgsql'
+  'text!views/map/layers/cartocss/africa_organized_conflict_internal_cartocss.cartocss',
+  'text!views/map/layers/sql/africa_organized_conflict_internal_sql.pgsql'
 ], function(CartoDBLayer, CartoCSS, SQL) {
 
   'use strict';
 
-  var OverallGpiScoresLayer = CartoDBLayer.extend({
+  var AfricaOrganizedConflictInternalLayer = CartoDBLayer.extend({
 
     options: {
       params: {
@@ -14,8 +14,8 @@ define([
         cartocss: CartoCSS,
         type: '',
         legend: {
-          min: 'More peaceful',
-          max: 'Less peaceful',
+          min: 'Low',
+          max: 'High',
           type: 'choropleth',
           bucket: [
             '#007FFE',
@@ -32,6 +32,6 @@ define([
 
   });
 
-  return OverallGpiScoresLayer;
+  return AfricaOrganizedConflictInternalLayer;
 
 });
