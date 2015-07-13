@@ -20,9 +20,7 @@ define([
           bucket: [
             '#007FFE',
             '#419FFE',
-            '#7DBEFE',
             '#FEF1CB',
-            '#FEA5A5',
             '#FF7A7A',
             '#FF4D4D'
           ]

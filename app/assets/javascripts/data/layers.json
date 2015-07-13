@@ -52,7 +52,7 @@
                  "source":"Institute for Economics and Peace, 2015.",
                  "link":"http://www.visionofhumanity.org"
                 },
-        "color": "#49853E",
+        "color": "#FA6F6F",
         "interactivity": {"year": "Year",
                           "overall": "Overall"
                           }
@@ -68,7 +68,7 @@
                  "source":"Institute for Economics and Peace, 2015.",
                  "link":"http://www.visionofhumanity.org"
                 },
-        "color": "#49853E",
+        "color": "#FA6F6F",
         "interactivity": {"year": "Year",
                           "overall": "Overall"
                           }
@@ -84,7 +84,7 @@
                  "source":"Institute for Economics and Peace, 2015.",
                  "link":"http://www.visionofhumanity.org"
                 },
-        "color": "#49853E",
+        "color": "#FA6F6F",
         "interactivity": {"year": "Year",
                           "overall": "Overall"
                           }
@@ -126,56 +126,56 @@
     "info": "This is the info for Climate",
     "layers": [
       {
-        "name": "Horn of Africa chrips long rains decada",
+        "name": "Amount (long rains)",
         "slug": "horn_africa_chirps_long_rains_decada",
         "type": "layer",
         "zindex": 10,
         "active": false,
         "timeline": false,
-        "info": {"description":"Change in total precipitation per decade, as a percentage of the 1981-2015 total precipitation during the dry season (October - January).",
+        "info": {"description":"Change in total precipitation per decade, as a percentage of the 1981-2015 total precipitation during the long rainy season (June - September).",
                  "source":"Analysis based on monthly data from the Climate Hazards Group InfraRed Precipitation with Station (CHIRPS) version 2.0 dataset. For raw CHIRPS data see: ",
                  "link":"http://chg.geog.ucsb.edu/data/chirps."
                 },
-        "color": "#49853E"
+        "color": "#6075F9"
       },
       {
-        "name": "Horn of Africa chrips long rains total",
-        "slug": "horn_africa_chirps_long_rains_total",
-        "type": "layer",
-        "zindex": 10,
-        "active": false,
-        "timeline": false,
-        "info": {"description":"Change in total precipitation per decade, as a percentage of the 1981-2015 total precipitation during the dry season (October - January).",
-                 "source":"Analysis based on monthly data from the Climate Hazards Group InfraRed Precipitation with Station (CHIRPS) version 2.0 dataset. For raw CHIRPS data see: ",
-                 "link":"http://chg.geog.ucsb.edu/data/chirps."
-                },
-        "color": "#49853E"
-      },
-      {
-        "name": "Horn of Africa chrips long rains coefvariation change",
+        "name": "Variability (long rains)",
         "slug": "horn_africa_chirps_long_rains_coefvariation_change",
         "type": "layer",
         "zindex": 10,
         "active": false,
         "timeline": false,
-        "info": {"description":"Change in total precipitation per decade, as a percentage of the 1981-2015 total precipitation during the dry season (October - January).",
+        "info": {"description":"Change in precipitation variability per decade, as a percentage of the 1981-2015 precipitation variability during the long rainy season (June - September).",
                  "source":"Analysis based on monthly data from the Climate Hazards Group InfraRed Precipitation with Station (CHIRPS) version 2.0 dataset. For raw CHIRPS data see: ",
                  "link":"http://chg.geog.ucsb.edu/data/chirps."
                 },
-        "color": "#49853E"
+        "color": "#6075F9"
       },
       {
-        "name": "Horn of Africa chrips dry total",
+        "name": "Amount (short rains)",
+        "slug": "horn_africa_chirps_long_rains_total",
+        "type": "layer",
+        "zindex": 10,
+        "active": false,
+        "timeline": false,
+        "info": {"description":"Change in total precipitation per decade, as a percentage of the 1981-2015 total precipitation during the short rainy season (February - May).",
+                 "source":"Analysis based on monthly data from the Climate Hazards Group InfraRed Precipitation with Station (CHIRPS) version 2.0 dataset. For raw CHIRPS data see: ",
+                 "link":"http://chg.geog.ucsb.edu/data/chirps."
+                },
+        "color": "#6075F9"
+      },
+      {
+        "name": "Variability (short rains)",
         "slug": "horn_africa_chirps_dry_total",
         "type": "layer",
         "zindex": 10,
         "active": false,
         "timeline": false,
-        "info": {"description":"Change in total precipitation per decade, as a percentage of the 1981-2015 total precipitation during the dry season (October - January).",
+        "info": {"description":"Change in precipitation variability per decade, as a percentage of the 1981-2015 precipitation variability during the short rainy season (February - May).",
                  "source":"Analysis based on monthly data from the Climate Hazards Group InfraRed Precipitation with Station (CHIRPS) version 2.0 dataset. For raw CHIRPS data see: ",
                  "link":"http://chg.geog.ucsb.edu/data/chirps."
                 },
-        "color": "#49853E"
+        "color": "#6075F9"
       },
       {
         "name": "Amount (dry season)",
@@ -188,7 +188,7 @@
                  "source":"Analysis based on monthly data from the Climate Hazards Group InfraRed Precipitation with Station (CHIRPS) version 2.0 dataset. For raw CHIRPS data see: ",
                  "link":"http://chg.geog.ucsb.edu/data/chirps."
                 },
-        "color": "#49853E"
+        "color": "#6075F9"
       },
       {
         "name": "Variability (dry season)",
@@ -201,7 +201,7 @@
                  "source":"Analysis based on monthly data from the Climate Hazards Group InfraRed Precipitation with Station (CHIRPS) version 2.0 dataset. For raw CHIRPS data see: ",
                  "link":"http://chg.geog.ucsb.edu/data/chirps."
                 },
-        "color": "#49853E"
+        "color": "#6075F9"
       }
     ]
   },
