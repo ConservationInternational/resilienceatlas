@@ -1,0 +1,134 @@
+[
+  {
+    "id": 1,
+    "category-id": 1,
+    "category": "livelihoods",
+    "title": "Where are and which rural livelihoods are most threatened by climate variability and change?"
+    "description": "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Repellat accusantium, ea placeat, eos molestias, dignissimos ipsa nihil perspiciatis neque necessitatibus hic labore ducimus omnis harum voluptatibus illo repellendus rerum. Voluptatem.",
+    "image": "",
+    "layers": [{
+      "id": 3,
+      "query": ""
+    }]
+  },
+  {
+    "id": 2,
+    "category-id": 1,
+    "category": "livelihoods",
+    "title": "Where are interventions (such as increasing access to extension services) most likely to be effective at building resilient livelihoods?"
+    "description": "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Repellat accusantium, ea placeat, eos molestias, dignissimos ipsa nihil perspiciatis neque necessitatibus hic labore ducimus omnis harum voluptatibus illo repellendus rerum. Voluptatem.",
+    "image": "",
+    "layers": [{
+      "id": 3,
+      "query": ""
+    }]
+  },
+  {
+    "id": 3,
+    "category-id": 2,
+    "category": "food security",
+    "title": "Where might environmental change limit the ability of smallholder farmers to meet baseline nutritional needs?"
+    "description": "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Repellat accusantium, ea placeat, eos molestias, dignissimos ipsa nihil perspiciatis neque necessitatibus hic labore ducimus omnis harum voluptatibus illo repellendus rerum. Voluptatem.",
+    "image": "",
+    "layers": [{
+      "id": 3,
+      "query": ""
+    }]
+  },
+  {
+    "id": 4,
+    "category-id": 2,
+    "category": "food security",
+    "title": "Where are changes in fisheries catch likely to have the greatest effects on livelihoods and food security?"
+    "description": "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Repellat accusantium, ea placeat, eos molestias, dignissimos ipsa nihil perspiciatis neque necessitatibus hic labore ducimus omnis harum voluptatibus illo repellendus rerum. Voluptatem.",
+    "image": "",
+    "layers": [{
+      "id": 3,
+      "query": ""
+    }]
+  },
+  {
+    "id": 5,
+    "category-id": 3,
+    "category": "health",
+    "title": "Where are the dual burdens of chronic health stress and climate stress greatest?"
+    "description": "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Repellat accusantium, ea placeat, eos molestias, dignissimos ipsa nihil perspiciatis neque necessitatibus hic labore ducimus omnis harum voluptatibus illo repellendus rerum. Voluptatem.",
+    "image": "",
+    "layers": [{
+      "id": 3,
+      "query": ""
+    }]
+  },
+  {
+    "id": 6,
+    "category-id": 3,
+    "category": "health",
+    "title": "Where are the dual burdens of chronic health stress and climate stress greatest?"
+    "description": "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Repellat accusantium, ea placeat, eos molestias, dignissimos ipsa nihil perspiciatis neque necessitatibus hic labore ducimus omnis harum voluptatibus illo repellendus rerum. Voluptatem.",
+    "image": "",
+    "layers": [{
+      "id": 3,
+      "query": ""
+    }]
+  },
+  {
+    "id": 7,
+    "category-id": 3,
+    "category": "health",
+    "title": "Where might rapid land use change and/or land degradation raise concerns of increased likelihood of emergence of infectious disease?"
+    "description": "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Repellat accusantium, ea placeat, eos molestias, dignissimos ipsa nihil perspiciatis neque necessitatibus hic labore ducimus omnis harum voluptatibus illo repellendus rerum. Voluptatem.",
+    "image": "",
+    "layers": [{
+      "id": 3,
+      "query": ""
+    }]
+  },
+  {
+    "id": 8,
+    "category-id": 4,
+    "category": "economy",
+    "title": "Where are high-value export crops most sensitive to climate stresses and shocks?"
+    "description": "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Repellat accusantium, ea placeat, eos molestias, dignissimos ipsa nihil perspiciatis neque necessitatibus hic labore ducimus omnis harum voluptatibus illo repellendus rerum. Voluptatem.",
+    "image": "",
+    "layers": [{
+      "id": 3,
+      "query": ""
+    }]
+  },
+  {
+    "id": 9,
+    "category-id": 4,
+    "category": "economy",
+    "title": "Where might increases in food imports be required to meet baseline nutritional needs?"
+    "description": "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Repellat accusantium, ea placeat, eos molestias, dignissimos ipsa nihil perspiciatis neque necessitatibus hic labore ducimus omnis harum voluptatibus illo repellendus rerum. Voluptatem.",
+    "image": "",
+    "layers": [{
+      "id": 3,
+      "query": ""
+    }]
+  },
+  {
+    "id": 10,
+    "category-id": 4,
+    "category": "natural disaster",
+    "title": "Where are populations at highest risk of impacts from flooding?"
+    "description": "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Repellat accusantium, ea placeat, eos molestias, dignissimos ipsa nihil perspiciatis neque necessitatibus hic labore ducimus omnis harum voluptatibus illo repellendus rerum. Voluptatem.",
+    "image": "",
+    "layers": [{
+      "id": 3,
+      "query": ""
+    }]
+  },
+  {
+    "id": 11,
+    "category-id": 4,
+    "category": "natural disaster",
+    "title": "Where are changes in the intensity of coastal storms most likely?"
+    "description": "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Repellat accusantium, ea placeat, eos molestias, dignissimos ipsa nihil perspiciatis neque necessitatibus hic labore ducimus omnis harum voluptatibus illo repellendus rerum. Voluptatem.",
+    "image": "",
+    "layers": [{
+      "id": 3,
+      "query": ""
+    }]
+  }
+]
