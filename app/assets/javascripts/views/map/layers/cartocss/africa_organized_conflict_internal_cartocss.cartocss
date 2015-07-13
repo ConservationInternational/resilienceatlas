@@ -5,24 +5,18 @@
   line-width: 0.5;
   line-opacity: 1;
 }
-#gpi_scores_longformat [ overall <= 6] {
+#gpi_scores_longformat [ overall <= 5] {
    polygon-fill: #ff4d4d;
 }
-#gpi_scores_longformat [ overall <= 5] {
+#gpi_scores_longformat [ overall <= 4] {
    polygon-fill: #ff7a7a;
 }
-#gpi_scores_longformat [ overall <= 4.5] {
-   polygon-fill: #ffa6a6;
-}
-#gpi_scores_longformat [ overall <= 4] {
+#gpi_scores_longformat [ overall <= 3] {
    polygon-fill: #fff2cc;
 }
-#gpi_scores_longformat [ overall <= 3.4] {
-   polygon-fill: #7fbfff;
-}
-#gpi_scores_longformat [ overall <= 3] {
+#gpi_scores_longformat [ overall <= 2] {
    polygon-fill: #40a0ff;
 }
-#gpi_scores_longformat [ overall <= 2] {
+#gpi_scores_longformat [ overall <= 1] {
    polygon-fill: #0080ff;
 }
