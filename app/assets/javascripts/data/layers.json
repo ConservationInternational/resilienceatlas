@@ -206,6 +206,19 @@
         "interactivity": {
           "value": "Value"
         }
+      },
+      {
+        "name": "Children stunted",
+        "slug": "africa_children_stunted",
+        "type": "layer",
+        "zindex": 10,
+        "active": false,
+        "timeline": false,
+        "info": "Children stunted info",
+        "color": "#49853E",
+        "interactivity": {
+          "value": "Value"
+        }
       }
     ]
   }

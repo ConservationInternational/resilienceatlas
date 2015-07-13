@@ -8,21 +8,21 @@
 #dhs_export [ value <= 100] {
    polygon-fill: #d73027;
 }
-#dhs_export [ value <= 75] {
+#dhs_export [ value <= 60] {
    polygon-fill: #f79272;
 }
-#dhs_export [ value <= 60] {
+#dhs_export [ value <= 50] {
    polygon-fill: #fed6b0;
 }
-#dhs_export [ value <= 50] {
+#dhs_export [ value <= 40] {
    polygon-fill: #fff2cc;
 }
-#dhs_export [ value <= 40] {
+#dhs_export [ value <= 30] {
    polygon-fill: #d2ecb4;
 }
-#dhs_export [ value <= 30] {
+#dhs_export [ value <= 20] {
    polygon-fill: #8cce8a;
 }
-#dhs_export [ value <= 20] {
+#dhs_export [ value <= 10] {
    polygon-fill: #1a9850;
 }
