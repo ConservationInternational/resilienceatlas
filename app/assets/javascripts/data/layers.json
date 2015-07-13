@@ -232,6 +232,32 @@
         "interactivity": {
           "value": "Value"
         }
+      },
+      {
+        "name": "Percentage of men with secondary education",
+        "slug": "africa_men_secondary_education",
+        "type": "layer",
+        "zindex": 10,
+        "active": false,
+        "timeline": false,
+        "info": "Children stunted info",
+        "color": "#49853E",
+        "interactivity": {
+          "value": "Value"
+        }
+      },
+      {
+        "name": "Percentage of women with secondary education",
+        "slug": "africa_women_secondary_education",
+        "type": "layer",
+        "zindex": 10,
+        "active": false,
+        "timeline": false,
+        "info": "Children stunted info",
+        "color": "#49853E",
+        "interactivity": {
+          "value": "Value"
+        }
       }
     ]
   }
