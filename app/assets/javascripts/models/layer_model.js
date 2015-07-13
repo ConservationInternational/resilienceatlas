@@ -16,7 +16,11 @@ define([
   'views/map/layers/instances/africa_total_export_crop_value_layer',
   'views/map/layers/instances/total_production_crop_value_layer',
   //HEALTH
-  'views/map/layers/instances/africa_women_mass_media_layer'
+  'views/map/layers/instances/africa_women_mass_media_layer',
+  'views/map/layers/instances/africa_children_stunted_layer',
+  'views/map/layers/instances/africa_infant_mortality_rate_layer',
+  'views/map/layers/instances/africa_men_secondary_education_layer',
+  'views/map/layers/instances/africa_women_secondary_education_layer'
 ], function(_,
   Backbone,
    //CONFLICTS
@@ -34,7 +38,11 @@ define([
   AfricaTotalExportCropValueLayer,
   TotalProductionCropValueLayer,
   //HEALTH
-  AfricaWomenMassMediaAccessLayer
+  AfricaWomenMassMediaAccessLayer,
+  AfricaChildrenStuntedLayer,
+  AfricaInfantMortalityRateLayer,
+  AfricaMenSecondaryEducationLayer,
+  AfricaWomenSecondaryEducationLayer
   ){
 
   'use strict';
@@ -56,6 +64,10 @@ define([
     { slug: 'total_production_crop_value', Instance: TotalProductionCropValueLayer},
     //HEALTH
     { slug: 'africa_women_mass_media_access', Instance: AfricaWomenMassMediaAccessLayer},
+    { slug: 'africa_children_stunted', Instance: AfricaChildrenStuntedLayer},
+    { slug: 'africa_infant_mortality_rate', Instance: AfricaInfantMortalityRateLayer},
+    { slug: 'africa_men_secondary_education', Instance: AfricaMenSecondaryEducationLayer},
+    { slug: 'africa_women_secondary_education', Instance: AfricaWomenSecondaryEducationLayer},
   ];
 
   var LayerModel = Backbone.Model.extend({
