@@ -1,12 +1,12 @@
 define([
   'views/map/layers/layouts/cartodb_layer',
-  'text!views/map/layers/cartocss/africa_women_mass_media_cartocss.cartocss',
-  'text!views/map/layers/sql/africa_women_mass_media_sql.pgsql'
+  'text!views/map/layers/cartocss/africa_infant_mortality_rate_cartocss.cartocss',
+  'text!views/map/layers/sql/africa_infant_mortality_rate_sql.pgsql'
 ], function(CartoDBLayer, CartoCSS, SQL) {
 
   'use strict';
 
-  var AfricaWomenMassMediaAccessLayer = CartoDBLayer.extend({
+  var AfricaInfantMortalityRateLayer = CartoDBLayer.extend({
 
     options: {
       params: {
@@ -14,8 +14,8 @@ define([
         cartocss: CartoCSS,
         type: '',
         legend: {
-          min: '20%',
-          max: '75%',
+          min: '0',
+          max: '150',
           type: 'choropleth',
           bucket: [
             '#1a9850',
@@ -32,6 +32,6 @@ define([
 
   });
 
-  return AfricaWomenMassMediaAccessLayer;
+  return AfricaInfantMortalityRateLayer;
 
 });

@@ -195,13 +195,65 @@
     "info": "This is the info for Health",
     "layers": [
       {
-        "name": "Women with no access to mass media",
+        "name": "Percentage of women with no access to mass media",
         "slug": "africa_women_mass_media_access",
         "type": "layer",
         "zindex": 9,
         "active": false,
         "timeline": false,
         "info": "Women with no access to mass media info",
+        "color": "#49853E",
+        "interactivity": {
+          "value": "Value"
+        }
+      },
+      {
+        "name": "Stunting",
+        "slug": "africa_children_stunted",
+        "type": "layer",
+        "zindex": 10,
+        "active": false,
+        "timeline": false,
+        "info": "Children stunted info",
+        "color": "#49853E",
+        "interactivity": {
+          "value": "Value"
+        }
+      },
+      {
+        "name": "Infant mortality rate (per 1,0000 births)",
+        "slug": "africa_infant_mortality_rate",
+        "type": "layer",
+        "zindex": 10,
+        "active": false,
+        "timeline": false,
+        "info": "Children stunted info",
+        "color": "#49853E",
+        "interactivity": {
+          "value": "Value"
+        }
+      },
+      {
+        "name": "Percentage of men with secondary education",
+        "slug": "africa_men_secondary_education",
+        "type": "layer",
+        "zindex": 10,
+        "active": false,
+        "timeline": false,
+        "info": "Children stunted info",
+        "color": "#49853E",
+        "interactivity": {
+          "value": "Value"
+        }
+      },
+      {
+        "name": "Percentage of women with secondary education",
+        "slug": "africa_women_secondary_education",
+        "type": "layer",
+        "zindex": 10,
+        "active": false,
+        "timeline": false,
+        "info": "Children stunted info",
         "color": "#49853E",
         "interactivity": {
           "value": "Value"
