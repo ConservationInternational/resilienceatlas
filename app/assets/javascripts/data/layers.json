@@ -42,24 +42,58 @@
     "info": "This is the info for Conflicts",
     "layers": [
       {
-        "name": "Overall GPI scores",
+        "name": "State of peace",
         "slug": "overall_gpi_scores",
         "type": "layer",
         "zindex": 0,
         "active": false,
         "timeline": false,
-        "info": "Overall GPI scores",
+        "info": {"description":"Data from the Institute for Peace and Economics Global Peace Index.",
+                 "source":"Institute for Economics and Peace, 2015.",
+                 "link":"http://www.visionofhumanity.org"
+                },
         "color": "#49853E",
-        "interactivity": {
-          "year": "Year",
-          "overall": "Overall"
-        }
+        "interactivity": {"year": "Year",
+                          "overall": "Overall"
+                          }
+      },
+      {
+        "name": "Political Inestability",
+        "slug": "africa_political_inestability",
+        "type": "layer",
+        "zindex": 0,
+        "active": false,
+        "timeline": false,
+        "info": {"description":"Data from the Institute for Peace and Economics Global Peace Index.",
+                 "source":"Institute for Economics and Peace, 2015.",
+                 "link":"http://www.visionofhumanity.org"
+                },
+        "color": "#49853E",
+        "interactivity": {"year": "Year",
+                          "overall": "Overall"
+                          }
+      },
+      {
+        "name": "Level of organized conflict (internal)",
+        "slug": "africa_organized_conflict_internal",
+        "type": "layer",
+        "zindex": 0,
+        "active": false,
+        "timeline": false,
+        "info": {"description":"Data from the Institute for Peace and Economics Global Peace Index.",
+                 "source":"Institute for Economics and Peace, 2015.",
+                 "link":"http://www.visionofhumanity.org"
+                },
+        "color": "#49853E",
+        "interactivity": {"year": "Year",
+                          "overall": "Overall"
+                          }
       }
     ]
   },
   {
-    "group": "Food security",
-    "slug": "food_security",
+    "group": "Livelihoods",
+    "slug": "livelihoods",
     "category": "layer",
     "active": false,
     "order": 5,
@@ -72,7 +106,10 @@
         "zindex": 10,
         "active": false,
         "timeline": false,
-        "info": "Overall GPI scores",
+        "info": {"description":" ",
+                 "source":"",
+                 "link":""
+                },
         "color": "#49853E",
         "interactivity": {
           "lz_type": "Type"
@@ -81,12 +118,12 @@
     ]
   },
   {
-    "group": "Water",
-    "slug": "water",
+    "group": "Climate",
+    "slug": "climate",
     "category": "layer",
     "active": false,
     "order": 5,
-    "info": "This is the info for Water",
+    "info": "This is the info for Climate",
     "layers": [
       {
         "name": "Horn of Africa chrips long rains decada",
@@ -95,7 +132,10 @@
         "zindex": 10,
         "active": false,
         "timeline": false,
-        "info": "Horn of Africa chrips long rains decada",
+        "info": {"description":"Change in total precipitation per decade, as a percentage of the 1981-2015 total precipitation during the dry season (October - January).",
+                 "source":"Analysis based on monthly data from the Climate Hazards Group InfraRed Precipitation with Station (CHIRPS) version 2.0 dataset. For raw CHIRPS data see: ",
+                 "link":"http://chg.geog.ucsb.edu/data/chirps."
+                },
         "color": "#49853E"
       },
       {
@@ -105,7 +145,10 @@
         "zindex": 10,
         "active": false,
         "timeline": false,
-        "info": "Horn of Africa chrips long rains total",
+        "info": {"description":"Change in total precipitation per decade, as a percentage of the 1981-2015 total precipitation during the dry season (October - January).",
+                 "source":"Analysis based on monthly data from the Climate Hazards Group InfraRed Precipitation with Station (CHIRPS) version 2.0 dataset. For raw CHIRPS data see: ",
+                 "link":"http://chg.geog.ucsb.edu/data/chirps."
+                },
         "color": "#49853E"
       },
       {
@@ -115,7 +158,10 @@
         "zindex": 10,
         "active": false,
         "timeline": false,
-        "info": "Horn of Africa chrips long rains coefvariation change",
+        "info": {"description":"Change in total precipitation per decade, as a percentage of the 1981-2015 total precipitation during the dry season (October - January).",
+                 "source":"Analysis based on monthly data from the Climate Hazards Group InfraRed Precipitation with Station (CHIRPS) version 2.0 dataset. For raw CHIRPS data see: ",
+                 "link":"http://chg.geog.ucsb.edu/data/chirps."
+                },
         "color": "#49853E"
       },
       {
@@ -125,27 +171,36 @@
         "zindex": 10,
         "active": false,
         "timeline": false,
-        "info": "Horn of Africa chrips dry total",
+        "info": {"description":"Change in total precipitation per decade, as a percentage of the 1981-2015 total precipitation during the dry season (October - January).",
+                 "source":"Analysis based on monthly data from the Climate Hazards Group InfraRed Precipitation with Station (CHIRPS) version 2.0 dataset. For raw CHIRPS data see: ",
+                 "link":"http://chg.geog.ucsb.edu/data/chirps."
+                },
         "color": "#49853E"
       },
       {
-        "name": "Horn of Africa chrips dry decada",
+        "name": "Amount (dry season)",
         "slug": "horn_africa_chirps_dry_decada",
         "type": "layer",
         "zindex": 10,
         "active": false,
         "timeline": false,
-        "info": "Horn of Africa chrips dry decada",
+        "info": {"description":"Change in total precipitation per decade, as a percentage of the 1981-2015 total precipitation during the dry season (October - January).",
+                 "source":"Analysis based on monthly data from the Climate Hazards Group InfraRed Precipitation with Station (CHIRPS) version 2.0 dataset. For raw CHIRPS data see: ",
+                 "link":"http://chg.geog.ucsb.edu/data/chirps."
+                },
         "color": "#49853E"
       },
       {
-        "name": "Horn of Africa Dry season coefvariation change",
+        "name": "Variability (dry season)",
         "slug": "horn_africa_dry_coef_var",
         "type": "layer",
         "zindex": 10,
         "active": false,
         "timeline": false,
-        "info": "Overall GPI scores",
+        "info": {"description":"Change in total precipitation per decade, as a percentage of the 1981-2015 total precipitation during the dry season (October - January).",
+                 "source":"Analysis based on monthly data from the Climate Hazards Group InfraRed Precipitation with Station (CHIRPS) version 2.0 dataset. For raw CHIRPS data see: ",
+                 "link":"http://chg.geog.ucsb.edu/data/chirps."
+                },
         "color": "#49853E"
       }
     ]
@@ -159,13 +214,16 @@
     "info": "This is the info for Economy",
     "layers": [
       {
-        "name": "Total export crops value in 2011",
+        "name": "Total crops export value in 2011",
         "slug": "total_export_crop_value",
         "type": "layer",
         "zindex": 10,
         "active": false,
         "timeline": false,
-        "info": "Total export crops value info",
+        "info": {"description":"Total crops export value in 2011 info",
+                 "source":"",
+                 "link":""
+                },
         "color": "#49853E",
         "interactivity": {
           "total": "Total"
@@ -178,7 +236,10 @@
         "zindex": 10,
         "active": false,
         "timeline": false,
-        "info": "Total export crops value info",
+        "info": {"description":"Crops production info",
+                 "source":"",
+                 "link":""
+                },
         "color": "#49853E",
         "interactivity": {
           "total": "Total"
@@ -201,7 +262,10 @@
         "zindex": 9,
         "active": false,
         "timeline": false,
-        "info": "Women with no access to mass media info",
+        "info": {"description":"Percentage of women with no access to mass media",
+                 "source":"Demographic and Health Surveys (DHS)",
+                 "link":"http://www.statcompiler.com"
+                },
         "color": "#49853E",
         "interactivity": {
           "value": "Value"
@@ -214,7 +278,10 @@
         "zindex": 10,
         "active": false,
         "timeline": false,
-        "info": "Children stunted info",
+        "info": {"description":"Percentage of children with evidence of stunting.",
+                 "source":"Demographic and Health Surveys (DHS)",
+                 "link":"http://www.statcompiler.com"
+                },
         "color": "#49853E",
         "interactivity": {
           "value": "Value"
@@ -227,7 +294,10 @@
         "zindex": 10,
         "active": false,
         "timeline": false,
-        "info": "Children stunted info",
+        "info": {"description":"Infant mortality rate (per 1,0000 births)",
+                 "source":"Demographic and Health Surveys (DHS)",
+                 "link":"http://www.statcompiler.com"
+                },
         "color": "#49853E",
         "interactivity": {
           "value": "Value"
@@ -240,7 +310,10 @@
         "zindex": 10,
         "active": false,
         "timeline": false,
-        "info": "Children stunted info",
+        "info": {"description":"Percentage of men age 6 and over who attended secondary education, from most recent Demographic and Health Surveys (DHS) survey.",
+                 "source":"Demographic and Health Surveys (DHS)",
+                 "link":"http://www.statcompiler.com"
+                },
         "color": "#49853E",
         "interactivity": {
           "value": "Value"
@@ -253,7 +326,10 @@
         "zindex": 10,
         "active": false,
         "timeline": false,
-        "info": "Children stunted info",
+        "info": {"description":"Percentage of women age 6 and over who attended secondary education, from most recent Demographic and Health Surveys (DHS) survey.",
+                 "source":"Demographic and Health Surveys (DHS)",
+                 "link":"http://www.statcompiler.com"
+                },
         "color": "#49853E",
         "interactivity": {
           "value": "Value"

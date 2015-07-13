@@ -1,12 +1,12 @@
 define([
   'views/map/layers/layouts/cartodb_layer',
-  'text!views/map/layers/cartocss/overall_gpi_scores_cartocss.cartocss',
-  'text!views/map/layers/sql/overall_gpi_scores_sql.pgsql'
+  'text!views/map/layers/cartocss/africa_political_inestability_cartocss.cartocss',
+  'text!views/map/layers/sql/africa_political_inestability_sql.pgsql'
 ], function(CartoDBLayer, CartoCSS, SQL) {
 
   'use strict';
 
-  var OverallGpiScoresLayer = CartoDBLayer.extend({
+  var AfricaPoliticalInestabilityLayer = CartoDBLayer.extend({
 
     options: {
       params: {
@@ -14,8 +14,8 @@ define([
         cartocss: CartoCSS,
         type: '',
         legend: {
-          min: 'More peaceful',
-          max: 'Less peaceful',
+          min: 'Stable',
+          max: 'Unstable',
           type: 'choropleth',
           bucket: [
             '#007FFE',
@@ -32,6 +32,6 @@ define([
 
   });
 
-  return OverallGpiScoresLayer;
+  return AfricaPoliticalInestabilityLayer;
 
 });
