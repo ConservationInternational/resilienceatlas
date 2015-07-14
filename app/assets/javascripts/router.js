@@ -33,9 +33,15 @@ define([
         linkText: 'go to the map!'
       };
 
-      new modalView({
+      this.modal = new modalView({
         data: data
       });
+
+      this.modal.undelegateEvents();
+
+      this.modal.$el.find('a').on('click', _.bind(function() {
+        this.modal.close();
+      }, this));
     },
 
     map: function(tab, id) {
