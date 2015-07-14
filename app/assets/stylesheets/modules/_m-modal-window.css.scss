@@ -38,6 +38,17 @@
   a {
     color: $color-1;
   }
+
+  // REMOVE
+  .init-content {
+    display: flex;
+    height: 180px;
+    align-items: center;
+    justify-content: center;
+    a {
+      font-size: 20px;
+    }
+  }
 }
 
 .btn-close-modal {

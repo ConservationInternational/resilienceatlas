@@ -17,12 +17,12 @@
   ul.m-dashboard-navigation#navigationDashboard
     li.tabs data-item="layers"
       = link_to('layers', '#map/layers')
-    li.tabs.disabled data-item="topics"
+    li.tabs.is-inactive data-item="topics"
       = link_to('topics', '#map/topics')
-    li.tabs.disabled data-item="regions"
+    li.tabs.is-inactive data-item="regions"
       = link_to('regions', '#map/regions')
   .m-dashboard#dashboardView
-    
+      
 
 / .m-analysis#analysisView
 / .m-timeline#timelineView
