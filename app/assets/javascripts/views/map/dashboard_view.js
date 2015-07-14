@@ -302,6 +302,7 @@ define([
 
 
       this.layers.reset(layers);
+      this.layers.trigger('change');
     },
 
     update: function(ev, element) {
@@ -434,12 +435,12 @@ define([
 
       var layers = _.clone(this.layers);
 
-
       var $el = $(ev.currentTarget);
       // var $modalBox = $('#modalBox');
       var infoLayer,
         data,
         slug;
+
       if($el.data('category')) {
         slug = $el.data('category');
         infoLayer = _.findWhere(layers.toJSON(), {groupSlug: slug});
