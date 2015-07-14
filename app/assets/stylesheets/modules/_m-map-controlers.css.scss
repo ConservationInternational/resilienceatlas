@@ -8,8 +8,8 @@
 
 .leaflet-control-zoom {
   position: absolute;
-  bottom: rem($margin-medium);
-  right: $dashboard-width + rem($margin-extra-large);
+  bottom: rem($margin-large);
+  right: rem($margin-medium);
   z-index: 1;
 }
 
