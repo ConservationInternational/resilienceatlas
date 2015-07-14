@@ -8,6 +8,10 @@
     justify-content: center;
     align-items: center;
     border-bottom: 1px solid $light-grey;
+    &.disabled a {
+      color: #ccc;
+      cursor: default;
+    }
     &.active {
       border-bottom: 0;
       border-left: 1px solid $light-grey;

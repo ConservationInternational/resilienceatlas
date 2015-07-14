@@ -6,11 +6,17 @@ define([
   var dashboardNavigationView = Backbone.View.extend({
 
       events: {
-        //'click .tabs a' : 'active'
+        'click .disabled a' : 'noWay'
       },
 
       initialize: function() {
         this.model = MapModel;
+      },
+
+      noWay: function(e) {
+        if(e) {
+          e.preventDefault();
+        }
       },
 
       setListeners: function() {
