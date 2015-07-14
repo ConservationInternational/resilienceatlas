@@ -2,9 +2,22 @@
   <div class="modal-wrapper">
     <div class="btn-close-modal">×</div>
     <div class="modal-container">
-      <p>{{data.description}}</p>
-      <p>{{data.source}}</p>
-      <a href="{{data.link}}" target="_blank">{{data.link}}</a>
+
+
+      {{#if data.initialize}}
+
+        <div class="init-content">
+          <a class="go-to" href="{{data.link}}">{{data.linkText}}</a>
+        </div>
+
+
+      {{else}}
+        <p>{{data.description}}</p>
+        <p>{{data.source}}</p>
+        <a href="{{data.link}}" target="_blank">{{data.link}}</a>
+      {{/if}}
+
+
     </div>
   </div>
   <div class="modal-background"></div>

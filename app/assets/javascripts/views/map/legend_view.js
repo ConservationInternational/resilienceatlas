@@ -32,7 +32,6 @@ define([
     },
 
     render: function() {
-      console.log('render');
       var self = this;
       var activeLayers = this.layers.getActiveLayers();
       _.map(activeLayers, function(layer) {

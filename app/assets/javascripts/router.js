@@ -1,15 +1,16 @@
 define([
   'backbone',
   'uri/URI',
-  'views/pages/map_page_view'
-], function(Backbone, URI, MapPageView) {
+  'views/pages/map_page_view',
+  'views/helpers/modal_window_view',
+], function(Backbone, URI, MapPageView, modalView) {
 
   'use strict';
 
   var Router = Backbone.Router.extend({
 
     routes: {
-      //'': 'map',
+      '': 'index',
       'map(/:tab)(/:id)': 'map'
     },
 
@@ -22,9 +23,19 @@ define([
     },
 
     index: function() {
-      var params = new URI(location.href).search(true);
-      var mapPageView = new MapPageView({ el: '#pageView' });
-      mapPageView.model.set({ title: 'Map', params: params });
+      // var params = new URI(location.href).search(true);
+      // var mapPageView = new MapPageView({ el: '#pageView' });
+      // mapPageView.model.set({ title: 'Map', params: params });
+
+      var data = {
+        initialize: true,
+        link: '#map/layers',
+        linkText: 'go to the map!'
+      };
+
+      new modalView({
+        data: data
+      });
     },
 
     map: function(tab, id) {
