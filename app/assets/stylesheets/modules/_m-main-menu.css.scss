@@ -2,7 +2,7 @@
   @extend %list-reset;
   display: flex;
   display: -ms-box;
-  justify-content: space-between;
+  justify-content: flex-end;
   width: 100%;
   text-transform: capitalize;
 

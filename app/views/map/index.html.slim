@@ -7,12 +7,23 @@
 
 .m-legend#legendView
 .l-map-toolbar
+  #shareView
+    button.btn-toolbar#btn-share-map Share this map
+  #AnalyzeView
+    button.btn-toolbar Analyze this area
   #searchView.m-search.is-inactive
-  #shareView.m-share
-    button.btn-share Share this map
 
 .l-dashboard
+  ul.m-dashboard-navigation#navigationDashboard
+    li.tabs data-item="layers"
+      = link_to('layers', '#map/layers')
+    li.tabs data-item="topics"
+      = link_to('topics', '#map/topics')
+    li.tabs data-item="regions"
+      = link_to('regions', '#map/regions')
   .m-dashboard#dashboardView
+    
+
 / .m-analysis#analysisView
 / .m-timeline#timelineView
 / .m-custom-info-window#custom-info-window

@@ -3,8 +3,8 @@
   $default-icon-bg: $color-2;
 
   position: absolute;
-  left: rem(20px);
-  bottom: rem(20px);
+  left: $dashboard-width + rem(20px);
+  bottom: rem($margin-medium);
   z-index: 1;
   text-align: center;
   display: none;
