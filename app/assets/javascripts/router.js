@@ -10,7 +10,7 @@ define([
 
     routes: {
       //'': 'map',
-      'map(/:tab)': 'map'
+      'map(/:tab)(/:id)': 'map'
     },
 
     initialize: function() {
@@ -27,17 +27,22 @@ define([
       mapPageView.model.set({ title: 'Map', params: params });
     },
 
-    map: function(tab) {
+    map: function(tab, id) {
 
       if (!this.mapPageView) {
         this.mapPageView = new MapPageView({ el: '#pageView' });
       }
 
+      var params = {};
+
       var params = new URI((new URI(location.href).fragment())).search(true);
 
       tab = tab ? tab : 'layers';
 
-      _.extend(params, { tab: tab});
+      _.extend(params, {
+        tab: tab,
+        id: id
+      });
 
       this.mapPageView.model.set({ title: 'Map', params: params });
     },
