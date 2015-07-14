@@ -5,7 +5,8 @@
     "category": "basemap",
     "active": true,
     "order": 0,
-    "info": "Base info",
+    "info": {"description":"description"
+                },
     "layers": [
       {
         "name": "Topography",
@@ -39,7 +40,8 @@
     "category": "layer",
     "active": false,
     "order": 1,
-    "info": "This is the info for Conflicts",
+    "info": {"description":"description"
+                },
     "layers": [
       {
         "name": "State of peace",
@@ -97,7 +99,8 @@
     "category": "layer",
     "active": false,
     "order": 5,
-    "info": "This is the info for Food security",
+    "info": {"description":"description"
+                },
     "layers": [
       {
         "name": "Livelihood zones",
@@ -211,7 +214,8 @@
     "category": "layer",
     "active": false,
     "order": 5,
-    "info": "This is the info for Economy",
+    "info": {"description":"" 
+                },
     "layers": [
       {
         "name": "Total crops export value in 2011",
@@ -253,7 +257,8 @@
     "category": "layer",
     "active": false,
     "order": 6,
-    "info": "This is the info for Health",
+    "info": {"description":"" 
+                },
     "layers": [
       {
         "name": "Percentage of women with no access to mass media",
