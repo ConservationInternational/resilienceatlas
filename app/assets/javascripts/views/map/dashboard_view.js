@@ -437,15 +437,23 @@ define([
 
       var $el = $(ev.currentTarget);
       // var $modalBox = $('#modalBox');
-
-      var id = $el.data('id');
-      var infoLayer = _.findWhere(layers.toJSON(), {'id': id});
-
+      var infoLayer,
+        data,
+        slug;
+      if($el.data('category')) {
+        slug = $el.data('category');
+        infoLayer = _.findWhere(layers.toJSON(), {groupSlug: slug});
+        data = infoLayer.groupInfo;
+      } else {
+        slug = $el.data('slug');
+        infoLayer = _.findWhere(layers.toJSON(), {slug: slug});
+        data = infoLayer.info;
+      }
 
       // $modalBox.find('.modal-content').html(info);
       // $modalBox.foundation('reveal', 'open');
       new ModalWindowView ({
-        'data': infoLayer.info
+        'data': data
       });
     },
 

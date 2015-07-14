@@ -28,7 +28,7 @@
         <a href="#dashboard-layers-item-{{slug}}" class="accordion-category-title">
           {{name}}
           {{#if info}}
-            <div class="btn-info" data-info="{{info}}">i</div>
+            <div class="btn-info" data-category="{{slug}}">i</div>
           {{/if}}
         </a>
         <div id="dashboard-layers-item-{{slug}}" class="content {{active}} layers-group">
@@ -44,7 +44,7 @@
                 <div class="layer-item-name">{{name}}</div>
               </div>
               {{#if info}}
-                <div class="btn-info" data-id="{{id}}">i</div>
+                <div class="btn-info" data-slug="{{slug}}">i</div>
               {{/if}}
             </div>
 
@@ -85,7 +85,7 @@
                       </div>
 
                       {{#if info}}
-                        <div class="btn-info" data-info="{{info}}">i</div>
+                        <div class="btn-info" data-info="{{aa}}">i</div>
                       {{/if}}
 
                       {{#if locateLayer}}
@@ -132,7 +132,7 @@
         <ul class="accordion category">
           <li class="accordion-navigation active">
             <a href="#dashboard-layers-item-{{@key}}" class="accordion-category-title"> {{@key}}
-              <div class="btn-info" data-info="{{this.groupInfo}}">i</div>
+              <div class="btn-info" data-category="{{@key}}">i</div>
             </a>
             <div id="dashboard-layers-item-{{@key}}" class="content layers-group active">
               {{#each this}}
@@ -144,7 +144,7 @@
                     </div>
                     <div class="layer-item-name">{{name}}</div>
                   </div>
-                  <div class="btn-info" data-id="{{id}}">i</div>
+                  <div class="btn-info" data-slug="{{slug}}">i</div>
                 </div>
               {{/each}}
             </div>
