@@ -12,7 +12,12 @@ define([
       return data;
     },
 
-    getTopics: function() {
+    getTopic: function(id) {
+      var topicId = Number(id);
+      return _.findWhere(this.toJSON(), {id: topicId});
+    },
+
+    getTopicsList: function() {
       return _.groupBy(this.toJSON(), 'category');
     }
 

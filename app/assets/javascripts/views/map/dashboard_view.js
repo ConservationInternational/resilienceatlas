@@ -162,10 +162,16 @@ define([
           case 'layers':
             console.info('getting layers...');
             this.getLayers(params);
+            this.setActiveLayers(params);
             break;
           case 'topics':
             console.info('getting topics...');
-            this.getTopics();
+            if (params.id) {
+              this.getTopic(params.id);
+              this.setActiveLayers(params);
+            } else {
+              this.getTopicList();
+            }
             break;
           case 'regions':
             console.info('getting regions...');
@@ -213,9 +219,13 @@ define([
       };
 
       this.render();
+      //this.layers.reset(layersCollection.models);
+    },
+
+    setActiveLayers: function(params) {
 
       if (params && params.hasOwnProperty('active')) {
-
+        var layersCollection = _.clone(this.layers);
         var layersByUrl = params.active.split(','),
           layers = layersCollection.toJSON();
 
@@ -229,24 +239,42 @@ define([
           }, this));
         }, this));
       }
-
-      //this.layers.reset(layersCollection.models);
     },
 
-    getTopics: function(params) {
+    getTopic: function(id) {
+      var topicInfo = this.topics.getTopic(id);
+      var layers = _.clone(this.layers);
+      var layersByTopic = [];
 
-      this.topics.getTopics(_.bind(function() {
+      var layersByTopicId = _.map(topicInfo.layers, function(layer) {
+        return layer.id;
+      });
 
-        this.data = {
-          topics: true,
-          data: this.topics.toJSON()
-        };
+      _.each(layersByTopicId, function(id) {
+        layersByTopic.push(layers.getById(id));
+      })
 
-        console.log(this.data)
+      layersByTopic = _.groupBy(layersByTopic, 'groupSlug');
 
-        this.render();
+      this.data = {
+        topics: true,
+        topicId: true,
+        data: topicInfo,
+        layersByTopic: layersByTopic
+      };
 
-      }, this));
+      this.render();
+    },
+
+    getTopicList: function() {
+      var topics = this.topics.getTopicsList();
+
+      this.data = {
+        topics: true,
+        data: topics
+      };
+
+      this.render();
     },
 
     getRegions: function(params) {
@@ -285,6 +313,7 @@ define([
       var layers = _.clone(this.layers);
 
       var layer = {slug: slug};
+
       var layerValue = $el.prop('checked');
       var layerModel = layers.findWhere(layer);
 
@@ -403,14 +432,20 @@ define([
       ev.preventDefault();
       ev.stopPropagation();
 
+      var layers = _.clone(this.layers);
+
+
       var $el = $(ev.currentTarget);
       // var $modalBox = $('#modalBox');
-      var info = $el.data('info');
+
+      var id = $el.data('id');
+      var infoLayer = _.findWhere(layers.toJSON(), {'id': id});
+
 
       // $modalBox.find('.modal-content').html(info);
       // $modalBox.foundation('reveal', 'open');
       new ModalWindowView ({
-        'data': info
+        'data': infoLayer.info
       });
     },
 

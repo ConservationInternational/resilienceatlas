@@ -44,7 +44,7 @@
                 <div class="layer-item-name">{{name}}</div>
               </div>
               {{#if info}}
-                <div class="btn-info" data-info="{{info}}">i</div>
+                <div class="btn-info" data-id="{{id}}">i</div>
               {{/if}}
             </div>
 
@@ -112,7 +112,61 @@
 
 {{#if topics}}
 
-  <p>You are in topics!</p>
+
+
+  {{#if topicId}}
+
+    <a href="#map/topics">Topics List</a>
+
+
+    <h2>{{data.title}}</h2>
+
+    <img src="{{data.image}}">
+
+    <p>{{data.description}}</p>
+
+
+
+    {{#if layersByTopic}}
+      {{#each layersByTopic}}
+        <ul class="accordion category">
+          <li class="accordion-navigation active">
+            <a href="#dashboard-layers-item-{{@key}}" class="accordion-category-title"> {{@key}}
+              <div class="btn-info" data-info="{{this.groupInfo}}">i</div>
+            </a>
+            <div id="dashboard-layers-item-{{@key}}" class="content layers-group active">
+              {{#each this}}
+                <div class="layer-item">
+                  <div class="layer-item-content">
+                    <div class="switcher">
+                      <input id="{{slug}}" data-layer-slug="{{slug}}" class="layer-switch" type="checkbox">
+                      <label for="{{slug}}"></label>
+                    </div>
+                    <div class="layer-item-name">{{name}}</div>
+                  </div>
+                  <div class="btn-info" data-id="{{id}}">i</div>
+                </div>
+              {{/each}}
+            </div>
+          </li>
+        </ul>
+      {{/each}}
+    {{/if}}
+
+    <h3>More related layers</h3>
+
+    <span>...</span>
+
+  {{else}}
+
+    {{#each data}}
+      <p>{{@key}}</p>
+      {{#each this}}
+        <a href="/#map/topics/{{id}}">{{title}}</a>
+      {{/each}}
+    {{/each}}
+
+  {{/if}}
 
 {{/if}}
 

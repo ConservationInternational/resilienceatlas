@@ -28,7 +28,6 @@ define([
     },
 
     initialize: function(data) {
-      console.log(data)
       if (data) {
         this.render(data);
       };
