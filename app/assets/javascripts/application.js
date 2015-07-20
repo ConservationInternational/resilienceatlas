@@ -18,7 +18,7 @@ require([
      * Start history HTML5 API, it's required to use router
      */
     start: function() {
-      Backbone.history.start({ pushState: true });
+      Backbone.history.start({ pushState: false });
     }
 
   });

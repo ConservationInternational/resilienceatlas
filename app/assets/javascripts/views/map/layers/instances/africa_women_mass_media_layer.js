@@ -14,8 +14,8 @@ define([
         cartocss: CartoCSS,
         type: '',
         legend: {
-          min: '10.6',
-          max: '135',
+          min: '20%',
+          max: '75%',
           type: 'choropleth',
           bucket: [
             '#1a9850',

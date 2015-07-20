@@ -23,7 +23,8 @@ define([
       }
       return {
         'click .btn-close-modal': 'close',
-        'click .modal-background': 'close'
+        'click .modal-background': 'close',
+        'click .go-to': 'close'
       };
     },
 

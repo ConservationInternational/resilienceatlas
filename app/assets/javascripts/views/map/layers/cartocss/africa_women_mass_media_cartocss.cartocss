@@ -5,24 +5,24 @@
   line-width: 0.5;
   line-opacity: 1;
 }
-#dhs_export [ value <= 135] {
+#dhs_export [ value <= 100] {
    polygon-fill: #d73027;
 }
-#dhs_export [ value <= 80.7] {
+#dhs_export [ value <= 75] {
    polygon-fill: #f79272;
 }
-#dhs_export [ value <= 62.4] {
+#dhs_export [ value <= 60] {
    polygon-fill: #fed6b0;
 }
-#dhs_export [ value <= 46.2] {
+#dhs_export [ value <= 50] {
    polygon-fill: #fff2cc;
 }
-#dhs_export [ value <= 33.1] {
+#dhs_export [ value <= 40] {
    polygon-fill: #d2ecb4;
 }
-#dhs_export [ value <= 21.9] {
+#dhs_export [ value <= 30] {
    polygon-fill: #8cce8a;
 }
-#dhs_export [ value <= 10.6] {
+#dhs_export [ value <= 20] {
    polygon-fill: #1a9850;
 }

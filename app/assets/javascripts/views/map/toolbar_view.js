@@ -8,7 +8,7 @@ define([
   var ToolbarView = Backbone.View.extend({
 
     initialize: function() {
-      $('.btn-share').on('click', this.openShareWindow);
+      $('#btn-share-map').on('click', this.openShareWindow);
     },
 
     openShareWindow: function() {

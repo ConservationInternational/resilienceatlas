@@ -39,7 +39,7 @@ define([
       satellite: 'http://server.arcgisonline.com' +
         '/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
       terrain: 'http://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
-      topography: 'http://{s}.api.cartocdn.com/base-light/{z}/{x}/{y}.png'
+      topography: 'http://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png'
     },
 
     initialize: function(settings) {
@@ -70,7 +70,7 @@ define([
           bounds = L.latLngBounds(southWest, northEast);
 
       this.map = L.map(this.el, this.options.map);
-      L.control.zoom(this.options.zoom).addTo(this.map)
+      L.control.zoom(this.options.zoom).addTo(this.map);
 
       this.map.fitBounds(bounds);
 
@@ -106,12 +106,15 @@ define([
       if (layerModel.attributes.type === 'basemap') {
         return;
       }
+
       var latestLayer = this.model.get(layerModel.attributes.slug);
+
       if (latestLayer && layerModel.attributes.active !== true) {
         latestLayer.removeLayer();
         this.removeFromLoadingQueue(layerModel.attributes.slug);
         this.model.set(layerModel.attributes.slug, null, { silent: true });
       } else if (!latestLayer && layerModel.attributes.active === true) {
+
         var Instance = layerModel.attributes.Instance;
 
         if (Instance) {
@@ -128,7 +131,9 @@ define([
           this.model.set(layerModel.attributes.slug, layerInstance, {
             silent: true
           });
+
         } else {
+
           console.warn(
             '%1 layer doesn\'t exist'.format(layerModel.attributes.name)
           );

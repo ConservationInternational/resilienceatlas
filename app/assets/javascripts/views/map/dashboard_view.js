@@ -3,9 +3,10 @@ define([
   'backbone',
   'handlebars',
   'foundation',
+  'uri/URI',
   'views/helpers/modal_window_view',
   'text!templates/map/dashboard_tpl.handlebars'
-], function(_, Backbone, Handlebars, foundation, ModalWindowView, TPL) {
+], function(_, Backbone, Handlebars, foundation, URI, ModalWindowView, TPL) {
 
   'use strict';
 
@@ -19,7 +20,7 @@ define([
       'change .sublayer-switch': 'updateSublayer',
       'click .btn-info': 'openLayerInfo',
       'click .locate-layer': 'locateLayer',
-      'click .tabs li': 'toggleTabs'
+      'click .tabs a': 'toggleTabs'
     },
 
     template: Handlebars.compile(TPL),
@@ -28,12 +29,17 @@ define([
       var options = settings && settings.options ? settings.options : settings;
       this.options = _.extend(this.defaults, options);
       this.layers = this.options.layers;
+      this.topics = this.options.topics;
+      this.regions = this.options.regions;
       this.params = this.options.params;
       this.map = this.options.map;
-      this.render();
+
+      //this.render();
     },
 
     toggleTabs: function(ev) {
+      ev.preventDefault();
+
       var $tab = $(ev.currentTarget);
       var $tabs = this.$('.tabs > li');
       var $body = $('body');
@@ -47,25 +53,14 @@ define([
         $tab.removeClass('opened');
       } else {
         $tabs.removeClass('opened');
-        $tab.addClass('opened');;
+        $tab.addClass('opened');
       }
 
       this.renderSelectedLayers();
     },
 
     render: function() {
-      var dataByCategories = this.layers.getByCategoryAndGroup();
-      var layers = this.formatLayers(dataByCategories.layer);
-      var basemaps = this.formatLayers(dataByCategories.basemap);
-      // var context = this.formatLayers(dataByCategories.context);
-
-      var data = {
-        layers: layers,
-        basemaps: basemaps,
-        // context: context
-      };
-
-      this.$el.html(this.template(data));
+      this.$el.html(this.template(this.data));
       this.afterRender();
       this.renderLayerComponents();
       this.renderSelectedLayers();
@@ -158,33 +153,156 @@ define([
     },
 
     setUrlParams: function(params) {
-      if(params) {
-        var self = this;
-        var layersParams = _.flatten(_.values(params));
-        var layersCollection = _.clone(this.layers);
 
-        _.each(layersParams, function(currentLayer) {
-          var layer = {slug: currentLayer};
-          var layerModel = layersCollection.findWhere(layer);
+      if (params && params.hasOwnProperty('tab')) {
 
-          if(layerModel) {
-            var category = layerModel.get('category');
+        this.desactivateLayers();
 
-            if(category === 'basemap') {
-              _.map(layersCollection.models, function(model){
-                if(model.get('category') === 'basemap') {
-                  model.set({active: false});
-                }
-              });
+        switch(params.tab) {
+          case 'layers':
+            console.info('getting layers...');
+            this.getLayers(params);
+            this.setActiveLayers(params);
+            break;
+          case 'topics':
+            console.info('getting topics...');
+            if (params.id) {
+              this.getTopic(params.id);
+              this.setActiveLayers(params);
+            } else {
+              this.getTopicList();
             }
+            break;
+          case 'regions':
+            console.info('getting regions...');
+            this.getRegions();
+            break;
+        }
 
-            layerModel.set({active: true});
+        //this.render();
+      };
+    },
+
+    getLayers: function(params) {
+      var self = this;
+      var layersParams = _.flatten(_.values(params));
+      var layersCollection = _.clone(this.layers);
+
+      _.each(layersParams, function(currentLayer) {
+        var layer = {slug: currentLayer};
+        var layerModel = layersCollection.findWhere(layer);
+
+        if(layerModel) {
+          var category = layerModel.get('category');
+
+          if(category === 'basemap') {
+            _.map(layersCollection.models, function(model){
+              if(model.get('category') === 'basemap') {
+                model.set({active: false});
+              }
+            });
           }
-        });
 
-        this.layers.reset(layersCollection.models);
-        this.render();
+          layerModel.set({active: true});
+        }
+      });
+
+      var dataByCategories = this.layers.getByCategoryAndGroup();
+      var layers = this.formatLayers(dataByCategories.layer);
+      var basemaps = this.formatLayers(dataByCategories.basemap);
+      // var context = this.formatLayers(dataByCategories.context);
+
+      this.data = {
+        layers: layers,
+        basemaps: basemaps,
+        // context: context
+      };
+
+      this.render();
+      //this.layers.reset(layersCollection.models);
+    },
+
+    setActiveLayers: function(params) {
+
+      if (params && params.hasOwnProperty('active')) {
+        var layersCollection = _.clone(this.layers);
+        var layersByUrl = params.active.split(','),
+          layers = layersCollection.toJSON();
+
+        layersByUrl.forEach(_.bind(function(l) {
+          _.each(layers, _.bind(function(layer) {
+            if (layer.type === 'layer' && layer.slug === l) {
+              this.addActiveState.apply($('#dashboard-layers-item-' + layer.groupSlug));
+              $('#dashboard-layers-item-' + layer.groupSlug).find('#' + layer.slug).prop('checked', 'checked');
+              this.update(false, $('#dashboard-layers-item-' + layer.groupSlug).find('#' + layer.slug));
+            }
+          }, this));
+        }, this));
       }
+    },
+
+    getTopic: function(id) {
+      var topicInfo = this.topics.getTopic(id);
+      var layers = _.clone(this.layers);
+      var layersByTopic = [];
+
+      var layersByTopicId = _.map(topicInfo.layers, function(layer) {
+        return layer.id;
+      });
+
+      _.each(layersByTopicId, function(id) {
+        layersByTopic.push(layers.getById(id));
+      })
+
+      layersByTopic = _.groupBy(layersByTopic, 'groupSlug');
+
+      this.data = {
+        topics: true,
+        topicId: true,
+        data: topicInfo,
+        layersByTopic: layersByTopic
+      };
+
+      this.render();
+    },
+
+    getTopicList: function() {
+      var topics = this.topics.getTopicsList();
+
+      this.data = {
+        topics: true,
+        data: topics
+      };
+
+      this.render();
+    },
+
+    getRegions: function(params) {
+
+      this.regions.getByRegions(_.bind(function() {
+
+        this.data = {
+          regions: true,
+          data: this.regions.toJSON()
+        };
+
+        this.render();
+
+      }, this));
+    },
+
+    desactivateLayers: function() {
+      var layers = this.layers.toJSON();
+
+      layers.forEach(function(layer) {
+        if (layer.type === 'layer' && layer.active === true) {
+          layer.active = false;
+        }
+      });
+
+
+      this.layers.reset(layers);
+      this.layers.trigger('change');
     },
 
     update: function(ev, element) {
@@ -196,6 +314,7 @@ define([
       var layers = _.clone(this.layers);
 
       var layer = {slug: slug};
+
       var layerValue = $el.prop('checked');
       var layerModel = layers.findWhere(layer);
 
@@ -211,6 +330,11 @@ define([
       } else {
         $switchEl.attr('style', '');
       }
+
+      Backbone.Events.trigger('dashboard:change', {
+        layerValue: layerValue,
+        slug: slug
+      });
 
       this.renderLayerComponents(layers.models);
     },
@@ -309,14 +433,28 @@ define([
       ev.preventDefault();
       ev.stopPropagation();
 
+      var layers = _.clone(this.layers);
+
       var $el = $(ev.currentTarget);
       // var $modalBox = $('#modalBox');
-      var info = $el.data('info');
+      var infoLayer,
+        data,
+        slug;
+
+      if($el.data('category')) {
+        slug = $el.data('category');
+        infoLayer = _.findWhere(layers.toJSON(), {groupSlug: slug});
+        data = infoLayer.groupInfo;
+      } else {
+        slug = $el.data('slug');
+        infoLayer = _.findWhere(layers.toJSON(), {slug: slug});
+        data = infoLayer.info;
+      }
 
       // $modalBox.find('.modal-content').html(info);
       // $modalBox.foundation('reveal', 'open');
       new ModalWindowView ({
-        'data': info
+        'data': data
       });
     },
 
@@ -384,9 +522,9 @@ define([
     },
 
     addActiveState: function() {
-      var activeEl = $('.m-dashboard').find('#dashboard-layers-item-food_security');
-      $(activeEl).parents('.accordion-navigation').addClass('active');
-      $(activeEl).addClass('active');
+      // var activeEl = $('.m-dashboard').find('#dashboard-layers-item-food_security');
+      $(this).parents('.accordion-navigation').addClass('active');
+      $(this).addClass('active');
     }
 
   });

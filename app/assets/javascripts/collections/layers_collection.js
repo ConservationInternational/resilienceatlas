@@ -66,7 +66,7 @@ define([
       _.each(categories, function(c, key) {
         var layersGrouped = _.groupBy(_.where(c, {groupLayer: false}), 'groupName');
         var group = {name: key, groups: []};
-        
+
         _.each(layersGrouped, function(layer, layerKey) {
           var sortedLayers = _.sortBy(layer, 'order');
           var groupType = layer[0].groupType ? sortedLayers[0].type : layer[0].type;
@@ -81,10 +81,10 @@ define([
             layers: _.filter(sortedLayers, function(lay) {
               var subLayers = _.where(data, {groupLayer: true, layerGroup: lay.slug});
 
-              if(subLayers.length > 0) { 
+              if(subLayers.length > 0) {
                 subLayers = _.map(subLayers, function(sublayer) {
                   var secondSublayers = _.where(data, {groupLayer: true, layerGroup: sublayer.slug});
-                  if(secondSublayers.length > 0) { 
+                  if(secondSublayers.length > 0) {
                     sublayer.layers = secondSublayers;
                   }
                   return sublayer;
@@ -102,6 +102,10 @@ define([
       });
 
       return groups;
+    },
+
+    getById: function(id) {
+      return _.findWhere(this.toJSON(), {id: id});
     },
 
     getActiveLayers: function() {
