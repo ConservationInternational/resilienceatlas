@@ -14,6 +14,7 @@ define([
   'views/map/layers/instances/horn_africa_chirps_dry_total_layer',
   'views/map/layers/instances/horn_africa_chirps_dry_decada_layer',
   'views/map/layers/instances/horn_africa_dry_coef_var_layer',
+  'views/map/layers/instances/flood_return_period_layer',
   //ECONOMY
   'views/map/layers/instances/africa_total_export_crop_value_layer',
   'views/map/layers/instances/total_production_crop_value_layer',
@@ -38,6 +39,7 @@ define([
   HornAfricaChirpsDryTotalLayer,
   HornAfricaChirpsDryDecadaLayer,
   HornAfricaDryCoefChangeLayer,
+  FloodRetunPeriodLayer,
   //ECONOMY
   AfricaTotalExportCropValueLayer,
   TotalProductionCropValueLayer,
@@ -65,6 +67,7 @@ define([
     { slug: 'horn_africa_chirps_dry_total', Instance: HornAfricaChirpsDryTotalLayer},
     { slug: 'horn_africa_chirps_dry_decada', Instance: HornAfricaChirpsDryDecadaLayer},
     { slug: 'horn_africa_dry_coef_var', Instance: HornAfricaDryCoefChangeLayer},
+    { slug: 'flood_return_period', Instance: FloodRetunPeriodLayer},
     //ECONOMY
     { slug: 'total_export_crop_value', Instance: AfricaTotalExportCropValueLayer},
     { slug: 'total_production_crop_value', Instance: TotalProductionCropValueLayer},
