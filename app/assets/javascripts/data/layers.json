@@ -215,6 +215,20 @@
                  "link":"http://chg.geog.ucsb.edu/data/chirps."
                 },
         "color": "#6075F9"
+      },
+      {
+        "id": 18,
+        "name": "TBD(Flood return period)",
+        "slug": "flood_return_period",
+        "type": "layer",
+        "zindex": 10,
+        "active": false,
+        "timeline": false,
+        "info": {"description":"TBD",
+                 "source":"TBD",
+                 "link":null
+                },
+        "color": "#6075F9"
       }
     ]
   },
