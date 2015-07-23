@@ -4,7 +4,7 @@ require "rails"
 # Pick the frameworks you want:
 require "active_model/railtie"
 require "active_job/railtie"
-# require "active_record/railtie"
+require "active_record/railtie"
 require "action_controller/railtie"
 require "action_mailer/railtie"
 require "action_view/railtie"
@@ -36,6 +36,8 @@ module ConservationInternational
     config.generators do |g|
       g.template_engine :slim
       g.assets false
+      g.test_framework :rspec
+      g.fixture_replacement :factory_girl
     end
 
     # Heroku Asset Pippeline
