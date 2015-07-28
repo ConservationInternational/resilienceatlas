@@ -21,7 +21,7 @@
       "request_headers": {
         "Accept": "application/json; application/vnd.api+json",
         "Content-Type": "application/vnd.api+json",
-        "Host": "http://neptis.org",
+        "Host": "http://cigrp.org",
         "X-Csrf-Token": "a_valid_CSRF_token",
         "Cookie": ""
       },
@@ -30,21 +30,21 @@
       "request_content_type": "application/vnd.api+json",
       "response_status": 200,
       "response_status_text": "OK",
-      "response_body": "{\"data\":{\"id\":\"4\",\"type\":\"share_url\",\"attributes\":{\"uid\":\"12345\",\"body\":\"body test\"}}}",
+      "response_body": "{\"data\":{\"id\":\"7\",\"type\":\"share_url\",\"attributes\":{\"uid\":\"12345\",\"body\":\"body test\"}}}",
       "response_headers": {
         "X-Frame-Options": "SAMEORIGIN",
         "X-XSS-Protection": "1; mode=block",
         "X-Content-Type-Options": "nosniff",
         "Content-Type": "application/json; charset=utf-8",
-        "ETag": "W/\"17b306bc481f47de40cb12c846eae0f2\"",
+        "ETag": "W/\"499883c897df03d929ac730f7a9cbcfe\"",
         "Cache-Control": "max-age=0, private, must-revalidate",
-        "Set-Cookie": "_neptis_session=TkU2cTNkMnlmNUIvYktEWHB0NzdOSS9rU2dENklFRjVvNVY4TUM5QlhJTnJBRHZ1My8vTWhMS0VNOTBKUDRDZkdLYlptL1JrMUM3NjRHZTduWFc3WnBtSGxISE9yYVI5UnY5bWpER3B0VXdSYzZSY0p6R2NXT1VKaytQMi82QVpqWkFKU0xBVmxuSnl1NmJCb1JMRHFBPT0tLVczeGlaclR4RFQyV2NuMkxxcTcxY1E9PQ%3D%3D--645f3673017589d39cb254ada83752c4a50a377f; path=/; HttpOnly",
-        "X-Request-Id": "c2570fda-c9c0-4ac2-b44f-4730de1f578f",
-        "X-Runtime": "0.017825",
+        "Set-Cookie": "_neptis_session=c0RTRG1SYTJuTjF5RElQeG9lN2JsVkJsRkNnNVJnN1R6MTFITHh1ZkFWaUE2UFF2SlE4UGNXblVrYnphK056YkEzMndXbVhJVFNuaDdKNmg2U3lYcWg2MG03RGgvd2VXVFl1d2VBM3kraE1jYmExdW84azNWakFXMEhWNnBRSy9xR2dBSVZrVFdxeGo1ZDlQRmw4QlBnPT0tLWZtQ3oyajlQYjBmVlFjZ3I4Y3dpWlE9PQ%3D%3D--ee184ffa4248f94729390d38dfda6ab00b488fa1; path=/; HttpOnly",
+        "X-Request-Id": "7093807b-ea49-447c-be82-cf423d58a116",
+        "X-Runtime": "0.017882",
         "Content-Length": "86"
       },
       "response_content_type": "application/json; charset=utf-8",
-      "curl": "curl \"http://cigrp.org/api/api/share/12345\" -X GET \\\n\t-H \"Accept: application/json; application/vnd.api+json\" \\\n\t-H \"Content-Type: application/vnd.api+json\" \\\n\t-H \"Host: http://neptis.org\" \\\n\t-H \"X-Csrf-Token: a_valid_CSRF_token\" \\\n\t-H \"Cookie: \""
+      "curl": "curl \"http://cigrp.org/api/api/share/12345\" -X GET \\\n\t-H \"Accept: application/json; application/vnd.api+json\" \\\n\t-H \"Content-Type: application/vnd.api+json\" \\\n\t-H \"Host: http://cigrp.org\" \\\n\t-H \"X-Csrf-Token: a_valid_CSRF_token\" \\\n\t-H \"Cookie: \""
     }
   ]
 }

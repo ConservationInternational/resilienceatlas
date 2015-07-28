@@ -3,7 +3,7 @@ require 'acceptance_helper'
 resource 'ShareUrl' do
   header "Accept", "application/json; application/vnd.api+json"
   header "Content-Type", "application/vnd.api+json"
-  header 'Host', 'http://neptis.org'
+  header 'Host', 'http://cigrp.org'
   header 'X-CSRF-Token', 'a_valid_CSRF_token'
 
   let!(:layer) do

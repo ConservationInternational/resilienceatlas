@@ -6,21 +6,21 @@ Request:
   Accept: application/json; application/vnd.api+json
   Content-Type: application/vnd.api+json
   Cookie: 
-  Host: http://neptis.org
+  Host: http://cigrp.org
 
 Response:
   Status: 200 OK
   Cache-Control: max-age=0, private, must-revalidate
-  Content-Length: 1074
+  Content-Length: 1032
   Content-Type: application/json; charset=utf-8
-  ETag: W/"2bbb209aca4c2ebe24fdfb377b63cb3a"
-  Set-Cookie: _neptis_session=V2xWOURxL01nTUNsUUpkQjFTVU9tczhteHNlcURKQU5hSUVQSTdVb0E4MkZvVEhuZDNNWms3UHVJV01TZzkzY1V2cVcrQllRS0tmUE5YNnBWV2lCcTNNaWg3WnphdVNsWnl0WjdDOGs4L0xrb3c5SjdzOGp3aUNpU0JVemlPSHhtZ0wzS0RTTSswVFJrbjhqRmRUUlJ3PT0tLUpraWt2N2RDVEVrOEkvT0pMMHVOYnc9PQ%3D%3D--3885e62c2535c7278d68fbcf8eeb2fc34209cd3f; path=/; HttpOnly
+  ETag: W/"382c684879e3e1ebb8c97370277f1660"
+  Set-Cookie: _neptis_session=NkpQTE1GeHlLbGR5MXdFdWdidmVxWkJJZUtWdUxSOUJrbGRIYnlEbkpaWXozTVZKNk4ySUVZdElPbC9PT2xWUXhvWjE1bDVSUFl6R2dGWnV4ckd1UzdCZ29OdTdQdXRiREdreUhGUlpYYlZoMDAzNCtTUGV0N2xNcUdZNzAvekNQSDJZbGU3STQ2TWF5MFhhajN0eXRBPT0tLXdYWjJzcjFNbndaN1BpaHBRWld2T0E9PQ%3D%3D--3f8e555d46dac7f2644c52b80ace36263d49f9eb; path=/; HttpOnly
   X-Content-Type-Options: nosniff
   X-Frame-Options: SAMEORIGIN
-  X-Request-Id: 36de8fb3-9916-418c-b78a-445df3beb438
-  X-Runtime: 0.092839
+  X-Request-Id: 03188194-61a9-4506-8c7d-b6e40728bc6a
+  X-Runtime: 0.186363
   X-XSS-Protection: 1; mode=block
 
-  {"data":[{"id":"4","type":"layers","attributes":{"name":"test layer 0","slug":"doloremque","layer_type":"reiciendis","zindex":1,"opacity":null,"active":true,"order":1,"color":"#000","info":"quasi","interactivity":"fugiat","css":null,"query":null,"layer_provider":null,"locate_layer":false,"icon_class":null},"relationships":{"layer_group":{"data":null}}},{"id":"5","type":"layers","attributes":{"name":"test layer 1","slug":"doloremque","layer_type":"reiciendis","zindex":1,"opacity":null,"active":true,"order":1,"color":"#000","info":"quasi","interactivity":"fugiat","css":null,"query":null,"layer_provider":null,"locate_layer":false,"icon_class":null},"relationships":{"layer_group":{"data":null}}},{"id":"6","type":"layers","attributes":{"name":"test layer 2","slug":"doloremque","layer_type":"reiciendis","zindex":1,"opacity":null,"active":true,"order":1,"color":"#000","info":"quasi","interactivity":"fugiat","css":null,"query":null,"layer_provider":null,"locate_layer":false,"icon_class":null},"relationships":{"layer_group":{"data":null}}}],"meta":{"total_layers":3}}
+  {"data":[{"id":"7","type":"layers","attributes":{"name":"test layer 0","slug":"illum","layer_type":"qui","zindex":1,"opacity":null,"active":true,"order":1,"color":"#000","info":"ducimus","interactivity":"ut","css":null,"query":null,"layer_provider":null,"locate_layer":false,"icon_class":null},"relationships":{"layer_group":{"data":null}}},{"id":"8","type":"layers","attributes":{"name":"test layer 1","slug":"illum","layer_type":"qui","zindex":1,"opacity":null,"active":true,"order":1,"color":"#000","info":"ducimus","interactivity":"ut","css":null,"query":null,"layer_provider":null,"locate_layer":false,"icon_class":null},"relationships":{"layer_group":{"data":null}}},{"id":"9","type":"layers","attributes":{"name":"test layer 2","slug":"illum","layer_type":"qui","zindex":1,"opacity":null,"active":true,"order":1,"color":"#000","info":"ducimus","interactivity":"ut","css":null,"query":null,"layer_provider":null,"locate_layer":false,"icon_class":null},"relationships":{"layer_group":{"data":null}}}],"meta":{"total_layers":3}}
 
 

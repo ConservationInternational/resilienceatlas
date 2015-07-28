@@ -21,7 +21,7 @@
       "request_headers": {
         "Accept": "application/json; application/vnd.api+json",
         "Content-Type": "application/vnd.api+json",
-        "Host": "http://neptis.org",
+        "Host": "http://cigrp.org",
         "X-Csrf-Token": "a_valid_CSRF_token",
         "Cookie": ""
       },
@@ -31,21 +31,21 @@
       "request_content_type": "application/vnd.api+json",
       "response_status": 200,
       "response_status_text": "OK",
-      "response_body": "{\"uid\":\"74681038e39e1fff8e53\"}",
+      "response_body": "{\"uid\":\"768bc63b93df038e3a6e\"}",
       "response_headers": {
         "X-Frame-Options": "SAMEORIGIN",
         "X-XSS-Protection": "1; mode=block",
         "X-Content-Type-Options": "nosniff",
         "Content-Type": "application/json; charset=utf-8",
-        "ETag": "W/\"c146a184d412e4666d1104bb21ce34a4\"",
+        "ETag": "W/\"c513fcb0b1b6787c30b74b80d553bca4\"",
         "Cache-Control": "max-age=0, private, must-revalidate",
-        "Set-Cookie": "_neptis_session=a3QyOWNsUFFaa00xM0ltWFpTVkFjV3g5QWg2aytaZ0xZbVNRdTZBL1Z4ZUUrc2ZGMmZ1MjhaSEpmNzVqdDMzRWgveHhNZWNHVDRneWVsNlk4UURkOWxOeE1FY1FmYlFORVg0aXBKN0xPVTVCaHRhWDFMaVJDaGJFKytoOEQrVmRVVXBNSSsyRnNxWDlWWnhaWktsMHN3PT0tLU90ZEhJd0RWOTVYNW1xMHNmM0wwMlE9PQ%3D%3D--1d769a6a474640febb79e9f5e5b269813f784422; path=/; HttpOnly",
-        "X-Request-Id": "a95ba161-7789-488d-9b4b-103c9bfe0c8a",
-        "X-Runtime": "0.010401",
+        "Set-Cookie": "_neptis_session=S1UrMDdCdG1HblUvRGxlVGtRajd3d0d2YXFMVk9EMXQ4dUViYXZvb0FkbWJiTjZzZUVDMmdsVUNiQy81YSs2Wm45Yy91eUwzREw5aGkrYndraGdTZ0hYblovYWF2N2RmbmpyYW5xKzBDUkR0V252K3JvTFJEV1AyUTlXTlBXQWhlRGdyRytFR3A1T2hrR29YS01Fd0tBPT0tLUhvR2JoeWZDYkRISE1EVDZwL2J3V2c9PQ%3D%3D--f031f271592badad016882a42de2be37f42e75b5; path=/; HttpOnly",
+        "X-Request-Id": "cffcf760-8c52-416a-926b-b3468b52ad50",
+        "X-Runtime": "0.015857",
         "Content-Length": "30"
       },
       "response_content_type": "application/json; charset=utf-8",
-      "curl": "curl \"http://cigrp.org/api/api/share/?body=body test\" -d '' -X POST \\\n\t-H \"Accept: application/json; application/vnd.api+json\" \\\n\t-H \"Content-Type: application/vnd.api+json\" \\\n\t-H \"Host: http://neptis.org\" \\\n\t-H \"X-Csrf-Token: a_valid_CSRF_token\" \\\n\t-H \"Cookie: \""
+      "curl": "curl \"http://cigrp.org/api/api/share/?body=body test\" -d '' -X POST \\\n\t-H \"Accept: application/json; application/vnd.api+json\" \\\n\t-H \"Content-Type: application/vnd.api+json\" \\\n\t-H \"Host: http://cigrp.org\" \\\n\t-H \"X-Csrf-Token: a_valid_CSRF_token\" \\\n\t-H \"Cookie: \""
     }
   ]
 }

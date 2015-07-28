@@ -3,7 +3,7 @@ require 'acceptance_helper'
 resource 'Layers' do
   header "Accept", "application/json; application/vnd.api+json"
   header "Content-Type", "application/vnd.api+json"
-  header 'Host', 'http://neptis.org'
+  header 'Host', 'http://cigrp.org'
 
   let!(:layer) do
     3.times do |i|

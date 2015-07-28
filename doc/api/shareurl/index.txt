@@ -9,7 +9,7 @@ Request:
   Accept: application/json; application/vnd.api+json
   Content-Type: application/vnd.api+json
   Cookie: 
-  Host: http://neptis.org
+  Host: http://cigrp.org
   X-Csrf-Token: a_valid_CSRF_token
 
 Response:
@@ -17,15 +17,15 @@ Response:
   Cache-Control: max-age=0, private, must-revalidate
   Content-Length: 86
   Content-Type: application/json; charset=utf-8
-  ETag: W/"17b306bc481f47de40cb12c846eae0f2"
-  Set-Cookie: _neptis_session=TkU2cTNkMnlmNUIvYktEWHB0NzdOSS9rU2dENklFRjVvNVY4TUM5QlhJTnJBRHZ1My8vTWhMS0VNOTBKUDRDZkdLYlptL1JrMUM3NjRHZTduWFc3WnBtSGxISE9yYVI5UnY5bWpER3B0VXdSYzZSY0p6R2NXT1VKaytQMi82QVpqWkFKU0xBVmxuSnl1NmJCb1JMRHFBPT0tLVczeGlaclR4RFQyV2NuMkxxcTcxY1E9PQ%3D%3D--645f3673017589d39cb254ada83752c4a50a377f; path=/; HttpOnly
+  ETag: W/"499883c897df03d929ac730f7a9cbcfe"
+  Set-Cookie: _neptis_session=c0RTRG1SYTJuTjF5RElQeG9lN2JsVkJsRkNnNVJnN1R6MTFITHh1ZkFWaUE2UFF2SlE4UGNXblVrYnphK056YkEzMndXbVhJVFNuaDdKNmg2U3lYcWg2MG03RGgvd2VXVFl1d2VBM3kraE1jYmExdW84azNWakFXMEhWNnBRSy9xR2dBSVZrVFdxeGo1ZDlQRmw4QlBnPT0tLWZtQ3oyajlQYjBmVlFjZ3I4Y3dpWlE9PQ%3D%3D--ee184ffa4248f94729390d38dfda6ab00b488fa1; path=/; HttpOnly
   X-Content-Type-Options: nosniff
   X-Frame-Options: SAMEORIGIN
-  X-Request-Id: c2570fda-c9c0-4ac2-b44f-4730de1f578f
-  X-Runtime: 0.017825
+  X-Request-Id: 7093807b-ea49-447c-be82-cf423d58a116
+  X-Runtime: 0.017882
   X-XSS-Protection: 1; mode=block
 
-  {"data":{"id":"4","type":"share_url","attributes":{"uid":"12345","body":"body test"}}}
+  {"data":{"id":"7","type":"share_url","attributes":{"uid":"12345","body":"body test"}}}
 
 
 Create a share URL
@@ -39,7 +39,7 @@ Request:
   Accept: application/json; application/vnd.api+json
   Content-Type: application/vnd.api+json
   Cookie: 
-  Host: http://neptis.org
+  Host: http://cigrp.org
   X-Csrf-Token: a_valid_CSRF_token
 
   body=body test
@@ -49,12 +49,12 @@ Response:
   Cache-Control: max-age=0, private, must-revalidate
   Content-Length: 30
   Content-Type: application/json; charset=utf-8
-  ETag: W/"c146a184d412e4666d1104bb21ce34a4"
-  Set-Cookie: _neptis_session=a3QyOWNsUFFaa00xM0ltWFpTVkFjV3g5QWg2aytaZ0xZbVNRdTZBL1Z4ZUUrc2ZGMmZ1MjhaSEpmNzVqdDMzRWgveHhNZWNHVDRneWVsNlk4UURkOWxOeE1FY1FmYlFORVg0aXBKN0xPVTVCaHRhWDFMaVJDaGJFKytoOEQrVmRVVXBNSSsyRnNxWDlWWnhaWktsMHN3PT0tLU90ZEhJd0RWOTVYNW1xMHNmM0wwMlE9PQ%3D%3D--1d769a6a474640febb79e9f5e5b269813f784422; path=/; HttpOnly
+  ETag: W/"c513fcb0b1b6787c30b74b80d553bca4"
+  Set-Cookie: _neptis_session=S1UrMDdCdG1HblUvRGxlVGtRajd3d0d2YXFMVk9EMXQ4dUViYXZvb0FkbWJiTjZzZUVDMmdsVUNiQy81YSs2Wm45Yy91eUwzREw5aGkrYndraGdTZ0hYblovYWF2N2RmbmpyYW5xKzBDUkR0V252K3JvTFJEV1AyUTlXTlBXQWhlRGdyRytFR3A1T2hrR29YS01Fd0tBPT0tLUhvR2JoeWZDYkRISE1EVDZwL2J3V2c9PQ%3D%3D--f031f271592badad016882a42de2be37f42e75b5; path=/; HttpOnly
   X-Content-Type-Options: nosniff
   X-Frame-Options: SAMEORIGIN
-  X-Request-Id: a95ba161-7789-488d-9b4b-103c9bfe0c8a
-  X-Runtime: 0.010401
+  X-Request-Id: cffcf760-8c52-416a-926b-b3468b52ad50
+  X-Runtime: 0.015857
   X-XSS-Protection: 1; mode=block
 
-  {"uid":"74681038e39e1fff8e53"}
+  {"uid":"768bc63b93df038e3a6e"}
