@@ -1,0 +1,46 @@
+{
+  "resource": "Layers",
+  "http_method": "GET",
+  "route": "/api/layers/",
+  "description": "Get layers list",
+  "explanation": null,
+  "parameters": [
+
+  ],
+  "response_fields": [
+
+  ],
+  "requests": [
+    {
+      "request_method": "GET",
+      "request_path": "/api/layers/",
+      "request_body": null,
+      "request_headers": {
+        "Accept": "application/json; application/vnd.api+json",
+        "Content-Type": "application/vnd.api+json",
+        "Host": "http://neptis.org",
+        "Cookie": ""
+      },
+      "request_query_parameters": {
+      },
+      "request_content_type": "application/vnd.api+json",
+      "response_status": 200,
+      "response_status_text": "OK",
+      "response_body": "{\"data\":[{\"id\":\"4\",\"type\":\"layers\",\"attributes\":{\"name\":\"test layer 0\",\"slug\":\"doloremque\",\"layer_type\":\"reiciendis\",\"zindex\":1,\"opacity\":null,\"active\":true,\"order\":1,\"color\":\"#000\",\"info\":\"quasi\",\"interactivity\":\"fugiat\",\"css\":null,\"query\":null,\"layer_provider\":null,\"locate_layer\":false,\"icon_class\":null},\"relationships\":{\"layer_group\":{\"data\":null}}},{\"id\":\"5\",\"type\":\"layers\",\"attributes\":{\"name\":\"test layer 1\",\"slug\":\"doloremque\",\"layer_type\":\"reiciendis\",\"zindex\":1,\"opacity\":null,\"active\":true,\"order\":1,\"color\":\"#000\",\"info\":\"quasi\",\"interactivity\":\"fugiat\",\"css\":null,\"query\":null,\"layer_provider\":null,\"locate_layer\":false,\"icon_class\":null},\"relationships\":{\"layer_group\":{\"data\":null}}},{\"id\":\"6\",\"type\":\"layers\",\"attributes\":{\"name\":\"test layer 2\",\"slug\":\"doloremque\",\"layer_type\":\"reiciendis\",\"zindex\":1,\"opacity\":null,\"active\":true,\"order\":1,\"color\":\"#000\",\"info\":\"quasi\",\"interactivity\":\"fugiat\",\"css\":null,\"query\":null,\"layer_provider\":null,\"locate_layer\":false,\"icon_class\":null},\"relationships\":{\"layer_group\":{\"data\":null}}}],\"meta\":{\"total_layers\":3}}",
+      "response_headers": {
+        "X-Frame-Options": "SAMEORIGIN",
+        "X-XSS-Protection": "1; mode=block",
+        "X-Content-Type-Options": "nosniff",
+        "Content-Type": "application/json; charset=utf-8",
+        "ETag": "W/\"2bbb209aca4c2ebe24fdfb377b63cb3a\"",
+        "Cache-Control": "max-age=0, private, must-revalidate",
+        "Set-Cookie": "_neptis_session=V2xWOURxL01nTUNsUUpkQjFTVU9tczhteHNlcURKQU5hSUVQSTdVb0E4MkZvVEhuZDNNWms3UHVJV01TZzkzY1V2cVcrQllRS0tmUE5YNnBWV2lCcTNNaWg3WnphdVNsWnl0WjdDOGs4L0xrb3c5SjdzOGp3aUNpU0JVemlPSHhtZ0wzS0RTTSswVFJrbjhqRmRUUlJ3PT0tLUpraWt2N2RDVEVrOEkvT0pMMHVOYnc9PQ%3D%3D--3885e62c2535c7278d68fbcf8eeb2fc34209cd3f; path=/; HttpOnly",
+        "X-Request-Id": "36de8fb3-9916-418c-b78a-445df3beb438",
+        "X-Runtime": "0.092839",
+        "Content-Length": "1074"
+      },
+      "response_content_type": "application/json; charset=utf-8",
+      "curl": "curl \"http://cigrp.org/api/api/layers/\" -X GET \\\n\t-H \"Accept: application/json; application/vnd.api+json\" \\\n\t-H \"Content-Type: application/vnd.api+json\" \\\n\t-H \"Host: http://neptis.org\" \\\n\t-H \"Cookie: \""
+    }
+  ]
+}

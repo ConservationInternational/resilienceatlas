@@ -1,0 +1,26 @@
+Get layers list
+---------------
+
+Request:
+  GET /api/layers/
+  Accept: application/json; application/vnd.api+json
+  Content-Type: application/vnd.api+json
+  Cookie: 
+  Host: http://neptis.org
+
+Response:
+  Status: 200 OK
+  Cache-Control: max-age=0, private, must-revalidate
+  Content-Length: 1074
+  Content-Type: application/json; charset=utf-8
+  ETag: W/"2bbb209aca4c2ebe24fdfb377b63cb3a"
+  Set-Cookie: _neptis_session=V2xWOURxL01nTUNsUUpkQjFTVU9tczhteHNlcURKQU5hSUVQSTdVb0E4MkZvVEhuZDNNWms3UHVJV01TZzkzY1V2cVcrQllRS0tmUE5YNnBWV2lCcTNNaWg3WnphdVNsWnl0WjdDOGs4L0xrb3c5SjdzOGp3aUNpU0JVemlPSHhtZ0wzS0RTTSswVFJrbjhqRmRUUlJ3PT0tLUpraWt2N2RDVEVrOEkvT0pMMHVOYnc9PQ%3D%3D--3885e62c2535c7278d68fbcf8eeb2fc34209cd3f; path=/; HttpOnly
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: SAMEORIGIN
+  X-Request-Id: 36de8fb3-9916-418c-b78a-445df3beb438
+  X-Runtime: 0.092839
+  X-XSS-Protection: 1; mode=block
+
+  {"data":[{"id":"4","type":"layers","attributes":{"name":"test layer 0","slug":"doloremque","layer_type":"reiciendis","zindex":1,"opacity":null,"active":true,"order":1,"color":"#000","info":"quasi","interactivity":"fugiat","css":null,"query":null,"layer_provider":null,"locate_layer":false,"icon_class":null},"relationships":{"layer_group":{"data":null}}},{"id":"5","type":"layers","attributes":{"name":"test layer 1","slug":"doloremque","layer_type":"reiciendis","zindex":1,"opacity":null,"active":true,"order":1,"color":"#000","info":"quasi","interactivity":"fugiat","css":null,"query":null,"layer_provider":null,"locate_layer":false,"icon_class":null},"relationships":{"layer_group":{"data":null}}},{"id":"6","type":"layers","attributes":{"name":"test layer 2","slug":"doloremque","layer_type":"reiciendis","zindex":1,"opacity":null,"active":true,"order":1,"color":"#000","info":"quasi","interactivity":"fugiat","css":null,"query":null,"layer_provider":null,"locate_layer":false,"icon_class":null},"relationships":{"layer_group":{"data":null}}}],"meta":{"total_layers":3}}
+
+

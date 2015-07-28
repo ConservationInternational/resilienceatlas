@@ -12,12 +12,15 @@
 #  order          :integer
 #  color          :string
 #  info           :text
+#  layer_provider :string
+#  css            :text
 #  interactivity  :text
 #  opacity        :float
 #  query          :text
-#  layer_provider :string
 #  created_at     :datetime         not null
 #  updated_at     :datetime         not null
+#  locate_layer   :boolean          default(FALSE)
+#  icon_class     :string
 #
 
 class Layer < ActiveRecord::Base

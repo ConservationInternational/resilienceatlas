@@ -3,6 +3,7 @@ Rails.application.routes.draw do
   devise_for :admin_users, ActiveAdmin::Devise.config
   ActiveAdmin.routes(self)
   root 'map#index'
+  mount Raddocs::App => "/docs"
 
   resources :country, only: [:index, :show]
   resources :explore_data, only: [:index, :show]

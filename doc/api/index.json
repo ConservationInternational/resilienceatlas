@@ -1,0 +1,29 @@
+{
+  "resources": [
+    {
+      "name": "Layers",
+      "examples": [
+        {
+          "description": "Get layers list",
+          "link": "layers/get_layers_list.json",
+          "groups": "all"
+        }
+      ]
+    },
+    {
+      "name": "ShareUrl",
+      "examples": [
+        {
+          "description": "Create a share URL",
+          "link": "shareurl/create_a_share_url.json",
+          "groups": "all"
+        },
+        {
+          "description": "Get a share URL by UID",
+          "link": "shareurl/get_a_share_url_by_uid.json",
+          "groups": "all"
+        }
+      ]
+    }
+  ]
+}

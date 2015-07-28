@@ -1,0 +1,50 @@
+{
+  "resource": "ShareUrl",
+  "http_method": "GET",
+  "route": "/api/share/:uid",
+  "description": "Get a share URL by UID",
+  "explanation": null,
+  "parameters": [
+    {
+      "name": "uid",
+      "description": "An unique url identifier"
+    }
+  ],
+  "response_fields": [
+
+  ],
+  "requests": [
+    {
+      "request_method": "GET",
+      "request_path": "/api/share/12345",
+      "request_body": null,
+      "request_headers": {
+        "Accept": "application/json; application/vnd.api+json",
+        "Content-Type": "application/vnd.api+json",
+        "Host": "http://neptis.org",
+        "X-Csrf-Token": "a_valid_CSRF_token",
+        "Cookie": ""
+      },
+      "request_query_parameters": {
+      },
+      "request_content_type": "application/vnd.api+json",
+      "response_status": 200,
+      "response_status_text": "OK",
+      "response_body": "{\"data\":{\"id\":\"4\",\"type\":\"share_url\",\"attributes\":{\"uid\":\"12345\",\"body\":\"body test\"}}}",
+      "response_headers": {
+        "X-Frame-Options": "SAMEORIGIN",
+        "X-XSS-Protection": "1; mode=block",
+        "X-Content-Type-Options": "nosniff",
+        "Content-Type": "application/json; charset=utf-8",
+        "ETag": "W/\"17b306bc481f47de40cb12c846eae0f2\"",
+        "Cache-Control": "max-age=0, private, must-revalidate",
+        "Set-Cookie": "_neptis_session=TkU2cTNkMnlmNUIvYktEWHB0NzdOSS9rU2dENklFRjVvNVY4TUM5QlhJTnJBRHZ1My8vTWhMS0VNOTBKUDRDZkdLYlptL1JrMUM3NjRHZTduWFc3WnBtSGxISE9yYVI5UnY5bWpER3B0VXdSYzZSY0p6R2NXT1VKaytQMi82QVpqWkFKU0xBVmxuSnl1NmJCb1JMRHFBPT0tLVczeGlaclR4RFQyV2NuMkxxcTcxY1E9PQ%3D%3D--645f3673017589d39cb254ada83752c4a50a377f; path=/; HttpOnly",
+        "X-Request-Id": "c2570fda-c9c0-4ac2-b44f-4730de1f578f",
+        "X-Runtime": "0.017825",
+        "Content-Length": "86"
+      },
+      "response_content_type": "application/json; charset=utf-8",
+      "curl": "curl \"http://cigrp.org/api/api/share/12345\" -X GET \\\n\t-H \"Accept: application/json; application/vnd.api+json\" \\\n\t-H \"Content-Type: application/vnd.api+json\" \\\n\t-H \"Host: http://neptis.org\" \\\n\t-H \"X-Csrf-Token: a_valid_CSRF_token\" \\\n\t-H \"Cookie: \""
+    }
+  ]
+}
