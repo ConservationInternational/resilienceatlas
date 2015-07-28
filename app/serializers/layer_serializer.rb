@@ -3,7 +3,7 @@
 # Table name: layers
 #
 #  id             :integer          not null, primary key
-#  layer_group_id :integer
+#  group_id       :integer
 #  name           :string           not null
 #  slug           :string           not null
 #  layer_type     :string
@@ -13,14 +13,19 @@
 #  color          :string
 #  info           :text
 #  interactivity  :text
-#  opacity        :float
-#  query          :text
-#  layer_provider :string
 #  created_at     :datetime         not null
 #  updated_at     :datetime         not null
+#  opacity        :float
+#  query          :text
+#  css            :text
+#  layer_provider :string
 #
 
-class Layer < ActiveRecord::Base
-  belongs_to :layer_group
-  accepts_nested_attributes_for :layer_group
+class LayerSerializer < ActiveModel::Serializer
+  cache key: "layer"
+  attributes :name, :slug, :layer_type, :zindex, :opacity, :active, :order, :color, :info, :interactivity, :css, :query, :layer_provider
+  has_one :layer_group, serializer: LayerGroupSerializer
+  def type
+    'layers'
+  end
 end

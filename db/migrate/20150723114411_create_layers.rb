@@ -10,6 +10,8 @@ class CreateLayers < ActiveRecord::Migration
       t.integer :order
       t.string :color
       t.text :info
+      t.string :layer_provider
+      t.text :css
       t.text :interactivity
       t.float :opacity
       t.text :query

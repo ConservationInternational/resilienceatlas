@@ -41,7 +41,7 @@ group :development do
   gem 'annotate', '~> 2.6.5'
 end
 group :test do
-  gem 'factory_girl_rails', '~> 4.0'
+  gem 'factory_girl_rails', '~> 4.0', require: false
   gem 'rspec-rails'
   gem 'database_cleaner'
 end
