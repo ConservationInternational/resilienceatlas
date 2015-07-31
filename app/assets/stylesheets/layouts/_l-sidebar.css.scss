@@ -1,0 +1,17 @@
+$sidebar-width: 320px;
+
+.l-sidebar,
+.l-sidebar--default {
+  width: rem($sidebar-width);
+}
+
+.l-sidebar--fullscreen {
+  width: rem($sidebar-width);
+  position: absolute;
+  height: 100%;
+  overflow: hidden;
+}
+
+.l-sidebar-content {
+  padding: rem($margin);
+}

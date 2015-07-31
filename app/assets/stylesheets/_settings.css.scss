@@ -1,70 +1,85 @@
 /*
- * Add here values that
- * affect the whole proyect
+  Layouts and structure
  */
+$content-width: 960px;
+$margin: 30px;
+
+/*
+  Fonts and typography
+ */
+
+// Since the typical default browser font-size is 16px, that makes the calculation for grid size.
+// If you want your base font-size to be different and not have it affect the grid breakpoints,
+// set $rem-base to $base-font-size and make sure $base-font-size is a px value.
+$base-font-size: 100% !default;
+
+// $base-line-height is 24px while $base-font-size is 16px
+$base-line-height: 150% !default;
+
+
 ////////////////////
 //**** Screen ****//
 ////////////////////
-$screen-s: 540px;
-$screen-m: 768px;
-$screen-l: 960px;
-$screen-xl: 1200px;
+// $screen-s: 540px;
+// $screen-m: 768px;
+// $screen-l: 960px;
+// $screen-xl: 1200px;
 
 
-////////////////////
-//****  Grid  ****//
-////////////////////
-$grid-columns: 12;
-$grid-max-width: 960px;
-$grid-gutter-width: 1%;
-$grid-padding: 0;
-$wrap-padding: 0;
+// ////////////////////
+// //****  Grid  ****//
+// ////////////////////
+// $grid-columns: 12;
+// $grid-max-width: 960px;
+// $grid-gutter-width: 1%;
+// $grid-padding: 0;
+// $wrap-padding: 0;
 
 
-////////////////////
-//**** Fonts ****//
-////////////////////
-$font-face-1: "Franklin";
-$font-numbers: "Lato";
+// ////////////////////
+// //**** Fonts ****//
+// ////////////////////
+// $font-face-1: "Franklin";
+// $font-numbers: "Lato";
 
-//Font sizes
-$font-size-extra-big: 52px;
-$font-size-big: 40px;
-$font-size-medium: 26px;
-$font-size: 15px;
-$font-size-small: 12px;
-
-
-////////////////////
-//**** Colors ****//
-////////////////////
-$white: #fff;
-$black: #000;
-$navy-blue: #009ede;
-$dark-blue: #303F5A;
-$green: #49853E;
-
-//Theme colors
-$color-1: $navy-blue;
-$color-2: $green;
-$color-3: $dark-blue;
-
-$dark-grey: #58595B;
-$medium-grey: #595959;
-$soft-grey: #afafaf;
-$light-grey: #dedede;
-$ultra-light-grey: #F0F0F0;
-
-//Font colors
-$font-color-1: $dark-grey;
-$font-color-2: $white;
-$font-color-3: $soft-grey;
+// //Font sizes
+// $font-size-extra-big: 52px;
+// $font-size-big: 40px;
+// $font-size-medium: 26px;
+// $font-size: 15px;
+// $font-size-small: 12px;
 
 
-////////////////////
-//**** Margins ***//
-////////////////////
-$margin-extra-large: 40px;
-$margin-large: 30px;
-$margin-medium: 20px;
-$margin-small: 10px;
+// ////////////////////
+// //**** Colors ****//
+// ////////////////////
+// $white: #fff;
+// $black: #000;
+// $navy-blue: #009ede;
+// $dark-blue: #303F5A;
+// $green: #49853E;
+
+// //Theme colors
+// $color-1: $navy-blue;
+// $color-2: $green;
+// $color-3: $dark-blue;
+
+// $dark-grey: #58595B;
+// $medium-grey: #595959;
+// $soft-grey: #afafaf;
+// $light-grey: #dedede;
+// $ultra-light-grey: #F0F0F0;
+
+// //Font colors
+// $font-color-1: $dark-grey;
+// $font-color-2: $white;
+// $font-color-3: $soft-grey;
+
+
+// ////////////////////
+// //**** Margins ***//
+// ////////////////////
+// $margin-extra-large: 40px;
+// $margin-large: 30px;
+// $margin-medium: 20px;
+// $margin-small: 10px;

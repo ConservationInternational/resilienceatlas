@@ -1,29 +1,28 @@
-.l-map
-  #loader.m-loader loading
-  #mapView.m-map
-/ .m-modal.reveal-modal#modalBox data-reveal="" aria-labelledby="modalTitle" aria-hidden="true" role="dialog"
-/   .modal-content
-/   a.close-reveal-modal aria-label="Close" &#215;
+.l-sidebar--fullscreen
+  .l-sidebar-content
+    .m-layers-list
+      ul
+        li
+          | Basemaps
+          .m-form-input--switch
+            input#basemaps type="checkbox"
+            label for="basemaps"
+          ul
+            li
+              .m-form-input--switch
+                input#layer1 type="checkbox"
+                label for="layer1"
+              | Layer 1
+            li: label
+              .m-form-input--switch
+                input#layer2 type="checkbox"
+                label for="layer2"
+              | Layer 2
+            li: label
+              .m-form-input--switch
+                input#layer3 type="checkbox"
+                label for="layer3"
+              | Layer 3
 
-.m-legend#legendView
-.l-map-toolbar
-  #shareView
-    button.btn-toolbar#btn-share-map Share this map
-  #AnalyzeView
-    button.btn-toolbar Analyze this area
-  #searchView.m-search.is-inactive
-
-.l-dashboard
-  ul.m-dashboard-navigation#navigationDashboard
-    li.tabs data-item="layers"
-      = link_to('layers', '#map/layers')
-    li.tabs.is-inactive data-item="topics"
-      = link_to('topics', '#map/topics')
-    li.tabs.is-inactive data-item="regions"
-      = link_to('regions', '#map/regions')
-  .m-dashboard#dashboardView
-      
-
-/ .m-analysis#analysisView
-/ .m-timeline#timelineView
-/ .m-custom-info-window#custom-info-window
+.l-content--fullscreen
+  .m-map#mapView

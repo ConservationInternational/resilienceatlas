@@ -1,1 +1,0 @@
-with r as (select the_geom,the_geom_webmercator, dhsregen,iso3,reg_id,svytype,svyyear from dhs_horn) SELECT distinct on (l.regionid, l.surveyyear) l.regionid, l.surveyyear, l.indicatorid, l.byvariableid, characteristiclabel, l.value,  r.the_geom_webmercator FROM dhs_export l inner join r on characteristiclabel=dhsregen where indicatorid = 214527002

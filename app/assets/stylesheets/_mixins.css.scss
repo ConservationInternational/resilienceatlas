@@ -1,0 +1,11 @@
+// Clean lists
+@mixin clean-lists {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+// A helper to transform PX to REM unit
+@function rem($px, $base: 16px) {
+  @return ($px / $base) * 1rem;
+}

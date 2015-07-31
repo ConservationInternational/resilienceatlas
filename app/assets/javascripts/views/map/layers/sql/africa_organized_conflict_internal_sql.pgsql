@@ -1,1 +1,0 @@
-SELECT l.the_geom_webmercator, l.the_geom, l.iso3, i.inco::float as overall, i.year,l.region FROM gpi_scores_longformat i Left join grpcountries_250k_polygon l on i.iso3=l.iso3 where year = 2014 and region = 'Horn'
