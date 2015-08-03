@@ -3,10 +3,12 @@
 //= require underscore
 //= require backbone
 //= require leaflet
+//= require handlebars
 
 //= require ./helpers/class
 //= require ./helpers/cartodb_layer
 //= require_tree ./collections
+//= require_tree ./templates
 //= require_tree ./views
 //= require router
 
@@ -53,8 +55,21 @@
 
     mapPage: function() {
       this.removeViews();
-      var mapView = new root.app.View.Map({ el: '#mapView' });
+
+      var layersCollection = new root.app.Collection.Layers();
+      var mapView = new root.app.View.Map({
+        el: '#mapView',
+        collection: layersCollection
+      });
+      var layersListView = new root.app.View.LayersList({
+        el: '#layersListView',
+        collection: layersCollection
+      });
+
+      // At begining create a map and fetch layers to show
       mapView.createMap();
+      layersCollection.fetch();
+
       this.currentViews = [ mapView ];
     },
 

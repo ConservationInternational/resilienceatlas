@@ -58,7 +58,7 @@
       return result;
     },
 
-    getGrouped: function() {
+    getByCategory: function(groupId) {
       var result = [];
       var data = this.toJSON();
       _.each(data, function(d) {
