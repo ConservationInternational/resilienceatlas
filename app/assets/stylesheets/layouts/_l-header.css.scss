@@ -1,6 +1,7 @@
 .l-header-nav {
   max-width: rem($content-width);
   margin: 0 auto;
+
   @include clearfix;
 
   ul {
@@ -22,15 +23,19 @@
 
     li {
       float: left;
+      margin-left: rem($margin/2);
     }
 
     a {
       display: block;
-      padding: rem($margin/2) rem($margin);
+      padding: rem($margin/2);
     }
   }
 
   .l-header--fullscreen & {
     max-width: none;
+    .row {
+      max-width: none;
+    }
   }
 }

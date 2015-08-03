@@ -51,7 +51,6 @@ group :test do
   gem 'database_cleaner'
 end
 
-
 # Rails Assets is the frictionless proxy between Bundler and Bower.
 source 'https://rails-assets.org' do
   gem 'rails-assets-normalize-css'

@@ -56,11 +56,14 @@
     mapPage: function() {
       this.removeViews();
 
+      var layersGroupsCollection = new root.app.Collection.LayersGroups();
       var layersCollection = new root.app.Collection.Layers();
+
       var mapView = new root.app.View.Map({
         el: '#mapView',
         collection: layersCollection
       });
+
       var layersListView = new root.app.View.LayersList({
         el: '#layersListView',
         collection: layersCollection
@@ -68,9 +71,26 @@
 
       // At begining create a map and fetch layers to show
       mapView.createMap();
-      layersCollection.fetch();
 
-      this.currentViews = [ mapView ];
+      // Fetching data
+      var complete = _.invoke([
+        layersGroupsCollection,
+        layersCollection
+      ], 'fetch');
+
+      $.when.apply($, complete).done(function() {
+        layersCollection.setGroups(layersGroupsCollection);
+        mapView.renderLayers();
+        layersListView.render();
+      });
+
+      // Updating URL when layers change
+      layersCollection.on('change', function() {
+        var data = layersCollection.getActived();
+        this.router.setParams('layers', data, ['id', 'opacity', 'order']);
+      }.bind(this));
+
+      this.currentViews = [ mapView, layersListView ];
     },
 
     removeViews: function() {

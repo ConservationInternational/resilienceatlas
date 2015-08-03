@@ -11,20 +11,33 @@
 
     template: HandlebarsTemplates['layers_list_tpl'],
 
+    events: {
+      'change .panel-item-switch input': 'updateLayers'
+    },
+
     initialize: function(settings) {
       var opts = settings && settings.options ? settings.options : {};
       this.options = _.extend({}, this.defaults, opts);
-      this.setListeners();
-    },
-
-    setListeners: function() {
-      this.listenTo(this.collection, 'sync', this.render);
     },
 
     render: function() {
-      var data = { categories: this.collection.getByCategory() };
-      this.$el.html( this.template( data );
-    }
+      var currentGroup = 1;
+      var data = this.collection.getGrouped();
+      var group = _.findWhere(data, { id: currentGroup });
+      var data = { categories: group ? group.categories : [] };
+      this.$el.html( this.template( data ) );
+    },
+
+    updateLayers: function() {
+      var checkboxes = this.$el.find('.panel-item-switch input:checked');
+      var activedIds = _.map(checkboxes, function(el) {
+        return parseInt(el.id.split('layer_')[1]);
+      });
+      _.each(this.collection.models, function(model) {
+        var active = _.contains(activedIds, model.id);
+        model.set('active', active);
+      });
+    },
 
   });
 

@@ -26,12 +26,43 @@
     },
 
     setListeners: function() {
-      if (this.options.showParamsUrl) {
+      if (this.options.update) {
         this.listenTo(this.params, 'change', this.updateUrl);
       }
       this.on('route', this.updateParams, this);
     },
 
+    /**
+     * Set params and update model
+     * @param {String} name
+     * @param {String|Object|Array} value
+     * @param {Array[String]} keys
+     */
+    setParams: function(name, value, keys) {
+      if (typeof value === 'string') {
+        this.params.set(name, value);
+      } else if (typeof value === 'object' && !_.isArray(value)) {
+        if (keys && _.isArray(keys)) {
+          var params = _.pick(value, 'id', 'opacity', 'order');
+          this.params.set(name, JSON.stringify(params));
+        } else {
+          this.params.set(name, JSON.stringify(value));
+        }
+      } else if (typeof value === 'object' && _.isArray(value)) {
+        if (keys && _.isArray(keys)) {
+          var params = _.map(value, function(v) {
+            return _.pick(v, keys);
+          });
+          this.params.set(name, JSON.stringify(params));
+        } else {
+          this.params.set(name, JSON.stringify(value));
+        }
+      }
+    },
+
+    /**
+     * Change url with params
+     */
     updateUrl: function() {
       var url = location.pathname.slice(1);
       if (this.options.decoded) {
@@ -56,9 +87,9 @@
           params = null;
           return this.navigate('map');
         }
-        this.params.clear().set({ config: params });
+        this.params.clear({ silent: true }).set({ config: params });
       } else {
-        this.params.clear().set(this._unserializeParams());
+        this.params.clear({ silent: true }).set(this._unserializeParams());
       }
     },
 

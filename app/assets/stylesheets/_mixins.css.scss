@@ -6,6 +6,6 @@
 }
 
 // A helper to transform PX to REM unit
-@function rem($px, $base: 16px) {
+@function rem($px, $base: $rem-base) {
   @return ($px / $base) * 1rem;
 }

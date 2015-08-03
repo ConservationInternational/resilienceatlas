@@ -1,5 +1,46 @@
 .m-layers-list {
-  ul {
+  & > ul {
     @include clean-lists;
+  }
+}
+
+.m-layers-list-header {
+  padding: rem(10px) rem(15px);
+
+  @include clearfix;
+
+  .header-title {
+    float: left;
+    max-width: 85%;
+
+    font-weight: bold;
+    text-transform: uppercase;
+  }
+
+  .header-switch {
+    float: right;
+  }
+}
+
+.m-layers-list-panel {
+  @include clean-lists;
+
+  padding-left: rem(20px);
+
+  background-color: $bg-color-3;
+
+  li {
+    padding: rem(10px) rem(15px);
+
+    @include clearfix;
+  }
+
+  .panel-item-title {
+    float: left;
+    max-width: 75%;
+  }
+
+  .panel-item-switch {
+    float: right;
   }
 }

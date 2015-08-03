@@ -15,7 +15,7 @@ $content-left: 320px;
 .l-content--fullscreen {
   @extend %l-content;
   position: absolute;
-  left: rem($content-left);
+  left: 0;
   right: 0;
   bottom: 0;
   top: 0;

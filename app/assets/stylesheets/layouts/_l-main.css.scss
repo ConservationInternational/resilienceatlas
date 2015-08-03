@@ -1,4 +1,4 @@
-$main-top: 44px;
+$main-top: 54px;
 
 .l-main,
 .l-main--default {
@@ -6,7 +6,6 @@ $main-top: 44px;
 }
 
 .l-main--fullscreen {
-  @extend .l-main;
   position: absolute;
   width: 100%;
   top: rem($main-top);

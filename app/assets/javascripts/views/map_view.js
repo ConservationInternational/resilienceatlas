@@ -10,7 +10,8 @@
     defaults: {
       map: {
         zoom: 5,
-        center: [40, -3]
+        center: [40, -3],
+        zoomControl: false
       },
       basemap: {
         url: 'http://{s}.api.cartocdn.com/base-light/{z}/{x}/{y}.png'
@@ -24,7 +25,7 @@
     },
 
     setListeners: function() {
-      this.listenTo(this.collection, 'sync', this.renderLayers);
+      this.listenTo(this.collection, 'change', this.renderLayers);
     },
 
     /**
