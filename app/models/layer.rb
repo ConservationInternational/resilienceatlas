@@ -21,6 +21,7 @@
 #  updated_at     :datetime         not null
 #  locate_layer   :boolean          default(FALSE)
 #  icon_class     :string
+#  published      :boolean          default(TRUE)
 #
 
 class Layer < ActiveRecord::Base

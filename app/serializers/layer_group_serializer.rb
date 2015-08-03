@@ -13,6 +13,7 @@
 #  info             :text
 #  created_at       :datetime         not null
 #  updated_at       :datetime         not null
+#  icon_class       :string
 #
 
 #  id               :integer          not null, primary key
@@ -30,7 +31,7 @@
 
 class LayerGroupSerializer < ActiveModel::Serializer
   cache key: "layer_group"
-  attributes :name, :slug, :category, :active, :order, :info, :layer_group_type, :super_group_id, :super_group_name
+  attributes :name, :slug, :category, :active, :order, :info, :layer_group_type, :super_group_id, :super_group_name, :icon_class
   has_one :super_group, serializer: LayerGroupSerializer, include: true
   def type
     'layer_groups'

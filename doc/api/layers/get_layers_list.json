@@ -26,18 +26,18 @@
       "request_content_type": "application/vnd.api+json",
       "response_status": 200,
       "response_status_text": "OK",
-      "response_body": "{\"data\":[{\"id\":\"7\",\"type\":\"layers\",\"attributes\":{\"name\":\"test layer 0\",\"slug\":\"illum\",\"layer_type\":\"qui\",\"zindex\":1,\"opacity\":null,\"active\":true,\"order\":1,\"color\":\"#000\",\"info\":\"ducimus\",\"interactivity\":\"ut\",\"css\":null,\"query\":null,\"layer_provider\":null,\"locate_layer\":false,\"icon_class\":null},\"relationships\":{\"layer_group\":{\"data\":null}}},{\"id\":\"8\",\"type\":\"layers\",\"attributes\":{\"name\":\"test layer 1\",\"slug\":\"illum\",\"layer_type\":\"qui\",\"zindex\":1,\"opacity\":null,\"active\":true,\"order\":1,\"color\":\"#000\",\"info\":\"ducimus\",\"interactivity\":\"ut\",\"css\":null,\"query\":null,\"layer_provider\":null,\"locate_layer\":false,\"icon_class\":null},\"relationships\":{\"layer_group\":{\"data\":null}}},{\"id\":\"9\",\"type\":\"layers\",\"attributes\":{\"name\":\"test layer 2\",\"slug\":\"illum\",\"layer_type\":\"qui\",\"zindex\":1,\"opacity\":null,\"active\":true,\"order\":1,\"color\":\"#000\",\"info\":\"ducimus\",\"interactivity\":\"ut\",\"css\":null,\"query\":null,\"layer_provider\":null,\"locate_layer\":false,\"icon_class\":null},\"relationships\":{\"layer_group\":{\"data\":null}}}],\"meta\":{\"total_layers\":3}}",
+      "response_body": "{\"data\":[{\"id\":\"1\",\"type\":\"layers\",\"attributes\":{\"name\":\"test layer 0\",\"slug\":\"omnis\",\"layer_type\":\"perspiciatis\",\"zindex\":1,\"opacity\":null,\"active\":true,\"order\":1,\"color\":\"#000\",\"info\":\"ex\",\"interactivity\":\"rem\",\"css\":null,\"query\":null,\"layer_provider\":null,\"published\":true,\"locate_layer\":false,\"icon_class\":null},\"relationships\":{\"layer_group\":{\"data\":null}}},{\"id\":\"2\",\"type\":\"layers\",\"attributes\":{\"name\":\"test layer 1\",\"slug\":\"omnis\",\"layer_type\":\"perspiciatis\",\"zindex\":1,\"opacity\":null,\"active\":true,\"order\":1,\"color\":\"#000\",\"info\":\"ex\",\"interactivity\":\"rem\",\"css\":null,\"query\":null,\"layer_provider\":null,\"published\":true,\"locate_layer\":false,\"icon_class\":null},\"relationships\":{\"layer_group\":{\"data\":null}}},{\"id\":\"3\",\"type\":\"layers\",\"attributes\":{\"name\":\"test layer 2\",\"slug\":\"omnis\",\"layer_type\":\"perspiciatis\",\"zindex\":1,\"opacity\":null,\"active\":true,\"order\":1,\"color\":\"#000\",\"info\":\"ex\",\"interactivity\":\"rem\",\"css\":null,\"query\":null,\"layer_provider\":null,\"published\":true,\"locate_layer\":false,\"icon_class\":null},\"relationships\":{\"layer_group\":{\"data\":null}}}],\"meta\":{\"total_layers\":3}}",
       "response_headers": {
         "X-Frame-Options": "SAMEORIGIN",
         "X-XSS-Protection": "1; mode=block",
         "X-Content-Type-Options": "nosniff",
         "Content-Type": "application/json; charset=utf-8",
-        "ETag": "W/\"382c684879e3e1ebb8c97370277f1660\"",
+        "ETag": "W/\"8dafef64e515c9d761778f487ec33762\"",
         "Cache-Control": "max-age=0, private, must-revalidate",
-        "Set-Cookie": "_neptis_session=NkpQTE1GeHlLbGR5MXdFdWdidmVxWkJJZUtWdUxSOUJrbGRIYnlEbkpaWXozTVZKNk4ySUVZdElPbC9PT2xWUXhvWjE1bDVSUFl6R2dGWnV4ckd1UzdCZ29OdTdQdXRiREdreUhGUlpYYlZoMDAzNCtTUGV0N2xNcUdZNzAvekNQSDJZbGU3STQ2TWF5MFhhajN0eXRBPT0tLXdYWjJzcjFNbndaN1BpaHBRWld2T0E9PQ%3D%3D--3f8e555d46dac7f2644c52b80ace36263d49f9eb; path=/; HttpOnly",
-        "X-Request-Id": "03188194-61a9-4506-8c7d-b6e40728bc6a",
-        "X-Runtime": "0.186363",
-        "Content-Length": "1032"
+        "Set-Cookie": "_neptis_session=NGpqcDg2YTIxYXE1TzBtZ2tEMFJiOXZRU3JzTmVwR3o5bG5iOXNBemRBSDU0ZGtoNzB0dENMa2xKUUZma0hjK2h1WVdNekFGY1FhRHk0bkltdXhkMWNlb3ZNTExoUFI2d3BWaWRlVnBSLzBKYlRVSGJSbDBRUnkvWVUvQ0pMTjRteURidm16ZWdwOTU5SzdjM3NNWHFnPT0tLVN6dVc3TjQ5MUdzUW92L3paTXdQZ3c9PQ%3D%3D--95cc62b72727ed206eb0f097f99e432d7332507d; path=/; HttpOnly",
+        "X-Request-Id": "0552f678-741f-4c4f-8fe9-ce0b0421d4ab",
+        "X-Runtime": "0.157098",
+        "Content-Length": "1098"
       },
       "response_content_type": "application/json; charset=utf-8",
       "curl": "curl \"http://cigrp.org/api/api/layers/\" -X GET \\\n\t-H \"Accept: application/json; application/vnd.api+json\" \\\n\t-H \"Content-Type: application/vnd.api+json\" \\\n\t-H \"Host: http://cigrp.org\" \\\n\t-H \"Cookie: \""
