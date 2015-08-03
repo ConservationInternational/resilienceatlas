@@ -17,7 +17,7 @@
 #
 
 class LayerGroup < ActiveRecord::Base
-  has_many :layers
+  has_many :layers, dependent: :nullify
   belongs_to :super_group, class_name: 'LayerGroup'
-  has_many :sub_groups, class_name: 'LayerGroup', foreign_key: :super_group_id
+  has_many :sub_groups, class_name: 'LayerGroup', foreign_key: :super_group_id, dependent: :nullify
 end
