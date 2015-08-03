@@ -37,6 +37,6 @@ class LayerGroupSerializer < ActiveModel::Serializer
     'layer_groups'
   end
   def super_group_name
-    object.super_group.name
+    object.super_group.name if object.super_group.present?
   end
 end

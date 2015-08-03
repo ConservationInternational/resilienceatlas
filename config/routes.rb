@@ -8,6 +8,7 @@ Rails.application.routes.draw do
   mount Raddocs::App => "/docs"
   namespace :api, defaults: {format: 'json'} do
     scope module: :v1 do
+      resources 'layer-groups', controller: :layer_groups, as: :layer_groups, only: [:index]
       resources :layers, only: [:index]
     end
   end
