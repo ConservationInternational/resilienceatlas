@@ -17,12 +17,12 @@
       }
     },
 
-    LayerModel: Backbone.Model.extend({}),
-
     initialize: function(settings) {
       var opts = settings && settings.options ? settings.options : {};
       this.options = _.extend({}, this.defaults, opts);
-      this.layers = new this.LayerModel();
+      this.layers = new root.app.Collection.Layers();
+      // At begining render all active layers
+      this.renderLayers();
     },
 
     /**
@@ -73,6 +73,15 @@
       } else {
         console.info('Basemap doesn\`t exist.');
       }
+    },
+
+    /**
+     * Render or remove layers by Layers Collection
+     */
+    renderLayers: function() {
+      this.layers.fetch().done(function(layers) {
+        console.log(layers);
+      });
     },
 
     /**

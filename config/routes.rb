@@ -4,8 +4,13 @@ Rails.application.routes.draw do
   devise_for :admin_users, ActiveAdmin::Devise.config
   ActiveAdmin.routes(self)
 
-  # API docs
+  # API routes
   mount Raddocs::App => "/docs"
+  namespace :api, defaults: {format: 'json'} do
+    scope module: :v1 do
+      resources :layers, only: [:index]
+    end
+  end
 
   # Aplication
   root 'welcome#index'
