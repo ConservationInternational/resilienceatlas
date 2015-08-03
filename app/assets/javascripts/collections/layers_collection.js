@@ -31,6 +31,10 @@
 
     url: '/api/layers',
 
+    parse: function(response) {
+      return response;
+    },
+
     getByCategory: function() {
       return _.groupBy(this.toJSON(), 'category');
     }

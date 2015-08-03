@@ -79,9 +79,7 @@
      * Render or remove layers by Layers Collection
      */
     renderLayers: function() {
-      this.layers.fetch().done(function(layers) {
-        console.log(layers);
-      });
+      this.layers.fetch();
     },
 
     /**
