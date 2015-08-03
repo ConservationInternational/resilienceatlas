@@ -2,7 +2,7 @@ doctype html
 
 html lang="#{I18n.locale}"
   head
-    title CIGRP Prototype
+    title Map | CIGRP Prototype
     meta charset="utf-8"
     meta name="description" content=""
     meta name="viewport" content="width=device-width"
@@ -11,10 +11,9 @@ html lang="#{I18n.locale}"
     = csrf_meta_tags
 
   body
-    == render "layouts/header"
-    .l-main
+    == render 'layouts/header'
+    .l-main--fullscreen
       == yield
-    == render "layouts/footer"
     = javascript_include_tag "https://cartodb-libs.global.ssl.fastly.net/cartodb.js/v3/3.15/cartodb.js"
     = javascript_include_tag "application"
 

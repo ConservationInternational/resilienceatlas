@@ -1,0 +1,9 @@
+.l-footer-nav {
+  max-width: rem($content-width);
+  margin: 0 auto;
+  @include clearfix;
+
+  ul {
+    @include clean-lists;
+  }
+}

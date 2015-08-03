@@ -1,0 +1,14 @@
+$main-top: 44px;
+
+.l-main,
+.l-main--default {
+  position: relative;
+}
+
+.l-main--fullscreen {
+  @extend .l-main;
+  position: absolute;
+  width: 100%;
+  top: rem($main-top);
+  bottom: 0;
+}

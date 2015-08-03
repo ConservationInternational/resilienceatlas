@@ -1,134 +1,114 @@
-define([
-  'backbone',
-  'uri/URI',
-  'views/pages/map_page_view',
-  'views/helpers/modal_window_view',
-], function(Backbone, URI, MapPageView, modalView) {
+(function(root) {
 
   'use strict';
 
-  var Router = Backbone.Router.extend({
+  root.app = root.app || {};
 
-    routes: {
-      '': 'index',
-      'map(/:tab)(/:id)': 'map'
+  root.app.Router = Backbone.Router.extend({
+
+    defaults: {
+      decoded: false, // "true" to save params in base64 string like '?config='
+      update: true // If "true" It will show params in url when params change
     },
 
-    initialize: function() {
+    routes: {
+      '': 'welcome',
+      'map': 'map'
+    },
+
+    ParamsModel: Backbone.Model.extend({}),
+
+    initialize: function(settings) {
+      var opts = settings && settings.options ? settings.options : {};
+      this.options = _.extend({}, this.defaults, opts);
+      this.params = new this.ParamsModel(); // This object save the URL params
       this.setListeners();
     },
 
     setListeners: function() {
-      Backbone.Events.on('dashboard:change', this.update, this);
-    },
-
-    index: function() {
-      // var params = new URI(location.href).search(true);
-      // var mapPageView = new MapPageView({ el: '#pageView' });
-      // mapPageView.model.set({ title: 'Map', params: params });
-
-      var data = {
-        initialize: true,
-        link: '#map/layers',
-        linkText: 'go to the map!'
-      };
-
-      this.modal = new modalView({
-        data: data
-      });
-
-      this.modal.undelegateEvents();
-
-      this.modal.$el.find('a').on('click', _.bind(function() {
-        this.modal.close();
-      }, this));
-    },
-
-    map: function(tab, id) {
-
-      if (!this.mapPageView) {
-        this.mapPageView = new MapPageView({ el: '#pageView' });
+      if (this.options.showParamsUrl) {
+        this.listenTo(this.params, 'change', this.updateUrl);
       }
-
-      var params = {};
-
-      var params = new URI((new URI(location.href).fragment())).search(true);
-
-      tab = tab ? tab : 'layers';
-
-      _.extend(params, {
-        tab: tab,
-        id: id
-      });
-
-      this.mapPageView.model.set({ title: 'Map', params: params });
+      this.on('route', this.updateParams, this);
     },
 
-    update: function(params) {
-      var uri = new URI(location.href),
-        urlParams = '';
-
-      // add param
-      if (params.layerValue) {
-        var hasParams = uri.hash().split('=');
-
-        // Check if exists previous active layers
-        if (hasParams && hasParams[1]) {
-          // Check if slug exists yet
-
-          var activeParams = hasParams[1].split(','),
-            isExists = false;
-
-
-          activeParams.forEach(function(active) {
-            if (active === params.slug) {
-              isExists = true;
-              return;
-            }
-          });
-
-          if (!isExists) {
-            urlParams = ',' + params.slug;
-          }
-
-        } else {
-          urlParams = '?active=' + params.slug;
-        }
-
-        this.navigate(uri.hash() + urlParams, false);
-
-      // remove param
+    updateUrl: function() {
+      var url = location.pathname.slice(1);
+      if (this.options.decoded) {
+        url = url + '?config=' + this._encodeParams();
       } else {
-
-        var activeParams = new URI (uri.fragment()).query();
-
-        if (activeParams.split('=').length > 0 && activeParams.split('=')[1]) {
-          var p = activeParams.split('=')[1];
-
-          var totalParams = p.split(',').length;
-
-          p.split(',').forEach(function(a, index, o) {
-            if (a === params.slug) {
-              if (index === 0 && totalParams === 1) {
-                urlParams = activeParams.split('=')[1].replace(params.slug, '');
-
-              } else if(index === 0 && totalParams > 1) {
-                urlParams = activeParams.split('=')[1].replace(params.slug + ',', '');
-                urlParams = '?active=' + urlParams;
-              } else {
-                urlParams = activeParams.split('=')[1].replace(',' + params.slug, '');
-                urlParams = '?active=' + urlParams;
-              }
-            }
-          });
-        }
-
-        this.navigate(uri.hash().split('?')[0] + urlParams, false);
+        url = url + '?' + this._serializeParams();
       }
+      this.navigate(url);
+    },
+
+    /**
+     * This method will update this.params object when URL change
+     * @param  {String} routeName
+     * @param  {Array} params
+     */
+    updateParams: function(routeName, params) {
+      if (this.options.decoded && params[0]) {
+        try {
+          params = this._decodeParams(params[0]);
+        } catch(err) {
+          console.error('Invalid params. ' + err);
+          params = null;
+          return this.navigate('map');
+        }
+        this.params.clear().set({ config: params });
+      } else {
+        this.params.clear().set(this._unserializeParams());
+      }
+    },
+
+    /**
+     * Tranform base64 string to object
+     * @return {Object}
+     */
+    _decodeParams: function() {
+      var config = decodeURIComponent(location.search.slice(1)).split('config=');
+      return JSON.parse(atob(config[1] || null));
+    },
+
+    /**
+     * Tranform object to base64 string
+     * @param  {String} paramString
+     * @return {Object}
+     */
+    _encodeParams: function() {
+      return btoa(JSON.stringify(this.params.attributes.config));
+    },
+
+    /**
+     * Transform URL string params to object
+     * @return {Object}
+     */
+    _unserializeParams: function() {
+      var params = {};
+      if (location.search.length) {
+        var paramsArr = decodeURIComponent(location.search.slice(1)).split('&'),
+          temp = [];
+        for (var p = paramsArr.length; p--;) {
+          temp = paramsArr[p].split('=');
+          if (temp[1] && !_.isNaN(Number(temp[1]))) {
+            params[temp[0]] = Number(temp[1]);
+          } else if (temp[1]) {
+            params[temp[0]] = temp[1];
+          }
+        }
+      }
+      return params;
+    },
+
+    /**
+     * Transform object params to URL string
+     * @return {String}
+     */
+    _serializeParams: function() {
+      return this.params ? $.param(this.params.attributes) : null;
     }
 
   });
 
-  return Router;
-
-});
+})(this);

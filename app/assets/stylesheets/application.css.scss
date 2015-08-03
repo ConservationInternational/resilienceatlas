@@ -1,31 +1,16 @@
+//= require normalize-css
+//= require_self
+
+// Importing dependencies and helpers
 @import
-  "settings",
-  "helpers",
-  "components",
-  "accordion",
+  'foundation-sass/foundation/components/_grid',
+  'foundation-sass/foundation/components/_switches';
 
-  "layout/layout",
-  "layout/grid",
+// Importing project settings
+@import
+  'mixins',
+  'settings',
+  'base';
 
-  "base/general",
-  "base/buttons",
-  "base/icons",
-  "base/form",
-  "base/table",
-
-  "modules/m-dashboard",
-  "modules/m-dashboard-navigation",
-  "modules/m-data-item",
-  "modules/m-filter",
-  "modules/m-grid-board",
-  "modules/m-legend",
-  "modules/m-loader",
-  "modules/m-main-menu",
-  "modules/m-map",
-  "modules/m-map-controlers",
-  "modules/m-map-infowindow",
-  "modules/m-modal-window",
-  "modules/m-search",
-  //"modules/m-share",
-
-  "states";
+// Importing layouts and modules
+@import 'layouts/*', 'modules/*';

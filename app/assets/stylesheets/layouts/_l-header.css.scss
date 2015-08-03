@@ -1,0 +1,36 @@
+.l-header-nav {
+  max-width: rem($content-width);
+  margin: 0 auto;
+  @include clearfix;
+
+  ul {
+    @include clean-lists;
+  }
+
+  .brand-area {
+    float: left;
+    padding: rem($margin/2) 0;
+
+    a:hover {
+      text-decoration: none;
+    }
+  }
+
+  .nav-area {
+    float: right;
+    margin-right: -rem($margin);
+
+    li {
+      float: left;
+    }
+
+    a {
+      display: block;
+      padding: rem($margin/2) rem($margin);
+    }
+  }
+
+  .l-header--fullscreen & {
+    max-width: none;
+  }
+}

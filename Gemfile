@@ -3,19 +3,23 @@ source 'https://rubygems.org'
 ruby '2.2.1'
 
 gem 'rails', '4.2.1'
-gem 'pg'
+
+gem 'jquery-rails'
 gem 'sass-rails', '~> 5.0'
 gem 'uglifier', '>= 1.3.0'
-gem 'coffee-rails', '~> 4.1.0'
-gem 'requirejs-rails'
-gem 'jquery-rails'
 gem 'slim-rails'
 gem 'autoprefixer-rails'
-gem 'rails_12factor'
-gem 'activeadmin', github: 'activeadmin'
-gem 'raddocs'
+gem 'handlebars_assets'
+
+gem 'pg'
 gem 'devise'
+gem 'activeadmin', github: 'activeadmin'
 gem 'active_model_serializers', '0.10.0.rc2'
+
+# Utilities
+gem 'rails_12factor'
+gem 'raddocs'
+
 group :development, :test do
   gem 'spring'
   gem 'teaspoon'
@@ -34,14 +38,26 @@ end
 
 group :development do
   gem 'foreman'
-  gem 'puma'
   gem 'better_errors'
   gem 'binding_of_caller'
   gem 'meta_request'
   gem 'annotate', '~> 2.6.5'
 end
+
 group :test do
   gem 'factory_girl_rails', '~> 4.0', require: false
   gem 'rspec-rails'
   gem 'database_cleaner'
+end
+
+
+# Rails Assets is the frictionless proxy between Bundler and Bower.
+source 'https://rails-assets.org' do
+  gem 'rails-assets-normalize-css'
+  gem 'rails-assets-foundation-sass'
+  gem 'rails-assets-underscore'
+  gem 'rails-assets-backbone'
+  gem 'rails-assets-moment'
+  gem 'rails-assets-handlebars'
+  gem 'rails-assets-leaflet'
 end
