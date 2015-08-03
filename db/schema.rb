@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150728153101) do
+ActiveRecord::Schema.define(version: 20150803075751) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -45,6 +45,7 @@ ActiveRecord::Schema.define(version: 20150728153101) do
     t.text     "info"
     t.datetime "created_at",       null: false
     t.datetime "updated_at",       null: false
+    t.string   "icon_class"
   end
 
   add_index "layer_groups", ["super_group_id"], name: "index_layer_groups_on_super_group_id", using: :btree
@@ -68,6 +69,7 @@ ActiveRecord::Schema.define(version: 20150728153101) do
     t.datetime "updated_at",                     null: false
     t.boolean  "locate_layer",   default: false
     t.string   "icon_class"
+    t.boolean  "published",      default: true
   end
 
   add_index "layers", ["layer_group_id"], name: "index_layers_on_layer_group_id", using: :btree

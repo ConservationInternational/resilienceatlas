@@ -21,11 +21,12 @@
 #  updated_at     :datetime         not null
 #  locate_layer   :boolean          default(FALSE)
 #  icon_class     :string
+#  published      :boolean          default(TRUE)
 #
 
 class LayerSerializer < ActiveModel::Serializer
   cache key: "layer"
-  attributes :name, :slug, :layer_type, :zindex, :opacity, :active, :order, :color, :info, :interactivity, :css, :query, :layer_provider, :locate_layer, :icon_class
+  attributes :name, :slug, :layer_type, :zindex, :opacity, :active, :order, :color, :info, :interactivity, :css, :query, :layer_provider, :published, :locate_layer, :icon_class
   has_one :layer_group, serializer: LayerGroupSerializer
   def type
     'layers'
