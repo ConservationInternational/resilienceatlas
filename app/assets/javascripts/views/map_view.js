@@ -20,9 +20,11 @@
     initialize: function(settings) {
       var opts = settings && settings.options ? settings.options : {};
       this.options = _.extend({}, this.defaults, opts);
-      this.layers = new root.app.Collection.Layers();
-      // At begining render all active layers
-      this.renderLayers();
+      this.setListeners();
+    },
+
+    setListeners: function() {
+      this.listenTo(this.collection, 'sync', this.renderLayers);
     },
 
     /**
@@ -79,7 +81,25 @@
      * Render or remove layers by Layers Collection
      */
     renderLayers: function() {
-      this.layers.fetch();
+      var renderEachLayer = function() {
+        var layersData = _.where(this.collection.toJSON(), { published: true });
+        _.each(layersData, function(layerData) {
+          if (layerData.active) {
+            console.log('enable layer: ' + layerData.name);
+            // this.addLayer(layerData);
+          } else {
+            console.log('remove layer: ' + layerData.name);
+            // this.removeLayer(layerData);
+          }
+        });
+      };
+
+      // It will fetch layers data when layersData object is empty
+      if (this.collection.length === 0) {
+        this.collection.fetch().done(renderEachLayer.bind(this));
+      } else {
+        renderEachLayer.apply(this);
+      }
     },
 
     /**
@@ -94,7 +114,7 @@
       if (!this.map) {
         throw 'Create a map before add a layer.';
       }
-      var layer = this.layers.get(layerData.id), options;
+      var layer = this.collection.get(layerData.id), options;
       if (!layer) {
         switch(layerData.type) {
           case 'cartodb':
@@ -105,7 +125,7 @@
             layerInstance = null;
         }
         if (layerInstance) {
-          this.layers.set(layer.id, layerInstance);
+          this.collection.set(layer.id, layerInstance);
         } else {
           throw 'Layer type hasn\'t been defined or it doesn\'t exist.';
         }
@@ -119,7 +139,7 @@
      * @param  {Object} layerData
      */
     removeLayer: function(layerData) {
-      var layerInstance = this.layers.get(layerData.id);
+      var layerInstance = this.collection.get(layerData.id);
       if (layerInstance) {
         layerInstance.remove();
       } else {

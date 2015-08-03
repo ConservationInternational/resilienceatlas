@@ -1,0 +1,15 @@
+Layer.create!([
+  {id: 1, layer_group_id: 7, name: "Top exports by value, total area, or total production", slug: "top-exports-by-value-total-area-or-total-production", layer_type: "layer", zindex: nil, active: true, order: nil, color: "", info: "", layer_provider: "cartodb", css: "", interactivity: "", opacity: 1.0, query: "", created_at: "2015-08-03 08:06:55", updated_at: "2015-08-03 08:34:35", locate_layer: false, icon_class: "", published: true}
+])
+LayerGroup.create!([
+  {id: 1, name: "Human Livelihoods, Agricultural Production Systems & Ecosystems", super_group_id: nil, slug: "human-livelihoods-agricultural-production-systems-and-ecosystems", layer_group_type: "layer", category: "", active: true, order: nil, info: "", created_at: "2015-08-03 07:46:41", updated_at: "2015-08-03 08:10:39", icon_class: ""},
+  {id: 5, name: "Stressors & Shocks (Exposure & Intensity)", super_group_id: nil, slug: "stressors-and-shocks-exposure-and-intensity", layer_group_type: "layer", category: "", active: true, order: nil, info: "", created_at: "2015-08-03 07:59:18", updated_at: "2015-08-03 08:11:22", icon_class: ""},
+  {id: 6, name: "Vulnerability/Ability to cope with Stressors & Shocks", super_group_id: nil, slug: "vulnerability-ability-to-cope-with-stressors-and-shocks", layer_group_type: "layer", category: "", active: false, order: nil, info: "", created_at: "2015-08-03 07:59:40", updated_at: "2015-08-03 08:34:18", icon_class: ""},
+  {id: 12, name: "Conflict", super_group_id: nil, slug: "conflict", layer_group_type: "layer", category: "", active: false, order: nil, info: "", created_at: "2015-08-03 08:47:33", updated_at: "2015-08-03 08:52:06", icon_class: ""},
+  {id: 11, name: "Population", super_group_id: nil, slug: "population", layer_group_type: "layer", category: "", active: false, order: nil, info: "", created_at: "2015-08-03 08:46:55", updated_at: "2015-08-03 08:52:21", icon_class: ""},
+  {id: 10, name: "Climate", super_group_id: nil, slug: "climate", layer_group_type: "layer", category: "", active: false, order: nil, info: "", created_at: "2015-08-03 08:44:41", updated_at: "2015-08-03 08:52:34", icon_class: ""},
+  {id: 9, name: "Environment", super_group_id: nil, slug: "environment", layer_group_type: "layer", category: "", active: false, order: nil, info: "", created_at: "2015-08-03 08:44:12", updated_at: "2015-08-03 08:52:47", icon_class: ""},
+  {id: 8, name: "Livelihoods", super_group_id: nil, slug: "livelihoods", layer_group_type: "layer", category: "", active: false, order: nil, info: "", created_at: "2015-08-03 08:43:08", updated_at: "2015-08-03 08:53:00", icon_class: ""},
+  {id: 13, name: "Context or layers that don't obviously fit into one of the categories above", super_group_id: nil, slug: "others", layer_group_type: "layer", category: "", active: false, order: nil, info: "", created_at: "2015-08-03 08:51:13", updated_at: "2015-08-03 09:03:33", icon_class: ""},
+  {id: 7, name: "Economic", super_group_id: 1, slug: "economic", layer_group_type: "layer", category: "", active: false, order: nil, info: "", created_at: "2015-08-03 08:34:07", updated_at: "2015-08-03 09:04:03", icon_class: ""}
+])

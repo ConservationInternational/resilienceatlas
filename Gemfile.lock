@@ -264,6 +264,9 @@ GEM
       sprockets (>= 2.8, < 4.0)
       sprockets-rails (>= 2.0, < 4.0)
       tilt (~> 1.1)
+    seed_dump (3.2.2)
+      activerecord (~> 4)
+      activesupport (~> 4)
     sinatra (1.4.6)
       rack (~> 1.4)
       rack-protection (~> 1.4)
@@ -346,6 +349,7 @@ DEPENDENCIES
   rspec-rails
   rspec_api_documentation
   sass-rails (~> 5.0)
+  seed_dump
   slim-rails
   spring
   spring-commands-rspec

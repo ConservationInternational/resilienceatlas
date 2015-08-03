@@ -19,6 +19,7 @@ gem 'active_model_serializers', '0.10.0.rc2'
 # Utilities
 gem 'rails_12factor'
 gem 'raddocs'
+gem 'seed_dump'
 
 group :development, :test do
   gem 'spring'

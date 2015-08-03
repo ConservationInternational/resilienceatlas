@@ -1,0 +1,22 @@
+<ul>
+  {{#each categories}}
+    <li>
+      {{name}} Category
+      <div class="m-form-input--switch">
+        <input type="checkbox" id="{{slug}}">
+        <label for="{{slug}}"></label>
+      </div>
+      <ul>
+        {{#each layers}}
+          <li>
+            {{name}}
+            <div class="m-form-input--switch">
+              <input type="checkbox" id="{{slug}}">
+              <label for="{{slug}}"></label>
+            </div>
+          </li>
+        {{/each}}
+      </ul>
+    </li>
+  {{/each}}
+</ul>
