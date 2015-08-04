@@ -12,7 +12,7 @@
     template: HandlebarsTemplates['layers_list_tpl'],
 
     events: {
-      'change .panel-item-switch input': 'updateLayers'
+      'change input': 'updateLayers'
     },
 
     initialize: function(settings) {
