@@ -22,8 +22,8 @@
       display: block;
       width: rem(140px);
       padding: rem(5px) 0;
-      height: rem($header-height) - rem(10px);
-      background: image-url("logo-grp-white.png");
+      height: rem($header-height - 10px);
+      background-image: image-url("logo-grp-white.png");
       background-repeat: no-repeat;
       background-position: left center;
       background-size: contain;
