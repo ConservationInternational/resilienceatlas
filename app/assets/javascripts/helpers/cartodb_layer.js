@@ -12,9 +12,12 @@
   root.app.Helper.CartoDBLayer = root.app.Helper.Class.extend({
 
     defaults: {
-      user_name: 'your_user_name', // Required
+      user_name: 'grp', // Required
       type: 'cartodb', // Required
-      layers: [{
+      cartodb_logo: false,
+      maps_api_template: 'https://grp.cidata.io/user/{user}',
+      sql_api_template: 'https://grp.cidata.io/user/{user}/api/v2/sql',
+      sublayers: [{
         sql: 'SELECT * FROM table_name', // Required
         cartocss: '#table_name {marker-fill: #F0F0F0;}', // Required
         interactivity: 'column1, column2, ...' // Optional
@@ -25,17 +28,18 @@
       if (!map && map instanceof L.Map) {
         throw 'First params "map" is required and a valid instance of L.Map.';
       }
-      var opts = settings && settings.options ? settings.options : {};
+      var opts = settings || {};
       this.options = _.extend({}, this.defaults, opts);
       this._setMap(map);
+      this.create();
     },
 
     /**
      * Create a CartoDB layer
      * @param  {Function} callback
      */
-    create: function(callback) {
-      cartodb.createLayer(this.map, this.options)
+    create: function(map, callback) {
+      cartodb.createLayer(this.map, this.options, { 'no_cdn': true })
         .addTo(this.map)
         .on('done', function(layer) {
           this.layer = layer;
@@ -54,7 +58,6 @@
     remove: function() {
       if (this.layer) {
         this.map.removeLayer(this.layer);
-        this.layer.clear();
       } else {
         console.info('There isn\'t a layer.');
       }

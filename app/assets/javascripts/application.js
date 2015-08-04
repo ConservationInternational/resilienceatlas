@@ -1,8 +1,7 @@
-//= require jquery2
+//= require jquery
 //= require jquery_ujs
 //= require underscore
 //= require backbone
-//= require leaflet
 //= require handlebars
 
 //= require ./helpers/class
@@ -61,7 +60,7 @@
 
       var mapView = new root.app.View.Map({
         el: '#mapView',
-        collection: layersCollection
+        layers: layersCollection
       });
 
       var layersListView = new root.app.View.LayersList({
