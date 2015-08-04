@@ -1,17 +1,28 @@
 .m-layers-list {
-  & > ul {
+  ul {
     @extend %clean-lists;
+
+    ul {
+      position: relative;
+      display: none;
+
+      &.is-active {
+        display: block;
+      }
+    }
   }
 }
 
 .m-layers-list-header {
   padding: rem(10px) rem(15px);
+  color: $font-color-3;
+  background-color: $bg-color-2;
+  text-align: center;
 
   @include clearfix;
 
   .header-title {
     float: left;
-    max-width: 85%;
 
     font-weight: bold;
     text-transform: uppercase;
@@ -20,12 +31,20 @@
   .header-switch {
     float: right;
   }
+
+  ul ul & {
+    color: $font-color-1;
+    background-color: $bg-color-1;
+    text-align: left;
+
+    .header-title {
+      max-width: 85%;
+    }
+  }
 }
 
 .m-layers-list-panel {
   @extend %clean-lists;
-
-  padding-left: rem(20px);
 
   background-color: $bg-color-3;
 
@@ -42,5 +61,9 @@
 
   .panel-item-switch {
     float: right;
+  }
+
+  .m-layers-list & {
+    padding-left: rem(20px);
   }
 }
