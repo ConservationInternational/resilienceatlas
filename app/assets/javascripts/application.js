@@ -95,6 +95,7 @@
         }
 
         layersCollection.setGroups(layersGroupsCollection);
+
         mapView.renderLayers();
         layersListView.render();
 
