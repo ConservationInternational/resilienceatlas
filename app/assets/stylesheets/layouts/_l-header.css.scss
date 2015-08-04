@@ -65,7 +65,8 @@
   }
 
   .l-header--fullscreen & {
-    // max-width: none;
+    max-width: none;
+    padding: 0 40px;
 
     .row {
       max-width: none;
