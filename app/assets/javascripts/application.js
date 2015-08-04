@@ -53,8 +53,6 @@
     },
 
     mapPage: function() {
-      this.removeViews();
-
       var layersGroupsCollection = new root.app.Collection.LayersGroups();
       var layersCollection = new root.app.Collection.Layers();
 
@@ -65,7 +63,7 @@
 
       var layersListView = new root.app.View.LayersList({
         el: '#layersListView',
-        collection: layersCollection
+        layers: layersCollection
       });
 
       // At begining create a map
@@ -79,8 +77,8 @@
 
       $.when.apply($, complete).done(function() {
 
+        // Checking routes and setting actived layers
         var routerParams = _.isEmpty(this.router.params.attributes);
-
         if (!routerParams && this.router.params.attributes.layers) {
           var activedLayers = JSON.parse(this.router.params.attributes.layers);
           var activedLayersIds = _.pluck(activedLayers, 'id');
@@ -93,26 +91,20 @@
           this.router.setParams('layers', data, ['id', 'opacity', 'order']);
         }
 
+        // Updating URL when layers collection change
+        layersCollection.on('change', function() {
+          var data = layersCollection.getActived();
+          this.router.setParams('layers', data, ['id', 'opacity', 'order']);
+        }.bind(this));
+
+        // Attach groups to layers collection
         layersCollection.setGroups(layersGroupsCollection);
 
+        // Render views
         mapView.renderLayers();
         layersListView.render();
 
       }.bind(this));
-
-      // Updating URL when layers change
-      layersCollection.on('change', function() {
-        var data = layersCollection.getActived();
-        this.router.setParams('layers', data, ['id', 'opacity', 'order']);
-      }.bind(this));
-
-      this.currentViews = [ mapView, layersListView ];
-    },
-
-    removeViews: function() {
-      _.each(this.currentViews, function(view) {
-        view.remove();
-      });
     },
 
     start: function() {

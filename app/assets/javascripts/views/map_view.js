@@ -97,24 +97,14 @@
      * Render or remove layers by Layers Collection
      */
     renderLayers: function() {
-      var self = this;
-      var renderEachLayer = function() {
-        var layersData = _.where(this.layers.toJSON(), { published: true });
-        _.each(layersData, function(layerData) {
-          if (layerData.active) {
-            self.addLayer(layerData);
-          } else {
-            self.removeLayer(layerData);
-          }
-        });
-      };
-
-      // It will fetch layers data when layersData object is empty
-      if (this.layers.length === 0) {
-        this.layers.fetch().done(renderEachLayer.bind(this));
-      } else {
-        renderEachLayer.call(this);
-      }
+      var layersData = this.layers.getPublished();
+      _.each(layersData, function(layerData) {
+        if (layerData.active) {
+          this.addLayer(layerData);
+        } else {
+          this.removeLayer(layerData);
+        }
+      }, this);
     },
 
     /**

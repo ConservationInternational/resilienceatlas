@@ -20,7 +20,6 @@
    *     color: '#ff0000',
    *     opacity: 1,
    *     order: 1,
-   *     zindex: 1,
    *     group: 1,
    *     active: true,
    *     published: true
@@ -49,7 +48,6 @@
           color: d.attributes.color,
           opacity: d.attributes.opacity,
           order: d.attributes.order || 0,
-          zindex: d.attributes.zindex,
           group: group ? parseInt(group.id) : null,
           active: d.attributes.active,
           published: d.attributes.published
@@ -65,7 +63,7 @@
     },
 
     getGrouped: function() {
-      var data = this.toJSON();
+      var data = this.getPublished();
       if (!this._groups || !this._categories) {
         console.info('There aren\`t groups setted.');
         return this.toJSON();
@@ -81,7 +79,11 @@
     },
 
     getActived: function() {
-      return _.where(this.toJSON(), { active: true });
+      return _.where(this.toJSON(), { active: true, published: true });
+    },
+
+    getPublished: function() {
+      return _.where(this.toJSON(), { published: true });
     }
 
   });

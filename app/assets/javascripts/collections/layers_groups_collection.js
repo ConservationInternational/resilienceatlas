@@ -13,16 +13,8 @@
    *     id: 1,
    *     slug: 'lorem-ipsum',
    *     name: 'Lorem ipsum',
-   *     type: 'cartodb',
-   *     description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
-   *     cartocss: '#table_name {marker-fill: #F0F0F0;}',
-   *     sql: 'SELECT * FROM table_name',
-   *     color: '#ff0000',
-   *     opacity: 1,
+   *     father: 1,
    *     order: 1,
-   *     zindex: 1,
-   *     category: 'lorem-ipsum',
-   *     group: 'lorem-ipsum',
    *     active: true,
    *     published: true
    *   }
@@ -52,21 +44,27 @@
     },
 
     getGroups: function() {
-      return _.filter(this.toJSON(), function(g) {
+      return _.filter(this.getPublished(), function(g) {
         return !!!g.father;
       });
     },
 
     getCategories: function() {
-      return _.filter(this.toJSON(), function(g) {
+      return _.filter(this.getPublished(), function(g) {
         return !!g.father;
       });
     },
 
     getCategoriesByGroup: function(groupId) {
-      return _.filter(this.toJSON(), function(g) {
+      return _.filter(this.getPublished(), function(g) {
         return groupId === g.father;
       });
+    },
+
+    getPublished: function() {
+      // TODO: add published column to layers groups
+      // return _.where(this.toJSON(), { published: true });
+      return this.toJSON();
     }
 
   });
