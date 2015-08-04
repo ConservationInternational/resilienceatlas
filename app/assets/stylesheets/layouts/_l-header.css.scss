@@ -5,7 +5,7 @@
   @include clearfix;
 
   ul {
-    @include clean-lists;
+    @extend %clean-lists;
   }
 
   .brand-area {
@@ -34,6 +34,7 @@
 
   .l-header--fullscreen & {
     max-width: none;
+
     .row {
       max-width: none;
     }

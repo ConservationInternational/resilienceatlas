@@ -1,38 +1,50 @@
 .m-layers-list {
   & > ul {
-    @include clean-lists;
+    @extend %clean-lists;
   }
 }
 
-.m-layers-list-header {
-  padding: rem(10px) rem(15px);
-
+.m-layers-list__header {
   @include clearfix;
+  position: relative;
+  padding: rem(10px) rem(15px);
 
   .header-title {
     float: left;
     max-width: 85%;
+    padding-left: rem(20px);
 
+    font-size: rem(14px);
     font-weight: bold;
     text-transform: uppercase;
+
+    &:before {
+      @extend %centery;
+      @include equi-triangle(5px, $font-color-1, left);
+      left: 15px;
+    }
   }
 
   .header-switch {
     float: right;
   }
+
+  .is-open & {
+    background-color: $bg-color-3;
+  }
 }
 
-.m-layers-list-panel {
-  @include clean-lists;
-
+.m-layers-list__panel {
+  @extend %clean-lists;
+  height: 0;
+  overflow: hidden;
   padding-left: rem(20px);
-
   background-color: $bg-color-3;
+  transition: .2s esae-in;
 
   li {
-    padding: rem(10px) rem(15px);
-
     @include clearfix;
+    padding: rem(10px) rem(15px);
   }
 
   .panel-item-title {
@@ -42,5 +54,10 @@
 
   .panel-item-switch {
     float: right;
+  }
+
+  .is-open & {
+    height: auto;
+    background-color: $bg-color-3;
   }
 }

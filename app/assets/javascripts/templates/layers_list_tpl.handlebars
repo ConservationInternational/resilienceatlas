@@ -1,14 +1,14 @@
 <ul>
   {{#each categories}}
-    <li>
-      <div class="m-layers-list-header">
+    <li class="m-layers-list__group is-open">
+      <div class="m-layers-list__header">
         <div class="header-title">{{name}}</div>
         <div class="header-switch m-form-input--switch">
           <input type="checkbox" id="category_{{id}}" {{#if active}}checked{{/if}}>
           <label for="category_{{id}}"></label>
         </div>
       </div>
-      <ul class="m-layers-list-panel">
+      <ul class="m-layers-list__panel">
         {{#each layers}}
           <li>
             <div class="panel-item-title">{{name}}</div>
