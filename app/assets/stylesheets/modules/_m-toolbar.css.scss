@@ -3,4 +3,37 @@
   right: rem(15px);
   top: rem(15px);
   z-index: 1;
+  padding: rem(10px);
+  background-color: $bg-color-1;
+  border-radius: 2px;
+  box-shadow: 0 1px 4px 0 rgba(0,0,0,.2);
+
+  ul {
+    @extend %clean-lists;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  li {
+    //To offset font line-height
+    padding-top: rem(5px);
+  }
+
+  button {
+    @extend %clean-button-or-input;
+    font-size: rem(14px);
+    color: $font-color-1;
+    margin: 0 rem(15px);
+  }
+
+  input {
+    @extend %clean-button-or-input;
+    margin: 0 rem(15px);
+
+    @include placeholder() {
+      font-size: rem(14px);
+      color: $font-color-1;
+    }
+  }
 }
