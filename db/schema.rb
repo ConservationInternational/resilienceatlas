@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150803075751) do
+ActiveRecord::Schema.define(version: 20150804095308) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -70,6 +70,7 @@ ActiveRecord::Schema.define(version: 20150803075751) do
     t.boolean  "locate_layer",   default: false
     t.string   "icon_class"
     t.boolean  "published",      default: true
+    t.text     "legend"
   end
 
   add_index "layers", ["layer_group_id"], name: "index_layers_on_layer_group_id", using: :btree

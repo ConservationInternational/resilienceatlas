@@ -22,6 +22,7 @@
 #  locate_layer   :boolean          default(FALSE)
 #  icon_class     :string
 #  published      :boolean          default(TRUE)
+#  legend         :text
 #
 
 class Layer < ActiveRecord::Base
