@@ -1,72 +1,46 @@
 .m-layers-list {
-  ul {
-    @extend %clean-lists;
-  }
-
-  .group-title {
-
+  & > ul {
+    @include clean-lists;
   }
 }
 
-.m-layers-list__header {
+.m-layers-list-header {
+  padding: rem(10px) rem(15px);
+
   @include clearfix;
-  position: relative;
-  padding: rem(15px) rem(15px);
 
   .header-title {
     float: left;
-    padding-left: rem(20px);
-    font-size: rem(14px);
+    max-width: 85%;
+
     font-weight: bold;
     text-transform: uppercase;
-
-    &:before {
-      @extend %centery;
-      @include equi-triangle(5px, $font-color-1, left);
-      left: 15px;
-    }
   }
 
   .header-switch {
     float: right;
   }
-
-  .is-open & {
-    background-color: $bg-color-3;
-  }
 }
 
-.m-layers-list__panel {
-  @extend %clean-lists;
-  height: 0;
-  overflow: hidden;
+.m-layers-list-panel {
+  @include clean-lists;
+
   padding-left: rem(20px);
+
   background-color: $bg-color-3;
-  transition: .2s esae-in;
 
   li {
-    @include clearfix;
     padding: rem(10px) rem(15px);
+
+    @include clearfix;
   }
 
-  .title {
+  .panel-item-title {
     float: left;
-    font-weight: 400;
-    font-size: rem(14px);
+    max-width: 75%;
   }
 
   .panel-item-switch {
-    margin-right: 10px;
-    float: left;
-  }
-
-  .settings-switcher {
     float: right;
-    background: url() no-repeat center;
-  }
-
-  .is-open & {
-    height: auto;
-    background-color: $bg-color-3;
   }
 }
