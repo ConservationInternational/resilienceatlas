@@ -11,6 +11,11 @@ $header-height: 65px;
 /*
   Fonts and typography
  */
+@include font-face("Franklin", "ITCFranklinGothicStd-Demi", 700);
+@include font-face("Franklin", "ITCFranklinGothicStd-Med", 500);
+@include font-face("Franklin", "ITCFranklinGothicStd-Book", 400);
+
+$font-face-1: "Franklin";
 
 // Since the typical default browser font-size is 16px, that makes the calculation for grid size.
 // If you want your base font-size to be different and not have it affect the grid breakpoints,
@@ -39,3 +44,17 @@ $bg-color-3: $gray-light;
 $font-color-1: $gray;
 $font-color-2: $blue;
 $font-color-3: $white;
+
+
+/*
+  Animations --> provisonal aquí para poder probarlas.
+ */
+// Sine
+$easeInSine:  cubic-bezier(0.470, 0.000, 0.745, 0.715);
+$easeOutSine:  cubic-bezier(0.390, 0.575, 0.565, 1.000);
+$easeInOutSine:  cubic-bezier(0.445, 0.050, 0.550, 0.950);
+
+// Cubic
+$easeInCubic:  cubic-bezier(0.550, 0.055, 0.675, 0.190);
+$easeOutCubic:  cubic-bezier(0.215, 0.610, 0.355, 1.000);
+$easeInOutCubic :  cubic-bezier(0.645, 0.045, 0.355, 1.000);

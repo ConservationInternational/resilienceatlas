@@ -1,6 +1,6 @@
 .m-layers-list {
   & > ul {
-    @include clean-lists;
+    @extend %clean-lists;
   }
 }
 
@@ -23,7 +23,7 @@
 }
 
 .m-layers-list-panel {
-  @include clean-lists;
+  @extend %clean-lists;
 
   padding-left: rem(20px);
 

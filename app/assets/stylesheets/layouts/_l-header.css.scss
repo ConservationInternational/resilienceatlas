@@ -11,7 +11,7 @@
   @include clearfix;
 
   ul {
-    @include clean-lists;
+    @extend %clean-lists;
   }
 
   .brand-area {
@@ -43,17 +43,18 @@
       display: flex;
       float: left;
       height: rem($header-height);
-      padding: rem($margin/2);
+      margin-left: rem($margin/2);
     }
 
     a {
       display: block;
       margin: auto;
-      padding: rem(5px) rem(20px);
-      color: rgba($font-color-3, .5);
+      padding: rem(7px) rem(20px) rem(5px);
+      color: $font-color-3;
       border-radius: 3px;
       font-size: rem(14px);
       text-transform: uppercase;
+      line-height: 1;
       transition: .2s ease-in;
 
       &:hover {
@@ -66,7 +67,6 @@
 
   .l-header--fullscreen & {
     max-width: none;
-    padding: 0 40px;
 
     .row {
       max-width: none;
