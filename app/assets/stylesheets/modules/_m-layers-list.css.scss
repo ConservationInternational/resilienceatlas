@@ -47,13 +47,20 @@
     padding: rem(10px) rem(15px);
   }
 
-  .panel-item-title {
+  .title {
     float: left;
-    max-width: 75%;
+    font-weight: 400;
+    font-size: rem(14px);
   }
 
   .panel-item-switch {
+    margin-right: 10px;
+    float: left;
+  }
+
+  .settings-switcher {
     float: right;
+    background: url() no-repeat center;
   }
 
   .is-open & {
