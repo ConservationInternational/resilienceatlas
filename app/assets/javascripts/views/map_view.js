@@ -101,7 +101,6 @@
       var renderEachLayer = function() {
         var layersData = _.where(this.layers.toJSON(), { published: true });
         _.each(layersData, function(layerData) {
-          console.log(layerData.slug, layerData.active);
           if (layerData.active) {
             self.addLayer(layerData);
           } else {
