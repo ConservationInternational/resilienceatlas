@@ -68,7 +68,7 @@
         collection: layersCollection
       });
 
-      // At begining create a map and fetch layers to show
+      // At begining create a map
       mapView.createMap();
 
       // Fetching data
