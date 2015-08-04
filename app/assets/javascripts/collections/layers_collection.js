@@ -72,7 +72,15 @@
         var categories = _.where(this._categories, { father: g.id });
         return _.extend(g, {
           categories: _.map(categories, function(c) {
-            return _.extend(c, { layers: _.where(data, { group: c.id }) });
+            var layers = _.where(data, { group: c.id });
+            // Forcing category activation
+            var isActive = _.contains(_.pluck(layers, 'active'), true);
+            if (isActive) {
+              c.active = true;
+            } else {
+              c.active = false;
+            }
+            return _.extend(c, { layers: layers });
           })
         });
       }, this);

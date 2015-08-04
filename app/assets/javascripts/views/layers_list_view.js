@@ -39,8 +39,8 @@
     },
 
     activeList: function(e) {
-      var $list = $(e.currentTarget).closest('li').find('ul:first');
-      console.log($list);
+      var $el = $(e.currentTarget);
+      var $list = $el.closest('li').find('ul:first');
       $list.toggleClass('is-active');
     }
 
