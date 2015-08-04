@@ -26,10 +26,10 @@
     },
 
     setListeners: function() {
+      this.on('route:map', this.updateParams, this);
       if (this.options.update) {
         this.listenTo(this.params, 'change', this.updateUrl);
       }
-      this.on('route', this.updateParams, this);
     },
 
     /**

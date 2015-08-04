@@ -11,7 +11,8 @@
       map: {
         zoom: 5,
         center: [40, -3],
-        zoomControl: false
+        zoomControl: false,
+        scrollWheelZoom: false
       },
       basemap: {
         url: 'http://{s}.api.cartocdn.com/base-light/{z}/{x}/{y}.png'

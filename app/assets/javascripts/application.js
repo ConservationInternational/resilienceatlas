@@ -79,10 +79,26 @@
       ], 'fetch');
 
       $.when.apply($, complete).done(function() {
+
+        var routerParams = _.isEmpty(this.router.params.attributes);
+
+        if (!routerParams && this.router.params.attributes.layers) {
+          var activedLayers = JSON.parse(this.router.params.attributes.layers);
+          var activedLayersIds = _.pluck(activedLayers, 'id');
+          _.each(layersCollection.models, function(model) {
+            var active = _.contains(activedLayersIds, model.id);
+            model.set('active', active, { silent: true });
+          });
+        } else if (routerParams) {
+          var data = layersCollection.getActived();
+          this.router.setParams('layers', data, ['id', 'opacity', 'order']);
+        }
+
         layersCollection.setGroups(layersGroupsCollection);
         mapView.renderLayers();
         layersListView.render();
-      });
+
+      }.bind(this));
 
       // Updating URL when layers change
       layersCollection.on('change', function() {
