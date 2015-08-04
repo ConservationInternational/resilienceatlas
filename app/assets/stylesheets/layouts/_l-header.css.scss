@@ -1,3 +1,9 @@
+.l-header,
+.l-header--fullscreen {
+  background-color: $bg-color-2;
+  height: rem($header-height);
+}
+
 .l-header-nav {
   max-width: rem($content-width);
   margin: 0 auto;
@@ -10,10 +16,22 @@
 
   .brand-area {
     float: left;
-    padding: rem($margin/2) 0;
+    padding: rem(5px) 0;
 
-    a:hover {
-      text-decoration: none;
+    a {
+      display: block;
+      width: rem(140px);
+      padding: rem(5px) 0;
+      height: rem($header-height - 10px);
+      background-image: image-url("logo-grp-white.png");
+      background-repeat: no-repeat;
+      background-position: left center;
+      background-size: contain;
+      text-indent: -99999px;
+
+      &:hover {
+        text-decoration: none;
+      }
     }
   }
 
@@ -22,13 +40,28 @@
     margin-right: -rem($margin);
 
     li {
+      display: flex;
       float: left;
+      height: rem($header-height);
       margin-left: rem($margin/2);
     }
 
     a {
       display: block;
-      padding: rem($margin/2);
+      margin: auto;
+      padding: rem(7px) rem(20px) rem(5px);
+      color: $font-color-3;
+      border-radius: 3px;
+      font-size: rem(14px);
+      text-transform: uppercase;
+      line-height: 1;
+      transition: .2s ease-in;
+
+      &:hover {
+        background-color: $bg-color-1;
+        color: $font-color-2;
+        text-decoration: none;
+      }
     }
   }
 

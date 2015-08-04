@@ -1,19 +1,21 @@
 .m-layers-list {
-  & > ul {
+  ul {
     @extend %clean-lists;
+  }
+
+  .group-title {
+
   }
 }
 
 .m-layers-list__header {
   @include clearfix;
   position: relative;
-  padding: rem(10px) rem(15px);
+  padding: rem(15px) rem(15px);
 
   .header-title {
     float: left;
-    max-width: 85%;
     padding-left: rem(20px);
-
     font-size: rem(14px);
     font-weight: bold;
     text-transform: uppercase;

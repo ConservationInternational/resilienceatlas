@@ -10,8 +10,6 @@ header class="#{headerClassName}"
       .large-8.columns
         ul.nav-area
           li
-            = link_to 'Home', root_path
-          li
             = link_to 'Map', map_path, class: controller_name == 'map' ? 'is-current' : ''
           li
             = link_to 'About', about_path, class: controller_name == 'about' ? 'is-current' : ''

@@ -1,5 +1,3 @@
-$main-top: 54px;
-
 .l-main,
 .l-main--default {
   position: relative;
@@ -8,6 +6,6 @@ $main-top: 54px;
 .l-main--fullscreen {
   position: absolute;
   width: 100%;
-  top: rem($main-top);
+  top: rem($header-height);
   bottom: 0;
 }
