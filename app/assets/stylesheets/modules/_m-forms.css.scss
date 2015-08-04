@@ -23,6 +23,7 @@
   @include switch($transition-speed, $transition-ease, $height, $paddle-bg, $active-color, $radius, $base-style);
   display: inline-block;
   margin-bottom: 0;
+
   label {
     margin-bottom: 0;
   }

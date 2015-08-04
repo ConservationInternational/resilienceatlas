@@ -4,6 +4,6 @@
   @include clearfix;
 
   ul {
-    @include clean-lists;
+    @extend %clean-lists;
   }
 }
