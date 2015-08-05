@@ -42,3 +42,7 @@ a {
     text-decoration: underline;
   }
 }
+
+input:focus {
+  outline: none;
+}
