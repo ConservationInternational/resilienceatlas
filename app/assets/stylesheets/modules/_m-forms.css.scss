@@ -21,10 +21,33 @@
   $base-style: false;
 
   @include switch($transition-speed, $transition-ease, $height, $paddle-bg, $active-color, $radius, $base-style);
+
   display: inline-block;
   margin-bottom: 0;
 
   label {
     margin-bottom: 0;
+    border: 1px solid #c0c0c0;
+    box-sizing: border-box;
+
+    &:after {
+      height: rem(12px);
+      width: rem(12px);
+      top: rem(0px);
+      left: rem(0px);
+    }
   }
+
+  input:checked + label:after {
+    left: rem(14px);
+  }
+
+  input:checked + label {
+    background-color: $bg-color-2;
+    border-color: $bg-color-2;
+  }
+}
+
+.m-form-input--slider {
+
 }
