@@ -14,7 +14,7 @@
     events: {
       'click .m-layers-list-header': 'activeList',
       'change input': 'updateLayers',
-      'change input.opacity-range' : 'updateTransparency'
+      'input input.opacity-range' : 'updateTransparency'
     },
 
     initialize: function(settings) {
