@@ -12,6 +12,7 @@
     template: HandlebarsTemplates['layers_list_tpl'],
 
     events: {
+      'click .m-layers-list-header': 'activeList',
       'change input': 'updateLayers'
     },
 
@@ -22,11 +23,7 @@
     },
 
     render: function() {
-      // var currentGroup = 1;
       var data = { groups: this.layers.getGrouped() };
-      console.log(data);
-      // var group = _.findWhere(data, { id: currentGroup });
-      // var data = { categories: group ? group.categories : [] };
       this.$el.html( this.template( data ) );
     },
 
@@ -40,6 +37,12 @@
         model.set('active', active);
       });
     },
+
+    activeList: function(e) {
+      var $el = $(e.currentTarget);
+      var $list = $el.closest('li').find('ul:first');
+      $list.toggleClass('is-active');
+    }
 
   });
 

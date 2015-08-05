@@ -4,7 +4,7 @@
       <div class="m-layers-list-header">
         <div class="header-title">{{name}}</div>
       </div>
-      <ul>
+      <ul{{#if active}} class="is-active"{{/if}}>
         {{#each categories}}
           <li>
             <div class="m-layers-list-header">
@@ -14,7 +14,7 @@
                 <label for="category_{{id}}"></label>
               </div>
             </div>
-            <ul class="m-layers-list-panel">
+            <ul class="m-layers-list-panel {{#if active}}is-active{{/if}}">
               {{#each layers}}
                 <li>
                   <div class="panel-item-title">{{name}}</div>

@@ -150,8 +150,6 @@
       if (layerInstance) {
         this.model.set(layerData.id, null);
         layerInstance.remove();
-      } else {
-        console.info('Layer "' + layerData.id + '"" doesn\'t exist.');
       }
     }
 
