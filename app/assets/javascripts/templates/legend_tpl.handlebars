@@ -1,3 +1,18 @@
-<header>
+<header class="m-legend__header">
   <h2 class="title">Legend</h2>
+  <span class="btn-minimize"></span>
 </header>
+<div class="m-legend__content">
+  <ul class="m-legend__list">
+  {{#each legends}}
+    <li>
+      <header>
+        <h3>{{this.name}}</h3>
+      </header>
+      {{#if this.tpl}}
+        {{{this.tpl}}}
+      {{/if}}
+    </li>
+  {{/each}}
+  </ul>
+</div>

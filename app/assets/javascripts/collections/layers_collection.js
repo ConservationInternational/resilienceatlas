@@ -48,6 +48,7 @@
           color: d.attributes.color,
           opacity: d.attributes.opacity,
           order: d.attributes.order || 0,
+          legend: d.attributes.legend,
           group: group ? parseInt(group.id) : null,
           active: d.attributes.active,
           published: d.attributes.published
