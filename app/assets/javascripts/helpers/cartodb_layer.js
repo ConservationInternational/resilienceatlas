@@ -16,7 +16,7 @@
       type: 'cartodb', // Required
       cartodb_logo: false,
       maps_api_template: 'https://grp.cidata.io/user/{user}',
-      sql_api_template: 'https://grp.cidata.io/user/{user}/api/v2/sql',
+      sql_api_template: 'https://grp.cidata.io/user/{user}',
       sublayers: [{
         sql: 'SELECT * FROM table_name', // Required
         cartocss: '#table_name {marker-fill: #F0F0F0;}', // Required
@@ -31,14 +31,13 @@
       var opts = settings || {};
       this.options = _.extend({}, this.defaults, opts);
       this._setMap(map);
-      this.create();
     },
 
     /**
      * Create a CartoDB layer
      * @param  {Function} callback
      */
-    create: function(map, callback) {
+    create: function(callback) {
       cartodb.createLayer(this.map, this.options, { 'no_cdn': true })
         .addTo(this.map)
         .on('done', function(layer) {

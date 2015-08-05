@@ -17,12 +17,16 @@
             <ul class="m-layers-list-panel {{#if active}}is-active{{/if}}">
               {{#each layers}}
                 <li>
-                  <div class="panel-item-title">{{name}}</div>
                   <div class="panel-item-switch m-form-input--switch">
                     <input type="checkbox" id="layer_{{id}}" {{#if active}}checked{{/if}}>
                     <label for="layer_{{id}}"></label>
                   </div>
-                  <div class="panel-item-slider"></div>
+                  <div class="panel-item-title">{{name}}</div>
+                  <div class="panel-item-slider">
+                    <div class="m-form-input--slider">
+                      <input type="hidden">
+                    </div>
+                  </div>
                 </li>
               {{/each}}
             </ul>

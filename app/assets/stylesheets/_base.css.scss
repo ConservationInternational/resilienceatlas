@@ -27,6 +27,9 @@ body {
   font-weight: 500;
   font-style: normal;
   line-height: $base-line-height;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 
   background: $bg-color-1;
 }
@@ -38,4 +41,8 @@ a {
   &:hover {
     text-decoration: underline;
   }
+}
+
+input:focus {
+  outline: none;
 }

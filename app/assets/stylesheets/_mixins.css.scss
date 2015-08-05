@@ -27,6 +27,13 @@
   transform: translateY(-50%);
 }
 
+%clean-button-or-input {
+  appearance: none;
+  box-shadow: none;
+  background: none;
+  border: 0;
+}
+
 //Fonts includer
 @mixin font-face($font-name, $font-file, $weight, $style: "normal") {
   @font-face {
@@ -64,6 +71,14 @@
     border-color: transparent $triangle-color transparent transparent;
     border-right-style: solid;
   }
+}
+
+//Forms mixins
+@mixin placeholder() {
+  &::-webkit-input-placeholder {@content}
+  &:-moz-placeholder {@content}
+  &::-moz-placeholder {@content}
+  &:-ms-input-placeholder {@content}
 }
 
 // A helper to transform PX to REM unit

@@ -127,6 +127,19 @@
             var data = _.pick(layerData, ['sql', 'cartocss', 'interactivity']);
             var options = { sublayers: [data] };
             layerInstance = new root.app.Helper.CartoDBLayer(this.map, options);
+            layerInstance.create(function(layer) {
+              layer.setOpacity(layerData.opacity);
+            });
+          break;
+          case 'raster':
+            var data = _.pick(layerData, ['sql', 'cartocss', 'interactivity']);
+            var options = {
+              sublayers: [ _.extend(data, { raster: true, raster_band: 1 }) ]
+            };
+            layerInstance = new root.app.Helper.CartoDBLayer(this.map, options);
+            layerInstance.create(function(layer) {
+              layer.setOpacity(layerData.opacity);
+            });
           break;
           default:
             layerInstance = null;
@@ -137,7 +150,10 @@
           throw 'Layer type hasn\'t been defined or it doesn\'t exist.';
         }
       } else {
-        console.info('Layer "' + layerData.id + '"" already exists.');
+        if (layer.layer) {
+          layer.layer.setOpacity(layerData.opacity);
+        }
+        // console.info('Layer "' + layerData.id + '"" already exists.');
       }
     },
 
