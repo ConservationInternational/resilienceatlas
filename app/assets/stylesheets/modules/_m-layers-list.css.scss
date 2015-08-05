@@ -1,4 +1,6 @@
 .m-layers-list {
+  font-size: rem(14px);
+
   ul {
     @extend %clean-lists;
 
@@ -30,6 +32,7 @@
 
   .header-switch {
     float: right;
+    margin-top: rem(2px);
   }
 
   ul ul & {
@@ -57,10 +60,12 @@
   .panel-item-title {
     float: left;
     max-width: 75%;
+    margin-left: rem(10px);
   }
 
   .panel-item-switch {
-    float: right;
+    float: left;
+    margin-top: rem(1px);
   }
 
   .m-layers-list & {
