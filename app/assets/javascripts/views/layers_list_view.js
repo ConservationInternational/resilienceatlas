@@ -13,7 +13,8 @@
 
     events: {
       'click .m-layers-list-header': 'activeList',
-      'change input': 'updateLayers'
+      'change input': 'updateLayers',
+      'change input.transparency-range' : 'updateTransparency'
     },
 
     initialize: function(settings) {
@@ -42,8 +43,15 @@
       var $el = $(e.currentTarget);
       var $list = $el.closest('li').find('ul:first');
       $list.toggleClass('is-active');
+    },
+
+    updateTransparency: function(e) {
+      var activeControl = e.currentTarget
+      var transparencyLevel = activeControl.value;
+      $(activeControl).siblings('.transparency-teller').html(transparencyLevel);
     }
 
   });
 
 })(this);
+
