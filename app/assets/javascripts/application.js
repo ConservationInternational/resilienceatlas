@@ -66,6 +66,11 @@
         layers: layersCollection
       });
 
+      var legendView = new root.app.View.Legend({
+        el: '#legendView',
+        layers: layersCollection
+      });
+
       // At begining create a map
       mapView.createMap();
 
@@ -103,6 +108,7 @@
         // Render views
         mapView.renderLayers();
         layersListView.render();
+        legendView.render();
 
       }.bind(this));
     },
