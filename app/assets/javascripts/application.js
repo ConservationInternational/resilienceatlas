@@ -83,9 +83,16 @@
           var activedLayers = JSON.parse(this.router.params.attributes.layers);
           var activedLayersIds = _.pluck(activedLayers, 'id');
           _.each(layersCollection.models, function(model) {
+            var routerLayer = _.findWhere(activedLayers, { id: model.id });
             var active = _.contains(activedLayersIds, model.id);
-            model.set('active', active, { silent: true });
+            var layerData = { active: active };
+            if (routerLayer) {
+              layerData.opacity = routerLayer.opacity;
+              layerData.order = routerLayer.order;
+            }
+            model.set(layerData, { silent: true });
           });
+          layersCollection.sort();
         } else if (routerParams) {
           var data = layersCollection.getActived();
           this.router.setParams('layers', data, ['id', 'opacity', 'order']);
