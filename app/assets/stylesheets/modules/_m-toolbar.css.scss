@@ -27,9 +27,16 @@
     margin: 0 rem(15px);
   }
 
+  span {
+    position: relative;
+    top: rem(3px);
+    margin-right: rem(5px);
+  }
+
   input {
     @extend %clean-button-or-input;
-    margin: 0 rem(15px);
+    width: rem(100px);
+    // margin: 0 rem(15px);
 
     @include placeholder() {
       font-size: rem(14px);
