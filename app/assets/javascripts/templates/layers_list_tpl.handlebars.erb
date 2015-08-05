@@ -22,11 +22,16 @@
                     <label for="layer_{{id}}"></label>
                   </div>
                   <div class="panel-item-title">{{name}}</div>
+                  <button class="panel-trasparecy-switcher">
+                    <span></span>
+                  </button>
                   <div class="panel-item-slider">
                     <div class="m-form-input--slider">
-                      <input type=range min=0 max=100 value=100 id=fader step=1 class="opacity-range">
+                      <div class="slider-wrapper">
+                        <input type=range min=0 max=100 value=100 id=fader step=1 class="opacity-range">
+                        <span class="opacity"></span>
+                      </div>
                       <label for=fader class="opacity-teller">100</label>
-                      <span class="opacity"></span>
                     </div>
                   </div>
                 </li>

@@ -14,7 +14,8 @@
     events: {
       'click .m-layers-list-header': 'activeList',
       'change input': 'updateLayers',
-      'input input.opacity-range' : 'updateTransparency'
+      'input input.opacity-range' : 'updateTransparency',
+      'click .panel-trasparecy-switcher' : 'openOpacityHandler'
     },
 
     initialize: function(settings) {
@@ -48,10 +49,14 @@
     updateTransparency: function(e) {
       var activeControl = e.currentTarget
       var transparencyLevel = activeControl.value;
-      $(activeControl).siblings('.opacity-teller').html(transparencyLevel);
+      $(activeControl).parent().siblings('.opacity-teller').html(transparencyLevel);
 
       var opacityBar = $(activeControl).siblings('.opacity');
       $(opacityBar).css({width: transparencyLevel + '%'});
+    },
+
+    openOpacityHandler: function(e) {
+      $(e.currentTarget).siblings('.panel-item-slider').toggleClass('is-open');
     }
 
   });

@@ -75,16 +75,28 @@
 
 .panel-item-slider {
   @include clearfix;
+  position: relative;
   clear: both;
+
+  height: 0;
+  overflow: hidden;
+  transition: .2s ease-in;
+
+  &.is-open {
+    height: rem(35px);
+  }
+}
+
+.panel-trasparecy-switcher {
+  float: right;
 }
 
 .m-form-input--slider {
-  position: relative;
-  height: rem(45px);
+  // position: relative;
 
   input[type="range"] {
     position: absolute;
-    bottom: 0;
+    bottom: 9px;
     left: 0;
     -webkit-appearance: none;
     appearance: none;
@@ -128,14 +140,30 @@
     }
   }
 
+
   .opacity {
     display: block;
     position: absolute;
-    bottom: 0;
+    bottom: 9px;
     left: 0;
     width: 100%;
     height: 3px;
     background-color: $font-color-1;
+  }
+
+  .slider-wrapper {
+    width: 85%;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+  }
+
+  .opacity-teller {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    color: $font-color-2;
+    font-size: 11px;
   }
 }
 
