@@ -18,13 +18,13 @@
   li {
     //To offset font line-height
     padding-top: rem(5px);
+    margin: 0 rem(10px);
   }
 
   button {
     @extend %clean-button-or-input;
     font-size: rem(14px);
     color: $font-color-1;
-    margin: 0 rem(15px);
   }
 
   span {
