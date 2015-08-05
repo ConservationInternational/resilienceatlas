@@ -141,6 +141,10 @@ GEM
       has_scope (~> 0.6.0.rc)
       railties (>= 3.2, < 5)
       responders
+    inline_svg (0.6.0)
+      activesupport (>= 4.1.9)
+      loofah (>= 2.0)
+      nokogiri (~> 1.6)
     jquery-rails (4.0.4)
       rails-dom-testing (~> 1.0)
       railties (>= 4.2.0)
@@ -344,6 +348,7 @@ DEPENDENCIES
   foreman
   handlebars_assets
   hirb
+  inline_svg
   jquery-rails
   json_spec
   meta_request
