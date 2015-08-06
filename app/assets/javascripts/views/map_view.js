@@ -10,7 +10,8 @@
     defaults: {
       map: {
         zoom: 4,
-        center: [39.5947265625, 8.928487062665504],
+        // center: [39.5947265625, 8.928487062665504],
+        center: [10, 26],
         zoomControl: false,
         scrollWheelZoom: false
       },
