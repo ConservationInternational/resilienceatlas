@@ -1,7 +1,12 @@
+.l-footer {
+  background-color: $bg-color-2;
+}
+
 .l-footer-nav {
+  @include clearfix;
   max-width: rem($content-width);
   margin: 0 auto;
-  @include clearfix;
+  color: $font-color-3;
 
   ul {
     @extend %clean-lists;
