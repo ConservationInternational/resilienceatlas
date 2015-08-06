@@ -18,6 +18,7 @@
     model: new (Backbone.Model.extend({
       defaults: {
         hidden: false,
+        order: []
       }
     })),
 
@@ -34,6 +35,7 @@
     },
 
     setListeners: function() {
+      _.bindAll(this,'setOrder');
       this.listenTo(this.model, 'change:hidden', this.changeVisibility);
       this.listenTo(this.layers, 'change', this.render);
     },
@@ -63,6 +65,9 @@
       }, this ));
     },
 
+    /**
+     * Set draggable beahaviour (jquery-ui sortable)
+     */
     setDraggable: function() {
       this.$legendList.sortable({
         axis: 'y',
@@ -71,9 +76,23 @@
         start: function(e, ui){
           ui.placeholder.height(ui.item.outerHeight());
         },
+        stop: this.setOrder,
       });
     },
 
+    setOrder: function(e, ui) {
+      _.each(this.$legendList.children('li'), _.bind(function(layer,i){
+        var currentModel = this.layers.get($(layer).data('id'));
+        currentModel.set('order', i + 1);
+      }, this ));
+      // sort layers
+      // this.layers.sort();
+    },
+
+
+    /**
+     * Set panel visibility
+     */
     setPanelVisibility: function(e) {
       this.model.set('hidden', !this.model.get('hidden'));
     },
@@ -83,6 +102,10 @@
       this.$content.toggleClass('is-hidden',this.model.get('hidden'));
     },
 
+
+    /**
+     * Set layer visibility
+     */
     setMapVisibility: function(e) {
       var $current = $(e.currentTarget);
       var currentModel = this.layers.get($current.data('id'));

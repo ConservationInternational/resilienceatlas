@@ -33,6 +33,7 @@
 
     setListeners: function() {
       this.listenTo(this.layers, 'change', this.renderLayers);
+      this.listenTo(this.layers, 'sort', this.renderLayers);
     },
 
     /**
@@ -98,6 +99,7 @@
      */
     renderLayers: function() {
       var layersData = this.layers.getPublished();
+      console.log(this.layers.getActived());
       _.each(layersData, function(layerData) {
         if (layerData.active) {
           this.addLayer(layerData);
@@ -152,6 +154,7 @@
       } else {
         if (layer.layer) {
           layer.layer.setOpacity(layerData.opacity);
+          layer.layer.setZIndex(1000-layerData.order);
         }
         // console.info('Layer "' + layerData.id + '"" already exists.');
       }

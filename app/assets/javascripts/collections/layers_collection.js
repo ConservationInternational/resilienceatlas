@@ -88,7 +88,7 @@
     },
 
     getActived: function() {
-      return _.where(this.toJSON(), { active: true, published: true });
+      return _.where(_.sortBy(this.toJSON(), 'order'), { active: true, published: true });
     },
 
     getPublished: function() {
