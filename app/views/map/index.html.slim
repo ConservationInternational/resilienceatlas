@@ -8,17 +8,20 @@
     ul
       li
         button 
-          span.icon-share 
-            = inline_svg "svg-icons/icon-share.svg"
+          span
+            svg.icon
+              use[xlink:href="#icon-share"]
           | Share
       li
         button 
-          span.icon-analyze 
-            = inline_svg "svg-icons/icon-analyze.svg"
+          span
+            svg.icon 
+              use[xlink:href="#icon-analyze"]
           | Analyze
       li
-        span.icon-search
-          = inline_svg "svg-icons/icon-search.svg"
+        span
+          svg.icon
+            use[xlink:href="#icon-search"]
         input(type="search"  placeholder="Search area")
   
   .m-legend#legendView
