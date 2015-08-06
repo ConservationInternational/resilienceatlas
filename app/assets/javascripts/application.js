@@ -3,6 +3,7 @@
 //= require underscore
 //= require backbone
 //= require handlebars
+//= require jquery-ui/sortable
 
 //= require ./helpers/class
 //= require ./helpers/cartodb_layer

@@ -21,7 +21,8 @@
     })),
 
     events: {
-      'click .btn-minimize' : 'setVisibility'
+      'click .btn-minimize' : 'setVisibility',
+      'click .btn-visibility' : 'setMapVisibility',
     },
 
     initialize: function(settings) {
@@ -39,12 +40,15 @@
     cacheVars: function() {
       this.$header = this.$el.find('.m-legend__header');
       this.$content = this.$el.find('.m-legend__content');
+      this.$legendList = this.$el.find('.m-legend__list');
     },
 
     render: function() {
       var data = this.setLegends();
       this.$el.html( this.template({ legends: data}) );
+
       this.cacheVars();
+      this.setDraggable();
     },
 
     setLegends: function() {
@@ -58,6 +62,16 @@
       }, this ));
     },
 
+    setDraggable: function() {
+      this.$legendList.sortable({
+        axis: 'y',
+        items: ".drag-items",
+        start: function(e, ui){
+          ui.placeholder.height(ui.item.outerHeight());
+        },
+      });
+    },
+
     setVisibility: function(e) {
       this.model.set('hidden', !this.model.get('hidden'));
     },
@@ -65,7 +79,11 @@
     changeVisibility: function() {
       this.$header.toggleClass('is-minimize',this.model.get('hidden'));
       this.$content.toggleClass('is-hidden',this.model.get('hidden'));
-    }
+    },
+
+    setMapVisibility: function(e) {
+      console.log('set opacity to 0 of layer' + $(e.currentTarget).data('id') );
+    },
 
   });
 

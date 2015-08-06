@@ -5,14 +5,47 @@
 <div class="m-legend__content">
   <ul class="m-legend__list">
   {{#each legends}}
-    <li>
+    <li class="drag-items">
       <header>
         <h3>{{this.name}}</h3>
+        <div class="actions">
+          <button class="btn-action btn-visibility" data-id="{{this.id}}">V</button>
+          <span class="btn-action btn-drag">D</span>
+        </div>
       </header>
       {{#if this.tpl}}
         {{{this.tpl}}}
       {{/if}}
     </li>
   {{/each}}
+    <li class="drag-items">
+      <header>
+        <h3>Test1</h3>
+        <div class="actions">
+          <button class="btn-action btn-visibility" data-id="3">V</button>
+          <span class="btn-action btn-drag">D</span>
+        </div>
+      </header>
+    </li>
+    <li class="drag-items">
+      <header>
+        <h3>Test2</h3>
+        <div class="actions">
+          <button class="btn-action btn-visibility" data-id="4">V</button>
+          <span class="btn-action btn-drag">D</span>
+        </div>
+      </header>
+    </li>
+    <li class="drag-items">
+      <header>
+        <h3>Test3</h3>
+        <div class="actions">
+          <button class="btn-action btn-visibility" data-id="6">V</button>
+          <span class="btn-action btn-drag">D</span>
+        </div>
+      </header>
+    </li>
+
+
   </ul>
 </div>

@@ -337,6 +337,7 @@ DEPENDENCIES
   hirb
   inline_svg
   jquery-rails
+  jquery-ui-rails
   json_spec
   meta_request
   pg

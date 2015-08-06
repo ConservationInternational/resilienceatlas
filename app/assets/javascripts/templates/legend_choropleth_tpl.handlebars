@@ -1,9 +1,9 @@
-<ul class="m-legend__choropleth">
+<div class="m-legend__choropleth">
   {{#each bucket}}
-    <li style="background-color: {{this}}"></li>
+    <div class="item" style="background-color: {{this}}"></div>
   {{/each}}
   <div class="numbers">
     <span>{{min}}</span>
     <span>{{max}}</span>
   </div>
-</ul>
+</div>
