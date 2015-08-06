@@ -13,7 +13,9 @@
 
     events: {
       'click .m-layers-list-header': 'activeList',
-      'change input': 'updateLayers'
+      'change input': 'updateLayers',
+      'input input.opacity-range' : 'updateTransparency',
+      'click .panel-trasparecy-switcher' : 'openOpacityHandler'
     },
 
     initialize: function(settings) {
@@ -42,8 +44,21 @@
       var $el = $(e.currentTarget);
       var $list = $el.closest('li').find('ul:first');
       $list.toggleClass('is-active');
+    },
+
+    updateTransparency: function(e) {
+      var activeControl = e.currentTarget
+      var transparencyLevel = activeControl.value;
+
+      $(activeControl).parent().siblings('.opacity-teller').html(transparencyLevel);
+      $(activeControl).siblings('.opacity').css({width: transparencyLevel + '%'});
+    },
+
+    openOpacityHandler: function(e) {
+      $(e.currentTarget).parent().toggleClass('is-open');
     }
 
   });
 
 })(this);
+

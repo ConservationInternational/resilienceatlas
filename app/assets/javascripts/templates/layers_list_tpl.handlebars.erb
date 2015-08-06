@@ -4,7 +4,7 @@
       <div class="m-layers-list-header">
         <div class="header-title">{{name}}</div>
       </div>
-      <ul{{#if active}} class="is-active"{{/if}}>
+      <ul {{#if active}} class="is-active"{{/if}}>
         {{#each categories}}
           <li>
             <div class="m-layers-list-header">
@@ -22,9 +22,18 @@
                     <label for="layer_{{id}}"></label>
                   </div>
                   <div class="panel-item-title">{{name}}</div>
+                  <button class="panel-trasparecy-switcher">
+                    <svg class="icon-settings">
+                      <use xlink:href="#icon-settings"></use>
+                    </svg>
+                  </button>
                   <div class="panel-item-slider">
                     <div class="m-form-input--slider">
-                      <input type="hidden">
+                      <div class="slider-wrapper">
+                        <input type=range min=0 max=100 value=100 id=fader step=1 class="opacity-range">
+                        <span class="opacity"></span>
+                      </div>
+                      <label for=fader class="opacity-teller">100</label>
                     </div>
                   </div>
                 </li>
