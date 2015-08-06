@@ -6,6 +6,9 @@
   height: 100%;
 }
 
+/*
+  Map controls
+ */
 .leaflet-top.leaflet-right {
   position: static; //Lets zoom control to take position after map container.
 }
@@ -17,7 +20,7 @@
 
 .leaflet-control-zoom {
   position: absolute;
-  top: rem(30px);
+  top: rem(15px);
   right: rem(400px);
   z-index: 1;
 }
