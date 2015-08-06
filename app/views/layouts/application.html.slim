@@ -10,6 +10,7 @@ html lang="#{I18n.locale}"
     = csrf_meta_tags
 
   body
+    = render :partial => "partials/icons"
     == render "layouts/header"
     .l-main
       == yield
