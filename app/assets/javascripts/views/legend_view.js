@@ -11,7 +11,8 @@
 
     template: HandlebarsTemplates['legend_tpl'],
     templateLegends: {
-      choropleth : HandlebarsTemplates['legend_choropleth_tpl']
+      choropleth : HandlebarsTemplates['legend_choropleth_tpl'],
+      custom : HandlebarsTemplates['legend_custom_tpl']
     },
 
     model: new (Backbone.Model.extend({
@@ -21,7 +22,7 @@
     })),
 
     events: {
-      'click .btn-minimize' : 'setVisibility',
+      'click .btn-minimize' : 'setPanelVisibility',
       'click .btn-visibility' : 'setMapVisibility',
     },
 
@@ -66,13 +67,14 @@
       this.$legendList.sortable({
         axis: 'y',
         items: ".drag-items",
+        tolerance: 'pointer',
         start: function(e, ui){
           ui.placeholder.height(ui.item.outerHeight());
         },
       });
     },
 
-    setVisibility: function(e) {
+    setPanelVisibility: function(e) {
       this.model.set('hidden', !this.model.get('hidden'));
     },
 

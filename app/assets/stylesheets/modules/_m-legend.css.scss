@@ -65,18 +65,17 @@ $legend-width: 350px;
   }
 
   .m-legend__content {
-    margin: rem(8px) 0;
+    // margin: rem(8px) 0;
   }
 
   // LIST OF LEGENDS
   .m-legend__list {
     .drag-items{
-      margin: rem(8px) 0;
-      &:first-child{
-        margin: 0;
-      }
+      padding: rem(8px) 0;
       &.ui-sortable-placeholder {
-        background: yellow !important;
+        padding: 0;
+        visibility: visible !important;
+        background: $bg-color-3;
       }
       header{
         position: relative;
@@ -103,6 +102,9 @@ $legend-width: 350px;
             outline: 0;
             cursor: pointer;
             position: relative;
+            &.btn-drag {
+              cursor: move;
+            }
             svg{
               display: block;
               width: 13px;
@@ -120,6 +122,7 @@ $legend-width: 350px;
   }
 
   // TYPES OF LEGEND
+  // choropleth
   .m-legend__choropleth {
     position: relative;
     display: flex;
@@ -140,6 +143,32 @@ $legend-width: 350px;
       align-items: center;
       font-size: 12px;
       font-weight: 400;
+    }
+  }
+
+  // custom
+  .m-legend__custom {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    padding: rem(4px) 0 0;
+    .item{
+      width: 50%;
+      position: relative;
+      font-size: 10px;
+      text-transform: uppercase;
+      padding: rem(2px) 0 rem(2px) 20px;
+      font-weight: 300;
+      span{
+        position: absolute;
+        top: rem(2px);
+        left: 0;
+        display: block;
+        width: 15px;
+        height: 9px;
+      }
     }
   }
 
