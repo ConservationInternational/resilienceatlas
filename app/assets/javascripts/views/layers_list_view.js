@@ -49,14 +49,13 @@
     updateTransparency: function(e) {
       var activeControl = e.currentTarget
       var transparencyLevel = activeControl.value;
-      $(activeControl).parent().siblings('.opacity-teller').html(transparencyLevel);
 
-      var opacityBar = $(activeControl).siblings('.opacity');
-      $(opacityBar).css({width: transparencyLevel + '%'});
+      $(activeControl).parent().siblings('.opacity-teller').html(transparencyLevel);
+      $(activeControl).siblings('.opacity').css({width: transparencyLevel + '%'});
     },
 
     openOpacityHandler: function(e) {
-      $(e.currentTarget).siblings('.panel-item-slider').toggleClass('is-open');
+      $(e.currentTarget).parent().toggleClass('is-open');
     }
 
   });
