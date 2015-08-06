@@ -9,8 +9,16 @@
       <header>
         <h3>{{this.name}}</h3>
         <div class="actions">
-          <button class="btn-action btn-visibility" data-id="{{this.id}}">V</button>
-          <span class="btn-action btn-drag">D</span>
+          <button class="btn-action btn-visibility {{#if this.opacity_prev}}is-active{{/if}}" data-id="{{this.id}}">
+            {{#if this.opacity_prev}}
+              <svg><use xlink:href="#icon-visibilityoff"></use></svg>
+            {{else}}
+              <svg><use xlink:href="#icon-visibilityon"></use></svg>
+            {{/if}}
+          </button>
+          <span class="btn-action btn-drag">
+            <svg><use xlink:href="#icon-drag"></use></svg>
+          </span>
         </div>
       </header>
       {{#if this.tpl}}
@@ -22,28 +30,79 @@
       <header>
         <h3>Test1</h3>
         <div class="actions">
-          <button class="btn-action btn-visibility" data-id="3">V</button>
-          <span class="btn-action btn-drag">D</span>
+          <button class="btn-action btn-visibility" data-id="3">
+            <svg><use xlink:href="#icon-visibilityon"></use></svg>
+          </button>
+          <span class="btn-action btn-drag">
+            <svg><use xlink:href="#icon-drag"></use></svg>
+          </span>
         </div>
       </header>
+      <div class="m-legend__choropleth">
+        <div class="item" style="background-color: #1a9850"></div>
+        <div class="item" style="background-color: #8cce8a"></div>
+        <div class="item" style="background-color: #d2ecb4"></div>
+        <div class="item" style="background-color: #fff2cc"></div>
+        <div class="item" style="background-color: #fed6b0"></div>
+        <div class="item" style="background-color: #f79272"></div>
+        <div class="item" style="background-color: #d73027"></div>
+        <div class="numbers">
+          <span>50</span>
+          <span>1200</span>
+        </div>
+      </div>
     </li>
     <li class="drag-items">
       <header>
         <h3>Test2</h3>
         <div class="actions">
-          <button class="btn-action btn-visibility" data-id="4">V</button>
-          <span class="btn-action btn-drag">D</span>
+          <button class="btn-action btn-visibility" data-id="4">
+            <svg><use xlink:href="#icon-visibilityon"></use></svg>
+          </button>
+          <span class="btn-action btn-drag">
+            <svg><use xlink:href="#icon-drag"></use></svg>
+          </span>
         </div>
       </header>
+      <div class="m-legend__choropleth">
+        <div class="item" style="background-color: #1a9850"></div>
+        <div class="item" style="background-color: #8cce8a"></div>
+        <div class="item" style="background-color: #d2ecb4"></div>
+        <div class="item" style="background-color: #fff2cc"></div>
+        <div class="item" style="background-color: #fed6b0"></div>
+        <div class="item" style="background-color: #f79272"></div>
+        <div class="item" style="background-color: #d73027"></div>
+        <div class="numbers">
+          <span>50</span>
+          <span>1200</span>
+        </div>
+      </div>
     </li>
     <li class="drag-items">
       <header>
         <h3>Test3</h3>
         <div class="actions">
-          <button class="btn-action btn-visibility" data-id="6">V</button>
-          <span class="btn-action btn-drag">D</span>
+          <button class="btn-action btn-visibility" data-id="6">
+            <svg><use xlink:href="#icon-visibilityon"></use></svg>
+          </button>
+          <span class="btn-action btn-drag">
+            <svg><use xlink:href="#icon-drag"></use></svg>
+          </span>
         </div>
       </header>
+      <div class="m-legend__choropleth">
+        <div class="item" style="background-color: #1a9850"></div>
+        <div class="item" style="background-color: #8cce8a"></div>
+        <div class="item" style="background-color: #d2ecb4"></div>
+        <div class="item" style="background-color: #fff2cc"></div>
+        <div class="item" style="background-color: #fed6b0"></div>
+        <div class="item" style="background-color: #f79272"></div>
+        <div class="item" style="background-color: #d73027"></div>
+        <div class="numbers">
+          <span>50</span>
+          <span>1200</span>
+        </div>
+      </div>
     </li>
 
 

@@ -16,7 +16,7 @@
 
     model: new (Backbone.Model.extend({
       defaults: {
-        hidden: false
+        hidden: false,
       }
     })),
 
@@ -82,7 +82,16 @@
     },
 
     setMapVisibility: function(e) {
-      console.log('set opacity to 0 of layer' + $(e.currentTarget).data('id') );
+      var $current = $(e.currentTarget);
+      var currentModel = this.layers.get($current.data('id'));
+      // Layer model sets
+      if ($current.hasClass('is-active')) {
+        currentModel.set('opacity', currentModel.get('opacity_prev'));
+        currentModel.set('opacity_prev', null);
+      } else {
+        currentModel.set('opacity_prev', currentModel.get('opacity'));
+        currentModel.set('opacity', 0);
+      }
     },
 
   });
