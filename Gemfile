@@ -10,7 +10,6 @@ gem 'uglifier', '>= 1.3.0'
 gem 'slim-rails'
 gem 'autoprefixer-rails'
 gem 'handlebars_assets'
-gem 'inline_svg'
 
 gem 'pg'
 gem 'devise'
