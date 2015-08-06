@@ -1,0 +1,10 @@
+.icon {
+
+  .m-toolbar & {
+    width: rem(15px);
+    height: rem(15px);
+    margin-right: rem(5px);
+
+    fill: $bg-color-4;
+  }
+}
