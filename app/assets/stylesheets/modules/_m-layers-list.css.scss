@@ -16,12 +16,26 @@
 }
 
 .m-layers-list-header {
-  padding: rem(10px) rem(15px);
+  @include clearfix;
+  position: relative;
+  padding: rem(10px) rem(15px) rem(10px) rem(20px);
   color: $font-color-3;
   background-color: $bg-color-2;
   text-align: center;
 
-  @include clearfix;
+  &:before {
+    @include equi-triangle(5px, $font-color-3, left);
+    @extend %centery;
+    left: rem(10px);
+    transition: .2s ease;
+    transform-origin: rem(2px);
+  }
+
+  &.is-active {
+    &:before {
+      transform: translateY(-50%) rotate(90deg);
+    }
+  }
 
   .header-title {
     float: left;
@@ -36,9 +50,16 @@
   }
 
   ul ul & {
+    padding: rem(15px) rem(15px) rem(10px) rem(20px);
     color: $font-color-1;
     background-color: $bg-color-1;
     text-align: left;
+
+    &:before {
+      @include equi-triangle(5px, $font-color-1, left);
+      @extend %centery;
+      left: rem(10px);
+    }
 
     .header-title {
       max-width: 85%;
@@ -187,7 +208,7 @@
     position: absolute;
     bottom: 0;
     right: 6px;
-    color: $font-color-2;
+    color: $font-color-1;
     font-size: 11px;
   }
 }
