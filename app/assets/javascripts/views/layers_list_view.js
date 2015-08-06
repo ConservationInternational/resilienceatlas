@@ -44,13 +44,14 @@
       var $el = $(e.currentTarget);
       var $list = $el.closest('li').find('ul:first');
       $list.toggleClass('is-active');
+      $el.toggleClass('is-active');
     },
 
     updateTransparency: function(e) {
       var activeControl = e.currentTarget
       var transparencyLevel = activeControl.value;
 
-      $(activeControl).parent().siblings('.opacity-teller').html(transparencyLevel);
+      $(activeControl).parent().siblings('.opacity-teller').html(transparencyLevel + '%');
       $(activeControl).siblings('.opacity').css({width: transparencyLevel + '%'});
     },
 

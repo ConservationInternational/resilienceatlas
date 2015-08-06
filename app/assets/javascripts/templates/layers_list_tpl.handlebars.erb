@@ -1,13 +1,13 @@
 <ul>
   {{#each groups}}
     <li>
-      <div class="m-layers-list-header">
+      <div class="m-layers-list-header {{#if active}}is-active{{/if}}">
         <div class="header-title">{{name}}</div>
       </div>
       <ul {{#if active}} class="is-active"{{/if}}>
         {{#each categories}}
           <li>
-            <div class="m-layers-list-header">
+            <div class="m-layers-list-header {{#if active}}is-active{{/if}}">
               <div class="header-title">{{name}}</div>
               <div class="header-switch m-form-input--switch">
                 <input type="checkbox" id="category_{{id}}" {{#if active}}checked{{/if}}>
