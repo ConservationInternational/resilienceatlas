@@ -10,12 +10,14 @@
     defaults: {
       map: {
         zoom: 4,
-        center: [39.5947265625, 8.928487062665504],
+        // center: [39.5947265625, 8.928487062665504],
+        center: [10, 26],
         zoomControl: false,
         scrollWheelZoom: false
       },
       basemap: {
-        url: 'http://{s}.api.cartocdn.com/base-light/{z}/{x}/{y}.png'
+        // url: 'http://{s}.api.cartocdn.com/base-light/{z}/{x}/{y}.png'
+        url: 'http://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}'
       },
       zoomControl: {
         position: 'topright'

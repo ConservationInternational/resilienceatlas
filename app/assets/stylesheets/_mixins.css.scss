@@ -32,6 +32,11 @@
   box-shadow: none;
   background: none;
   border: 0;
+
+  &:focus {
+    border: 0;
+    outline: 0;
+  }
 }
 
 //Fonts includer
