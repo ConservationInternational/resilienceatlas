@@ -35,6 +35,7 @@
 
     setListeners: function() {
       this.listenTo(this.layers, 'change', this.renderLayers);
+      // this.listenTo(this.layers, 'sort', this.renderLayers);
     },
 
     /**
@@ -131,6 +132,7 @@
             layerInstance = new root.app.Helper.CartoDBLayer(this.map, options);
             layerInstance.create(function(layer) {
               layer.setOpacity(layerData.opacity);
+              layer.setZIndex(1000-layerData.order);
             });
           break;
           case 'raster':
@@ -141,6 +143,7 @@
             layerInstance = new root.app.Helper.CartoDBLayer(this.map, options);
             layerInstance.create(function(layer) {
               layer.setOpacity(layerData.opacity);
+              layer.setZIndex(1000-layerData.order);
             });
           break;
           default:
@@ -154,6 +157,7 @@
       } else {
         if (layer.layer) {
           layer.layer.setOpacity(layerData.opacity);
+          layer.layer.setZIndex(1000-layerData.order);
         }
         // console.info('Layer "' + layerData.id + '"" already exists.');
       }

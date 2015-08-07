@@ -3,6 +3,7 @@
 //= require underscore
 //= require backbone
 //= require handlebars
+//= require jquery-ui/sortable
 
 //= require ./helpers/class
 //= require ./helpers/cartodb_layer
@@ -66,6 +67,11 @@
         layers: layersCollection
       });
 
+      var legendView = new root.app.View.Legend({
+        el: '#legendView',
+        layers: layersCollection
+      });
+
       // At begining create a map
       mapView.createMap();
 
@@ -110,6 +116,7 @@
         // Render views
         mapView.renderLayers();
         layersListView.render();
+        legendView.render();
 
       }.bind(this));
     },

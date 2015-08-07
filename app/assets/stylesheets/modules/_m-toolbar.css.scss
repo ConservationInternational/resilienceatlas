@@ -1,5 +1,8 @@
+$toolbar-width: 350px;
+
 .m-toolbar {
   position: absolute;
+  width: rem($toolbar-width);
   right: rem(15px);
   top: rem(15px);
   z-index: 1;

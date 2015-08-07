@@ -48,6 +48,7 @@
           color: d.attributes.color,
           opacity: d.attributes.opacity,
           order: d.attributes.order || 0,
+          legend: d.attributes.legend,
           group: group ? parseInt(group.id) : null,
           active: d.attributes.active,
           published: d.attributes.published
@@ -87,11 +88,11 @@
     },
 
     getActived: function() {
-      return _.where(this.toJSON(), { active: true, published: true });
+      return _.where(_.sortBy(this.toJSON(), 'order'), { active: true, published: true });
     },
 
     getPublished: function() {
-      return _.where(this.toJSON(), { published: true });
+      return _.where(_.sortBy(this.toJSON(), 'order'), { published: true });
     }
 
   });
