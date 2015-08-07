@@ -1,0 +1,36 @@
+{
+  "id": 1,
+  "name": "lorem-ipsum",
+
+  "steps": [{
+    "number": 1,
+    "type": "cover",
+    "align": "right",
+    "content": "<h1>Title</h1><p>lorem ipsum</p>",
+    "background": "",
+    "layers": [
+      { "id": 1, "opacity": 0.1, "order": 2 },
+      { "id": 2, "opacity": 0.1, "order": 2 }
+    ],
+    "chart": {
+      "type": "line",
+      "data": [{ "x": 1999920202, "y": 200 }]
+    }
+  },
+  {
+    "number": 2,
+    "type": "cover",
+    "align": "right",
+    "content": "<h1>Title</h1><p>lorem ipsum</p>",
+    "background": "",
+    "layers": [
+      { "id": 1, "opacity": 0.1, "order": 2 },
+      { "id": 2, "opacity": 0.1, "order": 2 }
+    ],
+    "chart": {
+      "type": "line",
+      "data": [{ "x": 1999920202, "y": 200 }]
+    }
+  }]
+
+}

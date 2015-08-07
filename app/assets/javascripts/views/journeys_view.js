@@ -11,7 +11,8 @@
       var opts = settings && settings.options ? settings.options : {};
       this.options = _.extend({}, this.defaults, opts);
 
-      console.log('journey started!');
+      this.journey = settings.journey;
+      console.log(this.journey)
     }
 
   });

@@ -124,7 +124,20 @@
     },
 
     journeysPage: function() {
-      var journeyView = new root.app.View.Journeys({});
+      //Aqui recibimos el id del journey del router para pedir sólo el que queramos.
+      var journeysCollection = new root.app.Collection.Journeys();
+
+      // Fetching data
+      var complete = _.invoke([
+        journeysCollection
+      ], 'fetch');
+
+      $.when.apply($, complete).done(function() {
+        var journeyView = new root.app.View.Journeys({
+          journey: journeysCollection
+        });
+      }.bind(this));
+
     },
 
     start: function() {
