@@ -14,8 +14,8 @@
     events: {
       'click .m-layers-list-header': 'activeList',
       'change input': 'updateLayers',
-      'input input.opacity-range' : 'updateTransparency',
-      'click .panel-trasparecy-switcher' : 'openOpacityHandler'
+      'input input.opacity-range' : 'setOpacity',
+      'click .panel-trasparecy-switcher' : 'openOpacity'
     },
 
     initialize: function(settings) {
@@ -47,7 +47,9 @@
       $el.toggleClass('is-active');
     },
 
-    updateTransparency: function(e) {
+
+    // Handles opacity ui and update map layers
+    setOpacity: function(e) {
       var activeControl = e.currentTarget
       var transparencyLevel = activeControl.value;
       var model = this.layers.get($(activeControl).data('id'));
@@ -56,10 +58,9 @@
       $(activeControl).siblings('.opacity').css({width: transparencyLevel + '%'});
 
       model.set('opacity',transparencyLevel/100);
-
     },
 
-    openOpacityHandler: function(e) {
+    openOpacity: function(e) {
       $(e.currentTarget).parent().toggleClass('is-open');
     }
 
