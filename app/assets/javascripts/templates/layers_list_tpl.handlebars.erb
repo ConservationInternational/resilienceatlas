@@ -11,8 +11,8 @@
               <li>
                 <div class="m-layers-list-header {{#if active}}is-active{{/if}}">
                   <div class="header-title">{{name}}</div>
-                  <div id="categoryHeader_{{id}}" class="header-switch m-form-input--switch {{#if active}}is-active{{/if}}">
-                    <input type="checkbox" id="category_{{id}}">
+                  <div id="categoryHeader_{{id}}" class="header-switch m-form-input--switch">
+                    <input type="checkbox" id="category_{{id}}" {{#if active}}checked{{/if}}>
                     <label for="category_{{id}}"></label>
                   </div>
                 </div>
@@ -20,7 +20,7 @@
                   {{#each layers}}
                     <li>
                       <div class="panel-item-switch m-form-input--switch">
-                        <input type="checkbox" id="layer_{{id}}" {{#if active}}checked{{/if}}>
+                        <input type="checkbox" class="panel-input-switch" id="layer_{{id}}" {{#if active}}checked{{/if}}>
                         <label for="layer_{{id}}"></label>
                       </div>
                       <div class="panel-item-title">{{name}}</div>

@@ -95,9 +95,9 @@
       return _.where(_.sortBy(this.toJSON(), 'order'), { published: true });
     },
 
-    getCategoriesActived: function() {
+    getCategories: function() {
       var categories = _.flatten(_.pluck(this.getGrouped(), 'categories'));
-      return _.where(categories, { active: true });
+      return categories;
     },
 
   });

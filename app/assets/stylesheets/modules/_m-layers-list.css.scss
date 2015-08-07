@@ -48,10 +48,6 @@
   .header-switch {
     float: right;
     margin-top: rem(2px);
-    display: none;
-    &.is-active{
-      display: block;
-    }
   }
 
   ul ul & {

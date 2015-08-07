@@ -12,8 +12,8 @@
     template: HandlebarsTemplates['layers_list_tpl'],
 
     events: {
-      'click .m-layers-list-header': 'activeList',
-      'change input': 'updateLayers',
+      'click .m-layers-list-header': 'toggleCategories',
+      'change .panel-input-switch': 'toggleLayers',
       'input input.opacity-range' : 'updateTransparency',
       'click .panel-trasparecy-switcher' : 'openOpacityHandler'
     },
@@ -39,7 +39,7 @@
       this.$headerSwitch = $('.header-switch');
     },
 
-    updateLayers: function() {
+    toggleLayers: function() {
       var checkboxes = this.$el.find('.panel-item-switch input:checked');
       var activedIds = _.map(checkboxes, function(el) {
         return parseInt(el.id.split('layer_')[1]);
@@ -50,15 +50,19 @@
       });
     },
 
+    toggleAllLayers: function() {
+
+    },
+
     toggleCategoriesSwitches: function() {
-      var categoriesActived = this.layers.getCategoriesActived();
-      this.$headerSwitch.removeClass('is-active');
-      _.each(categoriesActived, function(c){
-        $('#categoryHeader_'+c.id).addClass('is-active');
+      var categories = this.layers.getCategories();
+      _.each(categories, function(c){
+        $('#categoryHeader_'+c.id).find('input').prop('checked',c.active);
       });
     },
 
-    activeList: function(e) {
+    // Toggle categories
+    toggleCategories: function(e) {
       var $el = $(e.currentTarget);
       var $list = $el.closest('li').find('ul:first');
       $list.toggleClass('is-active');
