@@ -13,6 +13,7 @@
 
     events: {
       'click .m-layers-list-header': 'toggleCategories',
+      'change .header-input-switch': 'toggleAllLayers',
       'change .panel-input-switch': 'toggleLayers',
       'input input.opacity-range' : 'updateTransparency',
       'click .panel-trasparecy-switcher' : 'openOpacityHandler'
@@ -50,8 +51,12 @@
       });
     },
 
-    toggleAllLayers: function() {
-
+    toggleAllLayers: function(e) {
+      var $el = $(e.currentTarget);
+      var $ul = $el.closest('li').find('ul:first');
+      var checked = $el.prop('checked');
+      $ul.find('.panel-item-switch input').prop('checked',checked);
+      this.toggleLayers();
     },
 
     toggleCategoriesSwitches: function() {
