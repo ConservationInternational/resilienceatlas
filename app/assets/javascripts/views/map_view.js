@@ -35,7 +35,7 @@
 
     setListeners: function() {
       this.listenTo(this.layers, 'change', this.renderLayers);
-      this.listenTo(this.layers, 'sort', this.renderLayers);
+      // this.listenTo(this.layers, 'sort', this.renderLayers);
     },
 
     /**
@@ -101,7 +101,6 @@
      */
     renderLayers: function() {
       var layersData = this.layers.getPublished();
-      console.log(this.layers.getActived());
       _.each(layersData, function(layerData) {
         if (layerData.active) {
           this.addLayer(layerData);
@@ -133,6 +132,7 @@
             layerInstance = new root.app.Helper.CartoDBLayer(this.map, options);
             layerInstance.create(function(layer) {
               layer.setOpacity(layerData.opacity);
+              layer.setZIndex(1000-layerData.order);
             });
           break;
           case 'raster':
@@ -143,6 +143,7 @@
             layerInstance = new root.app.Helper.CartoDBLayer(this.map, options);
             layerInstance.create(function(layer) {
               layer.setOpacity(layerData.opacity);
+              layer.setZIndex(1000-layerData.order);
             });
           break;
           default:

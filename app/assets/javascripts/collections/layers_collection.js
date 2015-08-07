@@ -92,7 +92,7 @@
     },
 
     getPublished: function() {
-      return _.where(this.toJSON(), { published: true });
+      return _.where(_.sortBy(this.toJSON(), 'order'), { published: true });
     }
 
   });
