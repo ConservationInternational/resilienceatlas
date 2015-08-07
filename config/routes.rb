@@ -17,5 +17,6 @@ Rails.application.routes.draw do
   root 'welcome#index'
   get 'map', to: 'map#index'
   get 'about', to: 'about#index'
+  get 'journeys', to: 'journeys#index'
 
 end
