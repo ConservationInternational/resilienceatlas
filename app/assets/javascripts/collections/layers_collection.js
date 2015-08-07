@@ -93,7 +93,12 @@
 
     getPublished: function() {
       return _.where(_.sortBy(this.toJSON(), 'order'), { published: true });
-    }
+    },
+
+    getCategoriesActived: function() {
+      var categories = _.flatten(_.pluck(this.getGrouped(), 'categories'));
+      return _.where(categories, { active: true });
+    },
 
   });
 

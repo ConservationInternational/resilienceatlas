@@ -22,11 +22,21 @@
       var opts = settings && settings.options ? settings.options : {};
       this.options = _.extend({}, this.defaults, opts);
       this.layers = settings.layers;
+      this.setListeners();
+    },
+
+    setListeners: function() {
+      this.listenTo(this.layers, 'change:active', this.toggleCategoriesSwitches);
     },
 
     render: function() {
       var data = { groups: this.layers.getGrouped() };
       this.$el.html( this.template( data ) );
+      this.cacheVars();
+    },
+
+    cacheVars: function() {
+      this.$headerSwitch = $('.header-switch');
     },
 
     updateLayers: function() {
@@ -37,6 +47,14 @@
       _.each(this.layers.models, function(model) {
         var active = _.contains(activedIds, model.id);
         model.set('active', active);
+      });
+    },
+
+    toggleCategoriesSwitches: function() {
+      var categoriesActived = this.layers.getCategoriesActived();
+      this.$headerSwitch.removeClass('is-active');
+      _.each(categoriesActived, function(c){
+        $('#categoryHeader_'+c.id).addClass('is-active');
       });
     },
 
