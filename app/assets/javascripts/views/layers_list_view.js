@@ -50,9 +50,13 @@
     updateTransparency: function(e) {
       var activeControl = e.currentTarget
       var transparencyLevel = activeControl.value;
+      var model = this.layers.get($(activeControl).data('id'));
 
       $(activeControl).parent().siblings('.opacity-teller').html(transparencyLevel + '%');
       $(activeControl).siblings('.opacity').css({width: transparencyLevel + '%'});
+
+      model.set('opacity',transparencyLevel/100);
+
     },
 
     openOpacityHandler: function(e) {

@@ -74,6 +74,10 @@
         return _.extend(g, {
           categories: _.map(categories, function(c) {
             var layers = _.where(data, { group: c.id });
+            _.map(layers, function(layer){
+              layer.opacity_text = layer.opacity*100
+              return layer;
+            });
             // Forcing category activation
             var isActive = _.contains(_.pluck(layers, 'active'), true);
             if (isActive) {
