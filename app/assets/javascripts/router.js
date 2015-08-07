@@ -13,7 +13,8 @@
 
     routes: {
       '': 'welcome',
-      'map': 'map'
+      'map': 'map',
+      'journeys': 'journeys'
     },
 
     ParamsModel: Backbone.Model.extend({}),

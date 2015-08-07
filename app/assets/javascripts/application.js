@@ -51,6 +51,8 @@
 
       // Initializing map
       this.listenTo(this.router, 'route:map', this.mapPage);
+
+      this.listenTo(this.router, 'route:journeys', this.journeysPage)
     },
 
     mapPage: function() {
@@ -119,6 +121,10 @@
         legendView.render();
 
       }.bind(this));
+    },
+
+    journeysPage: function() {
+      var journeyView = new root.app.View.Journeys({});
     },
 
     start: function() {
