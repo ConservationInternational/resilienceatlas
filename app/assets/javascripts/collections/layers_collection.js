@@ -97,7 +97,12 @@
 
     getPublished: function() {
       return _.where(_.sortBy(this.toJSON(), 'order'), { published: true });
-    }
+    },
+
+    getCategories: function() {
+      var categories = _.flatten(_.pluck(this.getGrouped(), 'categories'));
+      return categories;
+    },
 
   });
 
