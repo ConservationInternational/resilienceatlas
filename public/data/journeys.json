@@ -1,36 +1,38 @@
-{
-  "id": 1,
-  "name": "lorem-ipsum",
-
-  "steps": [{
-    "number": 1,
-    "type": "cover",
-    "align": "right",
-    "content": "<h1>Title</h1><p>lorem ipsum</p>",
-    "background": "",
-    "layers": [
-      { "id": 1, "opacity": 0.1, "order": 2 },
-      { "id": 2, "opacity": 0.1, "order": 2 }
-    ],
-    "chart": {
-      "type": "line",
-      "data": [{ "x": 1999920202, "y": 200 }]
-    }
-  },
+[
   {
-    "number": 2,
-    "type": "cover",
-    "align": "right",
-    "content": "<h1>Title</h1><p>lorem ipsum</p>",
-    "background": "",
-    "layers": [
-      { "id": 1, "opacity": 0.1, "order": 2 },
-      { "id": 2, "opacity": 0.1, "order": 2 }
-    ],
-    "chart": {
-      "type": "line",
-      "data": [{ "x": 1999920202, "y": 200 }]
-    }
-  }]
+    "id": 1,
+    "title": "ETHIOPIA",
+    "subtitle": "Agricultural Livelihoods & Climate Change in Ethiopia",
 
-}
+    "steps": [
+      {
+        "number": 0,
+        "type": "landing",
+        "title": "ETHIOPIA",
+        "subtitle": "Agricultural Livelihoods & Climate Change in Ethiopia",
+        "background": "ethiopia-bg.png"
+      },
+      {
+        "number": 1,
+        "chapterNumber": 1,
+        "type": "chapter",
+        "chapter_number": 1,
+        "intro": "livelihoods",
+        "content": "Which rural livelihoods are most threatened by increasing climate variability and shocks, and where are they located?"
+      },
+      {
+        "number": 2,
+        "type": "embed",
+        "aside": "<h1>Livelihoods</h1><h2>rain fed crops in orange</h2>",
+        "layers": [
+          { "id": 1, "opacity": 0.1, "order": 2 },
+          { "id": 2, "opacity": 0.1, "order": 2 }
+        ],
+        "chart": {
+          "type": "line",
+          "data": [{ "x": 1999920202, "y": 200 }]
+        }
+      }
+    ]
+  }
+]

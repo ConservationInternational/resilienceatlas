@@ -11,7 +11,7 @@
     url: '/data/journeys.json',
 
     parse: function(response) {
-      console.log(response);
+      // console.log(response);
       var result = response;
       return result;
     },
