@@ -17,8 +17,8 @@
     })),
 
     events: {
-      'click #btn-prev':'changeStep',
-      'click #btn-next':'changeStep'
+      'click #btn-prev':'_changeStep',
+      'click #btn-next':'_changeStep'
     },
 
     templates: {
@@ -33,30 +33,30 @@
       var opts = settings && settings.options ? settings.options : {};
       this.options = _.extend({}, this.defaults, opts);
 
-      this.setListeners();
+      this._setListeners();
       this.journey = settings.journey.toJSON()[0];
 
-      this.startJourney();
+      this._startJourney();
     },
 
-    setListeners: function() {
-      this.listenTo(this.model, 'change:step', this.startJourney);
+    _setListeners: function() {
+      this.listenTo(this.model, 'change:step', this._startJourney);
     },
 
 
-    startJourney: function() {
-      this.currentData();
-      this.currentTemplate();
+    _startJourney: function() {
+      this._currentData();
+      this._currentTemplate();
 
       this.render();
     },
 
-    currentData: function() {
-      this.currentStepData = _.where(this.journey.steps, { number: this.getStep() });
+    _currentData: function() {
+      this.currentStepData = _.where(this.journey.steps, { number: this._getStep() });
       this.currentStepData = this.currentStepData[0];
     },
 
-    currentTemplate: function() {
+    _currentTemplate: function() {
       var templateType = this.currentStepData.type;
       this.template = this.templates[templateType];
     },
@@ -68,19 +68,19 @@
 
 
     //Handle steps
-    getStep: function() {
+    _getStep: function() {
       return this.model.get('step');
     },
 
-    setStep: function(step) {
+    _setStep: function(step) {
       this.model.set('step', step);
     },
 
-    changeStep: function(e) {
+    _changeStep: function(e) {
       e.preventDefault();
 
       var mode = $(e.currentTarget).attr('mode');
-      var currentStep = this.getStep();
+      var currentStep = this._getStep();
       var totalSteps = this.journey.steps.length - 1;
 
       if (mode === 'add') {
@@ -91,7 +91,7 @@
         currentStep = currentStep < 0 ? totalSteps : currentStep;
       }
 
-      this.setStep(currentStep);
+      this._setStep(currentStep);
     }
 
   });
