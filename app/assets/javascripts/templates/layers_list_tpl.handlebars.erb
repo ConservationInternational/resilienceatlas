@@ -32,10 +32,10 @@
                       <div class="panel-item-slider">
                         <div class="m-form-input--slider">
                           <div class="slider-wrapper">
-                            <input type=range min=0 max=100 value=100 id=fader step=1 class="opacity-range">
-                            <span class="opacity"></span>
+                            <input data-id="{{id}}" type=range min=0 max=100 value={{opacity_text}} id=fader step=1 class="opacity-range">
+                            <span class="opacity" style="width:{{opacity_text}}%;"></span>
                           </div>
-                          <label for=fader class="opacity-teller">100%</label>
+                          <label for=fader class="opacity-teller">{{opacity_text}}%</label>
                         </div>
                       </div>
                     </li>
