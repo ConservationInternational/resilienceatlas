@@ -9,14 +9,6 @@
 
     el: '#journeyView',
 
-    templates: {
-      landing: HandlebarsTemplates['journey_landing_tpl'],
-      chapter: HandlebarsTemplates['journey_chapter_tpl'],
-      embed: HandlebarsTemplates['journey_embed_tpl'],
-      text: HandlebarsTemplates['journey_text_tpl'],
-      chart: HandlebarsTemplates['journey_chart_tpl'],
-    },
-
     model: new (Backbone.Model.extend({
       defaults: {
         journey: 1,
@@ -27,6 +19,14 @@
     events: {
       'click #btn-prev':'changeStep',
       'click #btn-next':'changeStep'
+    },
+
+    templates: {
+      landing: HandlebarsTemplates['journey_landing_tpl'],
+      chapter: HandlebarsTemplates['journey_chapter_tpl'],
+      embed: HandlebarsTemplates['journey_embed_tpl'],
+      text: HandlebarsTemplates['journey_text_tpl'],
+      chart: HandlebarsTemplates['journey_chart_tpl'],
     },
 
     initialize: function(settings) {
@@ -45,14 +45,14 @@
 
 
     startJourney: function() {
-      this.currentData()
+      this.currentData();
       this.currentTemplate();
 
       this.render();
     },
 
     currentData: function() {
-      this.currentStepData = _.where(this.journey.steps, {number: this.getStep()});
+      this.currentStepData = _.where(this.journey.steps, { number: this.getStep() });
       this.currentStepData = this.currentStepData[0];
     },
 
