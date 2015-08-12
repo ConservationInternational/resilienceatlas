@@ -1,47 +1,51 @@
 <ul>
   {{#each groups}}
-    <li>
-      <div class="m-layers-list-header {{#if active}}is-active{{/if}}">
-        <div class="header-title">{{name}}</div>
-      </div>
-      <ul {{#if active}} class="is-active"{{/if}}>
-        {{#each categories}}
-          <li>
-            <div class="m-layers-list-header {{#if active}}is-active{{/if}}">
-              <div class="header-title">{{name}}</div>
-              <div class="header-switch m-form-input--switch">
-                <input type="checkbox" id="category_{{id}}" {{#if active}}checked{{/if}}>
-                <label for="category_{{id}}"></label>
-              </div>
-            </div>
-            <ul class="m-layers-list-panel {{#if active}}is-active{{/if}}">
-              {{#each layers}}
-                <li>
-                  <div class="panel-item-switch m-form-input--switch">
-                    <input type="checkbox" id="layer_{{id}}" {{#if active}}checked{{/if}}>
-                    <label for="layer_{{id}}"></label>
+    {{#if categories}}
+      <li>
+        <div class="m-layers-list-header {{#if active}}is-active{{/if}}">
+          <div class="header-title">{{name}}</div>
+        </div>
+        <ul {{#if active}} class="is-active"{{/if}}>
+          {{#each categories}}
+            {{#if layers}}
+              <li>
+                <div class="m-layers-list-header {{#if active}}is-active{{/if}}">
+                  <div class="header-title">{{name}}</div>
+                  <div id="categoryHeader_{{id}}" class="header-switch m-form-input--switch">
+                    <input type="checkbox" class="header-input-switch" id="category_{{id}}" {{#if active}}checked{{/if}}>
+                    <label for="category_{{id}}"></label>
                   </div>
-                  <div class="panel-item-title">{{name}}</div>
-                  <button class="panel-trasparecy-switcher">
-                    <svg class="icon-settings">
-                      <use xlink:href="#icon-settings"></use>
-                    </svg>
-                  </button>
-                  <div class="panel-item-slider">
-                    <div class="m-form-input--slider">
-                      <div class="slider-wrapper">
-                        <input type=range min=0 max=100 value=100 id=fader step=1 class="opacity-range">
-                        <span class="opacity"></span>
+                </div>
+                <ul class="m-layers-list-panel {{#if active}}is-active{{/if}}">
+                  {{#each layers}}
+                    <li>
+                      <div class="panel-item-switch m-form-input--switch">
+                        <input type="checkbox" class="panel-input-switch" id="layer_{{id}}" {{#if active}}checked{{/if}}>
+                        <label for="layer_{{id}}"></label>
                       </div>
-                      <label for=fader class="opacity-teller">100%</label>
-                    </div>
-                  </div>
-                </li>
-              {{/each}}
-            </ul>
-          </li>
-        {{/each}}
-      </ul>
-    </li>
+                      <div class="panel-item-title">{{name}}</div>
+                      <button class="panel-trasparecy-switcher">
+                        <svg class="icon-settings">
+                          <use xlink:href="#icon-settings"></use>
+                        </svg>
+                      </button>
+                      <div class="panel-item-slider">
+                        <div class="m-form-input--slider">
+                          <div class="slider-wrapper">
+                            <input type=range min=0 max=100 value=100 id=fader step=1 class="opacity-range">
+                            <span class="opacity"></span>
+                          </div>
+                          <label for=fader class="opacity-teller">100%</label>
+                        </div>
+                      </div>
+                    </li>
+                  {{/each}}
+                </ul>
+              </li>
+            {{/if}}
+          {{/each}}
+        </ul>
+      </li>
+    {{/if}}
   {{/each}}
 </ul>
