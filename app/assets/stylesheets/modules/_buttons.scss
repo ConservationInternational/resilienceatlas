@@ -1,0 +1,14 @@
+.btn{
+  @extend %clean-button-or-input;
+  border-radius: 50px;
+  font-weight: 700;
+  padding: 12px 50px;
+  display: inline-block;
+  &.btn-primary {
+    background: $bg-color-1;
+    color: $font-color-2;
+    &:hover{
+      background: lighten($bg-color-1,5%);
+    }
+  }
+}
