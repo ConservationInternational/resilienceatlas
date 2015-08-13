@@ -1,7 +1,10 @@
 .l-header,
 .l-header--fullscreen {
-  background-color: $bg-color-2;
+  position: relative;
+  z-index: 5;
   height: rem($header-height);
+  box-shadow: 0 0 2px 0 rgba(0,0,0,.2);
+  background-color: $bg-color-1;
 }
 
 .l-header-nav {
@@ -23,7 +26,7 @@
       width: rem(140px);
       padding: rem(5px) 0;
       height: rem($header-height - 10px);
-      background-image: image-url("logo-grp-white.png");
+      background-image: image-url("logo-grp.png");
       background-repeat: no-repeat;
       background-position: left center;
       background-size: contain;
@@ -50,7 +53,7 @@
       display: block;
       margin: auto;
       padding: rem(7px) rem(20px) rem(5px);
-      color: $font-color-3;
+      color: $font-color-2;
       border-radius: 3px;
       font-size: rem(14px);
       text-transform: uppercase;
@@ -58,8 +61,8 @@
       transition: .2s ease-in;
 
       &:hover {
-        background-color: $bg-color-1;
-        color: $font-color-2;
+        background-color: $bg-color-2;
+        color: $font-color-3;
         text-decoration: none;
       }
     }

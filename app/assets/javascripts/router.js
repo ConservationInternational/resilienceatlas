@@ -13,7 +13,8 @@
 
     routes: {
       '': 'welcome',
-      'map': 'map'
+      'map': 'map',
+      'journeys': 'journeys'
     },
 
     ParamsModel: Backbone.Model.extend({}),
@@ -27,6 +28,8 @@
 
     setListeners: function() {
       this.on('route:map', this.updateParams, this);
+      this.on('route:journeys', this.updateParams, this);
+
       if (this.options.update) {
         this.listenTo(this.params, 'change', this.updateUrl);
       }
@@ -39,7 +42,7 @@
      * @param {Array[String]} keys
      */
     setParams: function(name, value, keys) {
-      if (typeof value === 'string') {
+      if (typeof value === 'string' || typeof value === 'number') {
         this.params.set(name, value);
       } else if (typeof value === 'object' && !_.isArray(value)) {
         if (keys && _.isArray(keys)) {
@@ -78,7 +81,8 @@
      * @param  {String} routeName
      * @param  {Array} params
      */
-    updateParams: function(routeName, params) {
+    updateParams: function(params, routeName) {
+
       if (this.options.decoded && params[0]) {
         try {
           params = this._decodeParams(params[0]);

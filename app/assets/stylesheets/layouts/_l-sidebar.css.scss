@@ -1,5 +1,3 @@
-$sidebar-width: 320px;
-
 .l-sidebar,
 .l-sidebar--default {
   width: rem($sidebar-width);
@@ -11,8 +9,8 @@ $sidebar-width: 320px;
 
 .l-sidebar--fullscreen {
   position: absolute;
-  top: rem($margin/2);
-  left: rem($margin/2);
+  top: 0;
+  left: 0;
   width: rem($sidebar-width);
   max-height: 95%;
 

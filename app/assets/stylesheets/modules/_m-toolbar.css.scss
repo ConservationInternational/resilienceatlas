@@ -1,10 +1,8 @@
-$toolbar-width: 350px;
-
 .m-toolbar {
   position: absolute;
-  width: rem($toolbar-width);
-  right: rem(15px);
-  top: rem(15px);
+  width: rem($sidebar-width);
+  left: 0;
+  bottom: 0;
   z-index: 1;
   padding: rem(10px);
   background-color: $bg-color-1;
