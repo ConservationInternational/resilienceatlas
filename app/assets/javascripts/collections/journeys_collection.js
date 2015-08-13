@@ -15,7 +15,7 @@
     // },
 
     parse: function(response) {
-      console.log(this.url);
+      // console.log(this.url);
 
       var result = response;
       return result;

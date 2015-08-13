@@ -37,11 +37,12 @@
 
       this.journey = settings.journey.toJSON()[0];
 
-      //As we have a listener to model, setting current step,
-      //journey will start when step set.
       var currentStep = settings.currentStep || this.model.defaults.step;
+
       this._setStep(currentStep);
+      this._startJourney();
     },
+
 
     _setListeners: function() {
       this.listenTo(this.model, 'change:step', this._startJourney);
@@ -49,6 +50,7 @@
 
 
     _startJourney: function() {
+      //TODO: maybe _.invoke??? to be sure everething is ready?
       this._currentData();
       this._currentTemplate();
 
@@ -64,7 +66,6 @@
       var templateType = this.currentStepData.type;
       this.template = this.templates[templateType];
     },
-
 
     render: function() {
       this.$el.html( this.template({ content: this.currentStepData }) );

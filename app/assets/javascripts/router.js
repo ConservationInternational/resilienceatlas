@@ -85,8 +85,7 @@
      */
     updateParams: function(params, routeName) {
       console.log('updateParams');
-      console.log(routeName);
-      console.log(params);
+
       if (this.options.decoded && params[0]) {
         try {
           params = this._decodeParams(params[0]);
@@ -138,7 +137,6 @@
           }
         }
       }
-      console.log(params);
       return params;
     },
 
