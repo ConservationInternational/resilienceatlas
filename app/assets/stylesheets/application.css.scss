@@ -1,10 +1,7 @@
 //= require normalize-css
 //= require jquery-ui/sortable
+//= require slick-carousel
 
-// Importing dependencies and helpers
-@import
-  'foundation-sass/foundation/components/_grid',
-  'foundation-sass/foundation/components/_switches';
 
 // Importing project settings
 @import
@@ -12,6 +9,11 @@
   'settings',
   'base',
   'icons';
+
+// Importing dependencies and helpers
+@import
+  'foundation-sass/foundation/components/_grid',
+  'foundation-sass/foundation/components/_switches';
 
 // Importing layouts and modules
 @import 'layouts/*', 'modules/*';

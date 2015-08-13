@@ -9,7 +9,7 @@ $content-left: 320px;
   @extend %l-content;
   max-width: rem($content-width);
   margin: 0 auto;
-  padding: rem($margin/2) 0;
+  // padding: rem($margin/2) 0;
 }
 
 .l-content--fullscreen {

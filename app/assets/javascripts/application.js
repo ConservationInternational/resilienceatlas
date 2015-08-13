@@ -4,6 +4,7 @@
 //= require backbone
 //= require handlebars
 //= require jquery-ui/sortable
+//= require slick-carousel
 
 //= require ./helpers/class
 //= require ./helpers/cartodb_layer
@@ -45,12 +46,16 @@
     },
 
     setListeners: function() {
-      this.listenTo(this.router, 'route:welcome', function() {
-        console.log('You are in Homepage.');
-      });
+      this.listenTo(this.router, 'route:welcome', this.welcomePage);
 
       // Initializing map
       this.listenTo(this.router, 'route:map', this.mapPage);
+    },
+
+    welcomePage: function() {
+      var sliderView = new root.app.View.Slider({
+        el: '#sliderView'
+      });
     },
 
     mapPage: function() {
