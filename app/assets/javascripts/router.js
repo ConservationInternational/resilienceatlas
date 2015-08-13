@@ -42,7 +42,7 @@
      * @param {Array[String]} keys
      */
     setParams: function(name, value, keys) {
-      if (typeof value === 'string') {
+      if (typeof value === 'string' || typeof value === 'number') {
         this.params.set(name, value);
       } else if (typeof value === 'object' && !_.isArray(value)) {
         if (keys && _.isArray(keys)) {

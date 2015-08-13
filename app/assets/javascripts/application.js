@@ -148,7 +148,7 @@
 
       //Telling router to be aware of this model changes
       journeyModel.on('change', function() {
-        var currentStep = journeyModel.attributes.step.toString();
+        var currentStep = journeyModel.get('step');
         this.router.setParams('step', currentStep);
       }.bind(this));
 
