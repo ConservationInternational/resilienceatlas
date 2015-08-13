@@ -30,9 +30,9 @@
 
       this.journey = settings.journey.toJSON()[0];
 
-      var currentStep = settings.currentStep || this.model.defaults.step;
+      var stepFromUrl = settings.currentStep || this.model.defaults.step;
 
-      this._setStep(currentStep);
+      this._setStep(stepFromUrl);
       this.render();
     },
 
@@ -57,6 +57,8 @@
       this._currentTemplate();
 
       this.$el.html( this.template({ content: this.currentStepData }) );
+
+      this._handleButtons();
     },
 
 
@@ -84,7 +86,19 @@
         currentStep = currentStep < 0 ? totalSteps : currentStep;
       }
 
+      this._handleButtons(currentStep, totalSteps);
       this._setStep(currentStep);
+    },
+
+    _handleButtons: function() {
+      var currentStep = this._getStep();
+      var totalSteps = this.journey.steps.length - 1;
+
+      var noNext = currentStep === totalSteps ? true : false;
+      var noPrev = currentStep === 0 ? true : false;
+
+      $('#btn-next').toggleClass('is-hidden', noNext);
+      $('#btn-prev').toggleClass('is-hidden', noPrev);
     }
   });
 
