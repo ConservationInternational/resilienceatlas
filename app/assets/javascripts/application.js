@@ -137,9 +137,6 @@
         journeysCollection
       ], 'getByParams', routerParams.journey);
 
-      // journeysCollection.getByParams(routerParams.journey);
-      // return
-
       //Starting view
       $.when.apply($, complete).done(function() {
         var journeyView = new root.app.View.Journeys({

@@ -9,14 +9,6 @@
 
     el: '#journeyView',
 
-    //Ahora model está en un archivo a parte.
-    // model: new (Backbone.Model.extend({
-    //   defaults: {
-    //     journey: 1,
-    //     step: 0
-    //   }
-    // })),
-
     events: {
       'click #btn-prev':'_changeStep',
       'click #btn-next':'_changeStep'
@@ -41,21 +33,12 @@
       var currentStep = settings.currentStep || this.model.defaults.step;
 
       this._setStep(currentStep);
-      this._startJourney();
+      this.render();
     },
 
 
     _setListeners: function() {
-      this.listenTo(this.model, 'change:step', this._startJourney);
-    },
-
-
-    _startJourney: function() {
-      //TODO: maybe _.invoke??? to be sure everething is ready?
-      this._currentData();
-      this._currentTemplate();
-
-      this.render();
+      this.listenTo(this.model, 'change:step', this.render);
     },
 
     _currentData: function() {
@@ -68,7 +51,11 @@
       this.template = this.templates[templateType];
     },
 
+
     render: function() {
+      this._currentData();
+      this._currentTemplate();
+
       this.$el.html( this.template({ content: this.currentStepData }) );
     },
 
@@ -99,7 +86,6 @@
 
       this._setStep(currentStep);
     }
-
   });
 
 })(this);

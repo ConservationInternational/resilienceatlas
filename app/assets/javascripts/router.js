@@ -42,7 +42,6 @@
      * @param {Array[String]} keys
      */
     setParams: function(name, value, keys) {
-      console.log('setParams');
       if (typeof value === 'string') {
         this.params.set(name, value);
       } else if (typeof value === 'object' && !_.isArray(value)) {
@@ -68,7 +67,6 @@
      * Change url with params
      */
     updateUrl: function() {
-      console.log('updateUrl');
       var url = location.pathname.slice(1);
       if (this.options.decoded) {
         url = url + '?config=' + this._encodeParams();
@@ -84,7 +82,6 @@
      * @param  {Array} params
      */
     updateParams: function(params, routeName) {
-      console.log('updateParams');
 
       if (this.options.decoded && params[0]) {
         try {
@@ -123,7 +120,6 @@
      * @return {Object}
      */
     _unserializeParams: function() {
-      console.log('_unserializeParams');
       var params = {};
       if (location.search.length) {
         var paramsArr = decodeURIComponent(location.search.slice(1)).split('&'),
