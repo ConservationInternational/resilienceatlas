@@ -34,9 +34,13 @@
       this.options = _.extend({}, this.defaults, opts);
 
       this._setListeners();
+
       this.journey = settings.journey.toJSON()[0];
 
-      this._startJourney();
+      //As we have a listener to model, setting current step,
+      //journey will start when step set.
+      var currentStep = settings.currentStep || this.model.defaults.step;
+      this._setStep(currentStep);
     },
 
     _setListeners: function() {

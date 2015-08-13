@@ -35,7 +35,6 @@
     url: '/api/layers',
 
     parse: function(response) {
-      console.log(response);
       var result = _.map(response.data, function(d) {
         var group = d.relationships.layer_group.data;
         return {

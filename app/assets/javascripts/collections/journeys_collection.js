@@ -7,16 +7,19 @@
 
   root.app.Collection.Journeys = Backbone.Collection.extend({
 
-    // url: '/api/journeys/[id]',
-    url: '/data/journeys.json',
+    //TODO == set different url for different journeys
+    url: '/journeys/1.json',
+    // url: function(data) {
+    //   console.log(data);
+    //   return '/journeys/' + data + '.json';
+    // },
 
     parse: function(response) {
-      // console.log(response);
+      console.log(this.url);
+
       var result = response;
       return result;
-    },
-
-    //get step fn() y se la decimos al modelo
+    }
 
 
   });

@@ -52,6 +52,7 @@
       // Initializing map
       this.listenTo(this.router, 'route:map', this.mapPage);
 
+      // Initializing journeys
       this.listenTo(this.router, 'route:journeys', this.journeysPage)
     },
 
@@ -124,17 +125,21 @@
     },
 
     journeysPage: function() {
-      //Aqui recibimos el id del journey del router para pedir sólo el que queramos.
       var journeysCollection = new root.app.Collection.Journeys();
+
+      //Get router params
+      var routerParams = this.router.params.attributes;
 
       // Fetching data
       var complete = _.invoke([
         journeysCollection
-      ], 'fetch');
+      ], 'fetch', {data: {journey: routerParams.journey}});
 
+      //Starting view
       $.when.apply($, complete).done(function() {
         var journeyView = new root.app.View.Journeys({
-          journey: journeysCollection
+          journey: journeysCollection,
+          currentStep: routerParams.step
         });
       }.bind(this));
 

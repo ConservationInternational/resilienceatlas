@@ -28,6 +28,8 @@
 
     setListeners: function() {
       this.on('route:map', this.updateParams, this);
+      this.on('route:journeys', this.updateParams, this);
+
       if (this.options.update) {
         this.listenTo(this.params, 'change', this.updateUrl);
       }
@@ -40,6 +42,7 @@
      * @param {Array[String]} keys
      */
     setParams: function(name, value, keys) {
+      console.log('setParams');
       if (typeof value === 'string') {
         this.params.set(name, value);
       } else if (typeof value === 'object' && !_.isArray(value)) {
@@ -65,6 +68,7 @@
      * Change url with params
      */
     updateUrl: function() {
+      console.log('updateUrl');
       var url = location.pathname.slice(1);
       if (this.options.decoded) {
         url = url + '?config=' + this._encodeParams();
@@ -79,7 +83,10 @@
      * @param  {String} routeName
      * @param  {Array} params
      */
-    updateParams: function(routeName, params) {
+    updateParams: function(params, routeName) {
+      console.log('updateParams');
+      console.log(routeName);
+      console.log(params);
       if (this.options.decoded && params[0]) {
         try {
           params = this._decodeParams(params[0]);
@@ -117,6 +124,7 @@
      * @return {Object}
      */
     _unserializeParams: function() {
+      console.log('_unserializeParams');
       var params = {};
       if (location.search.length) {
         var paramsArr = decodeURIComponent(location.search.slice(1)).split('&'),
@@ -130,6 +138,7 @@
           }
         }
       }
+      console.log(params);
       return params;
     },
 
