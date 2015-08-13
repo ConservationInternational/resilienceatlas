@@ -7,6 +7,7 @@
 
 //= require ./helpers/class
 //= require ./helpers/cartodb_layer
+//= require_tree ./models
 //= require_tree ./collections
 //= require_tree ./templates
 //= require_tree ./views
@@ -125,6 +126,7 @@
     },
 
     journeysPage: function() {
+      var journeyModel = new root.app.Model.Journeys();
       var journeysCollection = new root.app.Collection.Journeys();
 
       //Get router params
@@ -138,6 +140,7 @@
       //Starting view
       $.when.apply($, complete).done(function() {
         var journeyView = new root.app.View.Journeys({
+          model: journeyModel,
           journey: journeysCollection,
           currentStep: routerParams.step
         });

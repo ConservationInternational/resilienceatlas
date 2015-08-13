@@ -9,12 +9,13 @@
 
     el: '#journeyView',
 
-    model: new (Backbone.Model.extend({
-      defaults: {
-        journey: 1,
-        step: 0
-      }
-    })),
+    //Ahora model está en un archivo a parte.
+    // model: new (Backbone.Model.extend({
+    //   defaults: {
+    //     journey: 1,
+    //     step: 0
+    //   }
+    // })),
 
     events: {
       'click #btn-prev':'_changeStep',
@@ -30,6 +31,7 @@
     },
 
     initialize: function(settings) {
+      console.log(this.model);
       var opts = settings && settings.options ? settings.options : {};
       this.options = _.extend({}, this.defaults, opts);
 
