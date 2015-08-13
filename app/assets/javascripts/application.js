@@ -146,6 +146,11 @@
         });
       }.bind(this));
 
+      journeyModel.on('change', function() {
+        var currentStep = journeyModel.attributes.step.toString();
+        this.router.setParams('step', currentStep);
+      }.bind(this));
+
     },
 
     start: function() {

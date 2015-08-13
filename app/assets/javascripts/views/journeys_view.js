@@ -31,7 +31,6 @@
     },
 
     initialize: function(settings) {
-      console.log(this.model);
       var opts = settings && settings.options ? settings.options : {};
       this.options = _.extend({}, this.defaults, opts);
 
