@@ -10,8 +10,8 @@
     initialize: function(settings) {
       var opts = settings && settings.options ? settings.options : {};
       this.options = _.extend({}, this.defaults, opts);
-      this.setUp();
       this.cacheVars();
+      this.setUp();
       this.setListeners();
     },
 
@@ -52,11 +52,16 @@
         slide: 'li'
       });
 
+      this.handleNav();
+
     },
 
     cacheVars: function() {
       this.sliderLength = $('.m-slider__item').length;
+      this.$slider__paginationlist = this.$el.find('.m-slider__paginationlist');
       this.$slider__pagination = this.$el.find('.m-slider__pagination');
+      this.$slider__navigationlist = this.$el.find('.m-slider__navigationlist');
+      this.$slider__navigation = this.$el.find('.m-slider__navigation');
     },
 
     // slickGoTo
@@ -88,6 +93,17 @@
       this.$slider__pagination.removeClass('is-active');
       this.$slider__pagination.eq(this.model.get('index')).addClass('is-active');
 
+      this.handleNav();
+
+    },
+
+    handleNav: function() {
+      var index = this.model.get('index');
+      var left = (index === 0) ? true : false;
+      var right = (index === this.sliderLength - 1) ? true : false;
+
+      this.$slider__navigationlist.find('.is-left').toggleClass('is-hidden', left);
+      this.$slider__navigationlist.find('.is-right').toggleClass('is-hidden', right);
     }
 
 
