@@ -6,11 +6,11 @@ $backgrounds: 'bg-intro','bg-ethiopia','bg-horn','bg-journey3','bg-journey4','bg
     @extend %clean-lists;
     position: relative;
     background-color: $bg-color-5;
-    height: 565px;
+    height: rem(565px);
 
     .m-slider__item {
       position: relative;
-      height: 565px;
+      height: rem(565px);
 
       @for $i from 1 through length($backgrounds) {
         &.#{nth($backgrounds, $i)}{
@@ -25,18 +25,18 @@ $backgrounds: 'bg-intro','bg-ethiopia','bg-horn','bg-journey3','bg-journey4','bg
         color: $font-color-3;
         h2 {
           font-family: $font-face-2;
-          font-size: 99px;
+          font-size: rem(99px);
           font-weight: 400;
           line-height: 1;
           text-transform: uppercase;
           margin: 0;
         }
         h3 {
-          font-size: 26px;
+          font-size: rem(26px);
           font-weight: 400;
           line-height: 1.25;
           margin: 0 auto;
-          max-width: 600px;
+          max-width: rem(600px);
         }
       }
     }
@@ -46,11 +46,11 @@ $backgrounds: 'bg-intro','bg-ethiopia','bg-horn','bg-journey3','bg-journey4','bg
   // SLIDER PAGINATION
   .m-slider__paginationlist {
     @extend %clean-lists;
-    height: 125px;
+    height: rem(125px);
 
     .m-slider__pagination{
       position: relative;
-      height: 125px;
+      height: rem(125px);
       cursor: pointer;
       outline: none;
 
@@ -64,6 +64,7 @@ $backgrounds: 'bg-intro','bg-ethiopia','bg-horn','bg-journey3','bg-journey4','bg
       &:before{
         content: "";
         @extend %center;
+        transform: translate(-50%,0%);
         z-index: 2;
         border-bottom: 22px solid $font-color-3;
         border-left: 14px solid transparent;
@@ -93,6 +94,9 @@ $backgrounds: 'bg-intro','bg-ethiopia','bg-horn','bg-journey3','bg-journey4','bg
           opacity: 1;
           visibility: visible;
         }
+        &:before {
+          transform: translate(-50%,-50%);
+        }
         h2{
           opacity: 0;
           visibility: hidden;
@@ -104,7 +108,7 @@ $backgrounds: 'bg-intro','bg-ethiopia','bg-horn','bg-journey3','bg-journey4','bg
         text-align: center;
         color: $font-color-3;
         font-family: $font-face-2;
-        font-size: 30px;
+        font-size: rem(30px);
         font-weight: 400;
         line-height: 1;
         text-transform: uppercase;
@@ -130,8 +134,9 @@ $backgrounds: 'bg-intro','bg-ethiopia','bg-horn','bg-journey3','bg-journey4','bg
         @extend %center;
         width: 26px;
         height: 26px;
-        border-top: 1px solid $bg-color-1;
-        border-right: 1px solid $bg-color-1;
+        border-top: 2px solid $bg-color-1;
+        border-right: 2px solid $bg-color-1;
+        transition: all 0.12s $easeInOutSine;
       }
 
       &.is-left{
@@ -144,6 +149,13 @@ $backgrounds: 'bg-intro','bg-ethiopia','bg-horn','bg-journey3','bg-journey4','bg
         right: 0;
         &:before{
           transform: translate(-75%,-50%) rotate(45deg);
+        }
+      }
+
+      &:hover{
+        &:before{
+          width: 30px;
+          height: 30px;
         }
       }
     }
