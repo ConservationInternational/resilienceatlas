@@ -7,20 +7,18 @@
 
   root.app.Collection.Journeys = Backbone.Collection.extend({
 
-    //TODO == set different url for different journeys
-    url: '/journeys/1.json',
-    // url: function(data) {
-    //   console.log(data);
-    //   return '/journeys/' + data + '.json';
-    // },
+    url: '/journeys/',
 
     parse: function(response) {
-      // console.log(this.url);
-
+      //just in case we need to parse some data later...
       var result = response;
       return result;
-    }
+    },
 
+    getByParams: function(journey) {
+      this.url = this.url + journey + '.json';
+      return this.fetch();
+    }
 
   });
 

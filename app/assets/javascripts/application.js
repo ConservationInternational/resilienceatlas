@@ -132,10 +132,13 @@
       //Get router params
       var routerParams = this.router.params.attributes;
 
-      // Fetching data
+      //Fetching data
       var complete = _.invoke([
         journeysCollection
-      ], 'fetch', {data: {journey: routerParams.journey}});
+      ], 'getByParams', routerParams.journey);
+
+      // journeysCollection.getByParams(routerParams.journey);
+      // return
 
       //Starting view
       $.when.apply($, complete).done(function() {
@@ -146,6 +149,7 @@
         });
       }.bind(this));
 
+      //Telling router to be aware of this model changes
       journeyModel.on('change', function() {
         var currentStep = journeyModel.attributes.step.toString();
         this.router.setParams('step', currentStep);
