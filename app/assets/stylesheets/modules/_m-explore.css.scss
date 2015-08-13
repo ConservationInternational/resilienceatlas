@@ -4,27 +4,6 @@
   overflow: hidden;
   padding: rem(100px) 0 rem(200px);
 
-  article {
-    width: 50%;
-    color: $font-color-3;
-    padding: 0 rem(100px);
-    h2 {
-      font-family: $font-face-2;
-      font-weight: 400;
-      font-size: rem(64px);
-      margin: 0;
-      line-height: 1;
-    }
-    p {
-      font-size: rem(20px);
-      margin: 0;
-    }
-
-    .btn{
-      margin: rem(40px) 0 0;
-    }
-  }
-
   figure {
     margin: 0;
     width: 50%;
@@ -32,6 +11,6 @@
     position: absolute;
     bottom: 0;
     left: 50%;
-    background: image-url('bg-explore.png') left bottom no-repeat;
+    background: image-url('home/bg-explore.png') left bottom no-repeat;
   }
 }
