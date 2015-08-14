@@ -200,8 +200,11 @@ GEM
       rails-assets-underscore (>= 1.7.0)
     rails-assets-foundation-sass (5.5.2)
     rails-assets-handlebars (3.0.3)
+    rails-assets-jquery (2.1.4)
     rails-assets-moment (2.10.6)
     rails-assets-normalize-css (3.0.3)
+    rails-assets-slick-carousel (1.5.8)
+      rails-assets-jquery (>= 1.7)
     rails-assets-underscore (1.8.3)
     rails-deprecated_sanitizer (1.0.3)
       activesupport (>= 4.2.0.alpha)
@@ -343,6 +346,7 @@ DEPENDENCIES
   rails-assets-handlebars!
   rails-assets-moment!
   rails-assets-normalize-css!
+  rails-assets-slick-carousel!
   rails-assets-underscore!
   rails_12factor
   rspec-rails

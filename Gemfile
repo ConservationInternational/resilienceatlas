@@ -60,4 +60,5 @@ source 'https://rails-assets.org' do
   gem 'rails-assets-backbone'
   gem 'rails-assets-moment'
   gem 'rails-assets-handlebars'
+  gem 'rails-assets-slick-carousel'
 end

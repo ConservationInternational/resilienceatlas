@@ -1,8 +1,10 @@
 /*
   Layouts and structure
  */
-$content-width: 960px;
+$content-width: 1440px;
 $margin: 30px;
+
+$row-width: 1440px;
 
 /* Layout common values */
 $header-height: 65px;
@@ -15,8 +17,10 @@ $sidebar-width: 350px;
 @include font-face("Franklin", "ITCFranklinGothicStd-Demi", 700);
 @include font-face("Franklin", "ITCFranklinGothicStd-Med", 500);
 @include font-face("Franklin", "ITCFranklinGothicStd-Book", 400);
+@include font-face("FranklinCD", "ITCFranklinGothicStd-DmCp", 400);
 
 $font-face-1: "Franklin";
+$font-face-2: "FranklinCD";
 
 // Since the typical default browser font-size is 16px, that makes the calculation for grid size.
 // If you want your base font-size to be different and not have it affect the grid breakpoints,
@@ -25,12 +29,13 @@ $rem-base: 16px;
 $base-font-size: 100% !default;
 
 // $base-line-height is 24px while $base-font-size is 16px
-$base-line-height: 150% !default;
+// $base-line-height: 150% !default;
 
 /*
   Colors
  */
 $white: #fff;
+$black: #000;
 $blue: #0089cc;
 $gray: #555;
 $gray-medium: #979797;
@@ -43,6 +48,7 @@ $bg-color-1: $white;
 $bg-color-2: $blue;
 $bg-color-3: $gray-light;
 $bg-color-4: $gray-medium;
+$bg-color-5: $black;
 
 $font-color-1: $gray;
 $font-color-2: $blue;

@@ -1,5 +1,10 @@
 //= require normalize-css
 //= require jquery-ui/sortable
+//= require slick-carousel
+
+@import
+  'mixins',
+  'settings';
 
 // Importing dependencies and helpers
 @import
@@ -8,10 +13,9 @@
 
 // Importing project settings
 @import
-  'mixins',
-  'settings',
   'base',
   'icons';
+
 
 // Importing layouts and modules
 @import 'layouts/*', 'modules/*';
