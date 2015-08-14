@@ -12,7 +12,7 @@ html lang="#{I18n.locale}"
   body
     = render :partial => "partials/icons"
     == render "layouts/header"
-    .l-main
+    .l-main-fullscreen
       == yield
     == render "layouts/footer"
     = javascript_include_tag "application"
