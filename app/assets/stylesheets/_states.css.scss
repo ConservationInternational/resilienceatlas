@@ -1,3 +1,8 @@
 .is-hidden {
   display: none;
 }
+
+.is-stretch {
+  display: flex;
+  align-items: stretch;
+}

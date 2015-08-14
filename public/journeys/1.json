@@ -15,9 +15,9 @@
       {
         "number": 1,
         "chapterNumber": 1,
+        "chapterBg": "http://localhost:3000/assets/ethiopia2bg.png",
         "type": "chapter",
-        "chapter_number": 1,
-        "intro": "livelihoods",
+        "title": "livelihoods",
         "content": "Which rural livelihoods are most threatened by increasing climate variability and shocks, and where are they located?"
       },
       {

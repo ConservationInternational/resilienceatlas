@@ -1,0 +1,46 @@
+%image-requirements {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: left bottom;
+}
+
+.m-journey-chapter {
+  @extend %image-requirements;
+
+  .row {
+    margin: auto;
+  }
+
+  h1 {
+    text-transform: uppercase;
+    font-size: rem(64px);
+    font-family: $font-face-2;
+    font-weight: 400;
+    margin: 0;
+  }
+
+  p {
+    font-weight: 400;
+  }
+}
+
+.chapter-mask--1 {
+  @extend %image-requirements;
+  background-image: image-url("chapter-1.svg");
+}
+
+.chapter-mask--2 {
+  @extend %image-requirements;
+  background-image: image-url("chapter-2.svg");
+}
+
+.chapter-mask--3 {
+  @extend %image-requirements;
+  background-image: image-url("chapter-3.svg");
+}
