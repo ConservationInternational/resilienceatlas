@@ -2,7 +2,7 @@
   @extend %clean-button-or-input;
   border-radius: 50px;
   font-weight: 700;
-  padding: rem(12px) rem(50px);
+  padding: rem(12px) rem(50px) rem(8px);
   display: inline-block;
   &:hover {
     text-decoration: none;
