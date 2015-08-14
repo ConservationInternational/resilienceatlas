@@ -2,18 +2,20 @@
 //= require jquery-ui/sortable
 //= require slick-carousel
 
-
-// Importing project settings
 @import
   'mixins',
-  'settings',
-  'base',
-  'icons';
+  'settings';
 
 // Importing dependencies and helpers
 @import
   'foundation-sass/foundation/components/_grid',
   'foundation-sass/foundation/components/_switches';
+
+// Importing project settings
+@import
+  'base',
+  'icons';
+
 
 // Importing layouts and modules
 @import 'layouts/*', 'modules/*';
