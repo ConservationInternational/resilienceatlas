@@ -10,7 +10,7 @@
         "type": "landing",
         "title": "ETHIOPIA",
         "subtitle": "Agricultural Livelihoods & Climate Change in Ethiopia",
-        "background": "ethiopia-bg.png"
+        "background": "http://localhost:3000/assets/ethiopia-bg.png"
       },
       {
         "number": 1,
