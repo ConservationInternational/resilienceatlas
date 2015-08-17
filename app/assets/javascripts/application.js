@@ -75,9 +75,9 @@
     },
 
     welcomePage: function() {
-      // var sliderView = new root.app.View.Slider({
-      //   el: '#sliderView'
-      // });
+      var sliderView = new root.app.View.Slider({
+        el: '#sliderView'
+      });
     },
 
     mapPage: function() {
