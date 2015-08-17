@@ -1,0 +1,22 @@
+$content-left: 320px;
+
+%l-content {
+  @include clearfix;
+}
+
+.l-content,
+.l-content--default {
+  @extend %l-content;
+  max-width: rem($content-width);
+  margin: 0 auto;
+  // padding: rem($margin/2) 0;
+}
+
+.l-content--fullscreen {
+  @extend %l-content;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  top: 0;
+}

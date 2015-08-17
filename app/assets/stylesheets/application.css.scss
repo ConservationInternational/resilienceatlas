@@ -1,31 +1,24 @@
+//= require normalize-css
+//= require jquery-ui/sortable
+//= require slick-carousel
+
 @import
-  "settings",
-  "helpers",
-  "components",
-  "accordion",
+  'mixins',
+  'settings';
 
-  "layout/layout",
-  "layout/grid",
+// Importing dependencies and helpers
+@import
+  'foundation-sass/foundation/components/_grid',
+  'foundation-sass/foundation/components/_switches';
 
-  "base/general",
-  "base/buttons",
-  "base/icons",
-  "base/form",
-  "base/table",
+// Importing project settings
+@import
+  'base',
+  'icons';
 
-  "modules/m-dashboard",
-  "modules/m-dashboard-navigation",
-  "modules/m-data-item",
-  "modules/m-filter",
-  "modules/m-grid-board",
-  "modules/m-legend",
-  "modules/m-loader",
-  "modules/m-main-menu",
-  "modules/m-map",
-  "modules/m-map-controlers",
-  "modules/m-map-infowindow",
-  "modules/m-modal-window",
-  "modules/m-search",
-  //"modules/m-share",
 
-  "states";
+// Importing layouts and modules
+@import 'layouts/*', 'modules/*';
+
+// Global states
+@import 'states';

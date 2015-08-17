@@ -1,0 +1,17 @@
+$backgrounds-about: 'bg-about1','bg-about2';
+
+.m-home-about {
+  ul {
+    @extend %clean-lists;
+    li {
+      position: relative;
+      min-height: rem(510px);
+      @for $i from 1 through length($backgrounds-about) {
+        &.#{nth($backgrounds-about, $i)}{
+          background: image-url('home/#{nth($backgrounds-about, $i)}.jpg') center;
+          background-size: cover;
+        }
+      }
+    }
+  }
+}

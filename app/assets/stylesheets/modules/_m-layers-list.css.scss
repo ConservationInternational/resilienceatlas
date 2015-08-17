@@ -1,0 +1,233 @@
+.m-layers-list {
+  box-shadow: 0 1px 4px 0 rgba(0,0,0,.2);
+  font-size: rem(14px);
+
+  ul {
+    @extend %clean-lists;
+
+    ul {
+      position: relative;
+      display: none;
+
+      &.is-active {
+        display: block;
+        border-bottom: 1px solid rgba($font-color-1, .1);
+      }
+    }
+  }
+}
+
+.m-layers-list-header {
+  @include clearfix;
+  position: relative;
+  padding: rem(10px) rem(15px) rem(10px) rem(25px);
+  color: $font-color-1;
+  background-color: $bg-color-3;
+  text-align: right;
+  border-bottom: 1px solid rgba($font-color-1, .1);
+
+  &:before {
+    @include equi-triangle(5px, $font-color-1, left);
+    @extend %centery;
+    left: rem(15px);
+    transition: .2s ease;
+    transform-origin: rem(2px);
+  }
+
+  &.is-active {
+    &:before {
+      transform: translateY(-50%) rotate(90deg);
+    }
+  }
+
+  .header-title {
+    float: left;
+
+    font-weight: bold;
+    text-transform: uppercase;
+    line-height: 1.2em;
+
+    cursor: pointer;
+  }
+
+  .header-switch {
+    float: right;
+    margin-top: rem(2px);
+  }
+
+  ul ul & {
+    padding: rem(15px) rem(15px) rem(10px) rem(35px);
+    color: $font-color-1;
+    background-color: $bg-color-1;
+    text-align: left;
+
+    &.is-active {
+      border-bottom: 0;
+    }
+
+    &:before {
+      @include equi-triangle(5px, $font-color-1, left);
+      @extend %centery;
+      left: rem(15px);
+    }
+
+    .header-title {
+      max-width: 85%;
+    }
+  }
+}
+
+.m-layers-list-panel {
+  @extend %clean-lists;
+  font-weight: 400;
+
+  // background-color: $bg-color-3;
+
+  li {
+    padding: rem(10px) rem(15px);
+
+    @include clearfix;
+  }
+
+  .panel-item-title {
+    float: left;
+    max-width: 75%;
+    margin-left: rem(10px);
+  }
+
+  .panel-item-switch {
+    float: left;
+    margin-top: rem(1px);
+  }
+
+  .m-layers-list & {
+    padding-left: rem(20px);
+  }
+}
+
+.panel-item-slider {
+  @include clearfix;
+  position: relative;
+  clear: both;
+
+  height: 0;
+  overflow: hidden;
+  transition: .2s ease-in;
+
+  .is-open & {
+    height: rem(35px);
+  }
+}
+
+.panel-trasparecy-switcher {
+  @extend %clean-button-or-input;
+  float: right;
+
+  .icon-settings {
+    width: 12px;
+    height: 12px;
+    fill: $bg-color-4;
+
+    &:hover {
+      fill: $bg-color-2;
+    }
+
+    .is-open & {
+      fill: $bg-color-2;
+    }
+  }
+
+}
+
+.m-form-input--slider {
+
+  input[type="range"] {
+    position: absolute;
+    bottom: 9px;
+    left: 0;
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 3px;
+
+    //dashed custom border
+    background-image: linear-gradient(to right, #c4c4c4 33%, rgba(#c4c4c4 ,0) 0%);
+    background-position: bottom;
+    background-size: 10px 2px;
+    background-repeat: repeat-x;
+
+    &:-webkit-slider-thumb {
+      -webkit-appearance: none;
+    }
+
+    //IE
+    &::-ms-track {
+      width: 100%;
+      cursor: pointer;
+      background: transparent; /* Hides the slider so custom styles can be added */
+      border-color: transparent;
+      color: transparent;
+    }
+
+    // WebKit
+    &::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      border: 4px solid $font-color-1;
+      height: 11px;
+      width: 11px;
+      border-radius: 50%;
+      box-shadow: 0 0 0 2px $bg-color-3;
+      background: $bg-color-3;
+      cursor: pointer;
+      position: relative;
+      z-index: 10;
+    }
+
+    &::-moz-range-thumb,
+    &::-ms-thumb {
+      appearance: none;
+      border: 4px solid $font-color-1;
+      height: 11px;
+      width: 11px;
+      border-radius: 50%;
+      box-shadow: 0 0 0 2px $bg-color-3;
+      background: $bg-color-3;
+      cursor: pointer;
+      position: relative;
+      z-index: 10;
+    }
+  }
+
+  .opacity {
+    display: block;
+    position: absolute;
+    bottom: 9px;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background-color: $font-color-1;
+  }
+
+  .slider-wrapper {
+    width: 85%;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+  }
+
+  .opacity-teller {
+    position: absolute;
+    bottom: 0;
+    right: 6px;
+    color: $font-color-1;
+    font-size: rem(14px);
+  }
+}
+
+
+
+
+
+
+
+

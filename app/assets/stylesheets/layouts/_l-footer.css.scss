@@ -1,0 +1,28 @@
+.l-footer {
+  background-color: $bg-color-2;
+  font-weight: 400;
+  font-size: rem(14px);
+}
+
+.l-footer-nav {
+  @include clearfix;
+  max-width: rem($content-width);
+  margin: 0 auto;
+  color: $font-color-3;
+
+  ul {
+    @extend %clean-lists;
+  }
+
+  .credits {
+    text-align: right;
+
+    a {
+      font-size: 16px;
+      color: transparent;
+      background-image: image-url("vizz.svg");
+      background-repeat: no-repeat;
+      background-size: 100%;
+    }
+  }
+}

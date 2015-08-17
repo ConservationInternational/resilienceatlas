@@ -4,7 +4,7 @@ require "rails"
 # Pick the frameworks you want:
 require "active_model/railtie"
 require "active_job/railtie"
-# require "active_record/railtie"
+require "active_record/railtie"
 require "action_controller/railtie"
 require "action_mailer/railtie"
 require "action_view/railtie"
@@ -29,22 +29,16 @@ module ConservationInternational
     # config.i18n.load_path += Dir[Rails.root.join('my', 'locales', '*.{rb,yml}').to_s]
     # config.i18n.default_locale = :de
 
-    # Including more folders to Asset pippeline
-    config.assets.paths << Rails.root.join('vendor', 'assets', 'bower_components')
-
     # Setup scaffold
     config.generators do |g|
       g.template_engine :slim
       g.assets false
+      g.helper false
+      g.test_framework :rspec
+      g.fixture_replacement :factory_girl
     end
 
     # Heroku Asset Pippeline
     config.assets.initialize_on_precompile = true
-
-    # config.requirejs.loader = :almond
-    config.requirejs.logical_path_patterns += [/\.handlebars$/]
-    config.requirejs.logical_path_patterns += [/\.pgsql$/]
-    config.requirejs.logical_path_patterns += [/\.json$/]
-    config.requirejs.logical_path_patterns += [/\.cartocss$/]
   end
 end

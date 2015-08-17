@@ -1,0 +1,18 @@
+/ - headerClassName = controller_name == 'map' ? 'l-header--fullscreen' : 'l-header'
+
+header.l-header--fullscreen id="headerView"
+  nav.l-header-nav
+    .row
+      .large-4.columns
+        ul.brand-area
+          li
+            = link_to 'CIGRP Prototype', root_path
+      .large-8.columns
+        ul.nav-area
+          / li.journey-link
+          /   = link_to 'Journeys', journeys_path, class: controller_name == 'journeys' ? 'is-current' : ''
+          li
+            = link_to 'Map', map_path, class: controller_name == 'map' ? 'is-current' : ''
+          / li
+          /   = link_to 'About', about_path, class: controller_name == 'about' ? 'is-current' : ''
+  ul.m-journey__paginationlist

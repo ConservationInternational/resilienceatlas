@@ -1,0 +1,46 @@
+{
+  "resource": "Layers",
+  "http_method": "GET",
+  "route": "/api/layers/",
+  "description": "Get layers list",
+  "explanation": null,
+  "parameters": [
+
+  ],
+  "response_fields": [
+
+  ],
+  "requests": [
+    {
+      "request_method": "GET",
+      "request_path": "/api/layers/",
+      "request_body": null,
+      "request_headers": {
+        "Accept": "application/json; application/vnd.api+json",
+        "Content-Type": "application/vnd.api+json",
+        "Host": "http://cigrp.org",
+        "Cookie": ""
+      },
+      "request_query_parameters": {
+      },
+      "request_content_type": "application/vnd.api+json",
+      "response_status": 200,
+      "response_status_text": "OK",
+      "response_body": "{\"data\":[{\"id\":\"1\",\"type\":\"layers\",\"attributes\":{\"name\":\"test layer 0\",\"slug\":\"omnis\",\"layer_type\":\"perspiciatis\",\"zindex\":1,\"opacity\":null,\"active\":true,\"order\":1,\"color\":\"#000\",\"info\":\"ex\",\"interactivity\":\"rem\",\"css\":null,\"query\":null,\"layer_provider\":null,\"published\":true,\"locate_layer\":false,\"icon_class\":null},\"relationships\":{\"layer_group\":{\"data\":null}}},{\"id\":\"2\",\"type\":\"layers\",\"attributes\":{\"name\":\"test layer 1\",\"slug\":\"omnis\",\"layer_type\":\"perspiciatis\",\"zindex\":1,\"opacity\":null,\"active\":true,\"order\":1,\"color\":\"#000\",\"info\":\"ex\",\"interactivity\":\"rem\",\"css\":null,\"query\":null,\"layer_provider\":null,\"published\":true,\"locate_layer\":false,\"icon_class\":null},\"relationships\":{\"layer_group\":{\"data\":null}}},{\"id\":\"3\",\"type\":\"layers\",\"attributes\":{\"name\":\"test layer 2\",\"slug\":\"omnis\",\"layer_type\":\"perspiciatis\",\"zindex\":1,\"opacity\":null,\"active\":true,\"order\":1,\"color\":\"#000\",\"info\":\"ex\",\"interactivity\":\"rem\",\"css\":null,\"query\":null,\"layer_provider\":null,\"published\":true,\"locate_layer\":false,\"icon_class\":null},\"relationships\":{\"layer_group\":{\"data\":null}}}],\"meta\":{\"total_layers\":3}}",
+      "response_headers": {
+        "X-Frame-Options": "SAMEORIGIN",
+        "X-XSS-Protection": "1; mode=block",
+        "X-Content-Type-Options": "nosniff",
+        "Content-Type": "application/json; charset=utf-8",
+        "ETag": "W/\"8dafef64e515c9d761778f487ec33762\"",
+        "Cache-Control": "max-age=0, private, must-revalidate",
+        "Set-Cookie": "_neptis_session=NGpqcDg2YTIxYXE1TzBtZ2tEMFJiOXZRU3JzTmVwR3o5bG5iOXNBemRBSDU0ZGtoNzB0dENMa2xKUUZma0hjK2h1WVdNekFGY1FhRHk0bkltdXhkMWNlb3ZNTExoUFI2d3BWaWRlVnBSLzBKYlRVSGJSbDBRUnkvWVUvQ0pMTjRteURidm16ZWdwOTU5SzdjM3NNWHFnPT0tLVN6dVc3TjQ5MUdzUW92L3paTXdQZ3c9PQ%3D%3D--95cc62b72727ed206eb0f097f99e432d7332507d; path=/; HttpOnly",
+        "X-Request-Id": "0552f678-741f-4c4f-8fe9-ce0b0421d4ab",
+        "X-Runtime": "0.157098",
+        "Content-Length": "1098"
+      },
+      "response_content_type": "application/json; charset=utf-8",
+      "curl": "curl \"http://cigrp.org/api/api/layers/\" -X GET \\\n\t-H \"Accept: application/json; application/vnd.api+json\" \\\n\t-H \"Content-Type: application/vnd.api+json\" \\\n\t-H \"Host: http://cigrp.org\" \\\n\t-H \"Cookie: \""
+    }
+  ]
+}

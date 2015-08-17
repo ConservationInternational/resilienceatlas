@@ -1,70 +1,69 @@
 /*
- * Add here values that
- * affect the whole proyect
+  Layouts and structure
  */
-////////////////////
-//**** Screen ****//
-////////////////////
-$screen-s: 540px;
-$screen-m: 768px;
-$screen-l: 960px;
-$screen-xl: 1200px;
+$content-width: 1440px;
+$margin: 30px;
+
+$row-width: 1440px;
+
+/* Layout common values */
+$header-height: 65px;
+$sidebar-width: 350px;
 
 
-////////////////////
-//****  Grid  ****//
-////////////////////
-$grid-columns: 12;
-$grid-max-width: 960px;
-$grid-gutter-width: 1%;
-$grid-padding: 0;
-$wrap-padding: 0;
+/*
+  Fonts and typography
+ */
+@include font-face("Franklin", "ITCFranklinGothicStd-Demi", 700);
+@include font-face("Franklin", "ITCFranklinGothicStd-Med", 500);
+@include font-face("Franklin", "ITCFranklinGothicStd-Book", 400);
+@include font-face("FranklinCD", "ITCFranklinGothicStd-DmCp", 400);
 
-
-////////////////////
-//**** Fonts ****//
-////////////////////
 $font-face-1: "Franklin";
-$font-numbers: "Lato";
+$font-face-2: "FranklinCD";
 
-//Font sizes
-$font-size-extra-big: 52px;
-$font-size-big: 40px;
-$font-size-medium: 26px;
-$font-size: 15px;
-$font-size-small: 12px;
+// Since the typical default browser font-size is 16px, that makes the calculation for grid size.
+// If you want your base font-size to be different and not have it affect the grid breakpoints,
+// set $rem-base to $base-font-size and make sure $base-font-size is a px value.
+$rem-base: 16px;
+$base-font-size: 100% !default;
 
+// $base-line-height is 24px while $base-font-size is 16px
+// $base-line-height: 150% !default;
 
-////////////////////
-//**** Colors ****//
-////////////////////
+/*
+  Colors
+ */
 $white: #fff;
 $black: #000;
-$navy-blue: #009ede;
-$dark-blue: #303F5A;
-$green: #49853E;
+$blue: #0089cc;
+$gray: #555;
+$gray-medium: #979797;
+$gray-light: #f9f9f9;
 
-//Theme colors
-$color-1: $navy-blue;
-$color-2: $green;
-$color-3: $dark-blue;
+/*
+  Theme
+ */
+$bg-color-1: $white;
+$bg-color-2: $blue;
+$bg-color-3: $gray-light;
+$bg-color-4: $gray-medium;
+$bg-color-5: $black;
 
-$dark-grey: #58595B;
-$medium-grey: #595959;
-$soft-grey: #afafaf;
-$light-grey: #dedede;
-$ultra-light-grey: #F0F0F0;
-
-//Font colors
-$font-color-1: $dark-grey;
-$font-color-2: $white;
-$font-color-3: $soft-grey;
+$font-color-1: $gray;
+$font-color-2: $blue;
+$font-color-3: $white;
 
 
-////////////////////
-//**** Margins ***//
-////////////////////
-$margin-extra-large: 40px;
-$margin-large: 30px;
-$margin-medium: 20px;
-$margin-small: 10px;
+/*
+  Animations --> provisonal aquí para poder probarlas.
+ */
+// Sine
+$easeInSine:  cubic-bezier(0.470, 0.000, 0.745, 0.715);
+$easeOutSine:  cubic-bezier(0.390, 0.575, 0.565, 1.000);
+$easeInOutSine:  cubic-bezier(0.445, 0.050, 0.550, 0.950);
+
+// Cubic
+$easeInCubic:  cubic-bezier(0.550, 0.055, 0.675, 0.190);
+$easeOutCubic:  cubic-bezier(0.215, 0.610, 0.355, 1.000);
+$easeInOutCubic :  cubic-bezier(0.645, 0.045, 0.355, 1.000);

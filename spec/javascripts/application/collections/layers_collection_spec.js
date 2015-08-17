@@ -1,60 +1,56 @@
-define([
-  'collections/layers_collection',
-  'text!data/layers.json'
-], function(LayersCollection, layersData) {
+describe('Layers Collection', function() {
 
-  'use strict';
+  var layersData = [{
+    'id': 1,
+    'slug': 'lorem-ipsum',
+    'name': 'Lorem ipsum',
+    'description': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+    'cartocss': '#table_name {marker-fill: #F0F0F0;}',
+    'sql': 'SELECT * FROM table_name',
+    'color': '#ff0000',
+    'order': 1,
+    'zindex': 1,
+    'category': 1,
+    'active': true,
+    'published': true
+  }];
 
-  describe('@Layers Collection', function() {
+  before(function() {
+    this.server = sinon.fakeServer.create();
+  });
 
-    beforeEach(function() {
-      this.layersCollection = new LayersCollection([{
-        "name": "Urbanized and designated",
-        "slug": "ubranized_and_designated",
-        "group": "Urban settlements",
-        "category": "layer",
-        "type": "cartodb",
-        "zindex": 0
-      }, {
-        "name": "Urban growth",
-        "slug": "urban_growth",
-        "group": "Environmental conservation",
-        "category": "layer",
-        "type": "cartodb",
-        "zindex": 1
-      }]);
+  beforeEach(function() {
+    this.layersCollection = new window.app.Collection.Layers();
+  });
+
+  after(function() {
+    this.server.restore();
+  });
+
+  describe('#initialize()', function() {
+
+    it('should be an instance of Backbone.Collection', function() {
+      expect(this.layersCollection).to.be.instanceof(Backbone.Collection);
     });
 
-    describe('#Instance', function() {
-      it('layersData should be a JSON object', function() {
-        expect(typeof layersData).to.be.a('string');
-        expect(JSON.parse(layersData)).to.be.an('array');
-      });
-      it('layers should be a instance of LayersCollection', function() {
-        expect(this.layersCollection).to.be.instanceOf(LayersCollection);
-      });
+    it('should be empty', function() {
+      expect(this.layersCollection.models).to.be.empty;
     });
 
-    describe('#Parse', function() {
-      it('layers should return grouped by category attribute', function() {
-        var result = this.layersCollection.getByCategory();
-        expect(result).to.be.an('object');
-        expect(result).to.have.property('layer');
-      });
-      it('layers should return grouped by group attribute', function() {
-        var result = this.layersCollection.getByGroup();
-        expect(result).to.be.an('object');
-        expect(result).to.have.property('Urban settlements');
-        expect(result).to.have.property('Environmental conservation');
-      });
-      it('layers should return grouped by category and group', function() {
-        var result = this.layersCollection.getByCategoryAndGroup();
-        expect(result).to.be.an('object');
-        expect(result).to.have.property('layer');
-        expect(result.layer).to.be.an('object');
-        expect(result.layer).to.have.property('Urban settlements');
-        expect(result.layer).to.have.property('Environmental conservation');
-      });
+  });
+
+  describe('#fetch()', function() {
+
+    it('should return data correctly', function() {
+      var callback = sinon.spy();
+      this.server.respondWith('GET', '/api/layers', [
+        200,
+        { 'Content-Type': 'application/json' },
+        JSON.stringify(layersData)
+      ]);
+      this.layersCollection.fetch().done(callback);
+      this.server.respond();
+      sinon.assert.calledWith(callback, layersData);
     });
 
   });

@@ -1,0 +1,81 @@
+.l-header,
+.l-header--fullscreen {
+  position: relative;
+  z-index: 5;
+  height: rem($header-height);
+  box-shadow: 0 0 2px 0 rgba(0,0,0,.2);
+  background-color: $bg-color-1;
+}
+
+.l-header-nav {
+  max-width: rem($content-width);
+  margin: 0 auto;
+  position: relative;
+  z-index: 2;
+  background-color: $bg-color-1;
+
+  @include clearfix;
+
+  ul {
+    @extend %clean-lists;
+  }
+
+  .brand-area {
+    float: left;
+    padding: rem(5px) 0;
+
+    a {
+      display: block;
+      width: rem(140px);
+      padding: rem(5px) 0;
+      height: rem($header-height - 10px);
+      background-image: image-url("logo-grp.png");
+      background-repeat: no-repeat;
+      background-position: left center;
+      background-size: contain;
+      text-indent: -99999px;
+
+      &:hover {
+        text-decoration: none;
+      }
+    }
+  }
+
+  .nav-area {
+    float: right;
+    margin-right: -rem($margin);
+
+    li {
+      display: flex;
+      float: left;
+      height: rem($header-height);
+      margin-left: rem($margin/2);
+    }
+
+    a {
+      display: block;
+      margin: auto;
+      padding: rem(7px) rem(20px) rem(5px);
+      color: $font-color-2;
+      border-radius: 3px;
+      font-size: rem(14px);
+      text-transform: uppercase;
+      line-height: 1;
+      transition: .2s ease-in;
+
+      &:hover {
+        background-color: $bg-color-2;
+        color: $font-color-3;
+        text-decoration: none;
+      }
+    }
+  }
+
+  .l-header--fullscreen & {
+    max-width: none;
+
+    .row {
+      max-width: none;
+    }
+  }
+}

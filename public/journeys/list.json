@@ -1,0 +1,32 @@
+[
+  {
+    "id": 1,
+    "title": "ETHIOPIA",
+    "bg" : "bg-ethiopia"
+  },
+  {
+    "id": 2,
+    "title": "HORN OF AFRICA",
+    "bg" : "bg-horn"
+  },
+  {
+    "id": 3,
+    "title": "JOURNEY3",
+    "bg" : "bg-journey3"
+  },
+  {
+    "id": 4,
+    "title": "JOURNEY4",
+    "bg" : "bg-journey4"
+  },
+  {
+    "id": 5,
+    "title": "JOURNEY5",
+    "bg" : "bg-journey5"
+  },
+  {
+    "id": 6,
+    "title": "ETHIOPIA",
+    "bg" : "bg-ethiopia"
+  }
+]

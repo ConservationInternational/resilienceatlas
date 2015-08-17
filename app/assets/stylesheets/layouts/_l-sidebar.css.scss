@@ -1,0 +1,22 @@
+.l-sidebar,
+.l-sidebar--default {
+  width: rem($sidebar-width);
+
+  .l-sidebar-content {
+    padding: rem($margin);
+  }
+}
+
+.l-sidebar--fullscreen {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: rem($sidebar-width);
+  max-height: 95%;
+
+  background-color: $bg-color-1;
+
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  z-index: 1;
+}

@@ -1,0 +1,60 @@
+Get a share URL by UID
+----------------------
+
+Parameters:
+  * uid - An unique url identifier
+
+Request:
+  GET /api/share/12345
+  Accept: application/json; application/vnd.api+json
+  Content-Type: application/vnd.api+json
+  Cookie: 
+  Host: http://cigrp.org
+  X-Csrf-Token: a_valid_CSRF_token
+
+Response:
+  Status: 200 OK
+  Cache-Control: max-age=0, private, must-revalidate
+  Content-Length: 86
+  Content-Type: application/json; charset=utf-8
+  ETag: W/"00157d1068c63fa60ac22f2148c4eee4"
+  Set-Cookie: _neptis_session=V2FVVDQ2Njg4SDNhQThnVFZRM1Jrc3Z6blE4eS9zUkdxN2wzMEtlYXJIZXNtSk9kRWdZYmxIaTIwbXByRFN6QUoydlZjL0ZBb05LdHI3a0RwenhzK01CRHlBNFMrS3E1cXQxWmFBUWNWYUk5bitETnRuS1BpY0ZVazFDYlZzY1lqMnRtdUhQdjQzVStrZmRJMktrNTRBPT0tLVdTZm93S2RLdXRpU0JZTFVyaGFMbGc9PQ%3D%3D--810b2e7ee103c70ce903ed23c13a5660f21b4549; path=/; HttpOnly
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: SAMEORIGIN
+  X-Request-Id: 771c8afa-1eea-45d9-8572-d7b0f2b0d25e
+  X-Runtime: 0.016329
+  X-XSS-Protection: 1; mode=block
+
+  {"data":{"id":"1","type":"share_url","attributes":{"uid":"12345","body":"body test"}}}
+
+
+Create a share URL
+------------------
+
+Parameters:
+  * body - A Json object as text 
+
+Request:
+  POST /api/share/?body=body test
+  Accept: application/json; application/vnd.api+json
+  Content-Type: application/vnd.api+json
+  Cookie: 
+  Host: http://cigrp.org
+  X-Csrf-Token: a_valid_CSRF_token
+
+  body=body test
+
+Response:
+  Status: 200 OK
+  Cache-Control: max-age=0, private, must-revalidate
+  Content-Length: 30
+  Content-Type: application/json; charset=utf-8
+  ETag: W/"ef3ab3db9957d66adebd686be0198c04"
+  Set-Cookie: _neptis_session=T3FubnZMZmY5WU9iUXlHQ3BLWnpLa2lFSWpaMWtCVGNjMjFEMmYzWFJCdG9yZ09xd2hiRFVKRjErTzdjRklZSFc4eU9KUTVqTlJkaDRXRE8vQ25MVmZJSVhhdURkSFNxRzIyZVdZMG95U0Y3Q0xOaU9GOXJNQ1ZMeCtrdndzL2ZvUEtDeTUyVGF1aElybjJoNzh2ZXdnPT0tLWNQT3Q1NEU2d0FGRHpMYVpxb2FoVlE9PQ%3D%3D--12d2832c70863646ce9dba24a80988ed5aa28b65; path=/; HttpOnly
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: SAMEORIGIN
+  X-Request-Id: 04797402-3e2a-4f53-911d-536bc9f2e786
+  X-Runtime: 0.011880
+  X-XSS-Protection: 1; mode=block
+
+  {"uid":"f44f43d52eb80a3bad23"}

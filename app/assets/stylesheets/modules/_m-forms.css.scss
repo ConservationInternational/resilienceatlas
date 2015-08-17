@@ -1,0 +1,59 @@
+.m-form-input--switch {
+  /* This sets the speed at which the switch toggles */
+  $transition-speed: $switch-paddle-transition-speed;
+
+  /* This sets the ease of the switch transition */
+  $transition-ease: $switch-paddle-transition-ease;
+
+  /* This controls the overall height of the switch */
+  $height: rem(14px);
+
+  /* This controls the background of the paddle */
+  $paddle-bg: $switch-paddle-bg;
+
+  /* Set the background color for the switch when it's on */
+  $active-color: $switch-active-color;
+
+  /* Set this to true for default radius or any number for complete control */
+  $radius: true;
+
+  /* If you set this to false, base styles are left out */
+  $base-style: false;
+
+  @include switch($transition-speed, $transition-ease, $height, $paddle-bg, $active-color, $radius, $base-style);
+
+  display: inline-block;
+  margin-bottom: 0;
+
+  label {
+    margin-bottom: 0;
+    border: 1px solid #c0c0c0;
+    box-sizing: border-box;
+
+    &:after {
+      height: rem(12px);
+      width: rem(12px);
+      top: rem(0px);
+      left: rem(0px);
+      box-shadow: 0 2px 2px 0 rgba(0,0,0,.25);
+    }
+  }
+
+  input + label {
+    width: rem(25px);
+  }
+
+  input:checked + label:after {
+    left: rem(11px);
+    // border: 1px solid  $bg-color-2;
+  }
+
+  input:checked + label {
+    background-color: $bg-color-2;
+    border-color: #c0c0c0;
+  }
+}
+
+.m-form-input--slider {
+
+}

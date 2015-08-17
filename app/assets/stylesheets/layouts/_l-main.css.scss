@@ -1,0 +1,11 @@
+.l-main,
+.l-main--default {
+  position: relative;
+}
+
+.l-main--fullscreen {
+  position: absolute;
+  width: 100%;
+  top: rem($header-height);
+  bottom: 0;
+}

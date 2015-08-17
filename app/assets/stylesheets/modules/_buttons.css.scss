@@ -1,0 +1,18 @@
+.btn{
+  @extend %clean-button-or-input;
+  border-radius: 50px;
+  font-weight: 700;
+  padding: rem(12px) rem(50px) rem(8px);
+  display: inline-block;
+  &:hover {
+    text-decoration: none;
+  }
+
+  &.btn-primary {
+    background: $bg-color-1;
+    color: $font-color-2;
+    &:hover{
+      background: darken($bg-color-1,5%);
+    }
+  }
+}

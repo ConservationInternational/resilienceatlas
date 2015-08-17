@@ -1,0 +1,48 @@
+// Must be 100% for off canvas to work
+html, body {
+  height: 100%;
+}
+
+// Set box-sizing globally to handle padding and border widths
+*,
+*:before,
+*:after {
+  box-sizing: border-box;
+}
+
+// Default global styles
+html,
+body {
+  font-size: $base-font-size;
+}
+
+// Default body styles
+body {
+  position: relative;
+  padding: 0;
+  margin: 0;
+
+  color: $font-color-1;
+  font-family: $font-face-1;
+  font-weight: 500;
+  font-style: normal;
+  line-height: $base-line-height;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  background: $bg-color-1;
+}
+
+// Links
+a {
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+input:focus {
+  outline: none;
+}

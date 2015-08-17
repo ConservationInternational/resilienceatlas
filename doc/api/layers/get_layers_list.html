@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Layers API</title>
+    <meta charset="utf-8">
+    <style>
+      
+body {
+  font-family: Helvetica,Arial,sans-serif;
+  font-size: 13px;
+  font-weight: normal;
+  line-height: 18px;
+  color: #404040;
+}
+
+.container {
+  width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+  zoom: 1;
+}
+
+pre {
+  background-color: #f5f5f5;
+  display: block;
+  padding: 8.5px;
+  margin: 0 0 18px;
+  line-height: 18px;
+  font-size: 12px;
+  border: 1px solid #ccc;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+  white-space: pre;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+td.required .name:after {
+  float: right;
+  content: "required";
+  font-weight: normal;
+  color: #F08080;
+}
+
+a{
+  color: #0069d6;
+  text-decoration: none;
+  line-height: inherit;
+  font-weight: inherit;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-weight: bold;
+  color: #404040;
+}
+
+h1 {
+  margin-bottom: 18px;
+  font-size: 30px;
+  line-height: 36px;
+}
+h2 {
+  font-size: 24px;
+  line-height: 36px;
+}
+h3{
+  font-size: 18px;
+  line-height: 36px;
+}
+h4 {
+  font-size: 16px;
+  line-height: 36px;
+}
+
+table{
+  width: 100%;
+  margin-bottom: 18px;
+  padding: 0;
+  border-collapse: separate;
+  font-size: 13px;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  border-radius: 4px;
+  border-spacing: 0;
+  border: 1px solid #ddd;
+}
+
+table th {
+  padding-top: 9px;
+  font-weight: bold;
+  vertical-align: middle;
+  border-bottom: 1px solid #ddd;
+}
+table th+th, table td+td {
+  border-left: 1px solid #ddd;
+}
+table th, table td {
+  padding: 10px 10px 9px;
+  line-height: 18px;
+  text-align: left;
+}
+
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Layers API</h1>
+
+      <div class="article">
+        <h2>Get layers list</h2>
+        <h3>GET /api/layers/</h3>
+
+
+
+          <h3>Request</h3>
+
+            <h4>Headers</h4>
+            <pre class="request headers">Accept: application/json; application/vnd.api+json
+Content-Type: application/vnd.api+json
+Host: http://cigrp.org
+Cookie: </pre>
+
+          <h4>Route</h4>
+          <pre class="request route highlight">GET /api/layers/</pre>
+
+
+
+            <h4>cURL</h4>
+            <pre class="request curl">curl &quot;http://cigrp.org/api/api/layers/&quot; -X GET \
+	-H &quot;Accept: application/json; application/vnd.api+json&quot; \
+	-H &quot;Content-Type: application/vnd.api+json&quot; \
+	-H &quot;Host: http://cigrp.org&quot; \
+	-H &quot;Cookie: &quot;</pre>
+
+            <h3>Response</h3>
+              <h4>Headers</h4>
+              <pre class="response headers">X-Frame-Options: SAMEORIGIN
+X-XSS-Protection: 1; mode=block
+X-Content-Type-Options: nosniff
+Content-Type: application/json; charset=utf-8
+ETag: W/&quot;8dafef64e515c9d761778f487ec33762&quot;
+Cache-Control: max-age=0, private, must-revalidate
+Set-Cookie: _neptis_session=NGpqcDg2YTIxYXE1TzBtZ2tEMFJiOXZRU3JzTmVwR3o5bG5iOXNBemRBSDU0ZGtoNzB0dENMa2xKUUZma0hjK2h1WVdNekFGY1FhRHk0bkltdXhkMWNlb3ZNTExoUFI2d3BWaWRlVnBSLzBKYlRVSGJSbDBRUnkvWVUvQ0pMTjRteURidm16ZWdwOTU5SzdjM3NNWHFnPT0tLVN6dVc3TjQ5MUdzUW92L3paTXdQZ3c9PQ%3D%3D--95cc62b72727ed206eb0f097f99e432d7332507d; path=/; HttpOnly
+X-Request-Id: 0552f678-741f-4c4f-8fe9-ce0b0421d4ab
+X-Runtime: 0.157098
+Content-Length: 1098</pre>
+            <h4>Status</h4>
+            <pre class="response status">200 OK</pre>
+              <h4>Body</h4>
+              <pre class="response body">{&quot;data&quot;:[{&quot;id&quot;:&quot;1&quot;,&quot;type&quot;:&quot;layers&quot;,&quot;attributes&quot;:{&quot;name&quot;:&quot;test layer 0&quot;,&quot;slug&quot;:&quot;omnis&quot;,&quot;layer_type&quot;:&quot;perspiciatis&quot;,&quot;zindex&quot;:1,&quot;opacity&quot;:null,&quot;active&quot;:true,&quot;order&quot;:1,&quot;color&quot;:&quot;#000&quot;,&quot;info&quot;:&quot;ex&quot;,&quot;interactivity&quot;:&quot;rem&quot;,&quot;css&quot;:null,&quot;query&quot;:null,&quot;layer_provider&quot;:null,&quot;published&quot;:true,&quot;locate_layer&quot;:false,&quot;icon_class&quot;:null},&quot;relationships&quot;:{&quot;layer_group&quot;:{&quot;data&quot;:null}}},{&quot;id&quot;:&quot;2&quot;,&quot;type&quot;:&quot;layers&quot;,&quot;attributes&quot;:{&quot;name&quot;:&quot;test layer 1&quot;,&quot;slug&quot;:&quot;omnis&quot;,&quot;layer_type&quot;:&quot;perspiciatis&quot;,&quot;zindex&quot;:1,&quot;opacity&quot;:null,&quot;active&quot;:true,&quot;order&quot;:1,&quot;color&quot;:&quot;#000&quot;,&quot;info&quot;:&quot;ex&quot;,&quot;interactivity&quot;:&quot;rem&quot;,&quot;css&quot;:null,&quot;query&quot;:null,&quot;layer_provider&quot;:null,&quot;published&quot;:true,&quot;locate_layer&quot;:false,&quot;icon_class&quot;:null},&quot;relationships&quot;:{&quot;layer_group&quot;:{&quot;data&quot;:null}}},{&quot;id&quot;:&quot;3&quot;,&quot;type&quot;:&quot;layers&quot;,&quot;attributes&quot;:{&quot;name&quot;:&quot;test layer 2&quot;,&quot;slug&quot;:&quot;omnis&quot;,&quot;layer_type&quot;:&quot;perspiciatis&quot;,&quot;zindex&quot;:1,&quot;opacity&quot;:null,&quot;active&quot;:true,&quot;order&quot;:1,&quot;color&quot;:&quot;#000&quot;,&quot;info&quot;:&quot;ex&quot;,&quot;interactivity&quot;:&quot;rem&quot;,&quot;css&quot;:null,&quot;query&quot;:null,&quot;layer_provider&quot;:null,&quot;published&quot;:true,&quot;locate_layer&quot;:false,&quot;icon_class&quot;:null},&quot;relationships&quot;:{&quot;layer_group&quot;:{&quot;data&quot;:null}}}],&quot;meta&quot;:{&quot;total_layers&quot;:3}}</pre>
+      </div>
+    </div>
+  </body>
+</html>

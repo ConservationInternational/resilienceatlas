@@ -1,0 +1,51 @@
+{
+  "resource": "ShareUrl",
+  "http_method": "POST",
+  "route": "/api/share/?body=:body",
+  "description": "Create a share URL",
+  "explanation": null,
+  "parameters": [
+    {
+      "name": "body",
+      "description": "A Json object as text "
+    }
+  ],
+  "response_fields": [
+
+  ],
+  "requests": [
+    {
+      "request_method": "POST",
+      "request_path": "/api/share/?body=body test",
+      "request_body": null,
+      "request_headers": {
+        "Accept": "application/json; application/vnd.api+json",
+        "Content-Type": "application/vnd.api+json",
+        "Host": "http://cigrp.org",
+        "X-Csrf-Token": "a_valid_CSRF_token",
+        "Cookie": ""
+      },
+      "request_query_parameters": {
+        "body": "body test"
+      },
+      "request_content_type": "application/vnd.api+json",
+      "response_status": 200,
+      "response_status_text": "OK",
+      "response_body": "{\"uid\":\"f44f43d52eb80a3bad23\"}",
+      "response_headers": {
+        "X-Frame-Options": "SAMEORIGIN",
+        "X-XSS-Protection": "1; mode=block",
+        "X-Content-Type-Options": "nosniff",
+        "Content-Type": "application/json; charset=utf-8",
+        "ETag": "W/\"ef3ab3db9957d66adebd686be0198c04\"",
+        "Cache-Control": "max-age=0, private, must-revalidate",
+        "Set-Cookie": "_neptis_session=T3FubnZMZmY5WU9iUXlHQ3BLWnpLa2lFSWpaMWtCVGNjMjFEMmYzWFJCdG9yZ09xd2hiRFVKRjErTzdjRklZSFc4eU9KUTVqTlJkaDRXRE8vQ25MVmZJSVhhdURkSFNxRzIyZVdZMG95U0Y3Q0xOaU9GOXJNQ1ZMeCtrdndzL2ZvUEtDeTUyVGF1aElybjJoNzh2ZXdnPT0tLWNQT3Q1NEU2d0FGRHpMYVpxb2FoVlE9PQ%3D%3D--12d2832c70863646ce9dba24a80988ed5aa28b65; path=/; HttpOnly",
+        "X-Request-Id": "04797402-3e2a-4f53-911d-536bc9f2e786",
+        "X-Runtime": "0.011880",
+        "Content-Length": "30"
+      },
+      "response_content_type": "application/json; charset=utf-8",
+      "curl": "curl \"http://cigrp.org/api/api/share/?body=body test\" -d '' -X POST \\\n\t-H \"Accept: application/json; application/vnd.api+json\" \\\n\t-H \"Content-Type: application/vnd.api+json\" \\\n\t-H \"Host: http://cigrp.org\" \\\n\t-H \"X-Csrf-Token: a_valid_CSRF_token\" \\\n\t-H \"Cookie: \""
+    }
+  ]
+}
