@@ -56,10 +56,14 @@
 
     setLegends: function() {
       return _.map(this.layers.getActived(), _.bind(function(layer){
-        var legend = JSON.parse(layer.legend);
-        var type = legend.type;
 
-        layer.tpl = this.templateLegends[type](legend);
+        //Check if legend exists
+        if (layer.legend) {
+          var legend = JSON.parse(layer.legend);
+          var type = legend.type;
+
+          layer.tpl = this.templateLegends[type](legend);
+        }
 
         return layer;
       }, this ));

@@ -15,6 +15,7 @@ html lang="#{I18n.locale}"
     .l-main-fullscreen
       == yield
     == render "layouts/footer"
+    == render "partials/modal"
     = javascript_include_tag "application"
 
 
