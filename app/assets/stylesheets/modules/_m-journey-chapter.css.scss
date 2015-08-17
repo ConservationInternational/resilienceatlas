@@ -6,7 +6,7 @@
   right: 0;
 
   background-repeat: no-repeat;
-  background-size: contain;
+  background-size: cover;
   background-position: left bottom;
 }
 
@@ -23,6 +23,7 @@
     font-family: $font-face-2;
     font-weight: 400;
     margin: 0;
+    line-height: .8;
   }
 
   p {
