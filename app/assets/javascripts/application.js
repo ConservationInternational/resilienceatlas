@@ -43,6 +43,7 @@
     initialize: function() {
       this.currentViews = [];
       this.router = new root.app.Router();
+      this.initGlobalViews();
       this.setListeners();
     },
 
@@ -54,6 +55,23 @@
 
       // Initializing journeys
       this.listenTo(this.router, 'route:journeys', this.journeysPage)
+    },
+
+    initGlobalViews: function() {
+      var journeyslistCollection = new root.app.Collection.JourneysList();
+      var headerView = new root.app.View.Header({
+        el: '#headerView',
+        journeys: journeyslistCollection
+      });
+
+      // Fetching data
+      var complete = _.invoke([
+        journeyslistCollection,
+      ], 'fetch');
+
+      $.when.apply($, complete).done(function() {
+        headerView.render();
+      }.bind(this));
     },
 
     welcomePage: function() {

@@ -10,6 +10,9 @@
 .l-header-nav {
   max-width: rem($content-width);
   margin: 0 auto;
+  position: relative;
+  z-index: 2;
+  background-color: $bg-color-1;
 
   @include clearfix;
 
