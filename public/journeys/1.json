@@ -10,14 +10,14 @@
         "type": "landing",
         "title": "ETHIOPIA",
         "subtitle": "Agricultural Livelihoods & Climate Change in Ethiopia",
-        "background": "ethiopia-bg.png"
+        "background": "http://localhost:3000/assets/ethiopia-bg.png"
       },
       {
         "number": 1,
         "chapterNumber": 1,
+        "chapterBg": "http://localhost:3000/assets/ethiopia2bg.png",
         "type": "chapter",
-        "chapter_number": 1,
-        "intro": "livelihoods",
+        "title": "livelihoods",
         "content": "Which rural livelihoods are most threatened by increasing climate variability and shocks, and where are they located?"
       },
       {
@@ -25,30 +25,36 @@
         "type": "embed",
         "theme": "light",
         "aside": "<article><header><h2>Livelihoods</h2><h3>maize production</h3></header><section><h1>Ethiopia</h1><div class='facts'><h4>Exposure</h4><p>36,6% of population depending on pasture for livelihoods</p></div><div class='facts'><h4>Stressors & Shocks</h4><p>Dry season precipitation declining by 12%</p></div><div class='facts'><h4>Vulnerability</h4><p>High levels of health stress in pastoral regions</p></div></section><footer><p>INSIGHTS PROVIDED BY CONSERVATION INTERNATIONAL</p></footer></article>",
-        "mapUrl": "/map?layers=%5B%7B%22id%22%3A6%2C%22opacity%22%3A1%2C%22order%22%3A0%7D%5D" ,
-        "chart": {
-          "type": "line",
-          "data": [{ "x": 1999920202, "y": 200 }]
-        }
+        "mapUrl": "/map?layers=%5B%7B%22id%22%3A6%2C%22opacity%22%3A1%2C%22order%22%3A0%7D%5D"
       },
       {
         "number": 3,
-        "type": "text",
-        "align": "left",
-        "background": "/images/maize.png",
-        "content": "<p>Maize is Ethiopia’s most important cereal in terms of production.</p><p>Maize is Ethiopia’s most important cereal in terms of production.</p><p class='highlighted'>94% of maize production is done by smallholder farmers.</p>"
+        "chapterNumber": 2,
+        "chapterBg": "http://localhost:3000/assets/ethiopia2bg.png",
+        "type": "chapter",
+        "title": "stressors & shocks"
       },
       {
         "number": 4,
         "type": "text",
-        "align": "right",
-        "background": "/images/cloud.png",
-        "content": "<div class='highlighted'><p>Since 1981, the rainfall during the short rainy season has increased by as much as 10% per year.</p><p>11.7% of the area currently used for maize production has been impacted by this increase.</p></div>"
+        "align": "left",
+        "background": "http://localhost:3000/assets/maize-bg.png",
+        "content": "<p>Maize is Ethiopia’s most important cereal in terms of production.</p><p>Maize is Ethiopia’s most important cereal in terms of production.</p><p class='highlighted'>94% of maize production is done by smallholder farmers.</p>"
       },
       {
         "number": 5,
-        "type": "chart",
-        "background": "#fff"
+        "chapterNumber": 3,
+        "chapterBg": "http://localhost:3000/assets/ethiopia2bg.png",
+        "type": "chapter",
+        "title": "vulnerability",
+        "content": "In areas of stress, fertility rates are >5% per year and population is projected to increase from 98,942,102 to 142,900,000 by 2030, creating further stress."
+      },
+      {
+        "number": 6,
+        "type": "text",
+        "align": "right",
+        "background": "http://localhost:3000/assets/clouds-bg.png",
+        "content": "<div class='highlighted'><p>Since 1981, the rainfall during the short rainy season has increased by as much as 10% per year.</p><p>11.7% of the area currently used for maize production has been impacted by this increase.</p></div>"
       }
     ]
   }

@@ -20,6 +20,7 @@
       embed: HandlebarsTemplates['journey_embed_tpl'],
       text: HandlebarsTemplates['journey_text_tpl'],
       chart: HandlebarsTemplates['journey_chart_tpl'],
+      controls: HandlebarsTemplates['journey_controls_tpl']
     },
 
     initialize: function(settings) {
@@ -58,6 +59,11 @@
 
       this.$el.html( this.template({ content: this.currentStepData }) );
 
+      this.renderButtons();
+    },
+
+    renderButtons: function() {
+      $('.m-controls').html( this.templates['controls'] );
       this._handleButtons();
     },
 

@@ -1,0 +1,33 @@
+.m-journey-landing {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+
+  .row {
+    margin: auto;
+  }
+
+  .intro {
+    text-align: center;
+
+    h1 {
+      color: $font-color-3;
+      text-transform: uppercase;
+      font-size: rem(144px);
+      font-family: $font-face-2;
+      font-weight: 400;
+      margin: 0;
+    }
+
+    h2 {
+      color: $font-color-3;
+      font-size: rem(26px);
+    }
+  }
+}
