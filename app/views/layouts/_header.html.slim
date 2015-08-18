@@ -6,8 +6,8 @@ header.l-header--fullscreen id="headerView"
       li
         = link_to 'CIGRP Prototype', root_path
     ul.nav-area
-      / li.journey-link
-      /   = link_to 'Journeys', journeys_path, class: controller_name == 'journeys' ? 'is-current' : ''
+      li.journey-link
+        = link_to 'Journeys', journeys_path, class: controller_name == 'journeys' ? 'is-current' : ''
       li
         = link_to 'Map', map_path, class: controller_name == 'map' ? 'is-current' : ''
       / li
