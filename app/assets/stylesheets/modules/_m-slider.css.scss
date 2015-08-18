@@ -1,177 +1,168 @@
 $backgrounds: 'bg-intro','bg-ethiopia','bg-horn','bg-journey3','bg-journey4','bg-journey5';
 
-.m-slider {
-  // SLIDER LIST
-  .m-slider__itemlist {
-    @extend %clean-lists;
+// SLIDER LIST MENU
+.m-slider__itemlist {
+  @extend %clean-lists;
+  position: relative;
+  background-color: $bg-color-5;
+  height: rem(565px);
+
+  .m-slider__item {
     position: relative;
-    background-color: $bg-color-5;
     height: rem(565px);
 
-    .m-slider__item {
-      position: relative;
-      height: rem(565px);
+    background-position:  center;
+    background-size: cover;
+    background-repeat: no-repeat;
 
-      background-position:  center;
-      background-size: cover;
-      background-repeat: no-repeat;
-
-      @for $i from 1 through length($backgrounds) {
-        &.#{nth($backgrounds, $i)}{
-          background-image: image-url('home/slider-home/#{nth($backgrounds, $i)}.jpg');
-        }
-      }
-
-      header {
-        @extend %center;
-        text-align: center;
-        color: $font-color-3;
-
-        h2 {
-          font-family: $font-face-2;
-          font-size: rem(99px);
-          font-weight: 400;
-          line-height: 1;
-          text-transform: uppercase;
-          margin: 0;
-        }
-
-        h3 {
-          font-size: rem(26px);
-          font-weight: 400;
-          line-height: 1.25;
-          margin: 0 auto;
-          max-width: rem(600px);
-        }
+    @for $i from 1 through length($backgrounds) {
+      &.#{nth($backgrounds, $i)}{
+        background-image: image-url('home/slider-home/#{nth($backgrounds, $i)}.jpg');
       }
     }
 
-  }
+    header {
+      @extend %center;
+      text-align: center;
+      color: $font-color-3;
 
-  // SLIDER PAGINATION
-  .m-slider__paginationlist {
-    @extend %clean-lists;
-    height: rem(125px);
-
-    .m-slider__pagination{
-      position: relative;
-      height: rem(125px);
-      cursor: pointer;
-      outline: none;
-
-      @for $i from 1 through length($backgrounds) {
-        &.#{nth($backgrounds, $i)}{
-          background-image: image-url('home/slider-home/#{nth($backgrounds, $i)}-thumb.jpg');
-          background-position:  center;
-          background-size: cover;
-        }
-      }
-
-      .m-slider__item {
-        @for $i from 1 through length($backgrounds) {
-          &.#{nth($backgrounds, $i)}{
-            background-image: image-url('home/slider-home/#{nth($backgrounds, $i)}.jpg');
-          }
-        }
-      }
-
-      &:before{
-        content: "";
-        @extend %center;
-        transform: translate(-50%,0%);
-        z-index: 2;
-        border-bottom: 22px solid $font-color-3;
-        border-left: 14px solid transparent;
-        border-right: 14px solid transparent;
-        opacity: 0;
-        visibility: hidden;
-        transition: all 0.12s linear;
-      }
-
-      &:after{
-        content: "";
-        position: absolute;
-        top: 0;
-        left: 0;
-        z-index: 1;
-        width: 100%;
-        height: 100%;
-        background: rgba($bg-color-5,0.8);
-        opacity: 0;
-        visibility: hidden;
-        transition: all 0.12s linear;
-      }
-
-
-      &:hover, &.is-active{
-        &:after, &:before{
-          opacity: 1;
-          visibility: visible;
-        }
-        &:before {
-          transform: translate(-50%,-50%);
-        }
-        h2{
-          opacity: 0;
-          visibility: hidden;
-        }
-      }
-
-      h2{
-        @extend %center;
-        text-align: center;
-        color: $font-color-3;
+      h2 {
         font-family: $font-face-2;
-        font-size: rem(30px);
+        font-size: rem(99px);
         font-weight: 400;
         line-height: 1;
         text-transform: uppercase;
         margin: 0;
-        opacity: 1;
-        visibility: visible;
-        transition: all 0.12s linear;
+      }
+
+      h3 {
+        font-size: rem(26px);
+        font-weight: 400;
+        line-height: 1.25;
+        margin: 0 auto;
+        max-width: rem(600px);
       }
     }
   }
 
-  // SLIDER NAVIGATION
-  .m-slider__navigationlist {
-    .m-slider__navigation{
-      @extend %centery;
-      @extend %clean-button-or-input;
-      width: 60px;
+}
+
+// SLIDER PAGINATION
+.m-slider__paginationlist {
+  @extend %clean-lists;
+  height: rem(125px);
+
+  .m-slider__pagination {
+    position: relative;
+    height: rem(125px);
+    cursor: pointer;
+    outline: none;
+
+    @for $i from 1 through length($backgrounds) {
+      &.#{nth($backgrounds, $i)}{
+        background-image: image-url('home/slider-home/#{nth($backgrounds, $i)}-thumb.jpg');
+        background-position:  center;
+        background-size: cover;
+      }
+    }
+
+    &:before{
+      content: "";
+      @extend %center;
+      transform: translate(-50%,0%);
+      z-index: 2;
+      border-bottom: 22px solid $font-color-3;
+      border-left: 14px solid transparent;
+      border-right: 14px solid transparent;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.12s linear;
+    }
+
+    &:after{
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 1;
+      width: 100%;
       height: 100%;
-      padding: 0;
+      background: rgba($bg-color-5,0.8);
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.12s linear;
+    }
 
+
+    &:hover, &.is-active{
+      &:after, &:before{
+        opacity: 1;
+        visibility: visible;
+      }
+      &:before {
+        transform: translate(-50%,-50%);
+      }
+      h2{
+        opacity: 0;
+        visibility: hidden;
+      }
+    }
+
+    h2{
+      @extend %center;
+      text-align: center;
+      color: $font-color-3;
+      font-family: $font-face-2;
+      font-size: rem(30px);
+      font-weight: 400;
+      line-height: 1;
+      text-transform: uppercase;
+      margin: 0;
+      opacity: 1;
+      visibility: visible;
+      transition: all 0.12s linear;
+    }
+  }
+}
+
+// SLIDER NAVIGATION
+.m-slider__navigationlist {
+  .m-slider__navigation{
+    @extend %centery;
+    @extend %clean-button-or-input;
+    width: 60px;
+    height: 100%;
+    padding: 0;
+
+    &:before{
+      content: "";
+      @extend %center;
+      width: 26px;
+      height: 26px;
+      border-top: 2px solid $bg-color-1;
+      border-right: 2px solid $bg-color-1;
+      transition: all 0.12s $easeInOutSine;
+    }
+
+    &.is-left{
       &:before{
-        content: "";
-        @extend %center;
-        width: 26px;
-        height: 26px;
-        border-top: 2px solid $bg-color-1;
-        border-right: 2px solid $bg-color-1;
-        transition: all 0.12s $easeInOutSine;
+        transform: translate(-25%,-50%) rotate(-135deg);
       }
+    }
+    &.is-right{
+      left: auto;
+      right: 0;
+      &:before{
+        transform: translate(-75%,-50%) rotate(45deg);
+      }
+    }
 
-      &.is-left{
-        &:before{
-          transform: translate(-25%,-50%) rotate(-135deg);
-        }
-      }
-      &.is-right{
-        left: auto;
-        right: 0;
-        &:before{
-          transform: translate(-75%,-50%) rotate(45deg);
-        }
-      }
-
-      &:hover{
-        &:before{
-          width: 30px;
-          height: 30px;
-        }
+    &:hover{
+      &:before{
+        width: 30px;
+        height: 30px;
       }
     }
   }
 }
+

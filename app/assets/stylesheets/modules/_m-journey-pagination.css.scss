@@ -1,4 +1,6 @@
-// SLIDER JOURNEYS HEADER
+$backgrounds: 'bg-intro','bg-ethiopia','bg-horn','bg-journey3','bg-journey4','bg-journey5';
+
+// SLIDER JOURNEYS HEADER HOME
 .m-journey__paginationlist {
   @extend %clean-lists;
   position: absolute;
@@ -12,19 +14,25 @@
   transform: translate(0,-100%);
   transition: opacity 0.12s linear;
 
-  &.is-active{
+  &.is-active {
     visibility: visible;
     opacity: 1;
     transform: translate(0,0%);
   }
 
-  .m-journey__pagination{
+  .m-journey__pagination {
     display: block;
     position: relative;
     height: rem(125px);
     cursor: pointer;
     outline: none;
     background-size: cover !important;
+
+    @for $i from 1 through length($backgrounds) {
+      &.#{nth($backgrounds, $i)}{
+        background-image: image-url('home/slider-home/#{nth($backgrounds, $i)}-thumb.jpg');
+      }
+    }
 
     a {
       display: block;
@@ -36,7 +44,7 @@
       z-index: 2;
     }
 
-    &:before{
+    &:before {
       content: "";
       @extend %center;
       transform: translate(-50%,0%);
@@ -49,7 +57,7 @@
       transition: all 0.12s linear;
     }
 
-    &:after{
+    &:after {
       content: "";
       position: absolute;
       top: 0;
@@ -64,21 +72,23 @@
     }
 
 
-    &:hover, &.is-active{
-      &:after, &:before{
+    &:hover, &.is-active {
+      &:after, &:before {
         opacity: 1;
         visibility: visible;
       }
+
       &:before {
         transform: translate(-50%,-50%);
       }
-      h2{
+
+      h2 {
         opacity: 0;
         visibility: hidden;
       }
     }
 
-    h2{
+    h2 {
       @extend %center;
       text-align: center;
       color: $font-color-3;
