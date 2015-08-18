@@ -14,7 +14,8 @@ $backgrounds: 'bg-intro','bg-ethiopia','bg-horn','bg-journey3','bg-journey4','bg
 
       @for $i from 1 through length($backgrounds) {
         &.#{nth($backgrounds, $i)}{
-          background: image-url('home/slider-home/#{nth($backgrounds, $i)}.jpg') center;
+          background-image: image-url('home/slider-home/#{nth($backgrounds, $i)}.jpg');
+          background-position:  center;
           background-size: cover;
         }
       }
@@ -23,6 +24,7 @@ $backgrounds: 'bg-intro','bg-ethiopia','bg-horn','bg-journey3','bg-journey4','bg
         @extend %center;
         text-align: center;
         color: $font-color-3;
+
         h2 {
           font-family: $font-face-2;
           font-size: rem(99px);
@@ -31,6 +33,7 @@ $backgrounds: 'bg-intro','bg-ethiopia','bg-horn','bg-journey3','bg-journey4','bg
           text-transform: uppercase;
           margin: 0;
         }
+
         h3 {
           font-size: rem(26px);
           font-weight: 400;
@@ -56,7 +59,8 @@ $backgrounds: 'bg-intro','bg-ethiopia','bg-horn','bg-journey3','bg-journey4','bg
 
       @for $i from 1 through length($backgrounds) {
         &.#{nth($backgrounds, $i)}{
-          background: image-url('home/slider-home/#{nth($backgrounds, $i)}-thumb.jpg') center;
+          background-image: image-url('home/slider-home/#{nth($backgrounds, $i)}-thumb.jpg');
+          background-position:  center;
           background-size: cover;
         }
       }
