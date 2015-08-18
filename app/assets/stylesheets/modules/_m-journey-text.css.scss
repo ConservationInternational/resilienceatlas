@@ -1,3 +1,5 @@
+$backgrounds: 'maize-bg', 'clouds-bg';
+
 $side-bar-width: 25%;
 $side-bar-min-width: 350px;
 
@@ -11,6 +13,13 @@ $side-bar-min-width: 350px;
   background-repeat: no-repeat;
   background-size: cover;
   background-position: left bottom;
+
+  @for $i from 1 through length($backgrounds) {
+    &.#{nth($backgrounds, $i)}{
+      background-image: image-url('journeys/texts/#{nth($backgrounds, $i)}.png');
+    }
+  }
+
 }
 
 %content {
@@ -56,6 +65,6 @@ $side-bar-min-width: 350px;
 }
 
 .content--right {
-  @extend %content;  
+  @extend %content;
   right: 0;
 }

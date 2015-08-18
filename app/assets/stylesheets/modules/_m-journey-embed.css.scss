@@ -17,6 +17,11 @@ $side-bar-min-width: 350px;
     background-color: #eee;
   }
 
+  embed {
+    width: 100%;
+    height: 100%;
+  }
+
   .side-bar {
     position: absolute;
     top: rem(45px);

@@ -12,11 +12,13 @@ $backgrounds: 'bg-intro','bg-ethiopia','bg-horn','bg-journey3','bg-journey4','bg
       position: relative;
       height: rem(565px);
 
+      background-position:  center;
+      background-size: cover;
+      background-repeat: no-repeat;
+
       @for $i from 1 through length($backgrounds) {
         &.#{nth($backgrounds, $i)}{
           background-image: image-url('home/slider-home/#{nth($backgrounds, $i)}.jpg');
-          background-position:  center;
-          background-size: cover;
         }
       }
 
