@@ -1,6 +1,6 @@
 {{#each journeys}}
   <li class="m-journey__pagination {{this.bg}}" data-index="{{@index}}" style="background: url('/assets/home/slider-home/{{this.bg}}-thumb.jpg') center;">
-    <a href="journeys/{{this.id}}">
+    <a href="journeys?journey={{this.id}}">
       <h2>{{this.title}}</h2>
     </a>
   </li>
