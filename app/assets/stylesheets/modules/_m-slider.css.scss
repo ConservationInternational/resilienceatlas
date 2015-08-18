@@ -1,6 +1,6 @@
 $backgrounds: 'bg-intro','bg-ethiopia','bg-horn','bg-journey3','bg-journey4','bg-journey5';
 
-// SLIDER LIST MENU
+//CENTRAL IMAGE HOME
 .m-slider__itemlist {
   @extend %clean-lists;
   position: relative;
@@ -47,7 +47,7 @@ $backgrounds: 'bg-intro','bg-ethiopia','bg-horn','bg-journey3','bg-journey4','bg
 
 }
 
-// SLIDER PAGINATION
+// SLIDER PAGINATION HOME
 .m-slider__paginationlist {
   @extend %clean-lists;
   height: rem(125px);
