@@ -15,8 +15,12 @@
       user_name: 'grp', // Required
       type: 'cartodb', // Required
       cartodb_logo: false,
-      maps_api_template: 'https://grp.cidata.io/user/{user}',
-      sql_api_template: 'https://grp.cidata.io/user/{user}',
+      //old adress
+      // maps_api_template: 'https://grp.cidata.io/user/{user}',
+      // sql_api_template: 'https://grp.cidata.io/user/{user}',
+      // New adress
+      maps_api_template: 'https://grp.global.ssl.fastly.net/user/{user}',
+      sql_api_template: 'https://grp.global.ssl.fastly.net/user/{user}',
       sublayers: [{
         sql: 'SELECT * FROM table_name', // Required
         cartocss: '#table_name {marker-fill: #F0F0F0;}', // Required
