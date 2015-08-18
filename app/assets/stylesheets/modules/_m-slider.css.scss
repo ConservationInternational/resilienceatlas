@@ -67,6 +67,14 @@ $backgrounds: 'bg-intro','bg-ethiopia','bg-horn','bg-journey3','bg-journey4','bg
         }
       }
 
+      .m-slider__item {
+        @for $i from 1 through length($backgrounds) {
+          &.#{nth($backgrounds, $i)}{
+            background-image: image-url('home/slider-home/#{nth($backgrounds, $i)}.jpg');
+          }
+        }
+      }
+
       &:before{
         content: "";
         @extend %center;
