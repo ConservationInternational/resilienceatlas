@@ -1,0 +1,57 @@
+$backgrounds: 'ethiopia2bg';
+
+%image-requirements {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: left bottom;
+}
+
+.m-journey-chapter {
+  @extend %image-requirements;
+
+  @for $i from 1 through length($backgrounds) {
+    &.#{nth($backgrounds, $i)}{
+      background-image: image-url('journeys/chapters/#{nth($backgrounds, $i)}.png');
+    }
+  }
+
+  .row {
+    margin: auto;
+  }
+
+  h1 {
+    text-transform: uppercase;
+    font-size: rem(64px);
+    font-family: $font-face-2;
+    font-weight: 400;
+    margin: 0;
+    line-height: .8;
+  }
+
+  p {
+    font-weight: 400;
+    line-height: 1.2em;
+    margin-bottom: 2em;
+  }
+}
+
+.chapter-mask--1 {
+  @extend %image-requirements;
+  background-image: image-url("journeys/chapters/chapter-1.svg");
+}
+
+.chapter-mask--2 {
+  @extend %image-requirements;
+  background-image: image-url("journeys/chapters/chapter-2.svg");
+}
+
+.chapter-mask--3 {
+  @extend %image-requirements;
+  background-image: image-url("journeys/chapters/chapter-3.svg");
+}

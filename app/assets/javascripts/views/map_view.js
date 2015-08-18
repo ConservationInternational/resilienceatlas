@@ -9,9 +9,9 @@
 
     defaults: {
       map: {
-        zoom: 4,
-        // center: [39.5947265625, 8.928487062665504],
-        center: [10, 26],
+        zoom: 3,
+        center: [0, 15],
+        // center: [10, 26], //Horn of Africa
         zoomControl: false,
         scrollWheelZoom: false
       },

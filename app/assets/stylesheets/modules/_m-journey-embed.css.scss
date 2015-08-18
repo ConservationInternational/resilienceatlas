@@ -1,0 +1,120 @@
+$side-bar-width: 25%;
+$side-bar-min-width: 350px;
+
+%m-journey-embed {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+
+  .embebed-map {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: #eee;
+  }
+
+  embed {
+    width: 100%;
+    height: 100%;
+  }
+
+  .side-bar {
+    position: absolute;
+    top: rem(45px);
+    bottom: rem(250px);
+    left: rem(45px);
+    width: $side-bar-width;
+    min-width: rem($side-bar-min-width);
+
+    header,
+    footer {
+      border-bottom: 1px solid rgba($font-color-1, .1);
+    }
+
+    h2 {
+      margin: 0;
+      font-size: rem(64px);
+      font-family: $font-face-2;
+    }
+
+    h3 {
+      text-transform: uppercase;
+    }
+
+    h1 {
+      font-size: rem(36px);
+      font-weight: 400;
+    }
+
+    h4 {
+      font-size: rem(16px);
+      margin-bottom: 0;
+    }
+
+    p {
+      font-size: rem(18px);
+      font-weight: 400;
+      margin-top: 0;
+    }
+
+    footer {
+      display: block;
+      position: relative;
+
+      &:after {
+        content: "";
+        display: block;
+        position: absolute;
+        right: 0;
+        bottom: rem(7px);
+        width: rem(16px);
+        height: rem(20px);
+        background-image: image-url('cigrp-simply-logo.png');
+        background-size: 100%;
+        background-repeat: no-repeat;
+      }
+
+      p {
+        text-transform: uppercase;
+        font-size: rem(10px);
+        margin: 0;
+      }
+    }
+  }
+
+  .m-controls {
+    position: absolute;
+    bottom: rem(40px);
+    left: rem(45px);
+    width: $side-bar-width;
+    min-width: rem($side-bar-min-width);
+
+    #btn-next {
+      float: right;
+    }
+  }
+
+}
+
+.m-journey-embed--light {
+  @extend %m-journey-embed;
+
+  h2 {
+    color: $font-color-1;
+  }
+
+  h1,
+  h3,
+  .btn-check-it {
+    color: $font-color-2;
+  }
+
+  .side-bar {
+    color: $font-color-1;
+  }
+
+}

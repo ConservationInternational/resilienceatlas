@@ -1,21 +1,14 @@
-<p>find me at: templates/journey_embed_tpl</p>
-
 <div class='m-journey-embed--{{content.theme}}'>
 
-  <div class='side-bar'>
+  <div class="embebed-map">
+    <embed src={{content.mapUrl}} type="">
+    <a href="{{content.mapUrl}}" class="btn-check-it">Check it on map</a>
+  </div>
+
+  <article class='side-bar'>
     {{{ content.aside }}}
+  </article>
 
-    <div class="legend"></div>
-
-    <div class="m-controls">
-      <button id="btn-prev" mode="sub"> < </button>
-      <button id="btn-next" mode="add"> > </button>
-    </div>
-  </div>
-
-  <div class="map">
-    map here
-  </div>
-
+   <div class="m-controls"></div>
 </div>
 

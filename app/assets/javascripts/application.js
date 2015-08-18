@@ -58,15 +58,15 @@
     },
 
     initGlobalViews: function() {
-      var journeyslistCollection = new root.app.Collection.JourneysList();
+      var journeysIndexCollection = new root.app.Collection.JourneysIndex();
       var headerView = new root.app.View.Header({
         el: '#headerView',
-        journeys: journeyslistCollection
+        journeys: journeysIndexCollection
       });
 
       // Fetching data
       var complete = _.invoke([
-        journeyslistCollection,
+        journeysIndexCollection,
       ], 'fetch');
 
       $.when.apply($, complete).done(function() {
@@ -75,9 +75,9 @@
     },
 
     welcomePage: function() {
-      // var sliderView = new root.app.View.Slider({
-      //   el: '#sliderView'
-      // });
+      var sliderView = new root.app.View.Slider({
+        el: '#sliderView'
+      });
     },
 
     mapPage: function() {

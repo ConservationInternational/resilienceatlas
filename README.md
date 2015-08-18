@@ -28,8 +28,12 @@ Install project dependencies:
 
 To run application:
 
-    start postgres:  postgres -D /usr/local/var/postgres9.4
+    start postgres:  postgres -D /usr/local/var/postgres
     start rails: bundle exec rails server
+
+## Deploy advice:
+As we remove bower to manage front dependencies, now it's necesary to change it at Heroku. Apparently, only owner can do it. So for the moment we need a fake bower.json file in order the deploy to work. Please, don't reomve it before Heroku is fixed. 
+(Clara, 17/08/2015)
 
 ## Contributing
 

@@ -1,14 +1,18 @@
-<p>find me at: templates/journey_chapter_tpl</p>
+<div class="m-journey-chapter {{ content.background }}">
+  <div class="chapter-mask--{{content.chapterNumber}} is-stretch">
 
-<div class="m-journey-chapter--{{content.chapterNumber}}">
+    <div class="row">
+      <div class="large-4 large-offset-6">
 
-  <h1>{{content.title}}</h1>
-  <p>{{content.intro}}</p>
+        <div class="chapter-intro">
+          <h1>{{content.title}}</h1>
+          <p>{{content.content}}</p>
+          <div class="m-controls"></div>
+        </div>
 
-  <div class="m-controls">
-    <button id="btn-prev" mode="sub"> < </button>
-    <button id="btn-next" mode="add"> > </button>
+      </div>
+    </div>
+
   </div>
-
 </div>
 
