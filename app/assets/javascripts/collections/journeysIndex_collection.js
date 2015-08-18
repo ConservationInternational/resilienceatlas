@@ -5,9 +5,9 @@
   root.app = root.app || {};
   root.app.Collection = root.app.Collection || {};
 
-  root.app.Collection.JourneysList = Backbone.Collection.extend({
+  root.app.Collection.JourneysIndex = Backbone.Collection.extend({
 
-    url: '/journeys/list.json',
+    url: '/journeys/journeysIndex.json',
 
     parse: function(response) {
       return response;
