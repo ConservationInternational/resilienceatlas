@@ -56,12 +56,12 @@
     a {
       display: block;
       margin: auto;
-      padding: rem(7px) rem(20px) rem(5px);
+      padding: rem(7px) rem(20px) rem(3px);
       color: $font-color-2;
       border-radius: 3px;
       font-size: rem(14px);
       text-transform: uppercase;
-      line-height: 1;
+      // line-height: 1;
       transition: .2s ease-in;
 
       &:hover,
