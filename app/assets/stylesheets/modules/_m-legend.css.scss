@@ -1,15 +1,12 @@
 $legend-width: 350px;
 
 .m-legend {
-  width: rem($legend-width);
-  padding: rem(17px) rem(24px);
-
   position: absolute;
   right: 0;
   bottom: 0;
-
+  width: rem($legend-width);
+  padding: rem(17px) rem(24px);
   box-shadow: 0 1px 4px 0 rgba(0,0,0,.2);
-
   background: $bg-color-1;
 
   ul {
@@ -25,7 +22,7 @@ $legend-width: 350px;
     &.is-minimize {
       .btn-minimize {
         &:after {
-          transform: rotate(180deg);
+          transform: rotate(90deg);
         }
       }
     }
@@ -56,9 +53,9 @@ $legend-width: 350px;
 
       &:after {
         content: "";
-        border-bottom: 7px solid $font-color-1;
-        border-left: 5px solid transparent;
-        border-right: 5px solid transparent;
+        border-left: 7px solid $font-color-1;
+        border-top: 5px solid transparent;
+        border-bottom: 5px solid transparent;
       }
 
     }
@@ -167,8 +164,9 @@ $legend-width: 350px;
       position: relative;
       font-size: 10px;
       text-transform: uppercase;
-      padding: rem(2px) 0 rem(2px) 20px;
+      padding: rem(2px) 0 rem(5px) 20px;
       font-weight: 300;
+      line-height: 1.2em;
 
       span {
         position: absolute;
