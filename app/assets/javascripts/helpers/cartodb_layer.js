@@ -56,10 +56,69 @@
     },
 
     /**
+     * Create a CartoDB RASTER layer -- solving the bug
+     * @param  {Function} callback
+     */
+    createRasterLayer: function() {
+      console.log('raster layer');
+
+      var sql = this.options.sublayers[0].sql;
+      var cartocss = this.options.sublayers[0].cartocss;
+
+      var config = {
+        'layers': [{
+          'type': 'cartodb',
+          'options': {
+            'sql': sql,
+            'cartocss': cartocss,
+            'cartocss_version': '2.3.0',
+            'geom_column': 'the_raster_webmercator',
+            'geom_type': 'raster',
+            'raster_band': '1'
+          }
+        }]
+      };
+
+      var self = this;
+      var map = this.map;
+      var url = "https://grp.global.ssl.fastly.net/user/grp/api/v1/map";
+
+      this.layer = $.ajax({
+        type: 'POST',
+        dataType: 'json',
+        contentType: 'application/json',
+        url: url,
+        data: JSON.stringify(config),
+        success: function(response) {
+          var layergroup = response;
+          var tilesEndpoint = url + '/' + layergroup.layergroupid + '/{z}/{x}/{y}.png';
+          var protocol = 'https:' === document.location.protocol ? 'https' : 'http';
+
+          if (layergroup.cdn_url && layergroup.cdn_url[protocol]) {
+            var domain = layergroup.cdn_url[protocol];
+            if ('http' === protocol) {
+              domain = '{s}.' + domain;
+            }
+            tilesEndpoint = 'https://grp.global.ssl.fastly.net/user/grp/api/v1/map/' + layergroup.layergroupid + '/{z}/{x}/{y}.png';
+          }
+
+          self.seismicLayer = L.tileLayer(tilesEndpoint, {
+            maxZoom: 18
+          }).addTo(map);
+
+        },
+        error: function(){
+          Backbone.Events.trigger('spin:stop');
+        }
+      });
+    },
+
+    /**
      * Remove cartodb layer and sublayers
      */
     remove: function() {
       if (this.layer) {
+        console.log(this.layer)
         this.map.removeLayer(this.layer);
       } else {
         console.info('There isn\'t a layer.');
