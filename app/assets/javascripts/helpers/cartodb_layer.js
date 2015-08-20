@@ -56,6 +56,70 @@
     },
 
     /**
+     * Create a CartoDB RASTER layer -- solving the bug
+     * @param  {Function} callback
+     */
+    createRasterLayer: function() {
+      // console.log('raster layer');
+
+      var sql = this.options.sublayers[0].sql;
+      var cartocss = this.options.sublayers[0].cartocss;
+
+      var config = {
+        'layers': [{
+          'type': 'cartodb',
+          'options': {
+            'sql': sql,
+            'cartocss': cartocss,
+            'cartocss_version': '2.3.0',
+            'geom_column': 'the_raster_webmercator',
+            'geom_type': 'raster',
+            'raster_band': '1'
+          }
+        }]
+      };
+
+      var self = this;
+      var map = this.map;
+      //Carto URL
+      // var url = "http://cigrp.cartodb.com/api/v1/map";
+      //Their URL
+      var url = "https://grp.global.ssl.fastly.net/user/grp/api/v1/map/";
+
+      $.ajax({
+        type: 'POST',
+        dataType: 'json',
+        contentType: 'application/json',
+        url: url,
+        data: JSON.stringify(config),
+        success: function(response) {
+          var layergroup = response;
+          var tilesEndpoint = url + '/' + layergroup.layergroupid + '/{z}/{x}/{y}.png';
+          var protocol = 'https:' === document.location.protocol ? 'https' : 'http';
+
+          if (layergroup.cdn_url && layergroup.cdn_url[protocol]) {
+            var domain = layergroup.cdn_url[protocol];
+            if ('http' === protocol) {
+              domain = '{s}.' + domain;
+            }
+            //Carto URL
+            // tilesEndpoint = protocol + '://' + domain + '/' + 'cigrp/api/v1/map/' + layergroup.layergroupid + '/{z}/{x}/{y}.png';
+            //Their URL
+            tilesEndpoint = "https://grp.global.ssl.fastly.net/user/grp/api/v1/map/" + layergroup.layergroupid + '/{z}/{x}/{y}.png';
+          }
+
+          self.layer = L.tileLayer(tilesEndpoint, {
+            maxZoom: 18
+          }).addTo(map);
+
+        },
+        error: function(){
+          Backbone.Events.trigger('spin:stop');
+        }
+      });
+    },
+
+    /**
      * Remove cartodb layer and sublayers
      */
     remove: function() {

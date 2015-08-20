@@ -141,7 +141,8 @@
               sublayers: [ _.extend(data, { raster: true, raster_band: 1 }) ]
             };
             layerInstance = new root.app.Helper.CartoDBLayer(this.map, options);
-            layerInstance.create(function(layer) {
+            //When carto bug solved, only back to create method.
+            layerInstance.createRasterLayer(function(layer) {
               layer.setOpacity(layerData.opacity);
               layer.setZIndex(1000-layerData.order);
             });
