@@ -60,7 +60,7 @@
      * @param  {Function} callback
      */
     createRasterLayer: function() {
-      console.log('raster layer');
+      // console.log('raster layer');
 
       var sql = this.options.sublayers[0].sql;
       var cartocss = this.options.sublayers[0].cartocss;
