@@ -81,9 +81,12 @@
 
       var self = this;
       var map = this.map;
-      var url = "https://grp.global.ssl.fastly.net/user/grp/api/v1/map";
+      //Carto URL
+      // var url = "http://cigrp.cartodb.com/api/v1/map";
+      //Their URL
+      var url = "https://grp.global.ssl.fastly.net/user/grp/api/v1/map/";
 
-      this.layer = $.ajax({
+      $.ajax({
         type: 'POST',
         dataType: 'json',
         contentType: 'application/json',
@@ -99,10 +102,13 @@
             if ('http' === protocol) {
               domain = '{s}.' + domain;
             }
-            tilesEndpoint = 'https://grp.global.ssl.fastly.net/user/grp/api/v1/map/' + layergroup.layergroupid + '/{z}/{x}/{y}.png';
+            //Carto URL
+            // tilesEndpoint = protocol + '://' + domain + '/' + 'cigrp/api/v1/map/' + layergroup.layergroupid + '/{z}/{x}/{y}.png';
+            //Their URL
+            tilesEndpoint = "https://grp.global.ssl.fastly.net/user/grp/api/v1/map/" + layergroup.layergroupid + '/{z}/{x}/{y}.png';
           }
 
-          self.seismicLayer = L.tileLayer(tilesEndpoint, {
+          self.layer = L.tileLayer(tilesEndpoint, {
             maxZoom: 18
           }).addTo(map);
 
@@ -118,7 +124,6 @@
      */
     remove: function() {
       if (this.layer) {
-        console.log(this.layer)
         this.map.removeLayer(this.layer);
       } else {
         console.info('There isn\'t a layer.');
