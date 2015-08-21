@@ -8,14 +8,21 @@
   @include clearfix;
   max-width: rem($content-width);
   margin: 0 auto;
+  padding: 0 rem($content-margin);
   color: $font-color-3;
 
   ul {
     @extend %clean-lists;
   }
 
+  .privacy {
+    display: inline-block;
+    float: left;
+  }
+
   .credits {
-    text-align: right;
+    display: inline-block;
+    float: right;
 
     a {
       font-size: 16px;
