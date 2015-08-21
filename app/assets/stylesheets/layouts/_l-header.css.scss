@@ -10,7 +10,7 @@
 .l-header-nav {
   max-width: rem($content-width);
   margin: 0 auto;
-  padding: 0 rem(40px);
+  padding: 0 rem($content-margin);
   position: relative;
   z-index: 2;
   background-color: $bg-color-1;
@@ -30,7 +30,7 @@
       width: rem(140px);
       padding: rem(5px) 0;
       height: rem($header-height - 10px);
-      background-image: image-url("logo-grp.png");
+      background-image: image-url("logo-ci.png");
       background-repeat: no-repeat;
       background-position: left center;
       background-size: contain;
