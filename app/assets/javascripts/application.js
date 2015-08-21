@@ -81,6 +81,7 @@
     },
 
     mapPage: function() {
+      console.log('map')
       var layersGroupsCollection = new root.app.Collection.LayersGroups();
       var layersCollection = new root.app.Collection.Layers();
 

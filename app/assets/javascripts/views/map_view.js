@@ -2,10 +2,16 @@
 
   'use strict';
 
+  //Cuidado, crea esto antes de tener la clase, así que nunca puede ser true...
+  var journeyMap = $('body').hasClass('is-journey-map');
+  console.log(journeyMap);
+
   root.app = root.app || {};
   root.app.View = root.app.View || {};
 
   root.app.View.Map = Backbone.View.extend({
+
+    model: new (Backbone.Model.extend({})),
 
     defaults: {
       map: {
@@ -17,16 +23,16 @@
       },
       basemap: {
         // url: 'http://{s}.api.cartocdn.com/base-light/{z}/{x}/{y}.png'
-        url: 'http://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}'
+        url: journeyMap ? 'http://{s}.api.cartocdn.com/base-light/{z}/{x}/{y}.png' :'http://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}'
       },
       zoomControl: {
         position: 'topright'
       }
     },
 
-    model: new (Backbone.Model.extend({})),
 
     initialize: function(settings) {
+
       var opts = settings && settings.options ? settings.options : {};
       this.options = _.extend({}, this.defaults, opts);
       this.layers = settings.layers;
