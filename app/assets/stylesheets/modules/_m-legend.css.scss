@@ -9,6 +9,13 @@ $legend-width: 350px;
   box-shadow: 0 1px 4px 0 rgba(0,0,0,.2);
   background: $bg-color-1;
 
+  .is-embed-page & {
+    right: auto;
+    left: rem(45px);
+    bottom: rem(100px);
+    box-shadow: none;
+  }
+
   ul {
     list-style: none;
     padding: 0;
