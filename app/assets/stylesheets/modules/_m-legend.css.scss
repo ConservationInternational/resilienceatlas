@@ -5,9 +5,11 @@ $legend-width: 350px;
   right: 0;
   bottom: 0;
   width: rem($legend-width);
+  // max-height: rem(300px);
   padding: rem(17px) rem(24px);
   box-shadow: 0 1px 4px 0 rgba(0,0,0,.2);
   background: $bg-color-1;
+  // overflow: hidden;
 
   .is-journey-map & {
     right: auto;
@@ -73,7 +75,8 @@ $legend-width: 350px;
   }
 
   .m-legend__content {
-    // margin: rem(8px) 0;
+    max-height: 250px;
+    overflow-y: scroll;
   }
 
   // LIST OF LEGENDS

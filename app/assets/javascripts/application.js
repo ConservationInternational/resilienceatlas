@@ -96,11 +96,13 @@
         }))
       });
 
-
-      var layersListView = new root.app.View.LayersList({
-        el: '#layersListView',
-        layers: layersCollection
-      });
+      //Only if we are into general map.
+      if (!journeyMap) {
+        var layersListView = new root.app.View.LayersList({
+          el: '#layersListView',
+          layers: layersCollection
+        });
+      }
 
 
       var legendView = new root.app.View.Legend({
