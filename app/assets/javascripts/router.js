@@ -26,14 +26,14 @@
       this.options = _.extend({}, this.defaults, opts);
       this.params = new this.ParamsModel(); // This object save the URL params
 
-      this._checkEmbed();
+      this._checkJourneyMap();
       this.setListeners();
     },
 
     /**
-     * Add class to body if embeded version
+     * Add class to body if journey map version
      */
-    _checkEmbed: function() {
+    _checkJourneyMap: function() {
       var params = this._unserializeParams();
 
       if (params.journeyMap) {

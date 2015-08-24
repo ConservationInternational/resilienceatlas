@@ -53,6 +53,7 @@
 
       this.cacheVars();
 
+      //Set legend dragable when no journey embeded map.
       if (!this.model.get('journeyMap')) {
         this.setDraggable();
       }

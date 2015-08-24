@@ -81,7 +81,7 @@
     },
 
     mapPage: function() {
-      var journeyMap = this._checkEmbed();
+      var journeyMap = this._checkJourneyMap();
 
       var layersGroupsCollection = new root.app.Collection.LayersGroups();
       var layersCollection = new root.app.Collection.Layers();
@@ -96,7 +96,7 @@
         }))
       });
 
-      //Only if we are into general map.
+      //Layer list is not showed into journey embed map.
       if (!journeyMap) {
         var layersListView = new root.app.View.LayersList({
           el: '#layersListView',
@@ -161,6 +161,7 @@
         // Render views
         mapView.renderLayers();
         legendView.render();
+        //Layer list is not showed into journey embed map.
         if (!journeyMap) {
           layersListView.render();
         }
@@ -201,7 +202,7 @@
       }
     },
 
-    _checkEmbed: function() {
+    _checkJourneyMap: function() {
       var journeyMap = $('body').hasClass('is-journey-map');
       return journeyMap;
     },
