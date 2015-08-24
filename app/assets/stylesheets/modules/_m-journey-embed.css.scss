@@ -113,6 +113,12 @@ $side-bar-min-width: 350px;
     color: $font-color-2;
   }
 
+  .btn-check-it {
+    position: absolute;
+    bottom: rem(45px);
+    right: rem($content-margin);
+  }
+
   .side-bar {
     color: $font-color-1;
   }

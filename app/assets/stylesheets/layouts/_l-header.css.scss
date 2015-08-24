@@ -15,6 +15,10 @@
   z-index: 2;
   background-color: $bg-color-1;
 
+  .is-journey-map & {
+    display: none;
+  }
+
   @include clearfix;
 
   ul {
@@ -61,16 +65,23 @@
       border-radius: 3px;
       font-size: rem(14px);
       text-transform: uppercase;
-      // line-height: 1;
       transition: .2s ease-in;
 
-      &:hover,
-      &.is-current {
-        background-color: $bg-color-2;
-        color: $font-color-3;
+      &:hover {
         text-decoration: none;
       }
+
+      &.is-current,
+      &:not(.web-link):hover {
+        background-color: $bg-color-2;
+        color: $font-color-3;
+      }
     }
+  }
+
+  .web-link {
+    float: right;
+    color: $font-color-2;
   }
 
   .l-header--fullscreen & {

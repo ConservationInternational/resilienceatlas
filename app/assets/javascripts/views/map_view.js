@@ -24,7 +24,6 @@
       }
     },
 
-    model: new (Backbone.Model.extend({})),
 
     initialize: function(settings) {
       var opts = settings && settings.options ? settings.options : {};
@@ -81,7 +80,12 @@
       if (this.basemap) {
         this.map.removeLayer(this.basemap);
       }
-      var url = basemapUrl || this.options.basemap.url;
+
+      //basemap depends on if it is embed or not.
+      var customUrl = this.model.get('journeyMap') ? "http://{s}.api.cartocdn.com/base-light/{z}/{x}/{y}.png" : this.options.basemap.url;
+      //Just in case a basemapUrl is given into the method call.
+      var url = basemapUrl || customUrl;
+
       this.basemap = L.tileLayer(url).addTo(this.map);
     },
 

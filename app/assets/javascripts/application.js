@@ -81,22 +81,40 @@
     },
 
     mapPage: function() {
+      var journeyMap = this._checkJourneyMap();
+
       var layersGroupsCollection = new root.app.Collection.LayersGroups();
       var layersCollection = new root.app.Collection.Layers();
 
       var mapView = new root.app.View.Map({
         el: '#mapView',
-        layers: layersCollection
+        layers: layersCollection,
+        model: new (Backbone.Model.extend({
+          defaults: {
+            journeyMap: journeyMap
+          }
+        }))
       });
 
-      var layersListView = new root.app.View.LayersList({
-        el: '#layersListView',
-        layers: layersCollection
-      });
+      //Layer list is not showed into journey embed map.
+      if (!journeyMap) {
+        var layersListView = new root.app.View.LayersList({
+          el: '#layersListView',
+          layers: layersCollection
+        });
+      }
+
 
       var legendView = new root.app.View.Legend({
         el: '#legendView',
-        layers: layersCollection
+        layers: layersCollection,
+        model: new (Backbone.Model.extend({
+          defaults: {
+            hidden: false,
+            order: [],
+            journeyMap: journeyMap
+          }
+        })),
       });
 
       // At begining create a map
@@ -142,8 +160,11 @@
 
         // Render views
         mapView.renderLayers();
-        layersListView.render();
         legendView.render();
+        //Layer list is not showed into journey embed map.
+        if (!journeyMap) {
+          layersListView.render();
+        }
 
       }.bind(this));
     },
@@ -179,7 +200,11 @@
         }.bind(this));
 
       }
+    },
 
+    _checkJourneyMap: function() {
+      var journeyMap = $('body').hasClass('is-journey-map');
+      return journeyMap;
     },
 
     start: function() {
