@@ -68,11 +68,14 @@
       // line-height: 1;
       transition: .2s ease-in;
 
-      &:hover,
-      &.is-current {
+      &:hover {
+        text-decoration: none;
+      }
+
+      &.is-current,
+      &:not(.web-link):hover {
         background-color: $bg-color-2;
         color: $font-color-3;
-        text-decoration: none;
       }
     }
   }
