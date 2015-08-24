@@ -31,7 +31,6 @@
      * @param  {Function} callback
      */
     createRasterLayer: function() {
-      // console.log('raster layer');
       this.loader.addClass('is-loading');
 
       var sql = this.options.sublayers[0].sql;
@@ -53,9 +52,6 @@
 
       var self = this;
       var map = this.map;
-      //Carto URL
-      // var url = "http://cigrp.cartodb.com/api/v1/map";
-      //Their URL
       var url = "https://grp.global.ssl.fastly.net/user/grp/api/v1/map/";
 
       $.ajax({
@@ -74,9 +70,6 @@
             if ('http' === protocol) {
               domain = '{s}.' + domain;
             }
-            //Carto URL
-            // tilesEndpoint = protocol + '://' + domain + '/' + 'cigrp/api/v1/map/' + layergroup.layergroupid + '/{z}/{x}/{y}.png';
-            //Their URL
             tilesEndpoint = "https://grp.global.ssl.fastly.net/user/grp/api/v1/map/" + layergroup.layergroupid + '/{z}/{x}/{y}.png';
           }
 
