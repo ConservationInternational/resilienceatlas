@@ -19,4 +19,9 @@ Rails.application.routes.draw do
   get 'about', to: 'about#index'
   get 'journeys', to: 'journeys#index'
 
+  # Embed
+  # get 'embed/:slug', to: 'embed#index'
+  get 'embed/map', to: 'embed#map'
+  get 'embed/journeys', to: 'embed#journeys'
+
 end

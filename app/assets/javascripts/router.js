@@ -14,7 +14,9 @@
     routes: {
       '': 'welcome',
       'map': 'map',
-      'journeys': 'journeys'
+      'embed/map': 'map',
+      'journeys': 'journeys',
+      'embed/journeys': 'journeys',
     },
 
     ParamsModel: Backbone.Model.extend({}),
@@ -23,7 +25,20 @@
       var opts = settings && settings.options ? settings.options : {};
       this.options = _.extend({}, this.defaults, opts);
       this.params = new this.ParamsModel(); // This object save the URL params
+
+      this._checkEmbed();
       this.setListeners();
+    },
+
+    /**
+     * Add class to body if embeded version
+     */
+    _checkEmbed: function() {
+      var params = this._unserializeParams();
+
+      if (params.journeyMap) {
+        $('body').addClass('is-journey-map');
+      }
     },
 
     setListeners: function() {
@@ -34,6 +49,7 @@
         this.listenTo(this.params, 'change', this.updateUrl);
       }
     },
+
 
     /**
      * Set params and update model

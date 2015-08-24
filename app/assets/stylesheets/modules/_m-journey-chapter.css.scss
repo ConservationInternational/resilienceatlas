@@ -1,5 +1,8 @@
 $backgrounds: 'ethiopia2bg';
 
+$side-bar-width: 25%;
+$side-bar-min-width: 350px;
+
 %image-requirements {
   position: absolute;
   top: 0;
@@ -8,12 +11,14 @@ $backgrounds: 'ethiopia2bg';
   right: 0;
 
   background-repeat: no-repeat;
-  background-size: cover;
+  background-size: contain;
   background-position: left bottom;
 }
 
 .m-journey-chapter {
   @extend %image-requirements;
+  //To avoid little line
+  right: -1px;
 
   @for $i from 1 through length($backgrounds) {
     &.#{nth($backgrounds, $i)}{
@@ -38,6 +43,14 @@ $backgrounds: 'ethiopia2bg';
     font-weight: 400;
     line-height: 1.2em;
     margin-bottom: 2em;
+  }
+
+  .chapter-intro {
+    @extend %centery;
+    right: 0;
+    width: $side-bar-width;
+    min-width: $side-bar-min-width;
+    margin: 0 rem(45px);
   }
 }
 

@@ -10,6 +10,7 @@
     defaults: {},
 
     template: HandlebarsTemplates['legend_tpl'],
+    templateDragIcons: HandlebarsTemplates['legend_drag_icons_tpl'],
     templateLegends: {
       choropleth : HandlebarsTemplates['legend_choropleth_tpl'],
       custom : HandlebarsTemplates['legend_custom_tpl']
@@ -51,7 +52,10 @@
       this.$el.html( this.template({ legends: data}) );
 
       this.cacheVars();
-      this.setDraggable();
+
+      if (!this.model.get('journeyMap')) {
+        this.setDraggable();
+      }
     },
 
     setLegends: function() {
@@ -82,6 +86,8 @@
         },
         stop: this.setOrder,
       });
+
+      this.$('.actions').html( this.templateDragIcons() );
     },
 
     setOrder: function(e, ui) {
