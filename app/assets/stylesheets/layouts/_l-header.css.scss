@@ -15,6 +15,10 @@
   z-index: 2;
   background-color: $bg-color-1;
 
+  .is-journey-map & {
+    display: none;
+  }
+
   @include clearfix;
 
   ul {
