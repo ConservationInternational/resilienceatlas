@@ -26,6 +26,10 @@ $legend-width: 350px;
     position: relative;
     width: 100%;
 
+    .is-journey-map & {
+      display: none;
+    }
+
     &.is-minimize {
       .btn-minimize {
         &:after {

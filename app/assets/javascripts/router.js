@@ -30,14 +30,15 @@
       this.setListeners();
     },
 
+    /**
+     * Add class to body if embeded version
+     */
     _checkEmbed: function() {
       var params = this._unserializeParams();
 
       if (params.journeyMap) {
         $('body').addClass('is-journey-map');
       }
-
-      console.log('fin check')
     },
 
     setListeners: function() {

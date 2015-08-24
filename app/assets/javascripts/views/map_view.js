@@ -2,10 +2,6 @@
 
   'use strict';
 
-  //Cuidado, crea esto antes de tener la clase, así que nunca puede ser true...
-  var journeyMap = $('body').hasClass('is-journey-map');
-  console.log(journeyMap);
-
   root.app = root.app || {};
   root.app.View = root.app.View || {};
 
@@ -23,7 +19,7 @@
       },
       basemap: {
         // url: 'http://{s}.api.cartocdn.com/base-light/{z}/{x}/{y}.png'
-        url: journeyMap ? 'http://{s}.api.cartocdn.com/base-light/{z}/{x}/{y}.png' :'http://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}'
+        url: 'http://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}'
       },
       zoomControl: {
         position: 'topright'
@@ -32,11 +28,12 @@
 
 
     initialize: function(settings) {
-
       var opts = settings && settings.options ? settings.options : {};
       this.options = _.extend({}, this.defaults, opts);
       this.layers = settings.layers;
       this.setListeners();
+
+      this.journeyMap = $('body').hasClass('is-journey-map');
     },
 
     setListeners: function() {
@@ -87,7 +84,12 @@
       if (this.basemap) {
         this.map.removeLayer(this.basemap);
       }
-      var url = basemapUrl || this.options.basemap.url;
+
+      //basemap depends on if it is embed or not.
+      var customUrl = this.journeyMap ? "http://{s}.api.cartocdn.com/base-light/{z}/{x}/{y}.png" : this.options.basemap.url;
+      //Just in case a basemapUrl is given into the method call.
+      var url = basemapUrl || customUrl;
+
       this.basemap = L.tileLayer(url).addTo(this.map);
     },
 
