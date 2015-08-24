@@ -81,12 +81,19 @@
     },
 
     mapPage: function() {
+      var journeyMap = this._checkEmbed();
+
       var layersGroupsCollection = new root.app.Collection.LayersGroups();
       var layersCollection = new root.app.Collection.Layers();
 
       var mapView = new root.app.View.Map({
         el: '#mapView',
-        layers: layersCollection
+        layers: layersCollection,
+        model: new (Backbone.Model.extend({
+          defaults: {
+            journeyMap: journeyMap
+          }
+        }))
       });
 
       var layersListView = new root.app.View.LayersList({
@@ -96,7 +103,14 @@
 
       var legendView = new root.app.View.Legend({
         el: '#legendView',
-        layers: layersCollection
+        layers: layersCollection,
+        model: new (Backbone.Model.extend({
+          defaults: {
+            hidden: false,
+            order: [],
+            journeyMap: journeyMap
+          }
+        })),
       });
 
       // At begining create a map
@@ -179,7 +193,11 @@
         }.bind(this));
 
       }
+    },
 
+    _checkEmbed: function() {
+      var journeyMap = $('body').hasClass('is-journey-map');
+      return journeyMap;
     },
 
     start: function() {

@@ -33,8 +33,6 @@
       this.options = _.extend({}, this.defaults, opts);
       this.layers = settings.layers;
       this.setListeners();
-
-      this.journeyMap = $('body').hasClass('is-journey-map');
     },
 
     setListeners: function() {
@@ -55,10 +53,9 @@
 
       this.cacheVars();
 
-      if (!this.journeyMap) {
+      if (!this.model.get('journeyMap')) {
         this.setDraggable();
       }
-
     },
 
     setLegends: function() {

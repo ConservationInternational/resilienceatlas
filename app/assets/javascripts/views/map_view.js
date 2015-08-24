@@ -7,8 +7,6 @@
 
   root.app.View.Map = Backbone.View.extend({
 
-    model: new (Backbone.Model.extend({})),
-
     defaults: {
       map: {
         zoom: 3,
@@ -32,8 +30,6 @@
       this.options = _.extend({}, this.defaults, opts);
       this.layers = settings.layers;
       this.setListeners();
-
-      this.journeyMap = $('body').hasClass('is-journey-map');
     },
 
     setListeners: function() {
@@ -86,7 +82,7 @@
       }
 
       //basemap depends on if it is embed or not.
-      var customUrl = this.journeyMap ? "http://{s}.api.cartocdn.com/base-light/{z}/{x}/{y}.png" : this.options.basemap.url;
+      var customUrl = this.model.get('journeyMap') ? "http://{s}.api.cartocdn.com/base-light/{z}/{x}/{y}.png" : this.options.basemap.url;
       //Just in case a basemapUrl is given into the method call.
       var url = basemapUrl || customUrl;
 
