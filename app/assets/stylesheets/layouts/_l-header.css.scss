@@ -73,6 +73,11 @@
     }
   }
 
+  .web-link {
+    float: right;
+    color: $font-color-2;
+  }
+
   .l-header--fullscreen & {
     max-width: none;
 
