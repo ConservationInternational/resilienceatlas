@@ -35,6 +35,12 @@
       var opts = settings || {};
       this.options = _.extend({}, this.defaults, opts);
       this._setMap(map);
+
+      this.cacheVars();
+    },
+
+    cacheVars: function() {
+      this.loader = $('.m-loader');
     },
 
     /**
@@ -42,6 +48,8 @@
      * @param  {Function} callback
      */
     create: function(callback) {
+      this.loader.addClass('is-loading');
+
       cartodb.createLayer(this.map, this.options, { 'no_cdn': true })
         .addTo(this.map)
         .on('done', function(layer) {
@@ -49,6 +57,13 @@
           if (callback && typeof callback === 'function') {
             callback.apply(this, arguments);
           }
+
+          var self = this;
+
+          layer.bind('load', function() {
+            self.loader.removeClass('is-loading');
+          });
+
         }.bind(this))
         .on('error', function(err) {
           throw err;
@@ -61,6 +76,7 @@
      */
     createRasterLayer: function() {
       // console.log('raster layer');
+      this.loader.addClass('is-loading');
 
       var sql = this.options.sublayers[0].sql;
       var cartocss = this.options.sublayers[0].cartocss;
@@ -112,6 +128,7 @@
             maxZoom: 18
           }).addTo(map);
 
+          self.loader.removeClass('is-loading');
         },
         error: function(){
           Backbone.Events.trigger('spin:stop');
