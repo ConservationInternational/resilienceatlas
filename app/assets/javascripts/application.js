@@ -96,10 +96,12 @@
         }))
       });
 
+
       var layersListView = new root.app.View.LayersList({
         el: '#layersListView',
         layers: layersCollection
       });
+
 
       var legendView = new root.app.View.Legend({
         el: '#legendView',
@@ -156,8 +158,10 @@
 
         // Render views
         mapView.renderLayers();
-        layersListView.render();
         legendView.render();
+        if (!journeyMap) {
+          layersListView.render();
+        }
 
       }.bind(this));
     },
