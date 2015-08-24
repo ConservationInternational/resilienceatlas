@@ -76,6 +76,7 @@
      */
     createRasterLayer: function() {
       // console.log('raster layer');
+      this.loader.addClass('is-loading');
 
       var sql = this.options.sublayers[0].sql;
       var cartocss = this.options.sublayers[0].cartocss;
@@ -127,6 +128,7 @@
             maxZoom: 18
           }).addTo(map);
 
+          self.loader.removeClass('is-loading');
         },
         error: function(){
           Backbone.Events.trigger('spin:stop');
