@@ -19,10 +19,9 @@ $side-bar-min-width: 350px;
       background-image: image-url('journeys/texts/#{nth($backgrounds, $i)}.png');
     }
   }
-
 }
 
-%content {
+@mixin content($color) {
   @extend %centery;
   width: $side-bar-width;
   min-width: $side-bar-min-width;
@@ -30,12 +29,11 @@ $side-bar-min-width: 350px;
 
   p {
     font-size: rem(20px);
-    color: $font-color-3;
     padding: 0 1em;
   }
 
   .highlighted {
-    border: 1px solid $bg-color-1;
+    border: 1px solid $color;
     padding: 1em;
     margin-bottom: 1em;
   }
@@ -50,21 +48,31 @@ $side-bar-min-width: 350px;
 
     #btn-prev {
       background-color: transparent;
-      border-color: $bg-color-1;
+      border-color: $color;
 
       &:before {
-        border-color: $bg-color-1;
+        border-color: $color;
       }
     }
   }
+
+  .source {
+    font-size: rem(12px);
+  }
+
+  &.is-right {
+    right: 0;
+  }
+
+  &.is-left {
+    left: 0;
+  }
 }
 
-.content--left {
-  @extend %content;
-  left: 0;
+.content--light {
+  @include content($font-color-3);
 }
 
-.content--right {
-  @extend %content;
-  right: 0;
+.content--dark {
+  @include content($font-color-1);
 }
