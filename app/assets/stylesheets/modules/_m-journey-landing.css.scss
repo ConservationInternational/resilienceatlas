@@ -1,4 +1,4 @@
-$backgrounds: 'ethiopia-bg';
+$backgrounds: 'ethiopia_maize';
 
 .m-journey-landing {
   position: absolute;
@@ -13,7 +13,7 @@ $backgrounds: 'ethiopia-bg';
 
   @for $i from 1 through length($backgrounds) {
     &.#{nth($backgrounds, $i)}{
-      background-image: image-url('journeys/landing/#{nth($backgrounds, $i)}.png');
+      background-image: image-url('journeys/landing/#{nth($backgrounds, $i)}.jpg');
     }
   }
 
@@ -34,6 +34,11 @@ $backgrounds: 'ethiopia-bg';
     }
 
     h2 {
+      //Preguntar a Dani
+      display: none;
+    }
+
+    h3 {
       color: $font-color-3;
       font-size: rem(26px);
     }

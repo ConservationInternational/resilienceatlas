@@ -1,0 +1,61 @@
+[
+  {
+    "id": 1,
+    "title": "ETHIOPIA",
+    "subtitle": "Agricultural Livelihoods & Climate Change in Ethiopia",
+
+    "steps": [
+      {
+        "number": 0,
+        "type": "landing",
+        "title": "ethiopia",
+        "subtitle": "Agricultural Livelihoods & Climate Change in Ethiopia",
+        "background": "ethiopia-bg"
+      },
+      {
+        "number": 1,
+        "chapterNumber": 1,
+        "background": "ethiopia2bg",
+        "type": "chapter",
+        "title": "livelihoods",
+        "content": "Which rural livelihoods are most threatened by increasing climate variability and shocks, and where are they located?"
+      },
+      {
+        "number": 2,
+        "type": "embed",
+        "theme": "light",
+        "aside": "<article><header><h2>Livelihoods</h2><h3>maize production</h3></header><section><h1>Ethiopia</h1><div class='facts'><h4>Exposure</h4><p>36,6% of population depending on pasture for livelihoods</p></div><div class='facts'><h4>Stressors & Shocks</h4><p>Dry season precipitation declining by 12%</p></div><div class='facts'><h4>Vulnerability</h4><p>High levels of health stress in pastoral regions</p></div></section><footer><p>INSIGHTS PROVIDED BY CONSERVATION INTERNATIONAL</p></footer></article>",
+        "mapUrl": "/map?layers=%5B%7B%22id%22%3A6%2C%22opacity%22%3A1%2C%22order%22%3A0%7D%2C%7B%22id%22%3A10%2C%22opacity%22%3A1%2C%22order%22%3A0%7D%5D"
+      },
+      {
+        "number": 3,
+        "chapterNumber": 2,
+        "background": "ethiopia2bg",
+        "type": "chapter",
+        "title": "stressors & shocks"
+      },
+      {
+        "number": 4,
+        "type": "text",
+        "align": "left",
+        "background": "maize-bg",
+        "content": "<p>Maize is Ethiopia’s most important cereal in terms of production.</p><p>Maize is Ethiopia’s most important cereal in terms of production.</p><p class='highlighted'>94% of maize production is done by smallholder farmers.</p>"
+      },
+      {
+        "number": 5,
+        "chapterNumber": 3,
+        "background": "ethiopia2bg",
+        "type": "chapter",
+        "title": "vulnerability",
+        "content": "In areas of stress, fertility rates are >5% per year and population is projected to increase from 98,942,102 to 142,900,000 by 2030, creating further stress."
+      },
+      {
+        "number": 6,
+        "type": "text",
+        "align": "right",
+        "background": "clouds-bg",
+        "content": "<div class='highlighted'><p>Since 1981, the rainfall during the short rainy season has increased by as much as 10% per year.</p><p>11.7% of the area currently used for maize production has been impacted by this increase.</p></div>"
+      }
+    ]
+  }
+]

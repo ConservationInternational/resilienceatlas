@@ -20,6 +20,7 @@
       embed: HandlebarsTemplates['journey_embed_tpl'],
       text: HandlebarsTemplates['journey_text_tpl'],
       chart: HandlebarsTemplates['journey_chart_tpl'],
+      conclusion: HandlebarsTemplates['journey_conclusion_tpl'],
       controls: HandlebarsTemplates['journey_controls_tpl']
     },
 
