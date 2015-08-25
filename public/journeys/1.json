@@ -16,7 +16,7 @@
       {
         "number": 1,
         "chapterNumber": 1,
-        "background": "ethiopia2bg",
+        "background": "journey1ch1",
         "type": "chapter",
         "title": "livelihoods",
         "content": "Which rural livelihoods and production systems are most threatened by increasing climate variability and shocks. Where are they located?."
@@ -32,7 +32,8 @@
         "number": 3,
         "type": "text",
         "align": "right",
-        "theme": "dark",
+        "theme": "light",
+        "background": "journey1bg1",
         "content": "<div><p>Maize is Ethiopia’s most important cereal in terms of production.</p><p>Ethiopia is the fifth largest producer of maize in Africa.</p></div><div class='highlighted'><p>94% of maize production is done by smallholder farmers.</p></div>"
       },
       {
@@ -45,7 +46,7 @@
       {
         "number": 5,
         "chapterNumber": 2,
-        "background": "ethiopia2bg",
+        "background": "journey1ch2",
         "type": "chapter",
         "title": "stressors  & shocks",
         "content": "In which locations is maize production exposed to climate variability and shocks and what is the severity?"
@@ -61,7 +62,8 @@
         "number": 7,
         "type": "text",
         "align": "right",
-        "theme": "dark",
+        "theme": "light",
+        "background": "journey1bg2",
         "content": "<div class='highlighted'><p>Since 1981, the rainfall during the short rainy season has decreased by as much as 24% per decade in areas important for maize.</p><p>10% of the area currently used for maize production has been impacted by this decrease.</p></div>"
       },
       {
@@ -74,14 +76,15 @@
       {
         "number": 9,
         "type": "text",
-        "align": "right",
-        "theme": "dark",
+        "align": "left",
+        "theme": "light",
+        "background": "journey1bg2",
         "content": "<div class='highlighted'><p>Decreased rainfall during long rains: Rainfall has already decreased by as much as 11% in areas important for maize production.</p></div>"
       },
       {
         "number": 10,
         "chapterNumber": 3,
-        "background": "ethiopia2bg",
+        "background": "journey1ch3",
         "type": "chapter",
         "title": "vulnerability",
         "content": "What factors affect the vulnerability of smallholder maize farmers to climate variability and shocks?"
@@ -104,7 +107,8 @@
         "number": 13,
         "type": "text",
         "align": "right",
-        "theme": "dark",
+        "theme": "light",
+        "background": "journey1bg3",
         "content": "<div class='highlighted'><p>In areas of climate stress, fertility rates are >5 children per woman.</p><p>The population of Ethiopia is projected to increase from 98,942,102 to 142,900,000 by 2030, creating further stress.</p></div><div><p class='source'> Source: International Futures (IFs) forecasting system and the Pardee Center for International Futures at the University of Denver.</p></div>"
       },
       {
@@ -152,8 +156,9 @@
       {
         "number": 20,
         "type": "text",
-        "align": "right",
-        "theme": "dark",
+        "align": "left",
+        "theme": "light",
+        "background": "journey1bg3",
         "content": "<div class='highlighted'><p>In areas of stress fewer than half of all women can read and less than 31% of women have access to mass media.</p><p>These factors inhibit resilience.</p></div>"
       },
       {

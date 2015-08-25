@@ -35,6 +35,10 @@ $side-bar-min-width: 350px;
       border-bottom: 1px solid rgba($font-color-1, .1);
     }
 
+    header {
+      margin-bottom: rem(10px);
+    }
+
     h2 {
       margin: 0;
       font-size: rem(64px);
@@ -71,7 +75,7 @@ $side-bar-min-width: 350px;
         display: block;
         position: absolute;
         right: 0;
-        bottom: rem(7px);
+        bottom: 0;
         width: rem(16px);
         height: rem(20px);
         background-image: image-url('cigrp-simply-logo.png');
