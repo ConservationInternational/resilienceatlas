@@ -12,9 +12,9 @@
     template: HandlebarsTemplates['layers_list_tpl'],
 
     events: {
-      'click .m-layers-list-header': 'toggleCategories',
-      'change .header-input-switch': 'toggleAllLayers',
-      'change .panel-input-switch': 'toggleLayers',
+      'click .m-layers-list-header': '_toggleCategories',
+      'change .header-input-switch': '_toggleAllLayers',
+      'change .panel-input-switch': '_toggleLayers',
       'input input.opacity-range' : 'setOpacity',
       'click .panel-trasparecy-switcher' : 'openOpacity'
     },
@@ -23,24 +23,39 @@
       var opts = settings && settings.options ? settings.options : {};
       this.options = _.extend({}, this.defaults, opts);
       this.layers = settings.layers;
-      this.setListeners();
+      this._setListeners();
     },
 
-    setListeners: function() {
-      this.listenTo(this.layers, 'change:active', this.toggleCategoriesSwitches);
+
+    _setListeners: function() {
+      this.listenTo(this.layers, 'change:active', this.__toggleCategoriesSwitches);
     },
 
     render: function() {
       var data = { groups: this.layers.getGrouped() };
       this.$el.html( this.template( data ) );
-      this.cacheVars();
+      this._cacheVars();
+      this._setActiveGroups();
     },
 
-    cacheVars: function() {
+    _setActiveGroups: function() {
+      var activeElements = this.$completeList.find('.m-layers-list-header.is-active');
+
+      $.each(activeElements, function() {
+        var parentList = $(this).parents('ul');
+        var listHeader = parentList.siblings('.m-layers-list-header');
+
+        parentList.addClass('is-active');
+        listHeader.addClass('is-active');
+      })
+    },
+
+    _cacheVars: function() {
       this.$headerSwitch = $('.header-switch');
+      this.$completeList = $('.m-layers-list');
     },
 
-    toggleLayers: function() {
+    _toggleLayers: function() {
       var checkboxes = this.$el.find('.panel-item-switch input:checked');
       var activedIds = _.map(checkboxes, function(el) {
         return parseInt(el.id.split('layer_')[1]);
@@ -51,15 +66,15 @@
       });
     },
 
-    toggleAllLayers: function(e) {
+    _toggleAllLayers: function(e) {
       var $el = $(e.currentTarget);
       var $ul = $el.closest('li').find('ul:first');
       var checked = $el.prop('checked');
       $ul.find('.panel-item-switch input').prop('checked',checked);
-      this.toggleLayers();
+      this._toggleLayers();
     },
 
-    toggleCategoriesSwitches: function() {
+    __toggleCategoriesSwitches: function() {
       var categories = this.layers.getCategories();
       _.each(categories, function(c){
         $('#categoryHeader_'+c.id).find('input').prop('checked',c.active);
@@ -67,7 +82,7 @@
     },
 
     // Toggle categories
-    toggleCategories: function(e) {
+    _toggleCategories: function(e) {
       var $el = $(e.currentTarget);
       var $list = $el.closest('li').find('ul:first');
       $list.toggleClass('is-active');
