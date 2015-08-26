@@ -30,9 +30,12 @@ $side-bar-min-width: 350px;
     width: $side-bar-width;
     min-width: rem($side-bar-min-width);
 
-    header,
     footer {
       border-bottom: 1px solid rgba($font-color-1, .1);
+    }
+
+    section {
+      border-top: 1px solid rgba($font-color-1, .1);
     }
 
     header {
