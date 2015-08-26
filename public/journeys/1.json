@@ -92,14 +92,14 @@
         "number": 11,
         "type": "embed",
         "theme": "light",
-        "aside": "<article><header><h2>Vulnerability</h2><h3>Fertility rates</h3></header><section><h1>Ethiopia</h1><div class='facts'><h4>Livelihoods</h4><p>94% of maize is produced by smallhholder farmers</p><div class='facts'><h4>Stressors & Shocks</h4><p>Rainfall has declined by 11% in long rainy season</p></div>div class='facts'><h4>Vulnerability</h4><p>Fertility rates in maize production areas are > 5 children per woman</p></div></section><footer><p>INSIGHTS PROVIDED BY CONSERVATION INTERNATIONAL</p></footer></article>",
+        "aside": "<article><header><h2>Vulnerability</h2><h3>Fertility rates</h3></header><section><h1>Ethiopia</h1><div class='facts'><h4>Livelihoods</h4><p>94% of maize is produced by smallhholder farmers</p><div class='facts'><h4>Stressors & Shocks</h4><p>Rainfall has declined by 11% in long rainy season</p></div><div class='facts'><h4>Vulnerability</h4><p>Fertility rates in maize production areas are > 5 children per woman</p></div></section><footer><p>INSIGHTS PROVIDED BY CONSERVATION INTERNATIONAL</p></footer></article>",
         "mapUrl": "/map?layers=%5B%7B%22id%22%3A28%2C%22opacity%22%3A1%2C%22order%22%3A3%7D%5D"
       },
       {
         "number": 12,
         "type": "embed",
         "theme": "light",
-        "aside": "<article><header><h2>Vulnerability</h2><h3>Fertility rates in maize production areas</h3></header><section><h1>Ethiopia</h1><div class='facts'><h4>Livelihoods</h4><p>94% of maize is produced by smallhholder farmers</p><div class='facts'><h4>Stressors & Shocks</h4><p>Rainfall has declined by 11% in long rainy season</p></div>div class='facts'><h4>Vulnerability</h4><p>Fertility rates in maize production areas are > 5 children per woman</p></div></section><footer><p>INSIGHTS PROVIDED BY CONSERVATION INTERNATIONAL</p></footer></article>",
+        "aside": "<article><header><h2>Vulnerability</h2><h3>Fertility rates in maize production areas</h3></header><section><h1>Ethiopia</h1><div class='facts'><h4>Livelihoods</h4><p>94% of maize is produced by smallhholder farmers</p><div class='facts'><h4>Stressors & Shocks</h4><p>Rainfall has declined by 11% in long rainy season</p></div><div class='facts'><h4>Vulnerability</h4><p>Fertility rates in maize production areas are > 5 children per woman</p></div></section><footer><p>INSIGHTS PROVIDED BY CONSERVATION INTERNATIONAL</p></footer></article>",
         "mapUrl": "/map?layers=%5B%7B%22id%22%3A8%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%2C%7B%22id%22%3A28%2C%22opacity%22%3A1%2C%22order%22%3A3%7D%5D"
       },
       {

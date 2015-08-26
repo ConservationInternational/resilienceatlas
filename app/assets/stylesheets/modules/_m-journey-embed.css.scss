@@ -106,6 +106,20 @@ $side-bar-min-width: 350px;
     }
   }
 
+  .btn-check-it {
+    position: absolute;
+    bottom: rem(40px);
+    right: rem($content-margin);
+  }
+
+  @media screen and (max-width: 1024px) and (orientation: landscape) {
+    section {
+      margin-bottom: rem(10px);
+      max-height: rem(240px);
+      overflow-y: scroll;
+    }
+  }
+
 }
 
 .m-journey-embed--light {
@@ -119,12 +133,6 @@ $side-bar-min-width: 350px;
   h3,
   .btn-check-it {
     color: $font-color-2;
-  }
-
-  .btn-check-it {
-    position: absolute;
-    bottom: rem(45px);
-    right: rem($content-margin);
   }
 
   .side-bar {
