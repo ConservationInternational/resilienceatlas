@@ -1,5 +1,5 @@
 $side-bar-width: 25%;
-$side-bar-min-width: 350px;
+$side-bar-min-width: 320px;
 
 %m-journey-embed {
   position: absolute;
@@ -15,6 +15,17 @@ $side-bar-min-width: 350px;
     left: 0;
     right: 0;
     background-color: #eee;
+
+    // sidebar trampa
+    &:after {
+      content: "";
+      position: absolute;
+      width: 398px;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      background: white;
+    }
   }
 
   embed {
@@ -26,7 +37,7 @@ $side-bar-min-width: 350px;
     position: absolute;
     top: rem(45px);
     bottom: rem(350px);
-    left: rem(45px);
+    left: rem(40px);
     width: $side-bar-width;
     min-width: rem($side-bar-min-width);
 
@@ -47,6 +58,7 @@ $side-bar-min-width: 350px;
       font-size: rem(64px);
       font-family: $font-face-2;
       line-height: .8em;
+      text-transform: uppercase;
     }
 
     h3 {
