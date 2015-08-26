@@ -2,7 +2,7 @@ class JourneysController < ApplicationController
 
   layout 'fullscreen'
 
-  def index
+  def show
   end
 
 end

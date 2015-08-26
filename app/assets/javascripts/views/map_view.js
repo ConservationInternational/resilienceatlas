@@ -19,6 +19,9 @@
         // url: 'http://{s}.api.cartocdn.com/base-light/{z}/{x}/{y}.png'
         url: 'http://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}'
       },
+      journeyBasemap: {
+        url: 'https://grp.global.ssl.fastly.net/user/grp/api/v1/map/4b5a4ae5b323de21bd4b3716b6293598:1440586478249.0498/0/{z}/{x}/{y}.png'
+      },
       zoomControl: {
         position: 'topright'
       }
@@ -41,14 +44,12 @@
      * Instantiates a Leaflet map object
      */
     createMap: function() {
-      //trampita zoom
+      // trampita zoom
       if (this.model.get('journeyMap')) {
-        console.log('journey');
         this.options.map.zoom = 5;
         this.options.map.center = [10, 30]; //Horn of Africa
       }
       if (!this.map) {
-
         this.map = L.map(this.el, this.options.map);
         if (this.options.zoomControl) {
           this.addControlZoom();
@@ -90,7 +91,7 @@
 
       //basemap depends on if it is embed or not.
       //Add here mapbox basemap url.
-      var customUrl = this.model.get('journeyMap') ? "http://{s}.api.cartocdn.com/base-light/{z}/{x}/{y}.png" : this.options.basemap.url;
+      var customUrl = this.model.get('journeyMap') ? this.options.journeyBasemap.url : this.options.basemap.url;
       //Just in case a basemapUrl is given into the method call.
       var url = basemapUrl || customUrl;
 

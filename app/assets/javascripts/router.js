@@ -15,7 +15,7 @@
       '': 'welcome',
       'map': 'map',
       'embed/map': 'map',
-      'journeys': 'journeys',
+      'journeys/:id': 'journeys',
       'embed/journeys': 'journeys',
     },
 
@@ -89,7 +89,9 @@
       } else {
         url = url + '?' + this._serializeParams();
       }
-      this.navigate(url);
+      if (!this.params.attributes.journeyMap) {
+        this.navigate(url, { trigger: false });
+      }
     },
 
     /**
@@ -98,7 +100,6 @@
      * @param  {Array} params
      */
     updateParams: function(params, routeName) {
-
       if (this.options.decoded && params[0]) {
         try {
           params = this._decodeParams(params[0]);
@@ -109,6 +110,7 @@
         }
         this.params.clear({ silent: true }).set({ config: params });
       } else {
+        var p = this._unserializeParams();
         this.params.clear({ silent: true }).set(this._unserializeParams());
       }
     },
