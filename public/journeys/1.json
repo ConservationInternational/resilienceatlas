@@ -26,7 +26,7 @@
         "type": "embed",
         "theme": "light",
         "aside": "<article><header><h2>Livelihoods</h2><h3>Rain fed crops</h3></header><section><h1>Ethiopia</h1><div class='facts'><h4>Livelihoods</h4><p>49% of Ethiopia is used for rained agriculture</p></div></section><footer><p>INSIGHTS PROVIDED BY CONSERVATION INTERNATIONAL</p></footer></article>",
-        "mapUrl": "/map?layers=%5B%7B%22id%22%3A6%2C%22opacity%22%3A1%2C%22order%22%3A0%7D%5D"
+        "mapUrl": "/map?layers=%5B%7B\"id\"%3A6%2C\"opacity\"%3A1%2C\"order\"%3A0%7D%5D"
       },
       {
         "number": 3,
@@ -41,7 +41,7 @@
         "type": "embed",
         "theme": "light",
         "aside": "<article><header><h2>Livelihoods</h2><h3>Maize production</h3></header><section><h1>Ethiopia</h1><div class='facts'><h4>Production systems</h4><p>49% of Ethiopia is used for rained agriculture</p></div></section><footer><p>INSIGHTS PROVIDED BY CONSERVATION INTERNATIONAL</p></footer></article>",
-        "mapUrl": "/map?layers=%5B%7B%22id%22%3A6%2C%22opacity%22%3A1%2C%22order%22%3A0%7D%2C%7B%22id%22%3A8%2C%22opacity%22%3A1%2C%22order%22%3A0%7D%5D"
+        "mapUrl": "/map?layers=%5B%7B\"id\"%3A8%2C\"opacity\"%3A1%2C\"order\"%3A1%7D%2C%7B\"id\"%3A6%2C\"opacity\"%3A1%2C\"order\"%3A2%7D%5D"
       },
       {
         "number": 5,
@@ -56,7 +56,7 @@
         "type": "embed",
         "theme": "light",
         "aside": "<article><header><h2>stressors  & shocks</h2><h3>Maize production & variability in short rains</h3></header><section><h1>Ethiopia</h1><div class='facts'><h4>Livelihoods</h4><p>49% of Ethiopia is used for rained agriculture</p></div></section><footer><p>INSIGHTS PROVIDED BY CONSERVATION INTERNATIONAL</p></footer></article>",
-        "mapUrl": "/map?layers=%5B%7B%22id%22%3A8%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%2C%7B%22id%22%3A31%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%5D"
+        "mapUrl": "/map?layers=%5B%7B\"id\"%3A31%2C\"opacity\"%3A1%2C\"order\"%3A0%7D%2C%7B\"id\"%3A8%2C\"opacity\"%3A1%2C\"order\"%3A1%7D%5D"
       },
       {
         "number": 7,
@@ -70,7 +70,7 @@
         "type": "embed",
         "theme": "light",
         "aside": "<article><header><h2>stressors  & shocks</h2><h3>Maize production & variability in long rains</h3></header><footer><p>INSIGHTS PROVIDED BY CONSERVATION INTERNATIONAL</p></footer></article>",
-        "mapUrl": "/map?layers=%5B%7B%22id%22%3A8%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%2C%7B%22id%22%3A32%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%5D"
+        "mapUrl": "/map?layers=%5B%7B\"id\"%3A32%2C\"opacity\"%3A1%2C\"order\"%3A0%7D%2C%7B\"id\"%3A8%2C\"opacity\"%3A1%2C\"order\"%3A1%7D%5D"
       },
       {
         "number": 9,
@@ -93,14 +93,14 @@
         "type": "embed",
         "theme": "light",
         "aside": "<article><header><h2>Vulnerability</h2><h3>Fertility rates</h3></header><section><h1>Ethiopia</h1><div class='facts'><h4>Livelihoods</h4><p>94% of maize is produced by smallhholder farmers</p><div class='facts'><h4>Stressors & Shocks</h4><p>Rainfall has declined by 11% in long rainy season</p></div><div class='facts'><h4>Vulnerability</h4><p>Fertility rates in maize production areas are > 5 children per woman</p></div></section><footer><p>INSIGHTS PROVIDED BY CONSERVATION INTERNATIONAL</p></footer></article>",
-        "mapUrl": "/map?layers=%5B%7B%22id%22%3A28%2C%22opacity%22%3A1%2C%22order%22%3A3%7D%5D"
+        "mapUrl": "/map?layers=%5B%7B\"id\"%3A28%2C\"opacity\"%3A1%2C\"order\"%3A0%7D%5D"
       },
       {
         "number": 12,
         "type": "embed",
         "theme": "light",
         "aside": "<article><header><h2>Vulnerability</h2><h3>Fertility rates in maize production areas</h3></header><section><h1>Ethiopia</h1><div class='facts'><h4>Livelihoods</h4><p>94% of maize is produced by smallhholder farmers</p><div class='facts'><h4>Stressors & Shocks</h4><p>Rainfall has declined by 11% in long rainy season</p></div><div class='facts'><h4>Vulnerability</h4><p>Fertility rates in maize production areas are > 5 children per woman</p></div></section><footer><p>INSIGHTS PROVIDED BY CONSERVATION INTERNATIONAL</p></footer></article>",
-        "mapUrl": "/map?layers=%5B%7B%22id%22%3A8%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%2C%7B%22id%22%3A28%2C%22opacity%22%3A1%2C%22order%22%3A3%7D%5D"
+        "mapUrl": "/map?layers=%5B%7B\"id\"%3A8%2C\"opacity\"%3A0.45%2C\"order\"%3A1%7D%2C%7B\"id\"%3A28%2C\"opacity\"%3A1%2C\"order\"%3A2%7D%2C%7B\"id\"%3A32%2C\"opacity\"%3A1%2C\"order\"%3A3%7D%5D"
       },
       {
         "number": 13,
@@ -114,42 +114,42 @@
         "type": "embed",
         "theme": "light",
         "aside": "<article><header><h2>Vulnerability</h2><h3>Short rains</h3></header></article>",
-        "mapUrl": "/map?layers=%5B%7B%22id%22%3A31%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%5D"
+        "mapUrl": "/http://192.168.1.142:3000/map?layers=%5B%7B%22id%22%3A31%2C%22opacity%22%3A1%2C%22order%22%3A0%7D%5D"
       },
       {
         "number": 15,
         "type": "embed",
         "theme": "light",
         "aside": "<article><header><h2>Vulnerability</h2><h3>Mass media access</h3></header></article>",
-        "mapUrl": "/map?layers=%5B%7B%22id%22%3A27%2C%22opacity%22%3A1%2C%22order%22%3A0%7D%5D"
+        "mapUrl": "/map?layers=%5B%7B\"id\"%3A27%2C\"opacity\"%3A1%2C\"order\"%3A0%7D%5D"
       },
       {
         "number": 16,
         "type": "embed",
         "theme": "light",
         "aside": "<article><header><h2>Vulnerability</h2><h3>Mass media access with short rains</h3></header></article>",
-        "mapUrl": "/map?layers=%5B%7B%22id%22%3A27%2C%22opacity%22%3A0.6%2C%22order%22%3A0%7D%2C%7B%22id%22%3A31%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%5D"
+        "mapUrl": "/map?layers=%5B%7B\"id\"%3A27%2C\"opacity\"%3A0.43%2C\"order\"%3A1%7D%2C%7B\"id\"%3A31%2C\"opacity\"%3A1%2C\"order\"%3A2%7D%5D"
       },
       {
         "number": 17,
         "type": "embed",
         "theme": "light",
         "aside": "<article><header><h2>Vulnerability</h2><h3>Short rains</h3></header></article>",
-        "mapUrl": "/map?layers=%5B%7B%22id%22%3A31%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%5D"
+        "mapUrl": "map?layers=%5B%7B\"id\"%3A31%2C\"opacity\"%3A1%2C\"order\"%3A2%7D%5D"
       },
       {
         "number": 18,
         "type": "embed",
         "theme": "light",
         "aside": "<article><header><h2>Vulnerability</h2><h3>Illiteracy rate for women</h3></header></article>",
-        "mapUrl": "/map?layers=%5B%7B%22id%22%3A26%2C%22opacity%22%3A1%2C%22order%22%3A0%7D%5D"
+        "mapUrl": "/map?layers=%5B%7B\"id\"%3A26%2C\"opacity\"%3A1%2C\"order\"%3A0%7D%5D"
       },
       {
         "number": 19,
         "type": "embed",
         "theme": "light",
         "aside": "<article><header><h2>Vulnerability</h2><h3>Illiteracy rate for women with short rains</h3></header></article>",
-        "mapUrl": "/map?layers=%5B%7B%22id%22%3A26%2C%22opacity%22%3A0.51%2C%22order%22%3A0%7D%2C%7B%22id%22%3A31%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%5D"
+        "mapUrl": "/map?layers=%5B%7B\"id\"%3A26%2C\"opacity\"%3A0.6%2C\"order\"%3A0%7D%2C%7B\"id\"%3A31%2C\"opacity\"%3A1%2C\"order\"%3A2%7D%5D"
       },
       {
         "number": 20,
