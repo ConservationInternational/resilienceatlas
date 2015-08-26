@@ -31,7 +31,7 @@
       {
         "number": 3,
         "type": "text",
-        "align": "right",
+        "align": "left",
         "theme": "light",
         "background": "journey1bg1",
         "content": "<div><p>Maize is Ethiopia’s most important cereal in terms of production.</p><p>Ethiopia is the fifth largest producer of maize in Africa.</p></div><div class='highlighted'><p>94% of maize production is done by smallholder farmers.</p></div>"
@@ -61,9 +61,8 @@
       {
         "number": 7,
         "type": "text",
-        "align": "right",
-        "theme": "light",
-        "background": "journey1bg2",
+        "align": "center",
+        "theme": "dark",
         "content": "<div class='highlighted'><p>Since 1981, the rainfall during the short rainy season has decreased by as much as 24% per decade in areas important for maize.</p><p>10% of the area currently used for maize production has been impacted by this decrease.</p></div>"
       },
       {
@@ -76,7 +75,7 @@
       {
         "number": 9,
         "type": "text",
-        "align": "left",
+        "align": "right",
         "theme": "light",
         "background": "journey1bg2",
         "content": "<div class='highlighted'><p>Decreased rainfall during long rains: Rainfall has already decreased by as much as 11% in areas important for maize production.</p></div>"
@@ -106,9 +105,8 @@
       {
         "number": 13,
         "type": "text",
-        "align": "right",
-        "theme": "light",
-        "background": "journey1bg3",
+        "align": "center",
+        "theme": "dark",
         "content": "<div class='highlighted'><p>In areas of climate stress, fertility rates are >5 children per woman.</p><p>The population of Ethiopia is projected to increase from 98,942,102 to 142,900,000 by 2030, creating further stress.</p></div><div><p class='source'> Source: International Futures (IFs) forecasting system and the Pardee Center for International Futures at the University of Denver.</p></div>"
       },
       {
