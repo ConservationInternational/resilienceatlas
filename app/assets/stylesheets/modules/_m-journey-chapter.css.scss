@@ -13,6 +13,16 @@ $side-bar-min-width: 350px;
   background-repeat: no-repeat;
   background-size: contain;
   background-position: left bottom;
+
+  &:before {
+    content: " ";
+    background-color: #fff;
+    width: 50%;
+    right: 0;
+    bottom: 0;
+    position: absolute;
+    top: 0;
+  }
 }
 
 .m-journey-chapter {
