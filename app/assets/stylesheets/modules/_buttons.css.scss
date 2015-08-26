@@ -45,7 +45,7 @@
     @extend %center;
     @include arrow(15px, $font-color-1, 1px, -45deg);
     content: "";
-    transform: translate(-50%, -50%) rotate(-45deg);
+    transform: translate(-35%, -50%) rotate(-45deg);
   }
 }
 

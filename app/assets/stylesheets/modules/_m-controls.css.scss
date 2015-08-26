@@ -1,3 +1,10 @@
 .m-controls {
   display: inline-block;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+
+  .m-journey-landing & {
+    justify-content: center;
+  }
 }

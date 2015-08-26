@@ -11,7 +11,7 @@
       map: {
         zoom: 3,
         center: [0, 15],
-        // center: [10, 26], //Horn of Africa
+        // center: [10, 30], //Horn of Africa
         zoomControl: false,
         scrollWheelZoom: false
       },
@@ -41,7 +41,14 @@
      * Instantiates a Leaflet map object
      */
     createMap: function() {
+      //trampita zoom
+      if (this.model.get('journeyMap')) {
+        console.log('journey');
+        this.options.map.zoom = 5;
+        this.options.map.center = [10, 30]; //Horn of Africa
+      }
       if (!this.map) {
+
         this.map = L.map(this.el, this.options.map);
         if (this.options.zoomControl) {
           this.addControlZoom();
@@ -82,6 +89,7 @@
       }
 
       //basemap depends on if it is embed or not.
+      //Add here mapbox basemap url.
       var customUrl = this.model.get('journeyMap') ? "http://{s}.api.cartocdn.com/base-light/{z}/{x}/{y}.png" : this.options.basemap.url;
       //Just in case a basemapUrl is given into the method call.
       var url = basemapUrl || customUrl;
