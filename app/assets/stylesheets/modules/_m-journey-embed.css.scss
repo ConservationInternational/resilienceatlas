@@ -30,9 +30,16 @@ $side-bar-min-width: 350px;
     width: $side-bar-width;
     min-width: rem($side-bar-min-width);
 
-    header,
     footer {
       border-bottom: 1px solid rgba($font-color-1, .1);
+    }
+
+    section {
+      border-top: 1px solid rgba($font-color-1, .1);
+    }
+
+    header {
+      margin-bottom: rem(10px);
     }
 
     h2 {
@@ -71,7 +78,7 @@ $side-bar-min-width: 350px;
         display: block;
         position: absolute;
         right: 0;
-        bottom: rem(7px);
+        bottom: 0;
         width: rem(16px);
         height: rem(20px);
         background-image: image-url('cigrp-simply-logo.png');
@@ -99,6 +106,20 @@ $side-bar-min-width: 350px;
     }
   }
 
+  .btn-check-it {
+    position: absolute;
+    bottom: rem(40px);
+    right: rem($content-margin);
+  }
+
+  @media screen and (max-width: 1024px) and (orientation: landscape) {
+    section {
+      margin-bottom: rem(10px);
+      max-height: rem(240px);
+      overflow-y: scroll;
+    }
+  }
+
 }
 
 .m-journey-embed--light {
@@ -112,12 +133,6 @@ $side-bar-min-width: 350px;
   h3,
   .btn-check-it {
     color: $font-color-2;
-  }
-
-  .btn-check-it {
-    position: absolute;
-    bottom: rem(45px);
-    right: rem($content-margin);
   }
 
   .side-bar {

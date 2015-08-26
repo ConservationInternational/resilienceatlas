@@ -1,4 +1,4 @@
-$backgrounds: 'maize-bg', 'clouds-bg';
+$backgrounds: 'journey1bg0', 'journey1bg1', 'journey1bg2', 'journey1bg3';
 
 $side-bar-width: 25%;
 $side-bar-min-width: 350px;
@@ -16,7 +16,7 @@ $side-bar-min-width: 350px;
 
   @for $i from 1 through length($backgrounds) {
     &.#{nth($backgrounds, $i)}{
-      background-image: image-url('journeys/texts/#{nth($backgrounds, $i)}.png');
+      background-image: image-url('journeys/texts/#{nth($backgrounds, $i)}.jpg');
     }
   }
 }
@@ -28,14 +28,21 @@ $side-bar-min-width: 350px;
   margin: 0 rem(45px);
 
   p {
+    color: $color;
     font-size: rem(20px);
     padding: 0 1em;
+    font-weight: 400;
   }
 
   .highlighted {
-    border: 1px solid $color;
+    border: 1px solid rgba($color, .5);
     padding: 1em;
     margin-bottom: 1em;
+
+    p {
+      padding: 0;
+      font-weight: 500;
+    }
   }
 
   .m-controls {
@@ -66,6 +73,10 @@ $side-bar-min-width: 350px;
 
   &.is-left {
     left: 0;
+  }
+
+  &.is-center {
+    @extend %center;
   }
 }
 

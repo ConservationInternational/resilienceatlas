@@ -1,4 +1,4 @@
-$backgrounds: 'ethiopia2bg';
+$backgrounds: 'journey1ch1', 'journey1ch2', 'journey1ch3' ;
 
 $side-bar-width: 25%;
 $side-bar-min-width: 350px;
@@ -18,11 +18,11 @@ $side-bar-min-width: 350px;
 .m-journey-chapter {
   @extend %image-requirements;
   //To avoid little line
-  right: -1px;
+  // right: -1px;
 
   @for $i from 1 through length($backgrounds) {
     &.#{nth($backgrounds, $i)}{
-      background-image: image-url('journeys/chapters/#{nth($backgrounds, $i)}.png');
+      background-image: image-url('journeys/chapters/#{nth($backgrounds, $i)}.jpg');
     }
   }
 

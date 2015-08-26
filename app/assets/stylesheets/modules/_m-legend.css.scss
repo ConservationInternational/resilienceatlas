@@ -6,10 +6,10 @@ $legend-width: 350px;
   bottom: 0;
   width: rem($legend-width);
   // max-height: rem(300px);
-  padding: rem(17px) rem(24px);
+  //Padding right to allow scroll bar in content.
+  padding: rem(17px) rem(15px) rem(17px) rem(20px);
   box-shadow: 0 1px 4px 0 rgba(0,0,0,.2);
   background: $bg-color-1;
-  // overflow: hidden;
 
   .is-journey-map & {
     right: auto;
@@ -75,8 +75,12 @@ $legend-width: 350px;
   }
 
   .m-legend__content {
-    max-height: 250px;
-    overflow-y: scroll;
+    padding-right: 5px;
+
+    @media screen and (max-width: 1024px) and (orientation: landscape) {
+      max-height: 250px;
+      overflow-y: scroll;
+    }
   }
 
   // LIST OF LEGENDS
