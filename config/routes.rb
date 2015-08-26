@@ -15,9 +15,11 @@ Rails.application.routes.draw do
 
   # Aplication
   root 'welcome#index'
+
   get 'map', to: 'map#index'
   get 'about', to: 'about#index'
-  get 'journeys', to: 'journeys#index'
+
+  resources :journeys, only: [:show]
 
   # Embed
   # get 'embed/:slug', to: 'embed#index'
