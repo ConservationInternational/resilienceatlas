@@ -15,8 +15,8 @@
       user_name: 'grp', // Required
       type: 'cartodb', // Required
       // cartodb_logo: false,
-      maps_api_template: 'https://grp.cidata.io/user/grp/tables/country_mask/map',
-      sql_api_template: 'https://grp.cidata.io/user/grp/tables/country_mask/map',
+      maps_api_template: 'https://grp.cidata.io/user/grp/api/v1/map/',
+      sql_api_template: 'https://grp.cidata.io/user/grp/api/v1/map/',
       sublayers: [{
         sql: 'SELECT * FROM table_name', // Required
         cartocss: '#table_name {marker-fill: #F0F0F0;}', //Required
@@ -42,8 +42,8 @@
       cartodb.createLayer(this.map, this.options, { 'no_cdn': true })
         .addTo(this.map)
         .on('done', function(layer) {
-          console.log(layer)
           this.layer = layer;
+          this.layer.getSubLayer(0).set(this.options.sublayers[0]);
           if (callback && typeof callback === 'function') {
             callback.apply(this, arguments);
           }

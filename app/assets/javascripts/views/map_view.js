@@ -193,7 +193,7 @@
     setMaskLayer: function() {
       var options = {
         sublayers: [{
-          cartocss: "",
+          cartocss: "#country_mask{polygon-fill: #FFF;polygon-opacity: 1;line-color: #FFF;}#country_mask[iso_a3='ETH']{polygon-opacity: 0;}",
           sql: "select * from country_mask"
         }]
       };
