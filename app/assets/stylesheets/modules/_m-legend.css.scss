@@ -1,7 +1,7 @@
 $legend-width: 350px;
 
 $side-bar-width: 25%;
-$side-bar-min-width: 320px;
+
 
 .m-legend {
   position: absolute;
@@ -15,12 +15,16 @@ $side-bar-min-width: 320px;
   background: $bg-color-1;
 
   .is-journey-map & {
+    box-sizing: content-box;
     right: auto;
     left: 0;
-    width: 398px;
-    padding-left: rem(65px);
+    width: $side-bar-width;
+    min-width: rem(335px);
+    padding-left: rem(30px);
     bottom: rem(100px);
-    box-shadow: 0 0 20px 10px $bg-color-1;
+    height: rem(206px);
+    box-shadow: none;
+    // box-shadow: 0 0 20px 10px $bg-color-1;
   }
 
   ul {
@@ -82,10 +86,18 @@ $side-bar-min-width: 320px;
   .m-legend__content {
     padding-right: 5px;
 
-    @media screen and (max-width: 1024px) and (orientation: landscape) {
-      max-height: 250px;
-      overflow-y: scroll;
+    .is-journey-map & {    
+      position: absolute;
+      bottom: rem(15px);
+      left: rem(40px);
+      right: rem(15px);
+      
+      @media screen and (max-width: 1024px) and (orientation: landscape) {
+        max-height: 250px;
+        overflow-y: scroll;
+      }
     }
+
   }
 
   // LIST OF LEGENDS

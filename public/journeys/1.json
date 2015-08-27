@@ -75,7 +75,7 @@
       {
         "number": 9,
         "type": "text",
-        "align": "right",
+        "align": "left",
         "theme": "light",
         "background": "journey1bg2",
         "content": "<div class='highlighted'><p>Decreased rainfall during long rains: Rainfall has already decreased by as much as 11% in areas important for maize production.</p></div>"

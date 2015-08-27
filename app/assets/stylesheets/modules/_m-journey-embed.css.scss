@@ -1,5 +1,5 @@
 $side-bar-width: 25%;
-$side-bar-min-width: 320px;
+$side-bar-min-width: 330px;
 
 %m-journey-embed {
   position: absolute;
@@ -19,13 +19,16 @@ $side-bar-min-width: 320px;
     // sidebar trampa
     &:after {
       content: "";
+      box-sizing: content-box;
       position: absolute;
-      width: 398px;
+      width: $side-bar-width;
+      min-width: $side-bar-min-width + 10px;
+      padding-left: rem(40px);
       top: 0;
       left: 0;
       bottom: rem(340px);
       background: white;
-      box-shadow: 0 0 20px 10px $bg-color-1;
+      // box-shadow: 0 0 20px 10px $bg-color-1;
     }
   }
 
@@ -119,16 +122,10 @@ $side-bar-min-width: 320px;
     }
   }
 
-  .btn-check-it {
-    position: absolute;
-    bottom: rem(40px);
-    right: rem($content-margin);
-  }
-
   @media screen and (max-width: 1024px) and (orientation: landscape) {
     section {
       margin-bottom: rem(10px);
-      max-height: rem(240px);
+      max-height: rem(200px);
       overflow-y: scroll;
     }
   }

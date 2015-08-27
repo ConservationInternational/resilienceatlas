@@ -36,8 +36,11 @@ $side-bar-min-width: 350px;
     }
   }
 
-  .row {
-    margin: auto;
+  .wrapper {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: flex-end;
   }
 
   h1 {
@@ -56,11 +59,10 @@ $side-bar-min-width: 350px;
   }
 
   .chapter-intro {
-    @extend %centery;
-    right: 0;
+    position: relative;
     width: $side-bar-width;
     min-width: $side-bar-min-width;
-    margin: 0 rem(45px);
+    margin: auto rem(45px);
   }
 }
 
