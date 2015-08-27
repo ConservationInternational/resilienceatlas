@@ -112,8 +112,7 @@ $side-bar-min-width: 340px;
     position: absolute;
     bottom: rem(40px);
     left: rem(45px);
-    width: $side-bar-width;
-    min-width: rem($side-bar-min-width);
+    width: $side-bar-min-width;
 
     #btn-next {
       float: right;
