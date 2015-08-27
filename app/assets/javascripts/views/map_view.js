@@ -46,8 +46,8 @@
     createMap: function() {
       // trampita zoom
       if (this.model.get('journeyMap')) {
-        this.options.map.zoom = 5;
-        this.options.map.center = [10, 30]; //Horn of Africa
+        this.options.map.zoom = 6;
+        this.options.map.center = [8, 37]; //Horn of Africa
       }
       if (!this.map) {
         this.map = L.map(this.el, this.options.map);
@@ -121,6 +121,12 @@
           this.removeLayer(layerData);
         }
       }, this);
+
+      //Set mask when journey map.
+      if (this.model.get('journeyMap')) {
+        this.setMaskLayer();
+      }
+
     },
 
     /**
@@ -187,6 +193,15 @@
         this.model.set(layerData.id, null);
         layerInstance.remove();
       }
+    },
+
+    setMaskLayer: function() {
+
+      var maskLayer = new root.app.Helper.CartoDBmask(this.map);
+
+      maskLayer.create(function(layer){
+        layer.setZIndex(1001)
+      });
     }
 
   });

@@ -9,18 +9,17 @@
    * A wrapper for CartoDB
    * More info: http://docs.cartodb.com/cartodb-platform/cartodb-js.html
    */
-  root.app.Helper.CartoDBLayer = root.app.Helper.Class.extend({
+  root.app.Helper.CartoDBmask = root.app.Helper.Class.extend({
 
     defaults: {
       user_name: 'grp', // Required
       type: 'cartodb', // Required
-      cartodb_logo: false,
-      maps_api_template: 'https://grp.global.ssl.fastly.net/user/{user}',
-      sql_api_template: 'https://grp.global.ssl.fastly.net/user/{user}',
+      // cartodb_logo: false,
+      maps_api_template: 'https://grp.cidata.io/user/grp',
+      sql_api_template: 'https://grp.cidata.io/user/grp',
       sublayers: [{
-        sql: 'SELECT * FROM table_name', // Required
-        cartocss: '#table_name {marker-fill: #F0F0F0;}', // Required
-        interactivity: 'column1, column2, ...' // Optional
+        cartocss: "#country_mask{polygon-fill: #FFF;polygon-opacity: 1;line-color: #DDD;}#country_mask[iso_a3='ETH']{polygon-opacity: 0;}",
+        sql: "select * from country_mask"
       }]
     },
 
@@ -31,12 +30,6 @@
       var opts = settings || {};
       this.options = _.extend({}, this.defaults, opts);
       this._setMap(map);
-
-      this.cacheVars();
-    },
-
-    cacheVars: function() {
-      this.loader = $('.m-loader');
     },
 
     /**
@@ -44,20 +37,17 @@
      * @param  {Function} callback
      */
     create: function(callback) {
-      this.loader.addClass('is-loading');
+
       cartodb.createLayer(this.map, this.options, { 'no_cdn': true })
-        .addTo(this.map)
+        .addTo(this.map, 1)
         .on('done', function(layer) {
           this.layer = layer;
+          this.layer.getSubLayer(0).set(this.options.sublayers[0]);
           if (callback && typeof callback === 'function') {
             callback.apply(this, arguments);
           }
 
           var self = this;
-
-          layer.bind('load', function() {
-            self.loader.removeClass('is-loading');
-          });
 
         }.bind(this))
         .on('error', function(err) {
