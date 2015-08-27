@@ -122,12 +122,6 @@ $side-bar-min-width: 320px;
     }
   }
 
-  .btn-check-it {
-    position: absolute;
-    bottom: rem(40px);
-    right: rem($content-margin);
-  }
-
   @media screen and (max-width: 1024px) and (orientation: landscape) {
     section {
       margin-bottom: rem(10px);

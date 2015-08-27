@@ -63,3 +63,13 @@
     transform: translate(-50%, -50%) rotate(135deg);
   }
 }
+
+.btn-check-it {
+  border-radius: 50px;
+  height: rem(45px);
+  padding: rem(14px) rem(14px) rem(2px);
+  position: absolute;
+  bottom: rem(40px);
+  right: rem($content-margin);
+  background-color: $bg-color-1;
+}
