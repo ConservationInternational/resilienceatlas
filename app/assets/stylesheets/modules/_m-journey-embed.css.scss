@@ -1,5 +1,5 @@
 $side-bar-width: 25%;
-$side-bar-min-width: 330px;
+$side-bar-min-width: 340px;
 
 %m-journey-embed {
   position: absolute;
@@ -21,8 +21,7 @@ $side-bar-min-width: 330px;
       content: "";
       box-sizing: content-box;
       position: absolute;
-      width: $side-bar-width;
-      min-width: $side-bar-min-width + 10px;
+      width: $side-bar-min-width + 10px;
       padding-left: rem(40px);
       top: 0;
       left: 0;
@@ -42,8 +41,7 @@ $side-bar-min-width: 330px;
     top: rem(45px);
     bottom: rem(350px);
     left: rem(40px);
-    width: $side-bar-width;
-    min-width: rem($side-bar-min-width);
+    width: rem($side-bar-min-width);
 
     footer {
       border-bottom: 1px solid rgba($font-color-1, .1);
@@ -114,8 +112,7 @@ $side-bar-min-width: 330px;
     position: absolute;
     bottom: rem(40px);
     left: rem(45px);
-    width: $side-bar-width;
-    min-width: rem($side-bar-min-width);
+    width: $side-bar-min-width;
 
     #btn-next {
       float: right;

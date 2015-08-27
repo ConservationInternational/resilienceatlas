@@ -1,6 +1,6 @@
 $legend-width: 350px;
 
-$side-bar-width: 25%;
+$side-bar-width: 360px;
 
 
 .m-legend {
@@ -18,8 +18,7 @@ $side-bar-width: 25%;
     box-sizing: content-box;
     right: auto;
     left: 0;
-    width: $side-bar-width;
-    min-width: rem(335px);
+    width: rem(345px) ;
     padding-left: rem(30px);
     bottom: rem(100px);
     height: rem(206px);
