@@ -114,7 +114,7 @@
         "type": "embed",
         "theme": "light",
         "aside": "<article><header><h2>Vulnerability</h2><h3>Short rains</h3></header></article>",
-        "mapUrl": "/http://192.168.1.142:3000/map?layers=%5B%7B%22id%22%3A31%2C%22opacity%22%3A1%2C%22order%22%3A0%7D%5D"
+        "mapUrl": "/map?layers=%5B%7B%22id%22%3A31%2C%22opacity%22%3A1%2C%22order%22%3A0%7D%5D"
       },
       {
         "number": 15,
