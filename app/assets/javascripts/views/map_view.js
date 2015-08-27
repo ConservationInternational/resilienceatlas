@@ -55,7 +55,6 @@
           this.addControlZoom();
         }
         this.setBasemap();
-        this.setMaskLayer();
       } else {
         console.info('Map already exists.');
       }
@@ -122,6 +121,12 @@
           this.removeLayer(layerData);
         }
       }, this);
+
+      //Set mask when journey map.
+      if (this.model.get('journeyMap')) {
+        this.setMaskLayer();
+      }
+
     },
 
     /**
@@ -191,14 +196,8 @@
     },
 
     setMaskLayer: function() {
-      var options = {
-        sublayers: [{
-          cartocss: "#country_mask{polygon-fill: #FFF;polygon-opacity: 1;line-color: #FFF;}#country_mask[iso_a3='ETH']{polygon-opacity: 0;}",
-          sql: "select * from country_mask"
-        }]
-      };
 
-      var maskLayer = new root.app.Helper.CartoDBmask(this.map, options);
+      var maskLayer = new root.app.Helper.CartoDBmask(this.map);
 
       maskLayer.create();
     }

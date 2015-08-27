@@ -15,12 +15,11 @@
       user_name: 'grp', // Required
       type: 'cartodb', // Required
       // cartodb_logo: false,
-      maps_api_template: 'https://grp.cidata.io/user/grp/api/v1/map/',
-      sql_api_template: 'https://grp.cidata.io/user/grp/api/v1/map/',
+      maps_api_template: 'https://grp.cidata.io/user/grp',
+      sql_api_template: 'https://grp.cidata.io/user/grp',
       sublayers: [{
-        sql: 'SELECT * FROM table_name', // Required
-        cartocss: '#table_name {marker-fill: #F0F0F0;}', //Required
-        interactivity: 'column1, column2, ...' // Optional
+        cartocss: "#country_mask{polygon-fill: #F00;polygon-opacity: 1;line-color: #FFF;}#country_mask[iso_a3='ETH']{polygon-opacity: 0;}",
+        sql: "select * from country_mask"
       }]
     },
 
@@ -38,9 +37,9 @@
      * @param  {Function} callback
      */
     create: function(callback) {
-      console.log(this.options);
+
       cartodb.createLayer(this.map, this.options, { 'no_cdn': true })
-        .addTo(this.map)
+        .addTo(this.map, 1)
         .on('done', function(layer) {
           this.layer = layer;
           this.layer.getSubLayer(0).set(this.options.sublayers[0]);
