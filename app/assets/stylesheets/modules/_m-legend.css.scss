@@ -15,10 +15,12 @@ $side-bar-min-width: 320px;
   background: $bg-color-1;
 
   .is-journey-map & {
+    box-sizing: content-box;
     right: auto;
     left: 0;
-    width: 398px;
-    padding-left: rem(65px);
+    width: $side-bar-width;
+    min-width: $side-bar-min-width;
+    padding-left: rem(40px);
     bottom: rem(100px);
     box-shadow: 0 0 20px 10px $bg-color-1;
   }

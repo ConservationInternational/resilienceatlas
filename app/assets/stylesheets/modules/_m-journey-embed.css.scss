@@ -19,8 +19,11 @@ $side-bar-min-width: 320px;
     // sidebar trampa
     &:after {
       content: "";
+      box-sizing: content-box;
       position: absolute;
-      width: 398px;
+      width: $side-bar-width;
+      min-width: $side-bar-min-width;
+      padding-left: rem(40px);
       top: 0;
       left: 0;
       bottom: rem(340px);
