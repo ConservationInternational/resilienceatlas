@@ -46,8 +46,8 @@
     createMap: function() {
       // trampita zoom
       if (this.model.get('journeyMap')) {
-        this.options.map.zoom = 5;
-        this.options.map.center = [10, 30]; //Horn of Africa
+        this.options.map.zoom = 6;
+        this.options.map.center = [8, 37]; //Horn of Africa
       }
       if (!this.map) {
         this.map = L.map(this.el, this.options.map);
