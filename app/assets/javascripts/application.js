@@ -9,6 +9,7 @@
 //= require ./helpers/class
 //= require ./helpers/cartodb_layer
 //= require ./helpers/cartodb_raster
+//= require ./helpers/cartodb_mask
 //= require_tree ./models
 //= require_tree ./collections
 //= require_tree ./templates

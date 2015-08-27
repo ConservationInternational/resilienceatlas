@@ -55,6 +55,7 @@
           this.addControlZoom();
         }
         this.setBasemap();
+        this.setMaskLayer();
       } else {
         console.info('Map already exists.');
       }
@@ -187,6 +188,15 @@
         this.model.set(layerData.id, null);
         layerInstance.remove();
       }
+    },
+
+    setMaskLayer: function() {
+      var options = {
+        cartocss: '#country_mask{polygon-fill: #FFF;polygon-opacity: 1;line-color: #FFF;}#country_mask[iso_a3="ETH"]{polygonopacity: 0;}',
+        sql: 'select * from country_mask'
+      };
+
+      var maskLayer = new root.app.Helper.CartoDBmask(this.map, options);
     }
 
   });
