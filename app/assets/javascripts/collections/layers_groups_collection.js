@@ -42,7 +42,6 @@
           active: d.attributes.active
         };
       });
-      console.log(result);
       return result;
     },
 
