@@ -1,5 +1,8 @@
 $legend-width: 350px;
 
+$side-bar-width: 25%;
+$side-bar-min-width: 320px;
+
 .m-legend {
   position: absolute;
   right: 0;
@@ -12,10 +15,14 @@ $legend-width: 350px;
   background: $bg-color-1;
 
   .is-journey-map & {
+    box-sizing: content-box;
     right: auto;
-    left: rem(45px);
+    left: 0;
+    width: $side-bar-width;
+    min-width: $side-bar-min-width;
+    padding-left: rem(40px);
     bottom: rem(100px);
-    box-shadow: none;
+    box-shadow: 0 0 20px 10px $bg-color-1;
   }
 
   ul {
