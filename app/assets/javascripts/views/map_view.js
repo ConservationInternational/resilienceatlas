@@ -199,7 +199,9 @@
 
       var maskLayer = new root.app.Helper.CartoDBmask(this.map);
 
-      maskLayer.create();
+      maskLayer.create(function(layer){
+        layer.setZIndex(1001)
+      });
     }
 
   });

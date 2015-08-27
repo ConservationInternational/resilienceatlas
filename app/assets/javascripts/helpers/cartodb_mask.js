@@ -18,7 +18,7 @@
       maps_api_template: 'https://grp.cidata.io/user/grp',
       sql_api_template: 'https://grp.cidata.io/user/grp',
       sublayers: [{
-        cartocss: "#country_mask{polygon-fill: #F00;polygon-opacity: 1;line-color: #FFF;}#country_mask[iso_a3='ETH']{polygon-opacity: 0;}",
+        cartocss: "#country_mask{polygon-fill: #FFF;polygon-opacity: 1;line-color: #DDD;}#country_mask[iso_a3='ETH']{polygon-opacity: 0;}",
         sql: "select * from country_mask"
       }]
     },
