@@ -45,7 +45,7 @@
      */
     create: function(callback) {
       this.loader.addClass('is-loading');
-
+      console.log(this.options);
       cartodb.createLayer(this.map, this.options, { 'no_cdn': true })
         .addTo(this.map)
         .on('done', function(layer) {
