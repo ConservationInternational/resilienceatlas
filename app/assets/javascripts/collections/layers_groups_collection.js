@@ -20,7 +20,7 @@
    *   }
    * ]
    */
-   
+
   root.app.Collection.LayersGroups = Backbone.Collection.extend({
 
     comparator: function(d) {
@@ -28,7 +28,6 @@
     },
 
     url: '/api/layer-groups',
-    comparator: 'order',
 
     parse: function(response) {
       var result = _.map(response.data, function(d) {
@@ -42,6 +41,7 @@
           active: d.attributes.active
         };
       });
+
       return result;
     },
 
