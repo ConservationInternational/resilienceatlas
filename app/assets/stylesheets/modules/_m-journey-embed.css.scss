@@ -1,4 +1,4 @@
-$side-bar-width: 25%;
+$side-bar-width: 33%;
 $side-bar-min-width: 430px;
 
 %m-journey-embed {
@@ -28,7 +28,7 @@ $side-bar-min-width: 430px;
     bottom: 0;
     left: 0;
     padding: rem(45px) rem(40px);
-    min-width: rem($side-bar-min-width);
+    min-width: 400px;
     width: $side-bar-width;
     background-color: #fff;
 
@@ -46,10 +46,18 @@ $side-bar-min-width: 430px;
 
     h2 {
       margin: 0;
-      font-size: rem(64px);
+      font-size: rem(60px);
       font-family: $font-face-2;
       line-height: .8em;
       text-transform: uppercase;
+    }
+
+    @media screen and (max-width: 1024px) and (orientation: landscape) {
+      min-width: 300px;
+
+      h2 {
+        font-size: rem(40px);
+      }
     }
 
     h3 {
@@ -110,23 +118,27 @@ $side-bar-min-width: 430px;
     }
   }
 
-  .m-controls {
-    position: absolute;
-    bottom: rem(40px);
-    left: rem(45px);
-    right: rem(45px);
-    width: auto;
+  // .m-controls {
+  //   position: absolute;
+  //   bottom: rem(40px);
+  //   left: rem(45px);
+  //   right: rem(45px);
+  //   width: auto;
 
-    #btn-next {
-      float: right;
-    }
-  }
+  //   #btn-next {
+  //     float: right;
+  //   }
+  // }
 
   @media screen and (max-width: 1024px) and (orientation: landscape) {
     section {
       margin-bottom: rem(10px);
       max-height: rem(200px);
       overflow-y: scroll;
+    }
+
+    h2 {
+      font-size: rem(40px);
     }
   }
 
@@ -140,8 +152,7 @@ $side-bar-min-width: 430px;
   }
 
   h1,
-  h3,
-  .btn-check-it {
+  h3 {
     color: $font-color-2;
   }
 

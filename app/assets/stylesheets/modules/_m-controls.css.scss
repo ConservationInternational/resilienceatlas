@@ -3,8 +3,12 @@
   width: 100%;
   display: flex;
   justify-content: space-between;
+  position: absolute;
+  bottom: rem(40px);
+  padding: 0 rem(40px);
 
   .m-journey-landing & {
+    position: static;
     justify-content: center;
   }
 }
