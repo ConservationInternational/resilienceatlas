@@ -118,7 +118,6 @@
         });
       }
 
-
       // At begining create a map
       mapView.createMap();
 

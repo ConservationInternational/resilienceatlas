@@ -62,7 +62,10 @@
 
       this.renderButtons();
 
-      this.renderLegend();
+      if (this.currentStepData.type === 'embed') {
+        this.renderLegend();
+      };
+
     },
 
     renderButtons: function() {
@@ -71,6 +74,10 @@
     },
 
     renderLegend: function() {
+      var url = this.currentStepData.mapUrl;
+      var codeLayers = url.split('?')[1];
+      var layers = this._unserializeParams(codeLayers);
+
       //trampita
       // var journeyMap = this._checkJourneyMap();
       var layersCollection = new root.app.Collection.Layers();
@@ -79,20 +86,41 @@
         layersCollection
       ], 'fetch');
 
-      $.when.apply($, complete).done(function() {
-        var legendView = new root.app.View.Legend({
-          el: '#legendView',
-          layers: layersCollection,
-          model: new (Backbone.Model.extend({
-            defaults: {
-              hidden: false,
-              order: [],
-            }
-          })),
-        });
+      var legendView = new root.app.View.Legend({
+        el: '#legendView',
+        layers: layersCollection,
+        model: new (Backbone.Model.extend({
+          defaults: {
+            hidden: false,
+            order: [],
+          }
+        })),
+      });
 
-        legendView.render();
+
+      $.when.apply($, complete).done(function() {
+        layersCollection.setActives(layers.layers)
+
+        //legendView.render();
       })
+    },
+
+    _unserializeParams: function(layers) {
+      var location = layers;
+      var params = {};
+      if (location) {
+        var paramsArr = decodeURIComponent(location).split('&'),
+          temp = [];
+        for (var p = paramsArr.length; p--;) {
+          temp = paramsArr[p].split('=');
+          if (temp[1] && !_.isNaN(Number(temp[1]))) {
+            params[temp[0]] = Number(temp[1]);
+          } else if (temp[1]) {
+            params[temp[0]] = temp[1];
+          }
+        }
+      }
+      return params;
     },
 
 

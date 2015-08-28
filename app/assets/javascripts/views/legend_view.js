@@ -32,7 +32,6 @@
       var opts = settings && settings.options ? settings.options : {};
       this.options = _.extend({}, this.defaults, opts);
       this.layers = settings.layers;
-      console.log(this.layers)
       this.setListeners();
     },
 

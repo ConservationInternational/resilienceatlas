@@ -91,6 +91,20 @@
       }, this);
     },
 
+    setActives: function(activeLayers) {
+      console.log(activeLayers);
+      var self = this;
+
+      $.each(activeLayers, function(i, val) {
+        console.log(val);
+        console.log(i)
+
+        _.findWhere(self.JSON, { id: this.id })
+      });
+
+      // console.log(this.toJSON());
+    },
+
     getActived: function() {
       return _.where(_.sortBy(this.toJSON(), 'order'), { active: true, published: true });
     },
