@@ -25,4 +25,8 @@
   .btn{
     margin: rem(40px) 0 0;
   }
+
+   @media screen and (max-width: 800px) {
+    width: 100%;
+  }
 }

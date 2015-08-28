@@ -33,6 +33,11 @@ $backgrounds: 'bg-intro','bg-ethiopia','bg-horn','bg-journey3','bg-journey4','bg
         line-height: 1;
         text-transform: uppercase;
         margin: 0;
+
+        @media screen and (max-width: 900px) {
+          font-size: rem(80px);
+        }
+
       }
 
       h3 {
