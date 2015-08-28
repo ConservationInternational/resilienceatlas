@@ -13,4 +13,10 @@
     left: 50%;
     background: image-url('home/bg-explore.png') left bottom no-repeat;
   }
+
+   @media screen and (max-width: 800px) {
+    figure {
+      display: none;
+    }
+  }
 }
