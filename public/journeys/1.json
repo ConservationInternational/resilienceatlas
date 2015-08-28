@@ -55,22 +55,22 @@
         "number": 6,
         "type": "embed",
         "theme": "light",
-        "aside": "<article><header><h2>stressors  & shocks</h2><h3>Maize production & variability in short rains</h3></header><section><h1>Ethiopia</h1><div class='facts'><h4>Livelihoods</h4><p>49% of Ethiopia is used for rained agriculture</p></div></section><footer><p>INSIGHTS PROVIDED BY CONSERVATION INTERNATIONAL</p></footer></article>",
-        "mapUrl": "/map?layers=%5B%7B\"id\"%3A31%2C\"opacity\"%3A1%2C\"order\"%3A0%7D%2C%7B\"id\"%3A8%2C\"opacity\"%3A1%2C\"order\"%3A1%7D%5D"
+        "aside": "<article><header><h2>stressors  & shocks</h2><h3>Maize production & variability in short rains</h3></header><section><h1>Ethiopia</h1><div class='facts'><h4>Livelihoods</h4><p>49% of Ethiopia is used for rained agriculture</p></div><div class='facts'><h4>Stressors & Shocks</h4><p>Rainfall during the short rains is declining at rates as high as 24% per decade in some maize-growing areas.</p></div></section><footer><p>INSIGHTS PROVIDED BY CONSERVATION INTERNATIONAL</p></footer></article>",
+        "mapUrl": "/map?layers=%5B%7B%22id%22%3A8%2C%22opacity%22%3A1%2C%22order%22%3A0%7D%2C%7B%22id%22%3A30%2C%22opacity%22%3A1%2C%22order%22%3A0%7D%5D"
       },
       {
         "number": 7,
         "type": "text",
         "align": "center",
         "theme": "dark",
-        "content": "<div class='highlighted'><p>Since 1981, the rainfall during the short rainy season has decreased by as much as 24% per decade in areas important for maize.</p><p>10% of the area currently used for maize production has been impacted by this decrease.</p></div>"
+        "content": "<div class='highlighted'><p>Rainfall during the short rains is declining at rates as high as 24% per decade in some maize-growing areas.</p><p>10% of the area currently used for maize production has been impacted by this decrease.</p></div>"
       },
       {
         "number": 8,
         "type": "embed",
         "theme": "light",
-        "aside": "<article><header><h2>stressors  & shocks</h2><h3>Maize production & variability in long rains</h3></header><footer><p>INSIGHTS PROVIDED BY CONSERVATION INTERNATIONAL</p></footer></article>",
-        "mapUrl": "/map?layers=%5B%7B\"id\"%3A32%2C\"opacity\"%3A1%2C\"order\"%3A0%7D%2C%7B\"id\"%3A8%2C\"opacity\"%3A1%2C\"order\"%3A1%7D%5D"
+        "aside": "<article><header><h2>stressors  & shocks</h2><h3>Maize production & variability in long rains</h3></header><section><div class='facts'><h4>Livelihoods</h4><p>49% of the land area of Ethiopia is used for rainfed agriculture</p></div><div class='facts'><h4>Stressors & shocks</h4><p>Rainfall during the long rains is declining at rates as high as 11% per decade in some maize-growing areas</p></div></section><footer><p>INSIGHTS PROVIDED BY CONSERVATION INTERNATIONAL</p></footer></article>",
+        "mapUrl": "/map?layers=%5B%7B%22id%22%3A8%2C%22opacity%22%3A1%2C%22order%22%3A0%7D%2C%7B%22id%22%3A33%2C%22opacity%22%3A1%2C%22order%22%3A0%7D%5D"
       },
       {
         "number": 9,
@@ -78,7 +78,7 @@
         "align": "left",
         "theme": "light",
         "background": "journey1bg2",
-        "content": "<div class='highlighted'><p>Decreased rainfall during long rains: Rainfall has already decreased by as much as 11% in areas important for maize production.</p></div>"
+        "content": "<div class='highlighted'><p>Rainfall during the long rains is declining at rates as high as 11% per decade in some maize-growing areas.</p></div>"
       },
       {
         "number": 10,
@@ -92,79 +92,65 @@
         "number": 11,
         "type": "embed",
         "theme": "light",
-        "aside": "<article><header><h2>Vulnerability</h2><h3>Fertility rates</h3></header><section><h1>Ethiopia</h1><div class='facts'><h4>Livelihoods</h4><p>94% of maize is produced by smallhholder farmers</p><div class='facts'><h4>Stressors & Shocks</h4><p>Rainfall has declined by 11% in long rainy season</p></div><div class='facts'><h4>Vulnerability</h4><p>Fertility rates in maize production areas are > 5 children per woman</p></div></section><footer><p>INSIGHTS PROVIDED BY CONSERVATION INTERNATIONAL</p></footer></article>",
+        "aside": "<article><header><h2>Vulnerability</h2><h3>Fertility rates</h3></header><section><h1>Ethiopia</h1><div class='facts'><p>Fertility rates in maize production areas are > 5 children per woman</p></div></section><footer><p>INSIGHTS PROVIDED BY CONSERVATION INTERNATIONAL</p></footer></article>",
         "mapUrl": "/map?layers=%5B%7B\"id\"%3A28%2C\"opacity\"%3A1%2C\"order\"%3A0%7D%5D"
       },
       {
         "number": 12,
         "type": "embed",
         "theme": "light",
-        "aside": "<article><header><h2>Vulnerability</h2><h3>Fertility rates in maize production areas</h3></header><section><h1>Ethiopia</h1><div class='facts'><h4>Livelihoods</h4><p>94% of maize is produced by smallhholder farmers</p><div class='facts'><h4>Stressors & Shocks</h4><p>Rainfall has declined by 11% in long rainy season</p></div><div class='facts'><h4>Vulnerability</h4><p>Fertility rates in maize production areas are > 5 children per woman</p></div></section><footer><p>INSIGHTS PROVIDED BY CONSERVATION INTERNATIONAL</p></footer></article>",
-        "mapUrl": "/map?layers=%5B%7B\"id\"%3A8%2C\"opacity\"%3A0.45%2C\"order\"%3A1%7D%2C%7B\"id\"%3A28%2C\"opacity\"%3A1%2C\"order\"%3A2%7D%2C%7B\"id\"%3A32%2C\"opacity\"%3A1%2C\"order\"%3A3%7D%5D"
+        "aside": "<article><header><h2>Vulnerability</h2><h3>Fertility rates in maize production areas</h3></header><section><div class='facts'><h4></h4><p>Fertility rates in maize production areas are > 5 children per woman</p></div></section><footer><p>INSIGHTS PROVIDED BY CONSERVATION INTERNATIONAL</p></footer></article>",
+        "mapUrl": "/map?layers=%5B%7B%22id%22%3A8%2C%22opacity%22%3A1%2C%22order%22%3A0%7D%2C%7B%22id%22%3A28%2C%22opacity%22%3A1%2C%22order%22%3A0%7D%5D"
       },
       {
         "number": 13,
         "type": "text",
         "align": "center",
         "theme": "dark",
-        "content": "<div class='highlighted'><p>In areas of climate stress, fertility rates are >5 children per woman.</p><p>The population of Ethiopia is projected to increase from 98,942,102 to 142,900,000 by 2030, creating further stress.</p></div><div><p class='source'> Source: International Futures (IFs) forecasting system and the Pardee Center for International Futures at the University of Denver.</p></div>"
+        "content": "<div class='highlighted'><p>Fertility rates in maize producing areas are >5 children per woman..</p><p>The population of Ethiopia is projected to increase from 98,942,102 to 142,900,000 by 2030, creating further stress.</p></div><div><p class='source'> Source: International Futures (IFs) forecasting system and the Pardee Center for International Futures at the University of Denver.</p></div>"
       },
       {
         "number": 14,
         "type": "embed",
         "theme": "light",
-        "aside": "<article><header><h2>Vulnerability</h2><h3>Short rains</h3></header></article>",
-        "mapUrl": "/map?layers=%5B%7B%22id%22%3A31%2C%22opacity%22%3A1%2C%22order%22%3A0%7D%5D"
+        "aside": "<article><header><h2>Vulnerability</h2><h3>Mass media access</h3></header><section><div class='facts'><h4></h4><p>In maize producing areas, more than 69% of women lack access to mass media.</p></div></section><footer><p>INSIGHTS PROVIDED BY CONSERVATION INTERNATIONAL</p></footer></article>",
+        "mapUrl": "/map?layers=%5B%7B%22id%22%3A27%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%5D"
       },
       {
         "number": 15,
         "type": "embed",
         "theme": "light",
-        "aside": "<article><header><h2>Vulnerability</h2><h3>Mass media access</h3></header></article>",
-        "mapUrl": "/map?layers=%5B%7B\"id\"%3A27%2C\"opacity\"%3A1%2C\"order\"%3A0%7D%5D"
+        "aside": "<article><header><h2>Vulnerability</h2><h3>Mass media access with short rains</h3></header><section><div class='facts'><h4></h4><p>In maize producing areas, more than 69% of women lack access to mass media.</p></div></section><footer><p>INSIGHTS PROVIDED BY CONSERVATION INTERNATIONAL</p></footer></article>",
+        "mapUrl": "/map?layers=%5B%7B%22id%22%3A31%2C%22opacity%22%3A0.52%2C%22order%22%3A0%7D%2C%7B%22id%22%3A27%2C%22opacity%22%3A0.54%2C%22order%22%3A0%7D%5D"
       },
       {
         "number": 16,
         "type": "embed",
         "theme": "light",
-        "aside": "<article><header><h2>Vulnerability</h2><h3>Mass media access with short rains</h3></header></article>",
-        "mapUrl": "/map?layers=%5B%7B\"id\"%3A27%2C\"opacity\"%3A0.43%2C\"order\"%3A1%7D%2C%7B\"id\"%3A31%2C\"opacity\"%3A1%2C\"order\"%3A2%7D%5D"
+        "aside": "<article><header><h2>Vulnerability</h2><h3>Illiteracy rate for womens</h3></header><section><div class='facts'><h4></h4><p>In maize producing areas, more than half of all women are illiterate.</p></div></section><footer><p>INSIGHTS PROVIDED BY CONSERVATION INTERNATIONAL</p></footer></article>",
+        "mapUrl": "/map?layers=%5B%7B%22id%22%3A26%2C%22opacity%22%3A1%2C%22order%22%3A0%7D%5D"
       },
       {
         "number": 17,
         "type": "embed",
         "theme": "light",
-        "aside": "<article><header><h2>Vulnerability</h2><h3>Short rains</h3></header></article>",
-        "mapUrl": "/map?layers=%5B%7B\"id\"%3A31%2C\"opacity\"%3A1%2C\"order\"%3A2%7D%5D"
+        "aside": "<article><header><h2>Vulnerability</h2><h3>Illiteracy rate for women with short rains</h3></header><section><div class='facts'><h4></h4><p>In maize producing areas, more than half of all women are illiterate.</p></div></section><footer><p>INSIGHTS PROVIDED BY CONSERVATION INTERNATIONAL</p></footer></article>",
+        "mapUrl": "/map?layers=%5B%7B%22id%22%3A31%2C%22opacity%22%3A1%2C%22order%22%3A0%7D%2C%7B%22id%22%3A26%2C%22opacity%22%3A0.53%2C%22order%22%3A0%7D%5D"
       },
       {
         "number": 18,
-        "type": "embed",
-        "theme": "light",
-        "aside": "<article><header><h2>Vulnerability</h2><h3>Illiteracy rate for women</h3></header></article>",
-        "mapUrl": "/map?layers=%5B%7B\"id\"%3A26%2C\"opacity\"%3A1%2C\"order\"%3A0%7D%5D"
-      },
-      {
-        "number": 19,
-        "type": "embed",
-        "theme": "light",
-        "aside": "<article><header><h2>Vulnerability</h2><h3>Illiteracy rate for women with short rains</h3></header></article>",
-        "mapUrl": "/map?layers=%5B%7B\"id\"%3A26%2C\"opacity\"%3A0.6%2C\"order\"%3A0%7D%2C%7B\"id\"%3A31%2C\"opacity\"%3A1%2C\"order\"%3A2%7D%5D"
-      },
-      {
-        "number": 20,
         "type": "text",
         "align": "left",
         "theme": "light",
         "background": "journey1bg3",
-        "content": "<div class='highlighted'><p>In areas of stress fewer than half of all women can read and less than 31% of women have access to mass media.</p><p>These factors inhibit resilience.</p></div>"
+        "content": "<div class='highlighted'><p>In maize producing areas, fewer than half of all women can read and less than 31% of women have access to mass media.</p><p>These factors inhibit resilience.</p></div>"
       },
       {
-        "number": 21,
+        "number": 19,
         "type": "conclusion",
         "title": "insights",
         "subtitle": "agricultural livelihoods & climate change in ethiopia",
-        "content": "<p>Climatic changes in primary maize growing seasons will cause lower food production in areas with high sensitivity to changing precipitation patterns.</p><p>Access to information is critical to resilience of crop production; however, without careful planning, the impact of these interventions may be limited by high levels of illiteracy and lack of access to communications media, particularly among women.</p>"
+        "content": "<p>Climatic changes in primary maize growing seasons will cause lower food production in areas with high sensitivity to changing precipitation patterns.</p><p>Access to information is critical to resilience of crop production. Further, without careful planning, the impact of interventions may be limited by high levels of illiteracy and lack of access to communications media, particularly among women.</p>"
       }
     ]
   }
