@@ -1,5 +1,5 @@
 $side-bar-width: 25%;
-$side-bar-min-width: 400px;
+$side-bar-min-width: 430px;
 
 %m-journey-embed {
   position: absolute;
@@ -15,20 +15,6 @@ $side-bar-min-width: 400px;
     left: 0;
     right: 0;
     background-color: #eee;
-
-    // sidebar trampa
-    // &:after {
-    //   content: "";
-    //   box-sizing: content-box;
-    //   position: absolute;
-    //   width: $side-bar-min-width + 10px;
-    //   padding-left: rem(40px);
-    //   top: 0;
-    //   left: 0;
-    //   bottom: rem(340px);
-    //   background: white;
-      // box-shadow: 0 0 20px 10px $bg-color-1;
-    // }
   }
 
   embed {
@@ -86,26 +72,16 @@ $side-bar-min-width: 400px;
       margin-top: 0;
     }
 
-    // @media screen and (max-width: 1024px) and (orientation: landscape) {
-
-    //   top: rem(20px);
-
-    //   h2 {
-    //     font-size: rem(32px);
-    //   }
-
-    //   h1 {
-    //     font-size: rem(20px);
-    //   }
-
-    //   h3, p {
-    //     font-size: rem(16px);
-    //   }
-
-    //   h4 {
-    //     font-size: rem(14px);
-    //   }
-    // }
+    .wrapper {
+      position: absolute;
+      top: rem(20px);
+      bottom: rem(100px);
+      right: rem(40px);
+      left: rem(40px);
+      padding-top: rem(25px);
+      overflow: scroll;
+      padding-right: rem(10px);
+    }
 
     footer {
       display: block;
