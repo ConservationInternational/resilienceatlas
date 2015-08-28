@@ -81,6 +81,7 @@ $side-bar-min-width: 430px;
       left: rem(40px);
       padding-top: rem(25px);
       overflow: scroll;
+      -webkit-overflow-scrolling: touch;
       padding-right: rem(10px);
     }
 
