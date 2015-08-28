@@ -52,7 +52,7 @@ $side-bar-min-width: 430px;
       text-transform: uppercase;
     }
 
-    @media screen and (max-width: 1024px) and (orientation: landscape) {
+    @media screen and (max-width: 1024px) {
       min-width: 300px;
 
       h2 {
