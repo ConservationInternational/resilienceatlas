@@ -99,9 +99,10 @@
 
 
       $.when.apply($, complete).done(function() {
-        layersCollection.setActives(layers.layers)
+        layers = JSON.parse(layers.layers);
+        layersCollection.setActives(layers)
 
-        //legendView.render();
+        legendView.render();
       })
     },
 

@@ -92,17 +92,16 @@
     },
 
     setActives: function(activeLayers) {
-      console.log(activeLayers);
       var self = this;
 
-      $.each(activeLayers, function(i, val) {
-        console.log(val);
-        console.log(i)
-
-        _.findWhere(self.JSON, { id: this.id })
+      $.each(this.models, function() {
+        this.set('active', false);
       });
 
-      // console.log(this.toJSON());
+      $.each(activeLayers, function() {
+       var activelayer = _.findWhere(self.models, { id: this['id'] });
+       activelayer.set('active', true);
+      });
     },
 
     getActived: function() {
