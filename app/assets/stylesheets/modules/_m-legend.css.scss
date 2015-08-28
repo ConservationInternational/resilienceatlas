@@ -1,21 +1,37 @@
 $legend-width: 350px;
 
+$side-bar-width: 360px;
+
+
 .m-legend {
   position: absolute;
   right: 0;
   bottom: 0;
   width: rem($legend-width);
   // max-height: rem(300px);
-  padding: rem(17px) rem(24px);
+  //Padding right to allow scroll bar in content.
+  padding: rem(17px) rem(15px) rem(17px) rem(20px);
   box-shadow: 0 1px 4px 0 rgba(0,0,0,.2);
   background: $bg-color-1;
-  // overflow: hidden;
+
+  .side-bar & {
+    position: static;
+    box-shadow: none;
+    padding: 0;
+    width: 100%;
+    padding-top: rem(20px);
+  }
 
   .is-journey-map & {
+    box-sizing: content-box;
     right: auto;
-    left: rem(45px);
+    left: 0;
+    width: rem(345px) ;
+    padding-left: rem(30px);
     bottom: rem(100px);
+    height: rem(206px);
     box-shadow: none;
+    // box-shadow: 0 0 20px 10px $bg-color-1;
   }
 
   ul {
@@ -28,7 +44,7 @@ $legend-width: 350px;
     position: relative;
     width: 100%;
 
-    .is-journey-map & {
+    .side-bar & {
       display: none;
     }
 
@@ -75,8 +91,20 @@ $legend-width: 350px;
   }
 
   .m-legend__content {
-    max-height: 250px;
-    overflow-y: scroll;
+    padding-right: 5px;
+
+    .is-journey-map & {
+      position: absolute;
+      bottom: rem(15px);
+      left: rem(40px);
+      right: rem(15px);
+
+      @media screen and (max-width: 1024px) and (orientation: landscape) {
+        max-height: 250px;
+        overflow-y: scroll;
+      }
+    }
+
   }
 
   // LIST OF LEGENDS
@@ -93,6 +121,7 @@ $legend-width: 350px;
       header {
         position: relative;
         padding: 0 rem(50px) 0 0;
+
         h3 {
           font-size: 14px;
           color: $font-color-1;
@@ -106,6 +135,10 @@ $legend-width: 350px;
           display: flex;
           align-items: center;
           justify-content: space-between;
+
+          .side-bar & {
+            display: none;
+          }
 
           > * {
             @extend %clean-button-or-input;

@@ -9,6 +9,7 @@
 //= require ./helpers/class
 //= require ./helpers/cartodb_layer
 //= require ./helpers/cartodb_raster
+//= require ./helpers/cartodb_mask
 //= require_tree ./models
 //= require_tree ./collections
 //= require_tree ./templates
@@ -103,20 +104,19 @@
           el: '#layersListView',
           layers: layersCollection
         });
+
+        var legendView = new root.app.View.Legend({
+          el: '#legendView',
+          layers: layersCollection,
+          model: new (Backbone.Model.extend({
+            defaults: {
+              hidden: false,
+              order: [],
+              journeyMap: journeyMap
+            }
+          })),
+        });
       }
-
-
-      var legendView = new root.app.View.Legend({
-        el: '#legendView',
-        layers: layersCollection,
-        model: new (Backbone.Model.extend({
-          defaults: {
-            hidden: false,
-            order: [],
-            journeyMap: journeyMap
-          }
-        })),
-      });
 
       // At begining create a map
       mapView.createMap();
@@ -161,17 +161,17 @@
 
         // Render views
         mapView.renderLayers();
-        legendView.render();
         //Layer list is not showed into journey embed map.
         if (!journeyMap) {
           layersListView.render();
+          legendView.render();
         }
 
       }.bind(this));
     },
 
-    journeysPage: function() {
-      //Expected route journeys?journey=1&step=4
+    journeysPage: function(journeyId) {
+      //Expected route journeys/:journeyId?&step=4
 
       var journeyModel = new root.app.Model.Journeys();
       var journeysCollection = new root.app.Collection.Journeys();
@@ -179,28 +179,29 @@
       //Get router params
       var routerParams = this.router.params.attributes;
 
-      if (!_.isEmpty(routerParams)) {
-        //Fetching data
-        var complete = _.invoke([
-          journeysCollection
-        ], 'getByParams', routerParams.journey);
-
-        //Starting view
-        $.when.apply($, complete).done(function() {
-          var journeyView = new root.app.View.Journeys({
-            model: journeyModel,
-            journey: journeysCollection,
-            currentStep: routerParams.step
-          });
-        }.bind(this));
-
-        //Telling router to be aware of this model changes
-        journeyModel.on('change', function() {
-          var currentStep = journeyModel.get('step');
-          this.router.setParams('step', currentStep);
-        }.bind(this));
-
+      if (!routerParams.step) {
+        routerParams.step = 0;
       }
+
+      //Fetching data
+      var complete = _.invoke([
+        journeysCollection
+      ], 'getByParams', journeyId);
+
+      //Starting view
+      $.when.apply($, complete).done(function() {
+        var journeyView = new root.app.View.Journeys({
+          model: journeyModel,
+          journey: journeysCollection,
+          currentStep: routerParams.step
+        });
+      }.bind(this));
+
+      //Telling router to be aware of this model changes
+      journeyModel.on('change', function() {
+        var currentStep = journeyModel.get('step');
+        this.router.setParams('step', currentStep);
+      }.bind(this));
     },
 
     _checkJourneyMap: function() {

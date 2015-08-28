@@ -91,6 +91,19 @@
       }, this);
     },
 
+    setActives: function(activeLayers) {
+      var self = this;
+
+      $.each(this.models, function() {
+        this.set('active', false);
+      });
+
+      $.each(activeLayers, function() {
+       var activelayer = _.findWhere(self.models, { id: this['id'] });
+       activelayer.set('active', true);
+      });
+    },
+
     getActived: function() {
       return _.where(_.sortBy(this.toJSON(), 'order'), { active: true, published: true });
     },

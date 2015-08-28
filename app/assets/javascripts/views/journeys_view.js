@@ -61,11 +61,67 @@
       this.$el.html( this.template({ content: this.currentStepData }) );
 
       this.renderButtons();
+
+      if (this.currentStepData.type === 'embed') {
+        this.renderLegend();
+      };
+
     },
 
     renderButtons: function() {
       $('.m-controls').html( this.templates['controls'] );
       this._handleButtons();
+    },
+
+    renderLegend: function() {
+      var url = this.currentStepData.mapUrl;
+      var codeLayers = url.split('?')[1];
+      var layers = this._unserializeParams(codeLayers);
+
+      //trampita
+      // var journeyMap = this._checkJourneyMap();
+      var layersCollection = new root.app.Collection.Layers();
+
+      var complete = _.invoke([
+        layersCollection
+      ], 'fetch');
+
+      var legendView = new root.app.View.Legend({
+        el: '#legendView',
+        layers: layersCollection,
+        model: new (Backbone.Model.extend({
+          defaults: {
+            hidden: false,
+            order: [],
+          }
+        })),
+      });
+
+
+      $.when.apply($, complete).done(function() {
+        layers = JSON.parse(layers.layers);
+        layersCollection.setActives(layers)
+
+        legendView.render();
+      })
+    },
+
+    _unserializeParams: function(layers) {
+      var location = layers;
+      var params = {};
+      if (location) {
+        var paramsArr = decodeURIComponent(location).split('&'),
+          temp = [];
+        for (var p = paramsArr.length; p--;) {
+          temp = paramsArr[p].split('=');
+          if (temp[1] && !_.isNaN(Number(temp[1]))) {
+            params[temp[0]] = Number(temp[1]);
+          } else if (temp[1]) {
+            params[temp[0]] = temp[1];
+          }
+        }
+      }
+      return params;
     },
 
 

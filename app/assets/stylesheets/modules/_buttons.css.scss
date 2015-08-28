@@ -27,7 +27,8 @@
   float: left;
   border: 1px solid rgba(#222, .5);
   background-color: $bg-color-1;
-  font-weight: 700;
+  font-size: rem(18px);
+  font-weight: 500;
 
   &:active {
     border: 1px solid rgba(#222, .5);
@@ -45,14 +46,14 @@
     @extend %center;
     @include arrow(15px, $font-color-1, 1px, -45deg);
     content: "";
-    transform: translate(-50%, -50%) rotate(-45deg);
+    transform: translate(-35%, -50%) rotate(-45deg);
   }
 }
 
 #btn-next {
   border-radius: 50px;
   height: rem(45px);
-  padding: rem(12px) rem(50px) rem(8px);
+  padding: rem(12px) rem(40px) rem(8px) rem(20px);
   text-transform: capitalize;
 
   &:before {
@@ -62,4 +63,14 @@
     right: rem(5px);
     transform: translate(-50%, -50%) rotate(135deg);
   }
+}
+
+.btn-check-it {
+  border-radius: 50px;
+  height: rem(45px);
+  padding: rem(14px) rem(14px) rem(2px);
+  position: absolute;
+  bottom: rem(40px);
+  right: rem($content-margin);
+  background-color: $bg-color-1;
 }

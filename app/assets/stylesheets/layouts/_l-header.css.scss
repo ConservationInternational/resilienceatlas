@@ -30,6 +30,7 @@
     padding: rem(5px) 0;
 
     a {
+      position: relative;
       display: block;
       width: rem(140px);
       padding: rem(5px) 0;
@@ -39,6 +40,17 @@
       background-position: left center;
       background-size: contain;
       text-indent: -99999px;
+
+      &:after {
+        content: "beta";
+        display: block;
+        position: absolute;
+        bottom: rem(5px);
+        left: 0;
+        font-size: 10px;
+        color: $font-color-2;
+
+      }
 
       &:hover {
         text-decoration: none;

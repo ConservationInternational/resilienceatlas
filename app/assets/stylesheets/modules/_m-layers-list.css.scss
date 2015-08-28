@@ -41,8 +41,6 @@
   }
 
   .header-title {
-    float: left;
-
     font-weight: bold;
     text-transform: uppercase;
     line-height: 1.2em;
@@ -60,6 +58,10 @@
     color: $font-color-1;
     background-color: $bg-color-1;
     text-align: left;
+
+    .header-title {
+      float: left;
+    }
 
     &.is-active {
       border-bottom: 0;

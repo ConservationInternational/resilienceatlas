@@ -20,6 +20,7 @@
    *   }
    * ]
    */
+
   root.app.Collection.LayersGroups = Backbone.Collection.extend({
 
     comparator: function(d) {
@@ -40,6 +41,7 @@
           active: d.attributes.active
         };
       });
+
       return result;
     },
 

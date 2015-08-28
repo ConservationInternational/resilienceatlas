@@ -11,13 +11,16 @@
       map: {
         zoom: 3,
         center: [0, 15],
-        // center: [10, 26], //Horn of Africa
+        // center: [10, 30], //Horn of Africa
         zoomControl: false,
         scrollWheelZoom: false
       },
       basemap: {
         // url: 'http://{s}.api.cartocdn.com/base-light/{z}/{x}/{y}.png'
         url: 'http://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}'
+      },
+      journeyBasemap: {
+        url: 'https://grp.global.ssl.fastly.net/user/grp/api/v1/map/890933266e8321dceb253f99620171e5:1440586478249.0498/0/{z}/{x}/{y}.png'
       },
       zoomControl: {
         position: 'topright'
@@ -41,6 +44,11 @@
      * Instantiates a Leaflet map object
      */
     createMap: function() {
+      // trampita zoom
+      if (this.model.get('journeyMap')) {
+        this.options.map.zoom = 6;
+        this.options.map.center = [8, 37]; //Horn of Africa
+      }
       if (!this.map) {
         this.map = L.map(this.el, this.options.map);
         if (this.options.zoomControl) {
@@ -82,7 +90,8 @@
       }
 
       //basemap depends on if it is embed or not.
-      var customUrl = this.model.get('journeyMap') ? "http://{s}.api.cartocdn.com/base-light/{z}/{x}/{y}.png" : this.options.basemap.url;
+      //Add here mapbox basemap url.
+      var customUrl = this.model.get('journeyMap') ? this.options.journeyBasemap.url : this.options.basemap.url;
       //Just in case a basemapUrl is given into the method call.
       var url = basemapUrl || customUrl;
 
@@ -112,6 +121,12 @@
           this.removeLayer(layerData);
         }
       }, this);
+
+      //Set mask when journey map.
+      if (this.model.get('journeyMap')) {
+        this.setMaskLayer();
+      }
+
     },
 
     /**
@@ -178,6 +193,15 @@
         this.model.set(layerData.id, null);
         layerInstance.remove();
       }
+    },
+
+    setMaskLayer: function() {
+
+      var maskLayer = new root.app.Helper.CartoDBmask(this.map);
+
+      maskLayer.create(function(layer){
+        layer.setZIndex(1001)
+      });
     }
 
   });

@@ -1,4 +1,4 @@
-$backgrounds: 'ethiopia2bg';
+$backgrounds: 'journey1ch1', 'journey1ch2', 'journey1ch3' ;
 
 $side-bar-width: 25%;
 $side-bar-min-width: 350px;
@@ -13,21 +13,34 @@ $side-bar-min-width: 350px;
   background-repeat: no-repeat;
   background-size: contain;
   background-position: left bottom;
+
+  &:before {
+    content: " ";
+    background-color: #fff;
+    width: 50%;
+    right: 0;
+    bottom: 0;
+    position: absolute;
+    top: 0;
+  }
 }
 
 .m-journey-chapter {
   @extend %image-requirements;
   //To avoid little line
-  right: -1px;
+  // right: -1px;
 
   @for $i from 1 through length($backgrounds) {
     &.#{nth($backgrounds, $i)}{
-      background-image: image-url('journeys/chapters/#{nth($backgrounds, $i)}.png');
+      background-image: image-url('journeys/chapters/#{nth($backgrounds, $i)}.jpg');
     }
   }
 
-  .row {
-    margin: auto;
+  .wrapper {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: flex-end;
   }
 
   h1 {
@@ -46,11 +59,10 @@ $side-bar-min-width: 350px;
   }
 
   .chapter-intro {
-    @extend %centery;
-    right: 0;
+    position: relative;
     width: $side-bar-width;
     min-width: $side-bar-min-width;
-    margin: 0 rem(45px);
+    margin: auto rem(45px);
   }
 }
 
