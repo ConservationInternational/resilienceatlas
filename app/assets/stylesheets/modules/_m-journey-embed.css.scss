@@ -1,5 +1,5 @@
 $side-bar-width: 25%;
-$side-bar-min-width: 340px;
+$side-bar-min-width: 400px;
 
 %m-journey-embed {
   position: absolute;
@@ -17,18 +17,18 @@ $side-bar-min-width: 340px;
     background-color: #eee;
 
     // sidebar trampa
-    &:after {
-      content: "";
-      box-sizing: content-box;
-      position: absolute;
-      width: $side-bar-min-width + 10px;
-      padding-left: rem(40px);
-      top: 0;
-      left: 0;
-      bottom: rem(340px);
-      background: white;
+    // &:after {
+    //   content: "";
+    //   box-sizing: content-box;
+    //   position: absolute;
+    //   width: $side-bar-min-width + 10px;
+    //   padding-left: rem(40px);
+    //   top: 0;
+    //   left: 0;
+    //   bottom: rem(340px);
+    //   background: white;
       // box-shadow: 0 0 20px 10px $bg-color-1;
-    }
+    // }
   }
 
   embed {
@@ -38,10 +38,13 @@ $side-bar-min-width: 340px;
 
   .side-bar {
     position: absolute;
-    top: rem(45px);
-    bottom: rem(350px);
-    left: rem(40px);
-    width: rem($side-bar-min-width);
+    top: 0;
+    bottom: 0;
+    left: 0;
+    padding: rem(45px) rem(40px);
+    min-width: rem($side-bar-min-width);
+    width: $side-bar-width;
+    background-color: #fff;
 
     footer {
       border-bottom: 1px solid rgba($font-color-1, .1);
@@ -83,6 +86,27 @@ $side-bar-min-width: 340px;
       margin-top: 0;
     }
 
+    // @media screen and (max-width: 1024px) and (orientation: landscape) {
+
+    //   top: rem(20px);
+
+    //   h2 {
+    //     font-size: rem(32px);
+    //   }
+
+    //   h1 {
+    //     font-size: rem(20px);
+    //   }
+
+    //   h3, p {
+    //     font-size: rem(16px);
+    //   }
+
+    //   h4 {
+    //     font-size: rem(14px);
+    //   }
+    // }
+
     footer {
       display: block;
       position: relative;
@@ -112,7 +136,8 @@ $side-bar-min-width: 340px;
     position: absolute;
     bottom: rem(40px);
     left: rem(45px);
-    width: $side-bar-min-width;
+    right: rem(45px);
+    width: auto;
 
     #btn-next {
       float: right;

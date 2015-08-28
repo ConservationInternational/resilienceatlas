@@ -14,6 +14,14 @@ $side-bar-width: 360px;
   box-shadow: 0 1px 4px 0 rgba(0,0,0,.2);
   background: $bg-color-1;
 
+  .side-bar & {
+    position: static;
+    box-shadow: none;
+    padding: 0;
+    width: 100%;
+    padding-top: rem(20px);
+  }
+
   .is-journey-map & {
     box-sizing: content-box;
     right: auto;
@@ -36,7 +44,7 @@ $side-bar-width: 360px;
     position: relative;
     width: 100%;
 
-    .is-journey-map & {
+    .side-bar & {
       display: none;
     }
 
@@ -85,12 +93,12 @@ $side-bar-width: 360px;
   .m-legend__content {
     padding-right: 5px;
 
-    .is-journey-map & {    
+    .is-journey-map & {
       position: absolute;
       bottom: rem(15px);
       left: rem(40px);
       right: rem(15px);
-      
+
       @media screen and (max-width: 1024px) and (orientation: landscape) {
         max-height: 250px;
         overflow-y: scroll;
@@ -113,6 +121,11 @@ $side-bar-width: 360px;
       header {
         position: relative;
         padding: 0 rem(50px) 0 0;
+
+        .side-bar & {
+          display: none;
+        }
+
         h3 {
           font-size: 14px;
           color: $font-color-1;

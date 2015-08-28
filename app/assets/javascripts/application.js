@@ -104,19 +104,20 @@
           el: '#layersListView',
           layers: layersCollection
         });
+
+        var legendView = new root.app.View.Legend({
+          el: '#legendView',
+          layers: layersCollection,
+          model: new (Backbone.Model.extend({
+            defaults: {
+              hidden: false,
+              order: [],
+              journeyMap: journeyMap
+            }
+          })),
+        });
       }
 
-      var legendView = new root.app.View.Legend({
-        el: '#legendView',
-        layers: layersCollection,
-        model: new (Backbone.Model.extend({
-          defaults: {
-            hidden: false,
-            order: [],
-            journeyMap: journeyMap
-          }
-        })),
-      });
 
       // At begining create a map
       mapView.createMap();
@@ -161,10 +162,10 @@
 
         // Render views
         mapView.renderLayers();
-        legendView.render();
         //Layer list is not showed into journey embed map.
         if (!journeyMap) {
           layersListView.render();
+          legendView.render();
         }
 
       }.bind(this));

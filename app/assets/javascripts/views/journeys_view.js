@@ -61,11 +61,38 @@
       this.$el.html( this.template({ content: this.currentStepData }) );
 
       this.renderButtons();
+
+      this.renderLegend();
     },
 
     renderButtons: function() {
       $('.m-controls').html( this.templates['controls'] );
       this._handleButtons();
+    },
+
+    renderLegend: function() {
+      //trampita
+      // var journeyMap = this._checkJourneyMap();
+      var layersCollection = new root.app.Collection.Layers();
+
+      var complete = _.invoke([
+        layersCollection
+      ], 'fetch');
+
+      $.when.apply($, complete).done(function() {
+        var legendView = new root.app.View.Legend({
+          el: '#legendView',
+          layers: layersCollection,
+          model: new (Backbone.Model.extend({
+            defaults: {
+              hidden: false,
+              order: [],
+            }
+          })),
+        });
+
+        legendView.render();
+      })
     },
 
 
