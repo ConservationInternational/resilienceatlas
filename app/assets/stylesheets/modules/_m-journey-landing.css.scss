@@ -31,6 +31,7 @@ $backgrounds: 'ethiopia_maize';
       font-family: $font-face-2;
       font-weight: 400;
       margin: 0;
+      line-height: 0.4em;
     }
 
     h2 {
@@ -42,6 +43,15 @@ $backgrounds: 'ethiopia_maize';
       color: $font-color-3;
       font-size: rem(26px);
       font-weight: 300;
+      text-transform: capitalize;
     }
+  }
+
+  .logo {
+    @extend %centerx;
+    width: rem(164px);
+    height: rem(52px);
+    bottom: rem(40px);
+    background-image: image-url('journeys/landing/Logo-CI-white.png');
   }
 }
