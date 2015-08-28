@@ -61,8 +61,9 @@
       {
         "number": 7,
         "type": "text",
-        "align": "center",
-        "theme": "dark",
+        "align": "right",
+        "theme": "light",
+        "background": "rain-634154_1920",
         "content": "<div class='highlighted'><p>Rainfall during the short rains is declining at rates as high as 24% per decade in some maize-growing areas.</p><p>10% of the area currently used for maize production has been impacted by this decrease.</p></div>"
       },
       {
@@ -105,8 +106,9 @@
       {
         "number": 13,
         "type": "text",
-        "align": "center",
-        "theme": "dark",
+        "align": "left",
+        "theme": "light",
+        "background": "ethiopia-455141_1280",
         "content": "<div class='highlighted'><p>Fertility rates in maize producing areas are >5 children per woman..</p><p>The population of Ethiopia is projected to increase from 98,942,102 to 142,900,000 by 2030, creating further stress.</p></div><div><p class='source'> Source: International Futures (IFs) forecasting system and the Pardee Center for International Futures at the University of Denver.</p></div>"
       },
       {

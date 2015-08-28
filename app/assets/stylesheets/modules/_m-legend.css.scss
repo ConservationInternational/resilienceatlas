@@ -122,6 +122,10 @@ $side-bar-width: 360px;
         position: relative;
         padding: 0 rem(50px) 0 0;
 
+        .side-bar & {
+          margin-bottom: 0;
+        }
+
         h3 {
           font-size: 14px;
           color: $font-color-1;
