@@ -8,11 +8,18 @@ $side-bar-width: 360px;
   right: 0;
   bottom: 0;
   width: rem($legend-width);
-  // max-height: rem(300px);
   //Padding right to allow scroll bar in content.
   padding: rem(17px) rem(15px) rem(17px) rem(20px);
   box-shadow: 0 1px 4px 0 rgba(0,0,0,.2);
   background: $bg-color-1;
+
+  .wrapper {
+    max-height: rem(400px);
+    overflow-y: scroll;
+    &::-webkit-scrollbar { 
+      display: none; 
+    }
+  }
 
   .side-bar & {
     position: static;

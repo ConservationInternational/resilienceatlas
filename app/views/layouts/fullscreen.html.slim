@@ -3,9 +3,7 @@ doctype html
 html lang="#{I18n.locale}"
   head
     title Map | CIGRP Prototype
-    meta charset="utf-8"
-    meta name="description" content=""
-    meta name="viewport" content="width=device-width, initial-scale=1"
+    = render :partial => "partials/head"
     = stylesheet_link_tag "http://libs.cartocdn.com/cartodb.js/v3/3.14/themes/css/cartodb.css", media: "all"
     = stylesheet_link_tag "application", media: "all"
     = csrf_meta_tags
