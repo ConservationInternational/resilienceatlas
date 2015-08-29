@@ -30,22 +30,22 @@ $backgrounds: 'bg-intro','bg-ethiopia','bg-horn','bg-journey3','bg-journey4','bg
         font-family: $font-face-2;
         font-size: rem(99px);
         font-weight: 400;
-        line-height: 1;
+        line-height: .8em;
         text-transform: uppercase;
         margin: 0;
 
         @media screen and (max-width: 900px) {
           font-size: rem(80px);
         }
-
       }
 
       h3 {
+        max-width: rem(600px);
+        margin: 0 auto;
+        margin-bottom: rem(10px);
         font-size: rem(26px);
         font-weight: 400;
         line-height: 1.25;
-        margin: 0 auto;
-        max-width: rem(600px);
       }
     }
   }

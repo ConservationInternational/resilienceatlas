@@ -88,9 +88,13 @@ $side-bar-min-width: 430px;
       right: rem(40px);
       left: rem(40px);
       padding-top: rem(25px);
-      overflow: scroll;
+      overflow-y: scroll;
       -webkit-overflow-scrolling: touch;
       padding-right: rem(10px);
+
+      &::-webkit-scrollbar { 
+          display: none; 
+      }
     }
 
     footer {
