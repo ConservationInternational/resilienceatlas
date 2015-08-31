@@ -2,17 +2,23 @@ $legend-width: 350px;
 
 $side-bar-width: 360px;
 
-
 .m-legend {
   position: absolute;
   right: 0;
   bottom: 0;
   width: rem($legend-width);
-  // max-height: rem(300px);
   //Padding right to allow scroll bar in content.
   padding: rem(17px) rem(15px) rem(17px) rem(20px);
   box-shadow: 0 1px 4px 0 rgba(0,0,0,.2);
   background: $bg-color-1;
+
+  .wrapper {
+    max-height: rem(400px);
+    overflow-y: scroll;
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
 
   .side-bar & {
     position: static;
@@ -20,19 +26,30 @@ $side-bar-width: 360px;
     padding: 0;
     width: 100%;
     padding-top: rem(20px);
+
+    h3 {
+      text-transform: none;
+    }
+
+    .wrapper {
+      position: static;
+      padding: 0;
+      max-height: auto;
+      overflow: visible;
+    }
   }
 
-  .is-journey-map & {
-    box-sizing: content-box;
-    right: auto;
-    left: 0;
-    width: rem(345px) ;
-    padding-left: rem(30px);
-    bottom: rem(100px);
-    height: rem(206px);
-    box-shadow: none;
-    // box-shadow: 0 0 20px 10px $bg-color-1;
-  }
+  // .is-journey-map & {
+  //   box-sizing: content-box;
+  //   right: auto;
+  //   left: 0;
+  //   width: rem(345px) ;
+  //   padding-left: rem(30px);
+  //   bottom: rem(100px);
+  //   height: rem(206px);
+  //   box-shadow: none;
+  //   // box-shadow: 0 0 20px 10px $bg-color-1;
+  // }
 
   ul {
     list-style: none;
@@ -93,17 +110,17 @@ $side-bar-width: 360px;
   .m-legend__content {
     padding-right: 5px;
 
-    .is-journey-map & {
-      position: absolute;
-      bottom: rem(15px);
-      left: rem(40px);
-      right: rem(15px);
+    // .is-journey-map & {
+    //   position: absolute;
+    //   bottom: rem(15px);
+    //   left: rem(40px);
+    //   right: rem(15px);
 
-      @media screen and (max-width: 1024px) and (orientation: landscape) {
-        max-height: 250px;
-        overflow-y: scroll;
-      }
-    }
+    //   @media screen and (max-width: 1024px) and (orientation: landscape) {
+    //     max-height: 250px;
+    //     overflow-y: scroll;
+    //   }
+    // }
 
   }
 
