@@ -1,16 +1,18 @@
 .m-controls {
   display: inline-block;
-  width: 100%;
+  width: auto;
   display: flex;
   justify-content: space-between;
   position: absolute;
   bottom: rem(40px);
+  left: 0;
+  right: 0;
   padding: 0 rem(40px);
 
   .m-journey-landing & {
-    position: static;
-    justify-content: center;
+    // position: static;
+    // justify-content: center;
 
-    // justify-content: flex-end;
+    justify-content: flex-end;
   }
 }
