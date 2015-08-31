@@ -16,7 +16,7 @@
       {
         "number": 1,
         "chapterNumber": 1,
-        "background": "journey1ch1",
+        "background": "journey2ch1",
         "type": "chapter",
         "title": "livelihoods",
         "content": "Which rural livelihoods are most threatened by increasing climate variability and shocks, and where are they located?"
@@ -46,7 +46,7 @@
       {
         "number": 5,
         "chapterNumber": 2,
-        "background": "journey1ch2",
+        "background": "journey2ch2",
         "type": "chapter",
         "title": "stressors  & shocks",
         "content": "In which locations are pastoralists exposed to climate variability and shocks and what is the severity?"
@@ -86,13 +86,13 @@
         "type": "text",
         "align": "left",
         "theme": "light",
-        "background": "ethiopia-455141_1280",
+        "background": "journey2bg4",
         "content": "<div class='highlighted'><p>Rainfall during the long rains is declining at rates as high as 18% per decade in pastoral areas.</p></div>"
       },
       {
         "number": 11,
         "chapterNumber": 3,
-        "background": "journey1ch3",
+        "background": "journey2ch3",
         "type": "chapter",
         "title": "vulnerability",
         "content": "What factors affect the vulnerability of pastoralists to climate variability and shocks?"
@@ -107,9 +107,9 @@
       {
         "number": 13,
         "type": "text",
-        "align": "left",
+        "align": "right",
         "theme": "light",
-        "background": "ethiopia-455141_1280",
+        "background": "journey2bg5",
         "content": "<div class='highlighted'><p>Fertility rates are greater than 5 children per woman in pastoral areas.</p></div>"
       },
       {
@@ -143,9 +143,9 @@
       {
         "number": 18,
         "type": "text",
-        "align": "left",
+        "align": "right",
         "theme": "light",
-        "background": "ethiopia-455141_1280",
+        "background": "journey2bg6",
         "content": "<div class='highlighted'><p>In pastoral areas more than 66% of women lack access to mass media, and more than 50% of women are illiterate.</p><p>These factors inhibit resilience.</p></div>"
       },
       {

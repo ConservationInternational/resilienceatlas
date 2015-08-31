@@ -1,4 +1,4 @@
-$backgrounds: 'journey1bg0', 'journey1bg1', 'journey1bg2', 'journey1bg3', 'ethiopia-455141_1280', 'rain-634154_1920', 'journey2bg1', 'journey2bg2', 'journey2bg3';
+$backgrounds: 'journey1bg0', 'journey1bg1', 'journey1bg2', 'journey1bg3', 'ethiopia-455141_1280', 'rain-634154_1920', 'journey2bg1', 'journey2bg2', 'journey2bg3', 'journey2bg4', 'journey2bg5', 'journey2bg6';
 
 $side-bar-width: 25%;
 $side-bar-min-width: 350px;
@@ -21,8 +21,12 @@ $side-bar-min-width: 350px;
   }
 }
 
+.journey2bg1:before,
 .journey2bg2:before,
-.journey2bg3:before {
+.journey2bg3:before,
+.journey2bg4:before,
+.journey2bg5:before,
+.journey2bg6:before {
   content: "";
   display: block;
   position: absolute;
@@ -31,6 +35,10 @@ $side-bar-min-width: 350px;
   left: 0;
   right: 0;
   background-color: rgba(0,0,0, .3);
+}
+
+.journey2bg5:before {
+  background-color: rgba(0,0,0, .5);
 }
 
 
