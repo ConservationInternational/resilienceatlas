@@ -91,11 +91,13 @@
 
       //basemap depends on if it is embed or not.
       //Add here mapbox basemap url.
-      var customUrl = this.model.get('journeyMap') ? this.options.journeyBasemap.url : this.options.basemap.url;
+      var customUrl = this.model.get('journeyMap') ? null : this.options.basemap.url;
       //Just in case a basemapUrl is given into the method call.
       var url = basemapUrl || customUrl;
 
-      this.basemap = L.tileLayer(url).addTo(this.map);
+      if (customUrl) {
+        this.basemap = L.tileLayer(url).addTo(this.map);
+      }
     },
 
     /**
