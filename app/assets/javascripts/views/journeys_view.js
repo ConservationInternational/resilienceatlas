@@ -162,6 +162,23 @@
 
       $('#btn-next').toggleClass('is-hidden', noNext);
       $('#btn-prev').toggleClass('is-hidden', noPrev);
+
+      if (noNext) {
+        this._setNextJourneyUrl();
+      }
+    },
+
+    _setNextJourneyUrl: function() {
+      var totalJourneys = 2; //Fix this with index.
+      var nextJourney = this.journey.id + 1;
+
+      if (nextJourney > totalJourneys) {
+        nextJourney = 1;
+      }
+
+      var nextJourneyUrl = '/journeys/' + nextJourney;
+
+      $('#btn-next-journey').attr('href', nextJourneyUrl)
     }
   });
 
