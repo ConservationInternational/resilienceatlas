@@ -2,7 +2,6 @@ $legend-width: 350px;
 
 $side-bar-width: 360px;
 
-
 .m-legend {
   position: absolute;
   right: 0;
@@ -16,8 +15,8 @@ $side-bar-width: 360px;
   .wrapper {
     max-height: rem(400px);
     overflow-y: scroll;
-    &::-webkit-scrollbar { 
-      display: none; 
+    &::-webkit-scrollbar {
+      display: none;
     }
   }
 
@@ -27,6 +26,10 @@ $side-bar-width: 360px;
     padding: 0;
     width: 100%;
     padding-top: rem(20px);
+
+    .wrapper {
+      position: static;
+    }
   }
 
   .is-journey-map & {
