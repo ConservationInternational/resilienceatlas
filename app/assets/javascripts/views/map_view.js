@@ -16,10 +16,11 @@
         scrollWheelZoom: false
       },
       basemap: {
-        url: 'http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png'
+        url: 'http://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png',
+        labels: 'http://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}.png'
       },
       journeyBasemap: {
-        url: 'https://grp.global.ssl.fastly.net/user/grp/api/v1/map/4b5a4ae5b323de21bd4b3716b6293598:1440586478249.0498/0/{z}/{x}/{y}.png'
+        url: 'https://grp.global.ssl.fastly.net/user/grp/api/v1/map/fb6ac3d83ff93bfa9ca71c5f7a3cb92d:1440586478249.0498/0/{z}/{x}/{y}.png'
       },
       zoomControl: {
         position: 'topright'
@@ -90,7 +91,7 @@
 
       //basemap depends on if it is embed or not.
       //Add here mapbox basemap url.
-      var customUrl = this.model.get('journeyMap') ? null : this.options.basemap.url;
+      var customUrl = this.model.get('journeyMap') ? this.options.journeyBasemap.url : this.options.basemap.url;
       //Just in case a basemapUrl is given into the method call.
       var url = basemapUrl || customUrl;
 
