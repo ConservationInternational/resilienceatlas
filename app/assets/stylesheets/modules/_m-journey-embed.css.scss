@@ -95,6 +95,7 @@ $side-bar-min-width: 430px;
       padding-top: rem(25px);
       overflow-y: scroll;
       -webkit-overflow-scrolling: touch;
+      -ms-overflow-style: none;
       padding-right: rem(10px);
 
       &::-webkit-scrollbar {

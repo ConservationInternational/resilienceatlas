@@ -17,6 +17,7 @@
   background-color: $bg-color-1;
 
   overflow: auto;
+  -ms-overflow-style: none;
   -webkit-overflow-scrolling: touch;
   z-index: 1;
 
