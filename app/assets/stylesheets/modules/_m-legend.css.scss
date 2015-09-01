@@ -101,25 +101,13 @@ $side-bar-width: 360px;
 
   .m-legend__content {
     padding-right: 5px;
-
-    // .is-journey-map & {
-    //   position: absolute;
-    //   bottom: rem(15px);
-    //   left: rem(40px);
-    //   right: rem(15px);
-
-    //   @media screen and (max-width: 1024px) and (orientation: landscape) {
-    //     max-height: 250px;
-    //     overflow-y: scroll;
-    //   }
-    // }
-
   }
 
   // LIST OF LEGENDS
   .m-legend__list {
     .drag-items {
       padding: rem(8px) 0;
+      cursor: grab;
 
       &.ui-sortable-placeholder {
         padding: 0;
@@ -136,51 +124,58 @@ $side-bar-width: 360px;
         }
 
         h3 {
+          position: relative;
+          padding: rem(4px) 0 0 rem(10px);
+          margin: 0;
           font-size: 14px;
           color: $font-color-1;
-          padding: rem(4px) 0 0;
-          margin: 0;
           font-weight: 400;
+          display: inline-block;
         }
-        .actions {
-          @extend %centery;
-          right: 0;
-          display: flex;
-          display: -ms-box;
-          align-items: center;
-          justify-content: space-between;
 
-          .side-bar & {
-            display: none;
-          }
+        .draggable-icon,
+        .btn-visibility {
+          @extend %clean-button-or-input;
+          position: absolute;
+          padding: 0;
+          outline: 0;
+        }
 
-          > * {
-            @extend %clean-button-or-input;
-            width: rem(20px);
-            height: rem(20px);
-            padding: 0;
-            outline: 0;
-            cursor: pointer;
-            position: relative;
+        .draggable-icon {
+          left: 0px;
+          top: 5px;
 
-            &.btn-drag {
-              cursor: move;
+          svg {
+            width: 5px;
+            height: 12px;
+            fill: $bg-color-4;
+
+            &.is-active {
+              display: none;
             }
+          }
+        }
 
-            svg {
-              @extend %center;
-              display: block;
-              width: 13px;
-              height: 13px;
-              fill: $bg-color-4;
+        .btn-visibility {
+          right: 0;
+          top: 3px;
+          cursor: pointer;
 
-              &.is-active {
-                display: none;
-              }
+          svg {
+            width: 15px;
+            height: 15px;
+            fill: $bg-color-4;
+
+            &.is-active {
+              display: none;
             }
           }
         }
       }
+    }
+
+    .ui-sortable-helper {
+      cursor: grabbing;
     }
   }
 
@@ -192,7 +187,7 @@ $side-bar-width: 360px;
     display: -ms-box;
     justify-content: space-between;
     align-items: center;
-    padding: rem(16px) 0 0;
+    padding: rem(16px) 0 0 rem(10px);
 
     .item {
       width: 100%;
@@ -221,7 +216,7 @@ $side-bar-width: 360px;
     justify-content: space-between;
     align-items: center;
     flex-wrap: wrap;
-    padding: rem(4px) 0 0;
+    padding: rem(4px) 0 0 rem(10px);
 
     .item {
       width: 50%;
