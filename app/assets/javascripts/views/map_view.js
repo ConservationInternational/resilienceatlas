@@ -16,11 +16,10 @@
         scrollWheelZoom: false
       },
       basemap: {
-        // url: 'http://{s}.api.cartocdn.com/base-light/{z}/{x}/{y}.png'
         url: 'http://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}'
       },
       journeyBasemap: {
-        url: 'https://grp.global.ssl.fastly.net/user/grp/api/v1/map/890933266e8321dceb253f99620171e5:1440586478249.0498/0/{z}/{x}/{y}.png'
+        url: 'http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png'
       },
       zoomControl: {
         position: 'topright'
@@ -91,11 +90,13 @@
 
       //basemap depends on if it is embed or not.
       //Add here mapbox basemap url.
-      var customUrl = this.model.get('journeyMap') ? this.options.journeyBasemap.url : this.options.basemap.url;
+      var customUrl = this.model.get('journeyMap') ? null : this.options.basemap.url;
       //Just in case a basemapUrl is given into the method call.
       var url = basemapUrl || customUrl;
 
-      this.basemap = L.tileLayer(url).addTo(this.map);
+      if (customUrl) {
+        this.basemap = L.tileLayer(url).addTo(this.map);
+      }
     },
 
     /**
