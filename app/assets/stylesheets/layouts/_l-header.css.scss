@@ -19,6 +19,17 @@
     display: none;
   }
 
+  &:before {
+    content: "";
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 37px;
+    height: 37px;
+    background-image: image-url('beta.svg');
+  }
+
   @include clearfix;
 
   ul {
