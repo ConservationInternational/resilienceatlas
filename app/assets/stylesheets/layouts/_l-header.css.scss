@@ -64,6 +64,9 @@
 
     li {
       display: flex;
+      display: -ms-box;
+      justify-content: center;
+      align-items: center;
       float: left;
       height: rem($header-height);
       margin-left: rem($margin/2);
@@ -71,7 +74,7 @@
 
     a {
       display: block;
-      margin: auto;
+      // margin: auto;
       padding: rem(7px) rem(20px) rem(3px);
       color: $font-color-2;
       border-radius: 3px;

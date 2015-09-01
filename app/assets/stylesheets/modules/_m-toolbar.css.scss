@@ -12,6 +12,7 @@
   ul {
     @extend %clean-lists;
     display: flex;
+    display: -ms-box;
     justify-content: space-between;
     align-items: center;
   }

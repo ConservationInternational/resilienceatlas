@@ -4,5 +4,6 @@
 
 .is-stretch {
   display: flex;
+  display: -ms-box;
   align-items: stretch;
 }
