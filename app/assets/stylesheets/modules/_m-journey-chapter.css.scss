@@ -40,6 +40,7 @@ $side-bar-min-width: 350px;
     max-width: 1200px;
     margin: 0 auto;
     display: flex;
+    display: -ms-box;
     justify-content: flex-end;
   }
 
@@ -60,10 +61,10 @@ $side-bar-min-width: 350px;
   }
 
   .chapter-intro {
-    position: relative;
+    @extend %centery;
     width: $side-bar-width;
     min-width: $side-bar-min-width;
-    margin: auto rem(45px);
+    margin: 0 rem(45px);
   }
 }
 

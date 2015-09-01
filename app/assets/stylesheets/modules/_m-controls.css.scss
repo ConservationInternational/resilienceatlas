@@ -2,6 +2,7 @@
   display: inline-block;
   width: auto;
   display: flex;
+  display: -ms-box;
   justify-content: space-between;
   position: absolute;
   bottom: rem(40px);
@@ -10,8 +11,8 @@
   padding: 0 rem(40px);
 
   .m-journey-landing & {
-    // position: static;
-    // justify-content: center;
+    width: 100%;
+    z-index: 2;
 
     justify-content: flex-end;
   }

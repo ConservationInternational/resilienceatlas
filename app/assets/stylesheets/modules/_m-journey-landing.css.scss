@@ -29,11 +29,11 @@ $backgrounds: 'journey1bg0', 'journey2bg0';
   }
 
   .row {
-    margin: auto;
     z-index: 1;
   }
 
   .intro {
+    @extend %center;
     text-align: center;
 
     h1 {
