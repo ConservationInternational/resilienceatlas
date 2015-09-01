@@ -2,11 +2,13 @@
   {
     "id": 1,
     "title": "ETHIOPIA",
+    "subtitle": "maize",
     "bg" : "bg-ethiopia"
   },
   {
     "id": 2,
-    "title": "HORN OF AFRICA",
+    "title": "ETHIOPIA",
+    "subtitle": "pastoral",
     "bg" : "bg-horn"
   },
   {
