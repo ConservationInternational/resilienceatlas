@@ -16,10 +16,10 @@
         scrollWheelZoom: false
       },
       basemap: {
-        url: 'http://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}'
+        url: 'http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png'
       },
       journeyBasemap: {
-        url: 'http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png'
+        url: 'https://grp.global.ssl.fastly.net/user/grp/api/v1/map/4b5a4ae5b323de21bd4b3716b6293598:1440586478249.0498/0/{z}/{x}/{y}.png'
       },
       zoomControl: {
         position: 'topright'
