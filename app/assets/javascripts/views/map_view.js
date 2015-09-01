@@ -89,8 +89,7 @@
         this.map.removeLayer(this.basemap);
       }
 
-      //basemap depends on if it is embed or not.
-      //Add here mapbox basemap url.
+      //basemap depends on if it is journey embed or not.
       var customUrl = this.model.get('journeyMap') ? this.options.journeyBasemap.url : this.options.basemap.url;
       var labelsUrl = this.options.basemap.labels;
       //Just in case a basemapUrl is given into the method call.
