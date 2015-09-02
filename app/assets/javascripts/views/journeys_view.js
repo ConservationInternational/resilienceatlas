@@ -11,7 +11,8 @@
 
     events: {
       'click #btn-prev':'_changeStep',
-      'click #btn-next':'_changeStep'
+      'click #btn-next':'_changeStep',
+      // 'keyup': '_changeStep'
     },
 
     templates: {
@@ -41,6 +42,8 @@
 
     _setListeners: function() {
       this.listenTo(this.model, 'change:step', this.render);
+
+      $(document).on('keydown', _.bind(this._changeStep, this));
     },
 
     _currentData: function() {
@@ -138,15 +141,14 @@
       e.preventDefault();
 
       var mode = $(e.currentTarget).attr('mode');
+      var keyCode = e.keyCode ? e.keyCode : e.charCode;
       var currentStep = this._getStep();
       var totalSteps = this.journey.steps.length - 1;
 
-      if (mode === 'add') {
-        currentStep += 1;
-        currentStep = currentStep > totalSteps ? 0 : currentStep;
-      } else {
-        currentStep -= 1;
-        currentStep = currentStep < 0 ? totalSteps : currentStep;
+      if (mode === 'add' || keyCode === 39) {
+        currentStep = currentStep === totalSteps ? currentStep : currentStep + 1;
+      } else if (mode === 'sub' || keyCode === 37) {
+        currentStep = currentStep === 0 ? currentStep : currentStep - 1;
       }
 
       this._handleButtons(currentStep, totalSteps);
