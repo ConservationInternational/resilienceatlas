@@ -11,8 +11,7 @@
 
     events: {
       'click #btn-prev':'_changeStep',
-      'click #btn-next':'_changeStep',
-      // 'keyup': '_changeStep'
+      'click #btn-next':'_changeStep'
     },
 
     templates: {
@@ -42,7 +41,6 @@
 
     _setListeners: function() {
       this.listenTo(this.model, 'change:step', this.render);
-
       $(document).on('keydown', _.bind(this._changeStep, this));
     },
 
@@ -127,7 +125,6 @@
       return params;
     },
 
-
     //Handle steps
     _getStep: function() {
       return this.model.get('step');
@@ -147,8 +144,16 @@
 
       if (mode === 'add' || keyCode === 39) {
         currentStep = currentStep === totalSteps ? currentStep : currentStep + 1;
+
+        if (keyCode === 39 && currentStep === totalSteps) {
+          window.location.href = this._getNextJourneyUrl();
+        }
       } else if (mode === 'sub' || keyCode === 37) {
         currentStep = currentStep === 0 ? currentStep : currentStep - 1;
+
+        if (keyCode === 37 && currentStep === 0) {
+          //Put here code if we want to go to previus journey.
+        }
       }
 
       this._handleButtons(currentStep, totalSteps);
@@ -171,16 +176,16 @@
     },
 
     _setNextJourneyUrl: function() {
-      var totalJourneys = 2; //Fix this with index.
-      var nextJourney = this.journey.id + 1;
-
-      if (nextJourney > totalJourneys) {
-        nextJourney = 1;
-      }
-
-      var nextJourneyUrl = '/journeys/' + nextJourney;
-
+      var nextJourneyUrl = this._getNextJourneyUrl();
       $('#btn-next-journey').attr('href', nextJourneyUrl)
+    },
+
+    _getNextJourneyUrl: function() {
+      var totalJourneys = 2; //Fix this with index.
+      var currentJourney = this.journey.id;
+      var nextJourney = currentJourney === totalJourneys ? 1 : currentJourney + 1;
+
+      return '/journeys/' + nextJourney;
     }
   });
 
