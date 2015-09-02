@@ -97,6 +97,8 @@
         var currentModel = this.layers.get($(layer).data('id'));
         currentModel.set('order', i + 1);
       }, this ));
+
+      $('.m-legend').removeClass('is-changing');
       // sort layers
       // this.layers.sort();
     },

@@ -24,10 +24,6 @@ $side-bar-width: 360px;
 
   &.is-changing {
     background-color: rgba($bg-color-1, .5);
-
-    .ui-sortable-placeholder {
-      background-color: rgba($bg-color-1, .5);
-    }
   }
 
   .side-bar & {
@@ -247,4 +243,8 @@ $side-bar-width: 360px;
       }
     }
   }
+}
+
+.ui-sortable-placeholder {
+  background-color: rgba($bg-color-1, .5) !important;
 }
