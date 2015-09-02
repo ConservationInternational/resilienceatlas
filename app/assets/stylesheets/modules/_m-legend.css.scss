@@ -8,9 +8,9 @@ $side-bar-width: 360px;
   bottom: 0;
   width: rem($legend-width);
   //Padding right to allow scroll bar in content.
-  padding: rem(17px) rem(15px) rem(17px) rem(20px);
+  padding: rem(17px) rem(5px) rem(17px) rem(10px);
   box-shadow: 0 1px 4px 0 rgba(0,0,0,.2);
-  background: $bg-color-1;
+  background-color: $bg-color-1;
 
   .wrapper {
     max-height: rem(400px);
@@ -19,6 +19,14 @@ $side-bar-width: 360px;
 
     &::-webkit-scrollbar {
       display: none;
+    }
+  }
+
+  &.is-changing {
+    background-color: rgba($bg-color-1, .5);
+
+    .ui-sortable-placeholder {
+      background-color: rgba($bg-color-1, .5);
     }
   }
 
@@ -106,7 +114,7 @@ $side-bar-width: 360px;
   // LIST OF LEGENDS
   .m-legend__list {
     .drag-items {
-      padding: rem(8px) 0;
+      padding: rem(10px);
       cursor: grab;
 
       &.ui-sortable-placeholder {
@@ -175,6 +183,8 @@ $side-bar-width: 360px;
     }
 
     .ui-sortable-helper {
+      background-color: $bg-color-1;
+      box-shadow: 0 1px 4px 0 rgba(0,0,0, .2);
       cursor: grabbing;
     }
   }

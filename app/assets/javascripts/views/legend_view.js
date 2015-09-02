@@ -84,6 +84,7 @@
         tolerance: 'pointer',
         start: function(e, ui){
           ui.placeholder.height(ui.item.outerHeight());
+          $('.m-legend').addClass('is-changing');
         },
         stop: this.setOrder,
       });
