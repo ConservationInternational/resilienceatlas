@@ -202,9 +202,9 @@ $side-bar-width: 360px;
 
     .numbers {
       position: absolute;
-      top: 0%;
+      top: 0;
       left: 0;
-      width: 100%;
+      right: 10px;
       display: flex;
       display: -ms-box;
       justify-content: space-between;

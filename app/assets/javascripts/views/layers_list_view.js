@@ -26,7 +26,6 @@
       this._setListeners();
     },
 
-
     _setListeners: function() {
       this.listenTo(this.layers, 'change:active', this.__toggleCategoriesSwitches);
     },
