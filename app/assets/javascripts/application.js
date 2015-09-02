@@ -73,6 +73,7 @@
 
       $.when.apply($, complete).done(function() {
         headerView.render();
+        this.totalJourneys = journeysIndexCollection.length;
       }.bind(this));
     },
 
@@ -98,7 +99,7 @@
         }))
       });
 
-      //Layer list is not showed into journey embed map.
+      //No Layer list nor legend are showed into journey embed map.
       if (!journeyMap) {
         var layersListView = new root.app.View.LayersList({
           el: '#layersListView',
@@ -193,6 +194,7 @@
         var journeyView = new root.app.View.Journeys({
           model: journeyModel,
           journey: journeysCollection,
+          totalJourneys: this.totalJourneys,
           currentStep: routerParams.step
         });
       }.bind(this));
