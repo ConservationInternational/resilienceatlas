@@ -121,6 +121,7 @@
       var layersData = this.layers.getPublished();
       _.each(layersData, function(layerData) {
         if (layerData.active) {
+          console.log(layerData);
           this.addLayer(layerData);
         } else {
           this.removeLayer(layerData);
@@ -156,6 +157,8 @@
             layerInstance = new root.app.Helper.CartoDBLayer(this.map, options);
             layerInstance.create(function(layer) {
               layer.setOpacity(layerData.opacity);
+              console.log(layerData.name);
+              console.log(layerData.order)
               layer.setZIndex(1000-layerData.order);
             });
           break;
