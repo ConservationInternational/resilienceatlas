@@ -10,7 +10,6 @@
     defaults: {},
 
     template: HandlebarsTemplates['legend_tpl'],
-    templateDragIcons: HandlebarsTemplates['legend_drag_icons_tpl'],
     templateLegends: {
       choropleth : HandlebarsTemplates['legend_choropleth_tpl'],
       custom : HandlebarsTemplates['legend_custom_tpl']
@@ -84,11 +83,10 @@
         tolerance: 'pointer',
         start: function(e, ui){
           ui.placeholder.height(ui.item.outerHeight());
+          $('.m-legend').addClass('is-changing');
         },
         stop: this.setOrder,
       });
-
-      this.$('.actions').html( this.templateDragIcons() );
     },
 
     setOrder: function(e, ui) {
@@ -96,6 +94,8 @@
         var currentModel = this.layers.get($(layer).data('id'));
         currentModel.set('order', i + 1);
       }, this ));
+
+      $('.m-legend').removeClass('is-changing');
       // sort layers
       // this.layers.sort();
     },
@@ -120,6 +120,7 @@
     setMapVisibility: function(e) {
       var $current = $(e.currentTarget);
       var currentModel = this.layers.get($current.data('id'));
+
       // Layer model sets
       if ($current.hasClass('is-active')) {
         currentModel.set('opacity', currentModel.get('opacity_prev'));
