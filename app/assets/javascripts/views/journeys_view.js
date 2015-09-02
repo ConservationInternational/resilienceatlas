@@ -31,6 +31,7 @@
       this._setListeners();
 
       this.journey = settings.journey.toJSON()[0];
+      this.totalJourneys = settings.journeys;
 
       var stepFromUrl = settings.currentStep || this.model.defaults.step;
 
@@ -41,6 +42,7 @@
 
     _setListeners: function() {
       this.listenTo(this.model, 'change:step', this.render);
+      $(document).on('keydown', _.bind(this._changeStep, this));
     },
 
     _currentData: function() {
@@ -124,7 +126,6 @@
       return params;
     },
 
-
     //Handle steps
     _getStep: function() {
       return this.model.get('step');
@@ -138,15 +139,22 @@
       e.preventDefault();
 
       var mode = $(e.currentTarget).attr('mode');
+      var keyCode = e.keyCode ? e.keyCode : e.charCode;
       var currentStep = this._getStep();
       var totalSteps = this.journey.steps.length - 1;
 
-      if (mode === 'add') {
-        currentStep += 1;
-        currentStep = currentStep > totalSteps ? 0 : currentStep;
-      } else {
-        currentStep -= 1;
-        currentStep = currentStep < 0 ? totalSteps : currentStep;
+      if (mode === 'add' || keyCode === 39) {
+        currentStep = currentStep === totalSteps ? currentStep : currentStep + 1;
+
+        if (keyCode === 39 && currentStep === totalSteps) {
+          window.location.href = this._getNextJourneyUrl();
+        }
+      } else if (mode === 'sub' || keyCode === 37) {
+        currentStep = currentStep === 0 ? currentStep : currentStep - 1;
+
+        if (keyCode === 37 && currentStep === 0) {
+          //Put here code if we want to go to previus journey.
+        }
       }
 
       this._handleButtons(currentStep, totalSteps);
@@ -169,16 +177,19 @@
     },
 
     _setNextJourneyUrl: function() {
-      var totalJourneys = 2; //Fix this with index.
-      var nextJourney = this.journey.id + 1;
-
-      if (nextJourney > totalJourneys) {
-        nextJourney = 1;
-      }
-
-      var nextJourneyUrl = '/journeys/' + nextJourney;
-
+      var nextJourneyUrl = this._getNextJourneyUrl();
       $('#btn-next-journey').attr('href', nextJourneyUrl)
+    },
+
+    _getNextJourneyUrl: function() {
+      var totalJourneys = 2; //Fix this with index.
+      // This way below is the correct way, but is not working for
+      // the moment because index y a fake one.
+      // var totalJourneys = this.totalJourneys
+      var currentJourney = this.journey.id;
+      var nextJourney = currentJourney === totalJourneys ? 1 : currentJourney + 1;
+
+      return '/journeys/' + nextJourney;
     }
   });
 
