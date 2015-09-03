@@ -18,14 +18,14 @@
                 </div>
                 <ul class="m-layers-list-panel {{#if active}}is-active{{/if}}">
                   {{#each layers}}
-                    <li>
+                    <li class="{{#ifcond opacity_text}}{{/ifcond}}">
                       <div class="panel-item-switch m-form-input--switch">
                         <input type="checkbox" class="panel-input-switch" id="layer_{{id}}" {{#if active}}checked{{/if}}>
                         <label for="layer_{{id}}"></label>
                       </div>
                       <div class="panel-item-title">{{name}}</div>
                       <button class="panel-trasparecy-switcher">
-                        <svg class="icon-settings">
+                        <svg class="icon-settings" opacityLevel="{{opacity_text}}">
                           <use xlink:href="#icon-settings"></use>
                         </svg>
                       </button>
@@ -35,7 +35,7 @@
                             <input data-id="{{id}}" type=range min=0 max=100 value={{opacity_text}} id=fader step=1 class="opacity-range">
                             <span class="opacity" style="width:{{opacity_text}}%;"></span>
                           </div>
-                          <label for=fader class="opacity-teller">{{opacity_text}}%</label>
+                          <input type="text" class="opacity-teller" value={{opacity_text}}><span class="unit">%</span>
                         </div>
                       </div>
                     </li>

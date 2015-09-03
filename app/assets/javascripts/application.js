@@ -6,6 +6,7 @@
 //= require jquery-ui/sortable
 //= require slick-carousel
 
+//= require ./helpers/handlebars_helpers
 //= require ./helpers/class
 //= require ./helpers/cartodb_layer
 //= require ./helpers/cartodb_raster
@@ -85,7 +86,6 @@
 
     mapPage: function() {
       var journeyMap = this._checkJourneyMap();
-
       var layersGroupsCollection = new root.app.Collection.LayersGroups();
       var layersCollection = new root.app.Collection.Layers();
 
@@ -112,8 +112,7 @@
           model: new (Backbone.Model.extend({
             defaults: {
               hidden: false,
-              order: [],
-              journeyMap: journeyMap
+              order: []
             }
           })),
         });
@@ -207,8 +206,7 @@
     },
 
     _checkJourneyMap: function() {
-      var journeyMap = $('body').hasClass('is-journey-map');
-      return journeyMap;
+      return $('body').hasClass('is-journey-map');
     },
 
     start: function() {

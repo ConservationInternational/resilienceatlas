@@ -113,6 +113,10 @@ $side-bar-width: 360px;
       padding: rem(10px);
       cursor: grab;
 
+      .side-bar & {
+        padding: 0;
+      }
+
       &.ui-sortable-placeholder {
         padding: 0;
         visibility: visible !important;
@@ -135,6 +139,10 @@ $side-bar-width: 360px;
           color: $font-color-1;
           font-weight: 400;
           display: inline-block;
+
+          .side-bar & {
+            padding-left: 0;
+          }
         }
 
         .draggable-icon,
@@ -143,6 +151,10 @@ $side-bar-width: 360px;
           position: absolute;
           padding: 0;
           outline: 0;
+
+          .side-bar & {
+            display: none;
+          }
         }
 
         .draggable-icon {
@@ -241,6 +253,10 @@ $side-bar-width: 360px;
         width: 15px;
         height: 9px;
       }
+    }
+
+    .side-bar & {
+      padding-left: 0;
     }
   }
 }

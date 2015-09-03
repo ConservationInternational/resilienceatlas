@@ -15,8 +15,9 @@
       'click .m-layers-list-header': '_toggleCategories',
       'change .header-input-switch': '_toggleAllLayers',
       'change .panel-input-switch': '_toggleLayers',
-      'input input.opacity-range' : 'setOpacity',
-      'click .panel-trasparecy-switcher' : 'openOpacity'
+      'input input.opacity-range' : '_transparencyRangeChanges',
+      'change .opacity-teller': '_transparencyInputChange',
+      'click .panel-trasparecy-switcher' : '_openOpacityHandlers'
     },
 
     initialize: function(settings) {
@@ -27,7 +28,7 @@
     },
 
     _setListeners: function() {
-      this.listenTo(this.layers, 'change:active', this.__toggleCategoriesSwitches);
+      this.listenTo(this.layers, 'change:active', this._toggleCategoriesSwitches);
     },
 
     render: function() {
@@ -73,7 +74,7 @@
       this._toggleLayers();
     },
 
-    __toggleCategoriesSwitches: function() {
+    _toggleCategoriesSwitches: function() {
       var categories = this.layers.getCategories();
       _.each(categories, function(c){
         $('#categoryHeader_'+c.id).find('input').prop('checked',c.active);
@@ -88,20 +89,48 @@
       $el.toggleClass('is-active');
     },
 
-
-    // Handles opacity ui and update map layers
-    setOpacity: function(e) {
+    // Handles opacity from range input.
+    _transparencyRangeChanges: function(e) {
       var activeControl = e.currentTarget
-      var transparencyLevel = activeControl.value;
-      var model = this.layers.get($(activeControl).data('id'));
+      var opacity = activeControl.value;
 
-      $(activeControl).parent().siblings('.opacity-teller').html(transparencyLevel + '%');
-      $(activeControl).siblings('.opacity').css({width: transparencyLevel + '%'});
+      $(activeControl).parent().siblings('.opacity-teller').val(opacity);
 
-      model.set('opacity',transparencyLevel/100);
+      this._setOpacity(opacity, activeControl);
     },
 
-    openOpacity: function(e) {
+    //Handles opacity from input.
+    _transparencyInputChange: function(e) {
+      var $currentTarget = $(e.currentTarget)
+      var opacity = $currentTarget.val();
+      var $currentRangeSelector = $currentTarget.siblings('.slider-wrapper').find('.opacity-range');
+
+      $currentRangeSelector.val(opacity);
+
+      this._setOpacity(opacity, $currentRangeSelector);
+    },
+
+    _setOpacity: function(opacity, currentSelector) {
+
+      var model = this.layers.get($(currentSelector).data('id'));
+
+      $(currentSelector).siblings('.opacity').css({width: opacity + '%'});
+      model.set('opacity', opacity/100);
+
+      this._manageOpacityIcon(opacity, currentSelector);
+    },
+
+    _manageOpacityIcon: function(opacity, currentSelector) {
+      var $currentWrapper = $(currentSelector.closest('li'));
+
+      if (opacity != 100) {
+        $currentWrapper.addClass('is-modified');
+      } else {
+        $currentWrapper.removeClass('is-modified');
+      }
+    },
+
+    _openOpacityHandlers: function(e) {
       $(e.currentTarget).parent().toggleClass('is-open');
     }
 

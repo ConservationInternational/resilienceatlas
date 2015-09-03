@@ -81,7 +81,6 @@
       var layers = this._unserializeParams(codeLayers);
 
       //trampita
-      // var journeyMap = this._checkJourneyMap();
       var layersCollection = new root.app.Collection.Layers();
 
       var complete = _.invoke([
@@ -95,6 +94,7 @@
           defaults: {
             hidden: false,
             order: [],
+            journeyMap: true
           }
         })),
       });
