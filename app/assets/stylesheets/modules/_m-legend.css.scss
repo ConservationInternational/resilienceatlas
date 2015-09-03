@@ -115,6 +115,7 @@ $side-bar-width: 360px;
 
       .side-bar & {
         padding: 0;
+        padding-bottom: rem(10px);
       }
 
       &.ui-sortable-placeholder {
@@ -129,6 +130,7 @@ $side-bar-width: 360px;
 
         .side-bar & {
           margin-bottom: 0;
+          padding: 0;
         }
 
         h3 {

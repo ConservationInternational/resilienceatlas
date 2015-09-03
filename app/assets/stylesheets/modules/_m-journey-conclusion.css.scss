@@ -3,6 +3,7 @@
   .content {
     @extend %center;
     width: 50%;
+    max-width: rem(600px);
 
     h2 {
       font-size: rem(64px);
