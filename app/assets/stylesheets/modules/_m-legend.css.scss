@@ -205,7 +205,7 @@ $side-bar-width: 360px;
     display: -ms-box;
     justify-content: space-between;
     align-items: center;
-    padding: rem(16px) 0 0 rem(10px);
+    padding-top: rem(16px);
 
     .item {
       width: 100%;
@@ -216,7 +216,7 @@ $side-bar-width: 360px;
       position: absolute;
       top: 0;
       left: 0;
-      right: 10px;
+      right: 0;
       display: flex;
       display: -ms-box;
       justify-content: space-between;
