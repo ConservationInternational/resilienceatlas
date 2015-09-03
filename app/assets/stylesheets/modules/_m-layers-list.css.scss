@@ -148,7 +148,8 @@
       fill: $bg-color-2;
     }
 
-    .is-open & {
+    .is-open &,
+    .is-modified & {
       fill: $bg-color-2;
     }
   }

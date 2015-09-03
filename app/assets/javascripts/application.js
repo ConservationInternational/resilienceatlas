@@ -6,6 +6,7 @@
 //= require jquery-ui/sortable
 //= require slick-carousel
 
+//= require ./helpers/handlebars_helpers
 //= require ./helpers/class
 //= require ./helpers/cartodb_layer
 //= require ./helpers/cartodb_raster

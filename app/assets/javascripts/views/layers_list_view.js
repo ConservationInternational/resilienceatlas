@@ -28,7 +28,7 @@
     },
 
     _setListeners: function() {
-      this.listenTo(this.layers, 'change:active', this.__toggleCategoriesSwitches);
+      this.listenTo(this.layers, 'change:active', this._toggleCategoriesSwitches);
     },
 
     render: function() {
@@ -74,7 +74,7 @@
       this._toggleLayers();
     },
 
-    __toggleCategoriesSwitches: function() {
+    _toggleCategoriesSwitches: function() {
       var categories = this.layers.getCategories();
       _.each(categories, function(c){
         $('#categoryHeader_'+c.id).find('input').prop('checked',c.active);
@@ -92,32 +92,42 @@
     // Handles opacity from range input.
     _transparencyRangeChanges: function(e) {
       var activeControl = e.currentTarget
-      var transparencyLevel = activeControl.value;
+      var opacity = activeControl.value;
 
-      $(activeControl).parent().siblings('.opacity-teller').val(transparencyLevel);
+      $(activeControl).parent().siblings('.opacity-teller').val(opacity);
 
-      this._setOpacity(transparencyLevel, activeControl);
+      this._setOpacity(opacity, activeControl);
     },
 
     //Handles opacity from input.
     _transparencyInputChange: function(e) {
       var $currentTarget = $(e.currentTarget)
-      var opacityAmount = $currentTarget.val();
+      var opacity = $currentTarget.val();
       var $currentRangeSelector = $currentTarget.siblings('.slider-wrapper').find('.opacity-range');
 
-      $currentRangeSelector.val(opacityAmount);
+      $currentRangeSelector.val(opacity);
 
-      this._setOpacity(opacityAmount, $currentRangeSelector);
+      this._setOpacity(opacity, $currentRangeSelector);
     },
 
-    _setOpacity: function(val, currentSelector) {
-      var activeControl = currentSelector;
-      var transparencyLevel = val;
+    _setOpacity: function(opacity, currentSelector) {
 
-      var model = this.layers.get($(activeControl).data('id'));
+      var model = this.layers.get($(currentSelector).data('id'));
 
-      $(activeControl).siblings('.opacity').css({width: transparencyLevel + '%'});
-      model.set('opacity', transparencyLevel/100);
+      $(currentSelector).siblings('.opacity').css({width: opacity + '%'});
+      model.set('opacity', opacity/100);
+
+      this._manageOpacityIcon(opacity, currentSelector);
+    },
+
+    _manageOpacityIcon: function(opacity, currentSelector) {
+      var $currentWrapper = $(currentSelector.closest('li'));
+
+      if (opacity != 100) {
+        $currentWrapper.addClass('is-modified');
+      } else {
+        $currentWrapper.removeClass('is-modified');
+      }
     },
 
     _openOpacityHandlers: function(e) {
