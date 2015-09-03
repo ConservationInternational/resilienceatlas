@@ -35,7 +35,8 @@
                             <input data-id="{{id}}" type=range min=0 max=100 value={{opacity_text}} id=fader step=1 class="opacity-range">
                             <span class="opacity" style="width:{{opacity_text}}%;"></span>
                           </div>
-                          <label for=fader class="opacity-teller">{{opacity_text}}%</label>
+                          <input type="text" class="opacity-teller" value="100"><span class="unit">%</span>
+                          {{!-- <label for=fader class="opacity-teller">{{opacity_text}}%</label> --}}
                         </div>
                       </div>
                     </li>

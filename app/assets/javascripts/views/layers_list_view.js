@@ -15,8 +15,9 @@
       'click .m-layers-list-header': '_toggleCategories',
       'change .header-input-switch': '_toggleAllLayers',
       'change .panel-input-switch': '_toggleLayers',
-      'input input.opacity-range' : 'setOpacity',
-      'click .panel-trasparecy-switcher' : 'openOpacity'
+      'input input.opacity-range' : '_transparencyRangeChanges',
+      'change .opacity-teller': '_transparencyInputChange',
+      'click .panel-trasparecy-switcher' : '_openOpacityHandlers'
     },
 
     initialize: function(settings) {
@@ -88,20 +89,38 @@
       $el.toggleClass('is-active');
     },
 
-
-    // Handles opacity ui and update map layers
-    setOpacity: function(e) {
+    // Handles opacity from range input.
+    _transparencyRangeChanges: function(e) {
       var activeControl = e.currentTarget
       var transparencyLevel = activeControl.value;
-      var model = this.layers.get($(activeControl).data('id'));
 
-      $(activeControl).parent().siblings('.opacity-teller').html(transparencyLevel + '%');
-      $(activeControl).siblings('.opacity').css({width: transparencyLevel + '%'});
+      $(activeControl).parent().siblings('.opacity-teller').val(transparencyLevel);
 
-      model.set('opacity',transparencyLevel/100);
+      this._setOpacity(transparencyLevel, activeControl);
     },
 
-    openOpacity: function(e) {
+    //Handles opacity from input.
+    _transparencyInputChange: function(e) {
+      var $currentTarget = $(e.currentTarget)
+      var opacityAmount = $currentTarget.val();
+      var $currentRangeSelector = $currentTarget.siblings('.slider-wrapper').find('.opacity-range');
+
+      $currentRangeSelector.val(opacityAmount);
+
+      this._setOpacity(opacityAmount, $currentRangeSelector);
+    },
+
+    _setOpacity: function(val, currentSelector) {
+      var activeControl = currentSelector;
+      var transparencyLevel = val;
+
+      var model = this.layers.get($(activeControl).data('id'));
+
+      $(activeControl).siblings('.opacity').css({width: transparencyLevel + '%'});
+      model.set('opacity', transparencyLevel/100);
+    },
+
+    _openOpacityHandlers: function(e) {
       $(e.currentTarget).parent().toggleClass('is-open');
     }
 
