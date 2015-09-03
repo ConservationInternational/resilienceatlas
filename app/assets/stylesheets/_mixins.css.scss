@@ -118,7 +118,7 @@
     border-right: $border-width solid #eee;
     border-bottom: $border-width solid #eee;
     border-left: $border-width solid #eee;
-    animation: spinner .75s infinite linear;
+    animation: standard .75s infinite linear;
     -webkit-animation: standard .75s infinite linear;
     transform-origin: center;
   }

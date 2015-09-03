@@ -48,7 +48,7 @@
 
     render: function() {
       var data = this.setLegends();
-      this.$el.html( this.template({ legends: data}) );
+      this.$el.html( this.template({ legends: data }) );
 
       this.cacheVars();
 
