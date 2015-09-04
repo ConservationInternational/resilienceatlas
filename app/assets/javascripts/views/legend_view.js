@@ -47,20 +47,21 @@
     },
 
     render: function() {
-      var data = this.setLegends();
-      this.$el.html( this.template({ legends: data }) );
+      var data = _.sortBy(this.setLegends(), 'order');
 
-      this.cacheVars();
+      $.when.apply($, data).done(function() {
+        this.$el.html( this.template({ legends: data }) );
+        this.cacheVars();
 
-      //Set legend dragable when no journey embeded map.
-      if (!this.model.get('journeyMap')) {
-        this.setDraggable();
-      }
+        //Set legend dragable when no journey embeded map.
+        if (!this.model.get('journeyMap')) {
+          this.setDraggable();
+        }
+      }.bind(this));
     },
 
     setLegends: function() {
       return _.map(this.layers.getActived(), _.bind(function(layer){
-
         //Check if legend exists
         if (layer.legend) {
           var legend = JSON.parse(layer.legend);
@@ -68,7 +69,6 @@
 
           layer.tpl = this.templateLegends[type](legend);
         }
-
         return layer;
       }, this ));
     },
