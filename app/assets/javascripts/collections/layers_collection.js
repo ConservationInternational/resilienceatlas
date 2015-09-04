@@ -48,6 +48,15 @@
           sql: d.attributes.query,
           color: d.attributes.color,
           opacity: d.attributes.opacity,
+          no_opacity: function() {
+            var currentOpacity = d.attributes.opacity
+            console.log(currentOpacity);
+            if (currentOpacity === 0) {
+              return true;
+            } else {
+              return false
+            }
+          },
           order: d.attributes.order || 0,
           legend: d.attributes.legend,
           group: group ? parseInt(group.id) : null,
@@ -56,7 +65,6 @@
         };
       });
 
-      console.log(result);
       return result;
     },
 

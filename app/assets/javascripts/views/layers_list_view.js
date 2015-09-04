@@ -78,8 +78,8 @@
       if ($currentTarget.prop('checked')) {
         var currentModel = _.findWhere(this.layers.models, {'id': id});
         currentModel.set('order', this.layersOrder);
-        console.log(this.layersOrder)
-        console.log(currentModel);
+        // console.log(this.layersOrder)
+        // console.log(currentModel);
         return this.layersOrder --;
       }
     },

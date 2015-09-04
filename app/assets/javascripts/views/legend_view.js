@@ -50,13 +50,14 @@
       var data = _.sortBy(this.setLegends(), 'order');
 
       $.when.apply($, data).done(function() {
+
         this.$el.html( this.template({ legends: data }) );
         this.cacheVars();
-
         //Set legend dragable when no journey embeded map.
         if (!this.model.get('journeyMap')) {
           this.setDraggable();
         }
+        console.log('render legend')
       }.bind(this));
     },
 
@@ -113,6 +114,18 @@
       this.$content.toggleClass('is-hidden',this.model.get('hidden'));
     },
 
+    // _setInitialOpacity: function(layer) {
+    //   console.log('initial opacity');
+    //   var currentModel = this.layers.get(layer['id']);
+    //   var currentOpacity = currentModel.get('opacity');
+
+    //   if (currentOpacity === 0) {
+    //     currentModel.set('no_opacity', true, {silent:true});
+    //   } else {
+    //     currentModel.set('no_opacity', false, {silent:true});
+    //   }
+    // },
+
 
     /**
      * Set layer visibility
@@ -120,14 +133,15 @@
     setMapVisibility: function(e) {
       var $current = $(e.currentTarget);
       var currentModel = this.layers.get($current.data('id'));
+      var currentOpacity = currentModel.get('opacity');
 
-      // Layer model sets
-      if ($current.hasClass('is-active')) {
-        currentModel.set('opacity', currentModel.get('opacity_prev'));
-        currentModel.set('opacity_prev', null);
+      //Layer model sets
+      if (currentOpacity === 0) {
+        currentModel.set('opacity', 1);
+        currentModel.set('no_opacity', false);
       } else {
-        currentModel.set('opacity_prev', currentModel.get('opacity'));
         currentModel.set('opacity', 0);
+        currentModel.set('no_opacity', true);
       }
     },
 

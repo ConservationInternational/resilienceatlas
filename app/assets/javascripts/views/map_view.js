@@ -118,6 +118,7 @@
      * Render or remove layers by Layers Collection
      */
     renderLayers: function() {
+      console.log('render layers')
       var layersData = this.layers.getPublished();
       _.each(layersData, function(layerData) {
         if (layerData.active) {
@@ -155,8 +156,8 @@
             var options = { sublayers: [data] };
             layerInstance = new root.app.Helper.CartoDBLayer(this.map, options);
             layerInstance.create(function(layer) {
-              console.log(layerData.name);
-              console.log(layerData.order);
+              // console.log(layerData.name);
+              // console.log(layerData.order);
               layer.setOpacity(layerData.opacity);
               layer.setZIndex(1000-layerData.order);
             });
@@ -169,8 +170,8 @@
             layerInstance = new root.app.Helper.CartoDBRaster(this.map, options);
             //When carto bug solved, only back to create method.
             layerInstance.createRasterLayer(function(layer) {
-              console.log(layerData.name);
-              console.log(layerData.order);
+              // console.log(layerData.name);
+              // console.log(layerData.order);
               layer.setOpacity(layerData.opacity);
               layer.setZIndex(1000-layerData.order);
             });
