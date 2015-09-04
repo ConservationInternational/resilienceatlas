@@ -58,7 +58,6 @@
     },
 
     _toggleLayers: function() {
-      console.log('hola');
       var checkboxes = this.$el.find('.panel-item-switch input:checked');
       var activedIds = _.map(checkboxes, function(el) {
         return parseInt(el.id.split('layer_')[1]);
@@ -79,6 +78,8 @@
       if ($currentTarget.prop('checked')) {
         var currentModel = _.findWhere(this.layers.models, {'id': id});
         currentModel.set('order', this.layersOrder);
+        console.log(this.layersOrder)
+        console.log(currentModel);
         return this.layersOrder --;
       }
     },

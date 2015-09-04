@@ -55,6 +55,8 @@
           published: d.attributes.published
         };
       });
+
+      console.log(result);
       return result;
     },
 
@@ -106,11 +108,15 @@
     },
 
     getActived: function() {
-      return _.where(_.sortBy(this.toJSON(), 'order'), { active: true, published: true });
+      //If we sort by order, it changes position at dashboard.
+      return _.where(this.toJSON(), { active: true, published: true });
+      // return _.where(_.sortBy(this.toJSON(), 'order'), { active: true, published: true });
     },
 
     getPublished: function() {
-      return _.where(_.sortBy(this.toJSON(), 'order'), { published: true });
+      //If we sort by order, it changes position at dashboard.
+      return _.where(this.toJSON(), { published: true });
+      // return _.where(_.sortBy(this.toJSON(), 'order'), { published: true });
     },
 
     getCategories: function() {
