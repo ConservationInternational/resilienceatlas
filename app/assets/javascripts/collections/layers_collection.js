@@ -49,14 +49,13 @@
           color: d.attributes.color,
           opacity: d.attributes.opacity,
           no_opacity: function() {
-            var currentOpacity = d.attributes.opacity
-            console.log(currentOpacity);
-            if (currentOpacity === 0) {
+            var currentOpacity = d.attributes.opacity;
+            if (currentOpacity == 0) {
               return true;
             } else {
               return false
             }
-          },
+          }(),
           order: d.attributes.order || 0,
           legend: d.attributes.legend,
           group: group ? parseInt(group.id) : null,
@@ -115,14 +114,26 @@
       });
     },
 
+    _setNoOpacity: function() {
+      var self = this;
+      var noOpacityLayers = _.where(this.toJSON(), { opacity: 0 });
+
+      $.each(noOpacityLayers, function() {
+        var noOpacityLayer = _.findWhere(self.models, { id: this['id'] });
+        noOpacityLayer.set('no_opacity', true);
+      });
+    },
+
     getActived: function() {
       //If we sort by order, it changes position at dashboard.
+      this._setNoOpacity();
       return _.where(this.toJSON(), { active: true, published: true });
       // return _.where(_.sortBy(this.toJSON(), 'order'), { active: true, published: true });
     },
 
     getPublished: function() {
       //If we sort by order, it changes position at dashboard.
+      this._setNoOpacity();
       return _.where(this.toJSON(), { published: true });
       // return _.where(_.sortBy(this.toJSON(), 'order'), { published: true });
     },

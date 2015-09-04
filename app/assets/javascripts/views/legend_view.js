@@ -57,7 +57,6 @@
         if (!this.model.get('journeyMap')) {
           this.setDraggable();
         }
-        console.log('render legend')
       }.bind(this));
     },
 
