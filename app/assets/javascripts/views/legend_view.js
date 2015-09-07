@@ -50,7 +50,6 @@
       var data = _.sortBy(this.setLegends(), 'order');
 
       $.when.apply($, data).done(function() {
-
         this.$el.html( this.template({ legends: data }) );
         this.cacheVars();
         //Set legend dragable when no journey embeded map.
