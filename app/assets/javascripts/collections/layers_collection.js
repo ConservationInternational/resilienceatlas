@@ -48,6 +48,7 @@
           sql: d.attributes.query,
           color: d.attributes.color,
           opacity: d.attributes.opacity,
+          no_opacity: d.attributes.opacity == 0 ? true : false,
           order: d.attributes.order || 0,
           legend: d.attributes.legend,
           group: group ? parseInt(group.id) : null,
@@ -55,6 +56,7 @@
           published: d.attributes.published
         };
       });
+
       return result;
     },
 
@@ -105,12 +107,31 @@
       });
     },
 
+    _setNoOpacity: function() {
+      //Set no_opacity value to manage legend visibility.
+      var self = this;
+      var noOpacityLayers = _.where(this.toJSON(), { opacity: 0 });
+
+      $.each(noOpacityLayers, function() {
+        var noOpacityLayer = _.findWhere(self.models, { id: this['id'] });
+        noOpacityLayer.set('no_opacity', true);
+      });
+    },
+
     getActived: function() {
-      return _.where(_.sortBy(this.toJSON(), 'order'), { active: true, published: true });
+      this._setNoOpacity();
+
+      return _.where(this.toJSON(), { active: true, published: true });
+      //If we sort by order, it changes position at dashboard.
+      // return _.where(_.sortBy(this.toJSON(), 'order'), { active: true, published: true });
+
     },
 
     getPublished: function() {
-      return _.where(_.sortBy(this.toJSON(), 'order'), { published: true });
+      this._setNoOpacity();
+      return _.where(this.toJSON(), { published: true });
+      //If we sort by order, it changes position at dashboard.
+      // return _.where(_.sortBy(this.toJSON(), 'order'), { published: true });
     },
 
     getCategories: function() {

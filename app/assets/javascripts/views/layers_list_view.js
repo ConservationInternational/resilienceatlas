@@ -9,12 +9,14 @@
 
     defaults: {},
 
+    layersOrder: 1000,
+
     template: HandlebarsTemplates['layers_list_tpl'],
 
     events: {
       'click .m-layers-list-header': '_toggleCategories',
       'change .header-input-switch': '_toggleAllLayers',
-      'change .panel-input-switch': '_toggleLayers',
+      'change .panel-input-switch': '_setLayersOrder',
       'input input.opacity-range' : '_transparencyRangeChanges',
       'change .opacity-teller': '_transparencyInputChange',
       'click .panel-trasparecy-switcher' : '_openOpacityHandlers'
@@ -60,10 +62,26 @@
       var activedIds = _.map(checkboxes, function(el) {
         return parseInt(el.id.split('layer_')[1]);
       });
+
       _.each(this.layers.models, function(model) {
         var active = _.contains(activedIds, model.id);
         model.set('active', active);
       });
+    },
+
+    _setLayersOrder: function(e) {
+      this._toggleLayers();
+
+      var $currentTarget = $(e.currentTarget);
+      var id = parseInt($currentTarget.attr('id').split('layer_')[1]);
+
+      if ($currentTarget.prop('checked')) {
+        var currentModel = _.findWhere(this.layers.models, {'id': id});
+        currentModel.set('order', this.layersOrder);
+        // console.log(this.layersOrder)
+        // console.log(currentModel);
+        return this.layersOrder --;
+      }
     },
 
     _toggleAllLayers: function(e) {
