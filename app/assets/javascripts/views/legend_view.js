@@ -112,25 +112,13 @@
       this.$content.toggleClass('is-hidden',this.model.get('hidden'));
     },
 
-    // _setInitialOpacity: function(layer) {
-    //   console.log('initial opacity');
-    //   var currentModel = this.layers.get(layer['id']);
-    //   var currentOpacity = currentModel.get('opacity');
-
-    //   if (currentOpacity === 0) {
-    //     currentModel.set('no_opacity', true, {silent:true});
-    //   } else {
-    //     currentModel.set('no_opacity', false, {silent:true});
-    //   }
-    // },
-
 
     /**
      * Set layer visibility
      */
     setMapVisibility: function(e) {
-      var $current = $(e.currentTarget);
-      var currentModel = this.layers.get($current.data('id'));
+      var $current = $(e.currentTarget).data('id');
+      var currentModel = this.layers.get($current);
       var currentOpacity = currentModel.get('opacity');
 
       //Layer model sets
@@ -141,6 +129,8 @@
         currentModel.set('opacity', 0);
         currentModel.set('no_opacity', true);
       }
+
+      Backbone.Events.trigger('opacity', {'currentModel': $current, 'opacityVal': currentModel.get('opacity')});
     },
 
   });
