@@ -31,6 +31,7 @@
 
     _setListeners: function() {
       this.listenTo(this.layers, 'change:active', this._toggleCategoriesSwitches);
+      Backbone.Events.on('opacity', this._transparencyChangeFromModel);
     },
 
     render: function() {
@@ -78,12 +79,13 @@
       if ($currentTarget.prop('checked')) {
         var currentModel = _.findWhere(this.layers.models, {'id': id});
         currentModel.set('order', this.layersOrder);
-        // console.log(this.layersOrder)
-        // console.log(currentModel);
         return this.layersOrder --;
       }
     },
 
+    /*
+      Manage layer form dashboard.
+     */
     _toggleAllLayers: function(e) {
       var $el = $(e.currentTarget);
       var $ul = $el.closest('li').find('ul:first');
@@ -107,6 +109,9 @@
       $el.toggleClass('is-active');
     },
 
+    /*
+      Manage transparency layers range from dhasboard
+     */
     // Handles opacity from range input.
     _transparencyRangeChanges: function(e) {
       var activeControl = e.currentTarget
@@ -117,7 +122,7 @@
       this._setOpacity(opacity, activeControl);
     },
 
-    //Handles opacity from input.
+    //Handles opacity from text input.
     _transparencyInputChange: function(e) {
       var $currentTarget = $(e.currentTarget)
       var opacity = $currentTarget.val();
@@ -128,19 +133,29 @@
       this._setOpacity(opacity, $currentRangeSelector);
     },
 
-    _setOpacity: function(opacity, currentSelector) {
+    _transparencyChangeFromModel: function(values) {
+     var $current = $('.m-layers-list').find('input[layer='+ values.currentModel +']')
+     $current.val(values.opacityVal * 100);
+     $current.trigger('change');
+    },
 
+    _setOpacity: function(opacity, currentSelector) {
       var model = this.layers.get($(currentSelector).data('id'));
 
       $(currentSelector).siblings('.opacity').css({width: opacity + '%'});
       model.set('opacity', opacity/100);
 
       this._manageOpacityIcon(opacity, currentSelector);
+
+      if (opacity == 0) {
+        model.set('no_opacity', true);
+      } else {
+        model.set('no_opacity', false);
+      }
     },
 
     _manageOpacityIcon: function(opacity, currentSelector) {
       var $currentWrapper = $(currentSelector.closest('li'));
-
       if (opacity != 100) {
         $currentWrapper.addClass('is-modified');
       } else {
