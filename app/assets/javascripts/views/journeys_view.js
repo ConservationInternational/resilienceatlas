@@ -146,7 +146,7 @@
       if (mode === 'add' || keyCode === 39) {
         currentStep = currentStep === totalSteps ? currentStep : currentStep + 1;
 
-        if (keyCode === 39 && currentStep === totalSteps) {
+        if (keyCode === 39 && currentStep === totalSteps + 1) {
           window.location.href = this._getNextJourneyUrl();
         }
       } else if (mode === 'sub' || keyCode === 37) {
@@ -184,7 +184,7 @@
     _getNextJourneyUrl: function() {
       var totalJourneys = 2; //Fix this with index.
       // This way below is the correct way, but is not working for
-      // the moment because index y a fake one.
+      // the moment because "index" is a fake one.
       // var totalJourneys = this.totalJourneys
       var currentJourney = this.journey.id;
       var nextJourney = currentJourney === totalJourneys ? 1 : currentJourney + 1;
