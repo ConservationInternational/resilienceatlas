@@ -141,13 +141,14 @@
       var mode = $(e.currentTarget).attr('mode');
       var keyCode = e.keyCode ? e.keyCode : e.charCode;
       var currentStep = this._getStep();
-      var totalSteps = this.journey.steps.length - 1;
+      var totalSteps = this.journey.steps.length;
 
       if (mode === 'add' || keyCode === 39) {
         currentStep = currentStep === totalSteps ? currentStep : currentStep + 1;
 
         if (keyCode === 39 && currentStep === totalSteps) {
           window.location.href = this._getNextJourneyUrl();
+          return
         }
       } else if (mode === 'sub' || keyCode === 37) {
         currentStep = currentStep === 0 ? currentStep : currentStep - 1;
@@ -184,7 +185,7 @@
     _getNextJourneyUrl: function() {
       var totalJourneys = 2; //Fix this with index.
       // This way below is the correct way, but is not working for
-      // the moment because index y a fake one.
+      // the moment because "index" is a fake one.
       // var totalJourneys = this.totalJourneys
       var currentJourney = this.journey.id;
       var nextJourney = currentJourney === totalJourneys ? 1 : currentJourney + 1;
