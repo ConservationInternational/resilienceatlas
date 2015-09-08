@@ -50,7 +50,6 @@
       }
     },
 
-
     /**
      * Set params and update model
      * @param {String} name

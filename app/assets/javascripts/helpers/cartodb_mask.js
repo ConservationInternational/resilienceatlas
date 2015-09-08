@@ -18,18 +18,22 @@
       maps_api_template: 'https://grp.cidata.io/user/grp',
       sql_api_template: 'https://grp.cidata.io/user/grp',
       sublayers: [{
-        cartocss: "#country_mask{polygon-fill: #FFF;polygon-opacity: 1;line-color: #DDD;}#country_mask[iso_a3='ETH']{polygon-opacity: 0;}",
-        sql: "select * from country_mask"
+        sql: "select * from country_mask",
       }]
     },
 
-    initialize: function(map, settings) {
+    initialize: function(map, countryIso, settings) {
       if (!map && map instanceof L.Map) {
         throw 'First params "map" is required and a valid instance of L.Map.';
       }
       var opts = settings || {};
       this.options = _.extend({}, this.defaults, opts);
+      this.options.sublayers[0].cartocss = this._setCartoCss(countryIso);
       this._setMap(map);
+    },
+
+    _setCartoCss: function(countryIso) {
+      return "#country_mask{polygon-fill: #FFF;polygon-opacity: 1;line-color: #DDD;}#country_mask[iso_a3='"+ countryIso +"']{polygon-opacity: 0;}"
     },
 
     /**
@@ -46,9 +50,6 @@
           if (callback && typeof callback === 'function') {
             callback.apply(this, arguments);
           }
-
-          var self = this;
-
         }.bind(this))
         .on('error', function(err) {
           throw err;
