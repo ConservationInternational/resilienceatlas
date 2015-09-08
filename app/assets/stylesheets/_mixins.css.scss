@@ -35,6 +35,17 @@
   text-decoration: none;
   outline: none;
 
+  &:hover {
+    appearance: none;
+    -webkit-user-select: none;
+  }
+
+  //To avoid number input spin buttons
+  &::-webkit-outer-spin-button,
+  &::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+  }
+
   // &:focus {
   //   border: 0;
   //   outline: 0;

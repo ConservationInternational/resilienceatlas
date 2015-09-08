@@ -233,6 +233,7 @@
   }
 
   .opacity-teller {
+    @extend %clean-button-or-input;
     position: absolute;
     bottom: 0;
     right: rem(10px);
