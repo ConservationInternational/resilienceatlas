@@ -91,7 +91,7 @@
       var mapModel = new (Backbone.Model.extend({
           defaults: {
             journeyMap: journeyMap,
-            countryIso: this.router.params.attributes.countryIso
+            countryIso: this.router.params.attributes.countryIso ? this.router.params.attributes.countryIso : null
           }
         }));
 
