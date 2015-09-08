@@ -20,7 +20,7 @@
   li {
     //To offset font line-height
     padding-top: rem(5px);
-    margin: 0 rem(10px);
+    // margin: 0 rem(10px);
   }
 
   button {
@@ -37,7 +37,7 @@
 
   input {
     @extend %clean-button-or-input;
-    width: rem(100px);
+    max-width: rem(80px);
     // margin: 0 rem(15px);
 
     @include placeholder() {
