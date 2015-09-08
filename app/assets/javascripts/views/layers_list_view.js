@@ -124,8 +124,24 @@
 
     //Handles opacity from text input.
     _transparencyInputChange: function(e) {
+
       var $currentTarget = $(e.currentTarget)
-      var opacity = $currentTarget.val();
+      var currentVal = parseInt($currentTarget.val());
+      var opacity;
+
+      currentVal = _.isNaN(currentVal) ? 100 : currentVal;
+
+      if (currentVal > 100) {
+        opacity = 100;
+        $currentTarget.val(opacity);
+      } else if (currentVal < 0) {
+        opacity = 0;
+        $currentTarget.val(opacity);
+      } else {
+        opacity = currentVal;
+        $currentTarget.val(opacity);
+      }
+
       var $currentRangeSelector = $currentTarget.siblings('.slider-wrapper').find('.opacity-range');
 
       $currentRangeSelector.val(opacity);
