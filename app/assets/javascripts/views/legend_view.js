@@ -10,7 +10,6 @@
     defaults: {},
 
     template: HandlebarsTemplates['legend_tpl'],
-    templateDragIcons: HandlebarsTemplates['legend_drag_icons_tpl'],
     templateLegends: {
       choropleth : HandlebarsTemplates['legend_choropleth_tpl'],
       custom : HandlebarsTemplates['legend_custom_tpl']
@@ -48,20 +47,20 @@
     },
 
     render: function() {
-      var data = this.setLegends();
-      this.$el.html( this.template({ legends: data}) );
+      var data = _.sortBy(this.setLegends(), 'order');
 
-      this.cacheVars();
-
-      //Set legend dragable when no journey embeded map.
-      if (!this.model.get('journeyMap')) {
-        this.setDraggable();
-      }
+      $.when.apply($, data).done(function() {
+        this.$el.html( this.template({ legends: data }) );
+        this.cacheVars();
+        //Set legend dragable when no journey embeded map.
+        if (!this.model.get('journeyMap')) {
+          this.setDraggable();
+        }
+      }.bind(this));
     },
 
     setLegends: function() {
       return _.map(this.layers.getActived(), _.bind(function(layer){
-
         //Check if legend exists
         if (layer.legend) {
           var legend = JSON.parse(layer.legend);
@@ -69,7 +68,6 @@
 
           layer.tpl = this.templateLegends[type](legend);
         }
-
         return layer;
       }, this ));
     },
@@ -84,11 +82,10 @@
         tolerance: 'pointer',
         start: function(e, ui){
           ui.placeholder.height(ui.item.outerHeight());
+          $('.m-legend').addClass('is-changing');
         },
         stop: this.setOrder,
       });
-
-      this.$('.actions').html( this.templateDragIcons() );
     },
 
     setOrder: function(e, ui) {
@@ -96,6 +93,8 @@
         var currentModel = this.layers.get($(layer).data('id'));
         currentModel.set('order', i + 1);
       }, this ));
+
+      $('.m-legend').removeClass('is-changing');
       // sort layers
       // this.layers.sort();
     },
@@ -118,16 +117,20 @@
      * Set layer visibility
      */
     setMapVisibility: function(e) {
-      var $current = $(e.currentTarget);
-      var currentModel = this.layers.get($current.data('id'));
-      // Layer model sets
-      if ($current.hasClass('is-active')) {
-        currentModel.set('opacity', currentModel.get('opacity_prev'));
-        currentModel.set('opacity_prev', null);
+      var $current = $(e.currentTarget).data('id');
+      var currentModel = this.layers.get($current);
+      var currentOpacity = currentModel.get('opacity');
+
+      //Layer model sets
+      if (currentOpacity === 0) {
+        currentModel.set('opacity', 1);
+        currentModel.set('no_opacity', false);
       } else {
-        currentModel.set('opacity_prev', currentModel.get('opacity'));
         currentModel.set('opacity', 0);
+        currentModel.set('no_opacity', true);
       }
+
+      Backbone.Events.trigger('opacity', {'currentModel': $current, 'opacityVal': currentModel.get('opacity')});
     },
 
   });

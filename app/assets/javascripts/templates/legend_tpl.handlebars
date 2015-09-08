@@ -1,15 +1,22 @@
-<header class="m-legend__header">
-  <h2 class="title">Legend</h2>
-  <span class="btn-minimize"></span>
-</header>
 <div class="wrapper">
   <div class="m-legend__content">
     <ul class="m-legend__list">
     {{#each legends}}
       <li class="drag-items" data-id="{{this.id}}">
         <header>
+          <span class="draggable-icon">
+            <svg><use xlink:href="#icon-drag"></use></svg>
+          </span>
           <h3>{{this.name}}</h3>
-          <div class="actions"></div>
+          <div class="actions">
+            <button class="btn-action btn-visibility {{this.no_opacity}}" data-id="{{this.id}}">
+              {{#if this.no_opacity}}
+                <svg><use xlink:href="#icon-visibilityoff"></use></svg>
+              {{else}}
+                <svg><use xlink:href="#icon-visibilityon"></use></svg>
+              {{/if}}
+            </button>
+          </div>
         </header>
         {{#if this.tpl}}
           {{{this.tpl}}}

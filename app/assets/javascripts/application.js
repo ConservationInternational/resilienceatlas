@@ -6,6 +6,7 @@
 //= require jquery-ui/sortable
 //= require slick-carousel
 
+//= require ./helpers/handlebars_helpers
 //= require ./helpers/class
 //= require ./helpers/cartodb_layer
 //= require ./helpers/cartodb_raster
@@ -73,6 +74,7 @@
 
       $.when.apply($, complete).done(function() {
         headerView.render();
+        this.totalJourneys = journeysIndexCollection.length;
       }.bind(this));
     },
 
@@ -84,7 +86,6 @@
 
     mapPage: function() {
       var journeyMap = this._checkJourneyMap();
-
       var layersGroupsCollection = new root.app.Collection.LayersGroups();
       var layersCollection = new root.app.Collection.Layers();
 
@@ -98,7 +99,7 @@
         }))
       });
 
-      //Layer list is not showed into journey embed map.
+      //No Layer list nor legend are showed into journey embed map.
       if (!journeyMap) {
         var layersListView = new root.app.View.LayersList({
           el: '#layersListView',
@@ -111,8 +112,7 @@
           model: new (Backbone.Model.extend({
             defaults: {
               hidden: false,
-              order: [],
-              journeyMap: journeyMap
+              order: []
             }
           })),
         });
@@ -193,6 +193,7 @@
         var journeyView = new root.app.View.Journeys({
           model: journeyModel,
           journey: journeysCollection,
+          totalJourneys: this.totalJourneys,
           currentStep: routerParams.step
         });
       }.bind(this));
@@ -205,8 +206,7 @@
     },
 
     _checkJourneyMap: function() {
-      var journeyMap = $('body').hasClass('is-journey-map');
-      return journeyMap;
+      return $('body').hasClass('is-journey-map');
     },
 
     start: function() {

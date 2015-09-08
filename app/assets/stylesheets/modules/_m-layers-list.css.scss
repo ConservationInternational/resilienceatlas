@@ -22,7 +22,7 @@
   position: relative;
   padding: rem(10px) rem(15px) rem(10px) rem(25px);
   color: $font-color-1;
-  background-color: $bg-color-3;
+  background-color: rgba(#757575, .1);
   text-align: right;
   border-bottom: 1px solid rgba($font-color-1, .1);
 
@@ -32,6 +32,10 @@
     left: rem(15px);
     transition: .2s ease;
     transform-origin: rem(2px);
+  }
+
+  &:hover {
+    background-color: rgb(232, 232, 232);
   }
 
   &.is-active {
@@ -58,6 +62,16 @@
     color: $font-color-1;
     background-color: $bg-color-1;
     text-align: left;
+
+    &:hover {
+      background-color: $bg-color-1;
+      color: $font-color-2;
+
+
+      &:before {
+        border-left-color: $font-color-2;
+      }
+    }
 
     .header-title {
       float: left;
@@ -134,7 +148,8 @@
       fill: $bg-color-2;
     }
 
-    .is-open & {
+    .is-open &,
+    .is-modified & {
       fill: $bg-color-2;
     }
   }
@@ -218,11 +233,23 @@
   }
 
   .opacity-teller {
+    @extend %clean-button-or-input;
     position: absolute;
     bottom: 0;
-    right: 6px;
+    right: rem(10px);
     color: $font-color-1;
     font-size: rem(14px);
+    padding-right: 5px;
+
+    width: 42px;
+    border: 0;
+    text-align: right;
+  }
+
+  .unit {
+    position: absolute;
+    bottom: 0;
+    right: rem(5px);
   }
 }
 

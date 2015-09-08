@@ -56,6 +56,7 @@ $backgrounds: 'journey1bg0', 'journey2bg0';
       font-size: rem(26px);
       font-weight: 300;
       text-transform: capitalize;
+      line-height: 1.2em;
     }
   }
 
@@ -64,6 +65,8 @@ $backgrounds: 'journey1bg0', 'journey2bg0';
     width: rem(164px);
     height: rem(52px);
     bottom: rem(40px);
-    background-image: image-url('journeys/landing/Logo-CI-white.png');
+    background-image: image-url('logo-ci.png');
+    background-position: center;
+    background-size: 100%;
   }
 }

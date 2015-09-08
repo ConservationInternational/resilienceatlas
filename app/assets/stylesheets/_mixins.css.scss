@@ -35,10 +35,21 @@
   text-decoration: none;
   outline: none;
 
-  &:focus {
-    border: 0;
-    outline: 0;
+  &:hover {
+    appearance: none;
+    -webkit-user-select: none;
   }
+
+  //To avoid number input spin buttons
+  &::-webkit-outer-spin-button,
+  &::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+  }
+
+  // &:focus {
+  //   border: 0;
+  //   outline: 0;
+  // }
 }
 
 //Fonts includer
@@ -118,7 +129,7 @@
     border-right: $border-width solid #eee;
     border-bottom: $border-width solid #eee;
     border-left: $border-width solid #eee;
-    animation: spinner .75s infinite linear;
+    animation: standard .75s infinite linear;
     -webkit-animation: standard .75s infinite linear;
     transform-origin: center;
   }
