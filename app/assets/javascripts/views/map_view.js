@@ -155,8 +155,6 @@
             var options = { sublayers: [data] };
             layerInstance = new root.app.Helper.CartoDBLayer(this.map, options);
             layerInstance.create(function(layer) {
-              // console.log(layerData.name);
-              // console.log(layerData.order);
               layer.setOpacity(layerData.opacity);
               layer.setZIndex(1000-layerData.order);
             });
@@ -169,8 +167,6 @@
             layerInstance = new root.app.Helper.CartoDBRaster(this.map, options);
             //When carto bug solved, only back to create method.
             layerInstance.createRasterLayer(function(layer) {
-              // console.log(layerData.name);
-              // console.log(layerData.order);
               layer.setOpacity(layerData.opacity);
               layer.setZIndex(1000-layerData.order);
             });
@@ -205,8 +201,8 @@
     },
 
     setMaskLayer: function() {
-
-      var maskLayer = new root.app.Helper.CartoDBmask(this.map);
+      var countryIso = this.model.get('countryIso');
+      var maskLayer = new root.app.Helper.CartoDBmask(this.map, countryIso);
 
       maskLayer.create(function(layer){
         layer.setZIndex(1001)
