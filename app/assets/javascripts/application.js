@@ -1,9 +1,10 @@
 //= require jquery
 //= require jquery_ujs
+//= require jquery-ui/sortable
+//= require jquery-ui-touch-punch-valid
 //= require underscore
 //= require backbone
 //= require handlebars
-//= require jquery-ui/sortable
 //= require slick-carousel
 
 //= require ./helpers/handlebars_helpers
