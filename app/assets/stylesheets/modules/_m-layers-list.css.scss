@@ -144,9 +144,11 @@
     height: 12px;
     fill: $bg-color-4;
 
-    &:hover {
-      fill: $bg-color-2;
-    }
+    //Hover options had problems in iPad
+    //when there are more js options in those elements.
+    // &:hover {
+    //   fill: $bg-color-2;
+    // }
 
     .is-open &,
     .is-modified & {
