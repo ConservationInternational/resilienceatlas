@@ -73,6 +73,13 @@ $side-bar-min-width: 430px;
       text-transform: uppercase;
     }
 
+    @media screen and (max-width: 1120px) {
+
+      h2 {
+        font-size: rem(50px);
+      }
+    }
+
     @media screen and (max-width: 1024px) {
       min-width: 320px;
 
