@@ -28,12 +28,10 @@
     },
 
     render: function() {
-      // this.$el
       this.$journey__paginationlist.html(this.template({
         journeys: this.journeys.toJSON()
       }));
       this.setUp();
-
     },
 
     setListeners: function() {
