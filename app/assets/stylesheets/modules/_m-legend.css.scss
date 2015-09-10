@@ -285,3 +285,10 @@ $side-bar-width: 360px;
 .ui-sortable-placeholder {
   background-color: rgba($bg-color-1, .5) !important;
 }
+
+li[data-id="38"] .item span {
+  border: 1px solid #CDD13D;
+  background-color: transparent !important;
+  background-image: image-url('pastoralPattern.png') !important;
+}
+
