@@ -74,7 +74,7 @@
         "type": "embed",
         "countryIso": "ETH",
         "theme": "light",
-        "aside": "<header><h2>stressors  & shocks</h2><h3>Maize production & variability in long rains</h3></header><section><div class='facts'><h4>Livelihoods</h4><p>49% of the land area of Ethiopia is used for rainfed agriculture</p></div><div class='facts'><h4>Stressors & shocks</h4><p>Rainfall during the long rains is declining at rates as high as 11% per decade in some maize-growing areas</p></div></section>",
+        "aside": "<header><h2>stressors  & shocks</h2><h3>Maize production & variability in long rains</h3></header><section><h1>Ethiopia</h1><div class='facts'><h4>Livelihoods</h4><p>49% of the land area of Ethiopia is used for rainfed agriculture</p></div><div class='facts'><h4>Stressors & shocks</h4><p>Rainfall during the long rains is declining at rates as high as 11% per decade in some maize-growing areas</p></div></section>",
         "mapUrl": "/map?layers=%5B%7B%22id%22%3A8%2C%22opacity%22%3A1%2C%22order%22%3A0%7D%2C%7B%22id%22%3A33%2C%22opacity%22%3A1%2C%22order%22%3A0%7D%5D"
       },
       {
@@ -106,7 +106,7 @@
         "type": "embed",
         "countryIso": "ETH",
         "theme": "light",
-        "aside": "<header><h2>Vulnerability</h2><h3>Fertility rates in maize production areas</h3></header><section><div class='facts'><h4></h4><p>Fertility rates in maize production areas are > 5 children per woman</p></div></section>",
+        "aside": "<header><h2>Vulnerability</h2><h3>Fertility rates in maize production areas</h3></header><section><h1>Ethiopia</h1><div class='facts'><h4></h4><p>Fertility rates in maize production areas are > 5 children per woman</p></div></section>",
         "mapUrl": "/map?layers=%5B%7B%22id%22%3A8%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%2C%7B%22id%22%3A28%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%5D"
       },
       {
@@ -122,7 +122,7 @@
         "type": "embed",
         "countryIso": "ETH",
         "theme": "light",
-        "aside": "<header><h2>Vulnerability</h2><h3>Mass media access in maize production areas</h3></header><section><div class='facts'><h4></h4><p>In maize producing areas, more than 69% of women lack access to mass media.</p></div></section>",
+        "aside": "<header><h2>Vulnerability</h2><h3>Mass media access in maize production areas</h3></header><section><h1>Ethiopia</h1><div class='facts'><h4></h4><p>In maize producing areas, more than 69% of women lack access to mass media.</p></div></section>",
         "mapUrl": "/map?layers=%5B%7B%22id%22%3A8%2C%22opacity%22%3A1%2C%22order%22%3A0%7D%2C%7B%22id%22%3A27%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%5D"
       },
       {
@@ -130,7 +130,7 @@
         "type": "embed",
         "countryIso": "ETH",
         "theme": "light",
-        "aside": "<header><h2>Vulnerability</h2><h3>Illiteracy rate for women in maize production areas</h3></header><section><div class='facts'><h4></h4><p>In maize producing areas, more than half of all women are illiterate.</p></div></section>",
+        "aside": "<header><h2>Vulnerability</h2><h3>Illiteracy rate for women in maize production areas</h3></header><section><h1>Ethiopia</h1><div class='facts'><h4></h4><p>In maize producing areas, more than half of all women are illiterate.</p></div></section>",
         "mapUrl": "/map?layers=%5B%7B%22id%22%3A8%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%2C%7B%22id%22%3A26%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%5D"
       },
       {
