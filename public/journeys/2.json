@@ -33,7 +33,7 @@
         "type": "embed",
         "countryIso": "ETH",
         "theme": "light",
-        "aside": "<article><header><h2>Livelihoods</h2><h3>Pastoral</h3></header><section><h1>Ethiopia</h1><div class='facts'><h4></h4><p>Lowlands are home to 29 ethnic groups, of which >90% are pastoralists</p></div></section><footer><p>INSIGHTS PROVIDED BY CONSERVATION INTERNATIONAL</p></footer></article>",
+        "aside": "<header><h2>Livelihoods</h2><h3>Pastoral</h3></header><section><h1>Ethiopia</h1><div class='facts'><h4></h4><p>Lowlands are home to 29 ethnic groups, of which >90% are pastoralists</p></div></section>",
         "mapUrl": "/map?layers=%5B%7B%22id%22%3A38%2C%22opacity%22%3A1%2C%22order%22%3A0%7D%5D"
       },
       {
@@ -49,7 +49,7 @@
         "type": "embed",
         "countryIso": "ETH",
         "theme": "light",
-        "aside": "<article><header><h2>Stressors  & shocks</h2><h3>Pastoral with short rains</h3></header><section><h1>Ethiopia</h1><div class='facts'><h4></h4><p>Rainfall during the short rains is declining at rates as high as 24% per decade.</p></div></section><footer><p>INSIGHTS PROVIDED BY CONSERVATION INTERNATIONAL</p></footer></article>",
+        "aside": "<header><h2>Stressors  & shocks</h2><h3>Pastoral with short rains</h3></header><section><h1>Ethiopia</h1><div class='facts'><h4></h4><p>Rainfall during the short rains is declining at rates as high as 24% per decade.</p></div></section>",
         "mapUrl": "/map?layers=%5B%7B%22id%22%3A38%2C%22opacity%22%3A0.3%2C%22order%22%3A0%7D%2C%7B%22id%22%3A31%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%5D"
       },
       {
@@ -57,7 +57,7 @@
         "type": "embed",
         "countryIso": "ETH",
         "theme": "light",
-        "aside": "<article><header><h2>Stressors  & shocks</h2><h3>Pastoral with long rains</h3></header><section><h1>Ethiopia</h1><div class='facts'><h4></h4><p>Rainfall during the long rains is declining at rates as high as 18% per decade.</p></div></section><footer><p>INSIGHTS PROVIDED BY CONSERVATION INTERNATIONAL</p></footer></article>",
+        "aside": "<header><h2>Stressors  & shocks</h2><h3>Pastoral with long rains</h3></header><section><h1>Ethiopia</h1><div class='facts'><h4></h4><p>Rainfall during the long rains is declining at rates as high as 18% per decade.</p></div></section>",
         "mapUrl": "/map?layers=%5B%7B%22id%22%3A32%2C%22opacity%22%3A1%2C%22order%22%3A0%7D%2C%7B%22id%22%3A38%2C%22opacity%22%3A0.3%2C%22order%22%3A0%7D%5D"
       },
       {
@@ -73,7 +73,7 @@
         "type": "embed",
         "countryIso": "ETH",
         "theme": "light",
-        "aside": "<article><header><h2>Vulnerability</h2><h3>Fertility rate in pastoral areas</h3></header><section><h1>Ethiopia</h1><div class='facts'><h4></h4><p>Fertility rates are greater than 5 children per woman in pastoral areas.</p></div></section><footer><p>INSIGHTS PROVIDED BY CONSERVATION INTERNATIONAL</p></footer></article>",
+        "aside": "<header><h2>Vulnerability</h2><h3>Fertility rate</h3></header><section><h1>Ethiopia</h1><div class='facts'><h4></h4><p>Fertility rates are greater than 5 children per woman in pastoral areas.</p></div></section>",
         "mapUrl": "/map?layers=%5B%7B%22id%22%3A38%2C%22opacity%22%3A0.5%2C%22order%22%3A1%7D%2C%7B%22id%22%3A28%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%5D"
       },
       {
@@ -81,7 +81,7 @@
         "type": "embed",
         "countryIso": "ETH",
         "theme": "light",
-        "aside": "<article><header><h2>Vulnerability</h2><h3>Mass media access</h3></header><section><h1>Ethiopia</h1><div class='facts'><h4>Vulnerability</h4><p>In pastoral areas more than 66% of women have no access to mass media.</p></div></section><footer><p>INSIGHTS PROVIDED BY CONSERVATION INTERNATIONAL</p></footer></article>",
+        "aside": "<header><h2>Vulnerability</h2><h3>Mass media access</h3></header><section><h1>Ethiopia</h1><div class='facts'><h4>Vulnerability</h4><p>In pastoral areas more than 66% of women have no access to mass media.</p></div></section>",
         "mapUrl": "/map?layers=%5B%7B%22id%22%3A38%2C%22opacity%22%3A0.25%2C%22order%22%3A1%7D%2C%7B%22id%22%3A27%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%5D"
       },
       {
@@ -89,7 +89,7 @@
         "type": "embed",
         "countryIso": "ETH",
         "theme": "light",
-        "aside": "<article><header><h2>Vulnerability</h2><h3>Illiteracy rate for women.</h3></header><section><h1>Ethiopia</h1><div class='facts'><h4></h4><p>In pastoral areas more than 50% of women are illiterate.</p></div></section><footer><p>INSIGHTS PROVIDED BY CONSERVATION INTERNATIONAL</p></footer></article>",
+        "aside": "<header><h2>Vulnerability</h2><h3>Illiteracy rate for women.</h3></header><section><h1>Ethiopia</h1><div class='facts'><h4></h4><p>In pastoral areas more than 50% of women are illiterate.</p></div></section>",
         "mapUrl": "/map?layers=%5B%7B%22id%22%3A38%2C%22opacity%22%3A0.25%2C%22order%22%3A1%7D%2C%7B%22id%22%3A26%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%5D"
       },
       {

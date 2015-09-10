@@ -53,10 +53,6 @@ $side-bar-min-width: 430px;
       box-shadow: 0 0 5px 2px #fff;
     }
 
-    footer {
-      border-bottom: 1px solid rgba($font-color-1, .1);
-    }
-
     section {
       border-top: 1px solid rgba($font-color-1, .1);
     }
@@ -96,7 +92,7 @@ $side-bar-min-width: 430px;
     h1 {
       font-size: rem(36px);
       font-weight: 400;
-      margin-bottom: rem(20px);
+      margin-bottom: 0;
     }
 
     h4 {
@@ -110,6 +106,14 @@ $side-bar-min-width: 430px;
       font-weight: 400;
       margin-top: 0;
       margin-bottom: rem(5px);
+
+      .facts &:last-child {
+        margin-bottom: 0;
+      }
+    }
+
+    .facts {
+      padding-bottom: 0.625rem;
     }
 
     .wrapper {
@@ -132,7 +136,8 @@ $side-bar-min-width: 430px;
     footer {
       display: block;
       position: relative;
-      margin-top: rem(10px);
+      padding-top: 2*0.625rem;
+      border-bottom: 1px solid rgba($font-color-1, .1);
 
       &:after {
         content: "";
