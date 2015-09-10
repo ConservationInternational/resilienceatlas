@@ -53,7 +53,7 @@
           this.options.map.center = [8, 35]; //Horn of Africa
         } else {
           this.options.map.zoom = 6;
-          this.options.map.center = [8, 37]; //Horn of Africa
+          this.options.map.center = [9, 37]; //Horn of Africa
         }
       }
       if (!this.map) {
