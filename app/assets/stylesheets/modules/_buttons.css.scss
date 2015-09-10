@@ -40,17 +40,17 @@
 }
 
 #btn-prev {
-  padding: 0;
-  border-radius: 50%;
+  border-radius: 50px;
   height: rem(45px);
-  width: rem(45px);
-  margin-right: rem(20px);
+  padding: rem(12px) rem(20px) rem(8px) rem(40px);
+  text-transform: capitalize;
 
   &:before {
-    @extend %center;
+    @extend %centery;
     @include arrow(15px, $font-color-1, 1px, -45deg);
     content: "";
-    transform: translate(-35%, -50%) rotate(-45deg);
+    left: rem(10px);
+    transform: translate(50%, -50%) rotate(-45deg);
   }
 }
 

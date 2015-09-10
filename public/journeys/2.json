@@ -2,7 +2,7 @@
   {
     "id": 2,
     "title": "ETHIOPIA",
-    "subtitle": "pastoral livelihoods / local farmers / climate vulnerability",
+    "subtitle": "Pastoral livelihoods threatened by changing climate",
 
     "steps": [
       {
@@ -10,148 +10,92 @@
         "type": "landing",
         "title": "ethiopia",
         "subtitle": "data insights",
-        "theme": "pastoral livelihoods / local farmers / climate vulnerability",
+        "theme": "Pastoral livelihoods threatened by changing climate",
         "background": "journey2bg0"
       },
       {
         "number": 1,
+        "type": "conclusion",
+        "background": "journey2bg5",
+        "title": "overview",
+        "content": "<p>Livestock raising, or pastoralism, is a livelihood strategy well adapted to the small amount of rainfall that is received each year in the lowlands of Ethiopia. Ethiopian pastoralists, however, still depend on seasonal rains to feed the livestock on which their livelihoods depend.</p><p>A changing climate and growing populations are threatening pastoralism.</p><p>Ethiopia experiences two distinct rainy seasons: the short rainy season (or “belg”) from February to May and the long rainy season, or “kiremt” from June through September. Changes in the pattern of these rains suggest a difficult road ahead for Ehiopian pastoralists.</p>"
+      },
+      {
+        "number": 2,
         "chapterNumber": 1,
         "background": "journey2ch1",
         "type": "chapter",
         "title": "livelihoods",
-        "content": "Which rural livelihoods are most threatened by increasing climate variability and shocks, and where are they located?"
-      },
-      {
-        "number": 2,
-        "type": "embed",
-        "countryIso": "ETH",
-        "theme": "light",
-        "aside": "<article><header><h2>Livelihoods</h2><h3></h3></header><section><h1>Ethiopia</h1><div class='facts'><h4>Livelihoods</h4><p>Lowlands are home to 29 ethnic groups, of which >90% are pastoralists</p></div></section><footer><p>INSIGHTS PROVIDED BY CONSERVATION INTERNATIONAL</p></footer></article>",
-        "mapUrl": "/map?layers=%5B%7B\"id\"%3A6%2C\"opacity\"%3A1%2C\"order\"%3A0%7D%5D"
+        "content": "Where do pastoralists live?"
       },
       {
         "number": 3,
         "type": "embed",
         "countryIso": "ETH",
         "theme": "light",
-        "aside": "<article><header><h2>Livelihoods</h2><h3>Pastoral</h3></header><section><h1>Ethiopia</h1><div class='facts'><h4>Livelihoods</h4><p>Lowlands are home to 29 ethnic groups, of which >90% are pastoralists</p></div></section><footer><p>INSIGHTS PROVIDED BY CONSERVATION INTERNATIONAL</p></footer></article>",
+        "aside": "<header><h2>Livelihoods</h2><h3>Pastoral</h3></header><section><h1>Ethiopia</h1><div class='facts'><h4></h4><p>Lowlands are home to 29 ethnic groups, of which >90% are pastoralists</p></div></section>",
         "mapUrl": "/map?layers=%5B%7B%22id%22%3A38%2C%22opacity%22%3A1%2C%22order%22%3A0%7D%5D"
       },
       {
         "number": 4,
-        "type": "text",
-        "align": "right",
-        "theme": "light",
-        "background": "journey2bg1",
-        "content": "<div class='highlighted'><p>Ethiopia’s lowlands are home to 29 ethnic groups, of which >90% are pastoralists</p></div>"
-      },
-      {
-        "number": 5,
         "chapterNumber": 2,
         "background": "journey2ch2",
         "type": "chapter",
         "title": "stressors  & shocks",
-        "content": "In which locations are pastoralists exposed to climate variability and shocks and what is the severity?"
+        "content": "Where are pastoralists most exposed to climate variability and change, and what is the severity of these stressors and shocks?"
+      },
+      {
+        "number": 5,
+        "type": "embed",
+        "countryIso": "ETH",
+        "theme": "light",
+        "aside": "<header><h2>Stressors  & shocks</h2><h3>Pastoral with short rains</h3></header><section><h1>Ethiopia</h1><div class='facts'><h4></h4><p>Rainfall during the short rains is declining at rates as high as 24% per decade.</p></div></section>",
+        "mapUrl": "/map?layers=%5B%7B%22id%22%3A38%2C%22opacity%22%3A0.3%2C%22order%22%3A0%7D%2C%7B%22id%22%3A31%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%5D"
       },
       {
         "number": 6,
         "type": "embed",
         "countryIso": "ETH",
         "theme": "light",
-        "aside": "<article><header><h2>Stressors  & shocks</h2><h3>Pastoral with short rains</h3></header><section><h1>Ethiopia</h1><div class='facts'><h4>Stressors  & shocks</h4><p>Rainfall during the short rains is declining at rates as high as 24% per decade.</p></div></section><footer><p>INSIGHTS PROVIDED BY CONSERVATION INTERNATIONAL</p></footer></article>",
-        "mapUrl": "/map?layers=%5B%7B%22id%22%3A38%2C%22opacity%22%3A0.3%2C%22order%22%3A0%7D%2C%7B%22id%22%3A31%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%5D"
+        "aside": "<header><h2>Stressors  & shocks</h2><h3>Pastoral with long rains</h3></header><section><h1>Ethiopia</h1><div class='facts'><h4></h4><p>Rainfall during the long rains is declining at rates as high as 18% per decade.</p></div></section>",
+        "mapUrl": "/map?layers=%5B%7B%22id%22%3A32%2C%22opacity%22%3A1%2C%22order%22%3A0%7D%2C%7B%22id%22%3A38%2C%22opacity%22%3A0.3%2C%22order%22%3A0%7D%5D"
       },
       {
         "number": 7,
-        "type": "text",
-        "align": "left",
-        "theme": "light",
-        "background": "journey2bg2",
-        "content": "<div class='highlighted'><p>Rainfall during the short rains is declining at rates as high as 24% per decade in pastoral areas.</p></div>"
+        "chapterNumber": 3,
+        "background": "journey2ch3",
+        "type": "chapter",
+        "title": "vulnerability",
+        "content": "What factors affect the vulnerability of pastoralists to climate variability and change?"
       },
       {
         "number": 8,
         "type": "embed",
         "countryIso": "ETH",
         "theme": "light",
-        "aside": "<article><header><h2>Stressors  & shocks</h2><h3>Pastoral with long rains</h3></header><section><h1>Ethiopia</h1><div class='facts'><h4>Stressors  & shocks</h4><p>Rainfall during the long rains is declining at rates as high as 18% per decade.</p></div></section><footer><p>INSIGHTS PROVIDED BY CONSERVATION INTERNATIONAL</p></footer></article>",
-        "mapUrl": "/map?layers=%5B%7B%22id%22%3A32%2C%22opacity%22%3A1%2C%22order%22%3A0%7D%2C%7B%22id%22%3A38%2C%22opacity%22%3A0.3%2C%22order%22%3A0%7D%5D"
+        "aside": "<header><h2>Vulnerability</h2><h3>Fertility rate</h3></header><section><h1>Ethiopia</h1><div class='facts'><h4></h4><p>Fertility rates are greater than 5 children per woman in pastoral areas.</p></div></section>",
+        "mapUrl": "/map?layers=%5B%7B%22id%22%3A38%2C%22opacity%22%3A0.5%2C%22order%22%3A1%7D%2C%7B%22id%22%3A28%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%5D"
       },
       {
         "number": 9,
-        "type": "text",
-        "align": "right",
+        "type": "embed",
+        "countryIso": "ETH",
         "theme": "light",
-        "background": "journey2bg3",
-        "content": "<div class='highlighted'><p>Rainfall during the long rains is declining at rates as high as 18% per decade in pastoral areas. </p></div>"
+        "aside": "<header><h2>Vulnerability</h2><h3>Mass media access</h3></header><section><h1>Ethiopia</h1><div class='facts'><h4>Vulnerability</h4><p>In pastoral areas more than 66% of women have no access to mass media.</p></div></section>",
+        "mapUrl": "/map?layers=%5B%7B%22id%22%3A38%2C%22opacity%22%3A0.25%2C%22order%22%3A1%7D%2C%7B%22id%22%3A27%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%5D"
       },
       {
         "number": 10,
-        "chapterNumber": 3,
-        "background": "journey2ch3",
-        "type": "chapter",
-        "title": "vulnerability",
-        "content": "What factors affect the vulnerability of pastoralists to climate variability and shocks?"
+        "type": "embed",
+        "countryIso": "ETH",
+        "theme": "light",
+        "aside": "<header><h2>Vulnerability</h2><h3>Illiteracy rate for women.</h3></header><section><h1>Ethiopia</h1><div class='facts'><h4></h4><p>In pastoral areas more than 50% of women are illiterate.</p></div></section>",
+        "mapUrl": "/map?layers=%5B%7B%22id%22%3A38%2C%22opacity%22%3A0.25%2C%22order%22%3A1%7D%2C%7B%22id%22%3A26%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%5D"
       },
       {
         "number": 11,
-        "type": "embed",
-        "countryIso": "ETH",
-        "theme": "light",
-        "aside": "<article><header><h2>Vulnerability</h2><h3>Fertility rate pastoral with long rains</h3></header><section><h1>Ethiopia</h1><div class='facts'><h4>Vulnerability</h4><p>Fertility rates are greater than 5 children per woman in pastoral areas.</p></div></section><footer><p>INSIGHTS PROVIDED BY CONSERVATION INTERNATIONAL</p></footer></article>",
-        "mapUrl": "/map?layers=%5B%7B%22id%22%3A38%2C%22opacity%22%3A0.27%2C%22order%22%3A1%7D%2C%7B%22id%22%3A28%2C%22opacity%22%3A0.51%2C%22order%22%3A2%7D%2C%7B%22id%22%3A32%2C%22opacity%22%3A1%2C%22order%22%3A3%7D%5D"
-      },
-      {
-        "number": 12,
-        "type": "text",
-        "align": "right",
-        "theme": "light",
-        "background": "journey2bg5",
-        "content": "<div class='highlighted'><p>Fertility rates are greater than 5 children per woman in pastoral areas.</p></div>"
-      },
-      {
-        "number": 13,
-        "type": "embed",
-        "countryIso": "ETH",
-        "theme": "light",
-        "aside": "<article><header><h2>Vulnerability</h2><h3>Mass media access</h3></header><section><h1>Ethiopia</h1><div class='facts'><h4>Vulnerability</h4><p>In pastoral areas more than 66% of women have no access to mass media.</p></div></section><footer><p>INSIGHTS PROVIDED BY CONSERVATION INTERNATIONAL</p></footer></article>",
-        "mapUrl": "/map?layers=%5B%7B%22id%22%3A27%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%5D"
-      },
-      {
-        "number": 14,
-        "type": "embed",
-        "countryIso": "ETH",
-        "theme": "light",
-        "aside": "<article><header><h2>Vulnerability</h2><h3>Mass media access with short rains</h3></header><section><h1>Ethiopia</h1><div class='facts'><h4>Vulnerability</h4><p>In pastoral areas more than 66% of women have no access to mass media.</p></div></section><footer><p>INSIGHTS PROVIDED BY CONSERVATION INTERNATIONAL</p></footer></article>",
-        "mapUrl": "/map?layers=%5B%7B%22id%22%3A38%2C%22opacity%22%3A0.25%2C%22order%22%3A1%7D%2C%7B%22id%22%3A27%2C%22opacity%22%3A0.51%2C%22order%22%3A2%7D%2C%7B%22id%22%3A31%2C%22opacity%22%3A1%2C%22order%22%3A3%7D%5D"
-      },
-      {
-        "number": 15,
-        "type": "embed",
-        "countryIso": "ETH",
-        "theme": "light",
-        "aside": "<article><header><h2>Vulnerability</h2><h3>Illiteracy rate for women</h3></header><section><h1>Ethiopia</h1><div class='facts'><h4>Vulnerability</h4><p>In pastoral areas more than 50% of women are illiterate.</p></div></section><footer><p>INSIGHTS PROVIDED BY CONSERVATION INTERNATIONAL</p></footer></article>",
-        "mapUrl": "/map?layers=%5B%7B%22id%22%3A26%2C%22opacity%22%3A1%2C%22order%22%3A0%7D%5D"
-      },
-      {
-        "number": 16,
-        "type": "embed",
-        "countryIso": "ETH",
-        "theme": "light",
-        "aside": "<article><header><h2>Vulnerability</h2><h3>Illiteracy rate for women with short rains</h3></header><section><h1>Ethiopia</h1><div class='facts'><h4>Vulnerability</h4><p>In pastoral areas more than 50% of women are illiterate.</p></div></section><footer><p>INSIGHTS PROVIDED BY CONSERVATION INTERNATIONAL</p></footer></article>",
-        "mapUrl": "/map?layers=%5B%7B%22id%22%3A38%2C%22opacity%22%3A0.25%2C%22order%22%3A1%7D%2C%7B%22id%22%3A26%2C%22opacity%22%3A0.35%2C%22order%22%3A2%7D%2C%7B%22id%22%3A31%2C%22opacity%22%3A1%2C%22order%22%3A3%7D%5D"
-      },
-      {
-        "number": 17,
-        "type": "text",
-        "align": "right",
-        "theme": "light",
-        "background": "journey2bg6",
-        "content": "<div class='highlighted'><p>In pastoral areas more than 66% of women lack access to mass media, and more than 50% of women are illiterate.</p><p>These factors inhibit resilience.</p></div>"
-      },
-      {
-        "number": 18,
         "type": "conclusion",
+        "background": "journey2bg6",
         "title": "insights",
         "subtitle": "pastoral livelihoods & climate change in ethiopia",
         "content": "<p>Major changes in rainfall patterns in pastoral areas are undermining pastoralism as a viable livelihood strategy.</p><p>Pastoralists are particularly vulnerable because of high levels of health stress and low levels of literacy and information access, particularly among women.</p>"

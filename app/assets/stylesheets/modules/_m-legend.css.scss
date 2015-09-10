@@ -31,7 +31,7 @@ $side-bar-width: 360px;
     box-shadow: none;
     padding: 0;
     width: 100%;
-    padding-top: rem(20px);
+    padding-top: 0.625rem;
 
     h3 {
       text-transform: none;
@@ -122,6 +122,10 @@ $side-bar-width: 360px;
       .side-bar & {
         padding: 0;
         padding-bottom: rem(10px);
+
+        &:last-child {
+          padding-bottom: 0;
+        }
       }
 
       &.ui-sortable-placeholder {
