@@ -31,7 +31,7 @@ $side-bar-width: 360px;
     box-shadow: none;
     padding: 0;
     width: 100%;
-    padding-top: 0.625rem;
+    padding-top: rem(15px);
 
     h3 {
       text-transform: none;
@@ -121,7 +121,7 @@ $side-bar-width: 360px;
 
       .side-bar & {
         padding: 0;
-        padding-bottom: rem(10px);
+        margin-bottom: rem(5px);
 
         &:last-child {
           padding-bottom: 0;
@@ -277,6 +277,7 @@ $side-bar-width: 360px;
 
     .side-bar & {
       padding-left: 0;
+      padding-top: 0;
     }
   }
 }

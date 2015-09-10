@@ -27,22 +27,17 @@
   display: block;
   position: relative;
   float: left;
-  // border: 1px solid rgba(#222, .5);
   background-color: $bg-color-1;
   font-size: rem(16px);
   font-weight: 300;
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, .3);
   color: $font-color-1;
-
-  // &:active {
-  //   border: 0;
-  // }
 }
 
 #btn-prev {
   border-radius: 50px;
   height: rem(45px);
-  padding: rem(12px) rem(20px) rem(8px) rem(40px);
+  padding: rem(14px) rem(20px) rem(8px) rem(40px);
   text-transform: capitalize;
 
   &:before {
@@ -58,7 +53,7 @@
 #btn-next-journey {
   border-radius: 50px;
   height: rem(45px);
-  padding: rem(12px) rem(40px) rem(8px) rem(20px);
+  padding: rem(14px) rem(40px) rem(8px) rem(20px);
   text-transform: capitalize;
 
   &:before {
@@ -74,7 +69,7 @@
   text-transform: capitalize;
   border-radius: 50px;
   height: rem(45px);
-  padding: rem(14px) rem(20px) rem(2px);
+  padding: rem(15px) rem(20px) rem(2px);
   position: absolute;
   bottom: rem(40px);
   right: rem(180px);

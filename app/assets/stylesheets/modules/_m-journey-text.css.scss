@@ -48,12 +48,17 @@ $side-bar-min-width: 350px;
   &.journey2bg5:before {
     background-color: rgba(0,0,0, .5);
   }
+
+  .wrapper {
+    @extend %center;
+    width: 100%;
+    // max-width: 1200px;
+  }
 }
 
 
 
 @mixin content($color) {
-  @extend %centery;
   width: $side-bar-width;
   min-width: $side-bar-min-width;
   margin: 0 rem(45px);
@@ -99,11 +104,11 @@ $side-bar-min-width: 350px;
   }
 
   &.is-right {
-    right: 0;
+    float: right;
   }
 
   &.is-left {
-    left: 0;
+    float: left;
   }
 
   &.is-center {
