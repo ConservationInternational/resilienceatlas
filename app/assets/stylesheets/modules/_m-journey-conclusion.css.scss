@@ -2,7 +2,7 @@ $backgrounds: 'journey1bg0', 'journey1bg1', 'journey1bg2', 'journey1bg3', 'ethio
 
 .m-journey-conclusion {
 
-  &.overwiew {
+  &.overview {
     #btn-next-journey {
       display: none !important;
     }
@@ -46,7 +46,7 @@ $backgrounds: 'journey1bg0', 'journey1bg1', 'journey1bg2', 'journey1bg3', 'ethio
      bottom: 0;
      left: 0;
      right: 0;
-     background-color: rgba(0,0,0, .5);
+     background-color: rgba(0,0,0, .6);
   }
 
   .content {
