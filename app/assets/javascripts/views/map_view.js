@@ -33,6 +33,8 @@
       this.options = _.extend({}, this.defaults, opts);
       this.layers = settings.layers;
       this.setListeners();
+
+      this.journeyMap = this.model.get('journeyMap');
     },
 
     setListeners: function() {
@@ -45,7 +47,7 @@
      */
     createMap: function() {
       // trampita zoom
-      if (this.model.get('journeyMap')) {
+      if (this.journeyMap) {
         this.options.map.zoom = 6;
         this.options.map.center = [8, 37]; //Horn of Africa
       }
@@ -90,16 +92,18 @@
       }
 
       //basemap depends on if it is journey embed or not.
-      var customUrl = this.model.get('journeyMap') ? this.options.journeyBasemap.url : this.options.basemap.url;
+      var customUrl = this.journeyMap ? this.options.journeyBasemap.url : this.options.basemap.url;
       var labelsUrl = this.options.basemap.labels;
       //Just in case a basemapUrl is given into the method call.
       var url = basemapUrl || customUrl;
 
       if (customUrl) {
         this.basemap = L.tileLayer(url).addTo(this.map);
-        this.labels = L.tileLayer(labelsUrl).addTo(this.map);
 
-        this.labels.setZIndex(1005)
+        if (!this.journeyMap) {
+          this.labels = L.tileLayer(labelsUrl).addTo(this.map);
+          this.labels.setZIndex(1005);
+        }
       }
     },
 
