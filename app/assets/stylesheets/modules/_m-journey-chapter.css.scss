@@ -46,7 +46,7 @@ $side-bar-min-width: 350px;
 
   h1 {
     text-transform: uppercase;
-    font-size: rem(64px);
+    font-size: rem(56px);
     font-family: $font-face-2;
     font-weight: 400;
     margin: 0;
@@ -62,9 +62,16 @@ $side-bar-min-width: 350px;
 
   .chapter-intro {
     @extend %centery;
+    right: 0;
     width: $side-bar-width;
-    min-width: $side-bar-min-width;
+    min-width: rem(300px);
     margin: 0 rem(45px);
+  }
+
+  @media screen and (max-width: 768px) {
+    h1 {
+      font-size: rem(50px);
+    }
   }
 }
 

@@ -201,6 +201,7 @@ GEM
     rails-assets-foundation-sass (5.5.2)
     rails-assets-handlebars (3.0.3)
     rails-assets-jquery (2.1.4)
+    rails-assets-jquery-ui-touch-punch-valid (0.2.2)
     rails-assets-moment (2.10.6)
     rails-assets-normalize-css (3.0.3)
     rails-assets-slick-carousel (1.5.8)
@@ -344,6 +345,7 @@ DEPENDENCIES
   rails-assets-backbone!
   rails-assets-foundation-sass!
   rails-assets-handlebars!
+  rails-assets-jquery-ui-touch-punch-valid!
   rails-assets-moment!
   rails-assets-normalize-css!
   rails-assets-slick-carousel!

@@ -8,7 +8,7 @@ $side-bar-width: 360px;
   bottom: 0;
   width: rem($legend-width);
   //Padding right to allow scroll bar in content.
-  padding: rem(17px) rem(5px) rem(17px) rem(10px);
+  padding: rem(15px) rem(5px) rem(15px) rem(10px);
   box-shadow: 0 1px 4px 0 rgba(0,0,0,.2);
   background-color: $bg-color-1;
 
@@ -31,7 +31,7 @@ $side-bar-width: 360px;
     box-shadow: none;
     padding: 0;
     width: 100%;
-    padding-top: rem(20px);
+    padding-top: 0.625rem;
 
     h3 {
       text-transform: none;
@@ -52,8 +52,14 @@ $side-bar-width: 360px;
   }
 
   .m-legend__header {
+    display: none;
     position: relative;
     width: 100%;
+    padding: 0 rem(10px);
+
+    @media screen and (max-width: 768px) {
+      display: block;
+    }
 
     .side-bar & {
       display: none;
@@ -79,7 +85,7 @@ $side-bar-width: 360px;
     .btn-minimize {
       position: absolute;
       top: 50%;
-      right: 0;
+      right: rem(10px);
       width: rem(22px);
       height: rem(22px);
       transform: translate(0,-50%);
@@ -116,6 +122,10 @@ $side-bar-width: 360px;
       .side-bar & {
         padding: 0;
         padding-bottom: rem(10px);
+
+        &:last-child {
+          padding-bottom: 0;
+        }
       }
 
       &.ui-sortable-placeholder {
@@ -207,7 +217,7 @@ $side-bar-width: 360px;
     display: -ms-box;
     justify-content: space-between;
     align-items: center;
-    padding-top: rem(16px);
+    padding: rem(16px) 0 0 rem(10px);
 
     .item {
       width: 100%;
@@ -217,7 +227,7 @@ $side-bar-width: 360px;
     .numbers {
       position: absolute;
       top: 0;
-      left: 0;
+      left: rem(10px);
       right: 0;
       display: flex;
       display: -ms-box;
@@ -225,6 +235,14 @@ $side-bar-width: 360px;
       align-items: center;
       font-size: 12px;
       font-weight: 400;
+    }
+
+    .side-bar & {
+      padding: rem(16px) 0 0 0;
+
+      .numbers {
+        left: 0;
+      }
     }
   }
 

@@ -33,6 +33,8 @@
       this.options = _.extend({}, this.defaults, opts);
       this.layers = settings.layers;
       this.setListeners();
+
+      this.journeyMap = this.model.get('journeyMap');
     },
 
     setListeners: function() {
@@ -45,9 +47,14 @@
      */
     createMap: function() {
       // trampita zoom
-      if (this.model.get('journeyMap')) {
-        this.options.map.zoom = 6;
-        this.options.map.center = [8, 37]; //Horn of Africa
+      if (this.journeyMap) {
+        if ( $(document).width() < 1020 ) {
+          this.options.map.zoom = 5;
+          this.options.map.center = [8, 35]; //Horn of Africa
+        } else {
+          this.options.map.zoom = 6;
+          this.options.map.center = [8, 37]; //Horn of Africa
+        }
       }
       if (!this.map) {
         this.map = L.map(this.el, this.options.map);
@@ -90,16 +97,18 @@
       }
 
       //basemap depends on if it is journey embed or not.
-      var customUrl = this.model.get('journeyMap') ? this.options.journeyBasemap.url : this.options.basemap.url;
+      var customUrl = this.journeyMap ? this.options.journeyBasemap.url : this.options.basemap.url;
       var labelsUrl = this.options.basemap.labels;
       //Just in case a basemapUrl is given into the method call.
       var url = basemapUrl || customUrl;
 
       if (customUrl) {
         this.basemap = L.tileLayer(url).addTo(this.map);
-        this.labels = L.tileLayer(labelsUrl).addTo(this.map);
 
-        this.labels.setZIndex(1005)
+        if (!this.journeyMap) {
+          this.labels = L.tileLayer(labelsUrl).addTo(this.map);
+          this.labels.setZIndex(1005);
+        }
       }
     },
 
@@ -155,8 +164,6 @@
             var options = { sublayers: [data] };
             layerInstance = new root.app.Helper.CartoDBLayer(this.map, options);
             layerInstance.create(function(layer) {
-              // console.log(layerData.name);
-              // console.log(layerData.order);
               layer.setOpacity(layerData.opacity);
               layer.setZIndex(1000-layerData.order);
             });
@@ -169,8 +176,6 @@
             layerInstance = new root.app.Helper.CartoDBRaster(this.map, options);
             //When carto bug solved, only back to create method.
             layerInstance.createRasterLayer(function(layer) {
-              // console.log(layerData.name);
-              // console.log(layerData.order);
               layer.setOpacity(layerData.opacity);
               layer.setZIndex(1000-layerData.order);
             });
@@ -205,8 +210,8 @@
     },
 
     setMaskLayer: function() {
-
-      var maskLayer = new root.app.Helper.CartoDBmask(this.map);
+      var countryIso = this.model.get('countryIso');
+      var maskLayer = new root.app.Helper.CartoDBmask(this.map, countryIso);
 
       maskLayer.create(function(layer){
         layer.setZIndex(1001)

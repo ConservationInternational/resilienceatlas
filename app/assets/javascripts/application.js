@@ -1,9 +1,10 @@
 //= require jquery
 //= require jquery_ujs
+//= require jquery-ui/sortable
+//= require jquery-ui-touch-punch-valid
 //= require underscore
 //= require backbone
 //= require handlebars
-//= require jquery-ui/sortable
 //= require slick-carousel
 
 //= require ./helpers/handlebars_helpers
@@ -88,15 +89,17 @@
       var journeyMap = this._checkJourneyMap();
       var layersGroupsCollection = new root.app.Collection.LayersGroups();
       var layersCollection = new root.app.Collection.Layers();
+      var mapModel = new (Backbone.Model.extend({
+          defaults: {
+            journeyMap: journeyMap,
+            countryIso: this.router.params.attributes.countryIso ? this.router.params.attributes.countryIso : null
+          }
+        }));
 
       var mapView = new root.app.View.Map({
         el: '#mapView',
         layers: layersCollection,
-        model: new (Backbone.Model.extend({
-          defaults: {
-            journeyMap: journeyMap
-          }
-        }))
+        model: mapModel
       });
 
       //No Layer list nor legend are showed into journey embed map.

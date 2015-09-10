@@ -61,3 +61,7 @@
 .leaflet-control-zoom-out {
   border: 1px solid $bg-color-3;
 }
+
+.leaflet-touch .leaflet-bar, .leaflet-touch .leaflet-control-layers {
+  border: 0;
+}

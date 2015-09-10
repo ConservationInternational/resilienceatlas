@@ -29,13 +29,28 @@ $side-bar-min-width: 430px;
     bottom: 0;
     left: 0;
     padding: rem(45px) rem(40px);
-    min-width: 400px;
+    // min-width: 400px;
     max-width: 450px;
     width: $side-bar-width;
     background-color: #fff;
 
-    footer {
-      border-bottom: 1px solid rgba($font-color-1, .1);
+    &:after {
+      content: "";
+      position: absolute;
+      bottom: rem(102px);
+      left: 0;
+      right: 0;
+      box-shadow: 0 0 5px 2px #fff;
+    }
+
+    &:before {
+      content: "";
+      position: absolute;
+      top: rem(20px);
+      left: 0;
+      right: 0;
+      z-index: 1;
+      box-shadow: 0 0 5px 2px #fff;
     }
 
     section {
@@ -48,10 +63,17 @@ $side-bar-min-width: 430px;
 
     h2 {
       margin: 0;
-      font-size: rem(60px);
+      font-size: rem(56px);
       font-family: $font-face-2;
       line-height: .8em;
       text-transform: uppercase;
+    }
+
+    @media screen and (max-width: 1120px) {
+
+      h2 {
+        font-size: rem(50px);
+      }
     }
 
     @media screen and (max-width: 1024px) {
@@ -70,13 +92,13 @@ $side-bar-min-width: 430px;
     h1 {
       font-size: rem(36px);
       font-weight: 400;
-      margin-bottom: rem(20px);
+      margin-bottom: rem(10px);
     }
 
     h4 {
       font-size: rem(18px);
       margin-bottom: 0;
-      margin-top: 10px;
+      margin-top: rem(20px);
     }
 
     p {
@@ -84,6 +106,14 @@ $side-bar-min-width: 430px;
       font-weight: 400;
       margin-top: 0;
       margin-bottom: rem(5px);
+
+      .facts &:last-child {
+        margin-bottom: 0;
+      }
+    }
+
+    .facts {
+      padding-bottom: 0.625rem;
     }
 
     .wrapper {
@@ -106,7 +136,8 @@ $side-bar-min-width: 430px;
     footer {
       display: block;
       position: relative;
-      margin-top: rem(10px);
+      padding-top: 2*0.625rem;
+      border-bottom: 1px solid rgba($font-color-1, .1);
 
       &:after {
         content: "";
@@ -124,25 +155,10 @@ $side-bar-min-width: 430px;
       p {
         text-transform: uppercase;
         font-size: rem(10px);
-        margin: 0;
+        margin: 0 rem(15px) 0 0;
       }
     }
   }
-
-
-
-  // @media screen and (max-width: 1024px) and (orientation: landscape) {
-  //   section {
-  //     margin-bottom: rem(10px);
-  //     max-height: rem(200px);
-  //     overflow-y: scroll;
-  //   }
-
-  //   h2 {
-  //     font-size: rem(40px);
-  //   }
-  // }
-
 }
 
 .m-journey-embed--light {
