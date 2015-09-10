@@ -8,6 +8,16 @@ $backgrounds: 'journey1bg0', 'journey1bg1', 'journey1bg2', 'journey1bg3', 'ethio
     }
   }
 
+  &.is-dark-theme {
+    .content {
+      color: $font-color-1;
+
+      h2, h3, p {
+        text-shadow: none;
+      }
+    }
+  }
+
   position: absolute;
   top: 0;
   bottom: 0;
@@ -24,12 +34,12 @@ $backgrounds: 'journey1bg0', 'journey1bg1', 'journey1bg2', 'journey1bg3', 'ethio
     }
   }
 
-  &.journey2bg1 {
+  &.journey2bg1,
+  &.journey2bg5 {
     background-position: top;
   }
 
-   &.journey2bg2,
-   &.journey2bg5 {
+   &.journey2bg2 {
     background-position: bottom;
    }
 

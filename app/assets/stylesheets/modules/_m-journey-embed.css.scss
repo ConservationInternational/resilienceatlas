@@ -92,13 +92,13 @@ $side-bar-min-width: 430px;
     h1 {
       font-size: rem(36px);
       font-weight: 400;
-      margin-bottom: 0;
+      margin-bottom: rem(10px);
     }
 
     h4 {
       font-size: rem(18px);
       margin-bottom: 0;
-      margin-top: 10px;
+      margin-top: rem(20px);
     }
 
     p {

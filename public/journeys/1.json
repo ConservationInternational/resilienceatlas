@@ -26,7 +26,7 @@
         "type": "embed",
         "countryIso": "ETH",
         "theme": "light",
-        "aside": "<header><h2>Livelihoods</h2><h3>Rainfed crops</h3></header><section><h1>Ethiopia</h1><div class='facts'><h4>Livelihoods</h4><p>49% of Ethiopia is used for rainfed agriculture</p></div></section>",
+        "aside": "<header><h2>Livelihoods</h2><h3>Rainfed crops</h3></header><section><h1>Ethiopia</h1><div class='facts'><h4></h4><p>49% of Ethiopia is used for rainfed agriculture</p></div></section>",
         "mapUrl": "/map?layers=%5B%7B\"id\"%3A6%2C\"opacity\"%3A1%2C\"order\"%3A0%7D%5D"
       },
       {
@@ -144,6 +144,7 @@
       {
         "number": 17,
         "type": "conclusion",
+        "theme": "dark-theme",
         "title": "insights",
         "subtitle": "agricultural livelihoods & climate change in ethiopia",
         "content": "<p>Climatic changes in primary maize growing seasons will cause lower food production in areas with high sensitivity to changing precipitation patterns.</p><p>Access to information is critical to resilience of crop production. Further, without careful planning, the impact of interventions may be limited by high levels of illiteracy and lack of access to communications media, particularly among women.</p>"
