@@ -28,27 +28,28 @@ $side-bar-min-width: 350px;
    &.journey2bg5 {
     background-position: bottom;
    }
+
+  &.journey2bg1:before,
+  &.journey2bg2:before,
+  &.journey2bg3:before,
+  &.journey2bg4:before,
+  &.journey2bg5:before,
+  &.journey2bg6:before {
+    content: "";
+    display: block;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: rgba(0,0,0, .3);
+  }
+
+  &.journey2bg5:before {
+    background-color: rgba(0,0,0, .5);
+  }
 }
 
-.journey2bg1:before,
-.journey2bg2:before,
-.journey2bg3:before,
-.journey2bg4:before,
-.journey2bg5:before,
-.journey2bg6:before {
-  content: "";
-  display: block;
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background-color: rgba(0,0,0, .3);
-}
-
-.journey2bg5:before {
-  background-color: rgba(0,0,0, .5);
-}
 
 
 @mixin content($color) {

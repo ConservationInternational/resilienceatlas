@@ -1,26 +1,79 @@
+$backgrounds: 'journey1bg0', 'journey1bg1', 'journey1bg2', 'journey1bg3', 'ethiopia-455141_1280', 'rain-634154_1920', 'journey2bg1', 'journey2bg2', 'journey2bg3', 'journey2bg4', 'journey2bg5', 'journey2bg6';
+
 .m-journey-conclusion {
+
+  &.overwiew {
+    #btn-next-journey {
+      display: none !important;
+    }
+  }
+
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: left top;
+
+  @for $i from 1 through length($backgrounds) {
+    &.#{nth($backgrounds, $i)}{
+      background-image: image-url('journeys/texts/#{nth($backgrounds, $i)}.jpg');
+    }
+  }
+
+  &.journey2bg1 {
+    background-position: top;
+  }
+
+   &.journey2bg2,
+   &.journey2bg5 {
+    background-position: bottom;
+   }
+
+   &.journey2bg1:before,
+   &.journey2bg2:before,
+   &.journey2bg3:before,
+   &.journey2bg4:before,
+   &.journey2bg5:before,
+   &.journey2bg6:before {
+     content: "";
+     display: block;
+     position: absolute;
+     top: 0;
+     bottom: 0;
+     left: 0;
+     right: 0;
+     background-color: rgba(0,0,0, .5);
+  }
 
   .content {
     @extend %center;
     width: 50%;
     max-width: rem(600px);
+    color: $font-color-3;
 
     h2 {
       font-size: rem(56px);
       text-transform: uppercase;
       font-family: $font-face-2;
       margin-bottom: 0;
+      text-shadow: 0 1px 1px black;
     }
 
     h3 {
       font-size: rem(18px);
       text-transform: uppercase;
       font-weight: 400;
+      text-shadow: 0 1px 1px black;
     }
 
     p {
       font-size: rem(18px);
       font-weight: 400;
+      text-shadow: 0 1px 1px black;
     }
   }
 
@@ -28,3 +81,4 @@
     display: block !important;
   }
 }
+
