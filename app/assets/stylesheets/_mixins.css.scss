@@ -9,21 +9,18 @@
   position: absolute;
   top: 50%;
   left: 50%;
-  -webkit-transform: translate(-50%, -50%);
   transform: translate(-50%, -50%);
 }
 
 %centerx {
   position: absolute;
   left: 50%;
-  -webkit-transform: translateX(-50%);
   transform: translateX(-50%);
 }
 
 %centery {
   position: absolute;
   top: 50%;
-  -webkit-transform: translateY(-50%);
   transform: translateY(-50%);
 }
 
