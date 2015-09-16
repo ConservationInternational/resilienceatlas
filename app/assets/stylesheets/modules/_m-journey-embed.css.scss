@@ -53,6 +53,10 @@ $side-bar-min-width: 430px;
       box-shadow: 0 0 5px 2px #fff;
     }
 
+    .source {
+      font-size: rem(12px);
+    }
+
     section {
       border-top: 1px solid rgba($font-color-1, .1);
     }
