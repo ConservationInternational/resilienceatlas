@@ -3,46 +3,45 @@
   / pagination
   ul.m-slider__paginationlist
     li.m-slider__pagination.bg-intro.is-active data-index="0"
-      h2 Presentation
-    li.m-slider__pagination.bg-ethiopia data-index="1"
+      h2 Resilience Atlas
+    li.m-slider__pagination.journey1bg0 data-index="1"
       h2 Ethiopia
-    li.m-slider__pagination.bg-horn data-index="2"
+    li.m-slider__pagination.journey2bg0 data-index="2"
       h2 Ethiopia
-    li.m-slider__pagination.bg-journey3 data-index="3"
-      h2 Journey 3
-    li.m-slider__pagination.bg-journey4 data-index="4"
-      h2 Journey 4
-    li.m-slider__pagination.bg-journey5 data-index="5"
-      h2 Journey 5
+    / li.m-slider__pagination.bg-journey3 data-index="3"
+    /   h2 Journey 3
+    / li.m-slider__pagination.bg-journey4 data-index="4"
+    /   h2 Journey 4
+    / li.m-slider__pagination.bg-journey5 data-index="5"
+    /   h2 Journey 5
   / slider list. 
   / IMPROVE!!!!! We should load this with a json
   ul.m-slider__itemlist
     li.m-slider__item.bg-intro
       header
         h2 Resilience Atlas    
-        h3 Lorem ipsum sagittis lacus vel augue laoreet rutrum faucibus dolor auctor
-    li.m-slider__item.bg-ethiopia
+    li.m-slider__item.journey1bg0
       header
         h2 Ethiopia    
-        h3 Agricultural Livelihoods & Climate Change in Ethiopia
+        h3 Livelihoods dependent on rainfed agricultural production and small-scale farms threatened by changing climate
         = link_to "Know more", journey_path(1), class: 'btn btn-primary'
-    li.m-slider__item.bg-horn
+    li.m-slider__item.journey2bg0
       header
         h2 Ethiopia   
-        h3 pastoral livelihoods / local farmers / climate vulnerability
+        h3 Pastoral livelihoods threatened by changing climate
         = link_to "Know more", journey_path(2), class: 'btn btn-primary'
-    li.m-slider__item.bg-journey3
-      header
-        h2 Journey 3    
-        h3 Lorem ipsum sagittis lacus vel augue laoreet rutrum faucibus dolor auctor
-    li.m-slider__item.bg-journey4
-      header
-        h2 Journey 4 
-        h3 Lorem ipsum sagittis lacus vel augue laoreet rutrum faucibus dolor auctor
-    li.m-slider__item.bg-journey5
-      header
-        h2 Journey 5    
-        h3 Lorem ipsum sagittis lacus vel augue laoreet rutrum faucibus dolor auctor
+    / li.m-slider__item.bg-journey3
+    /   header
+    /     h2 Journey 3    
+    /     h3 Lorem ipsum sagittis lacus vel augue laoreet rutrum faucibus dolor auctor
+    / li.m-slider__item.bg-journey4
+    /   header
+    /     h2 Journey 4 
+    /     h3 Lorem ipsum sagittis lacus vel augue laoreet rutrum faucibus dolor auctor
+    / li.m-slider__item.bg-journey5
+    /   header
+    /     h2 Journey 5    
+    /     h3 Lorem ipsum sagittis lacus vel augue laoreet rutrum faucibus dolor auctor
     / Navigation
     div.m-slider__navigationlist
       button.m-slider__navigation.is-left.is-hidden data-direction="left"
