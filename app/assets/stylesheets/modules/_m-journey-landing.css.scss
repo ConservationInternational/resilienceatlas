@@ -9,7 +9,7 @@ $backgrounds: 'journey1bg0', 'journey2bg0';
 
   background-repeat: no-repeat;
   background-size: cover;
-  background-position: center;
+  background-position: bottom;
 
   @for $i from 1 through length($backgrounds) {
     &.#{nth($backgrounds, $i)}{

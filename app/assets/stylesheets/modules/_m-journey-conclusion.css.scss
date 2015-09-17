@@ -39,7 +39,8 @@ $backgrounds: 'journey1bg0', 'journey1bg1', 'journey1bg2', 'journey1bg3', 'journ
     background-position: top;
   }
 
-   &.journey2bg2 {
+   &.journey2bg2,
+   &.journey1bg4 {
     background-position: bottom;
    }
 
