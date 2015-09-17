@@ -40,10 +40,10 @@
     },
 
     setUp: function() {
-
+      //Menu journeys
       $('.m-journey__paginationlist').slick({
-        slidesToShow: 3,
-        slidesToScroll: 3,
+        slidesToShow: 2,
+        slidesToScroll: 2,
         speed: 500,
         slide: 'li'
       });
