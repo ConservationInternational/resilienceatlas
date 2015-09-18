@@ -2,33 +2,13 @@
   {
     "id": 1,
     "title": "ETHIOPIA",
-    "subtitle": "maize",
-    "bg" : "bg-ethiopia"
+    "subtitle": "Livelihoods dependent on rainfed agricultural production and small-scale farms threatened by changing climate",
+    "bg" : "journey1bg0"
   },
   {
     "id": 2,
     "title": "ETHIOPIA",
-    "subtitle": "pastoral",
-    "bg" : "bg-horn"
-  },
-  {
-    "id": 3,
-    "title": "JOURNEY3",
-    "bg" : "bg-journey3"
-  },
-  {
-    "id": 4,
-    "title": "JOURNEY4",
-    "bg" : "bg-journey4"
-  },
-  {
-    "id": 5,
-    "title": "JOURNEY5",
-    "bg" : "bg-journey5"
-  },
-  {
-    "id": 6,
-    "title": "ETHIOPIA",
-    "bg" : "bg-ethiopia"
+    "subtitle": "Pastoral livelihoods threatened by changing climate",
+    "bg" : "journey2bg0"
   }
 ]

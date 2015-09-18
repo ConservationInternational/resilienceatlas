@@ -15,6 +15,10 @@
       }
     }
   }
+
+  li[data-slug="others"] {
+    display: none;
+  }
 }
 
 .m-layers-list-header {
