@@ -45,14 +45,11 @@ $backgrounds: 'journey1bg0', 'journey1bg1', 'journey1bg2', 'journey1bg3', 'journ
     background-position: bottom;
    }
 
-   &.journey1bg0:before,
-   &.journey1bg4:before,
    &.journey2bg1:before,
    &.journey2bg2:before,
    &.journey2bg3:before,
    &.journey2bg4:before,
-   &.journey2bg5:before,
-   &.journey2bg6:before {
+   &.journey2bg5:before {
      content: "";
      display: block;
      position: absolute;
@@ -60,12 +57,12 @@ $backgrounds: 'journey1bg0', 'journey1bg1', 'journey1bg2', 'journey1bg3', 'journ
      bottom: 0;
      left: 0;
      right: 0;
-     background-color: rgba(0,0,0, .3);
+     background-color: rgba(0,0,0, .1);
   }
 
-  &.journey1bg4:before {
-    background-color: rgba(0,0,0, .3);
-  }
+  // &.journey1bg4:before {
+  //   background-color: rgba(0,0,0, .1);
+  // }
 
   .content {
     @extend %center;
