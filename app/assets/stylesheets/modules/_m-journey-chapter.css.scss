@@ -82,17 +82,17 @@ $side-bar-min-width: 350px;
   }
 }
 
-.chapter-mask--1 {
-  @extend %image-requirements;
-  background-image: image-url("journeys/chapters/chapter-1.svg");
-}
+// .chapter-mask--1 {
+//   @extend %image-requirements;
+//   background-image: image-url("journeys/chapters/chapter-1.svg");
+// }
 
-.chapter-mask--2 {
-  @extend %image-requirements;
-  background-image: image-url("journeys/chapters/chapter-2.svg");
-}
+// .chapter-mask--2 {
+//   @extend %image-requirements;
+//   background-image: image-url("journeys/chapters/chapter-2.svg");
+// }
 
-.chapter-mask--3 {
-  @extend %image-requirements;
-  background-image: image-url("journeys/chapters/chapter-3.svg");
-}
+// .chapter-mask--3 {
+//   @extend %image-requirements;
+//   background-image: image-url("journeys/chapters/chapter-3.svg");
+// }
