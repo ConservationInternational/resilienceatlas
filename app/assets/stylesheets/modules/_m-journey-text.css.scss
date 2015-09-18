@@ -46,13 +46,12 @@ $side-bar-min-width: 350px;
   }
 
   &.journey2bg5:before {
-    background-color: rgba(0,0,0, .5);
+    background-color: rgba(0,0,0, .3);
   }
 
   .wrapper {
     @extend %center;
     width: 100%;
-    // max-width: 1200px;
   }
 }
 

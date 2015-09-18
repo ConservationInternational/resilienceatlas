@@ -34,13 +34,14 @@ $backgrounds: 'journey1bg0', 'journey1bg1', 'journey1bg2', 'journey1bg3', 'journ
     }
   }
 
-  &.journey2bg1,
-  &.journey2bg5 {
+  &.journey2bg1 {
     background-position: top;
   }
 
    &.journey2bg2,
-   &.journey1bg4 {
+   &.journey1bg4,
+   &.journey2bg5,
+   &.journey2bg6 {
     background-position: bottom;
    }
 
@@ -59,11 +60,11 @@ $backgrounds: 'journey1bg0', 'journey1bg1', 'journey1bg2', 'journey1bg3', 'journ
      bottom: 0;
      left: 0;
      right: 0;
-     background-color: rgba(0,0,0, .6);
+     background-color: rgba(0,0,0, .3);
   }
 
   &.journey1bg4:before {
-    background-color: rgba(0,0,0, .4);
+    background-color: rgba(0,0,0, .3);
   }
 
   .content {
