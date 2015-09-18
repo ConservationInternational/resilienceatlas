@@ -12,7 +12,8 @@
     template: HandlebarsTemplates['legend_tpl'],
     templateLegends: {
       choropleth : HandlebarsTemplates['legend_choropleth_tpl'],
-      custom : HandlebarsTemplates['legend_custom_tpl']
+      custom : HandlebarsTemplates['legend_custom_tpl'],
+      'legend-round' : HandlebarsTemplates['legend_round_tpl']
     },
 
     model: new (Backbone.Model.extend({
@@ -48,7 +49,6 @@
 
     render: function() {
       var data = _.sortBy(this.setLegends(), 'order');
-
       $.when.apply($, data).done(function() {
         this.$el.html( this.template({ legends: data }) );
         this.cacheVars();
@@ -65,7 +65,6 @@
         if (layer.legend) {
           var legend = JSON.parse(layer.legend);
           var type = legend.type;
-
           layer.tpl = this.templateLegends[type](legend);
         }
         return layer;
