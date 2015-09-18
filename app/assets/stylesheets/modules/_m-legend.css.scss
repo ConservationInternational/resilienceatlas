@@ -283,7 +283,11 @@ $side-bar-width: 360px;
   }
 
   .m-legend__round {
-    span {
+    .item {
+      padding-top: 5px;
+    }
+
+    .item span {
       width: 15px;
       height: 15px;
       border-radius: 50%;
