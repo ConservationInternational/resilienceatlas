@@ -17,17 +17,16 @@ $backgrounds: 'journey1bg0', 'journey2bg0';
     }
   }
 
-  // &.journey1bg0:before,
-  // &.journey2bg0:before {
-  //   content: "";
-  //   display: block;
-  //   position: absolute;
-  //   top: 0;
-  //   bottom: 0;
-  //   left: 0;
-  //   right: 0;
-  //   background-color: rgba(0,0,0, .3);
-  // }
+  &.journey1bg0:before {
+    content: "";
+    display: block;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: rgba(0,0,0, .1);
+  }
 
   .row {
     z-index: 1;
@@ -57,6 +56,7 @@ $backgrounds: 'journey1bg0', 'journey2bg0';
       font-size: rem(26px);
       font-weight: 300;
       line-height: 1.2em;
+      text-shadow: 0 1px 1px black;
     }
   }
 

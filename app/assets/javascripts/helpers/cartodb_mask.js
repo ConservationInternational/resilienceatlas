@@ -15,8 +15,8 @@
       user_name: 'grp', // Required
       type: 'cartodb', // Required
       // cartodb_logo: false,
-      maps_api_template: 'https://grp.cidata.io/user/grp',
-      sql_api_template: 'https://grp.cidata.io/user/grp',
+      maps_api_template: 'https://grp.global.ssl.fastly.net',
+      sql_api_template: 'https://grp.global.ssl.fastly.net',
       sublayers: [{
         sql: "select * from country_mask",
       }]
