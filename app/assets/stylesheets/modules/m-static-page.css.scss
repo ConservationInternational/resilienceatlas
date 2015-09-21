@@ -1,0 +1,29 @@
+.m-static-page {
+  h1 {
+    margin-bottom: 40px;
+  }
+
+  h2 {
+     margin-top: 0;
+    // margin-bottom: 0;
+  }
+
+  article {
+    margin-bottom: 40px;
+  }
+
+  a {
+    color: $bg-color-2;
+  }
+
+  p:first-child {
+    margin-top: 0;
+  }
+
+  .image {
+    width: 100%;
+    margin: 0 auto;
+    height: 250px;
+    background-color: rgba(0,0,0,.2);
+  }
+}
