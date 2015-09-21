@@ -21,7 +21,8 @@
       },
       journeyBasemap: {
         // url: 'https://grp.global.ssl.fastly.net/user/grp/api/v1/map/fb6ac3d83ff93bfa9ca71c5f7a3cb92d:1440586478249.0498/0/{z}/{x}/{y}.png'
-        url: 'http://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png'
+        url: 'https://grp.global.ssl.fastly.net/user/grp/api/v1/map/e0d84047ed276a9d971b2d4ca11011ff:1440586478249.0498/0/{z}/{x}/{y}.png'
+        // url: 'https://grp.global.ssl.fastly.net/user/grp/api/v2/viz/ff7bef12-4d7b-11e5-86c7-0e48d404cb93/viz.json'
       },
       zoomControl: {
         position: 'topright'
