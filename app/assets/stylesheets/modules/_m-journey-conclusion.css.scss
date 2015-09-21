@@ -1,6 +1,7 @@
 $backgrounds: 'journey1bg0', 'journey1bg1', 'journey1bg2', 'journey1bg3', 'journey1bg4', 'ethiopia-455141_1280', 'rain-634154_1920', 'journey2bg1', 'journey2bg2', 'journey2bg3', 'journey2bg4', 'journey2bg5', 'journey2bg6';
 
-.m-journey-conclusion {
+.m-journey--conclusion {
+  @extend %journey;
 
   &.overview {
     #btn-next-journey {
