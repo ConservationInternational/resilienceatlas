@@ -21,7 +21,7 @@ $backgrounds: 'bg-intro', 'journey1bg0', 'journey2bg0';
       }
     }
 
-    &:before {
+    &.journey1bg0:before {
       content: "";
       display: block;
       position: absolute;
@@ -29,7 +29,7 @@ $backgrounds: 'bg-intro', 'journey1bg0', 'journey2bg0';
       bottom: 0;
       left: 0;
       right: 0;
-      background-color: rgba(0,0,0, .6);
+      background-color: rgba(0,0,0, .2);
     }
 
     header {
@@ -43,6 +43,7 @@ $backgrounds: 'bg-intro', 'journey1bg0', 'journey2bg0';
         font-weight: 400;
         line-height: .8em;
         text-transform: uppercase;
+        text-shadow: 0 1px 1px rgba(0,0,0, .3);
         margin: 0;
 
         @media screen and (max-width: 900px) {
@@ -58,6 +59,7 @@ $backgrounds: 'bg-intro', 'journey1bg0', 'journey2bg0';
         font-weight: 400;
         line-height: 1.25;
         text-transform: capitalize;
+        text-shadow: 0 1px 1px black;
       }
     }
   }
