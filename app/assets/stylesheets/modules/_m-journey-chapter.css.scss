@@ -25,7 +25,8 @@ $side-bar-min-width: 350px;
   }
 }
 
-.m-journey-chapter {
+.m-journey--chapter {
+  @extend %journey;
   @extend %image-requirements;
   //To avoid little line
   // right: -1px;
@@ -64,6 +65,12 @@ $side-bar-min-width: 350px;
     width: 30%;
     min-width: rem(300px);
     margin: 0 rem(45px);
+  }
+
+  .credits {
+    a {
+      color: $font-color-1 !important;
+    }
   }
 
   @media screen and (max-width: 768px) {

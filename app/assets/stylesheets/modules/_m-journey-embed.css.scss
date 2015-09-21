@@ -166,7 +166,8 @@ $side-bar-min-width: 430px;
   }
 }
 
-.m-journey-embed--light {
+.m-journey--embed--light {
+  @extend %journey;
   @extend %m-journey-embed;
 
   h2 {

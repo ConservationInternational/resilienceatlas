@@ -3,7 +3,9 @@ $backgrounds: 'journey1bg0', 'journey1bg1', 'journey1bg2', 'journey1bg3', 'ethio
 $side-bar-width: 25%;
 $side-bar-min-width: 350px;
 
-.m-journey-text {
+.m-journey--text {
+  @extend %journey;
+
   position: absolute;
   top: 0;
   bottom: 0;
