@@ -1,34 +1,5 @@
-$backgrounds: 'journey1bg0', 'journey2bg0';
-
 .m-journey--landing {
   @extend %journey;
-
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-
-  background-repeat: no-repeat;
-  background-size: cover;
-  background-position: bottom;
-
-  @for $i from 1 through length($backgrounds) {
-    &.#{nth($backgrounds, $i)}{
-      background-image: image-url('journeys/landing/#{nth($backgrounds, $i)}.jpg');
-    }
-  }
-
-  &.journey1bg0:before {
-    content: "";
-    display: block;
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background-color: rgba(0,0,0, .1);
-  }
 
   .row {
     z-index: 1;
@@ -50,7 +21,6 @@ $backgrounds: 'journey1bg0', 'journey2bg0';
     }
 
     h2 {
-      //Preguntar a Dani
       display: none;
     }
 

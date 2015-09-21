@@ -1,41 +1,5 @@
-$backgrounds: 'journey1ch1', 'journey1ch2', 'journey1ch3', 'journey2ch1', 'journey2ch2', 'journey2ch3';
-
-$side-bar-width: 25%;
-$side-bar-min-width: 350px;
-
-%image-requirements {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-
-  background-repeat: no-repeat;
-  background-size: contain;
-  background-position: left bottom;
-
-  &:before {
-    content: "";
-    background-color: #fff;
-    width: 50%;
-    right: 0;
-    bottom: 0;
-    position: absolute;
-    top: 0;
-  }
-}
-
 .m-journey--chapter {
   @extend %journey;
-  @extend %image-requirements;
-  //To avoid little line
-  // right: -1px;
-
-  @for $i from 1 through length($backgrounds) {
-    &.#{nth($backgrounds, $i)}{
-      background-image: image-url('journeys/chapters/#{nth($backgrounds, $i)}.jpg');
-    }
-  }
 
   .wrapper {
     @extend %center;
