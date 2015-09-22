@@ -19,7 +19,8 @@
       'change .panel-input-switch': '_setLayersOrder',
       'input input.opacity-range' : '_transparencyRangeChanges',
       'change .opacity-teller': '_transparencyInputChange',
-      'click .panel-trasparecy-switcher' : '_openOpacityHandlers'
+      'click .panel-trasparecy-switcher' : '_openOpacityHandlers',
+      'click .btn-info' : '_showInfo'
     },
 
     initialize: function(settings) {
@@ -27,6 +28,8 @@
       this.options = _.extend({}, this.defaults, opts);
       this.layers = settings.layers;
       this._setListeners();
+
+      this.infowindow = new root.app.View.InfoWindow;
     },
 
     _setListeners: function() {
@@ -181,6 +184,13 @@
 
     _openOpacityHandlers: function(e) {
       $(e.currentTarget).parent().toggleClass('is-open');
+    },
+
+    _showInfo: function(e) {
+      e.preventDefault();
+      var data = $(e.currentTarget).data('info');
+
+      this.infowindow.render(data);
     }
 
   });
