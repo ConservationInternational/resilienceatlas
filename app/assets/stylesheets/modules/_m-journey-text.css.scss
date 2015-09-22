@@ -1,123 +1,77 @@
-$backgrounds: 'journey1bg0', 'journey1bg1', 'journey1bg2', 'journey1bg3', 'ethiopia-455141_1280', 'rain-634154_1920', 'journey2bg1', 'journey2bg2', 'journey2bg3', 'journey2bg4', 'journey2bg5', 'journey2bg6';
+// $side-bar-width: 25%;
+// $side-bar-min-width: 350px;
 
-$side-bar-width: 25%;
-$side-bar-min-width: 350px;
+// .m-journey--text {
+//   @extend %journey;
 
-.m-journey--text {
-  @extend %journey;
+//   .wrapper {
+//     @extend %center;
+//     width: 100%;
+//   }
+// }
 
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
+// @mixin content($color) {
+//   width: $side-bar-width;
+//   min-width: $side-bar-min-width;
+//   margin: 0 rem(45px);
 
-  background-repeat: no-repeat;
-  background-size: cover;
-  background-position: left top;
+//   p {
+//     color: $color;
+//     font-size: rem(20px);
+//     padding: 0 1em;
+//     font-weight: 400;
+//   }
 
-  @for $i from 1 through length($backgrounds) {
-    &.#{nth($backgrounds, $i)}{
-      background-image: image-url('journeys/texts/#{nth($backgrounds, $i)}.jpg');
-    }
-  }
+//   .highlighted {
+//     border: 1px solid rgba($color, .5);
+//     padding: 1em;
+//     margin-bottom: 1em;
 
-  &.journey2bg1 {
-    background-position: top;
-  }
+//     p {
+//       padding: 0;
+//       font-weight: 500;
+//     }
+//   }
 
-   &.journey2bg2,
-   &.journey2bg5 {
-    background-position: bottom;
-   }
+//   .m-controls {
+//     width: 100%;
+//     padding: 0 1em;
 
-  &.journey2bg1:before,
-  &.journey2bg2:before,
-  &.journey2bg3:before,
-  &.journey2bg4:before,
-  &.journey2bg5:before,
-  &.journey2bg6:before {
-    content: "";
-    display: block;
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background-color: rgba(0,0,0, .1);
-  }
+//     #btn-next {
+//       float: right;
+//     }
 
+//     #btn-prev {
+//       background-color: transparent;
+//       border-color: $color;
 
-  .wrapper {
-    @extend %center;
-    width: 100%;
-  }
-}
+//       &:before {
+//         border-color: $color;
+//       }
+//     }
+//   }
 
+//   .source {
+//     font-size: rem(12px);
+//   }
 
+//   &.is-right {
+//     float: right;
+//   }
 
-@mixin content($color) {
-  width: $side-bar-width;
-  min-width: $side-bar-min-width;
-  margin: 0 rem(45px);
+//   &.is-left {
+//     float: left;
+//   }
 
-  p {
-    color: $color;
-    font-size: rem(20px);
-    padding: 0 1em;
-    font-weight: 400;
-  }
+//   &.is-center {
+//     @extend %center;
+//   }
+// }
 
-  .highlighted {
-    border: 1px solid rgba($color, .5);
-    padding: 1em;
-    margin-bottom: 1em;
+// .content--light {
+//   @include content($font-color-3);
+// }
 
-    p {
-      padding: 0;
-      font-weight: 500;
-    }
-  }
-
-  .m-controls {
-    width: 100%;
-    padding: 0 1em;
-
-    #btn-next {
-      float: right;
-    }
-
-    #btn-prev {
-      background-color: transparent;
-      border-color: $color;
-
-      &:before {
-        border-color: $color;
-      }
-    }
-  }
-
-  .source {
-    font-size: rem(12px);
-  }
-
-  &.is-right {
-    float: right;
-  }
-
-  &.is-left {
-    float: left;
-  }
-
-  &.is-center {
-    @extend %center;
-  }
-}
-
-.content--light {
-  @include content($font-color-3);
-}
-
-.content--dark {
-  @include content($font-color-1);
-}
+// .content--dark {
+//   @include content($font-color-1);
+// }

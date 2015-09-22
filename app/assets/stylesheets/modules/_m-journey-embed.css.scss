@@ -1,12 +1,4 @@
-$side-bar-width: 33%;
-$side-bar-min-width: 430px;
-
 %m-journey-embed {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
 
   .embebed-map {
     position: absolute;
@@ -29,9 +21,8 @@ $side-bar-min-width: 430px;
     bottom: 0;
     left: 0;
     padding: rem(45px) rem(40px);
-    // min-width: 400px;
     max-width: 450px;
-    width: $side-bar-width;
+    width: 33%;
     background-color: #fff;
 
     &:after {
@@ -65,6 +56,13 @@ $side-bar-min-width: 430px;
       margin-bottom: rem(15px);
     }
 
+    h1 {
+      font-size: rem(36px);
+      font-weight: 400;
+      margin-bottom: rem(10px);
+      margin-top: rem(28px);
+    }
+
     h2 {
       margin: 0;
       font-size: rem(56px);
@@ -91,13 +89,6 @@ $side-bar-min-width: 430px;
     h3 {
       text-transform: uppercase;
       margin: 0;
-    }
-
-    h1 {
-      font-size: rem(36px);
-      font-weight: 400;
-      margin-bottom: rem(10px);
-      margin-top: rem(28px);
     }
 
     h4 {
