@@ -59,8 +59,8 @@
         "type": "embed",
         "theme": "light",
         "aside": "<header><h2>stressors  & shocks</h2><h3>Maize production & short rains</h3></header><section><h1>Ethiopia</h1><div class='facts'><h4></h4><p>49% of Ethiopia is used for rainfed agriculture</p></div><div class='facts'><h4></h4><p>Rainfall during the short rains is declining at rates as high as 24% per decade in some maize-growing areas.</p><p>10% of the area currently used for maize production has been impacted by this decrease.</p></div></section>",
-        "mapUrl": "/map?layers=%5B%7B%22id%22%3A40%2C%22opacity%22%3A1%2C%22order%22%3A999%7D%2C%7B%22id%22%3A8%2C%22opacity%22%3A1%2C%22order%22%3A0%7D%5D",
-        "btnUrl": "/map?layers=%5B%7B%22id%22%3A32%2C%22opacity%22%3A1%2C%22order%22%3A1000%7D%2C%7B%22id%22%3A8%2C%22opacity%22%3A1%2C%22order%22%3A0%7D%5D"
+        "mapUrl": "/map?layers=%5B%7B%22id%22%3A41%2C%22opacity%22%3A1%2C%22order%22%3A999%7D%2C%7B%22id%22%3A8%2C%22opacity%22%3A1%2C%22order%22%3A0%7D%5D",
+        "btnUrl": "/map?layers=%5B%7B%22id%22%3A31%2C%22opacity%22%3A1%2C%22order%22%3A1000%7D%2C%7B%22id%22%3A8%2C%22opacity%22%3A1%2C%22order%22%3A0%7D%5D"
       },
       {
         "number": 6,
@@ -69,7 +69,7 @@
         "theme": "light",
         "aside": "<header><h2>stressors  & shocks</h2><h3>Maize production & long rains</h3></header><section><h1>Ethiopia</h1><div class='facts'><h4></h4><p>49% of the land area of Ethiopia is used for rainfed agriculture</p></div><div class='facts'><h4></h4><p>Rainfall during the long rains is declining at rates as high as 11% per decade in some maize-growing areas.</p></div></section>",
         "mapUrl": "/map?layers=%5B%7B%22id%22%3A40%2C%22opacity%22%3A1%2C%22order%22%3A999%7D%2C%7B%22id%22%3A8%2C%22opacity%22%3A1%2C%22order%22%3A0%7D%5D",
-        "btnUrl": "/map?layers=%5B%7B%22id%22%3A8%2C%22opacity%22%3A1%2C%22order%22%3A0%7D%2C%7B%22id%22%3A33%2C%22opacity%22%3A1%2C%22order%22%3A0%7D%5D"
+        "btnUrl": "/map?layers=%5B%7B%22id%22%3A32%2C%22opacity%22%3A1%2C%22order%22%3A1000%7D%2C%7B%22id%22%3A8%2C%22opacity%22%3A1%2C%22order%22%3A0%7D%5D"
       },
       {
         "number": 7,
