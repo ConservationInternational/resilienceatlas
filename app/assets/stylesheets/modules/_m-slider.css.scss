@@ -1,4 +1,5 @@
 $backgrounds: 'bg-intro', 'journey1bg0', 'journey2bg0';
+$backgrounds-thumb: 'thumb-0', 'thumb-1', 'thumb-2';
 
 //CENTRAL IMAGE HOME
 .m-slider__itemlist {
@@ -63,7 +64,6 @@ $backgrounds: 'bg-intro', 'journey1bg0', 'journey2bg0';
       }
     }
   }
-
 }
 
 // SLIDER PAGINATION HOME
@@ -77,9 +77,9 @@ $backgrounds: 'bg-intro', 'journey1bg0', 'journey2bg0';
     cursor: pointer;
     outline: none;
 
-    @for $i from 1 through length($backgrounds) {
-      &.#{nth($backgrounds, $i)}{
-        background-image: image-url('journeys/#{nth($backgrounds, $i)}.jpg');
+    @for $i from 1 through length($backgrounds-thumb) {
+      &.#{nth($backgrounds-thumb, $i)}{
+        background-image: image-url('home/#{nth($backgrounds-thumb, $i)}.jpg');
         background-position:  center;
         background-size: cover;
       }

@@ -3,12 +3,12 @@
     "id": 1,
     "title": "ETHIOPIA",
     "subtitle": "Smallholder maize",
-    "bg" : "journey1bg0"
+    "bg" : "thumb-1"
   },
   {
     "id": 2,
     "title": "ETHIOPIA",
     "subtitle": "Pastoral livelihods",
-    "bg" : "journey2bg0"
+    "bg" : "thumb-2"
   }
 ]
