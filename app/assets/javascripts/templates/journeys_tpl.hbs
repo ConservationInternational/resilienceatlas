@@ -1,7 +1,10 @@
 {{#each journeys}}
   <li class="m-journey__pagination {{this.bg}}" data-index="{{@index}}">
     <a href="/journeys/{{this.id}}">
-      <h2>{{this.title}}</h2>
+      <span class="title">
+        <h2>{{this.title}}</h2>
+        <h3>{{this.subtitle}}</h3>
+      </span>
     </a>
   </li>
 {{/each}}
