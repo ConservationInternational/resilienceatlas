@@ -113,21 +113,23 @@ $backgrounds-thumb: 'thumb-0', 'thumb-1', 'thumb-2';
     }
 
     &:hover, &.is-active {
-      &:after, &:before {
+      &:after {
         opacity: 1;
         visibility: visible;
       }
+    }
 
+    &.is-active {
 
       .title {
         opacity: 0;
         visibility: hidden;
       }
-    }
 
-    &.is-active {
       &:before {
         transform: translate(-50%,-50%);
+        opacity: 1;
+        visibility: visible;
       }
     }
 

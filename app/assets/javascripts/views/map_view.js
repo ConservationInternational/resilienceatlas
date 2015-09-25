@@ -107,9 +107,7 @@
       var url = basemapUrl || customUrl;
 
       if (this.journeyMap) {
-        // this.basemap = new root.app.Helper.CartoDBLayer(this.map, url);
         this.basemap = cartodb.createLayer(this.map, url).addTo(this.map);
-        console.log(this.basemap)
       } else {
         this.basemap = L.tileLayer(url).addTo(this.map);
         this.labels = L.tileLayer(labelsUrl).addTo(this.map);
