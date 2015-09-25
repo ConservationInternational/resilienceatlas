@@ -21,17 +21,6 @@ $backgrounds: 'bg-intro', 'journey1bg0', 'journey2bg0';
       }
     }
 
-    &.journey1bg0:before {
-      content: "";
-      display: block;
-      position: absolute;
-      top: 0;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background-color: rgba(0,0,0, .2);
-    }
-
     header {
       @extend %center;
       text-align: center;
@@ -60,6 +49,17 @@ $backgrounds: 'bg-intro', 'journey1bg0', 'journey2bg0';
         line-height: 1.25;
         text-transform: capitalize;
         text-shadow: 0 1px 1px black;
+      }
+    }
+
+    .credits {
+      position: absolute;
+      bottom: 10px;
+      right: 20px;
+      margin: 0;
+
+      a {
+        color: $font-color-3;
       }
     }
   }
