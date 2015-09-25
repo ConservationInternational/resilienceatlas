@@ -112,20 +112,22 @@ $backgrounds-thumb: 'thumb-0', 'thumb-1', 'thumb-2';
       transition: all 0.12s linear;
     }
 
-
     &:hover, &.is-active {
       &:after, &:before {
         opacity: 1;
         visibility: visible;
       }
 
-      &:before {
-        transform: translate(-50%,-50%);
-      }
 
       .title {
         opacity: 0;
         visibility: hidden;
+      }
+    }
+
+    &.is-active {
+      &:before {
+        transform: translate(-50%,-50%);
       }
     }
 
