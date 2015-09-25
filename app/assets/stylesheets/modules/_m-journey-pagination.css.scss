@@ -83,25 +83,36 @@ $backgrounds: 'bg-intro', 'journey1bg0', 'journey2bg0';
         transform: translate(-50%,-50%);
       }
 
-      h2 {
+      .title {
         opacity: 0;
         visibility: hidden;
       }
     }
 
-    h2 {
+    .title {
       @extend %center;
+       opacity: 1;
+       visibility: visible;
+       transition: all 0.12s linear;
+    }
+
+    h2,
+    h3 {
       text-align: center;
       color: $font-color-3;
       font-family: $font-face-2;
-      font-size: rem(30px);
       font-weight: 400;
       line-height: 1;
       text-transform: uppercase;
       margin: 0;
-      opacity: 1;
-      visibility: visible;
-      transition: all 0.12s linear;
+    }
+
+    h2 {
+      font-size: rem(30px);
+    }
+
+    h3 {
+      font-size: rem(20px);
     }
   }
 }
