@@ -12,7 +12,8 @@
     template: HandlebarsTemplates['info_window_tpl'],
 
     events: {
-      'click .btn-close' : 'close'
+      'click .btn-close' : 'close',
+      'click .modal-background': 'close'
     },
 
 
@@ -37,8 +38,13 @@
     },
 
     close: function() {
-      console.log('hola');
-      this.infoWindow.delete();
+      $('.m-modal-window').remove();
+      // this.toogleState();
+    },
+
+    toogleState: function() {
+      this.$el.toggleClass('has-no-scroll');
+      $('html').toggleClass('has-no-scroll');
     }
 
   });
