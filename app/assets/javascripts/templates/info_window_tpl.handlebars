@@ -1,0 +1,27 @@
+{{!-- <div class="m-infowindow">
+  <button class="btn-close">close</button>
+  <p>{{description}}</p>
+  <p>{{source}}</p>
+  <p>{{link}}</p>
+</div> --}}
+
+
+<div class="m-modal-window">
+  <div class="modal-wrapper">
+    <div class="btn-close">×</div>
+    <div class="modal-container">
+      <h1>{{name}}</h1>
+
+      <h4>Description</h4>
+      <p>{{description}}</p>
+
+      <h4>Source</h4>
+      <p>
+        {{source}}
+        <a target="_blank"  href="{{link}}">{{link}}</a>
+      </p>
+
+    </div>
+  </div>
+  <div class="modal-background"></div>
+</div>

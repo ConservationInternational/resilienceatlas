@@ -53,7 +53,8 @@
           legend: d.attributes.legend,
           group: group ? parseInt(group.id) : null,
           active: d.attributes.active,
-          published: d.attributes.published
+          published: d.attributes.published,
+          info: d.attributes.info
         };
       });
 
