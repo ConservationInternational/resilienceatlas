@@ -92,30 +92,21 @@
   padding: rem(12px) rem(40px) rem(8px) rem(20px);
 }
 
-// #btn-next {
-//   animation: heartbeat 1s infinite linear;
-// }
+.btn-info {
+  @extend %clean-button-or-input;
+  float: right;
+  width: 17px;
+  height: 17px;
+  border-radius: 50%;
+  border: 1px solid rgba(0,0,0, .2);
+  color: rgba(0,0,0, .2);
+  font-weight: 500;
+  font-size: 16px;
+  padding: 0;
+}
 
-// @keyframes heartbeat {
-//   0% {
-//     padding: rem(14px) rem(20px) rem(2px);
-//   }
 
-//   25% {
-//     padding: rem(17px) rem(23px) rem(5px);
-//   }
 
-//   50% {
-//     padding: rem(20px) rem(26px) rem(8px);
-//   }
 
-//   75% {
-//     padding: rem(17px) rem(23px) rem(5px);
-//   }
-
-//   100% {
-//     padding: rem(14px) rem(20px) rem(2px);
-//   }
-// }
 
 
