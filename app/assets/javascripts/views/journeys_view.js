@@ -11,7 +11,9 @@
 
     events: {
       'click #btn-prev':'_changeStep',
-      'click #btn-next':'_changeStep'
+      'click #btn-next':'_changeStep',
+      'click .btn-colapse' : '_togglePanel',
+      'click .btn-descolapse': '_togglePanel'
     },
 
     templates: {
@@ -191,7 +193,15 @@
       var nextJourney = currentJourney === totalJourneys ? 1 : currentJourney + 1;
 
       return '/journeys/' + nextJourney;
+    },
+
+    _togglePanel: function(e) {
+      $('.btn-colapse').removeClass('is-hidden');
+      $('.btn-descolapse').removeClass('is-hidden');
+      $(e.currentTarget).addClass('is-hidden');
+      $('.content').toggleClass('is-colapsed');
     }
+
   });
 
 })(this);
