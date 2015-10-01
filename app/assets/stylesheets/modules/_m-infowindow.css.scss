@@ -1,10 +1,3 @@
-.m-infowindow {
-  position: absolute;
-  z-index: 10;
-  background-color: $bg-color-1;
-}
-
-
 .m-modal-window {
   display: flex;
   position: absolute;
@@ -12,6 +5,34 @@
   bottom: 0;
   right: 0;
   left: 0;
+
+  h1 {
+    font-weight: 400;
+    font-size: 36px;
+    margin-top: 0;
+    line-height: .9em;
+  }
+
+  h4 {
+    font-weight: 500;
+    font-size: 18px;
+    margin-bottom: 0;
+
+    &:first-of-type {
+      margin-top: 0;
+    }
+  }
+
+  p {
+    font-weight: 400;
+    font-size: 18px;
+    margin-top: 0;
+  }
+
+  a {
+    font-weight: 400;
+    color: $font-color-2;
+  }
 }
 
 .modal-background {
@@ -33,17 +54,21 @@
   margin: auto;
   z-index: 14;
   //optional, min size.
-  min-width: 75%;
-  min-height: 75%;
+  width: 600px;
+  height: 400px;
+  max-width: 90%;
+
+  box-shadow: 0 1px 4px 0 rgba(0,0,0, .2);
 }
 
 .modal-container {
   padding-right: 10px; //Margen para el scroll de windows
+  padding: rem(50px);
   overflow: scroll;
   background-color: #fff;
 }
 
-.btn-close-modal {
+.btn-close {
   position: absolute;
   top: 20px;
   right: 20px;
@@ -51,7 +76,10 @@
 
   cursor: pointer;
   font-weight: bold;
-  color: #000;
-  font-size: 32px;
+  color: $font-color-1;
+  font-size: 18px;
+  font-weight: 700;
   line-height: .5em;
 }
+
+//TODO responsive

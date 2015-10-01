@@ -189,8 +189,9 @@
     _showInfo: function(e) {
       e.preventDefault();
       var data = $(e.currentTarget).data('info');
+      var name = $(e.currentTarget).data('name');
 
-      this.infowindow.render(data);
+      this.infowindow.render(data, name);
     }
 
   });

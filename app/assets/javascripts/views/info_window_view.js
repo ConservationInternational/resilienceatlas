@@ -22,16 +22,18 @@
       this.options = _.extend({}, this.defaults, opts);
     },
 
-    render: function(data) {
+    render: function(data, name) {
 
       var description = data.description || null;
       var source = data.source || null;
-      var link = data.source || null;
+      var link = data.link || null;
+      var name = name || null;
 
       this.infoWindow = this.template({
         'description': description,
         'source': source,
-        'link': link
+        'link': link,
+        'name': name
       });
 
       this.$el.append( this.infoWindow );
