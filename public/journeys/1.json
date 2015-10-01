@@ -19,6 +19,7 @@
         "number": 1,
         "type": "conclusion",
         "background": "journey1bg1",
+        "backgroundColor": "#301D0B",
         "title": "overview",
         "content": "<p>Ethiopia is the fifth largest producer of maize in Africa. The vast majority of maize production in Ethiopia (94%) is done by smallholder farmers, nearly all of whom rely on seasonal rains to support their crops.</p><p>Ethiopia has two distinct rainy seasons and one dry season. The short rainy season, or belg, occurs from February to May and the long rainy season, or kiremt, from June through September.</p><p>Changes in the seasonal rains can greatly impact food security. In 2015, a late start to the short rains in some areas of the country forced many farmers to plant crops more suited for a shorter growing season instead of maize, limiting output of a vital food source, and reducing the resilience of smallholder farmers to future challenges.</p>",
         "credits": "© Stephen Morrison/Africa Practice/Department of Foreign Affairs and Trade/Flickr Creative Commons",
@@ -110,8 +111,27 @@
       },
       {
         "number": 11,
+        "type": "embed",
+        "countryIso": "ETH",
+        "theme": "light",
+        "aside": "<header><h2>Vulnerability</h2><h3>short rains with grain storage</h3></header><section><h1>Ethiopia</h1><div class='facts'><h4></h4><p>Post-harvest crop losses due to rotting, insect and rodent damage, and other causes reduce farmer income and can affect food security.</p><p>Increased access to grain storage is needed to enable storage of excess production and reduce post-harvest waste.</p></div></section>",
+        "mapUrl": "/map?layers=%5B%7B%22id%22%3A41%2C%22opacity%22%3A1%2C%22order%22%3A3%7D%2C%7B%22id%22%3A39%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%2C%7B%22id%22%3A8%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%5D",
+        "btnUrl": "/map?layers=%5B%7B%22id%22%3A31%2C%22opacity%22%3A1%2C%22order%22%3A997%7D%2C%7B%22id%22%3A39%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%2C%7B%22id%22%3A8%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%5D"
+      },
+      {
+        "number": 12,
+        "type": "embed",
+        "countryIso": "ETH",
+        "theme": "light",
+        "aside": "<header><h2>Vulnerability</h2><h3>long rains with grain storage</h3></header><section><h1>Ethiopia</h1><div class='facts'><h4></h4><p>Post-harvest crop losses due to rotting, insect and rodent damage, and other causes reduce farmer income and can affect food security.</p><p>Increased access to grain storage is needed to enable storage of excess production and reduce post-harvest waste.</p></div></section>",
+        "mapUrl": "/map?layers=%5B%7B%22id%22%3A40%2C%22opacity%22%3A1%2C%22order%22%3A3%7D%2C%7B%22id%22%3A39%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%2C%7B%22id%22%3A8%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%5D",
+        "btnUrl": "/map?layers=%5B%7B%22id%22%3A32%2C%22opacity%22%3A1%2C%22order%22%3A3%7D%2C%7B%22id%22%3A39%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%2C%7B%22id%22%3A8%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%5D"
+      },
+      {
+        "number": 13,
         "type": "conclusion",
         "background": "journey1bg2",
+        "backgroundColor": "#232630",
         "title": "insights",
         "subtitle": "agricultural livelihoods & climate change in ethiopia",
         "content": "<p>Climatic changes in primary maize growing seasons will cause lower food production in areas with high sensitivity to changing precipitation patterns.</p><p>Access to information is critical to resilience of crop production. Further, without careful planning, the impact of interventions may be limited by high levels of illiteracy and lack of access to communications media, particularly among women.</p>",

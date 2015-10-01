@@ -1,4 +1,5 @@
 $backgrounds: 'bg-intro', 'journey1bg0', 'journey2bg0';
+$backgrounds-thumb: 'thumb-0', 'thumb-1', 'thumb-2';
 
 //CENTRAL IMAGE HOME
 .m-slider__itemlist {
@@ -19,17 +20,6 @@ $backgrounds: 'bg-intro', 'journey1bg0', 'journey2bg0';
       &.#{nth($backgrounds, $i)}{
         background-image: image-url('journeys/#{nth($backgrounds, $i)}.jpg');
       }
-    }
-
-    &.journey1bg0:before {
-      content: "";
-      display: block;
-      position: absolute;
-      top: 0;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background-color: rgba(0,0,0, .2);
     }
 
     header {
@@ -62,8 +52,18 @@ $backgrounds: 'bg-intro', 'journey1bg0', 'journey2bg0';
         text-shadow: 0 1px 1px black;
       }
     }
-  }
 
+    .credits {
+      position: absolute;
+      bottom: 10px;
+      right: 20px;
+      margin: 0;
+
+      a {
+        color: $font-color-3;
+      }
+    }
+  }
 }
 
 // SLIDER PAGINATION HOME
@@ -77,9 +77,9 @@ $backgrounds: 'bg-intro', 'journey1bg0', 'journey2bg0';
     cursor: pointer;
     outline: none;
 
-    @for $i from 1 through length($backgrounds) {
-      &.#{nth($backgrounds, $i)}{
-        background-image: image-url('journeys/#{nth($backgrounds, $i)}.jpg');
+    @for $i from 1 through length($backgrounds-thumb) {
+      &.#{nth($backgrounds-thumb, $i)}{
+        background-image: image-url('home/#{nth($backgrounds-thumb, $i)}.jpg');
         background-position:  center;
         background-size: cover;
       }
@@ -112,34 +112,51 @@ $backgrounds: 'bg-intro', 'journey1bg0', 'journey2bg0';
       transition: all 0.12s linear;
     }
 
-
-    &:hover, &.is-active{
-      &:after, &:before{
+    &:hover, &.is-active {
+      &:after {
         opacity: 1;
         visibility: visible;
       }
-      &:before {
-        transform: translate(-50%,-50%);
-      }
-      h2{
+    }
+
+    &.is-active {
+
+      .title {
         opacity: 0;
         visibility: hidden;
       }
+
+      &:before {
+        transform: translate(-50%,-50%);
+        opacity: 1;
+        visibility: visible;
+      }
     }
 
-    h2{
+    .title {
       @extend %center;
+       opacity: 1;
+       visibility: visible;
+       transition: all 0.12s linear;
+    }
+
+    h2,
+    h3 {
       text-align: center;
       color: $font-color-3;
       font-family: $font-face-2;
-      font-size: rem(30px);
       font-weight: 400;
       line-height: 1;
       text-transform: uppercase;
       margin: 0;
-      opacity: 1;
-      visibility: visible;
-      transition: all 0.12s linear;
+    }
+
+    h2 {
+      font-size: rem(30px);
+    }
+
+    h3 {
+      font-size: rem(20px);
     }
   }
 }

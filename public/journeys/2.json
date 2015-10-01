@@ -12,13 +12,14 @@
         "subtitle": "data insights",
         "theme": "Pastoral livelihoods threatened by changing climate",
         "background": "journey2bg0",
-        "credits": "© David Hanson/Aurora Photos",
-        "creditsUrl": "https://ci.tandemvault.com/lightboxes/MVGRc7ujF?t=BwQlYp2iC#87758833"
+        "credits": "© Michael Hanson/Aurora Photos",
+        "creditsUrl": "https://ci.tandemvault.com/lightboxes/MVGRc7ujF?t=BwQlYp2iC#10399369"
       },
       {
         "number": 1,
         "type": "conclusion",
         "background": "journey2bg1",
+        "backgroundColor": "#301D0B",
         "title": "overview",
         "content": "<p>Livestock raising, or pastoralism, is a livelihood strategy well adapted to the small amount of rainfall that is received each year in the lowlands of Ethiopia. Ethiopian pastoralists, however, still depend on seasonal rains to feed the livestock on which their livelihoods depend.</p><p>A changing climate and growing populations are threatening pastoralism.</p><p>Ethiopia experiences two distinct rainy seasons: the short rainy season (or “belg”) from February to May and the long rainy season, or “kiremt” from June through September. Changes in the pattern of these rains suggest a difficult road ahead for Ehiopian pastoralists.</p>",
         "credits": "© Aurora Photos/Alamy Stock Photo",
@@ -112,6 +113,7 @@
         "number": 11,
         "type": "conclusion",
         "background": "journey2bg2",
+        "backgroundColor": "#301D0B",
         "title": "insights",
         "subtitle": "pastoral livelihoods & climate change in ethiopia",
         "content": "<p>Major changes in rainfall patterns in pastoral areas are undermining pastoralism as a viable livelihood strategy.</p><p>Pastoralists are particularly vulnerable because of high levels of health stress and low levels of literacy and information access, particularly among women.</p>",
