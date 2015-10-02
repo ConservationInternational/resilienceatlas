@@ -108,6 +108,7 @@
       if (this.journeyMap) {
         this.basemap = cartodb.createLayer(this.map, url).addTo(this.map);
       } else {
+        //This one below is the journeys way.
         // this.basemap = cartodb.createLayer(this.map, url).addTo(this.map);
         this.basemap = L.tileLayer(url).addTo(this.map);
         this.labels = L.tileLayer(labelsUrl).addTo(this.map);
