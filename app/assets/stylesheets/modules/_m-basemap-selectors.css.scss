@@ -1,0 +1,30 @@
+.m-basemap-selectors {
+  align-content: center;
+  justify-content: space-between;
+  padding: rem(10px 30px) !important;
+
+  button {
+    @extend %clean-button-or-input;
+    height: 40px;
+    width: 40px;
+    border-radius: 50%;
+  }
+
+  span {
+    background-position: top center;
+    background-size: cover;
+
+    &.icon-satelite {
+      background-image: image-url(/);
+    }
+
+    &.icon-topographic {
+
+    }
+
+    &.icon-default {
+
+    }
+
+  }
+}

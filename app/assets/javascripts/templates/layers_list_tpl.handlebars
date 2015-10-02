@@ -45,8 +45,31 @@
               </li>
             {{/if}}
           {{/each}}
+          <li>
         </ul>
       </li>
     {{/if}}
   {{/each}}
+  <li>
+    <div class="m-layers-list-header">
+      <div class="header-title">basemap</div>
+    </div>
+    <ul class="m-basemap-selectors">
+      <li>
+        <button data-basemap="satellite">
+          <span class="icon-satelite">Satellite</span>
+        </button>
+      </li>
+      <li>
+        <button data-basemap="topographic">
+          <span class="icon-topographic">Topographic</span>
+        </button>
+      </li>
+      <li>
+        <button data-basemap="default">
+          <span class="icon-default">Default</span>
+        </button>
+      </li>
+    </ul>
+  </li>
 </ul>
