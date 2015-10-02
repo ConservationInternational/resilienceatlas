@@ -20,7 +20,8 @@
       'input input.opacity-range' : '_transparencyRangeChanges',
       'change .opacity-teller': '_transparencyInputChange',
       'click .panel-trasparecy-switcher' : '_openOpacityHandlers',
-      'click .btn-info' : '_showInfo'
+      'click .btn-info' : '_showInfo',
+      'click .btn-basemap-handler' : '_selectBasemap'
     },
 
     initialize: function(settings) {
@@ -59,6 +60,8 @@
     _cacheVars: function() {
       this.$headerSwitch = $('.header-switch');
       this.$completeList = $('.m-layers-list');
+
+      this.$basemapHandlers = $('.btn-basemap-handler');
     },
 
     _toggleLayers: function() {
@@ -192,6 +195,16 @@
       var name = $(e.currentTarget).data('name');
 
       this.infowindow.render(data, name);
+    },
+
+    _selectBasemap: function(e) {
+      e.preventDefault;
+      this.$basemapHandlers.removeClass('is-active');
+      var $target = $(e.currentTarget)
+      var basemap = $target.data('basemap');
+      $target.addClass('is-active');
+
+      Backbone.Events.trigger('basemap:change', basemap);
     }
 
   });
