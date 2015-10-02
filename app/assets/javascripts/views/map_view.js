@@ -38,6 +38,7 @@
       this.setListeners();
 
       this.journeyMap = this.model.get('journeyMap');
+      this.currentCountry = this.model.get('countryIso') || null;
     },
 
     setListeners: function() {
@@ -49,16 +50,26 @@
      * Instantiates a Leaflet map object
      */
     createMap: function() {
-      // trampita zoom
-      if (this.journeyMap) {
-        if ( $(document).width() < 1020 ) {
+      // trampita zoom I know there is a better way to do it...
+      //but... you know...
+      if (this.journeyMap && this.currentCountry==='ETH') {
+        if ( $(document).width() < 1020) {
           this.options.map.zoom = 5;
           this.options.map.center = [8, 35]; //Horn of Africa
         } else {
           this.options.map.zoom = 6;
           this.options.map.center = [9, 37]; //Horn of Africa
         }
+      } else if (this.journeyMap && this.currentCountry==='NER') {
+        if ( $(document).width() < 1020) {
+          this.options.map.zoom = 5;
+          this.options.map.center = [15, 3]; //Horn of Africa
+        } else {
+          this.options.map.zoom = 6;
+          this.options.map.center = [17, 5]; //Horn of Africa
+        }
       }
+
       if (!this.map) {
         this.map = L.map(this.el, this.options.map);
         if (this.options.zoomControl) {

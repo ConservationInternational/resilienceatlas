@@ -41,8 +41,8 @@
         "countryIso": "NER",
         "theme": "light",
         "aside": "<header><h2>Livelihoods</h2><h3>Pastoral</h3></header><section><h1>Ethiopia</h1><div class='facts'><h4></h4><p>Lowlands are home to 29 ethnic groups, of which >90% are pastoralists</p></div></section>",
-        "mapUrl": "/map?layers=%5B%7B%22id%22%3A38%2C%22opacity%22%3A1%2C%22order%22%3A0%7D%5D",
-        "btnUrl": "/map?layers=%5B%7B%22id%22%3A38%2C%22opacity%22%3A1%2C%22order%22%3A0%7D%5D"
+        "mapUrl": "/map?layers=%5B%7B%22id%22%3A6%2C%22opacity%22%3A1%2C%22order%22%3A1000%7D%5D",
+        "btnUrl": "/map?layers=%5B%7B%22id%22%3A6%2C%22opacity%22%3A1%2C%22order%22%3A1000%7D%5D"
       },
       {
         "number": 4,
