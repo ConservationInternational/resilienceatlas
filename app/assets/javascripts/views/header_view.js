@@ -42,8 +42,8 @@
     setUp: function() {
       //Menu journeys
       $('.m-journey__paginationlist').slick({
-        slidesToShow: 2,
-        slidesToScroll: 2,
+        slidesToShow: 3,
+        slidesToScroll: 3,
         speed: 500,
         slide: 'li'
       });
