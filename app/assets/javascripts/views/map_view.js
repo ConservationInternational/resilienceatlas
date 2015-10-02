@@ -32,7 +32,6 @@
       }
     },
 
-
     initialize: function(settings) {
       var opts = settings && settings.options ? settings.options : {};
       this.options = _.extend({}, this.defaults, opts);
@@ -46,7 +45,7 @@
       this.listenTo(this.layers, 'change', this.renderLayers);
       // this.listenTo(this.layers, 'sort', this.renderLayers);
 
-      Backbone.Events.on('basemap:change', _.bind(this._getBasemapUrl, this));
+      Backbone.Events.on('basemap:change', _.bind(this._userSelectionBasemap, this));
     },
 
     /**
@@ -91,9 +90,13 @@
       this.map.addControl(this.controlZoom);
     },
 
-    _getBasemapUrl: function(basemapUrl) {
-      var newBasemapUrl = this.options.basemap[basemapUrl];
+    _userSelectionBasemap: function(basemapType) {
+      var newBasemapUrl = this.options.basemap[basemapType];
       this.setBasemap(newBasemapUrl);
+    },
+
+    _getBaseMapUrl: function() {
+      return this.journeyMap ? this.options.journeyBasemap.url : this.options.basemap.defaultmap;
     },
 
     /**
@@ -108,16 +111,16 @@
         this.map.removeLayer(this.basemap);
       }
 
-      //basemap depends on if it is journey embed or not.
-      var customUrl = this.journeyMap ? this.options.journeyBasemap.url : this.options.basemap.defaultmap;
       var labelsUrl = this.options.basemap.labels;
-      //Just in case a basemapUrl is given into the method call.
-      var url = basemapUrl || customUrl;
-
+      var url = basemapUrl || this._getBaseMapUrl();
+      
+      //Map for journeys render differently.
+      //If changing something here, be carefull with the way different formats render. 
       if (this.journeyMap) {
         this.basemap = cartodb.createLayer(this.map, url).addTo(this.map);
       } else {
-        //This one below is the journeys way.
+        //This one below is the journeys way. Be carefull, satellite map and topographic
+        //render in the current way.
         // this.basemap = cartodb.createLayer(this.map, url).addTo(this.map);
         this.basemap = L.tileLayer(url).addTo(this.map);
         this.labels = L.tileLayer(labelsUrl).addTo(this.map);

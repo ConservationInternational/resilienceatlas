@@ -201,10 +201,10 @@
       e.preventDefault;
       this.$basemapHandlers.removeClass('is-active');
       var $target = $(e.currentTarget)
-      var basemap = $target.data('basemap');
+      var basemapType = $target.data('basemap');
       $target.addClass('is-active');
 
-      Backbone.Events.trigger('basemap:change', basemap);
+      Backbone.Events.trigger('basemap:change', basemapType);
     }
 
   });
