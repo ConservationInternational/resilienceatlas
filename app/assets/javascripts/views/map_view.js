@@ -18,15 +18,13 @@
       defaultBasemap: 'defaultmap',
       basemap: {
         //This one below is the journeys one.
-        // url: 'https://grp.global.ssl.fastly.net/user/grp/api/v2/viz/ff7bef12-4d7b-11e5-86c7-0e48d404cb93/viz.json',
         labels: 'http://api.tiles.mapbox.com/v4/cigrp.829fd2d8/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiY2lncnAiLCJhIjoiYTQ5YzVmYTk4YzM0ZWM4OTU1ZjQxMWI5ZDNiNTQ5M2IifQ.SBgo9jJftBDx4c5gX4wm3g',
-        defaultmap: 'http://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png',
+        defaultmap: 'http://api.tiles.mapbox.com/v4/cigrp.2ad62493/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiY2lncnAiLCJhIjoiYTQ5YzVmYTk4YzM0ZWM4OTU1ZjQxMWI5ZDNiNTQ5M2IifQ.SBgo9jJftBDx4c5gX4wm3g',
         satellite: 'http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
         topographic: 'http://server.arcgisonline.com/ArcGIS/rest/services/World_Physical_Map/MapServer/tile/{z}/{y}/{x}'
       },
       journeyBasemap: {
-        // url: 'http://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png'
-        url: 'https://grp.global.ssl.fastly.net/user/grp/api/v2/viz/ff7bef12-4d7b-11e5-86c7-0e48d404cb93/viz.json'
+        url: 'http://api.tiles.mapbox.com/v4/cigrp.2ad62493/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiY2lncnAiLCJhIjoiYTQ5YzVmYTk4YzM0ZWM4OTU1ZjQxMWI5ZDNiNTQ5M2IifQ.SBgo9jJftBDx4c5gX4wm3g'
       },
       zoomControl: {
         position: 'topright'
@@ -127,7 +125,7 @@
       //Map for journeys render differently.
       //If changing something here, be carefull with the way different formats render. 
       if (this.journeyMap) {
-        this.basemap = cartodb.createLayer(this.map, url).addTo(this.map);
+        this.basemap = L.tileLayer(url).addTo(this.map);
       } else {
         //This one below is the journeys way. Be carefull, satellite map and topographic
         //render in the current way.
