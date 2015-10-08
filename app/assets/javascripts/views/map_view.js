@@ -14,26 +14,28 @@
         zoomControl: false,
         scrollWheelZoom: false
       },
+      defaultBasemap: 'defaultmap',
       basemap: {
         //This one below is the journeys one.
-        // url: 'https://grp.global.ssl.fastly.net/user/grp/api/v2/viz/ff7bef12-4d7b-11e5-86c7-0e48d404cb93/viz.json',
-        url: 'http://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png',
-        labels: 'http://api.tiles.mapbox.com/v4/cigrp.829fd2d8/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiY2lncnAiLCJhIjoiYTQ5YzVmYTk4YzM0ZWM4OTU1ZjQxMWI5ZDNiNTQ5M2IifQ.SBgo9jJftBDx4c5gX4wm3g'
+        labels: 'http://api.tiles.mapbox.com/v4/cigrp.829fd2d8/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiY2lncnAiLCJhIjoiYTQ5YzVmYTk4YzM0ZWM4OTU1ZjQxMWI5ZDNiNTQ5M2IifQ.SBgo9jJftBDx4c5gX4wm3g',
+        defaultmap: 'http://api.tiles.mapbox.com/v4/cigrp.2ad62493/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiY2lncnAiLCJhIjoiYTQ5YzVmYTk4YzM0ZWM4OTU1ZjQxMWI5ZDNiNTQ5M2IifQ.SBgo9jJftBDx4c5gX4wm3g',
+        satellite: 'http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+        topographic: 'http://server.arcgisonline.com/ArcGIS/rest/services/World_Physical_Map/MapServer/tile/{z}/{y}/{x}'
       },
       journeyBasemap: {
-        // url: 'http://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png'
-        url: 'https://grp.global.ssl.fastly.net/user/grp/api/v2/viz/ff7bef12-4d7b-11e5-86c7-0e48d404cb93/viz.json'
+        url: 'http://api.tiles.mapbox.com/v4/cigrp.2ad62493/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiY2lncnAiLCJhIjoiYTQ5YzVmYTk4YzM0ZWM4OTU1ZjQxMWI5ZDNiNTQ5M2IifQ.SBgo9jJftBDx4c5gX4wm3g'
       },
       zoomControl: {
         position: 'topright'
       }
     },
 
-
     initialize: function(settings) {
       var opts = settings && settings.options ? settings.options : {};
       this.options = _.extend({}, this.defaults, opts);
+      this.router = settings.router;
       this.layers = settings.layers;
+      this.selectedBasemap = settings.basemap;
       this.setListeners();
 
       this.journeyMap = this.model.get('journeyMap');
@@ -43,6 +45,8 @@
     setListeners: function() {
       this.listenTo(this.layers, 'change', this.renderLayers);
       // this.listenTo(this.layers, 'sort', this.renderLayers);
+
+      Backbone.Events.on('basemap:change', _.bind(this.selectBasemap, this));
     },
 
     /**
@@ -99,11 +103,26 @@
       this.map.addControl(this.controlZoom);
     },
 
+    selectBasemap: function(basemapType) {
+      var newBasemapUrl = this.options.basemap[basemapType];
+      this.setBasemap(newBasemapUrl, basemapType);
+    },
+
+    _getBaseMapUrl: function() {
+      var basemap = this.journeyMap ? this.options.journeyBasemap.url : this.options.basemap.defaultmap;
+
+      if(this.selectedBasemap) {
+        basemap = this.options.basemap[this.selectedBasemap];
+      } 
+
+      return basemap;
+    },
+
     /**
      * Add a basemap to map
      * @param {String} basemapUrl http://{s}.tile.osm.org/{z}/{x}/{y}.png
      */
-    setBasemap: function(basemapUrl) {
+    setBasemap: function(basemapUrl, type) {
       if (!this.map) {
         throw 'Map must exists.';
       }
@@ -111,19 +130,25 @@
         this.map.removeLayer(this.basemap);
       }
 
-      //basemap depends on if it is journey embed or not.
-      var customUrl = this.journeyMap ? this.options.journeyBasemap.url : this.options.basemap.url;
       var labelsUrl = this.options.basemap.labels;
-      //Just in case a basemapUrl is given into the method call.
-      var url = basemapUrl || customUrl;
-
+      var url = basemapUrl || this._getBaseMapUrl();
+      var basemap = type || this.selectedBasemap || this.options.defaultBasemap;
+      
+      //Map for journeys render differently.
+      //If changing something here, be carefull with the way different formats render. 
       if (this.journeyMap) {
-        this.basemap = cartodb.createLayer(this.map, url).addTo(this.map);
+        this.basemap = L.tileLayer(url).addTo(this.map);
       } else {
+        //This one below is the journeys way. Be carefull, satellite map and topographic
+        //render in the current way.
         // this.basemap = cartodb.createLayer(this.map, url).addTo(this.map);
         this.basemap = L.tileLayer(url).addTo(this.map);
         this.labels = L.tileLayer(labelsUrl).addTo(this.map);
         this.labels.setZIndex(1005);
+      }
+
+      if(basemapUrl) {
+        this.router.setParams('basemap', basemap);
       }
     },
 
