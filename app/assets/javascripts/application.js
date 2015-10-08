@@ -99,7 +99,9 @@
       var mapView = new root.app.View.Map({
         el: '#mapView',
         layers: layersCollection,
-        model: mapModel
+        basemap: this.router.params.attributes.basemap,
+        model: mapModel,
+        router: this.router
       });
 
       //No Layer list nor legend are showed into journey embed map.
