@@ -53,10 +53,6 @@
      * Instantiates a Leaflet map object
      */
     createMap: function() {
-      console.log('Hola Gerado! Here, some usseful notes!')
-      // trampita zoom I know there is a better way to do it...
-      //but... you know...
-      //Now when you'd go to Journey3, you will see the map properly centered!
       if (this.journeyMap && this.currentCountry==='ETH') {
         if ( $(document).width() < 1020) {
           this.options.map.zoom = 5;
