@@ -75,10 +75,12 @@
 
       var self = this;
 
-      this.map.on('zoomstart', _.bind(function() {
-        var zoom = this.map.getZoom();
-        this.router.setParams('zoom', zoom);
-        Backbone.Events.trigger('mapZoom:change', zoom);
+      this.actualZoom = this.options.map.zoom;
+
+      this.map.on('zoomend', _.bind(function() {
+        this.actualZoom = this.map.getZoom();
+        this.router.setParams('zoom', this.actualZoom);
+        this.renderLayers();
       }, this));
     },
 
@@ -165,9 +167,28 @@
      */
     renderLayers: function() {
       var layersData = this.layers.getPublished();
+      // console.log(layersData)
       _.each(layersData, function(layerData) {
+        if (layerData.id == 31) {
+          layerData.maxZoom = 100;
+          layerData.minZoom = 3;
+        }
+
+        if (layerData.id == 36) {
+          layerData.maxZoom = 5;
+          layerData.minZoom = 0;
+        }
+
         if (layerData.active) {
-          this.addLayer(layerData);
+          if (layerData.maxZoom) {
+            if ( layerData.minZoom <= this.actualZoom && this.actualZoom <= layerData.maxZoom ) {
+              this.addLayer(layerData);
+            } else {
+              this.removeLayer(layerData);
+            }
+          } else {
+            this.addLayer(layerData);
+          }
         } else {
           this.removeLayer(layerData);
         }
@@ -177,7 +198,6 @@
       if (this.model.get('journeyMap')) {
         this.setMaskLayer();
       }
-
     },
 
     /**
