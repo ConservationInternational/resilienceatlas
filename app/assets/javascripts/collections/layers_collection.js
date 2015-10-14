@@ -122,15 +122,11 @@
     getActived: function() {
       this._setNoOpacity();
       return _.where(this.toJSON(), { active: true, published: true });
-      //If we sort by order, it changes position at dashboard.
-      // return _.where(_.sortBy(this.toJSON(), 'order'), { active: true, published: true });
     },
 
     getPublished: function() {
       this._setNoOpacity();
       return _.where(this.toJSON(), { published: true });
-      //If we sort by order, it changes position at dashboard.
-      // return _.where(_.sortBy(this.toJSON(), 'order'), { published: true });
     },
 
     getCategories: function() {
