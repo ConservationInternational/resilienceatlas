@@ -23,9 +23,9 @@
         satellite: 'http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
         topographic: 'http://server.arcgisonline.com/ArcGIS/rest/services/World_Physical_Map/MapServer/tile/{z}/{y}/{x}'
       },
-      journeyBasemap: {
-        url: 'http://api.tiles.mapbox.com/v4/cigrp.2ad62493/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiY2lncnAiLCJhIjoiYTQ5YzVmYTk4YzM0ZWM4OTU1ZjQxMWI5ZDNiNTQ5M2IifQ.SBgo9jJftBDx4c5gX4wm3g'
-      },
+      // journeyBasemap: {
+      //   url: 'http://api.tiles.mapbox.com/v4/cigrp.2ad62493/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiY2lncnAiLCJhIjoiYTQ5YzVmYTk4YzM0ZWM4OTU1ZjQxMWI5ZDNiNTQ5M2IifQ.SBgo9jJftBDx4c5gX4wm3g'
+      // },
       zoomControl: {
         position: 'topright'
       }
@@ -72,6 +72,14 @@
       } else {
         console.info('Map already exists.');
       }
+
+      var self = this;
+
+      this.map.on('zoomstart', _.bind(function() {
+        var zoom = this.map.getZoom();
+        this.router.setParams('zoom', zoom);
+        Backbone.Events.trigger('mapZoom:change', zoom);
+      }, this));
     },
 
     /**
@@ -97,11 +105,12 @@
     },
 
     _getBaseMapUrl: function() {
-      var basemap = this.journeyMap ? this.options.journeyBasemap.url : this.options.basemap.defaultmap;
+      // var basemap = this.journeyMap ? this.options.journeyBasemap.url : this.options.basemap.defaultmap;
+      var basemap = this.options.basemap.defaultmap;
 
       if(this.selectedBasemap) {
         basemap = this.options.basemap[this.selectedBasemap];
-      } 
+      }
 
       return basemap;
     },
@@ -121,9 +130,9 @@
       var labelsUrl = this.options.basemap.labels;
       var url = basemapUrl || this._getBaseMapUrl();
       var basemap = type || this.selectedBasemap || this.options.defaultBasemap;
-      
+
       //Map for journeys render differently.
-      //If changing something here, be carefull with the way different formats render. 
+      //If changing something here, be carefull with the way different formats render.
       if (this.journeyMap) {
         this.basemap = L.tileLayer(url).addTo(this.map);
       } else {
