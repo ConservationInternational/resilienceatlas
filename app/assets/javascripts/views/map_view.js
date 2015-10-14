@@ -76,6 +76,7 @@
       var self = this;
 
       this.actualZoom = this.options.map.zoom;
+      this.router.setParams('zoom', this.actualZoom);
 
       this.map.on('zoomend', _.bind(function() {
         this.actualZoom = this.map.getZoom();
@@ -175,7 +176,7 @@
         }
 
         if (layerData.id == 36) {
-          layerData.maxZoom = 5;
+          layerData.maxZoom = 3;
           layerData.minZoom = 0;
         }
 
