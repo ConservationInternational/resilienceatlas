@@ -1,0 +1,64 @@
+<div class="m-modal-window m-share">
+
+  <div class="modal-wrapper">
+    <div class="btn-close-modal">×</div>
+    <div class="modal-container is-loading-share">
+      <div class="modal-content">
+
+        <div class="share-nav">
+          <h2>Share</h2>
+
+          <ul class="tabs tabs-secondary-content" data-tab>
+            <li class="tab-title active"><a href="#share-link">Link</a></li>
+            <li class="tab-title"><a href="#share-embed">Embed</a></li>
+          </ul>
+        </div>
+
+        <div class="tabs-content content">
+          <div class="content active" id="share-link">
+            <p>Copy the link below to share it</p>
+            <div class="link-box">
+              <input class="url" value="{{link}}" />
+              <div class="btn-copy">Copy</div>
+            </div>
+
+          </div>
+          <div class="content" id="share-embed">
+            <p>Copy the embed code below to share it</p>
+            <div class="link-box">
+              <input class="url" value='<iframe width="600" height="400" src="{{url}}"></iframe>' />
+              <div class="btn-copy">Copy</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="social-links">
+          <div class="btn-social twitter">
+            <a href="https://twitter.com/share?url={{link}}" target="_blank">
+              <svg class="icon">
+                <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#icon-twitter"></use>
+              </svg>
+            </a>
+          </div>
+          <div class="btn-social facebook">
+            <a href="https://www.facebook.com/sharer.php?u={{link}}" target="_blank">
+              <svg class="icon">
+                <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#icon-facebook"></use>
+              </svg>
+            </a>
+          </div>
+          <div class="btn-social google">
+            <a href="https://plus.google.com/share?url={{link}}" target="_blank">
+              <svg class="icon">
+                <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#icon-google"></use>
+              </svg>
+            </a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+  <div class="modal-background"></div>
+
+</div>

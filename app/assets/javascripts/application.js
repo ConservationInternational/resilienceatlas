@@ -90,6 +90,7 @@
 
     mapPage: function() {
       var journeyMap = this._checkJourneyMap();
+      var toolbarView = new root.app.View.Toolbar();
       var layersGroupsCollection = new root.app.Collection.LayersGroups();
       var layersCollection = new root.app.Collection.Layers();
       var mapModel = new (Backbone.Model.extend({
