@@ -20,9 +20,9 @@
     initialize: function(settings) {
       var options = settings && settings.options ? settings.options : settings;
       this.options = _.extend(this.defaults, options);
-      console.log(options)
-      this.map = options.map;
-      this.layers = options.layers;
+
+      // this.map = options.map;
+      // this.layers = options.layers;
       this.setListeners();
     },
 
@@ -32,13 +32,14 @@
     },
 
     render: function() {
-      var self = this;
+      // var self = this;
 
       // $.when(this.shareParams()).done(function(res) {
-      //   var url = 'http://' + window.location.hostname + '/embed?map=' + res.uid;
+      //   var url = 'http://' + window.location.hostname + ':3000/embed' + res.uid ;
+
       //   var html = self.template({
       //     url: url,
-      //     link: url.replace('embed', '')
+      //     link: url.replace('embed', 'map')
       //   });
 
       //   self.$el.append(html);
@@ -47,14 +48,14 @@
       // });
 
       var url = window.location.href;
-      var html = self.template({
+      var html = this.template({
         url: url,
         link: url.replace('embed', '')
       });
 
-      self.$el.append(html);
-      self.$el.find('.modal-container').removeClass('is-loading-share');
-      self.afterRender();
+      this.$el.append(html);
+      this.$el.find('.modal-container').removeClass('is-loading-share');
+      this.afterRender();
     },
 
     afterRender: function() {
@@ -62,16 +63,18 @@
     },
 
     shareParams: function() {
-      var mapState = this.map.getMapState();
-      var layersState = this.layers.getActiveLayers();
+      // var mapState = this.map.getMapState();
+      // var layersState = this.layers.getActiveLayers();
 
-      var activeLayers = [];
+      // var activeLayers = [];
 
-      _.each(layersState, function(layer) {
-        activeLayers.push(layer.slug);
-      });
+      // _.each(layersState, function(layer) {
+      //   activeLayers.push(layer.slug);
+      // });
 
-      mapState.layers = activeLayers;
+      // mapState.layers = activeLayers;
+      var mapState = window.location.search;
+      console.log(mapState);
       var encodedParams = btoa(JSON.stringify(mapState));
 
       return $.ajax({
