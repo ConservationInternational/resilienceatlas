@@ -119,7 +119,7 @@
     position: absolute;
     top: 50%;
     left: 50%;
-    margin: (-$size/2) 0 0 (-$size/2);
+    margin: (-$size/2) 0 (-$size/2);
     transition: all .75s ease 0s;
     border-radius: 100%;
     border-top: $border-width solid $color;

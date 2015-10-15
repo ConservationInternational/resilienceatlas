@@ -5,83 +5,46 @@
   }
 
   .modal-wrapper {
-    width: rem(400px);
-    max-height: rem(325px);
-    border-radius: rem(4px);
-    overflow: hidden;
-    box-shadow: 0px 2px 10px 0px rgba(0,0,0,0.15);
 
     .modal-container {
-      width: 100%;
-      min-width: 100%;
-      min-height: inherit;
-      padding: 0;
-      // background: $color-5;
 
       .modal-content {
-
-        h2 {
-          width: 100%;
-          // font-family: $font-secondary;
-          font-weight: 600;
-          // font-size: $font-size-medium-normal;
-          color: $bg-color-2;
-        }
-
-        p {
-         // font-size: $font-size-small-medium;
-          color: $font-color-1;
-        }
 
         .share-nav {
           width: 100%;
           height: rem(95px);
-          // background: $ultra-light-grey;
           float: left;
           position: relative;
-          padding-top: rem(15px);
-          padding-left: rem(26px);
-        }
-
-        .content {
-          text-align: center;
         }
 
         .link-box {
-          width: rem(310px);
+          width: 100%;
           margin: 0 auto;
           text-align: left;
           position: relative;
         }
 
         .url {
-          width: 70%;
-          padding-top: rem(16px);
-          padding-bottom: rem(15px);
-          // font-size: $font-size-small-medium;
+          width: 80%;
+          padding: rem(16px) rem(10px);
+          font-size: 12px;
 
           @include ellipsis(100%);
         }
 
         .btn-copy {
-          width: rem(98px);
-          height: rem(46px);
+          position: absolute;
+          top: 0;
+          right: 0;
+          width: 21%;
+          height: rem(50px);
+          border: 1px solid rgba(0, 0, 0, 0.2);
+          padding: rem(17px);
           background: $bg-color-1;
-          box-shadow: 0px 1px 2px 0px rgba(0,0,0,0.27);
-          border-radius: 4px;
-          // font-family: $font-secondary;
-          font-weight: 600;
-          // font-size: $font-size;
-          // color: $color-5;
           line-height: 18px;
           text-transform: uppercase;
           text-align: center;
-          padding-top: rem(15px);
-          padding-bottom: rem(14px);
-          position: absolute;
           cursor: pointer;
-          top: 0;
-          right: 0;
         }
 
         .social-links {
@@ -97,8 +60,8 @@
             width: rem(36px);
             height: rem(36px);
             border-radius: rem(36px);
-            // background: $color-5;
-            border: 1px solid $gray;
+            background: $bg-color-3;
+            border: 1px solid rgba(0,0,0, .2);
             margin-right: rem(24px);
 
             a {
@@ -151,15 +114,28 @@
   }
 
   .tabs {
-
-    width: 70%;
-    position: absolute;
     bottom: -1px;
-    left: rem(26px);
+    left: 0;
     z-index: 1;
+    width: 100%;
+    padding-left: 10px;
+    position: absolute;
 
     .tab-title {
       margin-right: rem(3px);
+      border: 1px solid rgba(0,0,0, .2);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+      
+      &.active {
+        position: relative;
+        border-bottom: 0;
+        z-index: 1;
+
+        a {
+          position: relative;
+          bottom: -1px;
+        }
+      }
     }
 
     a {
@@ -171,8 +147,8 @@
   .tabs-content {
     float: left;
     background: $white;
-    border-top: 1px solid $gray-medium;
-    padding: 10px 40px 0 40px;
+    border-top: 1px solid rgba(0,0,0, .2);
+    padding: 10px 0;
 
     .content {
       padding-bottom: rem(5px);
