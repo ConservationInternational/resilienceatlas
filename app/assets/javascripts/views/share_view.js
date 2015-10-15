@@ -21,8 +21,8 @@
       var options = settings && settings.options ? settings.options : settings;
       this.options = _.extend(this.defaults, options);
 
-      this.map = options.map;
-      this.layers = options.layers;
+      // this.map = options.map;
+      // this.layers = options.layers;
       this.setListeners();
     },
 
@@ -35,7 +35,7 @@
       var self = this;
 
       $.when(this.shareParams()).done(function(res) {
-        var url = 'http://' + window.location.hostname + '/embed?map=' + res.uid;
+        var url = 'http://' + window.location;
         var html = self.template({
           url: url,
           link: url.replace('embed', '')
@@ -52,30 +52,30 @@
     },
 
     shareParams: function() {
-      var mapState = this.map.getMapState();
-      var layersState = this.layers.getActiveLayers();
+      // var mapState = this.map.getMapState();
+      // var layersState = this.layers.getActiveLayers();
 
-      var activeLayers = [];
+      // var activeLayers = [];
 
-      _.each(layersState, function(layer) {
-        activeLayers.push(layer.slug);
-      });
+      // _.each(layersState, function(layer) {
+      //   activeLayers.push(layer.slug);
+      // });
 
-      mapState.layers = activeLayers;
-      var encodedParams = btoa(JSON.stringify(mapState));
+      // mapState.layers = activeLayers;
+      // var encodedParams = btoa(JSON.stringify(mapState));
 
-      return $.ajax({
-        url: '/api/share?body='+encodedParams,
-        method: 'POST',
-        headers: {
-          'X-Csrf-Token': decodeURIComponent(this.getCookie('X-CSRF-Token')),
-          'Accept': 'application/json; application/vnd.api+json',
-          'Content-Type': 'application/vnd.api+json'
-        },
-        error: function(xhr, textStatus) {
-          console.warn(textStatus);
-        }
-      });
+      // return $.ajax({
+      //   url: '/api/share?body='+encodedParams,
+      //   method: 'POST',
+      //   headers: {
+      //     'X-Csrf-Token': decodeURIComponent(this.getCookie('X-CSRF-Token')),
+      //     'Accept': 'application/json; application/vnd.api+json',
+      //     'Content-Type': 'application/vnd.api+json'
+      //   },
+      //   error: function(xhr, textStatus) {
+      //     console.warn(textStatus);
+      //   }
+      // });
     },
 
     getParams: function(shareId) {

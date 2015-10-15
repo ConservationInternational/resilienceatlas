@@ -6,6 +6,7 @@
 //= require backbone
 //= require handlebars
 //= require slick-carousel
+//= require foundation
 
 //= require ./helpers/handlebars_helpers
 //= require ./helpers/class
@@ -80,6 +81,8 @@
         headerView.render();
         this.totalJourneys = journeysIndexCollection.length;
       }.bind(this));
+
+      var socialShare = new root.app.View.Share();
     },
 
     welcomePage: function() {
