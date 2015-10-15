@@ -118,3 +118,22 @@
     }
   }
 }
+
+.l-hero {
+  height: rem(200px);
+  background-image: image-url('about-hero.jpg');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+  display: flex;
+  align-items: center;
+
+  h1 {
+    color: $font-color-3;
+    font-size: rem(48px);
+  }
+}
+
+.l-section-nav {
+  background-color: rgba(#757575, .1);
+}
