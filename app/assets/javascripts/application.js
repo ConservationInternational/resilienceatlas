@@ -58,7 +58,10 @@
       this.listenTo(this.router, 'route:map', this.mapPage);
 
       // Initializing journeys
-      this.listenTo(this.router, 'route:journeys', this.journeysPage)
+      this.listenTo(this.router, 'route:journeys', this.journeysPage);
+
+      // Initializing journeys
+      this.listenTo(this.router, 'route:about', this._aboutPage)
     },
 
     initGlobalViews: function() {
@@ -216,6 +219,10 @@
 
     start: function() {
       Backbone.history.start({ pushState: true });
+    },
+
+    _aboutPage: function() {
+      new root.app.View.StaticPage;
     }
 
   });
