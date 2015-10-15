@@ -81,8 +81,6 @@
         headerView.render();
         this.totalJourneys = journeysIndexCollection.length;
       }.bind(this));
-
-      var socialShare = new root.app.View.Share();
     },
 
     welcomePage: function() {
@@ -178,6 +176,11 @@
           layersListView.render();
           legendView.render();
         }
+
+        var socialShare = new root.app.View.Share({
+          'map': mapView,
+          layers: layersCollection
+        });
 
       }.bind(this));
     },
