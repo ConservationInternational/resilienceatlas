@@ -50,7 +50,7 @@
       var url = window.location.href;
       var html = this.template({
         url: url,
-        link: url.replace('embed', '')
+        link: encodeURIComponent(url.replace('embed', ''))
       });
 
       this.$el.append(html);
