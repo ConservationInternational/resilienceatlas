@@ -7,6 +7,12 @@
   .m-loader#loader loading
   .m-toolbar#toolbarView
     ul
+      li.search
+        span.search
+          svg.icon
+            use[xlink:href="#icon-search"]
+        input#searchMap(type="search"  placeholder="Search area")
+        #searchContent.m-map-search
       li
         button.btn-share 
           span
@@ -19,10 +25,5 @@
             svg.icon 
               use[xlink:href="#icon-analyze"]
           | Analyze
-      li
-        span.search
-          svg.icon
-            use[xlink:href="#icon-search"]
-        input(type="search"  placeholder="Search area")
   
   .m-legend#legendView
