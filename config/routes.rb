@@ -24,7 +24,7 @@ Rails.application.routes.draw do
   resources :journeys, only: [:show]
 
   # Embed
-  # get 'embed/:slug', to: 'embed#index'
+  get 'embed', to: 'embed#index'
   get 'embed/map', to: 'embed#map'
   get 'embed/journeys', to: 'embed#journeys'
 
