@@ -15,9 +15,12 @@ html,
 body {
   font-size: $base-font-size;
 
-  &::-webkit-scrollbar { 
-      display: none; 
+  &::-webkit-scrollbar {
+      display: none;
   }
+
+  overflow: -moz-scrollbars-none;
+  -ms-overflow-style: none;
 }
 
 // Default body styles
