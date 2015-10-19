@@ -174,11 +174,10 @@
           if (layerData.maxZoom) {
             if ( layerData.minZoom <= this.actualZoom && this.actualZoom <= layerData.maxZoom ) {
               this.addLayer(layerData)
-              // this._manageCssClasses(layerData);
+              this.layers.unsetDisabledByZoom(layerData.id)
             } else {
-              // layerData.disabled = true;
-              this.layers.setDisabledByZoom(layerData.id);
               this.removeLayer(layerData);
+              this.layers.setDisabledByZoom(layerData.id);
             }
           } else {
             this.addLayer(layerData);

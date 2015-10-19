@@ -124,6 +124,11 @@
       noAvailableByZoom.set('notAvailableByZoom', true);
     },
 
+    unsetDisabledByZoom: function(layerId) {
+      var noAvailableByZoom = _.findWhere(this.models, { 'id': layerId });
+      noAvailableByZoom.set('notAvailableByZoom', false);
+    },
+
     getActived: function() {
       this._setNoOpacity();
       return _.where(this.toJSON(), { active: true, published: true });
