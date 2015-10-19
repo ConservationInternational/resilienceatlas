@@ -24,6 +24,15 @@
   transform: translateY(-50%);
 }
 
+%clear-scroll-bars {
+  &::-webkit-scrollbar {
+      display: none;
+  }
+
+  // overflow: -moz-scrollbars-none;
+  -ms-overflow-style: none;
+}
+
 %clean-button-or-input {
   appearance: none;
   box-shadow: none;

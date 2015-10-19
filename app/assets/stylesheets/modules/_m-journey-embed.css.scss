@@ -119,17 +119,10 @@
       left: rem(40px);
       padding-top: rem(25px);
       overflow-y: scroll;
-      overflow-x: hidden;
       -webkit-overflow-scrolling: touch;
-      -ms-overflow-style: none;
       padding-right: rem(10px);
 
-      &::-webkit-scrollbar {
-          display: none;
-      }
-
-      overflow: -moz-scrollbars-none;
-       -ms-overflow-style: none;
+     @extend %clear-scroll-bars;
     }
 
     footer {

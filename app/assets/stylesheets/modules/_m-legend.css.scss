@@ -15,14 +15,8 @@ $side-bar-width: 360px;
   .wrapper {
     max-height: rem(400px);
     overflow-y: scroll;
-    -ms-overflow-style: none;
 
-    &::-webkit-scrollbar {
-      display: none;
-    }
-
-    overflow: -moz-scrollbars-none;
-     -ms-overflow-style: none;
+    @extend %clear-scroll-bars;
   }
 
   &.is-changing {
@@ -44,7 +38,8 @@ $side-bar-width: 360px;
       position: static;
       padding: 0;
       max-height: auto;
-      overflow: visible;
+      overflow-y: visible;
+      @extend %clear-scroll-bars;
     }
   }
 

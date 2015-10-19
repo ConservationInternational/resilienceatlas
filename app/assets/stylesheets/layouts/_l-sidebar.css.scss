@@ -16,9 +16,10 @@
 
   background-color: $bg-color-1;
 
-  overflow: auto;
-  -ms-overflow-style: none;
+  overflow-y: auto;
   -webkit-overflow-scrolling: touch;
+  @extend %clear-scroll-bars;
+
   z-index: 1;
 
   box-shadow: 0 1px 4px 0 rgba(0,0,0, .2)
