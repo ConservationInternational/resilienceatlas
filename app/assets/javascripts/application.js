@@ -6,6 +6,7 @@
 //= require backbone
 //= require handlebars
 //= require slick-carousel
+//= require foundation
 
 //= require ./helpers/handlebars_helpers
 //= require ./helpers/class
@@ -90,6 +91,7 @@
 
     mapPage: function() {
       var journeyMap = this._checkJourneyMap();
+      var toolbarView = new root.app.View.Toolbar();
       var layersGroupsCollection = new root.app.Collection.LayersGroups();
       var layersCollection = new root.app.Collection.Layers();
       var mapModel = new (Backbone.Model.extend({
@@ -174,6 +176,11 @@
           layersListView.render();
           legendView.render();
         }
+
+        var socialShare = new root.app.View.Share({
+          'map': mapView,
+          layers: layersCollection
+        });
 
       }.bind(this));
     },

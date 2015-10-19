@@ -244,7 +244,20 @@
       maskLayer.create(function(layer){
         layer.setZIndex(1001)
       });
-    }
+    },
+
+    getMapState: function() {
+      var bounds = this.map.getBounds();
+
+      return {
+        bounds: {
+          northEast: bounds._northEast,
+          southWest: bounds._southWest
+        },
+        zoom: this.map.getZoom(),
+        center: this.map.getCenter()
+      }
+    },
 
   });
 
