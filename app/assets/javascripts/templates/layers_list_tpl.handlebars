@@ -7,13 +7,13 @@
         </div>
         <ul>
           {{#each categories}}
-            {{#if layers}}
+{{!--             {{#if layers}} --}}
               <li>
                 <div class="m-layers-list-header {{#if active}}is-active{{/if}}">
                   <div class="header-title">{{name}}</div>
                   <div id="categoryHeader_{{id}}" class="header-switch m-form-input--switch">
-                    <input type="checkbox" class="header-input-switch" id="category_{{id}}" {{#if active}}checked{{/if}}>
-                    <label for="category_{{id}}"></label>
+                    {{!-- <input type="checkbox" class="header-input-switch" id="category_{{id}}" {{#if active}}checked{{/if}}>
+                    <label for="category_{{id}}"></label> --}}
                   </div>
                 </div>
                 <ul class="m-layers-list-panel {{#if active}}is-active{{/if}}">
@@ -43,7 +43,7 @@
                   {{/each}}
                 </ul>
               </li>
-            {{/if}}
+{{!--             {{/if}} --}}
           {{/each}}
           <li>
         </ul>

@@ -20,6 +20,9 @@ $side-bar-width: 360px;
     &::-webkit-scrollbar {
       display: none;
     }
+
+    overflow: -moz-scrollbars-none;
+     -ms-overflow-style: none;
   }
 
   &.is-changing {
@@ -52,14 +55,14 @@ $side-bar-width: 360px;
   }
 
   .m-legend__header {
-    display: none;
+    // display: none;
     position: relative;
     width: 100%;
     padding: 0 rem(10px);
 
-    @media screen and (max-width: 768px) {
-      display: block;
-    }
+    // @media screen and (max-width: 768px) {
+    //   display: block;
+    // }
 
     .side-bar & {
       display: none;
