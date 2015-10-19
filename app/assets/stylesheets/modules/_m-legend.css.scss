@@ -134,6 +134,22 @@ $side-bar-width: 360px;
         background: $bg-color-3;
       }
 
+      &.is-not-available-by-zoom {
+        background-color: rgba(117, 117, 117, 0.1);
+
+        header {
+          padding-bottom: 12px;
+
+          &:after {
+            content: 'Not available at this zoom level.';
+            position: absolute;
+            left: 10px;
+            bottom: -3px;
+            font-size: 10px;
+          }
+        }
+      }
+
       header {
         position: relative;
         padding: 0 rem(50px) 0 0;

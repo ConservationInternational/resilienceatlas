@@ -169,13 +169,15 @@
           layerData.maxZoom = 3;
           layerData.minZoom = 0;
         }
-        console.log(layerData);
+
         if (layerData.active) {
           if (layerData.maxZoom) {
             if ( layerData.minZoom <= this.actualZoom && this.actualZoom <= layerData.maxZoom ) {
-              this.addLayer(layerData);
-              this._manageCssClasses(layerData.id);
+              this.addLayer(layerData)
+              // this._manageCssClasses(layerData);
             } else {
+              // layerData.disabled = true;
+              this.layers.setDisabledByZoom(layerData.id);
               this.removeLayer(layerData);
             }
           } else {
@@ -192,9 +194,9 @@
       }
     },
 
-    _manageCssClasses(layerData.id) {
+    // _manageCssClasses: function(layerId) {
 
-    },
+    // },
 
     /**
      * Add a layer instance to map
@@ -246,7 +248,7 @@
           layer.layer.setOpacity(layerData.opacity);
           layer.layer.setZIndex(1000-layerData.order);
         }
-        console.info('Layer "' + layerData.id + '"" already exists.');
+        // console.info('Layer "' + layerData.id + '"" already exists.');
       }
     },
 

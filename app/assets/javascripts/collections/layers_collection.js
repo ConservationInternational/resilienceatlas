@@ -119,6 +119,11 @@
       });
     },
 
+    setDisabledByZoom: function(layerId) {
+      var noAvailableByZoom = _.findWhere(this.models, { 'id': layerId });
+      noAvailableByZoom.set('notAvailableByZoom', true);
+    },
+
     getActived: function() {
       this._setNoOpacity();
       return _.where(this.toJSON(), { active: true, published: true });
