@@ -187,7 +187,6 @@
 
     journeysPage: function(journeyId) {
       //Expected route journeys/:journeyId?&step=4
-
       var journeyModel = new root.app.Model.Journeys();
       var journeysCollection = new root.app.Collection.Journeys();
 

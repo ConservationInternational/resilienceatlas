@@ -11,20 +11,15 @@
       map: {
         zoom: 3,
         center: [0, 15],
-        // center: [10, 30], //Horn of Africa
         zoomControl: false,
         scrollWheelZoom: false
       },
       defaultBasemap: 'defaultmap',
       basemap: {
-        //This one below is the journeys one.
         labels: 'http://api.tiles.mapbox.com/v4/cigrp.829fd2d8/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiY2lncnAiLCJhIjoiYTQ5YzVmYTk4YzM0ZWM4OTU1ZjQxMWI5ZDNiNTQ5M2IifQ.SBgo9jJftBDx4c5gX4wm3g',
         defaultmap: 'http://api.tiles.mapbox.com/v4/cigrp.2ad62493/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiY2lncnAiLCJhIjoiYTQ5YzVmYTk4YzM0ZWM4OTU1ZjQxMWI5ZDNiNTQ5M2IifQ.SBgo9jJftBDx4c5gX4wm3g',
         satellite: 'http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
         topographic: 'http://server.arcgisonline.com/ArcGIS/rest/services/World_Physical_Map/MapServer/tile/{z}/{y}/{x}'
-      },
-      journeyBasemap: {
-        url: 'http://api.tiles.mapbox.com/v4/cigrp.2ad62493/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiY2lncnAiLCJhIjoiYTQ5YzVmYTk4YzM0ZWM4OTU1ZjQxMWI5ZDNiNTQ5M2IifQ.SBgo9jJftBDx4c5gX4wm3g'
       },
       zoomControl: {
         position: 'topright'
@@ -72,6 +67,17 @@
       } else {
         console.info('Map already exists.');
       }
+
+      var self = this;
+
+      this.actualZoom = this.options.map.zoom;
+      this.router.setParams('zoom', this.actualZoom);
+
+      this.map.on('zoomend', _.bind(function() {
+        this.actualZoom = this.map.getZoom();
+        this.router.setParams('zoom', this.actualZoom);
+        this.renderLayers();
+      }, this));
     },
 
     /**
@@ -97,11 +103,11 @@
     },
 
     _getBaseMapUrl: function() {
-      var basemap = this.journeyMap ? this.options.journeyBasemap.url : this.options.basemap.defaultmap;
+      var basemap = this.options.basemap.defaultmap;
 
       if(this.selectedBasemap) {
         basemap = this.options.basemap[this.selectedBasemap];
-      } 
+      }
 
       return basemap;
     },
@@ -121,15 +127,10 @@
       var labelsUrl = this.options.basemap.labels;
       var url = basemapUrl || this._getBaseMapUrl();
       var basemap = type || this.selectedBasemap || this.options.defaultBasemap;
-      
-      //Map for journeys render differently.
-      //If changing something here, be carefull with the way different formats render. 
+
       if (this.journeyMap) {
         this.basemap = L.tileLayer(url).addTo(this.map);
       } else {
-        //This one below is the journeys way. Be carefull, satellite map and topographic
-        //render in the current way.
-        // this.basemap = cartodb.createLayer(this.map, url).addTo(this.map);
         this.basemap = L.tileLayer(url).addTo(this.map);
         this.labels = L.tileLayer(labelsUrl).addTo(this.map);
         this.labels.setZIndex(1005);
@@ -156,9 +157,31 @@
      */
     renderLayers: function() {
       var layersData = this.layers.getPublished();
+
+      //Test for zoom scope.
       _.each(layersData, function(layerData) {
+        if (layerData.id == 31) {
+          layerData.maxZoom = 100;
+          layerData.minZoom = 3;
+        }
+
+        if (layerData.id == 36) {
+          layerData.maxZoom = 3;
+          layerData.minZoom = 0;
+        }
+
         if (layerData.active) {
-          this.addLayer(layerData);
+          if (layerData.maxZoom) {
+            if ( layerData.minZoom <= this.actualZoom && this.actualZoom <= layerData.maxZoom ) {
+              this.addLayer(layerData)
+              this.layers.unsetDisabledByZoom(layerData.id)
+            } else {
+              this.removeLayer(layerData);
+              this.layers.setDisabledByZoom(layerData.id);
+            }
+          } else {
+            this.addLayer(layerData);
+          }
         } else {
           this.removeLayer(layerData);
         }
@@ -168,8 +191,11 @@
       if (this.model.get('journeyMap')) {
         this.setMaskLayer();
       }
-
     },
+
+    // _manageCssClasses: function(layerId) {
+
+    // },
 
     /**
      * Add a layer instance to map
