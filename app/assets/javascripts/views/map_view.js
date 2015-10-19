@@ -11,21 +11,16 @@
       map: {
         zoom: 3,
         center: [0, 15],
-        // center: [10, 30], //Horn of Africa
         zoomControl: false,
         scrollWheelZoom: false
       },
       defaultBasemap: 'defaultmap',
       basemap: {
-        //This one below is the journeys one.
         labels: 'http://api.tiles.mapbox.com/v4/cigrp.829fd2d8/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiY2lncnAiLCJhIjoiYTQ5YzVmYTk4YzM0ZWM4OTU1ZjQxMWI5ZDNiNTQ5M2IifQ.SBgo9jJftBDx4c5gX4wm3g',
         defaultmap: 'http://api.tiles.mapbox.com/v4/cigrp.2ad62493/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiY2lncnAiLCJhIjoiYTQ5YzVmYTk4YzM0ZWM4OTU1ZjQxMWI5ZDNiNTQ5M2IifQ.SBgo9jJftBDx4c5gX4wm3g',
         satellite: 'http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
         topographic: 'http://server.arcgisonline.com/ArcGIS/rest/services/World_Physical_Map/MapServer/tile/{z}/{y}/{x}'
       },
-      // journeyBasemap: {
-      //   url: 'http://api.tiles.mapbox.com/v4/cigrp.2ad62493/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiY2lncnAiLCJhIjoiYTQ5YzVmYTk4YzM0ZWM4OTU1ZjQxMWI5ZDNiNTQ5M2IifQ.SBgo9jJftBDx4c5gX4wm3g'
-      // },
       zoomControl: {
         position: 'topright'
       }
@@ -108,7 +103,6 @@
     },
 
     _getBaseMapUrl: function() {
-      // var basemap = this.journeyMap ? this.options.journeyBasemap.url : this.options.basemap.defaultmap;
       var basemap = this.options.basemap.defaultmap;
 
       if(this.selectedBasemap) {
@@ -134,14 +128,9 @@
       var url = basemapUrl || this._getBaseMapUrl();
       var basemap = type || this.selectedBasemap || this.options.defaultBasemap;
 
-      //Map for journeys render differently.
-      //If changing something here, be carefull with the way different formats render.
       if (this.journeyMap) {
         this.basemap = L.tileLayer(url).addTo(this.map);
       } else {
-        //This one below is the journeys way. Be carefull, satellite map and topographic
-        //render in the current way.
-        // this.basemap = cartodb.createLayer(this.map, url).addTo(this.map);
         this.basemap = L.tileLayer(url).addTo(this.map);
         this.labels = L.tileLayer(labelsUrl).addTo(this.map);
         this.labels.setZIndex(1005);
@@ -168,7 +157,8 @@
      */
     renderLayers: function() {
       var layersData = this.layers.getPublished();
-      // console.log(layersData)
+
+      //Test for zoom scope.
       _.each(layersData, function(layerData) {
         if (layerData.id == 31) {
           layerData.maxZoom = 100;
@@ -179,11 +169,12 @@
           layerData.maxZoom = 3;
           layerData.minZoom = 0;
         }
-
+        console.log(layerData);
         if (layerData.active) {
           if (layerData.maxZoom) {
             if ( layerData.minZoom <= this.actualZoom && this.actualZoom <= layerData.maxZoom ) {
               this.addLayer(layerData);
+              this._manageCssClasses(layerData.id);
             } else {
               this.removeLayer(layerData);
             }
@@ -199,6 +190,10 @@
       if (this.model.get('journeyMap')) {
         this.setMaskLayer();
       }
+    },
+
+    _manageCssClasses(layerData.id) {
+
     },
 
     /**
@@ -251,7 +246,7 @@
           layer.layer.setOpacity(layerData.opacity);
           layer.layer.setZIndex(1000-layerData.order);
         }
-        // console.info('Layer "' + layerData.id + '"" already exists.');
+        console.info('Layer "' + layerData.id + '"" already exists.');
       }
     },
 
