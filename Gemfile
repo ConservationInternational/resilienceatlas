@@ -56,6 +56,7 @@ end
 source 'https://rails-assets.org' do
   gem 'rails-assets-normalize-css'
   gem 'rails-assets-foundation-sass'
+  gem 'rails-assets-foundation'
   gem 'rails-assets-underscore'
   gem 'rails-assets-backbone'
   gem 'rails-assets-moment'

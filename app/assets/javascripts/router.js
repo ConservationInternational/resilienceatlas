@@ -15,6 +15,7 @@
       '': 'welcome',
       'map': 'map',
       'embed/map': 'map',
+      'about': 'about',
       'journeys/:id': 'journeys',
       'embed/journeys': 'journeys',
     },

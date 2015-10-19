@@ -134,6 +134,17 @@
       return categories;
     },
 
+    getActiveLayers: function() {
+      var layers = [];
+      var activeLayers = this.where({active: true});
+
+      _.each(activeLayers, function(layer) {
+        layers.push(layer.toJSON());
+      });
+
+      return layers;
+    },
+
   });
 
 
