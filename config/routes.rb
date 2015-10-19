@@ -27,5 +27,6 @@ Rails.application.routes.draw do
   get 'embed', to: 'embed#index'
   get 'embed/map', to: 'embed#map'
   get 'embed/journeys', to: 'embed#journeys'
+  get 'embed/test', to: 'embed#test'
 
 end
