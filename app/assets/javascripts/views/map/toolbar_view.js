@@ -10,7 +10,8 @@
     el: '#toolbarView',
 
     events: {
-      'click .btn-share' : '_share'
+      'click .btn-share' : '_share',
+      'click .btn-analyze' : '_analyze'
     },
 
     initialize: function(settings) {
@@ -20,6 +21,10 @@
 
     _share: function() {
       Backbone.Events.trigger('share:show');
+    },
+
+    _analyze: function() {
+      var analyze = new root.app.View.analysisSelectors();
     }
 
   });
