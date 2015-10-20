@@ -64,6 +64,7 @@
     setGroups: function(groupsCollection) {
       this._groups = groupsCollection.getGroups();
       this._categories = groupsCollection.getCategories();
+      this._subcategories = groupsCollection.getsubCategories();
       return this;
     },
 
@@ -73,6 +74,7 @@
         console.info('There aren\`t groups setted.');
         return this.toJSON();
       }
+
       return _.map(this._groups, function(g) {
         var categories = _.where(this._categories, { father: g.id });
         return _.extend(g, {
@@ -89,8 +91,31 @@
             } else {
               c.active = false;
             }
+
+            return _.map(this._categories, function(c) {
+              var subcategories = _.where(this._subcategories, { father: c.id });
+              return _.extend(c, {
+                subcategory: _.map(subcategories, function(sc) {
+                  var layers = _.where(data, { group: sc.id });
+                  console.log(layers)
+                  _.map(layers, function(layer){
+                    layer.opacity_text = layer.opacity*100
+                    return layer;
+                  });
+                  // Forcing category activation
+                  var isActive = _.contains(_.pluck(layers, 'active'), true);
+                  if (isActive) {
+                    sc.active = true;
+                  } else {
+                    sc.active = false;
+                  }
+                  return _.extend(sc, { layers: layers });
+                }, this)
+              }, this)
+            }, this);
+
             return _.extend(c, { layers: layers });
-          })
+          }, this),
         });
       }, this);
     },
