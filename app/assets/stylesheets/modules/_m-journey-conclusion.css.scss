@@ -30,7 +30,7 @@
     max-height: 60vh;
     color: $font-color-3;
     transition: .7s cubic-bezier(0.19, 1, 0.22, 1);
-    //No overflox hidden, it hidde action buttons.
+    //No overflow hidden, it hidde action buttons.
     // overflow: hidden;
 
     &.is-colapsed {
@@ -41,7 +41,9 @@
     .wrapper {
       max-height: 40vh;
       padding-right: rem(10px);
-      overflow: scroll;
+      overflow-y: scroll;
+
+      @extend %clear-scroll-bars;
     }
 
     h2 {

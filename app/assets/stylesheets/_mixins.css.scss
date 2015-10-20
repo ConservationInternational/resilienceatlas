@@ -24,6 +24,15 @@
   transform: translateY(-50%);
 }
 
+%clear-scroll-bars {
+  &::-webkit-scrollbar {
+      display: none;
+  }
+
+  // overflow: -moz-scrollbars-none;
+  -ms-overflow-style: none;
+}
+
 %clean-button-or-input {
   appearance: none;
   box-shadow: none;
@@ -119,7 +128,7 @@
     position: absolute;
     top: 50%;
     left: 50%;
-    margin: -($size/2) 0 0 -($size/2);
+    margin: (-$size/2) 0 (-$size/2);
     transition: all .75s ease 0s;
     border-radius: 100%;
     border-top: $border-width solid $color;
@@ -167,5 +176,13 @@
 // A helper to transform PX to REM unit
 @function rem($px, $base: $rem-base) {
   @return ($px / $base) * 1rem;
+}
+
+@mixin ellipsis ($max-width){
+  display: inline-block;
+  max-width: $max-width;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 

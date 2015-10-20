@@ -1,0 +1,15 @@
+.m-section-nav {
+  ul, li {
+    @extend %clean-lists;
+  }
+
+  display: flex;
+  justify-content: space-between;
+
+  a {
+    font-size: 14px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #555;
+  }
+}

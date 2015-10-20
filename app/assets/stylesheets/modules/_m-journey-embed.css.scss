@@ -120,12 +120,9 @@
       padding-top: rem(25px);
       overflow-y: scroll;
       -webkit-overflow-scrolling: touch;
-      -ms-overflow-style: none;
       padding-right: rem(10px);
 
-      &::-webkit-scrollbar {
-          display: none;
-      }
+     @extend %clear-scroll-bars;
     }
 
     footer {

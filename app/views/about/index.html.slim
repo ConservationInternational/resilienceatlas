@@ -1,46 +1,57 @@
 .l-content
-  .wrap.m-static-page
+  .l-hero
     .row
       .small-12.medium-8.column
         h1.title About
-    article
+  nav.l-section-nav
+    .row
+      .small-12.medium-6.column.medium-offset-3
+        ul.m-section-nav
+          li 
+            a href="#overview" overview
+          li 
+            a href="#using_the_atlas" using the atlas
+          li 
+            a href="#terminology" terminology
+          / li 
+          /   a href="#partnership" partnership
+  .wrap.m-static-page
+
+    article#overview
       .row
-        .medium-12.column
-          h2 Overview
         .small-12.medium-6.column
+          h2 Overview
           p The Resilience Atlas is a tool for building insights on resilience to stressors and shocks that might affect livelihoods, production systems, and ecosystems from local, to national, to regional scales.
           p Resilience is the ability to withstand, respond, and adapt to chronic stresses and acute shocks.
           p The Atlas allows users to understand how different types of wealth and assets (i.e., natural capital, human capital, financial capital, manufactured capital and social capital) – and combinations among these - affect the resilience of particular production systems and dimensions of human well-being to chronic stressors and acute shocks.
           p The Atlas integrates the best available datasets on resilience in a single place.
-        .small-12.medium-6.column
-          .image
+        .small-12.medium-5.column.medium-offset-1
+          img src=image_path("about-1.png") alt=""/
       
     article
-      .row
-        .medium-12.column
+      .row#using_the_atlas
+        .small-12.medium-5.column
+          img src=image_path("about-1.png") alt=""/
+        .small-12.medium-6.column.medium-offset-1
           h2 Using the Atlas
-        .small-12.medium-6.column
-          .image
-        .small-12.medium-6.column
           p We suggest following a step-by-step approach when using the Atlas.
           p First, consider exposure: where are the key livelihoods, production systems, or ecosystems located?
           p Second, examine chronic stressors and acute shocks: what are the different types of chronic stressors and acute shocks affecting these areas?
           p Finally, consider vulnerability: what features of the livelihood, production system, or ecosystem of interest may affect its sensitivity to these stressors and shocks?
           p 
-          | The 
-          a href="/journeys/1" journeys 
-          | demonstrate the application of the Atlas, and highlight some of the insights that have been reached using this tool.
+            | The 
+            a href="/journeys/1" journeys 
+            | demonstrate the application of the Atlas, and highlight some of the insights that have been reached using this tool.
         
-    article
+    article#terminology
       .row
-        .medium-12.column
-          h2 Terminology
         .small-12.medium-6.column
+          h2 Terminology
           p Resilience: is the ability to withstand, respond to and adapt to stresses and shocks
           p Exposure: the state of being exposed to a change (without considering vulnerability)
           p Stressor: chronic exposure, can be cumulative
           p Shock: sudden event (drought, conflict)
           p Vulnerability: the degree to which geophysical, biological and socio-economic systems are susceptible to, and unable to cope with, adverse impacts of climate change (IPCC, Füssel and Klein, 2006)
-        .small-12.medium-6.column
-          .image
+        .small-12.medium-5.column.medium-offset-1
+          img src=image_path("about-1.png") alt=""/
 

@@ -61,7 +61,7 @@
 
     setLegends: function() {
       return _.map(this.layers.getActived(), _.bind(function(layer){
-        //Check if legend exists
+        //Check if legend exist
         if (layer.legend) {
           var legend = JSON.parse(layer.legend);
           var type = legend.type;

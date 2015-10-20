@@ -15,18 +15,20 @@ $side-bar-width: 360px;
   .wrapper {
     max-height: rem(400px);
     overflow-y: scroll;
-    -ms-overflow-style: none;
 
-    &::-webkit-scrollbar {
-      display: none;
-    }
+    @extend %clear-scroll-bars;
   }
 
   &.is-changing {
     background-color: rgba($bg-color-1, .5);
   }
 
+  .is-embed-page.is-journey-map & {
+    display: none;
+  }
+
   .side-bar & {
+    display: block;
     position: static;
     box-shadow: none;
     padding: 0;
@@ -41,7 +43,8 @@ $side-bar-width: 360px;
       position: static;
       padding: 0;
       max-height: auto;
-      overflow: visible;
+      overflow-y: visible;
+      @extend %clear-scroll-bars;
     }
   }
 
@@ -52,14 +55,14 @@ $side-bar-width: 360px;
   }
 
   .m-legend__header {
-    display: none;
+    // display: none;
     position: relative;
     width: 100%;
     padding: 0 rem(10px);
 
-    @media screen and (max-width: 768px) {
-      display: block;
-    }
+    // @media screen and (max-width: 768px) {
+    //   display: block;
+    // }
 
     .side-bar & {
       display: none;
@@ -132,6 +135,22 @@ $side-bar-width: 360px;
         padding: 0;
         visibility: visible !important;
         background: $bg-color-3;
+      }
+
+      &.is-not-available-by-zoom {
+        background-color: rgba(117, 117, 117, 0.1);
+
+        header {
+          padding-bottom: 12px;
+
+          &:after {
+            content: 'Not available at this zoom level.';
+            position: absolute;
+            left: 10px;
+            bottom: -3px;
+            font-size: 10px;
+          }
+        }
       }
 
       header {
