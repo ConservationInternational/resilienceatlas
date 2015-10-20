@@ -11,7 +11,7 @@
 
     layersOrder: 1000,
 
-    template: HandlebarsTemplates['layers_list_tpl'],
+    template: HandlebarsTemplates['map/layers_list_tpl'],
 
     events: {
       'click .m-layers-list-header': '_toggleCategories',
