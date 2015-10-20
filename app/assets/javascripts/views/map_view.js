@@ -80,7 +80,6 @@
 
       this.map.on('dragend', _.bind(function() {
         this.actualCenter = this.map.getCenter();
-        console.log(this.actualCenter);
         this.router.setParams('center', this.actualCenter);
       }, this));
     },
