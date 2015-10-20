@@ -9,7 +9,7 @@
 
     el: 'body',
 
-    template: HandlebarsTemplates['info_window_tpl'],
+    template: HandlebarsTemplates['common/info_window_tpl'],
 
     events: {
       'click .btn-close' : 'close',

@@ -15,7 +15,7 @@
 
     el: 'body',
 
-    template: HandlebarsTemplates['share_tpl'],
+    template: HandlebarsTemplates['common/share_tpl'],
 
     initialize: function(settings) {
       var options = settings && settings.options ? settings.options : settings;
