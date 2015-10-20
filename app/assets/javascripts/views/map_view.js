@@ -313,7 +313,7 @@
     },
 
     checkMask: function() {
-      if(this.maskMapLayer) {
+      if(this.maskMapLayer && !this.journeyMap) {
         this.map.removeLayer(this.maskMapLayer);
       }
     },
