@@ -10,9 +10,9 @@
     events: {
     },
 
-    el: 'analyzeSelectorsView',
+    el: '#analyzeSelectorsView',
 
-    template: HandlebarsTemplates['analyze_selectors_tpl'],
+    template: HandlebarsTemplates['analysis/analyze_selectors_tpl'],
 
     initialize: function(settings) {
       var options = settings && settings.options ? settings.options : settings;
@@ -26,7 +26,8 @@
     },
 
     render: function() {
-      console.log('hola');
+      console.log('hola')
+      this.$el.html(this.template())
     }
 
   });
