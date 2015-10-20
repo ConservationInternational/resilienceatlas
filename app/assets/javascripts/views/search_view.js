@@ -37,6 +37,7 @@
 
     setListeners: function() {
       Backbone.Events.on('search:clear', this.unFocus.bind(this));
+      this.$el.on('click', this.unHighlight);
     },
 
     getData: function() {
@@ -77,7 +78,6 @@
       ev.stopPropagation();
 
       this.$(this.elInput).addClass('focus');
-      // $('body').on('click', this.unHighlight);
       this.$('.search-suggestions li').removeClass('selected');
     },
 
@@ -86,12 +86,11 @@
       var id = null;
 
       if($target) {
-        id = $target.closest('.search').attr('id');
+        id = $target.closest('#searchBox').attr('id');
       }
 
       if(!id) {
         Backbone.Events.trigger('search:clear');
-        $('body').off('click', this.unHighlight);
       }
     },
 
