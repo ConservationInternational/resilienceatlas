@@ -18,7 +18,13 @@
 //= require_tree ./models
 //= require_tree ./collections
 //= require_tree ./templates
-//= require_tree ./views
+//= require_tree ./views/common
+//= require_tree ./views/map
+//= require_tree ./views/journeys
+//= require_tree ./views/static
+//= require ./views/analysis/widgets/widget_view
+//= require ./views/analysis/widgets/widget_bar_chart
+
 //= require router
 
 (function(root) {
