@@ -190,6 +190,13 @@
           layers: layersCollection
         });
 
+        if (!journeyMap) {
+          var searchView = new root.app.View.Search({
+            el: 'body',
+            map: mapView
+          });
+        }
+
       }.bind(this));
     },
 
