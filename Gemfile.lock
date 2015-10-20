@@ -93,6 +93,8 @@ GEM
       execjs
     coffee-script-source (1.9.1.1)
     columnize (0.9.0)
+    d3-rails (3.5.6)
+      railties (>= 3.1)
     database_cleaner (1.4.1)
     debug_inspector (0.0.2)
     devise (3.5.1)
@@ -339,6 +341,7 @@ DEPENDENCIES
   binding_of_caller
   bullet
   byebug
+  d3-rails (>= 3.5.6)
   database_cleaner
   devise
   dotenv-rails

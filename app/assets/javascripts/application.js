@@ -7,12 +7,14 @@
 //= require handlebars
 //= require slick-carousel
 //= require foundation
+//= require d3
 
 //= require ./helpers/handlebars_helpers
 //= require ./helpers/class
 //= require ./helpers/cartodb_layer
 //= require ./helpers/cartodb_raster
 //= require ./helpers/cartodb_mask
+//= require ./helpers/charts
 //= require_tree ./models
 //= require_tree ./collections
 //= require_tree ./templates

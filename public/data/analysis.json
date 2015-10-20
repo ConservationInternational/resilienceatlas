@@ -1,0 +1,104 @@
+[
+  {
+    "category_name": "Exposure",
+    "category_slug": "exposure",
+    "indicators": [
+      {
+        "name": "Total population",
+        "slug": "total_population",
+        "module": "",
+        "query": ""
+      },
+      {
+        "name": "Population density",
+        "slug": "population_density",
+        "module": "",
+        "query": ""
+      },
+      {
+        "name": "Primary livelihood strategies",
+        "slug": "primary_livelihood_strategies",
+        "module": "",
+        "query": ""
+      },
+      {
+        "name": "Precipitation trend",
+        "slug": "precipitation_trend",
+        "module": "",
+        "query": ""
+      },
+      {
+        "name": "Temperature trend",
+        "slug": "temperature_trend",
+        "module": "",
+        "query": ""
+      },
+      {
+        "name": "Climate chart",
+        "slug": "climate_chart",
+        "module": "",
+        "query": ""
+      }
+    ]
+  },
+  {
+    "category_name": "Shocks",
+    "category_slug": "shocks",
+    "indicators": [
+      {
+        "name": "Change in precipitation variability",
+        "slug": "change_in_precipitation_variability",
+        "module": "",
+        "query": ""
+      },
+      {
+        "name": "Change in seasonality",
+        "slug": "change_in_seasonality",
+        "module": "",
+        "query": ""
+      },
+      {
+        "name": "Conflict",
+        "slug": "conflict",
+        "module": "",
+        "query": ""
+      }
+    ]
+  },
+  {
+    "category_name": "Vulnerability",
+    "category_slug": "vulnerability",
+    "indicators": [
+      {
+        "name": "Population pyramid",
+        "slug": "population_pyramid",
+        "module": "",
+        "query": ""
+      },
+      {
+        "name": "Primary export crops",
+        "slug": "primary_export_crops",
+        "module": "",
+        "query": ""
+      },
+      {
+        "name": "Health",
+        "slug": "health",
+        "module": "",
+        "query": ""
+      },
+      {
+        "name": "Education",
+        "slug": "education",
+        "module": "",
+        "query": ""
+      },
+      {
+        "name": "Services",
+        "slug": "services",
+        "module": "",
+        "query": ""
+      }
+    ]
+  }
+]
