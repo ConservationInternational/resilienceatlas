@@ -106,7 +106,15 @@
         layers: layersCollection,
         basemap: this.router.params.attributes.basemap,
         model: mapModel,
-        router: this.router
+        router: this.router,
+        options: {
+          map: {
+            zoom: this.router.params.attributes.zoom || 3,
+            center: [0, 15],
+            zoomControl: false,
+            scrollWheelZoom: false
+          }
+        }
       });
 
       //No Layer list nor legend are showed into journey embed map.

@@ -8,12 +8,11 @@
   root.app.View.Map = Backbone.View.extend({
 
     defaults: {
-      map: {
-        zoom: 3,
-        center: [0, 15],
-        zoomControl: false,
-        scrollWheelZoom: false
-      },
+      // map: {
+      //   center: [0, 15],
+      //   zoomControl: false,
+      //   scrollWheelZoom: false
+      // },
       defaultBasemap: 'defaultmap',
       basemap: {
         labels: 'http://api.tiles.mapbox.com/v4/cigrp.829fd2d8/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiY2lncnAiLCJhIjoiYTQ5YzVmYTk4YzM0ZWM4OTU1ZjQxMWI5ZDNiNTQ5M2IifQ.SBgo9jJftBDx4c5gX4wm3g',
@@ -29,6 +28,7 @@
     initialize: function(settings) {
       var opts = settings && settings.options ? settings.options : {};
       this.options = _.extend({}, this.defaults, opts);
+
       this.router = settings.router;
       this.layers = settings.layers;
       this.selectedBasemap = settings.basemap;
@@ -59,6 +59,7 @@
         }
       }
       if (!this.map) {
+        console.log(this.options.map);
         this.map = L.map(this.el, this.options.map);
         if (this.options.zoomControl) {
           this.addControlZoom();
@@ -71,7 +72,8 @@
       var self = this;
 
       this.actualZoom = this.options.map.zoom;
-      this.router.setParams('zoom', this.actualZoom);
+      console.log(this.actualZoom)
+      // this.router.setParams('zoom', this.actualZoom);
 
       this.map.on('zoomend', _.bind(function() {
         this.actualZoom = this.map.getZoom();
