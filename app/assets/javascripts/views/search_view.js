@@ -99,7 +99,6 @@
       $input.removeClass('focus');
       $input.blur();
       this.clearSearch();
-      $('body').off('keydown', this.checkNavigation);
     },
 
     showSuggestions: function(text) {
@@ -146,18 +145,6 @@
 
       if(key === 27) {
         this.unHighlight();
-      }
-    },
-
-    checkNavigation: function(ev) {
-      var key = ev.keyCode || 0;
-      var direction = '';
-
-      if(key === 40 || key === 38) {
-        ev.preventDefault();
-        ev.stopPropagation();
-
-        Backbone.Events.trigger('search:navigate', key);
       }
     },
 
