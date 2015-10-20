@@ -7,9 +7,9 @@
 
   root.app.View.Search = Backbone.View.extend({
 
-    template: HandlebarsTemplates['search_tpl'],
+    template: HandlebarsTemplates['common/search_tpl'],
 
-    templateSuggestions: HandlebarsTemplates['search_suggestions_tpl'],
+    templateSuggestions: HandlebarsTemplates['common/search_suggestions_tpl'],
 
     defaults: {
     },
@@ -61,7 +61,7 @@
       var $searchBox = this.$('.search-content');
       var value = $ele.val();
       var key = ev && ev.keyCode ? ev.keyCode : 0;
-      
+
       if(key !== 40 || key !== 38) {
         if(value.length > 0) {
           $searchBox.addClass('searching');
@@ -140,7 +140,7 @@
       this.onSearch();
     },
 
-    highlightResultsBox: function(ev) {      
+    highlightResultsBox: function(ev) {
       var key = ev.keyCode || 0;
 
       if(key === 27) {
@@ -156,7 +156,7 @@
 
       if(area[0]) {
         var bbox = area[0].get('bbox');
-        
+
         this.map.setBbox(bbox);
         this.map.setMaskLayer(iso, 0.8, {
           query: 'select * from grpcountries_250k_polygon',

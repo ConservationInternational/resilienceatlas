@@ -15,7 +15,7 @@
       this.setListeners();
     },
 
-    template: HandlebarsTemplates['journeys_tpl'],
+    template: HandlebarsTemplates['journeys/journeys_tpl'],
 
     model: new (Backbone.Model.extend({
       defaults: {
