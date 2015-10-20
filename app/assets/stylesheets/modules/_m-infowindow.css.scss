@@ -64,8 +64,10 @@
 .modal-container {
   padding-right: 10px; //Margen para el scroll de windows
   padding: rem(50px);
-  overflow: scroll;
+  overflow-y: scroll;
+  @extend %clear-scroll-bars;
   background-color: #fff;
+
 }
 
 .btn-close,

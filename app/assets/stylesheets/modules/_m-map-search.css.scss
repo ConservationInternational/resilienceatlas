@@ -50,7 +50,8 @@
       display: none;
       height: auto;
       max-height: rem(208px);
-      overflow: scroll;
+      overflow-y: scroll;
+      @extend %clear-scroll-bars;
 
       ul {
         width: 98%;
@@ -64,7 +65,7 @@
           width: 100%;
           float: left;
           cursor: pointer;
-          color: $font-color-1;        
+          color: $font-color-1;
           @include ellipsis(95%);
 
           .name {
@@ -76,7 +77,7 @@
             span {
               font-weight: 500;
               text-decoration: underline;
-              top: auto;            
+              top: auto;
             }
           }
 
