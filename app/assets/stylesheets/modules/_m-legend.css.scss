@@ -23,7 +23,12 @@ $side-bar-width: 360px;
     background-color: rgba($bg-color-1, .5);
   }
 
+  .is-embed-page.is-journey-map & {
+    display: none;
+  }
+
   .side-bar & {
+    display: block;
     position: static;
     box-shadow: none;
     padding: 0;
