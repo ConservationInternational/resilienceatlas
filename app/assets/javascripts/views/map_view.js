@@ -79,6 +79,7 @@
       this.map.on('zoomend', _.bind(function() {
         this.actualZoom = this.map.getZoom();
         this.router.setParams('zoom', this.actualZoom);
+        this.finishedZooming = true;
         this.renderLayers();
       }, this));
 
@@ -199,6 +200,12 @@
       if (this.model.get('journeyMap')) {
         this.setMaskLayer();
       }
+
+      if(!this.finishedZooming) {
+        this.checkMask();
+      } else {
+        this.finishedZooming = false;
+      }
     },
 
     // _manageCssClasses: function(layerId) {
@@ -219,8 +226,6 @@
       }
       var layer = this.model.get(layerData.id);
       var layerInstance;
-
-      this.checkMask();
 
       if (!layer) {
         switch(layerData.type) {
