@@ -48,6 +48,7 @@
      * Instantiates a Leaflet map object
      */
     createMap: function() {
+      var self = this;
       // trampita zoom
       if (this.journeyMap) {
         if ( $(document).width() < 1020 ) {
@@ -60,6 +61,9 @@
       }
       if (!this.map) {
         this.map = L.map(this.el, this.options.map);
+        this.map.on('click', function(){
+          self.checkMask();
+        });
         if (this.options.zoomControl) {
           this.addControlZoom();
         }
@@ -211,6 +215,9 @@
       }
       var layer = this.model.get(layerData.id);
       var layerInstance;
+
+      this.checkMask();
+
       if (!layer) {
         switch(layerData.type) {
           case 'cartodb':
@@ -263,12 +270,28 @@
       }
     },
 
-    setMaskLayer: function() {
-      var countryIso = this.model.get('countryIso');
-      var maskLayer = new root.app.Helper.CartoDBmask(this.map, countryIso);
+    setMaskLayer: function(iso, opacity, searchMask) {
+      var self = this;
+      var countryIso = iso;
+
+      if(!countryIso) {
+        countryIso = this.model.get('countryIso');
+      }
+
+      this.checkMask();
+
+      var maskLayer = new root.app.Helper.CartoDBmask(this.map, countryIso, {
+        searchMask: searchMask
+      });
 
       maskLayer.create(function(layer){
         layer.setZIndex(1001)
+
+        if(opacity) {
+          layer.setOpacity(opacity);
+        }
+
+        self.maskMapLayer = layer;
       });
     },
 
@@ -284,6 +307,24 @@
         center: this.map.getCenter()
       }
     },
+
+    checkMask: function() {
+      if(this.maskMapLayer) {
+        this.map.removeLayer(this.maskMapLayer);
+      }
+    },
+
+    setBbox: function(bbox) {
+      if(bbox) {
+        bbox = JSON.parse(bbox);
+        var coords = bbox.coordinates[0];
+        var southWest = L.latLng(coords[2][1], coords[2][0]),
+          northEast = L.latLng(coords[0][1], coords[0][0]),
+          bounds = L.latLngBounds(southWest, northEast);
+
+        this.map.fitBounds(bounds);
+      }
+    }
 
   });
 

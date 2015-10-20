@@ -14,7 +14,7 @@
     defaults: {
       user_name: 'grp', // Required
       type: 'cartodb', // Required
-      // cartodb_logo: false,
+      cartodb_logo: false,
       maps_api_template: 'https://grp.global.ssl.fastly.net',
       sql_api_template: 'https://grp.global.ssl.fastly.net',
       sublayers: [{
@@ -28,12 +28,25 @@
       }
       var opts = settings || {};
       this.options = _.extend({}, this.defaults, opts);
-      this.options.sublayers[0].cartocss = this._setCartoCss(countryIso);
+
+      if(this.options.searchMask) {
+        var searchMaskOpts = this.options.searchMask;
+        this.options.sublayers[0].sql = searchMaskOpts.query;
+        this.options.sublayers[0].cartocss = this._setCartoCss(countryIso, searchMaskOpts.tableName);
+      } else {
+        this.options.sublayers[0].cartocss = this._setCartoCss(countryIso);
+      }
+
       this._setMap(map);
     },
 
-    _setCartoCss: function(countryIso) {
-      return "#country_mask{polygon-fill: #FFF;polygon-opacity: 1;line-color: #DDD;}#country_mask[iso_a3='"+ countryIso +"']{polygon-opacity: 0;}"
+    _setCartoCss: function(countryIso, tableName) {
+      var carto = "#country_mask{polygon-fill: #FFF;polygon-opacity: 1;line-color: #DDD;}#country_mask[iso_a3='"+ countryIso +"']{polygon-opacity: 0;}";
+      
+      if(tableName) {
+        carto = "#"+tableName+"{polygon-fill: #FFF;polygon-opacity: 1;line-color: #DDD;}#"+tableName+"[iso3='"+ countryIso +"']{polygon-opacity: 0;}"
+      }
+      return carto;
     },
 
     /**
@@ -47,6 +60,7 @@
         .on('done', function(layer) {
           this.layer = layer;
           this.layer.getSubLayer(0).set(this.options.sublayers[0]);
+          
           if (callback && typeof callback === 'function') {
             callback.apply(this, arguments);
           }
