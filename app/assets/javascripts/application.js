@@ -110,7 +110,7 @@
         options: {
           map: {
             zoom: this.router.params.attributes.zoom || 3,
-            center: [0, 15],
+            center: this.router.params.attributes.center ? [ JSON.parse(this.router.params.attributes.center).lat, JSON.parse(this.router.params.attributes.center).lng] : [0, 15],
             zoomControl: false,
             scrollWheelZoom: false
           }

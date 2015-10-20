@@ -59,7 +59,6 @@
         }
       }
       if (!this.map) {
-        console.log(this.options.map);
         this.map = L.map(this.el, this.options.map);
         if (this.options.zoomControl) {
           this.addControlZoom();
@@ -72,13 +71,17 @@
       var self = this;
 
       this.actualZoom = this.options.map.zoom;
-      console.log(this.actualZoom)
-      // this.router.setParams('zoom', this.actualZoom);
 
       this.map.on('zoomend', _.bind(function() {
         this.actualZoom = this.map.getZoom();
         this.router.setParams('zoom', this.actualZoom);
         this.renderLayers();
+      }, this));
+
+      this.map.on('dragend', _.bind(function() {
+        this.actualCenter = this.map.getCenter();
+        console.log(this.actualCenter);
+        this.router.setParams('center', this.actualCenter);
       }, this));
     },
 
