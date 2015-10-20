@@ -12,12 +12,12 @@
     },
 
     routes: {
-      '': 'welcome',
-      'map': 'map',
-      'embed/map': 'map',
-      'about': 'about',
-      'journeys/:id': 'journeys',
-      'embed/journeys': 'journeys',
+      '(/)': 'welcome',
+      'map(/)': 'map',
+      'embed/map(/)': 'map',
+      'about(/)': 'about',
+      'journeys/:id(/)': 'journeys',
+      'embed/journeys(/)': 'journeys',
     },
 
     ParamsModel: Backbone.Model.extend({}),
