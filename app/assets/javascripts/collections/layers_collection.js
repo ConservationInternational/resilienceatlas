@@ -92,27 +92,28 @@
               c.active = false;
             }
 
-            return _.map(this._categories, function(c) {
-              var subcategories = _.where(this._subcategories, { father: c.id });
-              return _.extend(c, {
-                subcategory: _.map(subcategories, function(sc) {
-                  var layers = _.where(data, { group: sc.id });
-                  console.log(layers)
-                  _.map(layers, function(layer){
-                    layer.opacity_text = layer.opacity*100
-                    return layer;
-                  });
-                  // Forcing category activation
-                  var isActive = _.contains(_.pluck(layers, 'active'), true);
-                  if (isActive) {
-                    sc.active = true;
-                  } else {
-                    sc.active = false;
-                  }
-                  return _.extend(sc, { layers: layers });
-                }, this)
+            //Hayo las subcategories para esta categoria.
+            var subcategories = _.where(this._subcategories, { father: c.id });
+            //Extend categories.
+            console.log(this._subcategories);
+            return _.extend(c, {
+              subcategory: _.map(subcategories, function(sc) {
+                var layers = _.where(data, { group: sc.id });
+                console.log(layers)
+                _.map(layers, function(layer){
+                  layer.opacity_text = layer.opacity*100
+                  return layer;
+                });
+                // Forcing category activation
+                var isActive = _.contains(_.pluck(layers, 'active'), true);
+                if (isActive) {
+                  sc.active = true;
+                } else {
+                  sc.active = false;
+                }
+                return _.extend(sc, { layers: layers });
               }, this)
-            }, this);
+            }, this)
 
             return _.extend(c, { layers: layers });
           }, this),
