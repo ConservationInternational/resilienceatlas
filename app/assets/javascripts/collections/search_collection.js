@@ -7,9 +7,9 @@
 
   root.app.Collection.Search = Backbone.Collection.extend({
 
-    // url: 'https://grp.global.ssl.fastly.net/user/grp/api/v1/sql',
+    url: 'https://grp.global.ssl.fastly.net/user/grp/api/v1/sql',
 
-    url: 'data/countries.json', 
+    // url: 'data/countries.json', 
 
     parse: function(data) {
       return data.rows;

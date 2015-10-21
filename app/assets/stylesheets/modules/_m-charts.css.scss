@@ -1,0 +1,238 @@
+/* Charts */
+
+.graph {
+
+  // Line chart
+  $y-axis-dotted-light: #D4D4D4;
+  $y-axis-dotted-dark: #737373;
+  $line-trail: #D8D8D8;
+  $circle-trail-fill: $font-color-1;
+  $circle-trail-border: $white;
+  $path-color: $font-color-1;
+
+  .tooltip-graph {
+    width: rem(160px);
+    height: rem(80px);
+    position: absolute;
+    z-index: 1;
+    display: none;
+    background: rgba(255,255,255,1);
+    box-shadow: 0px 0px 0px 1px rgba(0,0,0,0.10), 0px 2px 10px 0px rgba(0,0,0,0.15);
+    pointer-events: none;
+
+    .content {
+      width: 100%;
+      height: inherit;
+      padding: $margin;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+
+      .title {
+        margin: 0 auto;
+        text-align: center;
+        line-height: rem(15px);
+        padding-bottom: rem(5px);
+        text-transform: uppercase;
+        letter-spacing: -0.1px;
+      }
+
+      .value {
+        text-align: center;
+        color: $font-color-1;
+        font-weight: 500;
+        padding-top: 0;
+      }
+    }
+    .bottom {
+      width: 0;
+      height: 0;
+      border-left: 15px solid transparent;
+      border-right: 15px solid transparent;
+      border-top: 15px solid rgba(0,0,0,0.3);
+      left: rem(65px);
+      bottom: rem(-1px);
+      position: relative;
+
+      &:before{
+        content: '';
+        position: absolute;
+        border-style: solid;
+        border-width: rem(15px) rem(15px) 0;
+        border-color: rgba(255,255,255,1) transparent;
+        display: block;
+        width: 0;
+        z-index: 0;
+        left: rem(-15px);
+        bottom: rem(1px);
+      }
+    }
+
+    &.left {
+      border-radius: rem(4px);
+      border: 1px solid #D8D8D8;
+      box-shadow: 0px 2px 10px 0px rgba(0,0,0,0.15);
+
+      .bottom {
+        width: 0;
+        height: 0;
+        border-style: solid;
+        border-width: rem(8.5px) rem(9px) rem(8.5px) 0;
+        border-color: transparent #D8D8D8 transparent transparent;
+        left: rem(-10px);
+        bottom: rem(48px);
+        position: relative;
+
+        &:before{
+          content: '';
+          position: absolute;
+          border-style: solid;
+          border-width: rem(8.5px) rem(9px) rem(8.5px) 0;
+          border-color: transparent rgba(255,255,255,1);
+          display: block;
+          width: 0;
+          z-index: 0;
+          left: rem(1px);
+          bottom: rem(-8px);
+        }
+      }
+    }
+  }
+
+
+
+  &.graph-line {
+    position: relative;
+
+    .tooltip-graph {
+      height: rem(65px);
+
+      .content {
+        .title {
+          height: rem(20px);
+          text-transform: uppercase;
+        }
+        .value {
+          padding-top: 0;
+        }
+      }
+    }
+
+    rect {
+      shape-rendering: crispEdges;
+    }
+
+    .axis path,
+    .axis line {
+      fill: none;
+      stroke: #000;
+      shape-rendering: crispEdges;
+    }
+
+    .x {
+      &.axis path {
+        stroke-dasharray: 1, 1;
+        stroke: $y-axis-dotted-light;
+      }
+
+      text {
+        fill: $gray-medium;
+      }
+    }
+
+    .y {
+      &.axis {
+        .domain {
+          stroke-width: 0;
+        }
+
+        .tick {
+          line {
+            stroke-dasharray: 1, 1;
+            stroke: $y-axis-dotted-light;
+          }
+          &:first-child {
+            line {
+              stroke: $y-axis-dotted-light;
+            }
+          }
+        }
+      }
+    }
+
+    .focus {
+      circle {
+        fill: $circle-trail-fill;
+        stroke: $circle-trail-border;
+        stroke-width: 2;
+      }
+    }
+
+    .trail {
+      stroke: $line-trail;
+      shape-rendering: crispEdges;
+    }
+
+    .line {
+      fill: none;
+      stroke: $path-color;
+      stroke-width: 1.3px;
+    }
+
+    .overlay {
+      fill: none;
+      pointer-events: all;
+    }
+  }
+
+  .legend-stack-graph {
+    width: 70%;
+    margin-left: rem(133px);
+    margin-top: rem(15px);
+    display: inline-block;
+
+    .list {
+      width: 100%;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      text-align: left;
+
+      .list-icon {
+        width: rem(11px);
+        height: rem(11px);
+        display: inline-block;
+        float: left;
+        border-radius: rem(11px);
+        margin-top: rem(2px);
+        margin-right: rem(5px);
+      }
+
+      .item {
+        float: left;
+        margin-right: rem(22px);
+        font-size: rem(10px);
+        font-weight: 600;
+        text-transform: uppercase;
+        color: $gray-light;
+        letter-spacing: rem(0.43px);
+      }
+    }
+  }
+}
+
+.legend {
+  svg {
+    padding-top: rem(5px);
+  }
+
+  .text {
+  }
+  .icon {
+    width: rem(11px);
+    height: rem(11px);
+    border-radius: rem(11px);
+  }
+}

@@ -1,0 +1,15 @@
+<div>{{name}}</div>
+
+{{#if noData}}
+  <div class="widget-no-data">
+    <h3>NO DATA AVAILABLE</h3>
+  </div>
+{{else}}
+  <div id="{{slug}}" class="widget-number">
+    {{#each data}}
+       {{#each this}}
+       	{{@key}} - {{this}}
+       {{/each}}
+    {{/each}}
+  </div>
+{{/if}}
