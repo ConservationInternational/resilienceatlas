@@ -148,12 +148,12 @@
 
     setDisabledByZoom: function(layerId) {
       var noAvailableByZoom = _.findWhere(this.models, { 'id': layerId });
-      noAvailableByZoom.set('notAvailableByZoom', true);
+      noAvailableByZoom.set('notAvailableByZoom', true, { silent: true });
     },
 
     unsetDisabledByZoom: function(layerId) {
       var noAvailableByZoom = _.findWhere(this.models, { 'id': layerId });
-      noAvailableByZoom.set('notAvailableByZoom', false);
+      noAvailableByZoom.set('notAvailableByZoom', false, { silent: true });
     },
 
     getActived: function() {

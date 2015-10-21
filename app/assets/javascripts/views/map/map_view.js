@@ -39,8 +39,6 @@
 
     setListeners: function() {
       this.listenTo(this.layers, 'change', this.renderLayers);
-      // this.listenTo(this.layers, 'sort', this.renderLayers);
-
       Backbone.Events.on('basemap:change', _.bind(this.selectBasemap, this));
     },
 
@@ -169,7 +167,7 @@
 
       //Test for zoom scope.
       _.each(layersData, function(layerData) {
-        if (layerData.id == 31) {
+        if (layerData.id == 53) {
           layerData.maxZoom = 100;
           layerData.minZoom = 3;
         }
@@ -186,6 +184,7 @@
               this.layers.unsetDisabledByZoom(layerData.id)
             } else {
               this.removeLayer(layerData);
+              this._showZoomAd(layerData);
               this.layers.setDisabledByZoom(layerData.id);
             }
           } else {
@@ -208,9 +207,9 @@
       }
     },
 
-    // _manageCssClasses: function(layerId) {
-
-    // },
+    _showZoomAd: function(layerData) {
+      var advise = new root.app.View.Advise({'options': layerData});
+    },
 
     /**
      * Add a layer instance to map

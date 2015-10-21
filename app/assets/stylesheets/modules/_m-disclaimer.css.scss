@@ -1,0 +1,38 @@
+.m-disclaimer {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-content: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  height: 65px;
+  text-align: center;
+  background-color: rgba($bg-color-2, .9);
+  color: $font-color-3;
+  transform: translatey(-100%);
+  transition: .3s cubic-bezier(0.445, 0.05, 0.55, 0.95) .1s;
+
+  &.is-active {
+    transform: translatey(0);
+  }
+
+  p {
+    margin: 0;
+    display: inline-block;
+    font-weight: 400;
+  }
+
+  span {
+    font-weight:
+  }
+
+  .btn-close {
+    @extend %clean-button-or-input;
+    @extend %centery;
+    right: 20px;
+    color: $font-color-3;
+  }
+}

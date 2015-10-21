@@ -179,6 +179,7 @@
 
         // Render views
         mapView.renderLayers();
+
         //Layer list is not showed into journey embed map.
         if (!journeyMap) {
           layersListView.render();

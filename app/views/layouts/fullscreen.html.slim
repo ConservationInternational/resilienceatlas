@@ -15,6 +15,7 @@ html lang="#{I18n.locale}"
       == yield
 
     == render "partials/modal"
+    == render "partials/disclaimer"
 
     = javascript_include_tag "http://libs.cartocdn.com/cartodb.js/v3/3.14/cartodb.js"
     = javascript_include_tag "application"
