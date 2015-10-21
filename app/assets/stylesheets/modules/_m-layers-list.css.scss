@@ -33,6 +33,10 @@
   text-align: right;
   border-bottom: 1px solid rgba($font-color-1, .1);
 
+  &:last-child {
+    border-bottom: 0;
+  }
+
   &:before {
     @include equi-triangle(5px, $font-color-1, left);
     @extend %centery;
@@ -108,8 +112,12 @@
 
   li {
     padding: rem(10px) rem(15px);
+    // @include clearfix;
 
-    @include clearfix;
+    &.subcategory {
+      padding-left: 0;
+      padding-top: 0;
+    }
   }
 
   .panel-item-title {

@@ -38,7 +38,8 @@
           name: d.attributes.name,
           father: superGroupId ? parseInt(superGroupId) : null,
           order: d.attributes.order,
-          active: d.attributes.active
+          active: d.attributes.active,
+          group_type: d.attributes.layer_group_type
         };
       });
 
@@ -55,6 +56,10 @@
       return _.filter(this.getPublished(), function(g) {
         return !!g.father;
       });
+    },
+
+    getsubCategories: function() {
+      return _.where(this.getPublished(), { group_type: "subcategory" });
     },
 
     getCategoriesByGroup: function(groupId) {
