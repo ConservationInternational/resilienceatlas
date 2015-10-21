@@ -1,0 +1,9 @@
+<div>{{name}}</div>
+
+{{#if noData}}
+  <div class="widget-no-data">
+    <h3>NO DATA AVAILABLE</h3>
+  </div>
+{{else}}
+  <div id="{{slug}}" class="widget-line-chart graph" style="height:300px"></div>
+{{/if}}

@@ -7,6 +7,10 @@
 
   root.app.Helper.Charts = root.app.Helper.Class.extend({
 
+    initialize: function() {
+
+    },
+
     buildPieChart: function(params) {
       var elem = params.elem;
       var elemAttr = elem.replace(/[#]|[.]/g, '');
@@ -224,6 +228,7 @@
           .orient('bottom')
           .ticks(5)
           .tickSize(0)
+          .tickPadding(10)
           .tickFormat(d3.time.format('%Y'));
 
       var yAxis = d3.svg.axis()
@@ -372,13 +377,15 @@
       var contentHeight = $el.height();
       var data = params.data;
       var hover = params.hover;
-      var interpolate = params.interpolate || 'linear';
       var loader = params.loader || null;
       var infoWindow = params.infoWindowText || '';
       var decimals = params.decimals || 0;
       var unit = params.unit || ''; 
       var barWidth = params.barWidth || 10;
       var barSeparation = params.barSeparation || 10;
+      var xIsDate = params.xIsDate || false;
+      var hasLine = params.hasLine || false;
+      var interpolate = params.interpolate || 'linear';
       var transition = 200;
 
       $el.addClass('graph-line');
@@ -405,9 +412,20 @@
       var totalBarsWidth = ((barWidth + barSeparation) * data.length) - barSeparation;
       var centerContainer = (contentWidth / 2) - (totalBarsWidth / 2);
 
-      data.forEach(function(d) {
-        d.date = parseDate(d.date);
-      });      
+      if(xIsDate) {
+        data.forEach(function(d) {
+          d.date = parseDate(d.date);
+        });
+      }
+
+      if(hasLine) {
+        var line = d3.svg.line()
+          .x(function(d, i) { 
+            return (barWidth+barSeparation) * i;
+          })
+          .y(function(d) { return y(d.z); })
+          .interpolate(interpolate);
+      }
 
       var svgBars = d3.select(elem).append('svg')
         .attr('class', '')
@@ -465,6 +483,15 @@
         })
         .attr('y', function (d) { return  yScale(d.value) + 25; });
 
+      if(hasLine) {
+        barsContent.append('g')
+        .attr('transform', function(d,i) {
+          return 'translate(' + ((barWidth) / 2) + ', 25)';
+        }).append('path')
+          .datum(data)
+          .attr('class', 'line')
+          .attr('d', line); 
+      }
 
       d3.select(elem+' svg').append('g')
         .attr('transform', 'translate('+ centerContainer +', '+ height +')')
@@ -477,7 +504,13 @@
               return (barWidth+barSeparation) * i + 2;
            })
           .attr('y', function(d) { return 15 })
-          .text(function(d) { return yearFormat(d.date); });
+          .text(function(d) { 
+            if(xIsDate) {
+              return yearFormat(d.date); 
+            } else {
+              return d.x;
+            }
+          });
       
       if(loader) {
         $el.removeClass(loader);

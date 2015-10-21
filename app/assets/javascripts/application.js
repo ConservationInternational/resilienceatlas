@@ -24,6 +24,10 @@
 //= require_tree ./views/static
 //= require ./views/analysis/widgets/widget_view
 //= require ./views/analysis/widgets/widget_bar_chart
+//= require ./views/analysis/widgets/widget_line_chart
+//= require ./views/analysis/widgets/widget_number
+//= require ./views/analysis/widgets/widget_text_list
+//= require ./views/analysis/analysis_page_view
 
 //= require router
 

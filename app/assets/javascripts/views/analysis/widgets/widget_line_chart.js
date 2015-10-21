@@ -5,34 +5,32 @@
   root.app = root.app || {};
   root.app.View = root.app.View || {};
 
-  root.app.View.WidgetBarChart = root.app.View.Widget.extend({
+  root.app.View.WidgetLineChart = root.app.View.Widget.extend({
 
     defaults: {
-      charEl: '.widget-bar-chart'
+      charEl: '.widget-line-chart'
     },
 
-    template: HandlebarsTemplates['analysis/widgets/widget_bar_chart_tpl'],
+    template: HandlebarsTemplates['analysis/widgets/widget_line_chart_tpl'],
 
     initialize: function(settings) {
       var options = settings && settings.options ? settings.options : settings;
       this.options = _.extend(this.defaults, options);
 
       this.charts =  new root.app.Helper.Charts();
-      this.hasLine = this.options.hasLine || false;
-
-      root.app.View.WidgetBarChart.__super__.initialize.apply(this);
+      
+      root.app.View.WidgetLineChart.__super__.initialize.apply(this);
     },
 
     renderWidget: function() {
-      this.charts.buildBarsChart({
+      this.charts.buildLineChart({
         elem: '#' + this.slug,
-        barWidth: 25,
-        barSeparation: 20,
+        barWidth: 30,
+        barSeparation: 45,
         data: this.data,
         hover: true,
-        loader: 'is-loading',
-        interpolate: 'basis',
-        hasLine: this.hasLine
+        decimals: 0,
+        loader: 'is-loading'
       });
     },
 
@@ -43,6 +41,7 @@
 
         _.filter(values, function(value) {
           value.value = value.y;
+          value.date = '1-' + value.x + '-' + d.getFullYear();
         });
         return values;
       }
