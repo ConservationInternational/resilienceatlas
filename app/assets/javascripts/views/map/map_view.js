@@ -184,8 +184,19 @@
               this.layers.unsetDisabledByZoom(layerData.id)
             } else {
               this.removeLayer(layerData);
-              this._showZoomAd(layerData);
               this.layers.setDisabledByZoom(layerData.id);
+
+              var disactiveLayers = this._getDisabledLayers() || [];
+              var contains = $.inArray(layerData.id, disactiveLayers);
+
+              console.log(this._getDisabledLayers());
+              // console.log(disactiveLayers);
+              // console.log(contains);
+
+              if (contains === -1) {
+                this._showZoomAd(layerData);
+              };
+
             }
           } else {
             this.addLayer(layerData);
@@ -208,7 +219,20 @@
     },
 
     _showZoomAd: function(layerData) {
+      this._keepDisabledLayers(this.options.id);
       var advise = new root.app.View.Advise({'options': layerData});
+    },
+
+    _keepDisabledLayers: function(layerId) {
+      var layersHiddenByZoom = this._getDisabledLayers() || [];
+      layersHiddenByZoom.push(layerId);
+      console.log(layersHiddenByZoom);
+      debugger
+      localStorage.setItem('hiddenLayers', layerId);
+    },
+
+    _getDisabledLayers: function() {
+      localStorage.getItem('hiddenLayers');
     },
 
     /**
