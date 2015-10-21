@@ -111,7 +111,7 @@
   // background-color: $bg-color-3;
 
   li {
-    padding: rem(10px) rem(15px);
+    padding: rem(10px) rem(15px) 0;
     // @include clearfix;
 
     &.subcategory {
