@@ -77,6 +77,7 @@
 
       return _.map(this._groups, function(g) {
         var categories = _.where(this._categories, { father: g.id });
+
         return _.extend(g, {
           categories: _.map(categories, function(c) {
             var layers = _.where(data, { group: c.id });
@@ -94,12 +95,12 @@
 
             //Hayo las subcategories para esta categoria.
             var subcategories = _.where(this._subcategories, { father: c.id });
-            //Extend categories.
-            console.log(this._subcategories);
+            //Extend categories with their subcat.
+            // console.log(subcategories);
             return _.extend(c, {
               subcategory: _.map(subcategories, function(sc) {
                 var layers = _.where(data, { group: sc.id });
-                console.log(layers)
+                // console.log(layers)
                 _.map(layers, function(layer){
                   layer.opacity_text = layer.opacity*100
                   return layer;
@@ -113,12 +114,14 @@
                 }
                 return _.extend(sc, { layers: layers });
               }, this)
-            }, this)
+            })
 
             return _.extend(c, { layers: layers });
-          }, this),
+          }, this)
         });
+
       }, this);
+
     },
 
     setActives: function(activeLayers) {
