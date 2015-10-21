@@ -1,0 +1,110 @@
+[
+  {
+    "category_name": "Exposure",
+    "category_slug": "exposure",
+    "indicators": [
+      {
+        "name": "Total population",
+        "slug": "total_population",
+        "widget": "number",
+        "query": "with r as ( select the_geom_webmercator from country_mask where iso_a3= '%1'), f as ( select (ST_SummaryStats(st_clip( the_raster_webmercator,1, the_geom_webmercator,-2147483648, true), 1, true)).* as  statistics FROM lspop2014, r where st_intersects(the_raster_webmercator, the_geom_webmercator)) SELECT SUM(sum) as sum, (sum(count)*0.9) as area,round(sum(sum)/(sum(count)*0.9)) as density from f"
+      },
+      {
+        "name": "Population density",
+        "slug": "population_density",
+        "widget": "number",
+        "query": "SELECT month as label, precip as value FROM monthly_mean_precip_1981_2014 where iso3='%1' LIMIT 1"
+      },
+      {
+        "name": "Primary livelihood strategies",
+        "slug": "primary_livelihood_strategies",
+        "widget": "text_list",
+        "query": "SELECT month as label, precip as value FROM monthly_mean_precip_1981_2014 where iso3='%1' LIMIT 5"
+      }
+    ]
+  },
+  {
+    "category_name": "Stressors",
+    "category_slug": "stressors",
+    "indicators": [
+      {
+        "name": "Precipitation trend",
+        "slug": "precipitation_trend",
+        "widget": "bar_chart",
+        "query": "SELECT month as x, precip as y, month as name FROM monthly_mean_precip_1981_2014 WHERE iso3 = '%1'"
+      },
+      {
+        "name": "Temperature trend",
+        "slug": "temperature_trend",
+        "widget": "line_chart",
+        "query": "SELECT month as x, precip as y, month as name FROM monthly_mean_precip_1981_2014 WHERE iso3 = '%1'"
+      },
+      {
+        "name": "Climate chart",
+        "slug": "climate_chart",
+        "widget": "bar_line_chart",
+        "query": "SELECT month as x, precip as y, precip as z, month as name FROM monthly_mean_precip_1981_2014 WHERE iso3 = '%1'"
+      }
+    ]
+  },
+  {
+    "category_name": "Shocks",
+    "category_slug": "shocks",
+    "indicators": [
+      {
+        "name": "Change in precipitation variability",
+        "slug": "change_in_precipitation_variability",
+        "widget": "",
+        "query": ""
+      },
+      {
+        "name": "Change in seasonality",
+        "slug": "change_in_seasonality",
+        "widget": "",
+        "query": ""
+      },
+      {
+        "name": "Conflict",
+        "slug": "conflict",
+        "widget": "",
+        "query": ""
+      }
+    ]
+  },
+  {
+    "category_name": "Vulnerability",
+    "category_slug": "vulnerability",
+    "indicators": [
+      {
+        "name": "Population pyramid",
+        "slug": "population_pyramid",
+        "widget": "",
+        "query": ""
+      },
+      {
+        "name": "Primary export crops",
+        "slug": "primary_export_crops",
+        "widget": "",
+        "query": ""
+      },
+      {
+        "name": "Health",
+        "slug": "health",
+        "widget": "",
+        "query": ""
+      },
+      {
+        "name": "Education",
+        "slug": "education",
+        "widget": "",
+        "query": ""
+      },
+      {
+        "name": "Services",
+        "slug": "services",
+        "widget": "",
+        "query": ""
+      }
+    ]
+  }
+]

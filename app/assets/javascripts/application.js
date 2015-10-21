@@ -7,16 +7,28 @@
 //= require handlebars
 //= require slick-carousel
 //= require foundation
+//= require d3
 
 //= require ./helpers/handlebars_helpers
 //= require ./helpers/class
 //= require ./helpers/cartodb_layer
 //= require ./helpers/cartodb_raster
 //= require ./helpers/cartodb_mask
+//= require ./helpers/charts
 //= require_tree ./models
 //= require_tree ./collections
 //= require_tree ./templates
-//= require_tree ./views
+//= require_tree ./views/common
+//= require_tree ./views/map
+//= require_tree ./views/journeys
+//= require_tree ./views/static
+//= require ./views/analysis/widgets/widget_view
+//= require ./views/analysis/widgets/widget_bar_chart
+//= require ./views/analysis/widgets/widget_line_chart
+//= require ./views/analysis/widgets/widget_number
+//= require ./views/analysis/widgets/widget_text_list
+//= require ./views/analysis/analysis_page_view
+
 //= require router
 
 (function(root) {
