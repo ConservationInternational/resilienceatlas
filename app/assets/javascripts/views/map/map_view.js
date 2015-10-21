@@ -226,12 +226,15 @@
     _keepDisabledLayers: function(layerId) {
       var layersHiddenByZoom = this._getDisabledLayers() || [];
       layersHiddenByZoom.push(layerId);
-      console.log(layersHiddenByZoom);
-      debugger
-      localStorage.setItem('hiddenLayers', layerId);
+      // console.log(layersHiddenByZoom);
+
+      layersHiddenByZoom = JSON.stringify(layersHiddenByZoom);
+
+      localStorage.setItem('hiddenLayers', layersHiddenByZoom);
     },
 
     _getDisabledLayers: function() {
+      console.log(localStorage.getItem('hiddenLayers'))
       localStorage.getItem('hiddenLayers');
     },
 

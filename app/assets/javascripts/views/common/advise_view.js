@@ -29,6 +29,7 @@
       // if (contains === -1) {
       //   this.render();
       // };
+      this.render()
     },
 
     render: function() {
