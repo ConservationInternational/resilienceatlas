@@ -1,5 +1,6 @@
 .m-journey--chapter {
   @extend %journey;
+  background-size: contain !important;
 
   .wrapper {
     @extend %center;
