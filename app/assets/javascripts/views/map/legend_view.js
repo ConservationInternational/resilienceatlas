@@ -9,11 +9,11 @@
 
     defaults: {},
 
-    template: HandlebarsTemplates['legend_tpl'],
+    template: HandlebarsTemplates['map/legend_tpl'],
     templateLegends: {
-      choropleth : HandlebarsTemplates['legend_choropleth_tpl'],
-      custom : HandlebarsTemplates['legend_custom_tpl'],
-      'legend-round' : HandlebarsTemplates['legend_round_tpl']
+      choropleth : HandlebarsTemplates['map/legend_choropleth_tpl'],
+      custom : HandlebarsTemplates['map/legend_custom_tpl'],
+      'legend-round' : HandlebarsTemplates['map/legend_round_tpl']
     },
 
     model: new (Backbone.Model.extend({
