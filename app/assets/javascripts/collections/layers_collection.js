@@ -96,11 +96,9 @@
             //Hayo las subcategories para esta categoria.
             var subcategories = _.where(this._subcategories, { father: c.id });
             //Extend categories with their subcat.
-            // console.log(subcategories);
-            return _.extend(c, {
+             _.extend(c, {
               subcategory: _.map(subcategories, function(sc) {
                 var layers = _.where(data, { group: sc.id });
-                // console.log(layers)
                 _.map(layers, function(layer){
                   layer.opacity_text = layer.opacity*100
                   return layer;
@@ -116,7 +114,7 @@
               }, this)
             })
 
-            return _.extend(c, { layers: layers });
+            return _.extend(c, { subcategories: subcategories, layers: layers });
           }, this)
         });
 

@@ -7,7 +7,6 @@
         </div>
         <ul>
           {{#each categories}}
-{{!--             {{#if layers}} --}}
               <li class="category">
                 <div class="m-layers-list-header {{#if active}}is-active{{/if}}">
                   <div class="header-title">{{name}}</div>
@@ -16,7 +15,7 @@
                 <ul class="m-layers-list-panel {{#if active}}is-active{{/if}}">
 
                   {{#each subcategory}}
-        {{!--             {{#if layers}} --}}
+                    {{!-- {{#if layers}} --}}
                       <li class="subcategory">
                         <div class="m-layers-list-header {{#if active}}is-active{{/if}}">
                           <div class="header-title">{{name}}</div>
@@ -50,10 +49,8 @@
                           {{/each}}
                         </ul>
                       </li>
-        {{!--             {{/if}} --}}
+                    {{!-- {{/if}} --}}
                   {{/each}}
-                  <li>
-
 
                   {{#each layers}}
                     <li class="layer {{#ifcond opacity_text}}{{/ifcond}}">
