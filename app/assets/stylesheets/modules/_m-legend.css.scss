@@ -312,6 +312,12 @@ $side-bar-width: 360px;
       border-radius: 50%;
     }
   }
+
+  .units {
+    font-size: 14px;
+    color: $font-color-1;
+    font-weight: 400;
+  }
 }
 
 .ui-sortable-placeholder {
