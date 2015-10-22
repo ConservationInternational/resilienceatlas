@@ -167,13 +167,13 @@
 
       //Test for zoom scope.
       _.each(layersData, function(layerData) {
-        if (layerData.id == 53) {
+        if (layerData.id == 6) {
           layerData.maxZoom = 100;
           layerData.minZoom = 3;
         }
 
         if (layerData.id == 36) {
-          layerData.maxZoom = 3;
+          layerData.maxZoom = 5;
           layerData.minZoom = 0;
         }
 
@@ -186,17 +186,7 @@
               this.removeLayer(layerData);
               this.layers.setDisabledByZoom(layerData.id);
 
-              var disactiveLayers = this._getDisabledLayers() || [];
-              var contains = $.inArray(layerData.id, disactiveLayers);
-
-              console.log(this._getDisabledLayers());
-              // console.log(disactiveLayers);
-              // console.log(contains);
-
-              if (contains === -1) {
-                this._showZoomAd(layerData);
-              };
-
+              this._manageDisclaimer(layerData);
             }
           } else {
             this.addLayer(layerData);
@@ -218,24 +208,35 @@
       }
     },
 
+    _manageDisclaimer:function(layerData) {
+      var layersHiddenByZoom = this._getDisabledLayers() || [];
+      var contains = $.inArray(layerData.id, layersHiddenByZoom);
+
+      if (contains === -1) {
+        this._showZoomAd(layerData);
+      };
+    },
+
     _showZoomAd: function(layerData) {
-      this._keepDisabledLayers(this.options.id);
+      this._keepDisabledLayers(layerData.id);
       var advise = new root.app.View.Advise({'options': layerData});
     },
 
     _keepDisabledLayers: function(layerId) {
       var layersHiddenByZoom = this._getDisabledLayers() || [];
-      layersHiddenByZoom.push(layerId);
       // console.log(layersHiddenByZoom);
+      // debugger
+      layersHiddenByZoom.push(layerId);
 
       layersHiddenByZoom = JSON.stringify(layersHiddenByZoom);
+      console.log(layersHiddenByZoom);
 
       localStorage.setItem('hiddenLayers', layersHiddenByZoom);
     },
 
     _getDisabledLayers: function() {
-      console.log(localStorage.getItem('hiddenLayers'))
-      localStorage.getItem('hiddenLayers');
+      console.log(JSON.parse(localStorage.getItem('hiddenLayers')));
+      return JSON.parse(localStorage.getItem('hiddenLayers'));
     },
 
     /**
