@@ -2,25 +2,32 @@
   @extend %search;
 
   .search-box {
-    width: rem(350px);
-    min-height: rem(95px);
-    max-height: rem(300px);
     position: absolute;
-    z-index: 10;
-    background: $white;
-    border-top: 1px solid rgba($font-color-1, .1);
-    border-bottom: 1px solid rgba($font-color-1, .1);
-    bottom: rem(52px);
+    bottom: 0;
     left: 0;
+    z-index: 10;
+    transform: translatey(100%);
+    width: rem(190px);
+    max-height: rem(300px);
+    background-color: $white;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3);
 
     .search-content {
-      padding: rem(10px) rem(7px);
+
+      .focus & {
+        padding: rem(10px) rem(7px);
+      }
     }
 
     .search-suggestions {
+      padding: rem(10px);
       max-height: rem(208px);
       overflow-y: scroll;
-      @extend %clear-scroll-bars;      
+      @extend %clear-scroll-bars;
+
+      ul {
+        box-shadow: none;
+      }
     }
 
     .name {

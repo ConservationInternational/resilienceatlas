@@ -13,7 +13,7 @@
 
     defaults: {
       elContent: '.searchContent',
-      elInput: '.searchMap',
+      elInput: '#searchMap',
       elSearchParent: '#searchBox',
       elSuggestions: '.search-suggestions',
       closeOnClick: true
