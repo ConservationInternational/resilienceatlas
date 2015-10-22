@@ -30,7 +30,39 @@
     }
 
     ul {
+      margin: 0;
+      padding: rem(7px) 0 rem(7px) 0;
       list-style: none;
+
+      li {
+        font-weight: 400;
+        font-size: rem(14px);
+        line-height: rem(14px);
+        padding: rem(10px) rem(10px) rem(8px) rem(33px);
+        letter-spacing: rem(0.5px);
+        cursor: pointer;
+        position: relative;
+
+        &:before {
+          content: '';
+          width: rem(9px);
+          height: rem(9px);
+          background: $white;
+          border-radius: rem(9px);
+          border: 1px solid #C0C0C0;
+          position: absolute;
+          top: rem(11px);
+          left: rem(16px);
+          transition: .2s $easeInOutSine;
+        }
+
+        &.selected {
+          &:before {
+            border-color: $bg-color-2;
+            background: $bg-color-2;
+          }
+        }
+      }
     }
 
     &.selected {

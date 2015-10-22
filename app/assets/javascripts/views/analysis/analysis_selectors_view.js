@@ -99,6 +99,8 @@
       if(slug) {
         this.state.set('category', slug);
         $target.closest('.selector-box').addClass('selected');
+        $target.closest('.selector-box').find('ul li').removeClass('selected');
+        $target.addClass('selected');
       }
     }
 
