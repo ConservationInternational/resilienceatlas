@@ -23,6 +23,8 @@
 #  icon_class     :string
 #  published      :boolean          default(TRUE)
 #  legend         :text
+#  zoom_max       :integer          default(100)
+#  zoom_min       :integer          default(0)
 #
 
 class Layer < ActiveRecord::Base
