@@ -54,16 +54,9 @@
           @include ellipsis(95%);
 
           .name {
-            height: rem(25px);
             float: left;
             text-align: left;
             color: $font-color-1;
-
-            span {
-              font-weight: 500;
-              text-decoration: underline;
-              top: auto;
-            }
           }
 
           &.selected {

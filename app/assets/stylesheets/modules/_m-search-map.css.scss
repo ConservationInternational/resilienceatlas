@@ -22,5 +22,15 @@
       overflow-y: scroll;
       @extend %clear-scroll-bars;      
     }
+
+    .name {
+      height: rem(25px);
+
+      span {
+        font-weight: 500;
+        text-decoration: underline;
+        top: auto;
+      }
+    }
   }
 }
