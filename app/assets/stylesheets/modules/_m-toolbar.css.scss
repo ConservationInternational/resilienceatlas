@@ -26,7 +26,7 @@
 
   .search {
 
-    input {
+    .m-map-search {
       position: absolute;
       top: 0;
       right: 30px;
@@ -36,10 +36,20 @@
       border: none;
       opacity: 0;
       transition: all .3s ease-out .3s;
+      background-color: $bg-color-1;
+    }
+
+    input {
+      border: none;
+
+      @include placeholder() {
+        font-size: rem(14px);
+        color: $font-color-1;
+      }
     }
 
     &:hover {
-      input {
+      .m-map-search {
         width: 200px;
         box-shadow: -2px 1px 3px 0 rgba(0, 0, 0, 0.1);
         opacity: 1;
