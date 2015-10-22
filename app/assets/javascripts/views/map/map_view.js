@@ -181,7 +181,8 @@
           if (layerData.maxZoom) {
             if ( layerData.minZoom <= this.actualZoom && this.actualZoom <= layerData.maxZoom ) {
               this.addLayer(layerData)
-              this.layers.unsetDisabledByZoom(layerData.id)
+              this.layers.unsetDisabledByZoom(layerData.id);
+              this._removeFromdisabledlayers(layerData.id);
             } else {
               this.removeLayer(layerData);
               this.layers.setDisabledByZoom(layerData.id);
@@ -209,7 +210,7 @@
     },
 
     _manageDisclaimer:function(layerData) {
-      var layersHiddenByZoom = this._getDisabledLayers() || [];
+      var layersHiddenByZoom = this.disabledLayers || [];
       var contains = $.inArray(layerData.id, layersHiddenByZoom);
 
       if (contains === -1) {
@@ -223,20 +224,17 @@
     },
 
     _keepDisabledLayers: function(layerId) {
-      var layersHiddenByZoom = this._getDisabledLayers() || [];
-      // console.log(layersHiddenByZoom);
-      // debugger
-      layersHiddenByZoom.push(layerId);
-
-      layersHiddenByZoom = JSON.stringify(layersHiddenByZoom);
-      console.log(layersHiddenByZoom);
-
-      localStorage.setItem('hiddenLayers', layersHiddenByZoom);
+      this.disabledLayers = this.disabledLayers || [];
+      this.disabledLayers.push(layerId);
     },
 
-    _getDisabledLayers: function() {
-      console.log(JSON.parse(localStorage.getItem('hiddenLayers')));
-      return JSON.parse(localStorage.getItem('hiddenLayers'));
+    _removeFromdisabledlayers: function(layerId) {
+      this.disabledLayers = this.disabledLayers || [];
+      var index = this.disabledLayers.indexOf(layerId);
+
+      if (index > -1) {
+        this.disabledLayers.splice(index, 1);
+      }
     },
 
     /**
