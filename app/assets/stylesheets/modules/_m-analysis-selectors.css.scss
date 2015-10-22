@@ -1,0 +1,50 @@
+.m-analysis-selectors {
+  width: rem(300px);
+  height: rem(500px);
+  background: $white;
+  border: 1px solid $black;
+  position: absolute;
+  top: rem(50px);
+  left: rem(500px);
+  display: none;
+
+  &.visible {
+    display: block;
+  }
+
+  .selector-box {
+    width: 100%;
+    display: block;
+    position: relative;
+
+    .heading {
+      width: 100%;
+      background: $gray-5;
+      padding: rem(4px) rem(3px) rem(1px) rem(34px);
+
+      h2 {
+        font-size: 14px;
+        line-height: 14px;
+        color: $gray-70;
+      }
+    }
+
+    ul {
+      list-style: none;
+    }
+
+    &.selected {
+      &:before{
+        content: '';
+        width: 10px;
+        height: 10px;
+        background: red;
+        border-radius: 10px;
+        position: absolute;
+        top: 16px;
+        left: 15px;
+        z-index: 1;
+      }
+    }
+  }
+}

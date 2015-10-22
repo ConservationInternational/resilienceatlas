@@ -42,6 +42,8 @@
       // this.listenTo(this.layers, 'sort', this.renderLayers);
 
       Backbone.Events.on('basemap:change', _.bind(this.selectBasemap, this));
+      Backbone.Events.on('map:set:fitbounds', this.setBbox.bind(this));
+      Backbone.Events.on('map:set:mask', this.setMaskLayer.bind(this));
     },
 
     /**

@@ -1,0 +1,20 @@
+<div class="selector-box">
+  <div class="heading">
+    <h2>1. SELECT A "DATASET"</h2>
+  </div>
+
+  <ul>
+    {{#each categories}}
+    <li class="category" data-slug="{{slug}}">{{name}}</li>
+    {{/each}}
+  </ul>
+</div>
+
+<div class="searchAnalysisBox m-map-search selector-box">
+  <div class="heading">
+    <h2>2. SELECT A COUNTRY</h2>
+  </div>
+
+  <input class="searchAnalysis" placeholder="Search area" type="search" />
+  <div class="analysisSearchContent search-box"></div>
+</div>

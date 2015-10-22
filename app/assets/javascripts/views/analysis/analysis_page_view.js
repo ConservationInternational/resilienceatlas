@@ -10,7 +10,7 @@
     defaults: {
       elAnalysis: '.m-analysis',
       elWidgets: '#widgets',
-      category: 'exposure',
+      category: 'stressors',
       iso: 'DJI'
     },
 
@@ -32,19 +32,7 @@
 
       this.category = this.options.category;
       this.iso = this.options.iso;
-      this.getData();
-    },
-
-    getData: function() {
-      var self = this;
-      this.analysisCollection = new root.app.Collection.Analysis();
-
-      this.analysisCollection.fetch().done(function() {
-        var data = self.analysisCollection.toJSON();
-        self.data = _.where(data, { category_slug: self.category })[0];
-
-        self.render();
-      });
+      this.render();
     },
 
     render: function() {
