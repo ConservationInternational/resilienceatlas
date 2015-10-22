@@ -1,0 +1,36 @@
+.m-sidebar {
+  .tabs {
+    @extend %clean-lists;
+    padding-top: 10px;
+    padding-left: 10px;
+    background-color: #D8D8D8;
+  }
+
+  .tab-title {
+    a {
+      padding: 10px 20px;
+      background-color: #D8D8D8;
+      font-weight: 700;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      opacity: .5;
+    }
+
+    &.active {
+      a {
+        background-color: #F6F6F6;
+        opacity: 1;
+      }
+    }
+  }
+
+  .tabs-content {
+    margin-bottom: 0;
+
+    & > .content {
+      padding: 0;
+    }
+  }
+
+}

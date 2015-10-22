@@ -25,7 +25,6 @@
       this.$el.html(this.template);
       $(document).foundation('tab', 'reflow');
     }
-
   });
 
 })(this);
