@@ -26,21 +26,25 @@
 
   .search {
 
-    .m-map-search {
+    .m-search-map {
       position: absolute;
       top: 0;
       right: 30px;
       width: 0;
-      height: rem(27px);
+      height: rem(29px);
       padding-left: 10px;
       border: none;
       opacity: 0;
-      transition: all .3s ease-out .3s;
+      transition: width .3s $easeInSine;
       background-color: $bg-color-1;
     }
 
     input {
+      margin-top: rem(3px);
       border: none;
+      height: rem(24px);
+      width: 0;
+      transition: width .3s $easeInSine;
 
       @include placeholder() {
         font-size: rem(14px);
@@ -49,10 +53,14 @@
     }
 
     &:hover {
-      .m-map-search {
+      .m-search-map {
         width: 200px;
         box-shadow: -2px 1px 3px 0 rgba(0, 0, 0, 0.1);
         opacity: 1;
+
+        input {
+          width: 100%;
+        }
       }
     }
   }
