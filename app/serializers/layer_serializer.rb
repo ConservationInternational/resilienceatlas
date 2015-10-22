@@ -23,11 +23,13 @@
 #  icon_class     :string
 #  published      :boolean          default(TRUE)
 #  legend         :text
+#  zoom_max       :integer          default(100)
+#  zoom_min       :integer          default(0)
 #
 
 class LayerSerializer < ActiveModel::Serializer
   cache key: "layer"
-  attributes :name, :slug, :layer_type, :zindex, :opacity, :active, :order, :color, :info, :interactivity, :css, :query, :layer_provider, :published, :locate_layer, :icon_class, :legend
+  attributes :name, :slug, :layer_type, :zindex, :opacity, :active, :order, :color, :info, :interactivity, :css, :query, :layer_provider, :published, :locate_layer, :icon_class, :legend, :zoom_max, :zoom_min
   has_one :layer_group, serializer: LayerGroupSerializer
   # has_many :layer_groups, serializer: LayerGroupSerializer
   def type
