@@ -1,3 +1,42 @@
 .m-search-analysis {
   @extend %search;
+
+  width: 100%;
+  overflow: hidden;
+
+  input {
+    width: 100%;
+    font-weight: 400;
+    font-size: rem(14px);
+    line-height: rem(14px);
+    padding: rem(15px) 0 rem(5px) rem(30px);
+    letter-spacing: rem(0.5px);
+    border: 0;
+    border-bottom: 1px solid #F1F1F1;
+
+    &::-webkit-input-placeholder {
+        color: $font-color-1;
+    }
+    &:-moz-placeholder {
+       color: $font-color-1;
+       opacity: 1;
+    }
+    &::-moz-placeholder {
+       color: $font-color-1;
+       opacity: 1;
+    }
+    &:-ms-input-placeholder {
+       color: $font-color-1;
+    }
+  }
+
+  .search-box {
+    width: 100%;
+    min-height: 5.9375rem;
+    max-height: 18.75rem;
+    position: relative;
+    bottom: auto;
+    left: auto;
+    border: 0;
+  }
 }
