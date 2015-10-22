@@ -45,4 +45,10 @@
     overflow-y: scroll;
     @extend %clear-scroll-bars;      
   }
+
+  .name {
+    span {
+      text-decoration: underline;
+    }
+  }
 }

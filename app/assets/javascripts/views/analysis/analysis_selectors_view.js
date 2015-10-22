@@ -76,7 +76,8 @@
           el: '#analysisSelectorsView',
           elContent: '.analysisSearchContent',
           elInput: '.searchAnalysis',
-          elSearchParent: '#analysisSelectorsView'
+          elSearchParent: '#analysisSelectorsView',
+          closeOnClick: false
         });
 
         this.listenTo(this.searchView, 'selected', this.selectIso);
