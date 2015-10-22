@@ -24,7 +24,6 @@
     },
 
     _analyze: function() {
-      console.log('yei')
       var analyze = new root.app.View.analysisSelectors();
     }
 
