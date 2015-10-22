@@ -1,0 +1,36 @@
+.m-search-map {
+  @extend %search;
+
+  .search-box {
+    width: rem(350px);
+    min-height: rem(95px);
+    max-height: rem(300px);
+    position: absolute;
+    z-index: 10;
+    background: $white;
+    border-top: 1px solid rgba($font-color-1, .1);
+    border-bottom: 1px solid rgba($font-color-1, .1);
+    bottom: rem(52px);
+    left: 0;
+
+    .search-content {
+      padding: rem(10px) rem(7px);
+    }
+
+    .search-suggestions {
+      max-height: rem(208px);
+      overflow-y: scroll;
+      @extend %clear-scroll-bars;      
+    }
+
+    .name {
+      height: rem(25px);
+
+      span {
+        font-weight: 500;
+        text-decoration: underline;
+        top: auto;
+      }
+    }
+  }
+}

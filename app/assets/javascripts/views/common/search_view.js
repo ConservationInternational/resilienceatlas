@@ -15,7 +15,8 @@
       elContent: '.searchContent',
       elInput: '.searchMap',
       elSearchParent: '#searchBox',
-      elSuggestions: '.search-suggestions'
+      elSuggestions: '.search-suggestions',
+      closeOnClick: true
     },
 
     initialize: function(settings) {
@@ -29,6 +30,7 @@
       this.elSearchParent = this.options.elSearchParent;
       this.elSuggestions = this.options.elSuggestions;
 
+      this.closeOnClick = this.options.closeOnClick;
       this.setEvents();
       this.getData();
     },
@@ -44,7 +46,9 @@
     },
 
     setListeners: function() {
-      $('body').on('click', this.unHighlight.bind(this));
+      if(this.closeOnClick) {
+        $('body').on('click', this.unHighlight.bind(this));
+      }
     },
 
     getData: function() {
@@ -85,7 +89,10 @@
       ev.stopPropagation();
 
       this.$(this.elInput).addClass('focus');
-      this.$(this.elSuggestions +' li').removeClass('selected');
+
+      if(this.closeOnClick) {
+        this.$(this.elSuggestions +' li').removeClass('selected');
+      }
     },
 
     unHighlight: function(ev) {
@@ -175,7 +182,12 @@
         this.setSelected(area[0]);
       }
 
-      this.unHighlight();
+      if(this.closeOnClick) {
+        this.unHighlight();
+      } else {
+        this.$(this.elSuggestions +' li').removeClass('selected');
+        $target.addClass('selected');
+      }
     },
 
     setSelected: function(area) {

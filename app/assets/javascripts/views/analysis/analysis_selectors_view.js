@@ -76,7 +76,8 @@
           el: '#analysisSelectorsView',
           elContent: '.analysisSearchContent',
           elInput: '.searchAnalysis',
-          elSearchParent: '#analysisSelectorsView'
+          elSearchParent: '#analysisSelectorsView',
+          closeOnClick: false
         });
 
         this.listenTo(this.searchView, 'selected', this.selectIso);
@@ -99,6 +100,8 @@
       if(slug) {
         this.state.set('category', slug);
         $target.closest('.selector-box').addClass('selected');
+        $target.closest('.selector-box').find('ul li').removeClass('selected');
+        $target.addClass('selected');
       }
     }
 

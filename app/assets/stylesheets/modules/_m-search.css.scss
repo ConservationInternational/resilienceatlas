@@ -1,19 +1,8 @@
-.m-map-search {
-
+%search {
   display: inline-block;
 
   .search-box {
     display: none;
-    width: rem(350px);
-    min-height: rem(95px);
-    max-height: rem(300px);
-    position: absolute;
-    z-index: 10;
-    background: $white;
-    border-top: 1px solid rgba($font-color-1, .1);
-    border-bottom: 1px solid rgba($font-color-1, .1);
-    bottom: rem(52px);
-    left: 0;
 
     &.visible {
       display: block;
@@ -22,7 +11,6 @@
     .search-content {
       width: 100%;
       height: inherit;
-      padding: rem(10px) rem(7px);
       position: relative;
 
       &.searching {
@@ -49,9 +37,6 @@
     .search-suggestions {
       display: none;
       height: auto;
-      max-height: rem(208px);
-      overflow-y: scroll;
-      @extend %clear-scroll-bars;
 
       ul {
         width: 98%;
@@ -69,20 +54,12 @@
           @include ellipsis(95%);
 
           .name {
-            height: rem(25px);
             float: left;
             text-align: left;
             color: $font-color-1;
-
-            span {
-              font-weight: 500;
-              text-decoration: underline;
-              top: auto;
-            }
           }
 
           &.selected {
-            background: #222;
           }
         }
       }
