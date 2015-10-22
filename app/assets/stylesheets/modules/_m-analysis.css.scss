@@ -1,58 +1,48 @@
 .m-analysis {
-  display: flex;
-  position: absolute;
   top: 0;
-  bottom: 0;
-  right: 0;
-  left: 0;
+  transform: translate($sidebar-width, 0);
+  position: absolute;
+
+  &.visible {
+    width: 100%;
+    bottom: 0;
+    right: 0;
+    background: $white;
+    transform: translate($sidebar-analysis-width, 0);
+  }
 
   .container {
-    box-sizing: border-box;
-    position: relative;
-    display: flex;
-    margin: auto;
-    z-index: 14;
-    //optional, min size.
-    width: 800px;
-    height: 600px;
-    max-width: 90%;
-    background-color: $bg-color-1;
-    box-shadow: 0 1px 4px 0 rgba(0,0,0, .2);
+    .navigation {
+      width: 100%;
+      background: $gray-5;
+
+      .btn-back-analysis {
+        font-size: 14px;
+        line-height: 14px;
+        color: $gray-70;
+        font-weight: 400;
+        letter-spacing: 0.5px;
+        padding: 15px 10px 13px 37px;
+        cursor: pointer;
+      }
+    }
 
     .content {
       width: 100%;
       padding-right: 10px;
-      padding: rem(50px);
+      padding: 10px 20px 0px 20px;
       overflow-y: scroll;
       @extend %clear-scroll-bars;
       background-color: #fff;
+
+      h2 {
+        font-size: rem(36px);
+        font-weight: 400;
+        color: $gray-70;
+        letter-spacing: -0.4px;
+        margin-top: 25px;
+        margin-left: 14px;
+      }
     }
-  }
-
-  .bg-window {
-    position: absolute;
-    left: 0;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 10;
-
-    background: #000;
-    opacity: .5;    
-  }
-  
-  .btn-close,
-  .btn-close-modal {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    z-index: 1;
-
-    cursor: pointer;
-    font-weight: bold;
-    color: $font-color-1;
-    font-size: 18px;
-    font-weight: 700;
-    line-height: .5em;
   }
 }

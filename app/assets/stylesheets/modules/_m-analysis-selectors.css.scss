@@ -1,16 +1,8 @@
 .m-analysis-selectors {
-  // position: relative;
-  // width: rem(300px);
+  width: 100%;
+  background: $white;
+  z-index: 1;
   height: rem(540px);
-  // background: $white;
-  // border: 1px solid $black;
-  // top: rem(40px);
-  // left: rem(400px);
-  // display: none;
-
-  // &.visible {
-  //   display: block;
-  // }
 
   .selector-box {
     width: 100%;

@@ -1,15 +1,17 @@
-<div>{{name}}</div>
+<div class="m-widget number">
+  <div class="name">{{name}}</div>
 
-{{#if noData}}
-  <div class="widget-no-data">
-    <h3>NO DATA AVAILABLE</h3>
-  </div>
-{{else}}
-  <div id="{{slug}}" class="widget-number">
-    {{#each data}}
-       {{#each this}}
-       	{{@key}} - {{this}}
-       {{/each}}
-    {{/each}}
-  </div>
-{{/if}}
+  {{#if noData}}
+    <div class="widget-no-data">
+      <h3>NO DATA AVAILABLE</h3>
+    </div>
+  {{else}}
+    <div id="{{slug}}" class="widget-number">
+      {{#each data}}
+         {{#each this}}
+         	{{@key}} - {{this}}
+         {{/each}}
+      {{/each}}
+    </div>
+  {{/if}}
+</div>

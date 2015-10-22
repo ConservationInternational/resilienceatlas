@@ -8,7 +8,7 @@
   $line-trail: #D8D8D8;
   $circle-trail-fill: $font-color-1;
   $circle-trail-border: $white;
-  $path-color: $font-color-1;
+  $path-color: $font-color-2;
 
   .tooltip-graph {
     width: rem(160px);
@@ -178,7 +178,7 @@
     .line {
       fill: none;
       stroke: $path-color;
-      stroke-width: 1.3px;
+      stroke-width: 3px;
     }
 
     .overlay {

@@ -1,0 +1,16 @@
+.m-widget {
+
+  margin-bottom: 25px;
+
+  .name {
+    text-transform: uppercase;
+    font-size: rem(14px);
+    letter-spacing: 0.7px;
+    margin-left: 16px;
+  }
+
+  &.number {
+    width: 50%;
+    float: left;
+  }
+}

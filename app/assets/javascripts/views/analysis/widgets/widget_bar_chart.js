@@ -26,8 +26,8 @@
     renderWidget: function() {
       this.charts.buildBarsChart({
         elem: '#' + this.slug,
-        barWidth: 25,
-        barSeparation: 20,
+        barWidth: 22,
+        barSeparation: 13,
         data: this.data,
         hover: true,
         loader: 'is-loading',
@@ -43,6 +43,7 @@
 
         _.filter(values, function(value) {
           value.value = value.y;
+          value.color = '#0089CC';
         });
         return values;
       }

@@ -21,7 +21,7 @@
     },
 
     renderWidget: function() {
-
+      
     },
 
     parseData: function(data) {

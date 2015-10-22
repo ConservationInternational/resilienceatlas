@@ -1,16 +1,19 @@
-<ul class="tabs tabs-secondary-content" role="tablist" data-tab>
-  <li class="tab-title active">
+<ul id="sidebarTabs" class="tabs tabs-secondary-content" role="tablist" data-tab>
+  <li class="tab-title active" data-section="layers">
     <a href="#layersListView">Layers</a>
   </li>
-  <li class="tab-title">
-    <a href="#analysisSelectorsView">Analysis</a>
+  <li class="tab-title" data-section="analysis">
+    <a href="#analysisContent">Analysis</a>
   </li>
 </ul>
 
 <div class="tabs-content content">
   <div id="layersListView" class="m-layers-list content active"></div>
-  <div id="analysisSelectorsView" class="m-analysis-selectors content"></div>
+
+  <div id="analysisContent" class="m-analysis-content content">
+    <div id="analysisSelectorsView" class="m-analysis-selectors"></div>
+    <div id="analysisView" class="m-analysis">
+    </div>
+  </div>
+
 </div>
-
-
-

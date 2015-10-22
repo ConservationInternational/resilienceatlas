@@ -9,12 +9,14 @@
 
     defaults: {
       elAnalysis: '.m-analysis',
-      elWidgets: '#widgets',
+      elWidgets: '.widgets',
       category: 'stressors',
       iso: 'DJI'
     },
 
-    el: 'body',
+    events: {
+      'click .btn-back-analysis': 'hideAnalysis'
+    },
 
     template: HandlebarsTemplates['analysis/analysis_page_tpl'],
 
@@ -32,19 +34,27 @@
 
       this.category = this.options.category;
       this.iso = this.options.iso;
+      this.data = this.options.data;
       this.render();
     },
 
     render: function() {
-      this.$el.append(this.template({
-        categories: this.data
+      this.$el.html(this.template({
+        category: this.data.category_name
       }));
+
+      $(this.defaults.elAnalysis).addClass('visible');
+      $('body').addClass('analyzing');
 
       this.initializeWidgets();
     },
 
     initializeWidgets: function() {
       var self = this;
+
+      _.sortBy(this.data.indicators, function(indicator) {
+        return indicator.name;
+      });
 
       _.each(this.data.indicators, function(indicator) {
         var widget = indicator.widget;
@@ -54,6 +64,11 @@
           self[widgetInstance](indicator);
         }
       });
+    },
+
+    hideAnalysis: function() {
+      $(this.defaults.elAnalysis).removeClass('visible');
+      $('body').removeClass('analyzing'); 
     },
 
     initBarChart: function(indicator) {
@@ -73,7 +88,7 @@
         query: indicator.query,
         name: indicator.name,
         iso: this.iso,
-        hasLine: true
+        // hasLine: true
       });
     },
 
