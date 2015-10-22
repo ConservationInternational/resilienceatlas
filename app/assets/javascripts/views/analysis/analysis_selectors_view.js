@@ -34,11 +34,10 @@
 
     checkParams: function() {
       if(this.state.get('category') && this.state.get('iso')) {
-
+        this.$('.analyze').removeClass('disabled');
       } else {
-
+        this.$('.analyze').addClass('disabled');
       }
-
     },
 
     getData: function() {
