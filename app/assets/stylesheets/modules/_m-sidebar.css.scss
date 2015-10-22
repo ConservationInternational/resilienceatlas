@@ -15,6 +15,10 @@
       text-transform: uppercase;
       letter-spacing: .1em;
       opacity: .5;
+
+      &:hover {
+        text-decoration: none;
+      }
     }
 
     &.active {
