@@ -33,6 +33,17 @@
     font-weight: 400;
     color: $font-color-2;
   }
+
+  .source {
+    font-size: 14px;
+    font-weight: 400;
+    font-style: italic;
+
+    p {
+      font-style: italic;
+      font-size: 14px;
+    }
+  }
 }
 
 .modal-background {
@@ -67,7 +78,6 @@
   overflow-y: scroll;
   @extend %clear-scroll-bars;
   background-color: #fff;
-
 }
 
 .btn-close,
