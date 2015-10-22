@@ -1,6 +1,15 @@
 .l-sidebar--fullscreen
   .l-sidebar-content
-    .m-layers-list#layersListView
+    .m-sidebar#sidebarView
+      / ul.tabs.tabs-secondary-content role="tablist" attr="data-tab"
+      /   li.tab-title.active
+      /     a href="#layersListView" Layers
+      /   li.tab-title
+      /     a href="#analysisSelectorsView" Analysis
+
+      / .tabs-content.content
+      /   .m-layers-list.content.active#layersListView
+      /   .m-analysis-selectors#analysisSelectorsView
 
 .l-content--fullscreen
   .m-map#mapView
@@ -28,4 +37,3 @@
           | Analyze
   
   .m-legend#legendView
-  .m-analysis-selectors#analysisSelectorsView
