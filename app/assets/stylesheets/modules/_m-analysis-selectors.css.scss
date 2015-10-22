@@ -1,16 +1,8 @@
 .m-analysis-selectors {
-  // position: relative;
-  // width: rem(300px);
-  // height: rem(800px);
-  // background: $white;
-  // border: 1px solid $black;
-  // top: rem(40px);
-  // left: rem(400px);
-  // display: none;
-
-  // &.visible {
-  //   display: block;
-  // }
+  width: 100%;
+  background: $white;
+  z-index: 1;
+  height: rem(540px);
 
   .selector-box {
     width: 100%;
@@ -90,6 +82,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    transition: .2s $easeInOutSine;
 
     .btn-analyze {
       @extend %clean-button-or-input;
@@ -100,6 +93,17 @@
       font-weight: 400;
       letter-spacing: rem(0.8px);
       padding: rem(12px) rem(45px) rem(8px) rem(28px);
+      cursor: pointer;
+    }
+
+    &.disabled {
+      pointer-events: none;
+      user-select: none;
+
+      .btn-analyze {
+        opacity: 0.6;
+        cursor: default;
+      }
     }
   }
 }

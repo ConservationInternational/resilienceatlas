@@ -197,7 +197,6 @@
         var active = false;
 
         if(model.get('iso') === area.get('iso')) {
-          console.log('set true');
           active = true;
         }
         model.set({selected: active});

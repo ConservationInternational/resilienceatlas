@@ -30,7 +30,8 @@
         data: this.data,
         hover: true,
         decimals: 0,
-        loader: 'is-loading'
+        loader: 'is-loading',
+        interpolate: 'cardinal'
       });
     },
 

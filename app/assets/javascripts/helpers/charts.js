@@ -206,10 +206,10 @@
       var bisectDate = d3.bisector(function(d) { return d.date; }).left;
 
       var margin = {
-        top: 10,
-        right: 30,
+        top: 30,
+        right: 0,
         bottom: 40,
-        left: 30,
+        left: 0,
         xaxis: 10,
         tooltip: 1.8
       };
@@ -397,9 +397,9 @@
       var yearFormat = d3.time.format('%Y');
 
       var margin = {
-        top: 10,
+        top: 30,
         right: 0,
-        bottom: 20,
+        bottom: 0,
         left: 0,
         xaxis: 10,
         tooltip: 1.8

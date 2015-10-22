@@ -1,9 +1,11 @@
-<div>{{name}}</div>
+<div class="m-widget">
+  <div class="name">{{name}}</div>
 
-{{#if noData}}
-  <div class="widget-no-data">
-    <h3>NO DATA AVAILABLE</h3>
-  </div>
-{{else}}
-  <div id="{{slug}}" class="widget-bar-chart graph" style="height:300px"></div>
-{{/if}}
+  {{#if noData}}
+    <div class="widget-no-data">
+      <h3>NO DATA AVAILABLE</h3>
+    </div>
+  {{else}}
+    <div id="{{slug}}" class="widget-bar-chart graph" style="height:215px"></div>
+  {{/if}}
+</div>

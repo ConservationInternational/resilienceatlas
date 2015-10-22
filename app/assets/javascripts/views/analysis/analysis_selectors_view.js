@@ -8,7 +8,8 @@
   root.app.View.analysisSelectors = Backbone.View.extend({
 
     events: {
-      'click .category': 'selectCategory'
+      'click .category': 'selectCategory',
+      'click .btn-analyze': 'startAnalyze'
     },
 
     el: '#analysisSelectorsView',
@@ -34,11 +35,10 @@
 
     checkParams: function() {
       if(this.state.get('category') && this.state.get('iso')) {
-
+        this.$('.analyze').removeClass('disabled');
       } else {
-
+        this.$('.analyze').addClass('disabled');
       }
-
     },
 
     getData: function() {
@@ -82,8 +82,6 @@
 
         this.listenTo(this.searchView, 'selected', this.selectIso);
       }
-
-      this.$el.addClass('visible');
     },
 
     selectIso: function(iso) {
@@ -102,6 +100,38 @@
         $target.closest('.selector-box').addClass('selected');
         $target.closest('.selector-box').find('ul li').removeClass('selected');
         $target.addClass('selected');
+      }
+    },
+
+    closeAnalysis: function() {
+      if(this.analyzeView) {
+        this.analyzeView.hideAnalysis();
+      }
+    },
+
+    renderAnalyzeContainer: function() {
+      $('#analysisView').html('<div id="analysisData"></div>');
+    },
+
+    startAnalyze: function() {
+      if(this.analyzeView) {
+        this.analyzeView.remove();
+      }
+
+      this.renderAnalyzeContainer();
+
+      var collection = this.analysisCollection.toJSON();
+      var data = _.where(collection, { 
+        category_slug: this.state.get('category') 
+      });
+
+      if(data[0]) {
+        this.analyzeView = new root.app.View.AnalysisPageView({
+          category: this.state.get('category'),
+          iso: this.state.get('iso'),
+          el: '#analysisData',
+          data: data[0]
+        });
       }
     }
 
