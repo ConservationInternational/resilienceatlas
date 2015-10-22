@@ -68,6 +68,17 @@
   @extend %clear-scroll-bars;
   background-color: #fff;
 
+  .source {
+
+    p {
+      font-style: italic;
+      font-size: 14px;
+    }
+
+    a {
+      font-style: normal;
+    }
+  }
 }
 
 .btn-close,
