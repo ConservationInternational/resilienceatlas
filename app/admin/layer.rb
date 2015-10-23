@@ -1,9 +1,16 @@
 ActiveAdmin.register Layer do
-  permit_params :layer_group_id, :name, :slug, :layer_type, :zindex, :active, :order, :color, :info, :interactivity, :query, :layer_provider, :css, :published, :opacity, :locate_layer, :icon_class, :legend, :zoom_max, :zoom_min
+  permit_params :layer_group_id, :name, :slug, :layer_type, :zindex, :active, :order, :color, :info, :interactivity, :query, :layer_provider, :css, :published, :opacity, :locate_layer, :icon_class, :legend, :zoom_max, :zoom_min, agrupations_attributes:[:layer_group_id, :_destroy]
   form do |f|
-    f.inputs 'Layer Details' do
     f.semantic_errors
-    f.input :layer_group
+    f.inputs "Groups" do
+      f.has_many :agrupations do |ag|
+        if ag.object.present?
+          f.input :_destroy, :as => :boolean, :label => "Remove?"
+        end
+        ag.input :layer_group, as: :select, collection: LayerGroup.all.map{|l| [l.name, l.id]}
+      end
+    end
+    f.inputs 'Layer Details' do
     f.input :name
     f.input :slug
     f.input :layer_type

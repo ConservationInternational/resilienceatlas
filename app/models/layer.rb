@@ -28,6 +28,7 @@
 #
 
 class Layer < ActiveRecord::Base
-  belongs_to :layer_group
-  accepts_nested_attributes_for :layer_group
+  has_many :agrupations
+  has_many :layer_groups, through: :agrupations
+  accepts_nested_attributes_for :agrupations, :allow_destroy => true
 end
