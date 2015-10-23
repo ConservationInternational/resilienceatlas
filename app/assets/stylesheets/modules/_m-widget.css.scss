@@ -1,4 +1,5 @@
 .m-widget {
+  width: 100%;
   float: left;
   margin-bottom: 25px;
 
@@ -13,6 +14,10 @@
 
   .row {
     margin: 16px 13px 0 13px;
+  }
+
+  svg {
+    width: 100%;
   }
 
   &.number {
