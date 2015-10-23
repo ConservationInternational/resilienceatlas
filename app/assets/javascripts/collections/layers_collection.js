@@ -181,8 +181,8 @@
 
     setOrder: function(layerId) {
       console.log('setOrder');
-      console.log(this.order)
-      this.order = this.order || this._getMaxOrderVal();
+      this.order = this.order || this._getMaxOrderVal() + 1;
+
       var current = _.findWhere(this.models, { 'id': layerId });
       current.set('order', this.order, {silent: true});
       console.log(current.get('name'));
@@ -191,10 +191,11 @@
     },
 
     _getMaxOrderVal: function() {
-      var max = _.max(this.toJSON(), function(layer) {
+      return _.max(_.map(this.toJSON(), function(layer) {
         return layer.order
+      }), function(i) {
+        return i
       });
-      console.log(max);
     },
 
     getActived: function() {

@@ -160,7 +160,6 @@
      * Render or remove layers by Layers Collection
      */
     renderLayers: function() {
-      console.log('render layers')
       var layersData = this.layers.getPublished();
 
       //Test for zoom scope.
