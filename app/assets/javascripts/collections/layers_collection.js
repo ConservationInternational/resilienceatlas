@@ -185,8 +185,8 @@
 
       var current = _.findWhere(this.models, { 'id': layerId });
       current.set('order', this.order, { silent: true });
-      // console.log(current.get('name'));
-      // console.log(this.order);
+      console.log(current.get('name'));
+      console.log(this.order);
       return ++this.order
     },
 
