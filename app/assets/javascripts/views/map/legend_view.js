@@ -88,24 +88,28 @@
       });
     },
 
+    // setOrder: function(e, ui) {
+    //   this.layers.order = 1;
+    //   _.each(this.$legendList.children('li'), _.bind(function(layer,i){
+    //     var currentModel = $(layer).data('id');
+    //     this.layers.setOrder(currentModel);
+    //   }, this ));
+
+    //   Backbone.Events.trigger('legendOrder : change');
+
+    //   $('.m-legend').removeClass('is-changing');
+    // },
+
     setOrder: function(e, ui) {
-      this.layers.order = 1;
+
       _.each(this.$legendList.children('li'), _.bind(function(layer,i){
-        var currentModel = $(layer).data('id');
-        this.layers.setOrder(currentModel);
+        var currentModel = this.layers.get($(layer).data('id'));
+        currentModel.set('order', i + 1);
+        this.layers.order = i + 1;
       }, this ));
 
       $('.m-legend').removeClass('is-changing');
     },
-
-    // setOrder: function(e, ui) {
-    //   _.each(this.$legendList.children('li'), _.bind(function(layer,i){
-    //     var currentModel = this.layers.get($(layer).data('id'));
-    //     currentModel.set('order', i + 1);
-    //   }, this ));
-
-    //   $('.m-legend').removeClass('is-changing');
-    // },
 
 
     /**

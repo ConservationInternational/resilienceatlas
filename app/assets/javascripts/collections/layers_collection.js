@@ -35,7 +35,7 @@
 
     url: '/api/layers',
 
-    order : 1,
+    // order : 1,
 
     parse: function(response) {
       var result = _.map(response.data, function(d) {
@@ -88,6 +88,7 @@
               layer.opacity_text = layer.opacity*100
               return layer;
             });
+
             // Forcing category activation
             var isActive = _.contains(_.pluck(layers, 'active'), true);
             if (isActive) {
@@ -179,10 +180,21 @@
     },
 
     setOrder: function(layerId) {
+      console.log('setOrder');
+      console.log(this.order)
+      this.order = this.order || this._getMaxOrderVal();
       var current = _.findWhere(this.models, { 'id': layerId });
       current.set('order', this.order, {silent: true});
+      console.log(current.get('name'));
       console.log(this.order);
       return ++this.order
+    },
+
+    _getMaxOrderVal: function() {
+      var max = _.max(this.toJSON(), function(layer) {
+        return layer.order
+      });
+      console.log(max);
     },
 
     getActived: function() {

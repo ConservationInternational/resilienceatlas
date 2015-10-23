@@ -76,17 +76,24 @@
       });
     },
 
+    // _setLayersOrder: function(e) {
+    //   this._toggleLayers();
+
+    //   var $currentTarget = $(e.currentTarget);
+    //   var id = parseInt($currentTarget.attr('id').split('layer_')[1]);
+
+    //   if ($currentTarget.prop('checked')) {
+    //     var currentModel = _.findWhere(this.layers.models, {'id': id});
+    //     currentModel.set('order', this.layersOrder);
+    //     return this.layersOrder --;
+    //   }
+    // },
+
     _setLayersOrder: function(e) {
       this._toggleLayers();
 
       var $currentTarget = $(e.currentTarget);
       var id = parseInt($currentTarget.attr('id').split('layer_')[1]);
-
-      if ($currentTarget.prop('checked')) {
-        var currentModel = _.findWhere(this.layers.models, {'id': id});
-        currentModel.set('order', this.layersOrder);
-        return this.layersOrder --;
-      }
     },
 
     /*

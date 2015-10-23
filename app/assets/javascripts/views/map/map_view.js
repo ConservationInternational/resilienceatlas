@@ -36,6 +36,7 @@
       this.listenTo(this.layers, 'change', this.renderLayers);
 
       Backbone.Events.on('basemap:change', _.bind(this.selectBasemap, this));
+      Backbone.Events.on('legendOrder : change', _.bind(this.renderLayers, this));
     },
 
     /**
@@ -159,6 +160,7 @@
      * Render or remove layers by Layers Collection
      */
     renderLayers: function() {
+      console.log('render layers')
       var layersData = this.layers.getPublished();
 
       //Test for zoom scope.
@@ -183,7 +185,10 @@
               this.layers.setDisabledByZoom(layerData.id);
             }
           } else {
-            this._setOrder(layerData.id);
+            console.log(layerData.order)
+            if (!layerData.order) {
+              this._setOrder(layerData.id);
+            };
             this.addLayer(layerData);
           }
         } else {
