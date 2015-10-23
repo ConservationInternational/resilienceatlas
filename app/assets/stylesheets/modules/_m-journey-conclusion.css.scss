@@ -46,6 +46,7 @@
       max-height: 40vh;
       padding-right: rem(10px);
       overflow-y: scroll;
+      padding-right: 20px;
 
       @extend %clear-scroll-bars;
       margin-right: -20px;
