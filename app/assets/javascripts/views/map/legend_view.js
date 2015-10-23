@@ -49,6 +49,7 @@
 
     render: function() {
       var data = _.sortBy(this.setLegends(), 'order');
+      console.log(data);
       $.when.apply($, data).done(function() {
         this.$el.html( this.template({ legends: data }) );
         this.cacheVars();
@@ -88,15 +89,23 @@
     },
 
     setOrder: function(e, ui) {
+      this.layers.order = 1;
       _.each(this.$legendList.children('li'), _.bind(function(layer,i){
-        var currentModel = this.layers.get($(layer).data('id'));
-        currentModel.set('order', i + 1);
+        var currentModel = $(layer).data('id');
+        this.layers.setOrder(currentModel);
       }, this ));
 
       $('.m-legend').removeClass('is-changing');
-      // sort layers
-      // this.layers.sort();
     },
+
+    // setOrder: function(e, ui) {
+    //   _.each(this.$legendList.children('li'), _.bind(function(layer,i){
+    //     var currentModel = this.layers.get($(layer).data('id'));
+    //     currentModel.set('order', i + 1);
+    //   }, this ));
+
+    //   $('.m-legend').removeClass('is-changing');
+    // },
 
 
     /**

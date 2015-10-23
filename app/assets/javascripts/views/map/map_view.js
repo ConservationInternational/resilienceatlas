@@ -8,11 +8,6 @@
   root.app.View.Map = Backbone.View.extend({
 
     defaults: {
-      // map: {
-      //   center: [0, 15],
-      //   zoomControl: false,
-      //   scrollWheelZoom: false
-      // },
       defaultBasemap: 'defaultmap',
       basemap: {
         labels: 'http://api.tiles.mapbox.com/v4/cigrp.829fd2d8/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiY2lncnAiLCJhIjoiYTQ5YzVmYTk4YzM0ZWM4OTU1ZjQxMWI5ZDNiNTQ5M2IifQ.SBgo9jJftBDx4c5gX4wm3g',
@@ -39,7 +34,6 @@
 
     setListeners: function() {
       this.listenTo(this.layers, 'change', this.renderLayers);
-      // this.listenTo(this.layers, 'sort', this.renderLayers);
 
       Backbone.Events.on('basemap:change', _.bind(this.selectBasemap, this));
     },
@@ -189,6 +183,7 @@
               this.layers.setDisabledByZoom(layerData.id);
             }
           } else {
+            this._setOrder(layerData.id);
             this.addLayer(layerData);
           }
         } else {
@@ -208,9 +203,9 @@
       }
     },
 
-    // _manageCssClasses: function(layerId) {
-
-    // },
+    _setOrder: function(layerId) {
+      this.layers.setOrder(layerId);
+    },
 
     /**
      * Add a layer instance to map

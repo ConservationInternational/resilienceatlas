@@ -35,6 +35,8 @@
 
     url: '/api/layers',
 
+    order : 1,
+
     parse: function(response) {
       var result = _.map(response.data, function(d) {
         var group = d.relationships.layer_group.data;
@@ -174,6 +176,13 @@
     unsetDisabledByZoom: function(layerId) {
       var noAvailableByZoom = _.findWhere(this.models, { 'id': layerId });
       noAvailableByZoom.set('notAvailableByZoom', false);
+    },
+
+    setOrder: function(layerId) {
+      var current = _.findWhere(this.models, { 'id': layerId });
+      current.set('order', this.order, {silent: true});
+      console.log(this.order);
+      return ++this.order
     },
 
     getActived: function() {
