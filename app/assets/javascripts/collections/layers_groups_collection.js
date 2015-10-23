@@ -62,6 +62,10 @@
       return _.where(this.getPublished(), { group_type: "subcategory" });
     },
 
+    getsubGroups: function() {
+      return _.where(this.getPublished(), { group_type: "subgroup" });
+    },
+
     getCategoriesByGroup: function(groupId) {
       return _.filter(this.getPublished(), function(g) {
         return groupId === g.father;
