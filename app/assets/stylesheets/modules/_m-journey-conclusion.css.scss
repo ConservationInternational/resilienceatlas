@@ -38,6 +38,10 @@
       transform: translatex(-100%);
     }
 
+    .extra-wrapper {
+      overflow: hidden;
+    }
+
     .wrapper {
       max-height: 40vh;
       padding-right: rem(10px);
