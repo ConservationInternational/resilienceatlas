@@ -21,6 +21,7 @@ gem 'active_model_serializers', '0.10.0.rc2'
 gem 'rails_12factor'
 gem 'raddocs'
 gem 'seed_dump'
+gem 'active_admin_theme'
 
 group :development, :test do
   gem 'spring'
