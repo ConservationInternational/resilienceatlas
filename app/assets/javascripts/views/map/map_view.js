@@ -169,15 +169,15 @@
 
       //Test for zoom scope.
       _.each(layersData, function(layerData) {
-        if (layerData.id == 31) {
-          layerData.maxZoom = 100;
-          layerData.minZoom = 3;
-        }
+        // if (layerData.id == 31) {
+        //   layerData.maxZoom = 100;
+        //   layerData.minZoom = 3;
+        // }
 
-        if (layerData.id == 36) {
-          layerData.maxZoom = 3;
-          layerData.minZoom = 0;
-        }
+        // if (layerData.id == 36) {
+        //   layerData.maxZoom = 3;
+        //   layerData.minZoom = 0;
+        // }
 
         if (layerData.active) {
           if (layerData.maxZoom) {
