@@ -48,6 +48,7 @@
       overflow-y: scroll;
 
       @extend %clear-scroll-bars;
+      margin-right: -20px;
     }
 
     h2 {
