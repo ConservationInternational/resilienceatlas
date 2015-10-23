@@ -19,9 +19,10 @@
   }
 
   p {
-    font-size: rem(18px);
-    font-weight: 400;
-    letter-spacing: 1px;
+    font-size: 16px;
+        font-weight: 400;
+        letter-spacing: 1px;
+        line-height: 1.4em;
   }
 
   p:first-child {
@@ -39,5 +40,15 @@
 
   .italic {
     font-style: italic;
+  }
+
+  .references {
+    h3 {
+      font-size: rem(18px);
+      font-weight: 700;
+    }
+    p {
+      font-size: rem(14px);
+    }
   }
 }

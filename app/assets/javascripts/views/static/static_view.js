@@ -22,7 +22,7 @@
     },
 
     _cacheVars: function() {
-      this.$anchors = this.$('.m-section-nav a');
+      this.$anchors = this.$('a.link');
     },
 
     _setListeners: function() {
