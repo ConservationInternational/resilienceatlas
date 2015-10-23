@@ -29,7 +29,6 @@ ActiveAdmin.register Layer do
     selectable_column
     column :id
     column :name
-    column :info
     column :provider
     column :css
     column :query
