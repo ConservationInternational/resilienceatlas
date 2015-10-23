@@ -9,7 +9,10 @@
     <div id="{{slug}}" class="widget-number">
       {{#each data}}
          {{#each this}}
-         	{{@key}} - {{this}}
+          <div class="row">
+            <div class="value">{{this}}</div>
+            <div class="label">{{@key}}</div>
+          </div>
          {{/each}}
       {{/each}}
     </div>

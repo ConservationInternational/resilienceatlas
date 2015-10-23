@@ -13,7 +13,7 @@
         "name": "Population density",
         "slug": "population_density",
         "widget": "number",
-        "query": "SELECT month as label, precip as value FROM monthly_mean_precip_1981_2014 where iso3='%1' LIMIT 1"
+        "query": "with r as ( select the_geom_webmercator from country_mask where iso_a3= '%1'), f as ( select (ST_SummaryStats(st_clip( the_raster_webmercator,1, the_geom_webmercator,-2147483648, true), 1, true)).* as  statistics FROM lspop2014, r where st_intersects(the_raster_webmercator, the_geom_webmercator)) SELECT SUM(sum) as sum, (sum(count)*0.9) as area,round(sum(sum)/(sum(count)*0.9)) as density from f"
       },
       {
         "name": "Primary livelihood strategies",

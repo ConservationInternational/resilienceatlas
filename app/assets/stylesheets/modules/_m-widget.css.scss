@@ -1,16 +1,41 @@
 .m-widget {
-
+  float: left;
   margin-bottom: 25px;
 
   .name {
     text-transform: uppercase;
     font-size: rem(14px);
+    font-weight: 700;
     letter-spacing: 0.7px;
     margin-left: 16px;
+    margin-bottom: 8px;
+  }
+
+  .row {
+    margin: 16px 13px 0 13px;
   }
 
   &.number {
     width: 50%;
     float: left;
+
+    .value {
+      font-size: 41px;
+      color: $font-color-2;
+      font-weight: 700;
+      letter-spacing: 1.46px;
+    }
+
+    .label {
+      font-size: 14px;
+      font-weight: 400;
+      color: $gray-70;
+      margin-top: 5px;
+      margin-bottom: 10px;
+    }
+
+    .widget-number {
+      float: left;
+    }
   }
 }

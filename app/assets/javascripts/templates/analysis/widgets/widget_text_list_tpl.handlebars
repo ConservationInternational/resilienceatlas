@@ -8,6 +8,11 @@
   {{else}}
     <div id="{{slug}}" class="widget-text-list">
       {{#each data}}
+        {{#if @first}}
+          {{#each ../data}}
+            <div>{{@key}}</div>
+          {{/each}}
+        {{/if}}
         {{label}} - {{value}}
       {{/each}}
     </div>

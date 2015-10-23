@@ -80,13 +80,17 @@
           closeOnClick: false
         });
 
-        this.listenTo(this.searchView, 'selected', this.selectIso);
+        this.listenTo(this.searchView, 'selected', this.selectIsoAndCountry);
+        this.listenTo(this.searchView, 'results', this.showingResults);
       }
     },
 
-    selectIso: function(iso) {
-      if(iso) {
-        this.state.set('iso', iso);
+    selectIsoAndCountry: function(iso, country) {
+      if(iso && country) {
+        this.state.set({
+          'iso': iso,
+          'country': country
+        });
         this.$('.searchAnalysisBox').addClass('selected');
       }
     },
@@ -129,9 +133,18 @@
         this.analyzeView = new root.app.View.AnalysisPageView({
           category: this.state.get('category'),
           iso: this.state.get('iso'),
+          country: this.state.get('country'),
           el: '#analysisData',
           data: data[0]
         });
+      }
+    },
+
+    showingResults: function(results) {
+      if(results.length > 5) {
+        this.$el.addClass('highlight');
+      } else {
+        this.$el.removeClass('highlight');
       }
     }
 

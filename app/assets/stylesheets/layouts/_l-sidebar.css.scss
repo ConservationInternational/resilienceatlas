@@ -23,13 +23,18 @@
   z-index: 1;
 
   box-shadow: 0 1px 4px 0 rgba(0,0,0, .2);
+  transition: .25s width ease-in-out;
 
   body.analysis-section & {
     bottom: 0;
+    max-height: rem(540px);
   }
 
   body.analyzing & {
     width: rem($sidebar-analysis-width);
+    max-height: none;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: none;
   }
 
 }

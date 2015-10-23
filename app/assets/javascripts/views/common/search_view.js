@@ -138,6 +138,7 @@
           }
         });
 
+        this.trigger('results', search);
         this.$(this.elSuggestions).html(this.templateSuggestions({data: search}));
         this.$(this.elContent).addClass('visible');
       }, this), 100);
@@ -147,6 +148,7 @@
       var $searchSuggestions = this.$(this.elSuggestions);
       $searchSuggestions.html('');
       this.$(this.elContent).removeClass('visible');
+      this.trigger('results', []);
     },
 
     clearSearch: function() {
@@ -172,13 +174,15 @@
       if(area[0]) {
         var bbox = area[0].get('bbox');
 
-        Backbone.Events.trigger('map:set:fitbounds', bbox);
+        Backbone.Events.trigger('map:set:fitbounds', bbox, {
+          padding: [20, 0]
+        });
         Backbone.Events.trigger('map:set:mask', iso, 0.8, {
           query: 'select * from grpcountries_250k_polygon',
           tableName: 'grpcountries_250k_polygon'
         });
 
-        this.trigger('selected', iso);
+        this.trigger('selected', iso, area[0].get('name'));
         this.setSelected(area[0]);
       }
 

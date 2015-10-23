@@ -10,8 +10,9 @@
     defaults: {
       elAnalysis: '.m-analysis',
       elWidgets: '.widgets',
-      category: 'stressors',
-      iso: 'DJI'
+      category: '',
+      iso: '',
+      country: ''
     },
 
     events: {
@@ -34,13 +35,15 @@
 
       this.category = this.options.category;
       this.iso = this.options.iso;
+      this.country = this.options.country;
       this.data = this.options.data;
       this.render();
     },
 
     render: function() {
       this.$el.html(this.template({
-        category: this.data.category_name
+        category: this.data.category_name,
+        country: this.country
       }));
 
       $(this.defaults.elAnalysis).addClass('visible');

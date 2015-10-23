@@ -325,7 +325,7 @@
       }
     },
 
-    setBbox: function(bbox) {
+    setBbox: function(bbox, options) {
       if(bbox) {
         bbox = JSON.parse(bbox);
         var coords = bbox.coordinates[0];
@@ -333,7 +333,7 @@
           northEast = L.latLng(coords[0][1], coords[0][0]),
           bounds = L.latLngBounds(southWest, northEast);
 
-        this.map.fitBounds(bounds);
+        this.map.fitBounds(bounds, options);
       }
     }
 
