@@ -25,4 +25,15 @@ ActiveAdmin.register Layer do
     f.actions
     end
   end
+  index do
+    selectable_column
+    column :id
+    column :name
+    column :provider
+    column :css
+    column :query
+    column :info
+    column :updated_at
+    actions
+  end
 end

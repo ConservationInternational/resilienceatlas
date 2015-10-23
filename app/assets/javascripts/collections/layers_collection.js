@@ -65,6 +65,7 @@
       this._groups = groupsCollection.getGroups();
       this._categories = groupsCollection.getCategories();
       this._subcategories = groupsCollection.getsubCategories();
+      this._subGroups = groupsCollection.getsubGroups();
       return this;
     },
 
@@ -96,7 +97,7 @@
             //Hayo las subcategories para esta categoria.
             var subcategories = _.where(this._subcategories, { father: c.id });
             //Extend categories with their subcat.
-             _.extend(c, {
+            _.extend(c, {
               subcategory: _.map(subcategories, function(sc) {
                 var layers = _.where(data, { group: sc.id });
                 _.map(layers, function(layer){
@@ -110,16 +111,35 @@
                 } else {
                   sc.active = false;
                 }
+
+                var subgroups = _.where(this._subGroups, { father: sc.id });
+                _.extend(sc, {
+                  subgroup: _.map(subgroups, function(sg) {
+                    var layers = _.where(data, { group: sg.id });
+                    _.map(layers, function(layer){
+                      layer.opacity_text = layer.opacity*100
+                      return layer;
+                    });
+                    // Forcing category activation
+                    var isActive = _.contains(_.pluck(layers, 'active'), true);
+                    if (isActive) {
+                      sg.active = true;
+                    } else {
+                      sg.active = false;
+                    }
+                    return _.extend(sg, { layers: layers });
+                  }, this)
+                })
+
                 return _.extend(sc, { layers: layers });
               }, this)
             })
 
-            return _.extend(c, { subcategories: subcategories, layers: layers });
+            return _.extend(c, { layers: layers });
           }, this)
         });
 
       }, this);
-
     },
 
     setActives: function(activeLayers) {
