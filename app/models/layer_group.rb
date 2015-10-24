@@ -21,5 +21,5 @@ class LayerGroup < ActiveRecord::Base
   has_many :layers, through: :agrupations
   belongs_to :super_group, class_name: 'LayerGroup'
   has_many :sub_groups, class_name: 'LayerGroup', foreign_key: :super_group_id, dependent: :nullify
-  #accepts_nested_attributes_for :agrupations, :allow_destroy => true
+  accepts_nested_attributes_for :agrupations, :allow_destroy => true
 end

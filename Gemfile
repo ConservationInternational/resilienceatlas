@@ -22,6 +22,7 @@ gem 'rails_12factor'
 gem 'raddocs'
 gem 'seed_dump'
 gem 'active_admin_theme'
+gem 'puma'
 
 group :development, :test do
   gem 'spring'
