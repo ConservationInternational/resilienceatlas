@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20151023165034) do
+ActiveRecord::Schema.define(version: 20151023131538) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -80,6 +80,7 @@ ActiveRecord::Schema.define(version: 20151023165034) do
     t.text     "legend"
     t.integer  "zoom_max",       default: 100
     t.integer  "zoom_min",       default: 0
+    t.integer  "layer_group_id"
   end
 
   create_table "share_urls", force: :cascade do |t|

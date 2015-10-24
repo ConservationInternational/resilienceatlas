@@ -7,13 +7,15 @@ namespace :layers do
     puts answer
     if answer == "Y"
       puts "Deleting layers..."
-      ActiveRecord::Base.connection.execute('TRUNCATE layers RESTART IDENTITY')
-      ActiveRecord::Base.connection.execute('TRUNCATE layer_groups RESTART IDENTITY')
+      Layer.delete_all
+      LayerGroup.delete_all
+      Agrupation.delete_all
       puts "Importing new layers..."
       filename = 'db/data/layers.rb'
       load(filename) if File.exist?(filename)
       ActiveRecord::Base.connection.reset_pk_sequence!('layers')
       ActiveRecord::Base.connection.reset_pk_sequence!('layer_groups')
+      ActiveRecord::Base.connection.reset_pk_sequence!('agrupations')
       puts "Layers imported."
     else
       puts "Nothing changed."
@@ -22,7 +24,7 @@ namespace :layers do
 
   desc "Creates a new export file with layers and layer groups."
   task backup: :environment do
-    sh "bundle exec rake db:seed:dump FILE=db/data/layers.rb MODELS=layers,layer_groups EXCLUDE=[]"
+    sh "bundle exec rake db:seed:dump FILE=db/data/layers.rb MODELS=layers,layer_groups,agrupations EXCLUDE=[]"
     puts "Backup created."
   end
 
