@@ -10,4 +10,5 @@
 class Agrupation < ActiveRecord::Base
   belongs_to :layer
   belongs_to :layer_group
+  validates_uniqueness_of :layer, scope: :layer_group
 end

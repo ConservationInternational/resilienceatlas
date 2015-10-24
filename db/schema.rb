@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20151023131538) do
+ActiveRecord::Schema.define(version: 20151024110910) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -54,8 +54,10 @@ ActiveRecord::Schema.define(version: 20151023131538) do
     t.datetime "created_at",       null: false
     t.datetime "updated_at",       null: false
     t.string   "icon_class"
+    t.integer  "site_scope_id"
   end
 
+  add_index "layer_groups", ["site_scope_id"], name: "index_layer_groups_on_site_scope_id", using: :btree
   add_index "layer_groups", ["super_group_id"], name: "index_layer_groups_on_super_group_id", using: :btree
 
   create_table "layers", force: :cascade do |t|
@@ -88,6 +90,10 @@ ActiveRecord::Schema.define(version: 20151023131538) do
     t.text     "body"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "site_scopes", force: :cascade do |t|
+    t.string "name", default: "global"
   end
 
   add_foreign_key "agrupations", "layer_groups"
