@@ -48,7 +48,7 @@
     },
 
     render: function() {
-      var data = _.sortBy(this.setLegends(), 'order');
+      var data = _.sortBy(this.setLegends(), 'order').reverse();
       console.log(data);
       $.when.apply($, data).done(function() {
         this.$el.html( this.template({ legends: data }) );

@@ -185,9 +185,14 @@
 
       var current = _.findWhere(this.models, { 'id': layerId });
       current.set('order', this.order);
-      console.log(current.get('name'));
-      console.log(this.order);
+      // console.log(current.get('name'));
+      // console.log(this.order);
       return ++ this.order
+    },
+
+    setOrderToNull: function(layerId) {
+      var current = _.findWhere(this.models, { 'id': layerId });
+      current.set('order', null);
     },
 
     _getMaxOrderVal: function() {

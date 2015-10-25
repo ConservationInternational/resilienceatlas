@@ -189,17 +189,14 @@
             }
           } else {
             if (!layerData.order) {
-              var order = this._setOrder(layerData.id);
-              $.when($, order).done(_.bind(function(){        
-                this.addLayer(layerData);
-                layerData.order = this.layers.order -1;
-              }, this));
-
+              this._setOrder(layerData);       
+              this.addLayer(layerData);
             } else {
               this.addLayer(layerData);
-            };
+            }
           }
         } else {
+          this._setOrderToNull(layerData);
           this.removeLayer(layerData);
         }
       }, this);
@@ -216,8 +213,14 @@
       }
     },
 
-    _setOrder: function(layerId) {
-      this.layers.setOrder(layerId);
+    _setOrder: function(layer) {
+      layer.order = this.layers.order;
+      this.layers.setOrder(layer.id);
+    },
+
+    _setOrderToNull: function(layer){
+      layer.order = null;
+      this.layers.setOrderToNull(layer.id);
     },
 
     /**
@@ -243,8 +246,8 @@
             layerInstance = new root.app.Helper.CartoDBLayer(this.map, options);
             layerInstance.create(function(layer) {
               layer.setOpacity(layerData.opacity);
-              console.log(layerData.name)
-              console.log('zindex', layerData.order)
+              // console.log(layerData.name)
+              // console.log('zindex', layerData.order)
               layer.setZIndex(1000 + layerData.order);
             });
           break;
@@ -257,8 +260,8 @@
             //When carto bug solved, only back to create method.
             layerInstance.createRasterLayer(function(layer) {
               layer.setOpacity(layerData.opacity);
-              console.log(layerData.name)
-              console.log('zindex', layerData.order)
+              // console.log(layerData.name)
+              // console.log('zindex', layerData.order)
               layer.setZIndex(1000 + layerData.order);
             });
           break;
@@ -273,8 +276,8 @@
       } else {
         if (layer.layer) {
           layer.layer.setOpacity(layerData.opacity);
-          console.log(layerData.name)
-          console.log('zindex', layerData.order)
+          // console.log(layerData.name)
+          // console.log('zindex', layerData.order)
           layer.layer.setZIndex(1000 + layerData.order);
         }
         // console.info('Layer "' + layerData.id + '"" already exists.');
