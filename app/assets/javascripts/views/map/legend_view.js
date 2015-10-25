@@ -94,8 +94,8 @@
       }, this ));
 
       $('.m-legend').removeClass('is-changing');
-      // sort layers
-      // this.layers.sort();
+
+      Backbone.Events.trigger('render:map');
     },
 
 
