@@ -175,6 +175,7 @@
         // }
 
         if (layerData.active) {
+          console.log(layerData.order);
           if (layerData.maxZoom) {
             if ( layerData.minZoom <= this.actualZoom && this.actualZoom <= layerData.maxZoom ) {
               this.addLayer(layerData)
@@ -210,11 +211,14 @@
     },
 
     _setOrder: function(layer) {
-      layer.order = this.layers.order;
+      console.log('set order');
+      layer.order = this.layers.order || 1;
+      console.log(layer.order);
       this.layers.setOrder(layer.id);
     },
 
     _setOrderToNull: function(layer){
+      console.log('unset order');
       layer.order = null;
       this.layers.setOrderToNull(layer.id);
     },
@@ -241,6 +245,7 @@
             var options = { sublayers: [data] };
             layerInstance = new root.app.Helper.CartoDBLayer(this.map, options);
             layerInstance.create(function(layer) {
+              console.log(layerData.order);
               layer.setOpacity(layerData.opacity);
               layer.setZIndex(1000 + layerData.order);
             });
@@ -253,6 +258,7 @@
             layerInstance = new root.app.Helper.CartoDBRaster(this.map, options);
             //When carto bug solved, only back to create method.
             layerInstance.createRasterLayer(function(layer) {
+              console.log(layerData.order);
               layer.setOpacity(layerData.opacity);
               layer.setZIndex(1000 + layerData.order);
             });
@@ -267,6 +273,7 @@
         }
       } else {
         if (layer.layer) {
+          console.log(layerData.order);
           layer.layer.setOpacity(layerData.opacity);
           layer.layer.setZIndex(1000 + layerData.order);
         }

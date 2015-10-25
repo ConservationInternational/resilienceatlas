@@ -51,7 +51,7 @@
           color: d.attributes.color,
           opacity: d.attributes.opacity,
           no_opacity: d.attributes.opacity == 0 ? true : false,
-          order: d.attributes.order,
+          order: d.attributes.order || null,
           legend: d.attributes.legend,
           group: group ? parseInt(group.id) : null,
           active: d.attributes.active,
@@ -180,13 +180,11 @@
     },
 
     setOrder: function(layerId) {
-      console.log('setOrder');
       this.order = this.order || this._getMaxOrderVal() + 1;
 
       var current = _.findWhere(this.models, { 'id': layerId });
       current.set('order', this.order);
-      // console.log(current.get('name'));
-      // console.log(this.order);
+
       return ++ this.order
     },
 
