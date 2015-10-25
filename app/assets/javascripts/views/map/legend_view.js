@@ -102,28 +102,6 @@
       Backbone.Events.trigger('render:map');
     },
 
-    // setOrder: function(e, ui) {
-    //   var self = this;
-    //   var items = this.$legendList.children('li');
-    //   console.log(items)
-
-    //   for(var i = items.length - 1; i >= 0; i--) {
-    //     console.log(i)
-    //     var layer = items[i];
-    //     var order = i;
-        
-    //     var currentModel = this.layers.get($(layer).data('id'));
-    //     console.log(currentModel.get('name'))
-
-    //     currentModel.set('order', order);
-    //     this.layers.order = order;
-    //   }
-
-    //   $('.m-legend').removeClass('is-changing');
-    //   Backbone.Events.trigger('render:map');
-    // },
-
-
     /**
      * Set panel visibility
      */

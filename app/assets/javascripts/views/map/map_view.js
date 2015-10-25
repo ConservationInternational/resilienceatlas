@@ -35,11 +35,8 @@
     },
 
     setListeners: function() {
-      // this.listenTo(this.layers, 'change', this.renderLayers);
-      // this.listenTo(this.layers, 'sort', this.renderLayers);
       Backbone.Events.on('render:map', _.bind(this.renderLayers, this));
       Backbone.Events.on('basemap:change', _.bind(this.selectBasemap, this));
-      // Backbone.Events.on('legendOrder : change', _.bind(this.renderLayers, this));
     },
 
     /**
@@ -140,7 +137,7 @@
       } else {
         this.basemap = L.tileLayer(url).addTo(this.map);
         this.labels = L.tileLayer(labelsUrl).addTo(this.map);
-        this.labels.setZIndex(1005);
+        this.labels.setZIndex(1100);
       }
 
       if(basemapUrl) {
@@ -163,7 +160,6 @@
      * Render or remove layers by Layers Collection
      */
     renderLayers: function() {
-      console.log('* render layers *')
       var layersData = this.layers.getPublished();
 
       //Test for zoom scope.
@@ -246,8 +242,6 @@
             layerInstance = new root.app.Helper.CartoDBLayer(this.map, options);
             layerInstance.create(function(layer) {
               layer.setOpacity(layerData.opacity);
-              // console.log(layerData.name)
-              // console.log('zindex', layerData.order)
               layer.setZIndex(1000 + layerData.order);
             });
           break;
@@ -260,8 +254,6 @@
             //When carto bug solved, only back to create method.
             layerInstance.createRasterLayer(function(layer) {
               layer.setOpacity(layerData.opacity);
-              // console.log(layerData.name)
-              // console.log('zindex', layerData.order)
               layer.setZIndex(1000 + layerData.order);
             });
           break;
@@ -276,8 +268,6 @@
       } else {
         if (layer.layer) {
           layer.layer.setOpacity(layerData.opacity);
-          // console.log(layerData.name)
-          // console.log('zindex', layerData.order)
           layer.layer.setZIndex(1000 + layerData.order);
         }
         // console.info('Layer "' + layerData.id + '"" already exists.');
@@ -311,7 +301,7 @@
       });
 
       maskLayer.create(function(layer){
-        layer.setZIndex(1001)
+        layer.setZIndex(1100)
 
         if(opacity) {
           layer.setOpacity(opacity);
