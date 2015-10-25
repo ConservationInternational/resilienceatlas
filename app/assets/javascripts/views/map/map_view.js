@@ -30,6 +30,8 @@
       this.setListeners();
 
       this.journeyMap = this.model.get('journeyMap');
+
+      this.utils = new root.app.View.Utils;
     },
 
     setListeners: function() {
