@@ -88,30 +88,40 @@
       });
     },
 
-    // setOrder: function(e, ui) {
-    //   this.layers.order = 1;
-    //   _.each(this.$legendList.children('li'), _.bind(function(layer,i){
-    //     var currentModel = $(layer).data('id');
-    //     this.layers.setOrder(currentModel);
-    //   }, this ));
-
-    //   Backbone.Events.trigger('legendOrder : change');
-
-    //   $('.m-legend').removeClass('is-changing');
-    // },
-
     setOrder: function(e, ui) {
+      var total = this.$legendList.children('li').length;
 
       _.each(this.$legendList.children('li'), _.bind(function(layer,i){
         var currentModel = this.layers.get($(layer).data('id'));
-        currentModel.set('order', i + 1);
-        this.layers.order = i + 1;
+        currentModel.set('order', total - i);
+        this.layers.order = total - i;
       }, this ));
 
       $('.m-legend').removeClass('is-changing');
 
       Backbone.Events.trigger('render:map');
     },
+
+    // setOrder: function(e, ui) {
+    //   var self = this;
+    //   var items = this.$legendList.children('li');
+    //   console.log(items)
+
+    //   for(var i = items.length - 1; i >= 0; i--) {
+    //     console.log(i)
+    //     var layer = items[i];
+    //     var order = i;
+        
+    //     var currentModel = this.layers.get($(layer).data('id'));
+    //     console.log(currentModel.get('name'))
+
+    //     currentModel.set('order', order);
+    //     this.layers.order = order;
+    //   }
+
+    //   $('.m-legend').removeClass('is-changing');
+    //   Backbone.Events.trigger('render:map');
+    // },
 
 
     /**
