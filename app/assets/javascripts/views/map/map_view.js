@@ -31,14 +31,14 @@
 
       this.journeyMap = this.model.get('journeyMap');
 
-      this.utils = new root.app.View.Utils;
+      this.utils = new root.app.View.Utils();
     },
 
     setListeners: function() {
       this.listenTo(this.layers, 'change', this.renderLayers);
 
       Backbone.Events.on('basemap:change', _.bind(this.selectBasemap, this));
-      Backbone.Events.on('legendOrder : change', _.bind(this.renderLayers, this));
+      // Backbone.Events.on('legendOrder : change', _.bind(this.renderLayers, this));
     },
 
     /**
@@ -162,19 +162,20 @@
      * Render or remove layers by Layers Collection
      */
     renderLayers: function() {
+      console.log('render layers')
       var layersData = this.layers.getPublished();
 
       //Test for zoom scope.
       _.each(layersData, function(layerData) {
-        if (layerData.id == 31) {
-          layerData.maxZoom = 100;
-          layerData.minZoom = 3;
-        }
+        // if (layerData.id == 31) {
+        //   layerData.maxZoom = 100;
+        //   layerData.minZoom = 3;
+        // }
 
-        if (layerData.id == 36) {
-          layerData.maxZoom = 3;
-          layerData.minZoom = 0;
-        }
+        // if (layerData.id == 36) {
+        //   layerData.maxZoom = 3;
+        //   layerData.minZoom = 0;
+        // }
 
         if (layerData.active) {
           if (layerData.maxZoom) {
@@ -186,10 +187,16 @@
               this.layers.setDisabledByZoom(layerData.id);
             }
           } else {
-            if (!layerData.order || layerData.order === 0) {
-              this._setOrder(layerData.id);
+            if (!layerData.order) {
+              var order = this._setOrder(layerData.id);
+              $.when($, order).done(_.bind(function(){  
+                console.log(this.layers.order);       
+                this.addLayer(layerData);
+              }, this));
+
+            } else {
+              this.addLayer(layerData);
             };
-            this.addLayer(layerData);
           }
         } else {
           this.removeLayer(layerData);
@@ -209,7 +216,7 @@
     },
 
     _setOrder: function(layerId) {
-      this.layers.setOrder(layerId);
+      // this.layers.setOrder(layerId);
     },
 
     /**
@@ -237,7 +244,7 @@
               layer.setOpacity(layerData.opacity);
               console.log(layerData.name)
               console.log('zindex', layerData.order)
-              layer.setZIndex(1000-layerData.order);
+              layer.setZIndex(1000 - layerData.order);
             });
           break;
           case 'raster':
@@ -251,7 +258,7 @@
               layer.setOpacity(layerData.opacity);
               console.log(layerData.name)
               console.log('zindex', layerData.order)
-              layer.setZIndex(1000-layerData.order);
+              layer.setZIndex(1000 - layerData.order);
             });
           break;
           default:
@@ -267,7 +274,7 @@
           layer.layer.setOpacity(layerData.opacity);
           console.log(layerData.name)
           console.log('zindex', layerData.order)
-          layer.layer.setZIndex(1000-layerData.order);
+          layer.layer.setZIndex(1000 - layerData.order);
         }
         // console.info('Layer "' + layerData.id + '"" already exists.');
       }

@@ -51,7 +51,7 @@
           color: d.attributes.color,
           opacity: d.attributes.opacity,
           no_opacity: d.attributes.opacity == 0 ? true : false,
-          order: d.attributes.order || 0,
+          order: d.attributes.order,
           legend: d.attributes.legend,
           group: group ? parseInt(group.id) : null,
           active: d.attributes.active,
@@ -180,14 +180,14 @@
     },
 
     setOrder: function(layerId) {
-      // console.log('setOrder');
+      console.log('setOrder');
       this.order = this.order || this._getMaxOrderVal() + 1;
 
       var current = _.findWhere(this.models, { 'id': layerId });
-      current.set('order', this.order, { silent: true });
+      current.set('order', this.order);
       console.log(current.get('name'));
       console.log(this.order);
-      return ++this.order
+      return ++ this.order
     },
 
     _getMaxOrderVal: function() {
@@ -215,7 +215,7 @@
 
     getActiveLayers: function() {
       var layers = [];
-      var activeLayers = this.where({active: true});
+      var activeLayers = this.where({ active: true });
 
       _.each(activeLayers, function(layer) {
         layers.push(layer.toJSON());
