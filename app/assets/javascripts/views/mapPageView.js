@@ -13,7 +13,7 @@
       this.setListeners();
 
       this.router = settings.router;
-      console.log(this.router);
+      
       this.initMap();
     },
 
@@ -26,11 +26,11 @@
       var layersGroupsCollection = new root.app.Collection.LayersGroups();
       var layersCollection = new root.app.Collection.Layers();
       var mapModel = new (Backbone.Model.extend({
-          defaults: {
-            journeyMap: journeyMap,
-            countryIso: this.router.params.attributes && this.router.params.attributes.countryIso ? this.router.params.attributes.countryIso : null
-          }
-        }));
+        defaults: {
+          journeyMap: journeyMap,
+          countryIso: this.router.params.attributes && this.router.params.attributes.countryIso ? this.router.params.attributes.countryIso : null
+        }
+      }));
 
       var mapView = new root.app.View.Map({
         el: '#mapView',
