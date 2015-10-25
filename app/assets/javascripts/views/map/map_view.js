@@ -38,9 +38,10 @@
     },
 
     setListeners: function() {
-      this.listenTo(this.layers, 'change', this.renderLayers);
+      // this.listenTo(this.layers, 'change', this.renderLayers);
       // this.listenTo(this.layers, 'sort', this.renderLayers);
 
+      Backbone.Events.on('render:map', _.bind(this.renderLayers, this));
       Backbone.Events.on('basemap:change', _.bind(this.selectBasemap, this));
     },
 
