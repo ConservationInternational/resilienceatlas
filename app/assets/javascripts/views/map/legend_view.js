@@ -38,7 +38,7 @@
     setListeners: function() {
       _.bindAll(this,'setOrder');
       this.listenTo(this.model, 'change:hidden', this.changeVisibility);
-      this.listenTo(this.layers, 'change', this.render);
+      Backbone.Events.on('render:map', _.bind(this.render, this));
     },
 
     cacheVars: function() {

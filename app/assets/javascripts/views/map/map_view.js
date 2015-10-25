@@ -37,7 +37,6 @@
     setListeners: function() {
       // this.listenTo(this.layers, 'change', this.renderLayers);
       // this.listenTo(this.layers, 'sort', this.renderLayers);
-
       Backbone.Events.on('render:map', _.bind(this.renderLayers, this));
       Backbone.Events.on('basemap:change', _.bind(this.selectBasemap, this));
       // Backbone.Events.on('legendOrder : change', _.bind(this.renderLayers, this));
@@ -164,7 +163,7 @@
      * Render or remove layers by Layers Collection
      */
     renderLayers: function() {
-      console.log('render layers')
+      console.log('* render layers *')
       var layersData = this.layers.getPublished();
 
       //Test for zoom scope.
@@ -191,9 +190,9 @@
           } else {
             if (!layerData.order) {
               var order = this._setOrder(layerData.id);
-              $.when($, order).done(_.bind(function(){  
-                console.log(this.layers.order);       
+              $.when($, order).done(_.bind(function(){        
                 this.addLayer(layerData);
+                layerData.order = this.layers.order -1;
               }, this));
 
             } else {
@@ -218,7 +217,7 @@
     },
 
     _setOrder: function(layerId) {
-      // this.layers.setOrder(layerId);
+      this.layers.setOrder(layerId);
     },
 
     /**
@@ -246,7 +245,7 @@
               layer.setOpacity(layerData.opacity);
               console.log(layerData.name)
               console.log('zindex', layerData.order)
-              layer.setZIndex(1000 - layerData.order);
+              layer.setZIndex(1000 + layerData.order);
             });
           break;
           case 'raster':
@@ -260,7 +259,7 @@
               layer.setOpacity(layerData.opacity);
               console.log(layerData.name)
               console.log('zindex', layerData.order)
-              layer.setZIndex(1000 - layerData.order);
+              layer.setZIndex(1000 + layerData.order);
             });
           break;
           default:
@@ -276,7 +275,7 @@
           layer.layer.setOpacity(layerData.opacity);
           console.log(layerData.name)
           console.log('zindex', layerData.order)
-          layer.layer.setZIndex(1000 - layerData.order);
+          layer.layer.setZIndex(1000 + layerData.order);
         }
         // console.info('Layer "' + layerData.id + '"" already exists.');
       }
