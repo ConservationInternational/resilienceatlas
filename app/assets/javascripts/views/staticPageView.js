@@ -5,7 +5,7 @@
   root.app = root.app || {};
   root.app.View = root.app.View || {};
 
-  root.app.View.StaticPage = Backbone.View.extend({
+  root.app.View.StaticPageView = Backbone.View.extend({
 
     el: 'body',
 
