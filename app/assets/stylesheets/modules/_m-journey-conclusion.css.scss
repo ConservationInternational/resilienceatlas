@@ -38,12 +38,18 @@
       transform: translatex(-100%);
     }
 
+    .extra-wrapper {
+      overflow: hidden;
+    }
+
     .wrapper {
       max-height: 40vh;
       padding-right: rem(10px);
       overflow-y: scroll;
+      padding-right: 20px;
 
       @extend %clear-scroll-bars;
+      margin-right: -20px;
     }
 
     h2 {

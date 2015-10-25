@@ -109,6 +109,8 @@
       }, this ));
 
       $('.m-legend').removeClass('is-changing');
+
+      Backbone.Events.trigger('render:map');
     },
 
 

@@ -8,23 +8,24 @@
       .small-12.medium-6.column.medium-offset-3
         ul.m-section-nav
           li 
-            a href="#overview" overview
+            a.link href="#overview" overview
           li 
-            a href="#using_the_atlas" using the atlas
+            a.link href="#using_the_atlas" using the atlas
           li 
-            a href="#terminology" terminology
+            a.link href="#terminology" glossary
           / li 
-          /   a href="#partnership" partnership
+          /   a.link href="#partnership" partnership
   .wrap.m-static-page
 
     article#overview
       .row
         .small-12.medium-6.column
           h2 Overview
-          p The Resilience Atlas is a tool for building insights on resilience to stressors and shocks that might affect livelihoods, production systems, and ecosystems from local, to national, to regional scales.
-          p Resilience is the ability to withstand, respond, and adapt to chronic stresses and acute shocks.
-          p The Atlas allows users to understand how different types of wealth and assets (i.e., natural capital, human capital, financial capital, manufactured capital and social capital) – and combinations among these - affect the resilience of particular production systems and dimensions of human well-being to chronic stressors and acute shocks.
-          p The Atlas integrates the best available datasets on resilience in a single place.
+          p 
+            span.italic Resilience 
+            | refers to the ability of a socio-ecological system to withstand, respond to, and adapt to stresses and shocks. While most of us have an intuitive understanding of resilience, the term also has technical meanings. Resilience often is conceptualized and approached differently by the development, disaster relief, and ecological communities. There is a growing body of scientific literature and community of practice focused on resilience, yet there are surprisingly few quantitative, integrative, multi-scale and data-driven analyses to inform resilience thinking and, particularly, the design of interventions and investments to promote resilience.
+          p In this context, we developed this interactive Resilience Atlas as a tool for building (1) understanding of the extent and severity of some of the key stressors and shocks that are affecting rural livelihoods, production systems, and ecosystems in the Sahel, Horn of Africa and South and Southeast Asia; and (2) insights into the ways that different types of wealth and assets (i.e., natural capital, human capital, social capital, financial capital and manufactured capital) – and combinations among these - impact resilience in particular contexts.
+          p We produced the Atlas by integrating and analyzing more than 12 terabytes of data from over 60 of the best available datasets related to resilience, and summarizing the output in the form of easy to understand maps that can shift focus from regional to national and, where the availability and resolution of the data permit, to local scales. We hope the atlas provides new insights to help catalyze a revisioning of resilience and to support the growing community of practice around resilience.
         .small-12.medium-5.column.medium-offset-1
           img src=image_path("about-1.png") alt=""/
       
@@ -34,24 +35,82 @@
           img src=image_path("about-1.png") alt=""/
         .small-12.medium-6.column.medium-offset-1
           h2 Using the Atlas
-          p We suggest following a step-by-step approach when using the Atlas.
-          p First, consider exposure: where are the key livelihoods, production systems, or ecosystems located?
-          p Second, examine chronic stressors and acute shocks: what are the different types of chronic stressors and acute shocks affecting these areas?
-          p Finally, consider vulnerability: what features of the livelihood, production system, or ecosystem of interest may affect its sensitivity to these stressors and shocks?
+          p 
+            | The Atlas is structured to enable users to explore assessments of “the resilience of what to what” 
+            a.link href="#McCarthy"(Carpenter et al. 2001), 
+            | i.e., resilience of particular socio-ecological systems in particular places to which stressors and shocks (e.g., resilience of pastoral systems in Ethiopia to decreasing rainfall and changes in rainfall distribution). We then consider how different types of wealth and assets promote or diminish the resilience of systems to specific stressors and shocks. To follow this framework, we suggest a 3-step approach to gain insights when using the Atlas.
+
+          ul
+            li
+              p 
+                | Decide what 
+                span.italic geography 
+                | and theme are of interest: within a particular geography, which livelihood, production system, or ecosystem is of interest and what how is it distributed?
+            li
+              p 
+                | Examine 
+                span.italic exposure 
+                | of the system of interest to 
+                span.italic stressors and shocks: 
+                | what are the different types of stressors, how chronic are they and which acute shocks affect these systems? What is the extent of exposure and the magnitude of the stress or shock?
+            li
+              p 
+                | Consider 
+                span.italic vulnerability: 
+                | how do different types of wealth and assets, i.e., natural capital, human capital, social capital, financial capital and manufactured capital, increase or decrease the resilience of the system to these stressors and shocks?
+          
           p 
             | The 
-            a href="/journeys/1" journeys 
-            | demonstrate the application of the Atlas, and highlight some of the insights that have been reached using this tool.
+            a.link href="/journeys/1" journeys 
+            | provide a curated pathway to explore some of the different data layers to gain new insights into the resilience of particular systems and places. The journeys demonstrate how to use the Atlas to arrive at insights, and hopefully will stimulate you to explore the data further.
+
+          p 
+            | Take a look through the data 
+            a.link href="/map" map, 
+            | don’t be overwhelmed, and start creating your own journeys and generating your own insights.
+
         
     article#terminology
       .row
         .small-12.medium-6.column
-          h2 Terminology
-          p Resilience: is the ability to withstand, respond to and adapt to stresses and shocks
-          p Exposure: the state of being exposed to a change (without considering vulnerability)
-          p Stressor: chronic exposure, can be cumulative
-          p Shock: sudden event (drought, conflict)
-          p Vulnerability: the degree to which geophysical, biological and socio-economic systems are susceptible to, and unable to cope with, adverse impacts of climate change (IPCC, Füssel and Klein, 2006)
+          h2 Glossary
+          p 
+            span.italic Resilience: 
+            | The ability to withstand, respond and adapt both in advance and in response to stresses and shocks
+
+          p
+            span.italic Exposure: 
+            | The extent of contact with a stressor or shock
+
+          p 
+            span.italic Stressor: 
+            | A physical (e.g., climate), biological (e.g., a disease), social (e.g., conflict) or financial (e.g., market fluctuation) pressure or perturbation that causes a disturbance to a socio-ecological system. Stressors may affect the structure, function and/or controls in a system. They may be discrete or continuous, as well as cumulative.
+          p 
+            span.italic Shock: 
+            | A sudden stressful event (e.g., a tsunami).
+
+          p
+            span.italic Vulnerability: 
+            | The degree to which a geophysical or socio-ecological system is susceptible to harm, has the capacity to adapt to or is unable to cope with the impacts of stressors and shocks 
+            a.link href="#McCarthy" (McCarthy et al. 
+            a.link href="#adger" 2001; Adger 2006).
+
         .small-12.medium-5.column.medium-offset-1
           img src=image_path("about-1.png") alt=""/
+
+    article#references
+      .row
+        .small-12.medium-8.column
+          .references
+            h3 References
+            p#adger
+              | Adger, W. Neil. “Vulnerability.” Global Environmental Change 16, no. 3 (August 2006): 268–81.
+
+            p#McCarthy
+              | McCarthy, James J. Climate Change 2001: Impacts, Adaptation, and Vulnerability: Contribution of Working Group II to the Third Assessment Report of the Intergovernmental Panel on Climate Change. Cambridge University Press, 2001.
+
+            p#Carpenter
+              | Carpenter, Steve, Brian Walker, J. Marty Anderies, and Nick Abel. “From Metaphor to Measurement: Resilience of What to What?” Ecosystems 4, no. 8 (2001): 765–81.
+            
+        
 
