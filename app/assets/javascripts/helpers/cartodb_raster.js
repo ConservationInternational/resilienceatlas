@@ -30,7 +30,7 @@
      * Create a CartoDB RASTER layer -- solving the bug
      * @param  {Function} callback
      */
-    createRasterLayer: function() {
+    createRasterLayer: function(callback) {
       this.loader.addClass('is-loading');
 
       var sql = this.options.sublayers[0].sql;
@@ -78,6 +78,10 @@
           }).addTo(map);
 
           self.loader.removeClass('is-loading');
+
+          if (callback && typeof callback === 'function') {
+            callback.apply(self, [self.layer]);
+          }
         },
         error: function(){
           Backbone.Events.trigger('spin:stop');

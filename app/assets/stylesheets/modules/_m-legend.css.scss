@@ -311,6 +311,87 @@ $side-bar-width: 360px;
       height: 15px;
       border-radius: 50%;
     }
+
+    .bubble {
+      width: 100%;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 10px;
+
+      .min, .max {
+        font-size: 10px;
+        text-transform: uppercase;
+        font-weight: 300;
+        line-height: 1.2em;
+      }
+
+      .min {
+        width: 20%;
+        float: left;
+      }
+
+      .bubble-list {
+        width: 60%;
+        height: inherit;
+        float: left;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        .bubble-1 {
+          width: 10px;
+          height: 10px;
+          border-radius: 10px;
+          background: $bg-color-4;
+          margin-right: 15px;
+        }
+
+        .bubble-2 {
+          width: 15px;
+          height: 15px;
+          border-radius: 15px;
+          background: $bg-color-4;
+          margin-right: 15px;
+        }
+
+        .bubble-3 {
+          width: 20px;
+          height: 20px;
+          border-radius: 20px;
+          background: $bg-color-4;
+          margin-right: 15px;
+        }
+
+        .bubble-4 {
+          width: 25px;
+          height: 25px;
+          border-radius: 25px;
+          background: $bg-color-4;
+          margin-right: 15px;
+        }
+
+        .bubble-5 {
+          width: 30px;
+          height: 30px;
+          border-radius: 30px;
+          background: $bg-color-4;
+        }
+      }
+
+      .max {
+        width: 20%;
+        float: right;
+        text-align: right;
+      }
+    }
+  }
+
+  .units {
+    font-size: 14px;
+    color: $font-color-1;
+    font-weight: 400;
   }
 }
 
