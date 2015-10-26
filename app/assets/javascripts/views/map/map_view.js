@@ -175,28 +175,26 @@
         }
 
         if (layerData.active) {
-          if (layerData.maxZoom) {
+
+          if (layerData.maxZoom || layerData.minZoom) {
+
             if ( layerData.minZoom <= this.actualZoom && this.actualZoom <= layerData.maxZoom ) {
-              this.addLayer(layerData);
               this.layers.unsetDisabledByZoom(layerData.id);
               this._removeFromdisabledlayers(layerData.id);
+
+              this._addingLayer(layerData);
             } else {
               this.removeLayer(layerData);
               this.layers.setDisabledByZoom(layerData.id);
-
               this._manageDisclaimer(layerData);
             }
+
           } else {
-            if (!layerData.order) {
-              this._setOrder(layerData);
-              this.addLayer(layerData);
-            } else {
-              this.addLayer(layerData);
-            }
+            this._addingLayer(layerData);
           }
+
         } else {
-          this._setOrderToNull(layerData);
-          this.removeLayer(layerData);
+          this._removingLayer(layerData);
         }
       }, this);
 
@@ -210,6 +208,20 @@
       } else {
         this.finishedZooming = false;
       }
+    },
+
+    _addingLayer: function(layerData) {
+      if (!layerData.order) {
+        this._setOrder(layerData);
+        this.addLayer(layerData);
+      } else {
+        this.addLayer(layerData);
+      }
+    },
+
+    _removingLayer: function(layerData) {
+      this._setOrderToNull(layerData);
+      this.removeLayer(layerData);
     },
 
     _manageDisclaimer:function(layerData) {
