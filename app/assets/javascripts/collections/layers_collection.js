@@ -59,7 +59,6 @@
           dashboard_order: d.attributes.dashboard_order
         };
       });
-      console.log(result);
       return result;
     },
 
