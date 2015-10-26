@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20151022085907) do
+ActiveRecord::Schema.define(version: 20151026094945) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -34,6 +34,14 @@ ActiveRecord::Schema.define(version: 20151022085907) do
   add_index "admin_users", ["email"], name: "index_admin_users_on_email", unique: true, using: :btree
   add_index "admin_users", ["reset_password_token"], name: "index_admin_users_on_reset_password_token", unique: true, using: :btree
 
+  create_table "agrupations", force: :cascade do |t|
+    t.integer "layer_id"
+    t.integer "layer_group_id"
+  end
+
+  add_index "agrupations", ["layer_group_id"], name: "index_agrupations_on_layer_group_id", using: :btree
+  add_index "agrupations", ["layer_id"], name: "index_agrupations_on_layer_id", using: :btree
+
   create_table "layer_groups", force: :cascade do |t|
     t.string   "name"
     t.integer  "super_group_id"
@@ -46,14 +54,15 @@ ActiveRecord::Schema.define(version: 20151022085907) do
     t.datetime "created_at",       null: false
     t.datetime "updated_at",       null: false
     t.string   "icon_class"
+    t.integer  "site_scope_id"
   end
 
+  add_index "layer_groups", ["site_scope_id"], name: "index_layer_groups_on_site_scope_id", using: :btree
   add_index "layer_groups", ["super_group_id"], name: "index_layer_groups_on_super_group_id", using: :btree
 
   create_table "layers", force: :cascade do |t|
-    t.integer  "layer_group_id"
-    t.string   "name",                           null: false
-    t.string   "slug",                           null: false
+    t.string   "name",                            null: false
+    t.string   "slug",                            null: false
     t.string   "layer_type"
     t.integer  "zindex"
     t.boolean  "active"
@@ -65,17 +74,17 @@ ActiveRecord::Schema.define(version: 20151022085907) do
     t.text     "interactivity"
     t.float    "opacity"
     t.text     "query"
-    t.datetime "created_at",                     null: false
-    t.datetime "updated_at",                     null: false
-    t.boolean  "locate_layer",   default: false
+    t.datetime "created_at",                      null: false
+    t.datetime "updated_at",                      null: false
+    t.boolean  "locate_layer",    default: false
     t.string   "icon_class"
-    t.boolean  "published",      default: true
+    t.boolean  "published",       default: true
     t.text     "legend"
-    t.integer  "zoom_max",       default: 100
-    t.integer  "zoom_min",       default: 0
+    t.integer  "zoom_max",        default: 100
+    t.integer  "zoom_min",        default: 0
+    t.integer  "layer_group_id"
+    t.integer  "dashboard_order"
   end
-
-  add_index "layers", ["layer_group_id"], name: "index_layers_on_layer_group_id", using: :btree
 
   create_table "share_urls", force: :cascade do |t|
     t.string   "uid"
@@ -84,4 +93,10 @@ ActiveRecord::Schema.define(version: 20151022085907) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "site_scopes", force: :cascade do |t|
+    t.string "name", default: "global"
+  end
+
+  add_foreign_key "agrupations", "layer_groups"
+  add_foreign_key "agrupations", "layers"
 end
