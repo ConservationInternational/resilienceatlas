@@ -32,6 +32,7 @@
       this.journeyMap = this.model.get('journeyMap');
 
       this.utils = new root.app.View.Utils();
+      this.advise = new root.app.View.Advise();
     },
 
     setListeners: function() {
@@ -73,7 +74,6 @@
 
       this.map.on('zoomend', _.bind(function() {
         this.actualZoom = this.map.getZoom();
-        console.log(this.actualZoom);
         this.router.setParams('zoom', this.actualZoom);
         this.finishedZooming = true;
         this.renderLayers();
@@ -234,7 +234,7 @@
 
     _showZoomAd: function(layerData) {
       this._keepDisabledLayers(layerData.id);
-      var advise = new root.app.View.Advise({'options': layerData});
+      this.advise.collection.set.(layerData.id, layerData.name);
     },
 
     _keepDisabledLayers: function(layerId) {

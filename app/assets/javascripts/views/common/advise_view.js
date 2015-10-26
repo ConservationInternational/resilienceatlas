@@ -15,28 +15,41 @@
       'click .btn-close' : '_hide'
     },
 
+    collection: {},
+
     initialize: function(settings) {
       var opts = settings && settings.options ? settings.options : {};
       this.options = _.extend({}, this.defaults, opts);
 
-      this.render()
+      this.setListeners();
+    },
+
+    setListeners: function() {
+      this.listenTo(this.collection, 'change', this.render);
     },
 
     render: function() {
       var name = this.options.name;
-      this.$el.html(this.template({ 'layerName' : name }));
+      this.$el.append(this.template({ 'layerName' : name }));
 
-      setTimeout(_.bind(this._show, this), 300);
+
+
     },
 
     _show: function(argument) {
       this.$el.addClass('is-active');
-
       setTimeout(_.bind(this._hide, this), 5000);
     },
 
     _hide: function() {
       this.$el.removeClass('is-active');
+      // console.log(this);
+      // this.remove();
+    },
+
+    clear: function() {
+      // remove events
+      this.$el.html(null);
     }
 
   });
