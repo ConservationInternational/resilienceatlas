@@ -29,8 +29,7 @@
   root.app.Collection.Layers = Backbone.Collection.extend({
 
     comparator: function(d) {
-      // return d.attributes.order ? d.attributes.order * 1000 : d.attributes.name;
-      return d.attributes.name
+      return d.attributes.dashboard_order ? d.attributes.dashboard_order : d.attributes.name;
     },
 
     url: '/api/layers',
