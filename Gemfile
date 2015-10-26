@@ -18,7 +18,7 @@ gem 'activeadmin', github: 'activeadmin'
 gem 'active_model_serializers', '0.10.0.rc2'
 
 # Utilities
-gem 'rails_12factor'
+gem 'rails_12factor', group: :production
 gem 'raddocs'
 gem 'seed_dump'
 gem 'active_admin_theme'
