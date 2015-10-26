@@ -214,6 +214,8 @@
     _setOrder: function(layer) {
       layer.order = this.layers.order || this.layers.getMaxOrderVal();
       this.layers.setOrder(layer.id);
+      console.log('layer order', layer.order);
+      console.log(this.layers.getMaxOrderVal())
       console.log('set order', layer.name, layer.order);
     },
 

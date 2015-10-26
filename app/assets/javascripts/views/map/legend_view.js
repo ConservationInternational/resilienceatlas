@@ -49,7 +49,7 @@
 
     render: function() {
       var data = _.sortBy(this.setLegends(), 'order').reverse();
-      
+
       $.when.apply($, data).done(function() {
         this.$el.html( this.template({ legends: data }) );
         this.cacheVars();
@@ -94,8 +94,10 @@
       _.each(this.$legendList.children('li'), _.bind(function(layer,i){
         var currentModel = this.layers.get($(layer).data('id'));
         currentModel.set('order', total - i);
-        this.layers.order = total - i;
       }, this ));
+
+      this.layers.order = total;
+      console.log(this.layers.order)
 
       $('.m-legend').removeClass('is-changing');
 
