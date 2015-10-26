@@ -29,7 +29,7 @@
   root.app.Collection.Layers = Backbone.Collection.extend({
 
     comparator: function(d) {
-      return d.attributes.dashboard_order ? d.attributes.dashboard_order : d.attributes.name;
+      return ((d.attributes.dashboard_order || 0) + 1000) + d.attributes.name;
     },
 
     url: '/api/layers',
@@ -55,10 +55,10 @@
           group: group ? parseInt(group.id) : null,
           active: d.attributes.active,
           published: d.attributes.published,
-          info: d.attributes.info
+          info: d.attributes.info,
+          dashboard_order: d.attributes.dashboard_order
         };
       });
-
       return result;
     },
 
