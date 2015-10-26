@@ -14,6 +14,7 @@
 #  created_at       :datetime         not null
 #  updated_at       :datetime         not null
 #  icon_class       :string
+#  site_scope_id    :integer
 #
 
 #  id               :integer          not null, primary key
