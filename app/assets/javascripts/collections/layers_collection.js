@@ -180,7 +180,7 @@
     },
 
     setOrder: function(layerId) {
-      this.order = this.order || this._getMaxOrderVal() + 1;
+      this.order = this.order || this.getMaxOrderVal() + 1;
 
       var current = _.findWhere(this.models, { 'id': layerId });
       current.set('order', this.order);
@@ -193,7 +193,7 @@
       current.set('order', null);
     },
 
-    _getMaxOrderVal: function() {
+    getMaxOrderVal: function() {
       return _.max(_.map(this.toJSON(), function(layer) {
         return layer.order
       }), function(i) {

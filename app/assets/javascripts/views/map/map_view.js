@@ -160,6 +160,7 @@
      * Render or remove layers by Layers Collection
      */
     renderLayers: function() {
+      console.log('*render layers*');
       var layersData = this.layers.getPublished();
 
       //Test for zoom scope.
@@ -175,7 +176,7 @@
         // }
 
         if (layerData.active) {
-          console.log(layerData.order);
+          console.log('start order', layerData.name, layerData.order);
           if (layerData.maxZoom) {
             if ( layerData.minZoom <= this.actualZoom && this.actualZoom <= layerData.maxZoom ) {
               this.addLayer(layerData)
@@ -186,7 +187,7 @@
             }
           } else {
             if (!layerData.order) {
-              this._setOrder(layerData);       
+              this._setOrder(layerData);
               this.addLayer(layerData);
             } else {
               this.addLayer(layerData);
@@ -211,14 +212,12 @@
     },
 
     _setOrder: function(layer) {
-      console.log('set order');
-      layer.order = this.layers.order || 1;
-      console.log(layer.order);
+      layer.order = this.layers.order || this.layers.getMaxOrderVal();
       this.layers.setOrder(layer.id);
+      console.log('set order', layer.name, layer.order);
     },
 
     _setOrderToNull: function(layer){
-      console.log('unset order');
       layer.order = null;
       this.layers.setOrderToNull(layer.id);
     },
@@ -241,16 +240,18 @@
       if (!layer) {
         switch(layerData.type) {
           case 'cartodb':
+            console.log('cartodb');
             var data = _.pick(layerData, ['sql', 'cartocss', 'interactivity']);
             var options = { sublayers: [data] };
             layerInstance = new root.app.Helper.CartoDBLayer(this.map, options);
             layerInstance.create(function(layer) {
-              console.log(layerData.order);
+              console.log('z-index cartodb', layerData.name, 1000 + layerData.order);
               layer.setOpacity(layerData.opacity);
               layer.setZIndex(1000 + layerData.order);
             });
           break;
           case 'raster':
+            console.log('raster');
             var data = _.pick(layerData, ['sql', 'cartocss', 'interactivity']);
             var options = {
               sublayers: [ _.extend(data, { raster: true, raster_band: 1 }) ]
@@ -258,10 +259,12 @@
             layerInstance = new root.app.Helper.CartoDBRaster(this.map, options);
             //When carto bug solved, only back to create method.
             layerInstance.createRasterLayer(function(layer) {
-              console.log(layerData.order);
+              console.log('createRasterLayer');
+              console.log('z-index raster', layerData.name, 1000 + layerData.order);
               layer.setOpacity(layerData.opacity);
               layer.setZIndex(1000 + layerData.order);
             });
+
           break;
           default:
             layerInstance = null;
@@ -273,7 +276,7 @@
         }
       } else {
         if (layer.layer) {
-          console.log(layerData.order);
+          console.log('z-index layer.layer', layerData.name, 1000 + layerData.order);
           layer.layer.setOpacity(layerData.opacity);
           layer.layer.setZIndex(1000 + layerData.order);
         }
