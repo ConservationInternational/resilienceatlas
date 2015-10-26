@@ -172,11 +172,15 @@
     setDisabledByZoom: function(layerId) {
       var noAvailableByZoom = _.findWhere(this.models, { 'id': layerId });
       noAvailableByZoom.set('notAvailableByZoom', true);
+
+      Backbone.Events.trigger('legend:render');
     },
 
     unsetDisabledByZoom: function(layerId) {
       var noAvailableByZoom = _.findWhere(this.models, { 'id': layerId });
       noAvailableByZoom.set('notAvailableByZoom', false);
+
+      Backbone.Events.trigger('legend:render');
     },
 
     setOrder: function(layerId) {

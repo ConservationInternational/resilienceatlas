@@ -177,7 +177,7 @@
         if (layerData.active) {
           if (layerData.maxZoom) {
             if ( layerData.minZoom <= this.actualZoom && this.actualZoom <= layerData.maxZoom ) {
-              this.addLayer(layerData)
+              this.addLayer(layerData);
               this.layers.unsetDisabledByZoom(layerData.id);
               this._removeFromdisabledlayers(layerData.id);
             } else {

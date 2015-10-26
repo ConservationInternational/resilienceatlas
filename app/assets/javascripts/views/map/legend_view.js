@@ -39,6 +39,7 @@
       _.bindAll(this,'setOrder');
       this.listenTo(this.model, 'change:hidden', this.changeVisibility);
       Backbone.Events.on('render:map', _.bind(this.render, this));
+      Backbone.Events.on('legend:render', _.bind(this.render, this));
     },
 
     cacheVars: function() {
