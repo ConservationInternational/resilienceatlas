@@ -1,11 +1,21 @@
 {{#if units}} <span class="units">{{units}}</span> {{/if}}
 <div class="m-legend__choropleth">
-  {{#each bucket}}
-    <div class="item" style="background-color: {{this}}"></div>
-  {{/each}}
-  <div class="numbers">
-    <span>{{min}}</span>
-    <span>{{mid}}</span>
-    <span>{{max}}</span>
-  </div>
+  {{#if min}}
+    {{#each bucket}}
+      <div class="item" style="background-color: {{this}}"></div>
+    {{/each}}
+    <div class="numbers">
+      <span>{{min}}</span>
+      <span>{{mid}}</span>
+      <span>{{max}}</span>
+    </div>
+  {{else}}
+    {{#each bucket}}
+      <div class="wrapper-item">
+        <span class="min-val">{{this.min-value}}</span>
+        <span class="max-val">{{this.max-value}}</span>
+        <div class="item" style="background-color: {{this.color}}"></div>
+      </div>
+    {{/each}}
+  {{/if}}
 </div>
