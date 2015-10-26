@@ -97,7 +97,6 @@
       }, this ));
 
       this.layers.order = total;
-      console.log(this.layers.order)
 
       $('.m-legend').removeClass('is-changing');
 

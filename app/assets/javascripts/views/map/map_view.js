@@ -160,7 +160,6 @@
      * Render or remove layers by Layers Collection
      */
     renderLayers: function() {
-      console.log('*render layers*');
       var layersData = this.layers.getPublished();
 
       //Test for zoom scope.
@@ -176,7 +175,6 @@
         // }
 
         if (layerData.active) {
-          console.log('start order', layerData.name, layerData.order);
           if (layerData.maxZoom) {
             if ( layerData.minZoom <= this.actualZoom && this.actualZoom <= layerData.maxZoom ) {
               this.addLayer(layerData)
@@ -214,9 +212,6 @@
     _setOrder: function(layer) {
       layer.order = this.layers.order || this.layers.getMaxOrderVal();
       this.layers.setOrder(layer.id);
-      console.log('layer order', layer.order);
-      console.log(this.layers.getMaxOrderVal())
-      console.log('set order', layer.name, layer.order);
     },
 
     _setOrderToNull: function(layer){
@@ -242,18 +237,15 @@
       if (!layer) {
         switch(layerData.type) {
           case 'cartodb':
-            console.log('cartodb');
             var data = _.pick(layerData, ['sql', 'cartocss', 'interactivity']);
             var options = { sublayers: [data] };
             layerInstance = new root.app.Helper.CartoDBLayer(this.map, options);
             layerInstance.create(function(layer) {
-              console.log('z-index cartodb', layerData.name, 1000 + layerData.order);
               layer.setOpacity(layerData.opacity);
               layer.setZIndex(1000 + layerData.order);
             });
           break;
           case 'raster':
-            console.log('raster');
             var data = _.pick(layerData, ['sql', 'cartocss', 'interactivity']);
             var options = {
               sublayers: [ _.extend(data, { raster: true, raster_band: 1 }) ]
@@ -261,8 +253,6 @@
             layerInstance = new root.app.Helper.CartoDBRaster(this.map, options);
             //When carto bug solved, only back to create method.
             layerInstance.createRasterLayer(function(layer) {
-              console.log('createRasterLayer');
-              console.log('z-index raster', layerData.name, 1000 + layerData.order);
               layer.setOpacity(layerData.opacity);
               layer.setZIndex(1000 + layerData.order);
             });
@@ -278,7 +268,6 @@
         }
       } else {
         if (layer.layer) {
-          console.log('z-index layer.layer', layerData.name, 1000 + layerData.order);
           layer.layer.setOpacity(layerData.opacity);
           layer.layer.setZIndex(1000 + layerData.order);
         }
