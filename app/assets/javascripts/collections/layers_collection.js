@@ -55,10 +55,11 @@
           group: group ? parseInt(group.id) : null,
           active: d.attributes.active,
           published: d.attributes.published,
-          info: d.attributes.info
+          info: d.attributes.info,
+          dashboard_order: d.attributes.dashboard_order
         };
       });
-
+      console.log(result);
       return result;
     },
 
