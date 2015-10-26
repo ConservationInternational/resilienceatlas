@@ -38,7 +38,7 @@
     setListeners: function() {
       _.bindAll(this,'setOrder');
       this.listenTo(this.model, 'change:hidden', this.changeVisibility);
-      this.listenTo(this.layers, 'change', this.render);
+      Backbone.Events.on('render:map', _.bind(this.render, this));
     },
 
     cacheVars: function() {
@@ -48,7 +48,8 @@
     },
 
     render: function() {
-      var data = _.sortBy(this.setLegends(), 'order');
+      var data = _.sortBy(this.setLegends(), 'order').reverse();
+
       $.when.apply($, data).done(function() {
         this.$el.html( this.template({ legends: data }) );
         this.cacheVars();
@@ -88,16 +89,19 @@
     },
 
     setOrder: function(e, ui) {
+      var total = this.$legendList.children('li').length;
+
       _.each(this.$legendList.children('li'), _.bind(function(layer,i){
         var currentModel = this.layers.get($(layer).data('id'));
-        currentModel.set('order', i + 1);
+        currentModel.set('order', total - i);
       }, this ));
 
-      $('.m-legend').removeClass('is-changing');
-      // sort layers
-      // this.layers.sort();
-    },
+      this.layers.order = total;
 
+      $('.m-legend').removeClass('is-changing');
+
+      Backbone.Events.trigger('render:map');
+    },
 
     /**
      * Set panel visibility

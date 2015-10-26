@@ -7,7 +7,7 @@
         </div>
         <ul>
           {{#each layers}}
-            <li class="layer {{#ifcond opacity_text}}{{/ifcond}}">
+            <li class="layer {{#ifcond opacity_text}}{{/ifcond}}  {{#if dashboard_order}} {{dashboard_order}} {{/if}}">
               <div class="panel-item-switch m-form-input--switch">
                 <input type="checkbox" class="panel-input-switch" id="layer_{{id}}" {{#if active}}checked{{/if}}>
                 <label for="layer_{{id}}"></label>
@@ -38,7 +38,7 @@
                 </div>
                 <ul class="m-layers-list-panel {{#if active}}is-active{{/if}}">
                   {{#each layers}}
-                    <li class="layer {{#ifcond opacity_text}}{{/ifcond}}">
+                    <li class="layer {{#ifcond opacity_text}}{{/ifcond}} {{#if dashboard_order}} {{dashboard_order}} {{/if}}">
                       <div class="panel-item-switch m-form-input--switch">
                         <input type="checkbox" class="panel-input-switch" id="layer_{{id}}" {{#if active}}checked{{/if}}>
                         <label for="layer_{{id}}"></label>
@@ -72,7 +72,7 @@
                         <ul class="m-layers-list-panel {{#if active}}is-active{{/if}}">
 
                           {{#each layers}}
-                            <li class="layer {{#ifcond opacity_text}}{{/ifcond}}">
+                            <li class="layer {{#ifcond opacity_text}}{{/ifcond}} {{#if dashboard_order}} {{dashboard_order}} {{/if}}">
                               <div class="panel-item-switch m-form-input--switch">
                                 <input type="checkbox" class="panel-input-switch" id="layer_{{id}}" {{#if active}}checked{{/if}}>
                                 <label for="layer_{{id}}"></label>
@@ -104,7 +104,7 @@
                                   </div>
                                   <ul class="m-layers-list-panel {{#if active}}is-active{{/if}}">
                                     {{#each layers}}
-                                      <li class="layer {{#ifcond opacity_text}}{{/ifcond}}">
+                                      <li class="layer {{#ifcond opacity_text}}{{/ifcond}} {{#if dashboard_order}} {{dashboard_order}} {{/if}}">
                                         <div class="panel-item-switch m-form-input--switch">
                                           <input type="checkbox" class="panel-input-switch" id="layer_{{id}}" {{#if active}}checked{{/if}}>
                                           <label for="layer_{{id}}"></label>

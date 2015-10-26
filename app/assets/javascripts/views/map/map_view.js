@@ -8,11 +8,6 @@
   root.app.View.Map = Backbone.View.extend({
 
     defaults: {
-      // map: {
-      //   center: [0, 15],
-      //   zoomControl: false,
-      //   scrollWheelZoom: false
-      // },
       defaultBasemap: 'defaultmap',
       basemap: {
         labels: 'http://api.tiles.mapbox.com/v4/cigrp.829fd2d8/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiY2lncnAiLCJhIjoiYTQ5YzVmYTk4YzM0ZWM4OTU1ZjQxMWI5ZDNiNTQ5M2IifQ.SBgo9jJftBDx4c5gX4wm3g',
@@ -35,12 +30,12 @@
       this.setListeners();
 
       this.journeyMap = this.model.get('journeyMap');
+
+      this.utils = new root.app.View.Utils();
     },
 
     setListeners: function() {
-      this.listenTo(this.layers, 'change', this.renderLayers);
-      // this.listenTo(this.layers, 'sort', this.renderLayers);
-
+      Backbone.Events.on('render:map', _.bind(this.renderLayers, this));
       Backbone.Events.on('basemap:change', _.bind(this.selectBasemap, this));
     },
 
@@ -142,7 +137,7 @@
       } else {
         this.basemap = L.tileLayer(url).addTo(this.map);
         this.labels = L.tileLayer(labelsUrl).addTo(this.map);
-        this.labels.setZIndex(1005);
+        this.labels.setZIndex(1100);
       }
 
       if(basemapUrl) {
@@ -189,9 +184,15 @@
               this.layers.setDisabledByZoom(layerData.id);
             }
           } else {
-            this.addLayer(layerData);
+            if (!layerData.order) {
+              this._setOrder(layerData);
+              this.addLayer(layerData);
+            } else {
+              this.addLayer(layerData);
+            }
           }
         } else {
+          this._setOrderToNull(layerData);
           this.removeLayer(layerData);
         }
       }, this);
@@ -208,9 +209,15 @@
       }
     },
 
-    // _manageCssClasses: function(layerId) {
+    _setOrder: function(layer) {
+      layer.order = this.layers.order || this.layers.getMaxOrderVal();
+      this.layers.setOrder(layer.id);
+    },
 
-    // },
+    _setOrderToNull: function(layer){
+      layer.order = null;
+      this.layers.setOrderToNull(layer.id);
+    },
 
     /**
      * Add a layer instance to map
@@ -235,7 +242,7 @@
             layerInstance = new root.app.Helper.CartoDBLayer(this.map, options);
             layerInstance.create(function(layer) {
               layer.setOpacity(layerData.opacity);
-              layer.setZIndex(1000-layerData.order);
+              layer.setZIndex(1000 + layerData.order);
             });
           break;
           case 'raster':
@@ -247,8 +254,9 @@
             //When carto bug solved, only back to create method.
             layerInstance.createRasterLayer(function(layer) {
               layer.setOpacity(layerData.opacity);
-              layer.setZIndex(1000-layerData.order);
+              layer.setZIndex(1000 + layerData.order);
             });
+
           break;
           default:
             layerInstance = null;
@@ -261,7 +269,7 @@
       } else {
         if (layer.layer) {
           layer.layer.setOpacity(layerData.opacity);
-          layer.layer.setZIndex(1000-layerData.order);
+          layer.layer.setZIndex(1000 + layerData.order);
         }
         // console.info('Layer "' + layerData.id + '"" already exists.');
       }
@@ -294,7 +302,7 @@
       });
 
       maskLayer.create(function(layer){
-        layer.setZIndex(1001)
+        layer.setZIndex(1100)
 
         if(opacity) {
           layer.setOpacity(opacity);
