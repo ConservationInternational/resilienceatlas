@@ -73,6 +73,7 @@
 
       this.map.on('zoomend', _.bind(function() {
         this.actualZoom = this.map.getZoom();
+        console.log(this.actualZoom);
         this.router.setParams('zoom', this.actualZoom);
         this.finishedZooming = true;
         this.renderLayers();
@@ -162,20 +163,18 @@
     renderLayers: function() {
       var layersData = this.layers.getPublished();
 
-      //Test for zoom scope.
       _.each(layersData, function(layerData) {
-        if (layerData.id == 6) {
-          layerData.maxZoom = 100;
-          layerData.minZoom = 3;
-        }
+        // if (layerData.id == 6) {
+        //   layerData.maxZoom = 100;
+        //   layerData.minZoom = 3;
+        // }
 
-        if (layerData.id == 36) {
-          layerData.maxZoom = 5;
-          layerData.minZoom = 0;
-        }
+        // if (layerData.id == 36) {
+        //   layerData.maxZoom = 5;
+        //   layerData.minZoom = 0;
+        // }
 
         if (layerData.active) {
-
           if (layerData.maxZoom || layerData.minZoom) {
 
             if ( layerData.minZoom <= this.actualZoom && this.actualZoom <= layerData.maxZoom ) {

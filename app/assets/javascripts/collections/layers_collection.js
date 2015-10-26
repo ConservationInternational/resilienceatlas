@@ -29,7 +29,7 @@
   root.app.Collection.Layers = Backbone.Collection.extend({
 
     comparator: function(d) {
-      // return d.attributes.order ? d.attributes.order * 1000 : d.attributes.name;
+      // return d.attributes.order ? d.attributes.order : d.attributes.name;
       return d.attributes.name
     },
 
@@ -52,6 +52,8 @@
           opacity: d.attributes.opacity,
           no_opacity: d.attributes.opacity == 0 ? true : false,
           order: d.attributes.order || null,
+          maxZoom: d.attributes.zoom_max || 100,
+          minZoom: d.attributes.zoom_min || 0,
           legend: d.attributes.legend,
           group: group ? parseInt(group.id) : null,
           active: d.attributes.active,
