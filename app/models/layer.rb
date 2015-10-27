@@ -31,7 +31,7 @@ class Layer < ActiveRecord::Base
   has_many :agrupations
   has_many :layer_groups, through: :agrupations
   accepts_nested_attributes_for :agrupations, :allow_destroy => true
-  scope :site, -> (site) { eager_load([[layer_groups: :super_group], [layer_groups: :sub_groups]]).where(layer_groups:{site_scope_id: site}) }
+  scope :site, -> (site) { eager_load([layer_groups: :super_group]).where(layer_groups:{site_scope_id: site}) }
   def self.fetch_all(options={})
     if options[:site_scope]
       site_scope = options[:site_scope].to_i
@@ -40,12 +40,5 @@ class Layer < ActiveRecord::Base
     end
     layers = Layer.all
     layers = layers.site(site_scope)
-    # lg = LayerGroup.join_recursive do |query|
-    #   query.start_with(super_group_id: nil)
-    #    .connect_by(id: :super_group_id)
-    #    .order_siblings(:id)
-    # end
-    # lg = lg.where(site_scope_id: site_scope).pluck(:id)
-    # layers = Layer.where(layer_group_id: lg)
   end
 end

@@ -23,7 +23,6 @@ gem 'raddocs'
 gem 'seed_dump'
 gem 'active_admin_theme'
 gem 'puma'
-gem 'activerecord-hierarchical_query', require: 'active_record/hierarchical_query'
 group :development, :test do
   gem 'spring'
   gem 'teaspoon'

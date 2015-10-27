@@ -52,8 +52,6 @@ GEM
       activemodel (= 4.2.1)
       activesupport (= 4.2.1)
       arel (~> 6.0)
-    activerecord-hierarchical_query (0.0.7)
-      activerecord (>= 3.1.0)
     activesupport (4.2.1)
       i18n (~> 0.7)
       json (~> 1.7, >= 1.7.7)
@@ -337,7 +335,6 @@ DEPENDENCIES
   active_admin_theme
   active_model_serializers (= 0.10.0.rc2)
   activeadmin!
-  activerecord-hierarchical_query
   annotate (~> 2.6.5)
   autoprefixer-rails
   awesome_print
