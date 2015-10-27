@@ -30,4 +30,17 @@ namespace :layers do
     puts "Backup created."
   end
 
+  desc "Upgrades the layer / layer groups relations to many_to_many."
+  task upgrade: :environment do
+    if Agrupation.any?
+      puts "Layer schema already upgraded."
+    else
+      Layer.all.each do |l|
+        if l.layer_group_id.present?
+          Agrupation.create!(layer_id: l.id, layer_group_id: l.layer_group_id)
+        end
+      end
+      puts "Layers upgraded."
+    end
+  end
 end
