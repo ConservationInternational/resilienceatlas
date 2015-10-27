@@ -89,22 +89,21 @@
         layersCollection
       ], 'fetch');
 
-      var legendView = new root.app.View.Legend({
-        el: '#legendView',
-        layers: layersCollection,
-        model: new (Backbone.Model.extend({
-          defaults: {
-            hidden: false,
-            order: [],
-            journeyMap: true
-          }
-        })),
-      });
-
 
       $.when.apply($, complete).done(function() {
         layers = JSON.parse(layers.layers);
         layersCollection.setActives(layers)
+
+        var legendView = new root.app.View.Legend({
+          el: '#legendView',
+          layers: layersCollection,
+          model: new (Backbone.Model.extend({
+            defaults: {
+              hidden: false,
+              journeyMap: true
+            }
+          })),
+        });
 
         legendView.render();
       })

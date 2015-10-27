@@ -312,7 +312,6 @@
       });
 
       maskLayer.create(function(layer){
-        console.log('layer mask')
         layer.setZIndex(2000)
 
         if(opacity) {
