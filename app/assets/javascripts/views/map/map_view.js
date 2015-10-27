@@ -30,6 +30,7 @@
       this.setListeners();
 
       this.journeyMap = this.model.get('journeyMap');
+      this.currentCountry = this.model.get('countryIso') || null;
 
       this.utils = new root.app.View.Utils();
       this.advise = new root.app.View.Advise();
@@ -46,15 +47,24 @@
     createMap: function() {
       var self = this;
       // trampita zoom
-      if (this.journeyMap) {
-        if ( $(document).width() < 1020 ) {
+      if (this.journeyMap && this.currentCountry==='ETH') {
+        if ( $(document).width() < 1020) {
           this.options.map.zoom = 5;
           this.options.map.center = [8, 35]; //Horn of Africa
         } else {
           this.options.map.zoom = 6;
           this.options.map.center = [9, 37]; //Horn of Africa
         }
+      } else if (this.journeyMap && this.currentCountry==='NER') {
+        if ( $(document).width() < 1020) {
+          this.options.map.zoom = 5;
+          this.options.map.center = [15, 3]; //Horn of Africa
+        } else {
+          this.options.map.zoom = 6;
+          this.options.map.center = [17, 5]; //Horn of Africa
+        }
       }
+
       if (!this.map) {
         this.map = L.map(this.el, this.options.map);
         this.map.on('click', function(){
@@ -344,7 +354,7 @@
       });
 
       maskLayer.create(function(layer){
-        layer.setZIndex(1100)
+        layer.setZIndex(2000)
 
         if(opacity) {
           layer.setOpacity(opacity);

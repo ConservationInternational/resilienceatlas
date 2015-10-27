@@ -156,6 +156,7 @@
       $.each(activeLayers, function() {
        var activelayer = _.findWhere(self.models, { id: this['id'] });
        activelayer.set('active', true);
+       activelayer.set('order', this['order']);
       });
     },
 

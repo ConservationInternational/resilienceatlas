@@ -16,7 +16,7 @@ $side-bar-width: 360px;
     max-height: rem(400px);
     overflow-y: scroll;
 
-    @extend %clear-scroll-bars;
+    // @extend %clear-scroll-bars;
   }
 
   &.is-changing {
@@ -44,7 +44,7 @@ $side-bar-width: 360px;
       padding: 0;
       max-height: auto;
       overflow-y: visible;
-      @extend %clear-scroll-bars;
+      // @extend %clear-scroll-bars;
     }
   }
 
@@ -243,6 +243,32 @@ $side-bar-width: 360px;
       height: 8px;
     }
 
+    .wrapper-item {
+      position: relative;
+      flex-basis: 100%;
+      height: 25px;
+
+      .item {
+        position: absolute;
+        bottom: 0;
+      }
+    }
+
+    .min-val,
+    .max-val,
+    .numbers {
+      font-size: 12px;
+      font-weight: 400;
+    }
+
+    .min-val {
+      float: left;
+    }
+
+    .max-val {
+      float: right;
+    }
+
     .numbers {
       position: absolute;
       top: 0;
@@ -252,8 +278,6 @@ $side-bar-width: 360px;
       display: -ms-box;
       justify-content: space-between;
       align-items: center;
-      font-size: 12px;
-      font-weight: 400;
     }
 
     .side-bar & {
