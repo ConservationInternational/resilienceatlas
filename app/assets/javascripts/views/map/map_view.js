@@ -233,8 +233,8 @@
     },
 
     _showZoomAd: function(layerData) {
-      this._keepDisabledLayers(layerData.id);
-      this.advise.collection.set.(layerData.id, layerData.name);
+      // this._keepDisabledLayers(layerData.id);
+      // this.advise.collection.set.({layerData.id, layerData.name});
     },
 
     _keepDisabledLayers: function(layerId) {
