@@ -28,13 +28,13 @@ class LayerGroup < ActiveRecord::Base
   validate :site_scope
   scope :site, -> (site) { where(site_scope_id: site) }
   def avoid_recursivity
-    errors.add(:super_group, "This group can't be super group of itself.") if self.super_group_id.present? && self.super_group_id == self.id 
+    errors.add(:super_group, "This group can't be super group of itself.") if self.super_group_id.present? && self.super_group_id == self.id
   end
   def site_scope
-    errors.add(:super_group, "Super group and group must be into the same site scope.") if self.super_group_id.present? && self.super_group.site_scope_id != self.site_scope_id 
+    errors.add(:super_group, "Super group and group must be into the same site scope.") if self.super_group.present? && self.super_group.site_scope_id != self.site_scope_id
   end
   def self.fetch_all(options={})
-    if options[:site_scope] 
+    if options[:site_scope]
       site_scope = options[:site_scope].to_i
     else
       site_scope = 1

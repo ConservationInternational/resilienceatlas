@@ -25,7 +25,7 @@ ActiveAdmin.register LayerGroup do
     selectable_column
     column :id
     column :name
-    column :type
+    column :layer_group_type
     column :site_scope do |lg|
       SiteScope.find(lg.site_scope_id).name if lg.site_scope_id.present?
     end

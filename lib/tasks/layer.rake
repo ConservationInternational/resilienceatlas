@@ -7,9 +7,9 @@ namespace :layers do
     puts answer
     if answer == "Y"
       puts "Deleting layers..."
+      Agrupation.delete_all
       Layer.delete_all
       LayerGroup.delete_all
-      Agrupation.delete_all
       SiteScope.delete_all
       puts "Importing new layers..."
       filename = 'db/data/layers.rb'
@@ -35,6 +35,7 @@ namespace :layers do
     if Agrupation.any?
       puts "Layer schema already upgraded."
     else
+      LayerGroup.update_all(site_scope_id: 1)
       Layer.all.each do |l|
         if l.layer_group_id.present?
           Agrupation.create!(layer_id: l.id, layer_group_id: l.layer_group_id)
