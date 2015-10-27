@@ -19,7 +19,7 @@
         "name": "Primary livelihood strategies",
         "slug": "primary_livelihood_strategies",
         "widget": "text_list",
-        "query": "SELECT month as label, precip as value FROM monthly_mean_precip_1981_2014 where iso3='%1' LIMIT 5"
+        "query": "SELECT month as Month, precip as Precipitation FROM monthly_mean_precip_1981_2014 where iso3='%1' LIMIT 5"
       }
     ]
   },

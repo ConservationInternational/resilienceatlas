@@ -8,7 +8,8 @@
   root.app.View.WidgetTextList = root.app.View.Widget.extend({
 
     defaults: {
-      charEl: '.widget-text-list'
+      charEl: '.widget-text-list',
+      widgetName: 'text-list'
     },
 
     template: HandlebarsTemplates['analysis/widgets/widget_text_list_tpl'],

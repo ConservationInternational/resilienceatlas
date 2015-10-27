@@ -24,7 +24,7 @@
 
     renderWidget: function() {
       this.charts.buildLineChart({
-        elem: '#' + this.slug,
+        elem: '#' + this.slug + '-graph',
         barWidth: 30,
         barSeparation: 45,
         data: this.data,

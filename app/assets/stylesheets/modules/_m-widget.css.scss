@@ -1,7 +1,17 @@
 .m-widget {
   width: 100%;
+  min-height: rem(150px);
   float: left;
   margin-bottom: 25px;
+  position: relative;
+
+  &.is-loading {
+
+    &:after{
+      left: calc(50% - (30px / 3));
+      margin: -(30px/2) 0 0 -(30px/2);
+    }
+  }
 
   .name {
     text-transform: uppercase;
@@ -42,5 +52,30 @@
     .widget-number {
       float: left;
     }
+  }
+
+  &.text-list {
+    .list {
+      width: 95%;
+      margin-left: rem(16px);
+      margin-top: rem(12px);
+    }
+
+    .list-heading {
+      text-align: left;
+      padding-bottom: rem(5px);
+      font-size: rem(14px);
+      text-transform: capitalize;
+    }
+
+    .list-row {
+      padding: rem(8px) 0 rem(8px) 0;
+      font-size: rem(14px);
+      font-weight: 400;
+      color: $gray-70;
+      margin-top: rem(5px);
+      margin-bottom: rem(10px);
+    }
+
   }
 }

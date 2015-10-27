@@ -8,7 +8,8 @@
   root.app.View.WidgetNumber = root.app.View.Widget.extend({
 
     defaults: {
-      charEl: '.widget-number'
+      charEl: '.widget-number',
+      widgetName: 'number'
     },
 
     template: HandlebarsTemplates['analysis/widgets/widget_number_tpl'],
