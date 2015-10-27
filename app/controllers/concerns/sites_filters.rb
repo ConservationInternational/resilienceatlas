@@ -11,13 +11,13 @@ module SitesFilters
     case request.subdomain.downcase
       when "indicators"
         site_scope="2"
-      when "tanzania"
+      when "indicators.tanzania"
         site_scope="3"
-      when "ghana"
+      when "indicators.ghana"
         site_scope="4"
-      when "uganda"
+      when "indicators.uganda"
         site_scope="5"
-      when "rwanda"
+      when "indicators.rwanda"
         site_scope="6"
       else
         site_scope="1"
