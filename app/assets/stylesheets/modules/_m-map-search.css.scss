@@ -51,7 +51,7 @@
       height: auto;
       max-height: rem(208px);
       overflow-y: scroll;
-      @extend %clear-scroll-bars;
+      // @extend %clear-scroll-bars;
 
       ul {
         width: 98%;

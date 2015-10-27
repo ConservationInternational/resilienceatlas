@@ -16,7 +16,7 @@ body {
   font-size: $base-font-size;
   background-color: $white;
 
-  @extend %clear-scroll-bars;
+  // @extend %clear-scroll-bars;
 }
 
 // Default body styles
