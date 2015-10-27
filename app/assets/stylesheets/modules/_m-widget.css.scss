@@ -76,6 +76,12 @@
       margin-top: rem(5px);
       margin-bottom: rem(10px);
     }
+  }
 
+  .widget-no-data {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: rem(118px);
   }
 }

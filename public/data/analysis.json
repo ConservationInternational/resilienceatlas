@@ -37,7 +37,7 @@
         "name": "Temperature trend",
         "slug": "temperature_trend",
         "widget": "line_chart",
-        "query": "SELECT month as x, precip as y, month as name FROM monthly_mean_precip_1981_2014 WHERE iso3 = '%1'"
+        "query": "SELECT month as x, round(precip) as y, month as name FROM monthly_mean_precip_1981_2014 WHERE iso3 = '%1'"
       },
       {
         "name": "Climate chart",

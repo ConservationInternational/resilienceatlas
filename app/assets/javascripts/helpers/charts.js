@@ -196,6 +196,14 @@
       var loader = params.loader || null;
       var infoWindow = params.infoWindowText || '';
       var decimals = params.decimals || 0;
+      var margin = params.margin || {
+        top: 30,
+        right: 0,
+        bottom: 40,
+        left: 0,
+        xaxis: 10,
+        tooltip: 1.8
+      };
 
       $el.addClass('graph-line');
 
@@ -204,15 +212,6 @@
 
       var parseDate = d3.time.format('%d-%b-%Y').parse;
       var bisectDate = d3.bisector(function(d) { return d.date; }).left;
-
-      var margin = {
-        top: 30,
-        right: 0,
-        bottom: 40,
-        left: 0,
-        xaxis: 10,
-        tooltip: 1.8
-      };
 
       var width = width - margin.left - margin.right,
           height = height - margin.top - margin.bottom;
@@ -237,8 +236,8 @@
           .ticks(7)
           .innerTickSize(-width)
           .outerTickSize(0)
-          .tickPadding(4)
-          .tickFormat('');
+          .tickPadding(4);
+          // .tickFormat('');
 
       var line = d3.svg.line()
           .x(function(d) { return x(d.date); })
@@ -259,13 +258,13 @@
       y.domain(d3.extent(data, function(d) { return d.value ; })).nice();
 
       svg.append('g')
-        .attr('class', 'x axis')
-        .attr('transform', 'translate(0,' + (height + margin.xaxis) + ')')
-        .call(xAxis);
+        .attr('class', 'y axis')
+        .call(yAxis);
 
       svg.append('g')
-        .attr('class', 'y axis')
-        .call(yAxis)
+        .attr('class', 'x axis')
+        .attr('transform', 'translate(0,' + (height) + ')')
+        .call(xAxis);
 
       svg.append('path')
           .datum(data)
@@ -284,7 +283,7 @@
 
           // Move trail
           trail.attr('transform', 'translate(' + x(d.date) + ', '+y(d.value)+')');
-          trailLine.attr('y2', height - y(d.value));
+          trailLine.attr('y2', (height) - y(d.value));
 
           // Update tooltip
           d3.select(tooltipEl)
@@ -387,6 +386,14 @@
       var hasLine = params.hasLine || false;
       var interpolate = params.interpolate || 'linear';
       var transition = 200;
+      var margin = params.margin || {
+        top: 30,
+        right: 0,
+        bottom: 0,
+        left: 0,
+        xaxis: 10,
+        tooltip: 1.8
+      };
 
       $el.addClass('graph-line');
 
@@ -395,15 +402,6 @@
 
       var parseDate = d3.time.format('%d-%b-%Y').parse;
       var yearFormat = d3.time.format('%Y');
-
-      var margin = {
-        top: 30,
-        right: 0,
-        bottom: 0,
-        left: 0,
-        xaxis: 10,
-        tooltip: 1.8
-      };
 
       var width = width - margin.left - margin.right,
           height = height - margin.top - margin.bottom;
@@ -434,14 +432,27 @@
         .append('g')
         .attr('transform', 'translate(0,0)');
 
+
+      var x = d3.time.scale()
+          .range([0, width]);
+          
       var y = d3.scale.linear()
         .range([height, 0]);
 
+      x.domain(d3.extent(data, function(d) { return d.x; })).nice();
       y.domain([0, d3.max(data, function(d) { return d.value; })]);
 
       var yScale = d3.scale.linear()
        .domain([0, d3.max(data, function(d) { return d.value; })])
        .range([heightPadding, 0]);
+
+      var xAxis = d3.svg.axis()
+          .scale(x)
+          .orient('bottom')
+          .ticks(5)
+          .tickSize(0)
+          .tickPadding(10)
+          .tickFormat('');
 
       var yAxis = d3.svg.axis()
           .scale(y)
@@ -454,7 +465,12 @@
 
       svgBars.append('g')
         .attr('class', 'y axis')
-        .call(yAxis)
+        .call(yAxis);
+
+      svgBars.append('g')
+        .attr('class', 'x axis')
+        .attr('transform', 'translate(0,' + (height) + ')')
+        .call(xAxis);
 
       var barsContent = d3.select(elem+' svg').append('g')
         .attr('transform', 'translate('+ centerContainer +', 1)');

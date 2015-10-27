@@ -31,7 +31,15 @@
         hover: true,
         decimals: 0,
         loader: 'is-loading',
-        interpolate: 'cardinal'
+        interpolate: 'cardinal',
+        margin: {
+          top: 30,
+          right: 40,
+          bottom: 40,
+          left: 55,
+          xaxis: 10,
+          tooltip: 2.2
+        }
       });
     },
 

@@ -11,13 +11,11 @@
   $path-color: $font-color-2;
 
   .tooltip-graph {
-    width: rem(160px);
-    height: rem(80px);
+    width: rem(105px);
+    height: rem(68px);
     position: absolute;
     z-index: 1;
     display: none;
-    background: rgba(255,255,255,1);
-    box-shadow: 0px 0px 0px 1px rgba(0,0,0,0.10), 0px 2px 10px 0px rgba(0,0,0,0.15);
     pointer-events: none;
 
     .content {
@@ -29,44 +27,52 @@
       align-items: center;
       justify-content: center;
       flex-direction: column;
+      background: rgba(255,255,255,1);
+      border-radius: rem(4px);
+      box-shadow: 0px 2px 10px 0px rgba(0,0,0,0.15);
+      overflow: hidden;
 
       .title {
         margin: 0 auto;
         text-align: center;
-        line-height: rem(15px);
         padding-bottom: rem(5px);
         text-transform: uppercase;
-        letter-spacing: -0.1px;
+        font-size: 14px;
+        font-weight: 400;
+        color: $gray-70;
+        margin-top: 5px;
+        margin-bottom: 10px;
       }
 
       .value {
         text-align: center;
-        color: $font-color-1;
-        font-weight: 500;
+        color: $font-color-2;
+        font-weight: 700;
         padding-top: 0;
+        font-size: 32px;
+        margin-bottom: rem(3px);
       }
     }
     .bottom {
-      width: 0;
-      height: 0;
-      border-left: 15px solid transparent;
-      border-right: 15px solid transparent;
-      border-top: 15px solid rgba(0,0,0,0.3);
-      left: rem(65px);
-      bottom: rem(-1px);
+      width: 40px;
+      height: 20px;
+      left: rem(34px);
+      bottom: 0;
       position: relative;
+      overflow: hidden;
+      transform: rotate(180deg);
+      box-shadow: 0 16px 10px -17px rgba(0, 0, 0, 0.5);
 
-      &:before{
-        content: '';
+      &:after{
+        content: "";
         position: absolute;
-        border-style: solid;
-        border-width: rem(15px) rem(15px) 0;
-        border-color: rgba(255,255,255,1) transparent;
-        display: block;
-        width: 0;
-        z-index: 0;
-        left: rem(-15px);
-        bottom: rem(1px);
+        width: 15px;
+        height: 15px;
+        background: $white;
+        transform: rotate(45deg);
+        top: 13px;
+        left: 12.5px;
+        box-shadow: -1px -1px 10px -2px rgba(0, 0, 0, 0.5);
       }
     }
 
@@ -133,12 +139,13 @@
 
     .x {
       &.axis path {
-        stroke-dasharray: 1, 1;
-        stroke: $y-axis-dotted-light;
+        stroke: #737373;
       }
 
       text {
-        fill: $gray-medium;
+        fill: #999999;
+        font-size: 14px;
+        font-weight: 400;
       }
     }
 
@@ -159,6 +166,12 @@
             }
           }
         }
+      }
+
+      text {
+        fill: #999999;
+        font-size: 14px;
+        font-weight: 400;
       }
     }
 
