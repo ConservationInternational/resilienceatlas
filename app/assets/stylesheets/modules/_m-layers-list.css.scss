@@ -114,7 +114,8 @@
     padding: rem(10px) rem(15px);
     // @include clearfix;
 
-    &.subcategory {
+    &.subcategory,
+    &.subgroup {
       padding-left: 0;
       padding-top: 0;
       padding-bottom: 0;
@@ -122,6 +123,10 @@
       &:last-child {
         border-bottom: 0;
       }
+    }
+
+    &.subgroup li {
+      padding-left: 10px;
     }
   }
 

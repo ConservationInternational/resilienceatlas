@@ -29,11 +29,12 @@
   root.app.Collection.Layers = Backbone.Collection.extend({
 
     comparator: function(d) {
-      // return d.attributes.order ? d.attributes.order * 1000 : d.attributes.name;
-      return d.attributes.name
+      return ((d.attributes.dashboard_order || 0) + 1000) + d.attributes.name;
     },
 
     url: '/api/layers',
+
+    // order : 1,
 
     parse: function(response) {
       var result = _.map(response.data, function(d) {
@@ -49,15 +50,15 @@
           color: d.attributes.color,
           opacity: d.attributes.opacity,
           no_opacity: d.attributes.opacity == 0 ? true : false,
-          order: d.attributes.order || 0,
+          order: d.attributes.order || null,
           legend: d.attributes.legend,
           group: group ? parseInt(group.id) : null,
           active: d.attributes.active,
           published: d.attributes.published,
-          info: d.attributes.info
+          info: d.attributes.info,
+          dashboard_order: d.attributes.dashboard_order
         };
       });
-
       return result;
     },
 
@@ -65,6 +66,7 @@
       this._groups = groupsCollection.getGroups();
       this._categories = groupsCollection.getCategories();
       this._subcategories = groupsCollection.getsubCategories();
+      this._subGroups = groupsCollection.getsubGroups();
       return this;
     },
 
@@ -85,6 +87,7 @@
               layer.opacity_text = layer.opacity*100
               return layer;
             });
+
             // Forcing category activation
             var isActive = _.contains(_.pluck(layers, 'active'), true);
             if (isActive) {
@@ -96,7 +99,7 @@
             //Hayo las subcategories para esta categoria.
             var subcategories = _.where(this._subcategories, { father: c.id });
             //Extend categories with their subcat.
-             _.extend(c, {
+            _.extend(c, {
               subcategory: _.map(subcategories, function(sc) {
                 var layers = _.where(data, { group: sc.id });
                 _.map(layers, function(layer){
@@ -110,16 +113,35 @@
                 } else {
                   sc.active = false;
                 }
+
+                var subgroups = _.where(this._subGroups, { father: sc.id });
+                _.extend(sc, {
+                  subgroup: _.map(subgroups, function(sg) {
+                    var layers = _.where(data, { group: sg.id });
+                    _.map(layers, function(layer){
+                      layer.opacity_text = layer.opacity*100
+                      return layer;
+                    });
+                    // Forcing category activation
+                    var isActive = _.contains(_.pluck(layers, 'active'), true);
+                    if (isActive) {
+                      sg.active = true;
+                    } else {
+                      sg.active = false;
+                    }
+                    return _.extend(sg, { layers: layers });
+                  }, this)
+                })
+
                 return _.extend(sc, { layers: layers });
               }, this)
             })
 
-            return _.extend(c, { subcategories: subcategories, layers: layers });
+            return _.extend(c, { layers: layers });
           }, this)
         });
 
       }, this);
-
     },
 
     setActives: function(activeLayers) {
@@ -156,6 +178,28 @@
       noAvailableByZoom.set('notAvailableByZoom', false);
     },
 
+    setOrder: function(layerId) {
+      this.order = this.order || this.getMaxOrderVal() + 1;
+
+      var current = _.findWhere(this.models, { 'id': layerId });
+      current.set('order', this.order);
+
+      return ++ this.order
+    },
+
+    setOrderToNull: function(layerId) {
+      var current = _.findWhere(this.models, { 'id': layerId });
+      current.set('order', null);
+    },
+
+    getMaxOrderVal: function() {
+      return _.max(_.map(this.toJSON(), function(layer) {
+        return layer.order
+      }), function(i) {
+        return i
+      });
+    },
+
     getActived: function() {
       this._setNoOpacity();
       return _.where(this.toJSON(), { active: true, published: true });
@@ -173,7 +217,7 @@
 
     getActiveLayers: function() {
       var layers = [];
-      var activeLayers = this.where({active: true});
+      var activeLayers = this.where({ active: true });
 
       _.each(activeLayers, function(layer) {
         layers.push(layer.toJSON());
