@@ -11,9 +11,7 @@
         "title": "niger",
         "subtitle": "data insights",
         "theme": "Achieving resilient food security difficult with population growth and climate variability",
-        "background": "journey3bg0",
-        "credits": "© Michael Hanson/Aurora Photos",
-        "creditsUrl": "https://ci.tandemvault.com/lightboxes/MVGRc7ujF?t=BwQlYp2iC#10399369"
+        "background": "journey3bg0"
       },
       {
         "number": 1,
@@ -21,9 +19,7 @@
         "background": "journey3bg1",
         "backgroundColor": "#4A3D35",
         "title": "overview",
-        "content": "<p>The Sahel region of Africa encompasses a vast expanse of the continent, spanning from the Atlantic Ocean to the Red Sea.</p><p>The Sahel is a semi-arid region and experiences limited rainfall throughout the year. Niger, a land-locked country in the western Sahel, is one of the poorest countries in the world and relies primarily on subsistence rain-fed agriculture, a livelihood experiencing increasing stress with a changing climate.</p><p>Niger and the Sahel are subject to recurrent and devastating droughts as well as an increase in the occurrence of floods. Food insecurity and low levels of social and manufactured capital inhibit the population’s resilience to increasingseasonal variation in rainfall, as well as longer-term climatic changes.</p>",
-        "credits": "© Credit",
-        "creditsUrl": "https://ci.tandemvault.com/lightboxes/MVGRc7ujF?t=BwQlYp2iC#77780718"
+        "content": "<p>The Sahel region of Africa encompasses a vast expanse of the continent, spanning from the Atlantic Ocean to the Red Sea.</p><p>The Sahel is a semi-arid region and experiences limited rainfall throughout the year. Niger, a land-locked country in the western Sahel, is one of the poorest countries in the world and relies primarily on subsistence rain-fed agriculture, a livelihood experiencing increasing stress with a changing climate.</p><p>Niger and the Sahel are subject to recurrent and devastating droughts as well as an increase in the occurrence of floods. Food insecurity and low levels of social and manufactured capital inhibit the population’s resilience to increasingseasonal variation in rainfall, as well as longer-term climatic changes.</p>"
       },
       {
         "number": 2,
@@ -31,16 +27,14 @@
         "background": "journey3ch1",
         "type": "chapter",
         "title": "livelihoods",
-        "content": "Which livelihoods and production systems are most threatened?",
-        "credits": "© John Warburton-Lee Photography/Alamy Stock Photo",
-        "creditsUrl": "https://ci.tandemvault.com/lightboxes/MVGRc7ujF?t=BwQlYp2iC#46176054"
+        "content": "Which livelihoods and production systems are most threatened?"
       },
       {
         "number": 3,
         "type": "embed",
         "countryIso": "NER",
         "theme": "light",
-        "aside": "<header><h2>Livelihoods</h2><h3>Population distribution</h3></header><section><h1>Niger</h1><div class='facts'><h4></h4><p>80% of Niger’s population is rural, and reliant on subsistence agriculture for 40% of their food consumption.</p><p>The desert areas of northern Niger are sparsely populated.</p><p class='source'><a target='_blank' href='http://www.fews.net/west-africa/niger/food-security-brief/may-2014'>http://www.fews.net/west-africa/niger/food-security-brief/may-2014</a></p><p>The desert areas of northern Niger are sparsely populated.</p></div></section>",
+        "aside": "<header><h2>Livelihoods</h2><h3>Population distribution</h3></header><section><h1>Niger</h1><div class='facts'><h4></h4><p>80% of Niger’s population is rural, and reliant on subsistence agriculture for 40% of their food consumption.</p><p>The desert areas of northern Niger are sparsely populated.</p><p class='source'><a target='_blank' href='http://www.fews.net/west-africa/niger/food-security-brief/may-2014'>http://www.fews.net/west-africa/niger/food-security-brief/may-2014</a></p></div></section>",
         "mapUrl": "/map?layers=%5B%7B%22id%22%3A35%2C%22opacity%22%3A1%2C%22order%22%3A999%7D%5D",
         "btnUrl": "/map?layers=%5B%7B%22id%22%3A35%2C%22opacity%22%3A1%2C%22order%22%3A999%7D%5D"
       },
@@ -59,16 +53,14 @@
         "background": "journey3ch2",
         "type": "chapter",
         "title": "Stressors and shocks",
-        "content": "What are the main stressors and shocks Nigerien livelihoods are exposed to?",
-        "credits": "© John Warburton-Lee Photography/Alamy Stock Photo",
-        "creditsUrl": "https://ci.tandemvault.com/lightboxes/MVGRc7ujF?t=BwQlYp2iC#46176054"
+        "content": "What are the main stressors and shocks Nigerien livelihoods are exposed to?"
       },
       {
         "number": 6,
         "type": "embed",
         "countryIso": "NER",
         "theme": "light",
-        "aside": "<header><h2>Stressors & shocks</h2><h3>Population growth</h3></header><section><h1>Niger</h1><div class='facts'><h4></h4><p>The fertility rate in Niger is 6.76 live births per woman, the highest in the world. <a target='_blank' href='https://www.cia.gov/library/publications/resources/the-world-factbook/geos/ng.html'>(https://www.cia.gov/library/publications/resources/the-world-factbook/geos/ng.html)</a></p><p>Niger’s current population of 18 million is growing at a rate of 3.25%, one of the highest in the world. The population could exceed 50 million by 2040. <a target='_blank' href='https://www.cia.gov/library/publications/resources/the-world-factbook/geos/ng.html' >(https://www.cia.gov/library/publicati ons/resources/the-world-factbook/geos/ng.html)</a>, <a target='_blank' href='http://www.wfp.org/countries/niger'>(www.wfp.org/countries/niger)</a></p></div></section>",
+        "aside": "<header><h2>Stressors & shocks</h2><h3>Population growth</h3></header><section><h1>Niger</h1><div class='facts'><h4></h4><p>The fertility rate in Niger is 6.76 live births per woman, the highest in the world. </p><p class='source'><a target='_blank' href='https://www.cia.gov/library/publications/resources/the-world-factbook/geos/ng.html'>(https://www.cia.gov/library/publications/resources/the-world-factbook/geos/ng.html)</a></p><p>Niger’s current population of 18 million is growing at a rate of 3.25%, one of the highest in the world. The population could exceed 50 million by 2040. </p><p class='source'><a target='_blank' href='https://www.cia.gov/library/publications/resources/the-world-factbook/geos/ng.html' >(https://www.cia.gov/library/publicati ons/resources/the-world-factbook/geos/ng.html)</a>, </p><p class='source'><a target='_blank' href='http://www.wfp.org/countries/niger'>(www.wfp.org/countries/niger)</a></p></div></section>",
         "mapUrl": "/map?layers=%5B%7B%22id%22%3A28%2C%22opacity%22%3A1%2C%22order%22%3A999%7D%5D",
         "btnUrl": "/map?layers=%5B%7B%22id%22%3A28%2C%22opacity%22%3A1%2C%22order%22%3A999%7D%5D"
       },
@@ -77,7 +69,7 @@
         "type": "embed",
         "countryIso": "NER",
         "theme": "light",
-        "aside": "<header><h2>Stressors & shocks</h2><h3>Malnutrition</h3></header><section><h1>Niger</h1><div class='facts'><h4></h4><p>Chronic malnourishment is a serious problem in Niger: 42% of children are chronically malnourished and 1 in 8 children do not reach the age of 5.</p><p>In the southern regions of Niger, over 50% of children suffer from chronic malnutrition. <a target='_blank' href='http://www.wfp.org/countries/niger'>(www.wfp.org/countries/niger)</a></p></div></section>",
+        "aside": "<header><h2>Stressors & shocks</h2><h3>Malnutrition</h3></header><section><h1>Niger</h1><div class='facts'><h4></h4><p>Chronic malnourishment is a serious problem in Niger: 42% of children are chronically malnourished and 1 in 8 children do not reach the age of 5.</p><p>In the southern regions of Niger, over 50% of children suffer from chronic malnutrition.</p><p class='source'><a target='_blank' href='http://www.wfp.org/countries/niger'>(www.wfp.org/countries/niger)</a></p></div></section>",
         "mapUrl": "/map?layers=%5B%7B%22id%22%3A20%2C%22opacity%22%3A1%2C%22order%22%3A999%7D%5D",
         "btnUrl": "/map?layers=%5B%7B%22id%22%3A20%2C%22opacity%22%3A1%2C%22order%22%3A999%7D%5D"
       },
@@ -86,7 +78,7 @@
         "type": "embed",
         "countryIso": "NER",
         "theme": "light",
-        "aside": "<header><h2>Stressors & shocks</h2><h3>Mean precipitation - 1985 - 2014</h3></header><section><h1>Niger</h1><div class='facts'><h4></h4><p>Niger receives the majority of its rainfall between June and September.</p><p>Year-to-year fluctuations in rainfall create a tenuous situation for food security.</p><p>2011 was marked by drought conditions with some areas receiving well below the mean precipitation (- 158). One year later, situations nearly reversed with areas receiving up to 204 over the mean.</p></div></section>",
+        "aside": "<header><h2>Stressors & shocks</h2><h3>2011 – drought conditions</h3></header><section><h1>Niger</h1><div class='facts'><h4></h4><p>Niger receives the majority of its rainfall between June and September.</p><p>Year-to-year fluctuations in rainfall create a tenuous situation for food security.</p><p>2011 was marked by drought conditions with some areas receiving well below the mean precipitation (- 158).</p><p>One year later, the situation almost reversed – with some areas receiving up to 204mm above the average.</p></div></section>",
         "mapUrl": "/map?layers=%5B%7B%22id%22%3A51%2C%22opacity%22%3A1%2C%22order%22%3A999%7D%5D",
         "btnUrl": "/map?layers=%5B%7B%22id%22%3A51%2C%22opacity%22%3A1%2C%22order%22%3A999%7D%5D"
       },
@@ -95,7 +87,7 @@
         "type": "embed",
         "countryIso": "NER",
         "theme": "light",
-        "aside": "<header><h2>Stressors & schocks</h2><h3>2011 - Drought conditions</h3></header><section><h1>Niger</h1><div class='facts'><h4></h4><p>Niger receives the majority of its rainfall between June and September.</p><p>Year-to-year fluctuations in rainfall create a tenuous situation for food security.</p><p>2011 was marked by drought conditions with some areas receiving well below the mean precipitation (- 158). One year later, situations nearly reversed with areas receiving up to 204 over the mean.</p></div></section>",
+        "aside": "<header><h2>Stressors & shocks</h2><h3>2011 – drought conditions</h3></header><section><h1>Niger</h1><div class='facts'><h4></h4><p>Niger receives the majority of its rainfall between June and September.</p><p>Year-to-year fluctuations in rainfall create a tenuous situation for food security.</p><p>2011 was marked by drought conditions with some areas receiving well below the mean precipitation (- 158).</p><p>One year later, the situation almost reversed – with some areas receiving up to 204mm above the average.</p></div></section>",
         "mapUrl": "/map?layers=%5B%7B%22id%22%3A49%2C%22opacity%22%3A1%2C%22order%22%3A999%7D%5D",
         "btnUrl": "/map?layers=%5B%7B%22id%22%3A49%2C%22opacity%22%3A1%2C%22order%22%3A999%7D%5D"
       },
@@ -114,9 +106,7 @@
         "background": "journey3ch3",
         "type": "chapter",
         "title": "Vulnerability",
-        "content": "What factors affect the vulnerability of Nigerien livelihoods to climate stressors and shocks?",
-        "credits": "© John Warburton-Lee Photography/Alamy Stock Photo",
-        "creditsUrl": "https://ci.tandemvault.com/lightboxes/MVGRc7ujF?t=BwQlYp2iC#46176054"
+        "content": "What factors affect the vulnerability of Nigerien livelihoods to climate stressors and shocks?"
       }
     ]
   }
