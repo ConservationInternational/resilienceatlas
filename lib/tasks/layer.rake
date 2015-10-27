@@ -26,7 +26,7 @@ namespace :layers do
 
   desc "Creates a new export file with layers and layer groups."
   task backup: :environment do
-    sh "bundle exec rake db:seed:dump FILE=db/data/layers.rb MODELS=layers,layer_groups,agrupations, site_scopes EXCLUDE=[]"
+    sh "bundle exec rake db:seed:dump FILE=db/data/layers.rb MODELS=layers,layer_groups,agrupations,site_scopes EXCLUDE=[]"
     puts "Backup created."
   end
 
