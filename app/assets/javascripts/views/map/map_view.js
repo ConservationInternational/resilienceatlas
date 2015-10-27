@@ -357,20 +357,20 @@
     },
 
     toggleLayers: function(show) {
-      var layers = this.layers.getActiveLayers();
-      var mapModel = this.model;
+      // var layers = this.layers.getActiveLayers();
+      // var mapModel = this.model;
 
-      _.each(layers, function(layer) {
-        var instance = mapModel.get(layer.id);
+      // _.each(layers, function(layer) {
+      //   var instance = mapModel.get(layer.id);
 
-        if(instance) {
-          if(show) {
-            instance.layer.show();
-          } else {
-            instance.layer.hide();
-          }
-        }
-      });
+      //   if(instance && instance.layer) {
+      //     if(show) {
+      //       instance.layer.show();
+      //     } else {
+      //       instance.layer.hide();
+      //     }
+      //   }
+      // });
     }
 
   });
