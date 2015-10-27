@@ -18,7 +18,7 @@
             "number": 1,
             "type": "conclusion",
             "background": "journey2bg1",
-            "backgroundColor": "#4A3D35",
+            "backgroundColor": "74, 61, 53",
             "title": "overview",
             "content": "<p>Livestock raising, or pastoralism, is a livelihood strategy well adapted to the small amount of rainfall that is received each year in the lowlands of Ethiopia. Ethiopian pastoralists, however, still depend on seasonal rains to feed the livestock on which their livelihoods depend.</p><p>A changing climate and growing populations are threatening pastoralism.</p><p>Ethiopia experiences two distinct rainy seasons: the short rainy season (or “belg”) from February to May and the long rainy season, or “kiremt” from June through September. Changes in the pattern of these rains suggest a difficult road ahead for Ehiopian pastoralists.</p>",
             "credits": "© Aurora Photos/Alamy Stock Photo",
@@ -59,7 +59,7 @@
             "countryIso": "ETH",
             "theme": "light",
             "aside": "<header><h2>Stressors  & shocks</h2><h3>Pastoral with short rains</h3></header><section><h1>Ethiopia</h1><div class='facts'><h4></h4><p>Rainfall during the short rains is declining at rates as high as 24% per decade.</p></div></section>",
-            "mapUrl": "/map?layers=%5B%7B%22id%22%3A38%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%2C%7B%22id%22%3A41%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%5D"
+            "mapUrl": "/map?layers=%5B%7B%22id%22%3A38%2C%22opacity%22%3A1%2C%22order%22%3A3%7D%2C%7B%22id%22%3A41%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%5D"
         },
         {
             "number": 6,
@@ -110,7 +110,7 @@
             "number": 11,
             "type": "conclusion",
             "background": "journey2bg2",
-            "backgroundColor": "#443A38",
+            "backgroundColor": "68, 58, 56",
             "title": "insights",
             "subtitle": "pastoral livelihoods & climate change in ethiopia",
             "content": "<p>Major changes in rainfall patterns in pastoral areas are undermining pastoralism as a viable livelihood strategy.</p><p>Pastoralists are particularly vulnerable because of high levels of health stress and low levels of literacy and information access, particularly among women.</p>",

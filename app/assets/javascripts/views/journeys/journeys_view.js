@@ -89,22 +89,21 @@
         layersCollection
       ], 'fetch');
 
-      var legendView = new root.app.View.Legend({
-        el: '#legendView',
-        layers: layersCollection,
-        model: new (Backbone.Model.extend({
-          defaults: {
-            hidden: false,
-            order: [],
-            journeyMap: true
-          }
-        })),
-      });
-
 
       $.when.apply($, complete).done(function() {
         layers = JSON.parse(layers.layers);
         layersCollection.setActives(layers)
+
+        var legendView = new root.app.View.Legend({
+          el: '#legendView',
+          layers: layersCollection,
+          model: new (Backbone.Model.extend({
+            defaults: {
+              hidden: false,
+              journeyMap: true
+            }
+          })),
+        });
 
         legendView.render();
       })
@@ -185,10 +184,10 @@
     },
 
     _getNextJourneyUrl: function() {
-      var totalJourneys = 2; //Fix this with index.
+      // var totalJourneys = 2; //Fix this with index.
       // This way below is the correct way, but is not working for
       // the moment because "index" is a fake one.
-      // var totalJourneys = this.totalJourneys
+      var totalJourneys = this.totalJourneys
       var currentJourney = this.journey.id;
       var nextJourney = currentJourney === totalJourneys ? 1 : currentJourney + 1;
 

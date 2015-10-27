@@ -27,9 +27,9 @@
 .m-layers-list-header {
   @include clearfix;
   position: relative;
-  padding: rem(10px) rem(15px) rem(10px) rem(25px);
+  padding: rem(15px) rem(15px) rem(15px) rem(25px);
   color: $font-color-1;
-  background-color: rgba(#757575, .1);
+  background-color: #F6F6F6;
   text-align: right;
   border-bottom: 1px solid rgba($font-color-1, .1);
 
