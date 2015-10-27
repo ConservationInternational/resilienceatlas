@@ -101,7 +101,6 @@
         })),
       });
 
-
       $.when.apply($, complete).done(function() {
         layers = JSON.parse(layers.layers);
         layersCollection.setActives(layers)

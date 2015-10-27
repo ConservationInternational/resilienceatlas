@@ -302,7 +302,7 @@
       });
 
       maskLayer.create(function(layer){
-        layer.setZIndex(1100)
+        layer.setZIndex(2000)
 
         if(opacity) {
           layer.setOpacity(opacity);
