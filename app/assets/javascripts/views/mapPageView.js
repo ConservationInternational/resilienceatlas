@@ -124,7 +124,7 @@
 
         if (!journeyMap) {
           var searchView = new root.app.View.Search({
-            el: 'body',
+            el: '#toolbarView',
             map: mapView
           });
         }
