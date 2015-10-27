@@ -17,13 +17,13 @@
     },
 
     templates: {
-      landing: HandlebarsTemplates['journey_landing_tpl'],
-      chapter: HandlebarsTemplates['journey_chapter_tpl'],
-      embed: HandlebarsTemplates['journey_embed_tpl'],
-      text: HandlebarsTemplates['journey_text_tpl'],
-      chart: HandlebarsTemplates['journey_chart_tpl'],
-      conclusion: HandlebarsTemplates['journey_conclusion_tpl'],
-      controls: HandlebarsTemplates['journey_controls_tpl']
+      landing: HandlebarsTemplates['journeys/journey_landing_tpl'],
+      chapter: HandlebarsTemplates['journeys/journey_chapter_tpl'],
+      embed: HandlebarsTemplates['journeys/journey_embed_tpl'],
+      text: HandlebarsTemplates['journeys/journey_text_tpl'],
+      chart: HandlebarsTemplates['journeys/journey_chart_tpl'],
+      conclusion: HandlebarsTemplates['journeys/journey_conclusion_tpl'],
+      controls: HandlebarsTemplates['journeys/journey_controls_tpl']
     },
 
     initialize: function(settings) {

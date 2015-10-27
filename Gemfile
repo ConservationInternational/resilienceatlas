@@ -18,9 +18,10 @@ gem 'activeadmin', github: 'activeadmin'
 gem 'active_model_serializers', '0.10.0.rc2'
 
 # Utilities
-gem 'rails_12factor'
+gem 'rails_12factor', group: :production
 gem 'raddocs'
 gem 'seed_dump'
+gem 'active_admin_theme'
 
 group :development, :test do
   gem 'spring'
@@ -56,6 +57,7 @@ end
 source 'https://rails-assets.org' do
   gem 'rails-assets-normalize-css'
   gem 'rails-assets-foundation-sass'
+  gem 'rails-assets-foundation'
   gem 'rails-assets-underscore'
   gem 'rails-assets-backbone'
   gem 'rails-assets-moment'

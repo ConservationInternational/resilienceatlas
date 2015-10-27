@@ -1,6 +1,10 @@
 .m-journey--conclusion {
   @extend %journey;
 
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+
   &.overview {
     #btn-next-journey {
       display: none !important;
@@ -18,36 +22,43 @@
   }
 
   .content {
-    position: absolute;
-    left: 0;
+    position: relative;
     margin-left: rem(40px);
-    top: 20%;
-    bottom: 25%;
+    margin-top: rem(-70px);
+    padding: rem(40px);
     width: rem(480px);
-    max-width: rem(400px);
+    max-height: 60vh;
     color: $font-color-3;
-    transition: .3s $easeInSine;
+    transition: .7s cubic-bezier(0.19, 1, 0.22, 1);
+    //No overflow hidden, it hidde action buttons.
+    // overflow: hidden;
 
     &.is-colapsed {
       margin-left: 0;
       transform: translatex(-100%);
     }
 
+    .extra-wrapper {
+      overflow: hidden;
+    }
+
     .wrapper {
-      position: absolute;
-      top: rem(30px);
-      bottom: rem(40px);
-      left: rem(40px);
-      right: rem(40px);
+      max-height: 40vh;
       padding-right: rem(10px);
-      overflow: scroll;
+      overflow-y: scroll;
+      padding-right: 20px;
+
+      @extend %clear-scroll-bars;
+      margin-right: -20px;
     }
 
     h2 {
+      margin-bottom: 0;
+      margin-top: 0;
       font-size: rem(56px);
       text-transform: uppercase;
       font-family: $font-face-2;
-      margin-bottom: 0;
+      line-height: 1em;
     }
 
     h3 {
@@ -60,6 +71,10 @@
     p {
       font-size: rem(18px);
       font-weight: 400;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
     }
 
     .btn-colapse,

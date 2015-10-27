@@ -8,22 +8,12 @@
   root.app.View.Map = Backbone.View.extend({
 
     defaults: {
-      map: {
-        zoom: 3,
-        center: [0, 15],
-        zoomControl: false,
-        scrollWheelZoom: false
-      },
       defaultBasemap: 'defaultmap',
       basemap: {
-        //This one below is the journeys one.
         labels: 'http://api.tiles.mapbox.com/v4/cigrp.829fd2d8/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiY2lncnAiLCJhIjoiYTQ5YzVmYTk4YzM0ZWM4OTU1ZjQxMWI5ZDNiNTQ5M2IifQ.SBgo9jJftBDx4c5gX4wm3g',
         defaultmap: 'http://api.tiles.mapbox.com/v4/cigrp.2ad62493/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiY2lncnAiLCJhIjoiYTQ5YzVmYTk4YzM0ZWM4OTU1ZjQxMWI5ZDNiNTQ5M2IifQ.SBgo9jJftBDx4c5gX4wm3g',
         satellite: 'http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
         topographic: 'http://server.arcgisonline.com/ArcGIS/rest/services/World_Physical_Map/MapServer/tile/{z}/{y}/{x}'
-      },
-      journeyBasemap: {
-        url: 'http://api.tiles.mapbox.com/v4/cigrp.2ad62493/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiY2lncnAiLCJhIjoiYTQ5YzVmYTk4YzM0ZWM4OTU1ZjQxMWI5ZDNiNTQ5M2IifQ.SBgo9jJftBDx4c5gX4wm3g'
       },
       zoomControl: {
         position: 'topright'
@@ -33,6 +23,7 @@
     initialize: function(settings) {
       var opts = settings && settings.options ? settings.options : {};
       this.options = _.extend({}, this.defaults, opts);
+
       this.router = settings.router;
       this.layers = settings.layers;
       this.selectedBasemap = settings.basemap;
@@ -40,12 +31,12 @@
 
       this.journeyMap = this.model.get('journeyMap');
       this.currentCountry = this.model.get('countryIso') || null;
+
+      this.utils = new root.app.View.Utils();
     },
 
     setListeners: function() {
-      this.listenTo(this.layers, 'change', this.renderLayers);
-      // this.listenTo(this.layers, 'sort', this.renderLayers);
-
+      Backbone.Events.on('render:map', _.bind(this.renderLayers, this));
       Backbone.Events.on('basemap:change', _.bind(this.selectBasemap, this));
     },
 
@@ -53,6 +44,8 @@
      * Instantiates a Leaflet map object
      */
     createMap: function() {
+      var self = this;
+      // trampita zoom
       if (this.journeyMap && this.currentCountry==='ETH') {
         if ( $(document).width() < 1020) {
           this.options.map.zoom = 5;
@@ -73,6 +66,9 @@
 
       if (!this.map) {
         this.map = L.map(this.el, this.options.map);
+        this.map.on('click', function(){
+          self.checkMask();
+        });
         if (this.options.zoomControl) {
           this.addControlZoom();
         }
@@ -80,6 +76,22 @@
       } else {
         console.info('Map already exists.');
       }
+
+      var self = this;
+
+      this.actualZoom = this.options.map.zoom;
+
+      this.map.on('zoomend', _.bind(function() {
+        this.actualZoom = this.map.getZoom();
+        this.router.setParams('zoom', this.actualZoom);
+        this.finishedZooming = true;
+        this.renderLayers();
+      }, this));
+
+      this.map.on('dragend', _.bind(function() {
+        this.actualCenter = this.map.getCenter();
+        this.router.setParams('center', this.actualCenter);
+      }, this));
     },
 
     /**
@@ -105,11 +117,11 @@
     },
 
     _getBaseMapUrl: function() {
-      var basemap = this.journeyMap ? this.options.journeyBasemap.url : this.options.basemap.defaultmap;
+      var basemap = this.options.basemap.defaultmap;
 
       if(this.selectedBasemap) {
         basemap = this.options.basemap[this.selectedBasemap];
-      } 
+      }
 
       return basemap;
     },
@@ -129,18 +141,13 @@
       var labelsUrl = this.options.basemap.labels;
       var url = basemapUrl || this._getBaseMapUrl();
       var basemap = type || this.selectedBasemap || this.options.defaultBasemap;
-      
-      //Map for journeys render differently.
-      //If changing something here, be carefull with the way different formats render. 
+
       if (this.journeyMap) {
         this.basemap = L.tileLayer(url).addTo(this.map);
       } else {
-        //This one below is the journeys way. Be carefull, satellite map and topographic
-        //render in the current way.
-        // this.basemap = cartodb.createLayer(this.map, url).addTo(this.map);
         this.basemap = L.tileLayer(url).addTo(this.map);
         this.labels = L.tileLayer(labelsUrl).addTo(this.map);
-        this.labels.setZIndex(1005);
+        this.labels.setZIndex(1100);
       }
 
       if(basemapUrl) {
@@ -164,10 +171,38 @@
      */
     renderLayers: function() {
       var layersData = this.layers.getPublished();
+
+      //Test for zoom scope.
       _.each(layersData, function(layerData) {
+        // if (layerData.id == 31) {
+        //   layerData.maxZoom = 100;
+        //   layerData.minZoom = 3;
+        // }
+
+        // if (layerData.id == 36) {
+        //   layerData.maxZoom = 3;
+        //   layerData.minZoom = 0;
+        // }
+
         if (layerData.active) {
-          this.addLayer(layerData);
+          if (layerData.maxZoom) {
+            if ( layerData.minZoom <= this.actualZoom && this.actualZoom <= layerData.maxZoom ) {
+              this.addLayer(layerData)
+              this.layers.unsetDisabledByZoom(layerData.id)
+            } else {
+              this.removeLayer(layerData);
+              this.layers.setDisabledByZoom(layerData.id);
+            }
+          } else {
+            if (!layerData.order) {
+              this._setOrder(layerData);
+              this.addLayer(layerData);
+            } else {
+              this.addLayer(layerData);
+            }
+          }
         } else {
+          this._setOrderToNull(layerData);
           this.removeLayer(layerData);
         }
       }, this);
@@ -177,6 +212,21 @@
         this.setMaskLayer();
       }
 
+      if(!this.finishedZooming) {
+        this.checkMask();
+      } else {
+        this.finishedZooming = false;
+      }
+    },
+
+    _setOrder: function(layer) {
+      layer.order = this.layers.order || this.layers.getMaxOrderVal();
+      this.layers.setOrder(layer.id);
+    },
+
+    _setOrderToNull: function(layer){
+      layer.order = null;
+      this.layers.setOrderToNull(layer.id);
     },
 
     /**
@@ -193,6 +243,7 @@
       }
       var layer = this.model.get(layerData.id);
       var layerInstance;
+
       if (!layer) {
         switch(layerData.type) {
           case 'cartodb':
@@ -201,7 +252,7 @@
             layerInstance = new root.app.Helper.CartoDBLayer(this.map, options);
             layerInstance.create(function(layer) {
               layer.setOpacity(layerData.opacity);
-              layer.setZIndex(1000-layerData.order);
+              layer.setZIndex(1000 + layerData.order);
             });
           break;
           case 'raster':
@@ -213,8 +264,9 @@
             //When carto bug solved, only back to create method.
             layerInstance.createRasterLayer(function(layer) {
               layer.setOpacity(layerData.opacity);
-              layer.setZIndex(1000-layerData.order);
+              layer.setZIndex(1000 + layerData.order);
             });
+
           break;
           default:
             layerInstance = null;
@@ -227,7 +279,7 @@
       } else {
         if (layer.layer) {
           layer.layer.setOpacity(layerData.opacity);
-          layer.layer.setZIndex(1000-layerData.order);
+          layer.layer.setZIndex(1000 + layerData.order);
         }
         // console.info('Layer "' + layerData.id + '"" already exists.');
       }
@@ -245,13 +297,61 @@
       }
     },
 
-    setMaskLayer: function() {
-      var countryIso = this.model.get('countryIso');
-      var maskLayer = new root.app.Helper.CartoDBmask(this.map, countryIso);
+    setMaskLayer: function(iso, opacity, searchMask) {
+      var self = this;
+      var countryIso = iso;
+
+      if(!countryIso) {
+        countryIso = this.model.get('countryIso');
+      }
+
+      this.checkMask();
+
+      var maskLayer = new root.app.Helper.CartoDBmask(this.map, countryIso, {
+        searchMask: searchMask
+      });
 
       maskLayer.create(function(layer){
-        layer.setZIndex(1001)
+        console.log('layer mask')
+        layer.setZIndex(2000)
+
+        if(opacity) {
+          layer.setOpacity(opacity);
+        }
+
+        self.maskMapLayer = layer;
       });
+    },
+
+    getMapState: function() {
+      var bounds = this.map.getBounds();
+
+      return {
+        bounds: {
+          northEast: bounds._northEast,
+          southWest: bounds._southWest
+        },
+        zoom: this.map.getZoom(),
+        center: this.map.getCenter()
+      }
+    },
+
+    checkMask: function() {
+      if(this.maskMapLayer && !this.journeyMap) {
+        this.map.removeLayer(this.maskMapLayer);
+      }
+    },
+
+    setBbox: function(bbox) {
+      if(bbox) {
+        bbox = JSON.parse(bbox);
+        var coords = bbox.coordinates[0];
+        var southWest = L.latLng(coords[2][1], coords[2][0]),
+          northEast = L.latLng(coords[0][1], coords[0][0]),
+          bounds = L.latLngBounds(southWest, northEast);
+
+        this.map.fitBounds(bounds);
+      }
     }
 
   });

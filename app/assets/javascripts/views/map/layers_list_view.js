@@ -11,7 +11,7 @@
 
     layersOrder: 1000,
 
-    template: HandlebarsTemplates['layers_list_tpl'],
+    template: HandlebarsTemplates['map/layers_list_tpl'],
 
     events: {
       'click .m-layers-list-header': '_toggleCategories',
@@ -74,6 +74,8 @@
         var active = _.contains(activedIds, model.id);
         model.set('active', active);
       });
+
+      Backbone.Events.trigger('render:map');
     },
 
     _setLayersOrder: function(e) {
@@ -81,12 +83,6 @@
 
       var $currentTarget = $(e.currentTarget);
       var id = parseInt($currentTarget.attr('id').split('layer_')[1]);
-
-      if ($currentTarget.prop('checked')) {
-        var currentModel = _.findWhere(this.layers.models, {'id': id});
-        currentModel.set('order', this.layersOrder);
-        return this.layersOrder --;
-      }
     },
 
     /*
@@ -174,6 +170,8 @@
       } else {
         model.set('no_opacity', false);
       }
+
+      Backbone.Events.trigger('render:map');
     },
 
     _manageOpacityIcon: function(opacity, currentSelector) {

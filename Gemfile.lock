@@ -39,6 +39,7 @@ GEM
       erubis (~> 2.7.0)
       rails-dom-testing (~> 1.0, >= 1.0.5)
       rails-html-sanitizer (~> 1.0, >= 1.0.1)
+    active_admin_theme (1.0.2)
     active_model_serializers (0.10.0.rc2)
       activemodel (>= 4.0)
     activejob (4.2.1)
@@ -198,10 +199,22 @@ GEM
       sprockets-rails
     rails-assets-backbone (1.2.1)
       rails-assets-underscore (>= 1.7.0)
+    rails-assets-fastclick (1.0.6)
+    rails-assets-foundation (5.5.3)
+      rails-assets-fastclick (>= 0.6.11)
+      rails-assets-jquery (>= 2.1.0)
+      rails-assets-jquery-placeholder (~> 2.0.7)
+      rails-assets-jquery.cookie (~> 1.4.0)
+      rails-assets-modernizr (= 2.8.3)
     rails-assets-foundation-sass (5.5.2)
     rails-assets-handlebars (3.0.3)
     rails-assets-jquery (2.1.4)
+    rails-assets-jquery-placeholder (2.0.9)
+      rails-assets-jquery (>= 1.6)
     rails-assets-jquery-ui-touch-punch-valid (0.2.2)
+    rails-assets-jquery.cookie (1.4.1)
+      rails-assets-jquery (>= 1.2)
+    rails-assets-modernizr (2.8.3)
     rails-assets-moment (2.10.6)
     rails-assets-normalize-css (3.0.3)
     rails-assets-slick-carousel (1.5.8)
@@ -318,6 +331,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  active_admin_theme
   active_model_serializers (= 0.10.0.rc2)
   activeadmin!
   annotate (~> 2.6.5)
@@ -343,6 +357,7 @@ DEPENDENCIES
   raddocs
   rails (= 4.2.1)
   rails-assets-backbone!
+  rails-assets-foundation!
   rails-assets-foundation-sass!
   rails-assets-handlebars!
   rails-assets-jquery-ui-touch-punch-valid!
@@ -362,6 +377,3 @@ DEPENDENCIES
   teaspoon-mocha
   uglifier (>= 1.3.0)
   web-console (~> 2.0)
-
-BUNDLED WITH
-   1.10.6

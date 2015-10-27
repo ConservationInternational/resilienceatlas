@@ -9,11 +9,11 @@
 
     defaults: {},
 
-    template: HandlebarsTemplates['legend_tpl'],
+    template: HandlebarsTemplates['map/legend_tpl'],
     templateLegends: {
-      choropleth : HandlebarsTemplates['legend_choropleth_tpl'],
-      custom : HandlebarsTemplates['legend_custom_tpl'],
-      'legend-round' : HandlebarsTemplates['legend_round_tpl']
+      choropleth : HandlebarsTemplates['map/legend_choropleth_tpl'],
+      custom : HandlebarsTemplates['map/legend_custom_tpl'],
+      'legend-round' : HandlebarsTemplates['map/legend_round_tpl']
     },
 
     model: new (Backbone.Model.extend({
@@ -38,7 +38,7 @@
     setListeners: function() {
       _.bindAll(this,'setOrder');
       this.listenTo(this.model, 'change:hidden', this.changeVisibility);
-      this.listenTo(this.layers, 'change', this.render);
+      Backbone.Events.on('render:map', _.bind(this.render, this));
     },
 
     cacheVars: function() {
@@ -48,7 +48,8 @@
     },
 
     render: function() {
-      var data = _.sortBy(this.setLegends(), 'order');
+      var data = _.sortBy(this.setLegends(), 'order').reverse();
+
       $.when.apply($, data).done(function() {
         this.$el.html( this.template({ legends: data }) );
         this.cacheVars();
@@ -61,7 +62,7 @@
 
     setLegends: function() {
       return _.map(this.layers.getActived(), _.bind(function(layer){
-        //Check if legend exists
+        //Check if legend exist
         if (layer.legend) {
           var legend = JSON.parse(layer.legend);
           var type = legend.type;
@@ -88,16 +89,19 @@
     },
 
     setOrder: function(e, ui) {
+      var total = this.$legendList.children('li').length;
+
       _.each(this.$legendList.children('li'), _.bind(function(layer,i){
         var currentModel = this.layers.get($(layer).data('id'));
-        currentModel.set('order', i + 1);
+        currentModel.set('order', total - i);
       }, this ));
 
-      $('.m-legend').removeClass('is-changing');
-      // sort layers
-      // this.layers.sort();
-    },
+      this.layers.order = total;
 
+      $('.m-legend').removeClass('is-changing');
+
+      Backbone.Events.trigger('render:map');
+    },
 
     /**
      * Set panel visibility

@@ -6,7 +6,7 @@
   right: 0;
   left: 0;
 
-  h1 {
+  h1, h2 {
     font-weight: 400;
     font-size: 36px;
     margin-top: 0;
@@ -33,6 +33,17 @@
     font-weight: 400;
     color: $font-color-2;
   }
+
+  .source {
+    font-size: 14px;
+    font-weight: 400;
+    font-style: italic;
+
+    p {
+      font-style: italic;
+      font-size: 14px;
+    }
+  }
 }
 
 .modal-background {
@@ -57,18 +68,20 @@
   width: 600px;
   height: 400px;
   max-width: 90%;
-
+  background-color: $bg-color-1;
   box-shadow: 0 1px 4px 0 rgba(0,0,0, .2);
 }
 
 .modal-container {
   padding-right: 10px; //Margen para el scroll de windows
   padding: rem(50px);
-  overflow: scroll;
+  overflow-y: scroll;
+  @extend %clear-scroll-bars;
   background-color: #fff;
 }
 
-.btn-close {
+.btn-close,
+.btn-close-modal {
   position: absolute;
   top: 20px;
   right: 20px;

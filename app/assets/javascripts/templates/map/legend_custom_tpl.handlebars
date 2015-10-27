@@ -1,4 +1,5 @@
-<div class="m-legend__round">
+{{#if units}} <span class="units">{{units}}</span> {{/if}}
+<div class="m-legend__custom">
   {{#each data}}
     <div class="item"><span style="background-color: {{this.value}}"></span> {{this.name}}</div>
   {{/each}}

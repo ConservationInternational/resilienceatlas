@@ -6,10 +6,12 @@ Rails.application.routes.draw do
 
   # API routes
   mount Raddocs::App => "/docs"
-  namespace :api, defaults: {format: 'json'} do
+  namespace :api, defaults: {format: 'te'} do
     scope module: :v1 do
       resources 'layer-groups', controller: :layer_groups, as: :layer_groups, only: [:index]
       resources :layers, only: [:index]
+      get '/share/:uid', to: 'share_urls#show'
+      post '/share', to: 'share_urls#create'
     end
   end
 
@@ -22,8 +24,9 @@ Rails.application.routes.draw do
   resources :journeys, only: [:show]
 
   # Embed
-  # get 'embed/:slug', to: 'embed#index'
+  get 'embed', to: 'embed#index'
   get 'embed/map', to: 'embed#map'
   get 'embed/journeys', to: 'embed#journeys'
+  get 'embed/test', to: 'embed#test'
 
 end

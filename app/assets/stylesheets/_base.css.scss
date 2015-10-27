@@ -14,10 +14,9 @@ html, body {
 html,
 body {
   font-size: $base-font-size;
+  background-color: $white;
 
-  &::-webkit-scrollbar { 
-      display: none; 
-  }
+  @extend %clear-scroll-bars;
 }
 
 // Default body styles

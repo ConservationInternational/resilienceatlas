@@ -1,29 +1,54 @@
 .m-static-page {
-  h1 {
-    margin-bottom: 40px;
-  }
-
   h2 {
      margin-top: 0;
-    // margin-bottom: 0;
+     font-size: rem(64px);
+     font-family: $font-face-2;
+     font-weight: 400;
+     text-transform: uppercase;
+     line-height: .9em;
+     margin-bottom: rem(20px);
   }
 
   article {
-    margin-bottom: 40px;
+    padding-top: 20px;
+    margin-bottom: 80px;
   }
 
   a {
     color: $bg-color-2;
   }
 
+  p {
+    font-size: 16px;
+        font-weight: 400;
+        letter-spacing: 1px;
+        line-height: 1.4em;
+  }
+
   p:first-child {
     margin-top: 0;
   }
 
-  .image {
+  img {
     width: 100%;
-    margin: 0 auto;
-    height: 250px;
     background-color: rgba(0,0,0,.2);
+  }
+
+  ul, li {
+    list-style-type: decimal;
+  }
+
+  .italic {
+    font-style: italic;
+  }
+
+  .references {
+    h3 {
+      font-size: rem(18px);
+      font-weight: 700;
+    }
+    p {
+      font-size: rem(14px);
+    }
   }
 }

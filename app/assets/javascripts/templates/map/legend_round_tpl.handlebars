@@ -1,0 +1,19 @@
+{{#if units}} <span class="units">{{units}}</span> {{/if}}
+<div class="m-legend__round">
+  {{#if bubble}}
+    <div class="bubble">
+      <div class="min">{{bubble.min}}</div>
+      <div class="bubble-list">
+        <div class="bubble-1"></div>
+        <div class="bubble-2"></div>
+        <div class="bubble-3"></div>
+        <div class="bubble-4"></div>
+        <div class="bubble-5"></div>
+      </div>
+      <div class="max">{{bubble.max}}</div>
+    </div>
+  {{/if}}
+  {{#each data}}
+    <div class="item"><span style="background-color: {{this.value}}"></span> {{this.name}}</div>
+  {{/each}}
+</div>
