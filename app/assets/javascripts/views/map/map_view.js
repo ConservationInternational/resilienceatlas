@@ -39,6 +39,7 @@
       Backbone.Events.on('basemap:change', _.bind(this.selectBasemap, this));
       Backbone.Events.on('map:set:fitbounds', this.setBbox.bind(this));
       Backbone.Events.on('map:set:mask', this.setMaskLayer.bind(this));
+      Backbone.Events.on('map:toggle:layers', this.toggleLayers.bind(this));
     },
 
     /**
@@ -343,6 +344,23 @@
 
         this.map.fitBounds(bounds, options);
       }
+    },
+
+    toggleLayers: function(show) {
+      var layers = this.layers.getActiveLayers();
+      var mapModel = this.model;
+
+      _.each(layers, function(layer) {
+        var instance = mapModel.get(layer.id);
+
+        if(instance) {
+          if(show) {
+            instance.layer.show();
+          } else {
+            instance.layer.hide();
+          }
+        }
+      });
     }
 
   });

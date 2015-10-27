@@ -39,9 +39,11 @@
 
       if(section === 'analysis') {
         $('body').addClass('analysis-section');
+        Backbone.Events.trigger('map:toggle:layers', false);
         this.initAnalysis();
       } else {
         $('body').removeClass('analysis-section');
+        Backbone.Events.trigger('map:toggle:layers', true);
         this.hideAnalysis();
       }
     },

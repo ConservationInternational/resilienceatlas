@@ -54,20 +54,20 @@
       {
         "name": "Change in precipitation variability",
         "slug": "change_in_precipitation_variability",
-        "widget": "",
-        "query": ""
+        "widget": "bar_chart",
+        "query": "SELECT month as x, precip as y, month as name FROM monthly_mean_precip_1981_2014 WHERE iso3 = '%1'"
       },
       {
         "name": "Change in seasonality",
         "slug": "change_in_seasonality",
-        "widget": "",
-        "query": ""
+        "widget": "bar_chart",
+        "query": "SELECT month as x, precip as y, month as name FROM monthly_mean_precip_1981_2014 WHERE iso3 = '%1'"
       },
       {
         "name": "Conflict",
         "slug": "conflict",
-        "widget": "",
-        "query": ""
+        "widget": "bar_chart",
+        "query": "SELECT month as x, precip as y, month as name FROM monthly_mean_precip_1981_2014 WHERE iso3 = '%1'"
       }
     ]
   },
@@ -76,34 +76,22 @@
     "category_slug": "vulnerability",
     "indicators": [
       {
-        "name": "Population pyramid",
-        "slug": "population_pyramid",
-        "widget": "",
-        "query": ""
+        "name": "Change in precipitation variability",
+        "slug": "change_in_precipitation_variability",
+        "widget": "bar_chart",
+        "query": "SELECT month as x, precip as y, month as name FROM monthly_mean_precip_1981_2014 WHERE iso3 = '%1'"
       },
       {
-        "name": "Primary export crops",
-        "slug": "primary_export_crops",
-        "widget": "",
-        "query": ""
+        "name": "Change in seasonality",
+        "slug": "change_in_seasonality",
+        "widget": "bar_chart",
+        "query": "SELECT month as x, precip as y, month as name FROM monthly_mean_precip_1981_2014 WHERE iso3 = '%1'"
       },
       {
-        "name": "Health",
-        "slug": "health",
-        "widget": "",
-        "query": ""
-      },
-      {
-        "name": "Education",
-        "slug": "education",
-        "widget": "",
-        "query": ""
-      },
-      {
-        "name": "Services",
-        "slug": "services",
-        "widget": "",
-        "query": ""
+        "name": "Conflict",
+        "slug": "conflict",
+        "widget": "bar_chart",
+        "query": "SELECT month as x, precip as y, month as name FROM monthly_mean_precip_1981_2014 WHERE iso3 = '%1'"
       }
     ]
   }
