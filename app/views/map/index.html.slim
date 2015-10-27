@@ -1,30 +1,39 @@
 .l-sidebar--fullscreen
   .l-sidebar-content
-    .m-layers-list#layersListView
+    .m-sidebar#sidebarView
+      / ul.tabs.tabs-secondary-content role="tablist" attr="data-tab"
+      /   li.tab-title.active
+      /     a href="#layersListView" Layers
+      /   li.tab-title
+      /     a href="#analysisSelectorsView" Analysis
+
+      / .tabs-content.content
+      /   .m-layers-list.content.active#layersListView
+      /   .m-analysis-selectors#analysisSelectorsView
 
 .l-content--fullscreen
   .m-map#mapView
   .m-loader#loader loading
   .m-toolbar#toolbarView
-    ul
-      li.search
-        span.search
-          svg.icon
-            use[xlink:href="#icon-search"]
-        #searchBox.m-map-search
-          input#searchMap(type="search"  placeholder="Search area")
-          #searchContent.search-box
-      li
-        button.btn-share 
-          span
-            svg.icon
-              use[xlink:href="#icon-share"]
-          | Share
-      li
-        button.analyze 
-          span
-            svg.icon 
-              use[xlink:href="#icon-analyze"]
-          | Analyze
+    / ul
+    /   li.search
+    /     span.search
+    /       svg.icon
+    /         use[xlink:href="#icon-search"]
+    /   #searchBox.m-search-map
+    /       input.searchMap(type="search"  placeholder="Search area")
+    /       .searchContent.search-box
+    /   li
+    /     button.btn-share 
+    /       span
+    /         svg.icon
+    /           use[xlink:href="#icon-share"]
+    /       | Share
+    /   li
+    /     button.btn-analyze 
+    /       span
+    /         svg.icon 
+    /           use[xlink:href="#icon-analyze"]
+    /       | Analyze
   
   .m-legend#legendView

@@ -7,16 +7,31 @@
 //= require handlebars
 //= require slick-carousel
 //= require foundation
+//= require d3
 
 //= require ./helpers/handlebars_helpers
 //= require ./helpers/class
 //= require ./helpers/cartodb_layer
 //= require ./helpers/cartodb_raster
 //= require ./helpers/cartodb_mask
+//= require ./helpers/charts
 //= require_tree ./models
 //= require_tree ./collections
 //= require_tree ./templates
-//= require_tree ./views
+//= require ./views/mapPageView
+//= require ./views/staticPageView
+//= require ./views/journeysPageView
+//= require_tree ./views/common
+//= require_tree ./views/map
+//= require_tree ./views/journeys
+//= require ./views/analysis/widgets/widget_view
+//= require ./views/analysis/widgets/widget_bar_chart
+//= require ./views/analysis/widgets/widget_line_chart
+//= require ./views/analysis/widgets/widget_number
+//= require ./views/analysis/widgets/widget_text_list
+//= require ./views/analysis/analysis_page_view
+//= require ./views/analysis/analysis_selectors_view
+
 //= require router
 
 (function(root) {
@@ -88,13 +103,13 @@
 
     mapPage: function() {
       var mapPageView = new root.app.MapPageView({
-        router: this.router, 
+        router: this.router,
       });
     },
 
     journeysPage: function(journeyId) {
       var journeyPageView = new root.app.JourneysPageView({
-        router: this.router, 
+        router: this.router,
         options: {
           'journeyId': journeyId,
           'totalJourneys': this.totalJourneys
