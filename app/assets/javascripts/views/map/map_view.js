@@ -180,15 +180,15 @@
       var layersData = this.layers.getPublished();
 
       _.each(layersData, function(layerData) {
-        // if (layerData.id == 6) {
-        //   layerData.maxZoom = 5;
-        //   layerData.minZoom = 0;
-        // }
+        if (layerData.id == 6) {
+          layerData.maxZoom = 100;
+          layerData.minZoom = 3;
+        }
 
-        // if (layerData.id == 36) {
-        //   layerData.maxZoom = 5;
-        //   layerData.minZoom = 0;
-        // }
+        if (layerData.id == 66) {
+          layerData.maxZoom = 100;
+          layerData.minZoom = 3;
+        }
 
         if (layerData.active) {
           if (layerData.maxZoom || layerData.minZoom) {

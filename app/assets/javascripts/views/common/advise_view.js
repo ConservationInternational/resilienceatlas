@@ -33,7 +33,7 @@
 
       console.log('** something changed')
       var names = _.map(this.collection.models, _.bind(function(layer) {
-        this.collection.remove(layer);
+        // this.collection.remove(layer);
         return layer.get('name');  
       }, this));
     
