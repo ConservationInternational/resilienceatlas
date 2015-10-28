@@ -32,10 +32,8 @@
       var names = _.map(this.collection.models, _.bind(function(layer) {
         return layer.get('name');  
       }, this));
-
-      console.log(names);
     
-      this.$('.advise').html(this.template({ 'layerName' : name }));
+      this.$('.advise').html(this.template({names}));
 
       this._show();
     },

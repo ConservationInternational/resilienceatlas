@@ -181,8 +181,8 @@
 
       _.each(layersData, function(layerData) {
         // if (layerData.id == 6) {
-        //   layerData.maxZoom = 100;
-        //   layerData.minZoom = 3;
+        //   layerData.maxZoom = 5;
+        //   layerData.minZoom = 0;
         // }
 
         // if (layerData.id == 36) {
