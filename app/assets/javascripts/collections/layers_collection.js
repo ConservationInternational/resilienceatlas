@@ -40,7 +40,6 @@
       var self = this;
       var result = _.map(response.data, _.bind(function(d) {
         var group = d.relationships.layer_group.data;
-        var downloadUrl = true ? this._generateDownloadUrl(d) : null;
         return {
           id: parseInt(d.id),
           slug: d.attributes.slug,
@@ -60,7 +59,7 @@
           info: d.attributes.info,
           dashboard_order: d.attributes.dashboard_order,
           download: d.attributes.download || true,
-          download_url: downloadUrl
+          download_url: d.attributes.download ? this._generateDownloadUrl(d) : null
         };
       }, this));
       return result;
