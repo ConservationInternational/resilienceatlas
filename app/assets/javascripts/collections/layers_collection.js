@@ -58,7 +58,7 @@
           published: d.attributes.published,
           info: d.attributes.info,
           dashboard_order: d.attributes.dashboard_order,
-          download: d.attributes.download || true,
+          download: d.attributes.download || null,
           download_url: d.attributes.download ? this._generateDownloadUrl(d) : null
         };
       }, this));
