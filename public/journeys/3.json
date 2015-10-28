@@ -78,7 +78,7 @@
         "type": "embed",
         "countryIso": "NER",
         "theme": "light",
-        "aside": "<header><h2>Stressors & shocks</h2><h3>2011 – drought conditions</h3></header><section><h1>Niger</h1><div class='facts'><h4></h4><p>Niger receives the majority of its rainfall between June and September.</p><p>Year-to-year fluctuations in rainfall create a tenuous situation for food security.</p><p>2011 was marked by drought conditions with some areas receiving well below the mean precipitation (- 158).</p><p>One year later, the situation almost reversed – with some areas receiving up to 204mm above the average.</p></div></section>",
+        "aside": "<header><h2>Stressors & shocks</h2><h3>rainy season precipitation</h3></header><section><h1>Niger</h1><div class='facts'><h4></h4><p>Niger receives the majority of its rainfall between June and September.</p><p>Year-to-year fluctuations in rainfall create a tenuous situation for food security.</p><p>2011 was marked by drought conditions with some areas receiving well below the mean precipitation (- 158).</p><p>One year later, the situation almost reversed – with some areas receiving up to 204mm above the average.</p></div></section>",
         "mapUrl": "/map?layers=%5B%7B%22id%22%3A51%2C%22opacity%22%3A1%2C%22order%22%3A999%7D%5D",
         "btnUrl": "/map?layers=%5B%7B%22id%22%3A51%2C%22opacity%22%3A1%2C%22order%22%3A999%7D%5D"
       },
