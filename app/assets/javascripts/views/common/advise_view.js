@@ -15,20 +15,31 @@
       'click .btn-close' : '_hide'
     },
 
-    collection: {},
+   
 
     initialize: function(settings) {
       var opts = settings && settings.options ? settings.options : {};
       this.options = _.extend({}, this.defaults, opts);
-
+      
+      this.collection = new Backbone.Collection.extend({
+        model: new Backbone.Model.extend({
+          id: null,
+          name: null
+        })
+      });
+      
+      this.collection.set('hola', 'holita');
       this.setListeners();
     },
 
     setListeners: function() {
-      this.listenTo(this.collection, 'change', this.render);
+      // this.listenTo(this.collection, 'change', this.render);
     },
 
     render: function() {
+      var data = this.collection;
+      // console.log(data);
+      // return
       var name = this.options.name;
       this.$el.append(this.template({ 'layerName' : name }));
 
