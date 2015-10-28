@@ -15,39 +15,32 @@
       'click .btn-close' : '_hide'
     },
 
-   
-
     initialize: function(settings) {
       var opts = settings && settings.options ? settings.options : {};
       this.options = _.extend({}, this.defaults, opts);
-      
-      this.collection = new Backbone.Collection.extend({
-        model: new Backbone.Model.extend({
-          id: null,
-          name: null
-        })
-      });
-      
-      this.collection.set('hola', 'holita');
+      var Collection = Backbone.Collection.extend({});
+      this.collection = new Collection();
+
       this.setListeners();
     },
 
     setListeners: function() {
-      // this.listenTo(this.collection, 'change', this.render);
+      this.listenTo(this.collection, 'add', this._addTitle, this);
     },
 
-    render: function() {
-      var data = this.collection;
-      // console.log(data);
-      // return
-      var name = this.options.name;
-      this.$el.append(this.template({ 'layerName' : name }));
+    _addTitle: function() {
+      var names = _.map(this.collection.models, _.bind(function(layer) {
+        return layer.get('name');  
+      }, this));
 
+      console.log(names);
+    
+      this.$('.advise').html(this.template({ 'layerName' : name }));
 
-
+      this._show();
     },
 
-    _show: function(argument) {
+    _show: function() {
       this.$el.addClass('is-active');
       setTimeout(_.bind(this._hide, this), 5000);
     },

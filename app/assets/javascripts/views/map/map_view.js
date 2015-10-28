@@ -247,12 +247,19 @@
 
     _showZoomAd: function(layerData) {
       this._keepDisabledLayers(layerData.id);
-      this.advise.collection.add([
-        {
-          id: layerData.id,
-          name: layerData.name
-        }
-      ]);
+
+      var layerModel = {
+        "id": layerData.id,
+        "name": layerData.name
+      };
+
+      this._addModel(layerModel);
+    },
+
+    _addModel: function(layerModel) {
+      if (!this.advise.collection.contains(layerModel)) {
+        this.advise.collection.add([layerModel]);
+      }
     },
 
     _keepDisabledLayers: function(layerId) {
