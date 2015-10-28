@@ -1,11 +1,11 @@
 .icon {
-  width: 12px;
-  height: 12px;
+  width: 15px;
+  height: 15px;
   fill: $bg-color-4;
-  
-  &:hover {
-    fill: $bg-color-2;
-  }
+
+  // &:hover {
+  //   fill: $bg-color-2;
+  // }
 
   .m-toolbar & {
     width: rem(16px);
