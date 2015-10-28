@@ -263,13 +263,11 @@
             var options = {
               sublayers: [ _.extend(data, { raster: true, raster_band: 1 }) ]
             };
-            layerInstance = new root.app.Helper.CartoDBRaster(this.map, options);
-            //When carto bug solved, only back to create method.
-            layerInstance.createRasterLayer(function(layer) {
+            layerInstance = new root.app.Helper.CartoDBLayer(this.map, options);
+            layerInstance.create(function(layer) {
               layer.setOpacity(layerData.opacity);
               layer.setZIndex(1000 + layerData.order);
             });
-
           break;
           default:
             layerInstance = null;
@@ -357,20 +355,20 @@
     },
 
     toggleLayers: function(show) {
-      // var layers = this.layers.getActiveLayers();
-      // var mapModel = this.model;
+      var layers = this.layers.getActiveLayers();
+      var mapModel = this.model;
 
-      // _.each(layers, function(layer) {
-      //   var instance = mapModel.get(layer.id);
+      _.each(layers, function(layer) {
+        var instance = mapModel.get(layer.id);
 
-      //   if(instance && instance.layer) {
-      //     if(show) {
-      //       instance.layer.show();
-      //     } else {
-      //       instance.layer.hide();
-      //     }
-      //   }
-      // });
+        if(instance) {
+          if(show) {
+            instance.layer.show();
+          } else {
+            instance.layer.hide();
+          }
+        }
+      });
     }
 
   });
