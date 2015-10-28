@@ -11,6 +11,7 @@ gem 'uglifier', '>= 1.3.0'
 gem 'slim-rails'
 gem 'autoprefixer-rails'
 gem 'handlebars_assets'
+gem 'd3-rails', '>= 3.5.6'
 
 gem 'pg'
 gem 'devise'
@@ -19,6 +20,7 @@ gem 'active_model_serializers', '0.10.0.rc2'
 
 # Utilities
 #gem 'rails_12factor'
+#gem 'rails_12factor', group: :production
 gem 'raddocs'
 gem 'seed_dump'
 gem 'active_admin_theme'

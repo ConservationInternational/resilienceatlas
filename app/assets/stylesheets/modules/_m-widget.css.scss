@@ -1,0 +1,87 @@
+.m-widget {
+  width: 100%;
+  min-height: rem(150px);
+  float: left;
+  margin-bottom: 25px;
+  position: relative;
+
+  &.is-loading {
+
+    &:after{
+      left: calc(50% - (30px / 3));
+      margin: -(30px/2) 0 0 -(30px/2);
+    }
+  }
+
+  .name {
+    text-transform: uppercase;
+    font-size: rem(14px);
+    font-weight: 700;
+    letter-spacing: 0.7px;
+    margin-left: 16px;
+    margin-bottom: 8px;
+  }
+
+  .row {
+    margin: 16px 13px 0 13px;
+  }
+
+  svg {
+    width: 100%;
+  }
+
+  &.number {
+    width: 50%;
+    float: left;
+
+    .value {
+      font-size: 41px;
+      color: $font-color-2;
+      font-weight: 700;
+      letter-spacing: 1.46px;
+    }
+
+    .label {
+      font-size: 14px;
+      font-weight: 400;
+      color: $gray-70;
+      margin-top: 5px;
+      margin-bottom: 10px;
+    }
+
+    .widget-number {
+      float: left;
+    }
+  }
+
+  &.text-list {
+    .list {
+      width: 95%;
+      margin-left: rem(16px);
+      margin-top: rem(12px);
+    }
+
+    .list-heading {
+      text-align: left;
+      padding-bottom: rem(5px);
+      font-size: rem(14px);
+      text-transform: capitalize;
+    }
+
+    .list-row {
+      padding: rem(8px) 0 rem(8px) 0;
+      font-size: rem(14px);
+      font-weight: 400;
+      color: $gray-70;
+      margin-top: rem(5px);
+      margin-bottom: rem(10px);
+    }
+  }
+
+  .widget-no-data {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: rem(118px);
+  }
+}

@@ -1,48 +1,73 @@
 .m-toolbar {
   position: absolute;
-  width: rem($sidebar-width);
-  left: 0;
-  bottom: 0;
+  top: rem(10px);
+  right: rem(10px);
   z-index: 1;
-  padding: rem(10px);
-  background-color: $bg-color-1;
-  border-radius: 2px;
-  box-shadow: 0 1px 4px 0 rgba(0,0,0,.2);
 
   ul {
     @extend %clean-lists;
-    display: flex;
-    display: -ms-box;
-    justify-content: space-between;
-    align-items: center;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3);
   }
 
   li {
-    //To offset font line-height
-    padding-top: rem(5px);
-    // margin: 0 rem(10px);
+    position: relative;
+    width: rem(30px);
+    height: rem(30px);
+    background-color: $bg-color-1;
+
+    &.search {
+      border-bottom: 1px solid rgba(151, 151, 151, 0.3);
+    }
+
+    svg {
+      @extend %center
+    }
   }
+
+  .search {
+
+    .m-search-map {
+      position: absolute;
+      top: 0;
+      right: 30px;
+      width: 0;
+      height: rem(29px);
+      padding-left: 10px;
+      border: none;
+      opacity: 0;
+      transition: width .3s $easeInSine;
+      background-color: $bg-color-1;
+    }
+
+    input {
+      margin-top: rem(3px);
+      border: none;
+      height: rem(24px);
+      width: 0;
+      transition: width .3s $easeInSine;
+
+      @include placeholder() {
+        font-size: rem(14px);
+        color: $font-color-1;
+      }
+    }
+
+    &:hover {
+      .m-search-map {
+        width: 200px;
+        box-shadow: -2px 1px 3px 0 rgba(0, 0, 0, 0.1);
+        opacity: 1;
+
+        input {
+          width: 100%;
+        }
+      }
+    }
+  }
+
 
   button {
     @extend %clean-button-or-input;
-    font-size: rem(14px);
-    color: $font-color-1;
-  }
-
-  span {
-    position: relative;
-    top: rem(3px);
-
-  }
-
-  input {
-    @extend %clean-button-or-input;
-    max-width: rem(80px);
-    // margin: 0 rem(15px);
-
-    @include placeholder() {
-      font-size: rem(14px);
-      color: $font-color-1;
-    }
+    padding: 0;
   }
 }

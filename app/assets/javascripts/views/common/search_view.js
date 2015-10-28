@@ -12,16 +12,11 @@
     templateSuggestions: HandlebarsTemplates['common/search_suggestions_tpl'],
 
     defaults: {
-    },
-
-    elContent: '#searchContent',
-    elInput: '#searchMap',
-
-    events: {
-      'keyup #searchMap': 'onSearch',
-      'focus #searchMap': 'highlight',
-      'keydown #searchMap': 'highlightResultsBox',
-      'click .search-area': 'searchArea'
+      elContent: '.searchContent',
+      elInput: '#searchMap',
+      elSearchParent: '#searchBox',
+      elSuggestions: '.search-suggestions',
+      closeOnClick: true
     },
 
     initialize: function(settings) {
@@ -29,15 +24,31 @@
       var options = settings && settings.options ? settings.options : settings;
       this.options = _.extend(this.defaults, options);
 
-      this.map = this.options.map;
       this.searchCollection = new root.app.Collection.Search();
-      this.navigation = 0;
+      this.elContent = this.options.elContent;
+      this.elInput = this.options.elInput;
+      this.elSearchParent = this.options.elSearchParent;
+      this.elSuggestions = this.options.elSuggestions;
+
+      this.closeOnClick = this.options.closeOnClick;
+      this.setEvents();
       this.getData();
     },
 
+    setEvents: function() {
+      this.events = {};
+      this.events['keyup ' + this.elInput] = 'onSearch';
+      this.events['focus ' + this.elInput] = 'highlight';
+      this.events['keydown ' + this.elInput] = 'highlightResultsBox';
+      this.events['click .search-area'] = 'searchArea';
+
+      this.delegateEvents();
+    },
+
     setListeners: function() {
-      Backbone.Events.on('search:clear', this.unFocus.bind(this));
-      this.$el.on('click', this.unHighlight);
+      if(this.closeOnClick) {
+        $('body').on('click', this.unHighlight.bind(this));
+      }
     },
 
     getData: function() {
@@ -78,19 +89,22 @@
       ev.stopPropagation();
 
       this.$(this.elInput).addClass('focus');
-      this.$('.search-suggestions li').removeClass('selected');
+
+      if(this.closeOnClick) {
+        this.$(this.elSuggestions +' li').removeClass('selected');
+      }
     },
 
     unHighlight: function(ev) {
       var $target = ev ? $(ev.target) : null;
-      var id = null;
+      var id = null
 
       if($target) {
-        id = $target.closest('#searchBox').attr('id');
+        id = $target.closest(this.elSearchParent).attr('id');
       }
 
       if(!id) {
-        Backbone.Events.trigger('search:clear');
+        this.unFocus();
       }
     },
 
@@ -119,19 +133,22 @@
             item.title = item.name;
             item.iso = item.iso;
             item.name = start + '<span>' + substr + '</span>' + end;
+            item.selected = item.selected || false;
             return item;
           }
         });
 
-        this.$('.search-suggestions').html(this.templateSuggestions({data: search}));
+        this.trigger('results', search);
+        this.$(this.elSuggestions).html(this.templateSuggestions({data: search}));
         this.$(this.elContent).addClass('visible');
       }, this), 100);
     },
 
     clearSuggestions: function() {
-      var $searchSuggestions = this.$('.search-suggestions');
+      var $searchSuggestions = this.$(this.elSuggestions);
       $searchSuggestions.html('');
       this.$(this.elContent).removeClass('visible');
+      this.trigger('results', []);
     },
 
     clearSearch: function() {
@@ -157,14 +174,41 @@
       if(area[0]) {
         var bbox = area[0].get('bbox');
 
-        this.map.setBbox(bbox);
-        this.map.setMaskLayer(iso, 0.8, {
+        Backbone.Events.trigger('map:set:fitbounds', bbox, {
+          padding: [20, 0]
+        });
+        Backbone.Events.trigger('map:set:mask', iso, 0.8, {
           query: 'select * from grpcountries_250k_polygon',
           tableName: 'grpcountries_250k_polygon'
         });
+
+        this.trigger('selected', iso, area[0].get('name'));
+        this.setSelected(area[0]);
       }
-      this.unHighlight();
+
+      if(this.closeOnClick) {
+        this.unHighlight();
+      } else {
+        this.$(this.elSuggestions +' li').removeClass('selected');
+        $target.addClass('selected');
+      }
+    },
+
+    setSelected: function(area) {
+      var searchCollection = _.clone(this.searchCollection);
+
+      _.map(searchCollection.models, function(model){
+        var active = false;
+
+        if(model.get('iso') === area.get('iso')) {
+          active = true;
+        }
+        model.set({selected: active});
+      });
+
+      this.searchCollection.reset(searchCollection.models);
     }
+
   });
 
 })(this);

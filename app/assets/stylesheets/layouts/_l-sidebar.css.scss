@@ -12,16 +12,31 @@
   top: 0;
   left: 0;
   width: rem($sidebar-width);
-  max-height: 85%;
+  max-height: 100%;
 
   background-color: $bg-color-1;
 
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
-  @extend %clear-scroll-bars;
+  // @extend %clear-scroll-bars;
 
   z-index: 1;
 
-  box-shadow: 0 1px 4px 0 rgba(0,0,0, .2)
+  box-shadow: 0 1px 4px 0 rgba(0,0,0, .2);
+  transform: translate3d(0,0,0);
+  transition: .25s width ease-in-out;
+
+  body.analysis-section & {
+    bottom: 0;
+    max-height: rem(540px);
+  }
+
+  body.analyzing & {
+    width: rem($sidebar-analysis-width);
+    max-height: none;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: none;
+  }
+
 }
 

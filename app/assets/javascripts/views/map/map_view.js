@@ -8,11 +8,6 @@
   root.app.View.Map = Backbone.View.extend({
 
     defaults: {
-      // map: {
-      //   center: [0, 15],
-      //   zoomControl: false,
-      //   scrollWheelZoom: false
-      // },
       defaultBasemap: 'defaultmap',
       basemap: {
         labels: 'http://api.tiles.mapbox.com/v4/cigrp.829fd2d8/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiY2lncnAiLCJhIjoiYTQ5YzVmYTk4YzM0ZWM4OTU1ZjQxMWI5ZDNiNTQ5M2IifQ.SBgo9jJftBDx4c5gX4wm3g',
@@ -35,13 +30,18 @@
       this.setListeners();
 
       this.journeyMap = this.model.get('journeyMap');
+      this.currentCountry = this.model.get('countryIso') || null;
+      this.zoomEndEvent = this.model.get('zoomEndEvent') || true;
+
+      this.utils = new root.app.View.Utils();
     },
 
     setListeners: function() {
-      this.listenTo(this.layers, 'change', this.renderLayers);
-      // this.listenTo(this.layers, 'sort', this.renderLayers);
-
+      Backbone.Events.on('render:map', _.bind(this.renderLayers, this));
       Backbone.Events.on('basemap:change', _.bind(this.selectBasemap, this));
+      Backbone.Events.on('map:set:fitbounds', this.setBbox.bind(this));
+      Backbone.Events.on('map:set:mask', this.setMaskLayer.bind(this));
+      Backbone.Events.on('map:toggle:layers', this.toggleLayers.bind(this));
     },
 
     /**
@@ -50,15 +50,24 @@
     createMap: function() {
       var self = this;
       // trampita zoom
-      if (this.journeyMap) {
-        if ( $(document).width() < 1020 ) {
+      if (this.journeyMap && this.currentCountry==='ETH') {
+        if ( $(document).width() < 1020) {
           this.options.map.zoom = 5;
           this.options.map.center = [8, 35]; //Horn of Africa
         } else {
           this.options.map.zoom = 6;
           this.options.map.center = [9, 37]; //Horn of Africa
         }
+      } else if (this.journeyMap && this.currentCountry==='NER') {
+        if ( $(document).width() < 1020) {
+          this.options.map.zoom = 5;
+          this.options.map.center = [15, 3]; //Horn of Africa
+        } else {
+          this.options.map.zoom = 6;
+          this.options.map.center = [17, 5]; //Horn of Africa
+        }
       }
+
       if (!this.map) {
         this.map = L.map(this.el, this.options.map);
         this.map.on('click', function(){
@@ -77,10 +86,12 @@
       this.actualZoom = this.options.map.zoom;
 
       this.map.on('zoomend', _.bind(function() {
-        this.actualZoom = this.map.getZoom();
-        this.router.setParams('zoom', this.actualZoom);
-        this.finishedZooming = true;
-        this.renderLayers();
+        if(this.zoomEndEvent) {
+          this.actualZoom = this.map.getZoom();
+          this.router.setParams('zoom', this.actualZoom);
+          this.finishedZooming = true;
+          this.renderLayers();
+        }
       }, this));
 
       this.map.on('dragend', _.bind(function() {
@@ -142,7 +153,7 @@
       } else {
         this.basemap = L.tileLayer(url).addTo(this.map);
         this.labels = L.tileLayer(labelsUrl).addTo(this.map);
-        this.labels.setZIndex(1005);
+        this.labels.setZIndex(1100);
       }
 
       if(basemapUrl) {
@@ -169,15 +180,15 @@
 
       //Test for zoom scope.
       _.each(layersData, function(layerData) {
-        if (layerData.id == 31) {
-          layerData.maxZoom = 100;
-          layerData.minZoom = 3;
-        }
+        // if (layerData.id == 31) {
+        //   layerData.maxZoom = 100;
+        //   layerData.minZoom = 3;
+        // }
 
-        if (layerData.id == 36) {
-          layerData.maxZoom = 3;
-          layerData.minZoom = 0;
-        }
+        // if (layerData.id == 36) {
+        //   layerData.maxZoom = 3;
+        //   layerData.minZoom = 0;
+        // }
 
         if (layerData.active) {
           if (layerData.maxZoom) {
@@ -189,9 +200,15 @@
               this.layers.setDisabledByZoom(layerData.id);
             }
           } else {
-            this.addLayer(layerData);
+            if (!layerData.order) {
+              this._setOrder(layerData);
+              this.addLayer(layerData);
+            } else {
+              this.addLayer(layerData);
+            }
           }
         } else {
+          this._setOrderToNull(layerData);
           this.removeLayer(layerData);
         }
       }, this);
@@ -208,9 +225,15 @@
       }
     },
 
-    // _manageCssClasses: function(layerId) {
+    _setOrder: function(layer) {
+      layer.order = this.layers.order || this.layers.getMaxOrderVal();
+      this.layers.setOrder(layer.id);
+    },
 
-    // },
+    _setOrderToNull: function(layer){
+      layer.order = null;
+      this.layers.setOrderToNull(layer.id);
+    },
 
     /**
      * Add a layer instance to map
@@ -228,31 +251,23 @@
       var layerInstance;
 
       if (!layer) {
-        switch(layerData.type) {
-          case 'cartodb':
-            var data = _.pick(layerData, ['sql', 'cartocss', 'interactivity']);
-            var options = { sublayers: [data] };
-            layerInstance = new root.app.Helper.CartoDBLayer(this.map, options);
-            layerInstance.create(function(layer) {
-              layer.setOpacity(layerData.opacity);
-              layer.setZIndex(1000-layerData.order);
-            });
-          break;
-          case 'raster':
-            var data = _.pick(layerData, ['sql', 'cartocss', 'interactivity']);
-            var options = {
+        if(layerData.type) {
+          var data = _.pick(layerData, ['sql', 'cartocss', 'interactivity']);
+          var options = { sublayers: [data] };
+
+          if(layerData.type === 'raster') {
+            options = {
               sublayers: [ _.extend(data, { raster: true, raster_band: 1 }) ]
             };
-            layerInstance = new root.app.Helper.CartoDBRaster(this.map, options);
-            //When carto bug solved, only back to create method.
-            layerInstance.createRasterLayer(function(layer) {
-              layer.setOpacity(layerData.opacity);
-              layer.setZIndex(1000-layerData.order);
-            });
-          break;
-          default:
-            layerInstance = null;
-        }
+          }
+
+          layerInstance = new root.app.Helper.CartoDBLayer(this.map, options);
+          layerInstance.create(function(layer) {
+            layer.setOpacity(layerData.opacity);
+            layer.setZIndex(1000 + layerData.order);
+          });
+        } 
+
         if (layerInstance) {
           this.model.set(layerData.id, layerInstance);
         } else {
@@ -261,7 +276,7 @@
       } else {
         if (layer.layer) {
           layer.layer.setOpacity(layerData.opacity);
-          layer.layer.setZIndex(1000-layerData.order);
+          layer.layer.setZIndex(1000 + layerData.order);
         }
         // console.info('Layer "' + layerData.id + '"" already exists.');
       }
@@ -294,7 +309,7 @@
       });
 
       maskLayer.create(function(layer){
-        layer.setZIndex(1001)
+        layer.setZIndex(2000)
 
         if(opacity) {
           layer.setOpacity(opacity);
@@ -323,7 +338,7 @@
       }
     },
 
-    setBbox: function(bbox) {
+    setBbox: function(bbox, options) {
       if(bbox) {
         bbox = JSON.parse(bbox);
         var coords = bbox.coordinates[0];
@@ -331,8 +346,32 @@
           northEast = L.latLng(coords[0][1], coords[0][0]),
           bounds = L.latLngBounds(southWest, northEast);
 
-        this.map.fitBounds(bounds);
+        this.map.fitBounds(bounds, options);
       }
+    },
+
+    toggleLayers: function(show) {
+      var layers = this.layers.getActiveLayers();
+      var mapModel = this.model;
+
+      if(!show) {
+        this.zoomEndEvent = false;
+      } else {
+        this.zoomEndEvent = true;
+        this.checkMask();
+      }
+
+      _.each(layers, function(layer) {
+        var instance = mapModel.get(layer.id);
+
+        if(instance) {
+          if(show) {
+            instance.layer.show();
+          } else {
+            instance.layer.hide();
+          }
+        }
+      });
     }
 
   });
