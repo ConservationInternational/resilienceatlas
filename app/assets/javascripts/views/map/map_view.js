@@ -31,6 +31,7 @@
 
       this.journeyMap = this.model.get('journeyMap');
       this.currentCountry = this.model.get('countryIso') || null;
+      this.zoomEndEvent = this.model.get('zoomEndEvent') || true;
 
       this.utils = new root.app.View.Utils();
     },
@@ -85,10 +86,12 @@
       this.actualZoom = this.options.map.zoom;
 
       this.map.on('zoomend', _.bind(function() {
-        this.actualZoom = this.map.getZoom();
-        this.router.setParams('zoom', this.actualZoom);
-        this.finishedZooming = true;
-        this.renderLayers();
+        if(this.zoomEndEvent) {
+          this.actualZoom = this.map.getZoom();
+          this.router.setParams('zoom', this.actualZoom);
+          this.finishedZooming = true;
+          this.renderLayers();
+        }
       }, this));
 
       this.map.on('dragend', _.bind(function() {
@@ -248,32 +251,23 @@
       var layerInstance;
 
       if (!layer) {
-        switch(layerData.type) {
-          case 'cartodb':
-            var data = _.pick(layerData, ['sql', 'cartocss', 'interactivity']);
-            var options = { sublayers: [data] };
-            layerInstance = new root.app.Helper.CartoDBLayer(this.map, options);
-            layerInstance.create(function(layer) {
-              layer.setOpacity(layerData.opacity);
-              layer.setZIndex(1000 + layerData.order);
-            });
-          break;
-          case 'raster':
-            var data = _.pick(layerData, ['sql', 'cartocss', 'interactivity']);
-            var options = {
+        if(layerData.type) {
+          var data = _.pick(layerData, ['sql', 'cartocss', 'interactivity']);
+          var options = { sublayers: [data] };
+
+          if(layerData.type === 'raster') {
+            options = {
               sublayers: [ _.extend(data, { raster: true, raster_band: 1 }) ]
             };
-            layerInstance = new root.app.Helper.CartoDBRaster(this.map, options);
-            //When carto bug solved, only back to create method.
-            layerInstance.createRasterLayer(function(layer) {
-              layer.setOpacity(layerData.opacity);
-              layer.setZIndex(1000 + layerData.order);
-            });
+          }
 
-          break;
-          default:
-            layerInstance = null;
-        }
+          layerInstance = new root.app.Helper.CartoDBLayer(this.map, options);
+          layerInstance.create(function(layer) {
+            layer.setOpacity(layerData.opacity);
+            layer.setZIndex(1000 + layerData.order);
+          });
+        } 
+
         if (layerInstance) {
           this.model.set(layerData.id, layerInstance);
         } else {
@@ -357,20 +351,27 @@
     },
 
     toggleLayers: function(show) {
-      // var layers = this.layers.getActiveLayers();
-      // var mapModel = this.model;
+      var layers = this.layers.getActiveLayers();
+      var mapModel = this.model;
 
-      // _.each(layers, function(layer) {
-      //   var instance = mapModel.get(layer.id);
+      if(!show) {
+        this.zoomEndEvent = false;
+      } else {
+        this.zoomEndEvent = true;
+        this.checkMask();
+      }
 
-      //   if(instance && instance.layer) {
-      //     if(show) {
-      //       instance.layer.show();
-      //     } else {
-      //       instance.layer.hide();
-      //     }
-      //   }
-      // });
+      _.each(layers, function(layer) {
+        var instance = mapModel.get(layer.id);
+
+        if(instance) {
+          if(show) {
+            instance.layer.show();
+          } else {
+            instance.layer.hide();
+          }
+        }
+      });
     }
 
   });
