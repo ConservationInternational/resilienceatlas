@@ -195,13 +195,12 @@
 
             if ( layerData.minZoom <= this.actualZoom && this.actualZoom <= layerData.maxZoom ) {
               this.layers.unsetDisabledByZoom(layerData.id);
-              this._removeFromdisabledlayers(layerData.id);
-
               this._addingLayer(layerData);
+              this._removeFromAdviseCollection(layerData);
             } else {
               this.removeLayer(layerData);
               this.layers.setDisabledByZoom(layerData.id);
-              this._manageDisclaimer(layerData);
+              this._showAdvise(layerData);
             }
 
           } else {
@@ -239,51 +238,27 @@
       this.removeLayer(layerData);
     },
 
-    // _manageDisclaimer:function(layerData) {
-    //   var layersHiddenByZoom = this.disabledLayers || [];
-    //   var contains = $.inArray(layerData.id, layersHiddenByZoom);
-
-    //   if (contains === -1) {
-    //     this._showZoomAd(layerData);
-    //   };
-    // },
-
-    _manageDisclaimer: function(layerData) {
+    _showAdvise: function(layerData) {
       var layerModel = {
         "id": layerData.id,
         "name": layerData.name
       };
 
-      this._addModel(layerModel);
-
       if (!this.advise.collection.contains(layerModel)) {
-        this._addModel(layerModel);
-      } else {
-        this._removeFromAdviseCollection(layerModel);
+        console.log('add');
+        this.advise.collection.add([layerModel]);
       }
     },
 
-    _addModel: function(layerModel) {
-      this.advise.collection.add([layerModel]);
+    _removeFromAdviseCollection: function(layerData) {
+      console.log(this.advise.collection.models)
+      var currentModel = _.findWhere(this.advise.collection.models, { 'id': layerData.id });
+      console.log(currentModel);
+      if (currentModel) {
+        console.log('*remove');
+        this.advise.collection.remove(currentModel);
+      }
     },
-
-    _removeFromAdviseCollection: function() {
-      this.advise.collection.remove([layerModel]);
-    },
-
-    // _keepDisabledLayers: function(layerId) {
-    //   this.disabledLayers = this.disabledLayers || [];
-    //   this.disabledLayers.push(layerId);
-    // },
-
-    // _removeFromdisabledlayers: function(layerId) {
-    //   this.disabledLayers = this.disabledLayers || [];
-    //   var index = this.disabledLayers.indexOf(layerId);
-
-    //   if (index > -1) {
-    //     this.disabledLayers.splice(index, 1);
-    //   }
-    // },
 
     _setOrder: function(layer) {
       layer.order = this.layers.order || this.layers.getMaxOrderVal();

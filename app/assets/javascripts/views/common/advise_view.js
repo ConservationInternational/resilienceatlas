@@ -29,6 +29,7 @@
     },
 
     _addTitle: function() {
+      console.log('** something changed')
       var names = _.map(this.collection.models, _.bind(function(layer) {
         return layer.get('name');  
       }, this));
@@ -48,7 +49,7 @@
     },
 
     _clear: function() {
-      this.$el.html(null);
+      this.$('.advise').html(null);
     }
 
   });
