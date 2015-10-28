@@ -39,6 +39,9 @@
     setListeners: function() {
       Backbone.Events.on('render:map', _.bind(this.renderLayers, this));
       Backbone.Events.on('basemap:change', _.bind(this.selectBasemap, this));
+      Backbone.Events.on('map:set:fitbounds', this.setBbox.bind(this));
+      Backbone.Events.on('map:set:mask', this.setMaskLayer.bind(this));
+      Backbone.Events.on('map:toggle:layers', this.toggleLayers.bind(this));
     },
 
     /**
@@ -388,7 +391,7 @@
       }
     },
 
-    setBbox: function(bbox) {
+    setBbox: function(bbox, options) {
       if(bbox) {
         bbox = JSON.parse(bbox);
         var coords = bbox.coordinates[0];
@@ -396,8 +399,25 @@
           northEast = L.latLng(coords[0][1], coords[0][0]),
           bounds = L.latLngBounds(southWest, northEast);
 
-        this.map.fitBounds(bounds);
+        this.map.fitBounds(bounds, options);
       }
+    },
+
+    toggleLayers: function(show) {
+      // var layers = this.layers.getActiveLayers();
+      // var mapModel = this.model;
+
+      // _.each(layers, function(layer) {
+      //   var instance = mapModel.get(layer.id);
+
+      //   if(instance && instance.layer) {
+      //     if(show) {
+      //       instance.layer.show();
+      //     } else {
+      //       instance.layer.hide();
+      //     }
+      //   }
+      // });
     }
 
   });

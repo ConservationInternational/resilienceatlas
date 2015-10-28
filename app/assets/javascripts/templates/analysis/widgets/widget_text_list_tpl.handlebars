@@ -1,0 +1,34 @@
+<div class="name">{{name}}</div>
+
+{{#if noData}}
+  <div class="widget-no-data">
+    <h3>NO DATA AVAILABLE</h3>
+  </div>
+{{else}}
+  <div id="{{slug}}" class="widget-text-list">
+    <table class="list">
+      {{#each data}}
+        {{#if @first}}
+          <thead>
+            <tr>
+              {{#each this}}
+                <th class="list-heading">{{@key}}</th>
+              {{/each}}
+            </tr>
+          </thead>
+          <tbody>
+        {{/if}}
+
+        <tr>
+          {{#each this}}
+            <td class="list-row">{{this}}</td>
+          {{/each}}
+        </tr>
+
+        {{#if @last}}
+          </tbody>
+        {{/if}}
+      {{/each}}
+    </table>
+  </div>
+{{/if}}
