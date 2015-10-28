@@ -9,8 +9,6 @@
 
     defaults: {},
 
-    layersOrder: 1000,
-
     template: HandlebarsTemplates['map/layers_list_tpl'],
 
     events: {
