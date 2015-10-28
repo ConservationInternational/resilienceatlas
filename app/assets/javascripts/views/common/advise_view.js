@@ -29,9 +29,6 @@
     },
 
     _addTitle: function() {
-      var self = this;
-
-      console.log('** something changed')
       var names = _.map(this.collection.models, _.bind(function(layer) {
         // this.collection.remove(layer);
         return layer.get('name');  

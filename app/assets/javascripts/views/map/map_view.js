@@ -245,17 +245,13 @@
       };
 
       if (!this.advise.collection.contains(layerModel)) {
-        console.log('add');
         this.advise.collection.add([layerModel]);
       }
     },
 
     _removeFromAdviseCollection: function(layerData) {
-      console.log(this.advise.collection.models)
       var currentModel = _.findWhere(this.advise.collection.models, { 'id': layerData.id });
-      console.log(currentModel);
       if (currentModel) {
-        console.log('*remove');
         this.advise.collection.remove(currentModel);
       }
     },
