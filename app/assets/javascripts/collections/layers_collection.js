@@ -57,7 +57,6 @@
           info: d.attributes.info
         };
       });
-
       return result;
     },
 
