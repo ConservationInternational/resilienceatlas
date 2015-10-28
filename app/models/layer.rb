@@ -29,6 +29,17 @@
 #
 
 class Layer < ActiveRecord::Base
-  belongs_to :layer_group
-  accepts_nested_attributes_for :layer_group
+  has_many :agrupations
+  has_many :layer_groups, through: :agrupations
+  accepts_nested_attributes_for :agrupations, :allow_destroy => true
+  scope :site, -> (site) { eager_load([layer_groups: :super_group]).where(layer_groups:{site_scope_id: site}) }
+  def self.fetch_all(options={})
+    if options[:site_scope]
+      site_scope = options[:site_scope].to_i
+    else
+      site_scope = 1
+    end
+    layers = Layer.all
+    layers = layers.site(site_scope)
+  end
 end

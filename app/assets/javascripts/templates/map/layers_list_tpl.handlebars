@@ -1,6 +1,6 @@
 <ul>
   {{#each groups}}
-    {{#if categories}}
+    {{!-- {{#if categories}} --}}
       <li class="group" data-slug="{{slug}}">
         <div class="m-layers-list-header">
           <div class="header-title">{{name}}</div>
@@ -38,7 +38,7 @@
                 </div>
                 <ul class="m-layers-list-panel {{#if active}}is-active{{/if}}">
                   {{#each layers}}
-                    <li class="layer {{#ifcond opacity_text}}{{/ifcond}} {{#if dashboard_order}} {{dashboard_order}} {{/if}}">
+                    <li class="layer {{#ifcond opacity_text}}{{/ifcond}}">
                       <div class="panel-item-switch m-form-input--switch">
                         <input type="checkbox" class="panel-input-switch" id="layer_{{id}}" {{#if active}}checked{{/if}}>
                         <label for="layer_{{id}}"></label>
@@ -142,7 +142,7 @@
           <li>
         </ul>
       </li>
-    {{/if}}
+    {{!-- {{/if}} --}}
   {{/each}}
   <li>
     <div class="m-layers-list-header">
