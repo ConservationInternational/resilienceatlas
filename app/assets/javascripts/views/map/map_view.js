@@ -239,45 +239,51 @@
       this.removeLayer(layerData);
     },
 
-    _manageDisclaimer:function(layerData) {
-      var layersHiddenByZoom = this.disabledLayers || [];
-      var contains = $.inArray(layerData.id, layersHiddenByZoom);
+    // _manageDisclaimer:function(layerData) {
+    //   var layersHiddenByZoom = this.disabledLayers || [];
+    //   var contains = $.inArray(layerData.id, layersHiddenByZoom);
 
-      if (contains === -1) {
-        this._showZoomAd(layerData);
-      };
-    },
+    //   if (contains === -1) {
+    //     this._showZoomAd(layerData);
+    //   };
+    // },
 
-    _showZoomAd: function(layerData) {
-      this._keepDisabledLayers(layerData.id);
-
+    _manageDisclaimer: function(layerData) {
       var layerModel = {
         "id": layerData.id,
         "name": layerData.name
       };
 
       this._addModel(layerModel);
+
+      if (!this.advise.collection.contains(layerModel)) {
+        this._addModel(layerModel);
+      } else {
+        this._removeFromAdviseCollection(layerModel);
+      }
     },
 
     _addModel: function(layerModel) {
-      if (!this.advise.collection.contains(layerModel)) {
-        this.advise.collection.add([layerModel]);
-      }
+      this.advise.collection.add([layerModel]);
     },
 
-    _keepDisabledLayers: function(layerId) {
-      this.disabledLayers = this.disabledLayers || [];
-      this.disabledLayers.push(layerId);
+    _removeFromAdviseCollection: function() {
+      this.advise.collection.remove([layerModel]);
     },
 
-    _removeFromdisabledlayers: function(layerId) {
-      this.disabledLayers = this.disabledLayers || [];
-      var index = this.disabledLayers.indexOf(layerId);
+    // _keepDisabledLayers: function(layerId) {
+    //   this.disabledLayers = this.disabledLayers || [];
+    //   this.disabledLayers.push(layerId);
+    // },
 
-      if (index > -1) {
-        this.disabledLayers.splice(index, 1);
-      }
-    },
+    // _removeFromdisabledlayers: function(layerId) {
+    //   this.disabledLayers = this.disabledLayers || [];
+    //   var index = this.disabledLayers.indexOf(layerId);
+
+    //   if (index > -1) {
+    //     this.disabledLayers.splice(index, 1);
+    //   }
+    // },
 
     _setOrder: function(layer) {
       layer.order = this.layers.order || this.layers.getMaxOrderVal();

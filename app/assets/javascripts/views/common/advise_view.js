@@ -33,8 +33,7 @@
         return layer.get('name');  
       }, this));
     
-      this.$('.advise').html(this.template({names}));
-
+      this.$('.advise').html(this.template({ names }));
       this._show();
     },
 
@@ -45,12 +44,10 @@
 
     _hide: function() {
       this.$el.removeClass('is-active');
-      // console.log(this);
-      // this.remove();
+      this._clear();
     },
 
-    clear: function() {
-      // remove events
+    _clear: function() {
       this.$el.html(null);
     }
 
