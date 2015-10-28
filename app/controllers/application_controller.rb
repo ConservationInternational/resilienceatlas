@@ -5,7 +5,8 @@ class ApplicationController < ActionController::Base
   before_action :show_token
   after_filter :set_csrf_cookie
   def show_token
-        Rails.logger.info verified_request?
+    Rails.logger.info verified_request?
+    Rails.logger.info "**************************#{request.subdomain}"
   end
 
   def set_csrf_cookie

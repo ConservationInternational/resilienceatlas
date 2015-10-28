@@ -34,6 +34,14 @@ ActiveRecord::Schema.define(version: 20151026094945) do
   add_index "admin_users", ["email"], name: "index_admin_users_on_email", unique: true, using: :btree
   add_index "admin_users", ["reset_password_token"], name: "index_admin_users_on_reset_password_token", unique: true, using: :btree
 
+  create_table "agrupations", force: :cascade do |t|
+    t.integer "layer_id"
+    t.integer "layer_group_id"
+  end
+
+  add_index "agrupations", ["layer_group_id"], name: "index_agrupations_on_layer_group_id", using: :btree
+  add_index "agrupations", ["layer_id"], name: "index_agrupations_on_layer_id", using: :btree
+
   create_table "layer_groups", force: :cascade do |t|
     t.string   "name"
     t.integer  "super_group_id"
@@ -43,11 +51,13 @@ ActiveRecord::Schema.define(version: 20151026094945) do
     t.boolean  "active"
     t.integer  "order"
     t.text     "info"
-    t.datetime "created_at",       null: false
-    t.datetime "updated_at",       null: false
+    t.datetime "created_at",                   null: false
+    t.datetime "updated_at",                   null: false
     t.string   "icon_class"
+    t.integer  "site_scope_id",    default: 1
   end
 
+  add_index "layer_groups", ["site_scope_id"], name: "index_layer_groups_on_site_scope_id", using: :btree
   add_index "layer_groups", ["super_group_id"], name: "index_layer_groups_on_super_group_id", using: :btree
 
   create_table "layers", force: :cascade do |t|
@@ -85,4 +95,10 @@ ActiveRecord::Schema.define(version: 20151026094945) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "site_scopes", force: :cascade do |t|
+    t.string "name"
+  end
+
+  add_foreign_key "agrupations", "layer_groups"
+  add_foreign_key "agrupations", "layers"
 end

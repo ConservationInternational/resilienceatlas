@@ -62,6 +62,31 @@
                     </li>
                   {{/each}}
 
+                  {{#each layers}}
+                    <li class="layer {{#ifcond opacity_text}}{{/ifcond}}">
+                      <div class="panel-item-switch m-form-input--switch">
+                        <input type="checkbox" class="panel-input-switch" id="layer_{{id}}" {{#if active}}checked{{/if}}>
+                        <label for="layer_{{id}}"></label>
+                      </div>
+                      <div class="panel-item-title">{{name}}</div>
+                      <button class="panel-trasparecy-switcher">
+                        <svg class="icon-settings" opacityLevel="{{opacity_text}}">
+                          <use xlink:href="#icon-settings"></use>
+                        </svg>
+                      </button>
+                      {{#if info}}<button class="btn-info" data-info="{{info}}" data-name="{{name}}">i</button>{{/if}}
+                      <div class="panel-item-slider">
+                        <div class="m-form-input--slider">
+                          <div class="slider-wrapper">
+                            <input data-id="{{id}}" type=range min=0 max=100 value={{opacity_text}} id=fader step=1 class="opacity-range">
+                            <span class="opacity" style="width:{{opacity_text}}%;"></span>
+                          </div>
+                          <input type="number" class="opacity-teller" layer="{{id}}" value={{opacity_text}}><span class="unit">%</span>
+                        </div>
+                      </div>
+                    </li>
+                  {{/each}}
+
                   {{#each subcategory}}
                     {{!-- {{#if layers}} --}}
                       <li class="subcategory">
