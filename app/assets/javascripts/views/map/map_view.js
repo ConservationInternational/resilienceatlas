@@ -46,6 +46,7 @@
       this.zoomEndEvent = this.model.get('zoomEndEvent') || true;
 
       this.utils = new root.app.View.Utils();
+      this.advise = new root.app.View.Advise();
     },
 
     setListeners: function() {
@@ -165,7 +166,7 @@
       } else {
         this.basemap = L.tileLayer(url).addTo(this.map);
         this.labels = L.tileLayer(labelsUrl).addTo(this.map);
-        this.labels.setZIndex(1100);
+        this.labels.setZIndex(2000);
       }
 
       if(basemapUrl) {
@@ -190,35 +191,34 @@
     renderLayers: function() {
       var layersData = this.layers.getPublished();
 
-      //Test for zoom scope.
       _.each(layersData, function(layerData) {
-        // if (layerData.id == 31) {
+        // if (layerData.id == 6) {
         //   layerData.maxZoom = 100;
         //   layerData.minZoom = 3;
         // }
 
-        // if (layerData.id == 36) {
-        //   layerData.maxZoom = 3;
-        //   layerData.minZoom = 0;
+        // if (layerData.id == 66) {
+        //   layerData.maxZoom = 100;
+        //   layerData.minZoom = 3;
         // }
 
         if (layerData.active) {
-          if (layerData.maxZoom) {
+          if (layerData.maxZoom || layerData.minZoom) {
+
             if ( layerData.minZoom <= this.actualZoom && this.actualZoom <= layerData.maxZoom ) {
-              this.addLayer(layerData)
-              this.layers.unsetDisabledByZoom(layerData.id)
+              this.layers.unsetDisabledByZoom(layerData.id);
+              this._addingLayer(layerData);
+              this._removeFromAdviseCollection(layerData);
             } else {
               this.removeLayer(layerData);
               this.layers.setDisabledByZoom(layerData.id);
+              this._showAdvise(layerData);
             }
+
           } else {
-            if (!layerData.order) {
-              this._setOrder(layerData);
-              this.addLayer(layerData);
-            } else {
-              this.addLayer(layerData);
-            }
+            this._addingLayer(layerData);
           }
+
         } else {
           this._removingLayer(layerData);
         }
@@ -236,9 +236,41 @@
       }
     },
 
+    _addingLayer: function(layerData) {
+      if (!layerData.order) {
+        this._setOrder(layerData);
+        this.addLayer(layerData);
+      } else {
+        this.addLayer(layerData);
+      }
+    },
+
     _removingLayer: function(layerData) {
       this._setOrderToNull(layerData);
       this.removeLayer(layerData);
+    },
+
+    _showAdvise: function(layerData) {
+      var layerModel = {
+        "id": layerData.id,
+        "name": layerData.name,
+        "maxZoom": layerData.maxZoom,
+        "minZoom": layerData.minZoom,
+        "show": true
+      };
+
+      this.advise.currentZoom = this.actualZoom;
+
+      if (!this.advise.collection.contains(layerModel)) {
+        this.advise.collection.add([layerModel]);
+      }
+    },
+
+    _removeFromAdviseCollection: function(layerData) {
+      var currentModel = _.findWhere(this.advise.collection.models, { 'id': layerData.id });
+      if (currentModel) {
+        this.advise.collection.remove(currentModel);
+      }
     },
 
     _setOrder: function(layer) {
