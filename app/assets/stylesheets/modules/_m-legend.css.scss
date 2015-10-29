@@ -148,7 +148,7 @@ $side-bar-width: 360px;
           padding-bottom: 12px;
 
           &:after {
-            content: 'Not available at this zoom level.';
+            content: 'Dataset not applicable at this scale';
             position: absolute;
             left: 10px;
             bottom: -3px;

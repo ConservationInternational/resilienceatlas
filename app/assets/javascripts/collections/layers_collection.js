@@ -52,6 +52,8 @@
           opacity: d.attributes.opacity,
           no_opacity: d.attributes.opacity == 0 ? true : false,
           order: d.attributes.order || null,
+          maxZoom: d.attributes.zoom_max || 100,
+          minZoom: d.attributes.zoom_min || 0,
           legend: d.attributes.legend,
           group: group ? parseInt(group.id) : null,
           active: d.attributes.active,
@@ -179,11 +181,15 @@
     setDisabledByZoom: function(layerId) {
       var noAvailableByZoom = _.findWhere(this.models, { 'id': layerId });
       noAvailableByZoom.set('notAvailableByZoom', true);
+
+      Backbone.Events.trigger('legend:render');
     },
 
     unsetDisabledByZoom: function(layerId) {
       var noAvailableByZoom = _.findWhere(this.models, { 'id': layerId });
       noAvailableByZoom.set('notAvailableByZoom', false);
+
+      Backbone.Events.trigger('legend:render');
     },
 
     setOrder: function(layerId) {
