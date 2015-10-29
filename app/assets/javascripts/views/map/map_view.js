@@ -10,10 +10,22 @@
     defaults: {
       defaultBasemap: 'defaultmap',
       basemap: {
-        labels: 'http://api.tiles.mapbox.com/v4/cigrp.829fd2d8/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiY2lncnAiLCJhIjoiYTQ5YzVmYTk4YzM0ZWM4OTU1ZjQxMWI5ZDNiNTQ5M2IifQ.SBgo9jJftBDx4c5gX4wm3g',
-        defaultmap: 'http://api.tiles.mapbox.com/v4/cigrp.2ad62493/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiY2lncnAiLCJhIjoiYTQ5YzVmYTk4YzM0ZWM4OTU1ZjQxMWI5ZDNiNTQ5M2IifQ.SBgo9jJftBDx4c5gX4wm3g',
-        satellite: 'http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-        topographic: 'http://server.arcgisonline.com/ArcGIS/rest/services/World_Physical_Map/MapServer/tile/{z}/{y}/{x}'
+        defaultmap: {
+          url: 'http://api.tiles.mapbox.com/v4/cigrp.2ad62493/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiY2lncnAiLCJhIjoiYTQ5YzVmYTk4YzM0ZWM4OTU1ZjQxMWI5ZDNiNTQ5M2IifQ.SBgo9jJftBDx4c5gX4wm3g',
+          labelsUrl: 'http://api.tiles.mapbox.com/v4/cigrp.829fd2d8/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiY2lncnAiLCJhIjoiYTQ5YzVmYTk4YzM0ZWM4OTU1ZjQxMWI5ZDNiNTQ5M2IifQ.SBgo9jJftBDx4c5gX4wm3g'
+        },
+        satellite: {
+          url: 'http://api.tiles.mapbox.com/v4/cigrp.1bf29c61/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiY2lncnAiLCJhIjoiYTQ5YzVmYTk4YzM0ZWM4OTU1ZjQxMWI5ZDNiNTQ5M2IifQ.SBgo9jJftBDx4c5gX4wm3g',
+          labelsUrl: 'http://api.tiles.mapbox.com/v4/cigrp.829fd2d8/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiY2lncnAiLCJhIjoiYTQ5YzVmYTk4YzM0ZWM4OTU1ZjQxMWI5ZDNiNTQ5M2IifQ.SBgo9jJftBDx4c5gX4wm3g'
+        },
+        topographic: {
+          url: 'http://server.arcgisonline.com/ArcGIS/rest/services/World_Physical_Map/MapServer/tile/{z}/{y}/{x}',
+          labelsUrl: 'http://api.tiles.mapbox.com/v4/cigrp.829fd2d8/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiY2lncnAiLCJhIjoiYTQ5YzVmYTk4YzM0ZWM4OTU1ZjQxMWI5ZDNiNTQ5M2IifQ.SBgo9jJftBDx4c5gX4wm3g'
+        },
+        dark: {
+          url: 'http://api.tiles.mapbox.com/v4/cigrp.d5f72271/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiY2lncnAiLCJhIjoiYTQ5YzVmYTk4YzM0ZWM4OTU1ZjQxMWI5ZDNiNTQ5M2IifQ.SBgo9jJftBDx4c5gX4wm3g',
+          labelsUrl: 'http://api.tiles.mapbox.com/v4/cigrp.b5d2182b/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiY2lncnAiLCJhIjoiYTQ5YzVmYTk4YzM0ZWM4OTU1ZjQxMWI5ZDNiNTQ5M2IifQ.SBgo9jJftBDx4c5gX4wm3g'
+        }
       },
       zoomControl: {
         position: 'topright'
@@ -118,19 +130,18 @@
     },
 
     selectBasemap: function(basemapType) {
-      var newBasemapUrl = this.options.basemap[basemapType];
+      var newBasemapUrl = this.options.basemap[basemapType].url;
       this.setBasemap(newBasemapUrl, basemapType);
     },
 
     _getBaseMapUrl: function() {
-      var basemap = this.options.basemap.defaultmap;
-
-      if(this.selectedBasemap) {
-        basemap = this.options.basemap[this.selectedBasemap];
-      }
-
-      return basemap;
+      return this.selectedBasemap ? this.options.basemap[this.selectedBasemap].url : this.options.basemap.defaultmap.url;
     },
+
+    _getBaseMapLabelsUrl: function() {
+      return this.selectedBasemap ? this.options.basemap[this.selectedBasemap].labelsUrl : this.options.basemap.defaultmap.labelsUrl
+    },
+
 
     /**
      * Add a basemap to map
@@ -144,7 +155,7 @@
         this.map.removeLayer(this.basemap);
       }
 
-      var labelsUrl = this.options.basemap.labels;
+      var labelsUrl = this._getBaseMapLabelsUrl();
       var url = basemapUrl || this._getBaseMapUrl();
       var basemap = type || this.selectedBasemap || this.options.defaultBasemap;
 
