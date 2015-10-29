@@ -27,6 +27,10 @@
       background-image: image-url('topographic_map.jpg');
     }
 
+    &.icon-dark {
+      background-image: image-url('default_map.jpg');
+    }
+
     &.icon-default {
       background-image: image-url('default_map.jpg');
     }
