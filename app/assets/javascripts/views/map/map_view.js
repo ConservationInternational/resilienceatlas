@@ -165,7 +165,7 @@
       } else {
         this.basemap = L.tileLayer(url).addTo(this.map);
         this.labels = L.tileLayer(labelsUrl).addTo(this.map);
-        this.labels.setZIndex(1100);
+        this.labels.setZIndex(2000);
       }
 
       if(basemapUrl) {
@@ -191,15 +191,15 @@
       var layersData = this.layers.getPublished();
 
       _.each(layersData, function(layerData) {
-        if (layerData.id == 6) {
-          layerData.maxZoom = 100;
-          layerData.minZoom = 3;
-        }
+        // if (layerData.id == 6) {
+        //   layerData.maxZoom = 100;
+        //   layerData.minZoom = 3;
+        // }
 
-        if (layerData.id == 66) {
-          layerData.maxZoom = 100;
-          layerData.minZoom = 3;
-        }
+        // if (layerData.id == 66) {
+        //   layerData.maxZoom = 100;
+        //   layerData.minZoom = 3;
+        // }
 
         if (layerData.active) {
           if (layerData.maxZoom || layerData.minZoom) {
@@ -252,8 +252,13 @@
     _showAdvise: function(layerData) {
       var layerModel = {
         "id": layerData.id,
-        "name": layerData.name
+        "name": layerData.name,
+        "maxZoom": layerData.maxZoom,
+        "minZoom": layerData.minZoom,
+        "show": true
       };
+
+      this.advise.currentZoom = this.actualZoom;
 
       if (!this.advise.collection.contains(layerModel)) {
         this.advise.collection.add([layerModel]);

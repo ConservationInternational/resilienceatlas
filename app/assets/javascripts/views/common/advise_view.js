@@ -29,12 +29,17 @@
     },
 
     _addTitle: function() {
-      var names = _.map(this.collection.models, _.bind(function(layer) {
-        // this.collection.remove(layer);
-        return layer.get('name');  
-      }, this));
+      // var names = _.map(this.collection.models, _.bind(function(layer) {
+      //   if (layer.get('show')) {
+      //     layer.set('show', false);
+      //     return layer.get('name');  
+      //   }
+      // }, this));
+
+      // console.log(names);
     
-      this.$('.advise').html(this.template({ names }));
+      this.$('.advise').html(this.template());
+      // this.$('.advise').html(this.template({ names }));
       this._show();
     },
 
