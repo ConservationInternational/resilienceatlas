@@ -26,6 +26,7 @@
     events: {
       'click .btn-minimize' : 'setPanelVisibility',
       'click .btn-visibility' : 'setMapVisibility',
+      'click .btn-remove' : '_removeLayer'
     },
 
     initialize: function(settings) {
@@ -135,6 +136,17 @@
 
       Backbone.Events.trigger('opacity', {'currentModel': $current, 'opacityVal': currentModel.get('opacity')});
     },
+
+    _removeLayer: function(e) {
+      e && e.preventDefault;
+
+      var currentLayerId = $(e.currentTarget).data('layerid');
+
+      $('.drag-items[data-id="'+ currentLayerId +'"]').remove();
+      $('.panel-input-switch#layer_'+currentLayerId).prop('checked', false);
+
+      Backbone.Events.trigger('remove:layer', currentLayerId);
+    }
 
   });
 
