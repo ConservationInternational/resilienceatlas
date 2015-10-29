@@ -111,14 +111,13 @@
   // background-color: $bg-color-3;
 
   li {
-    padding: rem(10px) rem(15px);
+    padding: rem(10px);
     // @include clearfix;
 
     &.subcategory,
     &.subgroup {
-      padding-left: 0;
-      padding-top: 0;
-      padding-bottom: 0;
+      padding: 0;
+      padding-left: rem(10px);
 
       &:last-child {
         border-bottom: 0;
@@ -142,7 +141,7 @@
   }
 
   .m-layers-list & {
-    padding-left: rem(20px);
+    // padding-left: rem(10px);
   }
 }
 
