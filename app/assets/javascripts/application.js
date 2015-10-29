@@ -26,6 +26,9 @@
 //= require_tree ./views/journeys
 //= require ./views/analysis/widgets/widget_view
 //= require ./views/analysis/widgets/widget_bar_chart
+//= require ./views/analysis/widgets/widget_group_bar_chart
+//= require ./views/analysis/widgets/widget_group_horizontal_bar_chart
+//= require ./views/analysis/widgets/widget_pyramid_chart
 //= require ./views/analysis/widgets/widget_line_chart
 //= require ./views/analysis/widgets/widget_number
 //= require ./views/analysis/widgets/widget_text_list
