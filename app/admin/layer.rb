@@ -1,9 +1,8 @@
 ActiveAdmin.register Layer do
-  permit_params :layer_group_id, :name, :slug, :layer_type, :zindex, :active, :order, :color, :info, :interactivity, :query, :layer_provider, :css, :published, :opacity, :locate_layer, :icon_class, :legend, :zoom_max, :zoom_min, :dashboard_order
+  permit_params :layer_group_id, :name, :slug, :layer_type, :zindex, :active, :order, :color, :info, :interactivity, :query, :layer_provider, :css, :published, :opacity, :locate_layer, :icon_class, :legend, :zoom_max, :zoom_min, :dashboard_order, :download
   form do |f|
-    f.inputs 'Layer Details' do
     f.semantic_errors
-    f.input :layer_group
+    f.inputs 'Layer Details' do
     f.input :name
     f.input :slug
     f.input :layer_type
@@ -23,6 +22,7 @@ ActiveAdmin.register Layer do
     f.input :legend
     f.input :zoom_max
     f.input :zoom_min
+    f.input :download
     f.actions
     end
   end

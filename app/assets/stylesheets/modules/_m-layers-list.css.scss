@@ -19,7 +19,7 @@
     }
   }
 
-  li[data-slug="others"] {
+  li[data-slug="hide_layers"] {
     display: none;
   }
 }
@@ -180,11 +180,9 @@
       fill: $bg-color-2;
     }
   }
-
 }
 
 .m-form-input--slider {
-
   input[type="range"] {
     position: absolute;
     bottom: 9px;

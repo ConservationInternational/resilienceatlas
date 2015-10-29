@@ -10,10 +10,22 @@
     defaults: {
       defaultBasemap: 'defaultmap',
       basemap: {
-        labels: 'http://api.tiles.mapbox.com/v4/cigrp.829fd2d8/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiY2lncnAiLCJhIjoiYTQ5YzVmYTk4YzM0ZWM4OTU1ZjQxMWI5ZDNiNTQ5M2IifQ.SBgo9jJftBDx4c5gX4wm3g',
-        defaultmap: 'http://api.tiles.mapbox.com/v4/cigrp.2ad62493/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiY2lncnAiLCJhIjoiYTQ5YzVmYTk4YzM0ZWM4OTU1ZjQxMWI5ZDNiNTQ5M2IifQ.SBgo9jJftBDx4c5gX4wm3g',
-        satellite: 'http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-        topographic: 'http://server.arcgisonline.com/ArcGIS/rest/services/World_Physical_Map/MapServer/tile/{z}/{y}/{x}'
+        defaultmap: {
+          url: 'http://api.tiles.mapbox.com/v4/cigrp.2ad62493/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiY2lncnAiLCJhIjoiYTQ5YzVmYTk4YzM0ZWM4OTU1ZjQxMWI5ZDNiNTQ5M2IifQ.SBgo9jJftBDx4c5gX4wm3g',
+          labelsUrl: 'http://api.tiles.mapbox.com/v4/cigrp.829fd2d8/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiY2lncnAiLCJhIjoiYTQ5YzVmYTk4YzM0ZWM4OTU1ZjQxMWI5ZDNiNTQ5M2IifQ.SBgo9jJftBDx4c5gX4wm3g'
+        },
+        satellite: {
+          url: 'http://api.tiles.mapbox.com/v4/cigrp.1bf29c61/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiY2lncnAiLCJhIjoiYTQ5YzVmYTk4YzM0ZWM4OTU1ZjQxMWI5ZDNiNTQ5M2IifQ.SBgo9jJftBDx4c5gX4wm3g',
+          labelsUrl: 'http://api.tiles.mapbox.com/v4/cigrp.829fd2d8/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiY2lncnAiLCJhIjoiYTQ5YzVmYTk4YzM0ZWM4OTU1ZjQxMWI5ZDNiNTQ5M2IifQ.SBgo9jJftBDx4c5gX4wm3g'
+        },
+        topographic: {
+          url: 'http://server.arcgisonline.com/ArcGIS/rest/services/World_Physical_Map/MapServer/tile/{z}/{y}/{x}',
+          labelsUrl: 'http://api.tiles.mapbox.com/v4/cigrp.829fd2d8/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiY2lncnAiLCJhIjoiYTQ5YzVmYTk4YzM0ZWM4OTU1ZjQxMWI5ZDNiNTQ5M2IifQ.SBgo9jJftBDx4c5gX4wm3g'
+        },
+        dark: {
+          url: 'http://api.tiles.mapbox.com/v4/cigrp.d5f72271/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiY2lncnAiLCJhIjoiYTQ5YzVmYTk4YzM0ZWM4OTU1ZjQxMWI5ZDNiNTQ5M2IifQ.SBgo9jJftBDx4c5gX4wm3g',
+          labelsUrl: 'http://api.tiles.mapbox.com/v4/cigrp.b5d2182b/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiY2lncnAiLCJhIjoiYTQ5YzVmYTk4YzM0ZWM4OTU1ZjQxMWI5ZDNiNTQ5M2IifQ.SBgo9jJftBDx4c5gX4wm3g'
+        }
       },
       zoomControl: {
         position: 'topright'
@@ -31,6 +43,7 @@
 
       this.journeyMap = this.model.get('journeyMap');
       this.currentCountry = this.model.get('countryIso') || null;
+      this.zoomEndEvent = this.model.get('zoomEndEvent') || true;
 
       this.utils = new root.app.View.Utils();
     },
@@ -41,6 +54,7 @@
       Backbone.Events.on('map:set:fitbounds', this.setBbox.bind(this));
       Backbone.Events.on('map:set:mask', this.setMaskLayer.bind(this));
       Backbone.Events.on('map:toggle:layers', this.toggleLayers.bind(this));
+      Backbone.Events.on('remove:layer', this._removingLayer.bind(this));
     },
 
     /**
@@ -85,10 +99,12 @@
       this.actualZoom = this.options.map.zoom;
 
       this.map.on('zoomend', _.bind(function() {
-        this.actualZoom = this.map.getZoom();
-        this.router.setParams('zoom', this.actualZoom);
-        this.finishedZooming = true;
-        this.renderLayers();
+        if(this.zoomEndEvent) {
+          this.actualZoom = this.map.getZoom();
+          this.router.setParams('zoom', this.actualZoom);
+          this.finishedZooming = true;
+          this.renderLayers();
+        }
       }, this));
 
       this.map.on('dragend', _.bind(function() {
@@ -115,19 +131,18 @@
     },
 
     selectBasemap: function(basemapType) {
-      var newBasemapUrl = this.options.basemap[basemapType];
+      var newBasemapUrl = this.options.basemap[basemapType].url;
       this.setBasemap(newBasemapUrl, basemapType);
     },
 
     _getBaseMapUrl: function() {
-      var basemap = this.options.basemap.defaultmap;
-
-      if(this.selectedBasemap) {
-        basemap = this.options.basemap[this.selectedBasemap];
-      }
-
-      return basemap;
+      return this.selectedBasemap ? this.options.basemap[this.selectedBasemap].url : this.options.basemap.defaultmap.url;
     },
+
+    _getBaseMapLabelsUrl: function() {
+      return this.selectedBasemap ? this.options.basemap[this.selectedBasemap].labelsUrl : this.options.basemap.defaultmap.labelsUrl
+    },
+
 
     /**
      * Add a basemap to map
@@ -141,7 +156,7 @@
         this.map.removeLayer(this.basemap);
       }
 
-      var labelsUrl = this.options.basemap.labels;
+      var labelsUrl = this._getBaseMapLabelsUrl();
       var url = basemapUrl || this._getBaseMapUrl();
       var basemap = type || this.selectedBasemap || this.options.defaultBasemap;
 
@@ -205,8 +220,7 @@
             }
           }
         } else {
-          this._setOrderToNull(layerData);
-          this.removeLayer(layerData);
+          this._removingLayer(layerData);
         }
       }, this);
 
@@ -222,14 +236,30 @@
       }
     },
 
+    _removingLayer: function(layerData) {
+      this._setOrderToNull(layerData);
+      this.removeLayer(layerData);
+    },
+
     _setOrder: function(layer) {
       layer.order = this.layers.order || this.layers.getMaxOrderVal();
       this.layers.setOrder(layer.id);
     },
 
-    _setOrderToNull: function(layer){
-      layer.order = null;
-      this.layers.setOrderToNull(layer.id);
+    _setOrderToNull: function(layerData){
+      var layerId;
+      var currentLayer;
+
+      if (typeof layerData === 'object') {
+        layerId = layerData.id;
+        currentLayer = layerData;
+      } else {
+        layerId = layerData;
+        currentLayer = _.findWhere(this.layers.models, { 'id': layerData });
+      }
+
+      currentLayer.order = null;
+      this.layers.setOrderToNull(layerId);
     },
 
     /**
@@ -248,32 +278,23 @@
       var layerInstance;
 
       if (!layer) {
-        switch(layerData.type) {
-          case 'cartodb':
-            var data = _.pick(layerData, ['sql', 'cartocss', 'interactivity']);
-            var options = { sublayers: [data] };
-            layerInstance = new root.app.Helper.CartoDBLayer(this.map, options);
-            layerInstance.create(function(layer) {
-              layer.setOpacity(layerData.opacity);
-              layer.setZIndex(1000 + layerData.order);
-            });
-          break;
-          case 'raster':
-            var data = _.pick(layerData, ['sql', 'cartocss', 'interactivity']);
-            var options = {
+        if(layerData.type) {
+          var data = _.pick(layerData, ['sql', 'cartocss', 'interactivity']);
+          var options = { sublayers: [data] };
+
+          if(layerData.type === 'raster') {
+            options = {
               sublayers: [ _.extend(data, { raster: true, raster_band: 1 }) ]
             };
-            layerInstance = new root.app.Helper.CartoDBRaster(this.map, options);
-            //When carto bug solved, only back to create method.
-            layerInstance.createRasterLayer(function(layer) {
-              layer.setOpacity(layerData.opacity);
-              layer.setZIndex(1000 + layerData.order);
-            });
+          }
 
-          break;
-          default:
-            layerInstance = null;
-        }
+          layerInstance = new root.app.Helper.CartoDBLayer(this.map, options);
+          layerInstance.create(function(layer) {
+            layer.setOpacity(layerData.opacity);
+            layer.setZIndex(1000 + layerData.order);
+          });
+        } 
+
         if (layerInstance) {
           this.model.set(layerData.id, layerInstance);
         } else {
@@ -293,9 +314,17 @@
      * @param  {Object} layerData
      */
     removeLayer: function(layerData) {
-      var layerInstance = this.model.get(layerData.id);
+      var layerId;
+
+      if (typeof layerData === 'object') {
+        layerId = layerData.id;
+      } else {
+        layerId = layerData;
+      }
+      
+      var layerInstance = this.model.get(layerId);
       if (layerInstance) {
-        this.model.set(layerData.id, null);
+        this.model.set(layerId, null);
         layerInstance.remove();
       }
     },
@@ -357,20 +386,27 @@
     },
 
     toggleLayers: function(show) {
-      // var layers = this.layers.getActiveLayers();
-      // var mapModel = this.model;
+      var layers = this.layers.getActiveLayers();
+      var mapModel = this.model;
 
-      // _.each(layers, function(layer) {
-      //   var instance = mapModel.get(layer.id);
+      if(!show) {
+        this.zoomEndEvent = false;
+      } else {
+        this.zoomEndEvent = true;
+        this.checkMask();
+      }
 
-      //   if(instance && instance.layer) {
-      //     if(show) {
-      //       instance.layer.show();
-      //     } else {
-      //       instance.layer.hide();
-      //     }
-      //   }
-      // });
+      _.each(layers, function(layer) {
+        var instance = mapModel.get(layer.id);
+
+        if(instance) {
+          if(show) {
+            instance.layer.show();
+          } else {
+            instance.layer.hide();
+          }
+        }
+      });
     }
 
   });

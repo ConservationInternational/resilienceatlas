@@ -92,6 +92,7 @@
         journeysIndexCollection,
       ], 'fetch');
 
+
       $.when.apply($, complete).done(function() {
         headerView.render();
         this.totalJourneys = journeysIndexCollection.length;
@@ -111,13 +112,22 @@
     },
 
     journeysPage: function(journeyId) {
+      var journeysIndexCollection = new root.app.Collection.JourneysIndex();
+
+      // Fetching data
+      var complete = _.invoke([
+        journeysIndexCollection,
+      ], 'fetch');
+
+      $.when.apply($, complete).done(function() {
       var journeyPageView = new root.app.JourneysPageView({
-        router: this.router,
-        options: {
-          'journeyId': journeyId,
-          'totalJourneys': this.totalJourneys
-        }
-      });
+          router: this.router,
+          options: {
+            'journeyId': journeyId,
+            'totalJourneys': this.totalJourneys
+          }
+        });
+      }.bind(this));
     },
 
     aboutPage: function() {
