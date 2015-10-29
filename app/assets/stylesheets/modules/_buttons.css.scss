@@ -117,6 +117,10 @@
   top: 3px;
   cursor: pointer;
 
+  .is-journeys-page & {
+    display: none;
+  }
+
   svg {
     width: 12px;
     height: 12px;
