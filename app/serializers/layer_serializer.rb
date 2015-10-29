@@ -24,13 +24,14 @@
 #  legend          :text
 #  zoom_max        :integer          default(100)
 #  zoom_min        :integer          default(0)
-#  layer_group_id  :integer
 #  dashboard_order :integer
+#  layer_group_id  :integer
+#  download        :boolean          default(FALSE)
 #
 
 class LayerSerializer < ActiveModel::Serializer
   cache key: "layer"
-  attributes :name, :slug, :layer_type, :zindex, :opacity, :active, :order, :dashboard_order, :color, :info, :interactivity, :css, :query, :layer_provider, :published, :locate_layer, :icon_class, :legend, :zoom_max, :zoom_min
+  attributes :name, :slug, :layer_type, :zindex, :opacity, :active, :order, :dashboard_order, :color, :info, :interactivity, :css, :query, :layer_provider, :published, :locate_layer, :icon_class, :legend, :zoom_max, :zoom_min, :download
   has_one :layer_group, serializer: LayerGroupSerializer
   def type
     'layers'

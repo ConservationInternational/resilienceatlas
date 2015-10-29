@@ -3,7 +3,7 @@
 # Table name: site_scopes
 #
 #  id   :integer          not null, primary key
-#  name :string           
+#  name :string
 #
 
 class SiteScope < ActiveRecord::Base

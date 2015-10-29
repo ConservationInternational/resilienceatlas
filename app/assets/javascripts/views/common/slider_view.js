@@ -46,8 +46,8 @@
 
 
       $('.m-slider__paginationlist').slick({
-        slidesToShow: 4,
-        slidesToScroll: 4,
+        slidesToShow: 3,
+        slidesToScroll: 3,
         speed: 500,
         slide: 'li'
       });

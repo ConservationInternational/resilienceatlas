@@ -24,8 +24,9 @@
 #  legend          :text
 #  zoom_max        :integer          default(100)
 #  zoom_min        :integer          default(0)
-#  layer_group_id  :integer
 #  dashboard_order :integer
+#  layer_group_id  :integer
+#  download        :boolean          default(FALSE)
 #
 
 class Layer < ActiveRecord::Base
