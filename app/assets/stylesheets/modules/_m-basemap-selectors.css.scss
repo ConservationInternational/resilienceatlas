@@ -3,7 +3,12 @@
   justify-content: space-between;
   padding: rem(10px) rem(30px) !important;
 
+  li {
+    flex-basis: 25%;
+  }
+
   button {
+    width: 100%;
     @extend %clean-button-or-input;
 
     &.is-active span {
@@ -15,9 +20,10 @@
     display: flex;
     flex-direction: column-reverse;
     height: 90px;
-    width: 80px;
+    width: 100%;
     background-position: top center;
     background-repeat: no-repeat;
+    background-size: 100%;
 
     &.icon-satellite {
       background-image: image-url('satellite_map.jpg');
@@ -28,7 +34,7 @@
     }
 
     &.icon-dark {
-      background-image: image-url('default_map.jpg');
+      background-image: image-url('dark_map.jpg');
     }
 
     &.icon-default {
