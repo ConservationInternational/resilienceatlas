@@ -14,7 +14,7 @@
     events: {
       'click .m-layers-list-header': '_toggleCategories',
       'change .header-input-switch': '_toggleAllLayers',
-      'change .panel-input-switch': '_setLayersOrder',
+      'change .panel-input-switch': '_toggleLayers',
       'input input.opacity-range' : '_transparencyRangeChanges',
       'change .opacity-teller': '_transparencyInputChange',
       'click .panel-trasparecy-switcher' : '_openOpacityHandlers',
@@ -77,13 +77,6 @@
       Backbone.Events.trigger('render:map');
     },
 
-    _setLayersOrder: function(e) {
-      this._toggleLayers();
-
-      var $currentTarget = $(e.currentTarget);
-      var id = parseInt($currentTarget.attr('id').split('layer_')[1]);
-    },
-
     /*
       Manage layer form dashboard.
      */
@@ -125,7 +118,6 @@
 
     //Handles opacity from text input.
     _transparencyInputChange: function(e) {
-
       var $currentTarget = $(e.currentTarget)
       var currentVal = parseInt($currentTarget.val());
       var opacity;

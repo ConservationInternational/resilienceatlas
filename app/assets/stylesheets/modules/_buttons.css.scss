@@ -110,6 +110,20 @@
   margin-left: rem(6px);
 }
 
+.btn-remove {
+  @extend %clean-button-or-input;
+  position: absolute;
+  right: 15px;
+  top: 3px;
+  cursor: pointer;
+
+  svg {
+    width: 12px;
+    height: 12px;
+    fill: #979797;
+  }
+}
+
 
 
 

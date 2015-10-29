@@ -54,6 +54,7 @@
       Backbone.Events.on('map:set:fitbounds', this.setBbox.bind(this));
       Backbone.Events.on('map:set:mask', this.setMaskLayer.bind(this));
       Backbone.Events.on('map:toggle:layers', this.toggleLayers.bind(this));
+      Backbone.Events.on('remove:layer', this._removingLayer.bind(this));
     },
 
     /**
@@ -219,8 +220,7 @@
             }
           }
         } else {
-          this._setOrderToNull(layerData);
-          this.removeLayer(layerData);
+          this._removingLayer(layerData);
         }
       }, this);
 
@@ -236,14 +236,30 @@
       }
     },
 
+    _removingLayer: function(layerData) {
+      this._setOrderToNull(layerData);
+      this.removeLayer(layerData);
+    },
+
     _setOrder: function(layer) {
       layer.order = this.layers.order || this.layers.getMaxOrderVal();
       this.layers.setOrder(layer.id);
     },
 
-    _setOrderToNull: function(layer){
-      layer.order = null;
-      this.layers.setOrderToNull(layer.id);
+    _setOrderToNull: function(layerData){
+      var layerId;
+      var currentLayer;
+
+      if (typeof layerData === 'object') {
+        layerId = layerData.id;
+        currentLayer = layerData;
+      } else {
+        layerId = layerData;
+        currentLayer = _.findWhere(this.layers.models, { 'id': layerData });
+      }
+
+      currentLayer.order = null;
+      this.layers.setOrderToNull(layerId);
     },
 
     /**
@@ -298,9 +314,17 @@
      * @param  {Object} layerData
      */
     removeLayer: function(layerData) {
-      var layerInstance = this.model.get(layerData.id);
+      var layerId;
+
+      if (typeof layerData === 'object') {
+        layerId = layerData.id;
+      } else {
+        layerId = layerData;
+      }
+      
+      var layerInstance = this.model.get(layerId);
       if (layerInstance) {
-        this.model.set(layerData.id, null);
+        this.model.set(layerId, null);
         layerInstance.remove();
       }
     },
