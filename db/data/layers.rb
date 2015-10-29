@@ -145,6 +145,7 @@ Agrupation.create!([
   {id: 107, layer_id: 107, layer_group_id: 9},
   {id: 108, layer_id: 108, layer_group_id: 24},
   {id: 109, layer_id: 109, layer_group_id: 9},
+  {id: 110, layer_id: 53, layer_group_id: 14},
   {id: 1, layer_id: 41, layer_group_id: 14},
   {id: 2, layer_id: 40, layer_group_id: 14},
   {id: 3, layer_id: 15, layer_group_id: 19},
