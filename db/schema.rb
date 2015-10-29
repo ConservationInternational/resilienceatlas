@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20151026094945) do
+ActiveRecord::Schema.define(version: 20151029091517) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -61,7 +61,6 @@ ActiveRecord::Schema.define(version: 20151026094945) do
   add_index "layer_groups", ["super_group_id"], name: "index_layer_groups_on_super_group_id", using: :btree
 
   create_table "layers", force: :cascade do |t|
-    t.integer  "layer_group_id"
     t.string   "name",                            null: false
     t.string   "slug",                            null: false
     t.string   "layer_type"
@@ -84,9 +83,9 @@ ActiveRecord::Schema.define(version: 20151026094945) do
     t.integer  "zoom_max",        default: 100
     t.integer  "zoom_min",        default: 0
     t.integer  "dashboard_order"
+    t.integer  "layer_group_id"
+    t.boolean  "download",        default: false
   end
-
-  add_index "layers", ["layer_group_id"], name: "index_layers_on_layer_group_id", using: :btree
 
   create_table "share_urls", force: :cascade do |t|
     t.string   "uid"
