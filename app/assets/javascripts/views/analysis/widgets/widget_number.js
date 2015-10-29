@@ -28,6 +28,15 @@
     parseData: function(data) {
       if(data) {
         var values = data.rows;
+        var valuesList = [];
+
+        _.each(values, function(value) {
+          valuesList.push({
+            value: value.value,
+            unit: value.unit || ''
+          })
+        });
+
         return values;
       }
     }

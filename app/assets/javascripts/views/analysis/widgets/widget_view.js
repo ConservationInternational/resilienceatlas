@@ -23,6 +23,7 @@
       this.query = this.options.query;
       this.iso = this.options.iso;
       this.widgetName = this.options.widgetName || '';
+      this.labels = this.options.labels;
 
       this.render();
     },

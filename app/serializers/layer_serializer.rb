@@ -24,19 +24,19 @@
 #  legend          :text
 #  zoom_max        :integer          default(100)
 #  zoom_min        :integer          default(0)
-#  layer_group_id  :integer
 #  dashboard_order :integer
+#  layer_group_id  :integer
+#  download        :boolean          default(FALSE)
 #
 
 class LayerSerializer < ActiveModel::Serializer
   cache key: "layer"
-  attributes :name, :slug, :layer_type, :zindex, :opacity, :active, :order, :dashboard_order, :color, :info, :interactivity, :css, :query, :layer_provider, :published, :locate_layer, :icon_class, :legend, :zoom_max, :zoom_min
+  attributes :name, :slug, :layer_type, :zindex, :opacity, :active, :order, :dashboard_order, :color, :info, :interactivity, :css, :query, :layer_provider, :published, :locate_layer, :icon_class, :legend, :zoom_max, :zoom_min, :download
   has_one :layer_group, serializer: LayerGroupSerializer
-  # has_many :layer_groups, serializer: LayerGroupSerializer
   def type
     'layers'
   end
-  # def layer_groups
-  #   LayerGroup.all
-  # end
+  def layer_group
+    object.layer_groups.where(site_scope_id: options[:site_scope]).first
+  end
 end

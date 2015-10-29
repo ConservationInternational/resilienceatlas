@@ -33,7 +33,7 @@
       this._setListeners();
 
       this.journey = settings.journey.toJSON()[0];
-      this.totalJourneys = settings.journeys;
+      this.totalJourneys = settings.totalJourneys;
 
       var stepFromUrl = settings.currentStep || this.model.defaults.step;
 
@@ -184,13 +184,9 @@
     },
 
     _getNextJourneyUrl: function() {
-      // var totalJourneys = 2; //Fix this with index.
-      // This way below is the correct way, but is not working for
-      // the moment because "index" is a fake one.
       var totalJourneys = this.totalJourneys
       var currentJourney = this.journey.id;
       var nextJourney = currentJourney === totalJourneys ? 1 : currentJourney + 1;
-
       return '/journeys/' + nextJourney;
     },
 

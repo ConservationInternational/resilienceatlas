@@ -1,7 +1,8 @@
-# This file should contain all the record creation needed to seed the database with its default values.
-# The data can then be loaded with the rake db:seed (or created alongside the db with db:setup).
-#
-# Examples:
-#
-#   cities = City.create([{ name: 'Chicago' }, { name: 'Copenhagen' }])
-#   Mayor.create(name: 'Emanuel', city: cities.first)
+if SiteScope.all.size == 0
+  SiteScope.create!(name: 'CIGRP', id: 1)
+  SiteScope.create!(name: 'VS Indicators', id: 2)
+  SiteScope.create!(name: 'VS Tanzania', id: 3)
+  SiteScope.create!(name: 'VS Ghana', id: 4)
+  SiteScope.create!(name: 'VS Uganda', id: 5)
+  SiteScope.create!(name: 'VS Rwanda', id: 6)
+end

@@ -1,0 +1,14 @@
+<div class="name">{{name}}</div>
+
+{{#if noData}}
+<div class="widget-no-data">
+  <h3>NO DATA AVAILABLE</h3>
+</div>
+{{else}}
+
+<div id="{{slug}}-legend" class="widget-bar-chart legend group-horizontal"></div>
+
+<div id="{{slug}}-graph" class="widget-bar-chart graph group-horizontal"></div>
+
+
+{{/if}}
