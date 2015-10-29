@@ -7,19 +7,19 @@
         "name": "Total population",
         "slug": "total_population",
         "widget": "number",
-        "query": "with r as ( select the_geom_webmercator from country_mask where iso_a3= '%1'), f as ( select (ST_SummaryStats(st_clip( the_raster_webmercator,1, the_geom_webmercator,-2147483648, true), 1, true)).* as  statistics FROM lspop2014, r where st_intersects(the_raster_webmercator, the_geom_webmercator)) SELECT SUM(sum) as sum, (sum(count)*0.9) as area,round(sum(sum)/(sum(count)*0.9)) as density from f"
-      },
+        "query": "SELECT to_char(pop, '999G999G999G999') as value FROM grp_totalpop_density1 where iso3= '%1'"
+      },    
       {
         "name": "Population density",
         "slug": "population_density",
         "widget": "number",
-        "query": "with r as ( select the_geom_webmercator from country_mask where iso_a3= '%1'), f as ( select (ST_SummaryStats(st_clip( the_raster_webmercator,1, the_geom_webmercator,-2147483648, true), 1, true)).* as  statistics FROM lspop2014, r where st_intersects(the_raster_webmercator, the_geom_webmercator)) SELECT SUM(sum) as sum, (sum(count)*0.9) as area,round(sum(sum)/(sum(count)*0.9)) as density from f"
+        "query": "SELECT round(pop_densit::numeric,2) as value ,'p/km2' as unit FROM grp_totalpop_density1 where iso3= '%1'"
       },
       {
         "name": "Primary livelihood strategies",
         "slug": "primary_livelihood_strategies",
         "widget": "text_list",
-        "query": "SELECT month as Month, precip as Precipitation FROM monthly_mean_precip_1981_2014 where iso3='%1' LIMIT 5"
+        "query": "SELECT lz_type as category,area_rank as rank FROM grp_lzs_area where iso3= '%1' order by area_rank asc"
       }
     ]
   },
@@ -32,18 +32,6 @@
         "slug": "precipitation_trend",
         "widget": "bar_chart",
         "query": "SELECT month as x, precip as y, month as name FROM monthly_mean_precip_1981_2014 WHERE iso3 = '%1'"
-      },
-      {
-        "name": "Temperature trend",
-        "slug": "temperature_trend",
-        "widget": "line_chart",
-        "query": "SELECT month as x, round(precip) as y, month as name FROM monthly_mean_precip_1981_2014 WHERE iso3 = '%1'"
-      },
-      {
-        "name": "Climate chart",
-        "slug": "climate_chart",
-        "widget": "bar_line_chart",
-        "query": "SELECT month as x, precip as y, precip as z, month as name FROM monthly_mean_precip_1981_2014 WHERE iso3 = '%1'"
       }
     ]
   },
@@ -52,22 +40,16 @@
     "category_slug": "shocks",
     "indicators": [
       {
-        "name": "Change in precipitation variability",
-        "slug": "change_in_precipitation_variability",
-        "widget": "bar_chart",
-        "query": "SELECT month as x, precip as y, month as name FROM monthly_mean_precip_1981_2014 WHERE iso3 = '%1'"
-      },
-      {
-        "name": "Change in seasonality",
-        "slug": "change_in_seasonality",
-        "widget": "bar_chart",
-        "query": "SELECT month as x, precip as y, month as name FROM monthly_mean_precip_1981_2014 WHERE iso3 = '%1'"
-      },
-      {
         "name": "Conflict",
         "slug": "conflict",
-        "widget": "bar_chart",
-        "query": "SELECT month as x, precip as y, month as name FROM monthly_mean_precip_1981_2014 WHERE iso3 = '%1'"
+        "widget": "group_bar_chart",
+        "query": "SELECT overall::float, inco::float, inst::float, army::float, year as x FROM gpi_scores_longformat where iso3='%1' order by year asc",
+        "labels": {
+          "overall": "Graphic showing State of Peace",
+          "inco": "Society and Security",
+          "inst": "Domestic and International Conflict",
+          "army": "Militarisation"
+        }
       }
     ]
   },
@@ -76,22 +58,44 @@
     "category_slug": "vulnerability",
     "indicators": [
       {
-        "name": "Change in precipitation variability",
-        "slug": "change_in_precipitation_variability",
-        "widget": "bar_chart",
-        "query": "SELECT month as x, precip as y, month as name FROM monthly_mean_precip_1981_2014 WHERE iso3 = '%1'"
+        "name": "Population pyramid",
+        "slug": "population_pyramid",
+        "widget": "pyramid_chart",
+        "query": "SELECT round(pop::numeric,2) as value , sex as category, to_char(class,'FM99') as group FROM africa_pop_pyramid_tables where iso3= '%1' order by class,sex",
+        "labels": {
+          "1":"0-5",
+          "2":"5-10",
+          "3":"10-15",
+          "4":"15-20",
+          "5":"20-25",
+          "6":"25-30",
+          "7":"30-35",
+          "8":"35-40",
+          "9":"40-45",
+          "10":"45-50",
+          "11":"50-55",
+          "12":"55-60",
+          "13":"60-65",
+          "14":">65"
+        }
       },
       {
-        "name": "Change in seasonality",
-        "slug": "change_in_seasonality",
-        "widget": "bar_chart",
-        "query": "SELECT month as x, precip as y, month as name FROM monthly_mean_precip_1981_2014 WHERE iso3 = '%1'"
+        "name": "Health",
+        "slug": "health",
+        "widget": "group_horizontal_bar_chart",
+        "query": "with r as (select dhsregen,iso3,reg_id,svytype,svyyear from grp_dhs_regions where iso3='%1'),  s as (SELECT l.indicatorid, l.byvariableid, characteristiclabel, l.value FROM dhs_export l inner join r on regionid=reg_id where indicatorid = 20171000 or indicatorid = 70254002 or indicatorid =13126000 order by characteristiclabel) SELECT trim(leading '.' from characteristiclabel) as label, value, CASE indicatorid WHEN 20171000 THEN 'Total fertility rate' WHEN 70254002 THEN 'infant mortality rate' ELSE 'stunting' END as category FROM s"
       },
       {
-        "name": "Conflict",
-        "slug": "conflict",
-        "widget": "bar_chart",
-        "query": "SELECT month as x, precip as y, month as name FROM monthly_mean_precip_1981_2014 WHERE iso3 = '%1'"
+        "name": "Education",
+        "slug": "education",
+        "widget": "group_horizontal_bar_chart",
+        "query": "with r as (select dhsregen,iso3,reg_id,svytype,svyyear from grp_dhs_regions where iso3='%1'),  s as (SELECT l.indicatorid, l.byvariableid, characteristiclabel, l.value FROM dhs_export l inner join r on regionid=reg_id where byvariableid!=106001 and indicatorid = 6136002 or indicatorid =13126000 or indicatorid =127384003 order by characteristiclabel) SELECT trim(leading '.' from characteristiclabel) as label, value, CASE indicatorid WHEN 6136002 THEN 'Total fertility rate' WHEN 13126000 THEN 'Womens education' ELSE 'mass media access' END as category FROM s"
+      },
+      {
+        "name": "Services",
+        "slug": "services",
+        "widget": "group_horizontal_bar_chart",
+        "query": "with r as (select dhsregen,iso3,reg_id,svytype,svyyear from grp_dhs_regions where iso3= '%1'),  s as (SELECT l.indicatorid, l.byvariableid, characteristiclabel, l.value FROM dhs_export l inner join r on regionid=reg_id where indicatorid = 9124003 or indicatorid =8139010 or indicatorid =8142001 order by characteristiclabel) SELECT trim(leading '.' from characteristiclabel) as label, value, CASE indicatorid WHEN 9124003 THEN 'Electification access' WHEN 8142001 THEN 'Telephone access' ELSE 'Piped water access' END as category FROM s"
       }
     ]
   }

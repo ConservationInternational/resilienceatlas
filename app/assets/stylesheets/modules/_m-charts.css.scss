@@ -49,7 +49,7 @@
         color: $font-color-2;
         font-weight: 700;
         padding-top: 0;
-        font-size: 32px;
+        font-size: 20px;
         margin-bottom: rem(3px);
       }
     }
@@ -234,18 +234,104 @@
       }
     }
   }
+
+  &.group-horizontal {
+    .chart .legend {
+      fill: black;
+      font: 14px sans-serif;
+      text-anchor: start;
+      font-size: 12px;
+    }
+
+    .chart rect {
+      shape-rendering: crispEdges;
+    }
+
+    .chart text {
+      text-anchor: start;
+      fill: #999999;
+      font-size: 12px;
+      font-weight: 400;
+    }
+
+    .chart .label {
+      fill: #999999;
+      font-size: 14px;
+      font-weight: 400;
+      text-anchor: end;
+    }
+
+    .axis path,
+    .axis line {
+      fill: none;
+      stroke: #737373;
+      shape-rendering: crispEdges;
+    }
+  }
+
+  &.graph-pyramid {
+    rect {
+      shape-rendering: crispEdges;
+      stroke-width: 1;
+      stroke: #fff;
+    }
+
+    .y {
+      &.axis {
+        .domain {
+          stroke-width: 1;
+          stroke: #737373;
+          shape-rendering: crispEdges;
+        }
+      }
+    }
+
+    text {
+      fill: #999999;
+      font-size: 13px;
+      font-weight: 400;
+      text-transform: capitalize;
+    }
+
+    .tooltip-graph {
+      .value {
+        font-size: 16px;
+        margin-bottom: 0;
+      }
+    }
+  }
 }
 
 .legend {
+  width: 94%;
+  margin: 0 auto;
+  padding: 11px;
+  padding-bottom: 0;
+
   svg {
     padding-top: rem(5px);
   }
 
   .text {
+    fill: #999999;
+    font-size: 14px;
+    font-weight: 400;
+    text-transform: capitalize;
   }
   .icon {
     width: rem(11px);
     height: rem(11px);
-    border-radius: rem(11px);
+    // border-radius: rem(11px);
+  }
+
+  rect {
+    shape-rendering: crispEdges;
+  }
+
+  &.group-horizontal {
+    width: 95%;
+    margin: 0 auto;
+    padding-left: 0;
+    padding-bottom: 0;
   }
 }

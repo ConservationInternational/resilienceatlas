@@ -31,8 +31,16 @@
   }
 
   &.number {
-    width: 50%;
+    width: 100%;
     float: left;
+
+    &.loaded {
+      min-height: auto;
+    }
+
+    .row {
+      padding-left: 2px;
+    }
 
     .value {
       font-size: 41px;
@@ -84,4 +92,5 @@
     justify-content: center;
     height: rem(118px);
   }
+
 }

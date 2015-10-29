@@ -26,7 +26,10 @@
       'line_chart': 'initLineChart',
       'number': 'initNumber',
       'text_list': 'initTextList',
-      'bar_line_chart': 'initBarLineChart'
+      'bar_line_chart': 'initBarLineChart',
+      'group_bar_chart': 'initGroupBarChart',
+      'group_horizontal_bar_chart': 'initGroupHorizontalBarChart',
+      'pyramid_chart': 'initPyramidChart'
     },
 
     initialize: function(settings) {
@@ -84,6 +87,27 @@
       });
     },
 
+    initGroupBarChart: function(indicator) {
+      var groupBarChart = new root.app.View.WidgetGroupBarChart({
+        el: this.options.elWidgets,
+        slug: indicator.slug,
+        query: indicator.query,
+        name: indicator.name,
+        iso: this.iso,
+        labels: indicator.labels
+      });
+    },
+
+    initGroupHorizontalBarChart: function(indicator) {
+      var horizontalBarChart = new root.app.View.WidgetGroupHorizontalBarChart({
+        el: this.options.elWidgets,
+        slug: indicator.slug,
+        query: indicator.query,
+        name: indicator.name,
+        iso: this.iso
+      });
+    },
+
     initBarLineChart: function(indicator) {
       var barLineChart = new root.app.View.WidgetBarChart({
         el: this.options.elWidgets,
@@ -122,6 +146,17 @@
         query: indicator.query,
         name: indicator.name,
         iso: this.iso
+      });
+    },
+
+    initPyramidChart: function(indicator) {
+      var pyramidChart = new root.app.View.WidgetPyramidChart({
+        el: this.options.elWidgets,
+        slug: indicator.slug,
+        query: indicator.query,
+        name: indicator.name,
+        iso: this.iso,
+        labels: indicator.labels
       });
     }
   });
