@@ -247,7 +247,6 @@
     },
 
     _setOrderToNull: function(layerData){
-      console.log(layerData)
       var layerId;
       var currentLayer;
 
@@ -257,7 +256,6 @@
       } else {
         layerId = layerData;
         currentLayer = _.findWhere(this.layers.models, { 'id': layerData });
-        console.log(currentLayer);
       }
 
       currentLayer.order = null;
