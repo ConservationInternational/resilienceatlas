@@ -37,7 +37,8 @@
     // order : 1,
 
     parse: function(response) {
-      var result = _.map(response.data, function(d) {
+      var self = this;
+      var result = _.map(response.data, _.bind(function(d) {
         var group = d.relationships.layer_group.data;
         return {
           id: parseInt(d.id),
@@ -51,15 +52,23 @@
           opacity: d.attributes.opacity,
           no_opacity: d.attributes.opacity == 0 ? true : false,
           order: d.attributes.order || null,
+          maxZoom: d.attributes.zoom_max || 100,
+          minZoom: d.attributes.zoom_min || 0,
           legend: d.attributes.legend,
           group: group ? parseInt(group.id) : null,
           active: d.attributes.active,
           published: d.attributes.published,
           info: d.attributes.info,
-          dashboard_order: d.attributes.dashboard_order
+          dashboard_order: d.attributes.dashboard_order,
+          download: d.attributes.download || null,
+          download_url: d.attributes.download ? this._generateDownloadUrl(d) : null
         };
-      });
+      }, this));
       return result;
+    },
+
+    _generateDownloadUrl: function(d) {
+      return 'https://grp.global.ssl.fastly.net/user/grp/api/v1/sql?filename=' + d.attributes.slug + '&q=' + encodeURIComponent(d.attributes.query) + '&format=kml';
     },
 
     setGroups: function(groupsCollection) {
@@ -172,11 +181,15 @@
     setDisabledByZoom: function(layerId) {
       var noAvailableByZoom = _.findWhere(this.models, { 'id': layerId });
       noAvailableByZoom.set('notAvailableByZoom', true);
+
+      Backbone.Events.trigger('legend:render');
     },
 
     unsetDisabledByZoom: function(layerId) {
       var noAvailableByZoom = _.findWhere(this.models, { 'id': layerId });
       noAvailableByZoom.set('notAvailableByZoom', false);
+
+      Backbone.Events.trigger('legend:render');
     },
 
     setOrder: function(layerId) {

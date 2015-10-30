@@ -1,6 +1,6 @@
 <ul>
   {{#each groups}}
-    {{#if categories}}
+    {{!-- {{#if categories}} --}}
       <li class="group" data-slug="{{slug}}">
         <div class="m-layers-list-header">
           <div class="header-title">{{name}}</div>
@@ -18,7 +18,16 @@
                   <use xlink:href="#icon-settings"></use>
                 </svg>
               </button>
-              {{#if info}}<button class="btn-info" data-info="{{info}}" data-name="{{name}}">i</button>{{/if}}
+              {{#if download}}<a href="{{download_url}}" class="btn-download" attr="download">
+                <svg class="icon icon-downloads" opacityLevel="{{opacity_text}}">
+                  <use xlink:href="#icon-downloads"></use>
+                </svg>
+              </a>{{/if}}
+              {{#if info}}<button class="btn-info" data-info="{{info}}" data-name="{{name}}">
+                <svg class="icon icon-info">
+                  <use xlink:href="#icon-info"></use>
+                </svg>
+              </button>{{/if}}
               <div class="panel-item-slider">
                 <div class="m-form-input--slider">
                   <div class="slider-wrapper">
@@ -38,7 +47,7 @@
                 </div>
                 <ul class="m-layers-list-panel {{#if active}}is-active{{/if}}">
                   {{#each layers}}
-                    <li class="layer {{#ifcond opacity_text}}{{/ifcond}} {{#if dashboard_order}} {{dashboard_order}} {{/if}}">
+                    <li class="layer {{#ifcond opacity_text}}{{/ifcond}}">
                       <div class="panel-item-switch m-form-input--switch">
                         <input type="checkbox" class="panel-input-switch" id="layer_{{id}}" {{#if active}}checked{{/if}}>
                         <label for="layer_{{id}}"></label>
@@ -49,7 +58,16 @@
                           <use xlink:href="#icon-settings"></use>
                         </svg>
                       </button>
-                      {{#if info}}<button class="btn-info" data-info="{{info}}" data-name="{{name}}">i</button>{{/if}}
+                      {{#if download}}<a href="{{download_url}}" class="btn-download" attr="download">
+                        <svg class="icon icon-downloads" opacityLevel="{{opacity_text}}">
+                          <use xlink:href="#icon-downloads"></use>
+                        </svg>
+                      </a>{{/if}}
+                      {{#if info}}<button class="btn-info" data-info="{{info}}" data-name="{{name}}">
+                                      <svg class="icon icon-info">
+                                        <use xlink:href="#icon-info"></use>
+                                      </svg>
+                                    </button>{{/if}}
                       <div class="panel-item-slider">
                         <div class="m-form-input--slider">
                           <div class="slider-wrapper">
@@ -83,7 +101,16 @@
                                   <use xlink:href="#icon-settings"></use>
                                 </svg>
                               </button>
-                              {{#if info}}<button class="btn-info" data-info="{{info}}" data-name="{{name}}">i</button>{{/if}}
+                              {{#if download}}<a href="{{download_url}}" class="btn-download" attr="download">
+                                <svg class="icon icon-downloads" opacityLevel="{{opacity_text}}">
+                                  <use xlink:href="#icon-downloads"></use>
+                                </svg>
+                              </a>{{/if}}
+                              {{#if info}}<button class="btn-info" data-info="{{info}}" data-name="{{name}}">
+                                              <svg class="icon icon-info">
+                                                <use xlink:href="#icon-info"></use>
+                                              </svg>
+                                            </button>{{/if}}
                               <div class="panel-item-slider">
                                 <div class="m-form-input--slider">
                                   <div class="slider-wrapper">
@@ -115,7 +142,16 @@
                                             <use xlink:href="#icon-settings"></use>
                                           </svg>
                                         </button>
-                                        {{#if info}}<button class="btn-info" data-info="{{info}}" data-name="{{name}}">i</button>{{/if}}
+                                        {{#if download}}<a href="{{download_url}}" class="btn-download" attr="download">
+                                          <svg class="icon icon-downloads" opacityLevel="{{opacity_text}}">
+                                            <use xlink:href="#icon-downloads"></use>
+                                          </svg>
+                                        </a>{{/if}}
+                                        {{#if info}}<button class="btn-info" data-info="{{info}}" data-name="{{name}}">
+                                                        <svg class="icon icon-info">
+                                                          <use xlink:href="#icon-info"></use>
+                                                        </svg>
+                                                      </button>{{/if}}
                                         <div class="panel-item-slider">
                                           <div class="m-form-input--slider">
                                             <div class="slider-wrapper">
@@ -142,7 +178,7 @@
           <li>
         </ul>
       </li>
-    {{/if}}
+    {{!-- {{/if}} --}}
   {{/each}}
   <li>
     <div class="m-layers-list-header">
@@ -157,6 +193,11 @@
       <li>
         <button class="btn-basemap-handler" data-basemap="topographic">
           <span class="icon-topographic">Topographic</span>
+        </button>
+      </li>
+      <li>
+        <button class="btn-basemap-handler" data-basemap="dark">
+          <span class="icon-dark">Dark</span>
         </button>
       </li>
       <li>

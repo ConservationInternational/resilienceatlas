@@ -1,6 +1,10 @@
 .m-section-nav {
+  width: 90%;
+  margin: 20px auto;
+
   ul, li {
     @extend %clean-lists;
+    padding: 0;
   }
 
   display: flex;

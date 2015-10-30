@@ -16,7 +16,8 @@
     },
 
     events: {
-      'click .btn-back-analysis': 'hideAnalysis'
+      'click .btn-back-analysis': 'hideAnalysis',
+      'click .btn-analysis-info' : '_showInfo'
     },
 
     template: HandlebarsTemplates['analysis/analysis_page_tpl'],
@@ -26,7 +27,10 @@
       'line_chart': 'initLineChart',
       'number': 'initNumber',
       'text_list': 'initTextList',
-      'bar_line_chart': 'initBarLineChart'
+      'bar_line_chart': 'initBarLineChart',
+      'group_bar_chart': 'initGroupBarChart',
+      'group_horizontal_bar_chart': 'initGroupHorizontalBarChart',
+      'pyramid_chart': 'initPyramidChart'
     },
 
     initialize: function(settings) {
@@ -37,6 +41,8 @@
       this.iso = this.options.iso;
       this.country = this.options.country;
       this.data = this.options.data;
+
+      this.infowindow = new root.app.View.InfoWindow;
       this.render();
     },
 
@@ -74,13 +80,53 @@
       $('body').removeClass('analyzing'); 
     },
 
+    _showInfo: function(e) {
+      e.preventDefault();
+      var data = $(e.currentTarget).data('info');
+      var name = $(e.currentTarget).data('name');
+
+      this.infowindow.render(data, name);
+    },
+
     initBarChart: function(indicator) {
       var barChart = new root.app.View.WidgetBarChart({
         el: this.options.elWidgets,
         slug: indicator.slug,
         query: indicator.query,
         name: indicator.name,
-        iso: this.iso
+        iso: this.iso,
+        unit: indicator.unit,
+        unitZ: null,
+        hasLine: false,
+        meta_short: indicator.meta_short,
+        metadata: indicator.metadata
+      });
+    },
+
+    initGroupBarChart: function(indicator) {
+      var groupBarChart = new root.app.View.WidgetGroupBarChart({
+        el: this.options.elWidgets,
+        slug: indicator.slug,
+        query: indicator.query,
+        name: indicator.name,
+        iso: this.iso,
+        labels: indicator.labels,
+        unit: indicator.unit,
+        meta_short: indicator.meta_short,
+        metadata: indicator.metadata
+      });
+    },
+
+    initGroupHorizontalBarChart: function(indicator) {
+      var horizontalBarChart = new root.app.View.WidgetGroupHorizontalBarChart({
+        el: this.options.elWidgets,
+        slug: indicator.slug,
+        query: indicator.query,
+        name: indicator.name,
+        iso: this.iso,
+        unit: indicator.unit,
+        meta_short: indicator.meta_short,
+        metadata: indicator.metadata
       });
     },
 
@@ -91,7 +137,11 @@
         query: indicator.query,
         name: indicator.name,
         iso: this.iso,
-        // hasLine: true
+        unit: indicator.unit,
+        unitZ: indicator.unitZ,
+        hasLine: true,
+        meta_short: indicator.meta_short,
+        metadata: indicator.metadata
       });
     },
 
@@ -101,7 +151,10 @@
         slug: indicator.slug,
         query: indicator.query,
         name: indicator.name,
-        iso: this.iso
+        iso: this.iso,
+        unit: indicator.unit,
+        meta_short: indicator.meta_short,
+        metadata: indicator.metadata
       });
     },
 
@@ -111,7 +164,10 @@
         slug: indicator.slug,
         query: indicator.query,
         name: indicator.name,
-        iso: this.iso
+        iso: this.iso,
+        unit: indicator.unit,
+        meta_short: indicator.meta_short,
+        metadata: indicator.metadata
       });
     },
 
@@ -121,7 +177,24 @@
         slug: indicator.slug,
         query: indicator.query,
         name: indicator.name,
-        iso: this.iso
+        iso: this.iso,
+        unit: indicator.unit,
+        meta_short: indicator.meta_short,
+        metadata: indicator.metadata
+      });
+    },
+
+    initPyramidChart: function(indicator) {
+      var pyramidChart = new root.app.View.WidgetPyramidChart({
+        el: this.options.elWidgets,
+        slug: indicator.slug,
+        query: indicator.query,
+        name: indicator.name,
+        iso: this.iso,
+        labels: indicator.labels,
+        unit: indicator.unit,
+        meta_short: indicator.meta_short,
+        metadata: indicator.metadata
       });
     }
   });

@@ -22,7 +22,12 @@
       this.name = this.options.name;
       this.query = this.options.query;
       this.iso = this.options.iso;
+      this.unit = this.options.unit || '';
+      this.unitZ = this.options.unitZ || '';
       this.widgetName = this.options.widgetName || '';
+      this.labels = this.options.labels;
+      this.meta_short = this.options.meta_short;
+      this.metadata = this.options.metadata;
 
       this.render();
     },
@@ -62,7 +67,9 @@
         name: this.name,
         noData: this.noData,
         data: this.data,
-        slug: this.slug
+        slug: this.slug,
+        meta_short: this.meta_short,
+        metadata: JSON.stringify(this.metadata)
       }));
 
       if(!this.noData) {

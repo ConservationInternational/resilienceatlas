@@ -1,73 +1,152 @@
 [
   {
-    "category_name": "Exposure",
-    "category_slug": "exposure",
+    "category_name": "Livelihoods, Production Systems & Ecosystems",
+    "category_slug": "Livelihoods_production_systems_ecosystems",
     "indicators": [
       {
         "name": "Total population",
         "slug": "total_population",
         "widget": "number",
-        "query": "with r as ( select the_geom_webmercator from country_mask where iso_a3= '%1'), f as ( select (ST_SummaryStats(st_clip( the_raster_webmercator,1, the_geom_webmercator,-2147483648, true), 1, true)).* as  statistics FROM lspop2014, r where st_intersects(the_raster_webmercator, the_geom_webmercator)) SELECT SUM(sum) as sum, (sum(count)*0.9) as area,round(sum(sum)/(sum(count)*0.9)) as density from f"
-      },
+        "query": "SELECT to_char(pop, '999G999G999G999') as value FROM grp_totalpop_density1 where iso3= '%1'",
+        "meta_short": "WorldPop, 2015. http://www.worldpop.org.uk",
+        "metadata": {
+          "description": "Calculated from 1 km resolution 2015 WorldPop data. For this analysis the total population within the chosen geographic analysis area was calculated to get total population. Data is from the WorldPop project version 1.0 Africa and Asia continental datasets. No modifications were made to the dataset other than reprojection and cropping. For more information on the methods behind the data, see http://www.worldpop.org.uk/data/methods.",
+          "source": "Stevens, Forrest R., et al. “Disaggregating Census Data for Population Mapping Using Random Forests with Remotely-Sensed and Ancillary Data.” PLoS ONE 10, no. 2 (February 17, 2015): e0107042.Alegana, V. A., et al. “Fine Resolution Mapping of Population Age-Structures for Health and Development Applications.” Journal of The Royal Society Interface 12, no. 105 (April 6, 2015).Deville, Pierre, et al. “Dynamic Population Mapping Using Mobile Phone Data.” Proceedings of the National Academy of Sciences 111, no. 45 (November 11, 2014): 15888–93.Linard, Catherine, et al. “Population Distribution, Settlement Patterns and Accessibility across Africa in 2010.” PLoS ONE 7, no. 2 (February 21, 2012): e31743.Gaughan, Andrea E. et al. “High Resolution Population Distribution Maps for Southeast Asia in 2010 and 2015.” PLoS ONE 8, no. 2 (February 13, 2013): e55882.Tatem, Andrew J., et al. “High Resolution Population Maps for Low Income Nations: Combining Land Cover and Census in East Africa.” PLoS ONE 2, no. 12 (December 12, 2007): e1298.",
+          "link": "http://www.worldpop.org.uk"
+        }
+      },    
       {
         "name": "Population density",
         "slug": "population_density",
         "widget": "number",
-        "query": "with r as ( select the_geom_webmercator from country_mask where iso_a3= '%1'), f as ( select (ST_SummaryStats(st_clip( the_raster_webmercator,1, the_geom_webmercator,-2147483648, true), 1, true)).* as  statistics FROM lspop2014, r where st_intersects(the_raster_webmercator, the_geom_webmercator)) SELECT SUM(sum) as sum, (sum(count)*0.9) as area,round(sum(sum)/(sum(count)*0.9)) as density from f"
+        "query": "SELECT round(pop_densit::numeric,2) as value ,'p/km2' as unit FROM grp_totalpop_density1 where iso3= '%1'",
+        "meta_short": "WorldPop, 2015. http://www.worldpop.org.uk",
+        "metadata": {
+          "description": "Calculated from 1 km resolution 2015 WorldPop data. For this analysis the total population within the chosen geographic analysis area was calculated and divided by the total land area to get density in number of persons per square km. Data is from the WorldPop project version 1.0 Africa and Asia continental datasets. No modifications were made to the dataset other than reprojection and cropping. For more information on the methods behind the data, see http://www.worldpop.org.uk/data/methods.",
+          "source": "Stevens, Forrest R., et al. “Disaggregating Census Data for Population Mapping Using Random Forests with Remotely-Sensed and Ancillary Data.” PLoS ONE 10, no. 2 (February 17, 2015): e0107042.Alegana, V. A., et al. “Fine Resolution Mapping of Population Age-Structures for Health and Development Applications.” Journal of The Royal Society Interface 12, no. 105 (April 6, 2015).Deville, Pierre, et al. “Dynamic Population Mapping Using Mobile Phone Data.” Proceedings of the National Academy of Sciences 111, no. 45 (November 11, 2014): 15888–93.Linard, Catherine, et al. “Population Distribution, Settlement Patterns and Accessibility across Africa in 2010.” PLoS ONE 7, no. 2 (February 21, 2012): e31743.Gaughan, Andrea E. et al. “High Resolution Population Distribution Maps for Southeast Asia in 2010 and 2015.” PLoS ONE 8, no. 2 (February 13, 2013): e55882.Tatem, Andrew J., et al. “High Resolution Population Maps for Low Income Nations: Combining Land Cover and Census in East Africa.” PLoS ONE 2, no. 12 (December 12, 2007): e1298.",
+          "link": "http://www.worldpop.org.uk"
+        }
       },
       {
         "name": "Primary livelihood strategies",
         "slug": "primary_livelihood_strategies",
         "widget": "text_list",
-        "query": "SELECT month as Month, precip as Precipitation FROM monthly_mean_precip_1981_2014 where iso3='%1' LIMIT 5"
+        "query": "SELECT lz_type as category,area_rank as rank FROM grp_lzs_area where iso3= '%1' order by area_rank asc",
+        "meta_short": "FEWS-NET, 2015. http://www.fews.net; FAO, 2001. http://www.fao.org/geonetwork/srv/en/main.home",
+        "metadata": {
+          "description": "The top three livelihoods zones, by area, in this geographic unit. Data from FEWSNET (https://www.fews.net/sectors/livelihoods) and FAOGeoNetwork data on Major farming systems of South-Asia, Sub-Saharan Africa, and Southeast Asia (http://www.fao.org/geonetwork/srv/en/main.hom). Additional data cleaning and aggregation into major livilihoods datasets performed by CI.",
+          "source": "FEWSNET. Livelihoods: Insights into how people survive and prosper [Internet]. [updated 21 January, 2015]. Available: https://www.fews.net/sectors/livelihoods.FAOGeoNetwork. Major farming systems of South-Asia, Sub-Saharan Africa, and Southeast Asia [Internet]. [updated 1 May 2001]. Available: www.fao.org/geonetwork/srv/en/main.hom.",
+          "link": "http://www.fao.org/geonetwork/srv/en/main.home"
+        }
       }
     ]
   },
   {
-    "category_name": "Stressors",
-    "category_slug": "stressors",
+    "category_name": "Stressors & Shocks",
+    "category_slug": "stressors_shocks",
     "indicators": [
       {
-        "name": "Precipitation trend",
-        "slug": "precipitation_trend",
-        "widget": "bar_chart",
-        "query": "SELECT month as x, precip as y, month as name FROM monthly_mean_precip_1981_2014 WHERE iso3 = '%1'"
+        "name": "Monthly precipitation",
+        "slug": "monthly_precipitation",
+        "widget": "line_chart",
+        "unit": "mm",
+        "query": "SELECT month as x, round(precip::numeric, 2) as y, month as name FROM monthly_mean_precip_1981_2014 WHERE iso3 = '%1'",
+        "meta_short": "CHIRPS, 2015. http://chg.geog.ucsb.edu/data/chirps",
+        "metadata": {
+          "description": "Mean monthly precipitation in mm, calculated over the 1988-2015 period. Calculated from the Climate Hazards Group InfraRed Precipitation with Station (CHIRPS) version 2.0 dataset.",
+          "source": "Funk, C.C., Peterson, P.J., Landsfeld, M.F., Pedreros, D.H., Verdin, J.P., Rowland, J.D., Romero, B.E., Husak, G.J., Michaelsen, J.C., and Verdin, A.P., 2014, A quasi-global precipitation time series for drought monitoring: U.S. Geological Survey Data Series 832, 4 p., http://dx.doi.org/10.3133/ds832.",
+          "link": "http://chg.geog.ucsb.edu/data/chirps"
+        }
       },
       {
-        "name": "Temperature trend",
-        "slug": "temperature_trend",
+        "name": "Mean temperatures (current)",
+        "slug": "mean_temperatures_current",
         "widget": "line_chart",
-        "query": "SELECT month as x, round(precip) as y, month as name FROM monthly_mean_precip_1981_2014 WHERE iso3 = '%1'"
+        "unit": "°C",
+        "query": "SELECT month as x,month as name, round(value::numeric,1) as y  FROM cru_ts3_23_tmp_1985_2015_monthly WHERE iso3 ='%1'",
+        "meta_short": "CRU, 2015. http://www.cru.uea.ac.uk",
+        "metadata": {
+          "description": "Monthly mean daily mean temperature in degrees Celsius during the 1985-2015 period. Analysis based on monthly data from 1985-2015 from the Climatic Research Unit (CRU) TS Version 3.23 dataset.",
+          "source": "Harris, I., P.D. Jones, T.J. Osborn, and D.H. Lister. “The CRU TS3.10 Dataset: Updated High-Resolution Grids of Monthly Climatic Observations.” International Journal of Climatology 34, no. 3 (March 15, 2014): 623–42.",
+          "link": "http://www.cru.uea.ac.uk"
+        }
+      },
+      {
+        "name": "Mean temperatures (2040-2060) (max temperature trend)",
+        "slug": "temperature_trend_max",
+        "widget": "bar_chart",
+        "unit": "°C",
+        "query": "SELECT round(change::numeric,2) as y, month as x, month as name FROM tasmax_rcp85_1986_2005_vs_2040_2059_monthly where iso3='%1'",
+        "meta_short": "NEX-GDDP, 2014. http://dx.doi.org/10.7292/W0MW2F2G",
+        "metadata": {
+          "description": "Change in monthly mean daily mean surface temperature for 2040-2060, in degrees Celsius, compared to the 1980-2000 period. This analysis uses downscaled data from the 5th Coupled Model Intercomparison Project (CMIP5) made available in the the NASA Earth Exchange Global Daily Downscaled Projections (NEX-GDDP) dataset. The data for this layer is from the RCP8.5 scenario, a scenario that results in CO2 concentrations of more than 1370 ppm by 2100.",
+          "source": "Moss, Richard H., Jae A. Edmonds, Kathy A. Hibbard, Martin R. Manning, Steven K. Rose, Detlef P. van Vuuren, Timothy R. Carter, et al. “The next Generation of Scenarios for Climate Change Research and Assessment.” Nature 463, no. 7282 (February 11, 2010): 747–56.Taylor, Karl E., Ronald J. Stouffer, and Gerald A. Meehl. “An Overview of CMIP5 and the Experiment Design.” Bulletin of the American Meteorological Society 93, no. 4 (2012): 485–98",
+          "link": "http://dx.doi.org/10.7292/W0MW2F2G"
+        }
+      },
+      {
+        "name": "Mean temperatures (2040-2060) (min temperature trend)",
+        "slug": "temperature_trend_min",
+        "widget": "bar_chart",
+        "unit": "°C",
+        "query": "SELECT round(change::numeric,2) as y, month as x, month as name FROM tasmin_rcp85_1986_2005_vs_2040_2059_monthly where iso3='%1'",
+        "meta_short": "NEX-GDDP, 2014. http://dx.doi.org/10.7292/W0MW2F2G",
+        "metadata": {
+          "description": "Change in monthly mean daily mean surface temperature for 2040-2060, in degrees Celsius, compared to the 1980-2000 period. This analysis uses downscaled data from the 5th Coupled Model Intercomparison Project (CMIP5) made available in the the NASA Earth Exchange Global Daily Downscaled Projections (NEX-GDDP) dataset. The data for this layer is from the RCP8.5 scenario, a scenario that results in CO2 concentrations of more than 1370 ppm by 2100.",
+          "source": "Moss, Richard H., Jae A. Edmonds, Kathy A. Hibbard, Martin R. Manning, Steven K. Rose, Detlef P. van Vuuren, Timothy R. Carter, et al. “The next Generation of Scenarios for Climate Change Research and Assessment.” Nature 463, no. 7282 (February 11, 2010): 747–56.Taylor, Karl E., Ronald J. Stouffer, and Gerald A. Meehl. “An Overview of CMIP5 and the Experiment Design.” Bulletin of the American Meteorological Society 93, no. 4 (2012): 485–98",
+          "link": "http://dx.doi.org/10.7292/W0MW2F2G"
+        }
       },
       {
         "name": "Climate chart",
         "slug": "climate_chart",
         "widget": "bar_line_chart",
-        "query": "SELECT month as x, precip as y, precip as z, month as name FROM monthly_mean_precip_1981_2014 WHERE iso3 = '%1'"
-      }
-    ]
-  },
-  {
-    "category_name": "Shocks",
-    "category_slug": "shocks",
-    "indicators": [
-      {
-        "name": "Change in precipitation variability",
-        "slug": "change_in_precipitation_variability",
-        "widget": "bar_chart",
-        "query": "SELECT month as x, precip as y, month as name FROM monthly_mean_precip_1981_2014 WHERE iso3 = '%1'"
+        "unit": "mm",
+        "unitZ": "°C",
+        "query": "with r as (SELECT s.month as x,s.month as name, round(value::numeric,1) as z, round(precip::numeric,1) as y, r.iso3  FROM cru_ts3_23_tmp_1985_2015_monthly r inner join monthly_mean_precip_1981_2014 s on r.iso3=s.iso3 and r.month=s.month) select * from r where iso3='%1'"
       },
       {
-        "name": "Change in seasonality",
-        "slug": "change_in_seasonality",
+        "name": "Monthly precipitation in 2040-2060",
+        "slug": "monthly_precipitation_in_2040",
         "widget": "bar_chart",
-        "query": "SELECT month as x, precip as y, month as name FROM monthly_mean_precip_1981_2014 WHERE iso3 = '%1'"
+        "unit": "%",
+        "query": "SELECT round(change::numeric,2) as y, month as x, month as name FROM pr_rcp85_1986_2005_vs_2040_2059_monthly where iso3='%1'",
+        "meta_short": "NEX-GDDP, 2014. http://dx.doi.org/10.7292/W0MW2F2G",
+        "metadata": {
+          "description": "Percent change in mean total monthly precipitation for 2040-2060, compared to the 1980-2000 period. This analysis uses downscaled data from the 5th Coupled Model Intercomparison Project (CMIP5) made available in the the NASA Earth Exchange Global Daily Downscaled Projections (NEX-GDDP) dataset. The data for this layer is from the RCP8.5 scenario, a scenario that results in CO2 concentrations of more than 1370 ppm by 2100.",
+          "source": "Moss, Richard H., Jae A. Edmonds, Kathy A. Hibbard, Martin R. Manning, Steven K. Rose, Detlef P. van Vuuren, Timothy R. Carter, et al. “The next Generation of Scenarios for Climate Change Research and Assessment.” Nature 463, no. 7282 (February 11, 2010): 747–56.Taylor, Karl E., Ronald J. Stouffer, and Gerald A. Meehl. “An Overview of CMIP5 and the Experiment Design.” Bulletin of the American Meteorological Society 93, no. 4 (2012): 485–98",
+          "link": "http://dx.doi.org/10.7292/W0MW2F2G"
+        }
+      },
+      {
+        "name": "Health",
+        "slug": "health",
+        "widget": "group_horizontal_bar_chart",
+        "query": "with r as (select dhsregen,iso3,reg_id,svytype,svyyear from grp_dhs_regions where iso3='%1'),  s as (SELECT l.indicatorid, l.byvariableid, characteristiclabel, l.value FROM dhs_export l inner join r on regionid=reg_id where indicatorid = 20171000 or indicatorid = 70254002 or indicatorid =13126000 order by characteristiclabel) SELECT trim(leading '.' from characteristiclabel) as label, value, CASE indicatorid WHEN 20171000 THEN 'Total fertility rate' WHEN 70254002 THEN 'infant mortality rate' ELSE 'stunting' END as category FROM s",
+        "meta_short": "DHS, 2015. http://www.statcompiler.com",
+        "metadata": {
+          "description": "Data from the Demographic and Health Surveys (DHS). Data taken from the online StatCompiler tool, using the lowest available and most recent sub-national survey information from each country.",
+          "source": "DHS. 2015. “MEASURE Demographic and Health Surveys.” Maryland: MEASURE DHS, ICF International.",
+          "link": "http://www.statcompiler.com"
+        }
       },
       {
         "name": "Conflict",
         "slug": "conflict",
-        "widget": "bar_chart",
-        "query": "SELECT month as x, precip as y, month as name FROM monthly_mean_precip_1981_2014 WHERE iso3 = '%1'"
+        "widget": "group_bar_chart",
+        "query": "SELECT overall::float, inco::float, inst::float, army::float, year as x FROM gpi_scores_longformat where iso3='%1' order by year asc",
+        "labels": {
+          "overall": "Graphic showing State of Peace",
+          "inco": "Society and Security",
+          "inst": "Domestic and International Conflict",
+          "army": "Militarisation"
+        },
+        "meta_short": "Institute for Economics and Peace, 2015. http://www.visionofhumanity.org",
+        "metadata": {
+          "description": "Data from the Institute for Peace and Economics Global Peace Index. Institute for Economics and Peace, 2015.",
+          "source": " Institute for Economics and Peace, 2015.",
+          "link": "http://www.visionofhumanity.org"
+        }
       }
     ]
   },
@@ -76,22 +155,56 @@
     "category_slug": "vulnerability",
     "indicators": [
       {
-        "name": "Change in precipitation variability",
-        "slug": "change_in_precipitation_variability",
-        "widget": "bar_chart",
-        "query": "SELECT month as x, precip as y, month as name FROM monthly_mean_precip_1981_2014 WHERE iso3 = '%1'"
+        "name": "Population pyramid",
+        "slug": "population_pyramid",
+        "widget": "pyramid_chart",
+        "query": "SELECT round(pop::numeric,2) as value , sex as category, to_char(class,'FM99') as group FROM africa_pop_pyramid_tables where iso3= '%1' order by class,sex",
+        "labels": {
+          "14":"0-5",
+          "13":"5-10",
+          "12":"10-15",
+          "11":"15-20",
+          "10":"20-25",
+          "9":"25-30",
+          "8":"30-35",
+          "7":"35-40",
+          "6":"40-45",
+          "5":"45-50",
+          "4":"50-55",
+          "3":"55-60",
+          "2":"60-65",
+          "1":">65"
+        },
+        "meta_short": "WorldPop, 2015. http://www.worldpop.org.uk",
+        "metadata": {
+          "description": "Calculated from 1 km resolution 2015 WorldPop data. Each bar is proportional to the total number of people of a given sex within a particular age class (in years). For this analysis the total population within each sex and age class was summed across the chosen geographic analysis area. Data is from the WorldPop project version 1.0 Africa and Asia continental datasets. No modifications were made to the dataset other than reprojection and cropping. For more information on the methods behind the data, see http://www.worldpop.org.uk/data/methods.",
+          "source": "Stevens, Forrest R., et al. “Disaggregating Census Data for Population Mapping Using Random Forests with Remotely-Sensed and Ancillary Data.” PLoS ONE 10, no. 2 (February 17, 2015): e0107042.Alegana, V. A., et al. “Fine Resolution Mapping of Population Age-Structures for Health and Development Applications.” Journal of The Royal Society Interface 12, no. 105 (April 6, 2015).Deville, Pierre, et al. “Dynamic Population Mapping Using Mobile Phone Data.” Proceedings of the National Academy of Sciences 111, no. 45 (November 11, 2014): 15888–93.Linard, Catherine, et al. “Population Distribution, Settlement Patterns and Accessibility across Africa in 2010.” PLoS ONE 7, no. 2 (February 21, 2012): e31743.Gaughan, Andrea E. et al. “High Resolution Population Distribution Maps for Southeast Asia in 2010 and 2015.” PLoS ONE 8, no. 2 (February 13, 2013): e55882.Tatem, Andrew J., et al. “High Resolution Population Maps for Low Income Nations: Combining Land Cover and Census in East Africa.” PLoS ONE 2, no. 12 (December 12, 2007): e1298.",
+          "link": "http://www.worldpop.org.uk"
+        }
       },
       {
-        "name": "Change in seasonality",
-        "slug": "change_in_seasonality",
-        "widget": "bar_chart",
-        "query": "SELECT month as x, precip as y, month as name FROM monthly_mean_precip_1981_2014 WHERE iso3 = '%1'"
+        "name": "Education",
+        "slug": "education",
+        "widget": "group_horizontal_bar_chart",
+        "query": "with r as (select dhsregen,iso3,reg_id,svytype,svyyear from grp_dhs_regions where iso3='%1'),  s as (SELECT l.indicatorid, l.byvariableid, characteristiclabel, l.value FROM dhs_export l inner join r on regionid=reg_id where byvariableid!=106001 and indicatorid = 6136002 or indicatorid =13126000 or indicatorid =127384003 order by characteristiclabel) SELECT trim(leading '.' from characteristiclabel) as label, value, CASE indicatorid WHEN 6136002 THEN 'Total fertility rate' WHEN 13126000 THEN 'Womens education' ELSE 'mass media access' END as category FROM s",
+        "meta_short": "DHS, 2015. http://www.statcompiler.com",
+        "metadata": {
+          "description": "Data from the Demographic and Health Surveys (DHS). Data taken from the online StatCompiler tool, using the lowest available and most recent sub-national survey information from each country.",
+          "source": "DHS. 2015. “MEASURE Demographic and Health Surveys.” Maryland: MEASURE DHS, ICF International.",
+          "link": "http://www.statcompiler.com"
+        }
       },
       {
-        "name": "Conflict",
-        "slug": "conflict",
-        "widget": "bar_chart",
-        "query": "SELECT month as x, precip as y, month as name FROM monthly_mean_precip_1981_2014 WHERE iso3 = '%1'"
+        "name": "Services",
+        "slug": "services",
+        "widget": "group_horizontal_bar_chart",
+        "query": "with r as (select dhsregen,iso3,reg_id,svytype,svyyear from grp_dhs_regions where iso3= '%1'),  s as (SELECT l.indicatorid, l.byvariableid, characteristiclabel, l.value FROM dhs_export l inner join r on regionid=reg_id where indicatorid = 9124003 or indicatorid =8139010 or indicatorid =8142001 order by characteristiclabel) SELECT trim(leading '.' from characteristiclabel) as label, value, CASE indicatorid WHEN 9124003 THEN 'Electification access' WHEN 8142001 THEN 'Telephone access' ELSE 'Piped water access' END as category FROM s",
+        "meta_short": "DHS, 2015. http://www.statcompiler.com",
+        "metadata": {
+          "description": "Data from the Demographic and Health Surveys (DHS). Data taken from the online StatCompiler tool, using the lowest available and most recent sub-national survey information from each country.",
+          "source": "DHS. 2015. “MEASURE Demographic and Health Surveys.” Maryland: MEASURE DHS, ICF International.",
+          "link": "http://www.statcompiler.com"
+        }
       }
     ]
   }

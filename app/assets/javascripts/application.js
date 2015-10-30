@@ -26,6 +26,9 @@
 //= require_tree ./views/journeys
 //= require ./views/analysis/widgets/widget_view
 //= require ./views/analysis/widgets/widget_bar_chart
+//= require ./views/analysis/widgets/widget_group_bar_chart
+//= require ./views/analysis/widgets/widget_group_horizontal_bar_chart
+//= require ./views/analysis/widgets/widget_pyramid_chart
 //= require ./views/analysis/widgets/widget_line_chart
 //= require ./views/analysis/widgets/widget_number
 //= require ./views/analysis/widgets/widget_text_list
@@ -61,6 +64,8 @@
     el: document.body,
 
     initialize: function() {
+      // var subdomine = this._subdomineSettings();
+     
       this.currentViews = [];
       this.router = new root.app.Router();
       this.initGlobalViews();
@@ -89,6 +94,7 @@
         journeysIndexCollection,
       ], 'fetch');
 
+
       $.when.apply($, complete).done(function() {
         headerView.render();
         this.totalJourneys = journeysIndexCollection.length;
@@ -108,13 +114,22 @@
     },
 
     journeysPage: function(journeyId) {
+      var journeysIndexCollection = new root.app.Collection.JourneysIndex();
+
+      // Fetching data
+      var complete = _.invoke([
+        journeysIndexCollection,
+      ], 'fetch');
+
+      $.when.apply($, complete).done(function() {
       var journeyPageView = new root.app.JourneysPageView({
-        router: this.router,
-        options: {
-          'journeyId': journeyId,
-          'totalJourneys': this.totalJourneys
-        }
-      });
+          router: this.router,
+          options: {
+            'journeyId': journeyId,
+            'totalJourneys': this.totalJourneys
+          }
+        });
+      }.bind(this));
     },
 
     aboutPage: function() {

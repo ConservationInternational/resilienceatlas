@@ -4,19 +4,23 @@ html lang="#{I18n.locale}"
   head
     title Map | Resilience Atlas (Beta)
     = render :partial => "partials/head"
-    = stylesheet_link_tag "http://libs.cartocdn.com/cartodb.js/v3/3.14/themes/css/cartodb.css", media: "all"
+    = stylesheet_link_tag "http://libs.cartocdn.com/cartodb.js/v3/3.15/themes/css/cartodb.css", media: "all"
     = stylesheet_link_tag "application", media: "all"
     = csrf_meta_tags
 
-  body class="is-#{controller_name}-page"
+    javascript:
+        window.isSubdomain = "#{@subdomain}"
+
+  body class="is-#{controller_name}-page is-#{@subdomain}"
     = render :partial => "partials/icons"
     == render 'layouts/header'
     .l-main--fullscreen
       == yield
 
     == render "partials/modal"
+    == render "partials/disclaimer"
 
-    = javascript_include_tag "http://libs.cartocdn.com/cartodb.js/v3/3.14/cartodb.js"
+    = javascript_include_tag "http://libs.cartocdn.com/cartodb.js/v3/3.15/cartodb.js"
     = javascript_include_tag "application"
 
 
