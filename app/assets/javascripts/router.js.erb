@@ -11,13 +11,22 @@
       update: true // If "true" It will show params in url when params change
     },
 
-    routes: {
-      '(/)': 'welcome',
-      'map(/)': 'map',
-      'embed/map(/)': 'map',
-      'about(/)': 'about',
-      'journeys/:id(/)': 'journeys',
-      'embed/journeys(/)': 'journeys',
+    routes: function() {
+      var isSubdomain = '<%= @subdomain %>';
+      console.log(isSubdomain);
+      if (isSubdomain === 'main') {
+        return {
+          '(/)': 'welcome',
+          'map(/)': 'map',
+          'embed/map(/)': 'map',
+          'about(/)': 'about',
+          'journeys/:id(/)': 'journeys',
+          'embed/journeys(/)': 'journeys',
+        }
+      }
+      return {
+        '(/)': 'map'
+      };
     },
 
     ParamsModel: Backbone.Model.extend({}),

@@ -16,7 +16,7 @@ class ApplicationController < ActionController::Base
   end
 
   def get_subdomain
-    @subdomain = request.subdomain(0).split('.')[0]
+    @subdomain = request.subdomain != '' ? request.subdomain(0).split('.')[0] : 'main'
   end
 
   protected
