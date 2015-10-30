@@ -132,6 +132,7 @@
     },
 
     selectBasemap: function(basemapType) {
+      this.selectedBasemap = basemapType;
       var newBasemapUrl = this.options.basemap[basemapType].url;
       this.setBasemap(newBasemapUrl, basemapType);
     },
@@ -155,6 +156,7 @@
       }
       if (this.basemap) {
         this.map.removeLayer(this.basemap);
+        this.map.removeLayer(this.labels);
       }
 
       var labelsUrl = this._getBaseMapLabelsUrl();
@@ -248,6 +250,12 @@
     _removingLayer: function(layerData) {
       this._setOrderToNull(layerData);
       this.removeLayer(layerData);
+
+      var currentLayerModel = _.findWhere(this.layers.models, { 'id': layerData });
+      
+      if (currentLayerModel) {
+        currentLayerModel.set('active', false);
+      }
     },
 
     _showAdvise: function(layerData) {

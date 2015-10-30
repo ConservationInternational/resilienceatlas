@@ -64,6 +64,8 @@
     el: document.body,
 
     initialize: function() {
+      // var subdomine = this._subdomineSettings();
+     
       this.currentViews = [];
       this.router = new root.app.Router();
       this.initGlobalViews();

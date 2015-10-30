@@ -19,6 +19,10 @@
     display: none;
   }
 
+  .is-indicators & {
+    background-color: #222222;
+  }
+
   &:before {
     content: "";
     display: block;
@@ -28,6 +32,10 @@
     width: 37px;
     height: 37px;
     background-image: image-url('beta.svg');
+
+    .is-indicators & {
+      display: none;
+    }
   }
 
   @include clearfix;
@@ -52,15 +60,8 @@
       background-size: contain;
       text-indent: -99999px;
 
-      &:after {
-        content: "beta";
-        display: block;
-        position: absolute;
-        bottom: rem(5px);
-        left: 0;
-        font-size: 10px;
-        color: $font-color-2;
-
+      .is-indicators & {
+        background-image: image-url("logo-vs.png");
       }
 
       &:hover {
@@ -72,6 +73,10 @@
   .nav-area {
     float: right;
     margin-right: -rem($margin);
+
+    .is-indicators & {
+      display: none;
+    }
 
     li {
       display: flex;

@@ -22,6 +22,8 @@
       this.name = this.options.name;
       this.query = this.options.query;
       this.iso = this.options.iso;
+      this.unit = this.options.unit || '';
+      this.unitZ = this.options.unitZ || '';
       this.widgetName = this.options.widgetName || '';
       this.labels = this.options.labels;
 

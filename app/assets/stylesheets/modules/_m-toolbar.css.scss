@@ -65,9 +65,10 @@
     }
   }
 
-
   button {
     @extend %clean-button-or-input;
     padding: 0;
+    width: 100%;
+    height: 100%;
   }
 }
