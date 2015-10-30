@@ -28,7 +28,6 @@
     },
 
     _share: function() {
-      console.log('hola')
       Backbone.Events.trigger('share:show');
     },
 
