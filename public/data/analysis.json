@@ -158,7 +158,7 @@
         "name": "Population pyramid",
         "slug": "population_pyramid",
         "widget": "pyramid_chart",
-        "query": "SELECT round(pop::numeric,2) as value , sex as category, to_char(class,'FM99') as group FROM africa_pop_pyramid_tables where iso3= '%1' order by class,sex",
+        "query": "SELECT round(pop::numeric,2) as value , sex as category, to_char(class,'FM99') as group FROM africa_pop_pyramid_tables where iso3= '%1' order by class asc,sex",
         "labels": {
           "14":"0-5",
           "13":"5-10",
