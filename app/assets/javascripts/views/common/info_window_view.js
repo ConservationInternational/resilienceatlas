@@ -23,7 +23,6 @@
     },
 
     render: function(data, name) {
-
       var description = data.description || null;
       var source = data.source || null;
       var link = data.link || null;
