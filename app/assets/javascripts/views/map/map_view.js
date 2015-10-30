@@ -132,6 +132,7 @@
     },
 
     selectBasemap: function(basemapType) {
+      this.selectedBasemap = basemapType;
       var newBasemapUrl = this.options.basemap[basemapType].url;
       this.setBasemap(newBasemapUrl, basemapType);
     },
@@ -155,6 +156,7 @@
       }
       if (this.basemap) {
         this.map.removeLayer(this.basemap);
+        this.map.removeLayer(this.labels);
       }
 
       var labelsUrl = this._getBaseMapLabelsUrl();
