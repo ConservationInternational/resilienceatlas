@@ -6,6 +6,12 @@
     background-color: #D8D8D8;
   }
 
+  li[data-section="analysis"] {
+    .is-indicators & {
+      display: none;
+    }
+  }
+
   .tab-title {
     a {
       padding: 10px 20px;

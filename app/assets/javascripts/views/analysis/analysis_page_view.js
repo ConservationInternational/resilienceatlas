@@ -16,7 +16,8 @@
     },
 
     events: {
-      'click .btn-back-analysis': 'hideAnalysis'
+      'click .btn-back-analysis': 'hideAnalysis',
+      'click .btn-analysis-info' : '_showInfo'
     },
 
     template: HandlebarsTemplates['analysis/analysis_page_tpl'],
@@ -40,6 +41,8 @@
       this.iso = this.options.iso;
       this.country = this.options.country;
       this.data = this.options.data;
+
+      this.infowindow = new root.app.View.InfoWindow;
       this.render();
     },
 
@@ -77,6 +80,14 @@
       $('body').removeClass('analyzing'); 
     },
 
+    _showInfo: function(e) {
+      e.preventDefault();
+      var data = $(e.currentTarget).data('info');
+      var name = $(e.currentTarget).data('name');
+
+      this.infowindow.render(data, name);
+    },
+
     initBarChart: function(indicator) {
       var barChart = new root.app.View.WidgetBarChart({
         el: this.options.elWidgets,
@@ -86,7 +97,9 @@
         iso: this.iso,
         unit: indicator.unit,
         unitZ: null,
-        hasLine: false
+        hasLine: false,
+        meta_short: indicator.meta_short,
+        metadata: indicator.metadata
       });
     },
 
@@ -98,7 +111,9 @@
         name: indicator.name,
         iso: this.iso,
         labels: indicator.labels,
-        unit: indicator.unit
+        unit: indicator.unit,
+        meta_short: indicator.meta_short,
+        metadata: indicator.metadata
       });
     },
 
@@ -109,7 +124,9 @@
         query: indicator.query,
         name: indicator.name,
         iso: this.iso,
-        unit: indicator.unit
+        unit: indicator.unit,
+        meta_short: indicator.meta_short,
+        metadata: indicator.metadata
       });
     },
 
@@ -122,7 +139,9 @@
         iso: this.iso,
         unit: indicator.unit,
         unitZ: indicator.unitZ,
-        hasLine: true
+        hasLine: true,
+        meta_short: indicator.meta_short,
+        metadata: indicator.metadata
       });
     },
 
@@ -133,7 +152,9 @@
         query: indicator.query,
         name: indicator.name,
         iso: this.iso,
-        unit: indicator.unit
+        unit: indicator.unit,
+        meta_short: indicator.meta_short,
+        metadata: indicator.metadata
       });
     },
 
@@ -144,7 +165,9 @@
         query: indicator.query,
         name: indicator.name,
         iso: this.iso,
-        unit: indicator.unit
+        unit: indicator.unit,
+        meta_short: indicator.meta_short,
+        metadata: indicator.metadata
       });
     },
 
@@ -155,7 +178,9 @@
         query: indicator.query,
         name: indicator.name,
         iso: this.iso,
-        unit: indicator.unit
+        unit: indicator.unit,
+        meta_short: indicator.meta_short,
+        metadata: indicator.metadata
       });
     },
 
@@ -167,7 +192,9 @@
         name: indicator.name,
         iso: this.iso,
         labels: indicator.labels,
-        unit: indicator.unit
+        unit: indicator.unit,
+        meta_short: indicator.meta_short,
+        metadata: indicator.metadata
       });
     }
   });

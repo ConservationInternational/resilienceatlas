@@ -15,8 +15,9 @@ Rails.application.routes.draw do
     end
   end
 
-  # Aplication
-  root 'welcome#index'
+  # Application
+  get '/', to: 'map#index', constraints: { subdomain: /indicators.+/ }
+  get '/', to: 'welcome#index', as: 'root'
 
   get 'map', to: 'map#index'
   get 'about', to: 'about#index'

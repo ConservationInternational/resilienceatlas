@@ -1056,6 +1056,8 @@
       var regionWidth = width/2 - margin.middle;
       var pointA = regionWidth,
           pointB = width - regionWidth;
+
+      data.reverse();
       
       var totalPopulation = d3.sum(data, function(d) { return d.category2 + d.category1; });
       var percentage = function(d) { return d / totalPopulation; };

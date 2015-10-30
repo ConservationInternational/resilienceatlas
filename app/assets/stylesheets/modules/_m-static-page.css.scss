@@ -46,10 +46,34 @@
 
   ul, li {
     list-style-type: decimal;
+
+  }
+
+  .data-source {
+    list-style-type: bullet;
+
+    li {
+      width: 50%;
+      float: left;
+      list-style-type: disc;
+      margin-bottom: 20px;
+
+      &:nth-child(2n + 1) {
+        padding-right: 1%;
+      }
+    }
+
+    p {
+      margin: 0;
+    }
   }
 
   .italic {
     font-style: italic;
+  }
+
+  .is-bold {
+    font-weight: 700;
   }
 
   .references {

@@ -7,3 +7,14 @@
 {{else}}
 <div id="{{slug}}-graph" class="widget-line-chart graph" style="height:215px"></div>
 {{/if}}
+
+{{#if meta_short}}
+<div class="meta-short">
+  {{meta_short}} 
+  <button class="btn-analysis-info" data-info="{{metadata}}" data-name="{{name}}">
+    <svg class="icon icon-info">
+      <use xlink:href="#icon-info"></use>
+    </svg>
+  </button>
+</div>
+{{/if}}

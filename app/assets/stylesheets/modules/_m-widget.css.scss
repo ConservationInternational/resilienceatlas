@@ -93,4 +93,24 @@
     height: rem(118px);
   }
 
+  .meta-short {
+    width: 100%;
+    float: left;
+    font-size: 13px;
+    font-weight: 400;
+    color: $gray-70;
+    margin-top: 5px;
+    margin-bottom: 10px;
+    margin-left: 16px;
+    position: relative;
+    padding-top: 2px;
+  }
+
+  .btn-analysis-info {
+    @extend %clean-button-or-input;
+    width: 24px;
+    position: absolute;
+    height: 18px;
+    top: 0px;
+  }
 }
