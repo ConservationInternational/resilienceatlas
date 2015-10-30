@@ -63,7 +63,7 @@
      */
     el: document.body,
 
-    initialize: function() {
+    initialize: function() {   
       this.currentViews = [];
       this.router = new root.app.Router();
       this.initGlobalViews();

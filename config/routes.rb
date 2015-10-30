@@ -16,7 +16,13 @@ Rails.application.routes.draw do
   end
 
   # Aplication
-  root 'welcome#index'
+  default_root = 'welcome#index'
+
+  constraints subdomains: 'indicators' do
+    default_root = 'map#index'
+  end
+
+  root default_root
 
   get 'map', to: 'map#index'
   get 'about', to: 'about#index'

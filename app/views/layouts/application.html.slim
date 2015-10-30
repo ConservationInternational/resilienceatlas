@@ -7,7 +7,7 @@ html lang="#{I18n.locale}"
     = stylesheet_link_tag "application", media: "all"
     = csrf_meta_tags
 
-  body class="is-#{controller_name}-page"
+  body class="is-#{controller_name}-page #{@subdomain}"
     = render :partial => "partials/icons"
     == render "layouts/header"
     .l-main-fullscreen
