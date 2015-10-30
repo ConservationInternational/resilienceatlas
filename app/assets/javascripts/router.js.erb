@@ -14,8 +14,7 @@
     routes: function() {
       var routes;
       var isSubdomain = window.isSubdomain;
-      console.log(isSubdomain);
-      if (isSubdomain === 'cigrp') {
+      if (isSubdomain !== 'indicators') {
         routes = {
           '(/)': 'welcome',
           'map(/)': 'map',
