@@ -83,7 +83,10 @@
         slug: indicator.slug,
         query: indicator.query,
         name: indicator.name,
-        iso: this.iso
+        iso: this.iso,
+        unit: indicator.unit,
+        unitZ: null,
+        hasLine: false
       });
     },
 
@@ -94,7 +97,8 @@
         query: indicator.query,
         name: indicator.name,
         iso: this.iso,
-        labels: indicator.labels
+        labels: indicator.labels,
+        unit: indicator.unit
       });
     },
 
@@ -104,7 +108,8 @@
         slug: indicator.slug,
         query: indicator.query,
         name: indicator.name,
-        iso: this.iso
+        iso: this.iso,
+        unit: indicator.unit
       });
     },
 
@@ -115,7 +120,9 @@
         query: indicator.query,
         name: indicator.name,
         iso: this.iso,
-        // hasLine: true
+        unit: indicator.unit,
+        unitZ: indicator.unitZ,
+        hasLine: true
       });
     },
 
@@ -125,7 +132,8 @@
         slug: indicator.slug,
         query: indicator.query,
         name: indicator.name,
-        iso: this.iso
+        iso: this.iso,
+        unit: indicator.unit
       });
     },
 
@@ -135,7 +143,8 @@
         slug: indicator.slug,
         query: indicator.query,
         name: indicator.name,
-        iso: this.iso
+        iso: this.iso,
+        unit: indicator.unit
       });
     },
 
@@ -145,7 +154,8 @@
         slug: indicator.slug,
         query: indicator.query,
         name: indicator.name,
-        iso: this.iso
+        iso: this.iso,
+        unit: indicator.unit
       });
     },
 
@@ -156,7 +166,8 @@
         query: indicator.query,
         name: indicator.name,
         iso: this.iso,
-        labels: indicator.labels
+        labels: indicator.labels,
+        unit: indicator.unit
       });
     }
   });
