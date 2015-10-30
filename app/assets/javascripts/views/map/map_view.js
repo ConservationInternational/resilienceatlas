@@ -248,6 +248,12 @@
     _removingLayer: function(layerData) {
       this._setOrderToNull(layerData);
       this.removeLayer(layerData);
+
+      var currentLayerModel = _.findWhere(this.layers.models, { 'id': layerData });
+      
+      if (currentLayerModel) {
+        currentLayerModel.set('active', false);
+      }
     },
 
     _showAdvise: function(layerData) {
