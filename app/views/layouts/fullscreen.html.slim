@@ -8,6 +8,9 @@ html lang="#{I18n.locale}"
     = stylesheet_link_tag "application", media: "all"
     = csrf_meta_tags
 
+    javascript:
+        window.isSubdomain = "#{@subdomain}"
+
   body class="is-#{controller_name}-page is-#{@subdomain}"
     = render :partial => "partials/icons"
     == render 'layouts/header'

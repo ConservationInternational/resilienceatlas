@@ -12,21 +12,23 @@
     },
 
     routes: function() {
-      var isSubdomain = '<%= @subdomain %>';
-      console.log(isSubdomain);
+      var routes;
+      var isSubdomain = window.isSubdomain;
       if (isSubdomain === 'main') {
-        return {
+        routes = {
           '(/)': 'welcome',
           'map(/)': 'map',
           'embed/map(/)': 'map',
           'about(/)': 'about',
           'journeys/:id(/)': 'journeys',
           'embed/journeys(/)': 'journeys',
-        }
+        };
+      } else {
+        routes = {
+          '(/)': 'map'
+        };
       }
-      return {
-        '(/)': 'map'
-      };
+      return routes;
     },
 
     ParamsModel: Backbone.Model.extend({}),
