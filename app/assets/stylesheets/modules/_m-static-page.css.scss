@@ -30,9 +30,9 @@
 
   p {
     font-size: 16px;
-        font-weight: 400;
-        letter-spacing: 1px;
-        line-height: 1.4em;
+    font-weight: 400;
+    letter-spacing: 1px;
+    line-height: 1.4em;
   }
 
   p:first-child {
@@ -60,6 +60,7 @@
 
       &:nth-child(2n + 1) {
         padding-right: 1%;
+        clear: both;
       }
     }
 
