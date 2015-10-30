@@ -1187,9 +1187,7 @@
           .select('.content');
 
         tooltipContent.append('div')
-          .attr('class', 'title');
-        tooltipContent.append('div')
-          .attr('class', 'value number');
+          .attr('class', 'value number noLabel');
 
 
         function tooltipData(value) {
@@ -1200,10 +1198,6 @@
             .style('left', ( cords[0] - (tooltipW / 2)) + 'px')
             .style('top', ( cords[1] - tooltipH + (tooltipH/5) ) + 'px')
             .style('display', 'block');
-
-          d3.select(tooltipEl)
-            .select('.title')
-            .style('display', 'none');
 
           d3.select(tooltipEl)
             .select('.value')

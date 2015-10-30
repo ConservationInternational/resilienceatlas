@@ -37,7 +37,7 @@
         font-weight: 400;
         color: $gray-70;
         margin-top: 5px;
-        margin-bottom: 10px;
+        margin-bottom: 0;
       }
 
       .value {
@@ -47,6 +47,10 @@
         padding-top: 0;
         font-size: 20px;
         margin-bottom: rem(3px);
+
+        &.noLabel {
+          margin-top: 19px;
+        }
       }
     }
     .bottom {

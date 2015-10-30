@@ -1,7 +1,7 @@
 [
   {
-    "category_name": "Exposure",
-    "category_slug": "exposure",
+    "category_name": "Livelihoods, Production Systems & Ecosystems",
+    "category_slug": "Livelihoods_production_systems_ecosystems",
     "indicators": [
       {
         "name": "Total population",
@@ -24,32 +24,32 @@
     ]
   },
   {
-    "category_name": "Stressors",
-    "category_slug": "stressors",
+    "category_name": "Stressors & Shocks",
+    "category_slug": "stressors_shocks",
     "indicators": [
       {
-        "name": "Precipitation trend",
-        "slug": "precipitation_trend",
+        "name": "Monthly precipitation",
+        "slug": "monthly_precipitation",
         "widget": "line_chart",
         "unit": "mm",
         "query": "SELECT month as x, round(precip::numeric, 2) as y, month as name FROM monthly_mean_precip_1981_2014 WHERE iso3 = '%1'"
       },
       {
-        "name": "Temperature trend (mean temperature trend)",
-        "slug": "temperature_trend_mean",
+        "name": "Mean temperatures (current)",
+        "slug": "mean_temperatures_current",
         "widget": "line_chart",
         "unit": "°C",
         "query": "SELECT month as x,month as name, round(value::numeric,1) as y  FROM cru_ts3_23_tmp_1985_2015_monthly WHERE iso3 ='%1'"
       },
       {
-        "name": "Temperature trend change (max temperature trend)",
+        "name": "Mean temperatures (2040-2060) (max temperature trend)",
         "slug": "temperature_trend_max",
         "widget": "bar_chart",
         "unit": "°C",
         "query": "SELECT round(change::numeric,2) as y, month as x, month as name FROM tasmax_rcp85_1986_2005_vs_2040_2059_monthly where iso3='%1'"
       },
       {
-        "name": "Temperature trend change (Min temperature trend)",
+        "name": "Mean temperatures (2040-2060) (min temperature trend)",
         "slug": "temperature_trend_min",
         "widget": "bar_chart",
         "unit": "°C",
@@ -62,16 +62,10 @@
         "unit": "mm",
         "unitZ": "°C",
         "query": "with r as (SELECT s.month as x,s.month as name, round(value::numeric,1) as z, round(precip::numeric,1) as y, r.iso3  FROM cru_ts3_23_tmp_1985_2015_monthly r inner join monthly_mean_precip_1981_2014 s on r.iso3=s.iso3 and r.month=s.month) select * from r where iso3='%1'"
-      }
-    ]
-  },
-  {
-    "category_name": "Shocks",
-    "category_slug": "shocks",
-    "indicators": [
+      },
       {
-        "name": "Change in precipitation variability",
-        "slug": "change_in_precipitation_variability",
+        "name": "Monthly precipitation in 2040-2060",
+        "slug": "monthly_precipitation_in_2040",
         "widget": "bar_chart",
         "unit": "%",
         "query": "SELECT round(change::numeric,2) as y, month as x, month as name FROM pr_rcp85_1986_2005_vs_2040_2059_monthly where iso3='%1'"
