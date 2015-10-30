@@ -30,8 +30,38 @@
       {
         "name": "Precipitation trend",
         "slug": "precipitation_trend",
+        "widget": "line_chart",
+        "unit": "mm",
+        "query": "SELECT month as x, round(precip::numeric, 2) as y, month as name FROM monthly_mean_precip_1981_2014 WHERE iso3 = '%1'"
+      },
+      {
+        "name": "Temperature trend (mean temperature trend)",
+        "slug": "temperature_trend_mean",
+        "widget": "line_chart",
+        "unit": "°C",
+        "query": "SELECT month as x,month as name, round(value::numeric,1) as y  FROM cru_ts3_23_tmp_1985_2015_monthly WHERE iso3 ='%1'"
+      },
+      {
+        "name": "Temperature trend change (max temperature trend)",
+        "slug": "temperature_trend_max",
         "widget": "bar_chart",
-        "query": "SELECT month as x, precip as y, month as name FROM monthly_mean_precip_1981_2014 WHERE iso3 = '%1'"
+        "unit": "°C",
+        "query": "SELECT round(change::numeric,2) as y, month as x, month as name FROM tasmax_rcp85_1986_2005_vs_2040_2059_monthly where iso3='%1'"
+      },
+      {
+        "name": "Temperature trend change (Min temperature trend)",
+        "slug": "temperature_trend_min",
+        "widget": "bar_chart",
+        "unit": "°C",
+        "query": "SELECT round(change::numeric,2) as y, month as x, month as name FROM tasmin_rcp85_1986_2005_vs_2040_2059_monthly where iso3='%1'"
+      },
+      {
+        "name": "Climate chart",
+        "slug": "climate_chart",
+        "widget": "bar_line_chart",
+        "unit": "mm",
+        "unitZ": "°C",
+        "query": "with r as (SELECT s.month as x,s.month as name, round(value::numeric,1) as z, round(precip::numeric,1) as y, r.iso3  FROM cru_ts3_23_tmp_1985_2015_monthly r inner join monthly_mean_precip_1981_2014 s on r.iso3=s.iso3 and r.month=s.month) select * from r where iso3='%1'"
       }
     ]
   },
@@ -39,6 +69,13 @@
     "category_name": "Shocks",
     "category_slug": "shocks",
     "indicators": [
+      {
+        "name": "Change in precipitation variability",
+        "slug": "change_in_precipitation_variability",
+        "widget": "bar_chart",
+        "unit": "%",
+        "query": "SELECT round(change::numeric,2) as y, month as x, month as name FROM pr_rcp85_1986_2005_vs_2040_2059_monthly where iso3='%1'"
+      },
       {
         "name": "Conflict",
         "slug": "conflict",
@@ -63,20 +100,20 @@
         "widget": "pyramid_chart",
         "query": "SELECT round(pop::numeric,2) as value , sex as category, to_char(class,'FM99') as group FROM africa_pop_pyramid_tables where iso3= '%1' order by class,sex",
         "labels": {
-          "1":"0-5",
-          "2":"5-10",
-          "3":"10-15",
-          "4":"15-20",
-          "5":"20-25",
-          "6":"25-30",
-          "7":"30-35",
-          "8":"35-40",
-          "9":"40-45",
-          "10":"45-50",
-          "11":"50-55",
-          "12":"55-60",
-          "13":"60-65",
-          "14":">65"
+          "14":"0-5",
+          "13":"5-10",
+          "12":"10-15",
+          "11":"15-20",
+          "10":"20-25",
+          "9":"25-30",
+          "8":"30-35",
+          "7":"35-40",
+          "6":"40-45",
+          "5":"45-50",
+          "4":"50-55",
+          "3":"55-60",
+          "2":"60-65",
+          "1":">65"
         }
       },
       {

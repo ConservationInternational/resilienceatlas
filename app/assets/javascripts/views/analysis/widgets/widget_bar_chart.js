@@ -24,7 +24,7 @@
     },
 
     renderWidget: function() {
-      this.charts.buildBarsChart({
+      new this.charts.buildBarsChart({
         elem: '#' + this.slug + '-graph',
         barWidth: 22,
         barSeparation: 13,
@@ -32,11 +32,14 @@
         hover: true,
         loader: 'is-loading',
         interpolate: 'basis',
+        unit: this.unit,
+        unitZ: this.unitZ,
         hasLine: this.hasLine
       });
     },
 
     parseData: function(data) {
+      var self = this;
       if(data) {
         var values = data.rows;
         var d = new Date();
@@ -44,6 +47,15 @@
         _.filter(values, function(value) {
           value.value = value.y;
           value.color = '#0089CC';
+
+          if(self.hasLine) {
+            value.color = '#D8D8D8';
+            value.lineColor = '#0089CC';
+          }
+
+          if(value.y < 0) {
+            value.color = '#D8D8D8';
+          }
         });
         return values;
       }
