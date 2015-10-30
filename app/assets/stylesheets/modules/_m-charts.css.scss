@@ -21,12 +21,8 @@
     .content {
       width: 100%;
       height: inherit;
-      padding: $margin;
+      padding: 8px;
       text-align: center;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
       background: rgba(255,255,255,1);
       border-radius: rem(4px);
       box-shadow: 0px 2px 10px 0px rgba(0,0,0,0.15);
@@ -41,7 +37,7 @@
         font-weight: 400;
         color: $gray-70;
         margin-top: 5px;
-        margin-bottom: 10px;
+        margin-bottom: 0;
       }
 
       .value {
@@ -51,6 +47,10 @@
         padding-top: 0;
         font-size: 20px;
         margin-bottom: rem(3px);
+
+        &.noLabel {
+          margin-top: 19px;
+        }
       }
     }
     .bottom {
@@ -105,6 +105,7 @@
         }
       }
     }
+
   }
 
 
@@ -122,6 +123,12 @@
         }
         .value {
           padding-top: 0;
+
+          .tooltip-unit {
+            font-size: 12px;
+            text-transform: none;
+            font-weight: 400;
+          }
         }
       }
     }
@@ -172,6 +179,17 @@
         fill: #999999;
         font-size: 14px;
         font-weight: 400;
+      }
+    }
+
+    .unit {
+      fill: #999999;
+      font-size: 12px;
+      font-weight: 400;
+      text-anchor: end;
+
+      &.z {
+        fill: #0089CC;
       }
     }
 
@@ -266,6 +284,23 @@
       fill: none;
       stroke: #737373;
       shape-rendering: crispEdges;
+    }
+  }
+
+  &.bar-chart {
+    .domain {
+      stroke-width: 0;
+    }
+
+    .z {
+      &.axis {
+        line {
+          stroke-width: 0;
+        }
+      }
+      text {
+        fill: #0089CC;
+      }
     }
   }
 

@@ -32,6 +32,8 @@
         decimals: 0,
         loader: 'is-loading',
         interpolate: 'cardinal',
+        dateFormat: '%b',
+        unit: this.unit,
         margin: {
           top: 30,
           right: 40,
