@@ -95,14 +95,8 @@
 .btn-info {
   @extend %clean-button-or-input;
   float: right;
-  width: 17px;
-  height: 17px;
-  border-radius: 50%;
-  border: 1px solid rgba(0,0,0, .2);
-  color: rgba(0,0,0, .2);
-  font-weight: 500;
-  font-size: 16px;
-  padding: 0;
+  width: 22px;
+  height: 22px;
 }
 
 .btn-download {
