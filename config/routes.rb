@@ -16,10 +16,12 @@ Rails.application.routes.draw do
   end
 
   # Application
-  get '/', to: 'map#index', constraints: { subdomain: /indicators.+/ }
+  # get '/', to: 'map#index', constraints: { subdomain: /indicators.+/ }
   get '/', to: 'welcome#index', as: 'root'
 
-  get 'map', to: 'map#index'
+  # root 'welcome#index'
+
+  get 'map', to: 'map#index', as: :map
   get 'about', to: 'about#index'
 
   resources :journeys, only: [:show]
