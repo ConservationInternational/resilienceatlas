@@ -25,7 +25,8 @@
         };
       } else {
         routes = {
-          '(/)': 'map'
+          '(/)': 'map',
+          'map(/)': 'map'
         };
       }
       return routes;
