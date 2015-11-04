@@ -14,4 +14,15 @@ $backgrounds-about: 'bg-about1','bg-about2';
       }
     }
   }
+
+  .credits {
+    position: absolute;
+    bottom: 10px;
+    right: 20px;
+    margin: 0;
+
+    a {
+      color: $font-color-3;
+    }
+  }
 }
