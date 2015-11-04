@@ -23,6 +23,7 @@
     max-width: 450px;
     width: 33%;
     background-color: #fff;
+    overflow-y: auto;
 
     &:after {
       content: "";
