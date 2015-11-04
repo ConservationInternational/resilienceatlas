@@ -48,7 +48,8 @@
         }
 
         .social-links {
-          width: 100%;
+          @extend %centerx;
+          bottom: 0;
           display: flex;
           align-items: center;
           justify-content: center;
@@ -125,7 +126,7 @@
       margin-right: rem(3px);
       border: 1px solid rgba(0,0,0, .2);
       border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-      
+
       &.active {
         position: relative;
         border-bottom: 0;
