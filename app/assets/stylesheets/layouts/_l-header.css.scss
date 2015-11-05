@@ -101,8 +101,11 @@
         text-decoration: none;
       }
 
-      &.is-current,
       &:not(.web-link):hover {
+        background-color: rgba($bg-color-2, .1);
+      }
+
+      &.is-current {
         background-color: $bg-color-2;
         color: $font-color-3;
       }
@@ -124,6 +127,7 @@
 }
 
 .l-hero {
+  position: relative;
   height: rem(200px);
   background-image: image-url('about-hero.jpg');
   background-repeat: no-repeat;
@@ -135,6 +139,17 @@
   h1 {
     color: $font-color-3;
     font-size: rem(48px);
+  }
+
+  .credits {
+    position: absolute;
+    bottom: 10px;
+    right: 20px;
+    margin: 0;
+
+    a {
+      color: $font-color-3;
+    }
   }
 }
 

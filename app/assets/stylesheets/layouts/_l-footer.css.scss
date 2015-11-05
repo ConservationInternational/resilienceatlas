@@ -18,6 +18,11 @@
   .privacy {
     display: inline-block;
     float: left;
+    margin-right: 20px;
+
+    a {
+      color: $font-color-3;
+    }
   }
 
   .credits {

@@ -3,7 +3,7 @@
     @extend %clean-lists;
     padding-top: 10px;
     padding-left: 10px;
-    background-color: #D8D8D8;
+    background-color: $bg-color-2;
   }
 
   li[data-section="analysis"] {
@@ -15,12 +15,12 @@
   .tab-title {
     a {
       padding: 10px 20px;
-      background-color: #D8D8D8;
+      background-color: $bg-color-2;
+      color: $font-color-3;
       font-weight: 700;
       font-size: 12px;
       text-transform: uppercase;
       letter-spacing: .1em;
-      opacity: .5;
 
       &:hover {
         text-decoration: none;
@@ -33,8 +33,7 @@
 
     &.active {
       a {
-        background-color: #F6F6F6;
-        opacity: 1;
+        background-color: $font-color-3;
       }
     }
   }
@@ -42,8 +41,8 @@
   .tabs-content {
     margin-bottom: 0;
 
-    & > .content {
-      padding: 0;
+    .content {
+      padding: 0 rem(10px);
     }
   }
 
