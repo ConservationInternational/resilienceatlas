@@ -6,7 +6,7 @@
   $transition-ease: $switch-paddle-transition-ease;
 
   /* This controls the overall height of the switch */
-  $height: rem(14px);
+  $height: rem(11px);
 
   /* This controls the background of the paddle */
   $paddle-bg: $switch-paddle-bg;
@@ -31,8 +31,8 @@
     box-sizing: border-box;
 
     &:after {
-      height: rem(12px);
-      width: rem(12px);
+      height: rem(8px);
+      width: rem(8px);
       top: rem(0px);
       left: rem(0px);
       box-shadow: 0 2px 2px 0 rgba(0,0,0,.25);
@@ -40,11 +40,11 @@
   }
 
   input + label {
-    width: rem(25px);
+    width: rem(18px);
   }
 
   input:checked + label:after {
-    left: rem(11px);
+    left: rem(7px);
     // border: 1px solid  $bg-color-2;
   }
 
