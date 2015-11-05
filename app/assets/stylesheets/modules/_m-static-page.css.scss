@@ -95,4 +95,19 @@
       font-size: rem(14px);
     }
   }
+
+  figure {
+    margin: 0;
+
+    img {
+      padding-bottom: rem(10px);
+    }
+
+    .credits {
+      a {
+        color: $font-color-1;
+        font-size: 12px;
+      }
+    }
+  }
 }
