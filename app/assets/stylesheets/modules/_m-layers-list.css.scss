@@ -122,8 +122,15 @@
       }
     }
 
-    &.subgroup li {
-      padding-left: 10px;
+    &.subgroup {
+      .header-title {
+        text-transform: none;
+        font-weight: 700;
+      }
+
+      li {
+        padding-left: 10px;
+      }
     }
   }
 
@@ -170,7 +177,10 @@
 
     .is-open &,
     .is-modified & {
-      fill: $bg-color-2;
+      path {
+        fill: $bg-color-2;
+        stroke: $bg-color-2;
+      }
     }
   }
 }
