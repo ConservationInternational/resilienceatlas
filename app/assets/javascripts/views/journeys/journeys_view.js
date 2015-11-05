@@ -184,7 +184,7 @@
     },
 
     _getNextJourneyUrl: function() {
-      var totalJourneys = this.totalJourneys
+      var totalJourneys = this.totalJourneys;
       var currentJourney = this.journey.id;
       var nextJourney = currentJourney === totalJourneys ? 1 : currentJourney + 1;
       return '/journeys/' + nextJourney;

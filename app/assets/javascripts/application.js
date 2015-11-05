@@ -65,7 +65,7 @@
 
     initialize: function() {
       // var subdomine = this._subdomineSettings();
-     
+
       this.currentViews = [];
       this.router = new root.app.Router();
       this.initGlobalViews();
@@ -126,7 +126,7 @@
           router: this.router,
           options: {
             'journeyId': journeyId,
-            'totalJourneys': this.totalJourneys
+            'totalJourneys': journeysIndexCollection.length
           }
         });
       }.bind(this));
