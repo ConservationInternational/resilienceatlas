@@ -57,6 +57,7 @@
       Backbone.Events.on('map:toggle:layers', this.toggleLayers.bind(this));
       Backbone.Events.on('remove:layer', this._removingLayer.bind(this));
       Backbone.Events.on('map:redraw', this.redrawMap.bind(this));
+      Backbone.Events.on('map:recenter', this.reCenter.bind(this));
     },
 
     /**
@@ -116,9 +117,11 @@
     },
 
     redrawMap: function() {
-      console.log(this.bbox);
-      this.map.invalidateSize();
       this.setBbox(this.bbox);
+    },
+
+    reCenter: function() {
+      this.map.setView(this.options.map.center, this.options.map.zoom);
     },
 
     /**

@@ -60,6 +60,7 @@
       if(this.analysisView) {
         this.analysisView.closeAnalysis();
       }
+      Backbone.Events.trigger('map:recenter');
     }
   });
 
