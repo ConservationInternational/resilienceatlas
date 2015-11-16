@@ -56,6 +56,7 @@
       Backbone.Events.on('map:set:mask', this.setMaskLayer.bind(this));
       Backbone.Events.on('map:toggle:layers', this.toggleLayers.bind(this));
       Backbone.Events.on('remove:layer', this._removingLayer.bind(this));
+      Backbone.Events.on('map:redraw', this.redrawMap.bind(this));
     },
 
     /**
@@ -112,6 +113,12 @@
         this.actualCenter = this.map.getCenter();
         this.router.setParams('center', this.actualCenter);
       }, this));
+    },
+
+    redrawMap: function() {
+      console.log(this.bbox);
+      this.map.invalidateSize();
+      this.setBbox(this.bbox);
     },
 
     /**
@@ -413,15 +420,26 @@
       }
     },
 
-    setBbox: function(bbox, options) {
+    setBbox: function(bbox) {
       if(bbox) {
+        this.bbox = bbox;
         bbox = JSON.parse(bbox);
         var coords = bbox.coordinates[0];
         var southWest = L.latLng(coords[2][1], coords[2][0]),
           northEast = L.latLng(coords[0][1], coords[0][0]),
           bounds = L.latLngBounds(southWest, northEast);
 
-        this.map.fitBounds(bounds, options);
+        var maxZoom = this.map.getBoundsZoom(bounds, true);
+        
+        if(maxZoom > 9) {
+          maxZoom = maxZoom - 3;
+        } else if(maxZoom > 6) {
+          maxZoom = maxZoom - 2;
+        } else {
+          maxZoom = maxZoom - 1;
+        }
+        
+        this.map.fitBounds(bounds, { maxZoom: maxZoom });
       }
     },
 

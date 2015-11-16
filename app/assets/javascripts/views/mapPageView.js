@@ -44,7 +44,7 @@
             zoom: this.router.params.attributes.zoom || 3,
             minZoom: 2,
             maxZoom: 25,
-            center: this.router.params.attributes.center ? [ JSON.parse(this.router.params.attributes.center).lat, JSON.parse(this.router.params.attributes.center).lng] : [0, 15],
+            center: this.router.params.attributes.center ? [ JSON.parse(this.router.params.attributes.center).lat, JSON.parse(this.router.params.attributes.center).lng] : [3.86, 47.28],
             zoomControl: false,
             scrollWheelZoom: false
           }

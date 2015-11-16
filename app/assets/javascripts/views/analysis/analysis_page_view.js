@@ -56,6 +56,8 @@
       $('body').addClass('analyzing');
 
       this.initializeWidgets();
+
+      Backbone.Events.trigger('map:redraw');
     },
 
     initializeWidgets: function() {

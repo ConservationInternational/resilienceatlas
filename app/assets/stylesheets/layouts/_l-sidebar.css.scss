@@ -11,8 +11,8 @@
   position: absolute;
   top: 0;
   left: 0;
+  bottom: 0;
   width: rem($sidebar-width);
-  max-height: 100%;
 
   background-color: $bg-color-1;
 
@@ -26,16 +26,11 @@
   transform: translate3d(0,0,0);
   transition: .25s width ease-in-out;
 
-  body.analysis-section & {
-    bottom: 0;
-    max-height: rem(540px);
-  }
 
   body.analyzing & {
     width: rem($sidebar-analysis-width);
-    max-height: none;
-    overflow-y: hidden;
-    -webkit-overflow-scrolling: none;
+    // overflow-y: hidden;
+    // -webkit-overflow-scrolling: none;
   }
 
 }
