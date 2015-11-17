@@ -174,10 +174,10 @@
         }
       },
       {
-        "name": "Education Womens education",
+        "name": "Education - Womens education",
         "slug": "education-womens-education",
         "widget": "group_horizontal_bar_chart",
-        "query": "with r as (select dhsregen,iso3,reg_id,svytype,svyyear from grp_dhs_regions where iso3='%1'),  s as (SELECT l.indicatorid, l.byvariableid, characteristiclabel, l.value FROM dhs_export l inner join r on regionid=reg_id where byvariableid!=106001 and indicatorid =13126000) SELECT trim(leading '.' from characteristiclabel) as label, value, 'Womens education' as category FROM s",
+        "query": "with r as (select dhsregen,iso3,reg_id,svytype,svyyear from grp_dhs_regions where iso3='%1'),  s as (SELECT l.indicatorid, l.byvariableid, characteristiclabel, l.value FROM dhs_export l inner join r on regionid=reg_id where byvariableid!=106001 and indicatorid =13126000 order by characteristiclabel) SELECT trim(leading '.' from characteristiclabel) as label, value, 'Womens education' as category FROM s",
         "meta_short": "DHS, 2015. http://www.statcompiler.com",
         "metadata": {
           "description": "Data from the Demographic and Health Surveys (DHS). Data taken from the online StatCompiler tool, using the lowest available and most recent sub-national survey information from each country.",
@@ -186,10 +186,10 @@
         }
       },
       {
-        "name": "Education mass media access",
+        "name": "Education - mass media access",
         "slug": "education-mass-media-access",
         "widget": "group_horizontal_bar_chart",
-        "query": "with r as (select dhsregen,iso3,reg_id,svytype,svyyear from grp_dhs_regions where iso3='%1'),  s as (SELECT l.indicatorid, l.byvariableid, characteristiclabel, l.value FROM dhs_export l inner join r on regionid=reg_id where byvariableid!=106001 and indicatorid =127384003) SELECT trim(leading '.' from characteristiclabel) as label, value, 'mass media access' as category FROM s",
+        "query": "with r as (select dhsregen,iso3,reg_id,svytype,svyyear from grp_dhs_regions where iso3='%1'),  s as (SELECT l.indicatorid, l.byvariableid, characteristiclabel, l.value FROM dhs_export l inner join r on regionid=reg_id where byvariableid!=106001 and indicatorid =127384003 order by characteristiclabel) SELECT trim(leading '.' from characteristiclabel) as label, value, 'mass media access' as category FROM s",
         "meta_short": "DHS, 2015. http://www.statcompiler.com",
         "metadata": {
           "description": "Data from the Demographic and Health Surveys (DHS). Data taken from the online StatCompiler tool, using the lowest available and most recent sub-national survey information from each country.",
@@ -198,10 +198,10 @@
         }
       },
       {
-        "name": "Education Total fertility rate",
+        "name": "Education - Total fertility rate",
         "slug": "education-total-fertility-rate",
         "widget": "group_horizontal_bar_chart",
-        "query": "with r as (select dhsregen,iso3,reg_id,svytype,svyyear from grp_dhs_regions where iso3='%1'),  s as (SELECT l.indicatorid, l.byvariableid, characteristiclabel, l.value FROM dhs_export l inner join r on regionid=reg_id where byvariableid!=106001 and indicatorid = 6136002) SELECT trim(leading '.' from characteristiclabel) as label, value, 'Total fertility rate' as category FROM s",
+        "query": "with r as (select dhsregen,iso3,reg_id,svytype,svyyear from grp_dhs_regions where iso3='%1'),  s as (SELECT l.indicatorid, l.byvariableid, characteristiclabel, l.value FROM dhs_export l inner join r on regionid=reg_id where byvariableid!=106001 and indicatorid = 6136002 order by characteristiclabel) SELECT trim(leading '.' from characteristiclabel) as label, value, 'Total fertility rate' as category FROM s",
         "meta_short": "DHS, 2015. http://www.statcompiler.com",
         "metadata": {
           "description": "Data from the Demographic and Health Surveys (DHS). Data taken from the online StatCompiler tool, using the lowest available and most recent sub-national survey information from each country.",
@@ -210,10 +210,34 @@
         }
       },
       {
-        "name": "Services",
-        "slug": "services",
+        "name": "Services - Electrification access",
+        "slug": "services-electrification-access",
         "widget": "group_horizontal_bar_chart",
-        "query": "with r as (select dhsregen,iso3,reg_id,svytype,svyyear from grp_dhs_regions where iso3= '%1'),  s as (SELECT l.indicatorid, l.byvariableid, characteristiclabel, l.value FROM dhs_export l inner join r on regionid=reg_id where indicatorid = 9124003 or indicatorid =8139010 or indicatorid =8142001 order by characteristiclabel) SELECT trim(leading '.' from characteristiclabel) as label, value, CASE indicatorid WHEN 9124003 THEN 'Electification access' WHEN 8142001 THEN 'Telephone access' ELSE 'Piped water access' END as category FROM s",
+        "query": "with r as (select dhsregen,iso3,reg_id,svytype,svyyear from grp_dhs_regions where iso3= '%1'),  s as (SELECT l.indicatorid, l.byvariableid, characteristiclabel, l.value FROM dhs_export l inner join r on regionid=reg_id where indicatorid = 9124003 order by characteristiclabel) SELECT trim(leading '.' from characteristiclabel) as label, value, 'Electrification access' as category FROM s",
+        "meta_short": "DHS, 2015. http://www.statcompiler.com",
+        "metadata": {
+          "description": "Data from the Demographic and Health Surveys (DHS). Data taken from the online StatCompiler tool, using the lowest available and most recent sub-national survey information from each country.",
+          "source": "DHS. 2015. “MEASURE Demographic and Health Surveys.” Maryland: MEASURE DHS, ICF International.",
+          "link": "http://www.statcompiler.com"
+        }
+      },
+      {
+        "name": "Services - telephone access",
+        "slug": "services-telephone-access",
+        "widget": "group_horizontal_bar_chart",
+        "query": "with r as (select dhsregen,iso3,reg_id,svytype,svyyear from grp_dhs_regions where iso3= '%1'),  s as (SELECT l.indicatorid, l.byvariableid, characteristiclabel, l.value FROM dhs_export l inner join r on regionid=reg_id where indicatorid =8142001 order by characteristiclabel) SELECT trim(leading '.' from characteristiclabel) as label, value, 'telephone access' as category FROM s",
+        "meta_short": "DHS, 2015. http://www.statcompiler.com",
+        "metadata": {
+          "description": "Data from the Demographic and Health Surveys (DHS). Data taken from the online StatCompiler tool, using the lowest available and most recent sub-national survey information from each country.",
+          "source": "DHS. 2015. “MEASURE Demographic and Health Surveys.” Maryland: MEASURE DHS, ICF International.",
+          "link": "http://www.statcompiler.com"
+        }
+      },
+      {
+        "name": "Services - Piped water access",
+        "slug": "services-piped-water-access",
+        "widget": "group_horizontal_bar_chart",
+        "query": "with r as (select dhsregen,iso3,reg_id,svytype,svyyear from grp_dhs_regions where iso3= '%1'),  s as (SELECT l.indicatorid, l.byvariableid, characteristiclabel, l.value FROM dhs_export l inner join r on regionid=reg_id where indicatorid =8139010 order by characteristiclabel) SELECT trim(leading '.' from characteristiclabel) as label, value, 'Piped water access' as category FROM s",
         "meta_short": "DHS, 2015. http://www.statcompiler.com",
         "metadata": {
           "description": "Data from the Demographic and Health Surveys (DHS). Data taken from the online StatCompiler tool, using the lowest available and most recent sub-national survey information from each country.",
