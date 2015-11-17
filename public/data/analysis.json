@@ -86,10 +86,34 @@
         }
       },
       {
-        "name": "Health",
-        "slug": "health",
+        "name": "Health - Total fertility rate",
+        "slug": "health-total-fertility-rate",
         "widget": "group_horizontal_bar_chart",
-        "query": "with r as (select dhsregen,iso3,reg_id,svytype,svyyear from grp_dhs_regions where iso3='%1'),  s as (SELECT l.indicatorid, l.byvariableid, characteristiclabel, l.value FROM dhs_export l inner join r on regionid=reg_id where indicatorid = 20171000 or indicatorid = 70254002 or indicatorid =13126000 order by characteristiclabel) SELECT trim(leading '.' from characteristiclabel) as label, value, CASE indicatorid WHEN 20171000 THEN 'Total fertility rate' WHEN 70254002 THEN 'infant mortality rate' ELSE 'stunting' END as category FROM s",
+        "query": "with r as (select dhsregen,iso3,reg_id,svytype,svyyear from grp_dhs_regions where iso3='%1'),  s as (SELECT l.indicatorid, l.byvariableid, characteristiclabel, l.value FROM dhs_export l inner join r on regionid=reg_id where indicatorid = 20171000) SELECT trim(leading '.' from characteristiclabel) as label, value, 'Total fertility rate' as category FROM s",
+        "meta_short": "DHS, 2015. http://www.statcompiler.com",
+        "metadata": {
+          "description": "Data from the Demographic and Health Surveys (DHS). Data taken from the online StatCompiler tool, using the lowest available and most recent sub-national survey information from each country.",
+          "source": "DHS. 2015. “MEASURE Demographic and Health Surveys.” Maryland: MEASURE DHS, ICF International.",
+          "link": "http://www.statcompiler.com"
+        }
+      },
+      {
+        "name": "Health - Infant mortality rate",
+        "slug": "health-infant-mortality-rate",
+        "widget": "group_horizontal_bar_chart",
+        "query": "with r as (select dhsregen,iso3,reg_id,svytype,svyyear from grp_dhs_regions where iso3='%1'),  s as (SELECT l.indicatorid, l.byvariableid, characteristiclabel, l.value FROM dhs_export l inner join r on regionid=reg_id where indicatorid = 70254002) SELECT trim(leading '.' from characteristiclabel) as label, value, 'infant mortality rate' as category FROM s",
+        "meta_short": "DHS, 2015. http://www.statcompiler.com",
+        "metadata": {
+          "description": "Data from the Demographic and Health Surveys (DHS). Data taken from the online StatCompiler tool, using the lowest available and most recent sub-national survey information from each country.",
+          "source": "DHS. 2015. “MEASURE Demographic and Health Surveys.” Maryland: MEASURE DHS, ICF International.",
+          "link": "http://www.statcompiler.com"
+        }
+      },
+      {
+        "name": "Health - stunting",
+        "slug": "health-stunting",
+        "widget": "group_horizontal_bar_chart",
+        "query": "with r as (select dhsregen,iso3,reg_id,svytype,svyyear from grp_dhs_regions where iso3='%1'),  s as (SELECT l.indicatorid, l.byvariableid, characteristiclabel, l.value FROM dhs_export l inner join r on regionid=reg_id where indicatorid =13126000) SELECT trim(leading '.' from characteristiclabel) as label, value, 'stunting' as category FROM s",
         "meta_short": "DHS, 2015. http://www.statcompiler.com",
         "metadata": {
           "description": "Data from the Demographic and Health Surveys (DHS). Data taken from the online StatCompiler tool, using the lowest available and most recent sub-national survey information from each country.",
