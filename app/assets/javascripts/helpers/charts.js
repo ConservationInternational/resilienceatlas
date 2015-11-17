@@ -452,12 +452,26 @@
       x.domain(data.map(function(d) { return d.x; }));
       x2.domain(data.map(function(d) { return d.x; }));
 
-      var yMin = d3.min(data,function(d){return d.y});
+      var yMin = d3.min(data,function(d){ return d.y; });
       var yMax = d3.max(data, function(d) { return d.y; });
+
+      if (hasLine) { 
+        var zMin = d3.min(data,function(d){ return d.z; });
+        var zMax = d3.max(data, function(d) { return d.z; });
+
+        if (zMin < yMin) {
+          yMin = zMin;
+        }
+
+        if (zMax > yMax) {
+          yMax = zMax;
+        }
+      }
 
       if(yMin >= 0) {
         yMin = 0;
       }
+
 
       if(hasLine) {
         var zMax = d3.max(data, function(d) { return d.z; });
@@ -557,7 +571,7 @@
 
         svgBars.append('g')
           .attr('transform', function(d,i) {
-            return 'translate(' + ((barWidth) / 2) + ', 25)';
+            return 'translate(' + ((barWidth) / 2) + ', 0)';
           }).append('path')
             .datum(data)
             .attr('class', 'line')
