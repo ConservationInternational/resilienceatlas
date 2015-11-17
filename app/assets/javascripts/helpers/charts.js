@@ -403,7 +403,7 @@
       var margin = params.margin || {
         top: 30,
         right: 65,
-        bottom: 20,
+        bottom: 30,
         left: 30,
         xaxis: 10,
         tooltip: 1.8
