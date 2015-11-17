@@ -382,7 +382,6 @@
     },
 
     buildBarsChart: function(params) {
-      console.log(params);
       var elem = params.elem;
       var elemAttr = elem.replace(/[#]|[.]/g, '');
       var $el = $(elem);
@@ -414,7 +413,6 @@
 
       var width = contentWidth,
           height = contentHeight;
-      console.log(elem)
 
       var width = width - margin.left - margin.right,
           height = height - margin.top - margin.bottom;
