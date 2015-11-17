@@ -174,10 +174,34 @@
         }
       },
       {
-        "name": "Education",
-        "slug": "education",
+        "name": "Education Womens education",
+        "slug": "education-womens-education",
         "widget": "group_horizontal_bar_chart",
-        "query": "with r as (select dhsregen,iso3,reg_id,svytype,svyyear from grp_dhs_regions where iso3='%1'),  s as (SELECT l.indicatorid, l.byvariableid, characteristiclabel, l.value FROM dhs_export l inner join r on regionid=reg_id where byvariableid!=106001 and indicatorid = 6136002 or indicatorid =13126000 or indicatorid =127384003 order by characteristiclabel) SELECT trim(leading '.' from characteristiclabel) as label, value, CASE indicatorid WHEN 6136002 THEN 'Total fertility rate' WHEN 13126000 THEN 'Womens education' ELSE 'mass media access' END as category FROM s",
+        "query": "with r as (select dhsregen,iso3,reg_id,svytype,svyyear from grp_dhs_regions where iso3='%1'),  s as (SELECT l.indicatorid, l.byvariableid, characteristiclabel, l.value FROM dhs_export l inner join r on regionid=reg_id where byvariableid!=106001 and indicatorid =13126000) SELECT trim(leading '.' from characteristiclabel) as label, value, 'Womens education' as category FROM s",
+        "meta_short": "DHS, 2015. http://www.statcompiler.com",
+        "metadata": {
+          "description": "Data from the Demographic and Health Surveys (DHS). Data taken from the online StatCompiler tool, using the lowest available and most recent sub-national survey information from each country.",
+          "source": "DHS. 2015. “MEASURE Demographic and Health Surveys.” Maryland: MEASURE DHS, ICF International.",
+          "link": "http://www.statcompiler.com"
+        }
+      },
+      {
+        "name": "Education mass media access",
+        "slug": "education-mass-media-access",
+        "widget": "group_horizontal_bar_chart",
+        "query": "with r as (select dhsregen,iso3,reg_id,svytype,svyyear from grp_dhs_regions where iso3='%1'),  s as (SELECT l.indicatorid, l.byvariableid, characteristiclabel, l.value FROM dhs_export l inner join r on regionid=reg_id where byvariableid!=106001 and indicatorid =127384003) SELECT trim(leading '.' from characteristiclabel) as label, value, 'mass media access' as category FROM s",
+        "meta_short": "DHS, 2015. http://www.statcompiler.com",
+        "metadata": {
+          "description": "Data from the Demographic and Health Surveys (DHS). Data taken from the online StatCompiler tool, using the lowest available and most recent sub-national survey information from each country.",
+          "source": "DHS. 2015. “MEASURE Demographic and Health Surveys.” Maryland: MEASURE DHS, ICF International.",
+          "link": "http://www.statcompiler.com"
+        }
+      },
+      {
+        "name": "Education Total fertility rate",
+        "slug": "education-total-fertility-rate",
+        "widget": "group_horizontal_bar_chart",
+        "query": "with r as (select dhsregen,iso3,reg_id,svytype,svyyear from grp_dhs_regions where iso3='%1'),  s as (SELECT l.indicatorid, l.byvariableid, characteristiclabel, l.value FROM dhs_export l inner join r on regionid=reg_id where byvariableid!=106001 and indicatorid = 6136002) SELECT trim(leading '.' from characteristiclabel) as label, value, 'Total fertility rate' as category FROM s",
         "meta_short": "DHS, 2015. http://www.statcompiler.com",
         "metadata": {
           "description": "Data from the Demographic and Health Surveys (DHS). Data taken from the online StatCompiler tool, using the lowest available and most recent sub-national survey information from each country.",
