@@ -25,6 +25,7 @@
     widgets: {
       'bar_chart': 'initBarChart',
       'line_chart': 'initLineChart',
+      'multi_line_chart': 'initMultiLineChart',
       'number': 'initNumber',
       'text_list': 'initTextList',
       'bar_line_chart': 'initBarLineChart',
@@ -156,7 +157,20 @@
         iso: this.iso,
         unit: indicator.unit,
         meta_short: indicator.meta_short,
-        metadata: indicator.metadata
+        metadata: indicator.metadata,
+      });
+    },
+
+    initMultiLineChart: function(indicator) {
+      var lineChart = new root.app.View.WidgetMultiLineChart({
+        el: this.options.elWidgets,
+        slug: indicator.slug,
+        query: indicator.query,
+        name: indicator.name,
+        iso: this.iso,
+        unit: indicator.unit,
+        meta_short: indicator.meta_short,
+        metadata: indicator.metadata,
       });
     },
 
