@@ -7,6 +7,14 @@
   }
 }
 
+.l-sidebar-content {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+
 .l-sidebar--fullscreen {
   position: absolute;
   top: 0;
@@ -16,9 +24,7 @@
 
   background-color: $bg-color-1;
 
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-  // @extend %clear-scroll-bars;
+  overflow: hidden;
 
   z-index: 1;
 
@@ -29,8 +35,6 @@
 
   body.analyzing & {
     width: rem($sidebar-analysis-width);
-    // overflow-y: hidden;
-    // -webkit-overflow-scrolling: none;
   }
 
 }
