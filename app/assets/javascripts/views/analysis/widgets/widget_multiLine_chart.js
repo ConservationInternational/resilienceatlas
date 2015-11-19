@@ -67,15 +67,17 @@
 
           $.each(valuesByCategory, function(i) {
             var dataSet = {};
-            dataSet.symbol = currentSymbol;
-            dataSet.value = this || 0;
-  
-            dataSet.year = 'Jan '+dates[i];
             
-            values.push(dataSet);
+            // if (this != null) {
+              
+              dataSet.symbol = currentSymbol;
+              dataSet.value = this;
+    
+              dataSet.year = 'Jan '+dates[i];
+              values.push(dataSet);
+            // }
           });
         });
-        console.log(values);
         return values;
       }
     }

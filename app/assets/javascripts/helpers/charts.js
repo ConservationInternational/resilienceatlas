@@ -427,7 +427,7 @@
           .orient('bottom')
           .tickSize(0)
           .tickPadding(10)
-          // .tickFormat(d3.time.format(dateFormat));
+          .tickFormat(d3.time.format('%Y'));
 
       var yAxis = d3.svg.axis()
           .scale(y)
@@ -452,7 +452,6 @@
 
       data.forEach(function(d) {
         d.year = parseDate(d.year);
-        console.log(d.year);
         d.value = d.value;
       });
 
@@ -478,7 +477,7 @@
           svg.append("path")
               .attr("class", "multiline")
               .attr("d", line(d.values))
-              .attr('stroke', function() { console.log(bucket[i]); return bucket[i]; })
+              .attr('stroke', function() { return bucket[i]; })
       });
 
       svg.append('g')
