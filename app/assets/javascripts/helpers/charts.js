@@ -442,6 +442,7 @@
       var line = d3.svg.line()
           .x(function(d) { return x(d.year); })
           .y(function(d) { return y(d.value); })
+          .defined(function(d) { return d.value; })
           .interpolate(interpolate);
 
       var svg = d3.select(elem).append('svg')
