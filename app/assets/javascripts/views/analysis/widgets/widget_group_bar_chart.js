@@ -81,7 +81,6 @@
     parseData: function(data) {
       if(data) {
         var values = data.rows;
-
         return values;
       }
     }
