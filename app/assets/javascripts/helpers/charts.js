@@ -392,7 +392,8 @@
       var contentHeight = $el.height();
       var data = params.data;
       var dateFormat = params.dateFormat || '%b %Y';
-      var hover = params.hover;
+      // var hover = params.hover;
+      var hover = false;
       var interpolate = params.interpolate || 'linear';
       var loader = params.loader || null;
       var infoWindow = params.infoWindowText || '';
@@ -495,17 +496,17 @@
             d0 = data[i - 1],
             d1 = data[i];
 
-        if(d0 && d0.date && d1 && d1.date) {
-          var d = x0 - d0.date > d1.date - x0 ? d1 : d0;
-          focus.attr('transform', 'translate(' + x(d.date) + ',' + y(d.value) + ')');
+        if(d0 && d0.year && d1 && d1.year) {
+          var d = x0 - d0.year > d1.year - x0 ? d1 : d0;
+          focus.attr('transform', 'translate(' + x(d.year) + ',' + y(d.value) + ')');
 
           // Move trail
-          trail.attr('transform', 'translate(' + x(d.date) + ', '+y(d.value)+')');
+          trail.attr('transform', 'translate(' + x(d.year) + ', '+y(d.value)+')');
           trailLine.attr('y2', (height) - y(d.value));
 
           // Update tooltip
           d3.select(tooltipEl)
-            .style('left', ( (x(d.date) + margin.left) + (radius/2) - margin.tooltip - (tooltipW / 2) ) + 'px')
+            .style('left', ( (x(d.year) + margin.left) + (radius/2) - margin.tooltip - (tooltipW / 2) ) + 'px')
             .style('top', ( (y(d.value) + margin.top) - (tooltipH + (tooltipH/3)) + (radius / 2) - margin.tooltip ) + 'px')
             .style('display', 'block');
 
