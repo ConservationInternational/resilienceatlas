@@ -110,7 +110,8 @@
 
 
 
-  &.graph-line {
+  &.graph-line,
+  &.graph-multiline {
     position: relative;
 
     .tooltip-graph {
@@ -209,6 +210,11 @@
     .line {
       fill: none;
       stroke: $path-color;
+      stroke-width: 3px;
+    }
+
+    .multiline {
+      fill: none;
       stroke-width: 3px;
     }
 

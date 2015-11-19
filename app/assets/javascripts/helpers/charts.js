@@ -384,19 +384,21 @@
     },
 
     buildMultiLineChart: function(params) {
+      var dataKeys = params.dataKeys;
       var elem = params.elem;
       var elemAttr = elem.replace(/[#]|[.]/g, '');
       var $el = $(elem);
       var contentWidth = $el.width();
       var contentHeight = $el.height();
       var data = params.data;
-      var dateFormat = params.dateFormat || '%Y';
+      var dateFormat = params.dateFormat || '%b %Y';
       var hover = params.hover;
       var interpolate = params.interpolate || 'linear';
       var loader = params.loader || null;
       var infoWindow = params.infoWindowText || '';
       var decimals = params.decimals || 0;
       var unit = params.unit || '';
+      var bucket = params.bucket;
       var margin = params.margin || {
         top: 30,
         right: 0,
@@ -406,29 +408,26 @@
         tooltip: 1.8
       };
 
-      $el.addClass('graph-line');
+      $el.addClass('graph-multiline');
 
       var width = contentWidth,
           height = contentHeight;
 
-      var parseDate = d3.time.format('%Y').parse;
-      var bisectDate = d3.bisector(function(d) { return d.date; }).left;
+      var parseDate = d3.time.format("%b %Y").parse;
+      var bisectDate = d3.bisector(function(d) { return d.year; }).left;
 
       var width = width - margin.left - margin.right,
           height = height - margin.top - margin.bottom;
 
-      var x = d3.time.scale()
-          .range([0, width]);
-
-      var y = d3.scale.linear()
-          .range([height, 0]);
+      var x = d3.time.scale().range([0, width]);
+      var y = d3.scale.linear().range([height, 0]);
 
       var xAxis = d3.svg.axis()
           .scale(x)
           .orient('bottom')
           .tickSize(0)
           .tickPadding(10)
-          .tickFormat(d3.time.format(dateFormat));
+          // .tickFormat(d3.time.format(dateFormat));
 
       var yAxis = d3.svg.axis()
           .scale(y)
@@ -440,7 +439,7 @@
           // .tickFormat('');
 
       var line = d3.svg.line()
-          .x(function(d) { return x(d.date); })
+          .x(function(d) { return x(d.year); })
           .y(function(d) { return y(d.value); })
           .interpolate(interpolate);
 
@@ -452,25 +451,18 @@
 
 
       data.forEach(function(d) {
-        d.date = d.date;
+        d.year = parseDate(d.year);
+        console.log(d.year);
         d.value = d.value;
       });
 
-      x.domain(d3.extent(data, function(d) { return d.date; })).nice();
-      y.domain(d3.extent(data, function(d) { return d.value ; })).nice();
+      x.domain(d3.extent(data, function(d) { return d.year; }));
+      y.domain([0, d3.max(data, function(d) { return d.value; })]); 
 
       // Nest the entries by symbol
       var dataNest = d3.nest()
-          .key(function(d) {return d.symbol;})
+          .key(function(d) { return d.symbol; })
           .entries(data);
-
-      console.log(dataNest);
-      // Loop through each symbol / key
-      dataNest.forEach(function(d) {
-          svg.append("path")
-              .attr("class", "line")
-              .attr("d", line(d.values)); 
-      });
 
       svg.append('g')
         .attr('class', 'y axis')
@@ -481,10 +473,13 @@
         .attr('transform', 'translate(0,' + (height) + ')')
         .call(xAxis);
 
-      svg.append('path')
-          .datum(data)
-          .attr('class', 'line')
-          .attr('d', line);
+      // Loop through each symbol / key
+      dataNest.forEach(function(d, i) {
+          svg.append("path")
+              .attr("class", "multiline")
+              .attr("d", line(d.values))
+              .attr('stroke', function() { console.log(bucket[i]); return bucket[i]; })
+      });
 
       svg.append('g')
           .attr('transform', 'translate(-5, -10)').append('text')

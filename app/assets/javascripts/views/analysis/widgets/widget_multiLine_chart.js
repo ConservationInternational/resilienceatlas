@@ -11,6 +11,8 @@
       charEl: '.widget-line-chart'
     },
 
+    bucket: ['#65C1EE', '#0088CE', '#D8D8D8', '#43AB3C', '#65C1EE', '#0088CE', '#D8D8D8', '#43AB3C'],
+
     template: HandlebarsTemplates['analysis/widgets/widget_line_chart_tpl'],
 
     initialize: function(settings) {
@@ -30,10 +32,12 @@
         data: this.data,
         hover: true,
         decimals: 0,
+        dataKeys: 4,
         loader: 'is-loading',
         interpolate: 'cardinal',
         dateFormat: '%b',
         unit: this.unit,
+        bucket: this.bucket,
         margin: {
           top: 30,
           right: 40,
@@ -54,7 +58,6 @@
         symbols.splice(index, 1);
 
         var values = [];
-        var dataSet = {};
 
         $.each(symbols, function() {
           var currentSymbol = this;
@@ -63,13 +66,16 @@
           var dates = _.pluck(data.rows, 'x');
 
           $.each(valuesByCategory, function(i) {
+            var dataSet = {};
             dataSet.symbol = currentSymbol;
-            dataSet.value = this;
-            dataSet.date = dates[i];
+            dataSet.value = this || 0;
+  
+            dataSet.year = 'Jan '+dates[i];
+            
             values.push(dataSet);
           });
         });
-        // console.log(values);
+        console.log(values);
         return values;
       }
     }
