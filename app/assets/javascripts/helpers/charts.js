@@ -409,6 +409,8 @@
         tooltip: 1.8
       };
 
+      console.log(data);
+
       $el.addClass('graph-multiline');
 
       var width = contentWidth,
