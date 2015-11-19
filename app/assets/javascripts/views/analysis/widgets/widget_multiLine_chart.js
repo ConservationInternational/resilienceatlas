@@ -26,7 +26,6 @@
 
     renderWidget: function() {
       var legend = this.getLegendData();
-
       this.charts.buildMultiLineChart({
         elem: '#' + this.slug + '-graph',
         barWidth: 30,
@@ -77,15 +76,12 @@
 
           $.each(valuesByCategory, function(i) {
             var dataSet = {};
-            
-            // if (this != null) {
               
-              dataSet.symbol = currentSymbol;
-              dataSet.value = this;
-    
-              dataSet.year = 'Jan '+dates[i];
-              values.push(dataSet);
-            // }
+            dataSet.symbol = currentSymbol;
+            dataSet.value = this;
+  
+            dataSet.year = 'Jan '+dates[i];
+            values.push(dataSet);
           });
         });
         return values;
@@ -95,8 +91,8 @@
     getLegendData: function() {
       var legendValues = [];
       var bucket = this.bucket;
-      var categories = _.groupBy(this.data, 'symbol');
-      var labels = _.keys(categories);
+      var categories = this.options.labels;
+      var labels = _.values(categories);
 
       _.each(labels, function(label, i) {
         legendValues.push({ name: label, color: bucket[i] });

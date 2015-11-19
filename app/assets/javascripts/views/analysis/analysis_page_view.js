@@ -171,6 +171,7 @@
         unit: indicator.unit,
         meta_short: indicator.meta_short,
         metadata: indicator.metadata,
+        labels: indicator.labels
       });
     },
 
