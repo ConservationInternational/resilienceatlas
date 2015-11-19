@@ -25,6 +25,8 @@
     },
 
     renderWidget: function() {
+      var legend = this.getLegendData();
+
       this.charts.buildMultiLineChart({
         elem: '#' + this.slug + '-graph',
         barWidth: 30,
@@ -46,6 +48,14 @@
           xaxis: 10,
           tooltip: 2.2
         }
+      });
+
+      this.charts.buildLegend({
+        elem: '#' + this.slug + '-legend',
+        contentWidth: 300,
+        data: legend,
+        unit: '',
+        decimals: 0
       });
     },
 
@@ -80,7 +90,19 @@
         });
         return values;
       }
-    }
+    },
+
+    getLegendData: function() {
+      var legendValues = [];
+      var bucket = this.bucket;
+      var categories = _.groupBy(this.data, 'symbol');
+      var labels = _.keys(categories);
+
+      _.each(labels, function(label, i) {
+        legendValues.push({ name: label, color: bucket[i] });
+      });
+      return legendValues;
+    },
 
   });
 
