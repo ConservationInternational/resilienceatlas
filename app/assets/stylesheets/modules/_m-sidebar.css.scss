@@ -1,4 +1,5 @@
 .m-sidebar {
+  
   .tabs {
     @extend %clean-lists;
     padding-top: 10px;
@@ -40,10 +41,18 @@
   }
 
   .tabs-content {
+    position: absolute;
+    top: 49px;
+    bottom: 0;
     margin-bottom: 0;
+    overflow-y: auto; 
+
+    .analyzing & {
+      overflow-y: hidden; 
+    }
 
     .content {
-      padding: 0 rem(10px);
+      padding: 0 rem(10px) rem(20px);
     }
   }
 

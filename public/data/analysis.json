@@ -124,7 +124,7 @@
       {
         "name": "Conflict",
         "slug": "conflict",
-        "widget": "group_bar_chart",
+        "widget": "multi_line_chart",
         "query": "SELECT overall::float, inco::float, inst::float, army::float, year as x FROM gpi_scores_longformat where iso3='%1' order by year asc",
         "labels": {
           "overall": "Graphic showing State of Peace",
