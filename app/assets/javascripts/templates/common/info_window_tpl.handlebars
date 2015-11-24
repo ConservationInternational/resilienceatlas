@@ -1,11 +1,3 @@
-{{!-- <div class="m-infowindow">
-  <button class="btn-close">close</button>
-  <p>{{description}}</p>
-  <p>{{source}}</p>
-  <p>{{link}}</p>
-</div> --}}
-
-
 <div class="m-modal-window">
   <div class="modal-wrapper">
     <div class="btn-close">×</div>
@@ -18,7 +10,16 @@
       <h4>Source</h4>
       <div class="source">
         {{{source}}}
-        <a target="_blank"  href="{{link}}">{{link}}</a>
+
+        {{#if link}}
+          <a class="link" target="_blank"  href="{{link}}">{{link}}</a>
+        {{/if}}
+
+        {{#if links}}
+          {{#each links}}
+            <a class="link" target="_blank"  href="{{this}}">{{this}}</a>
+          {{/each}}
+        {{/if}}
       </div>
 
     </div>
