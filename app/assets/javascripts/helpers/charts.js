@@ -1011,7 +1011,7 @@
           .attr('class', 'chart')
           .attr('width', chartWidth)
           .attr('height', chartHeight)
-          .attr('transform', 'translate('+margin.left+', '+ margin.top +')');
+          .attr('transform', 'translate('+margin.left+'px, '+ margin.top +'px)');
 
       var bar = svg.selectAll('g')
           .data(zippedData)
