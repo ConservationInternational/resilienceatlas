@@ -149,7 +149,7 @@
 
       var width = contentWidth,
           height = contentHeight;
-      var legendRectSize = 5;
+      var legendRectSize = 10;
       var legendSpacingH = 15;
       var legendSpacingV = 16;
       var topMargin = -3;
@@ -170,11 +170,10 @@
         });
 
       legend.append('rect')
-        .attr('class', 'icon')
         .attr('x', legendRectSize)
         .attr('y', (legendRectSize/2)-1.3)
-        .attr('width', legendRectSize)
-        .attr('height', legendRectSize)
+        .attr('width', legendRectSize + "px")
+        .attr('height', legendRectSize + "px")
         .style('fill', function(d){ return d.color; });
 
       legend.append('text')
@@ -677,10 +676,9 @@
         }
       }
 
-      if(yMin >= 0) {
-        yMin = 0;
-      }
-
+      // if(yMin >= 0) {
+      //   yMin = 0;
+      // }
 
       if(hasLine) {
         var zMax = d3.max(data, function(d) { return d.z; });
@@ -691,7 +689,7 @@
 
       var y = d3.scale.linear()
         .domain([yMin, yMax])
-        .range([height,0]).nice();
+        .range([height,yMin]).nice();
 
       var xAxis = d3.svg.axis()
         .scale(x)
@@ -748,13 +746,13 @@
           .attr("x", function(d) { return x(d.x); })
           .attr("width", x.rangeBand()) 
           .attr("y", function(d) { return y(Math.max(0, d.y)); })
-          .attr("height", function(d) { return Math.abs(y(d.y) - y(0)); })
+          .attr("height", function(d) { return yMin >= 0 ? Math.abs(height - y(d.y)) : Math.abs(y(d.y) - y(0)); })
           
       svgBars.append("g")
           .attr("class", "y axis")
         .append("line")
-          .attr("y1", y(0))
-          .attr("y2", y(0))
+          .attr("y1", yMin >= 0 ? height : y(0))
+          .attr("y2", yMin >= 0 ? height : y(0))
           .attr("x1", 0)
           .attr("x2", width);
 
@@ -1013,7 +1011,7 @@
           .attr('class', 'chart')
           .attr('width', chartWidth)
           .attr('height', chartHeight)
-          .attr('transform', 'translate('+margin.left+', '+ margin.top +')');
+          .attr('transform', 'translate('+margin.left+'px, '+ margin.top +'px)');
 
       var bar = svg.selectAll('g')
           .data(zippedData)

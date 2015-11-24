@@ -54,9 +54,12 @@
         "query": "with r as (SELECT s.month as x,s.month as name, round(value::numeric,1) as z, round(precip::numeric,1) as y, r.iso3  FROM cru_ts3_23_tmp_1985_2015_monthly r inner join monthly_mean_precip_1981_2014 s on r.iso3=s.iso3 and r.month=s.month) select * from r where iso3='%1'",
         "meta_short": "CHIRPS, 2015, NEX-GDDP, 2014.",
         "metadata": {
-          "description": "Mean monthly precipitation in mm, calculated over the 1988-2015 period. Calculated from the Climate Hazards Group InfraRed Precipitation with Station (CHIRPS) version 2.0 dataset. <p>Change in monthly mean daily mean surface temperature for 2040-2060, in degrees Celsius, compared to the 1980-2000 period. This analysis uses downscaled data from the 5th Coupled Model Intercomparison Project (CMIP5) made available in the the NASA Earth Exchange Global Daily Downscaled Projections (NEX-GDDP) dataset. The data for this layer is from the RCP8.5 scenario, a scenario that results in CO2 concentrations of more than 1370 ppm by 2100.</p>",
-          "source": "Funk, C.C., Peterson, P.J., Landsfeld, M.F., Pedreros, D.H., Verdin, J.P., Rowland, J.D., Romero, B.E., Husak, G.J., Michaelsen, J.C., and Verdin, A.P., 2014, A quasi-global precipitation time series for drought monitoring: U.S. Geological Survey Data Series 832, 4 p., http://dx.doi.org/10.3133/ds832. <p>Moss, Richard H., Jae A. Edmonds, Kathy A. Hibbard, Martin R. Manning, Steven K. Rose, Detlef P. van Vuuren, Timothy R. Carter, et al. “The next Generation of Scenarios for Climate Change Research and Assessment.” Nature 463, no. 7282 (February 11, 2010): 747–56.Taylor, Karl E., Ronald J. Stouffer, and Gerald A. Meehl. “An Overview of CMIP5 and the Experiment Design.” Bulletin of the American Meteorological Society 93, no. 4 (2012): 485–98</p> <p>http://dx.doi.org/10.7292/W0MW2F2G</p>",
-          "link": "http://chg.geog.ucsb.edu/data/chirps"
+          "description": "<p>Mean monthly precipitation is in mm, calculated over the 1988-2015 period from the Climate Hazards Group InfraRed Precipitation with Station (CHIRPS) version 2.0 dataset. Monthly mean daily mean temperature is in degrees Celsius during the 1985-2015 period based on monthly data from 1985-2015 from the Climatic Research Unit (CRU) TS Version 3.23 dataset.</p>",
+          "source": "<p>Funk, C.C., Peterson, P.J., Landsfeld, M.F., Pedreros, D.H., Verdin, J.P., Rowland, J.D., Romero, B.E., Husak, G.J., Michaelsen, J.C., and Verdin, A.P., 2014, A quasi-global precipitation time series for drought monitoring: U.S. Geological Survey Data Series 832, 4 p., <a href='http://dx.doi.org/10.3133/ds832'>http://dx.doi.org/10.3133/ds832.</a></p>",
+          "linkArray": [
+            "http://chg.geog.ucsb.edu/data/chirps",
+            "http://www.cru.uea.ac.uk"
+          ]
         }
       },
       {
