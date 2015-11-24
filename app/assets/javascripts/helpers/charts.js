@@ -149,7 +149,7 @@
 
       var width = contentWidth,
           height = contentHeight;
-      var legendRectSize = 5;
+      var legendRectSize = 10;
       var legendSpacingH = 15;
       var legendSpacingV = 16;
       var topMargin = -3;
@@ -170,11 +170,10 @@
         });
 
       legend.append('rect')
-        .attr('class', 'icon')
         .attr('x', legendRectSize)
         .attr('y', (legendRectSize/2)-1.3)
-        .attr('width', legendRectSize)
-        .attr('height', legendRectSize)
+        .attr('width', legendRectSize + "px")
+        .attr('height', legendRectSize + "px")
         .style('fill', function(d){ return d.color; });
 
       legend.append('text')
