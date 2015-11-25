@@ -339,8 +339,6 @@
             };
           }
 
-          console.log(layerData);
-
           layerInstance = new root.app.Helper.CartoDBLayer(this.map, options);
           layerInstance.create(function(layer) {
             layer.setOpacity(layerData.opacity);

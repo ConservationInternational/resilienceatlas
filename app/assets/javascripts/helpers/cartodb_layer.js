@@ -49,7 +49,6 @@
         .addTo(this.map)
         .on('done', function(layer) {
           this.layer = layer;
-          console.log(layer)
           if (callback && typeof callback === 'function') {
             callback.apply(this, arguments);
           }
