@@ -213,7 +213,7 @@
         //   layerData.maxZoom = 100;
         //   layerData.minZoom = 3;
         // }
-
+        
         if (layerData.active) {
           if (layerData.maxZoom || layerData.minZoom) {
 
@@ -331,6 +331,7 @@
         if(layerData.type) {
           var data = _.pick(layerData, ['sql', 'cartocss', 'interactivity']);
           var options = { sublayers: [data] };
+
 
           if(layerData.type === 'raster') {
             options = {
