@@ -213,7 +213,7 @@
         //   layerData.maxZoom = 100;
         //   layerData.minZoom = 3;
         // }
-
+        
         if (layerData.active) {
           if (layerData.maxZoom || layerData.minZoom) {
 
@@ -332,11 +332,14 @@
           var data = _.pick(layerData, ['sql', 'cartocss', 'interactivity']);
           var options = { sublayers: [data] };
 
+
           if(layerData.type === 'raster') {
             options = {
               sublayers: [ _.extend(data, { raster: true, raster_band: 1 }) ]
             };
           }
+
+          console.log(layerData);
 
           layerInstance = new root.app.Helper.CartoDBLayer(this.map, options);
           layerInstance.create(function(layer) {
