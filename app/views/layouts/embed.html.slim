@@ -7,6 +7,7 @@ html lang="#{I18n.locale}"
     = stylesheet_link_tag "http://libs.cartocdn.com/cartodb.js/v3/3.14/themes/css/cartodb.css", media: "all"
     = stylesheet_link_tag "application", media: "all"
     = csrf_meta_tags
+    = render :partial => "partials/analytics"
 
   body class="is-#{controller_name}-page"
     = render :partial => "partials/icons"

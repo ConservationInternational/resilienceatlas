@@ -11,6 +11,8 @@ html lang="#{I18n.locale}"
     javascript:
         window.isSubdomain = "#{@subdomain}"
 
+    = render :partial => "partials/analytics"
+
   body class="is-#{controller_name}-page is-#{@subdomain}"
     = render :partial => "partials/icons"
     == render 'layouts/header'
