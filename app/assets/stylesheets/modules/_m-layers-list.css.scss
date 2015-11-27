@@ -1,18 +1,28 @@
 .m-layers-list {
-  box-shadow: 0 1px 4px 0 rgba(0,0,0,.2);
+  // box-shadow: 0 1px 4px 0 rgba(0,0,0,.2);
   font-size: rem(14px);
 
-  ul {
+  > ul {
     @extend %clean-lists;
 
+    > li {
+      border-bottom: 1px solid rgba($font-color-1, .1);
+    }
+
     ul {
-      position: relative;
+      @extend %clean-lists;
       display: none;
+      position: relative;
+      padding-left: rem(10px);
+
+      ul {
+        border-bottom: none;
+      }
 
       &.is-active {
         display: block;
-        border-bottom: 1px solid rgba($font-color-1, .1);
       }
+
       &.is-active.m-basemap-selectors {
         display: flex;
       }
@@ -27,36 +37,30 @@
 .m-layers-list-header {
   @include clearfix;
   position: relative;
-  padding: rem(15px) rem(15px) rem(15px) rem(25px);
-  color: $font-color-1;
-  background-color: #F6F6F6;
-  text-align: right;
-  border-bottom: 1px solid rgba($font-color-1, .1);
+  padding: rem(15px) rem(15px) rem(15px) rem(30px);
+  color: $font-color-2;
 
   &:last-child {
     border-bottom: 0;
   }
 
   &:before {
-    @include equi-triangle(5px, $font-color-1, left);
-    @extend %centery;
+    @include arrow (rem(7px), $font-color-1, 2px, 135deg);
+    position: absolute;
+    top: 39%;
     left: rem(15px);
     transition: .2s ease;
     transform-origin: rem(2px);
   }
 
-  &:hover {
-    background-color: rgb(232, 232, 232);
-  }
-
   &.is-active {
     &:before {
-      transform: translateY(-50%) rotate(90deg);
+      transform: rotate(225deg);
     }
   }
 
   .header-title {
-    font-weight: bold;
+    font-weight: 700;
     text-transform: uppercase;
     line-height: 1.2em;
 
@@ -74,18 +78,10 @@
     background-color: $bg-color-1;
     text-align: left;
 
-    &:hover {
-      background-color: $bg-color-1;
-      color: $font-color-2;
-
-
-      &:before {
-        border-left-color: $font-color-2;
-      }
-    }
-
     .header-title {
+      max-width: 85%;
       float: left;
+      font-weight: 400;
     }
 
     &.is-active {
@@ -93,13 +89,10 @@
     }
 
     &:before {
-      @include equi-triangle(5px, $font-color-1, left);
-      @extend %centery;
+      @include arrow (rem(7px), rgba(#4a4a4a, .3), 2px, 135deg);
+      position: absolute;
+      top: 39%;
       left: rem(15px);
-    }
-
-    .header-title {
-      max-width: 85%;
     }
   }
 }
@@ -108,40 +101,48 @@
   @extend %clean-lists;
   font-weight: 400;
 
-  // background-color: $bg-color-3;
-
   li {
-    padding: rem(10px);
-    // @include clearfix;
+    padding: 0 0 rem(10px) rem(25px);
 
     &.subcategory,
     &.subgroup {
       padding: 0;
       padding-left: rem(10px);
 
+      .m-layers-list-header {
+        padding-top: 0;
+
+        &:before {
+          top: 15%;
+        }
+      }
+
       &:last-child {
         border-bottom: 0;
       }
     }
 
-    &.subgroup li {
-      padding-left: 10px;
+    &.subgroup {
+      .header-title {
+        text-transform: none;
+        font-weight: 700;
+      }
+
+      li {
+        padding-left: 10px;
+      }
     }
   }
 
   .panel-item-title {
     float: left;
-    max-width: 65%;
+    max-width: 60%;
     margin-left: rem(10px);
   }
 
   .panel-item-switch {
     float: left;
     margin-top: rem(1px);
-  }
-
-  .m-layers-list & {
-    // padding-left: rem(10px);
   }
 }
 
@@ -176,7 +177,10 @@
 
     .is-open &,
     .is-modified & {
-      fill: $bg-color-2;
+      path {
+        fill: $bg-color-2;
+        stroke: $bg-color-2;
+      }
     }
   }
 }

@@ -26,12 +26,14 @@
       var description = data.description || null;
       var source = data.source || null;
       var link = data.link || null;
+      var links = data.linkArray || null;
       var name = name || null;
 
       this.infoWindow = this.template({
         'description': description,
         'source': source,
         'link': link,
+        'links': links,
         'name': name
       });
 
@@ -40,7 +42,6 @@
 
     close: function() {
       $('.m-modal-window').remove();
-      // this.toogleState();
     },
 
     toogleState: function() {

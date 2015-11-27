@@ -149,7 +149,7 @@
 
       var width = contentWidth,
           height = contentHeight;
-      var legendRectSize = 5;
+      var legendRectSize = 10;
       var legendSpacingH = 15;
       var legendSpacingV = 16;
       var topMargin = -3;
@@ -170,11 +170,10 @@
         });
 
       legend.append('rect')
-        .attr('class', 'icon')
         .attr('x', legendRectSize)
         .attr('y', (legendRectSize/2)-1.3)
-        .attr('width', legendRectSize)
-        .attr('height', legendRectSize)
+        .attr('width', legendRectSize + "px")
+        .attr('height', legendRectSize + "px")
         .style('fill', function(d){ return d.color; });
 
       legend.append('text')
@@ -252,12 +251,14 @@
         .append('g')
           .attr('transform', 'translate('+margin.left+',' + margin.top + ')');
 
+
       data.forEach(function(d) {
         d.date = parseDate(d.date);
       });
 
       x.domain(d3.extent(data, function(d) { return d.date; })).nice();
       y.domain(d3.extent(data, function(d) { return d.value ; })).nice();
+
 
       svg.append('g')
         .attr('class', 'y axis')
@@ -381,6 +382,213 @@
       }
     },
 
+    buildMultiLineChart: function(params) {
+      var dataKeys = params.dataKeys;
+      var elem = params.elem;
+      var elemAttr = elem.replace(/[#]|[.]/g, '');
+      var $el = $(elem);
+      var contentWidth = $el.width();
+      var contentHeight = $el.height();
+      var data = params.data;
+      var dateFormat = params.dateFormat || '%b %Y';
+      // var hover = params.hover;
+      var hover = false;
+      var interpolate = params.interpolate || 'linear';
+      var loader = params.loader || null;
+      var infoWindow = params.infoWindowText || '';
+      var decimals = params.decimals || 0;
+      var unit = params.unit || '';
+      var bucket = params.bucket;
+      var margin = params.margin || {
+        top: 30,
+        right: 0,
+        bottom: 40,
+        left: 0,
+        xaxis: 10,
+        tooltip: 1.8
+      };
+
+      $el.addClass('graph-multiline');
+
+      var width = contentWidth,
+          height = contentHeight;
+
+      var parseDate = d3.time.format("%b %Y").parse;
+      var bisectDate = d3.bisector(function(d) { return d.year; }).left;
+
+      var width = width - margin.left - margin.right,
+          height = height - margin.top - margin.bottom;
+
+      var x = d3.time.scale().range([0, width]);
+      var y = d3.scale.linear().range([height, 0]);
+
+      var xAxis = d3.svg.axis()
+          .scale(x)
+          .orient('bottom')
+          .tickSize(0)
+          .tickPadding(10)
+          .tickFormat(d3.time.format('%Y'));
+
+      var yAxis = d3.svg.axis()
+          .scale(y)
+          .orient('left')
+          .ticks(7)
+          .innerTickSize(-width)
+          .outerTickSize(0)
+          .tickPadding(4);
+          // .tickFormat('');
+
+      var line = d3.svg.line()
+          .x(function(d) { return x(d.year); })
+          .y(function(d) { return y(d.value); })
+          .defined(function(d) { return d.value; })
+          .interpolate(interpolate);
+
+      var svg = d3.select(elem).append('svg')
+        .attr('width', width + margin.left + margin.right)
+        .attr('height', height + margin.top + margin.bottom)
+        .append('g')
+          .attr('transform', 'translate('+margin.left+',' + margin.top + ')');
+
+
+      data.forEach(function(d) {
+        d.year = parseDate(d.year);
+        d.value = d.value;
+      });
+
+      x.domain(d3.extent(data, function(d) { return d.year; }));
+      y.domain([0, d3.max(data, function(d) { return d.value; })]); 
+
+      // Nest the entries by symbol
+      var dataNest = d3.nest()
+          .key(function(d) { return d.symbol; })
+          .entries(data);
+
+      svg.append('g')
+        .attr('class', 'y axis')
+        .call(yAxis);
+
+      svg.append('g')
+        .attr('class', 'x axis')
+        .attr('transform', 'translate(0,' + (height) + ')')
+        .call(xAxis);
+
+      // Loop through each symbol / key
+      dataNest.forEach(function(d, i) {
+          svg.append("path")
+              .attr("class", "multiline")
+              .attr("d", line(d.values))
+              .attr('stroke', function() { return bucket[i]; })
+      });
+
+      svg.append('g')
+          .attr('transform', 'translate(-5, -10)').append('text')
+          .attr('class', 'unit')
+          .attr('x', function(d) { return 0 })
+          .attr('y', '-10')
+          .attr('dy', '.35em')
+          .attr('text-anchor', 'start')
+          .text(function(d) { return unit; });
+
+      function mousemove() {
+        var x0 = x.invert(d3.mouse(this)[0]),
+            i = bisectDate(data, x0, 1),
+            d0 = data[i - 1],
+            d1 = data[i];
+
+        if(d0 && d0.year && d1 && d1.year) {
+          var d = x0 - d0.year > d1.year - x0 ? d1 : d0;
+          focus.attr('transform', 'translate(' + x(d.year) + ',' + y(d.value) + ')');
+
+          // Move trail
+          trail.attr('transform', 'translate(' + x(d.year) + ', '+y(d.value)+')');
+          trailLine.attr('y2', (height) - y(d.value));
+
+          // Update tooltip
+          d3.select(tooltipEl)
+            .style('left', ( (x(d.year) + margin.left) + (radius/2) - margin.tooltip - (tooltipW / 2) ) + 'px')
+            .style('top', ( (y(d.value) + margin.top) - (tooltipH + (tooltipH/3)) + (radius / 2) - margin.tooltip ) + 'px')
+            .style('display', 'block');
+
+          d3.select(tooltipEl)
+            .select('.title')
+            .text(infoWindow + ' ' + d.x);
+
+          d3.select(tooltipEl)
+            .select('.value')
+            .text(d.value).append('span')
+            .attr('class', 'tooltip-unit')
+            .text(unit);
+        }
+      }
+
+      if(hover) {
+        /** Tooltip **/
+        var tooltipEl = elem+'-tooltip';
+        var tooltip = d3.select(elem)
+          .insert('div', 'svg')
+            .attr('id', elemAttr+'-tooltip')
+            .attr('class', 'tooltip-graph')
+
+        var tooltipW = $(tooltipEl).width();
+        var tooltipH = $(tooltipEl).height();
+
+        tooltip.append('div')
+          .attr('class', 'content');
+        tooltip.append('div')
+          .attr('class', 'bottom');
+
+        var tooltipContent = d3.select(tooltipEl)
+          .select('.content');
+
+        tooltipContent.append('div')
+          .attr('class', 'title')
+          .text(infoWindow);
+        tooltipContent.append('div')
+          .attr('class', 'value number');
+
+        /** Trail **/
+        var trail = svg.append('g');
+        var trailLine = trail.append('line')
+          .attr('class', 'trail')
+          .style('display', 'none')
+          .attr('x1', 0)
+          .attr('y1', 0)
+          .attr('x2', 0)
+          .attr('y2', 50);
+
+        var radius = 4;
+        var focus = svg.append('g')
+          .attr('class', 'focus')
+          .style('display', 'none');
+
+        focus.append('circle')
+          .attr('r', radius);
+
+        svg.append('rect')
+          .attr('class', 'overlay')
+          .attr('width', width)
+          .attr('height', height)
+          .on('mouseover', function() {
+            focus.style('display', null);
+            trailLine.style('display', null);
+            d3.select(tooltipEl)
+              .style('display', 'block');
+          })
+          .on('mouseout', function() {
+            focus.style('display', 'none');
+            trailLine.style('display', 'none');
+            d3.select(tooltipEl)
+              .style('display', 'none');
+          })
+          .on('mousemove', mousemove);
+      }
+
+      if(loader) {
+        $el.removeClass(loader);
+      }
+    },
+
     buildBarsChart: function(params) {
       var elem = params.elem;
       var elemAttr = elem.replace(/[#]|[.]/g, '');
@@ -403,7 +611,7 @@
       var margin = params.margin || {
         top: 30,
         right: 65,
-        bottom: 20,
+        bottom: 30,
         left: 30,
         xaxis: 10,
         tooltip: 1.8
@@ -452,12 +660,25 @@
       x.domain(data.map(function(d) { return d.x; }));
       x2.domain(data.map(function(d) { return d.x; }));
 
-      var yMin = d3.min(data,function(d){return d.y});
+      var yMin = d3.min(data,function(d){ return d.y; });
       var yMax = d3.max(data, function(d) { return d.y; });
 
-      if(yMin >= 0) {
-        yMin = 0;
+      if (hasLine) { 
+        var zMin = d3.min(data,function(d){ return d.z; });
+        var zMax = d3.max(data, function(d) { return d.z; });
+
+        if (zMin < yMin) {
+          yMin = zMin;
+        }
+
+        if (zMax > yMax) {
+          yMax = zMax;
+        }
       }
+
+      // if(yMin >= 0) {
+      //   yMin = 0;
+      // }
 
       if(hasLine) {
         var zMax = d3.max(data, function(d) { return d.z; });
@@ -468,7 +689,7 @@
 
       var y = d3.scale.linear()
         .domain([yMin, yMax])
-        .range([height,0]).nice();
+        .range([height,yMin]).nice();
 
       var xAxis = d3.svg.axis()
         .scale(x)
@@ -525,13 +746,13 @@
           .attr("x", function(d) { return x(d.x); })
           .attr("width", x.rangeBand()) 
           .attr("y", function(d) { return y(Math.max(0, d.y)); })
-          .attr("height", function(d) { return Math.abs(y(d.y) - y(0)); })
+          .attr("height", function(d) { return yMin >= 0 ? Math.abs(height - y(d.y)) : Math.abs(y(d.y) - y(0)); })
           
       svgBars.append("g")
           .attr("class", "y axis")
         .append("line")
-          .attr("y1", y(0))
-          .attr("y2", y(0))
+          .attr("y1", yMin >= 0 ? height : y(0))
+          .attr("y2", yMin >= 0 ? height : y(0))
           .attr("x1", 0)
           .attr("x2", width);
 
@@ -557,7 +778,7 @@
 
         svgBars.append('g')
           .attr('transform', function(d,i) {
-            return 'translate(' + ((barWidth) / 2) + ', 25)';
+            return 'translate(' + ((barWidth) / 2) + ', 0)';
           }).append('path')
             .datum(data)
             .attr('class', 'line')
@@ -790,7 +1011,7 @@
           .attr('class', 'chart')
           .attr('width', chartWidth)
           .attr('height', chartHeight)
-          .attr('transform', 'translate('+margin.left+', '+ margin.top +')');
+          .attr('transform', 'translate('+margin.left+'px, '+ margin.top +'px)');
 
       var bar = svg.selectAll('g')
           .data(zippedData)

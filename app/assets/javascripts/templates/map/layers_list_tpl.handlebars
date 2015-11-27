@@ -14,20 +14,26 @@
               </div>
               <div class="panel-item-title">{{name}}</div>
               <button class="panel-trasparecy-switcher">
-                <svg class="icon-settings" opacityLevel="{{opacity_text}}">
-                  <use xlink:href="#icon-settings"></use>
+                <svg class="icon-settings" opacityLevel="{{opacity_text}}"width="9px" height="14px" viewBox="0 0 9 14" version="1.1">
+                  <g id="Map" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" sketch:type="MSPage">
+                    <g id="Map_UI-amendments" sketch:type="MSArtboardGroup" transform="translate(-321.000000, -325.000000)" stroke="#C0C0C0" fill="#FFFFFF">
+                      <path d="M325.5,339 C327.985281,339 330,336.985281 330,334.5 C330,332.014719 327.428571,330.090909 325.5,325 C323.571429,330.090909 321,332.014719 321,334.5 C321,336.985281 323.014719,339 325.5,339 Z" id="opacity" sketch:type="MSShapeGroup"></path>
+                    </g>
+                  </g>
                 </svg>
               </button>
+              {{#if info}}
+                <button class="btn-info" data-info="{{info}}" data-name="{{name}}">
+                  <svg class="icon icon-info">
+                    <use xlink:href="#icon-info"></use>
+                  </svg>
+                </button>
+              {{/if}}
               {{#if download}}<a href="{{download_url}}" class="btn-download" attr="download">
                 <svg class="icon icon-downloads" opacityLevel="{{opacity_text}}">
                   <use xlink:href="#icon-downloads"></use>
                 </svg>
               </a>{{/if}}
-              {{#if info}}<button class="btn-info" data-info="{{info}}" data-name="{{name}}">
-                <svg class="icon icon-info">
-                  <use xlink:href="#icon-info"></use>
-                </svg>
-              </button>{{/if}}
               <div class="panel-item-slider">
                 <div class="m-form-input--slider">
                   <div class="slider-wrapper">
@@ -54,20 +60,26 @@
                       </div>
                       <div class="panel-item-title">{{name}}</div>
                       <button class="panel-trasparecy-switcher">
-                        <svg class="icon-settings" opacityLevel="{{opacity_text}}">
-                          <use xlink:href="#icon-settings"></use>
+                        <svg class="icon-settings" opacityLevel="{{opacity_text}}"width="9px" height="14px" viewBox="0 0 9 14" version="1.1">
+                          <g id="Map" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" sketch:type="MSPage">
+                            <g id="Map_UI-amendments" sketch:type="MSArtboardGroup" transform="translate(-321.000000, -325.000000)" stroke="#C0C0C0" fill="#FFFFFF">
+                              <path d="M325.5,339 C327.985281,339 330,336.985281 330,334.5 C330,332.014719 327.428571,330.090909 325.5,325 C323.571429,330.090909 321,332.014719 321,334.5 C321,336.985281 323.014719,339 325.5,339 Z" id="opacity" sketch:type="MSShapeGroup"></path>
+                            </g>
+                          </g>
                         </svg>
                       </button>
+                      {{#if info}}
+                        <button class="btn-info" data-info="{{info}}" data-name="{{name}}">
+                          <svg class="icon icon-info">
+                            <use xlink:href="#icon-info"></use>
+                          </svg>
+                        </button>
+                      {{/if}}
                       {{#if download}}<a href="{{download_url}}" class="btn-download" attr="download">
                         <svg class="icon icon-downloads" opacityLevel="{{opacity_text}}">
                           <use xlink:href="#icon-downloads"></use>
                         </svg>
                       </a>{{/if}}
-                      {{#if info}}<button class="btn-info" data-info="{{info}}" data-name="{{name}}">
-                                      <svg class="icon icon-info">
-                                        <use xlink:href="#icon-info"></use>
-                                      </svg>
-                                    </button>{{/if}}
                       <div class="panel-item-slider">
                         <div class="m-form-input--slider">
                           <div class="slider-wrapper">
@@ -97,20 +109,28 @@
                               </div>
                               <div class="panel-item-title">{{name}}</div>
                               <button class="panel-trasparecy-switcher">
-                                <svg class="icon-settings" opacityLevel="{{opacity_text}}">
-                                  <use xlink:href="#icon-settings"></use>
+                                <svg class="icon-settings" opacityLevel="{{opacity_text}}"width="9px" height="14px" viewBox="0 0 9 14" version="1.1">
+                                  <g id="Map" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" sketch:type="MSPage">
+                                    <g id="Map_UI-amendments" sketch:type="MSArtboardGroup" transform="translate(-321.000000, -325.000000)" stroke="#C0C0C0" fill="#FFFFFF">
+                                        <path d="M325.5,339 C327.985281,339 330,336.985281 330,334.5 C330,332.014719 327.428571,330.090909 325.5,325 C323.571429,330.090909 321,332.014719 321,334.5 C321,336.985281 323.014719,339 325.5,339 Z" id="opacity" sketch:type="MSShapeGroup"></path>
+                                    </g>
+                                  </g>
                                 </svg>
                               </button>
-                              {{#if download}}<a href="{{download_url}}" class="btn-download" attr="download">
-                                <svg class="icon icon-downloads" opacityLevel="{{opacity_text}}">
-                                  <use xlink:href="#icon-downloads"></use>
-                                </svg>
-                              </a>{{/if}}
-                              {{#if info}}<button class="btn-info" data-info="{{info}}" data-name="{{name}}">
-                                              <svg class="icon icon-info">
-                                                <use xlink:href="#icon-info"></use>
-                                              </svg>
-                                            </button>{{/if}}
+                              {{#if info}}
+                                <button class="btn-info" data-info="{{info}}" data-name="{{name}}">
+                                  <svg class="icon icon-info">
+                                    <use xlink:href="#icon-info"></use>
+                                  </svg>
+                                </button>
+                              {{/if}}
+                              {{#if download}}
+                                <a href="{{download_url}}" class="btn-download" attr="download">
+                                  <svg class="icon icon-downloads" opacityLevel="{{opacity_text}}">
+                                    <use xlink:href="#icon-downloads"></use>
+                                  </svg>
+                                </a>
+                              {{/if}}
                               <div class="panel-item-slider">
                                 <div class="m-form-input--slider">
                                   <div class="slider-wrapper">
@@ -138,20 +158,28 @@
                                         </div>
                                         <div class="panel-item-title">{{name}}</div>
                                         <button class="panel-trasparecy-switcher">
-                                          <svg class="icon-settings" opacityLevel="{{opacity_text}}">
-                                            <use xlink:href="#icon-settings"></use>
+                                          <svg class="icon-settings" opacityLevel="{{opacity_text}}"width="9px" height="14px" viewBox="0 0 9 14" version="1.1">
+                                            <g id="Map" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" sketch:type="MSPage">
+                                              <g id="Map_UI-amendments" sketch:type="MSArtboardGroup" transform="translate(-321.000000, -325.000000)" stroke="#C0C0C0" fill="#FFFFFF">
+                                                <path d="M325.5,339 C327.985281,339 330,336.985281 330,334.5 C330,332.014719 327.428571,330.090909 325.5,325 C323.571429,330.090909 321,332.014719 321,334.5 C321,336.985281 323.014719,339 325.5,339 Z" id="opacity" sketch:type="MSShapeGroup"></path>
+                                              </g>
+                                            </g>
                                           </svg>
                                         </button>
-                                        {{#if download}}<a href="{{download_url}}" class="btn-download" attr="download">
-                                          <svg class="icon icon-downloads" opacityLevel="{{opacity_text}}">
-                                            <use xlink:href="#icon-downloads"></use>
-                                          </svg>
-                                        </a>{{/if}}
-                                        {{#if info}}<button class="btn-info" data-info="{{info}}" data-name="{{name}}">
-                                                        <svg class="icon icon-info">
-                                                          <use xlink:href="#icon-info"></use>
-                                                        </svg>
-                                                      </button>{{/if}}
+                                        {{#if info}}
+                                          <button class="btn-info" data-info="{{info}}" data-name="{{name}}">
+                                            <svg class="icon icon-info">
+                                              <use xlink:href="#icon-info"></use>
+                                            </svg>
+                                          </button>
+                                        {{/if}}
+                                        {{#if download}}
+                                          <a href="{{download_url}}" class="btn-download" attr="download">
+                                            <svg class="icon icon-downloads" opacityLevel="{{opacity_text}}">
+                                              <use xlink:href="#icon-downloads"></use>
+                                            </svg>
+                                          </a>
+                                        {{/if}}
                                         <div class="panel-item-slider">
                                           <div class="m-form-input--slider">
                                             <div class="slider-wrapper">
@@ -173,7 +201,7 @@
                   {{/each}}
                 </ul>
               </li>
-{{!--             {{/if}} --}}
+            {{!-- {{/if}} --}}
           {{/each}}
           <li>
         </ul>

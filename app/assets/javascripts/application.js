@@ -30,6 +30,7 @@
 //= require ./views/analysis/widgets/widget_group_horizontal_bar_chart
 //= require ./views/analysis/widgets/widget_pyramid_chart
 //= require ./views/analysis/widgets/widget_line_chart
+//= require ./views/analysis/widgets/widget_multiLine_chart
 //= require ./views/analysis/widgets/widget_number
 //= require ./views/analysis/widgets/widget_text_list
 //= require ./views/analysis/analysis_page_view
@@ -65,7 +66,7 @@
 
     initialize: function() {
       // var subdomine = this._subdomineSettings();
-     
+
       this.currentViews = [];
       this.router = new root.app.Router();
       this.initGlobalViews();
@@ -126,7 +127,7 @@
           router: this.router,
           options: {
             'journeyId': journeyId,
-            'totalJourneys': this.totalJourneys
+            'totalJourneys': journeysIndexCollection.length
           }
         });
       }.bind(this));

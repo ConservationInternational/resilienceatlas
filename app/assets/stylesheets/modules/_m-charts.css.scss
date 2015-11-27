@@ -110,7 +110,8 @@
 
 
 
-  &.graph-line {
+  &.graph-line,
+  &.graph-multiline {
     position: relative;
 
     .tooltip-graph {
@@ -209,6 +210,11 @@
     .line {
       fill: none;
       stroke: $path-color;
+      stroke-width: 3px;
+    }
+
+    .multiline {
+      fill: none;
       stroke-width: 3px;
     }
 
@@ -356,8 +362,8 @@
     text-transform: capitalize;
   }
   .icon {
-    width: rem(11px);
-    height: rem(11px);
+    // width: rem(11px);
+    // height: rem(11px);
     // border-radius: rem(11px);
   }
 
