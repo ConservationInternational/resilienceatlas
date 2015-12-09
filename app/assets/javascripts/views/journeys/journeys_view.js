@@ -13,7 +13,8 @@
       'click #btn-prev':'_changeStep',
       'click #btn-next':'_changeStep',
       'click .btn-colapse' : '_togglePanel',
-      'click .btn-descolapse': '_togglePanel'
+      'click .btn-descolapse': '_togglePanel',
+      'click .js-scrolldown' : '_scrollPanelText'
     },
 
     templates: {
@@ -66,6 +67,8 @@
 
       this.renderButtons();
 
+      this.renderScrolldown();
+
       if (this.currentStepData.type === 'embed') {
         this.renderLegend();
       };
@@ -75,6 +78,20 @@
     renderButtons: function() {
       $('.m-controls').html( this.templates['controls'] );
       this._handleButtons();
+    },
+
+    renderScrolldown: function(){
+      var last_paragraph = $('.wrapper').find('p:last-child')[0];
+      var lp_bottom = last_paragraph.getBoundingClientRect().bottom
+      var scrollThreshold = 652;
+
+      if(lp_bottom > scrollThreshold) {
+        //show scroll arrow -> enable scroll functionality
+        var arrow = $('.extra-wrapper').find('.scrolldown-container').find('a')[0];
+        arrow.classList.remove('is-hidden');
+
+      }
+
     },
 
     renderLegend: function() {
@@ -195,6 +212,10 @@
       $('.btn-descolapse').removeClass('is-hidden');
       $(e.currentTarget).addClass('is-hidden');
       $('.content').toggleClass('is-colapsed');
+    },
+
+    _scrollPanelText: function(e) {
+
     }
 
   });
