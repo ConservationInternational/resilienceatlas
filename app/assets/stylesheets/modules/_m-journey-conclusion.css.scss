@@ -86,6 +86,15 @@
       }
     }
 
+    .scrolldown:before {
+      position: absolute;
+      left: 48%;
+
+      @include arrow(15px, $font-color-3, 2px, -135deg);
+      content: "";
+      pointer-events: auto;
+    }
+
     .btn-colapse,
     .btn-descolapse {
       @extend %clean-button-or-input;
