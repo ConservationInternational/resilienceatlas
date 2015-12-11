@@ -165,6 +165,58 @@
   }
 }
 
+@keyframes jump {
+  // 0% {
+  //   transform: translateY(-5px) rotate(-135deg);
+  // }
+  // 20% {
+  //   transform: translateY(0px) rotate(-135deg);
+  // }
+  // 40% {
+  //   transform: translateY(-5px) rotate(-135deg);
+  // }
+  // 60% {
+  //   transform: translateY(0px) rotate(-135deg);
+  // }
+  // 80% {
+  //   transform: translateY(-5px) rotate(-135deg);
+  // }
+  // 100% {
+  //   transform: translateY(0px) rotate(-135deg);
+  // }
+
+  0% {
+    transform: translateY(0px) rotate(-135deg);
+  }
+  7% {
+    transform: translateY(-9px) rotate(-135deg);
+  }
+  18% {
+    transform: translateY(0px) rotate(-135deg);
+  }
+  28% {
+    transform: translateY(-4px) rotate(-135deg);
+  }
+  42% {
+    transform: translateY(0px) rotate(-135deg);
+  }
+  55% {
+    transform: translateY(-2px) rotate(-135deg);
+  }
+  75% {
+    transform: translateY(0px) rotate(-135deg);
+  }
+  82% {
+    transform: translateY(-1px) rotate(-135deg);
+  }
+  88% {
+    transform: translateY(0px) rotate(-135deg);
+  }
+  100% {
+    transform: translateY(0px) rotate(-135deg);
+  }
+}
+
 //Forms mixins
 @mixin placeholder() {
   &::-webkit-input-placeholder {@content}
