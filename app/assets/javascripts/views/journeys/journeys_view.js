@@ -14,7 +14,7 @@
       'click #btn-next':'_changeStep',
       'click .btn-colapse' : '_togglePanel',
       'click .btn-descolapse': '_togglePanel',
-      'click .js-scrolldown' : '_scrollPanelText'
+      'click .scrolldown-link' : '_scrollPanelText'
     },
 
     templates: {
@@ -58,6 +58,13 @@
       this.template = this.templates[templateType];
     },
 
+    _cacheVars: function() {
+      this.$scrollText = $('.scroll-text');
+      this.$scrollContainer = $('.scroll-container');
+      this.$scrollWrapper = $('.scroll-wrapper');
+      this.$scrolldownLink = $('.scrolldown-link');
+    },
+
 
     render: function() {
       this._currentData();
@@ -67,12 +74,13 @@
 
       this.renderButtons();
 
-      this.renderScrolldown();
 
       if (this.currentStepData.type === 'embed') {
         this.renderLegend();
       };
 
+      this._cacheVars();
+      this.renderScrolldown();
     },
 
     renderButtons: function() {
@@ -81,17 +89,11 @@
     },
 
     renderScrolldown: function(){
-      var last_paragraph = $('.wrapper').find('p:last-child')[0];
-      var lp_bottom = last_paragraph.getBoundingClientRect().bottom
-      var scrollThreshold = 652;
-
-      if(lp_bottom > scrollThreshold) {
+      if(this.$scrollWrapper.height() > this.$scrollText.height()) {
         //show scroll arrow -> enable scroll functionality
-        var arrow = $('.extra-wrapper').find('.scrolldown-container').find('a')[0];
-        arrow.classList.remove('is-hidden');
-
+        this.$scrolldownLink.removeClass('is-hidden');
+        this.$scrolldownLink.addClass('jumping');
       }
-
     },
 
     renderLegend: function() {
@@ -215,7 +217,8 @@
     },
 
     _scrollPanelText: function(e) {
-
+      var scrollAmount = this.$scrollText[0].scrollHeight - this.$scrollContainer.height();
+      this.$scrollText.animate({ scrollTop: scrollAmount }, 800);
     }
 
   });

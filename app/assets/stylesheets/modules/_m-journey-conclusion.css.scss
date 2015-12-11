@@ -86,14 +86,21 @@
       }
     }
 
-    .scrolldown:before {
+    .scrolldown-link:before {
       position: absolute;
+      top: 92.5%;
       left: 48%;
 
       @include arrow(15px, $font-color-3, 2px, -135deg);
       content: "";
       pointer-events: auto;
+
+      animation-name: jump;
+      animation-duration: 1s;
+      animation-iteration-count: 3;
     }
+
+
 
     .btn-colapse,
     .btn-descolapse {
