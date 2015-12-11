@@ -10,7 +10,18 @@ $backgrounds-about: 'bg-about1','bg-about2';
         &.#{nth($backgrounds-about, $i)}{
           background: image-url('home/#{nth($backgrounds-about, $i)}.jpg') center;
           background-size: cover;
+
+          &:before {
+            background-image: linear-gradient(0deg, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.30) 50%, rgba(0,0,0,0.15) 100%);
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+          }
         }
+
       }
     }
   }
