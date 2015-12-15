@@ -132,7 +132,6 @@
         padding-left: 10px;
       }
     }
-
   }
 
   .panel-item-title {
@@ -140,28 +139,6 @@
     max-width: 60%;
     margin-left: rem(10px);
   }
-
-
-  .icon-container {
-    position: relative;
-    width: 18px;
-    height: 18px;
-    padding: 0;
-    margin: 0;
-
-    >.icon{
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-    }
-
-    >.icon-downloads {
-      height: 13px;
-      width: 13px;
-    }
-  }
-
 
   .panel-item-switch {
     float: left;
@@ -188,8 +165,8 @@
   float: right;
 
   .icon-settings {
-    width: 13px;
-    height: 13px;
+    width: 12px;
+    height: 12px;
     fill: $bg-color-4;
 
     //Hover options had problems in iPad
