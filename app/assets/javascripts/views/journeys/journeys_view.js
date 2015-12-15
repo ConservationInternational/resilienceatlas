@@ -92,7 +92,7 @@
       if(this.$scrollWrapper.height() > this.$scrollText.height()) {
         //show scroll arrow -> enable scroll functionality
         this.$scrolldownLink.removeClass('is-hidden');
-        this.$scrolldownLink.addClass('jumping');
+        this.$scrolldownLink.addClass('is-jumping');
       }
     },
 
