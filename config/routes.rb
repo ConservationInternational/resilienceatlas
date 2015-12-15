@@ -23,8 +23,6 @@ Rails.application.routes.draw do
 
   get 'map', to: 'map#index', as: :map
   get 'about', to: 'about#index'
-  get 'journeys', to: 'journeys#index'
-
 
   resources :journeys, only: [:show]
 
