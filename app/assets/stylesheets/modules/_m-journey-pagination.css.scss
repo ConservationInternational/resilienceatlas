@@ -3,12 +3,16 @@ $backgrounds-thumb: 'thumb-0', 'thumb-1', 'thumb-2', 'thumb-3';
 // SLIDER JOURNEYS INDEX
 .m-journey__paginationlist {
   @extend %clean-lists;
-  position: absolute;
-  top: 100%;
-  left: 0;
+
+  display: inline-block;
+  // display: flex;
+  // flex-direction: row;
+  // flex-wrap: wrap;
+  // justify-content: center;
+  padding: 30px 60px;
+
+
   z-index: 1;
-  width: 100%;
-  height: rem(125px);
   visibility: hidden;
   opacity: 0;
   transform: translate(0,-100%);
@@ -21,9 +25,11 @@ $backgrounds-thumb: 'thumb-0', 'thumb-1', 'thumb-2', 'thumb-3';
   }
 
   .m-journey__pagination {
-    display: block;
+    display: inline-block;
     position: relative;
-    height: rem(125px);
+    height: rem(180px);
+    width: rem(360px);
+    margin: 10px;
     cursor: pointer;
     outline: none;
     background-size: cover !important;
