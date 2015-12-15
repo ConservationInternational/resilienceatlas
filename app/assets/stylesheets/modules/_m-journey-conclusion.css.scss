@@ -58,7 +58,6 @@
       right: 0;
       left: 0;
       height: rem(40px);
-      z-index: 100;
     }
 
     h2 {
@@ -89,15 +88,17 @@
     .scrolldown-link:before {
       position: absolute;
       left: 48%;
-      bottom: 30px;
+      bottom: 25px;
 
       @include arrow(15px, $font-color-3, 2px, -135deg);
       content: "";
       pointer-events: auto;
 
-      animation-name: point-to;
-      animation-duration: 2.5s;
+      animation-name: jump;
+      animation-duration: 1s;
       animation-iteration-count: 1;
+
+      z-index: 100;
     }
 
 

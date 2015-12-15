@@ -166,42 +166,11 @@
 }
 
 @keyframes point-to {
-  // 0% {
-  //   transform: translateY(0px) rotate(-135deg);
-  // }
-  // 17% {
-  //   transform: translateY(10px) rotate(-135deg);
-  // }
-  // 33% {
-  //   transform: translateY(0px) rotate(-135deg);
-  // }
-  // 50% {
-  //   transform: translateY(10px) rotate(-135deg);
-  // }
-  // 67% {
-  //   transform: translateY(0px) rotate(-135deg);
-  // }
-  // 84%{
-  //   transform: translateY(10px) rotate(-135deg);
-  // }
-  // 100% {
-  //   transform: translateY(0px) rotate(-135deg);
-  // }
-
   0% {
     transform: translateY(0px) rotate(-135deg);
   }
-  25% {
-    transform: translateY(10px) rotate(-135deg);
-  }
   50% {
-    transform: translateY(0px) rotate(-135deg);
-  }
-  75% {
     transform: translateY(10px) rotate(-135deg);
-  }
-  100% {
-    transform: translateY(0px) rotate(-135deg);
   }
 }
 
@@ -209,28 +178,28 @@
   0% {
     transform: translateY(0px) rotate(-135deg);
   }
-  7% {
-    transform: translateY(-9px) rotate(-135deg);
+  10% {
+    transform: translateY(-10px) rotate(-135deg);
   }
-  18% {
+  20% {
     transform: translateY(0px) rotate(-135deg);
   }
-  28% {
+  32% {
     transform: translateY(-4px) rotate(-135deg);
   }
-  42% {
+  44% {
     transform: translateY(0px) rotate(-135deg);
   }
-  55% {
+  57% {
     transform: translateY(-2px) rotate(-135deg);
   }
-  75% {
+  65% {
     transform: translateY(0px) rotate(-135deg);
   }
-  82% {
+  72% {
     transform: translateY(-1px) rotate(-135deg);
   }
-  88% {
+  78% {
     transform: translateY(0px) rotate(-135deg);
   }
   100% {
