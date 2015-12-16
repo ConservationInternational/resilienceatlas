@@ -1,9 +1,20 @@
 {{#each journeys}}
   <li class="m-journey__intro {{this.bg}}" data-index="{{@index}}">
-    <a href="/journeys/{{this.id}}">
+    <div class="text">
       <span class="title">
-        <h3>{{this.title}}</h3>
-        <h2>{{this.subtitle}}</h2>
+        <h2>
+          <a href="/journeys/{{this.id}}">
+            {{this.title}}
+          </a>
+        </h2>
+      </span>
+      <span class="description">
+        <p>{{this.theme}}</p>
+        <a class="btn btn-secondary" href="/journeys/{{this.id}}">Know more</a>
+      </span>
+    </div>
+    <a class="pic" href="/journeys/{{this.id}}">
+      <span class="background">
       </span>
     </a>
   </li>
