@@ -4,12 +4,11 @@ $backgrounds-thumb: 'thumb-0', 'thumb-1', 'thumb-2', 'thumb-3';
 .m-journey__paginationlist {
   @extend %clean-lists;
 
-  display: inline-block;
-  // display: flex;
-  // flex-direction: row;
-  // flex-wrap: wrap;
-  // justify-content: center;
-  padding: 30px 60px;
+  margin: 0 auto;
+
+  @media screen and (min-width: 470px){ width: rem(470px); padding: rem(40px); }
+  @media screen and (min-width: 850px){ width: rem(850px); }
+  @media screen and (min-width: 1230px){ width: rem(1230px); }
 
 
   z-index: 1;
@@ -27,8 +26,11 @@ $backgrounds-thumb: 'thumb-0', 'thumb-1', 'thumb-2', 'thumb-3';
   .m-journey__pagination {
     display: inline-block;
     position: relative;
-    height: rem(180px);
-    width: rem(360px);
+
+    height: calc((100vw - 20px) / 2);
+    width: calc(100vw - 20px);
+    @media screen and (min-width: 470px){ width: rem(360px); height: rem(180px); }
+
     margin: 10px;
     cursor: pointer;
     outline: none;
