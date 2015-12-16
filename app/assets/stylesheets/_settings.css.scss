@@ -37,7 +37,9 @@ $base-line-height: 1.2em !default;
   Colors
  */
 $white: #fff;
+$white-medium: #eee;
 $black: #000;
+$black-charcoal: #222;
 $blue: #0089cc;
 $gray: #555;
 $gray-medium: #979797;
@@ -53,10 +55,13 @@ $bg-color-2: $blue;
 $bg-color-3: $gray-light;
 $bg-color-4: $gray-medium;
 $bg-color-5: $black;
+$bg-color-6: $white-medium;
+
 
 $font-color-1: $gray;
 $font-color-2: $blue;
 $font-color-3: $white;
+$font-color-4: $black-charcoal;
 
 
 /*
