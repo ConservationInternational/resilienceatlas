@@ -79,8 +79,29 @@
       this.listenTo(this.router, 'route:map', this.mapPage);
       // Initializing journeys
       this.listenTo(this.router, 'route:journeys', this.journeysPage);
-      // Initializing journeys
-      this.listenTo(this.router, 'route:about', this.aboutPage)
+      // Initializing about
+      this.listenTo(this.router, 'route:about', this.aboutPage);
+      // Initializing journeys index
+      this.listenTo(this.router, 'route:journeysIndex', this.journeysIndexPage);
+
+    },
+
+    journeysIndexPage: function(){
+      var journeysIndexCollection = new root.app.Collection.JourneysIndex();
+
+      var journeyIndexView = new root.app.View.JourneysIndexView({
+        journeys: journeysIndexCollection
+      });
+
+      // Fetching data
+      var complete = _.invoke([
+        journeysIndexCollection,
+      ], 'fetch');
+
+      $.when.apply($, complete).done(function() {
+        journeyIndexView.render();
+      }.bind(this));
+
     },
 
     initGlobalViews: function() {
@@ -123,7 +144,7 @@
       ], 'fetch');
 
       $.when.apply($, complete).done(function() {
-      var journeyPageView = new root.app.JourneysPageView({
+        var journeyPageView = new root.app.JourneysPageView({
           router: this.router,
           options: {
             'journeyId': journeyId,
@@ -132,6 +153,7 @@
         });
       }.bind(this));
     },
+
 
     aboutPage: function() {
       new root.app.View.StaticPageView;

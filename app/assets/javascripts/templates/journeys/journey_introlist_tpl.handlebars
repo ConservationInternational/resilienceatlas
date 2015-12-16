@@ -1,0 +1,10 @@
+{{#each journeys}}
+  <li class="m-journey__intro {{this.bg}}" data-index="{{@index}}">
+    <a href="/journeys/{{this.id}}">
+      <span class="title">
+        <h3>{{this.title}}</h3>
+        <h2>{{this.subtitle}}</h2>
+      </span>
+    </a>
+  </li>
+{{/each}}
