@@ -31,7 +31,6 @@
       this.$journey__paginationlist.html(this.template({
         journeys: this.journeys.toJSON()
       }));
-      this.setUp();
     },
 
     setListeners: function() {
@@ -39,17 +38,6 @@
       this.$backdrop.on('click', _.bind(this.hide,this));
     },
 
-    setUp: function() {
-      // //Menu journeys
-      // $('.m-journey__paginationlist').slick({
-
-      //   slidesToShow: 3,
-      //   slidesToScroll: 1,
-      //   speed: 500,
-      //   slide: 'li'
-      // });
-
-    },
 
     cacheVars: function() {
       this.$backdrop = $('#backdrop');
