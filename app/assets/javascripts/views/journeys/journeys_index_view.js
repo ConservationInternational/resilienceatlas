@@ -26,7 +26,7 @@
 
 
     cacheVars: function(){
-      this.$journey__introlist = $('.m-journey__introlist');
+      this.$journey__introlist = $('.m-journey__grid');
     },
 
     render: function() {
