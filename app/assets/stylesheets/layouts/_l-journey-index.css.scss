@@ -14,17 +14,17 @@
   padding-bottom: 100px;
 
   .m-journey__title {
-  position: relative;
-  height: 220px;
-  h1 {
-    @extend %center;
-    margin: 0;
+    position: relative;
+    height: 220px;
+    h1 {
+      @extend %center;
+      margin: 0;
 
-    font-family: $font-face-2;
-    font-size: rem(64px);
-    text-align: center;
-    text-transform: uppercase;
-    color: $font-color-3;
+      font-family: $font-face-2;
+      font-size: rem(64px);
+      text-align: center;
+      text-transform: uppercase;
+      color: $font-color-3;
+    }
   }
-}
 }
