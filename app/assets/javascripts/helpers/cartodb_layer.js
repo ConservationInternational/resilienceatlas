@@ -54,6 +54,19 @@
           }
 
           var self = this;
+          var sublayer = this.options.sublayers && this.options.sublayers[0];
+
+          if(sublayer && !sublayer.raster) {
+            var sql = sublayer.sql;
+            var sqlBounds = new cartodb.SQL({ 
+              user: this.options.user_name,
+              sql_api_template: this.options.sql_api_template
+            });
+
+            sqlBounds.getBounds(sql).done(function(bounds) {
+              self.bounds = bounds;
+            }); 
+          }
 
           layer.bind('load', function() {
             self.loader.removeClass('is-loading');
@@ -82,6 +95,14 @@
      */
     _setMap: function(map) {
       this.map = map;
+    },
+
+    panToLayer: function() {
+      var bounds = this.bounds;
+
+      if(bounds) {
+        this.map.fitBounds(bounds);
+      }
     }
 
   });
