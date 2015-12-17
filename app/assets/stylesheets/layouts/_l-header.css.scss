@@ -105,7 +105,8 @@
         background-color: rgba($bg-color-2, .1);
       }
 
-      &.is-current {
+      &.is-current,
+      &:hover.is-current {
         background-color: $bg-color-2;
         color: $font-color-3;
       }
