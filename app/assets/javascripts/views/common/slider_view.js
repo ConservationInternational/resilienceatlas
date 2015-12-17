@@ -12,7 +12,6 @@
       this.options = _.extend({}, this.defaults, opts);
       this.cacheVars();
       this.setUp();
-      this.setListeners();
     },
 
     model: new (Backbone.Model.extend({
@@ -26,22 +25,12 @@
       'click .m-slider__navigation' : 'setNavCurrent'
     },
 
-    setListeners: function() {
-      this.listenTo(this.model,'change:index', this.changeCurrent);
-    },
-
     setUp: function() {
       $('.m-slider__itemlist').slick({
-        infinite: true,
-        speed: 500,
-        // autoplay: true,
-        autoplaySpeed: 6000,
-        slide: 'li',
-        adaptiveHeight: true,
-        fade: true,
-        cssEase: 'linear',
-        pauseOnHover: false,
-        arrows: false,
+        centerMode: true,
+        centerPadding: '120px',
+        arrows: true,
+        slidesToShow: 1
       });
 
       this.handleNav();
@@ -49,45 +38,7 @@
 
     cacheVars: function() {
       this.sliderLength = $('.m-slider__item').length;
-      this.$slider__navigationlist = this.$el.find('.m-slider__navigationlist');
-      this.$slider__navigation = this.$el.find('.m-slider__navigation');
     },
-
-    // slickGoTo
-
-    setPagCurrent: function(e) {
-      this.model.set('index', $(e.currentTarget).data('index'));
-    },
-
-    setNavCurrent: function(e) {
-      var index = this.model.get('index');
-      var direction = $(e.currentTarget).data('direction');
-
-      switch(direction) {
-        case 'left':
-          (index === 0) ? index = 0 : index--;
-        break;
-        case 'right':
-          (index === this.sliderLength - 1) ? index = this.sliderLength - 1 : index++;
-        break;
-      }
-
-      this.model.set('index', index);
-    },
-
-    changeCurrent: function() {
-      $('.m-slider__itemlist').slick('slickGoTo', this.model.get('index'));
-      this.handleNav();
-    },
-
-    handleNav: function() {
-      var index = this.model.get('index');
-      var left = (index === 0) ? true : false;
-      var right = (index === this.sliderLength - 1) ? true : false;
-
-      this.$slider__navigationlist.find('.is-left').toggleClass('is-hidden', left);
-      this.$slider__navigationlist.find('.is-right').toggleClass('is-hidden', right);
-    }
 
   });
 
