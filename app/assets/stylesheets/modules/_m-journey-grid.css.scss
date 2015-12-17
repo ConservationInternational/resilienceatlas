@@ -1,12 +1,16 @@
-$backgrounds-thumb: 'thumb-0', 'thumb-1', 'thumb-2', 'thumb-3';
+$backgrounds-thumb: 'thumb-big-0', 'thumb-big-1', 'thumb-big-2', 'thumb-big-3';
 
-.m-journey__introlist {
+.m-journey__grid {
   @extend %clean-lists;
 
   width: 1060px;
-  margin: 40px auto;
+  margin: 0 auto;
 
-  .m-journey__intro {
+  // -webkit-box-shadow: 14px 24px 56px 4px rgba(0,0,0,0.2);
+  //    -moz-box-shadow: 14px 24px 56px 4px rgba(0,0,0,0.2);
+  //         box-shadow: 14px 24px 56px 4px rgba(0,0,0,0.2);
+
+  .m-journey__gridelement {
     display: flex;
 
     .text {
@@ -15,6 +19,13 @@ $backgrounds-thumb: 'thumb-0', 'thumb-1', 'thumb-2', 'thumb-3';
       height: rem(370px);
       background-color: $bg-color-6;
       padding: rem(50px);
+      position: relative;
+
+      .btn-secondary {
+        position: absolute;
+        bottom: 50px;
+        left: 50px;
+      }
     }
 
     .pic {
@@ -38,7 +49,7 @@ $backgrounds-thumb: 'thumb-0', 'thumb-1', 'thumb-2', 'thumb-3';
 
     @for $i from 1 through length($backgrounds-thumb){
       &.#{nth($backgrounds-thumb, $i)} > .pic {
-        background-image: image-url('home/#{nth($backgrounds-thumb, $i)}.jpg');
+        background-image: image-url('journeys/#{nth($backgrounds-thumb, $i)}.jpg');
       }
     }
 
