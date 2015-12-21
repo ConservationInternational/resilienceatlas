@@ -13,7 +13,8 @@
       'click #btn-prev':'_changeStep',
       'click #btn-next':'_changeStep',
       'click .btn-colapse' : '_togglePanel',
-      'click .btn-descolapse': '_togglePanel'
+      'click .btn-descolapse': '_togglePanel',
+      'click .scrolldown-link' : '_scrollPanelText'
     },
 
     templates: {
@@ -57,6 +58,13 @@
       this.template = this.templates[templateType];
     },
 
+    _cacheVars: function() {
+      this.$scrollText = $('.scroll-text');
+      this.$scrollContainer = $('.scroll-container');
+      this.$scrollWrapper = $('.scroll-wrapper');
+      this.$scrolldownLink = $('.scrolldown-link');
+    },
+
 
     render: function() {
       this._currentData();
@@ -66,15 +74,26 @@
 
       this.renderButtons();
 
+
       if (this.currentStepData.type === 'embed') {
         this.renderLegend();
       };
 
+      this._cacheVars();
+      this.renderScrolldown();
     },
 
     renderButtons: function() {
       $('.m-controls').html( this.templates['controls'] );
       this._handleButtons();
+    },
+
+    renderScrolldown: function(){
+      if(this.$scrollWrapper.height() > this.$scrollText.height()) {
+        //show scroll arrow -> enable scroll functionality
+        this.$scrolldownLink.removeClass('is-hidden');
+        this.$scrolldownLink.addClass('is-jumping');
+      }
     },
 
     renderLegend: function() {
@@ -195,6 +214,11 @@
       $('.btn-descolapse').removeClass('is-hidden');
       $(e.currentTarget).addClass('is-hidden');
       $('.content').toggleClass('is-colapsed');
+    },
+
+    _scrollPanelText: function(e) {
+      var scrollAmount = this.$scrollText[0].scrollHeight - this.$scrollContainer.height();
+      this.$scrollText.animate({ scrollTop: scrollAmount }, 800);
     }
 
   });
