@@ -165,6 +165,48 @@
   }
 }
 
+@keyframes point-to {
+  0% {
+    transform: translateY(0px) rotate(-135deg);
+  }
+  50% {
+    transform: translateY(10px) rotate(-135deg);
+  }
+}
+
+@keyframes jump {
+  0% {
+    transform: translateY(0px) rotate(-135deg);
+  }
+  10% {
+    transform: translateY(-10px) rotate(-135deg);
+  }
+  20% {
+    transform: translateY(0px) rotate(-135deg);
+  }
+  32% {
+    transform: translateY(-4px) rotate(-135deg);
+  }
+  44% {
+    transform: translateY(0px) rotate(-135deg);
+  }
+  57% {
+    transform: translateY(-2px) rotate(-135deg);
+  }
+  65% {
+    transform: translateY(0px) rotate(-135deg);
+  }
+  72% {
+    transform: translateY(-1px) rotate(-135deg);
+  }
+  78% {
+    transform: translateY(0px) rotate(-135deg);
+  }
+  100% {
+    transform: translateY(0px) rotate(-135deg);
+  }
+}
+
 //Forms mixins
 @mixin placeholder() {
   &::-webkit-input-placeholder {@content}

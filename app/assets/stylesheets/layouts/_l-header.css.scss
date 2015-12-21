@@ -74,8 +74,26 @@
     float: right;
     margin-right: -rem($margin);
 
-    .is-indicators & {
-      display: none;
+    &.-resilience {
+      .is-indicators & {
+         display: none;   
+      }
+    }
+    
+    &.-vital-sign {
+      display: none; 
+
+      .is-indicators & {
+         display: block;
+
+         a {
+            color: $white;
+
+            &:hover {
+              background-color: rgba($white, .1)
+            }
+         }  
+      }
     }
 
     li {
@@ -105,7 +123,8 @@
         background-color: rgba($bg-color-2, .1);
       }
 
-      &.is-current {
+      &.is-current,
+      &:hover.is-current {
         background-color: $bg-color-2;
         color: $font-color-3;
       }

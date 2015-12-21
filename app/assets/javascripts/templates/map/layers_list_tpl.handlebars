@@ -13,13 +13,13 @@
                 <label for="layer_{{id}}"></label>
               </div>
               <div class="panel-item-title">{{name}}</div>
-              {{#if_eq type "cartodb"}}
-                <button class="btn-locate" data-id="{{id}}">
-                  o
-                </button>
-              {{/if_eq}}
-              <button class="panel-trasparecy-switcher">
-                <svg class="icon-settings" opacityLevel="{{opacity_text}}"width="9px" height="14px" viewBox="0 0 9 14" version="1.1">
+              <button class="btn-locate icon-container" data-id="{{id}}">
+                <svg class="icon icon-zoom-pan">
+                  <use xlink:href="#icon-zoom-pan"></use>
+                </svg>
+              </button>
+              <button class="panel'vo-trasparecy-switcher icon-container">
+                <svg class="icon icon-settings" opacityLevel="{{opacity_text}}"width="9px" height="14px" viewBox="0 0 9 14" version="1.1">
                   <g id="Map" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" sketch:type="MSPage">
                     <g id="Map_UI-amendments" sketch:type="MSArtboardGroup" transform="translate(-321.000000, -325.000000)" stroke="#C0C0C0" fill="#FFFFFF">
                       <path d="M325.5,339 C327.985281,339 330,336.985281 330,334.5 C330,332.014719 327.428571,330.090909 325.5,325 C323.571429,330.090909 321,332.014719 321,334.5 C321,336.985281 323.014719,339 325.5,339 Z" id="opacity" sketch:type="MSShapeGroup"></path>
@@ -28,13 +28,13 @@
                 </svg>
               </button>
               {{#if info}}
-                <button class="btn-info" data-info="{{info}}" data-name="{{name}}">
+                <button class="btn-info icon-container" data-info="{{info}}" data-name="{{name}}">
                   <svg class="icon icon-info">
                     <use xlink:href="#icon-info"></use>
                   </svg>
                 </button>
               {{/if}}
-              {{#if download}}<a href="{{download_url}}" class="btn-download" attr="download">
+              {{#if download}}<a href="{{download_url}}" class="btn-download icon-container" attr="download">
                 <svg class="icon icon-downloads" opacityLevel="{{opacity_text}}">
                   <use xlink:href="#icon-downloads"></use>
                 </svg>
@@ -64,13 +64,13 @@
                         <label for="layer_{{id}}"></label>
                       </div>
                       <div class="panel-item-title">{{name}}</div>
-                      {{#if_eq type "cartodb"}}
-                        <button class="btn-locate" data-id="{{id}}">
-                          o
-                        </button>
-                      {{/if_eq}}
-                      <button class="panel-trasparecy-switcher">
-                        <svg class="icon-settings" opacityLevel="{{opacity_text}}"width="9px" height="14px" viewBox="0 0 9 14" version="1.1">
+                      <button class="btn-locate icon-container" data-id="{{id}}">
+                        <svg class="icon icon-zoom-pan">
+                          <use xlink:href="#icon-zoom-pan"></use>
+                        </svg>
+                      </button>
+                      <button class="panel-trasparecy-switcher icon-container">
+                        <svg class="icon icon-settings" opacityLevel="{{opacity_text}}"width="9px" height="14px" viewBox="0 0 9 14" version="1.1">
                           <g id="Map" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" sketch:type="MSPage">
                             <g id="Map_UI-amendments" sketch:type="MSArtboardGroup" transform="translate(-321.000000, -325.000000)" stroke="#C0C0C0" fill="#FFFFFF">
                               <path d="M325.5,339 C327.985281,339 330,336.985281 330,334.5 C330,332.014719 327.428571,330.090909 325.5,325 C323.571429,330.090909 321,332.014719 321,334.5 C321,336.985281 323.014719,339 325.5,339 Z" id="opacity" sketch:type="MSShapeGroup"></path>
@@ -79,13 +79,13 @@
                         </svg>
                       </button>
                       {{#if info}}
-                        <button class="btn-info" data-info="{{info}}" data-name="{{name}}">
+                        <button class="btn-info icon-container" data-info="{{info}}" data-name="{{name}}">
                           <svg class="icon icon-info">
                             <use xlink:href="#icon-info"></use>
                           </svg>
                         </button>
                       {{/if}}
-                      {{#if download}}<a href="{{download_url}}" class="btn-download" attr="download">
+                      {{#if download}}<a href="{{download_url}}" class="btn-download icon-container" attr="download">
                         <svg class="icon icon-downloads" opacityLevel="{{opacity_text}}">
                           <use xlink:href="#icon-downloads"></use>
                         </svg>
@@ -118,13 +118,14 @@
                                 <label for="layer_{{id}}"></label>
                               </div>
                               <div class="panel-item-title">{{name}}</div>
-                              {{#if_eq type "cartodb"}}
-                                <button class="btn-locate" data-id="{{id}}">
-                                  o
-                                </button>
-                              {{/if_eq}}
-                              <button class="panel-trasparecy-switcher">
-                                <svg class="icon-settings" opacityLevel="{{opacity_text}}"width="9px" height="14px" viewBox="0 0 9 14" version="1.1">
+
+                              <button class="btn-locate icon-container" data-id="{{id}}">
+                                <svg class="icon icon-zoom-pan">
+                                  <use xlink:href="#icon-zoom-pan"></use>
+                                </svg>
+                              </button>
+                              <button class="panel-trasparecy-switcher icon-container">
+                                <svg class=" icon icon-settings" opacityLevel="{{opacity_text}}"width="9px" height="14px" viewBox="0 0 9 14" version="1.1">
                                   <g id="Map" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" sketch:type="MSPage">
                                     <g id="Map_UI-amendments" sketch:type="MSArtboardGroup" transform="translate(-321.000000, -325.000000)" stroke="#C0C0C0" fill="#FFFFFF">
                                         <path d="M325.5,339 C327.985281,339 330,336.985281 330,334.5 C330,332.014719 327.428571,330.090909 325.5,325 C323.571429,330.090909 321,332.014719 321,334.5 C321,336.985281 323.014719,339 325.5,339 Z" id="opacity" sketch:type="MSShapeGroup"></path>
@@ -133,14 +134,14 @@
                                 </svg>
                               </button>
                               {{#if info}}
-                                <button class="btn-info" data-info="{{info}}" data-name="{{name}}">
+                                <button class="btn-info icon-container" data-info="{{info}}" data-name="{{name}}">
                                   <svg class="icon icon-info">
                                     <use xlink:href="#icon-info"></use>
                                   </svg>
                                 </button>
                               {{/if}}
                               {{#if download}}
-                                <a href="{{download_url}}" class="btn-download" attr="download">
+                                <a href="{{download_url}}" class="btn-download icon-container" attr="download">
                                   <svg class="icon icon-downloads" opacityLevel="{{opacity_text}}">
                                     <use xlink:href="#icon-downloads"></use>
                                   </svg>
@@ -172,13 +173,13 @@
                                           <label for="layer_{{id}}"></label>
                                         </div>
                                         <div class="panel-item-title">{{name}}</div>
-                                        {{#if_eq type "cartodb"}}
-                                          <button class="btn-locate" data-id="{{id}}">
-                                            o
-                                          </button>
-                                        {{/if_eq}}
-                                        <button class="panel-trasparecy-switcher">
-                                          <svg class="icon-settings" opacityLevel="{{opacity_text}}"width="9px" height="14px" viewBox="0 0 9 14" version="1.1">
+                                        <button class="btn-locate icon-container" data-id="{{id}}">
+                                          <svg class="icon icon-zoom-pan">
+                                            <use xlink:href="#icon-zoom-pan"></use>
+                                          </svg>
+                                        </button>
+                                        <button class="panel-trasparecy-switcher icon-container">
+                                          <svg class="icon icon-settings" opacityLevel="{{opacity_text}}"width="9px" height="14px" viewBox="0 0 9 14" version="1.1">
                                             <g id="Map" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" sketch:type="MSPage">
                                               <g id="Map_UI-amendments" sketch:type="MSArtboardGroup" transform="translate(-321.000000, -325.000000)" stroke="#C0C0C0" fill="#FFFFFF">
                                                 <path d="M325.5,339 C327.985281,339 330,336.985281 330,334.5 C330,332.014719 327.428571,330.090909 325.5,325 C323.571429,330.090909 321,332.014719 321,334.5 C321,336.985281 323.014719,339 325.5,339 Z" id="opacity" sketch:type="MSShapeGroup"></path>
@@ -187,14 +188,14 @@
                                           </svg>
                                         </button>
                                         {{#if info}}
-                                          <button class="btn-info" data-info="{{info}}" data-name="{{name}}">
+                                          <button class="btn-info icon-container" data-info="{{info}}" data-name="{{name}}">
                                             <svg class="icon icon-info">
                                               <use xlink:href="#icon-info"></use>
                                             </svg>
                                           </button>
                                         {{/if}}
                                         {{#if download}}
-                                          <a href="{{download_url}}" class="btn-download" attr="download">
+                                          <a href="{{download_url}}" class="btn-download icon-container" attr="download">
                                             <svg class="icon icon-downloads" opacityLevel="{{opacity_text}}">
                                               <use xlink:href="#icon-downloads"></use>
                                             </svg>
