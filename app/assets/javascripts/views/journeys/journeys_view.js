@@ -50,8 +50,10 @@
     },
 
     _currentData: function() {
-      this.currentStepData = _.where(this.journey.steps, { number: this._getStep() });
+      this.currentStepData = _.where(this.journey.steps, { 'number': this._getStep() });
       this.currentStepData = this.currentStepData[0];
+      console.log(this.currentStepData);
+      this.currentJourneyData = {'id': this.journey.id };
     },
 
     _currentTemplate: function() {
@@ -70,8 +72,7 @@
     render: function() {
       this._currentData();
       this._currentTemplate();
-
-      this.$el.html( this.template({ content: this.currentStepData }) );
+      this.$el.html( this.template({ 'content': this.currentStepData, 'journey': this.currentJourneyData }) );
 
       this.renderButtons();
 
@@ -228,7 +229,12 @@
     },
 
     _viewMapClicked: function(e) {
-      ga('send', 'event', 'Journeys', 'View on Map', 'Name')
+      var journeyInfo = "J" + e.target.dataset.journey;
+      var stepInfo = "S" + e.target.dataset.step;
+
+      var mapInfo = journeyInfo + " " + stepInfo; //J1 S5
+
+      ga('send', 'event', 'Journeys', 'View on Map', mapInfo)
     }
 
   });
