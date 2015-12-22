@@ -10,11 +10,12 @@
     el: '#journeyView',
 
     events: {
-      'click #btn-prev':'_changeStep',
-      'click #btn-next':'_changeStep',
+      'click #btn-prev' :'_changeStep',
+      'click #btn-next' :'_changeStep',
       'click .btn-colapse' : '_togglePanel',
-      'click .btn-descolapse': '_togglePanel',
-      'click .scrolldown-link' : '_scrollPanelText'
+      'click .btn-descolapse' : '_togglePanel',
+      'click .scrolldown-link' : '_scrollPanelText',
+      'click .btn-check-it' : '_viewMapClicked'
     },
 
     templates: {
@@ -213,12 +214,21 @@
       $('.btn-colapse').removeClass('is-hidden');
       $('.btn-descolapse').removeClass('is-hidden');
       $(e.currentTarget).addClass('is-hidden');
-      $('.content').toggleClass('is-colapsed');
+      var content = $('.content');
+      content.toggleClass('is-colapsed');
+
+      if (content.hasClass('is-colapsed')) {
+        ga('send', 'event', 'Journeys', 'Minimise text box');
+      }
     },
 
     _scrollPanelText: function(e) {
       var scrollAmount = this.$scrollText[0].scrollHeight - this.$scrollContainer.height();
       this.$scrollText.animate({ scrollTop: scrollAmount }, 800);
+    },
+
+    _viewMapClicked: function(e) {
+      ga('send', 'event', 'Journeys', 'View on Map', 'Name')
     }
 
   });

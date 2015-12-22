@@ -10,7 +10,8 @@
     events: {
       'click .btn-close-modal': 'hide',
       'click .modal-background': 'hide',
-      'click .btn-copy': 'copyUrl'
+      'click .btn-copy': 'copyUrl',
+      'click .btn-social': '_socialClicked'
     },
 
     el: 'body',
@@ -99,12 +100,30 @@
       var $parent = this.$el.find('.m-share .content.active');
       var $url = $parent.find('.url');
       var $btn = $parent.find('.btn-copy');
-
+      var parentId = $parent[0].id;
       $url.select();
+
+      if(parentId == 'share-link') {
+        ga('send', 'event', 'Map', 'Share','Copy URL click');
+      } else if(parentId == 'share-embed') {
+        ga('send', 'event', 'Map', 'Share','Embed click');
+      }
+
       try {
         var successful = document.execCommand('copy');
         $btn.html('copied');
       } catch(err) {}
+    },
+
+    _socialClicked: function(e) {
+      var currClassList = e.currentTarget.classList;
+      if (currClassList.contains('facebook')) {
+        ga('send', 'event', 'Map', 'Share', 'facebook');
+      } else if (currClassList.contains('twitter')) {
+        ga('send', 'event', 'Map', 'Share', 'twitter');
+      } else if (currClassList.contains('google')) {
+        ga('send', 'event', 'Map', 'Share', 'google');
+      }
     }
 
   });

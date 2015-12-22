@@ -105,6 +105,8 @@
         $target.closest('.selector-box').find('ul li').removeClass('selected');
         $target.addClass('selected');
       }
+
+      ga('send', 'event', 'Analysis', 'choose theme', slug);
     },
 
     closeAnalysis: function() {
@@ -138,6 +140,8 @@
           data: data[0]
         });
       }
+
+      ga('send', 'event', 'Analysis', 'start analysis');
     },
 
     showingResults: function(results) {
