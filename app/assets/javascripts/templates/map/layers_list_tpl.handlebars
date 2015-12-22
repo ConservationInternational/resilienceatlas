@@ -9,7 +9,7 @@
           {{#each layers}}
             <li class="layer {{#ifcond opacity_text}}{{/ifcond}}  {{#if dashboard_order}} {{dashboard_order}} {{/if}}">
               <div class="panel-item-switch m-form-input--switch">
-                <input type="checkbox" class="panel-input-switch" id="layer_{{id}}" {{#if active}}checked{{/if}}>
+                <input type="checkbox" data-name="{{name}}" class="panel-input-switch" id="layer_{{id}}" {{#if active}}checked{{/if}}>
                 <label for="layer_{{id}}"></label>
               </div>
               <div class="panel-item-title">{{name}}</div>
@@ -29,7 +29,7 @@
                   </svg>
                 </button>
               {{/if}}
-              {{#if download}}<a href="{{download_url}}" class="btn-download icon-container" attr="download">
+              {{#if download}}<a href="{{download_url}}" data-name="{{name}}" class="btn-download icon-container" attr="download">
                 <svg class="icon icon-downloads" opacityLevel="{{opacity_text}}">
                   <use xlink:href="#icon-downloads"></use>
                 </svg>
@@ -55,7 +55,7 @@
                   {{#each layers}}
                     <li class="layer {{#ifcond opacity_text}}{{/ifcond}}">
                       <div class="panel-item-switch m-form-input--switch">
-                        <input type="checkbox" class="panel-input-switch" id="layer_{{id}}" {{#if active}}checked{{/if}}>
+                        <input type="checkbox" data-name="{{name}}" class="panel-input-switch" id="layer_{{id}}" {{#if active}}checked{{/if}}>
                         <label for="layer_{{id}}"></label>
                       </div>
                       <div class="panel-item-title">{{name}}</div>
@@ -75,7 +75,7 @@
                           </svg>
                         </button>
                       {{/if}}
-                      {{#if download}}<a href="{{download_url}}" class="btn-download icon-container" attr="download">
+                      {{#if download}}<a href="{{download_url}}" data-name="{{name}}" class="btn-download icon-container" attr="download">
                         <svg class="icon icon-downloads" opacityLevel="{{opacity_text}}">
                           <use xlink:href="#icon-downloads"></use>
                         </svg>
@@ -104,7 +104,7 @@
                           {{#each layers}}
                             <li class="layer {{#ifcond opacity_text}}{{/ifcond}} {{#if dashboard_order}} {{dashboard_order}} {{/if}}">
                               <div class="panel-item-switch m-form-input--switch">
-                                <input type="checkbox" class="panel-input-switch" id="layer_{{id}}" {{#if active}}checked{{/if}}>
+                                <input type="checkbox" data-name="{{name}}" class="panel-input-switch" id="layer_{{id}}" {{#if active}}checked{{/if}}>
                                 <label for="layer_{{id}}"></label>
                               </div>
                               <div class="panel-item-title">{{name}}</div>
@@ -125,7 +125,7 @@
                                 </button>
                               {{/if}}
                               {{#if download}}
-                                <a href="{{download_url}}" class="btn-download icon-container" attr="download">
+                                <a href="{{download_url}}" data-name="{{name}}" class="btn-download icon-container" attr="download">
                                   <svg class="icon icon-downloads" opacityLevel="{{opacity_text}}">
                                     <use xlink:href="#icon-downloads"></use>
                                   </svg>
@@ -153,7 +153,7 @@
                                     {{#each layers}}
                                       <li class="layer {{#ifcond opacity_text}}{{/ifcond}} {{#if dashboard_order}} {{dashboard_order}} {{/if}}">
                                         <div class="panel-item-switch m-form-input--switch">
-                                          <input type="checkbox" class="panel-input-switch" id="layer_{{id}}" {{#if active}}checked{{/if}}>
+                                          <input type="checkbox" data-name="{{name}}" class="panel-input-switch" id="layer_{{id}}" {{#if active}}checked{{/if}}>
                                           <label for="layer_{{id}}"></label>
                                         </div>
                                         <div class="panel-item-title">{{name}}</div>
@@ -174,7 +174,7 @@
                                           </button>
                                         {{/if}}
                                         {{#if download}}
-                                          <a href="{{download_url}}" class="btn-download icon-container" attr="download">
+                                          <a href="{{download_url}}" data-name="{{name}}" class="btn-download icon-container" attr="download">
                                             <svg class="icon icon-downloads" opacityLevel="{{opacity_text}}">
                                               <use xlink:href="#icon-downloads"></use>
                                             </svg>
