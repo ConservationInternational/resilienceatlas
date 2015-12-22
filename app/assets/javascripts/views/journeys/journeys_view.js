@@ -232,7 +232,7 @@
       var journeyInfo = "J" + e.target.dataset.journey;
       var stepInfo = "S" + e.target.dataset.step;
 
-      var mapInfo = journeyInfo + " " + stepInfo; //J1 S5
+      var mapInfo = journeyInfo + " " + stepInfo; // => "J1 S5" for Journey 1, Step 5
 
       ga('send', 'event', 'Journeys', 'View on Map', mapInfo)
     }
