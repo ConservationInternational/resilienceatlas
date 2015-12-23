@@ -19,7 +19,8 @@
       'change .opacity-teller': '_transparencyInputChange',
       'click .panel-trasparecy-switcher' : '_openOpacityHandlers',
       'click .btn-info' : '_showInfo',
-      'click .btn-basemap-handler' : '_selectBasemap'
+      'click .btn-basemap-handler' : '_selectBasemap',
+      'click .btn-locate': '_setLayerBounds'
     },
 
     initialize: function(settings) {
@@ -194,6 +195,13 @@
       $target.addClass('is-active');
 
       Backbone.Events.trigger('basemap:change', basemapType);
+    },
+
+    _setLayerBounds: function(e) {
+      var $target = $(e.currentTarget);
+      var id = $target.data('id');
+
+      Backbone.Events.trigger('map:set:bounds', id);
     }
 
   });
