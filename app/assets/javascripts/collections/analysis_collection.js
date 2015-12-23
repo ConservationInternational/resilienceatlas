@@ -7,7 +7,16 @@
 
   root.app.Collection.Analysis = Backbone.Collection.extend({
 
-    url: 'data/analysis.json',
+    url: function() {
+      var url = 'data/analysis.json';
+      var isSubdomain = window.isSubdomain;
+
+      if (isSubdomain === 'indicators') {
+        url = 'data/analysis_vital_signs.json';
+      }
+
+      return url;
+    },
 
     initialize: function() {
       

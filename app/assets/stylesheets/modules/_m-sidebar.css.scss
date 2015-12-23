@@ -6,13 +6,7 @@
     padding-left: 10px;
     background-color: $bg-color-2;
   }
-
-  li[data-section="analysis"] {
-    .is-indicators & {
-      display: none;
-    }
-  }
-
+  
   .tab-title {
     a {
       padding: 10px 20px;

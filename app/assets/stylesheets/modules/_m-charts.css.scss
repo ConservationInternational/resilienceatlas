@@ -111,7 +111,8 @@
 
 
   &.graph-line,
-  &.graph-multiline {
+  &.graph-multiline,
+  &.graph-scatter {
     position: relative;
 
     .tooltip-graph {
@@ -343,6 +344,12 @@
       }
     }
   }
+
+  &.graph-scatter {
+    .unit {
+      fill: $font-color-1;
+    }
+  }
 }
 
 .legend {
@@ -376,5 +383,9 @@
     margin: 0 auto;
     padding-left: 0;
     padding-bottom: 0;
+  }
+
+  &.graph-scatter {
+    padding-top: 0; 
   }
 }

@@ -146,10 +146,12 @@
       var data = params.data;
       var unit = params.unit || '';
       var decimals = params.decimals || 0;
+      var isCircle = params.isCircle || false;
 
       var width = contentWidth,
           height = contentHeight;
       var legendRectSize = 10;
+      var legendCircleSize = 5;
       var legendSpacingH = 15;
       var legendSpacingV = 16;
       var topMargin = -3;
@@ -169,12 +171,20 @@
           return 'translate(0,' + vert + ')';
         });
 
-      legend.append('rect')
-        .attr('x', legendRectSize)
-        .attr('y', (legendRectSize/2)-1.3)
-        .attr('width', legendRectSize + "px")
-        .attr('height', legendRectSize + "px")
-        .style('fill', function(d){ return d.color; });
+      if(isCircle) {
+        legend.append('g')
+          .attr('transform', 'translate('+ legendRectSize +', '+ legendRectSize +')')
+          .append('circle')
+            .attr('r', legendCircleSize)
+            .style('fill', function(d){ return d.color; });
+      } else {
+        legend.append('rect')
+          .attr('x', legendRectSize)
+          .attr('y', (legendRectSize/2)-1.3)
+          .attr('width', legendRectSize + "px")
+          .attr('height', legendRectSize + "px")
+          .style('fill', function(d){ return d.color; });
+      }
 
       legend.append('text')
         .attr('class', 'text')
@@ -1011,7 +1021,7 @@
           .attr('class', 'chart')
           .attr('width', chartWidth)
           .attr('height', chartHeight)
-          .attr('transform', 'translate('+margin.left+'px, '+ margin.top +'px)');
+          .attr('transform', 'translate('+margin.left+', '+ margin.top +')');
 
       var bar = svg.selectAll('g')
           .data(zippedData)
@@ -1679,6 +1689,171 @@
           return bucket[i];
         });
     },
+
+    buildScatterChart: function(params) {
+      var elem = params.elem;
+      var elemAttr = elem.replace(/[#]|[.]/g, '');
+      var $el = $(elem);
+      var contentWidth = $el.width();
+      var contentHeight = $el.height();
+      var data = params.data;
+      var hover = params.hover;
+      var loader = params.loader || null;
+      var infoWindow = params.infoWindowText || '';
+      var decimals = params.decimals || 0;
+      var unit = params.unit || '';
+      var unitY = params.unitY || '';
+      var unitX = params.unitX || '';
+      var margin = params.margin || {
+        top: 30,
+        right: 0,
+        bottom: 40,
+        left: 0,
+        xaxis: 10,
+        tooltip: 1.8
+      };
+
+    var colors = d3.scale.category10();
+
+      $el.addClass('graph-scatter');
+
+      var width = contentWidth - margin.left - margin.right,
+          height = contentHeight - margin.top - margin.bottom;
+
+      var svg = d3.select(elem).append('svg')
+        .attr('width', width + margin.left + margin.right)
+        .attr('height', height + margin.top + margin.bottom)
+        .append('g')
+          .attr('transform', 'translate('+margin.left+',' + margin.top + ')');
+
+      var x = d3.scale.ordinal()
+        .rangeRoundBands([0, width], .4);
+      x.domain(data.map(function(d) { return d.x; }));
+
+      var yMin = d3.min(data,function(d){ return d.y; });
+      var yMax = d3.max(data, function(d) { return d.y; });
+
+      var y = d3.scale.linear()
+        .domain([yMin, yMax])
+        .range([height,yMin]);
+
+      svg.append('g').attr('class', 'x axis')
+        .attr('transform', 'translate(0,' + y.range()[0] + ')');
+      svg.append('g').attr('class', 'y axis');
+
+      var xAxis = d3.svg.axis()
+        .scale(x)
+        .orient('bottom')
+        .ticks(5)
+        .tickSize(0)
+        .tickFormat('')
+        .tickPadding(10);
+
+      var yAxis = d3.svg.axis()
+        .scale(y)
+        .orient('left')
+        .innerTickSize(-width)
+        .outerTickSize(0)
+        .tickPadding(6)
+        .tickFormat('')
+        .ticks(6);
+
+      svg.selectAll('g.y.axis').call(yAxis);
+      svg.selectAll('g.x.axis').call(xAxis);
+
+      svg.append("g")
+        .attr("class", "y axis")
+        .append("line")
+          .attr("y1", yMin >= 0 ? height : y(0))
+          .attr("y2", yMin >= 0 ? height : y(0))
+          .attr("x1", 0)
+          .attr("x2", width);
+
+      var groups = svg.selectAll('g.node').data(data, function (d) {
+        return d.name;
+      });
+      
+      var dotsGroup = groups.enter().append('g').attr('class', 'node')
+      .attr('transform', function (d) {
+        return 'translate(' + x(d.x) + ',' + y(d.y) + ')';
+      });
+
+      dotsGroup.append('circle')
+        .attr('r', 10)
+        .attr('class', 'dot')
+        .style('fill', function (d) {
+          return colors(d.scenario);
+      });
+
+      svg.append('g')
+        .attr('transform', 'translate(-5, -10)').append('text')
+        .attr('class', 'unit')
+        .attr('x', function(d) { return 0 })
+        .attr('y', '-10')
+        .attr('dy', '.35em')
+        .attr('text-anchor', 'start')
+        .text(function(d) { return unitY; });
+      
+      svg.append('g')
+        .attr('transform', 'translate('+ (width) +', '+ (height + (margin.bottom / 2) )+')').append('text')
+        .attr('class', 'unit')
+        .attr('x', function(d) { return 0 })
+        .attr('y', '0')
+        .attr('dy', '.35em')
+        .attr('text-anchor', 'start')
+        .text(function(d) { return unitX; });
+
+      if(loader) {
+        $el.removeClass(loader);
+      }
+
+      if(hover) {
+        var tooltipEl = elem+'-tooltip';
+
+        var tooltip = d3.select(elem)
+          .insert('div', 'svg')
+            .attr('id', elemAttr+'-tooltip')
+            .attr('class', 'tooltip-graph')
+
+        var tooltipW = $(tooltipEl).width();
+        var tooltipH = $(tooltipEl).height();
+
+        tooltip.append('div')
+          .attr('class', 'content');
+        tooltip.append('div')
+          .attr('class', 'bottom');
+
+        var tooltipContent = d3.select(tooltipEl)
+          .select('.content');
+
+        tooltipContent.append('div')
+          .attr('class', 'title');
+        tooltipContent.append('div')
+          .attr('class', 'value number');
+
+        d3.selectAll(elem+' .dot').on('mousemove', function (d) {
+          var element = d3.select(elem+' svg');
+          var cords = d3.mouse(element.node());
+
+          d3.select(tooltipEl)
+            .style('left', ( cords[0] - (tooltipW / 2)) + 'px')
+            .style('top', ( cords[1] - tooltipH - (tooltipH/3) ) + 'px')
+            .style('display', 'block');
+
+          d3.select(tooltipEl)
+            .select('.value')
+            .text(d.x).append('span')
+            .attr('class', 'tooltip-unit')
+            .text(unit);
+        });
+
+        d3.selectAll(elem+' .dot').on('mouseout', function () {
+            d3.select(tooltipEl)
+              .style('display', 'none');
+        });
+      }
+
+    }
   });
 
 })(this);

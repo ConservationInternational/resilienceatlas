@@ -23,7 +23,10 @@
       this.query = this.options.query;
       this.iso = this.options.iso;
       this.unit = this.options.unit || '';
+      this.unitY = this.options.unitY || '';
+      this.unitX = this.options.unitX || '';
       this.unitZ = this.options.unitZ || '';
+      
       this.widgetName = this.options.widgetName || '';
       this.labels = this.options.labels;
       this.meta_short = this.options.meta_short;

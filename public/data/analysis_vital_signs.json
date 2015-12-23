@@ -1,0 +1,130 @@
+[
+  {
+    "category_name": "Resilience",
+    "category_slug": "resilience",
+    "indicators": [
+      {
+        "name": "Resilience of maize yield",
+        "slug": "resilience_of_maize_yield",
+        "widget": "number",
+        "query": "SELECT category, estimate::numeric as y, iso3, std_error::numeric as z, variable as x, variable as label FROM resilience_maize_analysis_tool where category like 'Education' and iso3='%1'",
+        "meta_short": "WorldPop, 2015. http://www.worldpop.org.uk",
+        "metadata": {
+          "description": "Calculated from 1 km resolution 2015 WorldPop data. For this analysis the total population within the chosen geographic analysis area was calculated to get total population. Data is from the WorldPop project version 1.0 Africa and Asia continental datasets. No modifications were made to the dataset other than reprojection and cropping. For more information on the methods behind the data, see http://www.worldpop.org.uk/data/methods.",
+          "source": "Stevens, Forrest R., et al. “Disaggregating Census Data for Population Mapping Using Random Forests with Remotely-Sensed and Ancillary Data.” PLoS ONE 10, no. 2 (February 17, 2015): e0107042.Alegana, V. A., et al. “Fine Resolution Mapping of Population Age-Structures for Health and Development Applications.” Journal of The Royal Society Interface 12, no. 105 (April 6, 2015).Deville, Pierre, et al. “Dynamic Population Mapping Using Mobile Phone Data.” Proceedings of the National Academy of Sciences 111, no. 45 (November 11, 2014): 15888–93.Linard, Catherine, et al. “Population Distribution, Settlement Patterns and Accessibility across Africa in 2010.” PLoS ONE 7, no. 2 (February 21, 2012): e31743.Gaughan, Andrea E. et al. “High Resolution Population Distribution Maps for Southeast Asia in 2010 and 2015.” PLoS ONE 8, no. 2 (February 13, 2013): e55882.Tatem, Andrew J., et al. “High Resolution Population Maps for Low Income Nations: Combining Land Cover and Census in East Africa.” PLoS ONE 2, no. 12 (December 12, 2007): e1298.",
+          "link": "http://www.worldpop.org.uk"
+        }
+      },    
+      {
+        "name": "Resilience of food security",
+        "slug": "resilience_of_food_security",
+        "widget": "scatter_chart",
+        "unit": "",
+        "unitY": "Yes",
+        "unitX": "No",
+        "query": "with tru as (SELECT count(food_secure) x, scenario FROM resilience_maize_predictions where scenario like '%extension = observed' and iso3='%1'and food_secure = 'True' group by food_secure, scenario), fals as (SELECT count(food_secure)as y, scenario FROM resilience_maize_predictions where scenario like '%extension = observed' and iso3='%1' and food_secure = 'False' group by food_secure, scenario) select tru.scenario, x, y from tru left join fals on tru.scenario=fals.scenario",
+        "labels": {
+          "overall": "Graphic showing State of Peace",
+          "inco": "Society and Security",
+          "inst": "Domestic and International Conflict",
+          "army": "Militarisation"
+        },
+        "meta_short": "WorldPop, 2015. http://www.worldpop.org.uk",
+        "metadata": {
+          "description": "Calculated from 1 km resolution 2015 WorldPop data. For this analysis the total population within the chosen geographic analysis area was calculated and divided by the total land area to get density in number of persons per square km. Data is from the WorldPop project version 1.0 Africa and Asia continental datasets. No modifications were made to the dataset other than reprojection and cropping. For more information on the methods behind the data, see http://www.worldpop.org.uk/data/methods.",
+          "source": "Stevens, Forrest R., et al. “Disaggregating Census Data for Population Mapping Using Random Forests with Remotely-Sensed and Ancillary Data.” PLoS ONE 10, no. 2 (February 17, 2015): e0107042.Alegana, V. A., et al. “Fine Resolution Mapping of Population Age-Structures for Health and Development Applications.” Journal of The Royal Society Interface 12, no. 105 (April 6, 2015).Deville, Pierre, et al. “Dynamic Population Mapping Using Mobile Phone Data.” Proceedings of the National Academy of Sciences 111, no. 45 (November 11, 2014): 15888–93.Linard, Catherine, et al. “Population Distribution, Settlement Patterns and Accessibility across Africa in 2010.” PLoS ONE 7, no. 2 (February 21, 2012): e31743.Gaughan, Andrea E. et al. “High Resolution Population Distribution Maps for Southeast Asia in 2010 and 2015.” PLoS ONE 8, no. 2 (February 13, 2013): e55882.Tatem, Andrew J., et al. “High Resolution Population Maps for Low Income Nations: Combining Land Cover and Census in East Africa.” PLoS ONE 2, no. 12 (December 12, 2007): e1298.",
+          "link": "http://www.worldpop.org.uk"
+        }
+      }
+    ]
+  },
+  {
+    "category_name": "Soil Health",
+    "category_slug": "soil_health",
+    "indicators": [
+      {
+        "name": "National",
+        "slug": "soil_national",
+        "widget": "bar_line_chart",
+        "unit": "mm",
+        "unitZ": "°C",
+        "query": "with r as (SELECT s.month as x,s.month as name, round(value::numeric,1) as z, round(precip::numeric,1) as y, r.iso3  FROM cru_ts3_23_tmp_1985_2015_monthly r inner join monthly_mean_precip_1981_2014 s on r.iso3=s.iso3 and r.month=s.month) select * from r where iso3='%1'",
+        "meta_short": "CHIRPS, 2015, NEX-GDDP, 2014.",
+        "metadata": {
+          "description": "<p>Mean monthly precipitation is in mm, calculated over the 1985-2015 period from the Climate Hazards Group InfraRed Precipitation with Station (CHIRPS) version 2.0 dataset. Monthly mean daily mean temperature is in degrees Celsius during the 1985-2015 period based on monthly data from 1985-2015 from the Climatic Research Unit (CRU) TS Version 3.23 dataset.</p>",
+          "source": "<p>Funk, C.C., Peterson, P.J., Landsfeld, M.F., Pedreros, D.H., Verdin, J.P., Rowland, J.D., Romero, B.E., Husak, G.J., Michaelsen, J.C., and Verdin, A.P., 2014, A quasi-global precipitation time series for drought monitoring: U.S. Geological Survey Data Series 832, 4 p., <a href='http://dx.doi.org/10.3133/ds832'>http://dx.doi.org/10.3133/ds832.</a></p>",
+          "linkArray": [
+            "http://chg.geog.ucsb.edu/data/chirps",
+            "http://www.cru.uea.ac.uk"
+          ]
+        }
+      },
+      {
+        "name": "Landscape",
+        "slug": "soil_landscape",
+        "widget": "bar_chart",
+        "unit": "°C",
+        "query": "SELECT round(change::numeric,2) as y, month as x, month as name FROM tasmax_rcp85_1986_2005_vs_2040_2059_monthly where iso3='%1'",
+        "meta_short": "NEX-GDDP, 2014. http://dx.doi.org/10.7292/W0MW2F2G",
+        "metadata": {
+          "description": "Change in monthly mean daily mean surface temperature for 2040-2060, in degrees Celsius, compared to the 1980-2000 period. This analysis uses downscaled data from the 5th Coupled Model Intercomparison Project (CMIP5) made available in the the NASA Earth Exchange Global Daily Downscaled Projections (NEX-GDDP) dataset. The data for this layer is from the RCP8.5 scenario, a scenario that results in CO2 concentrations of more than 1370 ppm by 2100.",
+          "source": "Moss, Richard H., Jae A. Edmonds, Kathy A. Hibbard, Martin R. Manning, Steven K. Rose, Detlef P. van Vuuren, Timothy R. Carter, et al. “The next Generation of Scenarios for Climate Change Research and Assessment.” Nature 463, no. 7282 (February 11, 2010): 747–56.Taylor, Karl E., Ronald J. Stouffer, and Gerald A. Meehl. “An Overview of CMIP5 and the Experiment Design.” Bulletin of the American Meteorological Society 93, no. 4 (2012): 485–98",
+          "link": "http://dx.doi.org/10.7292/W0MW2F2G"
+        }
+      }
+    ]
+  },
+  {
+    "category_name": "Biodiversity",
+    "category_slug": "biodiversity",
+    "indicators": [
+      {
+        "name": "National",
+        "slug": "bio_national",
+        "widget": "group_horizontal_bar_chart",
+        "query": "with r as (select dhsregen,iso3,reg_id,svytype,svyyear from grp_dhs_regions where iso3='%1'),  s as (SELECT l.indicatorid, l.byvariableid, characteristiclabel, l.value FROM dhs_export l inner join r on regionid=reg_id where byvariableid!=106001 and indicatorid =13126000 order by characteristiclabel) SELECT trim(leading '.' from characteristiclabel) as label, value, 'Womens education' as category FROM s",
+        "meta_short": "DHS, 2015. http://www.statcompiler.com",
+        "metadata": {
+          "description": "Data from the Demographic and Health Surveys (DHS). Data taken from the online StatCompiler tool, using the lowest available and most recent sub-national survey information from each country.",
+          "source": "DHS. 2015. “MEASURE Demographic and Health Surveys.” Maryland: MEASURE DHS, ICF International.",
+          "link": "http://www.statcompiler.com"
+        }
+      },
+      {
+        "name": "Landscape",
+        "slug": "bio_landscape",
+        "widget": "group_horizontal_bar_chart",
+        "query": "with r as (select dhsregen,iso3,reg_id,svytype,svyyear from grp_dhs_regions where iso3='%1'),  s as (SELECT l.indicatorid, l.byvariableid, characteristiclabel, l.value FROM dhs_export l inner join r on regionid=reg_id where byvariableid!=106001 and indicatorid =127384003 order by characteristiclabel) SELECT trim(leading '.' from characteristiclabel) as label, value, 'mass media access' as category FROM s",
+        "meta_short": "DHS, 2015. http://www.statcompiler.com",
+        "metadata": {
+          "description": "Data from the Demographic and Health Surveys (DHS). Data taken from the online StatCompiler tool, using the lowest available and most recent sub-national survey information from each country.",
+          "source": "DHS. 2015. “MEASURE Demographic and Health Surveys.” Maryland: MEASURE DHS, ICF International.",
+          "link": "http://www.statcompiler.com"
+        }
+      }
+    ]
+  },
+ {
+    "category_name": "Climate",
+    "category_slug": "climate",
+    "indicators": [
+      {
+        "name": "Climate chart",
+        "slug": "climate_chart",
+        "widget": "bar_line_chart",
+        "unit": "mm",
+        "unitZ": "°C",
+        "query": "with r as (SELECT s.month as x,s.month as name, round(value::numeric,1) as z, round(precip::numeric,1) as y, r.iso3  FROM cru_ts3_23_tmp_1985_2015_monthly r inner join monthly_mean_precip_1981_2014 s on r.iso3=s.iso3 and r.month=s.month) select * from r where iso3='%1'",
+        "meta_short": "CHIRPS, 2015, NEX-GDDP, 2014.",
+        "metadata": {
+          "description": "<p>Mean monthly precipitation is in mm, calculated over the 1985-2015 period from the Climate Hazards Group InfraRed Precipitation with Station (CHIRPS) version 2.0 dataset. Monthly mean daily mean temperature is in degrees Celsius during the 1985-2015 period based on monthly data from 1985-2015 from the Climatic Research Unit (CRU) TS Version 3.23 dataset.</p>",
+          "source": "<p>Funk, C.C., Peterson, P.J., Landsfeld, M.F., Pedreros, D.H., Verdin, J.P., Rowland, J.D., Romero, B.E., Husak, G.J., Michaelsen, J.C., and Verdin, A.P., 2014, A quasi-global precipitation time series for drought monitoring: U.S. Geological Survey Data Series 832, 4 p., <a href='http://dx.doi.org/10.3133/ds832'>http://dx.doi.org/10.3133/ds832.</a></p>",
+          "linkArray": [
+            "http://chg.geog.ucsb.edu/data/chirps",
+            "http://www.cru.uea.ac.uk"
+          ]
+        }
+      }
+    ]
+  }
+]

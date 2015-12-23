@@ -33,6 +33,7 @@
 //= require ./views/analysis/widgets/widget_multiLine_chart
 //= require ./views/analysis/widgets/widget_number
 //= require ./views/analysis/widgets/widget_text_list
+//= require ./views/analysis/widgets/widget_scatter_chart
 //= require ./views/analysis/analysis_page_view
 //= require ./views/analysis/analysis_selectors_view
 

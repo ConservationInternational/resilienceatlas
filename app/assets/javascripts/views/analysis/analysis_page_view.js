@@ -31,7 +31,8 @@
       'bar_line_chart': 'initBarLineChart',
       'group_bar_chart': 'initGroupBarChart',
       'group_horizontal_bar_chart': 'initGroupHorizontalBarChart',
-      'pyramid_chart': 'initPyramidChart'
+      'pyramid_chart': 'initPyramidChart',
+      'scatter_chart': 'initScatterChart'
     },
 
     initialize: function(settings) {
@@ -212,6 +213,21 @@
         unit: indicator.unit,
         meta_short: indicator.meta_short,
         metadata: indicator.metadata
+      });
+    },
+
+    initScatterChart: function(indicator) {
+      var scatterChart = new root.app.View.WidgetScatterChart({
+        el: this.options.elWidgets,
+        slug: indicator.slug,
+        query: indicator.query,
+        name: indicator.name,
+        iso: this.iso,
+        unit: indicator.unit,
+        unitY: indicator.unitY,
+        unitX:  indicator.unitX,       
+        meta_short: indicator.meta_short,
+        metadata: indicator.metadata,
       });
     }
   });
