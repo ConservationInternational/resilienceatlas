@@ -136,6 +136,8 @@
       }
 
       Backbone.Events.trigger('opacity', {'currentModel': $current, 'opacityVal': currentModel.get('opacity')});
+
+      ga('send', 'event', 'Map', 'Transparency', 'Click Legend icon');
     },
 
     _removeLayer: function(e) {
@@ -147,6 +149,8 @@
       $('.panel-input-switch#layer_'+currentLayerId).prop('checked', false);
 
       Backbone.Events.trigger('remove:layer', currentLayerId);
+
+      ga('send', 'event', 'Map', 'Delete', 'Click delete button in legend');
     }
 
   });

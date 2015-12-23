@@ -10,11 +10,12 @@
     el: '#journeyView',
 
     events: {
-      'click #btn-prev':'_changeStep',
-      'click #btn-next':'_changeStep',
+      'click #btn-prev' :'_changeStep',
+      'click #btn-next' :'_changeStep',
       'click .btn-colapse' : '_togglePanel',
-      'click .btn-descolapse': '_togglePanel',
-      'click .scrolldown-link' : '_scrollPanelText'
+      'click .btn-descolapse' : '_togglePanel',
+      'click .scrolldown-link' : '_scrollPanelText',
+      'click .btn-check-it' : '_viewMapClicked'
     },
 
     templates: {
@@ -49,8 +50,9 @@
     },
 
     _currentData: function() {
-      this.currentStepData = _.where(this.journey.steps, { number: this._getStep() });
+      this.currentStepData = _.where(this.journey.steps, { 'number': this._getStep() });
       this.currentStepData = this.currentStepData[0];
+      this.currentJourneyData = {'id': this.journey.id };
     },
 
     _currentTemplate: function() {
@@ -69,8 +71,7 @@
     render: function() {
       this._currentData();
       this._currentTemplate();
-
-      this.$el.html( this.template({ content: this.currentStepData }) );
+      this.$el.html( this.template({ 'content': this.currentStepData, 'journey': this.currentJourneyData }) );
 
       this.renderButtons();
 
@@ -213,12 +214,26 @@
       $('.btn-colapse').removeClass('is-hidden');
       $('.btn-descolapse').removeClass('is-hidden');
       $(e.currentTarget).addClass('is-hidden');
-      $('.content').toggleClass('is-colapsed');
+      var content = $('.content');
+      content.toggleClass('is-colapsed');
+
+      if (content.hasClass('is-colapsed')) {
+        ga('send', 'event', 'Journeys', 'Minimise text box');
+      }
     },
 
     _scrollPanelText: function(e) {
       var scrollAmount = this.$scrollText[0].scrollHeight - this.$scrollContainer.height();
       this.$scrollText.animate({ scrollTop: scrollAmount }, 800);
+    },
+
+    _viewMapClicked: function(e) {
+      var journeyInfo = "J" + e.target.dataset.journey;
+      var stepInfo = "S" + e.target.dataset.step;
+
+      var mapInfo = journeyInfo + " " + stepInfo; // => "J1 S5" for Journey 1, Step 5
+
+      ga('send', 'event', 'Journeys', 'View on Map', mapInfo)
     }
 
   });
