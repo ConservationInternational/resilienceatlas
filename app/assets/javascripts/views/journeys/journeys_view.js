@@ -90,7 +90,7 @@
     },
 
     renderScrolldown: function(){
-      if(this.$scrollWrapper.height() > this.$scrollText.height()) {
+      if(this.$scrollText[0].scrollHeight > this.$scrollWrapper.height()) {
         //show scroll arrow -> enable scroll functionality
         this.$scrolldownLink.removeClass('is-hidden');
         this.$scrolldownLink.addClass('is-jumping');
