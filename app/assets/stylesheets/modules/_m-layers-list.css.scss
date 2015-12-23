@@ -208,6 +208,18 @@
   }
 }
 
+
+.btn-locate {
+  @extend %clean-button-or-input;
+  float: right;
+
+  .icon-zoom-pan {
+    width: 13px;
+    height: 13px;
+    margin-top: rem(1px);
+  }
+}
+
 .m-form-input--slider {
   input[type="range"] {
     position: absolute;
