@@ -53,6 +53,7 @@
       Backbone.Events.on('render:map', _.bind(this.renderLayers, this));
       Backbone.Events.on('basemap:change', _.bind(this.selectBasemap, this));
       Backbone.Events.on('map:set:fitbounds', this.setBbox.bind(this));
+      Backbone.Events.on('map:set:bounds', this._setLayerBounds.bind(this));
       Backbone.Events.on('map:set:mask', this.setMaskLayer.bind(this));
       Backbone.Events.on('map:toggle:layers', this.toggleLayers.bind(this));
       Backbone.Events.on('remove:layer', this._removingLayer.bind(this));
@@ -469,6 +470,15 @@
           }
         }
       });
+    },
+
+    _setLayerBounds: function(layerId) {
+      var mapModel = this.model;
+      var instance = mapModel.get(layerId);
+      
+      if(instance) {
+        instance.panToLayer();
+      }
     }
 
   });
