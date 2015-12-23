@@ -150,7 +150,7 @@
 
       Backbone.Events.trigger('remove:layer', currentLayerId);
 
-      ga('send', 'event', 'Map', 'Delete', 'Click Legend icon');
+      ga('send', 'event', 'Map', 'Delete', 'Click delete button in legend');
     }
 
   });
