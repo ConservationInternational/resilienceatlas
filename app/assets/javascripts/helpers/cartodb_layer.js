@@ -55,6 +55,8 @@
 
           var self = this;
 
+          self._getLayerBounds(layer);
+
           layer.bind('load', function() {
             self.loader.removeClass('is-loading');
           });
@@ -82,6 +84,32 @@
      */
     _setMap: function(map) {
       this.map = map;
+    },
+
+    _getLayerBounds: function(layer) {
+      var self = this;
+      var sublayer = this.options.sublayers && this.options.sublayers[0];
+      var sql = sublayer.sql;
+      var sqlBounds = new cartodb.SQL({ 
+        user: this.options.user_name,
+        sql_api_template: this.options.sql_api_template
+      });
+
+      if(sublayer.raster) {
+        sql = 'SELECT ST_Union(ST_Envelope(the_raster_webmercator)) as the_geom FROM (' + sql + ') as t';
+      }
+
+      sqlBounds.getBounds(sql).done(function(bounds) {
+        self.bounds = bounds;
+      }); 
+    },
+
+    panToLayer: function() {
+      var bounds = this.bounds;
+
+      if(bounds) {
+        this.map.fitBounds(bounds);
+      }
     }
 
   });
