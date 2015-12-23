@@ -20,7 +20,9 @@
       'click .panel-trasparecy-switcher' : '_openOpacityHandlers',
       'click .btn-info' : '_showInfo',
       'click .btn-basemap-handler' : '_selectBasemap',
+      'click .btn-download': '_downloadClicked'
       'click .btn-locate': '_setLayerBounds'
+
     },
 
     initialize: function(settings) {
@@ -39,7 +41,7 @@
 
     render: function() {
       var data = { groups: this.layers.getGrouped() };
-      
+
       this.$el.html( this.template( data ) );
       this._cacheVars();
       this._setActiveGroups();
@@ -64,11 +66,12 @@
       this.$basemapHandlers = $('.btn-basemap-handler');
     },
 
-    _toggleLayers: function() {
+    _toggleLayers: function(e) {
       var checkboxes = this.$el.find('.panel-item-switch input:checked');
       var activedIds = _.map(checkboxes, function(el) {
         return parseInt(el.id.split('layer_')[1]);
       });
+
 
       _.each(this.layers.models, function(model) {
         var active = _.contains(activedIds, model.id);
@@ -76,6 +79,11 @@
       });
 
       Backbone.Events.trigger('render:map');
+
+      var currCheckbox = e.currentTarget;
+      if (currCheckbox.checked) {
+        ga('send', 'event', 'Map', 'Toggle', currCheckbox.dataset.name);
+      }
     },
 
     /*
@@ -115,6 +123,8 @@
       $(activeControl).parent().siblings('.opacity-teller').val(opacity);
 
       this._setOpacity(opacity, activeControl);
+
+      ga('send', 'event','Map','Transparency', 'Slide');
     },
 
     //Handles opacity from text input.
@@ -185,6 +195,8 @@
       var name = $(e.currentTarget).data('name');
 
       this.infowindow.render(data, name);
+
+      ga('send', 'event', 'Map', 'More information');
     },
 
     _selectBasemap: function(e) {
@@ -197,11 +209,19 @@
       Backbone.Events.trigger('basemap:change', basemapType);
     },
 
+    _downloadClicked: function(e) {
+
+      var layerName = e.currentTarget.dataset.name;
+      if(typeof(layerName) !== 'undefined') {
+        ga('send', 'event', 'Map', 'Download', layerName);
+      }
+
     _setLayerBounds: function(e) {
       var $target = $(e.currentTarget);
       var id = $target.data('id');
 
       Backbone.Events.trigger('map:set:bounds', id);
+
     }
 
   });

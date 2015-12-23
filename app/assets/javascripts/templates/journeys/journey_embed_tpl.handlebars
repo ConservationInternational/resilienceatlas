@@ -2,7 +2,7 @@
 
   <div class="embebed-map">
     <iframe src="/embed{{content.mapUrl}}&journeyMap=true&countryIso={{content.countryIso}}" type=""></iframe>
-    {{#if content.btnUrl}}<a href="{{content.btnUrl}}" target="_blank" class="btn-check-it">View on map</a>{{/if}}
+    {{#if content.btnUrl}}<a href="{{content.btnUrl}}" target="_blank" data-step="{{content.number}}" data-journey="{{journey.id}}" class="btn-check-it">View on map</a>{{/if}}
   </div>
 
   <article class='side-bar'>
