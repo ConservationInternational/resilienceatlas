@@ -73,6 +73,8 @@
       var value = $ele.val();
       var key = ev && ev.keyCode ? ev.keyCode : 0;
 
+      ga('send', 'event', 'Map', 'Search');
+
       if(key !== 40 || key !== 38) {
         if(value.length > 0) {
           $searchBox.addClass('searching');
@@ -170,6 +172,13 @@
       var $target = $(ev.currentTarget);
       var iso = $target.data('iso');
       var area = this.searchCollection.where({ iso: iso });
+
+      var country = $target[0].title;
+      if (typeof(title) !== 'undefined') {
+        ga('send', 'event', 'Analysis', 'choose geography', countryName);
+      }else{
+        ga('send', 'event', 'Analysis', 'choose geography', 'ERR: Country undefined.');
+      }
 
       if(area[0]) {
         var bbox = area[0].get('bbox');
