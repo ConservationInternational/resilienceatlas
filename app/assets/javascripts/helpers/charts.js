@@ -1713,9 +1713,41 @@
         tooltip: 1.8
       };
 
-    var colors = d3.scale.category10();
+      var colors = d3.scale.category10();
 
       $el.addClass('graph-scatter');
+
+      var data = [{
+          "name": "Dairy Milk",
+              "scenario": "cadbury",
+              "x": 45,
+              "y": 2
+      }, {
+          "name": "Galaxy",
+              "scenario": "Nestle",
+              "x": 42,
+              "y": 3
+      }, {
+          "name": "Lindt",
+              "scenario": "Lindt",
+              "x": 80,
+              "y": 4
+      }, {
+          "name": "Hershey",
+              "scenario": "Hershey",
+              "x": 40,
+              "y": 1
+      }, {
+          "name": "Dolfin",
+              "scenario": "Lindt",
+              "x": 90,
+              "y": 5
+      }, {
+          "name": "Bournville",
+              "scenario": "cadbury",
+              "x": 70,
+              "y": 2
+      }];
 
       var width = contentWidth - margin.left - margin.right,
           height = contentHeight - margin.top - margin.bottom;
@@ -1851,6 +1883,157 @@
             d3.select(tooltipEl)
               .style('display', 'none');
         });
+      }
+    },
+
+    buildErrorChart: function(params) {
+      var elem = params.elem;
+      var elemAttr = elem.replace(/[#]|[.]/g, '');
+      var $el = $(elem);
+      var contentWidth = $el.width();
+      var contentHeight = $el.height();
+      var data = params.data;
+      var hover = params.hover;
+      var loader = params.loader || null;
+      var infoWindow = params.infoWindowText || '';
+      var decimals = params.decimals || 0;
+      var unit = params.unit || ''; 
+      var unitZ = params.unitZ || ''; 
+      var barWidth = params.barWidth || 10;
+      var barSeparation = params.barSeparation || 10;
+      var xIsDate = params.xIsDate || false;
+      var hasLine = params.hasLine || false;
+      var interpolate = params.interpolate || 'linear';
+      var transition = 200;
+      var margin = params.margin || {
+        top: 30,
+        right: 65,
+        bottom: 30,
+        left: 30,
+        xaxis: 10,
+        tooltip: 1.8
+      };
+
+      var circleSize = 6;
+      // $el.addClass('graph-error');
+
+      $el.addClass('graph-line');
+
+      var width = contentWidth,
+          height = contentHeight;
+
+      var width = width - margin.left - margin.right,
+          height = height - margin.top - margin.bottom;
+      var heightPadding = height - 50;
+
+      var totalBarsWidth = ((barWidth + barSeparation) * data.length) - barSeparation;
+      var centerContainer = (contentWidth / 2) - (totalBarsWidth / 2);
+
+      if(xIsDate) {
+        data.forEach(function(d) {
+          d.date = parseDate(d.date);
+        });
+      }
+
+      var svgBars = d3.select(elem).append('svg')
+        .attr('class', '')
+        .attr('width', width + margin.left + margin.right)
+        .attr('height', height + margin.top + margin.bottom)
+        .append('g')
+          .attr('transform', 'translate('+(margin.left * 2)+', '+ margin.top +')');
+
+      var x = d3.scale.ordinal()
+        .rangeRoundBands([0, width], .83);
+
+      x.domain(data.map(function(d) { return d.x; }));
+
+      var yMin = d3.min(data,function(d){ return d.y; });
+      var yMax = d3.max(data, function(d) { return d.y; });
+
+      var y = d3.scale.linear()
+        .domain([0, yMax])
+        .range([height,0]).nice();
+
+      var xAxis = d3.svg.axis()
+        .scale(x)
+        .orient('bottom')
+        .ticks(5)
+        .tickSize(0)
+        .tickPadding(10);
+
+      var yAxis = d3.svg.axis()
+        .scale(y)
+        .orient('left')
+        .ticks(4)
+        .innerTickSize(-width)
+        .outerTickSize(0)
+        .tickPadding(4)
+        .ticks(8);
+
+      svgBars.append('g')
+          .attr('class', 'y axis')
+          .call(yAxis);
+
+      svgBars.append('g')
+          .attr('class', 'x axis')
+          .attr('transform', 'translate(0,' + height + ')')
+          .call(xAxis);
+
+      var barsGroup = svgBars.selectAll('.bar')
+          .data(data)
+        .enter().append('rect')
+          .attr('class', 'bar')
+          .style('fill', function(d) { return d.color; })
+          .attr('x', function(d) { return x(d.x); })
+          .attr('width', x.rangeBand()) 
+          .attr('y', function(d) { return y(Math.max(0, d.y)); })
+          .attr('height', function(d) { return yMin >= 0 ? Math.abs(height - y(d.y)) : Math.abs(y(d.y) - y(0)); })
+         
+      svgBars.selectAll('.circle')
+        .data(data)
+          .enter().append('circle')
+            .attr('class','circle')
+            .attr('cx', function(d) { return x(d.x) + (x.rangeBand() / 2);})
+            .attr('cy', function(d){return y(d.y);})
+            .attr('r', circleSize)
+            .attr('fill', 'red')
+            .style('stroke', 'darkgrey');
+
+      var lines = svgBars.selectAll('.lines')
+        .data(data)
+          .enter().append('g')
+            .append('line')
+              .attr('y1', 0)
+              .attr('y2', function(d){return y(d.e);})
+              .attr('x1', 1)
+              .attr('x2', 1)
+              .attr('stroke', 'red');
+            // .attr('class','circle')
+            // .attr('cx', function(d) { return x(d.x) + (x.rangeBand() / 2);})
+            // .attr('cy', function(d){return y(d.y);})
+            // .attr('r', circleSize)
+            // .attr('fill', 'red')
+            // .style('stroke', 'darkgrey');     
+
+      svgBars.append('g')
+          .attr('class', 'y axis')
+        .append('line')
+          .attr('y1', yMin >= 0 ? height : y(0))
+          .attr('y2', yMin >= 0 ? height : y(0))
+          .attr('x1', 0)
+          .attr('x2', width);
+
+      svgBars.append('g')
+          .attr('transform', 'translate(-5, -10)').append('text')
+          .attr('class', 'unit')
+          .attr('x', function(d) { return 0 })
+          .attr('y', '-10')
+          .attr('dy', '.35em')
+          .attr('text-anchor', 'start')
+          .text(function(d) { return unit; });
+
+      if(loader) {
+        $el.removeClass(loader);
       }
 
     }

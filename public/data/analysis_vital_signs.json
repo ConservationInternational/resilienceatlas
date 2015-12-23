@@ -6,13 +6,13 @@
       {
         "name": "Resilience of maize yield",
         "slug": "resilience_of_maize_yield",
-        "widget": "number",
+        "widget": "error_chart",
         "query": "SELECT category, estimate::numeric as y, iso3, std_error::numeric as z, variable as x, variable as label FROM resilience_maize_analysis_tool where category like 'Education' and iso3='%1'",
-        "meta_short": "WorldPop, 2015. http://www.worldpop.org.uk",
+        "meta_short": "",
         "metadata": {
-          "description": "Calculated from 1 km resolution 2015 WorldPop data. For this analysis the total population within the chosen geographic analysis area was calculated to get total population. Data is from the WorldPop project version 1.0 Africa and Asia continental datasets. No modifications were made to the dataset other than reprojection and cropping. For more information on the methods behind the data, see http://www.worldpop.org.uk/data/methods.",
-          "source": "Stevens, Forrest R., et al. “Disaggregating Census Data for Population Mapping Using Random Forests with Remotely-Sensed and Ancillary Data.” PLoS ONE 10, no. 2 (February 17, 2015): e0107042.Alegana, V. A., et al. “Fine Resolution Mapping of Population Age-Structures for Health and Development Applications.” Journal of The Royal Society Interface 12, no. 105 (April 6, 2015).Deville, Pierre, et al. “Dynamic Population Mapping Using Mobile Phone Data.” Proceedings of the National Academy of Sciences 111, no. 45 (November 11, 2014): 15888–93.Linard, Catherine, et al. “Population Distribution, Settlement Patterns and Accessibility across Africa in 2010.” PLoS ONE 7, no. 2 (February 21, 2012): e31743.Gaughan, Andrea E. et al. “High Resolution Population Distribution Maps for Southeast Asia in 2010 and 2015.” PLoS ONE 8, no. 2 (February 13, 2013): e55882.Tatem, Andrew J., et al. “High Resolution Population Maps for Low Income Nations: Combining Land Cover and Census in East Africa.” PLoS ONE 2, no. 12 (December 12, 2007): e1298.",
-          "link": "http://www.worldpop.org.uk"
+          "description": "",
+          "source": "",
+          "link": ""
         }
       },    
       {

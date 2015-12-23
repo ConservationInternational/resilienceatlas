@@ -32,7 +32,8 @@
       'group_bar_chart': 'initGroupBarChart',
       'group_horizontal_bar_chart': 'initGroupHorizontalBarChart',
       'pyramid_chart': 'initPyramidChart',
-      'scatter_chart': 'initScatterChart'
+      'scatter_chart': 'initScatterChart',
+      'error_chart': 'initErrorChart'
     },
 
     initialize: function(settings) {
@@ -229,7 +230,23 @@
         meta_short: indicator.meta_short,
         metadata: indicator.metadata,
       });
-    }
+    },
+
+    initErrorChart: function(indicator) {
+      var barChart = new root.app.View.WidgetErrorChart({
+        el: this.options.elWidgets,
+        slug: indicator.slug,
+        query: indicator.query,
+        name: indicator.name,
+        iso: this.iso,
+        unit: indicator.unit,
+        unitZ: null,
+        hasLine: false,
+        meta_short: indicator.meta_short,
+        metadata: indicator.metadata
+      });
+    },
+
   });
 
 })(this);
