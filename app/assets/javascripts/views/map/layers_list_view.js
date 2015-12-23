@@ -39,7 +39,7 @@
 
     render: function() {
       var data = { groups: this.layers.getGrouped() };
-      
+
       this.$el.html( this.template( data ) );
       this._cacheVars();
       this._setActiveGroups();
@@ -211,7 +211,6 @@
 
       var layerName = e.currentTarget.dataset.name;
       if(typeof(layerName) !== 'undefined') {
-        console.log(layerName);
         ga('send', 'event', 'Map', 'Download', layerName);
       }
 
