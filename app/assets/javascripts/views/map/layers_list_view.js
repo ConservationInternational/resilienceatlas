@@ -20,9 +20,8 @@
       'click .panel-trasparecy-switcher' : '_openOpacityHandlers',
       'click .btn-info' : '_showInfo',
       'click .btn-basemap-handler' : '_selectBasemap',
-      'click .btn-download': '_downloadClicked'
+      'click .btn-download': '_downloadClicked',
       'click .btn-locate': '_setLayerBounds'
-
     },
 
     initialize: function(settings) {
@@ -210,18 +209,18 @@
     },
 
     _downloadClicked: function(e) {
-
       var layerName = e.currentTarget.dataset.name;
+      
       if(typeof(layerName) !== 'undefined') {
         ga('send', 'event', 'Map', 'Download', layerName);
       }
+    },
 
     _setLayerBounds: function(e) {
       var $target = $(e.currentTarget);
       var id = $target.data('id');
 
       Backbone.Events.trigger('map:set:bounds', id);
-
     }
 
   });

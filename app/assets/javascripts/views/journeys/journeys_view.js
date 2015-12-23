@@ -52,7 +52,6 @@
     _currentData: function() {
       this.currentStepData = _.where(this.journey.steps, { 'number': this._getStep() });
       this.currentStepData = this.currentStepData[0];
-      console.log(this.currentStepData);
       this.currentJourneyData = {'id': this.journey.id };
     },
 
