@@ -99,9 +99,11 @@
         sql = 'SELECT ST_Union(ST_Envelope(the_raster_webmercator)) as the_geom FROM (' + sql + ') as t';
       }
 
-      sqlBounds.getBounds(sql).done(function(bounds) {
-        self.bounds = bounds;
-      }); 
+      if(sql.match(/the_geom/g) || sql.match(/[*]/g)) {
+        sqlBounds.getBounds(sql).done(function(bounds) {
+          self.bounds = bounds;
+        }); 
+      }
     },
 
     panToLayer: function() {
