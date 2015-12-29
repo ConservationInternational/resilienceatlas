@@ -9,8 +9,6 @@
 
     url: 'https://grp.global.ssl.fastly.net/user/grp/api/v1/sql',
 
-    // url: 'data/countries.json', 
-
     parse: function(data) {
       return data.rows;
     },
@@ -18,7 +16,8 @@
     getData: function() {
       var self = this;
       var fetchOptions;
-      var query = 'SELECT initcap(s_name) as name, bbox, iso3 as iso FROM grpcountries_250k_polygon';
+      var tableName = this._getTableName();
+      var query = 'SELECT initcap(s_name) as name, bbox as bbox, iso3 as iso FROM ' + tableName;
 
       fetchOptions = {
         dataType: 'json',
@@ -29,6 +28,16 @@
       };
 
       return this.fetch(fetchOptions);
+    },
+
+    _getTableName: function() {
+      var name = 'grpcountries_250k_polygon';
+      var isSubdomain = window.isSubdomain;
+
+      if (isSubdomain === 'indicators') {
+        name = 'vs_countries';
+      }
+      return name;
     }
   });
 

@@ -182,7 +182,7 @@
 
       if(area[0]) {
         var bbox = area[0].get('bbox');
-
+        
         Backbone.Events.trigger('map:set:fitbounds', bbox);
         Backbone.Events.trigger('map:set:mask', iso, 0.8, {
           query: 'select * from grpcountries_250k_polygon',
