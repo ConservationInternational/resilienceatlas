@@ -1003,9 +1003,14 @@
       }
 
       var chartHeight = barHeight * zippedData.length + gapBetweenGroups * data.labels.length;
+      var maxValue = d3.max(zippedData);
+
+      if(maxValue.toString().length > 5) {
+        chartWidth = chartWidth - 50;
+      }
 
       var x = d3.scale.linear()
-          .domain([0, d3.max(zippedData)])
+          .domain([0, maxValue])
           .range([0, chartWidth-spaceForLabels-spaceValueText- 30]);
 
       var y = d3.scale.linear()
@@ -1713,41 +1718,7 @@
         tooltip: 1.8
       };
 
-      var colors = d3.scale.category10();
-
       $el.addClass('graph-scatter');
-
-      var data = [{
-          "name": "Dairy Milk",
-              "scenario": "cadbury",
-              "x": 45,
-              "y": 2
-      }, {
-          "name": "Galaxy",
-              "scenario": "Nestle",
-              "x": 42,
-              "y": 3
-      }, {
-          "name": "Lindt",
-              "scenario": "Lindt",
-              "x": 80,
-              "y": 4
-      }, {
-          "name": "Hershey",
-              "scenario": "Hershey",
-              "x": 40,
-              "y": 1
-      }, {
-          "name": "Dolfin",
-              "scenario": "Lindt",
-              "x": 90,
-              "y": 5
-      }, {
-          "name": "Bournville",
-              "scenario": "cadbury",
-              "x": 70,
-              "y": 2
-      }];
 
       var width = contentWidth - margin.left - margin.right,
           height = contentHeight - margin.top - margin.bottom;
@@ -1814,7 +1785,7 @@
         .attr('r', 10)
         .attr('class', 'dot')
         .style('fill', function (d) {
-          return colors(d.scenario);
+          return d.color;
       });
 
       svg.append('g')
@@ -1893,6 +1864,7 @@
       var contentWidth = $el.width();
       var contentHeight = $el.height();
       var data = params.data;
+      var compareData = params.compareData || null;
       var hover = params.hover;
       var loader = params.loader || null;
       var infoWindow = params.infoWindowText || '';
@@ -1911,54 +1883,62 @@
         bottom: 30,
         left: 30,
         xaxis: 10,
-        tooltip: 1.8
+        tooltip: 1.8,
+        label: 18
       };
 
-      var circleSize = 6;
-      // $el.addClass('graph-error');
+      $el.addClass('graph-line graph-error');
 
-      $el.addClass('graph-line');
+      var circleSize = 5;
+      var compareMargin = 150;
+      var headerHeight = 18;
+      var headerSpacing = (headerHeight / 2);
+      var barDefaultWidth;
+      var barWithCompareWidth = .76;
+      var barWithoutCompare = .83;
 
       var width = contentWidth,
           height = contentHeight;
 
       var width = width - margin.left - margin.right,
           height = height - margin.top - margin.bottom;
-      var heightPadding = height - 50;
+      var groupWidth = width;
 
-      var totalBarsWidth = ((barWidth + barSeparation) * data.length) - barSeparation;
-      var centerContainer = (contentWidth / 2) - (totalBarsWidth / 2);
-
-      if(xIsDate) {
-        data.forEach(function(d) {
-          d.date = parseDate(d.date);
-        });
-      }
-
-      var svgBars = d3.select(elem).append('svg')
+      var svg = d3.select(elem).append('svg')
         .attr('class', '')
         .attr('width', width + margin.left + margin.right)
         .attr('height', height + margin.top + margin.bottom)
         .append('g')
           .attr('transform', 'translate('+(margin.left * 2)+', '+ margin.top +')');
 
+      if(compareData) {
+        groupWidth = groupWidth - compareMargin;
+        barDefaultWidth = barWithCompareWidth;
+      } else {
+        compareMargin = 0;
+        groupWidth = width;
+        barDefaultWidth = barWithoutCompare;        
+      }
+
+      // Domain Graph
       var x = d3.scale.ordinal()
         .rangeRoundBands([0, width], .83);
-
       x.domain(data.map(function(d) { return d.x; }));
 
-      var yMin = d3.min(data,function(d){ return d.y; });
-      var yMax = d3.max(data, function(d) { return d.y; });
+      var yMin = d3.min(data,function(d){ return d.y - d.z; });
+      var yMax = d3.max(data, function(d) { return d.y + d.z; });
 
       var y = d3.scale.linear()
-        .domain([0, yMax])
+        .domain([yMin, yMax])
         .range([height,0]).nice();
 
+      // General Axis
       var xAxis = d3.svg.axis()
         .scale(x)
         .orient('bottom')
-        .ticks(5)
+        .ticks(8)
         .tickSize(0)
+        .tickFormat('')
         .tickPadding(10);
 
       var yAxis = d3.svg.axis()
@@ -1970,67 +1950,143 @@
         .tickPadding(4)
         .ticks(8);
 
-      svgBars.append('g')
+      svg.append('g')
           .attr('class', 'y axis')
           .call(yAxis);
 
-      svgBars.append('g')
+      svg.append('g')
           .attr('class', 'x axis')
           .attr('transform', 'translate(0,' + height + ')')
           .call(xAxis);
 
-      var barsGroup = svgBars.selectAll('.bar')
-          .data(data)
-        .enter().append('rect')
-          .attr('class', 'bar')
-          .style('fill', function(d) { return d.color; })
-          .attr('x', function(d) { return x(d.x); })
-          .attr('width', x.rangeBand()) 
-          .attr('y', function(d) { return y(Math.max(0, d.y)); })
-          .attr('height', function(d) { return yMin >= 0 ? Math.abs(height - y(d.y)) : Math.abs(y(d.y) - y(0)); })
-         
-      svgBars.selectAll('.circle')
-        .data(data)
-          .enter().append('circle')
-            .attr('class','circle')
-            .attr('cx', function(d) { return x(d.x) + (x.rangeBand() / 2);})
-            .attr('cy', function(d){return y(d.y);})
-            .attr('r', circleSize)
-            .attr('fill', 'red')
-            .style('stroke', 'darkgrey');
+      var groupData = svg.append('g')
+          .attr('class', 'group')
+          .attr('transform', 'translate('+compareMargin+', 0)');
 
-      var lines = svgBars.selectAll('.lines')
-        .data(data)
-          .enter().append('g')
+      var groupCompare = svg.append('g')
+          .attr('class', 'group')
+          .attr('transform', 'translate(0, 0)');
+
+      function renderData(isCompare, dataGroup, group) {
+        if(isCompare) {
+          groupWidth = compareMargin;
+          compareMargin = 0;
+        }
+
+        // Domain Group
+        var xGroup = d3.scale.ordinal()
+          .rangeRoundBands([0, groupWidth], barDefaultWidth);
+        xGroup.domain(dataGroup.map(function(d) { return d.x; }));
+
+        var yGroupMin = d3.min(data,function(d){ return d.y - d.z; });
+        var yGroupMax = d3.max(data, function(d) { return d.y + d.z; });
+
+        var yGroup = d3.scale.linear()
+          .domain([yGroupMin, yGroupMax])
+          .range([height,0]).nice();
+
+        // Group
+        var barsGroup = group.selectAll('.bar')
+            .data(dataGroup)
+          .enter().append('rect')
+            .attr('class', 'bar')
+            .style('fill', function(d) { return d.color; })
+            .attr('x', function(d) { return xGroup(d.x); })
+            .attr('width', xGroup.rangeBand()) 
+            .attr('y', function(d) { return yGroup(Math.max(0, d.y)); })
+            .attr('height', function(d) { return yMin >= 0 ? Math.abs(height - yGroup(d.y)) : Math.abs(yGroup(d.y) - yGroup(0)); })
+
+        var lines = group.selectAll('.lines')
+          .data(dataGroup)
+            .enter().append('g');
+
+        lines.append('line')
+          .attr('y1', function(d){ return yGroup(d.y + d.z);})
+          .attr('y2', function(d){ return yGroup(d.y);})
+          .attr('x1', function(d){ return xGroup(d.x) + (xGroup.rangeBand() / 2);})
+          .attr('x2', function(d){ return xGroup(d.x) + (xGroup.rangeBand() / 2);})
+          .attr('class', 'errorLine');
+        lines.append('line')
+          .attr('y1', function(d){ return yGroup(d.y);})
+          .attr('y2', function(d){ return yGroup(-(d.z - d.y));})
+          .attr('x1', function(d){ return xGroup(d.x) + (xGroup.rangeBand() / 2);})
+          .attr('x2', function(d){ return xGroup(d.x) + (xGroup.rangeBand() / 2);})
+          .attr('class', 'errorLine');
+
+        lines.append('line')
+          .attr('y1', function(d){ return yGroup(d.y + d.z);})
+          .attr('y2', function(d){ return yGroup(d.y + d.z);})
+          .attr('x1', function(d){ return xGroup(d.x) + (xGroup.rangeBand() / 4)})
+          .attr('x2', function(d){ return xGroup(d.x) + (xGroup.rangeBand() - (xGroup.rangeBand() / 4));})
+          .attr('class', 'errorLine');
+        lines.append('line')
+          .attr('y1', function(d){ return yGroup(-(d.z - d.y));})
+          .attr('y2', function(d){ return yGroup(-(d.z - d.y));})
+          .attr('x1', function(d){ return xGroup(d.x) + (xGroup.rangeBand() / 4)})
+          .attr('x2', function(d){ return xGroup(d.x) + (xGroup.rangeBand() - (xGroup.rangeBand() / 4));})
+          .attr('class', 'errorLine');
+
+        if(!isCompare) {
+          svg.append('g')
+              .attr('class', 'y axis')
             .append('line')
-              .attr('y1', 0)
-              .attr('y2', function(d){return y(d.e);})
-              .attr('x1', 1)
-              .attr('x2', 1)
-              .attr('stroke', 'red');
-            // .attr('class','circle')
-            // .attr('cx', function(d) { return x(d.x) + (x.rangeBand() / 2);})
-            // .attr('cy', function(d){return y(d.y);})
-            // .attr('r', circleSize)
-            // .attr('fill', 'red')
-            // .style('stroke', 'darkgrey');     
+              .attr('y1', yMin >= 0 ? height : y(0))
+              .attr('y2', yMin >= 0 ? height : y(0))
+              .attr('x1', 0)
+              .attr('x2', width);
+        } else {
+          svg.append('g')
+            .attr('transform', 'translate('+groupWidth+', '+ -(headerHeight + headerSpacing) +')')
+            .append('rect')
+            .attr('width', (xGroup.rangeBand() / 2) + 'px')
+            .attr('height', height + headerHeight + 'px')
+            .attr('class', 'divider');
+        }
 
-      svgBars.append('g')
-          .attr('class', 'y axis')
-        .append('line')
-          .attr('y1', yMin >= 0 ? height : y(0))
-          .attr('y2', yMin >= 0 ? height : y(0))
-          .attr('x1', 0)
-          .attr('x2', width);
+        var groupCircles = svg.append('g')
+          .attr('class', 'group')
+          .attr('transform', 'translate('+compareMargin+', 0)');
 
-      svgBars.append('g')
-          .attr('transform', 'translate(-5, -10)').append('text')
-          .attr('class', 'unit')
-          .attr('x', function(d) { return 0 })
-          .attr('y', '-10')
-          .attr('dy', '.35em')
-          .attr('text-anchor', 'start')
-          .text(function(d) { return unit; });
+        groupCircles.selectAll('.circle')
+          .data(dataGroup)
+            .enter().append('circle')
+              .attr('class','circle')
+              .attr('cx', function(d) { return xGroup(d.x) + (xGroup.rangeBand() / 2);})
+              .attr('cy', function(d){return yGroup(d.y);})
+              .attr('r', circleSize)
+              .style('stroke', 'transparent');
+
+        // Label
+        var labelGroup = group.append('g')
+          .attr('transform', 'translate(0, '+ -headerHeight +')');
+
+        labelGroup.append('text')
+          .attr('x', function(d) { return groupWidth / 2 })
+          .attr('class', 'labelText')
+          .text(function() {
+            var text = '';
+            if(dataGroup && dataGroup[0] && dataGroup[0].category) {
+              text = dataGroup[0].category;
+            }
+            return text;
+          });
+
+      }
+
+      renderData(false, data, groupData);
+
+      if(compareData) {
+        renderData(true, compareData, groupCompare);
+      }
+
+      d3.select(elem+' svg').append('g')
+        .attr('transform', 'translate('+ margin.label +', '+ height / 2 +') rotate(-90,10,20)').append('text')
+        .attr('class', 'unit')
+        .attr('x', function(d) { return 0 })
+        .attr('y', '0')
+        .attr('dy', '.35em')
+        .attr('text-anchor', 'middle')
+        .text(function(d) { return unit });
 
       if(loader) {
         $el.removeClass(loader);

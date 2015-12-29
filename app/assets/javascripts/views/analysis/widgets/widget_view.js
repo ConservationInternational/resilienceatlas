@@ -39,7 +39,7 @@
       var self = this;
       if(this.query) {
         var SQL = new cartodb.SQL(this.cartoOptions);
-        var query = this.query.replace(/%1/, this.iso);
+        var query = this.query.replace(/%1/g, this.iso);
 
         SQL.execute(query).done(function(res) {
           self.data = self.parseData(res);

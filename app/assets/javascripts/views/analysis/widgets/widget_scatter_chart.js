@@ -57,35 +57,26 @@
     },
 
     parseData: function(data) {
+      var self = this;
       if(data) {
         var values = data.rows;
-        // var d = new Date();
 
-        // _.filter(values, function(value) {
-        //   value.value = value.y;
-        //   value.date = '1-' + value.x + '-' + d.getFullYear();
-        // });
+        _.filter(values, function(value, i) {
+          value.color = self.bucket[i]
+        });
         return values;
       }
     },
 
     getLegendData: function() {
-      var self = this;
       var legendValues = [];
       var bucket = this.bucket;
+      var categories = _.groupBy(this.data, 'label');
+      var labels = _.keys(categories);
 
-      if(this.data && this.data[0]) {
-        var keys = _.keys(this.data[0]);
-        var values = _.without(keys, 'x');
-
-        _.each(values, function(value, i) {
-          if(self.labels) {
-            value = self.labels[value];
-          }
-          legendValues.push({ name: value, color: bucket[i] });
-        });
-      }
-
+      _.each(labels, function(label, i) {
+        legendValues.push({ name: label, color: bucket[i] });
+      });
       return legendValues;
     },
 

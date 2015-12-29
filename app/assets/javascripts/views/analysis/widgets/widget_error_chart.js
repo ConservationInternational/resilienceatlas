@@ -11,7 +11,7 @@
       charEl: '.widget-error-chart'
     },
 
-    bucket: ['#65C1EE', '#0088CE', '#D8D8D8', '#43AB3C', '#65C1EE', '#0088CE', '#D8D8D8', '#43AB3C'],
+    bucket: ['#43AB3C', '#6BC2EC', '#D8D8D8', '#0088CE', '#417505', '#00608E'],
 
     template: HandlebarsTemplates['analysis/widgets/widget_error_chart_tpl'],
 
@@ -21,16 +21,21 @@
 
       this.charts =  new root.app.Helper.Charts();
       this.hasLine = this.options.hasLine || false;
+      this.compare = null;
 
       root.app.View.WidgetBarChart.__super__.initialize.apply(this);
     },
 
     renderWidget: function() {
-      new this.charts.buildErrorChart({
+      var legendData = _.union(this.compare, this.data);
+      var legend = this.getLegendData(legendData);
+
+      this.charts.buildErrorChart({
         elem: '#' + this.slug + '-graph',
         barWidth: 22,
         barSeparation: 13,
         data: this.data,
+        compareData: this.compare,
         hover: true,
         loader: 'is-loading',
         interpolate: 'basis',
@@ -38,24 +43,57 @@
         unitZ: this.unitZ,
         hasLine: this.hasLine
       });
+
+      this.charts.buildLegend({
+        elem: '#' + this.slug + '-legend',
+        contentWidth: 300,
+        data: legend,
+        unit: '',
+        decimals: 0
+      });
     },
 
     parseData: function(data) {
       var self = this;
+
       if(data) {
         var values = data.rows;
-        var d = new Date();
 
-        _.filter(values, function(value, i) {
-          value.value = value.y;
-          value.color = self.bucket[i];
-          value.e = _.clone(value.y);
-          value.y = value.z;
+        var dataList = _.reject(values, function(d) {
+          return d.category === 'Climate';
         });
 
-        return values;
+        _.filter(dataList, function(value, i) {
+          value.value = value.z;
+          value.color = self.bucket[i+1];
+        });
+
+        var compare = _.filter(values, function(d) {
+          if(d.category === 'Climate') {
+            d.color = self.bucket[0];
+          }
+          return d.category === 'Climate';
+        });
+
+        if(compare && compare.length) {
+          this.compare = compare;
+        }
+
+        return dataList;
       }
-    }
+    },
+
+    getLegendData: function(data) {
+      var legendValues = [];
+      var bucket = this.bucket;
+      var categories = _.groupBy(data, 'label');
+      var labels = _.keys(categories);
+
+      _.each(labels, function(label, i) {
+        legendValues.push({ name: label, color: bucket[i] });
+      });
+      return legendValues;
+    },
 
   });
 
