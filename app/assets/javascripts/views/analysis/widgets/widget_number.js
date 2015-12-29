@@ -31,13 +31,15 @@
         var valuesList = [];
 
         _.each(values, function(value) {
-          valuesList.push({
-            value: value.value,
-            unit: value.unit || ''
-          })
+          if(value.value) {
+            valuesList.push({
+              value: value.value,
+              unit: value.unit || ''
+            });
+          }
         });
 
-        return values;
+        return valuesList;
       }
     }
 

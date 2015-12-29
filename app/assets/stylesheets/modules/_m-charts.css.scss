@@ -111,7 +111,8 @@
 
 
   &.graph-line,
-  &.graph-multiline {
+  &.graph-multiline,
+  &.graph-scatter {
     position: relative;
 
     .tooltip-graph {
@@ -343,6 +344,50 @@
       }
     }
   }
+
+  &.graph-scatter {
+    .unit {
+      fill: $font-color-1;
+    }
+  }
+
+  &.graph-error {
+
+    .domain {
+      stroke-width: 0;
+    }
+    .errorLine {
+      stroke-width: 1;
+      stroke: #737373;
+      shape-rendering: crispEdges;
+    }
+
+    .circle {
+      fill: $y-axis-dotted-dark;
+      stroke: #979797;
+      stroke-width: 1;
+    }
+
+    .divider {
+      fill: $white;
+    }
+
+    .label {
+      fill: $y-axis-dotted-light;
+      shape-rendering: crispEdges;
+    }
+
+    .labelText {
+      text-anchor: middle;
+      fill: #999999;
+      font-size: 14px;
+      font-weight: 400;
+    }
+
+    .unit {
+      text-anchor: middle;
+    }
+  }
 }
 
 .legend {
@@ -376,5 +421,13 @@
     margin: 0 auto;
     padding-left: 0;
     padding-bottom: 0;
+  }
+
+  &.graph-scatter {
+    padding-top: 0; 
+  }
+
+  &.graph-error {
+    padding-top: 0; 
   }
 }

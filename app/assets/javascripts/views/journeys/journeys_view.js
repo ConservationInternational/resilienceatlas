@@ -90,10 +90,12 @@
     },
 
     renderScrolldown: function(){
-      if(this.$scrollWrapper.height() > this.$scrollText.height()) {
-        //show scroll arrow -> enable scroll functionality
-        this.$scrolldownLink.removeClass('is-hidden');
-        this.$scrolldownLink.addClass('is-jumping');
+      if ( this.$scrollText && this.$scrollText[0] ) {
+        if ( this.$scrollText[0].scrollHeight > this.$scrollWrapper.height() ) {
+          //show scroll arrow -> enable scroll functionality
+          this.$scrolldownLink.removeClass('is-hidden');
+          this.$scrolldownLink.addClass('is-jumping');
+        }
       }
     },
 
