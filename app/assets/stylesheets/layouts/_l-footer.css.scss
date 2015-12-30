@@ -37,4 +37,21 @@
       background-size: 100%;
     }
   }
+
+  .copyright {
+    display: block;
+    margin: 0 auto;
+    text-align: center;
+    width: rem(350px);
+    position: absolute;
+    padding-top: rem(14px);
+    left: 0;
+    right: 0;
+
+    @media screen and (max-width: 700px) {
+      width: rem(250px);
+      float: right;
+      position: relative;
+    }
+  }
 }
