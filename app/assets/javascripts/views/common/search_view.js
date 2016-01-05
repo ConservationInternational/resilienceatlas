@@ -73,8 +73,6 @@
       var value = $ele.val();
       var key = ev && ev.keyCode ? ev.keyCode : 0;
 
-      ga('send', 'event', 'Map', 'Search');
-
       if(key !== 40 || key !== 38) {
         if(value.length > 0) {
           $searchBox.addClass('searching');
@@ -91,6 +89,7 @@
       ev.stopPropagation();
 
       this.$(this.elInput).addClass('focus');
+      ga('send', 'event', 'Map', 'Search');
 
       if(this.closeOnClick) {
         this.$(this.elSuggestions +' li').removeClass('selected');
