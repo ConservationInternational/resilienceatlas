@@ -987,11 +987,17 @@
       var width = contentWidth,
           height = contentHeight;
 
+      var maxLabelCharNum = d3.max(data.labels, function(d) {
+        return d.length;
+      });
+
       var chartWidth       = width,
           barHeight        = 12,
           groupHeight      = barHeight * data.series.length,
           gapBetweenGroups = 10,
-          spaceForLabels   = 100,
+          charWidthForLabels = 15,
+          spaceForLabels   = maxLabelCharNum * charWidthForLabels,
+          maxSpaceForLabels = 100,
           spaceValueText   = 5,
           spaceForLegend   = 180;
 
@@ -1007,6 +1013,10 @@
 
       if(maxValue.toString().length > 5) {
         chartWidth = chartWidth - 50;
+      }
+
+      if(spaceForLabels > maxSpaceForLabels) {
+        spaceForLabels = maxSpaceForLabels;
       }
 
       var x = d3.scale.linear()
