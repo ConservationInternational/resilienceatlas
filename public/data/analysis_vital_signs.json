@@ -4,7 +4,7 @@
     "category_slug": "resilience",
     "indicators": [
       {
-        "name": "Resilience of maize yield Fertilizer",
+        "name": "Resilience of maize yield: Effects of Fertilizer",
         "slug": "resilience_of_maize_yield_fertilizer",
         "widget": "error_chart",
         "query": "SELECT category, estimate::numeric as y, iso3, std_error::numeric as z, variable as x, variable as label FROM resilience_maize_analysis_tool where category like 'Fertilizer' or category like 'Climate' and iso3='%1'",
@@ -17,7 +17,7 @@
         }
       },
       {
-        "name": "Resilience of maize yield Education",
+        "name": "Resilience of maize yield: Effects of Education",
         "slug": "resilience_of_maize_yield_education",
         "widget": "error_chart",
         "query": "SELECT category, estimate::numeric as y, iso3, std_error::numeric as z, variable as x, variable as label FROM resilience_maize_analysis_tool where category like 'Education' or category like 'Climate' and iso3='%1'",
@@ -30,7 +30,7 @@
         }
       },
       {
-        "name": "Resilience of maize yield Irrigation and seed",
+        "name": "Resilience of maize yield: Effects of Irrigation and seed",
         "slug": "resilience_of_maize_yield_irrigation",
         "widget": "error_chart",
         "query": "SELECT category, estimate::numeric as y, iso3, std_error::numeric as z, variable as x, variable as label FROM resilience_maize_analysis_tool where category like 'Irrigation and seed' or category like 'Climate' and iso3='%1'",
@@ -43,7 +43,7 @@
         }
       },
       {
-        "name": "Resilience of maize yield Extension services",
+        "name": "Resilience of maize yield: Effects of Extension services",
         "slug": "resilience_of_maize_yield_extension",
         "widget": "error_chart",
         "query": "SELECT category, estimate::numeric as y, iso3, std_error::numeric as z, variable as x, variable as label FROM resilience_maize_analysis_tool where category like 'Extension services' or category like 'Climate' and iso3='%1'",
@@ -56,7 +56,7 @@
         }
       },
       {
-        "name": "Resilience of maize yield Soil quality",
+        "name": "Resilience of maize yield: Effects of Soil quality",
         "slug": "resilience_of_maize_yield_soil",
         "widget": "error_chart",
         "query": "SELECT category, estimate::numeric as y, iso3, std_error::numeric as z, variable as x, variable as label FROM resilience_maize_analysis_tool where category like 'Soil quality' or category like 'Climate' and iso3='%1'",
