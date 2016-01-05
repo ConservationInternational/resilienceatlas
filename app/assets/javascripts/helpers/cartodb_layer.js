@@ -96,7 +96,7 @@
       });
 
       if(sublayer.raster) {
-        sql = 'SELECT ST_Union(ST_Envelope(the_raster_webmercator)) as the_geom FROM (' + sql + ') as t';
+        sql = 'SELECT ST_Union(ST_Transform(ST_Envelope(the_raster_webmercator), 4326)) as the_geom FROM (' + sql + ') as t';
       }
 
       if(sql.match(/the_geom/g) || sql.match(/[*]/g)) {
