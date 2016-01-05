@@ -1056,7 +1056,13 @@
           .attr('y', (barHeight / 2) - 0.75)
           .attr('fill', 'red')
           .attr('dy', '.35em')
-          .text(function(d) { return d; });
+          .text(function(d) {
+            if(d) {
+              return d + ' ' + unit; 
+            } else {
+              return '';
+            }
+          });
 
       bar.append('text')
           .attr('class', 'label')

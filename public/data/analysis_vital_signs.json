@@ -129,7 +129,8 @@
         "name": "National",
         "slug": "bio_national",
         "widget": "group_horizontal_bar_chart",
-        "query": "SELECT category, round(value::numeric, 1) as value, label  FROM vs_analysis_bio_national_temp WHERE iso3 = '%1'",
+        "query": "with raster as (select ST_Clip(the_raster_webmercator, the_geom_webmercator, true) as the_raster_webmercator, 'GHA' as iso3 from gh_tm1_57palglobdem_landcover, (select the_geom_webmercator from vs_countries where iso3 = 'GHA') g union select ST_Clip(the_raster_webmercator, the_geom_webmercator, true) as the_raster_webmercator, '%1' as iso3 from tz_tm1_57palglobdem_landcover, (select the_geom_webmercator from vs_countries where iso3 = '%1') t union select ST_Clip(the_raster_webmercator, the_geom_webmercator, true) as the_raster_webmercator, 'UGA' as iso3 from ug_tm1_57palglobdem_landcover,(select the_geom_webmercator from vs_countries where iso3 = 'UGA') u ), pas as (select st_union(the_geom_webmercator) as the_geom_webmercator from wdpa_polygons where iso3 ='%1'), inside as (select  (ST_ValueCount(st_union(the_raster_webmercator))).* from raster, pas  where iso3='%1' and st_intersects(the_raster_webmercator, the_geom_webmercator) order by value asc), all_v as (select  (ST_ValueCount(st_union(the_raster_webmercator))).* from raster  where iso3='%1' order by value asc), result as (select round((all_v.count-inside.count)*0.37385,2) as outside, round(inside.count*0.37385,2) as inside, class from all_v inner join inside on all_v.value=inside.value inner join vs_family3_attribute_table on all_v.value=code) select class as label, unnest(array['inside', 'outside']) AS category, unnest(array[inside, outside]) AS value from result",
+        "unit": "km2",
         "meta_short": "",
         "metadata": {
           "description": "",
@@ -138,10 +139,24 @@
         }
       },
       {
-        "name": "Landscape",
-        "slug": "bio_landscape",
+        "name": "Landscape inside of protected areas",
+        "slug": "bio_landscape_inside",
         "widget": "group_horizontal_bar_chart",
-        "query": "SELECT category, label, round(value::numeric, 1) as value FROM vs_analysis_bio_landscape_temp WHERE iso3 = '%1'",
+        "query": "with raster as (select ST_Clip(the_raster_webmercator, the_geom_webmercator, true) as the_raster_webmercator, 'GHA' as iso3 from gh_tm1_57palglobdem_landcover, (select the_geom_webmercator from vs_countries where iso3 = 'GHA') g where st_intersects(the_raster_webmercator, the_geom_webmercator) union select ST_Clip(the_raster_webmercator, the_geom_webmercator, true) as the_raster_webmercator, 'TZA' as iso3 from tz_tm1_57palglobdem_landcover, (select the_geom_webmercator from vs_countries where iso3 = 'TZA') t where st_intersects(the_raster_webmercator, the_geom_webmercator) union select ST_Clip(the_raster_webmercator, the_geom_webmercator, true) as the_raster_webmercator, 'UGA' as iso3 from ug_tm1_57palglobdem_landcover,(select the_geom_webmercator from vs_countries where iso3 = 'UGA') u where st_intersects(the_raster_webmercator, the_geom_webmercator)), re as (SELECT distinct (landscape__) landscape__, country,st_transform(ST_GeomFromText(wkt_geom, 4326),3857) as weom  FROM coordinates_landscapes_wgs84_1,(select the_geom_webmercator from wdpa_polygons where iso3='GHA') pa  where wkt_geom <> '' and st_intersects(st_transform(ST_GeomFromText(wkt_geom, 4326),3857), pa.the_geom_webmercator) and  country='GHA'), landscapes as (select landscape__, country, st_transform(ST_GeomFromText(wkt_geom, 4326),3857)as weom, 'false' is_on from coordinates_landscapes_wgs84_1 where wkt_geom <> '' and  country='GHA' and landscape__ not in(select landscape__ from re) union select *, 'true' is_on from re), data as (select  (ST_ValueCount(st_union(the_raster_webmercator))).*, landscape__ from raster, landscapes  where st_intersects(the_raster_webmercator, weom) group by landscape__ order by landscape__,value asc), solution as (select round(data.count*0.37385,2) as y, data.landscape__, data.value as x,landscapes.is_on,class as label from data inner join landscapes on landscapes.landscape__=data.landscape__ inner join vs_family3_attribute_table on data.value=code) select label, landscape__ as category, y as value from solution where is_on ='true'",
+        "unit": "km2",
+        "meta_short": "",
+        "metadata": {
+          "description": "",
+          "source": "",
+          "link": ""
+        }
+      },
+      {
+        "name": "Landscape outside of protected areas",
+        "slug": "bio_landscape_outside",
+        "widget": "group_horizontal_bar_chart",
+        "query": "with raster as (select ST_Clip(the_raster_webmercator, the_geom_webmercator, true) as the_raster_webmercator, 'GHA' as iso3 from gh_tm1_57palglobdem_landcover, (select the_geom_webmercator from vs_countries where iso3 = 'GHA') g where st_intersects(the_raster_webmercator, the_geom_webmercator) union select ST_Clip(the_raster_webmercator, the_geom_webmercator, true) as the_raster_webmercator, 'TZA' as iso3 from tz_tm1_57palglobdem_landcover, (select the_geom_webmercator from vs_countries where iso3 = 'TZA') t where st_intersects(the_raster_webmercator, the_geom_webmercator) union select ST_Clip(the_raster_webmercator, the_geom_webmercator, true) as the_raster_webmercator, 'UGA' as iso3 from ug_tm1_57palglobdem_landcover,(select the_geom_webmercator from vs_countries where iso3 = 'UGA') u where st_intersects(the_raster_webmercator, the_geom_webmercator)), re as (SELECT distinct (landscape__) landscape__, country,st_transform(ST_GeomFromText(wkt_geom, 4326),3857) as weom  FROM coordinates_landscapes_wgs84_1,(select the_geom_webmercator from wdpa_polygons where iso3='GHA') pa  where wkt_geom <> '' and st_intersects(st_transform(ST_GeomFromText(wkt_geom, 4326),3857), pa.the_geom_webmercator) and  country='GHA'), landscapes as (select landscape__, country, st_transform(ST_GeomFromText(wkt_geom, 4326),3857)as weom, 'false' is_on from coordinates_landscapes_wgs84_1 where wkt_geom <> '' and  country='GHA' and landscape__ not in(select landscape__ from re) union select *, 'true' is_on from re), data as (select  (ST_ValueCount(st_union(the_raster_webmercator))).*, landscape__ from raster, landscapes  where st_intersects(the_raster_webmercator, weom) group by landscape__ order by landscape__,value asc), solution as (select round(data.count*0.37385,2) as y, data.landscape__, data.value as x,landscapes.is_on,class as label from data inner join landscapes on landscapes.landscape__=data.landscape__ inner join vs_family3_attribute_table on data.value=code) select label, landscape__ as category, y as value from solution where is_on ='false'",
+        "unit": "km2",
         "meta_short": "",
         "metadata": {
           "description": "",

@@ -7,10 +7,7 @@
 
   root.app.View.Widget = Backbone.View.extend({
 
-    cartoOptions: {
-      user: 'grp',
-      sql_api_template: 'https://grp.global.ssl.fastly.net/user/{user}'
-    },
+    sqlApi: 'https://grp.global.ssl.fastly.net/user/grp/api/v2/sql',
 
     templateWidget: HandlebarsTemplates['analysis/widgets/widget_tpl'],
 
@@ -38,13 +35,23 @@
     getData: function() {
       var self = this;
       if(this.query) {
-        var SQL = new cartodb.SQL(this.cartoOptions);
         var query = this.query.replace(/%1/g, this.iso);
 
-        SQL.execute(query).done(function(res) {
-          self.data = self.parseData(res);
-          self.renderContent();
+        $.ajax({
+          url: this.sqlApi,
+          type: 'get',
+          data: {
+            q: query
+          },
+          success: function(res) {
+            self.data = self.parseData(res);
+            self.renderContent();
+          },
+          error: function(xhr) {
+            console.warn('error ' + xhr)
+          }
         });
+
       } else {
         this.renderContent();
       }

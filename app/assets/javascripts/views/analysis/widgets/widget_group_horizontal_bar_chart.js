@@ -39,6 +39,7 @@
         interpolate: 'basis',
         hasLine: this.hasLine,
         bucket: this.bucket,
+        unit: this.unit,
         margin: {
           top: 30,
           right: 20,
@@ -59,37 +60,47 @@
     },
 
     getGraphData: function() {
+      var self = this;
       var categories = [];
       var series = [];
       var groups = _.groupBy(this.data, 'label');
-      var dataByCategories = _.groupBy(this.data, 'category');
+      var dataByCategories = _.keys(_.groupBy(this.data, 'category'));
       var labels = _.keys(groups);
 
-      labels = _.map(labels, function(label) {
+      var dataByCat = [];
+
+      _.each(dataByCategories, function(cat) {
+        if(!dataByCat[cat]) {
+          dataByCat[cat] = [];
+        }
+        _.each(labels, function(label) {
+          var value = _.findWhere(self.data, {label: label, category: cat});
+
+          if(value) {
+            dataByCat[cat].push(value.value);
+          } else {
+            dataByCat[cat].push(0);
+          }
+        });
+      });
+
+      for(var category in dataByCat){
+        series.push({
+          label: category,
+          values: _.flatten(dataByCat[category])
+        });
+      }
+
+      var labels_short = _.map(labels, function(label) {
         if(label.length > 11){
           label = label.substring(0, 9) + '...';
         }
         return label;
       });
 
-      _.each(groups, function(group) {
-        _.each(group, function(value) {
-          if(!categories[value.category]) {
-            categories[value.category] = [];
-          }
-          categories[value.category].push(value.value);
-        });
-      });
-
-      for(var category in categories){
-        series.push({
-          label: category,
-          values: _.flatten(categories[category])
-        });
-      }
-
       var data = {
-        labels: labels,
+        labels: labels_short,
+        labels_full: labels,
         series: series
       };
 
