@@ -173,15 +173,15 @@
       var area = this.searchCollection.where({ iso: iso });
 
       var country = $target[0].title;
-      if (typeof(title) !== 'undefined') {
-        ga('send', 'event', 'Analysis', 'choose geography', countryName);
+      if (typeof(country) !== 'undefined') {
+        ga('send', 'event', 'Analysis', 'choose geography', country);
       }else{
         ga('send', 'event', 'Analysis', 'choose geography', 'ERR: Country undefined.');
       }
 
       if(area[0]) {
         var bbox = area[0].get('bbox');
-        
+
         Backbone.Events.trigger('map:set:fitbounds', bbox);
         Backbone.Events.trigger('map:set:mask', iso, 0.8, {
           query: 'select * from grpcountries_250k_polygon',
