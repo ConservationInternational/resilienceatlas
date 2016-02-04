@@ -15,4 +15,13 @@
   width: 100%;
   top: 0;
   bottom: 0;
+
+  .l-content--fullscreen {
+    left: 0;
+  }
+
+  .l-sidebar--fullscreen {
+    top: auto;
+    bottom: 0;
+  }
 }

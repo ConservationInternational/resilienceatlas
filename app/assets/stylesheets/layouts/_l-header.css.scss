@@ -37,6 +37,14 @@
       display: none;
     }
   }
+  
+  .l-main--embed & {
+    padding-left: rem(20px);
+
+    &:before {
+      display: none;
+    }
+  }
 
   @include clearfix;
 
@@ -72,7 +80,7 @@
 
   .nav-area {
     float: right;
-    margin-right: -rem($margin);
+    // margin-right: -rem($margin);
 
     &.-resilience {
       .is-indicators & {
@@ -129,6 +137,12 @@
         color: $font-color-3;
       }
     }
+
+    .l-main--embed & {
+      a {
+        text-transform: none;
+      }
+    }
   }
 
   .web-link {
@@ -141,6 +155,28 @@
 
     .row {
       max-width: none;
+    }
+  }
+
+  .l-main--embed & {
+    background-color: transparent;
+
+    .nav-area {
+      float: none;
+
+      li {
+        margin: 0;
+        height: auto;
+      }
+
+      a {
+        padding: rem(10px) 0;
+      }
+    }
+
+    .brand-area {
+      float: none;
+      padding: 0;
     }
   }
 }
