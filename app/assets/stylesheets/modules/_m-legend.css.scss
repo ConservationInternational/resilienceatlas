@@ -421,6 +421,12 @@ $side-bar-width: 360px;
     color: $font-color-1;
     font-weight: 400;
   }
+
+  .l-main--embed & {
+    .btn-remove {
+      display: none;
+    }
+  }
 }
 
 .ui-sortable-placeholder {
