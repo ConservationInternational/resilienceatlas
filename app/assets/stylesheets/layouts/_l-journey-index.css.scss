@@ -16,6 +16,8 @@
   .m-journey__title {
     position: relative;
     height: 220px;
+    line-height: 4em;
+    
     h1 {
       @extend %center;
       margin: 0;
