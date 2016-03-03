@@ -7,7 +7,7 @@
 
   root.app.Collection.JourneysIndex = Backbone.Collection.extend({
 
-    url: '/journeys/journeysIndex.json',
+    url: '/journeys/journeysPageIndex.json',
 
     parse: function(response) {
       return response;
