@@ -24,7 +24,7 @@
     })),
 
     events: {
-      'click .journey-link' : 'toggle',
+      // 'click .journey-link' : 'toggle',
     },
 
     render: function() {
@@ -52,10 +52,11 @@
       this.model.set('visibility', false);
     },
 
-    toggle: function(e) {
-      e && e.preventDefault();
-      this.model.set('visibility', !this.model.get('visibility'));
-    },
+    //Shows journeys menu
+    // toggle: function(e) {
+    //   e && e.preventDefault();
+    //   this.model.set('visibility', !this.model.get('visibility'));
+    // },
 
     changeVisibility: function() {
       this.$backdrop.toggleClass('is-active', this.model.get('visibility'));
