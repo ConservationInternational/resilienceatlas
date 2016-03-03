@@ -2,9 +2,18 @@
   <li class="m-journey__pagination {{this.bg}}" data-index="{{@index}}">
     <a href="/journeys/{{this.id}}">
       <span class="title">
-        <h2>{{this.title}}</h2>
-        <h3>{{this.subtitle}}</h3>
+        <h3>{{this.title}}</h3>
+        <h2>{{this.subtitle}}</h2>
       </span>
     </a>
   </li>
 {{/each}}
+
+<li class="m-journey__pagination">
+  <a href="/journeys">
+    <span class="title is-discoverlink">
+      <h3>Discover</h3>
+      <h2>More Journeys</h2>
+    </span>
+  </a>
+</li>

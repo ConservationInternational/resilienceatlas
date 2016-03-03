@@ -22,6 +22,7 @@
           'about(/)': 'about',
           'journeys/:id(/)': 'journeys',
           'embed/journeys(/)': 'journeys',
+          'journeys(/)': 'journeysIndex',
         };
       } else {
         routes = {

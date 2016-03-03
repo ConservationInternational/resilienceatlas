@@ -17,6 +17,15 @@
       background: darken($bg-color-1,5%);
     }
   }
+
+  &.btn-secondary {
+    color: $bg-color-1;
+    background: $font-color-2;
+
+    &:hover {
+      background: darken($bg-color-2,5%);
+    }
+  }
 }
 
 #btn-prev,

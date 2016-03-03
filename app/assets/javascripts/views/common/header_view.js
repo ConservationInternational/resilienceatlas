@@ -24,14 +24,13 @@
     })),
 
     events: {
-      'click .journey-link' : 'toggle',
+      // 'click .journey-link' : 'toggle',
     },
 
     render: function() {
       this.$journey__paginationlist.html(this.template({
         journeys: this.journeys.toJSON()
       }));
-      this.setUp();
     },
 
     setListeners: function() {
@@ -39,16 +38,6 @@
       this.$backdrop.on('click', _.bind(this.hide,this));
     },
 
-    setUp: function() {
-      //Menu journeys
-      $('.m-journey__paginationlist').slick({
-        slidesToShow: 2,
-        slidesToScroll: 2,
-        speed: 500,
-        slide: 'li'
-      });
-
-    },
 
     cacheVars: function() {
       this.$backdrop = $('#backdrop');
@@ -63,10 +52,11 @@
       this.model.set('visibility', false);
     },
 
-    toggle: function(e) {
-      e && e.preventDefault();
-      this.model.set('visibility', !this.model.get('visibility'));
-    },
+    //Shows journeys menu
+    // toggle: function(e) {
+    //   e && e.preventDefault();
+    //   this.model.set('visibility', !this.model.get('visibility'));
+    // },
 
     changeVisibility: function() {
       this.$backdrop.toggleClass('is-active', this.model.get('visibility'));

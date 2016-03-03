@@ -3,12 +3,16 @@
     "id": 1,
     "title": "ETHIOPIA",
     "subtitle": "Smallholder maize",
-    "bg" : "thumb-1"
+    "theme": "Livelihoods dependent on rainfed agricultural production and small-scale farms threatened by changing climate",
+    "bg" : "thumb-1",
+    "bg-big": "thumb-big-1"
   },
   {
     "id": 2,
     "title": "ETHIOPIA",
     "subtitle": "Pastoral livelihoods",
-    "bg" : "thumb-2"
+    "theme": "Pastoral livelihoods threatened by changing climate",
+    "bg" : "thumb-2",
+    "bg-big": "thumb-big-2"
   }
 ]

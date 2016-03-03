@@ -1,0 +1,21 @@
+{{#each journeys}}
+  <li class="m-journey__gridelement {{this.bg-big}}" data-index="{{@index}}">
+    <div class="text">
+      <span class="title">
+        <h2>
+          <a href="/journeys/{{this.id}}">
+            {{this.title}}
+          </a>
+        </h2>
+      </span>
+      <span class="description">
+        <p>{{this.theme}}</p>
+      </span>
+     <a class="btn btn-secondary" href="/journeys/{{this.id}}">Know more</a>
+    </div>
+    <a class="pic" href="/journeys/{{this.id}}">
+      <span class="background">
+      </span>
+    </a>
+  </li>
+{{/each}}

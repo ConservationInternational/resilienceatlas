@@ -1,0 +1,28 @@
+.m-discover {
+  position: relative;
+  background-color: $font-color-4;
+  .m-discover__title {
+    position: relative;
+    height: 150px;
+    h2 {
+      @extend %center;
+      margin: 0;
+      padding-top: 10px;
+
+      font-family: $font-face-2;
+      font-size: rem(64px);
+      text-align: center;
+      text-transform: uppercase;
+      color: $font-color-3;
+    }
+  }
+
+  .m-discover__bottom {
+    height: 150px;
+    position: relative;
+
+    .btn {
+      @extend %center;
+    }
+  }
+}

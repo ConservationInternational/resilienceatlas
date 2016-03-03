@@ -1,44 +1,35 @@
+/ WELCOME /
+.m-welcome
+  header
+    h3 Welcome To
+    h2 Resilience Atlas
+
 / SLIDER /
-.m-slider id="sliderView"
-  / pagination
-  ul.m-slider__paginationlist
-    li.m-slider__pagination.thumb-0.is-active data-index="0"
-      .title
-        h2 Resilience Atlas
-    li.m-slider__pagination.thumb-1 data-index="1"
-      .title
-        h2 Ethiopia
-        h3 Smallholder maize
-    li.m-slider__pagination.thumb-2 data-index="2"
-      .title
-        h2 Ethiopia
-        h3 Pastoral livelihoods
-  / slider list. 
-  / IMPROVE!!!!! We should load this with a json
-  ul.m-slider__itemlist
-    li.m-slider__item.bg-intro
-      header
-        h2 Resilience Atlas
-      p.credits
-        a target="_blank" href="https://ci.tandemvault.com/lightboxes/MVGRc7ujF?t=BwQlYp2iC#87758833" © David Hanson/Aurora Photos  
-    li.m-slider__item.journey1bg0
-      header
-        h2 Ethiopia    
-        h3 Livelihoods dependent on rainfed agricultural production and small-scale farms threatened by changing climate
-        = link_to "Learn more", journey_path(1), class: 'btn btn-primary'
-      p.credits
-        a target="_blank" href="https://ci.tandemvault.com/lightboxes/MVGRc7ujF?t=BwQlYp2iC#80549611" © Peter Essick/Aurora Photos
-    li.m-slider__item.journey2bg0
-      header
-        h2 Ethiopia   
-        h3 Pastoral livelihoods threatened by changing climate
-        = link_to "Learn more", journey_path(2), class: 'btn btn-primary'
-      p.credits
-        a target="_blank" href="https://ci.tandemvault.com/lightboxes/MVGRc7ujF?t=BwQlYp2iC#10399369" © Michael Hanson/Aurora Photos
-    / Navigation
-    div.m-slider__navigationlist
-      button.m-slider__navigation.is-left.is-hidden data-direction="left"
-      button.m-slider__navigation.is-right data-direction="right"
+.m-discover
+  .m-discover__title
+    h2 Discover Journeys
+  .m-slider id="sliderView"
+    / slider list. 
+    / IMPROVE!!!!! We should load this with a json
+    ul.m-slider__itemlist
+      li.m-slider__item.journey1bg0
+        = link_to journey_path(1), class: 'journey-link'
+          .title
+            h3 Ethiopia    
+            h2 Smallholder Maize
+          span.journey-link__helper
+        p.credits
+          a target="_blank" href="https://ci.tandemvault.com/lightboxes/MVGRc7ujF?t=BwQlYp2iC#80549611" © Peter Essick/Aurora Photos
+      li.m-slider__item.journey2bg0
+        = link_to journey_path(2)
+          .title
+            h3 Ethiopia
+            h2 Pastoral Livelihoods
+          span.journey-link__helper
+        p.credits
+          a target="_blank" href="https://ci.tandemvault.com/lightboxes/MVGRc7ujF?t=BwQlYp2iC#10399369" © Michael Hanson/Aurora Photos
+  .m-discover__bottom
+    a.btn.btn-primary href="/journeys" More journeys
 
 / EXPLORE /
 .m-explore
