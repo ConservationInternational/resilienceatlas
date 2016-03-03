@@ -33,7 +33,7 @@
         slidesToShow: 1
       });
 
-      this.handleNav();
+      // this.handleNav();
     },
 
     cacheVars: function() {
