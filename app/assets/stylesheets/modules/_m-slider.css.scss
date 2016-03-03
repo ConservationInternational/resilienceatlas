@@ -5,16 +5,22 @@ $backgrounds-thumb: 'thumb-0', 'thumb-1', 'thumb-2', 'thumb-3';
 .m-slider__itemlist {
   @extend %clean-lists;
   position: relative;
-  background-color: $bg-color-5;
+  background-color: $font-color-4;
   height: rem(565px);
 
   .m-slider__item {
     position: relative;
     height: rem(565px);
+    margin-left: 25px;
+    margin-right: 25px;
 
     background-position:  center;
     background-size: cover;
     background-repeat: no-repeat;
+
+    // -webkit-box-shadow: 14px 24px 56px 4px rgba(0,0,0,0.2);
+    //    -moz-box-shadow: 14px 24px 56px 4px rgba(0,0,0,0.2);
+    //         box-shadow: 14px 24px 56px 4px rgba(0,0,0,0.2);
 
     @for $i from 1 through length($backgrounds) {
       &.#{nth($backgrounds, $i)}{
@@ -22,36 +28,34 @@ $backgrounds-thumb: 'thumb-0', 'thumb-1', 'thumb-2', 'thumb-3';
       }
     }
 
-    header {
-      @extend %center;
-      text-align: center;
-      color: $font-color-3;
-
-      h2 {
-        font-family: $font-face-2;
-        font-size: rem(99px);
-        font-weight: 400;
-        line-height: .8em;
-        text-transform: uppercase;
-        text-shadow: 0 1px 1px rgba(0,0,0, .3);
-        margin: 0;
-
-        @media screen and (max-width: 900px) {
-          font-size: rem(80px);
-        }
+    .journey-link {
+      text-decoration: none;
+      &:hover {
+        text-decoration: none;
       }
+    }
 
-      h3 {
-        max-width: rem(600px);
-        margin: 0 auto;
-        margin-bottom: rem(10px);
-        font-size: rem(26px);
-        font-weight: 400;
-        line-height: 1.25;
-        text-transform: capitalize;
-        text-shadow: 0 1px 1px black;
-      }
 
+    .journey-link__helper {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      z-index: 1;
+      // &:hover {
+      //   background: $bg-color-5;
+      //   opacity: .5;
+      // }
+    }
+
+    .title {
+      position: absolute;
+      left: 50%;
+      top: 100%;
+      transform: translate(-50%,-100%);
+      padding-bottom: 20px;
+      z-index: 2;
     }
 
     .credits {
@@ -59,11 +63,36 @@ $backgrounds-thumb: 'thumb-0', 'thumb-1', 'thumb-2', 'thumb-3';
       bottom: 10px;
       right: 20px;
       margin: 0;
-
+      font-size: rem(12px);
+      color: $font-color-3;
       a {
         color: $font-color-3;
       }
     }
+
+    h2,
+    h3 {
+
+      text-align: center;
+      color: $font-color-3;
+      font-weight: 400;
+      line-height: 1;
+      text-transform: uppercase;
+      margin: 0;
+    }
+
+    h2 {
+      margin-top: 3px;
+      font-family: $font-face-2;
+      font-size: rem(25px);
+    }
+
+    h3 {
+      font-family: $font-face-1;
+      font-size: rem(12px);
+      font-weight: 500;
+    }
+
   }
 }
 
@@ -164,6 +193,38 @@ $backgrounds-thumb: 'thumb-0', 'thumb-1', 'thumb-2', 'thumb-3';
     }
   }
 }
+
+
+.slick-arrow {
+  z-index: 1000 !important;
+}
+.slick-prev{
+  height: 100%;
+  width: 95px;
+
+  top: 10px;
+  left: 0px;
+
+  &:before{
+    position: absolute;
+    content: "";
+    @include arrow(22px, $font-color-3, 2px, -45deg);
+  }
+}
+
+.slick-next {
+  height: 100%;
+  width: 95px;
+  top: 10px;
+  right: 0px;
+
+  &:before{
+    position: absolute;
+    content: "";
+    @include arrow(22px, $font-color-3, 2px, 135deg);
+  }
+}
+
 
 // SLIDER NAVIGATION
 .m-slider__navigationlist {
