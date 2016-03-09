@@ -55,7 +55,7 @@
      */
     create: function(callback) {
 
-      cartodb.createLayer(this.map, this.options, { 'no_cdn': true })
+      cartodb.createLayer(this.map, this.options, {'no_cdn': true, 'https': true})
         .addTo(this.map, 1)
         .on('done', function(layer) {
           this.layer = layer;
