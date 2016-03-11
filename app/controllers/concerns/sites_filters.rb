@@ -19,6 +19,10 @@ module SitesFilters
         site_scope="5"
       when "indicators.rwanda"
         site_scope="6"
+      when "amazonia"
+          site_scope="7"
+      when "test"
+        site_scope="8"
       else
         site_scope="1"
     end
