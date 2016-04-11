@@ -1,7 +1,7 @@
 .m-basemap-selectors {
   align-content: center;
   justify-content: space-between;
-  padding: rem(10px) rem(30px) !important;
+  padding: rem(10px) rem(0px) !important;
 
   li {
     flex-basis: 25%;
@@ -20,10 +20,10 @@
     display: flex;
     flex-direction: column-reverse;
     height: 90px;
-    width: 100%;
+    width: 72px;
     background-position: top center;
     background-repeat: no-repeat;
-    background-size: 100%;
+    background-size: 58px;
 
     &.icon-satellite {
       background-image: image-url('satellite_map.jpg');
