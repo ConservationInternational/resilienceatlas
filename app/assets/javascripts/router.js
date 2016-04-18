@@ -57,6 +57,7 @@
 
     setListeners: function() {
       this.on('route:map', this.updateParams, this);
+      this.on('route:mapEmbed', this.updateParams, this);
       this.on('route:journeys', this.updateParams, this);
 
       if (this.options.update) {
