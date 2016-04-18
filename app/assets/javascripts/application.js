@@ -79,6 +79,10 @@
       this.listenTo(this.router, 'route:welcome', this.welcomePage);
       // Initializing map
       this.listenTo(this.router, 'route:map', this.mapPage);
+
+      // Initializing embed map
+      this.listenTo(this.router, 'route:mapEmbed', this.mapEmbedPage);
+
       // Initializing journeys
       this.listenTo(this.router, 'route:journeys', this.journeysPage);
       // Initializing about
@@ -134,6 +138,13 @@
     mapPage: function() {
       var mapPageView = new root.app.MapPageView({
         router: this.router,
+      });
+    },
+
+    mapEmbedPage: function() {
+      var mapPageView = new root.app.MapPageView({
+        router: this.router,
+        embed: true
       });
     },
 

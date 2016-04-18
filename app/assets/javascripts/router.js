@@ -18,7 +18,7 @@
         routes = {
           '(/)': 'welcome',
           'map(/)': 'map',
-          'embed/map(/)': 'map',
+          'embed/map(/)': 'mapEmbed',
           'about(/)': 'about',
           'journeys/:id(/)': 'journeys',
           'embed/journeys(/)': 'journeys',
