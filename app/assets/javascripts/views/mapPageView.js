@@ -13,6 +13,7 @@
       this.setListeners();
 
       this.router = settings.router;
+      this.embed = settings.embed || false;
 
       this.initMap();
     },
@@ -46,7 +47,7 @@
             maxZoom: 25,
             center: this.router.params.attributes.center ? [ JSON.parse(this.router.params.attributes.center).lat, JSON.parse(this.router.params.attributes.center).lng] : [3.86, 47.28],
             zoomControl: false,
-            scrollWheelZoom: false
+            scrollWheelZoom: !this.embed ? true : false
           }
         }
       });
