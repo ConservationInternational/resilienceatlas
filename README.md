@@ -13,6 +13,7 @@ Requirements:
 
 * NodeJs 0.10+ [How to install](https://nodejs.org/download/)
 * Ruby 2.2.0 [How to install](https://gorails.com/setup/osx/10.10-yosemite)
+* PostgreSQL
 
 Install global dependencies:
 
@@ -26,13 +27,24 @@ Install project dependencies:
 
 ## Usage
 
-To run application:
+Before running the application, you need to configure it by copying `.env.sample` to `.evn` and setting the appropriate values where needed.
 
-    start postgres:  postgres -D /usr/local/var/postgres9.4
-    start rails: bundle exec rails server
+To start the application, run:
+
+```
+bundle exec rails server
+```
+
+## Deployment
+
+In `config/deploy` you will find a sample file. Copy `production.rb.sample` to `production.rb` and change it accordingly. Deploy using:
+ 
+```
+bundle exec cap production deploy
+```
 
 ## Deploy advice:
-As we remove bower to manage front dependencies, now it's necesary to change it at Heroku. Apparently, only owner can do it. So for the moment we need a fake bower.json file in order the deploy to work. Please, don't reomve it before Heroku is fixed. 
+As we remove bower to manage front dependencies, now it's necesary to change it at Heroku. Apparently, only owner can do it. So for the moment we need a fake bower.json file in order the deploy to work. Please, don't remove it before Heroku is fixed. 
 (Clara, 17/08/2015)
 
 ## Contributing
