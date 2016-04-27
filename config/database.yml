@@ -3,8 +3,10 @@ default: &default
   encoding: unicode
   pool: 5
   timeout: 5000
-  # username: <%= ENV["DB_USER"] %>
-  # password:
+  url: <%= ENV["DATABASE_URL"] %>
+  port: <%= ENV["DATABASE_PORT"] %>
+  username: <%= ENV["DATABASE_USER"] %>
+  password: <%= ENV["DATABASE_PASSWORD"] %>
 
 development:
   <<: *default
@@ -15,4 +17,5 @@ test:
   database: cigrp_test
 
 production:
-  url: <%= ENV["DATABASE_URL"] %>
+  <<: *default
+  database: cigrp
