@@ -18,6 +18,7 @@ Rails.application.routes.draw do
   # Application
   # get '/', to: 'map#index', constraints: { subdomain: /indicators.+/ }
   get '/', to: 'welcome#index', as: 'root'
+  get '/wef', to: 'welcome#index', as: 'wef'
 
   # root 'welcome#index'
 
