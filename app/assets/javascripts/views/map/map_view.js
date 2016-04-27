@@ -368,6 +368,11 @@
       }
     },
 
+    _getFormattedAttribution(attribution) {
+      return '<a target="_blank" href="' + attribution.url + '">' +
+        attribution.name +'</a>';
+    },
+
     /**
      * Set the attribution of the current layer
      * @param  {Object} layerData
@@ -386,8 +391,7 @@
         url: layerData.dataset_source_url
       };
 
-      newAttributionText = '<a target="_blank" href="' + newAttribution.url + '">' +
-        newAttribution.name +'</a>';
+      newAttributionText = this._getFormattedAttribution(newAttribution);
 
       customAttributions.push(newAttribution);
       this.map.attributionControl.addAttribution(newAttributionText);
@@ -399,20 +403,20 @@
      */
     _removeAttribution: function(layerData) {
       var customAttributions = this.map.attributionControl.customAttributions,
-        textToRemove = '<a target="_blank" href="' + layerData.dataset_source_url + '">' +
-          layerData.dataset_shortname + '</a>',
-        counter = 0;
+        attributionToRemove = {},
+        textToRemove,
+        removed = false;
 
       customAttributions.forEach(function(attribution, index) {
-        if (attribution.name === layerData.dataset_shortname) {
+        if (!removed && attribution.name === layerData.dataset_shortname ) {
+          textToRemove = this._getFormattedAttribution(attribution);
           customAttributions.splice(index, 1);
-          counter++;
+          removed = !removed;
         }
-      });
 
-      if (counter > 0 && counter < 2) {
-        this.map.attributionControl.removeAttribution(textToRemove);
-      }
+      }.bind(this));
+
+      this.map.attributionControl.removeAttribution(textToRemove);
     },
 
     /**
