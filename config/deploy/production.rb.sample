@@ -1,0 +1,20 @@
+require 'capistrano/rvm'
+
+set :rvm_ruby_version, '2.2.1'
+set :rvm_custom_path, '/home/user/.rvm'
+
+set :linked_files, %w{config/database.yml .env}
+
+role :app, %w{your-server.url}
+role :web, %w{your-server.url}
+role :db,  %w{your-server.url}
+
+server 'your-server.url', user: 'user', roles: %w{web app}
+
+set :ssh_options, {
+  forward_agent: true,
+  auth_methods: %w(publickey)
+}
+
+set :rails_env, "production"
+set :branch, 'master'
