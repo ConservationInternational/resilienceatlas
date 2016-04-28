@@ -368,7 +368,7 @@
       }
     },
 
-    _getFormattedAttribution(attribution) {
+    _getFormattedAttribution: function(attribution) {
       return '<a target="_blank" href="' + attribution.url + '">' +
         attribution.name +'</a>';
     },
