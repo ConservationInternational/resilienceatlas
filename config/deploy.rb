@@ -2,7 +2,7 @@ lock '3.4.0'
 
 set :application, 'CIGRP'
 set :repo_url, 'git@github.com:Vizzuality/cigrp-prototype.git'
-set :branch, 'experimental/capistrano-config'
+set :branch, 'master'
 
 set :deploy_to, '/home/ubuntu/cigrp'
 
