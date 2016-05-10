@@ -1,11 +1,7 @@
 require 'capistrano/rvm'
 
 set :rvm_ruby_version, '2.2.1'
-<<<<<<< Updated upstream
-set :rvm_type, :system
-=======
 set :rvm_custom_path, '/home/ubuntu/.rvm'
->>>>>>> Stashed changes
 
 set :linked_files, %w{config/database.yml .env}
 
