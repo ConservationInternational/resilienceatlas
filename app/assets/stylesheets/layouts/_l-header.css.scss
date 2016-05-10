@@ -19,7 +19,8 @@
     display: none;
   }
 
-  .is-indicators & {
+  .is-indicators &,
+  .is-atlas & {
     background-color: #222222;
   }
 
@@ -33,11 +34,12 @@
     height: 37px;
     background-image: image-url('beta.svg');
 
-    .is-indicators & {
+    .is-indicators &,
+    .is-atlas & {
       display: none;
     }
   }
-  
+
   .l-main--embed & {
     padding-left: rem(20px);
 
@@ -68,7 +70,8 @@
       background-size: contain;
       text-indent: -99999px;
 
-      .is-indicators & {
+      .is-indicators &,
+      .is-atlas & {
         background-image: image-url("logo-vs.png");
       }
 
@@ -83,15 +86,17 @@
     // margin-right: -rem($margin);
 
     &.-resilience {
-      .is-indicators & {
-         display: none;   
+      .is-indicators &,
+      .is-atlas & {
+         display: none;
       }
     }
-    
-    &.-vital-sign {
-      display: none; 
 
-      .is-indicators & {
+    &.-vital-sign {
+      display: none;
+
+      .is-indicators &,
+      .is-atlas & {
          display: block;
 
          a {
@@ -100,7 +105,7 @@
             &:hover {
               background-color: rgba($white, .1)
             }
-         }  
+         }
       }
     }
 

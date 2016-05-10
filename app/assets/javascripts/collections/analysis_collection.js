@@ -11,7 +11,7 @@
       var url = 'data/analysis.json';
       var isSubdomain = window.isSubdomain;
 
-      if (isSubdomain === 'indicators') {
+      if (isSubdomain === 'indicators' || 'atlas') {
         url = 'data/analysis_vital_signs.json';
       }
 
@@ -19,7 +19,7 @@
     },
 
     initialize: function() {
-      
+
     }
 
   });
