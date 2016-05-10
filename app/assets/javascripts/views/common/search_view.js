@@ -74,7 +74,7 @@
       var key = ev && ev.keyCode ? ev.keyCode : 0;
 
       if(key !== 40 || key !== 38) {
-        if(value.length > 0) {
+        if(value && value.length > 0) {
           $searchBox.addClass('searching');
           this.showSuggestions(value);
         } else {
