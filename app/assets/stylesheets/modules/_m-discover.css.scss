@@ -4,8 +4,10 @@
   .m-discover__title {
     position: relative;
     height: 150px;
+
     h2 {
       @extend %center;
+      width: 100%;
       margin: 0;
       padding-top: 10px;
 
