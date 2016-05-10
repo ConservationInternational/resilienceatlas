@@ -14,7 +14,7 @@
     routes: function() {
       var routes;
       var isSubdomain = window.isSubdomain;
-      if (isSubdomain !== 'indicators') {
+      if (isSubdomain !== 'indicators' || 'atlas') {
         routes = {
           '(/)': 'welcome',
           'map(/)': 'map',
