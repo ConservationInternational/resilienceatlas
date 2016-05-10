@@ -5,11 +5,7 @@ set :rvm_custom_path, '/home/user/.rvm'
 
 set :linked_files, %w{config/database.yml .env}
 
-role :app, %w{your-server.url}
-role :web, %w{your-server.url}
-role :db,  %w{your-server.url}
-
-server 'your-server.url', user: 'user', roles: %w{web app}
+server '52.201.131.175', user: 'ubuntu', roles: %w{web app db}, primary: true
 
 set :ssh_options, {
   forward_agent: true,
