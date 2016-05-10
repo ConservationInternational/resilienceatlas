@@ -94,6 +94,7 @@
           this.addControlZoom();
         }
         this.setBasemap();
+        this._setAttributionControl();
       } else {
         console.info('Map already exists.');
       }
@@ -187,6 +188,11 @@
       }
     },
 
+    _setAttributionControl: function() {
+      this.attributionControl = this.map.attributionControl;
+      this.attributionControl.customAttributions = [];
+    },
+
     /**
      * Remove basemap from mapView
      */
@@ -214,7 +220,7 @@
         //   layerData.maxZoom = 100;
         //   layerData.minZoom = 3;
         // }
-        
+
         if (layerData.active) {
           if (layerData.maxZoom || layerData.minZoom) {
 
@@ -263,7 +269,7 @@
       this.removeLayer(layerData);
 
       var currentLayerModel = _.findWhere(this.layers.models, { 'id': layerData });
-      
+
       if (currentLayerModel) {
         currentLayerModel.set('active', false);
       }
@@ -344,8 +350,9 @@
           layerInstance.create(function(layer) {
             layer.setOpacity(layerData.opacity);
             layer.setZIndex(1000 + layerData.order);
-          });
-        } 
+            this._setAttribution(layerData);
+          }.bind(this));
+        }
 
         if (layerInstance) {
           this.model.set(layerData.id, layerInstance);
@@ -361,6 +368,57 @@
       }
     },
 
+    _getFormattedAttribution: function(attribution) {
+      return '<a target="_blank" href="' + attribution.url + '">' +
+        attribution.name +'</a>';
+    },
+
+    /**
+     * Set the attribution of the current layer
+     * @param  {Object} layerData
+     */
+    _setAttribution: function(layerData) {
+      var customAttributions = this.attributionControl.customAttributions,
+        newAttributionText = '',
+        newAttribution = {};
+
+      if (!layerData.dataset_shortname) {
+        return;
+      }
+
+      newAttribution = {
+        name: layerData.dataset_shortname,
+        url: layerData.dataset_source_url
+      };
+
+      newAttributionText = this._getFormattedAttribution(newAttribution);
+
+      customAttributions.push(newAttribution);
+      this.map.attributionControl.addAttribution(newAttributionText);
+    },
+
+    /**
+     * Removes attribution of the current layer
+     * @param  {Object} layerData
+     */
+    _removeAttribution: function(layerData) {
+      var customAttributions = this.map.attributionControl.customAttributions,
+        attributionToRemove = {},
+        textToRemove,
+        removed = false;
+
+      customAttributions.forEach(function(attribution, index) {
+        if (!removed && attribution.name === layerData.dataset_shortname ) {
+          textToRemove = this._getFormattedAttribution(attribution);
+          customAttributions.splice(index, 1);
+          removed = !removed;
+        }
+
+      }.bind(this));
+
+      this.map.attributionControl.removeAttribution(textToRemove);
+    },
+
     /**
      * Remove a specific layer on map
      * @param  {Object} layerData
@@ -373,11 +431,12 @@
       } else {
         layerId = layerData;
       }
-      
+
       var layerInstance = this.model.get(layerId);
       if (layerInstance) {
         this.model.set(layerId, null);
         layerInstance.remove();
+        this._removeAttribution(layerData);
       }
     },
 
@@ -435,7 +494,7 @@
           bounds = L.latLngBounds(southWest, northEast);
 
         var maxZoom = this.map.getBoundsZoom(bounds, true);
-        
+
         if(maxZoom > 9) {
           maxZoom = maxZoom - 3;
         } else if(maxZoom > 6) {
@@ -443,7 +502,7 @@
         } else {
           maxZoom = maxZoom - 1;
         }
-        
+
         this.map.fitBounds(bounds, { maxZoom: maxZoom });
       }
     },
@@ -475,7 +534,7 @@
     _setLayerBounds: function(layerId) {
       var mapModel = this.model;
       var instance = mapModel.get(layerId);
-      
+
       if(instance) {
         instance.panToLayer();
       }

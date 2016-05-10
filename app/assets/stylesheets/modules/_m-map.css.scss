@@ -27,6 +27,10 @@
   top: rem(90px);
   right: rem(10px);
   z-index: 1;
+
+  .is-embed-page & {
+    top: rem(10px);
+  }
 }
 
 .leaflet-bar {

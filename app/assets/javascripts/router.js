@@ -18,7 +18,7 @@
         routes = {
           '(/)': 'welcome',
           'map(/)': 'map',
-          'embed/map(/)': 'map',
+          'embed/map(/)': 'mapEmbed',
           'about(/)': 'about',
           'journeys/:id(/)': 'journeys',
           'embed/journeys(/)': 'journeys',
@@ -57,6 +57,7 @@
 
     setListeners: function() {
       this.on('route:map', this.updateParams, this);
+      this.on('route:mapEmbed', this.updateParams, this);
       this.on('route:journeys', this.updateParams, this);
 
       if (this.options.update) {

@@ -22,7 +22,9 @@
    *     order: 1,
    *     group: 1,
    *     active: true,
-   *     published: true
+   *     published: true,
+   *     dataset_shortname: 'dataset-name',
+   *     dataset_source_url: 'http://www.dataset-name-url.com/',
    *   }
    * ]
    */
@@ -61,7 +63,9 @@
           info: d.attributes.info,
           dashboard_order: d.attributes.dashboard_order,
           download: d.attributes.download || null,
-          download_url: d.attributes.download ? this._generateDownloadUrl(d) : null
+          download_url: d.attributes.download ? this._generateDownloadUrl(d) : null,
+          dataset_shortname: d.attributes.dataset_shortname || null,
+          dataset_source_url: d.attributes.dataset_source_url || null
         };
       }, this));
       return result;

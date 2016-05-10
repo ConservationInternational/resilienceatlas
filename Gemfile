@@ -12,6 +12,7 @@ gem 'slim-rails'
 gem 'autoprefixer-rails'
 gem 'handlebars_assets'
 gem 'd3-rails', '>= 3.5.6'
+gem 'dotenv-rails'
 
 gem 'pg'
 gem 'devise'
@@ -27,7 +28,6 @@ group :development, :test do
   gem 'spring'
   gem 'teaspoon'
   gem 'teaspoon-mocha'
-  gem 'dotenv-rails'
   gem 'byebug'
   gem 'hirb'
   gem 'awesome_print'
@@ -37,6 +37,12 @@ group :development, :test do
   gem 'json_spec'
   gem 'bullet'
   gem 'web-console', '~> 2.0'
+  gem 'capistrano', '~> 3.4'
+  gem 'capistrano-rvm'
+  gem 'capistrano-bundler', '~> 1.1.2'
+  gem 'capistrano-rails', '~> 1.1'
+  gem 'capistrano-npm'
+  gem 'capistrano-passenger'
 end
 
 group :development do
