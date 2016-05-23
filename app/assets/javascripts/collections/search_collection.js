@@ -7,12 +7,12 @@
 
   root.app.Collection.Search = Backbone.Collection.extend({
 
-    url: 'https://grp.global.ssl.fastly.net/user/grp/api/v1/sql',
+    url: 'https://cdb-cdn.resilienceatlas.org/user/ra/api/v2/sql',
 
     parse: function(data) {
       return data.rows;
     },
-    
+
     getData: function() {
       var self = this;
       var fetchOptions;

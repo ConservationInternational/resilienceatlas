@@ -7,7 +7,7 @@
 
   root.app.View.Widget = Backbone.View.extend({
 
-    sqlApi: 'https://grp.global.ssl.fastly.net/user/grp/api/v2/sql',
+    sqlApi: 'https://cdb-cdn.resilienceatlas.org/user/ra/api/v2/sql',
 
     templateWidget: HandlebarsTemplates['analysis/widgets/widget_tpl'],
 
@@ -23,7 +23,7 @@
       this.unitY = this.options.unitY || '';
       this.unitX = this.options.unitX || '';
       this.unitZ = this.options.unitZ || '';
-      
+
       this.widgetName = this.options.widgetName || '';
       this.labels = this.options.labels;
       this.meta_short = this.options.meta_short;
@@ -87,7 +87,7 @@
       }
 
       $el.removeClass('is-loading');
-      $el.addClass('loaded');      
+      $el.addClass('loaded');
     }
 
   });

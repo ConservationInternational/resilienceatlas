@@ -52,7 +52,7 @@
 
       var self = this;
       var map = this.map;
-      var url = "https://grp.global.ssl.fastly.net/user/grp/api/v1/map/";
+      var url = "https://cdb-cdn.resilienceatlas.org/user/ra/api/v1/map";
 
       $.ajax({
         type: 'POST',
@@ -70,7 +70,7 @@
             if ('http' === protocol) {
               domain = '{s}.' + domain;
             }
-            tilesEndpoint = "https://grp.global.ssl.fastly.net/user/grp/api/v1/map/" + layergroup.layergroupid + '/{z}/{x}/{y}.png';
+            tilesEndpoint = "https://cdb-cdn.resilienceatlas.org/user/ra/api/v1/map" + layergroup.layergroupid + '/{z}/{x}/{y}.png';
           }
 
           self.layer = L.tileLayer(tilesEndpoint, {

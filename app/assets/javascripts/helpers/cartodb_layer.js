@@ -12,11 +12,11 @@
   root.app.Helper.CartoDBLayer = root.app.Helper.Class.extend({
 
     defaults: {
-      user_name: 'grp', // Required
+      user_name: 'ra', // Required
       type: 'cartodb', // Required
       cartodb_logo: false,
-      maps_api_template: 'https://grp.global.ssl.fastly.net/user/{user}',
-      sql_api_template: 'https://grp.global.ssl.fastly.net/user/{user}',
+      maps_api_template: 'https://cdb-cdn.resilienceatlas.org/user/{user}',
+      sql_api_template: 'https://cdb-cdn.resilienceatlas.org/user/{user}',
       sublayers: [{
         sql: 'SELECT * FROM table_name', // Required
         cartocss: '#table_name {marker-fill: #F0F0F0;}', // Required
@@ -90,7 +90,7 @@
       var self = this;
       var sublayer = this.options.sublayers && this.options.sublayers[0];
       var sql = sublayer.sql;
-      var sqlBounds = new cartodb.SQL({ 
+      var sqlBounds = new cartodb.SQL({
         user: this.options.user_name,
         sql_api_template: this.options.sql_api_template
       });
@@ -102,7 +102,7 @@
       if(sql.match(/the_geom/g) || sql.match(/[*]/g)) {
         sqlBounds.getBounds(sql).done(function(bounds) {
           self.bounds = bounds;
-        }); 
+        });
       }
     },
 
