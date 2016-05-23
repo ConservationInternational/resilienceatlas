@@ -1,6 +1,7 @@
 .m-section-nav {
   width: 90%;
   margin: 20px auto;
+  padding: 0;
 
   ul, li {
     @extend %clean-lists;
