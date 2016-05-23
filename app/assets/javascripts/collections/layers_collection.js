@@ -72,7 +72,7 @@
     },
 
     _generateDownloadUrl: function(d) {
-      return 'https://grp.global.ssl.fastly.net/user/grp/api/v1/sql?filename=' + d.attributes.slug + '&q=' + encodeURIComponent(d.attributes.query) + '&format=kml';
+      return 'https://cdb-cdn.resilienceatlas.org/user/ra/api/v2/sql?filename=' + d.attributes.slug + '&q=' + encodeURIComponent(d.attributes.query) + '&format=kml';
     },
 
     setGroups: function(groupsCollection) {

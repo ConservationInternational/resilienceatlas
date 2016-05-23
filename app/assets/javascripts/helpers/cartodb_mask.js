@@ -12,11 +12,11 @@
   root.app.Helper.CartoDBmask = root.app.Helper.Class.extend({
 
     defaults: {
-      user_name: 'grp', // Required
+      user_name: 'ra', // Required
       type: 'cartodb', // Required
       cartodb_logo: false,
-      maps_api_template: 'https://grp.global.ssl.fastly.net',
-      sql_api_template: 'https://grp.global.ssl.fastly.net',
+      maps_api_template: 'https://cdb-cdn.resilienceatlas.org',
+      sql_api_template: 'https://cdb-cdn.resilienceatlas.org',
       sublayers: [{
         sql: "select * from country_mask",
       }]
@@ -42,7 +42,7 @@
 
     _setCartoCss: function(countryIso, tableName) {
       var carto = "#country_mask{polygon-fill: #FFF;polygon-opacity: 1;line-color: #DDD;}#country_mask[iso_a3='"+ countryIso +"']{polygon-opacity: 0;}";
-      
+
       if(tableName) {
         carto = "#"+tableName+"{polygon-fill: #FFF;polygon-opacity: 1;line-color: #DDD;}#"+tableName+"[iso3='"+ countryIso +"']{polygon-opacity: 0;}"
       }
@@ -60,7 +60,7 @@
         .on('done', function(layer) {
           this.layer = layer;
           this.layer.getSubLayer(0).set(this.options.sublayers[0]);
-          
+
           if (callback && typeof callback === 'function') {
             callback.apply(this, arguments);
           }
