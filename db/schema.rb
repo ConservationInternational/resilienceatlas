@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160427120140) do
+ActiveRecord::Schema.define(version: 20160525101730) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -97,7 +97,10 @@ ActiveRecord::Schema.define(version: 20160427120140) do
   end
 
   create_table "site_scopes", force: :cascade do |t|
-    t.string "name", default: "global"
+    t.string  "name",         default: "global"
+    t.string  "color"
+    t.string  "subdomain"
+    t.boolean "has_analysis", default: false
   end
 
   add_foreign_key "agrupations", "layer_groups"

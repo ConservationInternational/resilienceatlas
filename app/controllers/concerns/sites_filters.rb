@@ -8,25 +8,8 @@ module SitesFilters
     params.permit(:site_scope)
   end
   def set_site
-    case request.subdomain.downcase
-      when "indicators"
-        site_scope="2"
-      when "atlas.tanzania"
-        site_scope="3"
-      when "atlas.ghana"
-        site_scope="4"
-      when "atlas.uganda"
-        site_scope="5"
-      when "atlas.rwanda"
-        site_scope="6"
-      when "amazonia"
-          site_scope="7"
-      when "test"
-        site_scope="8"
-      else
-        site_scope="1"
-    end
-    params.merge!({site_scope: site_scope})
+    site_scope = SiteScope.find_by(subdomain: 'tanzania') || SiteScope.find(1)
+    params.merge!({site_scope: site_scope, site_scope_name: site_scope.name, site_scope_color: site_scope.color, site_scope_subdomain:site_scope.subdomain, site_scope_has_analysis: site_scope.has_analysis})
     params
   end
 end
