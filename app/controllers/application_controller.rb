@@ -4,6 +4,7 @@ class ApplicationController < ActionController::Base
   protect_from_forgery with: :null_session, only: Proc.new { |c| c.request.format.json? }
   before_action :check_subdomain, :get_subdomain
   after_filter :set_csrf_cookie
+  include SitesFilters
 
   def set_csrf_cookie
     if protect_against_forgery?
