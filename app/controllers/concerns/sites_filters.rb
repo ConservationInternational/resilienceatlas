@@ -11,7 +11,7 @@ module SitesFilters
   end
   def create_site_instance
     site = OpenStruct.new(site_scope_name: @site_scope.name, site_scope_color: @site_scope.color, site_scope_subdomain: @site_scope.subdomain, site_scope_has_analysis: @site_scope.has_analysis)
-    @site = {site: site.marshal_dump}.to_json
+    @site = {site: site.marshal_dump}
   end
   private
   def layers_params
