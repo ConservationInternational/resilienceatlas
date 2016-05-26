@@ -5,7 +5,7 @@ module SitesFilters
   end
   def set_site
     site_scope = SiteScope.find_by(subdomain: request.subdomain.downcase) || SiteScope.find(1)
-    params.merge!({site_scope: site_scope})
+    params.merge!({site_scope: site_scope.id})
     params
   end
   private
