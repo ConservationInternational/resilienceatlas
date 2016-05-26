@@ -13,6 +13,7 @@
       this.setListeners();
 
       this.router = settings.router;
+      this.subdomainParams = settings.subdomainParams;
       this.embed = settings.embed || false;
 
       this.initMap();
@@ -24,7 +25,7 @@
     initMap: function() {
       var journeyMap = this._checkJourneyMap();
       var toolbarView = new root.app.View.Toolbar();
-      var sidevarView = new root.app.View.Sidebar();
+      var sidevarView = new root.app.View.Sidebar({subdomainParams: this.subdomainParams});
       var layersGroupsCollection = new root.app.Collection.LayersGroups();
       var layersCollection = new root.app.Collection.Layers();
       var mapModel = new (Backbone.Model.extend({

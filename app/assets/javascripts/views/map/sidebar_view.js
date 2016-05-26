@@ -17,14 +17,14 @@
     initialize: function(settings) {
       var opts = settings && settings.options ? settings.options : {};
       this.options = _.extend({}, this.defaults, opts);
-
+      this.subdomainParams = settings.subdomainParams;
       this.render();
     },
 
     render: function() {
       var self = this;
 
-      this.$el.html(this.template);
+      this.$el.html(this.template({analysis: this.subdomainParams.has_analysis}));
 
       $(document).foundation('tab', 'reflow');
 

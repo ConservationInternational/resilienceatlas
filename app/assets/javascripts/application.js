@@ -68,17 +68,17 @@
 
     initialize: function() {
       // var subdomine = this._subdomineSettings();
-
       this.currentViews = [];
-      this.router = new root.app.Router();
 
       var subomainParamsModel = new root.app.Model.Subdomain();
 
-      subomainParamsModel.fetch().done(function(){
+      subomainParamsModel.fetch().done(_.bind(function(){
         this.setSubdomainParams(subomainParamsModel.toJSON());
         this.initGlobalViews();
+        this.router = new root.app.Router();
         this.setListeners();
-      }.bind(this))
+        this.start();
+      }, this));
 
     },
 
@@ -105,7 +105,6 @@
       this.listenTo(this.router, 'route:about', this.aboutPage);
       // Initializing journeys index
       this.listenTo(this.router, 'route:journeysIndex', this.journeysIndexPage);
-
     },
 
     journeysIndexPage: function(){
@@ -194,6 +193,6 @@
     }
   });
 
-  new app.AppView().start();
+  new app.AppView();
 
 })(this);

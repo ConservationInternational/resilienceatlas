@@ -11,6 +11,7 @@
       var opts = settings && settings.options ? settings.options : {};
       this.options = _.extend({}, this.defaults, opts);
       this.journeys = settings.journeys;
+      this.subdomainParams = settings.subdomainParams;
       this.cacheVars();
       this.setListeners();
     },
