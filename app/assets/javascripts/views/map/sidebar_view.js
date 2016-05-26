@@ -23,7 +23,7 @@
 
     render: function() {
       var self = this;
-      this.$el.html(this.template({analysis: this.subdomainParams.has_analysis}));
+      this.$el.html(this.template({ analysis: this.subdomainParams && this.subdomainParams.has_analysis }));
 
       $(document).foundation('tab', 'reflow');
 
@@ -31,7 +31,8 @@
         self.switchTabs(tab);
       });
 
-      this.setThemeColor();
+
+      this.subdomainParams && this.setThemeColor();
     },
 
     setThemeColor: function() {
