@@ -12,11 +12,9 @@
 #  slug          :string
 #
 
-FactoryGirl.define do
-  factory :site_page do
-    title "MyString"
-body "MyText"
-priority 1
+class SitePageSerializer < ActiveModel::Serializer
+  attributes :id, :title, :priority, :url
+  def url
+    "/contents/#{object.slug}"
   end
-
 end

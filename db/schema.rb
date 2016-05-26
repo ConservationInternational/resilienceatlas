@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160525121832) do
+ActiveRecord::Schema.define(version: 20160525151039) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -105,9 +105,11 @@ ActiveRecord::Schema.define(version: 20160525121832) do
     t.integer  "site_scope_id"
     t.datetime "created_at",    null: false
     t.datetime "updated_at",    null: false
+    t.string   "slug"
   end
 
   add_index "site_pages", ["site_scope_id"], name: "index_site_pages_on_site_scope_id", using: :btree
+  add_index "site_pages", ["slug"], name: "index_site_pages_on_slug", unique: true, using: :btree
   add_index "site_pages", ["title", "site_scope_id"], name: "index_site_pages_on_title_and_site_scope_id", unique: true, using: :btree
 
   create_table "site_scopes", force: :cascade do |t|

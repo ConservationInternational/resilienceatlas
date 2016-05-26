@@ -12,6 +12,7 @@ Rails.application.routes.draw do
       resources :layers, only: [:index]
       get '/share/:uid', to: 'share_urls#show'
       post '/share', to: 'share_urls#create'
+      get 'site', to: 'sites#show'
     end
   end
 
@@ -25,7 +26,7 @@ Rails.application.routes.draw do
   get 'map', to: 'map#index', as: :map
   get 'about', to: 'about#index'
   get 'journeys', to: 'journeys#index'
-
+  get 'contents/:slug', to: 'contents#show'
 
   resources :journeys, only: [:show]
 
