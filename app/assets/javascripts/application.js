@@ -71,7 +71,6 @@
       this.currentViews = [];
 
       var subomainParamsModel = new root.app.Model.Subdomain();
-
       subomainParamsModel.fetch().done(_.bind(function(){
         this.setSubdomainParams(subomainParamsModel.toJSON());
         this.initGlobalViews();
@@ -87,8 +86,18 @@
         has_analysis: data.has_analysis || false,
         name: data.name || '',
         subdomain: data.subdomain || '',
-        color: data.color || '#fffff',
+        color: data.color || '#f00'
       }
+
+      this.setThemeColor();
+    },
+
+    setThemeColor: function() {
+      //Main page items
+      $('.theme-color').css({'color': this.subdomainParams.color});
+      $('.btn-primary').css({'color': this.subdomainParams.color});
+      $('.theme-bg-color').css({'background-color': this.subdomainParams.color});
+      $('.m-explore').css({'background-color': this.subdomainParams.color});
     },
 
     setListeners: function() {
@@ -111,7 +120,8 @@
       var journeysIndexCollection = new root.app.Collection.JourneysIndex();
 
       var journeyIndexView = new root.app.View.JourneysIndexView({
-        journeys: journeysIndexCollection
+        journeys: journeysIndexCollection,
+        subdomainParams: this.subdomainParams
       });
 
       // Fetching data
@@ -176,6 +186,7 @@
       $.when.apply($, complete).done(function() {
         var journeyPageView = new root.app.JourneysPageView({
           router: this.router,
+          subdomainParams: this.subdomainParams,
           options: {
             'journeyId': journeyId,
             'totalJourneys': journeysIndexCollection.length
@@ -185,7 +196,7 @@
     },
 
     aboutPage: function() {
-      new root.app.View.StaticPageView;
+      new root.app.View.StaticPageView({ subdomainParams: this.subdomainParams });
     },
 
     start: function() {

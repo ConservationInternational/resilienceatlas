@@ -28,6 +28,7 @@
       var opts = settings && settings.options ? settings.options : {};
       this.options = _.extend({}, this.defaults, opts);
       this.layers = settings.layers;
+      this.subdomainParams = settings.subdomainParams;
       this._setListeners();
 
       this.infowindow = new root.app.View.InfoWindow;
@@ -44,6 +45,12 @@
       this.$el.html( this.template( data ) );
       this._cacheVars();
       this._setActiveGroups();
+      this.setThemeColor();
+    },
+
+    setThemeColor: function() {
+      $('.theme-color').css({'color': this.subdomainParams.color});
+      $('.theme-bg-color').css({'background-color': this.subdomainParams.color});
     },
 
     _setActiveGroups: function() {
@@ -210,7 +217,7 @@
 
     _downloadClicked: function(e) {
       var layerName = e.currentTarget.dataset.name;
-      
+
       if(typeof(layerName) !== 'undefined') {
         ga('send', 'event', 'Map', 'Download', layerName);
       }

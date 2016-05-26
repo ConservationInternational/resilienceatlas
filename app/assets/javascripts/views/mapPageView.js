@@ -57,7 +57,8 @@
       if (!journeyMap) {
         var layersListView = new root.app.View.LayersList({
           el: '#layersListView',
-          layers: layersCollection
+          layers: layersCollection,
+          subdomainParams: this.subdomainParams
         });
 
         var legendView = new root.app.View.Legend({

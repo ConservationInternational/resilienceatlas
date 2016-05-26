@@ -32,6 +32,8 @@
       var opts = settings && settings.options ? settings.options : {};
       this.options = _.extend({}, this.defaults, opts);
 
+      this.subdomainParams = settings.subdomainParams;
+
       this._setListeners();
 
       this.journey = settings.journey.toJSON()[0];
@@ -82,6 +84,14 @@
 
       this._cacheVars();
       this.renderScrolldown();
+
+      this.setThemeColor();
+    },
+
+    setThemeColor: function() {
+      $('.theme-color').css({'color': this.subdomainParams.color});
+      $('.m-journey--chapter h1, .m-journey--embed--light h1, .m-journey--embed--light h3').css({'color': this.subdomainParams.color});
+      $('.theme-bg-color').css({'background-color': this.subdomainParams.color});
     },
 
     renderButtons: function() {
