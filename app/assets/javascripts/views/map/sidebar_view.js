@@ -31,7 +31,6 @@
         self.switchTabs(tab);
       });
 
-
       this.subdomainParams && this.setThemeColor();
     },
 

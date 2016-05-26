@@ -20,8 +20,8 @@
   }
 
   .is-indicators &,
-  .is-atlas & {
-    background-color: #222222;
+  .is-atlas {
+    background-color: rgba(#222222, .5);
   }
 
   &:before {
