@@ -51,6 +51,8 @@
     setThemeColor: function() {
       $('.theme-color').css({'color': this.subdomainParams.color});
       $('.theme-bg-color').css({'background-color': this.subdomainParams.color});
+      this.$el.find('.panel-item-switch input:checked').next().css({'background-color': this.subdomainParams.color});
+      $('.is-open .panel-trasparecy-switcher .icon-settings path, .is-modified .panel-trasparecy-switcher .icon-settings path').css({'fill': this.subdomainParams.color});
     },
 
     _setActiveGroups: function() {
@@ -74,6 +76,16 @@
 
     _toggleLayers: function(e) {
       var checkboxes = this.$el.find('.panel-item-switch input:checked');
+
+      var checked = e.currentTarget.checked;
+
+      //To set theme color to inputs.
+      if (checked) {
+        $(e.currentTarget).next().css({'background-color': this.subdomainParams.color});
+      } else {
+        $(e.currentTarget).next().css({'background-color': '#dddddd'});
+      }
+
       var activedIds = _.map(checkboxes, function(el) {
         return parseInt(el.id.split('layer_')[1]);
       });
@@ -186,13 +198,21 @@
       var $currentWrapper = $(currentSelector.closest('li'));
       if (opacity != 100) {
         $currentWrapper.addClass('is-modified');
+        $currentWrapper.find('path').css({fill: this.subdomainParams.color})
       } else {
         $currentWrapper.removeClass('is-modified');
+        $currentWrapper.find('path').css({fill: '#fff'})
       }
     },
 
     _openOpacityHandlers: function(e) {
       $(e.currentTarget).parent().toggleClass('is-open');
+
+      if($(e.currentTarget).parent().hasClass('is-open') || $(e.currentTarget).parent().hasClass('is-modified') ) {
+        $(e.currentTarget).parent().find('path').css({'fill': this.subdomainParams.color})
+      } else {
+        $(e.currentTarget).parent().find('path').css({'fill': '#fff'})
+      }
     },
 
     _showInfo: function(e) {
