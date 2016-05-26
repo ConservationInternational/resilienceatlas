@@ -71,8 +71,24 @@
 
       this.currentViews = [];
       this.router = new root.app.Router();
-      this.initGlobalViews();
-      this.setListeners();
+
+      var subomainParamsModel = new root.app.Model.Subdomain();
+
+      subomainParamsModel.fetch().done(function(){
+        this.setSubdomainParams(subomainParamsModel.toJSON());
+        this.initGlobalViews();
+        this.setListeners();
+      }.bind(this))
+
+    },
+
+    setSubdomainParams: function(data) {
+      this.subdomainParams = {
+        has_analysis: data.has_analysis || false,
+        name: data.name || '',
+        subdomain: data.subdomain || '',
+        color: data.color || '#fffff',
+      }
     },
 
     setListeners: function() {
@@ -114,7 +130,8 @@
       var journeysIndexCollection = new root.app.Collection.JourneysIndex();
       var headerView = new root.app.View.Header({
         el: '#headerView',
-        journeys: journeysIndexCollection
+        journeys: journeysIndexCollection,
+        subdomainParams: this.subdomainParams
       });
 
       // Fetching data
@@ -138,6 +155,7 @@
     mapPage: function() {
       var mapPageView = new root.app.MapPageView({
         router: this.router,
+        subdomainParams: this.subdomainParams
       });
     },
 
@@ -166,7 +184,6 @@
         });
       }.bind(this));
     },
-
 
     aboutPage: function() {
       new root.app.View.StaticPageView;
