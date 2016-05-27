@@ -83,14 +83,18 @@
 
     setSubdomainParams: function(data) {
       this.subdomainParams = {
-        has_analysis: data.has_analysis || false,
+        has_analysis: data.has_analysis || true,
         name: data.name || '',
-        subdomain: data.subdomain || '',
-        color: data.color || '#f00'
+        subdomain: data.subdomain || 'indicators',
+        color: data.color || '#0089cc'
       }
 
       this.setThemeColor();
       this.setIndicator();
+
+      if (data.included.length > 0) {
+        this.getPages(data.included);
+      }
     },
 
     setIndicator: function() {
@@ -105,6 +109,27 @@
       $('.btn-primary').css({'color': this.subdomainParams.color});
       $('.theme-bg-color').css({'background-color': this.subdomainParams.color});
       $('.m-explore').css({'background-color': this.subdomainParams.color});
+    },
+
+    getPages: function(data) {
+      var pages = [];
+
+      data.map(function(p){
+        var page = {};
+        page.id = p.id;
+        page.title = p.attributes.title;
+        page.url = p.attributes.url;
+        page.priority = p.attributes.priority;
+
+        pages.push(page);
+        return pages;
+      });
+
+      pages = pages.sort(function(p){
+        return p.priority
+      }).reverse();
+
+      this.subdomainParams.pages = pages;
     },
 
     setListeners: function() {
