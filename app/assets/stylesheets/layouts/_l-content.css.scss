@@ -10,7 +10,7 @@
 .l-content--fullscreen {
   @extend %l-content;
   position: absolute;
-  left: $sidebar-width;
+  left: 0;
   right: 0;
   bottom: 0;
   top: 0;

@@ -6,7 +6,7 @@
 .l-main--fullscreen {
   position: absolute;
   width: 100%;
-  top: rem($header-height);
+  top: 0;
   bottom: 0;
 
   .is-journeys-page & {

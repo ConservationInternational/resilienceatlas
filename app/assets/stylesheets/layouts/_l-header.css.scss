@@ -4,7 +4,6 @@
   z-index: 5;
   height: rem($header-height);
   box-shadow: 0 0 2px 0 rgba(0,0,0,.2);
-  background-color: $bg-color-1;
 }
 
 .l-header-nav {
@@ -14,6 +13,7 @@
   position: relative;
   z-index: 2;
   background-color: $bg-color-1;
+  opacity: .7;
 
   .is-journey-map & {
     display: none;
@@ -52,11 +52,13 @@
 
   ul {
     @extend %clean-lists;
+    opacity: 1;
   }
 
   .brand-area {
     float: left;
     padding: rem(5px) 0;
+    opacity: 1;
 
     a {
       position: relative;
