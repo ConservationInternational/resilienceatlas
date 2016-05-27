@@ -12,8 +12,7 @@
   padding: 0 rem($content-margin);
   position: relative;
   z-index: 2;
-  background-color: $bg-color-1;
-  opacity: .7;
+  background-color: rgba($bg-color-1, .7);
 
   .is-journey-map & {
     display: none;
@@ -21,7 +20,7 @@
 
   .is-indicators &,
   .is-atlas {
-    background-color: rgba(#222222, .5);
+    background-color: rgba(#222222, .7);
   }
 
   &:before {
