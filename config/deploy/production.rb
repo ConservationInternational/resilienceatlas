@@ -13,4 +13,4 @@ set :ssh_options, {
 }
 
 set :rails_env, "production"
-set :branch, 'feature/sites'
+set :branch, 'master'

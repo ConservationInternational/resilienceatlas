@@ -23,6 +23,10 @@
 
     render: function() {
       var self = this;
+      console.log(this.subdomainParams)
+      if (this.subdomainParams.subdomain) {
+        this.subdomainParams.has_analysis = false;
+      };
       this.$el.html(this.template({ analysis: this.subdomainParams && this.subdomainParams.has_analysis }));
 
       $(document).foundation('tab', 'reflow');
