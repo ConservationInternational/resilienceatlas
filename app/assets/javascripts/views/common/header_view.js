@@ -11,11 +11,17 @@
       var opts = settings && settings.options ? settings.options : {};
       this.options = _.extend({}, this.defaults, opts);
       this.journeys = settings.journeys;
+      this.subdomainParams = settings.subdomainParams;
+
+      if (this.subdomainParams.pages && this.subdomainParams.subdomain) {
+        this.setSubdomainPages();
+      }
       this.cacheVars();
       this.setListeners();
     },
 
     template: HandlebarsTemplates['journeys/journeys_tpl'],
+    navTemplate: HandlebarsTemplates['common/navigation_tpl'],
 
     model: new (Backbone.Model.extend({
       defaults: {
@@ -23,11 +29,19 @@
       }
     })),
 
-    events: {
-      // 'click .journey-link' : 'toggle',
+    setSubdomainPages: function() {
+      this.$('.nav-area.-vital-sign').prepend(this.navTemplate({pages: this.subdomainParams.pages}));
+      this.setThemeColor();
+    },
+
+    setThemeColor: function() {
+      //Main page items
+      $('.theme-color').css({'color': this.subdomainParams.color});
+      $('.theme-bg-color').css({'background-color': this.subdomainParams.color});
     },
 
     render: function() {
+
       this.$journey__paginationlist.html(this.template({
         journeys: this.journeys.toJSON()
       }));

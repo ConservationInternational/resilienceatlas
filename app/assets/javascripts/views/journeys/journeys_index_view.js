@@ -12,7 +12,7 @@
       this.options = _.extend({}, this.defaults, opts);
 
       this.journeys = settings.journeys;
-
+      this.subdomainParams = settings.subdomainParams;
       this.cacheVars();
 
     },
@@ -33,7 +33,14 @@
       this.$journey__introlist.html(this.template({
         journeys: this.journeys.toJSON()
       }));
+
+      this.setThemeColor();
     },
+
+    setThemeColor: function() {
+      $('.theme-color').css({'color': this.subdomainParams.color});
+      $('.theme-bg-color').css({'background-color': this.subdomainParams.color});
+    }
 
 
   });

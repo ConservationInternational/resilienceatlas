@@ -9,7 +9,7 @@
 #  has_analysis :boolean          default(FALSE)
 #
 
-class SiteScope < ActiveRecord::Base
-  has_many :layer_groups
+class SiteScopeSerializer < ActiveModel::Serializer
+  attributes :id, :name, :color, :subdomain, :has_analysis
   has_many :site_pages
 end

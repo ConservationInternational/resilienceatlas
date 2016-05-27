@@ -7,11 +7,11 @@ header.l-header--fullscreen id="headerView"
         = link_to 'CIGRP Prototype', root_path
     ul.nav-area.-resilience
       li.journey-link
-       = link_to 'Journeys', journeys_path, class: controller_name == 'journeys' ? 'is-current' : ''
+       = link_to 'Journeys', journeys_path, class: controller_name == 'journeys' ? 'is-current theme-bg-color' : 'theme-color'
       li
-        = link_to 'Map', map_path, class: controller_name == 'map' ? 'is-current' : ''
+        = link_to 'Map', map_path, class: controller_name == 'map' ? 'is-current theme-bg-color' : 'theme-color'
       li
-        = link_to 'About', about_path, class: controller_name == 'about' ? 'is-current' : ''
+        = link_to 'About', about_path, class: controller_name == 'about' ? 'is-current theme-bg-color' : ' theme-color'
     ul.nav-area.-vital-sign
       li
         = link_to 'Go back to vital signs', 'http://vitalsigns.org/', target: '_blank'
