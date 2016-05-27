@@ -85,7 +85,7 @@
       this.subdomainParams = {
         has_analysis: data.has_analysis || true,
         name: data.name || '',
-        subdomain: data.subdomain || 'indicators',
+        subdomain: data.subdomain || '',
         color: data.color || '#0089cc'
       }
 
