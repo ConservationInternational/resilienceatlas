@@ -35,12 +35,10 @@
     initialize: function(settings) {
       var opts = settings && settings.options ? settings.options : {};
       this.options = _.extend({}, this.defaults, opts);
-
       this.router = settings.router;
       this.layers = settings.layers;
       this.selectedBasemap = settings.basemap;
       this.setListeners();
-
       this.journeyMap = this.model.get('journeyMap');
       this.currentCountry = this.model.get('countryIso') || null;
       this.zoomEndEvent = this.model.get('zoomEndEvent') || true;

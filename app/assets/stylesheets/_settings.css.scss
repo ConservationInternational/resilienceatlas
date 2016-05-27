@@ -41,6 +41,7 @@ $white-medium: #eee;
 $black: #000;
 $black-charcoal: #222;
 $blue: #0089cc;
+$theme-color-default: #ddd;
 $gray: #555;
 $gray-medium: #979797;
 $gray-light: #f9f9f9;
@@ -51,7 +52,7 @@ $gray-70: #555555;
   Theme
  */
 $bg-color-1: $white;
-$bg-color-2: $blue;
+$bg-color-2: $theme-color-default;
 $bg-color-3: $gray-light;
 $bg-color-4: $gray-medium;
 $bg-color-5: $black;
@@ -59,7 +60,7 @@ $bg-color-6: $white-medium;
 
 
 $font-color-1: $gray;
-$font-color-2: $blue;
+$font-color-2: $theme-color-default;
 $font-color-3: $white;
 $font-color-4: $black-charcoal;
 
