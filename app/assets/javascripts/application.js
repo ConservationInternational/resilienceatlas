@@ -92,7 +92,7 @@
       this.setThemeColor();
       this.setIndicator();
 
-      if (data.included.length > 0) {
+      if (data.included && data.included.length > 0) {
         this.getPages(data.included);
       }
     },
