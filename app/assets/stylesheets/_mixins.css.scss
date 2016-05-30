@@ -58,6 +58,17 @@
   // }
 }
 
+%clearfix {
+  &:before, &:after {
+    display: table;
+    content: '';
+  }
+
+  &:after {
+    clear: both;
+  }
+}
+
 //Fonts includer
 @mixin font-face($font-name, $font-file, $weight, $style: "normal") {
   @font-face {
