@@ -23,8 +23,8 @@
 
     render: function() {
       var self = this;
-      console.log(this.subdomainParams)
-      if (this.subdomainParams.subdomain) {
+
+      if ($('body').hasClass('is-indicators') || $('body').hasClass('is-atlas')) {
         this.subdomainParams.has_analysis = false;
       };
       this.$el.html(this.template({ analysis: this.subdomainParams && this.subdomainParams.has_analysis }));
@@ -36,6 +36,11 @@
       });
 
       this.subdomainParams && this.setThemeColor();
+      $('.btn-dash-switcher').on('click', _.bind(this.collapsePanel, this))
+    },
+
+    collapsePanel: function() {
+      $('.l-sidebar--fullscreen').toggleClass('is-collapsed');
     },
 
     setThemeColor: function() {

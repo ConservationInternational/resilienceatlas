@@ -16,6 +16,7 @@
       if (this.subdomainParams.pages && this.subdomainParams.subdomain) {
         this.setSubdomainPages();
       }
+
       this.cacheVars();
       this.setListeners();
     },
@@ -41,7 +42,6 @@
     },
 
     render: function() {
-
       this.$journey__paginationlist.html(this.template({
         journeys: this.journeys.toJSON()
       }));

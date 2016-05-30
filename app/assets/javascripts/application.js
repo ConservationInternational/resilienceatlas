@@ -99,7 +99,7 @@
 
     setIndicator: function() {
       if (this.subdomainParams.subdomain) {
-        $('body').addClass('is-indicators')
+        $('body').addClass('is-indicators');
       }
     },
 
