@@ -36,6 +36,11 @@
       });
 
       this.subdomainParams && this.setThemeColor();
+      $('.btn-dash-switcher').on('click', _.bind(this.collapsePanel, this))
+    },
+
+    collapsePanel: function() {
+      $('.l-sidebar--fullscreen').toggleClass('is-collapsed');
     },
 
     setThemeColor: function() {
