@@ -13,7 +13,7 @@
       this.journeys = settings.journeys;
       this.subdomainParams = settings.subdomainParams;
 
-      if (this.subdomainParams.pages) {
+      if (this.subdomainParams.pages && this.subdomainParams.subdomain) {
         this.setSubdomainPages();
       }
 
@@ -31,7 +31,7 @@
     })),
 
     setSubdomainPages: function() {
-      this.$('.nav-area').prepend(this.navTemplate({pages: this.subdomainParams.pages}));
+      this.$('.nav-area.-vital-sign').prepend(this.navTemplate({pages: this.subdomainParams.pages}));
       this.setThemeColor();
     },
 
