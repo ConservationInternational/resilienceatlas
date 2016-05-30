@@ -24,11 +24,17 @@
     height: rem(50px);
     background-color: $bg-color-3;
     box-shadow: 0px 1px 4px 0px rgba(0,0,0,.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
     &:after {
       content: '';
-      @include arrow (10px, $font-color-4, 2px, 90deg);
-      @extend %center;
+      @include arrow(8px, $gray-70, 2px, -45deg);
+
+      .is-collapsed & {
+        transform: rotate(135deg);
+      }
     }
   }
 }
@@ -43,8 +49,11 @@
 
   background-color: $bg-color-1;
   z-index: 1;
-  transform: translate3d(0,0,0);
-  transition: .25s width ease-in-out;
+  transition: .25s ease-in-out;
+
+  &.is-collapsed {
+    transform: translatex(-100%);
+  }
 
 
   body.analyzing & {
