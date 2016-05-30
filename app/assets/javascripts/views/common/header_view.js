@@ -13,9 +13,10 @@
       this.journeys = settings.journeys;
       this.subdomainParams = settings.subdomainParams;
 
-      if (this.subdomainParams.pages && this.subdomainParams.subdomain) {
+      if (this.subdomainParams.pages) {
         this.setSubdomainPages();
       }
+
       this.cacheVars();
       this.setListeners();
     },
@@ -30,7 +31,7 @@
     })),
 
     setSubdomainPages: function() {
-      this.$('.nav-area.-vital-sign').prepend(this.navTemplate({pages: this.subdomainParams.pages}));
+      this.$('.nav-area').prepend(this.navTemplate({pages: this.subdomainParams.pages}));
       this.setThemeColor();
     },
 
@@ -41,7 +42,6 @@
     },
 
     render: function() {
-
       this.$journey__paginationlist.html(this.template({
         journeys: this.journeys.toJSON()
       }));
