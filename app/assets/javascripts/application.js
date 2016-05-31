@@ -89,8 +89,6 @@
         color: data.color || '#0089cc'
       }
 
-      console.log(this.subdomainParams);
-
       this.setThemeColor();
       this.setIndicator();
 
