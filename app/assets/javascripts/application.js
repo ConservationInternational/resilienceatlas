@@ -72,7 +72,7 @@
 
       var subomainParamsModel = new root.app.Model.Subdomain();
       subomainParamsModel.fetch().done(_.bind(function(){
-        this.setSubdomainParams(subomainParamsModel.toJSON());
+        this.setSubdomainParams(subomainParamsModel.toJSON().data.attributes);
         this.initGlobalViews();
         this.router = new root.app.Router();
         this.setListeners();
