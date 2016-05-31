@@ -83,11 +83,13 @@
 
     setSubdomainParams: function(data) {
       this.subdomainParams = {
-        has_analysis: data.has_analysis || true,
+        has_analysis: data.subdomain ? data.has_analysis : true,
         name: data.name || '',
         subdomain: data.subdomain || '',
         color: data.color || '#0089cc'
       }
+
+      console.log(this.subdomainParams);
 
       this.setThemeColor();
       this.setIndicator();
