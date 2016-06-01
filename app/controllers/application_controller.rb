@@ -30,4 +30,8 @@ class ApplicationController < ActionController::Base
   def json_request?
     request.format.json?
   end
+
+  def after_sign_in_path_for(*)
+    session[:previous_url] || root_path
+  end
 end

@@ -19,6 +19,13 @@ gem 'devise'
 gem 'activeadmin', github: 'activeadmin'
 gem 'active_model_serializers', '0.10.0.rc2'
 
+# Omniauth
+gem 'omniauth'
+gem 'omniauth-twitter'
+gem 'omniauth-facebook'
+gem 'omniauth-linkedin'
+gem 'omniauth-google-oauth2'
+
 # Utilities
 gem 'raddocs'
 gem 'seed_dump'
