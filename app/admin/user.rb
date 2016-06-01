@@ -22,19 +22,39 @@
 #  organization_role      :string
 #
 
-require 'rails_helper'
+ActiveAdmin.register User do
+  permit_params :email, :password, :password_confirmation, :first_name, :last_name, :phone, :organization, :organization_role
 
-RSpec.describe User, type: :model do
-  before :each do
-    @user = create(:user)
+  index do
+    selectable_column
+    id_column
+    column :email
+    column :first_name
+    column :last_name
+    column :phone
+    column :organization
+    column :organization_role
+    column :current_sign_in_at
+    column :sign_in_count
+    column :created_at
+    actions
   end
 
-  it 'User is valid' do
-    expect(@user).to       be_valid
-    expect(@user.email).to be_present
-  end
+  filter :email
+  filter :last_name
+  filter :current_sign_in_at
+  filter :sign_in_count
+  filter :created_at
 
-  it 'Count users' do
-    expect(User.count).to eq(1)
+  form do |f|
+    f.inputs "User Details" do
+      f.input :email
+      f.input :first_name
+      f.input :last_name
+      f.input :phone
+      f.input :organization
+      f.input :organization_role
+    end
+    f.actions
   end
 end
