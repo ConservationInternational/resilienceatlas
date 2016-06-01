@@ -31,6 +31,8 @@ gem 'raddocs'
 gem 'seed_dump'
 gem 'active_admin_theme'
 gem 'puma'
+gem 'sendgrid'
+
 group :development, :test do
   gem 'spring'
   gem 'teaspoon'
@@ -63,6 +65,7 @@ end
 group :test do
   gem 'factory_girl_rails', '~> 4.0', require: false
   gem 'rspec-rails'
+  gem 'email_spec'
   gem 'database_cleaner'
 end
 
