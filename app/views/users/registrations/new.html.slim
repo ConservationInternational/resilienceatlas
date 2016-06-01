@@ -22,6 +22,14 @@
           = f.label :password_confirmation
           br
           = f.password_field :password_confirmation, autocomplete: "off"
+        .field
+          = f.label :first_name
+          br
+          = f.email_field :first_name
+        .field
+          = f.label :last_name
+          br
+          = f.email_field :last_name
         .actions
           = f.submit "Sign up"
       = render "users/shared/links"
