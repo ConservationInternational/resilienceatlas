@@ -73,12 +73,15 @@
       var subomainParamsModel = new root.app.Model.Subdomain();
       subomainParamsModel.fetch().done(_.bind(function(){
         this.setSubdomainParams(subomainParamsModel.toJSON().data.attributes);
+        if (subomainParamsModel.toJSON().included && subomainParamsModel.toJSON().included.length > 0) {
+          this.getPages(subomainParamsModel.toJSON().included);
+        }
         this.initGlobalViews();
         this.router = new root.app.Router();
         this.setListeners();
         this.start();
-      }, this));
 
+      }, this));
     },
 
     setSubdomainParams: function(data) {
@@ -91,10 +94,6 @@
 
       this.setThemeColor();
       this.setIndicator();
-
-      if (data.included && data.included.length > 0) {
-        this.getPages(data.included);
-      }
     },
 
     setIndicator: function() {
@@ -128,7 +127,6 @@
       pages = pages.sort(function(p){
         return p.priority
       }).reverse();
-
       this.subdomainParams.pages = pages;
     },
 
