@@ -23,7 +23,10 @@ gem 'active_model_serializers', '0.10.0.rc2'
 gem 'raddocs'
 gem 'seed_dump'
 gem 'active_admin_theme'
+gem 'ckeditor', git: 'http://github.com/galetahub/ckeditor'
 gem 'puma'
+gem 'paperclip'
+
 group :development, :test do
   gem 'spring'
   gem 'teaspoon'
