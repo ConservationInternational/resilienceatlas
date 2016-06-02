@@ -13,13 +13,15 @@ permit_params :title, :body, :priority, :slug, :site_scope_id
 #   permitted << :other if resource.something?
 #   permitted
 # end
-form do |f|
-  f.semantic_errors
-  f.input :site_scope
-  f.input :title
-  f.cktext_area :body
-  f.input :priority
-  f.input :slug
-  f.actions
-end
+  form do |f|
+    f.inputs "Page details" do
+      f.semantic_errors
+      f.input :site_scope
+      f.input :title
+      f.cktext_area :body
+      f.input :priority
+      f.input :slug
+      f.actions
+    end
+  end
 end

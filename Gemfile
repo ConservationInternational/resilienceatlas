@@ -26,6 +26,7 @@ gem 'active_admin_theme'
 gem 'ckeditor', git: 'http://github.com/galetahub/ckeditor'
 gem 'puma'
 gem 'paperclip'
+gem 'gmaps4rails'
 
 group :development, :test do
   gem 'spring'

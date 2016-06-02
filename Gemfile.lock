@@ -156,6 +156,7 @@ GEM
     git-version-bump (0.15.1)
     globalid (0.3.5)
       activesupport (>= 4.1.0)
+    gmaps4rails (2.1.2)
     haml (4.0.6)
       tilt
     handlebars_assets (0.20.2)
@@ -397,6 +398,7 @@ DEPENDENCIES
   factory_girl_rails (~> 4.0)
   faker
   foreman
+  gmaps4rails
   handlebars_assets
   hirb
   jquery-rails
