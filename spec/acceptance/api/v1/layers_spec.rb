@@ -5,20 +5,91 @@ resource 'Layers' do
   header "Content-Type", "application/vnd.api+json"
   header 'Host', 'http://cigrp.org'
 
-  let!(:layer) do
+  let!(:layers) do
+    layers = []
     3.times do |i|
-      FactoryGirl.create(:layer, name: "test layer #{i}")
+      layers << create(:layer, name: "test layer #{i}", slug: "test-layer-#{i}", download: false)
+    end
+    layers.each(&:reload)
+  end
+
+  context 'List layers' do
+    get '/api/layers/' do
+      example_request "Get layers list" do
+        expect(status).to eq(200)
+        results = json
+        names   = results.map{ |r| r['attributes']['name'] }
+        expect names.include?(['test layer 0', 'test layer 1', 'test layer 2'])
+      end
     end
   end
 
-  get "/api/layers/" do
+  context "Download layer files" do
+    get '/api/layers/:id/downloads' do
+      parameter :download_path, 'Url to the file download'
+      parameter :file_format, 'File format (pdf, kml, jpg, txt, etc..)'
+      parameter :with_format, 'If format is part of download_path'
 
-    example_request "Get layers list" do
-      expect(status).to eq(200)
-      results = JSON.parse(response_body)['data']
-      expect(results.length).to be == 3
-      names = results.map{ |r| r['attributes']['name'] }
-      expect names.include?(['test layer 0', 'test layer 1', 'test layer 2'])
+      let!(:layer) do
+        layer = Layer.create(name: 'layer_1', slug: 'layer-1', download: true)
+        layer
+      end
+
+      let(:stub_layer_zip) { "#{Rails.root}/public/files/#{layer.name.parameterize}.zip" }
+
+      example 'Download the layer pdf of a specific layer without layer file' do
+        do_request(id: layer.id)
+        allow_any_instance_of(Layer).to receive(:zipfile_name).and_return(stub_layer_zip)
+
+        expect(status).to                       eq(200)
+        expect(File.exists?(stub_layer_zip)).to eq(true)
+
+        Zip::File.open(stub_layer_zip) do |zip_file|
+          expect(zip_file.first.name).to eq(File.basename('layer_1.pdf'))
+        end
+        File.delete(stub_layer_zip)
+      end
+
+      example 'Download the layer pdf of a specific layer with layer file kml' do
+        do_request(id: layer.id,
+                   file_format: 'kml',
+                   with_format: true,
+                   download_path: 'https://cdb-cdn.resilienceatlas.org/user/ra/api/v2/sql?filename=africa_infant_mortality_rate&q=with r as (select the_geom,the_geom_webmercator, dhsregen,iso3,reg_id,svytype,svyyear from grp_dhs_regions)
+                                   SELECT distinct on (l.regionid, l.surveyyear) l.regionid, l.surveyyear, l.indicatorid, l.byvariableid, characteristiclabel, l.value,  r.the_geom_webmercator, r.the_geom FROM dhs_export l inner join r on regionid=reg_id where indicatorid = 70254002&format=kml')
+        allow_any_instance_of(Layer).to receive(:zipfile_name).and_return(stub_layer_zip)
+
+        expect(status).to                       eq(200)
+        expect(File.exists?(stub_layer_zip)).to eq(true)
+
+        Zip::File.open(stub_layer_zip) do |zip_file|
+          expect(zip_file.first.name).to eq(File.basename('africa_infant_mortality_rate&q.kml'))
+        end
+        File.delete(stub_layer_zip)
+      end
+
+      example 'Download the layer pdf of a specific layer with external file' do
+        do_request(id: layer.id,
+                   file_format: 'pdf',
+                   download_path: 'https://api.esios.ree.es/archives/123/download?date_type=publicacion')
+        allow_any_instance_of(Layer).to receive(:zipfile_name).and_return(stub_layer_zip)
+
+        expect(status).to                       eq(200)
+        expect(File.exists?(stub_layer_zip)).to eq(true)
+
+        Zip::File.open(stub_layer_zip) do |zip_file|
+          expect(zip_file.first.name).to eq(File.basename('layer_1-layer.pdf'))
+        end
+        File.delete(stub_layer_zip)
+      end
+
+      example 'Do not allow to download files if layer download false', document: false do
+        do_request(id: layers[2].id)
+        allow_any_instance_of(Layer).to receive(:zipfile_name).and_return(stub_layer_zip)
+
+        expect(status).to                       eq(200)
+        expect(File.exists?(stub_layer_zip)).to eq(false)
+        expect(json_main['message']).to         eq('No files for specified layer')
+      end
     end
   end
 end

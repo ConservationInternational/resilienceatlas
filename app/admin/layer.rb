@@ -33,6 +33,7 @@ ActiveAdmin.register Layer do
     column :id
     column :name
     column :provider
+    column :download
     column :css
     column :query
     column :info

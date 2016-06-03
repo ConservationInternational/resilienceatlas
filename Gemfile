@@ -32,6 +32,9 @@ gem 'seed_dump'
 gem 'active_admin_theme'
 gem 'puma'
 gem 'sendgrid'
+gem 'rubyzip'
+gem 'prawn'
+gem 'prawn-table'
 
 group :development, :test do
   gem 'spring'

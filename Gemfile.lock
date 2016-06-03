@@ -235,9 +235,15 @@ GEM
       json (~> 1.3)
       omniauth-oauth (~> 1.1)
     orm_adapter (0.5.0)
+    pdf-core (0.6.1)
     pg (0.18.2)
     polyamorous (1.2.0)
       activerecord (>= 3.0)
+    prawn (2.1.0)
+      pdf-core (~> 0.6.1)
+      ttfunk (~> 1.4.0)
+    prawn-table (0.2.2)
+      prawn (>= 1.3.0, < 3.0.0)
     puma (3.4.0)
     rack (1.6.4)
     rack-contrib (1.3.0)
@@ -333,6 +339,7 @@ GEM
       json (~> 1.4, >= 1.4.6)
       mustache (~> 0.99, >= 0.99.4)
       rspec (>= 3.0.0)
+    rubyzip (1.2.0)
     sass (3.4.15)
     sass-rails (5.0.3)
       railties (>= 4.0.0, < 5.0)
@@ -378,6 +385,7 @@ GEM
     thor (0.19.1)
     thread_safe (0.3.5)
     tilt (1.4.1)
+    ttfunk (1.4.0)
     tzinfo (1.2.2)
       thread_safe (~> 0.1)
     uglifier (2.7.1)
@@ -432,6 +440,8 @@ DEPENDENCIES
   omniauth-linkedin
   omniauth-twitter
   pg
+  prawn
+  prawn-table
   puma
   raddocs
   rails (= 4.2.1)
@@ -446,6 +456,7 @@ DEPENDENCIES
   rails-assets-underscore!
   rspec-rails
   rspec_api_documentation
+  rubyzip
   sass-rails (~> 5.0)
   seed_dump
   sendgrid

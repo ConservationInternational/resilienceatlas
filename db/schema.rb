@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160531150221) do
+ActiveRecord::Schema.define(version: 20160602133346) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -72,8 +72,8 @@ ActiveRecord::Schema.define(version: 20160531150221) do
 
   create_table "layers", force: :cascade do |t|
     t.integer  "layer_group_id"
-    t.string   "name",                               null: false
-    t.string   "slug",                               null: false
+    t.string   "name",                                      null: false
+    t.string   "slug",                                      null: false
     t.string   "layer_type"
     t.integer  "zindex"
     t.boolean  "active"
@@ -85,21 +85,34 @@ ActiveRecord::Schema.define(version: 20160531150221) do
     t.text     "interactivity"
     t.float    "opacity"
     t.text     "query"
-    t.datetime "created_at",                         null: false
-    t.datetime "updated_at",                         null: false
-    t.boolean  "locate_layer",       default: false
+    t.datetime "created_at",                                null: false
+    t.datetime "updated_at",                                null: false
+    t.boolean  "locate_layer",              default: false
     t.string   "icon_class"
-    t.boolean  "published",          default: true
+    t.boolean  "published",                 default: true
     t.text     "legend"
-    t.integer  "zoom_max",           default: 100
-    t.integer  "zoom_min",           default: 0
+    t.integer  "zoom_max",                  default: 100
+    t.integer  "zoom_min",                  default: 0
     t.integer  "dashboard_order"
-    t.boolean  "download",           default: false
+    t.boolean  "download",                  default: false
     t.string   "dataset_shortname"
     t.text     "dataset_source_url"
+    t.integer  "source_id"
+    t.string   "title"
+    t.datetime "start_date"
+    t.datetime "end_date"
+    t.string   "spatial_resolution"
+    t.string   "spatial_resolution_units"
+    t.string   "temporal_resolution"
+    t.string   "temporal_resolution_units"
+    t.string   "data_units"
+    t.string   "update_frequency"
+    t.string   "version"
+    t.string   "processing"
   end
 
   add_index "layers", ["layer_group_id"], name: "index_layers_on_layer_group_id", using: :btree
+  add_index "layers", ["source_id"], name: "index_layers_on_source_id", using: :btree
 
   create_table "share_urls", force: :cascade do |t|
     t.string   "uid"
@@ -110,6 +123,20 @@ ActiveRecord::Schema.define(version: 20160531150221) do
 
   create_table "site_scopes", force: :cascade do |t|
     t.string "name"
+  end
+
+  create_table "sources", force: :cascade do |t|
+    t.string   "source_type"
+    t.string   "reference"
+    t.string   "reference_short"
+    t.string   "url"
+    t.string   "contact_name"
+    t.string   "contact_email"
+    t.string   "license"
+    t.datetime "last_updated"
+    t.string   "version"
+    t.datetime "created_at",      null: false
+    t.datetime "updated_at",      null: false
   end
 
   create_table "users", force: :cascade do |t|
