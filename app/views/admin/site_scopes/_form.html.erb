@@ -1,0 +1,12 @@
+<%= semantic_form_for [:admin, @site_scope] do |f| %>
+  <%= f.input :name  %>
+  <%= f.input :color  %>
+  <%= f.input :subdomain  %>
+  <%= f.input :has_analysis  %>
+  <%= f.inputs "Location" do %>
+    <%= gmaps("markers" => {data: @site_scope.to_gmaps4rails}) %>
+    <%= yield :scripts %>
+    <%= f.input :latitude %>
+    <%= f.input :longtude %>
+  <% end %>
+<% end %>

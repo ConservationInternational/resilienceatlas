@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160602171511) do
+ActiveRecord::Schema.define(version: 20160603095306) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -68,17 +68,16 @@ ActiveRecord::Schema.define(version: 20160602171511) do
     t.boolean  "active"
     t.integer  "order"
     t.text     "info"
-    t.datetime "created_at",                   null: false
-    t.datetime "updated_at",                   null: false
+    t.datetime "created_at",       null: false
+    t.datetime "updated_at",       null: false
     t.string   "icon_class"
-    t.integer  "site_scope_id",    default: 1
+    t.integer  "site_scope_id"
   end
 
   add_index "layer_groups", ["site_scope_id"], name: "index_layer_groups_on_site_scope_id", using: :btree
   add_index "layer_groups", ["super_group_id"], name: "index_layer_groups_on_super_group_id", using: :btree
 
   create_table "layers", force: :cascade do |t|
-    t.integer  "layer_group_id"
     t.string   "name",                               null: false
     t.string   "slug",                               null: false
     t.string   "layer_type"
@@ -100,13 +99,12 @@ ActiveRecord::Schema.define(version: 20160602171511) do
     t.text     "legend"
     t.integer  "zoom_max",           default: 100
     t.integer  "zoom_min",           default: 0
+    t.integer  "layer_group_id"
     t.integer  "dashboard_order"
     t.boolean  "download",           default: false
     t.string   "dataset_shortname"
     t.text     "dataset_source_url"
   end
-
-  add_index "layers", ["layer_group_id"], name: "index_layers_on_layer_group_id", using: :btree
 
   create_table "share_urls", force: :cascade do |t|
     t.string   "uid"
@@ -130,10 +128,12 @@ ActiveRecord::Schema.define(version: 20160602171511) do
   add_index "site_pages", ["title", "site_scope_id"], name: "index_site_pages_on_title_and_site_scope_id", unique: true, using: :btree
 
   create_table "site_scopes", force: :cascade do |t|
-    t.string  "name"
+    t.string  "name",         default: "global"
     t.string  "color"
     t.string  "subdomain"
     t.boolean "has_analysis", default: false
+    t.float   "latitude"
+    t.float   "longitude"
   end
 
   add_foreign_key "agrupations", "layer_groups"

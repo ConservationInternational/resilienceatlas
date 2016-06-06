@@ -7,6 +7,8 @@
 #  color        :string
 #  subdomain    :string
 #  has_analysis :boolean          default(FALSE)
+#  latitude     :float
+#  longitude    :float
 #
 
 class SiteScopeSerializer < ActiveModel::Serializer
