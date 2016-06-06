@@ -19,5 +19,16 @@
 require 'rails_helper'
 
 RSpec.describe Source, type: :model do
-  pending "add some examples to (or delete) #{__FILE__}"
+  before :each do
+    @source = create(:with_source)
+  end
+
+  it 'Source is valid' do
+    expect(@source).to               be_valid
+    expect(@source.contact_email).to be_present
+  end
+
+  it 'Count sources' do
+    expect(Source.count).to eq(1)
+  end
 end
