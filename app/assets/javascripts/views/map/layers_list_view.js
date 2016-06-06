@@ -210,7 +210,7 @@
 
     _downloadClicked: function(e) {
       var layerName = e.currentTarget.dataset.name;
-      
+
       if(typeof(layerName) !== 'undefined') {
         ga('send', 'event', 'Map', 'Download', layerName);
       }

@@ -10,6 +10,7 @@ html lang="#{I18n.locale}"
 
     javascript:
         window.isSubdomain = "#{@subdomain}"
+        window.userlogged = "#{user_signed_in?}"
 
     = render :partial => "partials/analytics"
 

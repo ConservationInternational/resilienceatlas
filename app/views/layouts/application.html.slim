@@ -8,7 +8,8 @@ html lang="#{I18n.locale}"
     = csrf_meta_tags
 
     javascript:
-        window.isSubdomain = "#{@subdomain}"
+      window.isSubdomain = "#{@subdomain}"
+      window.userlogged = "#{user_signed_in?}"
 
     = render :partial => "partials/analytics"
 
