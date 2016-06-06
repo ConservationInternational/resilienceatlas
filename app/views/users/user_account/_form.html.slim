@@ -10,12 +10,27 @@
 / #  organization_role      :string
 / #
 
-div
+.field
   = form.label :email
-  = form.text_field :email
+  br
+  = form.email_field :email, autofocus: true
+.field
   = form.label :first_name
+  br
   = form.text_field :first_name
+.field
   = form.label :last_name
+  br
   = form.text_field :last_name
-div
-  = form.submit 'Update'
+.field
+  = form.label :phone
+  br
+  = form.text_field :phone
+.field
+  = form.label :organization
+  br
+  = form.text_field :organization
+.field
+  = form.label :organization_role
+  br
+  = form.text_field :organization_role

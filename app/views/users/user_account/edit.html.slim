@@ -1,5 +1,10 @@
 .l-content
   .row
     .m-user-form
+      h2
+        = "Edit #{@user.name}"
       = form_for(@user, url: update_user_path(current_user)) do |f|
         = render partial: f
+        .actions
+          = f.submit "Update"
+      = link_to 'Manage account', edit_user_registration_path
