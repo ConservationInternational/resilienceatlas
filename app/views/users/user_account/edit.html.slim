@@ -1,2 +1,5 @@
-= form_for(@user, url: update_user_path(current_user)) do |f|
-  = render partial: f
+.l-content
+  .row
+    .m-user-form
+      = form_for(@user, url: update_user_path(current_user)) do |f|
+        = render partial: f

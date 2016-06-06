@@ -1,6 +1,9 @@
-= form_for(current_user, as: 'user', url: update_signup_path(current_user)) do |f|
-  div
-    = f.label :email
-    = f.text_field :email, autofocus: true, value: '', placeholder: 'Example: email@me.com'
-  div
-    = f.submit 'Update'
+.l-content
+  .row
+    .m-user-form
+      = form_for(current_user, as: 'user', url: update_signup_path(current_user)) do |f|
+        div
+          = f.label :email
+          = f.text_field :email, autofocus: true, value: '', placeholder: 'Example: email@me.com'
+        div
+          = f.submit 'Update'
