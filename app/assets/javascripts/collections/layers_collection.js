@@ -72,7 +72,7 @@
     },
 
     _generateDownloadUrl: function(d) {
-      return '/api/layers/'+ d.id+ '/downloads?fileformat=kml&with_format=true&download_path=https://cdb-cdn.resilienceatlas.org/user/ra/api/v2/sql?filename=' + d.attributes.slug + '&q=' + encodeURIComponent(d.attributes.query);
+      return '/api/layers/'+ d.id+ '/downloads?file_format=kml&with_format=true&download_path=https://cdb-cdn.resilienceatlas.org/user/ra/api/v2/sql?filename=' + d.attributes.slug + '&q=' + encodeURIComponent(d.attributes.query);
     },
 
     setGroups: function(groupsCollection) {
