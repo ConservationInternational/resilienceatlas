@@ -1,0 +1,301 @@
+<!doctype html>
+<html>
+<head>
+	<link rel="stylesheet" href="css/bootstrap.css" />
+	<link rel="stylesheet" href="css/prettify.css" />
+
+	<!-- include jQuery -->
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+
+	<!-- include google maps for use w/ maps geocoder-->
+	<script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?sensor=true"></script>
+	<script src="js/source-helper.js"></script> 
+
+	<!-- include geous -->
+	<script src="../src/geous.js"></script>
+	<script src="../src/geocoders/google.js"></script>
+	<script src="../plugins/jquery.geousable.js"></script>
+
+	<script>
+		var errorHandler = function(error) { 
+			alert('Error! ("' + error + '")'); 
+		};
+	</script>
+</head>
+<body>
+
+<div class="container">
+
+<div class="page-header">
+	<h1>Geous/jQuery Demos</h1>
+</div>
+
+<h2>Lookup Location</h2>
+<div class="demo geousable row" data-demo="single">
+
+	<div class="span3">
+		<p>Find the coordinates of an arbitrary location input</p>
+		<a href="#" class="toggle-source">View Source</a>
+	</div>
+
+	<div class="span7">
+		<form class="form-horizontal">
+			<div class="control-group">
+				<label class="control-label"><strong>Your Location</strong></label>
+				<div class="controls">
+					<input type="text" class="raw_address" placeholder="Where are you?" value="Mt. Rushmore" />
+				</div>
+				<div class="form-actions">
+					<input type="submit" class="btn btn-large btn-primary" value="Look it up" />
+					(<span class="lat">?</span>, <span class="lng">?</span>)
+				</div>
+			</div>
+		</form>
+		<pre class="source"><code></code></pre>
+	</div><!--.span7-->
+</div><!--.demo-->
+
+<script id="single">
+// DEMO: use geous to resolve the location of an arbitrary user input
+$('.demo[data-demo="single"].geousable').each(function () {
+
+  var $demo = $(this);
+  
+  $demo.geousable({ overwrite: true });
+
+  $('form', $demo).submit(function(e) {
+    e.preventDefault();
+    
+    $demo.geousable('geocode', {
+      error: errorHandler,
+      success: function (location) {
+        $demo.geousable('setLocation', location);
+      }
+    });
+  });
+});
+</script>
+
+<hr />
+
+<h2>Current Location</h2>
+<div class="demo geousable row" data-demo="userlocation">
+
+	<div class="span3">
+		<p>Get the current location</p>
+		<a href="#" class="toggle-source">View Source</a>
+	</div>
+
+	<div class="span7">
+		<form class="form-horizontal">
+
+			<div class="control-group">
+				<label class="control-label">Lat</label>
+				<div class="controls">
+					<input type="text" class="lat" readonly />
+				</div>
+			</div>
+			<div class="control-group">
+				<label class="control-label">Lng</label>
+				<div class="controls">
+					<input type="text" class="lng" readonly />
+				</div>
+			</div>
+
+			<div class="form-actions">
+				<input type="submit" class="btn btn-large btn-primary" value="Look it up" />
+			</div>
+		</form>
+		<pre class="source"><code></code></pre>
+	</div><!--.span7-->
+</div><!--.demo-->
+
+<script id="userlocation">
+// DEMO: use geous to get the current location
+$('.demo[data-demo="userlocation"].geousable').each(function () {
+
+  var $demo = $(this);
+
+  $('form', $demo).submit(function (e) {
+    e.preventDefault();
+    
+    geous.getUserLocation({
+      error: errorHandler,
+      success: function (location) {
+        $demo.geousable('setLocation', location);
+      }
+    });
+  });
+});
+</script>
+
+
+<hr />
+
+<h2>Lookup form</h2>
+<div class="demo geousable row" data-demo="multi">
+
+	<div class="span3">
+		<p>Verify or validate a location specified in a form</p>
+		<a href="#" class="toggle-source">View Source</a>
+	</div>
+
+	<div class="span7">
+
+		<form class="form-horizontal">
+			<div class="control-group">
+				<label class="control-label">Address</label>
+				<div class="controls">
+					<input type="text" class="address" placeholder="Where are you?" value="1600 Pennsylvania Ave" />
+				</div>
+			</div>
+			<div class="control-group">
+				<label class="control-label">City</label>
+				<div class="controls">
+					<input type="text" class="city" placeholder="What city are you in?" value="Washington" />
+				</div>
+			</div>
+			<div class="control-group">
+				<label class="control-label">State</label>
+				<div class="controls">
+					<input type="text" class="state" placeholder ="What state are you in?" value="D.C." />
+				</div>
+			</div>
+
+			<hr />
+
+			<div class="control-group">
+				<label class="control-label">Lat</label>
+				<div class="controls">
+					<input type="text" class="lat" readonly />
+				</div>
+			</div>
+			<div class="control-group">
+				<label class="control-label">Lng</label>
+				<div class="controls">
+					<input type="text" class="lng" readonly />
+				</div>
+			</div>
+
+			<div class="form-actions">
+				<input type="submit" class="btn btn-large btn-primary" value="Look it up" />
+			</div>
+		</form>
+
+		<pre class="source"><code></code></pre>
+
+	</div><!--.span7-->
+</div><!--.demo-->
+<script id="multi">
+// DEMO: use geous to resolve the location of an arbitrary user input
+$('.demo[data-demo="multi"].geousable').each(function () {
+  
+  var $demo = $(this);
+
+  $demo.geousable({ overwrite: true });
+  
+  $('form', $demo).submit(function(e) {
+    e.preventDefault();
+    
+    $demo.geousable('geocode', {
+      error: errorHandler,
+      success: function (location) {
+        $demo.geousable('setLocation', location);
+      }
+    });
+  });
+});
+</script>
+
+<hr />
+
+<h2>Auto-locate form</h2>
+<div class="demo geousable row" data-demo="auto">
+
+	<div class="span3">
+		<p>Try to populate a form using the geolocation API</p>
+		<a href="#" class="toggle-source">View Source</a>
+	</div>
+
+	<div class="span7">
+
+		<form class="form-horizontal">
+			<div class="control-group">
+				<label class="control-label">Address</label>
+				<div class="controls">
+					<input type="text" class="address" readonly />
+				</div>
+			</div>
+			<div class="control-group">
+				<label class="control-label">City</label>
+				<div class="controls">
+					<input type="text" class="city" readonly />
+				</div>
+			</div>
+			<div class="control-group">
+				<label class="control-label">State</label>
+				<div class="controls">
+					<input type="text" class="state" readonly />
+				</div>
+			</div>
+
+			<hr />
+
+			<div class="control-group">
+				<label class="control-label">Lat</label>
+				<div class="controls">
+					<input type="text" class="lat" readonly />
+				</div>
+			</div>
+			<div class="control-group">
+				<label class="control-label">Lng</label>
+				<div class="controls">
+					<input type="text" class="lng" readonly />
+				</div>
+			</div>
+
+			<div class="form-actions">
+				<input type="submit" class="btn btn-large btn-primary" value="Get Current location" />
+				<span class="status"></span>
+			</div>
+		</form>
+
+		<pre class="source"><code></code></pre>
+	</div>
+</div><!--.demo-->
+<script id="auto">
+// DEMO: use geous to get the current location, geocode it,
+// and populate a form with the results:
+$('.demo[data-demo="auto"].geousable').each(function () {
+
+  var $demo = $(this),
+      setStatus = function (status) {
+        $('.status', $demo).html(status);
+      };
+
+  // retrieve the current user's location:
+  $('form', $demo).submit(function (e) {
+    e.preventDefault();
+    setStatus('getting location');
+    
+    geous.getUserLocation({
+      error: errorHandler,
+      success: function (location) {
+        setStatus('looking up location');
+	
+        geous.geocode (location, { 
+          reverse: true,
+          success: function (location) {
+            setStatus('Success!');
+            $demo.geousable('setLocation', location);
+          }
+        });
+      }
+    });
+  });
+});
+</script>
+
+</div><!--.container-->
+</body>
+</html>

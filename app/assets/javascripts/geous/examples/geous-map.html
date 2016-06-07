@@ -1,0 +1,110 @@
+<!doctype html>
+<html>
+<head>
+  <link rel="stylesheet" href="css/bootstrap.css" />
+  <link rel="stylesheet" href="css/prettify.css" />
+
+  <!-- include jQuery -->
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+
+  <!-- include google maps for use w/ maps geocoder-->
+  <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?sensor=true"></script>
+  <script src="js/source-helper.js"></script> 
+
+  <!-- include geous -->
+  <script src="../src/geous.js"></script>
+  <script src="../src/geocoders/google.js"></script>
+  <script src="../plugins/geous.maps.js"></script>
+
+  <script id="map">
+var errorHandler = function (error) { 
+  alert('Error!', error);
+};
+
+geous.init();
+
+function initialize () {
+
+  var _defaultMarkerOpts = {
+
+    on: {
+      click: function () {
+        map.detail(this);
+      },
+      mouseover: function () {
+        var locationMarker = map.locations.get(this);
+        if (!locationMarker) return;
+        locationMarker.setIcon('img/marker2.png');
+      },
+      mouseout: function () {
+        var locationMarker = map.locations.get(this);
+        if (!locationMarker) return;
+        locationMarker.setIcon('img/marker.png');
+      }
+    },
+    icon: 'img/marker.png',
+    title: '"A marker!"'
+  };
+
+  // add a bunch of locations
+  var _addLocations = function (map, locs) {
+    var i = 0, loc;
+    while (loc = locs[i++]) {
+      loc = new geous.Location(loc);
+      loc.detail = 'Marker #' + i;
+      map.locations.add(loc, _defaultMarkerOpts);
+    }
+  }
+
+  var locs = [[46, -122], [45, -121], [44, -120]],
+    map;
+
+  // create a map. No magic here!
+  map = geous.gmap.create({
+    id: 'map_canvas'
+  });
+
+  // add a bunch of default locations to the map
+  _addLocations(map, locs);
+
+  // fit the map to the currently-displayed locations
+  map.fitToLocations();
+  //map.centerOnLocation(new geous.Location(locs[0]));
+
+  // set up map to add new markers when clicked
+  google.maps.event.addListener(map, 'click', function(e) {
+    var loc = new geous.Location(e.latLng.lat(), e.latLng.lng());
+    map.locations.add(loc, _defaultMarkerOpts);
+  });
+}
+
+window.onload = function() {
+  initialize();
+}
+
+  </script>
+</head>
+<body>
+
+<div class="container">
+
+<div class="page-header">
+  <h1>Geous/jQuery Demos</h1>
+</div>
+
+<h2>Lookup Location</h2>
+<div class="demo geousable row" data-demo="map">
+
+  <div class="span3">
+    <p>Find the coordinates of an arbitrary location input</p>
+    <a href="#" class="toggle-source">View Source</a>
+  </div>
+
+  <div class="span7">
+    <div id="map_canvas" style="width:100%; height:300px"></div>
+    <pre class="source"><code></code></pre>
+  </div>
+</div><!--.demo-->
+</div><!--.container-->
+</body>
+</html>
