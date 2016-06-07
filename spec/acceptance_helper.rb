@@ -15,3 +15,13 @@ end
 def json_main
   JSON.parse(response_body)
 end
+
+module ValidUserRequestHelper
+  include Warden::Test::Helpers
+  def sign_in_as_a_user
+    @user ||= FactoryGirl.create(:user)
+    login_as @user
+  end
+end
+
+include ValidUserRequestHelper

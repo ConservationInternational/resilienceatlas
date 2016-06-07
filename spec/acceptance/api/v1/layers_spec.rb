@@ -1,6 +1,6 @@
 require 'acceptance_helper'
 
-resource 'Layers' do
+resource 'Layers', type: :request do
   header "Accept", "application/json; application/vnd.api+json"
   header "Content-Type", "application/vnd.api+json"
   header 'Host', 'http://cigrp.org'
@@ -25,6 +25,10 @@ resource 'Layers' do
   end
 
   context "Download layer files" do
+    before :each do
+      sign_in_as_a_user
+    end
+
     get '/api/layers/:id/downloads' do
       parameter :download_path, 'Url to the file download'
       parameter :file_format, 'File format (pdf, kml, jpg, txt, etc..)'

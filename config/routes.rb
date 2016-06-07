@@ -16,7 +16,7 @@ Rails.application.routes.draw do
 
   # API routes
   mount Raddocs::App => '/docs'
-  namespace :api, defaults: {format: 'te'} do
+  namespace :api, defaults: { format: 'json' } do
     scope module: :v1 do
       get  'layer-groups',          to: 'layer_groups#index',          as: 'layer_groups'
       get  '/layers',               to: 'layers#index',                as: 'layers'
