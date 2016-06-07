@@ -22,10 +22,11 @@ ActiveAdmin.register SiteScope do
       f.input :subdomain
       f.input :has_analysis
     end
-    f.input "location" do |o|
-      gmaps("markers" => {data: o.to_gmaps4rails}, "map_options" =>  { auto_zoom: false, zoom: 15 })
+    f.inputs :location, {data:{ geousable: 'yes'}} do
+      f.input :latitude, :input_html => { :class => 'lat' }
+      f.input :longitude, :input_html => { :class => 'lng' }
     end
-    render partial:'gmaps4rails/gmaps4rails'
+    form partial: 'script'
     f.actions
   end
 end
