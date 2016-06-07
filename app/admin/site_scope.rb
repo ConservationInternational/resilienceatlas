@@ -26,7 +26,6 @@ ActiveAdmin.register SiteScope do
       f.input :latitude, :input_html => { :class => 'lat' }
       f.input :longitude, :input_html => { :class => 'lng' }
     end
-    form partial: 'script'
     f.actions
   end
 end
