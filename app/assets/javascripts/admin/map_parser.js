@@ -30,7 +30,6 @@ jQuery(document).ready(function ($) {
   };
 
   function updatePosition(e) {
-    console.log($(e.currentTarget).val());
     var lat = $('.lat').val() || 5;
     var lng = $('.lng').val() || 35;
     var latlng = new google.maps.LatLng(lat, lng);
