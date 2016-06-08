@@ -19,6 +19,7 @@ ActiveAdmin.register SiteScope do
       f.semantic_errors
       f.input :name
       f.input :color
+      f.input :header_color
       f.input :subdomain
       f.input :has_analysis
     end
