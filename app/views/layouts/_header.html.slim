@@ -7,23 +7,22 @@ header.l-header--fullscreen id="headerView"
         = link_to 'CIGRP Prototype', root_path
     ul.nav-area.-resilience
       li.journey-link
-       = link_to 'Journeys', journeys_path, class: controller_name == 'journeys' ? 'is-current' : ''
+        = link_to 'Journeys', journeys_path, class: controller_name == 'journeys' ? 'is-current theme-bg-color' : 'theme-color'
       li
-        = link_to 'Map', map_path, class: controller_name == 'map' ? 'is-current' : ''
+        = link_to 'Map', map_path, class: controller_name == 'map' ? 'is-current theme-bg-color' : 'theme-color'
       li
-        = link_to 'About', about_path, class: controller_name == 'about' ? 'is-current' : ''
+        = link_to 'About', about_path, class: controller_name == 'about' ? 'is-current theme-bg-color' : ' theme-color'
       - if user_signed_in?
         li
-          = link_to 'Me', edit_user_path(current_user)
+          = link_to 'Me', edit_user_path(current_user), class: 'theme-color'
         li
-          = link_to 'Logout', destroy_user_session_path, method: 'delete'
+          = link_to 'Logout', destroy_user_session_path, method: 'delete', class: 'theme-color'
       - else
         li
-          = link_to 'Login', new_user_session_path
+          = link_to 'Login', new_user_session_path, class: 'theme-color'
         li
-          = link_to 'Register', new_user_registration_path
+          = link_to 'Register', new_user_registration_path, class: 'theme-color'
     ul.nav-area.-vital-sign
       li
         = link_to 'Go back to vital signs', 'http://vitalsigns.org/', target: '_blank'
   ul.m-journey__paginationlist
-

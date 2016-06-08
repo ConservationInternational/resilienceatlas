@@ -4,7 +4,6 @@
   z-index: 5;
   height: rem($header-height);
   box-shadow: 0 0 2px 0 rgba(0,0,0,.2);
-  background-color: $bg-color-1;
 }
 
 .l-header-nav {
@@ -13,7 +12,7 @@
   padding: 0 rem($content-margin);
   position: relative;
   z-index: 2;
-  background-color: $bg-color-1;
+  background-color: rgba($bg-color-1, .7);
 
   .is-journey-map & {
     display: none;
@@ -21,7 +20,7 @@
 
   .is-indicators &,
   .is-atlas & {
-    background-color: #222222;
+    background-color: rgba(#222222, .7);
   }
 
   &:before {
@@ -52,11 +51,13 @@
 
   ul {
     @extend %clean-lists;
+    opacity: 1;
   }
 
   .brand-area {
     float: left;
     padding: rem(5px) 0;
+    opacity: 1;
 
     a {
       position: relative;
@@ -188,17 +189,21 @@
 
 .l-hero {
   position: relative;
-  height: rem(200px);
+  margin-top: -65px;
+  width: 100%;
+  height: rem(310px);
   background-image: image-url('about-hero.jpg');
   background-repeat: no-repeat;
   background-position: center;
   background-size: cover;
   display: flex;
   align-items: center;
+  @extend %clearfix;
 
   h1 {
     color: $font-color-3;
     font-size: rem(48px);
+    margin-top: 80px;
   }
 
   .credits {
@@ -215,4 +220,5 @@
 
 .l-section-nav {
   background-color: rgba(#757575, .1);
+  @extend %clearfix;
 }

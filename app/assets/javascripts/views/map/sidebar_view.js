@@ -17,20 +17,32 @@
     initialize: function(settings) {
       var opts = settings && settings.options ? settings.options : {};
       this.options = _.extend({}, this.defaults, opts);
-
+      this.subdomainParams = settings.subdomainParams;
       this.render();
     },
 
     render: function() {
       var self = this;
 
-      this.$el.html(this.template);
+      this.$el.html(this.template({ analysis: this.subdomainParams && this.subdomainParams.has_analysis }));
 
       $(document).foundation('tab', 'reflow');
 
       $('#sidebarTabs').on('toggled', function (event, tab) {
         self.switchTabs(tab);
       });
+
+      this.subdomainParams && this.setThemeColor();
+      $('.btn-dash-switcher').on('click', _.bind(this.collapsePanel, this))
+    },
+
+    collapsePanel: function() {
+      $('.l-sidebar--fullscreen').toggleClass('is-collapsed');
+    },
+
+    setThemeColor: function() {
+      $('.theme-color').css({'color': this.subdomainParams.color});
+      $('.theme-bg-color').css({'background-color': this.subdomainParams.color});
     },
 
     switchTabs: function(tab) {

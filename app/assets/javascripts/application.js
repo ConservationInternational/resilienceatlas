@@ -68,11 +68,66 @@
 
     initialize: function() {
       // var subdomine = this._subdomineSettings();
-
       this.currentViews = [];
-      this.router = new root.app.Router();
-      this.initGlobalViews();
-      this.setListeners();
+
+      var subomainParamsModel = new root.app.Model.Subdomain();
+      subomainParamsModel.fetch().done(_.bind(function(){
+        this.setSubdomainParams(subomainParamsModel.toJSON().data.attributes);
+        if (subomainParamsModel.toJSON().included && subomainParamsModel.toJSON().included.length > 0) {
+          this.getPages(subomainParamsModel.toJSON().included);
+        }
+        this.initGlobalViews();
+        this.router = new root.app.Router();
+        this.setListeners();
+        this.start();
+
+      }, this));
+    },
+
+    setSubdomainParams: function(data) {
+      this.subdomainParams = {
+        has_analysis: data.subdomain ? data.has_analysis : true,
+        name: data.name || '',
+        subdomain: data.subdomain || '',
+        color: data.color || '#0089cc'
+      }
+
+      this.setThemeColor();
+      this.setIndicator();
+    },
+
+    setIndicator: function() {
+      if (this.subdomainParams.subdomain) {
+        $('body').addClass('is-indicators');
+      }
+    },
+
+    setThemeColor: function() {
+      //Main page items
+      $('.theme-color').css({'color': this.subdomainParams.color});
+      $('.btn-primary').css({'color': this.subdomainParams.color});
+      $('.theme-bg-color').css({'background-color': this.subdomainParams.color});
+      $('.m-explore').css({'background-color': this.subdomainParams.color});
+    },
+
+    getPages: function(data) {
+      var pages = [];
+
+      data.map(function(p){
+        var page = {};
+        page.id = p.id;
+        page.title = p.attributes.title;
+        page.url = p.attributes.url;
+        page.priority = p.attributes.priority;
+
+        pages.push(page);
+        return pages;
+      });
+
+      pages = pages.sort(function(p){
+        return p.priority
+      }).reverse();
+      this.subdomainParams.pages = pages;
     },
 
     setListeners: function() {
@@ -89,14 +144,14 @@
       this.listenTo(this.router, 'route:about', this.aboutPage);
       // Initializing journeys index
       this.listenTo(this.router, 'route:journeysIndex', this.journeysIndexPage);
-
     },
 
     journeysIndexPage: function(){
       var journeysIndexCollection = new root.app.Collection.JourneysIndex();
 
       var journeyIndexView = new root.app.View.JourneysIndexView({
-        journeys: journeysIndexCollection
+        journeys: journeysIndexCollection,
+        subdomainParams: this.subdomainParams
       });
 
       // Fetching data
@@ -114,7 +169,8 @@
       var journeysIndexCollection = new root.app.Collection.JourneysIndex();
       var headerView = new root.app.View.Header({
         el: '#headerView',
-        journeys: journeysIndexCollection
+        journeys: journeysIndexCollection,
+        subdomainParams: this.subdomainParams
       });
 
       // Fetching data
@@ -138,6 +194,7 @@
     mapPage: function() {
       var mapPageView = new root.app.MapPageView({
         router: this.router,
+        subdomainParams: this.subdomainParams
       });
     },
 
@@ -159,6 +216,7 @@
       $.when.apply($, complete).done(function() {
         var journeyPageView = new root.app.JourneysPageView({
           router: this.router,
+          subdomainParams: this.subdomainParams,
           options: {
             'journeyId': journeyId,
             'totalJourneys': journeysIndexCollection.length
@@ -167,9 +225,8 @@
       }.bind(this));
     },
 
-
     aboutPage: function() {
-      new root.app.View.StaticPageView;
+      new root.app.View.StaticPageView({ subdomainParams: this.subdomainParams });
     },
 
     start: function() {
@@ -177,6 +234,6 @@
     }
   });
 
-  new app.AppView().start();
+  new app.AppView();
 
 })(this);

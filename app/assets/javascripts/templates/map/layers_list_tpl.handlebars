@@ -3,7 +3,7 @@
     {{!-- {{#if categories}} --}}
       <li class="group" data-slug="{{slug}}">
         <div class="m-layers-list-header">
-          <div class="header-title">{{name}}</div>
+          <div class="header-title theme-color">{{name}}</div>
         </div>
         <ul>
           {{#each layers}}
@@ -162,7 +162,7 @@
                               {{!-- {{#if layers}} --}}
                                 <li class="subgroup">
                                   <div class="m-layers-list-header {{#if active}}is-active{{/if}}">
-                                    <div class="header-title">{{name}}</div>
+                                    <div class="header-title ">{{name}}</div>
                                     <div id="categoryHeader_{{id}}" class="header-switch m-form-input--switch"></div>
                                   </div>
                                   <ul class="m-layers-list-panel {{#if active}}is-active{{/if}}">
@@ -231,7 +231,7 @@
   {{/each}}
   <li>
     <div class="m-layers-list-header">
-      <div class="header-title">basemap</div>
+      <div class="header-title theme-color">basemap</div>
     </div>
     <ul class="m-basemap-selectors">
       <li>

@@ -1,24 +1,36 @@
 require 'acceptance_helper'
 
-resource 'Layers', type: :request do
+resource 'Layer' do
   header "Accept", "application/json; application/vnd.api+json"
   header "Content-Type", "application/vnd.api+json"
-  header 'Host', 'http://cigrp.org'
+  header 'Host', 'http://resilienceatlas.org'
+  header 'X-CSRF-Token', 'a_valid_CSRF_token'
+
+  let!(:layer_group) do
+    LayerGroup.create!(name: 'environment', id: 1, site_scope: SiteScope.create!(name: 'CIGRP', id: 1))
+  end
 
   let!(:layers) do
     layers = []
     3.times do |i|
-      layers << create(:layer, name: "test layer #{i}", slug: "test-layer-#{i}", download: false)
+      layers << create(:layer, name: "test layer #{i}", slug: "test-layer-#{i}", download: false, id: i)
     end
     layers.each(&:reload)
   end
 
-  context 'List layers' do
-    get '/api/layers/' do
+  let!(:agrupation) do
+    3.times do |i|
+      Agrupation.create!(layer_group_id: 1, layer_id: i)
+    end
+  end
+
+  context "List layers" do
+    get "/api/layers" do
       example_request "Get layers list" do
         expect(status).to eq(200)
         results = json
-        names   = results.map{ |r| r['attributes']['name'] }
+        expect(results.length).to eq(3)
+        names = results.map{ |r| r['attributes']['name'] }
         expect names.include?(['test layer 0', 'test layer 1', 'test layer 2'])
       end
     end
@@ -35,8 +47,8 @@ resource 'Layers', type: :request do
       parameter :with_format, 'If format is part of download_path'
 
       let!(:layer) do
-        layer = Layer.create(name: 'layer_1', slug: 'layer-1', download: true)
-        layer
+        layers[0].update(download: true)
+        layer = layers[0]
       end
 
       let(:stub_layer_zip) { "#{Rails.root}/public/files/#{layer.name.parameterize}.zip" }
@@ -49,7 +61,7 @@ resource 'Layers', type: :request do
         expect(File.exists?(stub_layer_zip)).to eq(true)
 
         Zip::File.open(stub_layer_zip) do |zip_file|
-          expect(zip_file.first.name).to eq(File.basename('layer_1.pdf'))
+          expect(zip_file.first.name).to eq(File.basename('test-layer-0.pdf'))
         end
         File.delete(stub_layer_zip)
       end
@@ -81,7 +93,7 @@ resource 'Layers', type: :request do
         expect(File.exists?(stub_layer_zip)).to eq(true)
 
         Zip::File.open(stub_layer_zip) do |zip_file|
-          expect(zip_file.first.name).to eq(File.basename('layer_1-layer.pdf'))
+          expect(zip_file.first.name).to eq(File.basename('test-layer-0-layer.pdf'))
         end
         File.delete(stub_layer_zip)
       end

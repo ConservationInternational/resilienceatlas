@@ -23,6 +23,7 @@ Rails.application.routes.draw do
       get  '/layers/:id/downloads', to: 'layers#download_attachments', as: 'download_attachments'
       get  '/share/:uid',           to: 'share_urls#show'
       post '/share',                to: 'share_urls#create'
+      get  '/site',                 to: 'sites#show'
     end
   end
 
@@ -36,7 +37,7 @@ Rails.application.routes.draw do
   get 'map', to: 'map#index', as: :map
   get 'about', to: 'about#index'
   get 'journeys', to: 'journeys#index'
-
+  get 'contents/:slug', to: 'contents#show'
 
   resources :journeys, only: [:show]
 
@@ -45,5 +46,4 @@ Rails.application.routes.draw do
   get 'embed/map', to: 'embed#map'
   get 'embed/journeys', to: 'embed#journeys'
   get 'embed/test', to: 'embed#test'
-
 end

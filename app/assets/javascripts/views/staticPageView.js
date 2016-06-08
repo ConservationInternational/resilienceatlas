@@ -16,9 +16,16 @@
     initialize: function(settings) {
       var opts = settings && settings.options ? settings.options : {};
       this.options = _.extend({}, this.defaults, opts);
-
+      this.subdomainParams = settings.subdomainParams;
       this._cacheVars();
       this._setListeners();
+      this.setThemeColor();
+    },
+
+    setThemeColor: function() {
+      $('.theme-color').css({'color': this.subdomainParams.color});
+      $('.m-static-page a').css({'color': this.subdomainParams.color});
+      $('.theme-bg-color').css({'background-color': this.subdomainParams.color});
     },
 
     _cacheVars: function() {

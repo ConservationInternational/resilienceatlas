@@ -11,9 +11,8 @@
       var opts = settings && settings.options ? settings.options : {};
       this.options = _.extend({}, this.defaults, opts);
       this.router = settings.router;
-      
+      this.subdomainParams = settings.subdomainParams;
       this.setListeners();
-
       this._initJourney();
     },
 
@@ -43,7 +42,8 @@
           model: journeyModel,
           journey: journeysCollection,
           totalJourneys: this.options.totalJourneys,
-          currentStep: routerParams.step
+          currentStep: routerParams.step,
+          subdomainParams: this.subdomainParams
         });
       }.bind(this));
 
@@ -54,7 +54,7 @@
       }.bind(this));
     }
 
-    
+
   });
 
 })(this);

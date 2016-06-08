@@ -1,6 +1,7 @@
 .m-toolbar {
   position: absolute;
-  top: rem(10px);
+  top: rem($header-height);
+  margin-top: rem(10px);
   right: rem(10px);
   z-index: 1;
 

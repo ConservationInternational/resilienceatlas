@@ -10,6 +10,8 @@ html lang="#{I18n.locale}"
     javascript:
       window.isSubdomain = "#{@subdomain}"
       window.userlogged = "#{user_signed_in?}"
+      window.site = "#{@site}"
+
 
     = render :partial => "partials/analytics"
 
@@ -21,5 +23,3 @@ html lang="#{I18n.locale}"
     == render "layouts/footer"
     == render "partials/modal"
     = javascript_include_tag "application"
-
-
