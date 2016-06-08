@@ -10,7 +10,7 @@ default: &default
 
 development:
   <<: *default
-  database: cigrp_dev_2
+  database: cigrp_dev
 
 test:
   <<: *default
