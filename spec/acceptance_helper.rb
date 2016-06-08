@@ -4,6 +4,6 @@ require 'support/factory_girl'
 
 RspecApiDocumentation.configure do |config|
   config.format    = [:json, :combined_text, :html]
-  config.curl_host = 'http://cigrp.org/api'
-  config.api_name  = "Neptis API"
+  config.curl_host = 'http://resilienceatlas.org/api'
+  config.api_name  = "Resilience Atlas API"
 end
