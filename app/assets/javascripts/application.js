@@ -82,11 +82,15 @@
     },
 
     setSubdomainParams: function(data) {
+      console.log(data)
       this.subdomainParams = {
         has_analysis: data.subdomain ? data.has_analysis : true,
         name: data.name || '',
         subdomain: data.subdomain || '',
-        color: data.color || '#0089cc'
+        color: data.color || '#0089cc',
+        header_color: data.header_color || null,
+        lat: data.lat || null,
+        lng: data.lng || null
       }
 
       this.setThemeColor();
@@ -109,6 +113,20 @@
       $('.btn-primary').css({'color': this.subdomainParams.color});
       $('.theme-bg-color').css({'background-color': this.subdomainParams.color});
       $('.m-explore').css({'background-color': this.subdomainParams.color});
+
+      if (this.subdomainParams.header_color) {
+        this.setHeaderColor();
+      };
+    },
+
+    setHeaderColor: function() {
+      var color = this.hexToRgb(this.subdomainParams.header_color);
+      $('.l-header-nav').css({'background-color': 'rgba('+color+', 0.7)'})
+    },
+
+    hexToRgb: function(hex) {
+      var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+      return result ? parseInt(result[1], 16) +','+ parseInt(result[2], 16) +','+ parseInt(result[3], 16) : null;
     },
 
     getPages: function(data) {
