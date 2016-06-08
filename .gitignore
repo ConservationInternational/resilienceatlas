@@ -17,7 +17,7 @@
 /tmp
 /vendor
 /public/assets
-/public/files
+/public/files/*
 /node_modules
 
 .env
