@@ -82,15 +82,14 @@
     },
 
     setSubdomainParams: function(data) {
-      console.log(data)
       this.subdomainParams = {
         has_analysis: data.subdomain ? data.has_analysis : true,
         name: data.name || '',
         subdomain: data.subdomain || '',
         color: data.color || '#0089cc',
         header_color: data.header_color || null,
-        lat: data.lat || null,
-        lng: data.lng || null
+        lat: data.latitude || NaN,
+        lng: data.longitude || NaN
       }
 
       this.setThemeColor();
