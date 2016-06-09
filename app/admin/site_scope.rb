@@ -1,5 +1,5 @@
 ActiveAdmin.register SiteScope do
-  permit_params :name, :subdomain, :color, :has_analysis, :latitude, :longitude
+  permit_params :name, :subdomain, :color, :has_analysis, :latitude, :longitude, :header_theme
 # See permitted parameters documentation:
 # https://github.com/activeadmin/activeadmin/blob/master/docs/2-resource-customization.md#setting-up-strong-parameters
 #
@@ -19,7 +19,7 @@ ActiveAdmin.register SiteScope do
       f.semantic_errors
       f.input :name
       f.input :color
-      f.input :header_color
+      f.input :header_theme, as: :select, collection: %w{ci-theme vs-theme}
       f.input :subdomain
       f.input :has_analysis
     end

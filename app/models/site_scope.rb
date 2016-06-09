@@ -9,12 +9,13 @@
 #  has_analysis :boolean          default(FALSE)
 #  latitude     :float
 #  longitude    :float
-#  header_color :string
+#  header_theme :string
 #
 
 class SiteScope < ActiveRecord::Base
   has_many :layer_groups
   has_many :site_pages
+  validates_presence_of :name, :subdomain, :header_theme
   def location
     [:latitude, :longitude]
   end
