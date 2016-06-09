@@ -7,16 +7,17 @@ jQuery(document).ready(function ($) {
   var lng = $('.lng').val() || 35;
 
   function initMap() {
+    var latlng = new google.maps.LatLng(lat, lng);
     var map = new google.maps.Map(document.getElementById('geous-map'), {
       zoom: 3,
-      center: {lat: lat, lng: lng}
+      center: latlng
     });
 
     marker = new google.maps.Marker({
       map: map,
       draggable: true,
       animation: google.maps.Animation.DROP,
-      position: {lat: lat, lng: lng}
+      position: latlng
     });
     marker.addListener('click', toggleBounce);
     marker.addListener('dragend', getPosiiton);
