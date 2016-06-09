@@ -114,19 +114,19 @@
       $('.theme-bg-color').css({'background-color': this.subdomainParams.color});
       $('.m-explore').css({'background-color': this.subdomainParams.color});
 
-      if (this.subdomainParams.header_color) {
-        this.setHeaderColor();
-      };
+      // if (this.subdomainParams.header_color) {
+      //   this.setHeaderColor();
+      // };
 
       if (this.subdomainParams.header_theme) {
         this.setHeaderLogo();
       };
     },
 
-    setHeaderColor: function() {
-      var color = this.hexToRgb(this.subdomainParams.header_color);
-      $('.l-header-nav').css({'background-color': 'rgba('+color+', 0.7)'})
-    },
+    // setHeaderColor: function() {
+    //   var color = this.hexToRgb(this.subdomainParams.header_color);
+    //   $('.l-header-nav').css({'background-color': 'rgba('+color+', 0.7)'})
+    // },
 
     setHeaderLogo: function() {
       if (this.subdomainParams && this.subdomainParams.header_theme) {
