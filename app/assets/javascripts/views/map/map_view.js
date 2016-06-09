@@ -84,6 +84,9 @@
         }
       }
 
+      console.log(this.options.map.center)
+      console.log(this.options.map.zoom)
+
       if (!this.map) {
         this.map = L.map(this.el, this.options.map);
         this.map.on('click', function(){

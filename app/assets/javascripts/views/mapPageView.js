@@ -30,6 +30,14 @@
       }
     },
 
+    getMapZoom: function() {
+      if ( !isNaN(this.subdomainParams.lat) && !!(this.subdomainParams.lat + 1) ) {
+        return 5;
+      } else {
+        return 3;
+      }
+    },
+
     initMap: function() {
       var journeyMap = this._checkJourneyMap();
       var toolbarView = new root.app.View.Toolbar();
@@ -44,6 +52,7 @@
       }));
 
       var mapCenter = this.getMapCenter();
+      var mapZoom = this.getMapZoom();
 
       var mapView = new root.app.View.Map({
         el: '#mapView',
@@ -54,7 +63,7 @@
         subdomainParams: this.subdomainParams,
         options: {
           map: {
-            zoom: this.router.params.attributes.zoom || 3,
+            zoom: this.router.params.attributes.zoom || mapZoom,
             minZoom: 2,
             maxZoom: 25,
             center: this.router.params.attributes.center ? [ JSON.parse(this.router.params.attributes.center).lat, JSON.parse(this.router.params.attributes.center).lng] : mapCenter,
