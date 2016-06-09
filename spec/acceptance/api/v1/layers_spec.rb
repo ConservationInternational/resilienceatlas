@@ -51,7 +51,7 @@ resource 'Layer' do
         layer = layers[0]
       end
 
-      let(:stub_layer_zip) { "#{Rails.root}/public/files/#{layer.name.parameterize}.zip" }
+      let(:stub_layer_zip) { "#{Rails.root}/public/files/#{layer.name.parameterize}-date-#{DateTime.now.to_date.to_s.parameterize}.zip" }
 
       example 'Download the layer pdf of a specific layer without layer file' do
         do_request(id: layer.id)
@@ -86,16 +86,39 @@ resource 'Layer' do
       example 'Download the layer pdf of a specific layer with external file' do
         do_request(id: layer.id,
                    file_format: 'pdf',
-                   download_path: 'https://api.esios.ree.es/archives/123/download?date_type=publicacion')
+                   download_path: 'http://www.hgd1952.hr/pdf_datoteke/Test_document_PDF.pdf')
         allow_any_instance_of(Layer).to receive(:zipfile_name).and_return(stub_layer_zip)
 
         expect(status).to                       eq(200)
         expect(File.exists?(stub_layer_zip)).to eq(true)
 
         Zip::File.open(stub_layer_zip) do |zip_file|
-          expect(zip_file.first.name).to eq(File.basename('test-layer-0-layer.pdf'))
+          expect(zip_file.first.name).to eq(File.basename('test-layer-0-extra.pdf'))
         end
         File.delete(stub_layer_zip)
+      end
+
+      context 'For zip file date expired' do
+        before :each do
+          FileUtils.touch("#{Rails.root}/public/files/#{layer.name.parameterize}-date-2014-06-09.zip")
+        end
+
+        let(:stub_layer_expired_zip) { "#{Rails.root}/public/files/#{layer.name.parameterize}-date-2014-06-09.zip" }
+
+        example 'Download the layer pdf of a specific layer without layer file and date expiration' do
+          do_request(id: layer.id)
+          allow_any_instance_of(Layer).to receive(:zipfile_name).and_return(stub_layer_zip)
+
+          expect(status).to                                    eq(200)
+          expect(File.exists?(stub_layer_zip)).to              eq(true)
+          expect(File.exists?(stub_layer_expired_zip.to_s)).to eq(true)
+
+          Zip::File.open(stub_layer_zip) do |zip_file|
+            expect(zip_file.first.name).to eq(File.basename('test-layer-0.pdf'))
+          end
+          File.delete(stub_layer_zip)
+          File.delete(stub_layer_expired_zip.to_s)
+        end
       end
 
       example 'Do not allow to download files if layer download false', document: false do

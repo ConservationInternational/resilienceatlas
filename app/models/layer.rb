@@ -86,13 +86,13 @@ class Layer < ActiveRecord::Base
     zipfile = zipfile_name
 
     return false   if !download?
-    return zipfile if File.exists?(zipfile)
+    return zipfile if File.exists?(zipfile) && date_valid?
 
     layer_file = open(URI.encode(layer_url).to_s) if layer_url
 
     ::Zip::OutputStream.open(zipfile) do |zip|
       if layer_file
-        layer_name = file_name ? file_name : "#{self.name.parameterize}-layer"
+        layer_name = file_name ? file_name : "#{self.name.parameterize}-extra"
         zip.put_next_entry("#{layer_name}.#{file_format}")
         zip.write IO.read(layer_file.path)
       end
@@ -114,8 +114,17 @@ class Layer < ActiveRecord::Base
 
   private
 
+    def date_valid?
+      file_date    = File.basename(zipfile_name, '.zip').split('-date-').last
+      self_date    = self.updated_at.to_date.to_s.parameterize
+      source_date  = self.source.updated_at.to_date.to_s.parameterize if source
+      objects_date = [self_date, source_date].compact.max
+
+      return true if file_date >= objects_date
+    end
+
     def zipfile_name
-      "#{Rails.root}/public/files/#{self.name.parameterize}.zip"
+      "#{Rails.root}/public/files/#{self.name.parameterize}-date-#{DateTime.now.to_date.to_s.parameterize}.zip"
     end
 
     def pdf_file_path
