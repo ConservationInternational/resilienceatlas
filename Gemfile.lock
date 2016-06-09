@@ -456,12 +456,12 @@ DEPENDENCIES
   jquery-ui-rails
   json_spec
   meta_request
+  paperclip
   omniauth
   omniauth-facebook
   omniauth-google-oauth2
   omniauth-linkedin
   omniauth-twitter
-  paperclip
   pg
   prawn
   prawn-table
@@ -497,3 +497,4 @@ RUBY VERSION
 
 BUNDLED WITH
    1.12.5
+
