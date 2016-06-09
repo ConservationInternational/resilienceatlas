@@ -88,6 +88,7 @@
         subdomain: data.subdomain || '',
         color: data.color || '#0089cc',
         header_color: data.header_color || null,
+        header_theme: data.header_logo || 'vs-theme',
         lat: data.latitude || NaN,
         lng: data.longitude || NaN
       }
@@ -116,11 +117,21 @@
       if (this.subdomainParams.header_color) {
         this.setHeaderColor();
       };
+
+      if (this.subdomainParams.header_theme) {
+        this.setHeaderLogo();
+      };
     },
 
     setHeaderColor: function() {
       var color = this.hexToRgb(this.subdomainParams.header_color);
       $('.l-header-nav').css({'background-color': 'rgba('+color+', 0.7)'})
+    },
+
+    setHeaderLogo: function() {
+      if (this.subdomainParams && this.subdomainParams.header_theme) {
+        $('body').addClass('is-'+this.subdomainParams.header_theme);
+      }
     },
 
     hexToRgb: function(hex) {
