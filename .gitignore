@@ -20,6 +20,7 @@
 /public/files/*
 !/public/files/.keep
 /node_modules
+public/ckeditor_assets/*
 
 .env
 .env.development
