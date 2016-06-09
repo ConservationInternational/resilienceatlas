@@ -23,7 +23,7 @@
     },
 
     getMapCenter: function() {
-      if ( !isNaN(this.subdomainParams.lat) && !!(this.subdomainParams.lat + 1) ) {
+      if ( this.subdomainParams && !isNaN(this.subdomainParams.lat) && !!(this.subdomainParams.lat + 1) ) {
         return [this.subdomainParams.lat, this.subdomainParams.lng];
       } else {
         return [3.86, 47.28];
@@ -31,7 +31,7 @@
     },
 
     getMapZoom: function() {
-      if ( !isNaN(this.subdomainParams.lat) && !!(this.subdomainParams.lat + 1) ) {
+      if ( this.subdomainParams && !isNaN(this.subdomainParams.lat) && !!(this.subdomainParams.lat + 1) ) {
         return 5;
       } else {
         return 3;
