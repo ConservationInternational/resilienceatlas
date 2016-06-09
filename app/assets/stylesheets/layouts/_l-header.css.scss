@@ -24,6 +24,10 @@
     background-color: rgba(#222222, .7);
   }
 
+  .is-ci-theme & {
+    background-color: rgba($bg-color-1, .7);
+  }
+
   &:before {
     content: "";
     display: block;
@@ -38,6 +42,10 @@
     .is-atlas &,
     .is-vs-theme & {
       display: none;
+    }
+
+    .is-ci-theme & {
+      display: block;
     }
   }
 
