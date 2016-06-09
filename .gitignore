@@ -17,8 +17,12 @@
 /tmp
 /vendor
 /public/assets
-/public/files
+
 /public/files/*
+!/public/files/.keep
+
 /node_modules
 
 .env
+.env.development
+.env.test

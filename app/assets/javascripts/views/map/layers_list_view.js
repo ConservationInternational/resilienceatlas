@@ -3,7 +3,7 @@
   'use strict';
 
   root.app = root.app || {};
-  root.app.View = root.app.View || {};
+  root.app.View = root.app.View || {};
 
   root.app.View.LayersList = Backbone.View.extend({
 
@@ -253,4 +253,3 @@
   });
 
 })(this);
-
