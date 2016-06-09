@@ -19,6 +19,13 @@ gem 'devise'
 gem 'activeadmin', github: 'activeadmin'
 gem 'active_model_serializers', '0.10.0.rc2'
 
+# Omniauth
+gem 'omniauth'
+gem 'omniauth-twitter'
+gem 'omniauth-facebook'
+gem 'omniauth-linkedin'
+gem 'omniauth-google-oauth2'
+
 # Utilities
 gem 'raddocs'
 gem 'seed_dump'
@@ -26,6 +33,11 @@ gem 'active_admin_theme'
 gem 'ckeditor', git: 'http://github.com/galetahub/ckeditor'
 gem 'puma'
 gem 'paperclip'
+gem 'sendgrid'
+gem 'rubyzip'
+gem 'prawn'
+gem 'prawn-table'
+
 
 group :development, :test do
   gem 'spring'
@@ -60,6 +72,7 @@ end
 group :test do
   gem 'factory_girl_rails', '~> 4.0', require: false
   gem 'rspec-rails'
+  gem 'email_spec'
   gem 'database_cleaner'
 end
 

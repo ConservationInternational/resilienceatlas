@@ -8,8 +8,10 @@ html lang="#{I18n.locale}"
     = csrf_meta_tags
 
     javascript:
-        window.isSubdomain = "#{@subdomain}"
-        window.site = "#{@site}"
+      window.isSubdomain = "#{@subdomain}"
+      window.userlogged = "#{user_signed_in?}"
+      window.site = "#{@site}"
+
 
     = render :partial => "partials/analytics"
 
@@ -21,7 +23,3 @@ html lang="#{I18n.locale}"
     == render "layouts/footer"
     == render "partials/modal"
     = javascript_include_tag "application"
-    
-    
-
-
