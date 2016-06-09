@@ -35,6 +35,7 @@
     initialize: function(settings) {
       var opts = settings && settings.options ? settings.options : {};
       this.options = _.extend({}, this.defaults, opts);
+      this.subdomainParams = settings.subdomainParams;
       this.router = settings.router;
       this.layers = settings.layers;
       this.selectedBasemap = settings.basemap;

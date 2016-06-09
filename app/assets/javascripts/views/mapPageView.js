@@ -22,6 +22,22 @@
     setListeners: function() {
     },
 
+    getMapCenter: function() {
+      if ( this.subdomainParams && !isNaN(this.subdomainParams.lat) && !!(this.subdomainParams.lat + 1) ) {
+        return [this.subdomainParams.lat, this.subdomainParams.lng];
+      } else {
+        return [3.86, 47.28];
+      }
+    },
+
+    getMapZoom: function() {
+      if ( this.subdomainParams && !isNaN(this.subdomainParams.lat) && !!(this.subdomainParams.lat + 1) ) {
+        return 5;
+      } else {
+        return 3;
+      }
+    },
+
     initMap: function() {
       var journeyMap = this._checkJourneyMap();
       var toolbarView = new root.app.View.Toolbar();
@@ -35,18 +51,22 @@
         }
       }));
 
+      var mapCenter = this.getMapCenter();
+      var mapZoom = this.getMapZoom();
+
       var mapView = new root.app.View.Map({
         el: '#mapView',
         layers: layersCollection,
         basemap: this.router.params.attributes.basemap,
         model: mapModel,
         router: this.router,
+        subdomainParams: this.subdomainParams,
         options: {
           map: {
-            zoom: this.router.params.attributes.zoom || 3,
+            zoom: this.router.params.attributes.zoom || mapZoom,
             minZoom: 2,
             maxZoom: 25,
-            center: this.router.params.attributes.center ? [ JSON.parse(this.router.params.attributes.center).lat, JSON.parse(this.router.params.attributes.center).lng] : [3.86, 47.28],
+            center: this.router.params.attributes.center ? [ JSON.parse(this.router.params.attributes.center).lat, JSON.parse(this.router.params.attributes.center).lng] : mapCenter,
             zoomControl: false,
             scrollWheelZoom: !this.embed ? true : false
           }

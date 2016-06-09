@@ -10,6 +10,7 @@ Rails.application.routes.draw do
   get   '/users/:id/profile/edit',   to: 'users/user_account#edit',          as: :edit_user
   patch '/users/:id/profile/update', to: 'users/user_account#update',        as: :update_user
 
+  mount Ckeditor::Engine => '/ckeditor'
   # Admin routes
   devise_for :admin_users, ActiveAdmin::Devise.config
   ActiveAdmin.routes(self)

@@ -19,8 +19,13 @@
   }
 
   .is-indicators &,
-  .is-atlas & {
+  .is-atlas &,
+  .is-vs-theme & {
     background-color: rgba(#222222, .7);
+  }
+
+  .is-ci-theme & {
+    background-color: rgba($bg-color-1, .7);
   }
 
   &:before {
@@ -34,8 +39,13 @@
     background-image: image-url('beta.svg');
 
     .is-indicators &,
-    .is-atlas & {
+    .is-atlas &,
+    .is-vs-theme & {
       display: none;
+    }
+
+    .is-ci-theme & {
+      display: block;
     }
   }
 
@@ -72,8 +82,13 @@
       text-indent: -99999px;
 
       .is-indicators &,
-      .is-atlas & {
+      .is-atlas &,
+      .is-vs-theme & {
         background-image: image-url("logo-vs.png");
+      }
+
+      .is-ci-theme & {
+        background-image: image-url("logo-ci.png");
       }
 
       &:hover {

@@ -1,5 +1,5 @@
 ActiveAdmin.register SiteScope do
-permit_params :name, :subdomain, :color, :has_analysis
+  permit_params :name, :subdomain, :color, :has_analysis, :latitude, :longitude, :header_theme
 # See permitted parameters documentation:
 # https://github.com/activeadmin/activeadmin/blob/master/docs/2-resource-customization.md#setting-up-strong-parameters
 #
@@ -12,6 +12,21 @@ permit_params :name, :subdomain, :color, :has_analysis
 #   permitted << :other if resource.something?
 #   permitted
 # end
+  #form partial: 'form'
 
-
+  form do |f|
+    f.inputs do
+      f.semantic_errors
+      f.input :name
+      f.input :color
+      f.input :header_theme, as: :select, collection: %w{ci-theme vs-theme}
+      f.input :subdomain
+      f.input :has_analysis
+    end
+    f.inputs :location, {data:{ geousable: 'yes'}} do
+      f.input :latitude, :input_html => { :class => 'lat' }
+      f.input :longitude, :input_html => { :class => 'lng' }
+    end
+    f.actions
+  end
 end

@@ -16,6 +16,14 @@ GIT
       ransack (~> 1.3)
       sass-rails
 
+GIT
+  remote: http://github.com/galetahub/ckeditor
+  revision: 64d85e5cfb5a5ff494157e4e6222fae167778130
+  specs:
+    ckeditor (4.1.6)
+      cocaine
+      orm_adapter (~> 0.5.0)
+
 GEM
   remote: https://rubygems.org/
   remote: https://rails-assets.org/
@@ -103,6 +111,10 @@ GEM
     capistrano-rvm (0.1.2)
       capistrano (~> 3.0)
       sshkit (~> 1.2)
+    climate_control (0.0.3)
+      activesupport (>= 3.0)
+    cocaine (0.5.8)
+      climate_control (>= 0.0.3, < 1.0)
     coderay (1.1.0)
     coffee-rails (4.1.0)
       coffee-script (>= 2.2.0)
@@ -195,6 +207,7 @@ GEM
       rack-contrib (~> 1.1)
       railties (>= 3.0.0, < 5.0.0)
     mime-types (2.6.1)
+    mimemagic (0.3.0)
     mini_portile (0.6.2)
     minitest (5.7.0)
     multi_json (1.11.2)
@@ -235,6 +248,12 @@ GEM
       json (~> 1.3)
       omniauth-oauth (~> 1.1)
     orm_adapter (0.5.0)
+    paperclip (4.3.6)
+      activemodel (>= 3.2.0)
+      activesupport (>= 3.2.0)
+      cocaine (~> 0.5.5)
+      mime-types
+      mimemagic (= 0.3.0)
     pdf-core (0.6.1)
     pg (0.18.2)
     polyamorous (1.2.0)
@@ -422,6 +441,7 @@ DEPENDENCIES
   capistrano-passenger
   capistrano-rails (~> 1.1)
   capistrano-rvm
+  ckeditor!
   d3-rails (>= 3.5.6)
   database_cleaner
   devise
@@ -436,6 +456,7 @@ DEPENDENCIES
   jquery-ui-rails
   json_spec
   meta_request
+  paperclip
   omniauth
   omniauth-facebook
   omniauth-google-oauth2
@@ -476,3 +497,4 @@ RUBY VERSION
 
 BUNDLED WITH
    1.12.5
+
