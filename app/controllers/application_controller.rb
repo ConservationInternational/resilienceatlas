@@ -24,7 +24,9 @@ class ApplicationController < ActionController::Base
 
   def store_location
     return unless request.get?
-    if (!request.fullpath.match("/users") && !request.xhr?)
+    if (!request.fullpath.match("/users") &&
+        !request.fullpath.match("/admin") &&
+        !request.xhr?)
       session[:previous_url] = request.fullpath
     end
   end

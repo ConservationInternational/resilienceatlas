@@ -10,11 +10,6 @@ Rails.application.routes.draw do
   get   '/users/:id/profile/edit',   to: 'users/user_account#edit',          as: :edit_user
   patch '/users/:id/profile/update', to: 'users/user_account#update',        as: :update_user
 
-  mount Ckeditor::Engine => '/ckeditor'
-  # Admin routes
-  devise_for :admin_users, ActiveAdmin::Devise.config
-  ActiveAdmin.routes(self)
-
   # API routes
   mount Raddocs::App => '/docs'
   namespace :api, defaults: { format: 'json' } do
@@ -30,10 +25,8 @@ Rails.application.routes.draw do
 
   # Application
   # get '/', to: 'map#index', constraints: { subdomain: /indicators.+/ }
-  get '/', to: 'welcome#index', as: 'root'
+  # get '/', to: 'welcome#index', as: 'root'
   get '/wef', to: 'welcome#index', as: 'wef'
-
-  # root 'welcome#index'
 
   get 'map', to: 'map#index', as: :map
   get 'about', to: 'about#index'
@@ -47,4 +40,12 @@ Rails.application.routes.draw do
   get 'embed/map', to: 'embed#map'
   get 'embed/journeys', to: 'embed#journeys'
   get 'embed/test', to: 'embed#test'
+
+  # Admin routes
+  mount Ckeditor::Engine => '/ckeditor'
+  devise_for :admin_users, ActiveAdmin::Devise.config
+  ActiveAdmin.routes(self)
+
+  # Root path
+  root to: 'welcome#index'
 end
