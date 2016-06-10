@@ -1,8 +1,8 @@
 module Api
   module V1
     class LayersController < ApiController
-      before_action :authenticate_user!, only: :download_attachments
-      before_action :set_layer,          only: :download_attachments
+      # before_action :authenticate_user!, only: :download_attachments
+      before_action :set_layer, only: :download_attachments
 
       include SitesFilters
 
@@ -16,6 +16,7 @@ module Api
 
         if zipped
           response.headers['Content-Disposition'] = "attachment; filename=\"#{File.basename(zipped)}\""
+          response.headers['X-Sendfile'] = File.basename(zipped)
           send_file zipped, x_sendfile: true, type: 'application/zip', filename: File.basename(zipped)
         else
           render json: { message: "No files for specified layer" }
