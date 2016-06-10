@@ -15,8 +15,8 @@
       user_name: 'ra', // Required
       type: 'cartodb', // Required
       cartodb_logo: false,
-      maps_api_template: 'https://cdb-cdn.resilienceatlas.org',
-      sql_api_template: 'https://cdb-cdn.resilienceatlas.org',
+      maps_api_template: 'https://cdb-cdn.resilienceatlas.org/user/ra',
+      sql_api_template: 'https://cdb-cdn.resilienceatlas.org/user/ra',
       sublayers: [{
         sql: "select * from country_mask",
       }]
@@ -54,7 +54,6 @@
      * @param  {Function} callback
      */
     create: function(callback) {
-
       cartodb.createLayer(this.map, this.options, {'no_cdn': true, 'https': true})
         .addTo(this.map, 1)
         .on('done', function(layer) {
