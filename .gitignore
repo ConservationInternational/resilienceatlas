@@ -22,7 +22,8 @@
 !/public/files/.keep
 
 /node_modules
-public/ckeditor_assets/*
+/public/ckeditor_assets/*
+!/public/ckeditor_assets/.keep
 
 .env
 .env.development

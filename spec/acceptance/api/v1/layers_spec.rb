@@ -7,7 +7,7 @@ resource 'Layer' do
   header 'X-CSRF-Token', 'a_valid_CSRF_token'
 
   let!(:layer_group) do
-    LayerGroup.create!(name: 'environment', id: 1, site_scope: SiteScope.create!(name: 'CIGRP', id: 1))
+    LayerGroup.create!(name: 'environment', id: 1, site_scope: SiteScope.create!(name: 'CIGRP', id: 1, header_theme: 'test'))
   end
 
   let!(:layers) do
