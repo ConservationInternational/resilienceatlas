@@ -15,7 +15,8 @@ module Api
         zipped = @layer.zip_attachments(params)
 
         if zipped
-          send_file zipped
+          response.headers['Content-Disposition'] = "attachment; filename=\"#{File.basename(zipped)}\""
+          send_file zipped, x_sendfile: true, type: 'application/zip', filename: File.basename(zipped)
         else
           render json: { message: "No files for specified layer" }
         end
