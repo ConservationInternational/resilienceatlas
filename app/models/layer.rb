@@ -124,11 +124,11 @@ class Layer < ActiveRecord::Base
     end
 
     def zipfile_name
-      "#{Rails.root}/public/files/#{self.name.parameterize}-date-#{DateTime.now.to_date.to_s.parameterize}.zip"
+      "#{Rails.root}/downloads/#{self.name.parameterize}-date-#{DateTime.now.to_date.to_s.parameterize}.zip"
     end
 
     def pdf_file_path
-      "#{Rails.root}/public/files/#{pdf_file_name}"
+      "#{Rails.root}/downloads/#{pdf_file_name}"
     end
 
     def pdf_file_name
