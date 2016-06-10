@@ -71,43 +71,53 @@ class Layer < ActiveRecord::Base
     download_format = options['with_format']    if options['with_format'].present?
     file_format     = options['file_format']    if options['file_format'].present?
 
-    file_name       = if options['filename'].present?
-                        options['filename']
-                      elsif options['download_path'].present? && URI(options['download_path']).query.present?
-                        query_path = URI(options['download_path']).query
-                        filename   = query_path.split('=')[1] if query_path.split('=')[0].include?('filename')
-                        filename
-                      end
+    # file_name       = if options['filename'].present?
+    #                     options['filename']
+    #                   elsif options['download_path'].present? && URI(options['download_path']).query.present?
+    #                     query_path = URI(options['download_path']).query
+    #                     filename   = query_path.split('=')[1] if query_path.split('=')[0].include?('filename')
+    #                     filename
+    #                   end
 
-    layer_url  = "#{download_path}"       if download_path
-    layer_url += "&q=#{download_query}"   if download_query
-    layer_url += "&format=#{file_format}" if download_format
+    # layer_url  = "#{download_path}"       if download_path
+    # layer_url += "&q=#{download_query}"   if download_query
+    # layer_url += "&format=#{file_format}" if download_format
 
-    zipfile = zipfile_name
+    # zipfile = zipfile_name
+
+    zipfile = pdf_file_path
 
     return false   if !download?
     return zipfile if File.exists?(zipfile) && date_valid?
 
-    layer_file = open(URI.encode(layer_url).to_s) if layer_url
+    # layer_file = open(URI.encode(layer_url).to_s) if layer_url
 
-    ::Zip::OutputStream.open(zipfile) do |zip|
-      if layer_file
-        layer_name = file_name ? file_name : "#{self.name.parameterize}-extra"
-        zip.put_next_entry("#{layer_name}.#{file_format}")
-        zip.write IO.read(layer_file.path)
-      end
+    # ::Zip::OutputStream.open(zipfile) do |zip|
+    #   if layer_file
+    #     layer_name = file_name ? file_name : "#{self.name.parameterize}-extra"
+    #     zip.put_next_entry("#{layer_name}.#{file_format}")
+    #     zip.write IO.read(layer_file.path)
+    #   end
 
-      layer_attr = {}
-      layer_attr['layer']  = attributes
-      layer_attr['source'] = source.attributes if source_id.present?
+    #   layer_attr = {}
+    #   layer_attr['layer']  = attributes
+    #   layer_attr['source'] = source.attributes if source_id.present?
 
-      pdf_file = PdfFile.new(layer_attr, pdf_file_path)
-      pdf_file.generate_pdf_file
+    #   pdf_file = PdfFile.new(layer_attr, pdf_file_path)
+    #   pdf_file.generate_pdf_file
 
-      zip.put_next_entry("#{pdf_file_name}")
-      zip.write IO.read(pdf_file_path)
-      File.delete(pdf_file_path)
-    end
+    #   zip.put_next_entry("#{pdf_file_name}")
+    #   zip.write IO.read(pdf_file_path)
+    #   File.delete(pdf_file_path)
+    # end
+
+    # zipfile
+    layer_attr = {}
+    layer_attr['layer']  = attributes
+    layer_attr['source'] = source.attributes if source_id.present?
+
+    pdf_file = PdfFile.new(layer_attr, pdf_file_path)
+    pdf_file.generate_pdf_file
 
     zipfile
   end
