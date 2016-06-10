@@ -21,6 +21,9 @@
 /public/files/*
 !/public/files/.keep
 
+/downloads/*
+!/downloads/.keep
+
 /node_modules
 /public/ckeditor_assets/*
 !/public/ckeditor_assets/.keep

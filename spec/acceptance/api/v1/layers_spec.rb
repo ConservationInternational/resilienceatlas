@@ -51,7 +51,7 @@ resource 'Layer' do
         layer = layers[0]
       end
 
-      let(:stub_layer_zip) { "#{Rails.root}/public/files/#{layer.name.parameterize}-date-#{DateTime.now.to_date.to_s.parameterize}.zip" }
+      let(:stub_layer_zip) { "#{Rails.root}/downloads/#{layer.name.parameterize}-date-#{DateTime.now.to_date.to_s.parameterize}.zip" }
 
       example 'Download the layer pdf of a specific layer without layer file' do
         do_request(id: layer.id)
@@ -100,10 +100,10 @@ resource 'Layer' do
 
       context 'For zip file date expired' do
         before :each do
-          FileUtils.touch("#{Rails.root}/public/files/#{layer.name.parameterize}-date-2014-06-09.zip")
+          FileUtils.touch("#{Rails.root}/downloads/#{layer.name.parameterize}-date-2014-06-09.zip")
         end
 
-        let(:stub_layer_expired_zip) { "#{Rails.root}/public/files/#{layer.name.parameterize}-date-2014-06-09.zip" }
+        let(:stub_layer_expired_zip) { "#{Rails.root}/downloads/#{layer.name.parameterize}-date-2014-06-09.zip" }
 
         example 'Download the layer pdf of a specific layer without layer file and date expiration' do
           do_request(id: layer.id)
