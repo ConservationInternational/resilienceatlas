@@ -17,7 +17,7 @@ module Api
         if zipped
           response.headers['Content-Disposition'] = "attachment; filename=\"#{File.basename(zipped)}\""
           response.headers['X-Sendfile'] = File.basename(zipped)
-          send_file zipped, type: 'application/zip', filename: File.basename(zipped), x_sendfile: true
+          send_file zipped, x_sendfile: true
         else
           render json: { message: "No files for specified layer" }
         end
