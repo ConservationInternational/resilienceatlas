@@ -3,7 +3,10 @@ ActiveAdmin.register Layer do
                 :active, :order, :color, :info, :interactivity, :query,
                 :layer_provider, :css, :published, :opacity, :locate_layer,
                 :icon_class, :legend, :zoom_max, :zoom_min, :dashboard_order,
-                :dataset_shortname, :dataset_source_url, :source_id
+                :dataset_shortname, :dataset_source_url, :source_id, :title,
+                :start_date, :end_date, :spatial_resolution, :spatial_resolution_units,
+                :temporal_resolution, :temporal_resolution_units, :data_units,
+                :update_frequency, :version, :processing
 
   form do |f|
     f.semantic_errors
@@ -32,10 +35,23 @@ ActiveAdmin.register Layer do
       f.input :dataset_source_url, as: :string
     end
 
-    f.inputs "Source" do
+    f.inputs "Common metadata source" do
       f.input :source, as: :select, collection: Source.all.map { |s| ["#{s.source_type} - ID: #{s.id}", s.id] }, label: 'Select a source:'
     end
 
+    f.inputs "Metadata" do
+      f.input :title
+      f.input :start_date, as: :date_picker
+      f.input :end_date, as: :date_picker
+      f.input :spatial_resolution
+      f.input :spatial_resolution_units
+      f.input :temporal_resolution
+      f.input :temporal_resolution_units
+      f.input :data_units
+      f.input :update_frequency
+      f.input :version
+      f.input :processing
+    end
     f.actions
   end
 
