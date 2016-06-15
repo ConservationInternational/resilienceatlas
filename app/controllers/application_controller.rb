@@ -17,7 +17,7 @@ class ApplicationController < ActionController::Base
    end
 
   def check_subdomain
-    unless ["www",""].include?(request.subdomain.downcase) || request.original_fullpath.include?('map')
+    unless ["www",""].include?(request.subdomain.downcase) || request.original_fullpath.include?('map') || request.original_fullpath.include?('contents')
       redirect_to map_path and return
     end
   end
