@@ -120,6 +120,7 @@ class PdfFile
       sg = ['License', "#{@source['license']}"]
       sh = ['Updated', "#{@source['last_updated']}"]
       si = ['Version', "#{@source['version']}"]
+      sj = ['Spatial Resolution Units', "#{@source['spatial_resolution_units']}"]
     end
 
     table_data = Array.new
@@ -149,6 +150,7 @@ class PdfFile
       table_data << sg
       table_data << sh
       table_data << si
+      table_data << sj
     end
 
     table_data

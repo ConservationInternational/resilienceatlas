@@ -10,6 +10,7 @@
 #  latitude     :float
 #  longitude    :float
 #  header_theme :string
+#  zoom_level   :integer          default(3)
 #
 
 class SiteScope < ActiveRecord::Base
