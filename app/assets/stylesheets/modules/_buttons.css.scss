@@ -131,7 +131,14 @@
   }
 }
 
+.btn-download-infowindow {
+  margin-top: 50px;
 
+  &.-disabled {
+    opacity: .5;
+    pointer-events: none;
+  }
+}
 
 
 
