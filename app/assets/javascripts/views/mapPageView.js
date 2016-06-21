@@ -31,8 +31,8 @@
     },
 
     getMapZoom: function() {
-      if ( this.subdomainParams && !isNaN(this.subdomainParams.lat) && !!(this.subdomainParams.lat + 1) ) {
-        return 5;
+      if ( this.subdomainParams && !isNaN(this.subdomainParams.zoom_level) && !!(this.subdomainParams.zoom_level + 1) ) {
+        return this.subdomainParams.zoom_level;
       } else {
         return 3;
       }
