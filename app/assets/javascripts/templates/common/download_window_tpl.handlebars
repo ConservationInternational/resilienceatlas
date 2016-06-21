@@ -5,15 +5,20 @@
       <h1>Download</h1>
 
       {{#if user_logged}}
-        <p>Before download any data, you need to read and acept our <a href="http://www.conservation.org/Pages/privacy.aspx">terms and conditions</a></p>
+        {{#if terms_accepted}}
+          <p>Click to continue with download</p>
+          <a href="{{url}}" class="btn btn-secondary theme-bg-color btn-download-infowindow">Download data</a>
+        {{else}}
+          <p>Before download any data, you need to read and acept our <a class="theme-color" href="http://www.conservation.org/Pages/privacy.aspx">terms and conditions</a></p>
 
-        <input type="checkbox" id="terms-and-conditions">
-        <label for="terms-and-conditions">I have read and accepted Conservation International terms and conditions</label>
+          <input type="checkbox" id="terms-and-conditions">
+          <label for="terms-and-conditions">I have read and accepted Conservation International terms and conditions</label>
 
-        <a href="{{url}}" class="btn-download -disabled">Download data</a>
-      {{/else}}
+          <a href="{{url}}" class="btn btn-secondary theme-bg-color btn-download-infowindow -disabled">Download data</a>
+        {{/if}}
+      {{else}}
         <p>Before download any data, you need log-in</p>
-        <a href="{{url}}" class="btn-download">Log in</a>
+        <a href="{{url}}" class="btn btn-secondary theme-bg-color btn-download-infowindow">Log in</a>
       {{/if}}
 
     </div>

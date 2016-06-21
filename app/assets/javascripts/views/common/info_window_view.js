@@ -41,13 +41,28 @@
       this.$el.append( this.infoWindow );
     },
 
-    renderDownload: function(param) {
+    renderDownload: function(url, subDomainParams) {
+      var terms_accepted = localStorage.getItem('terms_accepted');
 
       this.downloadWindow = this.templateDownload({
-        'url': param
+        'url': url,
+        'user_logged': window.userlogged && window.userlogged == 'true' ? true : false,
+        'terms_accepted': terms_accepted && terms_accepted == 'true' ? true : false,
       });
 
       this.$el.append( this.downloadWindow );
+
+      $('.theme-color').css({'color': subDomainParams.color});
+      $('.theme-bg-color').css({'background-color': subDomainParams.color});
+
+      $('#terms-and-conditions').on('change', this.terms_accepted);
+    },
+
+    terms_accepted: function(e) {
+      var accepted = $('#terms-and-conditions').prop('checked');
+
+      localStorage.setItem('terms_accepted', accepted);
+      $('.btn-download-infowindow').toggleClass('-disabled', !accepted)
     },
 
     close: function() {
