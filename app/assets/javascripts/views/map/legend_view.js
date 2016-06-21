@@ -147,6 +147,7 @@
 
       $('.drag-items[data-id="'+ currentLayerId +'"]').remove();
       $('.panel-input-switch#layer_'+currentLayerId).prop('checked', false);
+      $('.panel-input-switch#layer_'+currentLayerId).next('label').css({'background-color': '#dddddd'});
 
       Backbone.Events.trigger('remove:layer', currentLayerId);
 

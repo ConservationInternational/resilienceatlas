@@ -236,6 +236,10 @@
     },
 
     _downloadClicked: function(e) {
+      e.preventDefault();
+      var url = $(e.currentTarget).attr('href');
+      this.infowindow.renderDownload(url, this.subdomainParams);
+
       var layerName = e.currentTarget.dataset.name;
 
       if(typeof(layerName) !== 'undefined') {

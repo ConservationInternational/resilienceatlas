@@ -6,37 +6,37 @@ ActiveAdmin.register Layer do
                 :dataset_shortname, :dataset_source_url, :source_id, :title,
                 :start_date, :end_date, :spatial_resolution, :spatial_resolution_units,
                 :temporal_resolution, :temporal_resolution_units, :data_units,
-                :update_frequency, :version, :processing
+                :update_frequency, :version, :processing, :download
 
   form do |f|
     f.semantic_errors
     f.inputs 'Layer Details' do
       f.input :name
       f.input :slug
-      f.input :layer_type
+      f.input :layer_type, as: :select, collection: ['layer']
       f.input :opacity
       f.input :zindex
       f.input :active
       f.input :order
       f.input :dashboard_order
-      f.input :color, as: :string
+      #f.input :color, as: :string
       f.input :info
       f.input :interactivity
       f.input :query
-      f.input :layer_provider
+      f.input :layer_provider, as: :select, collection: ['raster', 'cartodb']
       f.input :css
       f.input :locate_layer
-      f.input :icon_class
+      #f.input :icon_class
       f.input :legend
       f.input :zoom_max
       f.input :zoom_min
       f.input :download
-      f.input :dataset_shortname
-      f.input :dataset_source_url, as: :string
+      #f.input :dataset_shortname
+      #f.input :dataset_source_url, as: :string
     end
 
     f.inputs "Common metadata source" do
-      f.input :source, as: :select, collection: Source.all.map { |s| ["#{s.source_type} - ID: #{s.id}", s.id] }, label: 'Select a source:'
+      f.input :source, as: :select, collection: Source.all.map { |s| ["#{s.source_type} - Ref: #{s.reference_short}", s.id] }, label: 'Select a source:'
     end
 
     f.inputs "Metadata" do
