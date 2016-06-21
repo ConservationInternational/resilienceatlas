@@ -10,9 +10,10 @@
 #  latitude     :float
 #  longitude    :float
 #  header_theme :string
+#  zoom_level   :integer          default(3)
 #
 
 class SiteScopeSerializer < ActiveModel::Serializer
-  attributes :id, :name, :color, :subdomain, :has_analysis, :latitude, :longitude, :header_theme
+  attributes :id, :name, :color, :subdomain, :has_analysis, :latitude, :longitude, :header_theme, :zoom_level
   has_many :site_pages
 end

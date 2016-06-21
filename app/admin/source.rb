@@ -1,6 +1,6 @@
 ActiveAdmin.register Source do
   permit_params :source_type, :reference, :reference_short, :url, :contact_name,
-                :contact_email, :license, :last_updated, :version
+                :contact_email, :license, :last_updated, :version, :spatial_resolution_units
 
   form do |f|
     f.semantic_errors
@@ -13,8 +13,9 @@ ActiveAdmin.register Source do
       f.input :contact_name
       f.input :contact_email
       f.input :license
-      f.input :last_updated
+      f.input :last_updated, as: :date_picker
       f.input :version
+      f.input :spatial_resolution_units, as: :select, collection: %w{Kilometers Degrees}
       f.actions
     end
   end
