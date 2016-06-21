@@ -10,6 +10,7 @@
     el: 'body',
 
     template: HandlebarsTemplates['common/info_window_tpl'],
+    templateDownload: HandlebarsTemplates['common/download_window_tpl'],
 
     events: {
       'click .btn-close' : 'close',
@@ -38,6 +39,15 @@
       });
 
       this.$el.append( this.infoWindow );
+    },
+
+    renderDownload: function(param) {
+
+      this.downloadWindow = this.templateDownload({
+        'url': param
+      });
+
+      this.$el.append( this.downloadWindow );
     },
 
     close: function() {

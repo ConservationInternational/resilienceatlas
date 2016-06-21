@@ -1,0 +1,22 @@
+<div class="m-modal-window">
+  <div class="modal-wrapper">
+    <div class="btn-close">×</div>
+    <div class="modal-container">
+      <h1>Download</h1>
+
+      {{#if user_logged}}
+        <p>Before download any data, you need to read and acept our <a href="http://www.conservation.org/Pages/privacy.aspx">terms and conditions</a></p>
+
+        <input type="checkbox" id="terms-and-conditions">
+        <label for="terms-and-conditions">I have read and accepted Conservation International terms and conditions</label>
+
+        <a href="{{url}}" class="btn-download -disabled">Download data</a>
+      {{/else}}
+        <p>Before download any data, you need log-in</p>
+        <a href="{{url}}" class="btn-download">Log in</a>
+      {{/if}}
+
+    </div>
+  </div>
+  <div class="modal-background"></div>
+</div>
