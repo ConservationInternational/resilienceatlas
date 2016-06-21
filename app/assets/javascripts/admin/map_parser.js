@@ -1,15 +1,21 @@
 jQuery(document).ready(function ($) {
+  var map;
   var marker;
   var mapDiv = '<div id="geous-map" style="width:100%;height:300px;"></div>';
   var el = $('.lat').parent().parent().parent().prepend(mapDiv);
 
-  var lat = $('.lat').val() || 5;
-  var lng = $('.lng').val() || 35;
+  var $latInput = $('#site_scope_latitude');
+  var $lngInput = $('#site_scope_longitude');
+  var $zoomInput = $('#site_scope_zoom_level');
+
+  var lat = parseFloat($latInput.val()) || 5;
+  var lng = parseFloat($lngInput.val()) || 35;
+  var zoom = parseInt($zoomInput.val()) || 3;
 
   function initMap() {
     var latlng = new google.maps.LatLng(lat, lng);
-    var map = new google.maps.Map(document.getElementById('geous-map'), {
-      zoom: 3,
+    map = new google.maps.Map(document.getElementById('geous-map'), {
+      zoom: zoom,
       center: latlng
     });
 
@@ -19,22 +25,30 @@ jQuery(document).ready(function ($) {
       animation: google.maps.Animation.DROP,
       position: latlng
     });
+
     marker.addListener('click', toggleBounce);
-    marker.addListener('dragend', getPosiiton);
+    marker.addListener('dragend', changeInputPosiiton);
+    map.addListener('zoom_changed', changeInputZoom);
 
     setInputListeners();
   };
 
   function setInputListeners() {
-    $('.lat').on('change', updatePosition);
-    $('.lng').on('change', updatePosition);
+    $latInput.on('change', updatePosition);
+    $lngInput.on('change', updatePosition);
+    $zoomInput.on('change', updateZoom);
   };
 
   function updatePosition(e) {
-    var lat = $('.lat').val() || 5;
-    var lng = $('.lng').val() || 35;
+    lat = parseFloat($latInput.val()) || 5;
+    lng = parseFloat($lngInput.val()) || 35;
     var latlng = new google.maps.LatLng(lat, lng);
     marker.setPosition(latlng);
+  };
+
+  function updateZoom(e) {
+    var zoom = parseInt($zoomInput.val()) || 3;
+    map.setZoom( zoom );
   };
 
   function toggleBounce() {
@@ -45,13 +59,18 @@ jQuery(document).ready(function ($) {
     }
   };
 
-  function getPosiiton() {
+  function changeInputPosiiton() {
     var markerLat = marker.getPosition().lat();
     var markerLng = marker.getPosition().lng();
 
-    lat = $('.lat').val( markerLat );
-    lng = $('.lng').val( markerLng );
-  }
+    $latInput.val( markerLat );
+    $lngInput.val( markerLng );
+  };
+
+  function changeInputZoom() {
+    zoom = map.getZoom();
+    $zoomInput.val(zoom);
+  };
 
   initMap();
 });

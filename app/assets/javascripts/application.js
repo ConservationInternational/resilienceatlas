@@ -85,7 +85,6 @@
     },
 
     setSubdomainParams: function(data) {
-      console.log(data)
       this.subdomainParams = {
         has_analysis: data.subdomain ? data.has_analysis : true,
         name: data.name || '',
