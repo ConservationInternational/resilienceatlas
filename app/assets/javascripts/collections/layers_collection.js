@@ -42,6 +42,8 @@
       var self = this;
       var result = _.map(response.data, _.bind(function(d) {
         var group = d.relationships.layer_group.data;
+        console.log(d);
+        debugger
         return {
           id: parseInt(d.id),
           slug: d.attributes.slug,

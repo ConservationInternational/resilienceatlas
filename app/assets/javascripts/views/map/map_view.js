@@ -377,6 +377,7 @@
      * @param  {Object} layerData
      */
     _setAttribution: function(layerData) {
+      console.log(layerData)
       var customAttributions = this.attributionControl.customAttributions,
         newAttributionText = '',
         newAttribution = {};
@@ -391,7 +392,7 @@
       };
 
       newAttributionText = this._getFormattedAttribution(newAttribution);
-
+      console.log(newAttributionText)
       customAttributions.push(newAttribution);
       this.map.attributionControl.addAttribution(newAttributionText);
     },
