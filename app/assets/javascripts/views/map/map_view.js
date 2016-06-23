@@ -406,7 +406,7 @@
         removed = false;
 
       customAttributions.forEach(function(attribution, index) {
-        if (!removed && attribution.name === layerData.dataset_shortname ) {
+        if (!removed && attribution.name === layerData.reference_short ) {
           textToRemove = this._getFormattedAttribution(attribution);
           customAttributions.splice(index, 1);
           removed = !removed;
