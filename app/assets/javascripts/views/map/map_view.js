@@ -381,17 +381,16 @@
         newAttributionText = '',
         newAttribution = {};
 
-      if (!layerData.dataset_shortname) {
+      if (!layerData.reference_short) {
         return;
       }
 
       newAttribution = {
-        name: layerData.dataset_shortname,
-        url: layerData.dataset_source_url
+        name: layerData.reference_short,
+        url: layerData.reference_url
       };
 
       newAttributionText = this._getFormattedAttribution(newAttribution);
-
       customAttributions.push(newAttribution);
       this.map.attributionControl.addAttribution(newAttributionText);
     },
@@ -407,7 +406,7 @@
         removed = false;
 
       customAttributions.forEach(function(attribution, index) {
-        if (!removed && attribution.name === layerData.dataset_shortname ) {
+        if (!removed && attribution.name === layerData.reference_short ) {
           textToRemove = this._getFormattedAttribution(attribution);
           customAttributions.splice(index, 1);
           removed = !removed;
