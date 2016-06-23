@@ -377,22 +377,20 @@
      * @param  {Object} layerData
      */
     _setAttribution: function(layerData) {
-      console.log(layerData)
       var customAttributions = this.attributionControl.customAttributions,
         newAttributionText = '',
         newAttribution = {};
 
-      if (!layerData.dataset_shortname) {
+      if (!layerData.reference_short) {
         return;
       }
 
       newAttribution = {
-        name: layerData.dataset_shortname,
-        url: layerData.dataset_source_url
+        name: layerData.reference_short,
+        url: layerData.reference_url
       };
 
       newAttributionText = this._getFormattedAttribution(newAttribution);
-      console.log(newAttributionText)
       customAttributions.push(newAttribution);
       this.map.attributionControl.addAttribution(newAttributionText);
     },

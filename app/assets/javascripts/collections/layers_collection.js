@@ -42,8 +42,6 @@
       var self = this;
       var result = _.map(response.data, _.bind(function(d) {
         var group = d.relationships.layer_group.data;
-        console.log(d);
-        debugger
         return {
           id: parseInt(d.id),
           slug: d.attributes.slug,
@@ -67,7 +65,9 @@
           download: d.attributes.download || null,
           download_url: d.attributes.download ? this._generateDownloadUrl(d) : null,
           dataset_shortname: d.attributes.dataset_shortname || null,
-          dataset_source_url: d.attributes.dataset_source_url || null
+          dataset_source_url: d.attributes.dataset_source_url || null,
+          reference_short: d.relationships && d.relationships.source && d.relationships.source.data && d.relationships.source.data.id && this._getReference(response.included, d.relationships.source.data.id).reference_short,
+          reference_url:  d.relationships && d.relationships.source && d.relationships.source.data && d.relationships.source.data.id && this._getReference(response.included, d.relationships.source.data.id).url
         };
       }, this));
       return result;
@@ -75,6 +75,11 @@
 
     _generateDownloadUrl: function(d) {
       return window.userlogged === "true" ? '/api/layers/'+ d.id+ '/downloads?file_format=kml&with_format=true&download_path=https://cdb-cdn.resilienceatlas.org/user/ra/api/v2/sql?filename=' + d.attributes.slug + '&q=' + encodeURIComponent(d.attributes.query) : '/users/login';
+    },
+
+    _getReference: function(attributes, sourceId) {
+      var source = _.find(attributes, {id: sourceId});
+      return source.attributes
     },
 
     setGroups: function(groupsCollection) {
