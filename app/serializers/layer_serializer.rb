@@ -47,8 +47,12 @@ class LayerSerializer < ActiveModel::Serializer
   cache key: "layer"
   attributes :name, :slug, :layer_type, :zindex, :opacity, :active, :order, :dashboard_order, :color, :info, :interactivity, :css, :query, :layer_provider, :published, :locate_layer, :icon_class, :legend, :zoom_max, :zoom_min, :download, :dataset_shortname, :dataset_source_url
   has_one :layer_group, serializer: LayerGroupSerializer
+  has_one :source, serializer: SourceSerializer
   def type
     'layers'
+  end
+  def source
+    object.source
   end
   def layer_group
     object.layer_groups.where(site_scope_id: options[:site_scope]).first
