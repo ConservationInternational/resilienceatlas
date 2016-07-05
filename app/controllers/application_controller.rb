@@ -18,15 +18,22 @@ class ApplicationController < ActionController::Base
    end
 
   def check_subdomain
-    unless ["www",""].include?(request.subdomain.downcase) || request.original_fullpath.include?('map') || request.original_fullpath.include?('contents')
-      redirect_to map_path and return
+    return unless request.get?
+    if (!request.subdomain.downcase.match('www') &&
+        !request.subdomain.blank? &&
+        !request.fullpath.match('/map') &&
+        !request.fullpath.match('/contents') &&
+        !request.fullpath.match('/users') &&
+        !request.fullpath.match('/admin') &&
+        !request.xhr?)
+      redirect_to map_path
     end
   end
 
   def store_location
     return unless request.get?
-    if (!request.fullpath.match("/users") &&
-        !request.fullpath.match("/admin") &&
+    if (!request.fullpath.match('/users') &&
+        !request.fullpath.match('/admin') &&
         !request.xhr?)
       session[:previous_url] = request.fullpath
     end
