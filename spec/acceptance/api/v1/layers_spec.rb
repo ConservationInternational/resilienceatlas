@@ -7,7 +7,7 @@ resource 'Layer' do
   header 'X-CSRF-Token', 'a_valid_CSRF_token'
 
   let!(:layer_group) do
-    LayerGroup.create!(name: 'environment', id: 1, site_scope: SiteScope.create!(name: 'CIGRP', id: 1, header_theme: 'test'))
+    LayerGroup.create!(name: 'environment', id: 1, site_scope: SiteScope.create!(name: 'CIGRP', id: 1, header_theme: 'vs-theme'))
   end
 
   let!(:layers) do
@@ -51,7 +51,7 @@ resource 'Layer' do
         layer = layers[0]
       end
 
-      let(:stub_layer_zip) { "#{Rails.root}/downloads/#{layer.name.parameterize}-date-#{DateTime.now.to_date.to_s.parameterize}.zip" }
+      let(:stub_layer_zip) { "#{Rails.root}/downloads/#{layer.name.parameterize}-date-#{DateTime.now.to_date.to_s.parameterize}-main.zip" }
 
       example 'Download the layer pdf of a specific layer without layer file' do
         do_request(id: layer.id)
@@ -72,6 +72,7 @@ resource 'Layer' do
                    with_format: true,
                    download_path: 'https://cdb-cdn.resilienceatlas.org/user/ra/api/v2/sql?filename=africa_infant_mortality_rate&q=with r as (select the_geom,the_geom_webmercator, dhsregen,iso3,reg_id,svytype,svyyear from grp_dhs_regions)
                                    SELECT distinct on (l.regionid, l.surveyyear) l.regionid, l.surveyyear, l.indicatorid, l.byvariableid, characteristiclabel, l.value,  r.the_geom_webmercator, r.the_geom FROM dhs_export l inner join r on regionid=reg_id where indicatorid = 70254002&format=kml')
+
         allow_any_instance_of(Layer).to receive(:zipfile_name).and_return(stub_layer_zip)
 
         expect(status).to                       eq(200)
@@ -87,6 +88,7 @@ resource 'Layer' do
         do_request(id: layer.id,
                    file_format: 'pdf',
                    download_path: 'http://www.hgd1952.hr/pdf_datoteke/Test_document_PDF.pdf')
+
         allow_any_instance_of(Layer).to receive(:zipfile_name).and_return(stub_layer_zip)
 
         expect(status).to                       eq(200)
@@ -100,10 +102,10 @@ resource 'Layer' do
 
       context 'For zip file date expired' do
         before :each do
-          FileUtils.touch("#{Rails.root}/downloads/#{layer.name.parameterize}-date-2014-06-09.zip")
+          FileUtils.touch("#{Rails.root}/downloads/#{layer.name.parameterize}-date-2014-06-09-main.zip")
         end
 
-        let(:stub_layer_expired_zip) { "#{Rails.root}/downloads/#{layer.name.parameterize}-date-2014-06-09.zip" }
+        let(:stub_layer_expired_zip) { "#{Rails.root}/downloads/#{layer.name.parameterize}-date-2014-06-09-main.zip" }
 
         example 'Download the layer pdf of a specific layer without layer file and date expiration' do
           do_request(id: layer.id)
