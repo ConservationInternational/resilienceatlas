@@ -44,4 +44,10 @@ namespace :layers do
       puts "Layers upgraded."
     end
   end
+
+  desc "Delete generated zip files in download folder"
+  task delete_downloads: :environment do
+    FileUtils.rm_rf(Dir.glob('downloads/*'))
+    puts "Downloads deleted."
+  end
 end
