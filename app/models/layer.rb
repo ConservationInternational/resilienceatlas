@@ -65,7 +65,9 @@ class Layer < ActiveRecord::Base
     layers = layers.site(site_scope)
   end
 
-  def zip_attachments(options)
+  def zip_attachments(options, domain, site_name=nil, subdomain=nil)
+    site_name = site_name.present? ? site_name : 'Conservation International'
+
     download_path   = options['download_path']  if options['download_path'].present?
     download_query  = options['q']              if options['q'].present?
     download_format = options['with_format']    if options['with_format'].present?
@@ -83,10 +85,10 @@ class Layer < ActiveRecord::Base
     layer_url += "&q=#{download_query}"   if download_query
     layer_url += "&format=#{file_format}" if download_format
 
-    zipfile = zipfile_name
+    zipfile = zipfile_name(subdomain)
 
     return false   if !download?
-    return zipfile if File.exists?(zipfile) && date_valid?
+    return zipfile if File.exists?(zipfile) && date_valid?(subdomain)
 
     layer_file = open(URI.encode(layer_url).to_s) if layer_url
 
@@ -101,7 +103,7 @@ class Layer < ActiveRecord::Base
       layer_attr['layer']  = attributes
       layer_attr['source'] = source.attributes if source_id.present?
 
-      pdf_file = PdfFile.new(layer_attr, pdf_file_path)
+      pdf_file = PdfFile.new(layer_attr, pdf_file_path, domain, site_name)
       pdf_file.generate_pdf_file
 
       zip.put_next_entry("#{pdf_file_name}")
@@ -114,8 +116,8 @@ class Layer < ActiveRecord::Base
 
   private
 
-    def date_valid?
-      file_date    = File.basename(zipfile_name, '.zip').split('-date-').last
+    def date_valid?(subdomain)
+      file_date    = File.basename(zipfile_name(subdomain), '.zip').split('-date-').last
       self_date    = self.updated_at.to_date.to_s.parameterize
       source_date  = self.source.updated_at.to_date.to_s.parameterize if source
       objects_date = [self_date, source_date].compact.max
@@ -123,8 +125,8 @@ class Layer < ActiveRecord::Base
       return true if file_date >= objects_date
     end
 
-    def zipfile_name
-      "#{Rails.root}/downloads/#{self.name.parameterize}-date-#{DateTime.now.to_date.to_s.parameterize}.zip"
+    def zipfile_name(subdomain)
+      "#{Rails.root}/downloads/#{self.name.parameterize}-date-#{DateTime.now.to_date.to_s.parameterize}-#{subdomain}.zip"
     end
 
     def pdf_file_path
