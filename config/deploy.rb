@@ -11,7 +11,6 @@ set :passenger_restart_with_touch, true
 set :rvm_type, :system
 
 namespace :deploy do
-
   after :restart, :clear_cache do
     on roles(:web), in: :groups, limit: 3, wait: 10 do
       # Here we can do anything such as:
@@ -20,5 +19,14 @@ namespace :deploy do
       # end
     end
   end
+end
 
+namespace :downloads do
+  task :clear do
+    on roles(:web), in: :sequence, wait: 10 do
+      within release_path do
+        execute :rake, 'layers:delete_downloads'
+      end
+    end
+  end
 end

@@ -12,12 +12,9 @@ module Api
       end
 
       def download_attachments
-        zipped = @layer.zip_attachments(params)
+        zipped = @layer.zip_attachments(params, "#{request.original_url}", @site_name, @subdomain)
 
         if zipped
-          # response.headers['Content-Disposition'] = "attachment; filename=\"#{File.basename(zipped)}\""
-          # response.headers['X-Sendfile'] = File.basename(zipped)
-          # send_file zipped, disposition: 'attachment', type: 'application/zip; charset=UTF-8;', filename: File.basename(zipped), x_sendfile: true
           File.open(zipped, 'r') do |f|
             send_data f.read, type: 'application/zip; charset=UTF-8;', filename: File.basename(zipped)
           end
