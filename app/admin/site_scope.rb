@@ -22,8 +22,8 @@ ActiveAdmin.register SiteScope do
       f.input :header_theme, as: :select, collection: %w{ci-theme vs-theme}
       f.input :subdomain
       f.input :has_analysis
-      f.linkback_text :linkback_text
-      f.linkback_url :linkback_url
+      f.input :linkback_text, as: :string
+      f.input :linkback_url, as: :string
     end
     f.inputs :location, {data:{ geousable: 'yes'}} do
       f.input :latitude, :input_html => { :class => 'lat' }
