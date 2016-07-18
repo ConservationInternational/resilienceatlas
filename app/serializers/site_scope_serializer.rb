@@ -11,9 +11,10 @@
 #  longitude    :float
 #  header_theme :string
 #  zoom_level   :integer          default(3)
-#
+#  linkback_url :string
+#  linkback_text:string
 
 class SiteScopeSerializer < ActiveModel::Serializer
-  attributes :id, :name, :color, :subdomain, :has_analysis, :latitude, :longitude, :header_theme, :zoom_level
+  attributes :id, :name, :color, :subdomain, :has_analysis, :latitude, :longitude, :header_theme, :zoom_level,  :linkback_text, :linkback_url
   has_many :site_pages
 end
