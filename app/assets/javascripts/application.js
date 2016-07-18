@@ -94,7 +94,9 @@
         header_theme: data.header_theme || '',
         lat: data.latitude || NaN,
         lng: data.longitude || NaN,
-        zoom_level: data.zoom_level || NaN
+        zoom_level: data.zoom_level || NaN,
+        link_text: data.linkback_text,
+        link_url: data.linkback_url
       }
 
       this.setThemeColor();
@@ -118,9 +120,8 @@
       //   this.setHeaderColor();
       // };
 
-      if (this.subdomainParams.header_theme) {
-        this.setHeaderLogo();
-      };
+      this.subdomainParams && this.subdomainParams.header_theme && this.setHeaderLogo();
+      this.subdomainParams && this.subdomainParams.link_text && this.setLink();
     },
 
     // setHeaderColor: function() {
@@ -131,6 +132,15 @@
     setHeaderLogo: function() {
       if (this.subdomainParams && this.subdomainParams.header_theme) {
         $('body').addClass('is-'+this.subdomainParams.header_theme);
+      }
+    },
+
+    setLink: function() {
+      var $link = $('.link-back');
+
+      if ($link[0]) {
+        this.subdomainParams.link_text && $link.attr('href', this.subdomainParams.link_url);
+        this.subdomainParams.link_url && $link.html(this.subdomainParams.link_text);
       }
     },
 
