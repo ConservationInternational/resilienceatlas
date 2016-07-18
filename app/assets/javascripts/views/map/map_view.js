@@ -210,16 +210,6 @@
       var layersData = this.layers.getPublished();
 
       _.each(layersData, function(layerData) {
-        // if (layerData.id == 6) {
-        //   layerData.maxZoom = 100;
-        //   layerData.minZoom = 3;
-        // }
-
-        // if (layerData.id == 66) {
-        //   layerData.maxZoom = 100;
-        //   layerData.minZoom = 3;
-        // }
-
         if (layerData.active) {
           if (layerData.maxZoom || layerData.minZoom) {
 
@@ -273,7 +263,7 @@
         currentLayerModel.set('active', false);
       }
 
-      this._removeAttribution(currentLayerModel);
+      this._removeAttribution(layerData);
     },
 
     _showAdvise: function(layerData) {
@@ -408,7 +398,7 @@
         removed = false;
 
       customAttributions.forEach(function(attribution, index) {
-        if (!removed && attribution.name === layerData.attributes.reference_short ) {
+        if (!removed && layerData  && attribution.name === layerData.reference_short ) {
           textToRemove = this._getFormattedAttribution(attribution);
           customAttributions.splice(index, 1);
           removed = !removed;
