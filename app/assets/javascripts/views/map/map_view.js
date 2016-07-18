@@ -379,7 +379,8 @@
 
       newAttribution = {
         name: layerData.reference_short,
-        url: layerData.reference_url
+        url: layerData.reference_url,
+        layer: layerData.id
       };
 
       newAttributionText = this._getFormattedAttribution(newAttribution);
@@ -403,8 +404,9 @@
         textToRemove,
         removed = false;
 
+
       customAttributions.forEach(function(attribution, index) {
-        if (!removed && layerData  && attribution.name === layerData.reference_short ) {
+        if (!removed && layerData  && attribution.layer === layerData.id ) {
           textToRemove = this._getFormattedAttribution(attribution);
           customAttributions.splice(index, 1);
           removed = !removed;
