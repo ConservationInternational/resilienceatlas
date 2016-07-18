@@ -272,6 +272,8 @@
       if (currentLayerModel) {
         currentLayerModel.set('active', false);
       }
+
+      this._removeAttribution(currentLayerModel);
     },
 
     _showAdvise: function(layerData) {
@@ -406,12 +408,11 @@
         removed = false;
 
       customAttributions.forEach(function(attribution, index) {
-        if (!removed && attribution.name === layerData.reference_short ) {
+        if (!removed && attribution.name === layerData.attributes.reference_short ) {
           textToRemove = this._getFormattedAttribution(attribution);
           customAttributions.splice(index, 1);
           removed = !removed;
         }
-
       }.bind(this));
 
       this.map.attributionControl.removeAttribution(textToRemove);
@@ -431,10 +432,10 @@
       }
 
       var layerInstance = this.model.get(layerId);
+
       if (layerInstance) {
         this.model.set(layerId, null);
         layerInstance.remove();
-        this._removeAttribution(layerData);
       }
     },
 
