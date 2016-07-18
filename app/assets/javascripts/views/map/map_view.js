@@ -392,6 +392,12 @@
      * @param  {Object} layerData
      */
     _removeAttribution: function(layerData) {
+      if (typeof layerData === 'object') {
+        layerData = layerData;
+      } else {
+        layerData = _.findWhere(this.layers.models, { 'id': layerData }).attributes;
+      }
+
       var customAttributions = this.map.attributionControl.customAttributions,
         attributionToRemove = {},
         textToRemove,
