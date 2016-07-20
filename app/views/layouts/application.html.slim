@@ -2,7 +2,7 @@ doctype html
 
 html lang="#{I18n.locale}"
   head
-    title = @site_name
+    title = @site_name || "Resilience Atlas (Beta) #{controller_name}"
     = render :partial => "partials/head"
     = stylesheet_link_tag "application", media: "all"
     = csrf_meta_tags
