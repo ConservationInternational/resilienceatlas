@@ -41,6 +41,7 @@
 #  update_frequency          :string
 #  version                   :string
 #  processing                :string
+#  description               :text
 #
 
 class LayerSerializer < ActiveModel::Serializer
