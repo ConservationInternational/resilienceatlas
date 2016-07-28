@@ -102,7 +102,6 @@
   font-weight: 400;
 
   li {
-    padding: 0 0 rem(10px) rem(25px);
 
     &.subcategory,
     &.subgroup {
@@ -133,6 +132,10 @@
       }
     }
 
+  }
+
+  .layer {
+    padding: 0 0 10px 25px;
   }
 
   .panel-item-title {

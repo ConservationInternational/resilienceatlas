@@ -175,9 +175,10 @@ class PdfFile
       se = ['Contact Name', "#{@source['contact_name']}"]
       sf = ['Contact Email', "#{@source['contact_email']}"]
       sg = ['License', "#{@source['license']}"]
-      sh = ['Updated', "#{@source['last_updated']}"]
-      si = ['Version', "#{@source['version']}"]
-      sj = ['Spatial Resolution Units', "#{@source['spatial_resolution_units']}"]
+      sh = ['License URL', "#{@source['license_url']}"]
+      si = ['Updated', "#{@source['last_updated']}"]
+      sj = ['Version', "#{@source['version']}"]
+      sk = ['Spatial Resolution Units', "#{@source['spatial_resolution_units']}"]
     end
 
     table_data = Array.new
@@ -208,6 +209,7 @@ class PdfFile
       table_data << sh
       table_data << si
       table_data << sj
+      table_data << sk
     end
 
     table_data

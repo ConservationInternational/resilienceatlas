@@ -85,6 +85,7 @@
       }
 
       if (!this.map) {
+        //This is to separate attributions with a pipe instead of comma.
         var A = L.Control.Attribution;
         A.prototype._update = function() {
           if (this._map) {

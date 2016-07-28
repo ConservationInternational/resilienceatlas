@@ -13,12 +13,12 @@ ActiveAdmin.register Source do
       f.input :contact_name
       f.input :contact_email
       f.input :license
+      f.input :license_url, as: :string
       f.input :last_updated, as: :date_picker
       f.input :version
       f.input :spatial_resolution_units, as: :select, collection: %w{Kilometers Degrees}
-      f.input :license_url, as: :string
-      f.actions
     end
+    f.actions
   end
 
   index do
