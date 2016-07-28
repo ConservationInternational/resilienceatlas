@@ -15,6 +15,7 @@
 #  created_at               :datetime         not null
 #  updated_at               :datetime         not null
 #  spatial_resolution_units :string
+#  license_url              :text
 #
 
 require 'rails_helper'
