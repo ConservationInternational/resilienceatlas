@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160728103825) do
+ActiveRecord::Schema.define(version: 20160728143410) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -126,6 +126,7 @@ ActiveRecord::Schema.define(version: 20160728103825) do
     t.string   "update_frequency"
     t.string   "version"
     t.string   "processing"
+    t.text     "description"
   end
 
   add_index "layers", ["layer_group_id"], name: "index_layers_on_layer_group_id", using: :btree

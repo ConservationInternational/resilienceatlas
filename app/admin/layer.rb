@@ -6,7 +6,7 @@ ActiveAdmin.register Layer do
                 :dataset_shortname, :dataset_source_url, :source_id, :title,
                 :start_date, :end_date, :spatial_resolution, :spatial_resolution_units,
                 :temporal_resolution, :temporal_resolution_units, :data_units,
-                :update_frequency, :version, :processing, :download
+                :update_frequency, :version, :processing, :download, :description
 
   form do |f|
     f.semantic_errors
@@ -41,6 +41,7 @@ ActiveAdmin.register Layer do
 
     f.inputs "Metadata" do
       f.input :title
+      f.input :description
       f.input :start_date, as: :date_picker
       f.input :end_date, as: :date_picker
       f.input :spatial_resolution
