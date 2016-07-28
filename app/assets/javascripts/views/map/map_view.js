@@ -85,6 +85,21 @@
       }
 
       if (!this.map) {
+        var A = L.Control.Attribution;
+        A.prototype._update = function() {
+          if (this._map) {
+            var a = [];
+            for (var b in this._attributions)
+                this._attributions[b] && a.push(b);
+            var c = [];
+            this.options.prefix && c.push(this.options.prefix),
+            a.length && c.push(a.join(" | ")),
+            this._container.innerHTML = c.join(" | ")
+          }
+        },
+
+        this.options.map.attributions = new A();
+
         this.map = L.map(this.el, this.options.map);
         this.map.on('click', function(){
           self.checkMask();
