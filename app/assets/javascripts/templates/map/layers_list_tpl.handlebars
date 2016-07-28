@@ -5,7 +5,7 @@
         <div class="m-layers-list-header {{#if active}}is-active{{/if}}">
           <div class="header-title theme-color">{{name}}</div>
         </div>
-        <ul>
+        <ul class="m-layers-list-panel {{#if active}}is-active{{/if}}">
           {{#each layers}}
             <li class="layer {{#ifcond opacity_text}}{{/ifcond}}  {{#if dashboard_order}} {{dashboard_order}} {{/if}}">
               <div class="panel-item-switch m-form-input--switch">

@@ -254,7 +254,6 @@
 
     getCategories: function() {
       var categories = _.flatten(_.pluck(this.getGrouped(), 'categories'));
-      console.log(categories);
       return categories;
     },
 
