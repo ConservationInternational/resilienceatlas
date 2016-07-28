@@ -2,7 +2,7 @@
   {{#each groups}}
     {{!-- {{#if categories}} --}}
       <li class="group" data-slug="{{slug}}">
-        <div class="m-layers-list-header">
+        <div class="m-layers-list-header {{#if active}}is-active{{/if}}">
           <div class="header-title theme-color">{{name}}</div>
         </div>
         <ul>

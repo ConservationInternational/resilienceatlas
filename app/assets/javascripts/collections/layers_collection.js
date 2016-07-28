@@ -98,9 +98,26 @@
       }
 
       return _.map(this._groups, function(g) {
+
+        var groupLayers = _.where(data, { group: g.id });
+        _.map(groupLayers, function(layer){
+          layer.opacity_text = layer.opacity*100
+          return layer;
+        });
+
+        // Forcing category activation
+        var isActive = _.contains(_.pluck(groupLayers, 'active'), true);
+        if (isActive) {
+          g.active = true;
+        } else {
+          g.active = false;
+        }
+
         var categories = _.where(this._categories, { father: g.id });
 
         return _.extend(g, {
+          layers: groupLayers,
+
           categories: _.map(categories, function(c) {
             var layers = _.where(data, { group: c.id });
             _.map(layers, function(layer){
@@ -237,6 +254,7 @@
 
     getCategories: function() {
       var categories = _.flatten(_.pluck(this.getGrouped(), 'categories'));
+      console.log(categories);
       return categories;
     },
 
