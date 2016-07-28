@@ -178,7 +178,7 @@ ActiveRecord::Schema.define(version: 20160728103825) do
     t.datetime "created_at",               null: false
     t.datetime "updated_at",               null: false
     t.string   "spatial_resolution_units"
-    t.text     "resource_url"
+    t.text     "license_url"
   end
 
   create_table "users", force: :cascade do |t|
