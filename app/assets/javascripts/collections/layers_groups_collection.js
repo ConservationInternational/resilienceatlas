@@ -42,7 +42,7 @@
           group_type: d.attributes.layer_group_type
         };
       });
-  
+
       return result;
     },
 

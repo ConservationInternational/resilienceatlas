@@ -83,10 +83,10 @@
     },
 
     setGroups: function(groupsCollection) {
-      this._groups = groupsCollection.getGroups();
-      this._categories = groupsCollection.getCategories();
-      this._subcategories = groupsCollection.getsubCategories();
-      this._subGroups = groupsCollection.getsubGroups();
+      this._groups = _.sortBy(groupsCollection.getGroups(), 'order');
+      this._categories = _.sortBy(groupsCollection.getCategories(), 'order');
+      this._subcategories = _.sortBy(groupsCollection.getsubCategories(), 'order');
+      this._subGroups = _.sortBy(groupsCollection.getsubGroups(), 'order');
       return this;
     },
 
@@ -116,7 +116,7 @@
         var categories = _.where(this._categories, { father: g.id });
 
         return _.extend(g, {
-          layers: groupLayers,
+          layers: _.sortBy(groupLayers, 'dashboard_order'),
 
           categories: _.map(categories, function(c) {
             var layers = _.where(data, { group: c.id });
@@ -166,15 +166,15 @@
                     } else {
                       sg.active = false;
                     }
-                    return _.extend(sg, { layers: layers });
+                    return _.extend(sg, { layers: _.sortBy(layers, 'dashboard_order') });
                   }, this)
                 })
 
-                return _.extend(sc, { layers: layers });
+                return _.extend(sc, { layers: _.sortBy(layers, 'dashboard_order') });
               }, this)
             })
 
-            return _.extend(c, { layers: layers });
+            return _.extend(c, { layers: _.sortBy(layers, 'dashboard_order') });
           }, this)
         });
 
