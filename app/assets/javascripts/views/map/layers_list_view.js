@@ -41,7 +41,6 @@
 
     render: function() {
       var data = { groups: this.layers.getGrouped() };
-
       this.$el.html( this.template( data ) );
       this._cacheVars();
       this._setActiveGroups();
