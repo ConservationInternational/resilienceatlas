@@ -4,7 +4,7 @@ ActiveAdmin.register LayerGroup do
     f.semantic_errors
     f.inputs "Layers" do
       f.has_many :agrupations, allow_destroy: true do |deg|
-        deg.input :layer, as: :select, collection: Layer.order(:name).pluck(:name, :id)
+        deg.input :layer, as: :select, collection: Layer.order(:name).map{|l| ["#{l.name} - in groups: #{l.layer_groups.map{|lg| lg.id}.compact.flatten.to_s}", l.id]}
       end
       f.input :site_scope
     end

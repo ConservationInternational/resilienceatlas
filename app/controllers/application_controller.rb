@@ -5,6 +5,7 @@ class ApplicationController < ActionController::Base
 
   before_action :check_subdomain, :get_subdomain
   after_action  :set_csrf_cookie, :store_location
+  after_action :allow_site_iframe
 
   def set_csrf_cookie
     if protect_against_forgery?
@@ -41,6 +42,14 @@ class ApplicationController < ActionController::Base
 
   def after_sign_in_path_for(resource)
     session[:previous_url] || root_path
+  end
+
+  private
+
+  def allow_site_iframe
+    if request.domain == "vitalsigns.org" || request.domain == "localhost"
+      response.headers['X-Frame-Options'] = "ALLOW-FROM #{request.url}"
+    end
   end
 
   protected
