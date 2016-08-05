@@ -1,5 +1,6 @@
 class EmbedController < ApplicationController
 
+  skip_after_action :allow_site_iframe
   after_action :allow_iframe
   layout 'embed'
 
