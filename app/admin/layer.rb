@@ -8,6 +8,25 @@ ActiveAdmin.register Layer do
                 :temporal_resolution, :temporal_resolution_units, :data_units,
                 :update_frequency, :version, :processing, :download, :description
 
+  member_action :clone, only: :show, method: :get do
+    n = resource.clone!
+
+    redirect_to edit_admin_layer_path( n )
+  end
+
+  index do
+    selectable_column
+
+    column :id
+    column :name
+    column :slug
+    column :active
+    column :published
+    actions defaults: true do |layer|
+      link_to 'Clone', clone_admin_layer_path(layer)
+    end
+  end
+
   form do |f|
     f.semantic_errors
     f.inputs 'Layer Details' do
@@ -35,9 +54,9 @@ ActiveAdmin.register Layer do
       #f.input :dataset_source_url, as: :string
     end
 
-    f.inputs "Common metadata source" do
-      f.input :source, as: :select, collection: Source.all.map { |s| ["#{s.source_type} - Ref: #{s.reference_short}", s.id] }, label: 'Select a source:'
-    end
+    # f.inputs "Common metadata source" do
+    #   f.input :source, as: :select, collection: Source.all.map { |s| ["#{s.source_type} - Ref: #{s.reference_short}", s.id] }, label: 'Select a source:'
+    # end
 
     f.inputs "Metadata" do
       f.input :title
