@@ -29,7 +29,6 @@
 #  download                  :boolean          default(FALSE)
 #  dataset_shortname         :string
 #  dataset_source_url        :text
-#  source_id                 :integer
 #  title                     :string
 #  start_date                :datetime
 #  end_date                  :datetime
