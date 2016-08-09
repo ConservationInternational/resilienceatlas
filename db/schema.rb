@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160728143410) do
+ActiveRecord::Schema.define(version: 20160809131236) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -114,7 +114,6 @@ ActiveRecord::Schema.define(version: 20160728143410) do
     t.boolean  "download",                  default: false
     t.string   "dataset_shortname"
     t.text     "dataset_source_url"
-    t.integer  "source_id"
     t.string   "title"
     t.datetime "start_date"
     t.datetime "end_date"
@@ -130,7 +129,14 @@ ActiveRecord::Schema.define(version: 20160728143410) do
   end
 
   add_index "layers", ["layer_group_id"], name: "index_layers_on_layer_group_id", using: :btree
-  add_index "layers", ["source_id"], name: "index_layers_on_source_id", using: :btree
+
+  create_table "layers_sources", id: false, force: :cascade do |t|
+    t.integer "layer_id"
+    t.integer "source_id"
+  end
+
+  add_index "layers_sources", ["layer_id"], name: "index_layers_sources_on_layer_id", using: :btree
+  add_index "layers_sources", ["source_id"], name: "index_layers_sources_on_source_id", using: :btree
 
   create_table "share_urls", force: :cascade do |t|
     t.string   "uid"

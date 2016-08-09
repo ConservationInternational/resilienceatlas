@@ -29,7 +29,6 @@
 #  download                  :boolean          default(FALSE)
 #  dataset_shortname         :string
 #  dataset_source_url        :text
-#  source_id                 :integer
 #  title                     :string
 #  start_date                :datetime
 #  end_date                  :datetime
@@ -47,12 +46,13 @@
 require 'zip'
 
 class Layer < ActiveRecord::Base
-  belongs_to :source, inverse_of: :layers, required: false
+  has_and_belongs_to_many :sources
 
   has_many :agrupations,  dependent: :destroy
   has_many :layer_groups, through: :agrupations,  dependent: :destroy
 
   accepts_nested_attributes_for :agrupations, allow_destroy: true
+  accepts_nested_attributes_for :sources, allow_destroy: true
 
   scope :site, -> (site) { eager_load([layer_groups: :super_group]).where(layer_groups:{site_scope_id: site}) }
 
