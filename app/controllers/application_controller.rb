@@ -48,9 +48,17 @@ class ApplicationController < ActionController::Base
 
   def allow_site_iframe
     if request.domain == "vitalsigns.org" || request.domain == "localhost"
-      path = request.fullpath
-      url = request.url
-      url.slice!(path)
+      url = 'vitalsigns.org'
+      req_url = request.url
+      if req_url.include?('rwanda')
+        url = 'rwanda.vitalsigns.org'
+      elsif req_url.include?('uganda')
+        url = 'uganda.vitalsigns.org'
+      elsif req_url.include?('tanzania')
+        url = 'tanzania.vitalsigns.org'
+      elsif req_url.include?('ghana')
+        url = 'ghana.vitalsigns.org'
+      end
       response.headers['X-Frame-Options'] = "ALLOW-FROM #{url}"
     end
   end
