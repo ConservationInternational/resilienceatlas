@@ -54,9 +54,9 @@ ActiveAdmin.register Layer do
       #f.input :dataset_source_url, as: :string
     end
 
-    # f.inputs "Common metadata source" do
-    #   f.input :source, as: :select, collection: Source.all.map { |s| ["#{s.source_type} - Ref: #{s.reference_short}", s.id] }, label: 'Select a source:'
-    # end
+    f.inputs "Common metadata source" do
+      f.input :source, as: :select, collection: Source.all.map { |s| ["#{s.source_type} - Ref: #{s.reference_short}", s.id] }, label: 'Select a source:'
+    end
 
     f.inputs "Metadata" do
       f.input :title
