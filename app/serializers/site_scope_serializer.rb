@@ -13,6 +13,8 @@
 #  zoom_level    :integer          default(3)
 #  linkback_text :text
 #  linkback_url  :text
+#  header_color  :string
+#  logo_url      :text
 #
 
 class SiteScopeSerializer < ActiveModel::Serializer
