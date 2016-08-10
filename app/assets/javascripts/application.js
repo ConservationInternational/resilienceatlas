@@ -90,7 +90,6 @@
         name: data.name || '',
         subdomain: data.subdomain || '',
         color: data.color || '#0089cc',
-        header_color: data.header_color || null,
         header_theme: data.header_theme || '',
         lat: data.latitude || NaN,
         lng: data.longitude || NaN,
