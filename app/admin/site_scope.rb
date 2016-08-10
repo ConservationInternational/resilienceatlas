@@ -1,5 +1,5 @@
 ActiveAdmin.register SiteScope do
-  permit_params :name, :subdomain, :color, :has_analysis, :latitude, :longitude, :header_theme, :zoom_level,  :linkback_text, :linkback_url
+  permit_params :name, :subdomain, :color, :has_analysis, :latitude, :longitude, :header_theme, :zoom_level,  :linkback_text, :linkback_url, :header_color, :logo_url
 # See permitted parameters documentation:
 # https://github.com/activeadmin/activeadmin/blob/master/docs/2-resource-customization.md#setting-up-strong-parameters
 #
@@ -20,6 +20,8 @@ ActiveAdmin.register SiteScope do
       f.input :name
       f.input :color
       f.input :header_theme, as: :select, collection: %w{ci-theme vs-theme}
+      f.input :header_color, as: :color
+      f.input :logo_url, as: :string
       f.input :subdomain
       f.input :has_analysis
       f.input :linkback_text, as: :string

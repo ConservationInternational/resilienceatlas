@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160728143410) do
+ActiveRecord::Schema.define(version: 20160809144628) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -164,6 +164,8 @@ ActiveRecord::Schema.define(version: 20160728143410) do
     t.integer "zoom_level",    default: 3
     t.text    "linkback_text"
     t.text    "linkback_url"
+    t.string  "header_color"
+    t.text    "logo_url"
   end
 
   create_table "sources", force: :cascade do |t|
