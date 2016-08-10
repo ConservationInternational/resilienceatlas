@@ -98,7 +98,7 @@
         link_text: data.linkback_text || null,
         link_url: data.linkback_url || null,
         header_color: data.header_color || null,
-        logo_url: data.logo_url || null
+        logo_url: data.logo_url || '/assets/logo-ci.png'
       }
 
       this.setThemeColor();
