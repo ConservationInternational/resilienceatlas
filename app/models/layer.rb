@@ -66,6 +66,14 @@ class Layer < ActiveRecord::Base
     layers = layers.site(site_scope)
   end
 
+  def clone!
+    l = self.clone
+    new_layer = Layer.new(l.attributes.except("id"))
+    new_layer.name = "#{self.name} _copy_ #{DateTime.now}"
+    new_layer.save!
+    return new_layer
+  end
+
   def zip_attachments(options, domain, site_name=nil, subdomain=nil)
     site_name = site_name.present? ? site_name : 'Conservation International'
 

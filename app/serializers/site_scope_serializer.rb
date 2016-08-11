@@ -13,9 +13,11 @@
 #  zoom_level    :integer          default(3)
 #  linkback_text :text
 #  linkback_url  :text
+#  header_color  :string
+#  logo_url      :text
 #
 
 class SiteScopeSerializer < ActiveModel::Serializer
-  attributes :id, :name, :color, :subdomain, :has_analysis, :latitude, :longitude, :header_theme, :zoom_level,  :linkback_text, :linkback_url
+  attributes :id, :name, :color, :subdomain, :has_analysis, :latitude, :longitude, :header_theme, :zoom_level,  :linkback_text, :linkback_url, :header_color, :logo_url
   has_many :site_pages
 end

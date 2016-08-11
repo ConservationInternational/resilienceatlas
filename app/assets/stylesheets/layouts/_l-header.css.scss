@@ -7,12 +7,17 @@
 }
 
 .l-header-nav {
+  // display: flex;
+  // justify-content: space-between;
+  // align-items: center;
   max-width: rem($content-width);
   margin: 0 auto;
   padding: 0 rem($content-margin);
   position: relative;
   z-index: 2;
   background-color: rgba($bg-color-1, .7);
+
+  // @include clearfix;
 
   .is-journey-map & {
     display: none;
@@ -57,8 +62,6 @@
     }
   }
 
-  @include clearfix;
-
   ul {
     @extend %clean-lists;
     opacity: 1;
@@ -72,10 +75,10 @@
     a {
       position: relative;
       display: block;
-      width: rem(140px);
+      width: rem(200px);
+      height: rem($header-height - 20px);
       padding: rem(5px) 0;
-      height: rem($header-height - 10px);
-      background-image: image-url("logo-ci.png");
+      // background-image: image-url("logo-ci.png");
       background-repeat: no-repeat;
       background-position: left center;
       background-size: contain;

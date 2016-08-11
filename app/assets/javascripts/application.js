@@ -90,13 +90,14 @@
         name: data.name || '',
         subdomain: data.subdomain || '',
         color: data.color || '#0089cc',
-        header_color: data.header_color || null,
         header_theme: data.header_theme || '',
         lat: data.latitude || NaN,
         lng: data.longitude || NaN,
         zoom_level: data.zoom_level || NaN,
-        link_text: data.linkback_text,
-        link_url: data.linkback_url
+        link_text: data.linkback_text || null,
+        link_url: data.linkback_url || null,
+        header_color: data.header_color || null,
+        logo_url: data.logo_url || '/assets/logo-ci.png'
       }
 
       this.setThemeColor();
@@ -116,23 +117,23 @@
       $('.theme-bg-color').css({'background-color': this.subdomainParams.color});
       $('.m-explore').css({'background-color': this.subdomainParams.color});
 
-      // if (this.subdomainParams.header_color) {
-      //   this.setHeaderColor();
-      // };
-
-      this.subdomainParams && this.subdomainParams.header_theme && this.setHeaderLogo();
+      this.subdomainParams && this.subdomainParams.header_color && this.setHeaderColor();
+      this.subdomainParams && this.subdomainParams.logo_url && this.setHeaderLogo();
+      this.subdomainParams && this.subdomainParams.header_theme && this.setHeaderTheme();
       this.subdomainParams && this.subdomainParams.link_text && this.setLink();
     },
 
-    // setHeaderColor: function() {
-    //   var color = this.hexToRgb(this.subdomainParams.header_color);
-    //   $('.l-header-nav').css({'background-color': 'rgba('+color+', 0.7)'})
-    // },
+    setHeaderColor: function() {
+      var color = this.hexToRgb(this.subdomainParams.header_color);
+      $('.l-header-nav').css({'background-color': 'rgba('+color+', 0.7)'})
+    },
+
+    setHeaderTheme: function() {
+      $('body').addClass('is-'+this.subdomainParams.header_theme);
+    },
 
     setHeaderLogo: function() {
-      if (this.subdomainParams && this.subdomainParams.header_theme) {
-        $('body').addClass('is-'+this.subdomainParams.header_theme);
-      }
+      $('.brand-area a').css({'background-image': 'url('+this.subdomainParams.logo_url+')'});
     },
 
     setLink: function() {

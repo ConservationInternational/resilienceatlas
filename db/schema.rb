@@ -170,6 +170,8 @@ ActiveRecord::Schema.define(version: 20160809131236) do
     t.integer "zoom_level",    default: 3
     t.text    "linkback_text"
     t.text    "linkback_url"
+    t.string  "header_color"
+    t.text    "logo_url"
   end
 
   create_table "sources", force: :cascade do |t|
