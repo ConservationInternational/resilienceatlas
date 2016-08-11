@@ -47,7 +47,7 @@ class LayerSerializer < ActiveModel::Serializer
   cache key: "layer"
   attributes :name, :slug, :layer_type, :zindex, :opacity, :active, :order, :dashboard_order, :color, :info, :interactivity, :css, :query, :layer_provider, :published, :locate_layer, :icon_class, :legend, :zoom_max, :zoom_min, :download, :dataset_shortname, :dataset_source_url
   has_one :layer_group, serializer: LayerGroupSerializer
-  has_one :source, serializer: SourceSerializer
+  has_many :sources, each_serializer: SourceSerializer
   def type
     'layers'
   end

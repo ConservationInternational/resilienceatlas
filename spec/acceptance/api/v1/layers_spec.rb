@@ -47,7 +47,7 @@ resource 'Layer' do
       parameter :with_format, 'If format is part of download_path'
 
       let!(:layer) do
-        layers[0].update(download: true)
+        layers[0].update(download: true, sources: [FactoryGirl.create(:source_layer)])
         layer = layers[0]
       end
 
@@ -130,6 +130,28 @@ resource 'Layer' do
         expect(status).to                       eq(200)
         expect(File.exists?(stub_layer_zip)).to eq(false)
         expect(json_main['message']).to         eq('No files for specified layer')
+      end
+
+      context 'Creating pdf without sources' do
+        let!(:layer) do
+          layers[0].update(download: true, sources: [])
+          layer = layers[0]
+        end
+
+        let(:stub_layer_zip) { "#{Rails.root}/downloads/#{layer.name.parameterize}-date-#{DateTime.now.to_date.to_s.parameterize}-main.zip" }
+
+        example 'Download the layer pdf of a specific layer without layer file and sources' do
+          do_request(id: layer.id)
+          allow_any_instance_of(Layer).to receive(:zipfile_name).and_return(stub_layer_zip)
+
+          expect(status).to                       eq(200)
+          expect(File.exists?(stub_layer_zip)).to eq(true)
+
+          Zip::File.open(stub_layer_zip) do |zip_file|
+            expect(zip_file.first.name).to eq(File.basename('test-layer-0.pdf'))
+          end
+          File.delete(stub_layer_zip)
+        end
       end
     end
   end

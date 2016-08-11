@@ -1,67 +1,7 @@
-# == Schema Information
-#
-# Table name: layers
-#
-#  id                        :integer          not null, primary key
-#  layer_group_id            :integer
-#  name                      :string           not null
-#  slug                      :string           not null
-#  layer_type                :string
-#  zindex                    :integer
-#  active                    :boolean
-#  order                     :integer
-#  color                     :string
-#  info                      :text
-#  layer_provider            :string
-#  css                       :text
-#  interactivity             :text
-#  opacity                   :float
-#  query                     :text
-#  created_at                :datetime         not null
-#  updated_at                :datetime         not null
-#  locate_layer              :boolean          default(FALSE)
-#  icon_class                :string
-#  published                 :boolean          default(TRUE)
-#  legend                    :text
-#  zoom_max                  :integer          default(100)
-#  zoom_min                  :integer          default(0)
-#  dashboard_order           :integer
-#  download                  :boolean          default(FALSE)
-#  dataset_shortname         :string
-#  dataset_source_url        :text
-#  source_id                 :integer
-#  title                     :string
-#  start_date                :datetime
-#  end_date                  :datetime
-#  spatial_resolution        :string
-#  spatial_resolution_units  :string
-#  temporal_resolution       :string
-#  temporal_resolution_units :string
-#  data_units                :string
-#  update_frequency          :string
-#  version                   :string
-#  processing                :string
-#
-# Table name: sources
-#
-#  id              :integer          not null, primary key
-#  source_type     :string
-#  reference       :string
-#  reference_short :string
-#  url             :string
-#  contact_name    :string
-#  contact_email   :string
-#  license         :string
-#  last_updated    :datetime
-#  version         :string
-#  created_at      :datetime         not null
-#  updated_at      :datetime         not null
-#
-
 class PdfFile
   def initialize(attributes, pdf_file_path, domain, site_name)
     @layer         = attributes['layer']
-    @source        = attributes['source'] if attributes['source'].present?
+    @sources       = attributes['sources'] if attributes['sources'].present?
     @pdf_file_path = pdf_file_path
     @domain        = URI.parse(domain)
     @site_name     = site_name
@@ -149,68 +89,38 @@ class PdfFile
   end
 
   def generated_table_data
-    layer = ['LAYER', "ID: #{@layer['id']}"]
-
-    a = ['Source ID', "#{@layer['source_id']}"]
-    b = ['Layer Type', "#{@layer['layer_type']}"]
-    c = ['Updated', "#{@layer['last_updated']}"]
-    d = ['Start Date', "#{@layer['start_date']}"]
-    e = ['End Date', "#{@layer['end_date']}"]
-    f = ['Spatial Resolution', "#{@layer['spatial_resolution']}"]
-    g = ['Spatial Resolution Units', "#{@layer['spatial_resolution_units']}"]
-    h = ['Temporal Resolution', "#{@layer['temporal_resolution']}"]
-    i = ['Spatial Resolution Units', "#{@layer['temporal_resolution_units']}"]
-    j = ['Data Units', "#{@layer['data_units']}"]
-    k = ['Update Frequency', "#{@layer['update_frequency']}"]
-    l = ['Layer Version', "#{@layer['version']}"]
-    m = ['Processing', "#{@layer['processing']}"]
-
-    if @source
-      source = ['SOURCE', "ID: #{@source['id']}"]
-
-      sa = ['Source Type', "#{@source['source_type']}"]
-      sb = ['Reference', "#{@source['reference']}"]
-      sc = ['Reference Short', "#{@source['reference_short']}"]
-      sd = ['URL', "#{@source['url']}"]
-      se = ['Contact Name', "#{@source['contact_name']}"]
-      sf = ['Contact Email', "#{@source['contact_email']}"]
-      sg = ['License', "#{@source['license']}"]
-      sh = ['License URL', "#{@source['license_url']}"]
-      si = ['Updated', "#{@source['last_updated']}"]
-      sj = ['Version', "#{@source['version']}"]
-      sk = ['Spatial Resolution Units', "#{@source['spatial_resolution_units']}"]
-    end
-
     table_data = Array.new
-    table_data << layer
-    table_data << a
-    table_data << b
-    table_data << c
-    table_data << d
-    table_data << e
-    table_data << f
-    table_data << g
-    table_data << h
-    table_data << i
-    table_data << j
-    table_data << k
-    table_data << l
-    table_data << m
+    table_data << ['LAYER', "ID: #{@layer['id']}"]
+    table_data << ['Source ID', "#{@layer['source_id']}"]
+    table_data << ['Layer Type', "#{@layer['layer_type']}"]
+    table_data << ['Updated', "#{@layer['last_updated']}"]
+    table_data << ['Start Date', "#{@layer['start_date']}"]
+    table_data << ['End Date', "#{@layer['end_date']}"]
+    table_data << ['Spatial Resolution', "#{@layer['spatial_resolution']}"]
+    table_data << ['Spatial Resolution Units', "#{@layer['spatial_resolution_units']}"]
+    table_data << ['Temporal Resolution', "#{@layer['temporal_resolution']}"]
+    table_data << ['Spatial Resolution Units', "#{@layer['temporal_resolution_units']}"]
+    table_data << ['Data Units', "#{@layer['data_units']}"]
+    table_data << ['Update Frequency', "#{@layer['update_frequency']}"]
+    table_data << ['Layer Version', "#{@layer['version']}"]
+    table_data << ['Processing', "#{@layer['processing']}"]
 
-    if @source
-      table_data << source
-      table_data << sa
-      table_data << sb
-      table_data << sc
-      table_data << sd
-      table_data << se
-      table_data << sf
-      table_data << sg
-      table_data << sh
-      table_data << si
-      table_data << sj
-      table_data << sk
-    end
+    @sources.map do |source|
+      table_data << ['','']
+      table_data << ['','']
+      table_data << ['SOURCE', "ID: #{source['id']}"]
+      table_data << ['Source Type', "#{source['source_type']}"]
+      table_data << ['Reference', "#{source['reference']}"]
+      table_data << ['Reference Short', "#{source['reference_short']}"]
+      table_data << ['URL', "#{source['url']}"]
+      table_data << ['Contact Name', "#{source['contact_name']}"]
+      table_data << ['Contact Email', "#{source['contact_email']}"]
+      table_data << ['License', "#{source['license']}"]
+      table_data << ['License URL', "#{source['license_url']}"]
+      table_data << ['Updated', "#{source['last_updated']}"]
+      table_data << ['Version', "#{source['version']}"]
+      table_data << ['Spatial Resolution Units', "#{source['spatial_resolution_units']}"]
+    end if @sources.present?
 
     table_data
   end
