@@ -52,8 +52,8 @@ RSpec.describe Layer, type: :model do
   end
 
   it 'Layer is valid' do
-    expect(@layer).to                    be_valid
-    expect(@layer.source.source_type).to eq('Info')
+    expect(@layer).to                           be_valid
+    expect(@layer.sources.first.source_type).to eq('Info')
   end
 
   it 'Count layers' do

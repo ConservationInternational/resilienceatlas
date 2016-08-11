@@ -101,8 +101,8 @@ class Layer < ActiveRecord::Base
       end
 
       layer_attr = {}
-      layer_attr['layer']  = attributes
-      layer_attr['source'] = source.attributes if source_id.present?
+      layer_attr['layer']   = attributes
+      layer_attr['sources'] = sources.map { |s| s.attributes } if sources.any?
 
       pdf_file = PdfFile.new(layer_attr, pdf_file_path, domain, site_name)
       pdf_file.generate_pdf_file
@@ -120,7 +120,7 @@ class Layer < ActiveRecord::Base
     def date_valid?(subdomain)
       file_date    = File.basename(zipfile_name(subdomain), '.zip').split('-date-').last
       self_date    = self.updated_at.to_date.to_s.parameterize
-      source_date  = self.source.updated_at.to_date.to_s.parameterize if source
+      source_date  = self.sources.map { |s| s.updated_at.to_date.to_s.parameterize }.compact.flatten.max if sources.any?
       objects_date = [self_date, source_date].compact.max
 
       return true if file_date >= objects_date

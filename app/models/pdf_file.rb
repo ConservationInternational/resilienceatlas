@@ -61,7 +61,7 @@
 class PdfFile
   def initialize(attributes, pdf_file_path, domain, site_name)
     @layer         = attributes['layer']
-    @source        = attributes['source'] if attributes['source'].present?
+    @sources       = attributes['sources'] if attributes['sources'].present?
     @pdf_file_path = pdf_file_path
     @domain        = URI.parse(domain)
     @site_name     = site_name
@@ -165,22 +165,6 @@ class PdfFile
     l = ['Layer Version', "#{@layer['version']}"]
     m = ['Processing', "#{@layer['processing']}"]
 
-    if @source
-      source = ['SOURCE', "ID: #{@source['id']}"]
-
-      sa = ['Source Type', "#{@source['source_type']}"]
-      sb = ['Reference', "#{@source['reference']}"]
-      sc = ['Reference Short', "#{@source['reference_short']}"]
-      sd = ['URL', "#{@source['url']}"]
-      se = ['Contact Name', "#{@source['contact_name']}"]
-      sf = ['Contact Email', "#{@source['contact_email']}"]
-      sg = ['License', "#{@source['license']}"]
-      sh = ['License URL', "#{@source['license_url']}"]
-      si = ['Updated', "#{@source['last_updated']}"]
-      sj = ['Version', "#{@source['version']}"]
-      sk = ['Spatial Resolution Units', "#{@source['spatial_resolution_units']}"]
-    end
-
     table_data = Array.new
     table_data << layer
     table_data << a
@@ -197,20 +181,20 @@ class PdfFile
     table_data << l
     table_data << m
 
-    if @source
-      table_data << source
-      table_data << sa
-      table_data << sb
-      table_data << sc
-      table_data << sd
-      table_data << se
-      table_data << sf
-      table_data << sg
-      table_data << sh
-      table_data << si
-      table_data << sj
-      table_data << sk
-    end
+    @sources.map do |source|
+      table_data << ['SOURCE', "ID: #{source['id']}"]
+      table_data << ['Source Type', "#{source['source_type']}"]
+      table_data << ['Reference', "#{source['reference']}"]
+      table_data << ['Reference Short', "#{source['reference_short']}"]
+      table_data << ['URL', "#{source['url']}"]
+      table_data << ['Contact Name', "#{source['contact_name']}"]
+      table_data << ['Contact Email', "#{source['contact_email']}"]
+      table_data << ['License', "#{source['license']}"]
+      table_data << ['License URL', "#{source['license_url']}"]
+      table_data << ['Updated', "#{source['last_updated']}"]
+      table_data << ['Version', "#{source['version']}"]
+      table_data << ['Spatial Resolution Units', "#{source['spatial_resolution_units']}"]
+    end if @sources.present?
 
     table_data
   end
