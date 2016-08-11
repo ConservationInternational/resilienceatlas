@@ -6,7 +6,7 @@ ActiveAdmin.register Layer do
                 :dataset_shortname, :dataset_source_url, :source_id, :title,
                 :start_date, :end_date, :spatial_resolution, :spatial_resolution_units,
                 :temporal_resolution, :temporal_resolution_units, :data_units,
-                :update_frequency, :version, :processing, :download, :description
+                :update_frequency, :version, :processing, :download, :description, source_ids:[]
 
   member_action :clone, only: :show, method: :get do
     n = resource.clone!
@@ -54,8 +54,8 @@ ActiveAdmin.register Layer do
       #f.input :dataset_source_url, as: :string
     end
 
-    f.inputs "Common metadata source" do
-      f.input :source, as: :select, collection: Source.all.map { |s| ["#{s.source_type} - Ref: #{s.reference_short}", s.id] }, label: 'Select a source:'
+    f.inputs "Common metadata sources" do
+      f.input :sources, as: :select, collection: Source.all.map { |s| ["#{s.source_type} - Ref: #{s.reference_short}", s.id] }, label: 'Select sources:', multiple: true
     end
 
     f.inputs "Metadata" do
