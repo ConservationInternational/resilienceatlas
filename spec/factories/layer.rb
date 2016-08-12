@@ -21,7 +21,18 @@ FactoryGirl.define do
     license Faker::Lorem.words(2)
     last_updated Faker::Date.between(100.days.ago, Date.today)
     after(:create) do |with_source|
-      FactoryGirl.create(:layer, source: with_source)
+      FactoryGirl.create(:layer, sources: [with_source])
     end
+  end
+
+  factory :source_layer, class: Source do
+    source_type 'Info'
+    reference Faker::Lorem.word
+    reference_short Faker::Lorem.words(2)
+    url Faker::Internet.url
+    contact_name Faker::Name.name
+    contact_email Faker::Internet.email
+    license Faker::Lorem.words(2)
+    last_updated Faker::Date.between(100.days.ago, Date.today)
   end
 end
