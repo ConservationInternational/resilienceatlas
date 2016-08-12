@@ -37,7 +37,8 @@
       var html = this.template({
         url: url,
         link: url,
-        embed: url.replace('map', 'embed/map')
+        embed: url.replace('map', 'embed/map'),
+        oembed: this.getOembedUrl()
       });
 
       this.$el.append(html);
@@ -47,6 +48,14 @@
 
     afterRender: function() {
       $(document).foundation('tab', 'reflow');
+    },
+
+    getOembedUrl: function() {
+      var utils = new app.View.Utils;
+      var base64 = utils.toBase64(window.location.href);
+      var url = window.location.origin + "/services/oembed/?url=" + base64;
+
+      return url;
     },
 
     shareParams: function() {
