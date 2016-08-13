@@ -428,6 +428,7 @@ DEPENDENCIES
   active_admin_theme
   active_model_serializers (= 0.10.0.rc2)
   activeadmin!
+  addressable
   annotate (~> 2.6.5)
   autoprefixer-rails
   awesome_print
