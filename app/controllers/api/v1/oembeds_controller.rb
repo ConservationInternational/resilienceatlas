@@ -14,12 +14,13 @@ module Api
         oembed.height = params[:maxheight].to_i if params[:maxheight]
         oembed.provider_name = @domain
         oembed.provider_url = "http://#{@domain}"
-        oembed.html = %Q{<iframe frameborder="0" width="#{oembed.width}" height="#{oembed.height}" src="http://localhost:5000/embed/map?#{@query}"></iframe>}
+        src_url = @url.to_s.gsub(@url.path.to_s, '').gsub(@url.query.to_s, '').gsub('?', '')
+        oembed.html = %Q{<iframe frameborder="0" width="#{oembed.width}" height="#{oembed.height}" src="#{src_url}/embed/map?#{@query}"></iframe>}
         case @format
           when 'xml'
-            render xml: JSON.parse(oembed.to_json).to_xml(root: 'oembed'), content_type: "application/xml"
+            render xml: JSON.parse(oembed.to_json).to_xml(root: 'oembed')
           when 'json'
-            render json: oembed, content_type: "application/json"
+            render json: oembed
         end
       end
 
@@ -55,6 +56,7 @@ module Api
         permitted_domains = %w{vitalsigns.org resilienceatlas.org localhost}
         begin
           url = Addressable::URI.parse(url)
+          @url = url
         rescue => e
           render_error(400)
         end
