@@ -6,6 +6,7 @@ module Api
 
       before_action :set_format
       before_action :decode_url
+      #after_action :send_content_type_headers
 
       def show
         oembed = Oembed.new
@@ -16,13 +17,17 @@ module Api
         oembed.html = %Q{<iframe frameborder="0" width="#{oembed.width}" height="#{oembed.height}" src="http://localhost:5000/embed/map?#{@query}"></iframe>}
         case @format
           when 'xml'
-            render xml: JSON.parse(oembed.to_json).to_xml(root: 'oembed')
+            render xml: JSON.parse(oembed.to_json).to_xml(root: 'oembed'), content_type: "application/xml"
           when 'json'
-            render json: oembed
+            render json: oembed, content_type: "application/json"
         end
       end
 
       private
+
+      def send_content_type_headers
+        response.headers["Content-Type"] = "application/#{@format}"
+      end
 
       def set_format
         if params[:format] && params[:format] == 'xml'
