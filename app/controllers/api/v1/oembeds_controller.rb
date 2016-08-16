@@ -6,6 +6,7 @@ module Api
 
       before_action :set_format
       before_action :decode_url
+      #after_action :send_content_type_headers
 
       def show
         oembed = Oembed.new
@@ -13,7 +14,8 @@ module Api
         oembed.height = params[:maxheight].to_i if params[:maxheight]
         oembed.provider_name = @domain
         oembed.provider_url = "http://#{@domain}"
-        oembed.html = %Q{<iframe frameborder="0" width="#{oembed.width}" height="#{oembed.height}" src="http://localhost:5000/embed/map?#{@query}"></iframe>}
+        src_url = @url.to_s.gsub(@url.path.to_s, '').gsub(@url.query.to_s, '').gsub('?', '')
+        oembed.html = %Q{<iframe frameborder="0" width="#{oembed.width}" height="#{oembed.height}" src="#{src_url}/embed/map?#{@query}"></iframe>}
         case @format
           when 'xml'
             render xml: JSON.parse(oembed.to_json).to_xml(root: 'oembed')
@@ -23,6 +25,10 @@ module Api
       end
 
       private
+
+      def send_content_type_headers
+        response.headers["Content-Type"] = "application/#{@format}"
+      end
 
       def set_format
         if params[:format] && params[:format] == 'xml'
@@ -50,6 +56,7 @@ module Api
         permitted_domains = %w{vitalsigns.org resilienceatlas.org localhost}
         begin
           url = Addressable::URI.parse(url)
+          @url = url
         rescue => e
           render_error(400)
         end
