@@ -52,8 +52,9 @@
 
     getOembedUrl: function() {
       var utils = new app.View.Utils;
-      var base64 = utils.toBase64(window.location.href);
-      var url = window.location.origin + "/services/oembed/?url=" + base64;
+      //var base64 = utils.toBase64(window.location.href);
+      //var url = window.location.origin + "/services/oembed/?url=" + base64;
+      var url = window.location.origin + "/services/oembed/?url=" + window.location.href;
 
       return url;
     },

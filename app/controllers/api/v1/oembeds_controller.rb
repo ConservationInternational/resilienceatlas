@@ -41,10 +41,12 @@ module Api
       def decode_url
         if params[:url] && params[:url] != ''
           url = params[:url]
-          begin
-            url = Base64.decode64(url)
-          rescue => e
-            render_error(422)
+          unless url.include?('http://')
+            begin
+              url = Base64.decode64(url)
+            rescue => e
+              render_error(422)
+            end
           end
           validate(url)
         else
