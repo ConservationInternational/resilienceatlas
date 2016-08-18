@@ -11,6 +11,7 @@
           <ul class="tabs tabs-secondary-content" data-tab>
             <li class="tab-title active"><a href="#share-link">Link</a></li>
             <li class="tab-title"><a href="#share-embed">Embed</a></li>
+            <li class="tab-title"><a href="#share-oembed">OEmbed</a></li>
           </ul>
         </div>
 
@@ -21,12 +22,20 @@
               <input class="url" value="{{link}}" />
               <div class="btn-copy">Copy</div>
             </div>
-
           </div>
+
           <div class="content" id="share-embed">
             <p>Copy the embed code below to share it</p>
             <div class="link-box">
               <input class="url" value='<iframe frameborder="0" width="960" height="600" src="{{embed}}"></iframe>' />
+              <div class="btn-copy">Copy</div>
+            </div>
+          </div>
+
+          <div class="content" id="share-oembed">
+            <p>Copy the oembed code below to share it</p>
+            <div class="link-box">
+              <input class="url" value="{{oembed}}" />
               <div class="btn-copy">Copy</div>
             </div>
           </div>

@@ -23,6 +23,8 @@ Rails.application.routes.draw do
     end
   end
 
+  get 'services/oembed', to: 'api/v1/oembeds#show'
+
   # Application
   # get '/', to: 'map#index', constraints: { subdomain: /indicators.+/ }
   # get '/', to: 'welcome#index', as: 'root'

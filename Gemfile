@@ -19,6 +19,8 @@ gem 'devise'
 gem 'activeadmin', github: 'activeadmin'
 gem 'active_model_serializers', '0.10.0.rc2'
 
+gem 'addressable'
+
 # Omniauth
 gem 'omniauth'
 gem 'omniauth-twitter'
