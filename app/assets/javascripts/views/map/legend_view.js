@@ -13,6 +13,7 @@
     templateLegends: {
       choropleth : HandlebarsTemplates['map/legend_choropleth_tpl'],
       custom : HandlebarsTemplates['map/legend_custom_tpl'],
+      border : HandlebarsTemplates['map/legend_border_tpl'],
       'legend-round' : HandlebarsTemplates['map/legend_round_tpl']
     },
 

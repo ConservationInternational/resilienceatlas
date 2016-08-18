@@ -295,7 +295,8 @@ $side-bar-width: 360px;
 
   // custom
   .m-legend__custom,
-  .m-legend__round {
+  .m-legend__round,
+  .m-legend__border {
     position: relative;
     display: flex;
     display: -ms-box;
@@ -326,6 +327,14 @@ $side-bar-width: 360px;
     .side-bar & {
       padding-left: 0;
       padding-top: 0;
+    }
+  }
+
+  .m-legend__border  {
+    .item {
+      span {
+        border: 2px solid #fff;
+      }
     }
   }
 
