@@ -60,6 +60,8 @@ class ApplicationController < ActionController::Base
         url = 'http://ghana.vitalsigns.org'
       end
       response.headers['X-Frame-Options'] = "ALLOW-FROM #{url}"
+    elsif request.domain == "globalresiliencepartnership.org"
+      response.headers['X-Frame-Options'] = "ALLOW-FROM http://globalresiliencepartnership.org"
     end
   end
 
