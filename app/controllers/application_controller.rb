@@ -47,19 +47,8 @@ class ApplicationController < ActionController::Base
   private
 
   def allow_site_iframe
-    if request.domain == "vitalsigns.org" || request.domain == "localhost"
-      url = 'http://vitalsigns.org'
-      req_url = request.url
-      if req_url.include?('rwanda')
-        url = 'http://rwanda.vitalsigns.org'
-      elsif req_url.include?('uganda')
-        url = 'http://uganda.vitalsigns.org'
-      elsif req_url.include?('tanzania')
-        url = 'http://tanzania.vitalsigns.org'
-      elsif req_url.include?('ghana')
-        url = 'http://ghana.vitalsigns.org'
-      end
-      response.headers['X-Frame-Options'] = "ALLOW-FROM #{url}"
+     if ['resilienceatlas.org', 'vitalsigns.org', 'globalresiliencepartnership.org'].include? request.domain
+      response.headers['X-Frame-Options'] = "ALLOW-FROM http://#{request.subdomain}#{request.domain}"
     end
   end
 
