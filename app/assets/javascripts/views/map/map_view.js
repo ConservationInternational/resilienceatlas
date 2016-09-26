@@ -389,19 +389,23 @@
         newAttributionText = '',
         newAttribution = {};
 
-      if (!layerData.reference_short) {
+
+      if (!layerData.attributions) {
         return;
       }
 
-      newAttribution = {
-        name: layerData.reference_short,
-        url: layerData.reference_url,
-        layer: layerData.id
-      };
+      _.each(layerData.attributions, function(attr) {
+        newAttribution = {
+          name: attr.attributes.reference_short,
+          url: attr.attributes.url,
+          layer: layerData.id
+        };
 
-      newAttributionText = this._getFormattedAttribution(newAttribution);
-      customAttributions.push(newAttribution);
-      this.map.attributionControl.addAttribution(newAttributionText);
+        newAttributionText = this._getFormattedAttribution(newAttribution);
+        this.map.attributionControl.addAttribution(newAttributionText);
+        customAttributions.push(newAttribution);
+      }.bind(this))
+
     },
 
     /**
@@ -421,15 +425,16 @@
         removed = false;
 
 
-      customAttributions.forEach(function(attribution, index) {
-        if (!removed && layerData  && attribution.layer === layerData.id ) {
-          textToRemove = this._getFormattedAttribution(attribution);
-          customAttributions.splice(index, 1);
-          removed = !removed;
-        }
-      }.bind(this));
+      _.each(customAttributions, function(attribution, index) {
 
-      this.map.attributionControl.removeAttribution(textToRemove);
+        if (layerData && attribution.layer === layerData.id ) {
+          textToRemove = this._getFormattedAttribution(attribution);
+          this.map.attributionControl.removeAttribution(textToRemove);
+        }
+
+      }.bind(this))
+
+
     },
 
     /**
