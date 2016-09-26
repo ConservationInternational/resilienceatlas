@@ -23,11 +23,11 @@
   .is-indicators &,
   .is-atlas &,
   .is-vs-theme & {
-    background-color: rgba(#222222, .7);
+    // background-color: rgba(#222222, .7);
   }
 
   .is-ci-theme & {
-    background-color: rgba($bg-color-1, .7);
+    // background-color: rgba($bg-color-1, .7);
   }
 
   // &:before {
@@ -84,11 +84,11 @@
       .is-indicators &,
       .is-atlas &,
       .is-vs-theme & {
-        background-image: image-url("logo-vs.png");
+        // background-image: image-url("logo-vs.png");
       }
 
       .is-ci-theme & {
-        background-image: image-url("logo-ci.png");
+        // background-image: image-url("logo-ci.png");
       }
 
       &:hover {
