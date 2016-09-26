@@ -425,15 +425,16 @@
         removed = false;
 
 
-      customAttributions.forEach(function(attribution, index) {
-        if (!removed && layerData  && attribution.layer === layerData.id ) {
-          textToRemove = this._getFormattedAttribution(attribution);
-          customAttributions.splice(index, 1);
-          removed = !removed;
-        }
-      }.bind(this));
+      _.each(customAttributions, function(attribution, index) {
 
-      this.map.attributionControl.removeAttribution(textToRemove);
+        if (layerData && attribution.layer === layerData.id ) {
+          textToRemove = this._getFormattedAttribution(attribution);
+          this.map.attributionControl.removeAttribution(textToRemove);
+        }
+
+      }.bind(this))
+
+
     },
 
     /**
