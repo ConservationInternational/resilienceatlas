@@ -15,7 +15,7 @@ module Api
         oembed.provider_name = @domain
         oembed.provider_url = "http://#{@domain}"
         src_url = @url.to_s.gsub(@url.path.to_s, '').gsub(@url.query.to_s, '').gsub('?', '')
-        oembed.html = %Q{<iframe frameborder="0" width="#{oembed.width}" height="#{oembed.height}" src="#{src_url}/embed/map?#{@query}"></iframe>}
+        oembed.html = %Q{<iframe frameborder="0" width="#{oembed.width}" height="#{oembed.height}" src="#{src_url.gsub('http://', 'https://')}/embed/map?#{@query}"></iframe>}
         case @format
           when 'xml'
             render xml: JSON.parse(oembed.to_json).to_xml(root: 'oembed')
@@ -41,7 +41,7 @@ module Api
       def decode_url
         if params[:url] && params[:url] != ''
           url = request.query_string.gsub("url=","")
-          unless url.include?('http://')
+          unless url.include?('http://') || url.include?('https://')
             begin
               url = Base64.decode64(url)
             rescue => e
