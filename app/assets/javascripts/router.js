@@ -40,6 +40,7 @@
       this.options = _.extend({}, this.defaults, opts);
       this.params = new this.ParamsModel(); // This object save the URL params
 
+      this._checkHeaderParam();
       this._checkJourneyMap();
       this.setListeners();
     },
@@ -52,6 +53,13 @@
 
       if (params.journeyMap) {
         $('body').addClass('is-journey-map');
+      }
+    },
+
+    _checkHeaderParam: function() {
+      var params = this._unserializeParams();
+      if (params.bare === 'true') {
+        $('body').addClass('is-bare');
       }
     },
 
