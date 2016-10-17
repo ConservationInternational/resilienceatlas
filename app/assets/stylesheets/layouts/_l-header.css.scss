@@ -4,6 +4,12 @@
   z-index: 5;
   height: rem($header-height);
   box-shadow: 0 0 2px 0 rgba(0,0,0,.2);
+  transition: .3s ease;
+  transform: translatey(-100%);
+
+  .is-not-bare & {
+    transform: translatey(0);
+  }
 }
 
 .l-header-nav {
@@ -29,27 +35,6 @@
   .is-ci-theme & {
     // background-color: rgba($bg-color-1, .7);
   }
-
-  // &:before {
-  //   content: "";
-  //   display: block;
-  //   position: absolute;
-  //   top: 0;
-  //   left: 0;
-  //   width: 37px;
-  //   height: 37px;
-  //   background-image: image-url('beta.svg');
-
-  //   .is-indicators &,
-  //   .is-atlas &,
-  //   .is-vs-theme & {
-  //     display: none;
-  //   }
-
-  //   .is-ci-theme & {
-  //     display: block;
-  //   }
-  // }
 
   .l-main--embed & {
     padding-left: rem(20px);

@@ -42,7 +42,7 @@
 
 .l-sidebar--fullscreen {
   position: absolute;
-  top: rem($header-height);
+  top: 0;
   left: 0;
   bottom: 0;
   z-index: 5;
@@ -51,6 +51,10 @@
   background-color: $bg-color-1;
   z-index: 1;
   transition: .25s ease-in-out;
+
+  .is-not-bare & {
+    top: rem($header-height);
+  }
 
   &.is-collapsed {
     transform: translatex(-100%);
