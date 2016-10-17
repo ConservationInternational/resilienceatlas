@@ -60,6 +60,8 @@
       var params = this._unserializeParams();
       if (params.bare === 'true') {
         $('body').addClass('is-bare');
+      } else {
+        $('body').addClass('is-not-bare');
       }
     },
 

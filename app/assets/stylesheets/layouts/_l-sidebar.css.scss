@@ -42,7 +42,7 @@
 
 .l-sidebar--fullscreen {
   position: absolute;
-  top: rem($header-height);
+  top: 0;
   left: 0;
   bottom: 0;
   z-index: 5;
@@ -52,8 +52,8 @@
   z-index: 1;
   transition: .25s ease-in-out;
 
-  .is-bare & {
-    top: 0;
+  .is-not-bare & {
+    top: rem($header-height);
   }
 
   &.is-collapsed {
