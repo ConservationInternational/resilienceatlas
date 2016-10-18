@@ -1,13 +1,15 @@
 .l-header,
 .l-header--fullscreen {
+  display: none;
   position: relative;
   z-index: 5;
   height: rem($header-height);
   box-shadow: 0 0 2px 0 rgba(0,0,0,.2);
-  transition: .3s ease;
+  transition: transform .3s ease;
   transform: translatey(-100%);
 
   .is-not-bare & {
+    display: block;
     transform: translatey(0);
   }
 }
