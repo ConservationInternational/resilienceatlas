@@ -12,6 +12,10 @@
   .is-journeys-page & {
     // background-color: $font-color-4;
   }
+
+  .is-not-bare & {
+    top: rem($header-height);
+  }
 }
 
 .l-main--embed {

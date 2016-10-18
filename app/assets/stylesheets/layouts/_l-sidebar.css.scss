@@ -52,9 +52,9 @@
   z-index: 1;
   transition: .25s ease-in-out;
 
-  .is-not-bare & {
-    top: rem($header-height);
-  }
+  // .is-not-bare & {
+  //   top: rem($header-height);
+  // }
 
   &.is-collapsed {
     transform: translatex(-100%);
