@@ -58,6 +58,10 @@
     .content {
       padding: 0 rem(10px) rem(20px);
     }
+
+    .is-bare & {
+      bottom: 70px;
+    }
   }
 
 }

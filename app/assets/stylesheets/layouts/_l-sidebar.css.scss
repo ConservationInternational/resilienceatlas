@@ -79,5 +79,32 @@
       padding-top: 20px;
     }
   }
+
+  .bare-header {
+    display: none;
+    position: absolute;
+    bottom: 10px;
+    left: 0;
+    right: 0;
+
+    .is-bare & {
+      display: block;
+    }
+  }
+
+  .brand-area {
+    display: block;
+    width: rem(142px);
+    height: 2.8125rem;
+    padding: 0.3125rem 0;
+    margin: 0 auto;
+    background-repeat: no-repeat;
+    background-position: left center;
+    background-size: contain;
+    text-indent: -99999px;
+    background-image: url("/assets/logo-ci.png");
+  }
 }
+
+
 
