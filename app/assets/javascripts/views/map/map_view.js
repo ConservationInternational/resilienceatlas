@@ -358,6 +358,13 @@
             layer.setOpacity(layerData.opacity);
             layer.setZIndex(1000 + layerData.order);
             this._setAttribution(layerData);
+
+            var sublayer = layer.getSubLayer(0);
+            // add infowindow interactivity to the sublayer (show cartodb_id and name columns from the table)
+            if (options.sublayers.length && options.sublayers[0].interactivity) {
+              console.log(options.sublayers[0].interactivity);
+              cartodb.vis.Vis.addInfowindow(this.map, sublayer, options.sublayers[0].interactivity);
+            }
           }.bind(this));
         }
 
