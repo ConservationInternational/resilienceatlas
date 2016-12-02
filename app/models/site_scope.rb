@@ -20,7 +20,7 @@
 class SiteScope < ActiveRecord::Base
   has_many :layer_groups
   has_many :site_pages
-  # validates_presence_of :name, :header_theme
+  validates_presence_of :name, :header_theme
   def location
     [:latitude, :longitude]
   end
