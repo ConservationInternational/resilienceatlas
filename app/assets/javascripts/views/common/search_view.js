@@ -184,8 +184,8 @@
 
         Backbone.Events.trigger('map:set:fitbounds', bbox);
         Backbone.Events.trigger('map:set:mask', iso, 0.8, {
-          query: 'select * from grpcountries_250k_polygon',
-          tableName: 'grpcountries_250k_polygon'
+          query: 'select * from gadm28_adm0',
+          tableName: 'gadm28_adm0'
         });
 
         this.trigger('selected', iso, area[0].get('name'));

@@ -17,7 +17,7 @@
       var self = this;
       var fetchOptions;
       var tableName = this._getTableName();
-      var query = 'SELECT initcap(s_name) as name, bbox as bbox, iso3 as iso FROM ' + tableName;
+      var query = 'SELECT name_engli as name, bbox as bbox, iso as iso FROM ' + tableName;
 
       fetchOptions = {
         dataType: 'json',
@@ -31,11 +31,11 @@
     },
 
     _getTableName: function() {
-      var name = 'grpcountries_250k_polygon';
+      var name = 'gadm28_adm0';
       var isSubdomain = window.isSubdomain;
 
       if (isSubdomain === 'indicators') {
-        name = 'vs_countries';
+        name = "gadm28_adm0 where iso in ('KEN', 'UGA', 'GHA', 'RWA', 'TZA')";
       }
       return name;
     }
