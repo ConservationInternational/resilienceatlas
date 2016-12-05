@@ -90,6 +90,31 @@
     .is-bare & {
       display: block;
     }
+
+    .site-title {
+	text-align: center;
+    	font-size: rem(24px);
+	font-weight: 400;
+	text-transform: uppercase;
+	line-height: 1;
+	margin: 4px;
+
+	a:visited{
+	    color:#555555;
+        }
+    }
+
+    .site-title-by {
+	text-align: center;
+    	font-size: rem(12px);
+	margin: 0px;
+    }
+
+    .site-copyright {
+	text-align: center;
+    	font-size: rem(12px);
+	margin: 5px;
+    }
   }
 
   .brand-area {
