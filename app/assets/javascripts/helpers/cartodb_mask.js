@@ -11,15 +11,14 @@
    */
   root.app.Helper.CartoDBmask = root.app.Helper.Class.extend({
 
+
     defaults: {
       user_name: 'ra', // Required
       type: 'cartodb', // Required
       cartodb_logo: false,
       maps_api_template: 'https://cdb-cdn.resilienceatlas.org/user/ra',
       sql_api_template: 'https://cdb-cdn.resilienceatlas.org/user/ra',
-      sublayers: [{
-        sql: "select * from country_masks",
-      }]
+      sublayers: [{sql: "select * from gadm28_adm0"}, {sql: "select * from gadm28_adm0", cartocss: "#gadm28_adm0{polygon-fill: #FFF;polygon-opacity: 0;line-color: #DDD;}"}]
     },
 
     initialize: function(map, countryIso, settings) {
@@ -32,19 +31,22 @@
       if(this.options.searchMask) {
         var searchMaskOpts = this.options.searchMask;
         this.options.sublayers[0].sql = searchMaskOpts.query;
-        this.options.sublayers[0].cartocss = this._setCartoCss(countryIso, searchMaskOpts.tableName);
+        this.options.sublayers[0].cartocss = this._setMaskCartoCSS(countryIso, searchMaskOpts.tableName);
       } else {
-        this.options.sublayers[0].cartocss = this._setCartoCss(countryIso);
+        this.options.sublayers[0].cartocss = this._setMaskCartoCSS(countryIso);
       }
 
       this._setMap(map);
     },
-
-    _setCartoCss: function(countryIso, tableName) {
-      var carto = "#country_mask{polygon-fill: #FFF;polygon-opacity: 1;line-color: #DDD;}#country_mask[iso='"+ countryIso +"']{polygon-opacity: 0;}";
+    
+    /**
+     * Setup CSS for masked area
+     */
+    _setMaskCartoCSS: function(countryIso, tableName) {
+      var carto = "#country_mask{polygon-fill: #FFF;polygon-opacity: 1;line-width: 0;}#country_mask[iso='"+ countryIso +"']{polygon-opacity: 0;}";
 
       if(tableName) {
-        carto = "#"+tableName+"{polygon-fill: #FFF;polygon-opacity: 1;line-color: #DDD;}#"+tableName+"[iso='"+ countryIso +"']{polygon-opacity: 0;}"
+        carto = "#"+tableName+"{polygon-fill: #FFF;polygon-opacity: 1;line-width: 0;}#"+tableName+"[iso='"+ countryIso +"']{polygon-opacity: 0;}"
       }
       return carto;
     },
@@ -59,6 +61,7 @@
         .on('done', function(layer) {
           this.layer = layer;
           this.layer.getSubLayer(0).set(this.options.sublayers[0]);
+          this.layer.createSubLayer(this.options.sublayers[1]);
 
           if (callback && typeof callback === 'function') {
             callback.apply(this, arguments);
