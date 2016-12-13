@@ -18,7 +18,7 @@
       maps_api_template: 'https://cdb-cdn.resilienceatlas.org/user/ra',
       sql_api_template: 'https://cdb-cdn.resilienceatlas.org/user/ra',
       sublayers: [{
-        sql: "select * from country_mask",
+        sql: "select * from country_masks",
       }]
     },
 
@@ -41,10 +41,10 @@
     },
 
     _setCartoCss: function(countryIso, tableName) {
-      var carto = "#country_mask{polygon-fill: #FFF;polygon-opacity: 1;line-color: #DDD;}#country_mask[iso_a3='"+ countryIso +"']{polygon-opacity: 0;}";
+      var carto = "#country_mask{polygon-fill: #FFF;polygon-opacity: 1;line-color: #DDD;}#country_mask[iso='"+ countryIso +"']{polygon-opacity: 0;}";
 
       if(tableName) {
-        carto = "#"+tableName+"{polygon-fill: #FFF;polygon-opacity: 1;line-color: #DDD;}#"+tableName+"[iso3='"+ countryIso +"']{polygon-opacity: 0;}"
+        carto = "#"+tableName+"{polygon-fill: #FFF;polygon-opacity: 1;line-color: #DDD;}#"+tableName+"[iso='"+ countryIso +"']{polygon-opacity: 0;}"
       }
       return carto;
     },
