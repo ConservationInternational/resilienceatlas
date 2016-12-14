@@ -37,11 +37,11 @@
         {
             "number": 3,
             "type": "embed",
-            "countryIso": "IND",
+            "maskSql": "SELECT * FROM gadm28_adm0 where iso != 'IND'",
             "theme": "light",
             "aside": "<header><h2>Production systems</h2><h3>Cotton</h3></header><section><h1>India</h1><div class='facts'><h4></h4><p>India is the largest producer of cotton worldwide.</p></div></section>",
-            "mapUrl": "/map?layers=%5B%7B%22id%22%3A94%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%5D",
-            "btnUrl": "/map?layers=%5B%7B%22id%22%3A94%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%5D&zoom=5&center=%7B%22lat%22%3A20.20034600649375%2C%22lng%22%3A72.48779296875%7D"
+            "mapUrl": "/map?layers=%5B%7B%22id%22%3A94%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%5D&zoom=5&center=%7B%22lat%22%3A21.841104749065032%2C%22lng%22%3A73.212890625%7D",
+            "btnUrl": "/map?layers=%5B%7B%22id%22%3A94%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%5D&zoom=5&center=%7B%22lat%22%3A21.841104749065032%2C%22lng%22%3A73.212890625%7D"
         },
         {
             "number": 4,
@@ -56,16 +56,16 @@
         {
             "number": 5,
             "type": "embed",
-            "countryIso": "IND",
+            "maskSql": "SELECT * FROM gadm28_adm0 where iso != 'IND'",
             "theme": "light",
             "aside": "<header><h2>Stressors & shocks</h2><h3>Cotton production and temperature change</h3></header><section><h1>India</h1><div class='facts'><h4></h4><p>Increases in temperatures of up to X°C are expected with climate change.</p><p>Increasing temperatures in northern India may reduce Himalayan glacial meltwater over time, a vital resource supplying the Indus river used for irrigation within India and Pakistan.</p></div></section>",
-            "mapUrl": "/map?layers=%5B%7B%22id%22%3A94%2C%22opacity%22%3A0.8%2C%22order%22%3A2%7D%2C%7B%22id%22%3A61%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%5D&zoom=5&center=%7B%22lat%22%3A22.329752304376473%2C%22lng%22%3A74.24560546875%7D",
-            "btnUrl": "/map?layers=%5B%7B%22id%22%3A94%2C%22opacity%22%3A0.8%2C%22order%22%3A2%7D%2C%7B%22id%22%3A61%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%5D&zoom=5&center=%7B%22lat%22%3A22.329752304376473%2C%22lng%22%3A74.24560546875%7D"
+            "mapUrl": "/map?center=%7B%22lat%22%3A21.841104749065032%2C%22lng%22%3A73.212890625%7D&zoom=5&layers=%5B%7B%22id%22%3A94%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%2C%7B%22id%22%3A61%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%5D",
+            "btnUrl": "/map?center=%7B%22lat%22%3A21.841104749065032%2C%22lng%22%3A73.212890625%7D&zoom=5&layers=%5B%7B%22id%22%3A94%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%2C%7B%22id%22%3A61%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%5D"
         },
         {
             "number": 6,
             "type": "embed",
-            "countryIso": "IND",
+            "maskSql": "SELECT * FROM gadm28_adm0 where iso != 'IND'",
             "theme": "light",
             "aside": "<header><h2>Stressors & shocks</h2><h3>Cotton production and rainfall</h3></header><section><h1>India</h1><div class='facts'><h4></h4><p>Slight increases in rainfall will likely offset the heat stress from increased temperatures in the western and southern regions of India.</p></div></section>",
             "mapUrl": "/map?layers=%5B%7B%22id%22%3A94%2C%22opacity%22%3A0.8%2C%22order%22%3A2%7D%2C%7B%22id%22%3A57%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%5D&zoom=5&center=%7B%22lat%22%3A22.329752304376473%2C%22lng%22%3A74.24560546875%7D",
@@ -74,7 +74,7 @@
         {
             "number": 7,
             "type": "embed",
-            "countryIso": "IND",
+            "maskSql": "SELECT * FROM gadm28_adm0 where iso != 'IND'",
             "theme": "light",
             "aside": "<header><h2>Stressors & shocks</h2><h3>Cotton production and population</h3></header><section><h1>India</h1><div class='facts'><h4></h4><p>With over 1.2 billion people, India has the highest population density on Earth.</p></div></section>",
             "mapUrl": "/map?layers=%5B%7B%22id%22%3A94%2C%22opacity%22%3A0.8%2C%22order%22%3A2%7D%2C%7B%22id%22%3A35%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%5D&zoom=5&center=%7B%22lat%22%3A22.329752304376473%2C%22lng%22%3A74.24560546875%7D",
@@ -93,20 +93,20 @@
         {
             "number": 9,
             "type": "embed",
-            "countryIso": "IND",
+            "maskSql": "SELECT * FROM gadm28_adm0 where iso != 'IND'",
             "theme": "light",
             "aside": "<header><h2>Vulnerability</h2><h3>Cotton production and access to piped water</h3></header><section><h1>India</h1><div class='facts'><h4></h4><p>Half of the population has access to piped water in the cotton growing regions of India.</p></div></section>",
-            "mapUrl": "/map?layers=%5B%7B%22id%22%3A94%2C%22opacity%22%3A0.8%2C%22order%22%3A2%7D%2C%7B%22id%22%3A24%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%5D&zoom=5&center=%7B%22lat%22%3A22.329752304376473%2C%22lng%22%3A74.24560546875%7D",
-            "btnUrl": "/map?layers=%5B%7B%22id%22%3A94%2C%22opacity%22%3A0.8%2C%22order%22%3A2%7D%2C%7B%22id%22%3A24%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%5D&zoom=5&center=%7B%22lat%22%3A22.329752304376473%2C%22lng%22%3A74.24560546875%7D"
+            "mapUrl": "/map?layers=%5B%7B%22id%22%3A94%2C%22opacity%22%3A0.8%2C%22order%22%3A2%7D%2C%7B%22id%22%3A24%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%5D&zoom=5&center=%7B%22lat%22%3A21.841104749065032%2C%22lng%22%3A73.212890625%7D",
+            "btnUrl": "/map?layers=%5B%7B%22id%22%3A94%2C%22opacity%22%3A0.8%2C%22order%22%3A2%7D%2C%7B%22id%22%3A24%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%5D&zoom=5&center=%7B%22lat%22%3A21.841104749065032%2C%22lng%22%3A73.212890625%7D"
         },
         {
             "number": 10,
             "type": "embed",
-            "countryIso": "IND",
+            "maskSql": "SELECT * FROM gadm28_adm0 where iso != 'IND'",
             "theme": "light",
             "aside": "<header><h2>Vulnerability</h2><h3>Cotton production and education</h3></header><section><h1>India</h1><div class='facts'><h4></h4><p>Less than 10% of men and women in cotton growing areas have a secondary education or beyond.</p></div></section>",
-            "mapUrl": "/map?layers=%5B%7B%22id%22%3A94%2C%22opacity%22%3A0.8%2C%22order%22%3A3%7D%2C%7B%22id%22%3A22%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%5D&zoom=5&center=%7B%22lat%22%3A22.329752304376473%2C%22lng%22%3A74.24560546875%7D",
-            "btnUrl": "/map?layers=%5B%7B%22id%22%3A94%2C%22opacity%22%3A0.8%2C%22order%22%3A3%7D%2C%7B%22id%22%3A22%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%5D&zoom=5&center=%7B%22lat%22%3A22.329752304376473%2C%22lng%22%3A74.24560546875%7D"
+            "mapUrl": "/map?layers=%5B%7B%22id%22%3A94%2C%22opacity%22%3A0.8%2C%22order%22%3A3%7D%2C%7B%22id%22%3A22%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%5D&zoom=5&center=%7B%22lat%22%3A21.841104749065032%2C%22lng%22%3A73.212890625%7D",
+            "btnUrl": "/map?layers=%5B%7B%22id%22%3A94%2C%22opacity%22%3A0.8%2C%22order%22%3A3%7D%2C%7B%22id%22%3A22%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%5D&zoom=5&center=%7B%22lat%22%3A21.841104749065032%2C%22lng%22%3A73.212890625%7D"
         },
         {
             "number": 11,

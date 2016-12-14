@@ -65,14 +65,14 @@
         {
             "number": 6,
             "type": "embed",
-            "maskSql": "SELECT * FROM gadm28_adm0 where unregion2 != 'Africa'",
+            "maskSql": "SELECT * FROM gadm28_adm0 where iso not in ('UGA', 'BDI', 'RWA', 'KEN', 'TZA')",
             "theme": "light",
             "aside": "<header><h2>Stressors & shocks</h2><h3>Coffee production and temperature change</h3></header><section><h1>Africa</h1><div class='facts'><h4></h4><p>Minimum temperatures are already increasing at a rate of over 0.5°C per decade in Uganda and northwestern Tanzania.</p></div></section>",
             "mapUrl": "/map?layers=%5B%7B%22id%22%3A96%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%2C%7B%22id%22%3A212%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%5D&zoom=6&center=%7B%22lat%22%3A-4.335456463573485%2C%22lng%22%3A30.65185546875%7D",
             "btnUrl": "/map?layers=%5B%7B%22id%22%3A96%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%2C%7B%22id%22%3A212%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%5D&zoom=6&center=%7B%22lat%22%3A-4.335456463573485%2C%22lng%22%3A30.65185546875%7D"
         },
         {
-            "number": 6,
+            "number": 7,
             "chapterNumber": 3,
             "background": "journey2ch3",
             "type": "chapter",
@@ -82,25 +82,25 @@
             "creditsUrl": "https://ci.tandemvault.com/lightboxes/MVGRc7ujF?t=BwQlYp2iC#68932487"
         },
         {
-            "number": 7,
+            "number": 8,
             "type": "embed",
-            "maskSql": "SELECT * FROM gadm28_adm0 where unregion2 != 'Africa'",
+            "maskSql": "SELECT * FROM gadm28_adm0 where iso not in ('UGA', 'BDI', 'RWA', 'KEN', 'TZA')",
             "theme": "light",
             "aside": "<header><h2>Vulnerability</h2><h3>Coffee production and access to electricity</h3></header><section><h1>Africa</h1><div class='facts'><h4></h4><p>Coffee growing areas in northern Uganda and northwestern Tanzania have little access to gridded electricity.</p><p>Deforestation, linked to fuelwood usage in these areas, could increase with clearing of land for crops like coffee.</p></div></section>",
             "mapUrl": "/map?layers=%5B%7B%22id%22%3A25%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%2C%7B%22id%22%3A96%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%5D&zoom=6&center=%7B%22lat%22%3A-4.335456463573485%2C%22lng%22%3A30.65185546875%7D",
             "btnUrl": "/map?layers=%5B%7B%22id%22%3A25%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%2C%7B%22id%22%3A96%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%5D&zoom=6&center=%7B%22lat%22%3A-4.335456463573485%2C%22lng%22%3A30.65185546875%7D"
         },
         {
-            "number": 8,
+            "number": 9,
             "type": "embed",
-            "maskSql": "SELECT * FROM gadm28_adm0 where unregion2 != 'Africa'",
+            "maskSql": "SELECT * FROM gadm28_adm0 where iso not in ('UGA', 'BDI', 'RWA', 'KEN', 'TZA')",
             "theme": "light",
             "aside": "<header><h2>Vulnerability</h2><h3>Coffee production and women's literacy</h3></header><section><h1>Africa</h1><div class='facts'><h4></h4><p>Improved cultivation techniques such as agroforestry show promise for increasing the resilience of coffee production to climate change. The high rates of illiteracy, particularly among women, in northern Uganda and throughout Ethiopia must be taken into account by agricultural extension programs.</p></div></section>",
-            "mapUrl": "/map?layers=%5B%7B%22id%22%3A96%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%2C%7B%22id%22%3A26%2C%22opacity%22%3A1%2C%22order%22%3A3%7D%5D&zoom=6&center=%7B%22lat%22%3A-4.335456463573485%2C%22lng%22%3A30.65185546875%7D",
-            "btnUrl": "/map?layers=%5B%7B%22id%22%3A96%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%2C%7B%22id%22%3A26%2C%22opacity%22%3A1%2C%22order%22%3A3%7D%5D&zoom=6&center=%7B%22lat%22%3A-4.335456463573485%2C%22lng%22%3A30.65185546875%7D"
+            "mapUrl": "/map?center=%7B%22lat%22%3A-4.335456463573485%2C%22lng%22%3A30.65185546875%7D&zoom=6&layers=%5B%7B%22id%22%3A96%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%2C%7B%22id%22%3A26%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%5D",
+            "btnUrl": "/map?center=%7B%22lat%22%3A-4.335456463573485%2C%22lng%22%3A30.65185546875%7D&zoom=6&layers=%5B%7B%22id%22%3A96%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%2C%7B%22id%22%3A26%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%5D"
         },
         {
-            "number": 9,
+            "number": 10,
             "type": "conclusion",
             "background": "journey3bg2",
             "backgroundColor": "68, 58, 56",

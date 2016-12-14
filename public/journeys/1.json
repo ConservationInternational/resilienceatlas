@@ -40,8 +40,8 @@
             "maskSql": "select * from gadm28_adm0 where iso != 'ETH'",
             "theme": "light",
             "aside": "<header><h2>Livelihoods</h2><h3>Maize production</h3></header><section><h1>Ethiopia</h1><div class='facts'><h4></h4><p>Rainfed agriculture dominates the landscape in Ethiopia, encompassing nearly 49% of its total area.</p></div></section>",
-            "mapUrl": "/map?layers=%5B%7B%22id%22%3A8%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%5D",
-            "btnUrl": "/map?layers=%5B%7B%22id%22%3A8%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%5D"
+            "mapUrl": "/map?layers=%5B%7B%22id%22%3A8%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%5D&zoom=6&center=%7B%22lat%22%3A9.09124858577939%2C%22lng%22%3A38.03466796875%7D",
+            "btnUrl": "/map?layers=%5B%7B%22id%22%3A8%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%5D&zoom=6&center=%7B%22lat%22%3A9.09124858577939%2C%22lng%22%3A38.03466796875%7D"
         },
         {
             "number": 4,
@@ -59,8 +59,8 @@
             "type": "embed",
             "theme": "light",
             "aside": "<header><h2>stressors & shocks</h2><h3>Maize production & short rains</h3></header><section><h1>Ethiopia</h1><div class='facts'><h4></h4><p>49% of Ethiopia is used for rainfed agriculture</p></div><div class='facts'><h4></h4><p>Rainfall during the short rains is declining at rates as high as 24% per decade in some maize-growing areas.</p><p>10% of the area currently used for maize production has been impacted by this decrease.</p></div></section>",
-            "mapUrl": "/map?layers=%5B%7B%22id%22%3A168%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%2C%7B%22id%22%3A8%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%5D",
-            "btnUrl": "/map?layers=%5B%7B%22id%22%3A168%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%2C%7B%22id%22%3A8%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%5D"
+            "mapUrl": "/map?layers=%5B%7B%22id%22%3A168%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%2C%7B%22id%22%3A8%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%5D&zoom=6&center=%7B%22lat%22%3A9.09124858577939%2C%22lng%22%3A38.03466796875%7D",
+            "btnUrl": "/map?layers=%5B%7B%22id%22%3A168%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%2C%7B%22id%22%3A8%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%5D&zoom=6&center=%7B%22lat%22%3A9.09124858577939%2C%22lng%22%3A38.03466796875%7D"
         },
         {
             "number": 6,
@@ -68,8 +68,8 @@
             "maskSql": "select * from gadm28_adm0 where iso != 'ETH'",
             "theme": "light",
             "aside": "<header><h2>stressors & shocks</h2><h3>Maize production & long rains</h3></header><section><h1>Ethiopia</h1><div class='facts'><h4></h4><p>49% of the land area of Ethiopia is used for rainfed agriculture</p></div><div class='facts'><h4></h4><p>Rainfall during the long rains is declining at rates as high as 11% per decade in some maize-growing areas.</p></div></section>",
-            "mapUrl": "/map?layers=%5B%7B%22id%22%3A169%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%2C%7B%22id%22%3A8%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%5D",
-            "btnUrl": "/map?layers=%5B%7B%22id%22%3A169%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%2C%7B%22id%22%3A8%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%5D"
+            "mapUrl": "/map?layers=%5B%7B%22id%22%3A169%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%2C%7B%22id%22%3A8%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%5D&zoom=6&center=%7B%22lat%22%3A9.09124858577939%2C%22lng%22%3A38.03466796875%7D",
+            "btnUrl": "/map?layers=%5B%7B%22id%22%3A169%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%2C%7B%22id%22%3A8%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%5D&zoom=6&center=%7B%22lat%22%3A9.09124858577939%2C%22lng%22%3A38.03466796875%7D"
         },
         {
             "number": 7,
@@ -87,8 +87,8 @@
             "maskSql": "select * from gadm28_adm0 where iso != 'ETH'",
             "theme": "light",
             "aside": "<header><h2>Vulnerability</h2><h3>Fertility rates in maize production areas</h3></header><section><h1>Ethiopia</h1><div class='facts'><h4></h4><p>Fertility rates in maize producing areas are >5 children per woman.</p><p>The population of Ethiopia is projected to increase from 98,942,102 to 142,900,000 by 2030, creating further stress.</p><p class='source'> Source: International Futures (IFs) forecasting system and the Pardee Center for International Futures at the University of Denver.</p></div></section>",
-            "mapUrl": "/map?layers=%5B%7B%22id%22%3A42%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%2C%7B%22id%22%3A8%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%5D&center=%7B%22lat%22%3A0%2C%22lng%22%3A15%7D",
-            "btnUrl": "/map?layers=%5B%7B%22id%22%3A28%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%2C%7B%22id%22%3A8%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%5D&center=%7B%22lat%22%3A0%2C%22lng%22%3A15%7D"
+            "mapUrl": "/map?layers=%5B%7B%22id%22%3A42%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%2C%7B%22id%22%3A8%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%5D&zoom=6&center=%7B%22lat%22%3A9.09124858577939%2C%22lng%22%3A38.03466796875%7D",
+            "btnUrl": "/map?layers=%5B%7B%22id%22%3A28%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%2C%7B%22id%22%3A8%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%5D&zoom=6&center=%7B%22lat%22%3A9.09124858577939%2C%22lng%22%3A38.03466796875%7D"
         },
         {
             "number": 9,
@@ -96,8 +96,8 @@
             "maskSql": "select * from gadm28_adm0 where iso != 'ETH'",
             "theme": "light",
             "aside": "<header><h2>Vulnerability</h2><h3>Mass media access in maize production areas</h3></header><section><h1>Ethiopia</h1><div class='facts'><h4></h4><p>In maize producing areas, more than 69% of women lack access to mass media.</p></div></section>",
-            "mapUrl": "/map?layers=%5B%7B%22id%22%3A27%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%2C%7B%22id%22%3A8%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%5D",
-            "btnUrl": "/map?layers=%5B%7B%22id%22%3A27%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%2C%7B%22id%22%3A8%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%5D"
+            "mapUrl": "/map?layers=%5B%7B%22id%22%3A27%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%2C%7B%22id%22%3A8%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%5D&zoom=6&center=%7B%22lat%22%3A9.09124858577939%2C%22lng%22%3A38.03466796875%7D",
+            "btnUrl": "/map?layers=%5B%7B%22id%22%3A27%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%2C%7B%22id%22%3A8%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%5D&zoom=6&center=%7B%22lat%22%3A9.09124858577939%2C%22lng%22%3A38.03466796875%7D"
         },
         {
             "number": 10,
@@ -105,8 +105,8 @@
             "maskSql": "select * from gadm28_adm0 where iso != 'ETH'",
             "theme": "light",
             "aside": "<header><h2>Vulnerability</h2><h3>Illiteracy rate for women in maize production areas</h3></header><section><h1>Ethiopia</h1><div class='facts'><h4></h4><p>In maize producing areas, more than half of all women are illiterate.</p></div></section>",
-            "mapUrl": "/map?layers=%5B%7B%22id%22%3A44%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%2C%7B%22id%22%3A8%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%5D",
-            "btnUrl": "/map?layers=%5B%7B%22id%22%3A26%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%2C%7B%22id%22%3A8%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%5D"
+            "mapUrl": "/map?layers=%5B%7B%22id%22%3A44%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%2C%7B%22id%22%3A8%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%5D&zoom=6&center=%7B%22lat%22%3A9.09124858577939%2C%22lng%22%3A38.03466796875%7D",
+            "btnUrl": "/map?layers=%5B%7B%22id%22%3A26%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%2C%7B%22id%22%3A8%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%5D&zoom=6&center=%7B%22lat%22%3A9.09124858577939%2C%22lng%22%3A38.03466796875%7D"
         },
         {
             "number": 11,
@@ -114,8 +114,8 @@
             "maskSql": "select * from gadm28_adm0 where iso != 'ETH'",
             "theme": "light",
             "aside": "<header><h2>Vulnerability</h2><h3>short rains with grain storage</h3></header><section><h1>Ethiopia</h1><div class='facts'><h4></h4><p>Post-harvest crop losses due to rotting, insect and rodent damage, and other causes reduce farmer income and can affect food security.</p><p>Increased access to grain storage is needed to enable storage of excess production and reduce post-harvest waste.</p></div></section>",
-            "mapUrl": "/map?layers=%5B%7B%22id%22%3A39%2C%22opacity%22%3A1%2C%22order%22%3A3%7D%2C%7B%22id%22%3A168%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%2C%7B%22id%22%3A8%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%5D",
-            "btnUrl": "/map?layers=%5B%7B%22id%22%3A39%2C%22opacity%22%3A1%2C%22order%22%3A3%7D%2C%7B%22id%22%3A168%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%2C%7B%22id%22%3A8%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%5D"
+            "mapUrl": "/map?layers=%5B%7B%22id%22%3A39%2C%22opacity%22%3A1%2C%22order%22%3A3%7D%2C%7B%22id%22%3A168%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%2C%7B%22id%22%3A8%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%5D&zoom=6&center=%7B%22lat%22%3A9.09124858577939%2C%22lng%22%3A38.03466796875%7D",
+            "btnUrl": "/map?layers=%5B%7B%22id%22%3A39%2C%22opacity%22%3A1%2C%22order%22%3A3%7D%2C%7B%22id%22%3A168%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%2C%7B%22id%22%3A8%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%5D&zoom=6&center=%7B%22lat%22%3A9.09124858577939%2C%22lng%22%3A38.03466796875%7D"
 
         },
         {
@@ -124,8 +124,8 @@
             "maskSql": "select * from gadm28_adm0 where iso != 'ETH'",
             "theme": "light",
             "aside": "<header><h2>Vulnerability</h2><h3>long rains with grain storage</h3></header><section><h1>Ethiopia</h1><div class='facts'><h4></h4><p>Post-harvest crop losses due to rotting, insect and rodent damage, and other causes reduce farmer income and can affect food security.</p><p>Increased access to grain storage is needed to enable storage of excess production and reduce post-harvest waste.</p></div></section>",
-            "mapUrl": "/map?layers=%5B%7B%22id%22%3A39%2C%22opacity%22%3A1%2C%22order%22%3A3%7D%2C%7B%22id%22%3A169%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%2C%7B%22id%22%3A8%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%5D",
-            "btnUrl": "/map?layers=%5B%7B%22id%22%3A39%2C%22opacity%22%3A1%2C%22order%22%3A3%7D%2C%7B%22id%22%3A169%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%2C%7B%22id%22%3A8%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%5D"
+            "mapUrl": "/map?layers=%5B%7B%22id%22%3A39%2C%22opacity%22%3A1%2C%22order%22%3A3%7D%2C%7B%22id%22%3A169%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%2C%7B%22id%22%3A8%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%5D&zoom=6&center=%7B%22lat%22%3A9.09124858577939%2C%22lng%22%3A38.03466796875%7D",
+            "btnUrl": "/map?layers=%5B%7B%22id%22%3A39%2C%22opacity%22%3A1%2C%22order%22%3A3%7D%2C%7B%22id%22%3A169%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%2C%7B%22id%22%3A8%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%5D&zoom=6&center=%7B%22lat%22%3A9.09124858577939%2C%22lng%22%3A38.03466796875%7D"
         },
         {
             "number": 13,
