@@ -37,7 +37,7 @@
         {
             "number": 3,
             "type": "embed",
-            "countryIso": "ETH",
+            "maskSql": "select * from gadm28_adm0 where iso != 'ETH'",
             "theme": "light",
             "aside": "<header><h2>Livelihoods</h2><h3>Pastoral</h3></header><section><h1>Ethiopia</h1><div class='facts'><h4></h4><p>Lowlands are home to 29 ethnic groups, of which >90% are pastoralists</p></div></section>",
             "mapUrl": "/map?layers=%5B%7B%22id%22%3A38%2C%22opacity%22%3A1%2C%22order%22%3A0%7D%5D",
@@ -56,7 +56,7 @@
         {
             "number": 5,
             "type": "embed",
-            "countryIso": "ETH",
+            "maskSql": "select * from gadm28_adm0 where iso != 'ETH'",
             "theme": "light",
             "aside": "<header><h2>Stressors & shocks</h2><h3>Pastoral with short rains</h3></header><section><h1>Ethiopia</h1><div class='facts'><h4></h4><p>Rainfall during the short rains is declining at rates as high as 24% per decade.</p></div></section>",
             "mapUrl": "/map?center=%7B%22lat%22%3A2.3723687086440632%2C%22lng%22%3A66.09375%7D&layers=%5B%7B%22id%22%3A38%2C%22opacity%22%3A1%2C%22order%22%3A4%7D%2C%7B%22id%22%3A168%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%5D",
@@ -65,7 +65,7 @@
         {
             "number": 6,
             "type": "embed",
-            "countryIso": "ETH",
+            "maskSql": "select * from gadm28_adm0 where iso != 'ETH'",
             "theme": "light",
             "aside": "<header><h2>Stressors & shocks</h2><h3>Pastoral with long rains</h3></header><section><h1>Ethiopia</h1><div class='facts'><h4></h4><p>Rainfall during the long rains is declining at rates as high as 18% per decade.</p></div></section>",
             "mapUrl": "/map?center=%7B%22lat%22%3A2.3723687086440632%2C%22lng%22%3A66.09375%7D&layers=%5B%7B%22id%22%3A38%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%2C%7B%22id%22%3A169%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%5D",
@@ -84,7 +84,7 @@
         {
             "number": 8,
             "type": "embed",
-            "countryIso": "ETH",
+            "maskSql": "select * from gadm28_adm0 where iso != 'ETH'",
             "theme": "light",
             "aside": "<header><h2>Vulnerability</h2><h3>Fertility rate</h3></header><section><h1>Ethiopia</h1><div class='facts'><h4></h4><p>Fertility rates are greater than 5 children per woman in pastoral areas.</p></div></section>",
             "mapUrl": "/map?layers=%5B%7B%22id%22%3A42%2C%22opacity%22%3A1%2C%22order%22%3A3%7D%2C%7B%22id%22%3A38%2C%22opacity%22%3A1%2C%22order%22%3A4%7D%5D",
@@ -93,7 +93,7 @@
         {
             "number": 9,
             "type": "embed",
-            "countryIso": "ETH",
+            "maskSql": "select * from gadm28_adm0 where iso != 'ETH'",
             "theme": "light",
             "aside": "<header><h2>Vulnerability</h2><h3>Mass media access</h3></header><section><h1>Ethiopia</h1><div class='facts'><h4></h4><p>In pastoral areas more than 66% of women have no access to mass media.</p></div></section>",
             "mapUrl": "/map?layers=%5B%7B%22id%22%3A66%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%2C%7B%22id%22%3A27%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%5D",
@@ -102,7 +102,7 @@
         {
             "number": 10,
             "type": "embed",
-            "countryIso": "ETH",
+            "maskSql": "select * from gadm28_adm0 where iso != 'ETH'",
             "theme": "light",
             "aside": "<header><h2>Vulnerability</h2><h3>Illiteracy rate for women</h3></header><section><h1>Ethiopia</h1><div class='facts'><h4></h4><p>In pastoral areas more than 50% of women are illiterate.</p></div></section>",
             "mapUrl": "/map?layers=%5B%7B%22id%22%3A38%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%2C%7B%22id%22%3A44%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%5D",

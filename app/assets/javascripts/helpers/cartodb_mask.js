@@ -11,17 +11,16 @@
    */
   root.app.Helper.CartoDBmask = root.app.Helper.Class.extend({
 
-
     defaults: {
       user_name: 'ra', // Required
       type: 'cartodb', // Required
       cartodb_logo: false,
       maps_api_template: 'https://cdb-cdn.resilienceatlas.org/user/ra',
       sql_api_template: 'https://cdb-cdn.resilienceatlas.org/user/ra',
-      sublayers: [{sql: "select * from gadm28_adm0"}, {sql: "select * from gadm28_adm0", cartocss: "#gadm28_adm0{polygon-fill: #FFF;polygon-opacity: 0;line-color: #DDD;}"}]
+      sublayers: [{}, {sql: "select * from gadm28_adm0", cartocss: "#gadm28_adm0{polygon-opacity: 0;line-color: #DDD;}"}]
     },
 
-    initialize: function(map, countryIso, settings) {
+    initialize: function(map, maskSql, settings) {
       if (!map && map instanceof L.Map) {
         throw 'First params "map" is required and a valid instance of L.Map.';
       }
@@ -31,25 +30,15 @@
       if(this.options.searchMask) {
         var searchMaskOpts = this.options.searchMask;
         this.options.sublayers[0].sql = searchMaskOpts.query;
-        this.options.sublayers[0].cartocss = this._setMaskCartoCSS(countryIso, searchMaskOpts.tableName);
       } else {
-        this.options.sublayers[0].cartocss = this._setMaskCartoCSS(countryIso);
+        this.options.sublayers[0].sql = maskSql;
       }
+
+      this.options.sublayers[0].cartocss = "#country_mask{polygon-fill: #FFF;polygon-opacity: 1;line-width: 0;}";
 
       this._setMap(map);
     },
     
-    /**
-     * Setup CSS for masked area
-     */
-    _setMaskCartoCSS: function(countryIso, tableName) {
-      var carto = "#country_mask{polygon-fill: #FFF;polygon-opacity: 1;line-width: 0;}#country_mask[iso='"+ countryIso +"']{polygon-opacity: 0;}";
-
-      if(tableName) {
-        carto = "#"+tableName+"{polygon-fill: #FFF;polygon-opacity: 1;line-width: 0;}#"+tableName+"[iso='"+ countryIso +"']{polygon-opacity: 0;}"
-      }
-      return carto;
-    },
 
     /**
      * Create a CartoDB layer
