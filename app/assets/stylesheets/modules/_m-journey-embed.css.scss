@@ -16,7 +16,7 @@
 
   .side-bar {
     position: absolute;
-    top: rem($header-height);
+    top: 0;
     bottom: 0;
     left: 0;
     padding: rem(45px) rem(40px);
@@ -121,7 +121,6 @@
       position: absolute;
       top: rem(20px);
       bottom: rem(100px);
-      right: rem(40px);
       left: rem(40px);
       padding-top: rem(25px);
       overflow-y: scroll;
