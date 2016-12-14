@@ -324,7 +324,7 @@
       var layerInstance;
 
       if (!layer) {
-        if(layerData.type) {
+        if(layerData.type === 'cartodb' || layerData.type === 'raster') {
           var data = _.pick(layerData, ['sql', 'cartocss', 'interactivity']);
           var options = { sublayers: [data] };
 
@@ -351,6 +351,13 @@
             if (options.sublayers.length && options.sublayers[0].interactivity) {
               cartodb.vis.Vis.addInfowindow(this.map, sublayer, options.sublayers[0].interactivity);
             }
+          }.bind(this));
+        } else if (layerData.type === 'xyz tileset') {
+          layerInstance = new root.app.Helper.XYZTiles(this.map, options);
+          layerInstance.create(function(layer) {
+            layer.setOpacity(layerData.opacity);
+            layer.setZIndex(1000 + layerData.order);
+            this._setAttribution(layerData);
           }.bind(this));
         }
 
