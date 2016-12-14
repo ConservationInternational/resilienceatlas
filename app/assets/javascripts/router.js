@@ -167,7 +167,9 @@
         var paramsArr = decodeURIComponent(location.search.slice(1)).split('&'),
           temp = [];
         for (var p = paramsArr.length; p--;) {
-          temp = paramsArr[p].split('=');
+          var pos = paramsArr[p].indexOf('=');
+          temp[0] = paramsArr[p].substring(0, pos);
+          temp[1] = paramsArr[p].substring(pos + 1);
           if (temp[1] && !_.isNaN(Number(temp[1]))) {
             params[temp[0]] = Number(temp[1]);
           } else if (temp[1]) {

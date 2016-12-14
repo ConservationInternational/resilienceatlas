@@ -47,7 +47,8 @@
       var mapModel = new (Backbone.Model.extend({
         defaults: {
           journeyMap: journeyMap,
-          countryIso: this.router.params.attributes && this.router.params.attributes.countryIso ? this.router.params.attributes.countryIso : null
+          countryIso: this.router.params.attributes && this.router.params.attributes.countryIso ? this.router.params.attributes.countryIso : null,
+          maskSql: this.router.params.attributes && this.router.params.attributes.maskSql ? this.router.params.attributes.maskSql : null
         }
       }));
 
