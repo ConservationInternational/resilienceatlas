@@ -353,6 +353,8 @@
             }
           }.bind(this));
         } else if (layerData.type === 'xyz tileset') {
+          var options = _.pick(layerData, ['sql']);
+
           layerInstance = new root.app.Helper.XYZTiles(this.map, options);
           layerInstance.create(function(layer) {
             layer.setOpacity(layerData.opacity);

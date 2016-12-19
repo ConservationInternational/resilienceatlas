@@ -27,20 +27,16 @@
     },
 
     /**
-     * Create a CartoDB RASTER layer -- solving the bug
+     * Create a CartoDB RASTER layer
      * @param  {Function} callback
      */
-    createRasterLayer: function(callback) {
+    create: function(callback) {
       this.loader.addClass('is-loading');
 
       var tilesEndpoint = this.options.sql;
 
       var self = this;
       var map = this.map;
-      var url = "https://cdb-cdn.resilienceatlas.org/user/ra/api/v1/map";
-
-      var tilesEndpoint = url + '/' + layergroup.layergroupid + '/{z}/{x}/{y}.png';
-      var protocol = 'https:' === document.location.protocol ? 'https' : 'http';
 
       self.layer = L.tileLayer(tilesEndpoint, {
         maxZoom: 18
