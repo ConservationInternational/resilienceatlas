@@ -42,7 +42,7 @@ ActiveAdmin.register Layer do
       f.input :info
       f.input :interactivity
       f.input :query
-      f.input :layer_provider, as: :select, collection: ['raster', 'cartodb']
+      f.input :layer_provider, as: :select, collection: ['raster', 'cartodb', 'xyz tileset']
       f.input :css
       f.input :locate_layer
       #f.input :icon_class
