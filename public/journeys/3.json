@@ -21,8 +21,8 @@
             "backgroundColor": "74, 61, 53",
             "title": "overview",
             "content": "<p>Cotton is a cash crop grown throughout the world. Climatic changes such as rising temperatures, changes in the amount and timing of precipitation, increasing CO<sub>2</sub> concentrations and pests/diseases will impact cotton growth during its developmental stages.</p><p>Nearly 75% of the world’s cotton relies on some form of irrigation. A water intensive crop, cotton requires adequate water to grow and prevent heat stress. It thrives in warm temperatures ranging from 32-42 degrees Celcius to grow. The crop also needs a dry period during boll formation that could be impacted by unexpected rains and flooding at this stage.</p>",
-            "credits": "Cotton boll in development. © Adeel Anwer/Flickr Creative Commons.",
-            "creditsUrl": "https://www.flickr.com/photos/adeelanwer/5174652827/in/photolist-8Tgs1c"
+            "credits": "Cotton in Gujarat, India. © Colleen Choi/Flickr Creative Commons (CC BY-NC-ND 2).",
+            "creditsUrl": "https://www.flickr.com/photos/colleenchoi/8374869947"
         },
         {
             "number": 2,
@@ -58,7 +58,7 @@
             "type": "embed",
             "maskSql": "SELECT * FROM gadm28_adm0 where iso != 'IND'",
             "theme": "light",
-            "aside": "<header><h2>Stressors & shocks</h2><h3>Cotton production and temperature change</h3></header><section><h1>India</h1><div class='facts'><h4></h4><p>Increases in temperatures of up to X°C are expected with climate change.</p><p>Increasing temperatures in northern India may reduce Himalayan glacial meltwater over time, a vital resource supplying the Indus river used for irrigation within India and Pakistan.</p></div></section>",
+            "aside": "<header><h2>Stressors & shocks</h2><h3>Cotton production and temperature change</h3></header><section><h1>India</h1><div class='facts'><h4></h4><p>Increases in temperatures of up to 3°C are expected with climate change.</p><p>Increasing temperatures in northern India may reduce Himalayan glacial meltwater over time, a vital resource supplying the Indus river used for irrigation within India and Pakistan.</p></div></section>",
             "mapUrl": "/map?center=%7B%22lat%22%3A21.841104749065032%2C%22lng%22%3A73.212890625%7D&zoom=5&layers=%5B%7B%22id%22%3A94%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%2C%7B%22id%22%3A61%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%5D",
             "btnUrl": "/map?center=%7B%22lat%22%3A21.841104749065032%2C%22lng%22%3A73.212890625%7D&zoom=5&layers=%5B%7B%22id%22%3A94%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%2C%7B%22id%22%3A61%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%5D"
         },
