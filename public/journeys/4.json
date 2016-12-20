@@ -58,7 +58,7 @@
             "type": "embed",
             "maskSql": "SELECT * FROM gadm28_adm0 where unregion2 != 'Africa'",
             "theme": "light",
-            "aside": "<header><h2>Stressors & shocks</h2><h3>Coffee production and temperature change</h3></header><section><h1>Africa</h1><div class='facts'><h4></h4><p>Over 50% of the suitable areas for <i>arabica</i> coffee will be lost by 2050. CITE THIS</p></div></section>",
+            "aside": "<header><h2>Stressors & shocks</h2><h3>Coffee production and temperature change</h3></header><section><h1>Africa</h1><div class='facts'><h4></h4><p>The area suitable for growing <i>arabica</i> coffee will decline by about 50% by 2050 <a href='http://link.springer.com/article/10.1007/s10584-014-1306-x'>(Bunn et al. 2015)</a>.</p></div></section>",
             "mapUrl": "/map?layers=%5B%7B%22id%22%3A96%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%2C%7B%22id%22%3A212%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%5D&zoom=4&center=%7B%22lat%22%3A0.4833927027896987%2C%22lng%22%3A6.943359374999999%7D",
             "btnUrl": "/map?layers=%5B%7B%22id%22%3A96%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%2C%7B%22id%22%3A212%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%5D&zoom=4&center=%7B%22lat%22%3A0.4833927027896987%2C%22lng%22%3A6.943359374999999%7D"
         },
