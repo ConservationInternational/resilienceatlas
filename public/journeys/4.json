@@ -7,17 +7,17 @@
         {
             "number": 0,
             "type": "landing",
-            "title": "African Coffee",
+            "title": "Coffee",
             "subtitle": "Data insights",
-            "theme": "Climate change likely to reduce available land for coffee production",
-            "background": "journey3bg0",
-            "credits": "Water splashed on pile of coffee berries © Conservation International/photo by Miguel Ángel de la Cueva",
+            "theme": "Climate change likely to reduce available land for African coffee production",
+            "background": "journey4bg0",
+            "credits": "Water splashed on pile of coffee berries © Conservation International/photo by Miguel Ángel de la Cueva.",
             "creditsUrl": ""
         },
         {
             "number": 1,
             "type": "conclusion",
-            "background": "journey3bg1",
+            "background": "journey4bg1",
             "backgroundColor": "74, 61, 53",
             "title": "overview",
             "content": "<p>Several African countries rank among the top exporters of <i>arabica</i> coffee worldwide.  Ethiopia is the ninth largest exporter followed by Uganda (#15), Kenya (#18) and Tanzania (#19). Concerns over the impacts of increasing minimum (or nighttime) temperatures resulting in decreased yields and increased damage from pest already threatens global coffee production.</p><p>Elevations ranging between 1,200 to 1,800 meters (from mean sea level) will feel the most considerable impact in East Africa. The suitable areas for coffee production will transition to higher elevations as temperatures increase, shifting deforestation to new areas.</p>",
@@ -67,7 +67,7 @@
             "type": "embed",
             "maskSql": "SELECT * FROM gadm28_adm0 where iso not in ('UGA', 'BDI', 'RWA', 'KEN', 'TZA')",
             "theme": "light",
-            "aside": "<header><h2>Stressors & shocks</h2><h3>Coffee production and temperature change</h3></header><section><h1>Africa</h1><div class='facts'><h4></h4><p>Minimum temperatures are already increasing at a rate of over 0.5°C per decade in Uganda and northwestern Tanzania.</p></div></section>",
+            "aside": "<header><h2>Stressors & shocks</h2><h3>Coffee production and temperature change</h3></header><section><h1>East Africa</h1><div class='facts'><h4></h4><p>Minimum temperatures are already increasing at a rate of over 0.5°C per decade in Uganda and northwestern Tanzania.</p></div></section>",
             "mapUrl": "/map?layers=%5B%7B%22id%22%3A96%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%2C%7B%22id%22%3A212%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%5D&zoom=6&center=%7B%22lat%22%3A-4.335456463573485%2C%22lng%22%3A30.65185546875%7D",
             "btnUrl": "/map?layers=%5B%7B%22id%22%3A96%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%2C%7B%22id%22%3A212%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%5D&zoom=6&center=%7B%22lat%22%3A-4.335456463573485%2C%22lng%22%3A30.65185546875%7D"
         },
@@ -86,7 +86,7 @@
             "type": "embed",
             "maskSql": "SELECT * FROM gadm28_adm0 where iso not in ('UGA', 'BDI', 'RWA', 'KEN', 'TZA')",
             "theme": "light",
-            "aside": "<header><h2>Vulnerability</h2><h3>Coffee production and access to electricity</h3></header><section><h1>Africa</h1><div class='facts'><h4></h4><p>Coffee growing areas in northern Uganda and northwestern Tanzania have little access to gridded electricity.</p><p>Deforestation, linked to fuelwood usage in these areas, could increase with clearing of land for crops like coffee.</p></div></section>",
+            "aside": "<header><h2>Vulnerability</h2><h3>Coffee production and access to electricity</h3></header><section><h1>East Africa</h1><div class='facts'><h4></h4><p>Coffee growing areas in northern Uganda and northwestern Tanzania have little access to gridded electricity.</p><p>Deforestation, linked to fuelwood usage in these areas, could increase with clearing of land for crops like coffee.</p></div></section>",
             "mapUrl": "/map?layers=%5B%7B%22id%22%3A25%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%2C%7B%22id%22%3A96%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%5D&zoom=6&center=%7B%22lat%22%3A-4.335456463573485%2C%22lng%22%3A30.65185546875%7D",
             "btnUrl": "/map?layers=%5B%7B%22id%22%3A25%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%2C%7B%22id%22%3A96%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%5D&zoom=6&center=%7B%22lat%22%3A-4.335456463573485%2C%22lng%22%3A30.65185546875%7D"
         },
@@ -95,18 +95,18 @@
             "type": "embed",
             "maskSql": "SELECT * FROM gadm28_adm0 where iso not in ('UGA', 'BDI', 'RWA', 'KEN', 'TZA')",
             "theme": "light",
-            "aside": "<header><h2>Vulnerability</h2><h3>Coffee production and women's literacy</h3></header><section><h1>Africa</h1><div class='facts'><h4></h4><p>Improved cultivation techniques such as agroforestry show promise for increasing the resilience of coffee production to climate change. The high rates of illiteracy, particularly among women, in northern Uganda and throughout Ethiopia must be taken into account by agricultural extension programs.</p></div></section>",
+            "aside": "<header><h2>Vulnerability</h2><h3>Coffee production and women's literacy</h3></header><section><h1>East Africa</h1><div class='facts'><h4></h4><p>Improved cultivation techniques such as agroforestry show promise for increasing the resilience of coffee production to climate change. The high rates of illiteracy, particularly among women, in northern Uganda and throughout Ethiopia must be taken into account by agricultural extension programs.</p></div></section>",
             "mapUrl": "/map?center=%7B%22lat%22%3A-4.335456463573485%2C%22lng%22%3A30.65185546875%7D&zoom=6&layers=%5B%7B%22id%22%3A96%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%2C%7B%22id%22%3A26%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%5D",
             "btnUrl": "/map?center=%7B%22lat%22%3A-4.335456463573485%2C%22lng%22%3A30.65185546875%7D&zoom=6&layers=%5B%7B%22id%22%3A96%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%2C%7B%22id%22%3A26%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%5D"
         },
         {
             "number": 10,
             "type": "conclusion",
-            "background": "journey3bg2",
+            "background": "journey4bg10",
             "backgroundColor": "68, 58, 56",
             "title": "insights",
             "subtitle": "African coffee production",
-            "content": "<p>Studies show that climate change may reduce the suitable areas for coffee production by over half by 2050 and up to 65% in East Africa by 2080 (CITATION). Within the Tanzania highlands, increases in daily minimum temperatures have direct correlation with decreased yields.</p><p>Agroforestry techniques have proven successful in other parts of the world for increasing the resilience of coffee production to temperature change, but to be impactful in Africa these programs must take into account barriers in access to information due to high rates of illiteracy and low access to education in rural areas of Africa. Interventions like fair trade and crop diversification may prove most beneficial by providing alternative income streams, improved nutrition and reduced pests for small holder farmers.</p>",
+            "content": "<p>Studies show that climate change may reduce the suitable areas for coffee production by over half by 2050 and up to 65% in East Africa by 2080 (CITATION). Within the Tanzania highlands, increases in daily minimum temperatures have direct correlation with decreased yields.</p><p>Agroforestry techniques have proven successful in other parts of the world for increasing the resilience of coffee production to temperature change. In order to be impactful in rural areas of Africa, these programs must take into account barriers in accessing information due to high rates of illiteracy and low access to education. Interventions like fair trade and crop diversification may prove most beneficial by providing alternative income streams, improved nutrition and reduced pests for small holder farmers.</p>",
             "credits": "Kenyan Fair Trade Coffee Farmer. © Randy Plett.",
             "creditsUrl": "https://www.flickr.com/photos/usdagov/5863969582/in/photolist-9WbnRQ-o2qXnQ-HdgjP9-E5cnZb-wia6M1-xvurJ3-ou1PQm-xJnBrV-oETiB9"
         }
