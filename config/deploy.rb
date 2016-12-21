@@ -1,10 +1,10 @@
 lock '3.4.0'
 
-set :application, 'CIGRP'
-set :repo_url, 'git@github.com:Vizzuality/cigrp-prototype.git'
+set :application, 'ResilienceAtlas'
+set :repo_url, 'git@github.com:ConservationInternational/resilienceatlas.git'
 set :branch, 'master'
 
-set :deploy_to, '/home/ubuntu/cigrp'
+set :deploy_to, '/home/ubuntu/resilienceatlas'
 
 set :passenger_restart_with_touch, true
 

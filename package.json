@@ -1,5 +1,5 @@
 {
-  "name": "cigrp-prototype",
+  "name": "ResilienceAtlas",
   "version": "1.0.0",
   "description": "",
   "main": "app/assets/application.js",
@@ -11,14 +11,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/Vizzuality/cigrp-prototype.git"
+    "url": "https://github.com/ConservationInternational/resilienceatlas.git"
   },
   "author": "Vizzuality <info@vizzuality.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/Vizzuality/cigrp-prototype/issues"
+    "url": "https://github.com/ConservationInternational/resilienceatlas/issues"
   },
-  "homepage": "https://github.com/Vizzuality/cigrp-prototype",
+  "homepage": "http://www.resilienceatlas.org",
   "devDependencies": {
     "grunt": "^0.4.5",
     "grunt-contrib-jshint": "^0.11.2",

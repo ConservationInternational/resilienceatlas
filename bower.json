@@ -1,11 +1,11 @@
 {
-  "name": "cigrp",
+  "name": "ResilienceAtlas",
   "version": "1.0.0",
-  "homepage": "https://github.com/Vizzuality/cigrp-prototype",
+  "homepage": "https://github.com/ConservationInternational/resilienceatlas",
   "authors": [
     "Vizzuality <info@vizzuality.com>"
   ],
-  "description": "cigrp-prototype",
+  "description": "Resilience Atlas",
   "license": "MIT",
   "ignore": [
     "**/.*",
