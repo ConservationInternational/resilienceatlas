@@ -147,11 +147,11 @@
     },
 
     _getBaseMapUrl: function() {
-      return this.selectedBasemap ? this.options.basemap[this.selectedBasemap].url : this.options.basemap.defaultmap.url;
+      return this.selectedBasemap ? this.options.basemap[this.selectedBasemap].url : this.options.basemap[this.options.defaultBasemap].url;
     },
 
     _getBaseMapLabelsUrl: function() {
-      return this.selectedBasemap ? this.options.basemap[this.selectedBasemap].labelsUrl : this.options.basemap.defaultmap.labelsUrl
+      return this.selectedBasemap ? this.options.basemap[this.selectedBasemap].labelsUrl : this.options.basemap[this.options.defaultBasemap].labelsUrl;
     },
 
 
@@ -166,6 +166,10 @@
       if (this.basemap) {
         this.map.removeLayer(this.basemap);
         this.map.removeLayer(this.labels);
+      }
+
+      if (this.subdomainParams.subdomain === 'atlas') {
+        this.options.defaultBasemap = 'satellite';
       }
 
       var labelsUrl = this._getBaseMapLabelsUrl();
@@ -341,15 +345,15 @@
             layer.setZIndex(1000 + layerData.order);
             this._setAttribution(layerData);
 
-            // Temporal fix for one layer
-            if (options.sublayers.length && layerData.slug === 'world-project-locations') {
-              options.sublayers[0].interactivity = ['project', 'description', 'url'];
-            }
-
+            
             var sublayer = layer.getSubLayer(0);
-            // add infowindow interactivity to the sublayer (show cartodb_id and name columns from the table)
+            // add infowindow interactivity to the sublayer
             if (options.sublayers.length && options.sublayers[0].interactivity) {
-              cartodb.vis.Vis.addInfowindow(this.map, sublayer, options.sublayers[0].interactivity);
+              //cartodb.vis.Vis.addInfowindow(this.map, sublayer, 
+                //options.sublayers[0].interactivity_fields, {
+              cartodb.vis.Vis.addInfowindow(this.map, sublayer, [options.sublayers[0].interactivity_fields], {
+              infowindowTemplate: $(options.sublayers[0].interactivity).html()
+              });
             }
           }.bind(this));
         } else if (layerData.type === 'xyz tileset') {
