@@ -3,7 +3,7 @@
   'use strict';
 
   root.app = root.app || {};
-  root.app.View = root.app.View || {};
+  root.app.View = root.app.View || {};
 
   root.app.View.Map = Backbone.View.extend({
 
@@ -147,11 +147,11 @@
     },
 
     _getBaseMapUrl: function() {
-      return this.selectedBasemap ? this.options.basemap[this.selectedBasemap].url : this.options.basemap.defaultmap.url;
+      return this.selectedBasemap ? this.options.basemap[this.selectedBasemap].url : this.options.basemap[this.options.defaultBasemap].url;
     },
 
     _getBaseMapLabelsUrl: function() {
-      return this.selectedBasemap ? this.options.basemap[this.selectedBasemap].labelsUrl : this.options.basemap.defaultmap.labelsUrl
+      return this.selectedBasemap ? this.options.basemap[this.selectedBasemap].labelsUrl : this.options.basemap[this.options.defaultBasemap].labelsUrl;
     },
 
 
@@ -161,11 +161,16 @@
      */
     setBasemap: function(basemapUrl, type) {
       if (!this.map) {
-        throw 'Map must exists.';
+        throw 'Map must exist.';
       }
+
       if (this.basemap) {
         this.map.removeLayer(this.basemap);
         this.map.removeLayer(this.labels);
+      }
+
+      if (this.subdomainParams.subdomain === 'atlas') {
+        this.options.defaultBasemap = 'satellite';
       }
 
       var labelsUrl = this._getBaseMapLabelsUrl();
