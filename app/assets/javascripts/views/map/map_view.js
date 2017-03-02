@@ -3,7 +3,7 @@
   'use strict';
 
   root.app = root.app || {};
-  root.app.View = root.app.View || {};
+  root.app.View = root.app.View || {};
 
   root.app.View.Map = Backbone.View.extend({
 
@@ -161,8 +161,9 @@
      */
     setBasemap: function(basemapUrl, type) {
       if (!this.map) {
-        throw 'Map must exists.';
+        throw 'Map must exist.';
       }
+
       if (this.basemap) {
         this.map.removeLayer(this.basemap);
         this.map.removeLayer(this.labels);
@@ -345,15 +346,15 @@
             layer.setZIndex(1000 + layerData.order);
             this._setAttribution(layerData);
 
-            
+            // Temporal fix for one layer
+            if (options.sublayers.length && layerData.slug === 'world-project-locations') {
+              options.sublayers[0].interactivity = ['project', 'description', 'url'];
+            }
+
             var sublayer = layer.getSubLayer(0);
-            // add infowindow interactivity to the sublayer
+            // add infowindow interactivity to the sublayer (show cartodb_id and name columns from the table)
             if (options.sublayers.length && options.sublayers[0].interactivity) {
-              //cartodb.vis.Vis.addInfowindow(this.map, sublayer, 
-                //options.sublayers[0].interactivity_fields, {
-              cartodb.vis.Vis.addInfowindow(this.map, sublayer, [options.sublayers[0].interactivity_fields], {
-              infowindowTemplate: $(options.sublayers[0].interactivity).html()
-              });
+              cartodb.vis.Vis.addInfowindow(this.map, sublayer, options.sublayers[0].interactivity);
             }
           }.bind(this));
         } else if (layerData.type === 'xyz tileset') {
