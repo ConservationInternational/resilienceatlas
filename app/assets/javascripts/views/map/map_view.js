@@ -169,7 +169,7 @@
         this.map.removeLayer(this.labels);
       }
 
-      if (this.subdomainParams.subdomain === 'atlas') {
+      if (this.subdomainParams && this.subdomainParams.subdomain === 'atlas') {
         this.options.defaultBasemap = 'satellite';
       }
 
