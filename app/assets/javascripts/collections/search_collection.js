@@ -31,7 +31,7 @@
     },
 
     _getTableName: function() {
-      var name = 'gadm28_adm0';
+      var name = "gadm28_adm0 where not iso ='TWN'";
       var isSubdomain = window.isSubdomain;
 
       if (isSubdomain === 'indicators') {
