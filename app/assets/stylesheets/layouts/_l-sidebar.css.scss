@@ -80,40 +80,44 @@
     }
   }
 
-  .bare-header {
+  .sidebar-logo {
     display: none;
     position: absolute;
     bottom: 10px;
     left: 0;
     right: 0;
 
-    .is-bare & {
+    .has-sidebar-logo & {
       display: block;
     }
 
-    .site-title {
-	text-align: center;
-    	font-size: rem(24px);
-	font-weight: 400;
-	text-transform: uppercase;
-	line-height: 1;
-	margin: 4px;
+    .brand-area {
+      background-image: url('https://resilienceatlas-assets.s3.amazonaws.com/logo_CI.png');
+    }
 
-	a:visited{
-	    color:#555555;
-        }
+    .site-title {
+	  text-align: center;
+	  font-size: rem(24px);
+	  font-weight: 400;
+	  text-transform: uppercase;
+	  line-height: 1;
+	  margin: 4px;
+
+	  a:visited{
+  	    color:#555555;
+      }
     }
 
     .site-title-by {
-	text-align: center;
-    	font-size: rem(12px);
-	margin: 0px;
+	  text-align: center;
+      font-size: rem(12px);
+	  margin: 0px;
     }
 
     .site-copyright {
-	text-align: center;
-    	font-size: rem(12px);
-	margin: 5px;
+	  text-align: center;
+      font-size: rem(12px);
+	  margin: 5px;
     }
   }
 

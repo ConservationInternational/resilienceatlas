@@ -41,6 +41,7 @@
       this.params = new this.ParamsModel(); // This object save the URL params
 
       this._checkHeaderParam();
+      this._checkSidebarLogo();
       this._checkJourneyMap();
       this.setListeners();
     },
@@ -53,6 +54,19 @@
 
       if (params.journeyMap) {
         $('body').addClass('is-journey-map');
+      }
+    },
+
+    /**
+     * Add class to body if page is external from CI and needs to have logo and 
+     * linkback added in sidebar
+     */
+    _checkSidebarLogo: function() {
+      var isSubdomain = window.isSubdomain;
+      if (isSubdomain === 'atlas') {
+        $('body').addClass('has-sidebar-logo');
+      } else {
+        $('body').addClass('no-sidebar-logo');
       }
     },
 
