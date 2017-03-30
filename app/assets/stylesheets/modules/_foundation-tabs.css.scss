@@ -113,6 +113,9 @@ meta.foundation-data-attribute-namespace {
 
 .tabs-content {
   margin-bottom: 1.5rem;
+  .has-sidebar-logo & {
+    max-height: calc(100% - 12rem);
+  }
   width: 100%; }
   .tabs-content:before, .tabs-content:after {
     content: " ";
