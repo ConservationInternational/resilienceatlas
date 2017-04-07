@@ -30,5 +30,13 @@
     "theme": "Climate change likely to affect coffee production",
     "bg" : "thumb-4",
     "bg-big": "thumb-big-4"
+  },
+  {
+    "id": 5,
+    "title": "MADAGASCAR",
+    "theme": "Ecosystem-based adaptation",
+    "theme": "Implementing climate resilient rice production",
+    "bg" : "thumb-5",
+    "bg-big": "thumb-big-5"
   }
 ]
