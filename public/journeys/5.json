@@ -1,0 +1,116 @@
+[
+  {
+    "id": 5,
+    "title": "MADAGASCAR",
+    "subtitle": "Using ecosystem-based adaptation to mitigate impacts of climate change",
+    "steps": 
+	[
+        {
+            "number": 0,
+            "type": "landing",
+            "title": "RICE",
+            "subtitle": "Data insights",
+            "theme": "Implementing climate resilient rice production",
+            "background": "journey5bg0",
+            "credits": "Farmer with harvesting tool in rice fields. © Olivier Langrand.",
+            "creditsUrl": "https://ci.tandemvault.com/assets/91815975"
+        },
+        {
+            "number": 1,
+            "type": "conclusion",
+            "background": "journey5bg1",
+            "backgroundColor": "74, 61, 53",
+            "title": "overview",
+            "content": "<p> The population of Madagascar relies heavily on their natural resources to support their livelihoods. These resources are essential for adapting to a changing climate to build resilience. Climate change is expected to disproportionately affect smallholder farmers worldwide <a href='http://rstb.royalsocietypublishing.org/content/369/1639/20130089'> (Harvey et al., 2014)</a> due to changes in rainfall and temperature that are likely to give rise to delays in the timing of planting during the growing seasons, increased pest outbreaks and impacts to water availability. Soil degradation resulting from rapid deforestation that has removed nearly 40% of the countries forest cover since 1940 <a href='http://rstb.royalsocietypublishing.org/content/369/1639/20130089'> (Harvey et al., 2014)</a>. These challenges contribute to the overall food insecurity of the country. Coastal communities are threatened by a decrease in protective coral reefs and mangroves, exacerbating the negative impacts of eroding shorelines, rising seas levels and powerful storm surges.</p><p> Ecosystem-based Adaptation (EbA) is the use of biodiversity and ecosystem services as part of an overall strategy to help people adapt to the adverse effects of climate change <a href='https://www.cbd.int/cop/cop-11/doc/2012-10-24-advanced-unedited-cop-11-decisions-en.pdf'> (CBD, 2009)</a>. An EbA project consists of the following elements: 1) the design and implementation addresses at least one climate change impact; 2) the activities include conservation, restoration, and/or biodiversity to help people adapt to climate change; and 3) the outcomes relate to improved livelihoods and/or increased resiliency of people to climate change <a href='http://www.conservation.org/projects/Pages/adapting-to-climate-change-ecosystem-based-adaptation.aspx'> (CI, 2015)</a>. An example relevant to Madagascar is the conservation, restoration and/or management of mangrove forests which protects coastal communities from climate impacts such as sea level rise or coastal storm surges, while providing fish habitat, improving food security and promoting stable income generation. One major question facing the country is how main staples, such as rice, will be impacted from projected climate change, and what can be done to increase the resiliency of the populations to these impacts.</p>",
+            "credits": "Mangroves within Baie D'Ambodi-Vahibe. NE Madagascar. © Conservation International/photo by Sterling Zumbrunn",
+            "creditsUrl": "https://ci.tandemvault.com/assets/40362255"
+        },
+		        {
+            "number": 2,
+            "chapterNumber": 1,
+            "background": "journey3ch1",
+            "type": "chapter",
+            "title": "Production systems",
+            "content": "Where is rice grown in Madagascar?",
+            "credits": "© Cristina Mittermeier",
+            "creditsUrl": "https://ci.tandemvault.com/assets/54213186"
+        },
+		        {
+            "number": 3,
+            "type": "embed",
+            "maskSql": "SELECT * FROM gadm28_adm0 where iso not in ('MDG')",
+            "theme": "light",
+            "aside": "<header><h2>Production systems</h2><h3>Rice</h3></header><section><h1>Madagascar</h1><div class='facts'><h4></h4><p>Over 70% of the population are farmers, many of whom are smallholder subsistence farmers <a href='http://www.sciencedirect.com/science/article/pii/S0305750X08000107'> (Minten, 2008)</a>.</p></div></section>",
+            "mapUrl": "http://madagascar.resilienceatlas.org/embed/map?layers=%5B%7B%22id%22%3A9%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%5D&zoom=6&center=%7B%22lat%22%3A-19.16592425362801%2C%22lng%22%3A44.67041015625%7D",
+            "btnUrl": "http://madagascar.resilienceatlas.org/map?layers=%5B%7B%22id%22%3A9%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%5D"
+        },
+		        {
+            "number": 4,
+            "chapterNumber": 2,
+            "background": "journey2ch2",
+            "type": "chapter",
+            "title": "stressors & shocks",
+            "content": "How are changing temperatures affecting rice production?",
+            "credits": "© Eric Lafforgue/Alamy Stock Photo",
+            "creditsUrl": "https://ci.tandemvault.com/lightboxes/MVGRc7ujF?t=BwQlYp2iC#28490118"
+        },
+		        {
+            "number": 5,
+            "type": "embed",
+            "maskSql": "SELECT * FROM gadm28_adm0 where iso not in ('MDG')",
+            "theme": "light",
+            "aside": "<header><h2>Stressors & shocks</h2><h3>Rice production and temperature change</h3></header><section><h1>Madagascar</h1><div class='facts'><h4></h4><p>Temperatures are likely to increase by 1.5-2°C by 2040-2060. This has implications for water availability and heat stress for plants on land; it could lead to sea level rise and damage to coral reefs along the seascapes <a href='http://link.springer.com/article/10.1007/s10584-014-1306-x'>(Bunn et al. 2015)</a>.</p></div></section>",
+            "mapUrl": "http://madagascar.resilienceatlas.org/embed/map?layers=%5B%7B%22id%22%3A695%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%2C%7B%22id%22%3A9%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%5D&zoom=6&center=%7B%22lat%22%3A-19.16592425362801%2C%22lng%22%3A44.67041015625%7D",
+            "btnUrl": "http://madagascar.resilienceatlas.org/map?layers=%5B%7B%22id%22%3A695%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%2C%7B%22id%22%3A9%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%5D"
+        },
+		        {
+            "number": 6,
+            "type": "embed",
+            "maskSql": "SELECT * FROM gadm28_adm0 where iso not in ('MDG')",
+            "theme": "light",
+            "aside": "<header><h2>Stressors & shocks</h2><h3>Rice production and rainfall change</h3></header><section><h1>Madagascar</h1><div class='facts'><h4></h4><p>Rainfall changes are expected to exacerbate soil erosion in deforested areas and droughts already prevalent in Southern Madagascar.</p></div></section>",
+            "mapUrl": "http://madagascar.resilienceatlas.org/embed/map?layers=%5B%7B%22id%22%3A618%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%2C%7B%22id%22%3A9%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%5D&zoom=6&center=%7B%22lat%22%3A-19.16592425362801%2C%22lng%22%3A44.67041015625%7D",
+            "btnUrl": "http://madagascar.resilienceatlas.org/map?layers=%5B%7B%22id%22%3A618%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%2C%7B%22id%22%3A9%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%5D"
+        },
+		        {
+            "number": 7,
+            "chapterNumber": 3,
+            "background": "journey2ch3",
+            "type": "chapter",
+            "title": "Vulnerability",
+            "content": "What factors affect the vulnerability of smallholder farmers in rice growing regions?",
+            "credits": "© Conservation International/photo by Haroldo Castro",
+            "creditsUrl": "https://ci.tandemvault.com/assets/17721239"
+        },
+		        {
+            "number": 8,
+            "type": "embed",
+            "maskSql": "SELECT * FROM gadm28_adm0 where iso not in ('MDG')",
+            "theme": "light",
+            "aside": "<header><h2>Vulnerability</h2><h3>Rice production and stunting</h3></header><section><h1>Madagascar</h1><div class='facts'><h4></h4><p>Stunting is a proxy health indicator of sufficient nutrition in children. Areas along the eastern coastline and central areas of the country that produce higher amounts of rice still show high stunting within its younger population elevating health risk should production decline.</p></div></section>",
+            "mapUrl": "http://madagascar.resilienceatlas.org/embed/map?layers=%5B%7B%22id%22%3A682%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%2C%7B%22id%22%3A9%2C%22opacity%22%3A1%2C%22order%22%3A3%7D%5D&center=%7B%22lat%22%3A-17.654491233592395%2C%22lng%22%3A46.77978515624999%7D&zoom=6&center=%7B%22lat%22%3A-19.16592425362801%2C%22lng%22%3A44.67041015625%7D",
+            "btnUrl": "http://madagascar.resilienceatlas.org/map?center=%7B%22lat%22%3A-17.654491233592395%2C%22lng%22%3A46.77978515624999%7D&layers=%5B%7B%22id%22%3A682%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%2C%7B%22id%22%3A9%2C%22opacity%22%3A1%2C%22order%22%3A3%7D%5D"
+        },
+		        {
+            "number": 9,
+            "type": "embed",
+            "maskSql": "SELECT * FROM gadm28_adm0 where iso not in ('MDG')",
+            "theme": "light",
+            "aside": "<header><h2>EbA Activity</h2><h3>Rice production and freshwater</h3></header><section><h1>Madagascar</h1><div class='facts'><h4></h4><p>These freshwater areas important for rice cultivation can be targeted for EbA interventions e.g. reforestation of native species, cultivating terraces, or water saving SRI/SRA cultivation techniques to maintain ecosystem function of the watershed for the staple crop.</p></div></section>",
+            "mapUrl": "http://madagascar.resilienceatlas.org/embed/map?layers=%5B%7B%22id%22%3A663%2C%22opacity%22%3A1%2C%22order%22%3A4%7D%2C%7B%22id%22%3A9%2C%22opacity%22%3A1%2C%22order%22%3A3%7D%5D&center=%7B%22lat%22%3A-17.654491233592395%2C%22lng%22%3A46.77978515624999%7D&zoom=6&center=%7B%22lat%22%3A-19.16592425362801%2C%22lng%22%3A44.67041015625%7D",
+            "btnUrl": "http://madagascar.resilienceatlas.org/map?center=%7B%22lat%22%3A-17.654491233592395%2C%22lng%22%3A46.77978515624999%7D&layers=%5B%7B%22id%22%3A663%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%2C%7B%22id%22%3A9%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%5D"
+        },
+		        {
+            "number": 10,
+            "type": "conclusion",
+            "background": "journey5bg2",
+            "backgroundColor": "68, 58, 56",
+            "title": "insights",
+            "subtitle": "Resilient rice production",
+            "content": "<p> Changes in rainfall and temperature will affect agriculture production in Madagascar. The Government of Madagascar is reviewing different approaches to addressing this challenge via their National Adaptation Plan (NAP). Ecosystem-based adaptation (EbA) can be integrated within the NAP to harness the potential of ecosystem services to help people adapt to the adverse effects of climate change. Current work in Madagascar identifies water quality and quantity as an important function across all sectors. Increased variability of precipitation makes it more difficult for farmers to predict the ideal time to plant. Flooding can damage infrastructure and increase soil erosion, leading to siltation of waterways. Increased dry period shortens the growing season and could lead to declines in harvests. Increased temperatures can lead to heat stress in plants. This in turn leads to a decline in health and livelihoods and can impact the unique flora and fauna that makes Madagascar a famous ecological tourist destination. Together with Conservation International, the Madagascar Government sectoral ministries are collaborating with NGOs, multi-lateral partners and communities to integrate EbA into the NAP as a cross-cutting solution to this evolving socio-ecological problem.</p>",
+            "credits": "Rice fields in Madagascar. © Olivier Langrand.",
+            "creditsUrl": "https://ci.tandemvault.com/assets/40443702"
+        }
+    ]
+  }
+]
