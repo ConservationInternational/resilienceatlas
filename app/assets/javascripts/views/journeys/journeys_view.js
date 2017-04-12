@@ -79,7 +79,8 @@
 
 
       if (this.currentStepData.type === 'embed') {
-        this.renderLegend();
+        var scope = this.currentStepData.siteScope || '';
+        this.renderLegend(scope);
       };
 
       this._cacheVars();
@@ -109,18 +110,22 @@
       }
     },
 
-    renderLegend: function() {
+    renderLegend: function(scope) {
       var url = this.currentStepData.mapUrl;
       var codeLayers = url.split('?')[1];
       var layers = this._unserializeParams(codeLayers);
 
-      //trampita
       var layersCollection = new root.app.Collection.Layers();
 
-      var complete = _.invoke([
-        layersCollection
-      ], 'fetch');
-
+      if (scope) {
+          var complete = _.invoke([
+            layersCollection
+          ], 'fetch', { data: $.param({ site_scope: scope}) });
+      } else {
+          var complete = _.invoke([
+            layersCollection
+          ], 'fetch');
+      }
 
       $.when.apply($, complete).done(function() {
         layers = JSON.parse(layers.layers);
