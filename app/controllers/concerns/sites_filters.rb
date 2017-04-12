@@ -4,7 +4,7 @@ module SitesFilters
     before_action :set_site
   end
   def set_site
-    site_scope = SiteScope.find_by(subdomain: request.subdomain.downcase) || SiteScope.find(1)
+    site_scope = SiteScope.find_by(subdomain: params[:site_scope]) || SiteScope.find_by(subdomain: request.subdomain.downcase) || SiteScope.find(1)
     params.merge!({site_scope: site_scope.id})
     params
   end

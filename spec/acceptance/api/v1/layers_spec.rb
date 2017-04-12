@@ -26,6 +26,8 @@ resource 'Layer' do
 
   context "List layers" do
     get "/api/layers" do
+      parameter :site_scope, 'Site scope to list layers for'
+
       example_request "Get layers list" do
         expect(status).to eq(200)
         results = json
