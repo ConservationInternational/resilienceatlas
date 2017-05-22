@@ -79,7 +79,7 @@ Rails.application.configure do
   # Do not dump schema after migrations.
   # config.active_record.dump_schema_after_migration = false
 
-  config.action_mailer.default_url_options = { host: 'cigrp.com' }
+  config.action_mailer.default_url_options = { host: 'resilienceatlas.org' }
   config.action_mailer.delivery_method = :smtp
 
   ActionMailer::Base.smtp_settings = {
@@ -88,7 +88,7 @@ Rails.application.configure do
     :authentication => :plain,
     :user_name      => ENV['SENDGRID_USERNAME'],
     :password       => ENV['SENDGRID_PASSWORD'],
-    :domain         => 'cigrp.com',
+    :domain         => 'resilienceatlas.org',
     :enable_starttls_auto => true
   }
 end

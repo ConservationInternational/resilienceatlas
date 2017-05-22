@@ -18,7 +18,7 @@
       "request_headers": {
         "Accept": "application/json; application/vnd.api+json",
         "Content-Type": "application/vnd.api+json",
-        "Host": "http://cigrp.org",
+        "Host": "http://resilienceatlas.org",
         "Cookie": ""
       },
       "request_query_parameters": {
@@ -40,7 +40,7 @@
         "Content-Length": "1098"
       },
       "response_content_type": "application/json; charset=utf-8",
-      "curl": "curl \"http://cigrp.org/api/api/layers/\" -X GET \\\n\t-H \"Accept: application/json; application/vnd.api+json\" \\\n\t-H \"Content-Type: application/vnd.api+json\" \\\n\t-H \"Host: http://cigrp.org\" \\\n\t-H \"Cookie: \""
+      "curl": "curl \"http://resilienceatlas.org/api/api/layers/\" -X GET \\\n\t-H \"Accept: application/json; application/vnd.api+json\" \\\n\t-H \"Content-Type: application/vnd.api+json\" \\\n\t-H \"Host: http://resilienceatlas.org\" \\\n\t-H \"Cookie: \""
     }
   ]
 }

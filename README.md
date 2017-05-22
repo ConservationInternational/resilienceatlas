@@ -1,11 +1,7 @@
-# CIGRP Prototype
+# Resilience Atlas web app
 
-Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
-tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
-consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
-cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
-proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+This is the web app powering 
+[resilienceatlas.org](http://www.resilienceatlas.org)
 
 ## Installation
 
@@ -43,7 +39,7 @@ In `config/deploy` you will find a sample file. Copy `production.rb.sample` to `
 bundle exec cap production deploy
 ```
 
-## Deploy advice:
+## Deploy advice
 As we remove bower to manage front dependencies, now it's necesary to change it at Heroku. Apparently, only owner can do it. So for the moment we need a fake bower.json file in order the deploy to work. Please, don't remove it before Heroku is fixed. 
 (Clara, 17/08/2015)
 
