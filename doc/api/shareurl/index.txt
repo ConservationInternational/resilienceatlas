@@ -9,7 +9,7 @@ Request:
   Accept: application/json; application/vnd.api+json
   Content-Type: application/vnd.api+json
   Cookie: 
-  Host: http://cigrp.org
+  Host: http://resilienceatlas.org
   X-Csrf-Token: a_valid_CSRF_token
 
 Response:
@@ -39,7 +39,7 @@ Request:
   Accept: application/json; application/vnd.api+json
   Content-Type: application/vnd.api+json
   Cookie: 
-  Host: http://cigrp.org
+  Host: http://resilienceatlas.org
   X-Csrf-Token: a_valid_CSRF_token
 
   body=body test

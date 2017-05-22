@@ -6,7 +6,7 @@ Request:
   Accept: application/json; application/vnd.api+json
   Content-Type: application/vnd.api+json
   Cookie: 
-  Host: http://cigrp.org
+  Host: http://resilienceatlas..org
 
 Response:
   Status: 200 OK
