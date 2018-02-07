@@ -346,15 +346,10 @@
             layer.setZIndex(1000 + layerData.order);
             this._setAttribution(layerData);
 
-            // Temporal fix for one layer
-            if (options.sublayers.length && layerData.slug === 'world-project-locations') {
-              options.sublayers[0].interactivity = ['project', 'description', 'url'];
-            }
-
             var sublayer = layer.getSubLayer(0);
             // add infowindow interactivity to the sublayer (show cartodb_id and name columns from the table)
             if (options.sublayers.length && options.sublayers[0].interactivity) {
-              cartodb.vis.Vis.addInfowindow(this.map, sublayer, options.sublayers[0].interactivity);
+              cartodb.vis.Vis.addInfowindow(this.map, sublayer, options.sublayers[0].interactivity.split(','));
             }
           }.bind(this));
         } else if (layerData.type === 'xyz tileset') {
