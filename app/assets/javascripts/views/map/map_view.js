@@ -348,8 +348,8 @@
 
             var sublayer = layer.getSubLayer(0);
             // add infowindow interactivity to the sublayer (show cartodb_id and name columns from the table)
-            if (options.sublayers.length && options.sublayers[0].interactivity) {
-              cartodb.vis.Vis.addInfowindow(this.map, sublayer, options.sublayers[0].interactivity.split(','));
+            if (options.sublayers.length && layer.layers[0].options.interactivity) {
+              cartodb.vis.Vis.addInfowindow(this.map, sublayer, layer.layers[0].options.interactivity);
             }
           }.bind(this));
         } else if (layerData.type === 'xyz tileset') {

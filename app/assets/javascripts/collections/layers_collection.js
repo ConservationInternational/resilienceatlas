@@ -49,6 +49,7 @@
           type: d.attributes.layer_provider,
           description: d.attributes.info,
           cartocss: d.attributes.css,
+          interactivity: d.attributes.interactivity,
           sql: d.attributes.query,
           color: d.attributes.color,
           opacity: d.attributes.opacity,
