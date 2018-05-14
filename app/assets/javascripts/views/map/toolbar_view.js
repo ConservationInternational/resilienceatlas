@@ -24,7 +24,7 @@
     },
 
     render: function() {
-      this.$el.html(this.template);
+      this.$el.html(this.template({ url: location.href }));
     },
 
     _share: function() {
