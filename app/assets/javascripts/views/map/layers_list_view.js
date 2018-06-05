@@ -137,7 +137,7 @@
       var activeControl = e.currentTarget
       var opacity = activeControl.value;
 
-      $(activeControl).parent().siblings('.opacity-teller').val(opacity);
+      $(activeControl).parent().siblings('.value').children('.opacity-teller').val(opacity);
 
       this._setOpacity(opacity, activeControl);
 
