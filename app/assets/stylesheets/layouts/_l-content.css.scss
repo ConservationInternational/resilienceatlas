@@ -15,10 +15,6 @@
   bottom: 0;
   top: 0;
   transition: all .3s $easeInSine;
-
-  body.analyzing & {
-    left: rem($sidebar-analysis-width);
-  }
 }
 
 .wrap {

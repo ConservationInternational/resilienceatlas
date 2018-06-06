@@ -18,7 +18,24 @@
       var opts = settings && settings.options ? settings.options : {};
       this.options = _.extend({}, this.defaults, opts);
       this.subdomainParams = settings.subdomainParams;
+      this.setVars();
+      this.setListeners();
+      this.triggerSidebarOffset();
       this.render();
+    },
+
+    setVars: function() {
+      this.sidebar = $('.l-sidebar--fullscreen');
+    },
+
+    setListeners: function() {
+      // When the width or status of the sidebar changes,
+      // we trigger the offset
+      this.sidebar.on('transitionend', function(e) {
+        if (e.target === e.currentTarget) {
+          this.triggerSidebarOffset();
+        }
+      }.bind(this));
     },
 
     render: function() {
@@ -37,7 +54,24 @@
     },
 
     collapsePanel: function() {
-      $('.l-sidebar--fullscreen').toggleClass('is-collapsed');
+      // We collapse/expand the sidebar
+      this.sidebar.toggleClass('is-collapsed');
+    },
+
+    /**
+     * Trigger an event to tell the map how
+     * much to offset depending on the visibility
+     * of the sidebar and its width
+     */
+    triggerSidebarOffset: function() {
+      var isCollapsed = this.sidebar.hasClass('is-collapsed');
+      var sidebarWidth = this.sidebar.width();
+
+      // We offset the map's center
+      Backbone.Events.trigger('map:offset', [
+        !isCollapsed ? sidebarWidth : 0,
+        0
+      ]);
     },
 
     setThemeColor: function() {
@@ -72,7 +106,6 @@
       if(this.analysisView) {
         this.analysisView.closeAnalysis();
       }
-      Backbone.Events.trigger('map:recenter');
     }
   });
 
