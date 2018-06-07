@@ -67,7 +67,11 @@
     expandAnalysisPanel: function () {
       this.sidebar.addClass('analyzing');
       if (!this.analysisView) {
-        this.analysisView = new root.app.View.analysisSelectors();
+        if (!this.section || this.section === 'layers') {
+          this.analysisView = new root.app.View.analysisSelectors();
+        } else {
+          this.analysisView = new root.app.View.analysisModel();
+        }
       }
     },
 
@@ -76,7 +80,6 @@
      */
     contractAnalysisPanel: function () {
       this.sidebar.removeClass('analyzing');
-      this.analysisView = new root.app.View.analysisSelectors();
     },
 
     /**
@@ -106,13 +109,14 @@
       var $tab = $(tab);
       var section = $tab.data('section');
 
-      // if(section === 'analysis') {
-      //   $('body').addClass('analysis-section');
-      //   Backbone.Events.trigger('map:toggle:layers', false);
-      // } else {
-      //   $('body').removeClass('analysis-section');
-      //   Backbone.Events.trigger('map:toggle:layers', true);
-      // }
+      if (!this.section || this.section !== section) {
+        this.contractAnalysisPanel();
+        this.section = section;
+        if (this.analysisView) {
+          this.analysisView.destroy();
+          this.analysisView = null;
+        }
+      }
     }
   });
 

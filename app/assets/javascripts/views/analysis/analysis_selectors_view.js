@@ -150,6 +150,18 @@
       } else {
         this.$el.removeClass('highlight');
       }
+    },
+
+    /**
+     * Destroy the view
+     * Same as remove but without removing the node
+     */
+    destroy() {
+      this.closeAnalysis();
+      if (this.analyzeView) {
+        this.analyzeView.remove();
+      }
+      this.$el.html('');
     }
 
   });
