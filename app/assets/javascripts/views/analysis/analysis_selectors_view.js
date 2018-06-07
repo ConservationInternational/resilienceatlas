@@ -127,8 +127,8 @@
       this.renderAnalyzeContainer();
 
       var collection = this.analysisCollection.toJSON();
-      var data = _.where(collection, { 
-        category_slug: this.state.get('category') 
+      var data = _.where(collection, {
+        category_slug: this.state.get('category')
       });
 
       if(data[0]) {

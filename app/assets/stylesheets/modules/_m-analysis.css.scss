@@ -1,14 +1,14 @@
 .m-analysis {
-  top: 0;
-  transform: translate($sidebar-width, 0);
+  display: none;
   position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  background-color: $gray-5;
 
   &.visible {
-    width: 100%;
-    bottom: 0;
-    right: 0;
-    background: $white;
-    transform: translate($sidebar-analysis-width, 0);
+    display: block;
   }
 
   #analysisData {
@@ -22,7 +22,6 @@
 
     .navigation {
       width: 100%;
-      background: $gray-5;
 
       .btn-back-analysis {
         font-size: 14px;
@@ -51,7 +50,6 @@
       padding: 10px 20px 50px 20px;
       overflow-y: scroll;
       // @extend %clear-scroll-bars;
-      background-color: #fff;
 
       h2 {
         width: 100%;

@@ -26,13 +26,14 @@
 
     setVars: function() {
       this.sidebar = $('.l-sidebar--fullscreen');
+      this.analysisPanel = $('.analysis-panel');
     },
 
     setListeners: function() {
       // When the width or status of the sidebar changes,
       // we trigger the offset
       this.sidebar.on('transitionend', function(e) {
-        if (e.target === e.currentTarget) {
+        if (e.target === this.sidebar[0] || e.target === this.analysisPanel[0]) {
           this.triggerSidebarOffset();
         }
       }.bind(this));
@@ -50,7 +51,9 @@
       });
 
       this.subdomainParams && this.setThemeColor();
-      $('.btn-dash-switcher').on('click', _.bind(this.collapsePanel, this))
+      $('.btn-sidebar-toggle').on('click', _.bind(this.collapsePanel, this));
+      $('.btn-analysis-panel-expand').on('click', _.bind(this.expandAnalysisPanel, this));
+      $('.btn-analysis-panel-contract').on('click', _.bind(this.contractAnalysisPanel, this));
     },
 
     collapsePanel: function() {
@@ -59,19 +62,39 @@
     },
 
     /**
+     * Expand the analysis panel
+     */
+    expandAnalysisPanel: function () {
+      this.sidebar.addClass('analyzing');
+      if (!this.analysisView) {
+        this.analysisView = new root.app.View.analysisSelectors();
+      }
+    },
+
+    /**
+     * Contract the analysis panel
+     */
+    contractAnalysisPanel: function () {
+      this.sidebar.removeClass('analyzing');
+      this.analysisView = new root.app.View.analysisSelectors();
+    },
+
+    /**
      * Trigger an event to tell the map how
      * much to offset depending on the visibility
      * of the sidebar and its width
      */
     triggerSidebarOffset: function() {
-      var isCollapsed = this.sidebar.hasClass('is-collapsed');
+      var sidebarIsCollapsed = this.sidebar.hasClass('is-collapsed');
       var sidebarWidth = this.sidebar.width();
+      var analysisPanelIsCollapsed = !this.sidebar.hasClass('analyzing');
+      var analysisPanelWidth = this.analysisPanel.width();
+
+      var offset = (!sidebarIsCollapsed ? sidebarWidth : 0) +
+        (!analysisPanelIsCollapsed ? analysisPanelWidth : 0);
 
       // We offset the map's center
-      Backbone.Events.trigger('map:offset', [
-        !isCollapsed ? sidebarWidth : 0,
-        0
-      ]);
+      Backbone.Events.trigger('map:offset', [offset, 0]);
     },
 
     setThemeColor: function() {
@@ -83,29 +106,13 @@
       var $tab = $(tab);
       var section = $tab.data('section');
 
-      if(section === 'analysis') {
-        $('body').addClass('analysis-section');
-        Backbone.Events.trigger('map:toggle:layers', false);
-        this.initAnalysis();
-      } else {
-        $('body').removeClass('analysis-section');
-        Backbone.Events.trigger('map:toggle:layers', true);
-        this.hideAnalysis();
-      }
-    },
-
-    initAnalysis: function() {
-      if(this.analysisView) {
-        this.analysisView.closeAnalysis();
-      } else {
-        this.analysisView = new root.app.View.analysisSelectors();
-      }
-    },
-
-    hideAnalysis: function() {
-      if(this.analysisView) {
-        this.analysisView.closeAnalysis();
-      }
+      // if(section === 'analysis') {
+      //   $('body').addClass('analysis-section');
+      //   Backbone.Events.trigger('map:toggle:layers', false);
+      // } else {
+      //   $('body').removeClass('analysis-section');
+      //   Backbone.Events.trigger('map:toggle:layers', true);
+      // }
     }
   });
 
