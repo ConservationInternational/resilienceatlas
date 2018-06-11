@@ -85,6 +85,10 @@
           subdomainParams: this.subdomainParams
         });
 
+        var predictiveModelView = new root.app.View.PredictiveModels({
+          el: '#modelContent'
+        });
+
         var legendView = new root.app.View.Legend({
           el: '#legendView',
           layers: layersCollection,
