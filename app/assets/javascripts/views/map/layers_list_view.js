@@ -163,7 +163,7 @@
         $currentTarget.val(opacity);
       }
 
-      var $currentRangeSelector = $currentTarget.siblings('.slider-wrapper').find('.opacity-range');
+      var $currentRangeSelector = $currentTarget.closest('.m-form-input--slider').find('.opacity-range');
 
       $currentRangeSelector.val(opacity);
 

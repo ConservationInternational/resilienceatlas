@@ -11,7 +11,7 @@
       this.render();
     },
 
-    render() {
+    render: function() {
       this.$el.html('Analysis of the model');
     },
 
@@ -19,7 +19,7 @@
      * Destroy the view
      * Same as remove but without removing the node
      */
-    destroy() {
+    destroy: function() {
       this.$el.html('');
     }
   });
