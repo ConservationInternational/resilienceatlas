@@ -28,6 +28,8 @@
     "define",
     "L",
     "cdb",
-    "cartodb"
+    "cartodb",
+    "Backbone",
+    "_"
   ]
 }
