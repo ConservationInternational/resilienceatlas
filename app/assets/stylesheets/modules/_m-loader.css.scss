@@ -1,7 +1,7 @@
 .m-loader {
   position: absolute;
-  left: rem(360px);
   top: rem(10px);
+  right: rem(10px);
   z-index: 1;
   padding: rem(10px) rem(10px) rem(8px) rem(35px);
   border: 1px solid $bg-color-3;

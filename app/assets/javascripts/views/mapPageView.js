@@ -41,7 +41,6 @@
     initMap: function() {
       var journeyMap = this._checkJourneyMap();
       var toolbarView = new root.app.View.Toolbar();
-      var sidevarView = new root.app.View.Sidebar({subdomainParams: this.subdomainParams});
       var layersGroupsCollection = new root.app.Collection.LayersGroups();
       var layersCollection = new root.app.Collection.Layers();
       var mapModel = new (Backbone.Model.extend({
@@ -74,12 +73,20 @@
         }
       });
 
+      // We init the sidebar after the map so the sidebar
+      // can tell the map its initial state and offset it
+      var sidebarView = new root.app.View.Sidebar({subdomainParams: this.subdomainParams});
+
       //No Layer list nor legend are showed into journey embed map.
       if (!journeyMap) {
         var layersListView = new root.app.View.LayersList({
           el: '#layersListView',
           layers: layersCollection,
           subdomainParams: this.subdomainParams
+        });
+
+        var predictiveModelView = new root.app.View.PredictiveModels({
+          el: '#modelContent'
         });
 
         var legendView = new root.app.View.Legend({

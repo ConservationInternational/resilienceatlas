@@ -58,7 +58,7 @@
       Backbone.Events.on('map:toggle:layers', this.toggleLayers.bind(this));
       Backbone.Events.on('remove:layer', this._removingLayer.bind(this));
       Backbone.Events.on('map:redraw', this.redrawMap.bind(this));
-      Backbone.Events.on('map:recenter', this.reCenter.bind(this));
+      Backbone.Events.on('map:offset', this.setOffset.bind(this));
     },
 
     /**
@@ -92,6 +92,9 @@
         }
         this.setBasemap();
         this._setAttributionControl();
+
+        // We set the initial offset of the map
+        this.setOffset(this.offset || [0, 0]);
       } else {
         console.info('Map already exists.');
       }
@@ -116,11 +119,7 @@
     },
 
     redrawMap: function() {
-      this.setBbox(this.bbox);
-    },
-
-    reCenter: function() {
-      this.map.setView(this.options.map.center, this.options.map.zoom);
+      this.setOffset(this.offset);
     },
 
     /**
@@ -506,13 +505,12 @@
 
     setBbox: function(bbox) {
       if(bbox) {
-        this.bbox = bbox;
         bbox = JSON.parse(bbox);
         var coords = bbox.coordinates[0];
         var southWest = L.latLng(coords[2][1], coords[2][0]),
           northEast = L.latLng(coords[0][1], coords[0][0]),
           bounds = L.latLngBounds(southWest, northEast);
-
+        this.bounds = bounds;
         var maxZoom = this.map.getBoundsZoom(bounds, true);
 
         if(maxZoom > 9) {
@@ -524,6 +522,29 @@
         }
 
         this.map.fitBounds(bounds, { maxZoom: maxZoom });
+      }
+    },
+
+    /**
+     * Set the map's offset and update it
+     * @param {number[]} offset x and y offset
+     */
+    setOffset: function(offset) {
+      this.offset = offset;
+
+      if (this.map) {
+        var center = this.map.getCenter();
+        var zoom = this.map.getZoom();
+
+        this.map.setActiveArea({
+          position: 'absolute',
+          top: '0',
+          left: this.offset[0] + 'px',
+          right: '0',
+          height: '100%'
+        });
+
+        this.map.setView(center, zoom, { animate: true });
       }
     },
 

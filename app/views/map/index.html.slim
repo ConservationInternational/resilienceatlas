@@ -1,40 +1,20 @@
 .l-sidebar--fullscreen
   .l-sidebar-content
-    .btn-dash-switcher
+    .m-sidebar.analysis-panel#analysisPanelView
+      .title
+        button.btn-analysis-panel-contract type="button" aria-label="Contract analysis panel"
+        | Analysis
+      .content
+        #analysisSelectorsView.m-analysis-selectors
+        #analysisView.m-analysis
     .m-sidebar#sidebarView
-      / ul.tabs.tabs-secondary-content role="tablist" attr="data-tab"
-      /   li.tab-title.active
-      /     a href="#layersListView" Layers
-      /   li.tab-title
-      /     a href="#analysisSelectorsView" Analysis
-
-      / .tabs-content.content
-      /   .m-layers-list.content.active#layersListView
-      /   .m-analysis-selectors#analysisSelectorsView
+    button.btn-sidebar-toggle type="button" aria-label="Toggle sidebar"
+    button.btn-analysis-panel-expand type="button" aria-label="Expand analysis panel"
+      | Analysis
 
 .l-content--fullscreen
   .m-map#mapView
   .m-loader#loader loading
   .m-toolbar#toolbarView
-    / ul
-    /   li.search
-    /     span.search
-    /       svg.icon
-    /         use[xlink:href="#icon-search"]
-    /   #searchBox.m-search-map
-    /       input.searchMap(type="search"  placeholder="Search area")
-    /       .searchContent.search-box
-    /   li
-    /     button.btn-share 
-    /       span
-    /         svg.icon
-    /           use[xlink:href="#icon-share"]
-    /       | Share
-    /   li
-    /     button.btn-analyze 
-    /       span
-    /         svg.icon 
-    /           use[xlink:href="#icon-analyze"]
-    /       | Analyze
   
   .m-legend#legendView

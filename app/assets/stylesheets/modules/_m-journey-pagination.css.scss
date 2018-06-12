@@ -27,9 +27,14 @@ $backgrounds-thumb: 'thumb-0', 'thumb-1', 'thumb-2', 'thumb-3', 'thumb-4', 'thum
     display: inline-block;
     position: relative;
 
-    height: calc((100vw - 20px) / 2);
+    // What's this below? It makes the height more than 100% - Clément
+    // height: calc((100vw - 20px) / 2);
     width: calc(100vw - 20px);
-    @media screen and (min-width: 470px){ width: rem(360px); height: rem(180px); }
+    @media screen and (min-width: 470px){
+      width: rem(360px);
+      // What's this below? It makes the height more than 100% - Clément
+      // height: rem(180px);
+    }
 
     margin: 10px;
     cursor: pointer;
