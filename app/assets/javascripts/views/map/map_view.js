@@ -548,29 +548,48 @@
       }
     },
 
-    toggleLayers: function(show) {
-      var layers = this.layers.getActiveLayers();
-      var mapModel = this.model;
+    toggleLayers: (function() {
+      // Layers that were active previously
+      var _previousActiveLayers = [];
 
-      if(!show) {
-        this.zoomEndEvent = false;
-      } else {
-        this.zoomEndEvent = true;
-        this.checkMask();
-      }
-
-      _.each(layers, function(layer) {
-        var instance = mapModel.get(layer.id);
-
-        if(instance) {
-          if(show) {
-            instance.layer.show();
-          } else {
-            instance.layer.hide();
-          }
+      return function (show) {
+        // We restore the previously hidden layers, if any
+        if(show) {
+          this.layers.setActives(_previousActiveLayers);
         }
-      });
-    },
+
+        var layers = this.layers.getActiveLayers();
+        var mapModel = this.model;
+
+        if(!show) {
+          this.zoomEndEvent = false;
+        } else {
+          this.zoomEndEvent = true;
+          this.checkMask();
+        }
+
+        _.each(layers, function(layer) {
+          var instance = mapModel.get(layer.id);
+
+          if(instance) {
+            if(show) {
+              instance.layer.show();
+            } else {
+              instance.layer.hide();
+            }
+          }
+        });
+
+        // We all of them as inactive depending on
+        // whether we want to show or hide them
+        if (!show) {
+          _previousActiveLayers = this.layers.getActived();
+          this.layers.setActives([]);
+        }
+
+        Backbone.Events.trigger('legend:render');
+      }
+    })(),
 
     _setLayerBounds: function(layerId) {
       var mapModel = this.model;

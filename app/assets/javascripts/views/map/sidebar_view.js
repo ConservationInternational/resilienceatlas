@@ -116,6 +116,12 @@
           this.analysisView.destroy();
           this.analysisView = null;
         }
+
+        if (section === 'models') {
+          Backbone.Events.trigger('map:toggle:layers', false);
+        } else {
+          Backbone.Events.trigger('map:toggle:layers', true);
+        }
       }
     }
   });
