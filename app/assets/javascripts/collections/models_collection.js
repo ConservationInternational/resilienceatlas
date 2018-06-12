@@ -66,7 +66,7 @@
     fetch: function() {
       var deferred = $.Deferred();
 
-      const data = MODELS.map(function(model) {
+      var data = MODELS.map(function(model) {
         return _.extend({}, model, {
           indicators: model.indicators.map(function(indicator) {
             return _.extend({}, indicator, {
@@ -114,7 +114,7 @@
      * @returns {string} Human readable value
      */
     getHumanReadableIndicatorValue: function(value) {
-      const index = this.getIndexableIndicatorValue(value);
+      var index = this.getIndexableIndicatorValue(value);
       if (index === null) {
         return '';
       } else {

@@ -156,7 +156,7 @@
      * Destroy the view
      * Same as remove but without removing the node
      */
-    destroy() {
+    destroy: function() {
       this.closeAnalysis();
       if (this.analyzeView) {
         this.analyzeView.remove();

@@ -196,7 +196,7 @@
      * @param {string} indicatorName Name of the indicator
      * @param {object} indicatorAttributes Attributes to assign to the indicator
      */
-    updateModel(indicatorName, indicatorAttributes) {
+    updateModel: function(indicatorName, indicatorAttributes) {
       var model = _.extend({}, this.state.get('model'), {
         indicators: this.state.get('model').indicators.map(function (indicator) {
           if (indicator.name !== indicatorName) {
