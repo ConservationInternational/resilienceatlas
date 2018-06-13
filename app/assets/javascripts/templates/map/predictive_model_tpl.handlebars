@@ -5,13 +5,13 @@
   </p>
   <div class="model-selector">
     <select class="js-model-selector" aria-label="Select a model">
-      <option disabled {{#unless model}}selected{{/unless}}>Select a model</option>
+      <option disabled {{#unless model.name}}selected{{/unless}}>Select a model</option>
       {{#each models}}
         <option value="{{name}}" {{#compare name '===' ../model.name}}selected{{/compare}}>{{name}}</option>
       {{/each}}
     </select>
   </div>
-  {{#if model}}
+  {{#if model.name}}
     <ul class="indicators-list">
       {{#each model.indicators}}
         <li>
@@ -34,7 +34,7 @@
       {{/each}}
     </ul>
   {{/if}}
-  <div class="actions" {{#unless model}}hidden{{/unless}}>
+  <div class="actions" {{#unless model.name}}hidden{{/unless}}>
     <button type="button" class="btn js-reset">Reset</button>
     <button type="button" class="btn -primary js-apply">Apply</button>
   </div>

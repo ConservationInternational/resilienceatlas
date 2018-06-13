@@ -44,6 +44,7 @@
       this.currentCountry = this.model.get('countryIso') || null;
       this.maskSql = this.model.get('maskSql') || null;
       this.zoomEndEvent = this.model.get('zoomEndEvent') || true;
+      this.predictiveModel = settings.predictiveModel;
 
       this.utils = new root.app.View.Utils();
       this.advise = new root.app.View.Advise();
@@ -59,6 +60,8 @@
       Backbone.Events.on('remove:layer', this._removingLayer.bind(this));
       Backbone.Events.on('map:redraw', this.redrawMap.bind(this));
       Backbone.Events.on('map:offset', this.setOffset.bind(this));
+      Backbone.Events.on('map:show:model', this.showPredictiveModel.bind(this));
+      Backbone.Events.on('map:hide:model', this.hidePredictiveModel.bind(this));
     },
 
     /**
@@ -597,6 +600,56 @@
 
       if(instance) {
         instance.panToLayer();
+      }
+    },
+
+    /**
+     * Show the predictive model on the map
+     */
+    showPredictiveModel: function() {
+      var layerObj = this.predictiveModel.getLayer();
+
+      if(layerObj.type === 'cartodb' || layerObj.type === 'raster') {
+        var data = _.pick(layerObj, ['sql', 'cartocss', 'interactivity']);
+        var options = { sublayers: [data] };
+
+        if(layerObj.type === 'raster') {
+          options = {
+            sublayers: [ _.extend(data, { raster: true, raster_band: 1 }) ]
+          };
+        }
+
+        this.predictiveModelLayer = new root.app.Helper.CartoDBLayer(this.map, options);
+        this.predictiveModelLayer.create(function(layer) {
+          layer.setOpacity(layerObj.opacity);
+          layer.setZIndex(1000 + layerObj.order);
+          this._setAttribution(layerObj);
+
+          var sublayer = layer.getSubLayer(0);
+          // add infowindow interactivity to the sublayer (show cartodb_id and name columns from the table)
+          if (options.sublayers.length && layer.layers[0].options.interactivity) {
+            cartodb.vis.Vis.addInfowindow(this.map, sublayer, layer.layers[0].options.interactivity);
+          }
+        }.bind(this));
+      } else if (layerObj.type === 'xyz tileset') {
+        var options = _.pick(layerObj, ['sql']);
+
+        this.predictiveModelLayer = new root.app.Helper.XYZTiles(this.map, options);
+        this.predictiveModelLayer.create(function(layer) {
+          layer.setOpacity(layerObj.opacity);
+          layer.setZIndex(1000 + layerObj.order);
+          this._setAttribution(layerObj);
+        }.bind(this));
+      }
+    },
+
+    /**
+     * Hide the predictive model on the map
+     */
+    hidePredictiveModel: function() {
+      if (this.predictiveModelLayer) {
+        this.predictiveModelLayer.remove();
+        this.predictiveModelLayer = null;
       }
     }
 
