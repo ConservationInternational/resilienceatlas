@@ -34,6 +34,7 @@
       var opts = settings && settings.options ? settings.options : {};
       this.options = _.extend({}, this.defaults, opts);
       this.layers = settings.layers;
+      this.predictiveModel = settings.predictiveModel;
       this.setListeners();
     },
 
@@ -42,6 +43,8 @@
       this.listenTo(this.model, 'change:hidden', this.changeVisibility);
       Backbone.Events.on('render:map', _.bind(this.render, this));
       Backbone.Events.on('legend:render', _.bind(this.render, this));
+      Backbone.Events.on('map:show:model', this.showPredictiveModel.bind(this));
+      Backbone.Events.on('map:hide:model', this.hidePredictiveModel.bind(this));
     },
 
     cacheVars: function() {
@@ -64,7 +67,12 @@
     },
 
     setLegends: function() {
-      return _.map(this.layers.getActived(), _.bind(function(layer){
+      var activeLayers = this.layers.getActived();
+      if (this.predictiveModelLayer) {
+        activeLayers = activeLayers.concat([this.predictiveModelLayer]);
+      }
+
+      return _.map(activeLayers, _.bind(function(layer){
         //Check if legend exist
         if (layer.legend) {
           var legend = JSON.parse(layer.legend);
@@ -153,6 +161,24 @@
       Backbone.Events.trigger('remove:layer', currentLayerId);
 
       ga('send', 'event', 'Map', 'Delete', 'Click delete button in legend');
+    },
+
+    /**
+     * Show the predictive model on the legend
+     */
+    showPredictiveModel: function() {
+      this.predictiveModelLayer = this.predictiveModel.getLayer();
+      this.render();
+    },
+
+    /**
+     * Hide the predictive model on the legend
+     */
+    hidePredictiveModel: function() {
+      if (this.predictiveModelLayer) {
+        this.predictiveModelLayer = null;
+        this.render();
+      }
     }
 
   });

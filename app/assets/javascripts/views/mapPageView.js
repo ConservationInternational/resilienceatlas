@@ -51,6 +51,46 @@
         }
       }));
 
+      // Predictive models
+      var predictiveModelsCollection = new root.app.Collection.Models();
+      var activePredictiveModel = new (Backbone.Model.extend({
+        /**
+         * Return the layer corresponding to the parameter
+         * of the model
+         * @returns {object}
+         */
+        getLayer: function() {
+          // FIXME: return the real layer
+          return {
+            "id": 6,
+            "slug": "livelihood",
+            "name": "Livelihoods zones",
+            "type": "cartodb",
+            "description": "{\"description\":\"Data from the GeoNetwork site of the Food and Agriculture Organisation of the UN; Also derived Famine Early Warning Systems Network (FEWSNet). Created by USAID in 1985, the Famine Early Warning Systems Network provides early warning and analysis on food insecurity.\", \"source\":\"FEWSNET. Livelihoods: Insights into how people survive and prosper [Internet]. [updated 21 January, 2015]. Available: https://www.fews.net/sectors/livelihoods [cited 21 October 2015].\", \"link\":\"http://www.fao.org/geonetwork/srv/en/main.home\" }",
+            "cartocss": "#grp_africa_livelihoodzones {\r\n   polygon-opacity: 1;\r\n   line-width: 0;\r\n }\r\n #grp_africa_livelihoodzones[lz_type=\"Agro-Forestry\"] {\r\n   polygon-fill: #547D33;\r\n }\r\n #grp_africa_livelihoodzones[lz_type=\"Agro-Pastoral\"] {\r\n   polygon-fill: #81AF4B;\r\n }\r\n #grp_africa_livelihoodzones[lz_type=\"Arid\"] {\r\n   polygon-fill: #F6EED5;\r\n }\r\n #grp_africa_livelihoodzones[lz_type=\"Crops - Floodzone\"] {\r\n   polygon-fill: #7ADCC2;\r\n }\r\n #grp_africa_livelihoodzones[lz_type=\"Crops - Irrigated\"] {\r\n   polygon-fill: #67A1BD;\r\n }\r\n #grp_africa_livelihoodzones[lz_type=\"Crops - Rainfed\"] {\r\n   polygon-fill: #C6741D;\r\n }\r\n #grp_africa_livelihoodzones[lz_type=\"Fishery\"] {\r\n   polygon-fill: #255CB4;\r\n }\r\n #grp_africa_livelihoodzones[lz_type=\"National Park\"] {\r\n   polygon-fill: #B0E5A0;\r\n }\r\n #grp_africa_livelihoodzones[lz_type=\"Pastoral\"] {\r\n   polygon-fill: #CDD13D;\r\n }\r\n #grp_africa_livelihoodzones[lz_type=\"Urban\"] {\r\n   polygon-fill: #6D6D6D;\r\n }\r\n #grp_africa_livelihoodzones {\r\n   polygon-fill: #947F4A;\r\n }",
+            "interactivity": "",
+            "sql": "SELECT the_geom, the_geom_webmercator,iso3,lz_type, lz_value FROM grp_africa_livelihoodzones\r\nunion\r\nSELECT the_geom, the_geom_webmercator,iso3,lz_type, lz_value FROM grp_asia_livelihoodzones",
+            "color": "",
+            "opacity": 1,
+            "no_opacity": false,
+            "order": 2,
+            "maxZoom": 25,
+            "minZoom": 0,
+            "legend": "{\"type\": \"custom\",\r\n         \"data\": [\r\n           { \"name\": \"Agro-Forestry\", \"value\": \"#547D33\" },\r\n           { \"name\": \"Agro-Pastoral\", \"value\": \"#81AF4B\" },\r\n           { \"name\": \"Arid\", \"value\": \"#F6EED5\" },\r\n           { \"name\": \"Crops - Floodzone\", \"value\": \"#7ADCC2\" },\r\n           { \"name\": \"Crops - Irrigated\",\"value\": \"#67A1BD\" },\r\n           { \"name\": \"Crops - Rainfed\", \"value\": \"#C6741D\" },\r\n           { \"name\": \"Fishery\", \"value\": \"#255CB4\" },\r\n           { \"name\": \"National Park\", \"value\": \"#B0E5A0\" },\r\n           { \"name\": \"Pastoral\", \"value\": \"#CDD13D\" },\r\n           { \"name\": \"Urban\", \"value\": \"#6D6D6D\" },\r\n           { \"name\": \"Others\", \"value\": \"#947F4A\" }\r\n         ]\r\n       }",
+            "group": 8,
+            "active": true,
+            "published": true,
+            "info": "{\"description\":\"Data from the GeoNetwork site of the Food and Agriculture Organisation of the UN; Also derived Famine Early Warning Systems Network (FEWSNet). Created by USAID in 1985, the Famine Early Warning Systems Network provides early warning and analysis on food insecurity.\", \"source\":\"FEWSNET. Livelihoods: Insights into how people survive and prosper [Internet]. [updated 21 January, 2015]. Available: https://www.fews.net/sectors/livelihoods [cited 21 October 2015].\", \"link\":\"http://www.fao.org/geonetwork/srv/en/main.home\" }",
+            "dashboard_order": null,
+            "download": true,
+            "download_url": "/users/login",
+            "dataset_shortname": null,
+            "dataset_source_url": null,
+            "attributions": false
+          };
+        }
+      }));
+
       var mapCenter = this.getMapCenter();
       var mapZoom = this.getMapZoom();
 
@@ -59,6 +99,7 @@
         layers: layersCollection,
         basemap: this.router.params.attributes.basemap,
         model: mapModel,
+        predictiveModel: activePredictiveModel,
         router: this.router,
         subdomainParams: this.subdomainParams,
         options: {
@@ -75,7 +116,11 @@
 
       // We init the sidebar after the map so the sidebar
       // can tell the map its initial state and offset it
-      var sidebarView = new root.app.View.Sidebar({subdomainParams: this.subdomainParams});
+      var sidebarView = new root.app.View.Sidebar({
+        subdomainParams: this.subdomainParams,
+        predictiveModelsCollection: predictiveModelsCollection,
+        predictiveModel: activePredictiveModel
+      });
 
       //No Layer list nor legend are showed into journey embed map.
       if (!journeyMap) {
@@ -86,7 +131,9 @@
         });
 
         var predictiveModelView = new root.app.View.PredictiveModels({
-          el: '#modelContent'
+          el: '#modelContent',
+          collection: predictiveModelsCollection,
+          model: activePredictiveModel
         });
 
         var legendView = new root.app.View.Legend({
@@ -98,6 +145,7 @@
               order: []
             }
           })),
+          predictiveModel: activePredictiveModel
         });
       }
 

@@ -17,6 +17,7 @@
     initialize: function(settings) {
       var opts = settings && settings.options ? settings.options : {};
       this.options = _.extend({}, this.defaults, opts);
+      this.predictiveModel = settings.predictiveModel;
       this.subdomainParams = settings.subdomainParams;
       this.setVars();
       this.setListeners();
@@ -70,7 +71,9 @@
         if (!this.section || this.section === 'layers') {
           this.analysisView = new root.app.View.analysisSelectors();
         } else {
-          this.analysisView = new root.app.View.analysisModel();
+          this.analysisView = new root.app.View.analysisModel({
+            collection: this.options.predictiveModelsCollection
+          });
         }
       }
     },
@@ -115,6 +118,19 @@
         if (this.analysisView) {
           this.analysisView.destroy();
           this.analysisView = null;
+        }
+
+        // Let the tab know it is active
+        Backbone.Events.trigger('sidebar:tab', section);
+
+        if (section === 'models') {
+          Backbone.Events.trigger('map:toggle:layers', false);
+          if (this.predictiveModel.get('name')) {
+            Backbone.Events.trigger('map:show:model');
+          }
+        } else {
+          Backbone.Events.trigger('map:toggle:layers', true);
+          Backbone.Events.trigger('map:hide:model');
         }
       }
     }

@@ -21,15 +21,10 @@
     },
 
     template: HandlebarsTemplates['map/predictive_model_tpl'],
-    collection: new root.app.Collection.Models(),
 
     initialize: function(settings) {
       var opts = settings && settings.options ? settings.options : {};
       this.options = _.extend({}, this.defaults, opts);
-
-      this.state = new Backbone.Model({
-        model: null
-      });
 
       this.setListeners();
 
@@ -44,7 +39,7 @@
      * to a DOM node
      */
     setListeners: function() {
-      this.listenTo(this.state, 'change:model', this.render.bind(this));
+      this.listenTo(this.model, 'change:name', this.render.bind(this));
     },
 
     /**
@@ -55,7 +50,8 @@
     onChangeModelSelector: function(e) {
       var modelName = e.target.selectedOptions[0].value;
       var model = this.collection.findWhere({ name: modelName }).toJSON();
-      this.state.set({ model: model });
+      this.model.set(model);
+      Backbone.Events.trigger('map:show:model');
     },
 
     /**
@@ -176,8 +172,7 @@
      * the Apply button
      */
     onClickApply: function() {
-      // TODO: implement what happens when the user
-      // applies the model
+      Backbone.Events.trigger('map:show:model');
     },
 
     /**
@@ -185,10 +180,11 @@
      * the Reset button
      */
     onClickReset: function() {
-      var modelName = this.state.get('model').name;
+      var modelName = this.model.attributes.name;
       var model = this.collection.findWhere({ name: modelName }).toJSON();
-      this.state.set({ model: model });
+      this.model.set(model);
       this.render();
+      Backbone.Events.trigger('map:show:model');
     },
 
     /**
@@ -197,8 +193,8 @@
      * @param {object} indicatorAttributes Attributes to assign to the indicator
      */
     updateModel: function(indicatorName, indicatorAttributes) {
-      var model = _.extend({}, this.state.get('model'), {
-        indicators: this.state.get('model').indicators.map(function (indicator) {
+      var model = _.extend({}, this.model.attributes, {
+        indicators: this.model.attributes.indicators.map(function (indicator) {
           if (indicator.name !== indicatorName) {
             return indicator;
           }
@@ -207,13 +203,13 @@
         })
       });
 
-      this.state.set({ model: model }, { silent: true });
+      this.model.set(model, { silent: true });
     },
 
     render: function() {
       this.$el.html(this.template({
         models: this.collection.toJSON(),
-        model: this.state.get('model'),
+        model: this.model.attributes,
         indicatorRange: {
           min: this.collection.getIndexableIndicatorValueRange()[0],
           max: this.collection.getIndexableIndicatorValueRange()[1]
