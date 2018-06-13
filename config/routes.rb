@@ -34,6 +34,7 @@ Rails.application.routes.draw do
   get 'about', to: 'about#index'
   get 'journeys', to: 'journeys#index'
   get 'contents/:slug', to: 'contents#show'
+  get 'report', to: 'report#index', as: :report
 
   resources :journeys, only: [:show]
 
