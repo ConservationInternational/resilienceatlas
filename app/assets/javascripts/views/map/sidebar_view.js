@@ -17,12 +17,17 @@
     initialize: function(settings) {
       var opts = settings && settings.options ? settings.options : {};
       this.options = _.extend({}, this.defaults, opts);
+      this.router = settings.router;
       this.predictiveModel = settings.predictiveModel;
       this.subdomainParams = settings.subdomainParams;
       this.setVars();
       this.setListeners();
       this.triggerSidebarOffset();
       this.render();
+
+      if (this.router.params.get('geojson')) {
+        this.expandAnalysisPanel();
+      }
     },
 
     setVars: function() {
@@ -72,6 +77,7 @@
         //   this.analysisView = new root.app.View.analysisSelectors();
         // } else {
           this.analysisView = new root.app.View.analysisModel({
+            router: this.router,
             collection: this.options.predictiveModelsCollection
           });
         // }

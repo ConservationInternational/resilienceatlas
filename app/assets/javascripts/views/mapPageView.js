@@ -114,9 +114,13 @@
         }
       });
 
+      // At begining create a map
+      mapView.createMap();
+
       // We init the sidebar after the map so the sidebar
       // can tell the map its initial state and offset it
       var sidebarView = new root.app.View.Sidebar({
+        router: this.router,
         subdomainParams: this.subdomainParams,
         predictiveModelsCollection: predictiveModelsCollection,
         predictiveModel: activePredictiveModel
@@ -148,9 +152,6 @@
           predictiveModel: activePredictiveModel
         });
       }
-
-      // At begining create a map
-      mapView.createMap();
 
       // Fetching data
       var complete = _.invoke([

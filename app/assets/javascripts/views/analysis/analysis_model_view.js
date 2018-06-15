@@ -22,12 +22,31 @@
       'click .js-reset': 'onClickReset'
     },
 
-    initialize: function() {
+    initialize: function(options) {
+      this.router = options.router;
+
+      var geojson = null;
+      try {
+        geojson = this.router.params.get('geojson')
+          ? JSON.parse(this.router.params.get('geojson'))
+          : null;
+      } catch (e) {}
+
+      var iso = this.router.params.get('iso') || null;
+
       this.state = new Backbone.Model({
-        tab: 'region',
+        tab: geojson && !iso
+          ? 'shape'
+          : 'region',
         drawing: false,
-        geojson: null
+        geojson: geojson,
+        iso: iso
       });
+
+      if (geojson) {
+        Backbone.Events.trigger('map:draw:polygon', geojson);
+      }
+
 
       this.setListeners();
       this.render();
@@ -52,8 +71,12 @@
       this.state.set({
         tab: tab,
         drawing: false,
-        geojson: null
+        geojson: null,
+        iso: null
       });
+
+      this.updateURL();
+
       Backbone.Events.trigger('map:draw:disable');
       Backbone.Events.trigger('map:draw:reset');
     },
@@ -88,6 +111,8 @@
         drawing: false,
         geojson: geojson
       });
+
+      this.updateURL();
     },
 
     /**
@@ -114,6 +139,7 @@
     onClickReset: function() {
       this.state.set({ geojson: null });
       Backbone.Events.trigger('map:draw:reset');
+      this.updateURL();
     },
 
     /**
@@ -186,7 +212,12 @@
         ]
       };
 
-      this.state.set({ geojson: geojson });
+      this.state.set({
+        iso: iso,
+        geojson: geojson
+      });
+
+      this.updateURL();
 
       Backbone.Events.trigger('map:draw:reset');
       Backbone.Events.trigger('map:draw:polygon', geojson);
@@ -221,6 +252,8 @@
             drawing: false
           });
 
+          this.updateURL();
+
           Backbone.Events.trigger('map:draw:disable');
           Backbone.Events.trigger('map:draw:reset');
           Backbone.Events.trigger('map:draw:polygon', json);
@@ -231,6 +264,17 @@
       }.bind(this));
 
       reader.readAsText(file);
+    },
+
+    /**
+     * Update the URL of the page according to the
+     * state of the component
+     */
+    updateURL: function() {
+      var geojson = this.state.get('geojson') || '';
+      var iso = this.state.get('iso') || '';
+      this.router.setParams('geojson', geojson)
+      this.router.setParams('iso', iso)
     },
 
     render: function() {
