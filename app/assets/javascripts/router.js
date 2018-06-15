@@ -58,7 +58,7 @@
     },
 
     /**
-     * Add class to body if page is external from CI and needs to have logo and 
+     * Add class to body if page is external from CI and needs to have logo and
      * linkback added in sidebar
      */
     _checkSidebarLogo: function() {
@@ -182,8 +182,8 @@
           temp = [];
         for (var p = paramsArr.length; p--;) {
           var pos = paramsArr[p].indexOf('=');
-          temp[0] = paramsArr[p].substring(0, pos);
-          temp[1] = paramsArr[p].substring(pos + 1);
+          temp[0] = paramsArr[p].substring(0, pos).replace(/\+/g, ' ');
+          temp[1] = paramsArr[p].substring(pos + 1).replace(/\+/g, ' ');
           if (temp[1] && !_.isNaN(Number(temp[1]))) {
             params[temp[0]] = Number(temp[1]);
           } else if (temp[1]) {

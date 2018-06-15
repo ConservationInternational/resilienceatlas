@@ -137,7 +137,8 @@
         var predictiveModelView = new root.app.View.PredictiveModels({
           el: '#modelContent',
           collection: predictiveModelsCollection,
-          model: activePredictiveModel
+          model: activePredictiveModel,
+          router: this.router
         });
 
         var legendView = new root.app.View.Legend({

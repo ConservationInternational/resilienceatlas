@@ -25,11 +25,36 @@
     initialize: function(settings) {
       var opts = settings && settings.options ? settings.options : {};
       this.options = _.extend({}, this.defaults, opts);
+      this.router = settings.router;
 
       this.setListeners();
 
       this.collection.fetch()
         .done(function() {
+          // We restore the state of the predictive model
+          // if present in the URL
+          if (this.router.params.get('model')) {
+            try {
+              var serializedModel = JSON.parse(this.router.params.get('model'));
+              var model = this.collection.findWhere({ name: serializedModel.name }).toJSON();
+              this.model.set(model);
+
+              for (var i = 0, j = serializedModel.values.length; i < j; i++) {
+                var indicatorName = this.model.get('indicators')[i].name;
+                var indicatorRealValue = this.collection.getRealIndicatorValueFromIndex(serializedModel.values[i]);
+                var indicatorHumanReadableValue = this.collection.getHumanReadableIndicatorValueFromIndex(serializedModel.values[i]);
+
+                this.updateModel(indicatorName, {
+                  value: indicatorRealValue,
+                  indexableValue: serializedModel.values[i],
+                  humanReadableValue: indicatorHumanReadableValue
+                })
+              }
+
+              Backbone.Events.trigger('map:show:model');
+            } catch (e) {}
+          }
+
           this.render();
         }.bind(this));
     },
@@ -51,6 +76,7 @@
       var modelName = e.target.selectedOptions[0].value;
       var model = this.collection.findWhere({ name: modelName }).toJSON();
       this.model.set(model);
+      this.updateURL();
       Backbone.Events.trigger('map:show:model');
     },
 
@@ -204,6 +230,19 @@
       });
 
       this.model.set(model, { silent: true });
+      this.updateURL();
+    },
+
+    /**
+     * Update the URL according to the state of the component
+     */
+    updateURL: function() {
+      this.router.setParams('model', {
+        name: this.model.get('name'),
+        values: this.model.get('indicators').map(function(indicator) {
+          return indicator.indexableValue
+        })
+      })
     },
 
     render: function() {
