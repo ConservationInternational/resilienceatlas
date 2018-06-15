@@ -16,7 +16,8 @@
       elInput: '#searchMap',
       elSearchParent: '#searchBox',
       elSuggestions: '.search-suggestions',
-      closeOnClick: true
+      closeOnClick: true,
+      triggerMap: true
     },
 
     initialize: function(settings) {
@@ -182,13 +183,15 @@
       if(area[0]) {
         var bbox = area[0].get('bbox');
 
-        Backbone.Events.trigger('map:set:fitbounds', bbox);
-        Backbone.Events.trigger('map:set:mask', iso, 0.8, {
-          query: 'select * from gadm28_adm0',
-          tableName: 'gadm28_adm0'
-        });
+        if (this.options.triggerMap) {
+          Backbone.Events.trigger('map:set:fitbounds', bbox);
+          Backbone.Events.trigger('map:set:mask', iso, 0.8, {
+            query: 'select * from gadm28_adm0',
+            tableName: 'gadm28_adm0'
+          });
+        }
 
-        this.trigger('selected', iso, area[0].get('name'));
+        this.trigger('selected', iso, area[0].get('name'), bbox);
         this.setSelected(area[0]);
       }
 

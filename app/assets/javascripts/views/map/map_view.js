@@ -62,6 +62,20 @@
       Backbone.Events.on('map:offset', this.setOffset.bind(this));
       Backbone.Events.on('map:show:model', this.showPredictiveModel.bind(this));
       Backbone.Events.on('map:hide:model', this.hidePredictiveModel.bind(this));
+      Backbone.Events.on('map:draw:enable', this.enablePolygonDrawMode.bind(this));
+      Backbone.Events.on('map:draw:disable', this.disablePolygonDrawMode.bind(this));
+      Backbone.Events.on('map:draw:reset', this.removePolygon.bind(this));
+      Backbone.Events.on('map:draw:polygon', this.addPolygon.bind(this));
+    },
+
+    /**
+     * Event handler executed when the user has creating
+     * a polygon on the map
+     */
+    onCreatePolygon: function(e) {
+      var layer = e.layer;
+      this.drawLayer.addLayer(layer);
+      Backbone.Events.trigger('map:polygon:created', layer.toGeoJSON());
     },
 
     /**
@@ -96,6 +110,12 @@
         this.setBasemap();
         this._setAttributionControl();
 
+        // We add the layer to draw on top of the map
+        this.drawLayer = new L.FeatureGroup();
+        this.map.addLayer(this.drawLayer);
+        this.map.addControl(new L.Control.Draw());
+
+
         // We set the initial offset of the map
         this.setOffset(this.offset || [0, 0]);
       } else {
@@ -119,6 +139,8 @@
         this.actualCenter = this.map.getCenter();
         this.router.setParams('center', this.actualCenter);
       }, this));
+
+      this.map.on('draw:created', this.onCreatePolygon.bind(this));
     },
 
     redrawMap: function() {
@@ -651,6 +673,50 @@
         this.predictiveModelLayer.remove();
         this.predictiveModelLayer = null;
       }
+    },
+
+    /**
+     * Let the user draw a polygon on the map
+     */
+    enablePolygonDrawMode: function() {
+      if (!this.polygonDrawer) {
+        this.polygonDrawer = new L.Draw.Polygon(this.map);
+      } else {
+        // We empty the layer each time the user wants
+        // to draw again
+        this.removePolygon();
+      }
+
+      this.polygonDrawer.enable();
+    },
+
+    /**
+     * Remove the possibility for the user to draw
+     * a polygon on the map
+     */
+    disablePolygonDrawMode: function() {
+      if (this.polygonDrawer) {
+        this.polygonDrawer.disable();
+      }
+    },
+
+    /**
+     * Remove the polygon from the map
+     */
+    removePolygon: function() {
+      var layers = this.drawLayer.getLayers();
+      layers.forEach(function(layer) {
+        this.drawLayer.removeLayer(layer);
+      }.bind(this));
+    },
+
+    /**
+     * Add a polygon on the map
+     */
+    addPolygon: function(geojson) {
+      var layer = L.geoJson(geojson);
+      this.drawLayer.addLayer(layer);
+      this.map.fitBounds(layer.getBounds());
     }
 
   });

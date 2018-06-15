@@ -68,13 +68,13 @@
     expandAnalysisPanel: function () {
       this.sidebar.addClass('analyzing');
       if (!this.analysisView) {
-        if (!this.section || this.section === 'layers') {
-          this.analysisView = new root.app.View.analysisSelectors();
-        } else {
+        // if (!this.section || this.section === 'layers') {
+        //   this.analysisView = new root.app.View.analysisSelectors();
+        // } else {
           this.analysisView = new root.app.View.analysisModel({
             collection: this.options.predictiveModelsCollection
           });
-        }
+        // }
       }
     },
 
@@ -119,9 +119,6 @@
           this.analysisView.destroy();
           this.analysisView = null;
         }
-
-        // Let the tab know it is active
-        Backbone.Events.trigger('sidebar:tab', section);
 
         if (section === 'models') {
           Backbone.Events.trigger('map:toggle:layers', false);
