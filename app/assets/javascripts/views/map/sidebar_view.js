@@ -48,9 +48,16 @@
     render: function() {
       var self = this;
 
-      this.$el.html(this.template({ analysis: this.subdomainParams && this.subdomainParams.has_analysis }));
+      var tab = this.router.params.get('tab') || 'layers';
+
+      this.$el.html(this.template({
+        analysis: this.subdomainParams && this.subdomainParams.has_analysis,
+        tab: tab
+      }));
 
       $(document).foundation('tab', 'reflow');
+
+      $('#sidebarTabs').find('[data-section="' + tab + '"] a').click();
 
       $('#sidebarTabs').on('toggled', function (event, tab) {
         self.switchTabs(tab);
@@ -135,6 +142,8 @@
           Backbone.Events.trigger('map:toggle:layers', true);
           Backbone.Events.trigger('map:hide:model');
         }
+
+        this.router.setParams('tab', section);
       }
     }
   });

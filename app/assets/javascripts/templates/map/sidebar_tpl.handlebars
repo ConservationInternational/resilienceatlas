@@ -1,8 +1,8 @@
 <ul id="sidebarTabs" class="tabs tabs-secondary-content" role="tablist" data-tab>
-  <li class="tab-title active" data-section="layers">
+  <li class="tab-title {{#compare tab '===' 'layers'}}active{{/compare}}" data-section="layers">
     <a href="#layersListView">Layers</a>
   </li>
-  <li class="tab-title" data-section="models">
+  <li class="tab-title {{#compare tab '===' 'models'}}active{{/compare}}" data-section="models">
     <a href="#modelContent">Predictive models</a>
   </li>
 </ul>
