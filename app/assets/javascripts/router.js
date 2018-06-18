@@ -23,11 +23,13 @@
           'journeys/:id(/)': 'journeys',
           'embed/journeys(/)': 'journeys',
           'journeys(/)': 'journeysIndex',
+          'report(/)': 'report'
         };
       } else {
         routes = {
           '(/)': 'map',
-          'map(/)': 'map'
+          'map(/)': 'map',
+          'report(/)': 'report'
         };
       }
       return routes;
@@ -83,6 +85,7 @@
       this.on('route:map', this.updateParams, this);
       this.on('route:mapEmbed', this.updateParams, this);
       this.on('route:journeys', this.updateParams, this);
+      this.on('route:report', this.updateParams, this);
 
       if (this.options.update) {
         this.listenTo(this.params, 'change', this.updateUrl);

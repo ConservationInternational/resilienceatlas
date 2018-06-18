@@ -19,7 +19,8 @@
       'dragover .js-pick-file': 'onDragStartFile',
       'dragleave .js-pick-file': 'onDragEndFile',
       'drop .js-pick-file': 'onDropFile',
-      'click .js-reset': 'onClickReset'
+      'click .js-reset': 'onClickReset',
+      'click .js-download-report': 'onClickDownloadReport'
     },
 
     initialize: function(options) {
@@ -221,6 +222,21 @@
 
       Backbone.Events.trigger('map:draw:reset');
       Backbone.Events.trigger('map:draw:polygon', geojson);
+    },
+
+    /**
+     * Event handler executed when the user clicks the button
+     * to download the PDF report
+     * @param {Event} e Event
+     */
+    onClickDownloadReport: function(e) {
+      var searchParams = window.location.search;
+      var origin = window.location.origin;
+      var reportUrl = origin + '/report' +  searchParams;
+      var url = origin + '/export?filename=analysis-report.pdf&url=' + reportUrl;
+
+      e.target.setAttribute('download', true);
+      e.target.setAttribute('href', url);
     },
 
     /**

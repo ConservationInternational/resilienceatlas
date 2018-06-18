@@ -19,6 +19,7 @@
 //= require_tree ./collections
 //= require_tree ./templates
 //= require ./views/mapPageView
+//= require ./views/reportPageView
 //= require ./views/staticPageView
 //= require ./views/journeysPageView
 //= require_tree ./views/common
@@ -190,6 +191,8 @@
       this.listenTo(this.router, 'route:about', this.aboutPage);
       // Initializing journeys index
       this.listenTo(this.router, 'route:journeysIndex', this.journeysIndexPage);
+
+      this.listenTo(this.router, 'route:report', this.reportPage);
     },
 
     journeysIndexPage: function(){
@@ -239,6 +242,13 @@
 
     mapPage: function() {
       var mapPageView = new root.app.MapPageView({
+        router: this.router,
+        subdomainParams: this.subdomainParams
+      });
+    },
+
+    reportPage: function() {
+      var reportPageView = new root.app.ReportPageView({
         router: this.router,
         subdomainParams: this.subdomainParams
       });
