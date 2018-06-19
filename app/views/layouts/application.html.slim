@@ -11,8 +11,10 @@ html lang="#{I18n.locale}"
       window.isSubdomain = "#{@subdomain}"
       window.userlogged = "#{user_signed_in?}"
       window.name = "#{@site_name}"
+      window.liveSettings={ api_key: "9305955d1d7e446783d3cd7e57442c1d", picker: "bottom-left", staging: true }
 
     = render :partial => "partials/analytics"
+    = javascript_include_tag "//cdn.transifex.com/live.js"
 
   body class="is-#{controller_name}-page is-#{@subdomain}"
     = render :partial => "partials/icons"
@@ -22,8 +24,3 @@ html lang="#{I18n.locale}"
     == render "layouts/footer"
     == render "partials/modal"
     = javascript_include_tag "application"
-
-    javascript:
-      window.liveSettings={ api_key: "9305955d1d7e446783d3cd7e57442c1d", picker: "bottom-left" }
-    
-    script src="//cdn.transifex.com/live.js" type="text/javascript"
