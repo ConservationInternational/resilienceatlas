@@ -16,7 +16,6 @@ class ApplicationController < ActionController::Base
   def get_subdomain
      @subdomain = request.subdomain != '' ? request.subdomain(0).split('.')[0] : 'main'
      @site_name = SiteScope.find_by(subdomain: request.subdomain).try(:name)
-     puts @site_name
    end
 
   def check_subdomain
