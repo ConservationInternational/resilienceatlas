@@ -233,7 +233,8 @@
       var searchParams = window.location.search;
       var origin = window.location.origin;
       var reportUrl = origin + '/report' +  searchParams;
-      var url = origin + '/export?filename=analysis-report.pdf&url=' + reportUrl;
+      var webshotUrl = '<%= ENV["WEBSHOT_URL"] %>';
+      var url = webshotUrl + '?filename=analysis-report&mediatype=screen&backgrounds=true&url=' + encodeURIComponent(reportUrl);
 
       e.target.setAttribute('download', true);
       e.target.setAttribute('href', url);
