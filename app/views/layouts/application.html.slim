@@ -11,7 +11,7 @@ html lang="#{I18n.locale}"
       window.isSubdomain = "#{@subdomain}"
       window.userlogged = "#{user_signed_in?}"
       window.name = "#{@site_name}"
-      window.liveSettings={ api_key: "9305955d1d7e446783d3cd7e57442c1d", picker: "bottom-left", staging: true }
+      window.liveSettings = {api_key: "9305955d1d7e446783d3cd7e57442c1d", picker: "bottom-left", staging: !!("#{Rails.env}" != "production") }
 
     = render :partial => "partials/analytics"
     = javascript_include_tag "//cdn.transifex.com/live.js"
