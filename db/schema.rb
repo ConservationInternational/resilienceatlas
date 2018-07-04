@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160809144628) do
+ActiveRecord::Schema.define(version: 20180703151907) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -69,15 +69,25 @@ ActiveRecord::Schema.define(version: 20160809144628) do
 
   add_index "identities", ["user_id"], name: "index_identities_on_user_id", using: :btree
 
-  create_table "layer_groups", force: :cascade do |t|
+  create_table "layer_group_translations", force: :cascade do |t|
+    t.integer  "layer_group_id", null: false
+    t.string   "locale",         null: false
+    t.datetime "created_at",     null: false
+    t.datetime "updated_at",     null: false
     t.string   "name"
+    t.text     "info"
+  end
+
+  add_index "layer_group_translations", ["layer_group_id"], name: "index_layer_group_translations_on_layer_group_id", using: :btree
+  add_index "layer_group_translations", ["locale"], name: "index_layer_group_translations_on_locale", using: :btree
+
+  create_table "layer_groups", force: :cascade do |t|
     t.integer  "super_group_id"
     t.string   "slug"
     t.string   "layer_group_type"
     t.string   "category"
     t.boolean  "active"
     t.integer  "order"
-    t.text     "info"
     t.datetime "created_at",                   null: false
     t.datetime "updated_at",                   null: false
     t.string   "icon_class"
@@ -87,16 +97,31 @@ ActiveRecord::Schema.define(version: 20160809144628) do
   add_index "layer_groups", ["site_scope_id"], name: "index_layer_groups_on_site_scope_id", using: :btree
   add_index "layer_groups", ["super_group_id"], name: "index_layer_groups_on_super_group_id", using: :btree
 
+  create_table "layer_translations", force: :cascade do |t|
+    t.integer  "layer_id",    null: false
+    t.string   "locale",      null: false
+    t.datetime "created_at",  null: false
+    t.datetime "updated_at",  null: false
+    t.string   "name"
+    t.text     "info"
+    t.text     "legend"
+    t.string   "title"
+    t.string   "data_units"
+    t.string   "processing"
+    t.text     "description"
+  end
+
+  add_index "layer_translations", ["layer_id"], name: "index_layer_translations_on_layer_id", using: :btree
+  add_index "layer_translations", ["locale"], name: "index_layer_translations_on_locale", using: :btree
+
   create_table "layers", force: :cascade do |t|
     t.integer  "layer_group_id"
-    t.string   "name",                                      null: false
     t.string   "slug",                                      null: false
     t.string   "layer_type"
     t.integer  "zindex"
     t.boolean  "active"
     t.integer  "order"
     t.string   "color"
-    t.text     "info"
     t.string   "layer_provider"
     t.text     "css"
     t.text     "interactivity"
@@ -107,25 +132,20 @@ ActiveRecord::Schema.define(version: 20160809144628) do
     t.boolean  "locate_layer",              default: false
     t.string   "icon_class"
     t.boolean  "published",                 default: true
-    t.text     "legend"
     t.integer  "zoom_max",                  default: 100
     t.integer  "zoom_min",                  default: 0
     t.integer  "dashboard_order"
     t.boolean  "download",                  default: false
     t.string   "dataset_shortname"
     t.text     "dataset_source_url"
-    t.string   "title"
     t.datetime "start_date"
     t.datetime "end_date"
     t.string   "spatial_resolution"
     t.string   "spatial_resolution_units"
     t.string   "temporal_resolution"
     t.string   "temporal_resolution_units"
-    t.string   "data_units"
     t.string   "update_frequency"
     t.string   "version"
-    t.string   "processing"
-    t.text     "description"
   end
 
   add_index "layers", ["layer_group_id"], name: "index_layers_on_layer_group_id", using: :btree
