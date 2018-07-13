@@ -34,6 +34,8 @@
 #  temporal_resolution_units :string
 #  update_frequency          :string
 #  version                   :string
+#  analysis_suitable         :boolean          default(FALSE)
+#  analysis_query            :text
 #
 
 class LayerSerializer < ActiveModel::Serializer
@@ -41,7 +43,7 @@ class LayerSerializer < ActiveModel::Serializer
   attributes :name, :slug, :layer_type, :zindex, :opacity, :active, :order,
              :dashboard_order, :color, :info, :interactivity, :css, :query, :layer_provider,
              :published, :locate_layer, :icon_class, :legend, :zoom_max, :zoom_min, :download,
-             :dataset_shortname, :dataset_source_url
+             :dataset_shortname, :dataset_source_url, :analysis_suitable, :analysis_query
   has_one :layer_group, serializer: LayerGroupSerializer
   has_many :sources, each_serializer: SourceSerializer
   def type

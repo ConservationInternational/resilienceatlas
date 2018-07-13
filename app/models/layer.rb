@@ -34,6 +34,8 @@
 #  temporal_resolution_units :string
 #  update_frequency          :string
 #  version                   :string
+#  analysis_suitable         :boolean          default(FALSE)
+#  analysis_query            :text
 #
 
 require 'zip'
