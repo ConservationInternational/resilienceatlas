@@ -20,6 +20,7 @@
       this.router = settings.router;
       this.predictiveModel = settings.predictiveModel;
       this.subdomainParams = settings.subdomainParams;
+      this.layers = settings.layers;
       this.setVars();
       this.setListeners();
       this.triggerSidebarOffset();
@@ -80,14 +81,16 @@
     expandAnalysisPanel: function () {
       this.sidebar.addClass('analyzing');
       if (!this.analysisView) {
-        // if (!this.section || this.section === 'layers') {
-        //   this.analysisView = new root.app.View.analysisSelectors();
-        // } else {
-          this.analysisView = new root.app.View.analysisModel({
+        ga('send', 'event', 'Analysis', 'start analysis');
+          this.analysisView = new root.app.View.analysis({
             router: this.router,
-            collection: this.options.predictiveModelsCollection
+            collection: this.options.predictiveModelsCollection,
+            layers: this.layers,
+            section: this.section || 'layers'
           });
-        // }
+      } else {
+        this.analysisView.section = this.section;
+        this.analysisView.render();
       }
     },
 

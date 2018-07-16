@@ -68,6 +68,9 @@
           dataset_shortname: d.attributes.dataset_shortname || null,
           dataset_source_url: d.attributes.dataset_source_url || null,
           attributions: d.relationships && d.relationships.sources && d.relationships.sources.data && d.relationships.sources.data.length > 0 && this._getReference(response.included, d.relationships.sources.data),
+          analysisSuitable: d.attributes.analysis_suitable,
+          analysisQuery: d.attributes.analysis_query,
+          layerProvider: d.attributes.layer_provider
         };
       }, this));
       return result;

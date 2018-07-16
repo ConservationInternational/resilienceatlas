@@ -123,7 +123,8 @@
         router: this.router,
         subdomainParams: this.subdomainParams,
         predictiveModelsCollection: predictiveModelsCollection,
-        predictiveModel: activePredictiveModel
+        predictiveModel: activePredictiveModel,
+        layers: layersCollection
       });
 
       //No Layer list nor legend are showed into journey embed map.

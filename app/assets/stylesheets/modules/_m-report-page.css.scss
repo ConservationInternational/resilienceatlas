@@ -33,4 +33,22 @@
     background-position: center;
     background-repeat: no-repeat;
   }
+
+  .m-legend {
+    .wrapper {
+      max-height: none;
+    }
+  }
+
+  .analysis-content {
+    margin-top: 50px;
+
+    > div {
+      overflow: hidden;
+    }
+
+    .widget-bar-chart {
+      min-height: 300px;
+    }
+  }
 }

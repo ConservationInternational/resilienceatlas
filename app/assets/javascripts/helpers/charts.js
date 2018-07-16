@@ -467,7 +467,7 @@
       });
 
       x.domain(d3.extent(data, function(d) { return d.year; }));
-      y.domain([0, d3.max(data, function(d) { return d.value; })]); 
+      y.domain([0, d3.max(data, function(d) { return d.value; })]);
 
       // Nest the entries by symbol
       var dataNest = d3.nest()
@@ -610,8 +610,8 @@
       var loader = params.loader || null;
       var infoWindow = params.infoWindowText || '';
       var decimals = params.decimals || 0;
-      var unit = params.unit || ''; 
-      var unitZ = params.unitZ || ''; 
+      var unit = params.unit || '';
+      var unitZ = params.unitZ || '';
       var barWidth = params.barWidth || 10;
       var barSeparation = params.barSeparation || 10;
       var xIsDate = params.xIsDate || false;
@@ -647,7 +647,7 @@
 
       if(hasLine) {
         var line = d3.svg.line()
-          .x(function(d, i) { 
+          .x(function(d, i) {
             return (barWidth+barSeparation) * i;
           })
           .y(function(d) { return y(d.z); })
@@ -673,7 +673,7 @@
       var yMin = d3.min(data,function(d){ return d.y; });
       var yMax = d3.max(data, function(d) { return d.y; });
 
-      if (hasLine) { 
+      if (hasLine) {
         var zMin = d3.min(data,function(d){ return d.z; });
         var zMax = d3.max(data, function(d) { return d.z; });
 
@@ -727,7 +727,7 @@
         .ticks(8);
 
      var line = d3.svg.line()
-       .x(function(d, i) { 
+       .x(function(d, i) {
          return x2(d.x) + i; })
        .y(function(d) { return z(d.z); })
        .interpolate(interpolate);
@@ -746,7 +746,10 @@
       svgBars.append("g")
           .attr("class", "x axis")
           .attr("transform", "translate(0," + height + ")")
-          .call(xAxis);
+          .call(xAxis)
+          .selectAll('.tick')
+          .select('text')
+          .html(params.xAxisTickFormatter || function(d) { return d; });
 
       svgBars.selectAll(".bar")
           .data(data)
@@ -754,10 +757,10 @@
           .attr("class", "bar")
           .style('fill', function(d) { return d.color; })
           .attr("x", function(d) { return x(d.x); })
-          .attr("width", x.rangeBand()) 
+          .attr("width", x.rangeBand())
           .attr("y", function(d) { return y(Math.max(0, d.y)); })
           .attr("height", function(d) { return yMin >= 0 ? Math.abs(height - y(d.y)) : Math.abs(y(d.y) - y(0)); })
-          
+
       svgBars.append("g")
           .attr("class", "y axis")
         .append("line")
@@ -774,7 +777,7 @@
           .attr('dy', '.35em')
           .attr('text-anchor', 'start')
           .text(function(d) { return unit; });
-      
+
       if(hasLine) {
 
         svgBars.append('g')
@@ -793,7 +796,7 @@
             .datum(data)
             .attr('class', 'line')
             .attr('stroke', function(d) { return d.lineColor })
-            .attr('d', line); 
+            .attr('d', line);
       }
 
       if(loader) {
@@ -862,7 +865,7 @@
       var loader = params.loader || null;
       var infoWindow = params.infoWindowText || '';
       var decimals = params.decimals || 0;
-      var unit = params.unit || ''; 
+      var unit = params.unit || '';
       var barWidth = params.barWidth || 10;
       var barSeparation = params.barSeparation || 10;
       var xIsDate = params.xIsDate || false;
@@ -971,7 +974,7 @@
       var loader = params.loader || null;
       var infoWindow = params.infoWindowText || '';
       var decimals = params.decimals || 0;
-      var unit = params.unit || ''; 
+      var unit = params.unit || '';
       var interpolate = params.interpolate || 'linear';
       var transition = 200;
       var bucket = params.bucket;
@@ -1058,7 +1061,7 @@
           .attr('dy', '.35em')
           .text(function(d) {
             if(d) {
-              return d + ' ' + unit; 
+              return d + ' ' + unit;
             } else {
               return '';
             }
@@ -1097,7 +1100,7 @@
       var loader = params.loader || null;
       var infoWindow = params.infoWindowText || '';
       var decimals = params.decimals || 0;
-      var unit = params.unit || ''; 
+      var unit = params.unit || '';
       var barHeight = params.barHeight || 10;
       var barSeparation = params.barSeparation || 10;
       var transition = 200;
@@ -1115,11 +1118,11 @@
         tooltip: 1.8
       };
 
-      var totalBarsHeight = ((barHeight + barSeparation) * data.length) + 
+      var totalBarsHeight = ((barHeight + barSeparation) * data.length) +
         barSeparation + margin.bottom;
       var width = width - margin.left - margin.right,
           height = totalBarsHeight - margin.top - margin.bottom;
-      var widthPadding = width - yAxisWidth - 150;  
+      var widthPadding = width - yAxisWidth - 150;
 
       var svgBars = d3.select(elem).append('svg')
         .attr('class', '')
@@ -1145,7 +1148,7 @@
         .orient('left')
         .scale(yScale)
         .ticks(data.length)
-        .tickFormat(function(d,i){ 
+        .tickFormat(function(d,i){
           if(data[i]) {
             return data[i].name;
           }
@@ -1278,7 +1281,7 @@
       var loader = params.loader || null;
       var infoWindow = params.infoWindowText || '';
       var decimals = params.decimals || 0;
-      var unit = params.unit || ''; 
+      var unit = params.unit || '';
       var barWidth = params.barWidth || 10;
       var barSeparation = params.barSeparation || 10;
       var xIsDate = params.xIsDate || false;
@@ -1310,7 +1313,7 @@
           pointB = width - regionWidth;
 
       data.reverse();
-      
+
       var totalPopulation = d3.sum(data, function(d) { return d.category2 + d.category1; });
       var percentage = function(d) { return d / totalPopulation; };
 
@@ -1490,7 +1493,7 @@
       var loader = params.loader || null;
       var infoWindow = params.infoWindowText || '';
       var decimals = params.decimals || 0;
-      var unit = params.unit || ''; 
+      var unit = params.unit || '';
       var barHeight = params.barHeight || 10;
       var barSeparation = params.barSeparation || 10;
       var transition = 200;
@@ -1507,41 +1510,41 @@
         tooltip: 1.8
       };
 
-      var totalBarsHeight = ((barHeight + barSeparation) * data.length) + 
+      var totalBarsHeight = ((barHeight + barSeparation) * data.length) +
         barSeparation + margin.bottom;
       var width = width - margin.left - margin.right,
           height = totalBarsHeight - margin.top - margin.bottom;
-      var widthPadding = width - yAxisWidth - 150;  
+      var widthPadding = width - yAxisWidth - 150;
 
       var indicators = data[0].data.length;
       var groups = data.length;
       var stack = d3.layout.stack();
       var ticks = data.map(function(d) { return d.name; });
-    
-      data = stack(d3.range(indicators).map(function(d) { 
+
+      data = stack(d3.range(indicators).map(function(d) {
         var a = [];
         for (var i = 0; i < groups; ++i) {
           var item = data[i].data[d];
           a[i] = {
-            x: i, 
-            y: item.y, 
-            value: item.value, 
-            name: item.name, 
+            x: i,
+            y: item.y,
+            value: item.value,
+            name: item.name,
             key_name: item.key_name
-          };  
+          };
         }
         return a;
       }));
 
-      var yGroupMax = d3.max(data, function(layer) { 
-        return d3.max(layer, function(d) { 
-          return d.y; 
-        }); 
+      var yGroupMax = d3.max(data, function(layer) {
+        return d3.max(layer, function(d) {
+          return d.y;
+        });
       });
 
-      var yStackMax = d3.max(data, function(layer) { 
-        var max =d3.max(layer, function(d) { 
-          return d.y0 + d.y; 
+      var yStackMax = d3.max(data, function(layer) {
+        var max =d3.max(layer, function(d) {
+          return d.y0 + d.y;
         });
         return max;
       });
@@ -1562,7 +1565,7 @@
         .orient('left')
         .scale(yScale)
         .ticks(ticks.length)
-        .tickFormat(function(d){ 
+        .tickFormat(function(d){
           return d;
         });
 
@@ -1791,7 +1794,7 @@
       var groups = svg.selectAll('g.node').data(data, function (d) {
         return d.name;
       });
-      
+
       var dotsGroup = groups.enter().append('g').attr('class', 'node')
       .attr('transform', function (d) {
         return 'translate(' + x(d.x) + ',' + y(d.y) + ')';
@@ -1812,7 +1815,7 @@
         .attr('dy', '.35em')
         .attr('text-anchor', 'start')
         .text(function(d) { return unitY; });
-      
+
       svg.append('g')
         .attr('transform', 'translate('+ (width) +', '+ (height + (margin.bottom / 2) )+')').append('text')
         .attr('class', 'unit')
@@ -1885,8 +1888,8 @@
       var loader = params.loader || null;
       var infoWindow = params.infoWindowText || '';
       var decimals = params.decimals || 0;
-      var unit = params.unit || ''; 
-      var unitZ = params.unitZ || ''; 
+      var unit = params.unit || '';
+      var unitZ = params.unitZ || '';
       var barWidth = params.barWidth || 10;
       var barSeparation = params.barSeparation || 10;
       var xIsDate = params.xIsDate || false;
@@ -1933,7 +1936,7 @@
       } else {
         compareMargin = 0;
         groupWidth = width;
-        barDefaultWidth = barWithoutCompare;        
+        barDefaultWidth = barWithoutCompare;
       }
 
       // Domain Graph
@@ -2008,7 +2011,7 @@
             .attr('class', 'bar')
             .style('fill', function(d) { return d.color; })
             .attr('x', function(d) { return xGroup(d.x); })
-            .attr('width', xGroup.rangeBand()) 
+            .attr('width', xGroup.rangeBand())
             .attr('y', function(d) { return yGroup(Math.max(0, d.y)); })
             .attr('height', function(d) { return yMin >= 0 ? Math.abs(height - yGroup(d.y)) : Math.abs(yGroup(d.y) - yGroup(0)); })
 

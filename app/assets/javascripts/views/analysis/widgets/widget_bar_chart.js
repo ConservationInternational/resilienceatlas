@@ -34,7 +34,8 @@
         interpolate: 'basis',
         unit: this.unit,
         unitZ: this.unitZ,
-        hasLine: this.hasLine
+        hasLine: this.hasLine,
+        xAxisTickFormatter: this.options.xAxisTickFormatter
       });
     },
 
@@ -42,9 +43,11 @@
       var self = this;
       if(data) {
         var values = data.rows;
-        var d = new Date();
 
-        _.filter(values, function(value) {
+        _.each(values, function(value) {
+          value.x = value.min;
+          value.y = value.count;
+
           value.value = value.y;
           value.color = '#0089CC';
 
