@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180713103304) do
+ActiveRecord::Schema.define(version: 20180716114732) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -68,6 +68,21 @@ ActiveRecord::Schema.define(version: 20180713103304) do
   end
 
   add_index "identities", ["user_id"], name: "index_identities_on_user_id", using: :btree
+
+  create_table "indicators", force: :cascade do |t|
+    t.string  "name",                              null: false
+    t.string  "slug",                              null: false
+    t.string  "version"
+    t.boolean "analysis_suitable", default: false
+    t.text    "analysis_query"
+  end
+
+  add_index "indicators", ["slug"], name: "index_indicators_on_slug", using: :btree
+
+  create_table "indicators_models", id: false, force: :cascade do |t|
+    t.integer "indicator_id", null: false
+    t.integer "model_id",     null: false
+  end
 
   create_table "layer_group_translations", force: :cascade do |t|
     t.integer  "layer_group_id", null: false
@@ -159,6 +174,17 @@ ActiveRecord::Schema.define(version: 20180713103304) do
 
   add_index "layers_sources", ["layer_id"], name: "index_layers_sources_on_layer_id", using: :btree
   add_index "layers_sources", ["source_id"], name: "index_layers_sources_on_source_id", using: :btree
+
+  create_table "models", force: :cascade do |t|
+    t.string "name",        null: false
+    t.text   "description"
+    t.text   "source"
+  end
+
+  create_table "models_site_scopes", id: false, force: :cascade do |t|
+    t.integer "model_id",      null: false
+    t.integer "site_scope_id", null: false
+  end
 
   create_table "share_urls", force: :cascade do |t|
     t.string   "uid"
