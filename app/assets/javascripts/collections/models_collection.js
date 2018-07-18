@@ -5,82 +5,41 @@
   root.app = root.app || {};
   root.app.Collection = root.app.Collection || {};
 
-  var MODELS = [
-    {
-      name: 'Model 1',
-      indicators: [
-        {
-          name: 'Soil pH',
-          value: 1
-        },
-        {
-          name: 'Organic carbon content (fine earth fraction)',
-          value: 1
-        },
-        {
-          name: 'Nitrogen (total organic nitrogen extractable by wet oxydation)',
-          value: 1
-        },
-        {
-          name: 'Phosphorus (total)',
-          value: 1
-        },
-        {
-          name: 'Potassium (extractable by Mehlich 3)',
-          value: 1
-        }
-      ]
-    },
-    {
-      name: 'Model 2',
-      indicators: [
-        {
-          name: 'Soil pH',
-          value: 1
-        },
-        {
-          name: 'Organic carbon content (fine earth fraction)',
-          value: 1
-        },
-        {
-          name: 'Nitrogen (total organic nitrogen extractable by wet oxydation)',
-          value: 1
-        },
-        {
-          name: 'Phosphorus (total)',
-          value: 1
-        },
-        {
-          name: 'Potassium (extractable by Mehlich 3)',
-          value: 1
-        }
-      ]
-    }
-  ];
-
   var INDICATOR_VALUES = [1/9, 1/7, 1/5, 1/3, 1, 3, 5, 7, 9];
   var INDICATOR_HUMAN_READABLE_VALUES = ['1/9', '1/7', '1/5', '1/3', '1', '3', '5', '7', '9'];
   var INDICATOR_VALUE_DESC=['Extremely', 'Very', 'Strongly', 'Moderate', 'Equally', 'Moderate', 'Strongly', 'Very', 'Extremely'];
 
   root.app.Collection.Models = Backbone.Collection.extend({
-    fetch: function() {
-      var deferred = $.Deferred();
+    url: '/api/models',
 
-      var data = MODELS.map(function(model) {
-        return _.extend({}, model, {
-          indicators: model.indicators.map(function(indicator) {
-            return _.extend({}, indicator, {
-              indexableValue: this.getIndexableIndicatorValue(indicator.value),
-              humanReadableValue: this.getHumanReadableIndicatorValue(indicator.value)
-            });
-          }.bind(this))
-        });
+    parse: function(response) {
+      return response.data.map(function(model) {
+        return {
+          id: model.id,
+          name: model.attributes.name,
+          description: model.attributes.description,
+          source: model.attributes.source,
+          indicators: model.relationships && model.relationships.indicators && model.relationships.indicators.data
+            ? model.relationships.indicators.data.map(function(indicator) {
+                var ind = response.included.find(function(inc) {
+                  return inc.type === 'indicators' && inc.id === indicator.id;
+                });
+
+                return {
+                  id: indicator.id,
+                  name: ind.attributes.name,
+                  slug: ind.attributes.slug,
+                  version: ind.attributes.version,
+                  analysisSuitable: ind.attributes.analysis_suitable,
+                  analysisQuery: ind.attributes.analysis_query,
+                  value: 1,
+                  indexableValue: this.getIndexableIndicatorValue(1),
+                  humanReadableValue: this.getHumanReadableIndicatorValue(1)
+                };
+              }.bind(this))
+            : []
+        };
       }.bind(this));
-
-
-      this.set(data);
-      deferred.resolve(data);
-      return deferred;
     },
 
     /**
