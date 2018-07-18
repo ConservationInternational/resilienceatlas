@@ -10,7 +10,13 @@
   var INDICATOR_VALUE_DESC=['Extremely', 'Very', 'Strongly', 'Moderate', 'Equally', 'Moderate', 'Strongly', 'Very', 'Extremely'];
 
   root.app.Collection.Models = Backbone.Collection.extend({
-    url: '/api/models',
+    url: function() {
+      return '/api/models?site_scope=' + this.siteScopeId;
+    },
+
+    initialize: function (models, options) {
+      this.siteScopeId = options.siteScopeId;
+    },
 
     parse: function(response) {
       return response.data.map(function(model) {

@@ -79,6 +79,7 @@
 
       var subomainParamsModel = new root.app.Model.Subdomain();
       subomainParamsModel.fetch().done(_.bind(function(){
+        this.siteScopeId = subomainParamsModel.toJSON().data.id;
         this.setSubdomainParams(subomainParamsModel.toJSON().data.attributes);
         if (subomainParamsModel.toJSON().included && subomainParamsModel.toJSON().included.length > 0) {
           this.getPages(subomainParamsModel.toJSON().included);
@@ -243,6 +244,7 @@
     mapPage: function() {
       var mapPageView = new root.app.MapPageView({
         router: this.router,
+        siteScopeId: this.siteScopeId,
         subdomainParams: this.subdomainParams
       });
     },
@@ -257,6 +259,7 @@
     mapEmbedPage: function() {
       var mapPageView = new root.app.MapPageView({
         router: this.router,
+        siteScopeId: this.siteScopeId,
         embed: true
       });
     },

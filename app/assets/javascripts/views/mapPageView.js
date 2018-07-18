@@ -13,6 +13,7 @@
       this.setListeners();
 
       this.router = settings.router;
+      this.siteScopeId = settings.siteScopeId;
       this.subdomainParams = settings.subdomainParams;
       this.embed = settings.embed || false;
 
@@ -52,7 +53,9 @@
       }));
 
       // Predictive models
-      var predictiveModelsCollection = new root.app.Collection.Models();
+      var predictiveModelsCollection = new root.app.Collection.Models(null, {
+        siteScopeId: this.siteScopeId
+      });
       var activePredictiveModel = new (Backbone.Model.extend({
         /**
          * Return the layer corresponding to the parameter
