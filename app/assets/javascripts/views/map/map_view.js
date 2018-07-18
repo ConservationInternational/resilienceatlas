@@ -629,6 +629,10 @@
      * Show the predictive model on the map
      */
     showPredictiveModel: function() {
+      // We make sure to remove the layer before
+      // adding it again to the map
+      this.hidePredictiveModel();
+
       var layerObj = this.predictiveModel.getLayer();
 
       if(layerObj.type === 'cartodb' || layerObj.type === 'raster') {
