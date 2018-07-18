@@ -15,6 +15,12 @@ class Model < ActiveRecord::Base
   validates_presence_of :name
 
   def self.fetch_all(options={})
-    Model.all
+    if options[:site_scope]
+      site_scope = options[:site_scope].to_i
+      return Model.joins(:site_scopes)
+               .where('models_site_scopes.site_scope_id = ?', site_scope)
+    else
+      return Model.all
+    end
   end
 end
