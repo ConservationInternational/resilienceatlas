@@ -63,7 +63,7 @@
          * @returns {object}
          */
         getLayer: function() {
-          console.log('select * from getModel(' + this.get('id') + ', [' + this.get('indicators').map(function(ind) { return ind.value % 1 === 0 ? ind.value : ind.value.toFixed(3); }) + '])')
+          console.log('select * from getModel(' + this.get('id') + ', [\'' + this.get('indicators').map(function(ind) { return ind.value % 1 === 0 ? ind.value : ind.value.toFixed(3); }) + '\'])');
           return {
             id: -1,
             slug: 'predictive-model-layer',
@@ -72,7 +72,7 @@
             description: '{"description":"' + (this.get('description') || '') + '", "source":"' + (this.get('source') || '') + '"}',
             cartocss: '#model_spect_1{\n\rpolygon-fill: #FFFFB2;\n\rpolygon-opacity: 1;\n\rline-color: #FFFFFF;\n\rline-width: 0;\n\rline-opacity: 0;\n\r}\n\r#model_spect_1 [ wh2 <= 1] {\n\rpolygon-fill: #B10026;\n\r}\n\r#model_spect_1 [ wh2 <= 0.362348169088364] {\n\rpolygon-fill: #E31A1C;\n\r}\n\r#model_spect_1 [ wh2 <= 0.287449389696121] {\n\rpolygon-fill: #FC4E2A;\n\r}\n\r#model_spect_1 [ wh2 <= 0.228744938969612] {\n\rpolygon-fill: #FD8D3C;\n\r}\n\r#model_spect_1 [ wh2 <= 0.170040473341942] {\n\rpolygon-fill: #FEB24C;\n\r}\n\r#model_spect_1 [ wh2 <= 0.111336030066013] {\n\rpolygon-fill: #FED976;\n\r}\n\r#model_spect_1 [ wh2 <= 0.054655868560076] {\n\rpolygon-fill: #FFFFB2;\n\r}',
             interactivity: '',
-            sql: 'select * from getModel(' + this.get('id') + ', [' + this.get('indicators').map(function(ind) { return ind.value % 1 === 0 ? ind.value : ind.value.toFixed(3); }) + '])',
+            sql: 'select * from getModel(' + this.get('id') + ', [\'' + this.get('indicators').map(function(ind) { return ind.value % 1 === 0 ? ind.value : ind.value.toFixed(3); }) + '\'])',
             color: '',
             opacity: 1,
             no_opacity: false,
