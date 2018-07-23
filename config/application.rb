@@ -41,5 +41,8 @@ module ConservationInternational
 
     # Heroku Asset Pippeline
     config.assets.initialize_on_precompile = true
+
+    # Removing wartning
+    config.active_record.raise_in_transactional_callbacks = true
   end
 end

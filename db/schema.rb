@@ -87,8 +87,8 @@ ActiveRecord::Schema.define(version: 20180716114732) do
   create_table "layer_group_translations", force: :cascade do |t|
     t.integer  "layer_group_id", null: false
     t.string   "locale",         null: false
-    t.datetime "created_at",     null: false
-    t.datetime "updated_at",     null: false
+    t.datetime "created_at"
+    t.datetime "updated_at"
     t.string   "name"
     t.text     "info"
   end
@@ -115,8 +115,8 @@ ActiveRecord::Schema.define(version: 20180716114732) do
   create_table "layer_translations", force: :cascade do |t|
     t.integer  "layer_id",    null: false
     t.string   "locale",      null: false
-    t.datetime "created_at",  null: false
-    t.datetime "updated_at",  null: false
+    t.datetime "created_at"
+    t.datetime "updated_at"
     t.string   "name"
     t.text     "info"
     t.text     "legend"
