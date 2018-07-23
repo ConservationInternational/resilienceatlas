@@ -64,13 +64,15 @@
          */
         getLayer: function() {
           console.log('select * from getModel(' + this.get('id') + ', \'[' + this.get('indicators').map(function(ind) { return ind.value % 1 === 0 ? ind.value : ind.value.toFixed(3); }) + ']\')');
+          console.log('#model_spect_1{\n\rpolygon-fill: #FFFFB2;\n\rpolygon-opacity: 0.8;\n\rline-color: #FFF;\n\rline-width: 0.5;\n\rline-opacity: 1;\n\r}\n\r#model_spect_1 [ value <= 0.463562726974487] {\n\r polygon-fill: #B10026;\n\r}\n\r#model_spect_1 [ value <= 0.437246948480606] {\n\r polygon-fill: #E31A1C;\n\r}\n\r#model_spect_1 [ value <= 0.331983774900436] {\n\r polygon-fill: #FC4E2A;\n\r}\n\r#model_spect_1 [ value <= 0.253036439418793] {\n\r polygon-fill: #FD8D3C;\n\r}\n\r#model_spect_1 [ value <= 0.200404837727547] {\n\r polygon-fill: #FEB24C;\n\r}\n\r#model_spect_1 [ value <= 0.18016192317009] {\n\r polygon-fill: #FED976;\n\r}\n\r#model_spect_1 [ value <= 0.093117401003838] {\n\r polygon-fill: #FFFFB2;\n\r}');
+
           return {
             id: -1,
             slug: 'predictive-model-layer',
             name: this.get('name'),
             type: 'cartodb',
             description: '{"description":"' + (this.get('description') || '') + '", "source":"' + (this.get('source') || '') + '"}',
-            cartocss: '#model_spect_1{\n\rpolygon-fill: #FFFFB2;\n\rpolygon-opacity: 1;\n\rline-color: #FFFFFF;\n\rline-width: 0;\n\rline-opacity: 0;\n\r}\n\r#model_spect_1 [ value <= 1] {\n\rpolygon-fill: #B10026;\n\r}\n\r#model_spect_1 [ value <= 0.362348169088364] {\n\rpolygon-fill: #E31A1C;\n\r}\n\r#model_spect_1 [ value <= 0.287449389696121] {\n\rpolygon-fill: #FC4E2A;\n\r}\n\r#model_spect_1 [ value <= 0.228744938969612] {\n\rpolygon-fill: #FD8D3C;\n\r}\n\r#model_spect_1 [ value <= 0.170040473341942] {\n\rpolygon-fill: #FEB24C;\n\r}\n\r#model_spect_1 [ value <= 0.111336030066013] {\n\rpolygon-fill: #FED976;\n\r}\n\r#model_spect_1 [ value <= 0.054655868560076] {\n\rpolygon-fill: #FFFFB2;\n\r}',
+            cartocss: '#model_spect_1{\n\rpolygon-fill: #FFFFB2;\n\rpolygon-opacity: 0.8;\n\rline-color: #FFF;\n\rline-width: 0.5;\n\rline-opacity: 1;\n\r}\n\r#model_spect_1 [ value <= 0.463562726974487] {\n\r polygon-fill: #B10026;\n\r}\n\r#model_spect_1 [ value <= 0.437246948480606] {\n\r polygon-fill: #E31A1C;\n\r}\n\r#model_spect_1 [ value <= 0.331983774900436] {\n\r polygon-fill: #FC4E2A;\n\r}\n\r#model_spect_1 [ value <= 0.253036439418793] {\n\r polygon-fill: #FD8D3C;\n\r}\n\r#model_spect_1 [ value <= 0.200404837727547] {\n\r polygon-fill: #FEB24C;\n\r}\n\r#model_spect_1 [ value <= 0.18016192317009] {\n\r polygon-fill: #FED976;\n\r}\n\r#model_spect_1 [ value <= 0.093117401003838] {\n\r polygon-fill: #FFFFB2;\n\r}',
             interactivity: '',
             sql: 'select * from getModel(' + this.get('id') + ', \'[' + this.get('indicators').map(function(ind) { return ind.value % 1 === 0 ? ind.value : ind.value.toFixed(3); }) + ']\')',
             color: '',
