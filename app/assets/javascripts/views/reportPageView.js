@@ -116,36 +116,6 @@
         // We restore the state of the report
         this.restoreState();
 
-        // // Checking routes and setting actived layers
-        // var routerParams = _.isEmpty(this.router.params.attributes);
-        // if (!routerParams && this.router.params.attributes.layers) {
-        //   var activedLayers = JSON.parse(this.router.params.attributes.layers);
-        //   var activedLayersIds = _.pluck(activedLayers, 'id');
-        //   _.each(this.layersCollection.models, function(model) {
-        //     var routerLayer = _.findWhere(activedLayers, { id: model.id });
-        //     var active = _.contains(activedLayersIds, model.id);
-        //     var layerData = { active: active };
-        //     if (routerLayer) {
-        //       layerData.opacity = routerLayer.opacity;
-        //       layerData.order = routerLayer.order;
-        //     }
-        //     model.set(layerData, { silent: true });
-        //   });
-        //   this.layersCollection.sort();
-        // } else if (routerParams) {
-        //   var data = this.layersCollection.getActived();
-        //   this.router.setParams('layers', data, ['id', 'opacity', 'order']);
-        // }
-
-        // // Updating URL when layers collection change
-        // this.layersCollection.on('change', function() {
-        //   var data = this.layersCollection.getActived();
-        //   this.router.setParams('layers', data, ['id', 'opacity', 'order']);
-        // }.bind(this));
-
-        // // Attach groups to layers collection
-        // this.layersCollection.setGroups(layersGroupsCollection);
-
         // Render views
         legendView.render();
       }.bind(this));
@@ -173,7 +143,6 @@
      */
     restoreState: function() {
       var params = this.router.params.toJSON();
-      console.log(params);
 
       // We first restore the state of the layers
       var layers;
@@ -246,16 +215,16 @@
       this.mapView.map.setView(center, zoom);
 
       // We then display the GeoJSON
-      var geojson;
       try {
-        geojson = JSON.parse(params.geojson);
+        this.geojson = JSON.parse(params.geojson);
       } catch(e) {
         console.error('Unable to restore the geojson', e);
-        geojson = null;
+        this.geojson = null;
       }
 
-      if (geojson) {
-        Backbone.Events.trigger('map:draw:polygon', geojson);
+      if (this.geojson) {
+        Backbone.Events.trigger('map:draw:polygon', this.geojson);
+        this.renderAnalysisContent();
       }
 
       // We finally display either the layers or the layer of the
@@ -265,6 +234,48 @@
         this.mapView.renderLayers();
       } else {;
         Backbone.Events.trigger('map:show:model');
+      }
+    },
+
+    /**
+     * Render the content of the analysis
+     */
+    renderAnalysisContent: function() {
+      if (!this.activePredictiveModel.get('name')) {
+        var activeLayers = this.layersCollection.getActived();
+        var analyzableLayers = activeLayers.filter(function(l) {
+          // TODO: implement the analysis for layers that aren't rasters
+          return l.analysisSuitable && l.layerProvider === 'raster';
+        });
+        if (!analyzableLayers.length) {
+          $('.js-analysis-content').html('None of the active layers can be analyzed.');
+        } else {
+          $('.js-analysis-content').html(
+            '<div class="js-widgets"></div>'
+            + (analyzableLayers.length !== activeLayers.length
+              ? '<p>Some active layers can\'t be analyzed.</p>'
+              : '')
+          );
+
+          var widgetsContainer = $('.js-widgets');
+          analyzableLayers.forEach(function(layer) {
+            new root.app.View.WidgetBarChart({
+              el: widgetsContainer,
+              slug: layer.slug,
+              query: layer.analysisQuery,
+              name: layer.name,
+              geojson: this.geojson,
+              hasLine: false,
+              meta_short: layer.name,
+              metadata: JSON.parse(layer.info),
+              xAxisTickFormatter: function(d, i) {
+                return i % 2 === 1 ? Math.round(d) : ''
+              }
+            });
+          }.bind(this));
+        }
+      } else {
+
       }
     }
   });

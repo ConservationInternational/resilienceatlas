@@ -7,10 +7,10 @@
   // Accepted extensions for the shape upload
   var ACCEPTED_EXTENSIONS = ['.json', '.geojson'];
 
-  root.app.View.analysisModel = Backbone.View.extend({
+  root.app.View.analysis = Backbone.View.extend({
     el: '#analysisSelectorsView',
 
-    template: HandlebarsTemplates['analysis/analysis_model_tpl'],
+    template: HandlebarsTemplates['analysis/analysis_tpl'],
 
     events: {
       'click .js-tabs': 'onClickTab',
@@ -20,11 +20,14 @@
       'dragleave .js-pick-file': 'onDragEndFile',
       'drop .js-pick-file': 'onDropFile',
       'click .js-reset': 'onClickReset',
-      'click .js-download-report': 'onClickDownloadReport'
+      'click .js-download-report': 'onClickDownloadReport',
+      'click .btn-analysis-info' : 'onClickAnalysisInfo'
     },
 
     initialize: function(options) {
       this.router = options.router;
+      this.section = options.section;
+      this.layers = options.layers;
 
       var geojson = null;
       try {
@@ -48,6 +51,8 @@
         Backbone.Events.trigger('map:draw:polygon', geojson);
       }
 
+      this.infowindow = new root.app.View.InfoWindow();
+
 
       this.setListeners();
       this.render();
@@ -60,6 +65,7 @@
     setListeners: function() {
       this.listenTo(this.state, 'change', this.render.bind(this));
       this.listenTo(Backbone.Events, 'map:polygon:created', this.onCreatePolygon.bind(this));
+      this.listenTo(this.layers, 'change', this.render.bind(this));
     },
 
     /**
@@ -241,6 +247,18 @@
     },
 
     /**
+     * Event handler executed when the user click the button
+     * to get additional information about a widget
+     */
+    onClickAnalysisInfo: function(e) {
+      e.preventDefault();
+      var data = $(e.currentTarget).data('info');
+      var name = $(e.currentTarget).data('name');
+
+      this.infowindow.render(data, name);
+    },
+
+    /**
      * Check if the file is has GeoJSON format
      * and update the UI consequently
      * @param {File} file File
@@ -294,8 +312,55 @@
       this.router.setParams('iso', iso)
     },
 
+    /**
+     * Render the content of the analysis panel after the
+     * user has selected a GeoJSON or a country
+     */
+    renderAnalysisContent: _.debounce(function() {
+      if (this.section === 'layers') {
+        var activeLayers = this.layers.getActived();
+        var analyzableLayers = activeLayers.filter(function(l) {
+          // TODO: implement the analysis for layers that aren't rasters
+          return l.analysisSuitable && l.layerProvider === 'raster';
+        });
+        if (!activeLayers.length) {
+          this.$('.js-analysis-content').html('Please toggle some layers on to analyze them.');
+        } else if (!analyzableLayers.length) {
+          this.$('.js-analysis-content').html('None of the active layers can be analyzed.');
+        } else {
+          this.$('.js-analysis-content').html(
+            '<div class="js-widgets"></div>'
+            + (analyzableLayers.length !== activeLayers.length
+              ? '<p>Some active layers can\'t be analyzed.</p>'
+              : '')
+          );
+
+          var widgetsContainer = this.$('.js-widgets');
+          analyzableLayers.forEach(function(layer) {
+            new root.app.View.WidgetBarChart({
+              el: widgetsContainer,
+              slug: layer.slug,
+              query: layer.analysisQuery,
+              name: layer.name,
+              geojson: this.state.get('geojson'),
+              hasLine: false,
+              meta_short: layer.name,
+              metadata: JSON.parse(layer.info),
+              xAxisTickFormatter: function(d, i) {
+                return i % 3 === 1 ? Math.round(d) : ''
+              }
+            });
+          }.bind(this));
+        }
+      } else {
+
+      }
+    }, 100),
+
     render: function() {
-      this.$el.html(this.template(this.state.attributes));
+      this.$el.html(this.template(_.extend({}, this.state.attributes, {
+        section: this.section
+      })));
 
       if (this.state.attributes.tab === 'region') {
         this.searchView = new root.app.View.Search({
@@ -310,6 +375,10 @@
         this.listenTo(this.searchView, 'selected', this.onSelectCountry);
       } else {
         this.searchView = null;
+      }
+
+      if (this.state.get('geojson')) {
+        this.renderAnalysisContent();
       }
     },
 

@@ -4,14 +4,12 @@
 #
 #  id                        :integer          not null, primary key
 #  layer_group_id            :integer
-#  name                      :string           not null
 #  slug                      :string           not null
 #  layer_type                :string
 #  zindex                    :integer
 #  active                    :boolean
 #  order                     :integer
 #  color                     :string
-#  info                      :text
 #  layer_provider            :string
 #  css                       :text
 #  interactivity             :text
@@ -22,25 +20,22 @@
 #  locate_layer              :boolean          default(FALSE)
 #  icon_class                :string
 #  published                 :boolean          default(TRUE)
-#  legend                    :text
 #  zoom_max                  :integer          default(100)
 #  zoom_min                  :integer          default(0)
 #  dashboard_order           :integer
 #  download                  :boolean          default(FALSE)
 #  dataset_shortname         :string
 #  dataset_source_url        :text
-#  title                     :string
 #  start_date                :datetime
 #  end_date                  :datetime
 #  spatial_resolution        :string
 #  spatial_resolution_units  :string
 #  temporal_resolution       :string
 #  temporal_resolution_units :string
-#  data_units                :string
 #  update_frequency          :string
 #  version                   :string
-#  processing                :string
-#  description               :text
+#  analysis_suitable         :boolean          default(FALSE)
+#  analysis_query            :text
 #
 
 require 'zip'
@@ -54,7 +49,12 @@ class Layer < ActiveRecord::Base
   accepts_nested_attributes_for :agrupations, allow_destroy: true
   accepts_nested_attributes_for :sources, allow_destroy: true
 
-  scope :site, -> (site) { eager_load([layer_groups: :super_group]).where(layer_groups:{site_scope_id: site}) }
+  translates :name, :info, :legend, :title, :data_units, :processing, :description
+  active_admin_translates :name, :info, :legend, :title, :data_units, :processing, :description do; end
+
+  default_scope { with_translations(I18n.locale) }
+  scope :site, -> (site) { eager_load([layer_groups: :super_group]).
+    where(layer_groups: { site_scope_id: site }) }
 
   def self.fetch_all(options={})
     if options[:site_scope]

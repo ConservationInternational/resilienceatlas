@@ -118,7 +118,7 @@
     flex-direction: column;
     overflow-y: auto;
 
-    .title {
+    > .title {
       position: sticky; // Needed for the scroll
       top: 0;
       left: 0;
