@@ -1,15 +1,18 @@
 ActiveAdmin.register Indicator do
-  permit_params :name, :slug, :version, :analysis_suitable,
-                :analysis_query, model_ids: []
+  config.sort_order = 'position_asc'
+  config.paginate   = false
+
+  sortable
+
+  permit_params :name, :slug, :version, :position, :category_id, model_ids: []
 
   index do
-    selectable_column
+    sortable_handle_column
 
-    column :id
+    id_column
+    column :category
     column :name
     column :slug
-    column :analysis_suitable
-    column :analysis_query
     column :models do |indicator|
       links = []
       indicator.models.map do |model|
@@ -25,11 +28,11 @@ ActiveAdmin.register Indicator do
     f.semantic_errors
 
     f.inputs 'Indicator fields' do
+      f.input :category
+      f.input :position
       f.input :name
       f.input :slug
       f.input :version
-      f.input :analysis_suitable
-      f.input :analysis_query
       f.input :models
     end
 

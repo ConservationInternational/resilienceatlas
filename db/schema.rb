@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180716114732) do
+ActiveRecord::Schema.define(version: 20180725112416) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -42,6 +42,16 @@ ActiveRecord::Schema.define(version: 20180716114732) do
   add_index "agrupations", ["layer_group_id"], name: "index_agrupations_on_layer_group_id", using: :btree
   add_index "agrupations", ["layer_id"], name: "index_agrupations_on_layer_id", using: :btree
 
+  create_table "categories", force: :cascade do |t|
+    t.string   "name",        null: false
+    t.string   "slug",        null: false
+    t.text     "description"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "categories", ["name"], name: "index_categories_on_name", using: :btree
+
   create_table "ckeditor_assets", force: :cascade do |t|
     t.string   "data_file_name",               null: false
     t.string   "data_content_type"
@@ -70,11 +80,14 @@ ActiveRecord::Schema.define(version: 20180716114732) do
   add_index "identities", ["user_id"], name: "index_identities_on_user_id", using: :btree
 
   create_table "indicators", force: :cascade do |t|
-    t.string  "name",                              null: false
-    t.string  "slug",                              null: false
-    t.string  "version"
-    t.boolean "analysis_suitable", default: false
-    t.text    "analysis_query"
+    t.string   "name",                                        null: false
+    t.string   "slug",                                        null: false
+    t.string   "version"
+    t.datetime "created_at",  default: '2018-07-25 11:17:11', null: false
+    t.datetime "updated_at",  default: '2018-07-25 11:17:11', null: false
+    t.integer  "category_id"
+    t.integer  "position"
+    t.string   "column_name"
   end
 
   add_index "indicators", ["slug"], name: "index_indicators_on_slug", using: :btree
@@ -87,8 +100,8 @@ ActiveRecord::Schema.define(version: 20180716114732) do
   create_table "layer_group_translations", force: :cascade do |t|
     t.integer  "layer_group_id", null: false
     t.string   "locale",         null: false
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",     null: false
+    t.datetime "updated_at",     null: false
     t.string   "name"
     t.text     "info"
   end
@@ -115,8 +128,8 @@ ActiveRecord::Schema.define(version: 20180716114732) do
   create_table "layer_translations", force: :cascade do |t|
     t.integer  "layer_id",    null: false
     t.string   "locale",      null: false
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",  null: false
+    t.datetime "updated_at",  null: false
     t.string   "name"
     t.text     "info"
     t.text     "legend"
@@ -176,9 +189,12 @@ ActiveRecord::Schema.define(version: 20180716114732) do
   add_index "layers_sources", ["source_id"], name: "index_layers_sources_on_source_id", using: :btree
 
   create_table "models", force: :cascade do |t|
-    t.string "name",        null: false
-    t.text   "description"
-    t.text   "source"
+    t.string   "name",                                           null: false
+    t.text     "description"
+    t.text     "source"
+    t.datetime "created_at",     default: '2018-07-25 11:17:11', null: false
+    t.datetime "updated_at",     default: '2018-07-25 11:17:11', null: false
+    t.text     "query_analysis"
   end
 
   create_table "models_site_scopes", id: false, force: :cascade do |t|
@@ -264,4 +280,5 @@ ActiveRecord::Schema.define(version: 20180716114732) do
   add_foreign_key "agrupations", "layer_groups"
   add_foreign_key "agrupations", "layers"
   add_foreign_key "identities", "users"
+  add_foreign_key "indicators", "categories"
 end

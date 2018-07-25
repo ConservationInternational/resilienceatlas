@@ -22,6 +22,7 @@ Rails.application.routes.draw do
       get  '/site',                 to: 'sites#show'
       get  '/models',               to: 'models#index'
       get  '/indicators',           to: 'indicators#index'
+      get  '/categories',           to: 'categories#index'
     end
   end
 

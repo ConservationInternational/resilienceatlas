@@ -61,6 +61,8 @@ GEM
     active_admin_theme (1.0.2)
     active_model_serializers (0.10.0.rc2)
       activemodel (>= 4.0)
+    activeadmin-sortable (0.0.3)
+      activeadmin (>= 0.4)
     activejob (4.2.1)
       activesupport (= 4.2.1)
       globalid (>= 0.3.0)
@@ -77,6 +79,8 @@ GEM
       minitest (~> 5.1)
       thread_safe (~> 0.3, >= 0.3.4)
       tzinfo (~> 1.1)
+    acts_as_list (0.9.15)
+      activerecord (>= 3.0)
     addressable (2.4.0)
     annotate (2.6.10)
       activerecord (>= 3.2, <= 4.3)
@@ -452,6 +456,8 @@ DEPENDENCIES
   active_model_serializers (= 0.10.0.rc2)
   activeadmin!
   activeadmin-globalize (= 1.0.0.pre)!
+  activeadmin-sortable
+  acts_as_list
   addressable
   annotate (~> 2.6.5)
   autoprefixer-rails

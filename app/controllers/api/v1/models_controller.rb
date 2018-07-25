@@ -3,7 +3,6 @@ module Api
     class ModelsController < ApiController
 
       def index
-        # TODO - Use strong params when arranged which to use
         @models = Model.fetch_all(model_params)
         render json: @models,
                meta: { total_models: @models.size},

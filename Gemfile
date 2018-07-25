@@ -44,6 +44,11 @@ gem 'prawn-table'
 gem 'activeadmin-globalize', '1.0.0.pre', github: 'fabn/activeadmin-globalize', branch: 'develop'
 gem 'globalize'
 
+# Ordering
+gem 'acts_as_list'
+# gem 'activeadmin-orderable'
+gem 'activeadmin-sortable'
+
 group :development, :test do
   gem 'spring'
   gem 'teaspoon'
