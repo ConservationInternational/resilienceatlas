@@ -1,0 +1,41 @@
+<div class="m-predictive-models">
+  <p>
+    Select a combination of interventions.
+    There are nine levels: extremely, very, strongly and moderately less important, equally, and moderately, strongly, very and extremely more important.
+  </p>
+  <div class="model-selector">
+    <select class="js-model-selector" aria-label="Select a model">
+      <option disabled {{#unless model.name}}selected{{/unless}}>Select a model</option>
+      {{#each models}}
+        <option value="{{name}}" {{#compare name '===' ../model.name}}selected{{/compare}}>{{name}}</option>
+      {{/each}}
+    </select>
+  </div>
+  {{#if model.name}}
+    <ul class="indicators-list">
+      {{#each model.indicators}}
+        <li>
+          <div class="m-form-input--switch">
+            <input type="checkbox" class="js-indicator-toggle" data-indicator="{{name}}" id="indicator-{{@index}}" value="{{name}}" {{#compare value 'typeof' 'number'}}checked{{/compare}} />
+            <label for="indicator-{{@index}}" aria-label="{{name}}"></label>
+            {{name}}
+          </div>
+          <div class="m-form-input--slider" {{#compare value 'typeof' 'number'}}{{else}}hidden{{/compare}}>
+            <div class="slider-wrapper">
+              <input type="range" class="js-indicator-slider" data-indicator="{{name}}" min="{{../indicatorRange.min}}" max="{{../indicatorRange.max}}" step="1" value="{{indexableValue}}" />
+              <span class="opacity" style="width: calc(({{indexableValue}} / {{../indicatorRange.max}}) * 100%);"></span>
+              <span class="tooltip" hidden></span>
+            </div>
+            <div class="value">
+              <input type="text" class="opacity-teller" value="{{humanReadableValue}}" disabled>
+            </div>
+          </div>
+        </li>
+      {{/each}}
+    </ul>
+  {{/if}}
+  <div class="actions" {{#unless model.name}}hidden{{/unless}}>
+    <button type="button" class="btn js-reset">Reset</button>
+    <button type="button" class="btn -primary js-apply">Apply</button>
+  </div>
+</div>

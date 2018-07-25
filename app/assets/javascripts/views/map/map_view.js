@@ -44,6 +44,7 @@
       this.currentCountry = this.model.get('countryIso') || null;
       this.maskSql = this.model.get('maskSql') || null;
       this.zoomEndEvent = this.model.get('zoomEndEvent') || true;
+      this.predictiveModel = settings.predictiveModel;
 
       this.utils = new root.app.View.Utils();
       this.advise = new root.app.View.Advise();
@@ -58,7 +59,23 @@
       Backbone.Events.on('map:toggle:layers', this.toggleLayers.bind(this));
       Backbone.Events.on('remove:layer', this._removingLayer.bind(this));
       Backbone.Events.on('map:redraw', this.redrawMap.bind(this));
-      Backbone.Events.on('map:recenter', this.reCenter.bind(this));
+      Backbone.Events.on('map:offset', this.setOffset.bind(this));
+      Backbone.Events.on('map:show:model', this.showPredictiveModel.bind(this));
+      Backbone.Events.on('map:hide:model', this.hidePredictiveModel.bind(this));
+      Backbone.Events.on('map:draw:enable', this.enablePolygonDrawMode.bind(this));
+      Backbone.Events.on('map:draw:disable', this.disablePolygonDrawMode.bind(this));
+      Backbone.Events.on('map:draw:reset', this.removePolygon.bind(this));
+      Backbone.Events.on('map:draw:polygon', this.addPolygon.bind(this));
+    },
+
+    /**
+     * Event handler executed when the user has creating
+     * a polygon on the map
+     */
+    onCreatePolygon: function(e) {
+      var layer = e.layer;
+      this.drawLayer.addLayer(layer);
+      Backbone.Events.trigger('map:polygon:created', layer.toGeoJSON());
     },
 
     /**
@@ -92,6 +109,15 @@
         }
         this.setBasemap();
         this._setAttributionControl();
+
+        // We add the layer to draw on top of the map
+        this.drawLayer = new L.FeatureGroup();
+        this.map.addLayer(this.drawLayer);
+        this.map.addControl(new L.Control.Draw());
+
+
+        // We set the initial offset of the map
+        this.setOffset(this.offset || [0, 0]);
       } else {
         console.info('Map already exists.');
       }
@@ -113,14 +139,12 @@
         this.actualCenter = this.map.getCenter();
         this.router.setParams('center', this.actualCenter);
       }, this));
+
+      this.map.on('draw:created', this.onCreatePolygon.bind(this));
     },
 
     redrawMap: function() {
-      this.setBbox(this.bbox);
-    },
-
-    reCenter: function() {
-      this.map.setView(this.options.map.center, this.options.map.zoom);
+      this.setOffset(this.offset);
     },
 
     /**
@@ -506,13 +530,12 @@
 
     setBbox: function(bbox) {
       if(bbox) {
-        this.bbox = bbox;
         bbox = JSON.parse(bbox);
         var coords = bbox.coordinates[0];
         var southWest = L.latLng(coords[2][1], coords[2][0]),
           northEast = L.latLng(coords[0][1], coords[0][0]),
           bounds = L.latLngBounds(southWest, northEast);
-
+        this.bounds = bounds;
         var maxZoom = this.map.getBoundsZoom(bounds, true);
 
         if(maxZoom > 9) {
@@ -527,29 +550,71 @@
       }
     },
 
-    toggleLayers: function(show) {
-      var layers = this.layers.getActiveLayers();
-      var mapModel = this.model;
+    /**
+     * Set the map's offset and update it
+     * @param {number[]} offset x and y offset
+     */
+    setOffset: function(offset) {
+      this.offset = offset;
 
-      if(!show) {
-        this.zoomEndEvent = false;
-      } else {
-        this.zoomEndEvent = true;
-        this.checkMask();
+      if (this.map) {
+        var center = this.map.getCenter();
+        var zoom = this.map.getZoom();
+
+        this.map.setActiveArea({
+          position: 'absolute',
+          top: '0',
+          left: this.offset[0] + 'px',
+          right: '0',
+          height: '100%'
+        });
+
+        this.map.setView(center, zoom, { animate: true });
       }
-
-      _.each(layers, function(layer) {
-        var instance = mapModel.get(layer.id);
-
-        if(instance) {
-          if(show) {
-            instance.layer.show();
-          } else {
-            instance.layer.hide();
-          }
-        }
-      });
     },
+
+    toggleLayers: (function() {
+      // Layers that were active previously
+      var _previousActiveLayers = [];
+
+      return function (show) {
+        // We restore the previously hidden layers, if any
+        if(show) {
+          this.layers.setActives(_previousActiveLayers);
+        }
+
+        var layers = this.layers.getActiveLayers();
+        var mapModel = this.model;
+
+        if(!show) {
+          this.zoomEndEvent = false;
+        } else {
+          this.zoomEndEvent = true;
+          this.checkMask();
+        }
+
+        _.each(layers, function(layer) {
+          var instance = mapModel.get(layer.id);
+
+          if(instance) {
+            if(show) {
+              instance.layer.show();
+            } else {
+              instance.layer.hide();
+            }
+          }
+        });
+
+        // We all of them as inactive depending on
+        // whether we want to show or hide them
+        if (!show) {
+          _previousActiveLayers = this.layers.getActived();
+          this.layers.setActives([]);
+        }
+
+        Backbone.Events.trigger('legend:render');
+      }
+    })(),
 
     _setLayerBounds: function(layerId) {
       var mapModel = this.model;
@@ -558,6 +623,104 @@
       if(instance) {
         instance.panToLayer();
       }
+    },
+
+    /**
+     * Show the predictive model on the map
+     */
+    showPredictiveModel: function() {
+      // We make sure to remove the layer before
+      // adding it again to the map
+      this.hidePredictiveModel();
+
+      var layerObj = this.predictiveModel.getLayer();
+
+      if(layerObj.type === 'cartodb' || layerObj.type === 'raster') {
+        var data = _.pick(layerObj, ['sql', 'cartocss', 'interactivity']);
+        var options = { sublayers: [data] };
+
+        if(layerObj.type === 'raster') {
+          options = {
+            sublayers: [ _.extend(data, { raster: true, raster_band: 1 }) ]
+          };
+        }
+
+        this.predictiveModelLayer = new root.app.Helper.CartoDBLayer(this.map, options);
+        this.predictiveModelLayer.create(function(layer) {
+          layer.setOpacity(layerObj.opacity);
+          layer.setZIndex(1000 + layerObj.order);
+          this._setAttribution(layerObj);
+
+          var sublayer = layer.getSubLayer(0);
+          // add infowindow interactivity to the sublayer (show cartodb_id and name columns from the table)
+          if (options.sublayers.length && layer.layers[0].options.interactivity) {
+            cartodb.vis.Vis.addInfowindow(this.map, sublayer, layer.layers[0].options.interactivity);
+          }
+        }.bind(this));
+      } else if (layerObj.type === 'xyz tileset') {
+        var options = _.pick(layerObj, ['sql']);
+
+        this.predictiveModelLayer = new root.app.Helper.XYZTiles(this.map, options);
+        this.predictiveModelLayer.create(function(layer) {
+          layer.setOpacity(layerObj.opacity);
+          layer.setZIndex(1000 + layerObj.order);
+          this._setAttribution(layerObj);
+        }.bind(this));
+      }
+    },
+
+    /**
+     * Hide the predictive model on the map
+     */
+    hidePredictiveModel: function() {
+      if (this.predictiveModelLayer) {
+        this.predictiveModelLayer.remove();
+        this.predictiveModelLayer = null;
+      }
+    },
+
+    /**
+     * Let the user draw a polygon on the map
+     */
+    enablePolygonDrawMode: function() {
+      if (!this.polygonDrawer) {
+        this.polygonDrawer = new L.Draw.Polygon(this.map);
+      } else {
+        // We empty the layer each time the user wants
+        // to draw again
+        this.removePolygon();
+      }
+
+      this.polygonDrawer.enable();
+    },
+
+    /**
+     * Remove the possibility for the user to draw
+     * a polygon on the map
+     */
+    disablePolygonDrawMode: function() {
+      if (this.polygonDrawer) {
+        this.polygonDrawer.disable();
+      }
+    },
+
+    /**
+     * Remove the polygon from the map
+     */
+    removePolygon: function() {
+      var layers = this.drawLayer.getLayers();
+      layers.forEach(function(layer) {
+        this.drawLayer.removeLayer(layer);
+      }.bind(this));
+    },
+
+    /**
+     * Add a polygon on the map
+     */
+    addPolygon: function(geojson) {
+      var layer = L.geoJson(geojson);
+      this.drawLayer.addLayer(layer);
+      this.map.fitBounds(layer.getBounds());
     }
 
   });

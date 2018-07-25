@@ -1,0 +1,394 @@
+(function(root) {
+  'use strict';
+
+  root.app = root.app || {};
+  root.app.View = root.app.View || {};
+
+  // Accepted extensions for the shape upload
+  var ACCEPTED_EXTENSIONS = ['.json', '.geojson'];
+
+  root.app.View.analysis = Backbone.View.extend({
+    el: '#analysisSelectorsView',
+
+    template: HandlebarsTemplates['analysis/analysis_tpl'],
+
+    events: {
+      'click .js-tabs': 'onClickTab',
+      'click .js-toggle-draw': 'onClickToggleDraw',
+      'click .js-pick-file': 'onClickPickFile',
+      'dragover .js-pick-file': 'onDragStartFile',
+      'dragleave .js-pick-file': 'onDragEndFile',
+      'drop .js-pick-file': 'onDropFile',
+      'click .js-reset': 'onClickReset',
+      'click .js-download-report': 'onClickDownloadReport',
+      'click .btn-analysis-info' : 'onClickAnalysisInfo'
+    },
+
+    initialize: function(options) {
+      this.router = options.router;
+      this.section = options.section;
+      this.layers = options.layers;
+
+      var geojson = null;
+      try {
+        geojson = this.router.params.get('geojson')
+          ? JSON.parse(this.router.params.get('geojson'))
+          : null;
+      } catch (e) {}
+
+      var iso = this.router.params.get('iso') || null;
+
+      this.state = new Backbone.Model({
+        tab: geojson && !iso
+          ? 'shape'
+          : 'region',
+        drawing: false,
+        geojson: geojson,
+        iso: iso
+      });
+
+      if (geojson) {
+        Backbone.Events.trigger('map:draw:polygon', geojson);
+      }
+
+      this.infowindow = new root.app.View.InfoWindow();
+
+
+      this.setListeners();
+      this.render();
+    },
+
+    /**
+     * Set the listeners that aren't attached to a
+     * DOM node
+     */
+    setListeners: function() {
+      this.listenTo(this.state, 'change', this.render.bind(this));
+      this.listenTo(Backbone.Events, 'map:polygon:created', this.onCreatePolygon.bind(this));
+      this.listenTo(this.layers, 'change', this.render.bind(this));
+    },
+
+    /**
+     * Event handler executed when the user clicks a tab
+     * NOTE: the event is attached to the parent
+     * @param {MouseEvent} e Event
+     */
+    onClickTab: function(e) {
+      var tab = e.target.getAttribute('data-tab');
+      this.state.set({
+        tab: tab,
+        drawing: false,
+        geojson: null,
+        iso: null
+      });
+
+      this.updateURL();
+
+      Backbone.Events.trigger('map:draw:disable');
+      Backbone.Events.trigger('map:draw:reset');
+    },
+
+    /**
+     * Event handler executed when the user clicks the
+     * draw button
+     */
+    onClickToggleDraw: function() {
+      if (this.state.get('drawing')) {
+        Backbone.Events.trigger('map:draw:disable');
+        Backbone.Events.trigger('map:draw:reset');
+      } else {
+        Backbone.Events.trigger('map:draw:enable');
+      }
+
+      this.state.set({
+        drawing: !this.state.get('drawing'),
+        geojson: this.state.get('drawing')
+          ? this.state.get('geojson')
+          : null
+      });
+    },
+
+    /**
+     * Event handler executed when the user creates a
+     * polygon on the map
+     * @param {object} geojson GeoJSON representing the polygon
+     */
+    onCreatePolygon: function(geojson) {
+      this.state.set({
+        drawing: false,
+        geojson: geojson
+      });
+
+      this.updateURL();
+    },
+
+    /**
+     * Event handler executed when the user clicks the
+     * button to pick a file
+     */
+    onClickPickFile: function() {
+      var input = document.createElement('input');
+      input.setAttribute('type', 'file');
+      input.setAttribute('accept', ACCEPTED_EXTENSIONS.join(','));
+
+      input.addEventListener('change', function() {
+        var file = input.files[0];
+        this.readGeojson(file);
+      }.bind(this));
+
+      input.click();
+    },
+
+    /**
+     * Event handler executed when the user clicks the
+     * reset button
+     */
+    onClickReset: function() {
+      this.state.set({ geojson: null });
+      Backbone.Events.trigger('map:draw:reset');
+      this.updateURL();
+    },
+
+    /**
+     * Event handler executed when the user starts to
+     * drag a file over the drop zone
+     * @param {Event} e Event
+     */
+    onDragStartFile: function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+
+      /** @type {HTMLElement} button */
+      var button = e.target;
+      button.classList.add('-active');
+
+      // We indicate to the user where to drop the file
+      if (!this.previousPickFileButtonContent) {
+        this.previousPickFileButtonContent = button.textContent;
+        button.textContent = 'Drop here';
+      }
+    },
+
+    /**
+     * Event handler executed when the user stops to
+     * drag a file over the drop zone
+     * @param {Event} e Event
+     */
+    onDragEndFile: function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+
+      /** @type {HTMLElement} button */
+      var button = e.target;
+      button.classList.remove('-active');
+
+      // We restore the content of the button
+      if (this.previousPickFileButtonContent) {
+        button.textContent = this.previousPickFileButtonContent;
+        this.previousPickFileButtonContent = null;
+      }
+    },
+
+    /**
+     * Event handler executed when the user drops a file
+     * in the drop zone
+     * @param {Event} e Event
+     */
+    onDropFile: function(e) {
+      this.onDragEndFile(e);
+
+      var file = e.originalEvent.dataTransfer.files[0];
+      this.readGeojson(file);
+    },
+
+    /**
+     * Event handler executed when the user selects a country
+     * @param {string} iso ISO of the country
+     * @param {string} country Name of the country
+     * @param {string} bbox Feature of a GeoJSON
+     */
+    onSelectCountry: function(iso, country, bbox) {
+      var geojson  = {
+        type: 'FeatureCollection',
+        features: [
+          {
+            type: 'Feature',
+            properties: {},
+            geometry: JSON.parse(bbox)
+          }
+        ]
+      };
+
+      this.state.set({
+        iso: iso,
+        geojson: geojson
+      });
+
+      this.updateURL();
+
+      Backbone.Events.trigger('map:draw:reset');
+      Backbone.Events.trigger('map:draw:polygon', geojson);
+    },
+
+    /**
+     * Event handler executed when the user clicks the button
+     * to download the PDF report
+     * @param {Event} e Event
+     */
+    onClickDownloadReport: function(e) {
+      var searchParams = window.location.search;
+      var origin = window.location.origin;
+      var reportUrl = origin + '/report' +  searchParams;
+      var webshotUrl = '<%= ENV["WEBSHOT_URL"] %>';
+      var url = webshotUrl + '?filename=analysis-report&mediatype=screen&backgrounds=true&url=' + encodeURIComponent(reportUrl);
+
+      e.target.setAttribute('download', true);
+      e.target.setAttribute('href', url);
+    },
+
+    /**
+     * Event handler executed when the user click the button
+     * to get additional information about a widget
+     */
+    onClickAnalysisInfo: function(e) {
+      e.preventDefault();
+      var data = $(e.currentTarget).data('info');
+      var name = $(e.currentTarget).data('name');
+
+      this.infowindow.render(data, name);
+    },
+
+    /**
+     * Check if the file is has GeoJSON format
+     * and update the UI consequently
+     * @param {File} file File
+     */
+    readGeojson: function(file) {
+      var regex = new RegExp('((' + ACCEPTED_EXTENSIONS.join('|') + '))$');
+      if (!regex.test(file.name)) {
+        window.alert('Only .json and .geojson files are accepted. Please select a different file.')
+        return;
+      }
+
+      var reader = new FileReader();
+
+      reader.addEventListener('load', function(e) {
+        try {
+          var json = JSON.parse(e.target.result);
+
+          // Simple check to validate the format of the file
+          var types = ['Feature', 'FeatureCollection', 'Point', 'MultiPoint', 'LineString', 'MultiLineString', 'Polygon', 'MultiPolygon', 'GeometryCollection'];
+          if (!json.type || types.indexOf(json.type) === -1) {
+            throw new Error('The file doesn\'t have a top-level "type" property correctly defined.');
+          }
+
+          this.state.set({
+            geojson: json,
+            drawing: false
+          });
+
+          this.updateURL();
+
+          Backbone.Events.trigger('map:draw:disable');
+          Backbone.Events.trigger('map:draw:reset');
+          Backbone.Events.trigger('map:draw:polygon', json);
+        } catch(e) {
+          console.error(e);
+          window.alert('The file can\'t be read. Make sure it\'s the GeoJSON is valid.');
+        }
+      }.bind(this));
+
+      reader.readAsText(file);
+    },
+
+    /**
+     * Update the URL of the page according to the
+     * state of the component
+     */
+    updateURL: function() {
+      var geojson = this.state.get('geojson') || '';
+      var iso = this.state.get('iso') || '';
+      this.router.setParams('geojson', geojson)
+      this.router.setParams('iso', iso)
+    },
+
+    /**
+     * Render the content of the analysis panel after the
+     * user has selected a GeoJSON or a country
+     */
+    renderAnalysisContent: _.debounce(function() {
+      if (this.section === 'layers') {
+        var activeLayers = this.layers.getActived();
+        var analyzableLayers = activeLayers.filter(function(l) {
+          // TODO: implement the analysis for layers that aren't rasters
+          return l.analysisSuitable && l.layerProvider === 'raster';
+        });
+        if (!activeLayers.length) {
+          this.$('.js-analysis-content').html('Please toggle some layers on to analyze them.');
+        } else if (!analyzableLayers.length) {
+          this.$('.js-analysis-content').html('None of the active layers can be analyzed.');
+        } else {
+          this.$('.js-analysis-content').html(
+            '<div class="js-widgets"></div>'
+            + (analyzableLayers.length !== activeLayers.length
+              ? '<p>Some active layers can\'t be analyzed.</p>'
+              : '')
+          );
+
+          var widgetsContainer = this.$('.js-widgets');
+          analyzableLayers.forEach(function(layer) {
+            new root.app.View.WidgetBarChart({
+              el: widgetsContainer,
+              slug: layer.slug,
+              query: layer.analysisQuery,
+              name: layer.name,
+              geojson: this.state.get('geojson'),
+              hasLine: false,
+              meta_short: layer.name,
+              metadata: JSON.parse(layer.info),
+              xAxisTickFormatter: function(d, i) {
+                return i % 3 === 1 ? Math.round(d) : ''
+              }
+            });
+          }.bind(this));
+        }
+      } else {
+
+      }
+    }, 100),
+
+    render: function() {
+      this.$el.html(this.template(_.extend({}, this.state.attributes, {
+        section: this.section
+      })));
+
+      if (this.state.attributes.tab === 'region') {
+        this.searchView = new root.app.View.Search({
+          el: '#analysisSelectorsView',
+          elContent: '.analysisSearchContent',
+          elInput: '.searchAnalysis',
+          elSearchParent: '#analysisSelectorsView',
+          closeOnClick: false,
+          triggerMap: false
+        });
+
+        this.listenTo(this.searchView, 'selected', this.onSelectCountry);
+      } else {
+        this.searchView = null;
+      }
+
+      if (this.state.get('geojson')) {
+        this.renderAnalysisContent();
+      }
+    },
+
+    /**
+     * Destroy the view
+     * Same as remove but without removing the node
+     */
+    destroy: function() {
+      this.$el.html('');
+    }
+  });
+
+})(this);

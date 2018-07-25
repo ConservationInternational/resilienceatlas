@@ -42,6 +42,17 @@
         maxZoom: 18
       }).addTo(map);
 
+      // Standardize the layer object
+      // Carto layers have a show and hide
+      // functions
+      self.layer.show = function() {
+        self.layer.addTo(map);
+      };
+
+      self.layer.hide = function() {
+        map.removeLayer(self.layer);
+      };
+
       self.loader.removeClass('is-loading');
 
       if (callback && typeof callback === 'function') {

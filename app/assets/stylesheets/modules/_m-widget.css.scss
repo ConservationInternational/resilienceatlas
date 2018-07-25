@@ -109,8 +109,12 @@
   .btn-analysis-info {
     @extend %clean-button-or-input;
     width: 24px;
-    position: absolute;
     height: 18px;
-    top: 0px;
+    padding: 0;
+    vertical-align: middle;
+  }
+
+  .widget-bar-chart {
+    height: 220px;
   }
 }

@@ -21,6 +21,7 @@ class ApplicationController < ActionController::Base
   def check_subdomain
     return unless request.get?
     if (!request.subdomain.downcase.match('www') &&
+        !request.subdomain.downcase.match('staging-cigrp') &&
         !request.subdomain.blank? &&
         !request.fullpath.match('/map') &&
         !request.fullpath.match('/contents') &&
@@ -47,7 +48,7 @@ class ApplicationController < ActionController::Base
   private
 
   def allow_site_iframe
-    if ['resilienceatlas.org', 'vitalsigns.org', 'globalresiliencepartnership.org'].include? request.domain
+    if ['resilienceatlas.org', 'vitalsigns.org', 'globalresiliencepartnership.org', 'herokuapp.com'].include? request.domain
       response.headers.except! 'X-Frame-Options'
     end
   end

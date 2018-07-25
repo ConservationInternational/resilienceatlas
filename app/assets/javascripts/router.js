@@ -23,11 +23,13 @@
           'journeys/:id(/)': 'journeys',
           'embed/journeys(/)': 'journeys',
           'journeys(/)': 'journeysIndex',
+          'report(/)': 'report'
         };
       } else {
         routes = {
           '(/)': 'map',
-          'map(/)': 'map'
+          'map(/)': 'map',
+          'report(/)': 'report'
         };
       }
       return routes;
@@ -58,7 +60,7 @@
     },
 
     /**
-     * Add class to body if page is external from CI and needs to have logo and 
+     * Add class to body if page is external from CI and needs to have logo and
      * linkback added in sidebar
      */
     _checkSidebarLogo: function() {
@@ -83,6 +85,7 @@
       this.on('route:map', this.updateParams, this);
       this.on('route:mapEmbed', this.updateParams, this);
       this.on('route:journeys', this.updateParams, this);
+      this.on('route:report', this.updateParams, this);
 
       if (this.options.update) {
         this.listenTo(this.params, 'change', this.updateUrl);
@@ -182,8 +185,8 @@
           temp = [];
         for (var p = paramsArr.length; p--;) {
           var pos = paramsArr[p].indexOf('=');
-          temp[0] = paramsArr[p].substring(0, pos);
-          temp[1] = paramsArr[p].substring(pos + 1);
+          temp[0] = paramsArr[p].substring(0, pos).replace(/\+/g, ' ');
+          temp[1] = paramsArr[p].substring(pos + 1).replace(/\+/g, ' ');
           if (temp[1] && !_.isNaN(Number(temp[1]))) {
             params[temp[0]] = Number(temp[1]);
           } else if (temp[1]) {

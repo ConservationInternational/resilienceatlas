@@ -16,17 +16,18 @@
   z-index: 5;
   box-shadow: 0 1px 4px 2px rgba(0,0,0,.1);
 
-  .btn-dash-switcher {
+  .btn-sidebar-toggle {
     position: absolute;
     top: 0;
-    right: -25px;
+    right: 0;
     width: rem(25px);
     height: rem(48px);
-    background-color: $bg-color-3;
-    box-shadow: 0px 1px 4px 0px rgba(0,0,0,.2);
     display: flex;
     align-items: center;
     justify-content: center;
+    background: none;
+    border: 0;
+    z-index: 2;
 
     &:after {
       content: '';
@@ -38,6 +39,43 @@
       }
     }
   }
+
+  .btn-analysis-panel-contract {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: rem(25px);
+    height: rem(48px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: 0;
+    z-index: 2;
+
+    &:after {
+      content: '';
+      @include arrow(8px, $gray-70, 2px, -45deg);
+      transition: .25s ease-in-out;
+    }
+  }
+
+  .btn-analysis-panel-expand {
+    position: absolute;
+    top: 9px;
+    left: #{$sidebar-width + 10px};
+    height: rem(30px);
+    padding: 0 10px;
+    text-transform: uppercase;
+    background-color: $bg-color-1;
+    border: 0;
+    box-shadow: 0 1px 4px 0 rgba(0, 0, 0, .2);
+    letter-spacing: .1em;
+    font-weight: 700;
+    color: $font-color-4;
+    font-size: 12px;
+    line-height: 32px;
+  }
 }
 
 .l-sidebar--fullscreen {
@@ -45,7 +83,6 @@
   top: 0;
   left: 0;
   bottom: 0;
-  z-index: 5;
   width: rem($sidebar-width);
 
   background-color: $bg-color-1;
@@ -57,12 +94,53 @@
   // }
 
   &.is-collapsed {
-    transform: translatex(-100%);
+    // 25px for the toggle button
+    transform: translatex(calc(25px - 100%));
   }
 
 
-  body.analyzing & {
-    width: rem($sidebar-analysis-width);
+  &.analyzing .analysis-panel {
+    transform: translateX(0);
+
+  }
+
+  .analysis-panel {
+    position: absolute;
+    top: 0;
+    left: rem($sidebar-width);
+    bottom: 0;
+    width: $sidebar-analysis-width;
+    transform: translateX(-100%);
+    background-color: $bg-color-1;
+    transition: .25s ease-in-out;
+    box-shadow: 0px -1px 2px 0px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+
+    > .title {
+      position: sticky; // Needed for the scroll
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 49px; // Not 50 to align with the sidebar
+      padding: 0 25px;
+      background-color: $gray-6;
+      line-height: 54px;
+      color: $font-color-4;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      border-bottom: 1px solid $gray-7;
+      z-index: 1; // Needed for the scroll
+    }
+
+    .content {
+      position: relative;
+      flex-grow: 1;
+      background-color: $gray-5;
+    }
   }
 
   .l-main--embed & {

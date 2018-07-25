@@ -137,7 +137,7 @@
       var activeControl = e.currentTarget
       var opacity = activeControl.value;
 
-      $(activeControl).parent().siblings('.opacity-teller').val(opacity);
+      $(activeControl).parent().siblings('.value').children('.opacity-teller').val(opacity);
 
       this._setOpacity(opacity, activeControl);
 
@@ -163,7 +163,7 @@
         $currentTarget.val(opacity);
       }
 
-      var $currentRangeSelector = $currentTarget.siblings('.slider-wrapper').find('.opacity-range');
+      var $currentRangeSelector = $currentTarget.closest('.m-form-input--slider').find('.opacity-range');
 
       $currentRangeSelector.val(opacity);
 

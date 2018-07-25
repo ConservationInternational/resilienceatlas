@@ -1,4 +1,8 @@
 .m-sidebar {
+  position: relative;
+  height: 100%;
+  z-index: 1;
+  background: $white;
 
   .tabs {
     position: relative;
@@ -6,7 +10,6 @@
     padding-top: 10px;
     padding-left: 10px;
     background-color: $gray-5;
-    box-shadow: 2px 0px 5px -2px rgba(0,0,0,0.2);
   }
 
   .tab-title {

@@ -18,6 +18,7 @@
       this.slug = 'widget-' + this.options.slug;
       this.name = this.options.name;
       this.query = this.options.query;
+      this.geojson = this.options.geojson;
       this.iso = this.options.iso;
       this.unit = this.options.unit || '';
       this.unitY = this.options.unitY || '';
@@ -35,7 +36,10 @@
     getData: function() {
       var self = this;
       if(this.query) {
-        var query = this.query.replace(/%1/g, this.iso);
+        var geometry = this.geojson.features
+          ? this.geojson.features[0].geometry
+          : this.geojson.geometry;
+        var query = this.query.replace(/{{geometry}}/g, JSON.stringify(geometry));
 
         $.ajax({
           url: this.sqlApi,

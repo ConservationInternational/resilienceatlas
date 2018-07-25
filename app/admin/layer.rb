@@ -6,7 +6,10 @@ ActiveAdmin.register Layer do
                 :dataset_shortname, :dataset_source_url, :source_id, :title,
                 :start_date, :end_date, :spatial_resolution, :spatial_resolution_units,
                 :temporal_resolution, :temporal_resolution_units, :data_units,
-                :update_frequency, :version, :processing, :download, :description, source_ids:[]
+                :analysis_suitable, :analysis_query,
+                :update_frequency, :version, :processing, :download, :description, source_ids:[],
+                translations_attributes: [:id, :locale, :name, :info, :legend, :title,
+                                          :data_units, :processing, :description, :_destroy]
 
   member_action :clone, only: :show, method: :get do
     n = resource.clone!
@@ -29,8 +32,21 @@ ActiveAdmin.register Layer do
 
   form do |f|
     f.semantic_errors
+
+    f.inputs 'Translated fields' do
+      f.translated_inputs switch_locale: false do |t|
+        t.input :name
+        t.input :info
+        t.input :legend
+        t.input :title
+        t.input :data_units
+        t.input :processing
+        t.input :description
+      end
+    end
+
     f.inputs 'Layer Details' do
-      f.input :name
+
       f.input :slug
       f.input :layer_type, as: :select, collection: ['layer']
       f.input :opacity
@@ -39,14 +55,12 @@ ActiveAdmin.register Layer do
       f.input :order
       f.input :dashboard_order
       #f.input :color, as: :string
-      f.input :info
       f.input :interactivity
       f.input :query
       f.input :layer_provider, as: :select, collection: ['raster', 'cartodb', 'xyz tileset']
       f.input :css
       f.input :locate_layer
       #f.input :icon_class
-      f.input :legend
       f.input :zoom_max
       f.input :zoom_min
       f.input :download
@@ -58,19 +72,20 @@ ActiveAdmin.register Layer do
       f.input :sources, as: :select, collection: Source.all.map { |s| ["#{s.source_type} - Ref: #{s.reference_short}", s.id] }, label: 'Select sources:', multiple: true
     end
 
+    f.inputs "Analysis" do
+      f.input :analysis_suitable, input_html: { data: { if: 'checked', action: 'hide', target: '.query' }}
+      f.input :analysis_query, wrapper_html: { class: 'query' }
+    end
+
     f.inputs "Metadata" do
-      f.input :title
-      f.input :description
       f.input :start_date, as: :date_picker
       f.input :end_date, as: :date_picker
       f.input :spatial_resolution
       f.input :spatial_resolution_units
       f.input :temporal_resolution
       f.input :temporal_resolution_units
-      f.input :data_units
       f.input :update_frequency
       f.input :version
-      f.input :processing
     end
     f.actions
   end

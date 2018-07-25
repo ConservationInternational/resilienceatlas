@@ -27,7 +27,8 @@ module ConservationInternational
 
     # The default locale is :en and all translations from config/locales/*.rb,yml are auto loaded.
     # config.i18n.load_path += Dir[Rails.root.join('my', 'locales', '*.{rb,yml}').to_s]
-    # config.i18n.default_locale = :de
+    config.i18n.available_locales = [:en, :it, :de, :es, :'pt-BR']
+    config.i18n.default_locale = :en
 
     # Setup scaffold
     config.generators do |g|
@@ -40,5 +41,8 @@ module ConservationInternational
 
     # Heroku Asset Pippeline
     config.assets.initialize_on_precompile = true
+
+    # Removing wartning
+    config.active_record.raise_in_transactional_callbacks = true
   end
 end

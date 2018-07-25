@@ -3,14 +3,12 @@
 # Table name: layer_groups
 #
 #  id               :integer          not null, primary key
-#  name             :string
 #  super_group_id   :integer
 #  slug             :string
 #  layer_group_type :string
 #  category         :string
 #  active           :boolean
 #  order            :integer
-#  info             :text
 #  created_at       :datetime         not null
 #  updated_at       :datetime         not null
 #  icon_class       :string

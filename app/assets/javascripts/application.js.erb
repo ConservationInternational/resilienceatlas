@@ -19,10 +19,16 @@
 //= require_tree ./collections
 //= require_tree ./templates
 //= require ./views/mapPageView
+//= require ./views/reportPageView
 //= require ./views/staticPageView
 //= require ./views/journeysPageView
 //= require_tree ./views/common
-//= require_tree ./views/map
+//= require ./views/map/layers_list_view
+//= require ./views/map/legend_view
+//= require ./views/map/predictive_models_view
+//= require ./views/map/map_view
+//= require ./views/map/sidebar_view
+//= require ./views/map/toolbar_view
 //= require_tree ./views/journeys
 //= require ./views/analysis/widgets/widget_view
 //= require ./views/analysis/widgets/widget_bar_chart
@@ -37,6 +43,7 @@
 //= require ./views/analysis/widgets/widget_error_chart
 //= require ./views/analysis/analysis_page_view
 //= require ./views/analysis/analysis_selectors_view
+//= require ./views/analysis/analysis_view
 
 //= require router
 
@@ -72,6 +79,7 @@
 
       var subomainParamsModel = new root.app.Model.Subdomain();
       subomainParamsModel.fetch().done(_.bind(function(){
+        this.siteScopeId = subomainParamsModel.toJSON().data.id;
         this.setSubdomainParams(subomainParamsModel.toJSON().data.attributes);
         if (subomainParamsModel.toJSON().included && subomainParamsModel.toJSON().included.length > 0) {
           this.getPages(subomainParamsModel.toJSON().included);
@@ -184,6 +192,8 @@
       this.listenTo(this.router, 'route:about', this.aboutPage);
       // Initializing journeys index
       this.listenTo(this.router, 'route:journeysIndex', this.journeysIndexPage);
+
+      this.listenTo(this.router, 'route:report', this.reportPage);
     },
 
     journeysIndexPage: function(){
@@ -234,6 +244,14 @@
     mapPage: function() {
       var mapPageView = new root.app.MapPageView({
         router: this.router,
+        siteScopeId: this.siteScopeId,
+        subdomainParams: this.subdomainParams
+      });
+    },
+
+    reportPage: function() {
+      var reportPageView = new root.app.ReportPageView({
+        router: this.router,
         subdomainParams: this.subdomainParams
       });
     },
@@ -241,6 +259,7 @@
     mapEmbedPage: function() {
       var mapPageView = new root.app.MapPageView({
         router: this.router,
+        siteScopeId: this.siteScopeId,
         embed: true
       });
     },

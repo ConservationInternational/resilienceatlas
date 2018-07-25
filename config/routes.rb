@@ -20,6 +20,9 @@ Rails.application.routes.draw do
       get  '/share/:uid',           to: 'share_urls#show'
       post '/share',                to: 'share_urls#create'
       get  '/site',                 to: 'sites#show'
+      get  '/models',               to: 'models#index'
+      get  '/indicators',           to: 'indicators#index'
+      get  '/categories',           to: 'categories#index'
     end
   end
 
@@ -34,6 +37,7 @@ Rails.application.routes.draw do
   get 'about', to: 'about#index'
   get 'journeys', to: 'journeys#index'
   get 'contents/:slug', to: 'contents#show'
+  get 'report', to: 'report#index', as: :report
 
   resources :journeys, only: [:show]
 

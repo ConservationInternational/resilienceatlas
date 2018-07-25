@@ -127,8 +127,8 @@
       this.renderAnalyzeContainer();
 
       var collection = this.analysisCollection.toJSON();
-      var data = _.where(collection, { 
-        category_slug: this.state.get('category') 
+      var data = _.where(collection, {
+        category_slug: this.state.get('category')
       });
 
       if(data[0]) {
@@ -150,6 +150,18 @@
       } else {
         this.$el.removeClass('highlight');
       }
+    },
+
+    /**
+     * Destroy the view
+     * Same as remove but without removing the node
+     */
+    destroy: function() {
+      this.closeAnalysis();
+      if (this.analyzeView) {
+        this.analyzeView.remove();
+      }
+      this.$el.html('');
     }
 
   });

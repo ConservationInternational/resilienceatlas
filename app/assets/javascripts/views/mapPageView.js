@@ -13,6 +13,7 @@
       this.setListeners();
 
       this.router = settings.router;
+      this.siteScopeId = settings.siteScopeId;
       this.subdomainParams = settings.subdomainParams;
       this.embed = settings.embed || false;
 
@@ -41,7 +42,6 @@
     initMap: function() {
       var journeyMap = this._checkJourneyMap();
       var toolbarView = new root.app.View.Toolbar();
-      var sidevarView = new root.app.View.Sidebar({subdomainParams: this.subdomainParams});
       var layersGroupsCollection = new root.app.Collection.LayersGroups();
       var layersCollection = new root.app.Collection.Layers();
       var mapModel = new (Backbone.Model.extend({
@@ -49,6 +49,49 @@
           journeyMap: journeyMap,
           countryIso: this.router.params.attributes && this.router.params.attributes.countryIso ? this.router.params.attributes.countryIso : null,
           maskSql: this.router.params.attributes && this.router.params.attributes.maskSql ? this.router.params.attributes.maskSql : null
+        }
+      }));
+
+      // Predictive models
+      var predictiveModelsCollection = new root.app.Collection.Models(null, {
+        siteScopeId: this.siteScopeId
+      });
+      var activePredictiveModel = new (Backbone.Model.extend({
+        /**
+         * Return the layer corresponding to the parameter
+         * of the model
+         * @returns {object}
+         */
+        getLayer: function() {
+          console.log('select * from getModel(' + this.get('id') + ', \'[' + this.get('indicators').map(function(ind) { return ind.value % 1 === 0 ? ind.value : ind.value.toFixed(3); }) + ']\')');
+          console.log('#model_spect_1{\n\rpolygon-fill: #FFFFB2;\n\rpolygon-opacity: 0.8;\n\rline-color: #FFF;\n\rline-width: 0.5;\n\rline-opacity: 1;\n\r}\n\r#model_spect_1 [ value <= 0.463562726974487] {\n\r polygon-fill: #B10026;\n\r}\n\r#model_spect_1 [ value <= 0.437246948480606] {\n\r polygon-fill: #E31A1C;\n\r}\n\r#model_spect_1 [ value <= 0.331983774900436] {\n\r polygon-fill: #FC4E2A;\n\r}\n\r#model_spect_1 [ value <= 0.253036439418793] {\n\r polygon-fill: #FD8D3C;\n\r}\n\r#model_spect_1 [ value <= 0.200404837727547] {\n\r polygon-fill: #FEB24C;\n\r}\n\r#model_spect_1 [ value <= 0.18016192317009] {\n\r polygon-fill: #FED976;\n\r}\n\r#model_spect_1 [ value <= 0.093117401003838] {\n\r polygon-fill: #FFFFB2;\n\r}');
+
+          return {
+            id: -1,
+            slug: 'predictive-model-layer',
+            name: this.get('name'),
+            type: 'cartodb',
+            description: '{"description":"' + (this.get('description') || '') + '", "source":"' + (this.get('source') || '') + '"}',
+            cartocss: '#model_spect_1{\n\rpolygon-fill: #FFFFB2;\n\rpolygon-opacity: 0.8;\n\rline-color: #FFF;\n\rline-width: 0.5;\n\rline-opacity: 1;\n\r}\n\r#model_spect_1 [ value <= 0.463562726974487] {\n\r polygon-fill: #B10026;\n\r}\n\r#model_spect_1 [ value <= 0.437246948480606] {\n\r polygon-fill: #E31A1C;\n\r}\n\r#model_spect_1 [ value <= 0.331983774900436] {\n\r polygon-fill: #FC4E2A;\n\r}\n\r#model_spect_1 [ value <= 0.253036439418793] {\n\r polygon-fill: #FD8D3C;\n\r}\n\r#model_spect_1 [ value <= 0.200404837727547] {\n\r polygon-fill: #FEB24C;\n\r}\n\r#model_spect_1 [ value <= 0.18016192317009] {\n\r polygon-fill: #FED976;\n\r}\n\r#model_spect_1 [ value <= 0.093117401003838] {\n\r polygon-fill: #FFFFB2;\n\r}',
+            interactivity: '',
+            sql: 'select * from getModel(' + this.get('id') + ', \'[' + this.get('indicators').map(function(ind) { return ind.value % 1 === 0 ? ind.value : ind.value.toFixed(3); }) + ']\')',
+            color: '',
+            opacity: 1,
+            no_opacity: false,
+            order: 1,
+            maxZoom: 25,
+            minZoom: 0,
+            legend: '{"type": "choropleth",\r\n"min":"0",\r\n"max":"1",\r\n"bucket":["#d73027","#f46d43","#fdae61","#fee08b","#ffffbf","#d9ef8b","#a6d96a","#66bd63","#1a9850"]}',
+            group: -1,
+            active: true,
+            published: true,
+            info: '{"description":"' + (this.get('description') || '') + '", "source":"' + (this.get('source') || '') + '"}',
+            dashboard_order: null,
+            download: false,
+            dataset_shortname: null,
+            dataset_source_url: null,
+            attributions: false
+          };
         }
       }));
 
@@ -60,6 +103,7 @@
         layers: layersCollection,
         basemap: this.router.params.attributes.basemap,
         model: mapModel,
+        predictiveModel: activePredictiveModel,
         router: this.router,
         subdomainParams: this.subdomainParams,
         options: {
@@ -74,12 +118,32 @@
         }
       });
 
+      // At begining create a map
+      mapView.createMap();
+
+      // We init the sidebar after the map so the sidebar
+      // can tell the map its initial state and offset it
+      var sidebarView = new root.app.View.Sidebar({
+        router: this.router,
+        subdomainParams: this.subdomainParams,
+        predictiveModelsCollection: predictiveModelsCollection,
+        predictiveModel: activePredictiveModel,
+        layers: layersCollection
+      });
+
       //No Layer list nor legend are showed into journey embed map.
       if (!journeyMap) {
         var layersListView = new root.app.View.LayersList({
           el: '#layersListView',
           layers: layersCollection,
           subdomainParams: this.subdomainParams
+        });
+
+        var predictiveModelView = new root.app.View.PredictiveModels({
+          el: '#modelContent',
+          collection: predictiveModelsCollection,
+          model: activePredictiveModel,
+          router: this.router
         });
 
         var legendView = new root.app.View.Legend({
@@ -91,11 +155,9 @@
               order: []
             }
           })),
+          predictiveModel: activePredictiveModel
         });
       }
-
-      // At begining create a map
-      mapView.createMap();
 
       // Fetching data
       var complete = _.invoke([
