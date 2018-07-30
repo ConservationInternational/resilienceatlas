@@ -13,9 +13,7 @@
 class Category < ActiveRecord::Base
   has_many :indicators
   validates_presence_of :slug, :name
-
-  acts_as_list
-
+  
   def self.fetch_all(options={})
     Category.all
   end
