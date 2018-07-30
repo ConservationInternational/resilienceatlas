@@ -43,9 +43,10 @@
     },
 
     _exportMapToPDF: function(e) {
-      var element = e.currentTarget;
-      element.href = this._getExportUrl();
-      return element;
+      var exportLink = e.currentTarget;
+      exportLink.setAttribute('href', this._getExportUrl());
+      window.open(this._getExportUrl(), '_blank');
+      return false;
     }
 
   });
