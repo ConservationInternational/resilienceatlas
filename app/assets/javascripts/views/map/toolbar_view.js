@@ -13,7 +13,13 @@
 
     events: {
       'click .btn-share' : '_share',
-      'click .btn-analyze' : '_analyze'
+      'click .btn-analyze' : '_analyze',
+      'click .btn-export-to-pdf': '_exportMapToPDF'
+    },
+
+    _getExportUrl: function() {
+      return 'https://www.resilienceatlas.org/webshot?filename=export-map-' + new Date().getTime() + '.pdf' +
+        '&url=' + window.location.href;
     },
 
     initialize: function(settings) {
@@ -24,7 +30,8 @@
     },
 
     render: function() {
-      this.$el.html(this.template);
+      const template = this.template({ downloadURL: this._getExportUrl() });
+      this.$el.html(template);
     },
 
     _share: function() {
@@ -33,6 +40,12 @@
 
     _analyze: function() {
       var analyze = new root.app.View.analysisSelectors();
+    },
+
+    _exportMapToPDF: function(e) {
+      var element = e.currentTarget;
+      element.href = this._getExportUrl();
+      return element;
     }
 
   });
