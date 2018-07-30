@@ -13,6 +13,8 @@ html lang="#{I18n.locale}"
         window.userlogged = "#{user_signed_in?}"
         window.site = "#{@site}"
         window.name = "#{@site_name}"
+        window.currentLocation = "#{I18n.locale}";
+        window.liveSettings = { api_key: "9305955d1d7e446783d3cd7e57442c1d", picker: "bottom-left", staging: !!("#{ENV['STAGING']}" != "") };
 
     = render :partial => "partials/analytics"
 
