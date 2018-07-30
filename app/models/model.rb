@@ -9,6 +9,7 @@
 #  created_at     :datetime         default(Wed, 25 Jul 2018 13:17:11 CEST +02:00), not null
 #  updated_at     :datetime         default(Wed, 25 Jul 2018 13:17:11 CEST +02:00), not null
 #  query_analysis :text
+#  table_name     :string
 #
 
 class Model < ActiveRecord::Base

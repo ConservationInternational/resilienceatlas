@@ -1,5 +1,6 @@
 ActiveAdmin.register Model do
-  permit_params :name, :description, :source, site_scope_ids: [], indicator_ids: []
+  permit_params :name, :description, :source, :table_name,
+                site_scope_ids: [], indicator_ids: []
 
   index do
     selectable_column
@@ -8,6 +9,7 @@ ActiveAdmin.register Model do
     column :name
     column :description
     column :source
+    column :table_name
     column :site_scopes do |model|
       links = []
       model.site_scopes.map do |ss|
@@ -34,6 +36,7 @@ ActiveAdmin.register Model do
     f.inputs 'Model' do
       f.input :name
       f.input :site_scopes
+      f.input :table_name
     end
 
     f.inputs 'Metadata' do
