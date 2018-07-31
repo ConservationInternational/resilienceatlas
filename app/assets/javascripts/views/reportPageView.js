@@ -13,6 +13,7 @@
 
       this.router = settings.router;
       this.subdomainParams = settings.subdomainParams;
+      this.siteScopeId = settings.siteScopeId;
 
       this.initMap();
     },
@@ -28,7 +29,9 @@
       }));
 
       // Predictive models
-      this.predictiveModelsCollection = new root.app.Collection.Models();
+      this.predictiveModelsCollection = new root.app.Collection.Models(null, {
+        siteScopeId: this.siteScopeId
+      });
       this.activePredictiveModel = new (Backbone.Model.extend({
         /**
          * Return the layer corresponding to the parameter
