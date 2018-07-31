@@ -7,7 +7,7 @@ module Api
         @indicators = Indicator.fetch_all(params)
         render json: @indicators,
                meta: { total_indicators: @indicators.size },
-               include: [:models]
+               include: [:models, :category]
       end
     end
   end

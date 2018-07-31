@@ -6,7 +6,7 @@ module Api
         @models = Model.fetch_all(model_params)
         render json: @models,
                meta: { total_models: @models.size},
-               include: %i[indicators site_scopes]
+               include: [:site_scopes, :indicators, 'indicators.category']
       end
 
       private
