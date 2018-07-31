@@ -13,24 +13,27 @@
   </div>
   {{#if model.name}}
     <ul class="indicators-list">
-      {{#each model.indicators}}
-        <li>
-          <div class="m-form-input--switch">
-            <input type="checkbox" class="js-indicator-toggle" data-indicator="{{name}}" id="indicator-{{@index}}" value="{{name}}" {{#compare value 'typeof' 'number'}}checked{{/compare}} />
-            <label for="indicator-{{@index}}" aria-label="{{name}}"></label>
-            {{name}}
-          </div>
-          <div class="m-form-input--slider" {{#compare value 'typeof' 'number'}}{{else}}hidden{{/compare}}>
-            <div class="slider-wrapper">
-              <input type="range" class="js-indicator-slider" data-indicator="{{name}}" min="{{../indicatorRange.min}}" max="{{../indicatorRange.max}}" step="1" value="{{indexableValue}}" />
-              <span class="opacity" style="width: calc(({{indexableValue}} / {{../indicatorRange.max}}) * 100%);"></span>
-              <span class="tooltip" hidden></span>
+      {{#each model.categories}}
+        <li class="category">{{name}}</li>
+        {{#each indicators}}
+          <li>
+            <div class="m-form-input--switch">
+              <input type="checkbox" class="js-indicator-toggle" data-indicator="{{name}}" id="indicator-{{@index}}" value="{{name}}" {{#compare value 'typeof' 'number'}}checked{{/compare}} />
+              <label for="indicator-{{@index}}" aria-label="{{name}}"></label>
+              {{name}}
             </div>
-            <div class="value">
-              <input type="text" class="opacity-teller" value="{{humanReadableValue}}" disabled>
+            <div class="m-form-input--slider" {{#compare value 'typeof' 'number'}}{{else}}hidden{{/compare}}>
+              <div class="slider-wrapper">
+                <input type="range" class="js-indicator-slider" data-indicator="{{name}}" min="{{../../indicatorRange.min}}" max="{{../../indicatorRange.max}}" step="1" value="{{indexableValue}}" />
+                <span class="opacity" style="width: calc(({{indexableValue}} / {{../../indicatorRange.max}}) * 100%);"></span>
+                <span class="tooltip" hidden></span>
+              </div>
+              <div class="value">
+                <input type="text" class="opacity-teller" value="{{humanReadableValue}}" disabled>
+              </div>
             </div>
-          </div>
-        </li>
+          </li>
+        {{/each}}
       {{/each}}
     </ul>
   {{/if}}

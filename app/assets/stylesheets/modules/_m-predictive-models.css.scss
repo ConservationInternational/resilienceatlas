@@ -36,11 +36,16 @@
   }
 
   .indicators-list {
-    list-style: none;
+    margin-top: 35px;
     padding-left: 0;
+    list-style: none;
 
     > li {
       margin-bottom: 20px;
+
+      &.category {
+        margin-bottom: 10px;
+      }
     }
 
     .m-form-input--switch {

@@ -31,11 +31,17 @@
                   return inc.type === 'indicators' && inc.id === indicator.id;
                 });
 
+                var category = response.included.find(function(inc) {
+                  return inc.type === 'categories' && inc.id === ind.relationships.category.data.id;
+                });
+
                 return {
                   id: indicator.id,
                   name: ind.attributes.name,
                   slug: ind.attributes.slug,
+                  category: category.attributes.name,
                   version: ind.attributes.version,
+                  position: ind.attributes.position,
                   analysisSuitable: ind.attributes.analysis_suitable,
                   analysisQuery: ind.attributes.analysis_query,
                   value: 1,
