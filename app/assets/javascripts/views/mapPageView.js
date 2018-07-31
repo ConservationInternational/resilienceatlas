@@ -63,9 +63,6 @@
          * @returns {object}
          */
         getLayer: function() {
-          console.log('select * from getModel(' + this.get('id') + ', \'[' + this.get('indicators').map(function(ind) { return ind.value % 1 === 0 ? ind.value : ind.value.toFixed(3); }) + ']\')');
-          console.log('#model_spect_1{\n\rpolygon-fill: #FFFFB2;\n\rpolygon-opacity: 0.8;\n\rline-color: #FFF;\n\rline-width: 0.5;\n\rline-opacity: 1;\n\r}\n\r#model_spect_1 [ value <= 0.463562726974487] {\n\r polygon-fill: #B10026;\n\r}\n\r#model_spect_1 [ value <= 0.437246948480606] {\n\r polygon-fill: #E31A1C;\n\r}\n\r#model_spect_1 [ value <= 0.331983774900436] {\n\r polygon-fill: #FC4E2A;\n\r}\n\r#model_spect_1 [ value <= 0.253036439418793] {\n\r polygon-fill: #FD8D3C;\n\r}\n\r#model_spect_1 [ value <= 0.200404837727547] {\n\r polygon-fill: #FEB24C;\n\r}\n\r#model_spect_1 [ value <= 0.18016192317009] {\n\r polygon-fill: #FED976;\n\r}\n\r#model_spect_1 [ value <= 0.093117401003838] {\n\r polygon-fill: #FFFFB2;\n\r}');
-
           return {
             id: -1,
             slug: 'predictive-model-layer',
