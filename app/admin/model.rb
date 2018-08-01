@@ -1,5 +1,6 @@
 ActiveAdmin.register Model do
   permit_params :name, :description, :source, :table_name,
+                :query_analysis,
                 site_scope_ids: [], indicator_ids: []
 
   index do
@@ -37,6 +38,7 @@ ActiveAdmin.register Model do
       f.input :name
       f.input :site_scopes
       f.input :table_name
+      f.input :query_analysis
     end
 
     f.inputs 'Metadata' do
