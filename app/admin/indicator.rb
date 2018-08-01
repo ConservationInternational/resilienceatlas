@@ -4,7 +4,7 @@ ActiveAdmin.register Indicator do
 
   sortable
 
-  permit_params :name, :slug, :version, :position, :category_id, model_ids: []
+  permit_params :name, :slug, :version, :position, :column_name, :category_id, model_ids: []
 
   index do
     sortable_handle_column
@@ -33,6 +33,7 @@ ActiveAdmin.register Indicator do
       f.input :name
       f.input :slug
       f.input :version
+      f.input :column_name
       f.input :models
     end
 
