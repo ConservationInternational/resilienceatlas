@@ -271,9 +271,8 @@
               hasLine: false,
               meta_short: layer.name,
               metadata: JSON.parse(layer.info),
-              xAxisTickFormatter: function(d, i) {
-                return i % 2 === 1 ? Math.round(d) : ''
-              }
+              xAxisTickFormatter: d3.format('.3f'),
+              verticalLabels: true
             });
           }.bind(this));
         }

@@ -636,6 +636,11 @@
           height = height - margin.top - margin.bottom;
       var heightPadding = height - 50;
 
+
+      if (params.verticalLabels) {
+        height -= 30;
+      }
+
       var totalBarsWidth = ((barWidth + barSeparation) * data.length) - barSeparation;
       var centerContainer = (contentWidth / 2) - (totalBarsWidth / 2);
 
@@ -743,13 +748,20 @@
           .call(zAxis);
       }
 
-      svgBars.append("g")
-          .attr("class", "x axis")
-          .attr("transform", "translate(0," + height + ")")
-          .call(xAxis)
-          .selectAll('.tick')
-          .select('text')
-          .html(params.xAxisTickFormatter || function(d) { return d; });
+      var labels = svgBars.append("g")
+        .attr("class", "x axis")
+        .attr("transform", "translate(0," + height + ")")
+        .call(xAxis)
+        .selectAll('.tick')
+        .select('text')
+        .html(params.xAxisTickFormatter || function(d) { return d; });
+
+      if (params.verticalLabels) {
+        labels.style("text-anchor", "end")
+          .attr("dx", "-.4em")
+          .attr("dy", "-.4em")
+          .attr("transform", "rotate(-90)" );;
+      }
 
       svgBars.selectAll(".bar")
           .data(data)

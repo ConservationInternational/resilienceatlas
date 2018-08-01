@@ -35,7 +35,8 @@
         unit: this.unit,
         unitZ: this.unitZ,
         hasLine: this.hasLine,
-        xAxisTickFormatter: this.options.xAxisTickFormatter
+        xAxisTickFormatter: this.options.xAxisTickFormatter,
+        verticalLabels: this.options.verticalLabels || false
       });
     },
 
