@@ -5,6 +5,7 @@ class ApplicationController < ActionController::Base
 
   before_action :check_subdomain, :get_subdomain
   after_action  :set_csrf_cookie, :store_location
+  before_action :set_locale
   after_action :allow_site_iframe
 
   def set_csrf_cookie
@@ -39,6 +40,14 @@ class ApplicationController < ActionController::Base
         !request.xhr?)
       session[:previous_url] = request.fullpath
     end
+  end
+
+  def set_locale
+    I18n.locale = if params[:locale].present? && I18n.available_locales.map{|x| x.to_s}.include?(params[:locale])
+                    params[:locale]
+                  else
+                    I18n.default_locale.to_s
+                  end
   end
 
   def after_sign_in_path_for(resource)

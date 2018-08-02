@@ -10,15 +10,12 @@ html lang="#{I18n.locale}"
     = csrf_meta_tags
 
     javascript:
-        window.isSubdomain = "#{@subdomain}"
-        window.userlogged = "#{user_signed_in?}"
-        window.site = "#{@site}"
-        window.name = "#{@site_name}"
-        window.currentLocation = "#{I18n.locale}";
-        window.liveSettings = { api_key: "9305955d1d7e446783d3cd7e57442c1d", picker: "bottom-left", staging: !!("#{ENV['STAGING']}" != "") };
-
+      window.isSubdomain = "#{@subdomain}"
+      window.userlogged = "#{user_signed_in?}"
+      window.site = "#{@site}"
+      window.name = "#{@site_name}"
+    = render :partial => "partials/transifex"
     = render :partial => "partials/analytics"
-    = javascript_include_tag "//cdn.transifex.com/live.js"
 
   body class="is-#{controller_name}-page is-#{@subdomain}"
     = render :partial => "partials/icons"

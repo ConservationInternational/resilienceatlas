@@ -6,7 +6,6 @@
 
   root.app.MapPageView = Backbone.Router.extend({
 
-
     initialize: function(settings) {
       var opts = settings && settings.options ? settings.options : {};
       this.options = _.extend({}, this.defaults, opts);
