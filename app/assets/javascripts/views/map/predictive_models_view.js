@@ -169,7 +169,7 @@
 
       // We update the position of the slider's "runnable" track
       var runnableTrack = input.closest('li').querySelector('.opacity');
-      runnableTrack.style.width = (indicatorIndexValue / this.collection.getIndexableIndicatorValueRange()[1]) + '%';
+      runnableTrack.style.width = ((indicatorIndexValue / this.collection.getIndexableIndicatorValueRange()[1]) * 100) + '%';
 
       // We update the value of the slider
       if (indicatorIndexValue !== null) {
