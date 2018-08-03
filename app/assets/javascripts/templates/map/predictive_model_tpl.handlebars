@@ -18,8 +18,8 @@
         {{#each indicators}}
           <li>
             <div class="m-form-input--switch">
-              <input type="checkbox" class="js-indicator-toggle" data-indicator="{{name}}" id="indicator-{{@index}}" value="{{name}}" {{#compare value 'typeof' 'number'}}checked{{/compare}} />
-              <label for="indicator-{{@index}}" aria-label="{{name}}"></label>
+              <input type="checkbox" class="js-indicator-toggle" data-indicator="{{name}}" id="indicator-{{id}}" value="{{name}}" {{#compare value 'typeof' 'number'}}checked{{/compare}} />
+              <label for="indicator-{{id}}" aria-label="{{name}}"></label>
               {{name}}
             </div>
             <div class="m-form-input--slider" {{#compare value 'typeof' 'number'}}{{else}}hidden{{/compare}}>
