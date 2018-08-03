@@ -256,6 +256,12 @@
       z-index: 10;
     }
 
+    &:focus, &:active {
+      &::-webkit-slider-thumb {
+        border-color: $blue;
+      }
+    }
+
     // Firefox
     &::-moz-range-track {
       // Can't use transparent color for next line
@@ -280,6 +286,16 @@
       box-shadow: 0 0 0 2px $bg-color-3;
       background: $bg-color-3;
       cursor: pointer;
+    }
+
+    &::-moz-focus-outer { // Remove the outline
+      border: none;
+    }
+
+    &:focus, &:active {
+      &::-moz-range-thumb {
+        border-color: $blue;
+      }
     }
 
     // IE & Edge
@@ -308,6 +324,12 @@
       cursor: pointer;
       position: relative;
       z-index: 10;
+    }
+
+    &:focus, &:active {
+      &::-ms-thumb {
+        border-color: $blue;
+      }
     }
   }
 
