@@ -70,9 +70,7 @@ $side-bar-width: 360px;
 
     &.is-minimize {
       .btn-minimize {
-        &:after {
-          transform: rotate(90deg);
-        }
+        transform: translate(0,-50%) rotate(-90deg);
       }
     }
 
@@ -91,7 +89,7 @@ $side-bar-width: 360px;
       right: rem(10px);
       width: rem(22px);
       height: rem(22px);
-      transform: translate(0,-50%);
+      transform: translate(0,-50%) rotate(90deg);
 
       display: flex;
       display: -ms-box;
