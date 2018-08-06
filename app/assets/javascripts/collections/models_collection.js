@@ -25,6 +25,7 @@
           name: model.attributes.name,
           description: model.attributes.description,
           source: model.attributes.source,
+          tableName: model.attributes.table_name,
           indicators: model.relationships && model.relationships.indicators && model.relationships.indicators.data
             ? model.relationships.indicators.data.map(function(indicator) {
                 var ind = response.included.find(function(inc) {
@@ -42,8 +43,8 @@
                   category: category.attributes.name,
                   version: ind.attributes.version,
                   position: ind.attributes.position,
-                  analysisSuitable: ind.attributes.analysis_suitable,
-                  analysisQuery: ind.attributes.analysis_query,
+                  column: ind.attributes.column_name,
+                  operation: ind.attributes.operation,
                   value: 1,
                   indexableValue: this.getIndexableIndicatorValue(1),
                   humanReadableValue: this.getHumanReadableIndicatorValue(1)
