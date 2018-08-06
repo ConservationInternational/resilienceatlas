@@ -12,18 +12,20 @@
             <svg><use xlink:href="#icon-drag"></use></svg>
           </span>
           <h3>{{this.name}}</h3>
-          <div class="actions">
-            <button class="btn-remove" data-layerId="{{this.id}}">
-              <svg class="icon"><use xlink:href="#icon-remove"></use></svg>
-            </button>
-            <button class="btn-action btn-visibility {{this.no_opacity}}" data-id="{{this.id}}">
-              {{#if this.no_opacity}}
-                <svg><use xlink:href="#icon-visibilityoff"></use></svg>
-              {{else}}
-                <svg><use xlink:href="#icon-visibilityon"></use></svg>
-              {{/if}}
-            </button>
-          </div>
+          {{#compare id '!==' -1}}
+            <div class="actions">
+              <button class="btn-remove" data-layerId="{{this.id}}">
+                <svg class="icon"><use xlink:href="#icon-remove"></use></svg>
+              </button>
+              <button class="btn-action btn-visibility {{this.no_opacity}}" data-id="{{this.id}}">
+                {{#if this.no_opacity}}
+                  <svg><use xlink:href="#icon-visibilityoff"></use></svg>
+                {{else}}
+                  <svg><use xlink:href="#icon-visibilityon"></use></svg>
+                {{/if}}
+              </button>
+            </div>
+          {{/compare}}
         </header>
         {{#if this.tpl}}
           {{{this.tpl}}}
