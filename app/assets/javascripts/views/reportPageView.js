@@ -253,8 +253,7 @@
       if (!this.activePredictiveModel.get('name')) {
         var activeLayers = this.layersCollection.getActived();
         var analyzableLayers = activeLayers.filter(function(l) {
-          // TODO: implement the analysis for layers that aren't rasters
-          return l.analysisSuitable && l.layerProvider === 'raster';
+          return l.analysisSuitable;
         });
         if (!analyzableLayers.length) {
           $('.js-analysis-content').html('None of the active layers can be analyzed.');
