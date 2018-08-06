@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180730142317) do
+ActiveRecord::Schema.define(version: 20180806102355) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -88,6 +88,7 @@ ActiveRecord::Schema.define(version: 20180730142317) do
     t.integer  "category_id"
     t.integer  "position"
     t.string   "column_name"
+    t.string   "operation"
   end
 
   add_index "indicators", ["slug"], name: "index_indicators_on_slug", using: :btree

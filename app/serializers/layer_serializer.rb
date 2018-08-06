@@ -26,6 +26,7 @@
 #  download                  :boolean          default(FALSE)
 #  dataset_shortname         :string
 #  dataset_source_url        :text
+#  title                     :string
 #  start_date                :datetime
 #  end_date                  :datetime
 #  spatial_resolution        :string

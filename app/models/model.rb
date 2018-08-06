@@ -6,8 +6,8 @@
 #  name           :string           not null
 #  description    :text
 #  source         :text
-#  created_at     :datetime         default(Wed, 25 Jul 2018 13:17:11 CEST +02:00), not null
-#  updated_at     :datetime         default(Wed, 25 Jul 2018 13:17:11 CEST +02:00), not null
+#  created_at     :datetime         default(Wed, 01 Aug 2018 18:56:01 CEST +02:00), not null
+#  updated_at     :datetime         default(Wed, 01 Aug 2018 18:56:01 CEST +02:00), not null
 #  query_analysis :text
 #  table_name     :string
 #
