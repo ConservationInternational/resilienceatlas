@@ -1,6 +1,10 @@
 ActiveAdmin.register Category do
   permit_params :name, :slug, :description, indicator_ids: []
 
+  filter :indicators, as: :select
+  filter :name, as: :select
+  filter :slug, as: :select
+
   index do
     selectable_column
 

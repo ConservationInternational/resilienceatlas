@@ -3,6 +3,12 @@ ActiveAdmin.register Model do
                 :query_analysis,
                 site_scope_ids: [], indicator_ids: []
 
+  filter :site_scopes, as: :select
+  filter :indicators, as: :select
+  filter :name, as: :select
+  filter :source, as: :select
+  filter :table_name, as: :select
+
   index do
     selectable_column
 

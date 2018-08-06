@@ -6,6 +6,13 @@ ActiveAdmin.register Indicator do
 
   permit_params :name, :slug, :version, :position, :column_name, :category_id, model_ids: []
 
+  filter :models, as: :select
+  filter :category, as: :select
+  filter :name, as: :select
+  filter :slug, as: :select
+  filter :version, as: :select
+  filter :column_name, as: :select
+
   index do
     sortable_handle_column
 

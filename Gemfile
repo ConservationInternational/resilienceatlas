@@ -46,8 +46,10 @@ gem 'globalize'
 
 # Ordering
 gem 'acts_as_list'
-# gem 'activeadmin-orderable'
 gem 'activeadmin-sortable'
+
+# Ransack for Active Admin
+gem 'ransack', '1.8.4'
 
 group :development, :test do
   gem 'spring'
