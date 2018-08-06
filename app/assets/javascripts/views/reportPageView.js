@@ -39,33 +39,31 @@
          * @returns {object}
          */
         getLayer: function() {
-          // FIXME: return the real layer
           return {
-            "id": 6,
-            "slug": "livelihood",
-            "name": "Livelihoods zones",
-            "type": "cartodb",
-            "description": "{\"description\":\"Data from the GeoNetwork site of the Food and Agriculture Organisation of the UN; Also derived Famine Early Warning Systems Network (FEWSNet). Created by USAID in 1985, the Famine Early Warning Systems Network provides early warning and analysis on food insecurity.\", \"source\":\"FEWSNET. Livelihoods: Insights into how people survive and prosper [Internet]. [updated 21 January, 2015]. Available: https://www.fews.net/sectors/livelihoods [cited 21 October 2015].\", \"link\":\"http://www.fao.org/geonetwork/srv/en/main.home\" }",
-            "cartocss": "#grp_africa_livelihoodzones {\r\n   polygon-opacity: 1;\r\n   line-width: 0;\r\n }\r\n #grp_africa_livelihoodzones[lz_type=\"Agro-Forestry\"] {\r\n   polygon-fill: #547D33;\r\n }\r\n #grp_africa_livelihoodzones[lz_type=\"Agro-Pastoral\"] {\r\n   polygon-fill: #81AF4B;\r\n }\r\n #grp_africa_livelihoodzones[lz_type=\"Arid\"] {\r\n   polygon-fill: #F6EED5;\r\n }\r\n #grp_africa_livelihoodzones[lz_type=\"Crops - Floodzone\"] {\r\n   polygon-fill: #7ADCC2;\r\n }\r\n #grp_africa_livelihoodzones[lz_type=\"Crops - Irrigated\"] {\r\n   polygon-fill: #67A1BD;\r\n }\r\n #grp_africa_livelihoodzones[lz_type=\"Crops - Rainfed\"] {\r\n   polygon-fill: #C6741D;\r\n }\r\n #grp_africa_livelihoodzones[lz_type=\"Fishery\"] {\r\n   polygon-fill: #255CB4;\r\n }\r\n #grp_africa_livelihoodzones[lz_type=\"National Park\"] {\r\n   polygon-fill: #B0E5A0;\r\n }\r\n #grp_africa_livelihoodzones[lz_type=\"Pastoral\"] {\r\n   polygon-fill: #CDD13D;\r\n }\r\n #grp_africa_livelihoodzones[lz_type=\"Urban\"] {\r\n   polygon-fill: #6D6D6D;\r\n }\r\n #grp_africa_livelihoodzones {\r\n   polygon-fill: #947F4A;\r\n }",
-            "interactivity": "",
-            "sql": "SELECT the_geom, the_geom_webmercator,iso3,lz_type, lz_value FROM grp_africa_livelihoodzones\r\nunion\r\nSELECT the_geom, the_geom_webmercator,iso3,lz_type, lz_value FROM grp_asia_livelihoodzones",
-            "color": "",
-            "opacity": 1,
-            "no_opacity": false,
-            "order": 2,
-            "maxZoom": 25,
-            "minZoom": 0,
-            "legend": "{\"type\": \"custom\",\r\n         \"data\": [\r\n           { \"name\": \"Agro-Forestry\", \"value\": \"#547D33\" },\r\n           { \"name\": \"Agro-Pastoral\", \"value\": \"#81AF4B\" },\r\n           { \"name\": \"Arid\", \"value\": \"#F6EED5\" },\r\n           { \"name\": \"Crops - Floodzone\", \"value\": \"#7ADCC2\" },\r\n           { \"name\": \"Crops - Irrigated\",\"value\": \"#67A1BD\" },\r\n           { \"name\": \"Crops - Rainfed\", \"value\": \"#C6741D\" },\r\n           { \"name\": \"Fishery\", \"value\": \"#255CB4\" },\r\n           { \"name\": \"National Park\", \"value\": \"#B0E5A0\" },\r\n           { \"name\": \"Pastoral\", \"value\": \"#CDD13D\" },\r\n           { \"name\": \"Urban\", \"value\": \"#6D6D6D\" },\r\n           { \"name\": \"Others\", \"value\": \"#947F4A\" }\r\n         ]\r\n       }",
-            "group": 8,
-            "active": true,
-            "published": true,
-            "info": "{\"description\":\"Data from the GeoNetwork site of the Food and Agriculture Organisation of the UN; Also derived Famine Early Warning Systems Network (FEWSNet). Created by USAID in 1985, the Famine Early Warning Systems Network provides early warning and analysis on food insecurity.\", \"source\":\"FEWSNET. Livelihoods: Insights into how people survive and prosper [Internet]. [updated 21 January, 2015]. Available: https://www.fews.net/sectors/livelihoods [cited 21 October 2015].\", \"link\":\"http://www.fao.org/geonetwork/srv/en/main.home\" }",
-            "dashboard_order": null,
-            "download": true,
-            "download_url": "/users/login",
-            "dataset_shortname": null,
-            "dataset_source_url": null,
-            "attributions": false
+            id: -1,
+            slug: 'predictive-model-layer',
+            name: this.get('name'),
+            type: 'cartodb',
+            description: '{"description":"' + (this.get('description') || '') + '", "source":"' + (this.get('source') || '') + '"}',
+            cartocss: '#intensification_reduce{\n\rpolygon-fill: #A53ED5;\n\rpolygon-opacity: 1;\n\rline-color:\r#A53ED5;\n\rline-width: 0.5;\n\rline-opacity: 1;\n}\n#intensification_reduce [ value <= 100] {\n\rpolygon-fill: #B10026;\n\rline-color: #B10026;\n}\n#intensification_reduce [ value <= 0.8] {\n\rpolygon-fill: #E31A1C;\n\rline-color: #E31A1C;\n}\n#intensification_reduce [ value <= 0.5] {\n\rpolygon-fill: #FC4E2A;\n\rline-color: #FC4E2A;\n}\n#intensification_reduce [ value <= 0.3] {\n\rpolygon-fill: #FD8D3C;\n\rline-color: #FD8D3C;\n}\n#intensification_reduce [ value <= 0.1] {\n\rpolygon-fill: #FEB24C;\n\rline-color: #FEB24C;\n}\n#intensification_reduce [ value <= 0.01] {\n\rpolygon-fill: #FED976;\n\rline-color: #FED976;\n}\n#intensification_reduce [ value <= 0] {\n\rpolygon-fill: #FFFFB2;\n\rline-color: #FFFFB2;\n}',
+            interactivity: '',
+            sql: 'select * from getModel(' + this.get('id') + ', \'[' + this.get('indicators').map(function(ind) { return ind.value % 1 === 0 ? ind.value : ind.value.toFixed(3); }) + ']\')',
+            color: '',
+            opacity: 1,
+            no_opacity: false,
+            order: 1,
+            maxZoom: 25,
+            minZoom: 0,
+            legend: '{"type": "choropleth",\r\n"min":"0",\r\n"max":"1",\r\n"bucket":["#d73027","#f46d43","#fdae61","#fee08b","#ffffbf","#d9ef8b","#a6d96a","#66bd63","#1a9850"]}',
+            group: -1,
+            active: true,
+            published: true,
+            info: '{"description":"' + (this.get('description') || '') + '", "source":"' + (this.get('source') || '') + '"}',
+            dashboard_order: null,
+            download: false,
+            dataset_shortname: null,
+            dataset_source_url: null,
+            attributions: false
           };
         }
       }));
