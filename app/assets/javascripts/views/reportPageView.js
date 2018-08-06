@@ -62,7 +62,7 @@
             order: 1,
             maxZoom: 25,
             minZoom: 0,
-            legend: '{"type": "choropleth",\r\n"min":"0",\r\n"max":"1",\r\n"bucket":["#d73027","#f46d43","#fdae61","#fee08b","#ffffbf","#d9ef8b","#a6d96a","#66bd63","#1a9850"]}',
+            legend: '{"type": "choropleth",\r\n"min":"0",\r\n"mid": "0.5",\r\n"max":"1",\r\n"bucket":["#FFFFB2","#FED976","#FEB24C","#FD8D3C"," #FC4E2A","#E31A1C","#B10026"]}',
             group: -1,
             active: true,
             published: true,
