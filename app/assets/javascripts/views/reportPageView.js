@@ -281,8 +281,36 @@
             });
           }.bind(this));
         }
-      } else {
+      } else if(this.activePredictiveModel.get('indicators')) {
+        $('.js-analysis-content').html('<div class="js-widgets"></div>');
 
+        var initialQuery = 'select * from getModel(\'' + this.activePredictiveModel.get('tableName') + '\', \'['
+          + this.activePredictiveModel.get('indicators')
+            .filter(function (indicator) {
+              return indicator.value !== null && indicator.value !== undefined;
+            })
+            .map(function(ind) {
+              return '{ "column_name": "' + ind.column + '", "weight": ' + (ind.value % 1 === 0 ? ind.value : ind.value.toFixed(3)) + ', "operation": "' + (ind.operation || '+') + '" }';
+            })
+          + ']\')';
+
+        var query = 'with data as (' + initialQuery + ' where st_intersects(the_geom, ST_SetSRID (ST_GeomFromGeoJSON(\'{{geometry}}\'),4326))), min_max as (select min(value) as min, max(value) as max from data) select width_bucket(value, min, max, 20) as bucket, min(value), max(value), count(*) as count from data, min_max group by bucket order by bucket';
+
+        var widgetsContainer = $('.js-widgets');
+        new root.app.View.WidgetBarChart({
+          el: widgetsContainer,
+          slug: this.activePredictiveModel.get('slug'),
+          query: query,
+          name: this.activePredictiveModel.get('name'),
+          geojson: this.geojson,
+          hasLine: false,
+          meta_short: this.activePredictiveModel.get('name'),
+          metadata: {
+            description: this.activePredictiveModel.get('description')
+          },
+          xAxisTickFormatter: d3.format('.3f'),
+          verticalLabels: true
+        });
       }
     }
   });

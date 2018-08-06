@@ -84,9 +84,9 @@
         ga('send', 'event', 'Analysis', 'start analysis');
           this.analysisView = new root.app.View.analysis({
             router: this.router,
-            collection: this.options.predictiveModelsCollection,
+            predictiveModel: this.predictiveModel,
             layers: this.layers,
-            section: this.section || 'layers'
+            section: this.section || this.router.params.get('tab') || 'layers'
           });
       } else {
         this.analysisView.section = this.section;
