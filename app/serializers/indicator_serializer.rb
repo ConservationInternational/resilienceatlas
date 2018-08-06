@@ -15,7 +15,7 @@
 
 class IndicatorSerializer < ActiveModel::Serializer
   cache key: "indicator"
-  attributes :name, :slug, :version, :position
+  attributes :name, :slug, :version, :position, :column_name
   has_many :models, each_serializer: ModelSerializer
   has_one :category, serializer: CategorySerializer
 end
