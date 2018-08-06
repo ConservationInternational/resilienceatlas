@@ -32,6 +32,7 @@
       text-transform: uppercase;
       color: $blue;
       background: transparent;
+      outline: none;
     }
   }
 
@@ -105,6 +106,16 @@
 
         &:hover {
           background: darken($blue,5%);
+        }
+      }
+
+      &.-secondary {
+        color: $blue;
+        border: 1px solid $blue;
+        background: transparent;
+
+        &:hover {
+          background: rgba($blue, .1);
         }
       }
     }

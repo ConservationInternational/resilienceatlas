@@ -1,0 +1,11 @@
+javascript:
+  window.currentLocation = "#{I18n.locale}";
+  window.liveSettings = {
+    api_key: "9305955d1d7e446783d3cd7e57442c1d",
+    picker: "bottom-left",
+    staging: !!("#{ENV['STAGING']}" != ""),
+    detectlang: function() {
+      return window.currentLocation;
+    }
+  };
+= javascript_include_tag "//cdn.transifex.com/live.js"
