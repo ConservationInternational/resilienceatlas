@@ -71,9 +71,13 @@
             cartocss: '#intensification_reduce{\n\rpolygon-fill: #A53ED5;\n\rpolygon-opacity: 1;\n\rline-color: #A53ED5;\n\rline-width: 0.5;\n\rline-opacity: 1;\n}\n#intensification_reduce [ value <= 100] {\n\rpolygon-fill: #B10026;\n\rline-color: #B10026;\n}\n#intensification_reduce [ value <= 0.8] {\n\rpolygon-fill: #E31A1C;\n\rline-color: #E31A1C;\n}\n#intensification_reduce [ value <= 0.5] {\n\rpolygon-fill: #FC4E2A;\n\rline-color: #FC4E2A;\n}\n#intensification_reduce [ value <= 0.3] {\n\rpolygon-fill: #FD8D3C;\n\rline-color: #FD8D3C;\n}\n#intensification_reduce [ value <= 0.1] {\n\rpolygon-fill: #FEB24C;\n\rline-color: #FEB24C;\n}\n#intensification_reduce [ value <= 0.01] {\n\rpolygon-fill: #FED976;\n\rline-color: #FED976;\n}\n#intensification_reduce [ value <= 0] {\n\rpolygon-fill: #FFFFB2;\n\rline-color: #FFFFB2;\n}',
             interactivity: '',
             sql: 'select * from getModel(\'' + this.get('tableName') + '\', \'['
-              + this.get('indicators').map(function(ind) {
-                return '{ "column_name": "' + ind.column + '", "weight": ' + (ind.value % 1 === 0 ? ind.value : ind.value.toFixed(3)) + ', "operation": "' + (ind.operation || '+') + '" }';
-              })
+              + this.get('indicators')
+                .filter(function (indicator) {
+                  return indicator.value !== null && indicator.value !== undefined;
+                })
+                .map(function(ind) {
+                  return '{ "column_name": "' + ind.column + '", "weight": ' + (ind.value % 1 === 0 ? ind.value : ind.value.toFixed(3)) + ', "operation": "' + (ind.operation || '+') + '" }';
+                })
               + ']\')',
             color: '',
             opacity: 1,
