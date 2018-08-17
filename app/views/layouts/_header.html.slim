@@ -10,6 +10,14 @@ header.l-header--fullscreen id="headerView"
         = link_to 'Journeys', journeys_path, class: controller_name == 'journeys' ? 'is-current theme-bg-color' : 'theme-color'
       li
         = link_to 'Map', map_path, class: controller_name == 'map' ? 'is-current theme-bg-color' : 'theme-color'
+        ul
+          - @map_menu_entries.each do |first_level|
+            li 
+              = first_level.label
+              ul
+                - first_level.children.each do |second_level|
+                  li
+                    = link_to second_level.label, second_level.link
       li
         = link_to 'About', about_path, class: controller_name == 'about' ? 'is-current theme-bg-color' : ' theme-color'
       - if user_signed_in?
