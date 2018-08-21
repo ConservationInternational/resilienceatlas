@@ -20,7 +20,7 @@ header.l-header--fullscreen id="headerView"
                     li
                       = link_to second_level.label, second_level.link
             - else
-              li[class='childless']
+              li[class='-childless']
                 = first_level.label
       li
         = link_to 'About', about_path, class: controller_name == 'about' ? 'is-current theme-bg-color' : ' theme-color'
