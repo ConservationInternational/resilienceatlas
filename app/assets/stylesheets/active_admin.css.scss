@@ -12,7 +12,8 @@
 @import "active_admin/mixins";
 @import "active_admin/base";
 @import "wigu/active_admin_theme";
-@import "activeadmin-sortable";
+// @import "activeadmin-sortable";
+@import "active_admin/sortable";
 
 // Overriding any non-variable SASS must be done after the fact.
 // For example, to change the default status-tag color:

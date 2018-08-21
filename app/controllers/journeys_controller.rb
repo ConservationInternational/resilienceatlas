@@ -1,4 +1,4 @@
-class JourneysController < ApplicationController
+class JourneysController < GeneralController
 
   layout :resolve_layout
 

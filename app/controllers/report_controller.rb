@@ -1,4 +1,4 @@
-class ReportController < ApplicationController
+class ReportController < GeneralController
 
   layout 'report'
 

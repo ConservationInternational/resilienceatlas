@@ -5,7 +5,7 @@ ruby '2.2.1'
 gem 'rails', '4.2.1'
 
 gem 'jquery-rails'
-gem 'jquery-ui-rails'
+gem 'jquery-ui-rails', '~> 6.0.1'
 gem 'sass-rails', '~> 5.0'
 gem 'uglifier', '>= 1.3.0'
 gem 'slim-rails'
@@ -44,9 +44,11 @@ gem 'prawn-table'
 gem 'activeadmin-globalize', '1.0.0.pre', github: 'fabn/activeadmin-globalize', branch: 'develop'
 gem 'globalize'
 
-# Ordering
+# Ordering and Tree structure for menus
+gem 'active_admin-sortable_tree'
+gem 'ancestry'
 gem 'acts_as_list'
-gem 'activeadmin-sortable'
+# gem 'activeadmin-sortable'
 
 # Ransack for Active Admin
 gem 'ransack', '1.8.4'

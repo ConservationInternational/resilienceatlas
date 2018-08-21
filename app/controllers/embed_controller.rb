@@ -1,4 +1,4 @@
-class EmbedController < ApplicationController
+class EmbedController < GeneralController
 
   skip_after_action :allow_site_iframe
   after_action :allow_iframe
