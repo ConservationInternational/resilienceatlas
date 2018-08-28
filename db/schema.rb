@@ -83,8 +83,8 @@ ActiveRecord::Schema.define(version: 20180817100330) do
     t.string   "name",                                        null: false
     t.string   "slug",                                        null: false
     t.string   "version"
-    t.datetime "created_at",  default: '2018-08-01 16:56:01', null: false
-    t.datetime "updated_at",  default: '2018-08-01 16:56:01', null: false
+    t.datetime "created_at",  default: '2018-07-25 11:17:11', null: false
+    t.datetime "updated_at",  default: '2018-07-25 11:17:11', null: false
     t.integer  "category_id"
     t.integer  "position"
     t.string   "column_name"
@@ -101,8 +101,8 @@ ActiveRecord::Schema.define(version: 20180817100330) do
   create_table "layer_group_translations", force: :cascade do |t|
     t.integer  "layer_group_id", null: false
     t.string   "locale",         null: false
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",     null: false
+    t.datetime "updated_at",     null: false
     t.string   "name"
     t.text     "info"
   end
@@ -129,8 +129,8 @@ ActiveRecord::Schema.define(version: 20180817100330) do
   create_table "layer_translations", force: :cascade do |t|
     t.integer  "layer_id",    null: false
     t.string   "locale",      null: false
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at",  null: false
+    t.datetime "updated_at",  null: false
     t.string   "name"
     t.text     "info"
     t.text     "legend"
@@ -167,7 +167,6 @@ ActiveRecord::Schema.define(version: 20180817100330) do
     t.boolean  "download",                  default: false
     t.string   "dataset_shortname"
     t.text     "dataset_source_url"
-    t.string   "title"
     t.datetime "start_date"
     t.datetime "end_date"
     t.string   "spatial_resolution"
@@ -205,8 +204,8 @@ ActiveRecord::Schema.define(version: 20180817100330) do
     t.string   "name",                                           null: false
     t.text     "description"
     t.text     "source"
-    t.datetime "created_at",     default: '2018-08-01 16:56:01', null: false
-    t.datetime "updated_at",     default: '2018-08-01 16:56:01', null: false
+    t.datetime "created_at",     default: '2018-07-25 11:17:11', null: false
+    t.datetime "updated_at",     default: '2018-07-25 11:17:11', null: false
     t.text     "query_analysis"
     t.string   "table_name"
   end
