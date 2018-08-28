@@ -29,7 +29,7 @@
 #
 
 class LayerGroupSerializer < ActiveModel::Serializer
-  cache key: "layer_group"
+  cache key: "layer_group_#{I18n.locale}"
   attributes :name, :slug, :category, :active, :order, :info, :layer_group_type, :super_group_id, :super_group_name, :icon_class
   has_one :super_group, serializer: LayerGroupSerializer, include: true
   def type

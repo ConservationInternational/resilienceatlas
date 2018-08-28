@@ -1,6 +1,6 @@
 //= require jquery
 //= require jquery_ujs
-//= require jquery-ui/sortable
+
 //= require jquery-ui-touch-punch-valid
 //= require underscore
 //= require backbone
@@ -88,8 +88,19 @@
         this.router = new root.app.Router();
         this.setListeners();
         this.start();
-
       }, this));
+
+      // Detecting language change
+      if (typeof Transifex !== 'undefined') {
+        Transifex.live.onTranslatePage(function(language_code) {
+          if (window.currentLocation !== language_code) {
+            window.currentLocation = language_code;
+            const url = new URL(window.location.href);
+            url.searchParams.set('locale', window.currentLocation);
+            window.location.href = url.href;
+          }
+        });
+      }
     },
 
     setSubdomainParams: function(data) {
@@ -252,7 +263,8 @@
     reportPage: function() {
       var reportPageView = new root.app.ReportPageView({
         router: this.router,
-        subdomainParams: this.subdomainParams
+        subdomainParams: this.subdomainParams,
+        siteScopeId: this.siteScopeId
       });
     },
 

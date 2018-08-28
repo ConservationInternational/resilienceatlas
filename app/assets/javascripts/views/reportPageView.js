@@ -13,6 +13,7 @@
 
       this.router = settings.router;
       this.subdomainParams = settings.subdomainParams;
+      this.siteScopeId = settings.siteScopeId;
 
       this.initMap();
     },
@@ -28,7 +29,9 @@
       }));
 
       // Predictive models
-      this.predictiveModelsCollection = new root.app.Collection.Models();
+      this.predictiveModelsCollection = new root.app.Collection.Models(null, {
+        siteScopeId: this.siteScopeId
+      });
       this.activePredictiveModel = new (Backbone.Model.extend({
         /**
          * Return the layer corresponding to the parameter
@@ -36,33 +39,39 @@
          * @returns {object}
          */
         getLayer: function() {
-          // FIXME: return the real layer
           return {
-            "id": 6,
-            "slug": "livelihood",
-            "name": "Livelihoods zones",
-            "type": "cartodb",
-            "description": "{\"description\":\"Data from the GeoNetwork site of the Food and Agriculture Organisation of the UN; Also derived Famine Early Warning Systems Network (FEWSNet). Created by USAID in 1985, the Famine Early Warning Systems Network provides early warning and analysis on food insecurity.\", \"source\":\"FEWSNET. Livelihoods: Insights into how people survive and prosper [Internet]. [updated 21 January, 2015]. Available: https://www.fews.net/sectors/livelihoods [cited 21 October 2015].\", \"link\":\"http://www.fao.org/geonetwork/srv/en/main.home\" }",
-            "cartocss": "#grp_africa_livelihoodzones {\r\n   polygon-opacity: 1;\r\n   line-width: 0;\r\n }\r\n #grp_africa_livelihoodzones[lz_type=\"Agro-Forestry\"] {\r\n   polygon-fill: #547D33;\r\n }\r\n #grp_africa_livelihoodzones[lz_type=\"Agro-Pastoral\"] {\r\n   polygon-fill: #81AF4B;\r\n }\r\n #grp_africa_livelihoodzones[lz_type=\"Arid\"] {\r\n   polygon-fill: #F6EED5;\r\n }\r\n #grp_africa_livelihoodzones[lz_type=\"Crops - Floodzone\"] {\r\n   polygon-fill: #7ADCC2;\r\n }\r\n #grp_africa_livelihoodzones[lz_type=\"Crops - Irrigated\"] {\r\n   polygon-fill: #67A1BD;\r\n }\r\n #grp_africa_livelihoodzones[lz_type=\"Crops - Rainfed\"] {\r\n   polygon-fill: #C6741D;\r\n }\r\n #grp_africa_livelihoodzones[lz_type=\"Fishery\"] {\r\n   polygon-fill: #255CB4;\r\n }\r\n #grp_africa_livelihoodzones[lz_type=\"National Park\"] {\r\n   polygon-fill: #B0E5A0;\r\n }\r\n #grp_africa_livelihoodzones[lz_type=\"Pastoral\"] {\r\n   polygon-fill: #CDD13D;\r\n }\r\n #grp_africa_livelihoodzones[lz_type=\"Urban\"] {\r\n   polygon-fill: #6D6D6D;\r\n }\r\n #grp_africa_livelihoodzones {\r\n   polygon-fill: #947F4A;\r\n }",
-            "interactivity": "",
-            "sql": "SELECT the_geom, the_geom_webmercator,iso3,lz_type, lz_value FROM grp_africa_livelihoodzones\r\nunion\r\nSELECT the_geom, the_geom_webmercator,iso3,lz_type, lz_value FROM grp_asia_livelihoodzones",
-            "color": "",
-            "opacity": 1,
-            "no_opacity": false,
-            "order": 2,
-            "maxZoom": 25,
-            "minZoom": 0,
-            "legend": "{\"type\": \"custom\",\r\n         \"data\": [\r\n           { \"name\": \"Agro-Forestry\", \"value\": \"#547D33\" },\r\n           { \"name\": \"Agro-Pastoral\", \"value\": \"#81AF4B\" },\r\n           { \"name\": \"Arid\", \"value\": \"#F6EED5\" },\r\n           { \"name\": \"Crops - Floodzone\", \"value\": \"#7ADCC2\" },\r\n           { \"name\": \"Crops - Irrigated\",\"value\": \"#67A1BD\" },\r\n           { \"name\": \"Crops - Rainfed\", \"value\": \"#C6741D\" },\r\n           { \"name\": \"Fishery\", \"value\": \"#255CB4\" },\r\n           { \"name\": \"National Park\", \"value\": \"#B0E5A0\" },\r\n           { \"name\": \"Pastoral\", \"value\": \"#CDD13D\" },\r\n           { \"name\": \"Urban\", \"value\": \"#6D6D6D\" },\r\n           { \"name\": \"Others\", \"value\": \"#947F4A\" }\r\n         ]\r\n       }",
-            "group": 8,
-            "active": true,
-            "published": true,
-            "info": "{\"description\":\"Data from the GeoNetwork site of the Food and Agriculture Organisation of the UN; Also derived Famine Early Warning Systems Network (FEWSNet). Created by USAID in 1985, the Famine Early Warning Systems Network provides early warning and analysis on food insecurity.\", \"source\":\"FEWSNET. Livelihoods: Insights into how people survive and prosper [Internet]. [updated 21 January, 2015]. Available: https://www.fews.net/sectors/livelihoods [cited 21 October 2015].\", \"link\":\"http://www.fao.org/geonetwork/srv/en/main.home\" }",
-            "dashboard_order": null,
-            "download": true,
-            "download_url": "/users/login",
-            "dataset_shortname": null,
-            "dataset_source_url": null,
-            "attributions": false
+            id: -1,
+            slug: 'predictive-model-layer',
+            name: this.get('name'),
+            type: 'cartodb',
+            description: '{"description":"' + (this.get('description') || '') + '", "source":"' + (this.get('source') || '') + '"}',
+            cartocss: '#intensification_reduce{\n\rpolygon-fill: #A53ED5;\n\rpolygon-opacity: 1;\n\rline-color: #A53ED5;\n\rline-width: 0.5;\n\rline-opacity: 1;\n}\n#intensification_reduce [ value <= 100] {\n\rpolygon-fill: #B10026;\n\rline-color: #B10026;\n}\n#intensification_reduce [ value <= 0.8] {\n\rpolygon-fill: #E31A1C;\n\rline-color: #E31A1C;\n}\n#intensification_reduce [ value <= 0.5] {\n\rpolygon-fill: #FC4E2A;\n\rline-color: #FC4E2A;\n}\n#intensification_reduce [ value <= 0.3] {\n\rpolygon-fill: #FD8D3C;\n\rline-color: #FD8D3C;\n}\n#intensification_reduce [ value <= 0.1] {\n\rpolygon-fill: #FEB24C;\n\rline-color: #FEB24C;\n}\n#intensification_reduce [ value <= 0.01] {\n\rpolygon-fill: #FED976;\n\rline-color: #FED976;\n}\n#intensification_reduce [ value <= 0] {\n\rpolygon-fill: #FFFFB2;\n\rline-color: #FFFFB2;\n}',
+            interactivity: '',
+            sql: 'select * from getModel(\'' + this.get('tableName') + '\', \'['
+              + this.get('indicators')
+                .filter(function (indicator) {
+                  return indicator.value !== null && indicator.value !== undefined;
+                })
+                .map(function(ind) {
+                  return '{ "column_name": "' + ind.column + '", "weight": ' + (ind.value % 1 === 0 ? ind.value : ind.value.toFixed(3)) + ', "operation": "' + (ind.operation || '+') + '" }';
+                })
+              + ']\')',
+            color: '',
+            opacity: 1,
+            no_opacity: false,
+            order: 1,
+            maxZoom: 25,
+            minZoom: 0,
+            legend: '{"type": "choropleth",\r\n"min":"0",\r\n"mid": "0.5",\r\n"max":"1",\r\n"bucket":["#FFFFB2","#FED976","#FEB24C","#FD8D3C"," #FC4E2A","#E31A1C","#B10026"]}',
+            group: -1,
+            active: true,
+            published: true,
+            info: '{"description":"' + (this.get('description') || '') + '", "source":"' + (this.get('source') || '') + '"}',
+            dashboard_order: null,
+            download: false,
+            dataset_shortname: null,
+            dataset_source_url: null,
+            attributions: false
           };
         }
       }));
@@ -244,8 +253,7 @@
       if (!this.activePredictiveModel.get('name')) {
         var activeLayers = this.layersCollection.getActived();
         var analyzableLayers = activeLayers.filter(function(l) {
-          // TODO: implement the analysis for layers that aren't rasters
-          return l.analysisSuitable && l.layerProvider === 'raster';
+          return l.analysisSuitable;
         });
         if (!analyzableLayers.length) {
           $('.js-analysis-content').html('None of the active layers can be analyzed.');
@@ -268,14 +276,41 @@
               hasLine: false,
               meta_short: layer.name,
               metadata: JSON.parse(layer.info),
-              xAxisTickFormatter: function(d, i) {
-                return i % 2 === 1 ? Math.round(d) : ''
-              }
+              xAxisTickFormatter: d3.format('.3f'),
+              verticalLabels: true
             });
           }.bind(this));
         }
-      } else {
+      } else if(this.activePredictiveModel.get('indicators')) {
+        $('.js-analysis-content').html('<div class="js-widgets"></div>');
 
+        var initialQuery = 'select * from getModel(\'' + this.activePredictiveModel.get('tableName') + '\', \'['
+          + this.activePredictiveModel.get('indicators')
+            .filter(function (indicator) {
+              return indicator.value !== null && indicator.value !== undefined;
+            })
+            .map(function(ind) {
+              return '{ "column_name": "' + ind.column + '", "weight": ' + (ind.value % 1 === 0 ? ind.value : ind.value.toFixed(3)) + ', "operation": "' + (ind.operation || '+') + '" }';
+            })
+          + ']\')';
+
+        var query = 'with data as (' + initialQuery + ' where st_intersects(the_geom, ST_SetSRID (ST_GeomFromGeoJSON(\'{{geometry}}\'),4326))), min_max as (select min(value) as min, max(value) as max from data) select width_bucket(value, min, max, 20) as bucket, min(value), max(value), count(*) as count from data, min_max group by bucket order by bucket';
+
+        var widgetsContainer = $('.js-widgets');
+        new root.app.View.WidgetBarChart({
+          el: widgetsContainer,
+          slug: this.activePredictiveModel.get('slug'),
+          query: query,
+          name: this.activePredictiveModel.get('name'),
+          geojson: this.geojson,
+          hasLine: false,
+          meta_short: this.activePredictiveModel.get('name'),
+          metadata: {
+            description: this.activePredictiveModel.get('description')
+          },
+          xAxisTickFormatter: d3.format('.3f'),
+          verticalLabels: true
+        });
       }
     }
   });

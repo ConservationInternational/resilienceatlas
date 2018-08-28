@@ -28,6 +28,13 @@
     background: none;
     border: 0;
     z-index: 2;
+    outline: none;
+
+    &:focus, &:active {
+      &:after {
+        @include arrow(8px, $blue, 2px, -45deg);
+      }
+    }
 
     &:after {
       content: '';
@@ -52,6 +59,13 @@
     background: none;
     border: 0;
     z-index: 2;
+    outline: none;
+
+    &:focus, &:active {
+      &:after {
+        @include arrow(8px, $blue, 2px, -45deg);
+      }
+    }
 
     &:after {
       content: '';
@@ -75,6 +89,12 @@
     color: $font-color-4;
     font-size: 12px;
     line-height: 32px;
+    outline: none;
+
+    &:focus, &:active {
+      background: $blue;
+      color: $white;
+    }
   }
 }
 

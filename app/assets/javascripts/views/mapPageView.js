@@ -6,7 +6,6 @@
 
   root.app.MapPageView = Backbone.Router.extend({
 
-
     initialize: function(settings) {
       var opts = settings && settings.options ? settings.options : {};
       this.options = _.extend({}, this.defaults, opts);
@@ -63,25 +62,30 @@
          * @returns {object}
          */
         getLayer: function() {
-          console.log('select * from getModel(' + this.get('id') + ', \'[' + this.get('indicators').map(function(ind) { return ind.value % 1 === 0 ? ind.value : ind.value.toFixed(3); }) + ']\')');
-          console.log('#model_spect_1{\n\rpolygon-fill: #FFFFB2;\n\rpolygon-opacity: 0.8;\n\rline-color: #FFF;\n\rline-width: 0.5;\n\rline-opacity: 1;\n\r}\n\r#model_spect_1 [ value <= 0.463562726974487] {\n\r polygon-fill: #B10026;\n\r}\n\r#model_spect_1 [ value <= 0.437246948480606] {\n\r polygon-fill: #E31A1C;\n\r}\n\r#model_spect_1 [ value <= 0.331983774900436] {\n\r polygon-fill: #FC4E2A;\n\r}\n\r#model_spect_1 [ value <= 0.253036439418793] {\n\r polygon-fill: #FD8D3C;\n\r}\n\r#model_spect_1 [ value <= 0.200404837727547] {\n\r polygon-fill: #FEB24C;\n\r}\n\r#model_spect_1 [ value <= 0.18016192317009] {\n\r polygon-fill: #FED976;\n\r}\n\r#model_spect_1 [ value <= 0.093117401003838] {\n\r polygon-fill: #FFFFB2;\n\r}');
-
           return {
             id: -1,
             slug: 'predictive-model-layer',
             name: this.get('name'),
             type: 'cartodb',
             description: '{"description":"' + (this.get('description') || '') + '", "source":"' + (this.get('source') || '') + '"}',
-            cartocss: '#model_spect_1{\n\rpolygon-fill: #FFFFB2;\n\rpolygon-opacity: 0.8;\n\rline-color: #FFF;\n\rline-width: 0.5;\n\rline-opacity: 1;\n\r}\n\r#model_spect_1 [ value <= 0.463562726974487] {\n\r polygon-fill: #B10026;\n\r}\n\r#model_spect_1 [ value <= 0.437246948480606] {\n\r polygon-fill: #E31A1C;\n\r}\n\r#model_spect_1 [ value <= 0.331983774900436] {\n\r polygon-fill: #FC4E2A;\n\r}\n\r#model_spect_1 [ value <= 0.253036439418793] {\n\r polygon-fill: #FD8D3C;\n\r}\n\r#model_spect_1 [ value <= 0.200404837727547] {\n\r polygon-fill: #FEB24C;\n\r}\n\r#model_spect_1 [ value <= 0.18016192317009] {\n\r polygon-fill: #FED976;\n\r}\n\r#model_spect_1 [ value <= 0.093117401003838] {\n\r polygon-fill: #FFFFB2;\n\r}',
+            cartocss: '#intensification_reduce{\n\rpolygon-fill: #A53ED5;\n\rpolygon-opacity: 1;\n\rline-color: #A53ED5;\n\rline-width: 0.5;\n\rline-opacity: 1;\n}\n#intensification_reduce [ value <= 100] {\n\rpolygon-fill: #B10026;\n\rline-color: #B10026;\n}\n#intensification_reduce [ value <= 0.8] {\n\rpolygon-fill: #E31A1C;\n\rline-color: #E31A1C;\n}\n#intensification_reduce [ value <= 0.5] {\n\rpolygon-fill: #FC4E2A;\n\rline-color: #FC4E2A;\n}\n#intensification_reduce [ value <= 0.3] {\n\rpolygon-fill: #FD8D3C;\n\rline-color: #FD8D3C;\n}\n#intensification_reduce [ value <= 0.1] {\n\rpolygon-fill: #FEB24C;\n\rline-color: #FEB24C;\n}\n#intensification_reduce [ value <= 0.01] {\n\rpolygon-fill: #FED976;\n\rline-color: #FED976;\n}\n#intensification_reduce [ value <= 0] {\n\rpolygon-fill: #FFFFB2;\n\rline-color: #FFFFB2;\n}',
             interactivity: '',
-            sql: 'select * from getModel(' + this.get('id') + ', \'[' + this.get('indicators').map(function(ind) { return ind.value % 1 === 0 ? ind.value : ind.value.toFixed(3); }) + ']\')',
+            sql: 'select * from getModel(\'' + this.get('tableName') + '\', \'['
+              + this.get('indicators')
+                .filter(function (indicator) {
+                  return indicator.value !== null && indicator.value !== undefined;
+                })
+                .map(function(ind) {
+                  return '{ "column_name": "' + ind.column + '", "weight": ' + (ind.value % 1 === 0 ? ind.value : ind.value.toFixed(3)) + ', "operation": "' + (ind.operation || '+') + '" }';
+                })
+              + ']\')',
             color: '',
             opacity: 1,
             no_opacity: false,
             order: 1,
             maxZoom: 25,
             minZoom: 0,
-            legend: '{"type": "choropleth",\r\n"min":"0",\r\n"max":"1",\r\n"bucket":["#d73027","#f46d43","#fdae61","#fee08b","#ffffbf","#d9ef8b","#a6d96a","#66bd63","#1a9850"]}',
+            legend: '{"type": "choropleth",\r\n"min":"0",\r\n"mid": "0.5",\r\n"max":"1",\r\n"bucket":["#FFFFB2","#FED976","#FEB24C","#FD8D3C"," #FC4E2A","#E31A1C","#B10026"]}',
             group: -1,
             active: true,
             published: true,

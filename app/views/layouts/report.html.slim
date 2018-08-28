@@ -14,7 +14,7 @@ html lang="#{I18n.locale}"
         window.userlogged = "#{user_signed_in?}"
         window.site = "#{@site}"
         window.name = "#{@site_name}"
-
+    = render :partial => "partials/transifex"
     = render :partial => "partials/analytics"
 
   body class="is-#{controller_name}-page is-#{@subdomain}"

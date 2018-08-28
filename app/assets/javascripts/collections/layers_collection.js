@@ -34,7 +34,9 @@
       return ((d.attributes.dashboard_order || 0) + 1000) + d.attributes.name;
     },
 
-    url: '/api/layers',
+    url: function() {
+      return '/api/layers?lang=' + window.currentLocation || 'en';
+    },
 
     // order : 1,
 

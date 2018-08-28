@@ -1,4 +1,4 @@
-class MapController < ApplicationController
+class MapController < GeneralController
   skip_before_action :check_subdomain
 
   layout 'fullscreen'

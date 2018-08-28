@@ -2,4 +2,4 @@
 #= require active_admin/active_admin_globalize
 #= require ckeditor/init
 #= require ckeditor/config
-#= require activeadmin-sortable
+#= require active_admin/sortable

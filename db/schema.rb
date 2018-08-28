@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180725112416) do
+ActiveRecord::Schema.define(version: 20180817100330) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -88,6 +88,7 @@ ActiveRecord::Schema.define(version: 20180725112416) do
     t.integer  "category_id"
     t.integer  "position"
     t.string   "column_name"
+    t.string   "operation"
   end
 
   add_index "indicators", ["slug"], name: "index_indicators_on_slug", using: :btree
@@ -188,6 +189,17 @@ ActiveRecord::Schema.define(version: 20180725112416) do
   add_index "layers_sources", ["layer_id"], name: "index_layers_sources_on_layer_id", using: :btree
   add_index "layers_sources", ["source_id"], name: "index_layers_sources_on_source_id", using: :btree
 
+  create_table "map_menu_entries", force: :cascade do |t|
+    t.string   "label"
+    t.string   "link"
+    t.integer  "position"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.string   "ancestry"
+  end
+
+  add_index "map_menu_entries", ["ancestry"], name: "index_map_menu_entries_on_ancestry", using: :btree
+
   create_table "models", force: :cascade do |t|
     t.string   "name",                                           null: false
     t.text     "description"
@@ -195,6 +207,7 @@ ActiveRecord::Schema.define(version: 20180725112416) do
     t.datetime "created_at",     default: '2018-07-25 11:17:11', null: false
     t.datetime "updated_at",     default: '2018-07-25 11:17:11', null: false
     t.text     "query_analysis"
+    t.string   "table_name"
   end
 
   create_table "models_site_scopes", id: false, force: :cascade do |t|

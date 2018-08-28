@@ -15,9 +15,10 @@
     width: rem(30px);
     height: rem(30px);
     background-color: $bg-color-1;
+    border-bottom: 1px solid rgba(151, 151, 151, 0.3);
 
-    &.search {
-      border-bottom: 1px solid rgba(151, 151, 151, 0.3);
+    &:last-child {
+      border-bottom: 0;
     }
 
     svg {

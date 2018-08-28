@@ -26,6 +26,7 @@
 #  download                  :boolean          default(FALSE)
 #  dataset_shortname         :string
 #  dataset_source_url        :text
+#  title                     :string
 #  start_date                :datetime
 #  end_date                  :datetime
 #  spatial_resolution        :string
@@ -39,7 +40,7 @@
 #
 
 class LayerSerializer < ActiveModel::Serializer
-  cache key: "layer"
+  cache key: "layer_#{I18n.locale}"
   attributes :name, :slug, :layer_type, :zindex, :opacity, :active, :order,
              :dashboard_order, :color, :info, :interactivity, :css, :query, :layer_provider,
              :published, :locate_layer, :icon_class, :legend, :zoom_max, :zoom_min, :download,

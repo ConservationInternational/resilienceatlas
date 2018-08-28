@@ -32,15 +32,21 @@
       text-transform: uppercase;
       color: $blue;
       background: transparent;
+      outline: none;
     }
   }
 
   .indicators-list {
-    list-style: none;
+    margin-top: 35px;
     padding-left: 0;
+    list-style: none;
 
     > li {
       margin-bottom: 20px;
+
+      &.category {
+        margin-bottom: 10px;
+      }
     }
 
     .m-form-input--switch {
@@ -100,6 +106,16 @@
 
         &:hover {
           background: darken($blue,5%);
+        }
+      }
+
+      &.-secondary {
+        color: $blue;
+        border: 1px solid $blue;
+        background: transparent;
+
+        &:hover {
+          background: rgba($blue, .1);
         }
       }
     }

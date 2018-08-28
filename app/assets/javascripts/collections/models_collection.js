@@ -25,19 +25,26 @@
           name: model.attributes.name,
           description: model.attributes.description,
           source: model.attributes.source,
+          tableName: model.attributes.table_name,
           indicators: model.relationships && model.relationships.indicators && model.relationships.indicators.data
             ? model.relationships.indicators.data.map(function(indicator) {
                 var ind = response.included.find(function(inc) {
                   return inc.type === 'indicators' && inc.id === indicator.id;
                 });
 
+                var category = response.included.find(function(inc) {
+                  return inc.type === 'categories' && inc.id === ind.relationships.category.data.id;
+                });
+
                 return {
                   id: indicator.id,
                   name: ind.attributes.name,
                   slug: ind.attributes.slug,
+                  category: category.attributes.name,
                   version: ind.attributes.version,
-                  analysisSuitable: ind.attributes.analysis_suitable,
-                  analysisQuery: ind.attributes.analysis_query,
+                  position: ind.attributes.position,
+                  column: ind.attributes.column_name,
+                  operation: ind.attributes.operation,
                   value: 1,
                   indexableValue: this.getIndexableIndicatorValue(1),
                   humanReadableValue: this.getHumanReadableIndicatorValue(1)

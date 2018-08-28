@@ -49,14 +49,10 @@
   .tabs-content {
     position: absolute;
     top: 49px;
-    bottom: 0;
+    bottom: 50px; // Some space for Transifex
     margin-bottom: 0;
     overflow-y: auto;
     box-shadow: 0px -1px 2px 0px rgba(0, 0, 0, 0.1);
-
-    .analyzing & {
-      overflow-y: hidden;
-    }
 
     .content {
       padding: 0 rem(10px) rem(20px);

@@ -26,6 +26,7 @@
 #  download                  :boolean          default(FALSE)
 #  dataset_shortname         :string
 #  dataset_source_url        :text
+#  title                     :string
 #  start_date                :datetime
 #  end_date                  :datetime
 #  spatial_resolution        :string
@@ -62,7 +63,7 @@ class Layer < ActiveRecord::Base
     else
       site_scope = 1
     end
-    layers = Layer.all
+    layers = Layer.with_translations(I18n.locale)
     layers = layers.site(site_scope)
   end
 

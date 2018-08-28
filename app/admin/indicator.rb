@@ -4,7 +4,15 @@ ActiveAdmin.register Indicator do
 
   sortable
 
-  permit_params :name, :slug, :version, :position, :category_id, model_ids: []
+  permit_params :name, :slug, :version, :position, :column_name, :operation, :category_id, model_ids: []
+
+  filter :models, as: :select
+  filter :category, as: :select
+  filter :name, as: :select
+  filter :slug, as: :select
+  filter :version, as: :select
+  filter :column_name, as: :select
+  filter :operation, as: :select
 
   index do
     sortable_handle_column
@@ -13,6 +21,8 @@ ActiveAdmin.register Indicator do
     column :category
     column :name
     column :slug
+    column :column_name
+    column :operation
     column :models do |indicator|
       links = []
       indicator.models.map do |model|
@@ -33,6 +43,8 @@ ActiveAdmin.register Indicator do
       f.input :name
       f.input :slug
       f.input :version
+      f.input :column_name
+      f.input :operation
       f.input :models
     end
 

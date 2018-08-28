@@ -169,7 +169,7 @@
 
       // We update the position of the slider's "runnable" track
       var runnableTrack = input.closest('li').querySelector('.opacity');
-      runnableTrack.style.width = (indicatorIndexValue / this.collection.getIndexableIndicatorValueRange()[1]) + '%';
+      runnableTrack.style.width = ((indicatorIndexValue / this.collection.getIndexableIndicatorValueRange()[1]) * 100) + '%';
 
       // We update the value of the slider
       if (indicatorIndexValue !== null) {
@@ -246,9 +246,34 @@
     },
 
     render: function() {
+      var categories = (!this.model || !this.model.get('indicators'))
+        ? []
+        : this.model.get('indicators')
+          .map(function(ind) {
+            return ind.category;
+          })
+          .filter(function(category, i, arr) {
+            return arr.indexOf(category) === i;
+          });
+
+      var formattedModel = !this.model || !categories.length
+        ? null
+        : {
+          name: this.model.get('name'),
+          categories: categories.map(function(category) {
+            return {
+              name: category,
+              indicators: _.sortBy(this.model.get('indicators')
+                .filter(function(ind) {
+                  return ind.category === category;
+                }), 'position')
+            };
+          }.bind(this))
+        };
+
       this.$el.html(this.template({
         models: this.collection.toJSON(),
-        model: this.model.attributes,
+        model: formattedModel,
         indicatorRange: {
           min: this.collection.getIndexableIndicatorValueRange()[0],
           max: this.collection.getIndexableIndicatorValueRange()[1]

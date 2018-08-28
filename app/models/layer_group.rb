@@ -43,7 +43,7 @@ class LayerGroup < ActiveRecord::Base
     else
       site_scope = 1
     end
-    layer_groups = LayerGroup.all
+    layer_groups = LayerGroup.with_translations(I18n.locale)
     layer_groups = layer_groups.site(site_scope)
     layer_groups
   end
