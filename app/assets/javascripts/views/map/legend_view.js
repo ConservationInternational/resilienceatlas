@@ -88,7 +88,7 @@
      */
     setDraggable: function() {
       if (this.$legendList && this.$legendList.length) {
-        this.$legendList.q({
+        this.$legendList.sortable({
           axis: 'y',
           items: ".drag-items",
           tolerance: 'pointer',
