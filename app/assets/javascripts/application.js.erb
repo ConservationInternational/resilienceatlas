@@ -1,6 +1,6 @@
 //= require jquery
 //= require jquery_ujs
-
+//= require jquery-ui
 //= require jquery-ui-touch-punch-valid
 //= require underscore
 //= require backbone
@@ -47,7 +47,7 @@
 
 //= require router
 
-(function(root) {
+function initApp(root) {
 
   'use strict';
 
@@ -306,5 +306,6 @@
   });
 
   new app.AppView();
+}
 
-})(this);
+$(document).on('ready', initApp.bind(this, window));
