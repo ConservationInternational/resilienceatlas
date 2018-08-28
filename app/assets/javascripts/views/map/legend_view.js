@@ -87,16 +87,18 @@
      * Set draggable beahaviour (jquery-ui sortable)
      */
     setDraggable: function() {
-      this.$legendList.sortable({
-        axis: 'y',
-        items: ".drag-items",
-        tolerance: 'pointer',
-        start: function(e, ui){
-          ui.placeholder.height(ui.item.outerHeight());
-          $('.m-legend').addClass('is-changing');
-        },
-        stop: this.setOrder,
-      });
+      if (this.$legendList && this.$legendList.length) {
+        this.$legendList.q({
+          axis: 'y',
+          items: ".drag-items",
+          tolerance: 'pointer',
+          start: function(e, ui){
+            ui.placeholder.height(ui.item.outerHeight());
+            $('.m-legend').addClass('is-changing');
+          },
+          stop: this.setOrder,
+        });
+      }
     },
 
     setOrder: function(e, ui) {
