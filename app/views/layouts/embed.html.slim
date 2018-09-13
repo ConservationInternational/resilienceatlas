@@ -5,6 +5,7 @@ html lang="#{I18n.locale}"
     title = @site_name || "Resilience Atlas | #{controller_name}"
     = render :partial => "partials/head"
     = stylesheet_link_tag "https://cartodb-libs.global.ssl.fastly.net/cartodb.js/v3/3.15/themes/css/cartodb.css", media: "all"
+    = stylesheet_link_tag "https://unpkg.com/leaflet-draw@1.0.2/dist/leaflet.draw.css", media: "all"
     = stylesheet_link_tag "application", media: "all"
     = csrf_meta_tags
 
@@ -22,6 +23,8 @@ html lang="#{I18n.locale}"
       == yield
 
     = javascript_include_tag "https://cartodb-libs.global.ssl.fastly.net/cartodb.js/v3/3.15/cartodb.js"
+    = javascript_include_tag "https://unpkg.com/leaflet-active-area@0.1.1/src/leaflet.activearea.js"
+    = javascript_include_tag "https://unpkg.com/leaflet-draw@1.0.2/dist/leaflet.draw.js"
     = javascript_include_tag "application"
 
 
