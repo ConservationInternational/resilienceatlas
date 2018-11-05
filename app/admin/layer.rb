@@ -17,6 +17,17 @@ ActiveAdmin.register Layer do
     redirect_to edit_admin_layer_path( n )
   end
 
+  filter :title, label: :name
+  filter :layer_groups
+  filter :slug
+  filter :layer_type, as: :select
+  filter :zindex, as: :select
+  filter :active, as: :select
+  filter :order
+  filter :layer_provider, as: :select
+  filter :css
+  filter :interactivity
+
   index do
     selectable_column
 
@@ -102,5 +113,11 @@ ActiveAdmin.register Layer do
     column :updated_at
     column :source
     actions
+  end
+
+  controller do
+    def scoped_collection
+      end_of_association_chain.includes([:translations])
+    end
   end
 end
