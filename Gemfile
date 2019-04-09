@@ -21,6 +21,8 @@ gem 'active_model_serializers', '0.10.0.rc2'
 
 gem 'addressable'
 
+gem 'rack-cors'
+
 # Omniauth
 gem 'omniauth'
 gem 'omniauth-twitter'
