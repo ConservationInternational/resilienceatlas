@@ -31,3 +31,5 @@
 .env
 .env.development
 .env.test
+
+*.dump

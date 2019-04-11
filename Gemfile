@@ -16,7 +16,7 @@ gem 'dotenv-rails'
 
 gem 'pg'
 gem 'devise'
-gem 'activeadmin', git: 'https://github.com/activeadmin/activeadmin', tag: 'v1.0.0'
+gem 'activeadmin', '1.0.0'
 gem 'active_model_serializers', '0.10.0.rc2'
 
 gem 'addressable'
@@ -43,7 +43,7 @@ gem 'prawn'
 gem 'prawn-table'
 
 # Translations
-gem 'activeadmin-globalize', '1.0.0.pre', github: 'fabn/activeadmin-globalize', branch: 'develop'
+gem 'activeadmin-globalize', '1.0.0.pre'
 gem 'globalize'
 
 # Ordering and Tree structure for menus
