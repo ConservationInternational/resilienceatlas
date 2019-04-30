@@ -1,5 +1,3 @@
-require 'capistrano/rvm'
-
 set :repo_url, 'https://github.com/ConservationInternational/resilienceatlas.git'
 
 set :rvm_ruby_version, '2.2.1'

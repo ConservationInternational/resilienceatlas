@@ -1,6 +1,6 @@
 ActiveAdmin.register Layer do
   permit_params :layer_group_id, :name, :slug, :layer_type, :zindex,
-                :active, :order, :color, :info, :interactivity, :query,
+                :active, :order, :color, :info, :interactivity, :query, :layer_config,
                 :layer_provider, :css, :published, :opacity, :locate_layer,
                 :icon_class, :legend, :zoom_max, :zoom_min, :dashboard_order,
                 :dataset_shortname, :dataset_source_url, :source_id, :title,
@@ -68,7 +68,8 @@ ActiveAdmin.register Layer do
       #f.input :color, as: :string
       f.input :interactivity
       f.input :query
-      f.input :layer_provider, as: :select, collection: ['raster', 'cartodb', 'xyz tileset']
+      f.input :layer_config
+      f.input :layer_provider, as: :select, collection: ['raster', 'cartodb', 'xyz tileset', 'gee']
       f.input :css
       f.input :locate_layer
       #f.input :icon_class
