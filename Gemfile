@@ -40,6 +40,9 @@ gem 'rubyzip'
 gem 'prawn'
 gem 'prawn-table'
 
+# CORS
+gem 'rack-cors'
+
 # Translations
 gem 'activeadmin-globalize', '1.0.0.pre', github: 'fabn/activeadmin-globalize', branch: 'develop'
 gem 'globalize'
