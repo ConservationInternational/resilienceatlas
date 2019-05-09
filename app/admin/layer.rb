@@ -6,7 +6,7 @@ ActiveAdmin.register Layer do
                 :dataset_shortname, :dataset_source_url, :source_id, :title,
                 :start_date, :end_date, :spatial_resolution, :spatial_resolution_units,
                 :temporal_resolution, :temporal_resolution_units, :data_units,
-                :analysis_suitable, :analysis_query,
+                :analysis_suitable, :analysis_query, :analysis_body,
                 :update_frequency, :version, :processing, :download, :description, source_ids:[],
                 translations_attributes: [:id, :locale, :name, :info, :legend, :title,
                                           :data_units, :processing, :description, :_destroy]
@@ -87,6 +87,7 @@ ActiveAdmin.register Layer do
     f.inputs "Analysis" do
       f.input :analysis_suitable, input_html: { data: { if: 'checked', action: 'hide', target: '.query' }}
       f.input :analysis_query, wrapper_html: { class: 'query' }
+      f.input :analysis_body
     end
 
     f.inputs "Metadata" do
