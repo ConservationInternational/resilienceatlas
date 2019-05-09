@@ -179,7 +179,7 @@ ActiveRecord::Schema.define(version: 20190509113408) do
     t.boolean  "analysis_suitable",         default: false
     t.text     "analysis_query"
     t.text     "layer_config"
-    t.string   "analysis_body"
+    t.text     "analysis_body"
   end
 
   add_index "layers", ["layer_group_id"], name: "index_layers_on_layer_group_id", using: :btree
