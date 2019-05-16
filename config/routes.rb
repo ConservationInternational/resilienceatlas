@@ -23,6 +23,8 @@ Rails.application.routes.draw do
       get  '/models',               to: 'models#index'
       get  '/indicators',           to: 'indicators#index'
       get  '/categories',           to: 'categories#index'
+      get  '/journeys',             to: 'journeys#index'
+      get  '/journeys/:id',         to: 'journeys#show'
     end
   end
 
