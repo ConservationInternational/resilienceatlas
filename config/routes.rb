@@ -19,6 +19,7 @@ Rails.application.routes.draw do
       get  '/layers/:id/downloads', to: 'layers#download_attachments', as: 'download_attachments'
       get  '/share/:uid',           to: 'share_urls#show'
       post '/share',                to: 'share_urls#create'
+      get  '/sites',                to: 'sites#index'
       get  '/site',                 to: 'sites#show'
       get  '/models',               to: 'models#index'
       get  '/indicators',           to: 'indicators#index'
