@@ -44,7 +44,7 @@ gem 'prawn-table'
 
 # Translations
 gem 'activeadmin-globalize', '1.0.0.pre'
-gem 'globalize'
+gem 'globalize', github: "ncri/globalize"
 
 # Ordering and Tree structure for menus
 gem 'active_admin-sortable_tree'
