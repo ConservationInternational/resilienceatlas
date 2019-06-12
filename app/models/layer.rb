@@ -26,7 +26,6 @@
 #  download                  :boolean          default(FALSE)
 #  dataset_shortname         :string
 #  dataset_source_url        :text
-#  title                     :string
 #  start_date                :datetime
 #  end_date                  :datetime
 #  spatial_resolution        :string
@@ -37,6 +36,8 @@
 #  version                   :string
 #  analysis_suitable         :boolean          default(FALSE)
 #  analysis_query            :text
+#  layer_config              :text
+#  analysis_body             :text
 #
 
 require 'zip'

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20190509113408) do
+ActiveRecord::Schema.define(version: 20190612135551) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -243,15 +243,17 @@ ActiveRecord::Schema.define(version: 20190509113408) do
     t.string  "name"
     t.string  "color"
     t.string  "subdomain"
-    t.boolean "has_analysis",  default: false
+    t.boolean "has_analysis",     default: false
     t.float   "latitude"
     t.float   "longitude"
     t.string  "header_theme"
-    t.integer "zoom_level",    default: 3
+    t.integer "zoom_level",       default: 3
     t.text    "linkback_text"
     t.text    "linkback_url"
     t.string  "header_color"
     t.text    "logo_url"
+    t.boolean "predictive_model", default: false, null: false
+    t.boolean "analysis_options", default: false, null: false
   end
 
   create_table "sources", force: :cascade do |t|

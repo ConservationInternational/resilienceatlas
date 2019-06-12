@@ -27,7 +27,10 @@ ActiveAdmin.register LayerGroup do
     f.input :active
     f.input :order
     f.input :layer_group_type, as: :select, collection: %w{group category subcategory subgroup}
-    f.input :super_group
+    f.input :super_group,
+              as: :select,
+              collection: LayerGroup.with_translations.
+                order('layer_group_translations.name').map {| lg| ["#{lg.name} - #{lg.id}", lg.id]}
     #f.input :icon_class
     f.actions
     end

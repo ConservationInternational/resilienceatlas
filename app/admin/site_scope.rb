@@ -1,18 +1,10 @@
 ActiveAdmin.register SiteScope do
-  permit_params :name, :subdomain, :color, :has_analysis, :latitude, :longitude, :header_theme, :zoom_level,  :linkback_text, :linkback_url, :header_color, :logo_url
-# See permitted parameters documentation:
-# https://github.com/activeadmin/activeadmin/blob/master/docs/2-resource-customization.md#setting-up-strong-parameters
-#
-# permit_params :list, :of, :attributes, :on, :model
-#
-# or
-#
-# permit_params do
-#   permitted = [:permitted, :attributes]
-#   permitted << :other if resource.something?
-#   permitted
-# end
-  #form partial: 'form'
+  permit_params :name, :subdomain, :color,
+                :has_analysis, :latitude, :longitude,
+                :header_theme, :zoom_level,  :linkback_text,
+                :linkback_url, :header_color, :logo_url,
+                :predictive_model, :analysis_options
+
 
   form do |f|
     f.inputs do
@@ -26,6 +18,8 @@ ActiveAdmin.register SiteScope do
       f.input :has_analysis
       f.input :linkback_text, as: :string
       f.input :linkback_url, as: :string
+      f.input :predictive_model
+      f.input :analysis_options
     end
     f.inputs :location, {data:{ geousable: 'yes'}} do
       f.input :latitude, :input_html => { :class => 'lat' }
