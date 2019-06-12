@@ -26,6 +26,7 @@ Rails.application.routes.draw do
       get  '/categories',           to: 'categories#index'
       get  '/journeys',             to: 'journeys#index'
       get  '/journeys/:id',         to: 'journeys#show'
+      get  '/menu-entries',         to: 'menu_entries#index'
     end
   end
 
