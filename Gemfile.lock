@@ -397,6 +397,7 @@ GEM
       activesupport (~> 4)
     sendgrid (1.2.4)
       json
+    simple_command (0.0.9)
     sinatra (1.4.6)
       rack (~> 1.4)
       rack-protection (~> 1.4)
@@ -485,6 +486,7 @@ DEPENDENCIES
   jquery-rails
   jquery-ui-rails (~> 6.0.1)
   json_spec
+  jwt
   meta_request
   omniauth
   omniauth-facebook
@@ -516,6 +518,7 @@ DEPENDENCIES
   sass-rails (~> 5.0)
   seed_dump
   sendgrid
+  simple_command
   slim-rails
   spring
   spring-commands-rspec
