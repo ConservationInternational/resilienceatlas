@@ -2,19 +2,21 @@
 #
 # Table name: site_scopes
 #
-#  id            :integer          not null, primary key
-#  name          :string
-#  color         :string
-#  subdomain     :string
-#  has_analysis  :boolean          default(FALSE)
-#  latitude      :float
-#  longitude     :float
-#  header_theme  :string
-#  zoom_level    :integer          default(3)
-#  linkback_text :text
-#  linkback_url  :text
-#  header_color  :string
-#  logo_url      :text
+#  id               :integer          not null, primary key
+#  name             :string
+#  color            :string
+#  subdomain        :string
+#  has_analysis     :boolean          default(FALSE)
+#  latitude         :float
+#  longitude        :float
+#  header_theme     :string
+#  zoom_level       :integer          default(3)
+#  linkback_text    :text
+#  linkback_url     :text
+#  header_color     :string
+#  logo_url         :text
+#  predictive_model :boolean          default(FALSE), not null
+#  analysis_options :boolean          default(FALSE), not null
 #
 
 class SiteScope < ActiveRecord::Base
