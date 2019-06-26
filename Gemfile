@@ -16,6 +16,9 @@ gem 'dotenv-rails'
 
 gem 'pg'
 gem 'devise'
+gem 'jwt'
+gem 'simple_command'
+
 gem 'activeadmin', '1.0.0'
 gem 'active_model_serializers', '0.10.0.rc2'
 
