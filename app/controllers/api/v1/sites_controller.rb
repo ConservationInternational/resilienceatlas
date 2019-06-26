@@ -1,7 +1,13 @@
 module Api
   module V1
     class SitesController < ApiController
-    include SitesFilters
+      include SitesFilters
+
+      def index
+        sites = SiteScope.all
+        render json: sites
+      end
+
       def show
         site = SiteScope.find(params[:site_scope])
         render json: site, include: ['site_pages']

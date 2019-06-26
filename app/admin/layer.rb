@@ -1,12 +1,12 @@
 ActiveAdmin.register Layer do
   permit_params :layer_group_id, :name, :slug, :layer_type, :zindex,
-                :active, :order, :color, :info, :interactivity, :query,
+                :active, :order, :color, :info, :interactivity, :query, :layer_config,
                 :layer_provider, :css, :published, :opacity, :locate_layer,
                 :icon_class, :legend, :zoom_max, :zoom_min, :dashboard_order,
                 :dataset_shortname, :dataset_source_url, :source_id, :title,
                 :start_date, :end_date, :spatial_resolution, :spatial_resolution_units,
                 :temporal_resolution, :temporal_resolution_units, :data_units,
-                :analysis_suitable, :analysis_query,
+                :analysis_suitable, :analysis_query, :analysis_body,
                 :update_frequency, :version, :processing, :download, :description, source_ids:[],
                 translations_attributes: [:id, :locale, :name, :info, :legend, :title,
                                           :data_units, :processing, :description, :_destroy]
@@ -68,7 +68,8 @@ ActiveAdmin.register Layer do
       #f.input :color, as: :string
       f.input :interactivity
       f.input :query
-      f.input :layer_provider, as: :select, collection: ['raster', 'cartodb', 'xyz tileset']
+      f.input :layer_config
+      f.input :layer_provider, as: :select, collection: ['raster', 'cartodb', 'xyz tileset', 'gee']
       f.input :css
       f.input :locate_layer
       #f.input :icon_class
@@ -86,6 +87,7 @@ ActiveAdmin.register Layer do
     f.inputs "Analysis" do
       f.input :analysis_suitable, input_html: { data: { if: 'checked', action: 'hide', target: '.query' }}
       f.input :analysis_query, wrapper_html: { class: 'query' }
+      f.input :analysis_body
     end
 
     f.inputs "Metadata" do

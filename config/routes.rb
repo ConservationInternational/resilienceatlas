@@ -3,12 +3,15 @@ Rails.application.routes.draw do
   devise_for :users, path: 'users', path_names: { sign_in: 'login', sign_out: 'logout', password: 'secret',
                                                  confirmation: 'verification', unlock: 'unblock',
                                                  registration: 'register', sign_up: 'signup' },
-                                                 controllers: { omniauth_callbacks: 'users/omniauth_callbacks' }
+                                                 controllers: { omniauth_callbacks: 'users/omniauth_callbacks',
+                                                                sessions: 'sessions', registrations: 'registrations' }
 
   get   '/users/:id/finish_signup',  to: 'users/user_account#finish_signup', as: :finish_signup
   patch '/users/:id/finish_signup',  to: 'users/user_account#finish_signup', as: :update_signup
   get   '/users/:id/profile/edit',   to: 'users/user_account#edit',          as: :edit_user
   patch '/users/:id/profile/update', to: 'users/user_account#update',        as: :update_user
+
+  post 'users/authenticate', to: 'authentication#authenticate'
 
   # API routes
   mount Raddocs::App => '/docs'
@@ -19,10 +22,14 @@ Rails.application.routes.draw do
       get  '/layers/:id/downloads', to: 'layers#download_attachments', as: 'download_attachments'
       get  '/share/:uid',           to: 'share_urls#show'
       post '/share',                to: 'share_urls#create'
+      get  '/sites',                to: 'sites#index'
       get  '/site',                 to: 'sites#show'
       get  '/models',               to: 'models#index'
       get  '/indicators',           to: 'indicators#index'
       get  '/categories',           to: 'categories#index'
+      get  '/journeys',             to: 'journeys#index'
+      get  '/journeys/:id',         to: 'journeys#show'
+      get  '/menu-entries',         to: 'menu_entries#index'
     end
   end
 
