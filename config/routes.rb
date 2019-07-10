@@ -12,6 +12,8 @@ Rails.application.routes.draw do
   patch '/users/:id/profile/update', to: 'users/user_account#update',        as: :update_user
 
   post 'users/authenticate', to: 'authentication#authenticate'
+  get 'users/me',            to: 'users/user_account#edit'
+  patch 'users/me',          to: 'users/user_account#update'
 
   # API routes
   mount Raddocs::App => '/docs'
