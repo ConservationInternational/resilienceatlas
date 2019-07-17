@@ -1,4 +1,4 @@
-require_relative '../../../commands/authorize_api_requests'
+require_relative '../../../commands/authorize_api_request'
 
 module Api
   module V1
