@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20190717075215) do
+ActiveRecord::Schema.define(version: 20190809172644) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -180,6 +180,7 @@ ActiveRecord::Schema.define(version: 20190717075215) do
     t.text     "analysis_query"
     t.text     "layer_config"
     t.text     "analysis_body"
+    t.text     "interaction_config"
   end
 
   add_index "layers", ["layer_group_id"], name: "index_layers_on_layer_group_id", using: :btree

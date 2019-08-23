@@ -6,7 +6,7 @@ ActiveAdmin.register Layer do
                 :dataset_shortname, :dataset_source_url, :source_id, :title,
                 :start_date, :end_date, :spatial_resolution, :spatial_resolution_units,
                 :temporal_resolution, :temporal_resolution_units, :data_units,
-                :analysis_suitable, :analysis_query, :analysis_body,
+                :analysis_suitable, :analysis_query, :analysis_body, :interaction_config,
                 :update_frequency, :version, :processing, :download, :description, source_ids:[],
                 translations_attributes: [:id, :locale, :name, :info, :legend, :title,
                                           :data_units, :processing, :description, :_destroy]
@@ -69,6 +69,7 @@ ActiveAdmin.register Layer do
       f.input :interactivity
       f.input :query
       f.input :layer_config
+      f.input :interaction_config
       f.input :layer_provider, as: :select, collection: ['raster', 'cartodb', 'xyz tileset', 'gee']
       f.input :css
       f.input :locate_layer
