@@ -20,6 +20,7 @@ ActiveAdmin.register Layer do
   filter :title, label: :name
   filter :layer_groups
   filter :slug
+  filter :translations_name_contains, label: 'Name'
   filter :layer_type, as: :select
   filter :zindex, as: :select
   filter :active, as: :select
