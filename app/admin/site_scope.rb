@@ -3,7 +3,7 @@ ActiveAdmin.register SiteScope do
                 :has_analysis, :latitude, :longitude,
                 :header_theme, :zoom_level,  :linkback_text,
                 :linkback_url, :header_color, :logo_url,
-                :predictive_model, :analysis_options
+                :predictive_model, :analysis_options, :has_gef_logo
 
   form do |f|
     f.inputs do
