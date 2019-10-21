@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20190809172644) do
+ActiveRecord::Schema.define(version: 20191021093425) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -256,6 +256,7 @@ ActiveRecord::Schema.define(version: 20190809172644) do
     t.boolean "predictive_model", default: false, null: false
     t.boolean "analysis_options", default: false, null: false
     t.string  "analytics_code"
+    t.boolean "has_gef_logo"
   end
 
   create_table "sources", force: :cascade do |t|

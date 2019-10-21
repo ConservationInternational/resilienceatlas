@@ -20,6 +20,7 @@ ActiveAdmin.register SiteScope do
       f.input :linkback_url, as: :string
       f.input :predictive_model
       f.input :analysis_options
+      f.input :has_gef_logo, label: 'Has GEF logo'
     end
     f.inputs :location, {data:{ geousable: 'yes'}} do
       f.input :latitude, :input_html => { :class => 'lat' }
