@@ -31,3 +31,6 @@
 .env
 .env.development
 .env.test
+
+# IDE
+.idea

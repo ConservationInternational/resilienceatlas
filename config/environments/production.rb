@@ -48,8 +48,15 @@ Rails.application.configure do
   # Use the lowest log level to ensure availability of diagnostic information
   # when problems arise.
   config.log_level = :debug
-  config.logger = Logger.new(STDOUT)
-  config.logger.level = Logger.const_get((ENV["LOG_LEVEL"] || "INFO").upcase)
+  # Use default logging formatter so that PID and timestamp are not suppressed.
+  config.log_formatter = ::Logger::Formatter.new
+
+  if ENV["RAILS_LOG_TO_STDOUT"].present?
+    logger           = ActiveSupport::Logger.new(STDOUT)
+    logger.formatter = config.log_formatter
+    logger.level     = config.log_level
+    config.logger    = ActiveSupport::TaggedLogging.new(logger)
+  end
   # Prepend all log lines with the following tags.
   # config.log_tags = [ :subdomain, :uuid ]
 
