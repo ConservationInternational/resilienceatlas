@@ -16,6 +16,9 @@ gem 'dotenv-rails'
 
 gem 'pg'
 gem 'devise'
+gem 'jwt'
+gem 'simple_command'
+
 gem 'activeadmin', git: 'https://github.com/activeadmin/activeadmin', tag: 'v1.0.0'
 gem 'active_model_serializers', '0.10.0.rc2'
 
@@ -33,7 +36,7 @@ gem 'raddocs'
 gem 'seed_dump'
 gem 'active_admin_theme'
 gem 'ckeditor', git: 'http://github.com/galetahub/ckeditor'
-gem 'puma'
+
 gem 'paperclip'
 gem 'sendgrid'
 gem 'rubyzip'
@@ -55,6 +58,10 @@ gem 'acts_as_list'
 
 # Ransack for Active Admin
 gem 'ransack', '1.8.4'
+
+group :production, :staging do
+  gem 'puma'
+end
 
 group :development, :test do
   gem 'spring'

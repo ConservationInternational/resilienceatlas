@@ -1,21 +1,25 @@
+require_relative '../../../commands/authorize_api_requests'
+
 module Api
   module V1
     class ApiController < ApplicationController
+
       rescue_from ActiveRecord::RecordNotFound, :with => :record_not_found
-      before_action :verify_request
+      protect_from_forgery if: :json_request? # return null session when API call
+      before_action :authenticate_request, if: :json_request?
       before_action :set_locale
       skip_before_action :check_subdomain
+
+      attr_reader :current_user
 
       private
       def record_not_found
         render json: {errors: [{ status: '404', title: 'Record not found' }] } ,  status: 404
       end
 
-      def verify_request
-        Rails.logger.info form_authenticity_token
-        unless verified_request?
-          render json: {errors: [{ status: '401', title: 'Unauthorized' }] } ,  status: 401
-        end
+      def authenticate_request
+        @current_user = ::AuthorizeApiRequest.call(request.headers).result
+        render json: {errors: [{ status: '401', title: 'Unauthorized' }] }, status: 401 unless @current_user
       end
 
       def set_locale
