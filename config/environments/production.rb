@@ -53,10 +53,6 @@ Rails.application.configure do
   config.log_formatter = ::Logger::Formatter.new
 
 
-
-  # Highlight code that triggered database queries in logs.
-  config.active_record.verbose_query_logs = true
-
   if ENV["RAILS_LOG_TO_STDOUT"].present?
     logger           = ActiveSupport::Logger.new(STDOUT)
     logger.formatter = config.log_formatter
