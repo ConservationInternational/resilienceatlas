@@ -76,7 +76,7 @@ group :development, :test do
   gem 'json_spec'
   gem 'bullet'
   gem 'web-console', '~> 2.0'
-  gem 'capistrano', '~> 3.4'
+  gem 'capistrano', '~> 3.5'
   gem 'capistrano-rvm'
   gem 'capistrano-bundler', '~> 1.1.2'
   gem 'capistrano-rails', '~> 1.1'

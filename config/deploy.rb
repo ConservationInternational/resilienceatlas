@@ -4,6 +4,9 @@ set :application, 'ResilienceAtlas'
 set :repo_url, 'git@github.com:ConservationInternational/resilienceatlas.git'
 set :branch, 'master'
 
+set :linked_files, %w{.env}
+set :linked_dirs, %w{log tmp/pids tmp/cache tmp/sockets vendor/bundle public/system}
+
 set :deploy_to, '/home/ubuntu/resilienceatlas'
 
 set :passenger_restart_with_touch, true
