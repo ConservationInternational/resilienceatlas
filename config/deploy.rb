@@ -1,4 +1,4 @@
-lock '3.4.0'
+lock '3.11.2'
 
 set :application, 'ResilienceAtlas'
 set :repo_url, 'git@github.com:ConservationInternational/resilienceatlas.git'
