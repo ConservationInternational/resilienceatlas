@@ -1,8 +1,8 @@
 source 'https://rubygems.org'
 
-ruby '2.2.1'
+ruby '2.7.2'
 
-gem 'rails', '4.2.1'
+gem 'rails', '6.0.3.4'
 
 gem 'jquery-rails'
 gem 'jquery-ui-rails', '~> 6.0.1'
@@ -19,8 +19,8 @@ gem 'devise'
 gem 'jwt'
 gem 'simple_command'
 
-gem 'activeadmin', '1.0.0'
-gem 'active_model_serializers', '0.10.0.rc2'
+gem 'activeadmin'
+gem 'active_model_serializers', '0.10.11'
 
 gem 'addressable'
 
@@ -46,8 +46,8 @@ gem 'prawn'
 gem 'prawn-table'
 
 # Translations
-gem 'activeadmin-globalize', '1.0.0.pre'
-gem 'globalize', github: "ncri/globalize"
+gem 'globalize'
+gem 'activeadmin-globalize', git: 'https://github.com/GeoffAbtion/activeadmin-globalize', branch: 'main'
 
 # Ordering and Tree structure for menus
 gem 'active_admin-sortable_tree'
@@ -56,7 +56,7 @@ gem 'acts_as_list'
 # gem 'activeadmin-sortable'
 
 # Ransack for Active Admin
-gem 'ransack', '1.8.4'
+gem 'ransack', '2.4.0'
 
 group :development, :test do
   gem 'spring'
@@ -71,10 +71,10 @@ group :development, :test do
   gem 'json_spec'
   gem 'bullet'
   gem 'web-console', '~> 2.0'
-  gem 'capistrano', '~> 3.4'
+  gem 'capistrano'
   gem 'capistrano-rvm'
-  gem 'capistrano-bundler', '~> 1.1.2'
-  gem 'capistrano-rails', '~> 1.1'
+  gem 'capistrano-bundler'
+  gem 'capistrano-rails'
   gem 'capistrano-npm'
   gem 'capistrano-passenger'
 end
@@ -84,8 +84,7 @@ group :development do
   gem 'better_errors'
   gem 'binding_of_caller'
   gem 'meta_request'
-  gem 'quiet_assets'
-  gem 'annotate', '~> 2.6.5'
+  gem 'annotate'
 end
 
 group :test do

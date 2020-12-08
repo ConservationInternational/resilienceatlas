@@ -43,10 +43,7 @@ module ConservationInternational
     # Heroku Asset Pippeline
     config.assets.initialize_on_precompile = true
 
-    # Removing wartning
-    config.active_record.raise_in_transactional_callbacks = true
-
-    config.middleware.insert_before 0, "Rack::Cors" do
+    config.middleware.insert_before 0, Rack::Cors do
       allow do
         origins '*'
         resource '*', headers: :any, methods: [:get, :post, :options]
