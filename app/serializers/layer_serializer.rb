@@ -56,6 +56,6 @@ class LayerSerializer < ActiveModel::Serializer
     object.sources
   end
   def layer_group
-    object.layer_groups.where(site_scope_id: options[:site_scope]).first
+    object.layer_groups.where(site_scope_id: instance_options[:site_scope]).first
   end
 end
