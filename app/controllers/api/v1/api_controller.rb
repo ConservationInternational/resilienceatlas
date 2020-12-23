@@ -6,7 +6,7 @@ module Api
 
       rescue_from ActiveRecord::RecordNotFound, :with => :record_not_found
       protect_from_forgery if: :json_request? # return null session when API call
-      before_action :authenticate_request, if: :json_request?
+      #before_action :authenticate_request, if: :json_request?
       before_action :set_locale
       skip_before_action :check_subdomain
 
