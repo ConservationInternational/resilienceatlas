@@ -1,8 +1,11 @@
-lock '3.4.0'
+lock '3.11.2'
 
 set :application, 'ResilienceAtlas'
 set :repo_url, 'git@github.com:ConservationInternational/resilienceatlas.git'
 set :branch, 'master'
+
+set :linked_files, %w{.env}
+set :linked_dirs, %w{log tmp/pids tmp/cache tmp/sockets vendor/bundle public/system}
 
 set :deploy_to, '/home/ubuntu/resilienceatlas'
 

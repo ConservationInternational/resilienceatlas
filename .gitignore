@@ -33,3 +33,6 @@
 .env.test
 
 *.dump
+
+# IDE
+.idea

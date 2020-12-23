@@ -8,6 +8,8 @@ module Api
         render json: sites
       end
 
+    skip_before_action :authenticate_request
+
       def show
         site = SiteScope.find(params[:site_scope])
         render json: site, include: ['site_pages']
