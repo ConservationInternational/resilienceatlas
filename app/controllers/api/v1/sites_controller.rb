@@ -8,7 +8,7 @@ module Api
         render json: sites
       end
 
-    skip_before_action :authenticate_request
+    skip_before_action :authenticate_request, raise: false
 
       def show
         site = SiteScope.find(params[:site_scope])
