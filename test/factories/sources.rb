@@ -18,7 +18,7 @@
 #  license_url              :text
 #
 
-FactoryGirl.define do
+FactoryBot.define do
   factory :source do
     
   end

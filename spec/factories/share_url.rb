@@ -1,5 +1,5 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :share_url do
-    body Faker::Lorem.paragraph
+    body { Faker::Lorem.paragraph }
   end
 end

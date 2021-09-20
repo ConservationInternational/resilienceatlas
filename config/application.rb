@@ -38,8 +38,8 @@ module ConservationInternational
       g.assets false
       g.helper false
       g.test_framework :rspec
-      g.fixture_replacement :factory_girl
     end
+    config.factory_bot.definition_file_paths = ["spec/factories"]
 
     # Heroku Asset Pippeline
     config.assets.initialize_on_precompile = true

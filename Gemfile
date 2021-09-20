@@ -65,6 +65,7 @@ group :production, :staging do
 end
 
 group :development, :test do
+  gem 'factory_bot_rails'
   gem 'spring'
   gem 'teaspoon'
   gem 'teaspoon-mocha'
@@ -76,7 +77,6 @@ group :development, :test do
   gem 'rspec_api_documentation'
   gem 'json_spec'
   gem 'bullet'
-  gem 'web-console'
   gem 'capistrano'
   gem 'capistrano-rvm'
   gem 'capistrano-bundler'
@@ -91,13 +91,14 @@ group :development do
   gem 'binding_of_caller'
   gem 'meta_request'
   gem 'annotate'
+  gem 'web-console'
 end
 
 group :test do
-  gem 'factory_girl_rails', '~> 4.0', require: false
   gem 'rspec-rails'
   gem 'email_spec'
   gem 'database_cleaner'
+  gem 'rubocop-faker'
 end
 
 # Rails Assets is the frictionless proxy between Bundler and Bower.

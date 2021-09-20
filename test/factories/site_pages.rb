@@ -12,7 +12,7 @@
 #  slug          :string
 #
 
-FactoryGirl.define do
+FactoryBot.define do
   factory :site_page do
     title "MyString"
 body "MyText"
