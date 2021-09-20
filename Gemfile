@@ -15,6 +15,8 @@ gem 'd3-rails', '>= 3.5.6'
 gem 'dotenv-rails'
 gem 'webpacker', '~> 5.0'
 gem 'mini_racer'
+gem 'shrine'
+gem 'jbuilder'
 
 gem 'pg'
 gem 'devise'

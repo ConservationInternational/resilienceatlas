@@ -13,12 +13,15 @@ permit_params :title, :body, :priority, :slug, :site_scope_id
 #   permitted << :other if resource.something?
 #   permitted
 # end
+controller do
+  helper ActionText::Engine.helpers
+end
   form do |f|
     f.inputs "Page details" do
       f.semantic_errors
       f.input :site_scope
       f.input :title
-      f.input :body, as: :action_text
+      f.rich_text_area :body
       # f.cktext_area :body
       f.input :priority
       f.input :slug

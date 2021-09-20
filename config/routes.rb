@@ -63,4 +63,5 @@ Rails.application.routes.draw do
 
   # Root path
   root to: 'welcome#index'
+  resources :photos, only: :create
 end

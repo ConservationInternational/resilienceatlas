@@ -24,7 +24,7 @@ div#footer{display: none;}
 #layer_group_submit_action input{color: #5E6469;}
 #layer_group_submit_action:hover input{color: white;}
 .active_admin {
-  form trix-editor {
+  form trix-editor, form #trix-toolbar-1 {
     margin-left: 20%;
     width: calc(80% - 17px);
   }
