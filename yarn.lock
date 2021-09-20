@@ -1103,7 +1103,7 @@
     mkdirp "^1.0.4"
     rimraf "^3.0.2"
 
-"@rails/actiontext@^6.0.3-4":
+"@rails/actiontext@^6.1.4":
   version "6.1.4"
   resolved "https://registry.yarnpkg.com/@rails/actiontext/-/actiontext-6.1.4.tgz#ed8c7d2b68d66205301f4538ce65d04c48031f6b"
   integrity sha512-KG+VCofmfZAhW1x1xFxMC2sZtvwbx+XX0Y+dzeBFjKU1jZMM0RNytJf5EiuHtD9fL71zz6/nMT7FjwOFenSA7Q==
@@ -1116,6 +1116,11 @@
   integrity sha512-1Tm8uaVBhLTDEG4YaFPvqguhjbUGSPVItm0CfkRpIFZIkybWzFAxatIrk4YVOOxB8ZdXS7GdeYa1qVwjdiDkgQ==
   dependencies:
     spark-md5 "^3.0.0"
+
+"@rails/ujs@^6.1.4-1":
+  version "6.1.4-1"
+  resolved "https://registry.yarnpkg.com/@rails/ujs/-/ujs-6.1.4-1.tgz#37507fe288a1c7c3a593602aa4dea42e5cb5797f"
+  integrity sha512-Fewm2wHk1n6Kf4E86dzzHDJOFg4EWcSHH3FsMEGs59bTdmf7099mjkOssOQtBqju4R39iaAOQNui7r8P+Q5Dgg==
 
 "@rails/webpacker@5.4.2":
   version "5.4.2"
@@ -5624,6 +5629,11 @@ pnp-webpack-plugin@^1.7.0:
   dependencies:
     ts-pnp "^1.1.6"
 
+popper.js@^1.16.1:
+  version "1.16.1"
+  resolved "https://registry.yarnpkg.com/popper.js/-/popper.js-1.16.1.tgz#2a223cb3dc7b6213d740e40372be40de43e65b1b"
+  integrity sha512-Wb4p1J4zyFTbM+u6WuO4XstYx4Ky9Cewe4DWrel7B0w6VVICvPwdOpotjzcf6eD8TsckVnIMNONQyPIUFOUbCQ==
+
 portfinder@^1.0.26:
   version "1.0.28"
   resolved "https://registry.yarnpkg.com/portfinder/-/portfinder-1.0.28.tgz#67c4622852bd5374dd1dd900f779f53462fac778"
@@ -7697,6 +7707,11 @@ tty-browserify@0.0.0:
   version "0.0.0"
   resolved "https://registry.yarnpkg.com/tty-browserify/-/tty-browserify-0.0.0.tgz#a157ba402da24e9bf957f9aa69d524eed42901a6"
   integrity sha1-oVe6QC2iTpv5V/mqadUk7tQpAaY=
+
+turbolinks@^5.2.0:
+  version "5.2.0"
+  resolved "https://registry.yarnpkg.com/turbolinks/-/turbolinks-5.2.0.tgz#e6877a55ea5c1cb3bb225f0a4ae303d6d32ff77c"
+  integrity sha512-pMiez3tyBo6uRHFNNZoYMmrES/IaGgMhQQM+VFF36keryjb5ms0XkVpmKHkfW/4Vy96qiGW3K9bz0tF5sK9bBw==
 
 type-is@~1.6.17, type-is@~1.6.18:
   version "1.6.18"

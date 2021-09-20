@@ -11,6 +11,7 @@
 @import "active_admin/active_admin_globalize";
 @import "active_admin/mixins";
 @import "active_admin/base";
+@import "trix";
 @import "wigu/active_admin_theme";
 // @import "activeadmin-sortable";
 @import "active_admin/sortable";
@@ -22,3 +23,17 @@
 div#footer{display: none;}
 #layer_group_submit_action input{color: #5E6469;}
 #layer_group_submit_action:hover input{color: white;}
+.active_admin {
+  form trix-editor {
+    margin-left: 20%;
+    width: calc(80% - 17px);
+  }
+}
+.trix-content {
+  ul {
+    list-style: disc !important;
+  }
+  ol {
+    list-style-type: decimal !important;
+  }
+}

@@ -94,6 +94,9 @@ GEM
       kaminari (~> 1.0, >= 1.2.1)
       railties (>= 5.2, < 6.2)
       ransack (~> 2.1, >= 2.1.1)
+    activeadmin-trix (0.0.1)
+      activeadmin
+      trix
     activejob (6.1.4)
       activesupport (= 6.1.4)
       globalid (>= 0.3.6)
@@ -491,6 +494,8 @@ GEM
       climate_control (>= 0.0.3, < 1.0)
     thor (1.1.0)
     tilt (2.0.10)
+    trix (0.10.1)
+      rails
     ttfunk (1.7.0)
     tzinfo (2.0.4)
       concurrent-ruby (~> 1.0)
@@ -523,6 +528,7 @@ DEPENDENCIES
   active_model_serializers (= 0.10.12)
   activeadmin
   activeadmin-globalize!
+  activeadmin-trix
   acts_as_list
   addressable
   ancestry

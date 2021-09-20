@@ -18,7 +18,8 @@ permit_params :title, :body, :priority, :slug, :site_scope_id
       f.semantic_errors
       f.input :site_scope
       f.input :title
-      f.cktext_area :body
+      f.input :body, as: :action_text
+      # f.cktext_area :body
       f.input :priority
       f.input :slug
       f.actions

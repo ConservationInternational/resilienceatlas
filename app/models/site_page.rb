@@ -13,6 +13,7 @@
 #
 
 class SitePage < ActiveRecord::Base
+    has_rich_text :body
     belongs_to :site_scope
     validates_uniqueness_of :title, scope: :site_scope_id
     validates_presence_of :title, :site_scope, :body, :slug
