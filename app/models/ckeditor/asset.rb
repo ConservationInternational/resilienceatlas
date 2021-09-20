@@ -16,6 +16,6 @@
 #  updated_at        :datetime         not null
 #
 
-class Ckeditor::Asset < ActiveRecord::Base
+class Ckeditor::Asset < ApplicationRecord
   include Ckeditor::Orm::ActiveRecord::AssetBase
 end

@@ -12,7 +12,7 @@
 #  slug          :string
 #
 
-class SitePage < ActiveRecord::Base
+class SitePage < ApplicationRecord
     has_rich_text :body
     belongs_to :site_scope
     validates_uniqueness_of :title, scope: :site_scope_id

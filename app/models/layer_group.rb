@@ -15,7 +15,7 @@
 #  site_scope_id    :integer          default(1)
 #
 
-class LayerGroup < ActiveRecord::Base
+class LayerGroup < ApplicationRecord
   has_many :agrupations
   has_many :layers, through: :agrupations
   belongs_to :super_group, class_name: 'LayerGroup'

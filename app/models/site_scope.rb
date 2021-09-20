@@ -19,7 +19,7 @@
 #  analysis_options :boolean          default(FALSE), not null
 #
 
-class SiteScope < ActiveRecord::Base
+class SiteScope < ApplicationRecord
   has_many :layer_groups
   has_many :site_pages
   # validates_presence_of :name, :header_theme

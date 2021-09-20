@@ -9,7 +9,7 @@
 #  updated_at :datetime         not null
 #
 
-class ShareUrl < ActiveRecord::Base
+class ShareUrl < ApplicationRecord
   before_create :create_uid
   validates_presence_of :body
   private
