@@ -39,7 +39,6 @@ module ConservationInternational
       g.helper false
       g.test_framework :rspec
     end
-    config.factory_bot.definition_file_paths = ["spec/factories"]
 
     # Heroku Asset Pippeline
     config.assets.initialize_on_precompile = true
