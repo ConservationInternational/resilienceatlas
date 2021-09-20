@@ -1,15 +1,12 @@
 const { environment } = require('@rails/webpacker')
 
-const myCssLoaderOptions = {
-  modules: {
-    localIdentName: '[name]__[local]___[hash:base64:10]',
-  },
-  sourceMap: true,
-}
-const CSSLoader = environment.loaders
-  .get('moduleSass')
-  .use.find((el) => el.loader === 'css-loader')
+const webpack = require("webpack");
 
-CSSLoader.options = { ...CSSLoader.options, ...myCssLoaderOptions }
+environment.plugins.prepend('Provide',
+  new webpack.ProvidePlugin({
+    $: 'jquery/src/jquery',
+    jQuery: 'jquery/src/jquery'
+  })
+);
 
 module.exports = environment

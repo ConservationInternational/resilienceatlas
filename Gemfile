@@ -1,8 +1,8 @@
 source 'https://rubygems.org'
 
-ruby '2.7.2'
+ruby '3.0.2'
 
-gem 'rails', '6.0.3.4'
+gem 'rails', '6.1.4'
 
 gem 'jquery-rails'
 gem 'jquery-ui-rails', '~> 6.0.1'
@@ -14,13 +14,14 @@ gem 'handlebars_assets'
 gem 'd3-rails', '>= 3.5.6'
 gem 'dotenv-rails'
 gem 'webpacker', '~> 5.0'
+gem 'mini_racer'
 
 gem 'pg'
 gem 'devise'
 gem 'jwt'
 gem 'simple_command'
 gem 'activeadmin'
-gem 'active_model_serializers', '0.10.11'
+gem 'active_model_serializers', '0.10.12'
 
 gem 'addressable'
 
