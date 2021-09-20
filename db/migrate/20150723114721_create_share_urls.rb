@@ -1,4 +1,4 @@
-class CreateShareUrls < ActiveRecord::Migration
+class CreateShareUrls < ActiveRecord::Migration[6.0]
   def change
     create_table :share_urls do |t|
       t.string :uid

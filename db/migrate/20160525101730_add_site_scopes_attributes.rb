@@ -1,4 +1,4 @@
-class AddSiteScopesAttributes < ActiveRecord::Migration
+class AddSiteScopesAttributes < ActiveRecord::Migration[6.0]
   def change
     add_column :site_scopes, :color, :string
     add_column :site_scopes, :subdomain, :string

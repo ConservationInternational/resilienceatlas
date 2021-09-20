@@ -15,8 +15,13 @@
 #  created_at        :datetime         not null
 #  updated_at        :datetime         not null
 #
+require 'active_storage'
 
 class Ckeditor::Asset < ActiveRecord::Base
   include Ckeditor::Orm::ActiveRecord::AssetBase
-  include Ckeditor::Backend::Paperclip
+  include Ckeditor::Backend::ActiveStorage
+
+  attr_accessor :data
+
+  has_one_attached :storage_data
 end

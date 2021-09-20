@@ -60,4 +60,5 @@ Rails.application.configure do
     logger.level     = config.log_level
     config.logger    = ActiveSupport::TaggedLogging.new(logger)
   end
+  config.active_storage.service = :local
 end

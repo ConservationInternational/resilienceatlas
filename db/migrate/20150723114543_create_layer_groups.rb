@@ -1,4 +1,4 @@
-class CreateLayerGroups < ActiveRecord::Migration
+class CreateLayerGroups < ActiveRecord::Migration[6.0]
   def change
     create_table :layer_groups do |t|
       t.string :name
