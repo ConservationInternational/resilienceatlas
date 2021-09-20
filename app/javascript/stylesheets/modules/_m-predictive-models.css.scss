@@ -1,0 +1,123 @@
+.m-predictive-models {
+  padding: 0 15px;
+
+  > p {
+    font-weight: 400;
+    font-size: rem(15px);
+  }
+
+  [hidden] {
+    display: none !important;
+  }
+
+  .model-selector {
+    position: relative;
+
+    &:after {
+      @include arrow(8px, $gray-70, 2px, -45deg);
+      position: absolute;
+      top: 3px;
+      right: 0;
+      transform: rotate(-135deg);
+      content: '';
+    }
+
+    select {
+      padding-right: 15px;
+      appearance: none;
+      border: 0;
+      font-size: rem(14px);
+      font-weight: 700;
+      line-height: 1.2em;
+      text-transform: uppercase;
+      color: $blue;
+      background: transparent;
+      outline: none;
+    }
+  }
+
+  .indicators-list {
+    margin-top: 35px;
+    padding-left: 0;
+    list-style: none;
+
+    > li {
+      margin-bottom: 20px;
+
+      &.category {
+        margin-bottom: 10px;
+      }
+    }
+
+    .m-form-input--switch {
+      display: flex;
+      font-weight: 400;
+      font-size: rem(14px);
+
+      label {
+        display: inline-block;
+        flex-shrink: 0;
+        margin-right: 5px;
+        margin-top: 2px;
+      }
+    }
+
+    .m-form-input--slider {
+      position: relative;
+
+      .tooltip {
+        display: block;
+        position: absolute;
+        top: -60px;
+        left: 0;
+        padding: 15px;
+        border: 1px solid $gray-6;
+        border-radius: 3px;
+        background: $white;
+        box-shadow: 0 24px 56px 4px rgba(0, 0, 0, .2);
+        font-weight: 400;
+        font-size: rem(14px);
+        transform: translateX(-50%);
+
+        &:after {
+          @include arrow(20px, $white, 10px, -135deg);
+          position: absolute;
+          bottom: -10px;
+          left: 50%;
+          transform: translateX(-50%) rotate(-135deg);
+          background: $white;
+          content: '';
+        }
+      }
+    }
+  }
+
+  .actions {
+    .btn {
+      color: $white;
+      background: $font-color-2;
+
+      &:hover {
+        background: darken($bg-color-2,5%);
+      }
+
+      &.-primary {
+        background: $blue;
+
+        &:hover {
+          background: darken($blue,5%);
+        }
+      }
+
+      &.-secondary {
+        color: $blue;
+        border: 1px solid $blue;
+        background: transparent;
+
+        &:hover {
+          background: rgba($blue, .1);
+        }
+      }
+    }
+  }
+}

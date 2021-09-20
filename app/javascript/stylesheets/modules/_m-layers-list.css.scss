@@ -1,0 +1,380 @@
+.m-layers-list {
+  // box-shadow: 0 1px 4px 0 rgba(0,0,0,.2);
+  font-size: rem(14px);
+
+  > ul {
+    @extend %clean-lists;
+
+    > li {
+      border-bottom: 1px solid rgba($font-color-1, .1);
+    }
+
+    ul {
+      @extend %clean-lists;
+      display: none;
+      position: relative;
+      padding-left: rem(10px);
+
+      ul {
+        border-bottom: none;
+      }
+
+      &.is-active {
+        display: block;
+      }
+
+      &.is-active.m-basemap-selectors {
+        display: flex;
+      }
+    }
+  }
+
+  li[data-slug="hide_layers"] {
+    display: none;
+  }
+}
+
+.m-layers-list-header {
+  @include clearfix;
+  position: relative;
+  padding: rem(15px) rem(15px) rem(15px) rem(30px);
+  color: $font-color-2;
+
+  &:last-child {
+    border-bottom: 0;
+  }
+
+  &:before {
+    @include arrow (rem(7px), $font-color-1, 2px, 135deg);
+    position: absolute;
+    top: 39%;
+    left: rem(15px);
+    transition: .2s ease;
+    transform-origin: rem(2px);
+  }
+
+  &.is-active {
+    &:before {
+      transform: rotate(225deg);
+    }
+  }
+
+  .header-title {
+    font-weight: 700;
+    text-transform: uppercase;
+    line-height: 1.2em;
+
+    cursor: pointer;
+  }
+
+  .header-switch {
+    float: right;
+    margin-top: rem(2px);
+  }
+
+  ul ul & {
+    padding: rem(15px) rem(15px) rem(10px) rem(35px);
+    color: $font-color-1;
+    background-color: $bg-color-1;
+    text-align: left;
+
+    .header-title {
+      max-width: 85%;
+      float: left;
+      font-weight: 400;
+    }
+
+    &.is-active {
+      border-bottom: 0;
+    }
+
+    &:before {
+      @include arrow (rem(7px), rgba(#4a4a4a, .3), 2px, 135deg);
+      position: absolute;
+      top: 39%;
+      left: rem(15px);
+    }
+  }
+}
+
+.m-layers-list-panel {
+  @extend %clean-lists;
+  font-weight: 400;
+
+  li {
+
+    &.subcategory,
+    &.subgroup {
+      padding: 0;
+      padding-left: rem(10px);
+
+      .m-layers-list-header {
+        padding-top: 0;
+
+        &:before {
+          top: 15%;
+        }
+      }
+
+      &:last-child {
+        border-bottom: 0;
+      }
+    }
+
+    &.subgroup {
+      .header-title {
+        text-transform: none;
+        font-weight: 700;
+      }
+
+      li {
+        padding-left: 10px;
+      }
+    }
+
+  }
+
+  .layer {
+    padding: 0 0 10px 25px;
+  }
+
+  .panel-item-title {
+    float: left;
+    max-width: 60%;
+    margin-left: rem(10px);
+  }
+
+
+  .icon-container {
+    position: relative;
+    width: 18px;
+    height: 18px;
+    padding: 0;
+    margin: 0;
+
+    >.icon{
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    >.icon-downloads {
+      height: 13px;
+      width: 13px;
+    }
+  }
+
+
+  .panel-item-switch {
+    float: left;
+    margin-top: rem(1px);
+  }
+}
+
+.panel-item-slider {
+  @include clearfix;
+  position: relative;
+  clear: both;
+
+  height: 0;
+  overflow: hidden;
+  transition: .2s ease-in;
+
+  .is-open & {
+    height: rem(35px);
+  }
+}
+
+.panel-trasparecy-switcher {
+  @extend %clean-button-or-input;
+  float: right;
+
+  .icon-settings {
+    width: 13px;
+    height: 13px;
+    fill: $bg-color-4;
+
+    //Hover options had problems in iPad
+    //when there are more js options in those elements.
+    // &:hover {
+    //   fill: $bg-color-2;
+    // }
+
+    .is-open &,
+    .is-modified & {
+      path {
+        fill: $bg-color-2;
+        stroke: $bg-color-2;
+      }
+    }
+  }
+}
+
+
+.btn-locate {
+  @extend %clean-button-or-input;
+  float: right;
+
+  .icon-zoom-pan {
+    width: 13px;
+    height: 13px;
+    margin-top: rem(1px);
+  }
+}
+
+.m-form-input--slider {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 30px;
+
+    // Safari & Chrome
+    &::-webkit-slider-runnable-track {
+      // Can't use transparent color for next line
+      background: linear-gradient(to right, #c4c4c4 33%, #fff 0%);
+      background-position: center;
+      background-size: 10px 2px;
+      background-repeat: repeat-x;
+    }
+
+    &::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      border: 4px solid $font-color-1;
+      height: 11px;
+      width: 11px;
+      border-radius: 50%;
+      box-shadow: 0 0 0 2px $bg-color-3;
+      background: $bg-color-3;
+      cursor: pointer;
+      position: relative;
+      z-index: 10;
+    }
+
+    &:focus, &:active {
+      &::-webkit-slider-thumb {
+        border-color: $blue;
+      }
+    }
+
+    // Firefox
+    &::-moz-range-track {
+      // Can't use transparent color for next line
+      background: linear-gradient(to right, #c4c4c4 33%, #fff 0%);
+      background-position: bottom;
+      background-size: 10px 2px;
+      background-repeat: repeat-x;
+    }
+
+    &::-moz-range-progress {
+      height: 3px;
+      background-color: $font-color-1;
+    }
+
+    &::-moz-range-thumb {
+      box-sizing: border-box;
+      appearance: none;
+      border: 4px solid $font-color-1;
+      height: 11px;
+      width: 11px;
+      border-radius: 50%;
+      box-shadow: 0 0 0 2px $bg-color-3;
+      background: $bg-color-3;
+      cursor: pointer;
+    }
+
+    &::-moz-focus-outer { // Remove the outline
+      border: none;
+    }
+
+    &:focus, &:active {
+      &::-moz-range-thumb {
+        border-color: $blue;
+      }
+    }
+
+    // IE & Edge
+    &::-ms-track {
+      // Can't use transparent color for next line
+      background: linear-gradient(to right, #c4c4c4 33%, #fff 0%);
+      background-position: center;
+      background-size: 10px 2px;
+      background-repeat: repeat-x;
+    }
+
+    &::-ms-fill-lower {
+      height: 3px;
+      background-color: $font-color-1;
+    }
+
+    &::-ms-thumb {
+      box-sizing: border-box;
+      appearance: none;
+      border: 4px solid $font-color-1;
+      height: 11px;
+      width: 11px;
+      border-radius: 50%;
+      box-shadow: 0 0 0 2px $bg-color-3;
+      background: $bg-color-3;
+      cursor: pointer;
+      position: relative;
+      z-index: 10;
+    }
+
+    &:focus, &:active {
+      &::-ms-thumb {
+        border-color: $blue;
+      }
+    }
+  }
+
+  .opacity {
+    // Only webkit-based browsers need this
+    @supports (-webkit-appearance: none) and (not (-ms-ime-align: auto)) {
+      display: block;
+      position: absolute;
+      top: 14px;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background-color: $font-color-1;
+    }
+  }
+
+  .slider-wrapper {
+    width: 85%;
+    position: relative;
+  }
+
+  .value {
+    flex-shrink: 0;
+  }
+
+  .opacity-teller {
+    @extend %clean-button-or-input;
+    color: $font-color-1;
+    font-size: rem(14px);
+    padding-right: 5px;
+
+    width: 42px;
+    border: 0;
+    text-align: right;
+
+    // Hide the arrows on Firefox
+    -moz-appearance: textfield;
+    &:hover { -moz-appearance: textfield; }
+  }
+}
+
+
+
+
+
+
+
+

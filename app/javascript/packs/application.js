@@ -18,4 +18,5 @@
 require("trix");
 require("@rails/actiontext");
 import './main/application';
-import '../stylesheets/test.css';
+import '../stylesheets/application.css.scss';
+

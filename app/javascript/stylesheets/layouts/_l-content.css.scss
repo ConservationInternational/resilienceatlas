@@ -1,0 +1,22 @@
+%l-content {
+  @include clearfix;
+}
+
+.l-content,
+.l-content--default {
+  @extend %l-content;
+}
+
+.l-content--fullscreen {
+  @extend %l-content;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  top: 0;
+  transition: all .3s $easeInSine;
+}
+
+.wrap {
+  margin: 60px 40px;
+}

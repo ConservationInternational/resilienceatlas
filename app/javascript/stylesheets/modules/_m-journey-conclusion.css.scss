@@ -1,0 +1,137 @@
+.m-journey--conclusion {
+  @extend %journey;
+
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+
+  &.overview {
+    #btn-next-journey {
+      display: none !important;
+    }
+  }
+
+  &.is-dark-theme {
+    .content {
+      color: $font-color-1;
+
+      h2, h3, p {
+        text-shadow: none;
+      }
+    }
+  }
+
+  .content {
+    position: relative;
+    margin-left: rem(40px);
+    margin-top: rem(-70px);
+    padding: rem(40px);
+    width: rem(480px);
+    max-height: 60vh;
+    color: $font-color-3;
+    transition: .7s cubic-bezier(0.19, 1, 0.22, 1);
+    //No overflow hidden, it hidde action buttons.
+    // overflow: hidden;
+
+    &.is-colapsed {
+      margin-left: 0;
+      transform: translatex(-100%);
+    }
+
+    .extra-wrapper {
+      overflow: hidden;
+    }
+
+    .wrapper {
+      max-height: 40vh;
+      overflow-y: scroll;
+      padding-right: 20px;
+      padding-bottom: rem(35px);
+
+      @extend %clear-scroll-bars;
+      margin-right: -20px;
+    }
+
+    .shadow {
+      position: absolute;
+      bottom: rem(40px);
+      right: 0;
+      left: 0;
+      height: rem(40px);
+    }
+
+    h2 {
+      margin-bottom: 0;
+      margin-top: 0;
+      font-size: rem(56px);
+      text-transform: uppercase;
+      font-family: $font-face-2;
+      line-height: 1em;
+    }
+
+    h3 {
+      font-size: rem(18px);
+      text-transform: uppercase;
+      font-weight: 400;
+      // text-shadow: 0 1px 1px black;
+    }
+
+    p {
+      font-size: rem(18px);
+      font-weight: 400;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+
+    .scrolldown-link:before {
+      position: absolute;
+      left: 48%;
+      bottom: 25px;
+
+      @include arrow(15px, $font-color-3, 2px, -135deg);
+      content: "";
+      pointer-events: auto;
+
+      animation-name: jump;
+      animation-duration: 1s;
+      animation-iteration-count: 1;
+
+      z-index: 100;
+    }
+
+
+
+    .btn-colapse,
+    .btn-descolapse {
+      @extend %clean-button-or-input;
+      position: absolute;
+      top: 0;
+      right: rem(-35px);
+      width: rem(35px);
+      height: rem(35px);
+      background-color: rgba(#000, .2);
+
+      &:after {
+        content: "";
+        @extend %center;
+        @include arrow (10px, #fff, 1px, -45deg);
+        transform-origin: -2px;
+      }
+    }
+
+    .btn-descolapse {
+      &:after {
+        @include arrow (10px, #fff, 1px, 135deg);
+        transform-origin: 6px;
+        transform: translate(-100%, -50%) rotate(135deg);
+      }
+    }
+  }
+
+  #btn-next-journey {
+    display: block !important;
+  }
+}
+
