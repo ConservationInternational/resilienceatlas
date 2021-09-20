@@ -43,6 +43,7 @@ gem 'sendgrid'
 gem 'rubyzip'
 gem 'prawn'
 gem 'prawn-table'
+gem 'normalize-rails'
 
 # Translations
 gem 'globalize'
@@ -73,7 +74,7 @@ group :development, :test do
   gem 'rspec_api_documentation'
   gem 'json_spec'
   gem 'bullet'
-  gem 'web-console', '~> 2.0'
+  gem 'web-console'
   gem 'capistrano'
   gem 'capistrano-rvm'
   gem 'capistrano-bundler'
@@ -99,7 +100,7 @@ end
 
 # Rails Assets is the frictionless proxy between Bundler and Bower.
 source 'https://rails-assets.org' do
-  gem 'rails-assets-normalize-css'
+  # gem 'rails-assets-normalize-css'
   gem 'rails-assets-foundation-sass'
   gem 'rails-assets-foundation'
   gem 'rails-assets-underscore'
