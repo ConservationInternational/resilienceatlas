@@ -21,4 +21,4 @@ html lang="#{I18n.locale}"
       == yield
     == render "layouts/footer"
     == render "partials/modal"
-    = javascript_include_tag "application"
+    = javascript_pack_tag "application"

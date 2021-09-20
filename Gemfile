@@ -13,6 +13,7 @@ gem 'autoprefixer-rails'
 gem 'handlebars_assets'
 gem 'd3-rails', '>= 3.5.6'
 gem 'dotenv-rails'
+gem 'webpacker', '~> 5.0'
 
 gem 'pg'
 gem 'devise'

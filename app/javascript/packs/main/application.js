@@ -116,7 +116,7 @@ function initApp(root) {
         link_text: data.linkback_text || null,
         link_url: data.linkback_url || null,
         header_color: data.header_color || null,
-        logo_url: data.logo_url || '<%= image_path("logo-ci.png") %>'
+        logo_url: data.logo_url
       }
 
       this.setThemeColor();
