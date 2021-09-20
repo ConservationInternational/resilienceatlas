@@ -21,11 +21,22 @@ end
       f.semantic_errors
       f.input :site_scope
       f.input :title
-      f.rich_text_area :body
+      f.inputs 'Body' do
+        f.rich_text_area :body
+      end
       # f.cktext_area :body
       f.input :priority
       f.input :slug
       f.actions
     end
   end
+
+show do
+  attributes_table :id, :site_scope, :title, :priority, :slug do
+    row 'Body' do |site_page|
+      site_page.body.body
+    end
+  end
+end
+
 end
