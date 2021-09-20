@@ -14,9 +14,9 @@
 
 FactoryBot.define do
   factory :site_page do
-    title "MyString"
-body "MyText"
-priority 1
+    title { "MyString" }
+    body { "MyText" }
+    priority { 1 }
   end
 
 end

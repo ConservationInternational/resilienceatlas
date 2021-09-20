@@ -55,6 +55,7 @@ gem 'activeadmin-globalize', git: 'https://github.com/GeoffAbtion/activeadmin-gl
 gem 'active_admin-sortable_tree'
 gem 'ancestry'
 gem 'acts_as_list'
+gem 'factory_bot_rails'
 # gem 'activeadmin-sortable'
 
 # Ransack for Active Admin
@@ -65,7 +66,6 @@ group :production, :staging do
 end
 
 group :development, :test do
-  gem 'factory_bot_rails'
   gem 'spring'
   gem 'teaspoon'
   gem 'teaspoon-mocha'
