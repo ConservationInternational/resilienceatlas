@@ -8,8 +8,12 @@ class Ability
       # superusers can do everything, no need to specify
       can :manage, :all
     when 'manager'
-      can :manage, :layers
+      can :read, ActiveAdmin::Page, :name => "Dashboard"
+      can :read, [Layer,User]
+      can :manage, Layer
+    when 'staff'
+      can :read, ActiveAdmin::Page, :name => "Dashboard"
+      can :read, Layer
     end
-
   end
 end
