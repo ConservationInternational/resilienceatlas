@@ -23,7 +23,10 @@ gem 'devise'
 gem 'jwt'
 gem 'simple_command'
 gem 'activeadmin'
+gem 'activeadmin_addons'
 gem 'active_model_serializers', '0.10.12'
+
+gem "cancan"
 
 gem 'addressable'
 

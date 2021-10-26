@@ -22,4 +22,12 @@ class AdminUser < ApplicationRecord
   # :confirmable, :lockable, :timeoutable and :omniauthable
   devise :database_authenticatable,
          :recoverable, :rememberable, :trackable, :validatable
+
+  ROLES = %i[
+    admin
+    manager
+    staff
+  ].freeze
+
+  enum role: ROLES
 end

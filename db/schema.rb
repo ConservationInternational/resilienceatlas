@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_09_08_151813) do
+ActiveRecord::Schema.define(version: 2021_10_26_093038) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -53,7 +53,7 @@ ActiveRecord::Schema.define(version: 2021_09_08_151813) do
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
   end
 
-  create_table "admin_users", id: :serial, force: :cascade do |t|
+  create_table "admin_users", force: :cascade do |t|
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
     t.string "reset_password_token"
@@ -64,29 +64,30 @@ ActiveRecord::Schema.define(version: 2021_09_08_151813) do
     t.datetime "last_sign_in_at"
     t.inet "current_sign_in_ip"
     t.inet "last_sign_in_ip"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.integer "role", default: 0
     t.index ["email"], name: "index_admin_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_admin_users_on_reset_password_token", unique: true
   end
 
-  create_table "agrupations", id: :serial, force: :cascade do |t|
-    t.integer "layer_id"
-    t.integer "layer_group_id"
+  create_table "agrupations", force: :cascade do |t|
+    t.bigint "layer_id"
+    t.bigint "layer_group_id"
     t.index ["layer_group_id"], name: "index_agrupations_on_layer_group_id"
     t.index ["layer_id"], name: "index_agrupations_on_layer_id"
   end
 
-  create_table "categories", id: :serial, force: :cascade do |t|
+  create_table "categories", force: :cascade do |t|
     t.string "name", null: false
     t.string "slug", null: false
     t.text "description"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
     t.index ["name"], name: "index_categories_on_name"
   end
 
-  create_table "ckeditor_assets", id: :serial, force: :cascade do |t|
+  create_table "ckeditor_assets", force: :cascade do |t|
     t.string "data_file_name", null: false
     t.string "data_content_type"
     t.integer "data_file_size"
@@ -96,27 +97,27 @@ ActiveRecord::Schema.define(version: 2021_09_08_151813) do
     t.string "type", limit: 30
     t.integer "width"
     t.integer "height"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
     t.index ["assetable_type", "assetable_id"], name: "idx_ckeditor_assetable"
     t.index ["assetable_type", "type", "assetable_id"], name: "idx_ckeditor_assetable_type"
   end
 
-  create_table "identities", id: :serial, force: :cascade do |t|
-    t.integer "user_id"
+  create_table "identities", force: :cascade do |t|
+    t.bigint "user_id"
     t.string "provider"
     t.string "uid"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
     t.index ["user_id"], name: "index_identities_on_user_id"
   end
 
-  create_table "indicators", id: :serial, force: :cascade do |t|
+  create_table "indicators", force: :cascade do |t|
     t.string "name", null: false
     t.string "slug", null: false
     t.string "version"
-    t.datetime "created_at", default: "2018-08-28 10:04:46", null: false
-    t.datetime "updated_at", default: "2018-08-28 10:04:46", null: false
+    t.datetime "created_at", default: "2021-10-26 09:35:08", null: false
+    t.datetime "updated_at", default: "2021-10-26 09:35:08", null: false
     t.integer "category_id"
     t.integer "position"
     t.string "column_name"
@@ -125,41 +126,41 @@ ActiveRecord::Schema.define(version: 2021_09_08_151813) do
   end
 
   create_table "indicators_models", id: false, force: :cascade do |t|
-    t.integer "indicator_id", null: false
-    t.integer "model_id", null: false
+    t.bigint "indicator_id", null: false
+    t.bigint "model_id", null: false
   end
 
-  create_table "layer_group_translations", id: :serial, force: :cascade do |t|
-    t.integer "layer_group_id", null: false
+  create_table "layer_group_translations", force: :cascade do |t|
+    t.bigint "layer_group_id", null: false
     t.string "locale", null: false
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
     t.string "name"
     t.text "info"
     t.index ["layer_group_id"], name: "index_layer_group_translations_on_layer_group_id"
     t.index ["locale"], name: "index_layer_group_translations_on_locale"
   end
 
-  create_table "layer_groups", id: :serial, force: :cascade do |t|
+  create_table "layer_groups", force: :cascade do |t|
     t.integer "super_group_id"
     t.string "slug"
     t.string "layer_group_type"
     t.string "category"
     t.boolean "active"
     t.integer "order"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
     t.string "icon_class"
     t.integer "site_scope_id", default: 1
     t.index ["site_scope_id"], name: "index_layer_groups_on_site_scope_id"
     t.index ["super_group_id"], name: "index_layer_groups_on_super_group_id"
   end
 
-  create_table "layer_translations", id: :serial, force: :cascade do |t|
-    t.integer "layer_id", null: false
+  create_table "layer_translations", force: :cascade do |t|
+    t.bigint "layer_id", null: false
     t.string "locale", null: false
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
     t.string "name"
     t.text "info"
     t.text "legend"
@@ -171,7 +172,7 @@ ActiveRecord::Schema.define(version: 2021_09_08_151813) do
     t.index ["locale"], name: "index_layer_translations_on_locale"
   end
 
-  create_table "layers", id: :serial, force: :cascade do |t|
+  create_table "layers", force: :cascade do |t|
     t.integer "layer_group_id"
     t.string "slug", null: false
     t.string "layer_type"
@@ -184,8 +185,8 @@ ActiveRecord::Schema.define(version: 2021_09_08_151813) do
     t.text "interactivity"
     t.float "opacity"
     t.text "query"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
     t.boolean "locate_layer", default: false
     t.string "icon_class"
     t.boolean "published", default: true
@@ -219,29 +220,29 @@ ActiveRecord::Schema.define(version: 2021_09_08_151813) do
     t.index ["source_id"], name: "index_layers_sources_on_source_id"
   end
 
-  create_table "map_menu_entries", id: :serial, force: :cascade do |t|
+  create_table "map_menu_entries", force: :cascade do |t|
     t.string "label"
     t.string "link"
     t.integer "position"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
     t.string "ancestry"
     t.index ["ancestry"], name: "index_map_menu_entries_on_ancestry"
   end
 
-  create_table "models", id: :serial, force: :cascade do |t|
+  create_table "models", force: :cascade do |t|
     t.string "name", null: false
     t.text "description"
     t.text "source"
-    t.datetime "created_at", default: "2018-08-28 10:04:46", null: false
-    t.datetime "updated_at", default: "2018-08-28 10:04:46", null: false
+    t.datetime "created_at", default: "2021-10-26 09:35:08", null: false
+    t.datetime "updated_at", default: "2021-10-26 09:35:08", null: false
     t.text "query_analysis"
     t.string "table_name"
   end
 
   create_table "models_site_scopes", id: false, force: :cascade do |t|
-    t.integer "model_id", null: false
-    t.integer "site_scope_id", null: false
+    t.bigint "model_id", null: false
+    t.bigint "site_scope_id", null: false
   end
 
   create_table "photos", force: :cascade do |t|
@@ -250,27 +251,27 @@ ActiveRecord::Schema.define(version: 2021_09_08_151813) do
     t.datetime "updated_at", precision: 6, null: false
   end
 
-  create_table "share_urls", id: :serial, force: :cascade do |t|
+  create_table "share_urls", force: :cascade do |t|
     t.string "uid"
     t.text "body"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
   end
 
-  create_table "site_pages", id: :serial, force: :cascade do |t|
+  create_table "site_pages", force: :cascade do |t|
     t.string "title"
     t.text "body"
     t.integer "priority"
     t.integer "site_scope_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
     t.string "slug"
     t.index ["site_scope_id"], name: "index_site_pages_on_site_scope_id"
     t.index ["slug"], name: "index_site_pages_on_slug", unique: true
     t.index ["title", "site_scope_id"], name: "index_site_pages_on_title_and_site_scope_id", unique: true
   end
 
-  create_table "site_scopes", id: :serial, force: :cascade do |t|
+  create_table "site_scopes", force: :cascade do |t|
     t.string "name"
     t.string "color"
     t.string "subdomain"
@@ -287,10 +288,9 @@ ActiveRecord::Schema.define(version: 2021_09_08_151813) do
     t.boolean "analysis_options", default: false, null: false
     t.string "analytics_code"
     t.boolean "has_gef_logo"
-    t.boolean "intro_modal"
   end
 
-  create_table "sources", id: :serial, force: :cascade do |t|
+  create_table "sources", force: :cascade do |t|
     t.string "source_type"
     t.string "reference"
     t.string "reference_short"
@@ -300,13 +300,13 @@ ActiveRecord::Schema.define(version: 2021_09_08_151813) do
     t.string "license"
     t.datetime "last_updated"
     t.string "version"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
     t.string "spatial_resolution_units"
     t.text "license_url"
   end
 
-  create_table "users", id: :serial, force: :cascade do |t|
+  create_table "users", force: :cascade do |t|
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
     t.string "reset_password_token"
@@ -317,8 +317,8 @@ ActiveRecord::Schema.define(version: 2021_09_08_151813) do
     t.datetime "last_sign_in_at"
     t.inet "current_sign_in_ip"
     t.inet "last_sign_in_ip"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
     t.string "first_name"
     t.string "last_name"
     t.string "phone"

@@ -5,4 +5,5 @@
 #= require active_admin/sortable
 #= require trix/dist/trix
 #= require upload_attachement
+#= require activeadmin_addons/all
 
