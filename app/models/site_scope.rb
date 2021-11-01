@@ -26,4 +26,13 @@ class SiteScope < ApplicationRecord
   def location
     [:latitude, :longitude]
   end
+
+  def clone!
+    site_scope = self.clone
+    new_site_scope = SiteScope.new(site_scope.attributes.except("id"))
+    new_site_scope.name = "#{self.name} _copy_ #{DateTime.now}"    
+    new_site_scope.save!
+    return new_site_scope
+  end
+
 end
