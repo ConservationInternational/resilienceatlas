@@ -9,11 +9,11 @@ class Ability
       can :manage, :all
     when 'manager'
       can :read, ActiveAdmin::Page, :name => "Dashboard"
-      can :read, [Layer,User]
-      can :manage, Layer
+      can :manage, [LayerGroup, Category, MapMenuEntry, Model, SitePage, SiteScope, Source, User]
+      can [:create, :update, :read], [Layer]
     when 'staff'
       can :read, ActiveAdmin::Page, :name => "Dashboard"
-      can :read, Layer
+      can :read, [Layer, LayerGroup, Category]
     end
   end
 end
