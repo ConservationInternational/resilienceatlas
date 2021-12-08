@@ -16,18 +16,19 @@ ActiveAdmin.register Layer do
 
     redirect_to edit_admin_layer_path( n )
   end
-
   filter :title, label: :name
-  filter :layer_groups
   filter :slug
-  filter :translations_name_contains, label: 'Name'
   filter :layer_type, as: :select
-  filter :zindex, as: :select
-  filter :active, as: :select
-  filter :order
   filter :layer_provider, as: :select
+  filter :name
+  filter :legend
+  filter :layer_groups
+  filter :site_scopes
+  filter :query
+  filter :layer_config
+  filter :interaction_config
   filter :css
-  filter :interactivity
+  filter :translations_name_contains, label: 'Name'
 
   index do
     selectable_column

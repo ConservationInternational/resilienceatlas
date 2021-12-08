@@ -47,6 +47,7 @@ class Layer < ApplicationRecord
 
   has_many :agrupations,  dependent: :destroy
   has_many :layer_groups, through: :agrupations,  dependent: :destroy
+  has_many :site_scopes, through: :layer_groups
 
   accepts_nested_attributes_for :agrupations, allow_destroy: true
   accepts_nested_attributes_for :sources, allow_destroy: true
