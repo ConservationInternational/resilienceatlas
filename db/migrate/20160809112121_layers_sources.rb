@@ -1,4 +1,4 @@
-class LayersSources < ActiveRecord::Migration
+class LayersSources < ActiveRecord::Migration[6.0]
   def change
     create_table :layers_sources, id: false do |t|
       t.integer :layer_id

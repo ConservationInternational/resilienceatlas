@@ -12,7 +12,7 @@
 #  table_name     :string
 #
 
-class Model < ActiveRecord::Base
+class Model < ApplicationRecord
   has_and_belongs_to_many :site_scopes
   has_and_belongs_to_many :indicators
 

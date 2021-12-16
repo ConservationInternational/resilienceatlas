@@ -1,4 +1,4 @@
-class CreateAgrupations < ActiveRecord::Migration
+class CreateAgrupations < ActiveRecord::Migration[6.0]
   def change
     create_table :agrupations do |t|
       t.references :layer, index: true, foreign_key: true

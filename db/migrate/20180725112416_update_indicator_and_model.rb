@@ -1,4 +1,4 @@
-class UpdateIndicatorAndModel < ActiveRecord::Migration
+class UpdateIndicatorAndModel < ActiveRecord::Migration[6.0]
   def change
     remove_column :indicators, :analysis_query
     remove_column :indicators, :analysis_suitable

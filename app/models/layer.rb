@@ -42,7 +42,7 @@
 
 require 'zip'
 
-class Layer < ActiveRecord::Base
+class Layer < ApplicationRecord
   has_and_belongs_to_many :sources
 
   has_many :agrupations,  dependent: :destroy

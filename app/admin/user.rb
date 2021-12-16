@@ -49,6 +49,7 @@ ActiveAdmin.register User do
   form do |f|
     f.inputs "User Details" do
       f.input :email
+      f.input :password
       f.input :first_name
       f.input :last_name
       f.input :phone

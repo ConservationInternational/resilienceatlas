@@ -19,11 +19,20 @@
 #  analysis_options :boolean          default(FALSE), not null
 #
 
-class SiteScope < ActiveRecord::Base
+class SiteScope < ApplicationRecord
   has_many :layer_groups
   has_many :site_pages
   # validates_presence_of :name, :header_theme
   def location
     [:latitude, :longitude]
   end
+
+  def clone!
+    site_scope = self.clone
+    new_site_scope = SiteScope.new(site_scope.attributes.except("id"))
+    new_site_scope.name = "#{self.name} _copy_ #{DateTime.now}"    
+    new_site_scope.save!
+    return new_site_scope
+  end
+
 end

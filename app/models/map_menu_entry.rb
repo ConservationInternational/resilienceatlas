@@ -11,7 +11,7 @@
 #  ancestry   :string
 #
 
-class MapMenuEntry < ActiveRecord::Base
+class MapMenuEntry < ApplicationRecord
   has_ancestry orphan_strategy: :destroy
   validates_presence_of :label, :position
 end

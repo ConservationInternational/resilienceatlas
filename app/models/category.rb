@@ -10,10 +10,10 @@
 #  updated_at  :datetime
 #
 
-class Category < ActiveRecord::Base
+class Category < ApplicationRecord
   has_many :indicators
   validates_presence_of :slug, :name
-  
+
   def self.fetch_all(options={})
     Category.all
   end

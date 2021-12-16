@@ -30,6 +30,17 @@ To start the application, run:
 ```
 bundle exec rails server
 ```
+## API's testing steps
+
+Requirements:
+
+* Install postman
+
+Usage:
+* Import postman collection and environment files into postman
+
+Note:
+Files are located under doc folder
 
 ## Deployment
 
