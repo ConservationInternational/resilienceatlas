@@ -16,7 +16,7 @@ ActiveAdmin.register Indicator do
 
   index as: :sortable do
     label :label do |indicator|
-      "#{indicator.name} - #{indicator.category.name}"
+      "#{indicator.name} - #{indicator.category&.name}"
     end
     actions
   end
