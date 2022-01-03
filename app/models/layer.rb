@@ -43,6 +43,45 @@
 require 'zip'
 
 class Layer < ApplicationRecord
+  WHITELIST_ATTRIBUTES = %i[
+    layer_group_id
+    slug
+    layer_type
+    zindex
+    active
+    order
+    color
+    layer_provider
+    css
+    interactivity
+    opacity
+    query
+    created_at
+    updated_at
+    locate_layer
+    icon_class
+    published
+    zoom_max
+    zoom_min
+    dashboard_order
+    download
+    dataset_shortname
+    dataset_source_url
+    start_date
+    end_date
+    spatial_resolution
+    spatial_resolution_units
+    temporal_resolution
+    temporal_resolution_units
+    update_frequency
+    version
+    analysis_suitable
+    analysis_query
+    layer_config
+    analysis_body
+    interaction_config
+  ].freeze
+
   has_and_belongs_to_many :sources
 
   has_many :agrupations,  dependent: :destroy
