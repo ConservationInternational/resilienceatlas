@@ -44,6 +44,7 @@ require 'zip'
 
 class Layer < ApplicationRecord
   WHITELIST_ATTRIBUTES = %i[
+    name
     layer_group_id
     slug
     layer_type

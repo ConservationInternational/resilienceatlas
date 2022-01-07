@@ -26,8 +26,7 @@ class AdminUser < ApplicationRecord
 
   include DeviseTokenAuth::Concerns::User
 
-  ROLES = %i[
-    name
+  ROLES = %i[    
     admin
     manager
     staff
