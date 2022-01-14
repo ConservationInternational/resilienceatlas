@@ -27,6 +27,8 @@ class SiteScope < ApplicationRecord
     [:latitude, :longitude]
   end
 
+  scope :by_keyword, -> (keyword) { where("name ILIKE ?", "%#{keyword}%") }
+
   def clone!
     site_scope = self.clone
     new_site_scope = SiteScope.new(site_scope.attributes.except("id"))

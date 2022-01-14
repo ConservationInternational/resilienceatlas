@@ -25,6 +25,8 @@ gem 'simple_command'
 gem 'activeadmin'
 gem 'activeadmin_addons'
 gem 'active_model_serializers', '0.10.12'
+gem 'devise_token_auth'
+gem 'will_paginate', '>= 3.0.pre'
 
 gem "cancan"
 

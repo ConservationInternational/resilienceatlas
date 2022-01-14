@@ -1,4 +1,14 @@
 Rails.application.routes.draw do
+  namespace :api do
+    mount_devise_token_auth_for 'AdminUser', at: 'auth'
+    namespace :admin do
+      resources :layers do
+        collection do
+          get :site_scopes
+        end
+      end
+    end
+  end
   # Users
   devise_for :users, path: 'users', path_names: { sign_in: 'login', sign_out: 'logout', password: 'secret',
                                                  confirmation: 'verification', unlock: 'unblock',
