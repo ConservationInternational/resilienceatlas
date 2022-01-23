@@ -1,6 +1,6 @@
 ActiveAdmin.register LayerGroup do
   permit_params :name, :slug, :category, :active, :order, :info, :layer_group_type, :super_group_id, :icon_class,
-                :site_scope_id, agrupations_attributes:[:layer_id, :id, :_destroy],
+                :site_scope_id, agrupations_attributes:[:layer_id, :id, :active, :_destroy],
                 translations_attributes: [:id, :locale, :name, :info, :_destroy]
   
   member_action :clone, only: :show, method: :get do
@@ -25,6 +25,7 @@ ActiveAdmin.register LayerGroup do
                   as: :select,
                   collection: Layer.order('layer_translations.name').
                     map{|l| ["#{l.name} - id: #{l.id}", l.id]}
+        deg.input :active
       end
       f.input :site_scope
     end

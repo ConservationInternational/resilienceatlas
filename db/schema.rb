@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_10_26_093038) do
+ActiveRecord::Schema.define(version: 2022_01_23_185948) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -74,6 +74,7 @@ ActiveRecord::Schema.define(version: 2021_10_26_093038) do
   create_table "agrupations", force: :cascade do |t|
     t.bigint "layer_id"
     t.bigint "layer_group_id"
+    t.boolean "active", default: false
     t.index ["layer_group_id"], name: "index_agrupations_on_layer_group_id"
     t.index ["layer_id"], name: "index_agrupations_on_layer_id"
   end
