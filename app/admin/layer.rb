@@ -1,6 +1,6 @@
 ActiveAdmin.register Layer do
   permit_params :layer_group_id, :name, :slug, :layer_type, :zindex,
-                :active, :order, :color, :info, :interactivity, :query, :layer_config,
+                :order, :color, :info, :interactivity, :query, :layer_config,
                 :layer_provider, :css, :published, :opacity, :locate_layer,
                 :icon_class, :legend, :zoom_max, :zoom_min, :dashboard_order,
                 :dataset_shortname, :dataset_source_url, :source_id, :title,
@@ -16,18 +16,19 @@ ActiveAdmin.register Layer do
 
     redirect_to edit_admin_layer_path( n )
   end
-
   filter :title, label: :name
-  filter :layer_groups
   filter :slug
-  filter :translations_name_contains, label: 'Name'
   filter :layer_type, as: :select
-  filter :zindex, as: :select
-  filter :active, as: :select
-  filter :order
   filter :layer_provider, as: :select
+  filter :name
+  filter :legend
+  filter :layer_groups
+  filter :site_scopes
+  filter :query
+  filter :layer_config
+  filter :interaction_config
   filter :css
-  filter :interactivity
+  filter :translations_name_contains, label: 'Name'
 
   index do
     selectable_column
@@ -35,7 +36,6 @@ ActiveAdmin.register Layer do
     column :id
     column :name
     column :slug
-    column :active
     column :published
     actions defaults: true do |layer|
       link_to 'Clone', clone_admin_layer_path(layer)
@@ -63,7 +63,6 @@ ActiveAdmin.register Layer do
       f.input :layer_type, as: :select, collection: ['layer']
       f.input :opacity
       f.input :zindex
-      f.input :active
       f.input :order
       f.input :dashboard_order
       #f.input :color, as: :string

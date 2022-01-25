@@ -4,6 +4,7 @@ ActiveAdmin.register Category do
   filter :indicators, as: :select
   filter :name, as: :select
   filter :slug, as: :select
+  filter :description
 
   index do
     selectable_column
