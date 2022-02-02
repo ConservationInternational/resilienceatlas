@@ -35,9 +35,7 @@ ActiveAdmin.register SiteScope do
       f.input :zoom_level
     end
     
-    actions defaults: true do |site_scope|
-      link_to 'Clone', clone_admin_site_scope_path(site_scope)
-    end
+    f.actions
 
   end
 

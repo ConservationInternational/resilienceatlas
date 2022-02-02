@@ -7,7 +7,7 @@ class AuthenticateUser
   end
 
   def call
-    JsonWebToken.encode(user_id: user.id) if user
+    JWT.encode({ user_id: user.id }, Rails.configuration.x.oauth.jwt_secret, 'HS256') if user
   end
 
   private

@@ -142,7 +142,7 @@ class Layer < ApplicationRecord
     return false   if !download?
     return zipfile if File.exists?(zipfile) && date_valid?(subdomain)
 
-    layer_file = open(URI.encode(layer_url).to_s) if layer_url
+    layer_file = open(ERB::Util.url_encode(layer_url).to_s) if layer_url
 
     ::Zip::OutputStream.open(zipfile) do |zip|
       if layer_file
