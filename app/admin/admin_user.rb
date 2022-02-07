@@ -13,6 +13,7 @@ ActiveAdmin.register AdminUser do
   end
 
   filter :email
+  filter :role, as: :select, collection: AdminUser.roles
   filter :current_sign_in_at
   filter :last_sign_in_at
   filter :sign_in_count
@@ -22,8 +23,10 @@ ActiveAdmin.register AdminUser do
   form do |f|
     f.inputs "Admin Details" do
       f.input :email
-      f.input :password
-      f.input :password_confirmation
+      if f.object.new_record?
+        f.input :password
+        f.input :password_confirmation
+      end
       f.input :role
     end
     f.actions

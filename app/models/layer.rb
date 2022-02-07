@@ -41,6 +41,7 @@
 #
 
 require 'zip'
+require 'open-uri'
 
 class Layer < ApplicationRecord
   WHITELIST_ATTRIBUTES = %i[
@@ -142,7 +143,7 @@ class Layer < ApplicationRecord
     return false   if !download?
     return zipfile if File.exists?(zipfile) && date_valid?(subdomain)
 
-    layer_file = open(URI.encode(layer_url).to_s) if layer_url
+    layer_file = URI.open(layer_url.to_s) if layer_url
 
     ::Zip::OutputStream.open(zipfile) do |zip|
       if layer_file
