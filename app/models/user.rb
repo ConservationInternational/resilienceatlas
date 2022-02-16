@@ -37,6 +37,8 @@ class User < ApplicationRecord
   validates_uniqueness_of :email
   validates_format_of     :email, without: TEMP_EMAIL_REGEX, on: :update
 
+  has_many :user_downloads
+
   def name
     "#{first_name} #{last_name}"
   end
