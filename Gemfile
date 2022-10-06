@@ -18,6 +18,9 @@ gem 'mini_racer'
 gem 'shrine'
 gem 'jbuilder'
 
+gem 'ed25519', '>= 1.2', '< 2.0'
+gem 'bcrypt_pbkdf', '>= 1.0', '< 2.0'
+
 gem 'pg'
 gem 'devise'
 gem 'jwt'
@@ -89,6 +92,7 @@ group :development, :test do
   gem 'capistrano-bundler'
   gem 'capistrano-rails'
   gem 'capistrano-npm'
+  gem 'capistrano-nvm'
   gem 'capistrano-passenger'
 end
 

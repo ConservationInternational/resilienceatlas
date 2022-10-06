@@ -1,4 +1,4 @@
-lock '3.11.2'
+lock '3.16.0'
 
 set :application, 'ResilienceAtlas'
 set :repo_url, 'git@github.com:ConservationInternational/resilienceatlas.git'
@@ -11,7 +11,10 @@ set :deploy_to, '/home/ubuntu/resilienceatlas'
 
 set :passenger_restart_with_touch, true
 
-set :rvm_type, :system
+set :rvm_ruby_version, '3.0.2@cigrp'
+
+set :nvm_node, 'v13.7.0'
+set :nvm_map_bins, %w{node npm}
 
 namespace :deploy do
   after :restart, :clear_cache do
