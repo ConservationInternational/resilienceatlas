@@ -17,8 +17,6 @@ set :rvm_type, :user
 set :nvm_node, 'v13.7.0'
 set :nvm_map_bins, %w{node npm}
 
-before 'deploy', 'rvm1:install:gems'
-
 namespace :deploy do
   after :restart, :clear_cache do
     on roles(:web), in: :groups, limit: 3, wait: 10 do
