@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-ruby '3.0.2'
+ruby '3.0.4'
 
 gem 'rails', '6.1.4'
 
@@ -36,6 +36,7 @@ gem 'ffi'
 gem "cancan"
 
 gem 'addressable'
+gem 'executable-hooks'
 
 gem 'rack-cors'
 
@@ -87,8 +88,8 @@ group :development, :test do
   gem 'rspec_api_documentation'
   gem 'json_spec'
   gem 'bullet'
-  gem 'capistrano'
-  gem 'capistrano-rvm'
+  gem 'capistrano', '~> 3.9'
+  gem 'capistrano-rbenv', '~> 2.2'
   gem 'capistrano-bundler'
   gem 'capistrano-rails'
   gem 'capistrano-npm'
