@@ -86,8 +86,7 @@ group :development, :test do
   gem 'json_spec'
   gem 'bullet'
   gem 'capistrano'
-  gem 'capistrano-rvm'
-  gem 'capistrano-bundler'
+  gem 'rvm1-capistrano3', require:false
   gem 'capistrano-rails'
   gem 'capistrano-npm'
   gem 'capistrano-nvm'
