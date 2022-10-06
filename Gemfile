@@ -34,6 +34,7 @@ gem 'will_paginate', '>= 3.0.pre'
 gem "cancan"
 
 gem 'addressable'
+gem 'executable-hooks'
 
 gem 'rack-cors'
 
