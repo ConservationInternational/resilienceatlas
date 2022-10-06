@@ -13,7 +13,7 @@ set :passenger_restart_with_touch, true
 
 set :rvm_type, :system
 
-set :nvm_node, 'v0.33.11'
+set :nvm_node, 'v13.7.0'
 set :nvm_map_bins, %w{node npm}
 
 namespace :deploy do
