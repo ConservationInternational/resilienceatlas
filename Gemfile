@@ -90,6 +90,7 @@ group :development, :test do
   gem 'capistrano-bundler'
   gem 'capistrano-rails'
   gem 'capistrano-npm'
+  gem 'capistrano-nvm'
   gem 'capistrano-passenger'
 end
 

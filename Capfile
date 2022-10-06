@@ -8,6 +8,7 @@ install_plugin Capistrano::SCM::Git
 
 require 'capistrano/rvm'
 require 'capistrano/npm'
+require 'capistrano/nvm'
 require 'capistrano/rails'
 require 'capistrano/passenger'
 
