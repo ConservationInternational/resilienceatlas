@@ -13,6 +13,9 @@ set :passenger_restart_with_touch, true
 
 set :rvm_type, :system
 
+set :nvm_node, 'v6.13.6'
+set :nvm_map_bins, %w{node npm}
+
 namespace :deploy do
   after :restart, :clear_cache do
     on roles(:web), in: :groups, limit: 3, wait: 10 do
