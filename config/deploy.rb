@@ -12,7 +12,7 @@ set :deploy_to, '/home/ubuntu/resilienceatlas'
 set :passenger_restart_with_touch, true
 
 set :nvm_node, 'v13.7.0'
-set :nvm_map_bins, %w{node npm}
+set :nvm_map_bins, %w{node npm yarn}
 
 namespace :deploy do
   after :restart, :clear_cache do
