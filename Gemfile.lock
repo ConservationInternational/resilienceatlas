@@ -614,6 +614,7 @@ DEPENDENCIES
   email_spec
   factory_bot_rails
   faker
+  ffi
   foreman
   globalize
   handlebars_assets
