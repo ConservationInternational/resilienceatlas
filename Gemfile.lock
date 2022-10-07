@@ -225,7 +225,6 @@ GEM
       mail (~> 2.7)
     erubi (1.10.0)
     execjs (2.8.1)
-    executable-hooks (1.6.1)
     factory_bot (6.2.0)
       activesupport (>= 5.0.0)
     factory_bot_rails (6.2.0)
@@ -613,7 +612,6 @@ DEPENDENCIES
   dotenv-rails
   ed25519 (>= 1.2, < 2.0)
   email_spec
-  executable-hooks
   factory_bot_rails
   faker
   foreman
