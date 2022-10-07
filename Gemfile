@@ -36,7 +36,6 @@ gem 'ffi'
 gem "cancan"
 
 gem 'addressable'
-gem 'executable-hooks'
 
 gem 'rack-cors'
 
