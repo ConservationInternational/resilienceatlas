@@ -43,14 +43,12 @@
 require 'rails_helper'
 
 RSpec.describe Layer, type: :model do
-  before :each do
-    @source = create(:with_source)
-    @layer = @source.layers.first
-  end
+  let(:source) { create :source }
+  let!(:layer) { create :layer, sources: [source] }
 
   it 'Layer is valid' do
-    expect(@layer).to                           be_valid
-    expect(@layer.sources.first.source_type).to eq('Info')
+    expect(layer).to                           be_valid
+    expect(layer.sources.first.source_type).to eq(source.source_type)
   end
 
   it 'Count layers' do

@@ -25,13 +25,11 @@
 require 'rails_helper'
 
 RSpec.describe User, type: :model do
-  before :each do
-    @user = create(:user)
-  end
+  let!(:user) { create :user }
 
   it 'User is valid' do
-    expect(@user).to       be_valid
-    expect(@user.email).to be_present
+    expect(user).to       be_valid
+    expect(user.email).to be_present
   end
 
   it 'Count users' do

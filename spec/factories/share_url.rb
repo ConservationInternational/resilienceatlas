@@ -1,5 +1,9 @@
 FactoryBot.define do
   factory :share_url do
-    body { Faker::Lorem.paragraph }
+    sequence(:uid) { |n| "UID-#{n}" }
+    sequence(:body) do |n|
+      Faker::Config.random = Random.new(n)
+      Faker::Lorem.paragraph
+    end
   end
 end

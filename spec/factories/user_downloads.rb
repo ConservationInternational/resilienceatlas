@@ -1,7 +1,10 @@
 FactoryBot.define do
   factory :user_download do
-    site_scope { "MyString" }
-    user_id { 1 }
-    layer_id { 1 }
+    sequence(:site_scope) do |n|
+      Faker::Config.random = Random.new(n)
+      Faker::Lorem.word
+    end
+    user
+    layer
   end
 end

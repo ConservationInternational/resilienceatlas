@@ -17,6 +17,7 @@ gem 'webpacker', '~> 5.0'
 gem 'mini_racer'
 gem 'shrine'
 gem 'jbuilder'
+gem "rswag"
 
 gem 'ed25519', '>= 1.2', '< 2.0'
 gem 'bcrypt_pbkdf', '>= 1.0', '< 2.0'
@@ -80,12 +81,9 @@ group :development, :test do
   gem 'teaspoon'
   gem 'teaspoon-mocha'
   gem 'byebug'
-  gem 'hirb'
   gem 'awesome_print'
   gem 'faker'
   gem 'spring-commands-rspec'
-  gem 'rspec_api_documentation'
-  gem 'json_spec'
   gem 'bullet'
   gem 'capistrano', '~> 3.9'
   gem 'capistrano-rbenv', '~> 2.2'
@@ -107,9 +105,10 @@ end
 
 group :test do
   gem 'rspec-rails'
-  gem 'email_spec'
+  gem "rspec-request_snapshot"
+  gem "rswag-specs"
   gem 'database_cleaner'
-  gem 'rubocop-faker'
+  gem "webmock"
 end
 
 # Rails Assets is the frictionless proxy between Bundler and Bower.

@@ -1,0 +1,172 @@
+{
+  "data": [
+    {
+      "id": "4",
+      "type": "layers",
+      "attributes": {
+        "name": "voluptatem",
+        "slug": "Layer-1",
+        "layer_type": "voluptatem",
+        "zindex": 38,
+        "opacity": null,
+        "active": true,
+        "order": 38,
+        "dashboard_order": null,
+        "color": "#6ac1f3",
+        "info": "voluptatem",
+        "interactivity": "voluptatem",
+        "css": null,
+        "query": null,
+        "layer_config": null,
+        "layer_provider": null,
+        "published": true,
+        "locate_layer": false,
+        "icon_class": null,
+        "legend": null,
+        "zoom_max": 100,
+        "zoom_min": 0,
+        "download": false,
+        "dataset_shortname": null,
+        "dataset_source_url": null,
+        "analysis_suitable": false,
+        "analysis_query": null,
+        "analysis_body": null,
+        "interaction_config": null
+      },
+      "relationships": {
+        "layer_group": {
+          "data": {
+            "id": "2",
+            "type": "layer_groups"
+          }
+        },
+        "sources": {
+          "data": [
+
+          ]
+        },
+        "agrupation": {
+          "data": {
+            "id": 4,
+            "layer_id": 4,
+            "layer_group_id": 2,
+            "active": false
+          }
+        }
+      }
+    },
+    {
+      "id": "5",
+      "type": "layers",
+      "attributes": {
+        "name": "cum",
+        "slug": "Layer-2",
+        "layer_type": "cum",
+        "zindex": 41,
+        "opacity": null,
+        "active": true,
+        "order": 41,
+        "dashboard_order": null,
+        "color": "#6f9d5c",
+        "info": "cum",
+        "interactivity": "cum",
+        "css": null,
+        "query": null,
+        "layer_config": null,
+        "layer_provider": null,
+        "published": true,
+        "locate_layer": false,
+        "icon_class": null,
+        "legend": null,
+        "zoom_max": 100,
+        "zoom_min": 0,
+        "download": false,
+        "dataset_shortname": null,
+        "dataset_source_url": null,
+        "analysis_suitable": false,
+        "analysis_query": null,
+        "analysis_body": null,
+        "interaction_config": null
+      },
+      "relationships": {
+        "layer_group": {
+          "data": {
+            "id": "2",
+            "type": "layer_groups"
+          }
+        },
+        "sources": {
+          "data": [
+
+          ]
+        },
+        "agrupation": {
+          "data": {
+            "id": 5,
+            "layer_id": 5,
+            "layer_group_id": 2,
+            "active": false
+          }
+        }
+      }
+    },
+    {
+      "id": "6",
+      "type": "layers",
+      "attributes": {
+        "name": "molestiae",
+        "slug": "Layer-3",
+        "layer_type": "molestiae",
+        "zindex": 25,
+        "opacity": null,
+        "active": false,
+        "order": 25,
+        "dashboard_order": null,
+        "color": "#8d0116",
+        "info": "molestiae",
+        "interactivity": "molestiae",
+        "css": null,
+        "query": null,
+        "layer_config": null,
+        "layer_provider": null,
+        "published": true,
+        "locate_layer": false,
+        "icon_class": null,
+        "legend": null,
+        "zoom_max": 100,
+        "zoom_min": 0,
+        "download": false,
+        "dataset_shortname": null,
+        "dataset_source_url": null,
+        "analysis_suitable": false,
+        "analysis_query": null,
+        "analysis_body": null,
+        "interaction_config": null
+      },
+      "relationships": {
+        "layer_group": {
+          "data": {
+            "id": "2",
+            "type": "layer_groups"
+          }
+        },
+        "sources": {
+          "data": [
+
+          ]
+        },
+        "agrupation": {
+          "data": {
+            "id": 6,
+            "layer_id": 6,
+            "layer_group_id": 2,
+            "active": false
+          }
+        }
+      }
+    }
+  ],
+  "meta": {
+    "total_layers": 3
+  }
+}

@@ -1,0 +1,272 @@
+---
+openapi: 3.0.1
+info:
+  title: API V1
+  version: v1
+paths:
+  "/api/layers":
+    get:
+      summary: Get list of layers
+      tags:
+      - Layer
+      parameters:
+      - name: site_scope
+        in: query
+        description: Site scope to list layers for
+        required: false
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: success
+          content:
+            application/json:
+              example:
+                data:
+                - id: '4'
+                  type: layers
+                  attributes:
+                    name: voluptatem
+                    slug: Layer-1
+                    layer_type: voluptatem
+                    zindex: 38
+                    opacity:
+                    active: true
+                    order: 38
+                    dashboard_order:
+                    color: "#6ac1f3"
+                    info: voluptatem
+                    interactivity: voluptatem
+                    css:
+                    query:
+                    layer_config:
+                    layer_provider:
+                    published: true
+                    locate_layer: false
+                    icon_class:
+                    legend:
+                    zoom_max: 100
+                    zoom_min: 0
+                    download: false
+                    dataset_shortname:
+                    dataset_source_url:
+                    analysis_suitable: false
+                    analysis_query:
+                    analysis_body:
+                    interaction_config:
+                  relationships:
+                    layer_group:
+                      data:
+                        id: '2'
+                        type: layer_groups
+                    sources:
+                      data: []
+                    agrupation:
+                      data:
+                        id: 4
+                        layer_id: 4
+                        layer_group_id: 2
+                        active: false
+                - id: '5'
+                  type: layers
+                  attributes:
+                    name: cum
+                    slug: Layer-2
+                    layer_type: cum
+                    zindex: 41
+                    opacity:
+                    active: true
+                    order: 41
+                    dashboard_order:
+                    color: "#6f9d5c"
+                    info: cum
+                    interactivity: cum
+                    css:
+                    query:
+                    layer_config:
+                    layer_provider:
+                    published: true
+                    locate_layer: false
+                    icon_class:
+                    legend:
+                    zoom_max: 100
+                    zoom_min: 0
+                    download: false
+                    dataset_shortname:
+                    dataset_source_url:
+                    analysis_suitable: false
+                    analysis_query:
+                    analysis_body:
+                    interaction_config:
+                  relationships:
+                    layer_group:
+                      data:
+                        id: '2'
+                        type: layer_groups
+                    sources:
+                      data: []
+                    agrupation:
+                      data:
+                        id: 5
+                        layer_id: 5
+                        layer_group_id: 2
+                        active: false
+                - id: '6'
+                  type: layers
+                  attributes:
+                    name: molestiae
+                    slug: Layer-3
+                    layer_type: molestiae
+                    zindex: 25
+                    opacity:
+                    active: false
+                    order: 25
+                    dashboard_order:
+                    color: "#8d0116"
+                    info: molestiae
+                    interactivity: molestiae
+                    css:
+                    query:
+                    layer_config:
+                    layer_provider:
+                    published: true
+                    locate_layer: false
+                    icon_class:
+                    legend:
+                    zoom_max: 100
+                    zoom_min: 0
+                    download: false
+                    dataset_shortname:
+                    dataset_source_url:
+                    analysis_suitable: false
+                    analysis_query:
+                    analysis_body:
+                    interaction_config:
+                  relationships:
+                    layer_group:
+                      data:
+                        id: '2'
+                        type: layer_groups
+                    sources:
+                      data: []
+                    agrupation:
+                      data:
+                        id: 6
+                        layer_id: 6
+                        layer_group_id: 2
+                        active: false
+                meta:
+                  total_layers: 3
+  "/api/layers/{id}/downloads":
+    get:
+      summary: Download layer file
+      tags:
+      - Layer
+      parameters:
+      - name: id
+        in: path
+        description: Layer ID
+        required: true
+        schema:
+          type: integer
+      - name: download_path
+        in: query
+        description: Url to the file download
+        required: false
+        schema:
+          type: string
+      - name: file_format
+        in: query
+        description: File format (pdf, kml, jpg, txt, etc..)
+        required: false
+        schema:
+          type: string
+      - name: with_format
+        in: query
+        description: If format is part of download_path
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: success
+  "/api/share/{uid}":
+    get:
+      summary: Get detail of shared url
+      tags:
+      - ShareUrl
+      parameters:
+      - name: uid
+        in: path
+        description: An unique url identifier
+        required: true
+        schema:
+          type: string
+      responses:
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              example:
+                errors:
+                - status: '404'
+                  title: Record not found
+              schema:
+                "$ref": "#/components/schemas/errors"
+        '200':
+          description: success
+          content:
+            application/json:
+              example:
+                data:
+                  id: '2'
+                  type: share_urls
+                  attributes:
+                    uid: '12345'
+                    body: body test
+  "/api/share":
+    post:
+      summary: Create new shared url
+      tags:
+      - ShareUrl
+      parameters:
+      - name: body
+        in: query
+        description: Body of shared url
+        schema:
+          type: string
+      responses:
+        '200':
+          description: success
+          content:
+            application/json:
+              example:
+                uid: c9fca23621783bb7f646
+components:
+  securitySchemes: {}
+  schemas:
+    errors:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              status:
+                type: string
+              title:
+                type: string
+            required:
+            - status
+            - title
+      required:
+      - errors
+servers:
+- url: ''
+- url: "{scheme}://{host}"
+  variables:
+    scheme:
+      default: http
+    host:
+      default: localhost:3000

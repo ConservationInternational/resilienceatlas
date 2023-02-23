@@ -21,13 +21,11 @@
 require 'rails_helper'
 
 RSpec.describe Source, type: :model do
-  before :each do
-    @source = create(:with_source)
-  end
+  let!(:source) { create :source }
 
   it 'Source is valid' do
-    expect(@source).to               be_valid
-    expect(@source.contact_email).to be_present
+    expect(source).to               be_valid
+    expect(source.contact_email).to be_present
   end
 
   it 'Count sources' do
