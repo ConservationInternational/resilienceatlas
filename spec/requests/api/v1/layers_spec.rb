@@ -6,7 +6,7 @@ RSpec.describe "API V1 Layer", type: :request do
       tags "Layer"
       consumes "application/json"
       produces "application/json"
-      parameter name: :site_scope, in: :query, type: :integer, description: "Site scope to list layers for", required: false
+      parameter name: :site_scope, in: :query, type: :string, description: "Site scope to list layers for", required: false
 
       let(:default_site_scope) { create :site_scope, id: 1, name: 'CIGRP' }
       let(:layer_group) { create :layer_group, site_scope: default_site_scope }

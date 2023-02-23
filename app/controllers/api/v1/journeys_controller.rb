@@ -9,9 +9,9 @@ module Api
       end
 
       def show
-        journey = File.read("public/journeys/#{params[:id]}.json")
-        if journey
-          render json: journey
+        journey_path = "public/journeys/#{params[:id]}.json"
+        if File.exists? journey_path
+          render json: File.read(journey_path)
         else
           render json: {errors: [{ status: '404', title: 'Record not found' }] } ,  status: 404
         end

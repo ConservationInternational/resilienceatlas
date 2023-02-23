@@ -29,7 +29,6 @@ Rails.application.routes.draw do
   patch 'users/me',          to: 'users/user_account#update'
 
   # API routes
-  mount Raddocs::App => '/docs'
   namespace :api, defaults: { format: 'json' } do
     scope module: :v1 do
       get  'layer-groups',          to: 'layer_groups#index',          as: 'layer_groups'

@@ -62,11 +62,9 @@ module Api
         rescue => e
           render_error(400)
         end
-        if url.host != nil
-          domain = url.host.split(".")[-2,2]
-        else
-          render_error(422)
-        end
+        return render_error(422) if url&.host.blank?
+
+        domain = url.host.split(".")[-2,2]
         parsed_domain = domain.present? ? domain.join('.') : url.host
         render_error(403) unless permitted_domains.include?(parsed_domain)
         render_error(400) unless url.path.include?('/map')

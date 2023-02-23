@@ -19,5 +19,4 @@ FactoryBot.define do
     end
     sequence(:uid) { |n| "UID-#{n}" }
   end
-
 end

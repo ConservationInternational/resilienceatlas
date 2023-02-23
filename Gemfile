@@ -48,7 +48,6 @@ gem 'omniauth-linkedin'
 gem 'omniauth-google-oauth2'
 
 # Utilities
-gem 'raddocs'
 gem 'seed_dump'
 gem 'active_admin_theme'
 gem 'ckeditor', '4.3'

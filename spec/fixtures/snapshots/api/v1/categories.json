@@ -1,0 +1,55 @@
+{
+  "data": [
+    {
+      "id": "4",
+      "type": "categories",
+      "attributes": {
+        "name": "voluptatem",
+        "slug": "Category-1",
+        "description": "Enim repellat pariatur. Earum modi eos. Libero tempora exercitationem."
+      },
+      "relationships": {
+        "indicators": {
+          "data": [
+
+          ]
+        }
+      }
+    },
+    {
+      "id": "5",
+      "type": "categories",
+      "attributes": {
+        "name": "cum",
+        "slug": "Category-2",
+        "description": "Placeat commodi libero. Quo recusandae repellat. Sunt commodi tempore."
+      },
+      "relationships": {
+        "indicators": {
+          "data": [
+
+          ]
+        }
+      }
+    },
+    {
+      "id": "6",
+      "type": "categories",
+      "attributes": {
+        "name": "molestiae",
+        "slug": "Category-3",
+        "description": "Et quaerat omnis. Harum voluptas atque. Quo nesciunt voluptas."
+      },
+      "relationships": {
+        "indicators": {
+          "data": [
+
+          ]
+        }
+      }
+    }
+  ],
+  "meta": {
+    "total_categories": 3
+  }
+}

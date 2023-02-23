@@ -1,0 +1,31 @@
+{
+  "data": {
+    "id": "1",
+    "type": "site_scopes",
+    "attributes": {
+      "name": "CIGRP",
+      "color": "#6ac1f3",
+      "subdomain": "voluptatem",
+      "has_analysis": true,
+      "latitude": -14.936039153536683,
+      "longitude": -29.872078307073366,
+      "header_theme": "Enim repellat pariatur est.",
+      "zoom_level": 38,
+      "linkback_text": "Enim repellat pariatur. Earum modi eos. Libero tempora exercitationem.",
+      "linkback_url": "http://kutch-spencer.com/moises",
+      "header_color": "#6ac1f3",
+      "logo_url": "http://kutch-spencer.com/moises",
+      "predictive_model": true,
+      "analysis_options": true,
+      "analytics_code": null,
+      "has_gef_logo": null
+    },
+    "relationships": {
+      "site_pages": {
+        "data": [
+
+        ]
+      }
+    }
+  }
+}
