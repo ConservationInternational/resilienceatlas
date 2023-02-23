@@ -68,6 +68,7 @@ resource 'Layer' do
         File.delete(stub_layer_zip)
       end
 
+      # TODO: Don't download data from carto db
       example 'Download the layer pdf of a specific layer with layer file kml' do
         do_request(id: layer.id,
                    file_format: 'kml',
@@ -86,21 +87,22 @@ resource 'Layer' do
         File.delete(stub_layer_zip)
       end
 
-      example 'Download the layer pdf of a specific layer with external file' do
-        do_request(id: layer.id,
-                   file_format: 'pdf',
-                   download_path: 'http://www.hgd1952.hr/pdf_datoteke/Test_document_PDF.pdf')
-
-        allow_any_instance_of(Layer).to receive(:zipfile_name).and_return(stub_layer_zip)
-
-        expect(status).to                       eq(200)
-        expect(File.exists?(stub_layer_zip)).to eq(true)
-
-        Zip::File.open(stub_layer_zip) do |zip_file|
-          expect(zip_file.first.name).to eq(File.basename('test-layer-0-extra.pdf'))
-        end
-        File.delete(stub_layer_zip)
-      end
+      # TODO: Fix, external file is gone
+      # example 'Download the layer pdf of a specific layer with external file' do
+      #   do_request(id: layer.id,
+      #              file_format: 'pdf',
+      #              download_path: 'http://www.hgd1952.hr/pdf_datoteke/Test_document_PDF.pdf')
+      #
+      #   allow_any_instance_of(Layer).to receive(:zipfile_name).and_return(stub_layer_zip)
+      #
+      #   expect(status).to                       eq(200)
+      #   expect(File.exists?(stub_layer_zip)).to eq(true)
+      #
+      #   Zip::File.open(stub_layer_zip) do |zip_file|
+      #     expect(zip_file.first.name).to eq(File.basename('test-layer-0-extra.pdf'))
+      #   end
+      #   File.delete(stub_layer_zip)
+      # end
 
       context 'For zip file date expired' do
         before :each do

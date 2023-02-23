@@ -1,3 +1,6 @@
+unless AdminUser.exists?(email: 'admin@cigrm.com')
+  AdminUser.create!(email: 'admin@cigrm.com', password: 'c1grm.pass', password_confirmation: 'c1grm.pass')
+end
 if SiteScope.all.size == 0
   SiteScope.create!(name: 'CIGRP', id: 1, header_theme: 'Resilience')
   SiteScope.create!(name: 'VS Indicators', id: 2, header_theme: 'Indicators')

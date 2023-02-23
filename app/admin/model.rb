@@ -4,7 +4,7 @@ ActiveAdmin.register Model do
                 site_scope_ids: [], indicator_ids: []
 
   filter :site_scopes, as: :select
-  filter :indicators, as: :select, collection: Indicator.joins(:category).map{|m| [m.name, m.id]}
+  filter :indicators, as: :select, collection: proc { Indicator.joins(:category).map{|m| [m.name, m.id]} }
   filter :name, as: :select
   filter :source, as: :select
   filter :table_name, as: :select
