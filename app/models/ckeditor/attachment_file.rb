@@ -2,7 +2,7 @@
 #
 # Table name: ckeditor_assets
 #
-#  id                :integer          not null, primary key
+#  id                :bigint           not null, primary key
 #  data_file_name    :string           not null
 #  data_content_type :string
 #  data_file_size    :integer

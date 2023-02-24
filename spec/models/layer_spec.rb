@@ -2,7 +2,7 @@
 #
 # Table name: layers
 #
-#  id                        :integer          not null, primary key
+#  id                        :bigint           not null, primary key
 #  layer_group_id            :integer
 #  slug                      :string           not null
 #  layer_type                :string
@@ -38,6 +38,14 @@
 #  analysis_query            :text
 #  layer_config              :text
 #  analysis_body             :text
+#  interaction_config        :text
+#  name                      :string
+#  info                      :text
+#  legend                    :text
+#  title                     :string
+#  data_units                :string
+#  processing                :string
+#  description               :text
 #
 
 require 'rails_helper'

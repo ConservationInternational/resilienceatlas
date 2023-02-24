@@ -2,7 +2,7 @@
 #
 # Table name: share_urls
 #
-#  id         :integer          not null, primary key
+#  id         :bigint           not null, primary key
 #  uid        :string
 #  body       :text
 #  created_at :datetime         not null

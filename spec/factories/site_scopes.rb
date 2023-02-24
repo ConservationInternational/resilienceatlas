@@ -1,3 +1,25 @@
+# == Schema Information
+#
+# Table name: site_scopes
+#
+#  id               :bigint           not null, primary key
+#  name             :string
+#  color            :string
+#  subdomain        :string
+#  has_analysis     :boolean          default(FALSE)
+#  latitude         :float
+#  longitude        :float
+#  header_theme     :string
+#  zoom_level       :integer          default(3)
+#  linkback_text    :text
+#  linkback_url     :text
+#  header_color     :string
+#  logo_url         :text
+#  predictive_model :boolean          default(FALSE), not null
+#  analysis_options :boolean          default(FALSE), not null
+#  analytics_code   :string
+#  has_gef_logo     :boolean
+#
 FactoryBot.define do
   factory :site_scope do
     sequence(:name) do |n|

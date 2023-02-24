@@ -2,7 +2,7 @@
 #
 # Table name: layer_groups
 #
-#  id               :integer          not null, primary key
+#  id               :bigint           not null, primary key
 #  super_group_id   :integer
 #  slug             :string
 #  layer_group_type :string
@@ -13,6 +13,9 @@
 #  updated_at       :datetime         not null
 #  icon_class       :string
 #  site_scope_id    :integer          default(1)
+#  layer_group_id   :bigint           not null
+#  name             :string
+#  info             :text
 #
 
 #  id               :integer          not null, primary key

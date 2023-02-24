@@ -2,12 +2,12 @@
 #
 # Table name: map_menu_entries
 #
-#  id         :integer          not null, primary key
+#  id         :bigint           not null, primary key
 #  label      :string
 #  link       :string
 #  position   :integer
-#  created_at :datetime
-#  updated_at :datetime
+#  created_at :datetime         not null
+#  updated_at :datetime         not null
 #  ancestry   :string
 #
 

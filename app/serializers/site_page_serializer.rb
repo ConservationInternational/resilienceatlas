@@ -2,7 +2,7 @@
 #
 # Table name: site_pages
 #
-#  id            :integer          not null, primary key
+#  id            :bigint           not null, primary key
 #  title         :string
 #  body          :text
 #  priority      :integer

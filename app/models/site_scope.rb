@@ -2,7 +2,7 @@
 #
 # Table name: site_scopes
 #
-#  id               :integer          not null, primary key
+#  id               :bigint           not null, primary key
 #  name             :string
 #  color            :string
 #  subdomain        :string
@@ -17,6 +17,8 @@
 #  logo_url         :text
 #  predictive_model :boolean          default(FALSE), not null
 #  analysis_options :boolean          default(FALSE), not null
+#  analytics_code   :string
+#  has_gef_logo     :boolean
 #
 
 class SiteScope < ApplicationRecord

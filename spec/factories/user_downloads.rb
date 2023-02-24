@@ -1,3 +1,14 @@
+# == Schema Information
+#
+# Table name: user_downloads
+#
+#  id         :bigint           not null, primary key
+#  subdomain  :string
+#  user_id    :integer
+#  layer_id   :integer
+#  created_at :datetime         not null
+#  updated_at :datetime         not null
+#
 FactoryBot.define do
   factory :user_download do
     sequence(:site_scope) do |n|

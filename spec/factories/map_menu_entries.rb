@@ -1,7 +1,15 @@
+# == Schema Information
+#
+# Table name: map_menu_entries
+#
+#  id         :bigint           not null, primary key
 #  label      :string
 #  link       :string
 #  position   :integer
-
+#  created_at :datetime         not null
+#  updated_at :datetime         not null
+#  ancestry   :string
+#
 FactoryBot.define do
   factory :map_menu_entry do
     sequence(:label) do |n|

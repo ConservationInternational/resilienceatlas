@@ -2,7 +2,7 @@
 #
 # Table name: sources
 #
-#  id                       :integer          not null, primary key
+#  id                       :bigint           not null, primary key
 #  source_type              :string
 #  reference                :string
 #  reference_short          :string
