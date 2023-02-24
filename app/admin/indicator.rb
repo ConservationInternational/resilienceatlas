@@ -13,10 +13,12 @@ ActiveAdmin.register Indicator do
   filter :version, as: :select
   filter :column_name, as: :select
   filter :operation, as: :select
+  filter :created_at
+  filter :updated_at
 
   index as: :sortable do
     label :label do |indicator|
-      "#{indicator.name} - #{indicator.category.name}"
+      "#{indicator.name} - #{indicator.category&.name}"
     end
     actions
   end

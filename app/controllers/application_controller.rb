@@ -23,6 +23,7 @@ class ApplicationController < ActionController::Base
     return unless request.get?
     if (!request.subdomain.downcase.match('www') &&
         !request.subdomain.downcase.match('staging-cigrp') &&
+        !request.subdomain.downcase.match('staging') &&
         !request.subdomain.blank? &&
         !request.fullpath.match('/map') &&
         !request.fullpath.match('/contents') &&

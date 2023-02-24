@@ -49,13 +49,22 @@ class LayerSerializer < ActiveModel::Serializer
              :interaction_config
   has_one :layer_group, serializer: LayerGroupSerializer
   has_many :sources, each_serializer: SourceSerializer
+  has_one :agrupation
+  
   def type
     'layers'
   end
+  
   def sources
     object.sources
   end
+  
   def layer_group
     object.layer_groups.where(site_scope_id: instance_options[:site_scope]).first
+  end
+
+  def agrupation
+    return if layer_group.blank?
+    object.agrupations.where(layer_id: object.id, layer_group_id: layer_group.id).first
   end
 end

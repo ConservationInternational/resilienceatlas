@@ -49,7 +49,7 @@ resource 'Layer' do
       parameter :with_format, 'If format is part of download_path'
 
       let!(:layer) do
-        layers[0].update(download: true, sources: [FactoryGirl.create(:source_layer)])
+        layers[0].update(download: true, sources: [FactoryBot.create(:source_layer)])
         layer = layers[0]
       end
 

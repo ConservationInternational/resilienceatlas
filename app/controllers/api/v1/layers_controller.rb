@@ -12,6 +12,7 @@ module Api
       end
 
       def download_attachments
+        UserDownload.create(layer: @layer, user_id: params[:user_id], subdomain: @subdomain)
         zipped = @layer.zip_attachments(params, "#{request.original_url}", @site_name, @subdomain)
 
         if zipped

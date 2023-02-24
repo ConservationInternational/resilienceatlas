@@ -1,10 +1,11 @@
 require File.expand_path('../boot', __FILE__)
 
-require "rails"
+require "rails/all"
 # Pick the frameworks you want:
 require "active_model/railtie"
 require "active_job/railtie"
 require "active_record/railtie"
+require "action_text/engine"
 require "action_controller/railtie"
 require "action_mailer/railtie"
 require "action_view/railtie"
@@ -37,8 +38,8 @@ module ConservationInternational
       g.assets false
       g.helper false
       g.test_framework :rspec
-      g.fixture_replacement :factory_girl
     end
+
 
     # Heroku Asset Pippeline
     config.assets.initialize_on_precompile = true
@@ -46,7 +47,8 @@ module ConservationInternational
     config.middleware.insert_before 0, Rack::Cors do
       allow do
         origins '*'
-        resource '*', headers: :any, methods: [:get, :post, :options]
+        resource '*', headers: :any, methods: [:get, :post, :options], expose: ['access-token', 'expiry', 'token-type', 'uid', 'client']
+        resource '/api/*', headers: :any, methods: [:get, :post, :options, :delete, :put], expose: ['access-token', 'expiry', 'token-type', 'uid', 'client']
       end
     end
   end

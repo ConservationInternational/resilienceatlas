@@ -1,6 +1,6 @@
 require 'rails_helper'
 require 'rspec_api_documentation/dsl'
-require 'support/factory_girl'
+require 'support/factory_bot'
 
 RspecApiDocumentation.configure do |config|
   config.format    = [:json, :combined_text, :html]
@@ -19,7 +19,7 @@ end
 module ValidUserRequestHelper
   include Warden::Test::Helpers
   def sign_in_as_a_user
-    @user ||= FactoryGirl.create(:user)
+    @user ||= FactoryBot.create(:user)
     login_as @user
   end
 end

@@ -7,7 +7,7 @@
 #  layer_group_id :integer
 #
 
-class Agrupation < ActiveRecord::Base
+class Agrupation < ApplicationRecord
   belongs_to :layer
   belongs_to :layer_group
   validates_uniqueness_of :layer, scope: :layer_group

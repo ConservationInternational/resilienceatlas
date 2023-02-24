@@ -37,7 +37,9 @@ ActiveAdmin.register User do
     column :current_sign_in_at
     column :sign_in_count
     column :created_at
-    actions
+    actions defaults: true do |user|
+      link_to 'Show User Downloads', show_user_downloads_admin_user_path(user)
+    end
   end
 
   filter :email
@@ -46,9 +48,15 @@ ActiveAdmin.register User do
   filter :sign_in_count
   filter :created_at
 
+  member_action :show_user_downloads, method: :get do
+    @user = User.find_by(id: params[:id])
+    @user_downloads = UserDownload.where(user_id: @user.try(:id))
+  end
+
   form do |f|
     f.inputs "User Details" do
       f.input :email
+      f.input :password
       f.input :first_name
       f.input :last_name
       f.input :phone

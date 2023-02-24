@@ -1,4 +1,4 @@
-class CreateLayers < ActiveRecord::Migration
+class CreateLayers < ActiveRecord::Migration[6.0]
   def change
     create_table :layers do |t|
       t.integer :layer_group_id
@@ -15,7 +15,6 @@ class CreateLayers < ActiveRecord::Migration
       t.text :interactivity
       t.float :opacity
       t.text :query
-      t.string :layer_provider
       t.timestamps null: false
     end
     add_index :layers, :layer_group_id

@@ -3,9 +3,12 @@ require 'capistrano/setup'
 
 # Include default deployment tasks
 require 'capistrano/deploy'
+require "capistrano/scm/git"
+install_plugin Capistrano::SCM::Git
 
-require 'capistrano/rvm'
+require 'capistrano/rbenv'
 require 'capistrano/npm'
+require 'capistrano/nvm'
 require 'capistrano/rails'
 require 'capistrano/passenger'
 

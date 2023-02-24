@@ -1,4 +1,4 @@
-class CreateMapMenuEntry < ActiveRecord::Migration
+class CreateMapMenuEntry < ActiveRecord::Migration[6.0]
   def change
     create_table :map_menu_entries do |t|
       t.string :label, optional: false

@@ -20,6 +20,7 @@
 
 /public/files/*
 !/public/files/.keep
+/public/uploads/*
 
 /downloads/*
 !/downloads/.keep
@@ -36,3 +37,9 @@
 
 # IDE
 .idea
+/public/packs
+/public/packs-test
+/node_modules
+/yarn-error.log
+yarn-debug.log*
+.yarn-integrity

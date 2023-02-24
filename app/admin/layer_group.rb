@@ -1,7 +1,14 @@
 ActiveAdmin.register LayerGroup do
   permit_params :name, :slug, :category, :active, :order, :info, :layer_group_type, :super_group_id, :icon_class,
-                :site_scope_id, agrupations_attributes:[:layer_id, :id, :_destroy],
+                :site_scope_id, agrupations_attributes:[:layer_id, :id, :active, :_destroy],
                 translations_attributes: [:id, :locale, :name, :info, :_destroy]
+  
+  member_action :clone, only: :show, method: :get do
+    n = resource.clone!
+
+    redirect_to edit_admin_layer_group_path( n )
+  end
+                
    form do |f|
     f.semantic_errors
 
@@ -18,6 +25,7 @@ ActiveAdmin.register LayerGroup do
                   as: :select,
                   collection: Layer.order('layer_translations.name').
                     map{|l| ["#{l.name} - id: #{l.id}", l.id]}
+        deg.input :active
       end
       f.input :site_scope
     end
@@ -48,6 +56,8 @@ ActiveAdmin.register LayerGroup do
     end
     column :order
     column :updated_at
-    actions
+    actions defaults: true do |layer_group|
+      link_to 'Clone', clone_admin_layer_group_path(layer_group)
+    end
   end
 end

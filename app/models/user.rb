@@ -22,7 +22,7 @@
 #  organization_role      :string
 #
 
-class User < ActiveRecord::Base
+class User < ApplicationRecord
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable and :omniauthable
   devise :database_authenticatable, :registerable,
@@ -36,6 +36,8 @@ class User < ActiveRecord::Base
 
   validates_uniqueness_of :email
   validates_format_of     :email, without: TEMP_EMAIL_REGEX, on: :update
+
+  has_many :user_downloads
 
   def name
     "#{first_name} #{last_name}"

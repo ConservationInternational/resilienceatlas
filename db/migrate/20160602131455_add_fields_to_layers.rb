@@ -1,4 +1,4 @@
-class AddFieldsToLayers < ActiveRecord::Migration
+class AddFieldsToLayers < ActiveRecord::Migration[6.0]
   def change
     add_reference :layers, :source, index: true
     add_column    :layers, :title,                     :string

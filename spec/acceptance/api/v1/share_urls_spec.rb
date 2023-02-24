@@ -7,7 +7,7 @@ resource 'ShareUrl' do
   header 'X-CSRF-Token', 'a_valid_CSRF_token'
 
   let!(:layer) do
-    FactoryGirl.create(:share_url, body: "body test", uid: '12345')
+    FactoryBot.create(:share_url, body: "body test", uid: '12345')
   end
 
   get "/api/share/:uid" do

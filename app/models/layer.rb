@@ -41,12 +41,54 @@
 #
 
 require 'zip'
+require 'open-uri'
 
-class Layer < ActiveRecord::Base
+class Layer < ApplicationRecord
+  WHITELIST_ATTRIBUTES = %i[
+    name
+    layer_group_id
+    slug
+    layer_type
+    zindex
+    active
+    order
+    color
+    layer_provider
+    css
+    interactivity
+    opacity
+    query
+    created_at
+    updated_at
+    locate_layer
+    icon_class
+    published
+    zoom_max
+    zoom_min
+    dashboard_order
+    download
+    dataset_shortname
+    dataset_source_url
+    start_date
+    end_date
+    spatial_resolution
+    spatial_resolution_units
+    temporal_resolution
+    temporal_resolution_units
+    update_frequency
+    version
+    analysis_suitable
+    analysis_query
+    layer_config
+    analysis_body
+    interaction_config
+  ].freeze
+
   has_and_belongs_to_many :sources
 
   has_many :agrupations,  dependent: :destroy
   has_many :layer_groups, through: :agrupations,  dependent: :destroy
+  has_many :site_scopes, through: :layer_groups
 
   accepts_nested_attributes_for :agrupations, allow_destroy: true
   accepts_nested_attributes_for :sources, allow_destroy: true
@@ -101,7 +143,7 @@ class Layer < ActiveRecord::Base
     return false   if !download?
     return zipfile if File.exists?(zipfile) && date_valid?(subdomain)
 
-    layer_file = open(URI.encode(layer_url).to_s) if layer_url
+    layer_file = URI.open(layer_url.to_s) if layer_url
 
     ::Zip::OutputStream.open(zipfile) do |zip|
       if layer_file
