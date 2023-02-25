@@ -26,7 +26,7 @@ FactoryBot.define do
       Faker::Config.random = Random.new(n)
       Faker::Number.between from: 1, to: 100
     end
-    site_scope { nil }
+    site_scope
     sequence(:slug) { |n| "SitePage-#{n}" }
   end
 end

@@ -11,7 +11,7 @@
 #
 FactoryBot.define do
   factory :user_download do
-    sequence(:site_scope) do |n|
+    sequence(:subdomain) do |n|
       Faker::Config.random = Random.new(n)
       Faker::Lorem.word
     end

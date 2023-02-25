@@ -56,6 +56,7 @@ gem 'rubyzip'
 gem 'prawn'
 gem 'prawn-table'
 gem 'normalize-rails'
+gem "standard"
 
 # Translations
 gem 'globalize'
@@ -77,8 +78,6 @@ end
 
 group :development, :test do
   gem 'spring'
-  gem 'teaspoon'
-  gem 'teaspoon-mocha'
   gem 'byebug'
   gem 'awesome_print'
   gem 'faker'
@@ -94,6 +93,8 @@ group :development, :test do
 end
 
 group :development do
+  gem "rubocop"
+  gem "rubocop-performance"
   gem 'foreman'
   gem 'better_errors'
   gem 'binding_of_caller'
@@ -103,6 +104,8 @@ group :development do
 end
 
 group :test do
+  gem "capybara", ">= 3.26"
+  gem "cuprite"
   gem 'rspec-rails'
   gem "rspec-request_snapshot"
   gem "rswag-specs"
