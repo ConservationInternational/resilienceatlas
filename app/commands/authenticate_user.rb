@@ -7,7 +7,7 @@ class AuthenticateUser
   end
 
   def call
-    JWT.encode({ user_id: user.id }, Rails.configuration.x.oauth.jwt_secret, 'HS256') if user
+    JWT.encode({user_id: user.id}, Rails.configuration.x.oauth.jwt_secret, "HS256") if user
   end
 
   private
@@ -16,9 +16,9 @@ class AuthenticateUser
 
   def user
     user = User.find_by_email(email)
-    return user if user && user.valid_password?(password)
+    return user if user&.valid_password?(password)
 
-    errors.add :user_authentication, 'invalid credentials'
+    errors.add :user_authentication, "invalid credentials"
     nil
   end
 end

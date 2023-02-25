@@ -301,7 +301,7 @@ GEM
       thor (>= 0.14, < 2.0)
     jquery-ui-rails (6.0.1)
       railties (>= 3.2.16)
-    json (2.5.1)
+    json (2.6.3)
     json-schema (3.0.0)
       addressable (>= 2.8)
     jsonapi-renderer (0.2.2)
@@ -318,6 +318,7 @@ GEM
       activerecord
       kaminari-core (= 1.2.1)
     kaminari-core (1.2.1)
+    language_server-protocol (3.17.0.3)
     libv8-node (15.14.0.1)
     loofah (2.12.0)
       crass (~> 1.0.2)
@@ -481,19 +482,19 @@ GEM
     rswag-ui (2.8.0)
       actionpack (>= 3.1, < 7.1)
       railties (>= 3.1, < 7.1)
-    rubocop (1.46.0)
+    rubocop (1.44.1)
       json (~> 2.3)
       parallel (~> 1.10)
       parser (>= 3.2.0.0)
       rainbow (>= 2.2.2, < 4.0)
       regexp_parser (>= 1.8, < 3.0)
       rexml (>= 3.2.5, < 4.0)
-      rubocop-ast (>= 1.26.0, < 2.0)
+      rubocop-ast (>= 1.24.1, < 2.0)
       ruby-progressbar (~> 1.7)
       unicode-display_width (>= 2.4.0, < 3.0)
     rubocop-ast (1.26.0)
       parser (>= 3.2.1.0)
-    rubocop-performance (1.16.0)
+    rubocop-performance (1.15.2)
       rubocop (>= 1.7.0, < 2.0)
       rubocop-ast (>= 0.4.0)
     ruby-progressbar (1.11.0)
@@ -548,8 +549,10 @@ GEM
     sshkit (1.21.2)
       net-scp (>= 1.1.2)
       net-ssh (>= 2.8.0)
-    standard (0.0.36)
-      rubocop (>= 0.63)
+    standard (1.24.3)
+      language_server-protocol (~> 3.17.0.2)
+      rubocop (= 1.44.1)
+      rubocop-performance (= 1.15.2)
     temple (0.8.2)
     terrapin (0.6.0)
       climate_control (>= 0.0.3, < 1.0)
@@ -665,8 +668,6 @@ DEPENDENCIES
   rspec-request_snapshot
   rswag
   rswag-specs
-  rubocop
-  rubocop-performance
   rubyzip
   sass-rails (~> 5.0)
   seed_dump

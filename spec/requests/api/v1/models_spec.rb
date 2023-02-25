@@ -8,7 +8,7 @@ RSpec.describe "API V1 Models", type: :request do
       produces "application/json"
       parameter name: :site_scope, in: :query, type: :integer, description: "Site scope to list layers for", required: false
 
-      let(:default_site_scope) { create :site_scope, id: 1, name: 'CIGRP' }
+      let(:default_site_scope) { create :site_scope, id: 1, name: "CIGRP" }
       let(:extra_site_scope) { create :site_scope, id: 2 }
       let!(:models) { create_list :model, 3, site_scopes: [default_site_scope] }
       let!(:model_with_different_site_scope) { create :model, site_scopes: [extra_site_scope] }

@@ -23,8 +23,8 @@
 
 class SiteScopeSerializer < ActiveModel::Serializer
   attributes :id, :name, :color, :subdomain, :has_analysis, :latitude,
-             :longitude, :header_theme, :zoom_level,  :linkback_text, :linkback_url,
-             :header_color, :logo_url, :predictive_model, :analysis_options, :analytics_code,
-             :has_gef_logo
+    :longitude, :header_theme, :zoom_level, :linkback_text, :linkback_url,
+    :header_color, :logo_url, :predictive_model, :analysis_options, :analytics_code,
+    :has_gef_logo
   has_many :site_pages
 end

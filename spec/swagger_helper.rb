@@ -18,8 +18,7 @@ RSpec.configure do |config|
       },
       paths: {},
       components: {
-        securitySchemes: {
-        },
+        securitySchemes: {},
         schemas: {
           errors: {
             type: :object,

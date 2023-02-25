@@ -48,8 +48,8 @@
 #  description               :text
 #
 
-require 'zip'
-require 'open-uri'
+require "zip"
+require "open-uri"
 
 class Layer < ApplicationRecord
   WHITELIST_ATTRIBUTES = %i[
@@ -94,80 +94,82 @@ class Layer < ApplicationRecord
 
   has_and_belongs_to_many :sources
 
-  has_many :agrupations,  dependent: :destroy
-  has_many :layer_groups, through: :agrupations,  dependent: :destroy
+  has_many :agrupations, dependent: :destroy
+  has_many :layer_groups, through: :agrupations, dependent: :destroy
   has_many :site_scopes, through: :layer_groups
 
   accepts_nested_attributes_for :agrupations, allow_destroy: true
   accepts_nested_attributes_for :sources, allow_destroy: true
 
   translates :name, :info, :legend, :title, :data_units, :processing, :description
-  active_admin_translates :name, :info, :legend, :title, :data_units, :processing, :description do; end
+  active_admin_translates :name, :info, :legend, :title, :data_units, :processing, :description
 
   default_scope { with_translations(I18n.locale) }
-  scope :site, -> (site) { eager_load([layer_groups: :super_group]).
-    where(layer_groups: { site_scope_id: site }) }
+  scope :site, ->(site) {
+                 eager_load([layer_groups: :super_group])
+                   .where(layer_groups: {site_scope_id: site})
+               }
 
-  def self.fetch_all(options={})
-    if options[:site_scope]
-      site_scope = options[:site_scope].to_i
+  def self.fetch_all(options = {})
+    site_scope = if options[:site_scope]
+      options[:site_scope].to_i
     else
-      site_scope = 1
+      1
     end
     layers = Layer.with_translations(I18n.locale)
-    layers = layers.site(site_scope)
+    layers.site(site_scope)
   end
 
   def clone!
-    l = self.clone
+    l = clone
     new_layer = Layer.new(l.attributes.except("id"))
-    new_layer.name = "#{self.name} _copy_ #{DateTime.now}"
+    new_layer.name = "#{name} _copy_ #{DateTime.now}"
     new_layer.save!
-    return new_layer
+    new_layer
   end
 
-  def zip_attachments(options, domain, site_name=nil, subdomain=nil)
-    site_name = site_name.present? ? site_name : 'Conservation International'
+  def zip_attachments(options, domain, site_name = nil, subdomain = nil)
+    site_name = site_name.present? ? site_name : "Conservation International"
 
-    download_path   = options['download_path']  if options['download_path'].present?
-    download_query  = options['q']              if options['q'].present?
-    download_format = options['with_format']    if options['with_format'].present?
-    file_format     = options['file_format']    if options['file_format'].present?
+    download_path = options["download_path"] if options["download_path"].present?
+    download_query = options["q"] if options["q"].present?
+    download_format = options["with_format"] if options["with_format"].present?
+    file_format = options["file_format"] if options["file_format"].present?
 
-    file_name       = if options['filename'].present?
-                        options['filename']
-                      elsif options['download_path'].present? && URI(options['download_path']).query.present?
-                        query_path = URI(options['download_path']).query
-                        filename   = query_path.split('=')[1] if query_path.split('=')[0].include?('filename')
-                        filename
-                      end
+    file_name = if options["filename"].present?
+      options["filename"]
+    elsif options["download_path"].present? && URI(options["download_path"]).query.present?
+      query_path = URI(options["download_path"]).query
+      filename = query_path.split("=")[1] if query_path.split("=")[0].include?("filename")
+      filename
+    end
 
-    layer_url  = "#{download_path}"       if download_path
-    layer_url += "&q=#{download_query}"   if download_query
+    layer_url = download_path.to_s if download_path
+    layer_url += "&q=#{download_query}" if download_query
     layer_url += "&format=#{file_format}" if download_format
 
     zipfile = zipfile_name(subdomain)
 
-    return false   if !download?
-    return zipfile if File.exists?(zipfile) && date_valid?(subdomain)
+    return false if !download?
+    return zipfile if File.exist?(zipfile) && date_valid?(subdomain)
 
-    layer_file = URI.open(layer_url.to_s) if layer_url
+    layer_file = URI.parse(layer_url.to_s).open if layer_url
 
     ::Zip::OutputStream.open(zipfile) do |zip|
       if layer_file
-        layer_name = file_name ? file_name : "#{self.name.parameterize}-extra"
+        layer_name = file_name || "#{name.parameterize}-extra"
         zip.put_next_entry("#{layer_name}.#{file_format}")
         zip.write IO.read(layer_file.path)
       end
 
       layer_attr = {}
-      layer_attr['layer']   = attributes
-      layer_attr['sources'] = sources.map { |s| s.attributes } if sources.any?
+      layer_attr["layer"] = attributes
+      layer_attr["sources"] = sources.map { |s| s.attributes } if sources.any?
 
       pdf_file = PdfFile.new(layer_attr, pdf_file_path, domain, site_name)
       pdf_file.generate_pdf_file
 
-      zip.put_next_entry("#{pdf_file_name}")
+      zip.put_next_entry(pdf_file_name.to_s)
       zip.write IO.read(pdf_file_path)
       File.delete(pdf_file_path)
     end
@@ -177,24 +179,24 @@ class Layer < ApplicationRecord
 
   private
 
-    def date_valid?(subdomain)
-      file_date    = File.basename(zipfile_name(subdomain), '.zip').split('-date-').last
-      self_date    = self.updated_at.to_date.to_s.parameterize
-      source_date  = self.sources.map { |s| s.updated_at.to_date.to_s.parameterize }.compact.flatten.max if sources.any?
-      objects_date = [self_date, source_date].compact.max
+  def date_valid?(subdomain)
+    file_date = File.basename(zipfile_name(subdomain), ".zip").split("-date-").last
+    self_date = updated_at.to_date.to_s.parameterize
+    source_date = sources.map { |s| s.updated_at.to_date.to_s.parameterize }.compact.flatten.max if sources.any?
+    objects_date = [self_date, source_date].compact.max
 
-      return true if file_date >= objects_date
-    end
+    return true if file_date >= objects_date
+  end
 
-    def zipfile_name(subdomain)
-      "#{Rails.root}/downloads/#{self.name.parameterize}-date-#{DateTime.now.to_date.to_s.parameterize}-#{subdomain}.zip"
-    end
+  def zipfile_name(subdomain)
+    "#{Rails.root}/downloads/#{name.parameterize}-date-#{DateTime.now.to_date.to_s.parameterize}-#{subdomain}.zip"
+  end
 
-    def pdf_file_path
-      "#{Rails.root}/downloads/#{pdf_file_name}"
-    end
+  def pdf_file_path
+    "#{Rails.root}/downloads/#{pdf_file_name}"
+  end
 
-    def pdf_file_name
-      "#{self.name.parameterize}.pdf"
-    end
+  def pdf_file_name
+    "#{name.parameterize}.pdf"
+  end
 end

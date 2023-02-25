@@ -13,6 +13,6 @@ class ShareUrlSerializer < ActiveModel::Serializer
   cache key: "share_url"
   attributes :uid, :body
   def type
-    'share_url'
+    "share_url"
   end
 end

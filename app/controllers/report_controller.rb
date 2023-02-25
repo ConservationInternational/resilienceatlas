@@ -1,8 +1,6 @@
 class ReportController < GeneralController
-
-  layout 'report'
+  layout "report"
 
   def index
   end
-
 end

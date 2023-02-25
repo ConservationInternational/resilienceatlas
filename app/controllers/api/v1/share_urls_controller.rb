@@ -6,18 +6,21 @@ module Api
         if @url.present?
           render json: @url
         else
-          render json: {errors: [{ status: '404', title: 'Record not found' }] } ,  status: 404
+          render json: {errors: [{status: "404", title: "Record not found"}]}, status: 404
         end
       end
+
       def create
         @url = ShareUrl.new(share_url_params)
         if @url.save
-          render json: {uid: @url.uid},  status: 200
+          render json: {uid: @url.uid}, status: 200
         else
-          render json: {errors: [{ status: '400', title: 'Bad request' }] } ,  status: 400
+          render json: {errors: [{status: "400", title: "Bad request"}]}, status: 400
         end
       end
+
       private
+
       def share_url_params
         params.permit(:body)
       end

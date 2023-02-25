@@ -36,8 +36,9 @@ class LayerGroupSerializer < ActiveModel::Serializer
   attributes :name, :slug, :category, :active, :order, :info, :layer_group_type, :super_group_id, :super_group_name, :icon_class
   has_one :super_group, serializer: LayerGroupSerializer, include: true
   def type
-    'layer_groups'
+    "layer_groups"
   end
+
   def super_group_name
     object.super_group.name if object.super_group.present?
   end

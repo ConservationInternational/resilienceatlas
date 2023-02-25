@@ -18,13 +18,13 @@ class Model < ApplicationRecord
 
   validates_presence_of :name
 
-  def self.fetch_all(options={})
+  def self.fetch_all(options = {})
     if options[:site_scope]
       site_scope = options[:site_scope].to_i
-      return Model.joins(:site_scopes)
-               .where('models_site_scopes.site_scope_id = ?', site_scope)
+      Model.joins(:site_scopes)
+        .where("models_site_scopes.site_scope_id = ?", site_scope)
     else
-      return Model.all
+      Model.all
     end
   end
 end

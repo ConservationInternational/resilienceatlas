@@ -22,17 +22,17 @@
 #  organization_role      :string
 #
 
-require 'rails_helper'
+require "rails_helper"
 
 RSpec.describe User, type: :model do
   let!(:user) { create :user }
 
-  it 'User is valid' do
-    expect(user).to       be_valid
+  it "User is valid" do
+    expect(user).to be_valid
     expect(user.email).to be_present
   end
 
-  it 'Count users' do
+  it "Count users" do
     expect(User.count).to eq(1)
   end
 end

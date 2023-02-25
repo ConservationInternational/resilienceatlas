@@ -8,7 +8,7 @@ RSpec.describe "API V1 Layer", type: :request do
       produces "application/json"
       parameter name: :site_scope, in: :query, type: :string, description: "Site scope to list layers for", required: false
 
-      let(:default_site_scope) { create :site_scope, id: 1, name: 'CIGRP' }
+      let(:default_site_scope) { create :site_scope, id: 1, name: "CIGRP" }
       let(:layer_group) { create :layer_group, site_scope: default_site_scope }
       let!(:layers) { create_list :layer, 3, download: false, layer_groups: [layer_group] }
       let(:site_scope) { default_site_scope.subdomain }
@@ -29,11 +29,11 @@ RSpec.describe "API V1 Layer", type: :request do
       consumes "application/json"
       produces "application/zip"
       parameter name: :id, in: :path, type: :integer, description: "Layer ID"
-      parameter name: :download_path, in: :query, type: :string, description: 'Url to the file download', required: false
-      parameter name: :file_format, in: :query, type: :string, description: 'File format (pdf, kml, jpg, txt, etc..)', required: false
-      parameter name: :with_format, in: :query, type: :string, description: 'If format is part of download_path', required: false
+      parameter name: :download_path, in: :query, type: :string, description: "Url to the file download", required: false
+      parameter name: :file_format, in: :query, type: :string, description: "File format (pdf, kml, jpg, txt, etc..)", required: false
+      parameter name: :with_format, in: :query, type: :string, description: "If format is part of download_path", required: false
 
-      let(:default_site_scope) { create :site_scope, id: 1, name: 'CIGRP' }
+      let(:default_site_scope) { create :site_scope, id: 1, name: "CIGRP" }
       let(:layer_group) { create :layer_group, site_scope: default_site_scope }
       let(:layer) { create :layer, download: true, layer_groups: [layer_group] }
       let(:stub_layer_zip) { "#{Rails.root}/downloads/#{layer.name.parameterize}-date-#{DateTime.now.to_date.to_s.parameterize}-main.zip" }
@@ -47,7 +47,7 @@ RSpec.describe "API V1 Layer", type: :request do
           run_test!
 
           it "downloads file" do
-            expect(File.exists?(stub_layer_zip)).to be_truthy
+            expect(File.exist?(stub_layer_zip)).to be_truthy
             Zip::File.open(stub_layer_zip) do |zip_file|
               expect(zip_file.first.name).to eq(File.basename("#{layer.name.parameterize}.pdf"))
             end
@@ -72,16 +72,16 @@ RSpec.describe "API V1 Layer", type: :request do
           run_test!
 
           it "downloads file" do
-            expect(File.exists?(stub_layer_zip)).to be_truthy
+            expect(File.exist?(stub_layer_zip)).to be_truthy
             Zip::File.open(stub_layer_zip) do |zip_file|
-              expect(zip_file.first.name).to eq(File.basename('africa_infant_mortality_rate.kml'))
+              expect(zip_file.first.name).to eq(File.basename("africa_infant_mortality_rate.kml"))
             end
           end
         end
 
         context "when downloading the layer pdf of a specific layer with external file" do
           let(:file_format) { "pdf" }
-          let(:download_path) { 'http://www.hgd1952.hr/pdf_datoteke/Test_document_PDF.pdf' }
+          let(:download_path) { "http://www.hgd1952.hr/pdf_datoteke/Test_document_PDF.pdf" }
 
           before do
             allow_any_instance_of(Layer).to receive(:zipfile_name).and_return(stub_layer_zip)
@@ -93,7 +93,7 @@ RSpec.describe "API V1 Layer", type: :request do
           run_test!
 
           it "downloads file" do
-            expect(File.exists?(stub_layer_zip)).to be_truthy
+            expect(File.exist?(stub_layer_zip)).to be_truthy
             Zip::File.open(stub_layer_zip) do |zip_file|
               expect(zip_file.first.name).to eq(File.basename("#{layer.name.parameterize}-extra.pdf"))
             end
@@ -115,8 +115,8 @@ RSpec.describe "API V1 Layer", type: :request do
           run_test!
 
           it "downloads file" do
-            expect(File.exists?(stub_layer_zip)).to be_truthy
-            expect(File.exists?(stub_layer_expired_zip)).to be_truthy
+            expect(File.exist?(stub_layer_zip)).to be_truthy
+            expect(File.exist?(stub_layer_expired_zip)).to be_truthy
             Zip::File.open(stub_layer_zip) do |zip_file|
               expect(zip_file.first.name).to eq(File.basename("#{layer.name.parameterize}.pdf"))
             end
@@ -129,8 +129,8 @@ RSpec.describe "API V1 Layer", type: :request do
           run_test!
 
           it "does not allow to download file" do
-            expect(File.exists?(stub_layer_zip)).to be_falsey
-            expect(response_json['message']).to eq('No files for specified layer')
+            expect(File.exist?(stub_layer_zip)).to be_falsey
+            expect(response_json["message"]).to eq("No files for specified layer")
           end
         end
 
@@ -143,7 +143,7 @@ RSpec.describe "API V1 Layer", type: :request do
           run_test!
 
           it "downloads file" do
-            expect(File.exists?(stub_layer_zip)).to be_truthy
+            expect(File.exist?(stub_layer_zip)).to be_truthy
             Zip::File.open(stub_layer_zip) do |zip_file|
               expect(zip_file.first.name).to eq(File.basename("#{layer.name.parameterize}.pdf"))
             end

@@ -14,8 +14,7 @@ class Category < ApplicationRecord
   has_many :indicators
   validates_presence_of :slug, :name
 
-  def self.fetch_all(options={})
+  def self.fetch_all(options = {})
     Category.all
   end
-
 end

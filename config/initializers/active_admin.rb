@@ -147,7 +147,7 @@ ActiveAdmin.setup do |config|
   # https://github.com/svenfuchs/i18n/blob/master/lib%2Fi18n%2Fbackend%2Fbase.rb#L52
   #
   config.localize_format = :long
-  config.register_javascript 'https://maps.googleapis.com/maps/api/js?key=AIzaSyCGO96YyyjYfPBvnmLuTLZMeqsm8ogq_Ro'
+  config.register_javascript "https://maps.googleapis.com/maps/api/js?key=AIzaSyCGO96YyyjYfPBvnmLuTLZMeqsm8ogq_Ro"
   # == Setting a Favicon
   #
   # config.favicon = 'favicon.ico'

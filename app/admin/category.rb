@@ -27,7 +27,7 @@ ActiveAdmin.register Category do
   form do |f|
     f.semantic_errors
 
-    f.inputs 'Category fields' do
+    f.inputs "Category fields" do
       f.input :name
       f.input :slug
       f.input :description

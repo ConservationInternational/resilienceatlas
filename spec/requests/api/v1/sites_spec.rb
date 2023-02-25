@@ -7,7 +7,7 @@ RSpec.describe "API V1 Sites", type: :request do
       consumes "application/json"
       produces "application/json"
 
-      let!(:default_site_scope) { create :site_scope, id: 1, name: 'CIGRP' }
+      let!(:default_site_scope) { create :site_scope, id: 1, name: "CIGRP" }
       let!(:extra_site_scope) { create :site_scope, id: 2 }
 
       response "200", :success do
@@ -27,7 +27,7 @@ RSpec.describe "API V1 Sites", type: :request do
       produces "application/json"
       parameter name: :site_scope, in: :query, type: :string, description: "Site scope subdomain", required: false
 
-      let(:default_site_scope) { create :site_scope, id: 1, name: 'CIGRP' }
+      let(:default_site_scope) { create :site_scope, id: 1, name: "CIGRP" }
       let(:site_scope) { default_site_scope.subdomain }
 
       response "200", :success do

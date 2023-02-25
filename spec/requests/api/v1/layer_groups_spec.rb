@@ -8,7 +8,7 @@ RSpec.describe "API V1 Layer groups", type: :request do
       produces "application/json"
       parameter name: :site_scope, in: :query, type: :string, description: "Site scope to list layers for", required: false
 
-      let(:default_site_scope) { create :site_scope, id: 1, name: 'CIGRP' }
+      let(:default_site_scope) { create :site_scope, id: 1, name: "CIGRP" }
       let(:extra_site_scope) { create :site_scope, id: 2 }
       let!(:layer_groups) { create_list :layer_group, 3, site_scope: default_site_scope }
       let!(:layer_group_with_different_site_scope) { create :layer_group, site_scope: extra_site_scope }

@@ -8,7 +8,7 @@ RSpec.describe "API V1 ShareUrl", type: :request do
       produces "application/json"
       parameter name: :uid, in: :path, type: :string, description: "An unique url identifier"
 
-      let(:share_url) { create :share_url, body: "body test", uid: '12345' }
+      let(:share_url) { create :share_url, body: "body test", uid: "12345" }
       let(:uid) { share_url.uid }
 
       it_behaves_like "with not found error"
@@ -30,7 +30,7 @@ RSpec.describe "API V1 ShareUrl", type: :request do
       produces "application/json"
       parameter name: :body, in: :query, type: :string, description: "Body of shared url"
 
-      let(:body) { 'body test' }
+      let(:body) { "body test" }
 
       response "200", :success do
         run_test!

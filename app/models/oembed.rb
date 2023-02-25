@@ -1,6 +1,6 @@
 class Oembed
   extend ActiveModel::Naming
-   include ActiveModel::Model
+  include ActiveModel::Model
   include ActiveModel::Conversion
   include ActiveModel::Validations
   include ActiveModel::Serialization
@@ -12,8 +12,8 @@ class Oembed
   def attributes=(attributes)
     @width = get_width(attributes[:width])
     @height = get_height(attributes[:height])
-    @version = '1.0'
-    @type = 'rich'
+    @version = "1.0"
+    @type = "rich"
     @provider_name = attributes[:provider_name]
     @provider_url = attributes[:provider_url]
   end
@@ -39,5 +39,4 @@ class Oembed
       600
     end
   end
-
 end

@@ -13,9 +13,9 @@
 #
 
 class SitePage < ApplicationRecord
-    has_rich_text :body
-    belongs_to :site_scope
-    validates_uniqueness_of :title, scope: :site_scope_id
-    validates_presence_of :title, :site_scope, :body, :slug
-    validates_uniqueness_of :slug
+  has_rich_text :body
+  belongs_to :site_scope
+  validates_uniqueness_of :title, scope: :site_scope_id
+  validates_presence_of :title, :site_scope, :body, :slug
+  validates_uniqueness_of :slug
 end

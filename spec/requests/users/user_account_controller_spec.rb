@@ -1,7 +1,7 @@
-require 'rails_helper'
+require "rails_helper"
 
 RSpec.describe Users::UserAccountController, type: :request do
-  context 'with signed user' do
+  context "with signed user" do
     let(:user) { create(:user) }
 
     before { sign_in user }

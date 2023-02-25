@@ -38,7 +38,7 @@ ActiveAdmin.register User do
     column :sign_in_count
     column :created_at
     actions defaults: true do |user|
-      link_to 'Show User Downloads', show_user_downloads_admin_user_path(user)
+      link_to "Show User Downloads", show_user_downloads_admin_user_path(user)
     end
   end
 

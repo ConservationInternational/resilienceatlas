@@ -24,8 +24,7 @@ class Indicator < ApplicationRecord
 
   acts_as_list scope: :category
 
-
-  def self.fetch_all(options={})
+  def self.fetch_all(options = {})
     Indicator.all
   end
 end

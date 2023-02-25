@@ -48,18 +48,18 @@
 #  description               :text
 #
 
-require 'rails_helper'
+require "rails_helper"
 
 RSpec.describe Layer, type: :model do
   let(:source) { create :source }
   let!(:layer) { create :layer, sources: [source] }
 
-  it 'Layer is valid' do
-    expect(layer).to                           be_valid
+  it "Layer is valid" do
+    expect(layer).to be_valid
     expect(layer.sources.first.source_type).to eq(source.source_type)
   end
 
-  it 'Count layers' do
+  it "Count layers" do
     expect(Layer.count).to eq(1)
   end
 end

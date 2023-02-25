@@ -10,7 +10,7 @@ Rails.application.configure do
   config.eager_load = false
 
   # Show full error reports and disable caching.
-  config.consider_all_requests_local       = true
+  config.consider_all_requests_local = true
   config.action_controller.perform_caching = false
 
   # Don't care if the mailer can't send.
@@ -39,26 +39,26 @@ Rails.application.configure do
   # Raises error for missing translations
   # config.action_view.raise_on_missing_translations = true
 
-  config.action_mailer.default_url_options = { host: 'localhost', port: 3000 }
+  config.action_mailer.default_url_options = {host: "localhost", port: 3000}
   config.action_mailer.delivery_method = :smtp
 
   ActionMailer::Base.smtp_settings = {
-    :address        => 'smtp.sendgrid.net',
-    :port           => '587',
-    :authentication => :plain,
-    :user_name      => ENV['SENDGRID_USERNAME'],
-    :password       => ENV['SENDGRID_PASSWORD'],
-    :domain         => 'localhost',
-    :enable_starttls_auto => true
+    address: "smtp.sendgrid.net",
+    port: "587",
+    authentication: :plain,
+    user_name: ENV["SENDGRID_USERNAME"],
+    password: ENV["SENDGRID_PASSWORD"],
+    domain: "localhost",
+    enable_starttls_auto: true
   }
 
   config.log_level = :debug
 
   if ENV["RAILS_LOG_TO_STDOUT"].present?
-    logger           = ActiveSupport::Logger.new(STDOUT)
+    logger = ActiveSupport::Logger.new($stdout)
     logger.formatter = config.log_formatter
-    logger.level     = config.log_level
-    config.logger    = ActiveSupport::TaggedLogging.new(logger)
+    logger.level = config.log_level
+    config.logger = ActiveSupport::TaggedLogging.new(logger)
   end
   config.active_storage.service = :local
   config.factory_bot.definition_file_paths = ["spec/factories"]
