@@ -6,4 +6,4 @@
   
   .wrap.m-content-manager
     .row.center
-      == @page.body
+      == sanitize @page.body.html_safe

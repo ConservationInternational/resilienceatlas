@@ -93,6 +93,8 @@ group :development, :test do
 end
 
 group :development do
+  gem "brakeman", require: false
+  gem "bundler-audit", require: false
   gem "foreman"
   gem "better_errors"
   gem "binding_of_caller"

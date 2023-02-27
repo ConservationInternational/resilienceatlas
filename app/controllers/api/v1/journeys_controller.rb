@@ -8,7 +8,8 @@ module Api
       end
 
       def show
-        journey_path = "public/journeys/#{params[:id]}.json"
+        id = %w[1 2 3 4 5].detect { |i| i == params[:id].to_s }
+        journey_path = "public/journeys/#{id}.json"
         if File.exist? journey_path
           render json: File.read(journey_path)
         else

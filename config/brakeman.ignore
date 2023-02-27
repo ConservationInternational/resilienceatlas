@@ -1,0 +1,128 @@
+{
+  "ignored_warnings": [
+    {
+      "warning_type": "File Access",
+      "warning_code": 16,
+      "fingerprint": "299eb4d7e8ff4ba1903499747d9d15389e7f17187b02c5550c44eae04ef27d30",
+      "check_name": "FileAccess",
+      "message": "Model attribute used in file name",
+      "file": "app/controllers/api/v1/layers_controller.rb",
+      "line": 19,
+      "link": "https://brakemanscanner.org/docs/warning_types/file_access/",
+      "code": "File.open(Layer.find(params[:id]).zip_attachments(params, request.original_url.to_s, @site_name, @subdomain), \"r\")",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "Api::V1::LayersController",
+        "method": "download_attachments"
+      },
+      "user_input": "Layer.find(params[:id]).zip_attachments(params, request.original_url.to_s, @site_name, @subdomain)",
+      "confidence": "Medium",
+      "cwe_id": [
+        22
+      ],
+      "note": ""
+    },
+    {
+      "warning_type": "HTTP Verb Confusion",
+      "warning_code": 118,
+      "fingerprint": "32dbed9701ba0e47fb1ac526df173ecdf2ca750e367773ac3cad0af6aa04d9bb",
+      "check_name": "VerbConfusion",
+      "message": "Potential HTTP verb confusion. `HEAD` is routed like `GET` but `request.get?` will return `false`",
+      "file": "app/controllers/application_controller.rb",
+      "line": 38,
+      "link": "https://brakemanscanner.org/docs/warning_types/http_verb_confusion/",
+      "code": "return unless request.get?",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "ApplicationController",
+        "method": "store_location"
+      },
+      "user_input": "request.get?",
+      "confidence": "Weak",
+      "cwe_id": [
+        352
+      ],
+      "note": ""
+    },
+    {
+      "warning_type": "Cross-Site Scripting",
+      "warning_code": 2,
+      "fingerprint": "77c32e5ff79cb3416a7b06e23261553f996ecebad8da1680430699f26d8ce9ac",
+      "check_name": "CrossSiteScripting",
+      "message": "Unescaped model attribute",
+      "file": "app/views/contents/show.html.slim",
+      "line": 9,
+      "link": "https://brakemanscanner.org/docs/warning_types/cross_site_scripting",
+      "code": "sanitize(SitePage.find_by(:slug => params[:slug]).body.html_safe)",
+      "render_path": [
+        {
+          "type": "controller",
+          "class": "ContentsController",
+          "method": "show",
+          "line": 4,
+          "file": "app/controllers/contents_controller.rb",
+          "rendered": {
+            "name": "contents/show",
+            "file": "app/views/contents/show.html.slim"
+          }
+        }
+      ],
+      "location": {
+        "type": "template",
+        "template": "contents/show"
+      },
+      "user_input": "SitePage.find_by(:slug => params[:slug]).body",
+      "confidence": "Weak",
+      "cwe_id": [
+        79
+      ],
+      "note": ""
+    },
+    {
+      "warning_type": "Cross-Site Scripting",
+      "warning_code": 124,
+      "fingerprint": "b2b8818e646bf1c277a27eae9a0e98766968d4d38e3b2e1e59b0fe1fa37218dc",
+      "check_name": "SanitizeConfigCve",
+      "message": "rails-html-sanitizer 1.4.2 is vulnerable to cross-site scripting when `select` and `style` tags are allowed (CVE-2022-32209). Upgrade to 1.4.3 or newer",
+      "file": "Gemfile.lock",
+      "line": 427,
+      "link": "https://groups.google.com/g/rubyonrails-security/c/ce9PhUANQ6s/m/S0fJfnkmBAAJ",
+      "code": null,
+      "render_path": null,
+      "location": null,
+      "user_input": null,
+      "confidence": "Weak",
+      "cwe_id": [
+        79
+      ],
+      "note": ""
+    },
+    {
+      "warning_type": "HTTP Verb Confusion",
+      "warning_code": 118,
+      "fingerprint": "e71b06f6a3aafc777d8b304d83847884d17d320092f74a4c3df47d787aa9535c",
+      "check_name": "VerbConfusion",
+      "message": "Potential HTTP verb confusion. `HEAD` is routed like `GET` but `request.get?` will return `false`",
+      "file": "app/controllers/application_controller.rb",
+      "line": 23,
+      "link": "https://brakemanscanner.org/docs/warning_types/http_verb_confusion/",
+      "code": "return unless request.get?",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "ApplicationController",
+        "method": "check_subdomain"
+      },
+      "user_input": "request.get?",
+      "confidence": "Weak",
+      "cwe_id": [
+        352
+      ],
+      "note": ""
+    }
+  ],
+  "updated": "2023-02-27 09:44:01 +0100",
+  "brakeman_version": "5.4.1"
+}
