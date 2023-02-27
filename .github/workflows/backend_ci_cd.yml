@@ -12,7 +12,6 @@ jobs:
       DATABASE_PASSWORD: postgres
       DATABASE_USER: postgres
       RAILS_ENV: test
-      NODE_OPTIONS: --openssl-legacy-provider
 
     services:
       postgres:
@@ -59,7 +58,7 @@ jobs:
         run: yarn install --frozen-lockfile
 
       - name: Compile FE
-        run: bundle exec rake assets:precompile
+        run:  NODE_OPTIONS=--openssl-legacy-provider bundle exec rake assets:precompile
 
       - name: Run tests
         run: bundle exec rspec spec --fail-fast
