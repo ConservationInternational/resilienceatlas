@@ -7,7 +7,6 @@
 # Ignore bundler config.
 /.bundle
 .DS_Store
-.idea
 # Ignore the default SQLite database.
 /db/*.sqlite3
 /db/*.sqlite3-journal
@@ -38,6 +37,7 @@
 
 # IDE
 .idea
+.editorconfig
 /public/packs
 /public/packs-test
 /node_modules
