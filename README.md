@@ -42,6 +42,12 @@ Usage:
 Note:
 Files are located under doc folder
 
+### Run rswag to generate API documentation
+
+`SWAGGER_DRY_RUN=0 rake rswag:specs:swaggerize`
+
+Documentation can be found at `/api-docs`.
+
 ## Deployment
 
 In `config/deploy` you will find a sample file. Copy `production.rb.sample` to `production.rb` and change it accordingly. Deploy using:

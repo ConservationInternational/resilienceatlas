@@ -1,6 +1,6 @@
 ActiveAdmin.register Indicator do
-  config.sort_order = 'position_asc'
-  config.paginate   = false
+  config.sort_order = "position_asc"
+  config.paginate = false
 
   sortable
 
@@ -48,7 +48,7 @@ ActiveAdmin.register Indicator do
   form do |f|
     f.semantic_errors
 
-    f.inputs 'Indicator fields' do
+    f.inputs "Indicator fields" do
       f.input :category
       f.input :position
       f.input :name

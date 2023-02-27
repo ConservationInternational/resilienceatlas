@@ -18,7 +18,7 @@ class Api::Admin::LayersManager
     site_scope = SiteScope.find_by(id: site_scope_id)
     return if site_scope.blank?
 
-    layer_group = site_scope.layer_groups.find_or_create_by!(name: 'New uploads')
+    layer_group = site_scope.layer_groups.find_or_create_by!(name: "New uploads")
     layer_group.agrupations.find_or_create_by!(layer_id: layer.id)
   end
 end

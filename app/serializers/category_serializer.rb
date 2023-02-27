@@ -2,12 +2,12 @@
 #
 # Table name: categories
 #
-#  id          :integer          not null, primary key
+#  id          :bigint           not null, primary key
 #  name        :string           not null
 #  slug        :string           not null
 #  description :text
-#  created_at  :datetime
-#  updated_at  :datetime
+#  created_at  :datetime         not null
+#  updated_at  :datetime         not null
 #
 
 class CategorySerializer < ActiveModel::Serializer

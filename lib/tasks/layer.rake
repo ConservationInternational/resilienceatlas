@@ -1,9 +1,8 @@
 namespace :layers do
-
   desc "Deletes layers and layer groups and import new ones."
   task import: :environment do
     puts "\n This will delete your current layers from database and import the last backup, are you sure? [Y/N]"
-    answer = STDIN.gets.chomp
+    answer = $stdin.gets.chomp
     puts answer
     if answer == "Y"
       puts "Deleting layers..."
@@ -12,12 +11,12 @@ namespace :layers do
       LayerGroup.delete_all
       SiteScope.delete_all
       puts "Importing new layers..."
-      filename = 'db/data/layers.rb'
+      filename = "db/data/layers.rb"
       load(filename) if File.exist?(filename)
-      ActiveRecord::Base.connection.reset_pk_sequence!('layers')
-      ActiveRecord::Base.connection.reset_pk_sequence!('layer_groups')
-      ActiveRecord::Base.connection.reset_pk_sequence!('agrupations')
-      ActiveRecord::Base.connection.reset_pk_sequence!('site_scopes')
+      ActiveRecord::Base.connection.reset_pk_sequence!("layers")
+      ActiveRecord::Base.connection.reset_pk_sequence!("layer_groups")
+      ActiveRecord::Base.connection.reset_pk_sequence!("agrupations")
+      ActiveRecord::Base.connection.reset_pk_sequence!("site_scopes")
       puts "Layers imported."
     else
       puts "Nothing changed."
@@ -47,7 +46,7 @@ namespace :layers do
 
   desc "Delete generated zip files in download folder"
   task delete_downloads: :environment do
-    FileUtils.rm_rf(Dir.glob('downloads/*'))
+    FileUtils.rm_rf(Dir.glob("downloads/*"))
     puts "Downloads deleted."
   end
 end

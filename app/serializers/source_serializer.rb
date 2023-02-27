@@ -2,7 +2,7 @@
 #
 # Table name: sources
 #
-#  id                       :integer          not null, primary key
+#  id                       :bigint           not null, primary key
 #  source_type              :string
 #  reference                :string
 #  reference_short          :string
@@ -22,6 +22,6 @@ class SourceSerializer < ActiveModel::Serializer
   cache key: "source"
   attributes :reference_short, :url
   def type
-    'source'
+    "source"
   end
 end

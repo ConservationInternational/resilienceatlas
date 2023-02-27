@@ -10,7 +10,7 @@ ActiveAdmin.register MapMenuEntry do
   form do |f|
     f.semantic_errors
 
-    f.inputs 'Map Menu Entry fields' do
+    f.inputs "Map Menu Entry fields" do
       f.input :label
       f.input :link
       f.input :position

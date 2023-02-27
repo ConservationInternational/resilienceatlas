@@ -1,5 +1,4 @@
 class JourneysController < GeneralController
-
   layout :resolve_layout
 
   def index
@@ -18,5 +17,4 @@ class JourneysController < GeneralController
       "fullscreen"
     end
   end
-
 end

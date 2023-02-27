@@ -2,7 +2,7 @@
 #
 # Table name: layers
 #
-#  id                        :integer          not null, primary key
+#  id                        :bigint           not null, primary key
 #  layer_group_id            :integer
 #  slug                      :string           not null
 #  layer_type                :string
@@ -38,22 +38,28 @@
 #  analysis_query            :text
 #  layer_config              :text
 #  analysis_body             :text
+#  interaction_config        :text
+#  name                      :string
+#  info                      :text
+#  legend                    :text
+#  title                     :string
+#  data_units                :string
+#  processing                :string
+#  description               :text
 #
 
-require 'rails_helper'
+require "rails_helper"
 
 RSpec.describe Layer, type: :model do
-  before :each do
-    @source = create(:with_source)
-    @layer = @source.layers.first
+  let(:source) { create :source }
+  let!(:layer) { create :layer, sources: [source] }
+
+  it "Layer is valid" do
+    expect(layer).to be_valid
+    expect(layer.sources.first.source_type).to eq(source.source_type)
   end
 
-  it 'Layer is valid' do
-    expect(@layer).to                           be_valid
-    expect(@layer.sources.first.source_type).to eq('Info')
-  end
-
-  it 'Count layers' do
+  it "Count layers" do
     expect(Layer.count).to eq(1)
   end
 end

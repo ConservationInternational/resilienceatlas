@@ -14,5 +14,4 @@ ActiveAdmin.register UserDownload do
     end
     actions
   end
-  
 end

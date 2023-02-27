@@ -2,7 +2,7 @@
 #
 # Table name: site_scopes
 #
-#  id               :integer          not null, primary key
+#  id               :bigint           not null, primary key
 #  name             :string
 #  color            :string
 #  subdomain        :string
@@ -17,6 +17,8 @@
 #  logo_url         :text
 #  predictive_model :boolean          default(FALSE), not null
 #  analysis_options :boolean          default(FALSE), not null
+#  analytics_code   :string
+#  has_gef_logo     :boolean
 #
 
 class SiteScope < ApplicationRecord
@@ -27,14 +29,13 @@ class SiteScope < ApplicationRecord
     [:latitude, :longitude]
   end
 
-  scope :by_keyword, -> (keyword) { where("name ILIKE ?", "%#{keyword}%") }
+  scope :by_keyword, ->(keyword) { where("name ILIKE ?", "%#{keyword}%") }
 
   def clone!
-    site_scope = self.clone
+    site_scope = clone
     new_site_scope = SiteScope.new(site_scope.attributes.except("id"))
-    new_site_scope.name = "#{self.name} _copy_ #{DateTime.now}"    
+    new_site_scope.name = "#{name} _copy_ #{DateTime.now}"
     new_site_scope.save!
-    return new_site_scope
+    new_site_scope
   end
-
 end

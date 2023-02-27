@@ -1,0 +1,1029 @@
+---
+openapi: 3.0.1
+info:
+  title: API V1
+  version: v1
+paths:
+  "/api/categories":
+    get:
+      summary: Get list of categories
+      tags:
+      - Category
+      responses:
+        '200':
+          description: success
+          content:
+            application/json:
+              example:
+                data:
+                - id: '4'
+                  type: categories
+                  attributes:
+                    name: voluptatem
+                    slug: Category-1
+                    description: Enim repellat pariatur. Earum modi eos. Libero tempora
+                      exercitationem.
+                  relationships:
+                    indicators:
+                      data: []
+                - id: '5'
+                  type: categories
+                  attributes:
+                    name: cum
+                    slug: Category-2
+                    description: Placeat commodi libero. Quo recusandae repellat.
+                      Sunt commodi tempore.
+                  relationships:
+                    indicators:
+                      data: []
+                - id: '6'
+                  type: categories
+                  attributes:
+                    name: molestiae
+                    slug: Category-3
+                    description: Et quaerat omnis. Harum voluptas atque. Quo nesciunt
+                      voluptas.
+                  relationships:
+                    indicators:
+                      data: []
+                meta:
+                  total_categories: 3
+  "/api/indicators":
+    get:
+      summary: Get list of indicators
+      tags:
+      - Indicator
+      responses:
+        '200':
+          description: success
+          content:
+            application/json:
+              example:
+                data:
+                - id: '4'
+                  type: indicators
+                  attributes:
+                    name: voluptatem
+                    slug: Category-1
+                    version: voluptatem
+                    position: 38
+                    column_name: voluptatem
+                    operation: voluptatem
+                  relationships:
+                    models:
+                      data: []
+                    category:
+                      data:
+                        id: '10'
+                        type: categories
+                - id: '5'
+                  type: indicators
+                  attributes:
+                    name: cum
+                    slug: Category-2
+                    version: cum
+                    position: 41
+                    column_name: cum
+                    operation: cum
+                  relationships:
+                    models:
+                      data: []
+                    category:
+                      data:
+                        id: '11'
+                        type: categories
+                - id: '6'
+                  type: indicators
+                  attributes:
+                    name: molestiae
+                    slug: Category-3
+                    version: molestiae
+                    position: 25
+                    column_name: molestiae
+                    operation: molestiae
+                  relationships:
+                    models:
+                      data: []
+                    category:
+                      data:
+                        id: '12'
+                        type: categories
+                included:
+                - id: '10'
+                  type: categories
+                  attributes:
+                    name: voluptatem
+                    slug: Category-1
+                    description: Enim repellat pariatur. Earum modi eos. Libero tempora
+                      exercitationem.
+                  relationships:
+                    indicators:
+                      data:
+                      - id: '4'
+                        type: indicators
+                - id: '11'
+                  type: categories
+                  attributes:
+                    name: cum
+                    slug: Category-2
+                    description: Placeat commodi libero. Quo recusandae repellat.
+                      Sunt commodi tempore.
+                  relationships:
+                    indicators:
+                      data:
+                      - id: '5'
+                        type: indicators
+                - id: '12'
+                  type: categories
+                  attributes:
+                    name: molestiae
+                    slug: Category-3
+                    description: Et quaerat omnis. Harum voluptas atque. Quo nesciunt
+                      voluptas.
+                  relationships:
+                    indicators:
+                      data:
+                      - id: '6'
+                        type: indicators
+                meta:
+                  total_indicators: 3
+  "/api/journeys":
+    get:
+      summary: Get list of journeys
+      tags:
+      - Journey
+      responses:
+        '200':
+          description: success
+          content:
+            application/json:
+              example:
+              - id: 1
+                title: ETHIOPIA
+                subtitle: Smallholder maize
+                theme: Livelihoods dependent on rainfed agricultural production and
+                  small-scale farms threatened by changing climate
+                bg: thumb-1
+                bg-big: thumb-big-1
+              - id: 2
+                title: ETHIOPIA
+                subtitle: Pastoral livelihoods
+                theme: Pastoral livelihoods threatened by changing climate
+                bg: thumb-2
+                bg-big: thumb-big-2
+              - id: 3
+                title: INDIA
+                subtitle: Cotton production
+                theme: Building resilience of an important cash crop
+                bg: thumb-3
+                bg-big: thumb-big-3
+              - id: 4
+                title: AFRICA
+                theme: Climate change likely to affect coffee production
+                bg: thumb-4
+                bg-big: thumb-big-4
+              - id: 5
+                title: MADAGASCAR
+                theme: Implementing climate resilient rice production
+                bg: thumb-5
+                bg-big: thumb-big-5
+  "/api/journeys/{id}":
+    get:
+      summary: Get appropriate journey
+      tags:
+      - Journey
+      parameters:
+      - name: id
+        in: path
+        description: Journey ID
+        required: true
+        schema:
+          type: integer
+      responses:
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              example:
+                errors:
+                - status: '404'
+                  title: Record not found
+              schema:
+                "$ref": "#/components/schemas/errors"
+        '200':
+          description: success
+          content:
+            application/json:
+              example:
+              - id: 1
+                title: ETHIOPIA
+                subtitle: Livelihoods dependent on rainfed agricultural production
+                  and small-scale farms threatened by changing climate
+                steps:
+                - number: 0
+                  type: landing
+                  title: ethiopia
+                  subtitle: data insights
+                  theme: Livelihoods dependent on rainfed agricultural production
+                    and small-scale farms threatened by changing climate
+                  background: journey1bg0
+                  credits: "© Peter Essick/Aurora Photos"
+                  creditsUrl: https://ci.tandemvault.com/lightboxes/MVGRc7ujF?t=BwQlYp2iC#80549611
+                - number: 1
+                  type: conclusion
+                  background: journey1bg1
+                  backgroundColor: 48, 29, 11
+                  title: overview
+                  content: "<p>Ethiopia is the fifth largest producer of maize in
+                    Africa. The vast majority of maize production in Ethiopia (94%)
+                    is done by smallholder farmers, nearly all of whom rely on seasonal
+                    rains to support their crops.</p><p>Ethiopia has two distinct
+                    rainy seasons and one dry season. The short rainy season, or belg,
+                    occurs from February to May and the long rainy season, or kiremt,
+                    from June through September.</p><p>Changes in the seasonal rains
+                    can greatly impact food security. In 2015, a late start to the
+                    short rains in some areas of the country forced many farmers to
+                    plant crops more suited for a shorter growing season instead of
+                    maize, limiting output of a vital food source, and reducing the
+                    resilience of smallholder farmers to future challenges.</p>"
+                  credits: "© Stephen Morrison/Africa Practice/Department of Foreign
+                    Affairs and Trade/Flickr Creative Commons"
+                  creditsUrl: https://ci.tandemvault.com/lightboxes/MVGRc7ujF?t=BwQlYp2iC#35646629
+                - number: 2
+                  chapterNumber: 1
+                  background: journey1ch1
+                  type: chapter
+                  title: livelihoods
+                  content: Where will maize production be impacted by climate variability?
+                  credits: "© Blend Images/Alamy Stock Photo"
+                  creditsUrl: https://ci.tandemvault.com/lightboxes/MVGRc7ujF?t=BwQlYp2iC#69554577
+                - number: 3
+                  type: embed
+                  maskSql: select * from gadm28_adm0 where iso != 'ETH'
+                  theme: light
+                  aside: "<header><h2>Livelihoods</h2><h3>Maize production</h3></header><section><h1>Ethiopia</h1><div
+                    class='facts'><h4></h4><p>Rainfed agriculture dominates the landscape
+                    in Ethiopia, encompassing nearly 49% of its total area.</p></div></section>"
+                  mapUrl: "/embed/map?layers=%5B%7B%22id%22%3A8%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%5D&zoom=6&center=%7B%22lat%22%3A9.09124858577939%2C%22lng%22%3A38.03466796875%7D"
+                  btnUrl: "/map?layers=%5B%7B%22id%22%3A8%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%5D&zoom=6&center=%7B%22lat%22%3A9.09124858577939%2C%22lng%22%3A38.03466796875%7D"
+                - number: 4
+                  chapterNumber: 2
+                  background: journey1ch2
+                  type: chapter
+                  title: stressors & shocks
+                  content: In which locations is maize production exposed to climate
+                    variability and shocks and what is the severity?
+                  credits: "© Robert Harding Picture Library Ltd/Alamy Stock Photo"
+                  creditsUrl: https://ci.tandemvault.com/lightboxes/MVGRc7ujF?t=BwQlYp2iC#30094743
+                - number: 5
+                  maskSql: select * from gadm28_adm0 where iso != 'ETH'
+                  type: embed
+                  theme: light
+                  aside: "<header><h2>stressors & shocks</h2><h3>Maize production
+                    & short rains</h3></header><section><h1>Ethiopia</h1><div class='facts'><h4></h4><p>49%
+                    of Ethiopia is used for rainfed agriculture</p></div><div class='facts'><h4></h4><p>Rainfall
+                    during the short rains is declining at rates as high as 24% per
+                    decade in some maize-growing areas.</p><p>10% of the area currently
+                    used for maize production has been impacted by this decrease.</p></div></section>"
+                  mapUrl: "/embed/map?layers=%5B%7B%22id%22%3A168%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%2C%7B%22id%22%3A8%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%5D&zoom=6&center=%7B%22lat%22%3A9.09124858577939%2C%22lng%22%3A38.03466796875%7D"
+                  btnUrl: "/map?layers=%5B%7B%22id%22%3A168%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%2C%7B%22id%22%3A8%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%5D&zoom=6&center=%7B%22lat%22%3A9.09124858577939%2C%22lng%22%3A38.03466796875%7D"
+                - number: 6
+                  type: embed
+                  maskSql: select * from gadm28_adm0 where iso != 'ETH'
+                  theme: light
+                  aside: "<header><h2>stressors & shocks</h2><h3>Maize production
+                    & long rains</h3></header><section><h1>Ethiopia</h1><div class='facts'><h4></h4><p>49%
+                    of the land area of Ethiopia is used for rainfed agriculture</p></div><div
+                    class='facts'><h4></h4><p>Rainfall during the long rains is declining
+                    at rates as high as 11% per decade in some maize-growing areas.</p></div></section>"
+                  mapUrl: "/embed/map?layers=%5B%7B%22id%22%3A169%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%2C%7B%22id%22%3A8%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%5D&zoom=6&center=%7B%22lat%22%3A9.09124858577939%2C%22lng%22%3A38.03466796875%7D"
+                  btnUrl: "/map?layers=%5B%7B%22id%22%3A169%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%2C%7B%22id%22%3A8%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%5D&zoom=6&center=%7B%22lat%22%3A9.09124858577939%2C%22lng%22%3A38.03466796875%7D"
+                - number: 7
+                  chapterNumber: 3
+                  background: journey1ch3
+                  type: chapter
+                  title: vulnerability
+                  content: What factors affect the vulnerability of smallholder maize
+                    farmers to climate variability and shocks?
+                  credits: "© Eric Lafforgue/Alamy Stock Photo"
+                  creditsUrl: https://ci.tandemvault.com/lightboxes/MVGRc7ujF?t=BwQlYp2iC#17177125
+                - number: 8
+                  type: embed
+                  maskSql: select * from gadm28_adm0 where iso != 'ETH'
+                  theme: light
+                  aside: "<header><h2>Vulnerability</h2><h3>Fertility rates in maize
+                    production areas</h3></header><section><h1>Ethiopia</h1><div class='facts'><h4></h4><p>Fertility
+                    rates in maize producing areas are >5 children per woman.</p><p>The
+                    population of Ethiopia is projected to increase from 98,942,102
+                    to 142,900,000 by 2030, creating further stress.</p><p class='source'>
+                    Source: International Futures (IFs) forecasting system and the
+                    Pardee Center for International Futures at the University of Denver.</p></div></section>"
+                  mapUrl: "/embed/map?layers=%5B%7B%22id%22%3A42%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%2C%7B%22id%22%3A8%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%5D&zoom=6&center=%7B%22lat%22%3A9.09124858577939%2C%22lng%22%3A38.03466796875%7D"
+                  btnUrl: "/map?layers=%5B%7B%22id%22%3A28%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%2C%7B%22id%22%3A8%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%5D&zoom=6&center=%7B%22lat%22%3A9.09124858577939%2C%22lng%22%3A38.03466796875%7D"
+                - number: 9
+                  type: embed
+                  maskSql: select * from gadm28_adm0 where iso != 'ETH'
+                  theme: light
+                  aside: "<header><h2>Vulnerability</h2><h3>Mass media access in maize
+                    production areas</h3></header><section><h1>Ethiopia</h1><div class='facts'><h4></h4><p>In
+                    maize producing areas, more than 69% of women lack access to mass
+                    media.</p></div></section>"
+                  mapUrl: "/embed/map?layers=%5B%7B%22id%22%3A27%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%2C%7B%22id%22%3A8%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%5D&zoom=6&center=%7B%22lat%22%3A9.09124858577939%2C%22lng%22%3A38.03466796875%7D"
+                  btnUrl: "/map?layers=%5B%7B%22id%22%3A27%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%2C%7B%22id%22%3A8%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%5D&zoom=6&center=%7B%22lat%22%3A9.09124858577939%2C%22lng%22%3A38.03466796875%7D"
+                - number: 10
+                  type: embed
+                  maskSql: select * from gadm28_adm0 where iso != 'ETH'
+                  theme: light
+                  aside: "<header><h2>Vulnerability</h2><h3>Illiteracy rate for women
+                    in maize production areas</h3></header><section><h1>Ethiopia</h1><div
+                    class='facts'><h4></h4><p>In maize producing areas, more than
+                    half of all women are illiterate.</p></div></section>"
+                  mapUrl: "/embed/map?layers=%5B%7B%22id%22%3A44%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%2C%7B%22id%22%3A8%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%5D&zoom=6&center=%7B%22lat%22%3A9.09124858577939%2C%22lng%22%3A38.03466796875%7D"
+                  btnUrl: "/map?layers=%5B%7B%22id%22%3A26%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%2C%7B%22id%22%3A8%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%5D&zoom=6&center=%7B%22lat%22%3A9.09124858577939%2C%22lng%22%3A38.03466796875%7D"
+                - number: 11
+                  type: embed
+                  maskSql: select * from gadm28_adm0 where iso != 'ETH'
+                  theme: light
+                  aside: "<header><h2>Vulnerability</h2><h3>short rains with grain
+                    storage</h3></header><section><h1>Ethiopia</h1><div class='facts'><h4></h4><p>Post-harvest
+                    crop losses due to rotting, insect and rodent damage, and other
+                    causes reduce farmer income and can affect food security.</p><p>Increased
+                    access to grain storage is needed to enable storage of excess
+                    production and reduce post-harvest waste.</p></div></section>"
+                  mapUrl: "/embed/map?layers=%5B%7B%22id%22%3A39%2C%22opacity%22%3A1%2C%22order%22%3A3%7D%2C%7B%22id%22%3A168%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%2C%7B%22id%22%3A8%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%5D&zoom=6&center=%7B%22lat%22%3A9.09124858577939%2C%22lng%22%3A38.03466796875%7D"
+                  btnUrl: "/map?layers=%5B%7B%22id%22%3A39%2C%22opacity%22%3A1%2C%22order%22%3A3%7D%2C%7B%22id%22%3A168%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%2C%7B%22id%22%3A8%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%5D&zoom=6&center=%7B%22lat%22%3A9.09124858577939%2C%22lng%22%3A38.03466796875%7D"
+                - number: 12
+                  type: embed
+                  maskSql: select * from gadm28_adm0 where iso != 'ETH'
+                  theme: light
+                  aside: "<header><h2>Vulnerability</h2><h3>long rains with grain
+                    storage</h3></header><section><h1>Ethiopia</h1><div class='facts'><h4></h4><p>Post-harvest
+                    crop losses due to rotting, insect and rodent damage, and other
+                    causes reduce farmer income and can affect food security.</p><p>Increased
+                    access to grain storage is needed to enable storage of excess
+                    production and reduce post-harvest waste.</p></div></section>"
+                  mapUrl: "/embed/map?layers=%5B%7B%22id%22%3A39%2C%22opacity%22%3A1%2C%22order%22%3A3%7D%2C%7B%22id%22%3A169%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%2C%7B%22id%22%3A8%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%5D&zoom=6&center=%7B%22lat%22%3A9.09124858577939%2C%22lng%22%3A38.03466796875%7D"
+                  btnUrl: "/map?layers=%5B%7B%22id%22%3A39%2C%22opacity%22%3A1%2C%22order%22%3A3%7D%2C%7B%22id%22%3A169%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%2C%7B%22id%22%3A8%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%5D&zoom=6&center=%7B%22lat%22%3A9.09124858577939%2C%22lng%22%3A38.03466796875%7D"
+                - number: 13
+                  type: conclusion
+                  background: journey1bg2
+                  backgroundColor: 35, 38, 48
+                  title: insights
+                  subtitle: agricultural livelihoods & climate change in ethiopia
+                  content: "<p>Climatic changes in primary maize growing seasons will
+                    cause lower food production in areas with high sensitivity to
+                    changing precipitation patterns.</p><p>Access to information is
+                    critical to resilience of crop production. Further, without careful
+                    planning, the impact of interventions may be limited by high levels
+                    of illiteracy and lack of access to communications media, particularly
+                    among women.</p>"
+                  credits: "© Eddie Gerald/Alamy Stock Photo"
+                  creditsUrl: https://ci.tandemvault.com/lightboxes/MVGRc7ujF?t=BwQlYp2iC#73395876
+  "/api/layer-groups":
+    get:
+      summary: Get list of layer groups
+      tags:
+      - LayerGroup
+      parameters:
+      - name: site_scope
+        in: query
+        description: Site scope to list layers for
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: success
+          content:
+            application/json:
+              example:
+                data:
+                - id: '5'
+                  type: layer_groups
+                  attributes:
+                    name: voluptatem
+                    slug: LayerGroup-1
+                    category: voluptatem
+                    active: true
+                    order: 38
+                    info: Enim repellat pariatur. Earum modi eos. Libero tempora exercitationem.
+                    layer_group_type: voluptatem
+                    super_group_id:
+                    super_group_name:
+                    icon_class: voluptatem
+                  relationships:
+                    super_group:
+                      data:
+                - id: '6'
+                  type: layer_groups
+                  attributes:
+                    name: cum
+                    slug: LayerGroup-2
+                    category: cum
+                    active: true
+                    order: 41
+                    info: Placeat commodi libero. Quo recusandae repellat. Sunt commodi
+                      tempore.
+                    layer_group_type: cum
+                    super_group_id:
+                    super_group_name:
+                    icon_class: cum
+                  relationships:
+                    super_group:
+                      data:
+                - id: '7'
+                  type: layer_groups
+                  attributes:
+                    name: molestiae
+                    slug: LayerGroup-3
+                    category: molestiae
+                    active: false
+                    order: 25
+                    info: Et quaerat omnis. Harum voluptas atque. Quo nesciunt voluptas.
+                    layer_group_type: molestiae
+                    super_group_id:
+                    super_group_name:
+                    icon_class: molestiae
+                  relationships:
+                    super_group:
+                      data:
+                meta:
+                  total_layer_groups: 3
+  "/api/layers":
+    get:
+      summary: Get list of layers
+      tags:
+      - Layer
+      parameters:
+      - name: site_scope
+        in: query
+        description: Site scope to list layers for
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: success
+          content:
+            application/json:
+              example:
+                data:
+                - id: '4'
+                  type: layers
+                  attributes:
+                    name: voluptatem
+                    slug: Layer-1
+                    layer_type: voluptatem
+                    zindex: 38
+                    opacity:
+                    active: true
+                    order: 38
+                    dashboard_order:
+                    color: "#6ac1f3"
+                    info: voluptatem
+                    interactivity: voluptatem
+                    css:
+                    query:
+                    layer_config:
+                    layer_provider:
+                    published: true
+                    locate_layer: false
+                    icon_class:
+                    legend:
+                    zoom_max: 100
+                    zoom_min: 0
+                    download: false
+                    dataset_shortname:
+                    dataset_source_url:
+                    analysis_suitable: false
+                    analysis_query:
+                    analysis_body:
+                    interaction_config:
+                  relationships:
+                    layer_group:
+                      data:
+                        id: '14'
+                        type: layer_groups
+                    sources:
+                      data: []
+                    agrupation:
+                      data:
+                        id: 4
+                        layer_id: 4
+                        layer_group_id: 14
+                        active: false
+                - id: '5'
+                  type: layers
+                  attributes:
+                    name: cum
+                    slug: Layer-2
+                    layer_type: cum
+                    zindex: 41
+                    opacity:
+                    active: true
+                    order: 41
+                    dashboard_order:
+                    color: "#6f9d5c"
+                    info: cum
+                    interactivity: cum
+                    css:
+                    query:
+                    layer_config:
+                    layer_provider:
+                    published: true
+                    locate_layer: false
+                    icon_class:
+                    legend:
+                    zoom_max: 100
+                    zoom_min: 0
+                    download: false
+                    dataset_shortname:
+                    dataset_source_url:
+                    analysis_suitable: false
+                    analysis_query:
+                    analysis_body:
+                    interaction_config:
+                  relationships:
+                    layer_group:
+                      data:
+                        id: '14'
+                        type: layer_groups
+                    sources:
+                      data: []
+                    agrupation:
+                      data:
+                        id: 5
+                        layer_id: 5
+                        layer_group_id: 14
+                        active: false
+                - id: '6'
+                  type: layers
+                  attributes:
+                    name: molestiae
+                    slug: Layer-3
+                    layer_type: molestiae
+                    zindex: 25
+                    opacity:
+                    active: false
+                    order: 25
+                    dashboard_order:
+                    color: "#8d0116"
+                    info: molestiae
+                    interactivity: molestiae
+                    css:
+                    query:
+                    layer_config:
+                    layer_provider:
+                    published: true
+                    locate_layer: false
+                    icon_class:
+                    legend:
+                    zoom_max: 100
+                    zoom_min: 0
+                    download: false
+                    dataset_shortname:
+                    dataset_source_url:
+                    analysis_suitable: false
+                    analysis_query:
+                    analysis_body:
+                    interaction_config:
+                  relationships:
+                    layer_group:
+                      data:
+                        id: '14'
+                        type: layer_groups
+                    sources:
+                      data: []
+                    agrupation:
+                      data:
+                        id: 6
+                        layer_id: 6
+                        layer_group_id: 14
+                        active: false
+                meta:
+                  total_layers: 3
+  "/api/layers/{id}/downloads":
+    get:
+      summary: Download layer file
+      tags:
+      - Layer
+      parameters:
+      - name: id
+        in: path
+        description: Layer ID
+        required: true
+        schema:
+          type: integer
+      - name: download_path
+        in: query
+        description: Url to the file download
+        required: false
+        schema:
+          type: string
+      - name: file_format
+        in: query
+        description: File format (pdf, kml, jpg, txt, etc..)
+        required: false
+        schema:
+          type: string
+      - name: with_format
+        in: query
+        description: If format is part of download_path
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: success
+  "/api/menu-entries":
+    get:
+      summary: Get list of map menu entries
+      tags:
+      - MapMenuEntry
+      responses:
+        '200':
+          description: success
+          content:
+            application/json:
+              example:
+                data:
+                - id: '4'
+                  type: map_menu_entries
+                  attributes:
+                    label: Otha Kemmer
+                    link: http://kutch-spencer.com/moises
+                    position: 38
+                    ancestry:
+                - id: '5'
+                  type: map_menu_entries
+                  attributes:
+                    label: Msgr. Genaro Cronin
+                    link: http://bartoletti.com/jeremiah_cronin
+                    position: 41
+                    ancestry:
+                - id: '6'
+                  type: map_menu_entries
+                  attributes:
+                    label: Raymon Wisoky
+                    link: http://hane.com/jules
+                    position: 25
+                    ancestry:
+  "/api/models":
+    get:
+      summary: Get list of models
+      tags:
+      - Model
+      parameters:
+      - name: site_scope
+        in: query
+        description: Site scope to list layers for
+        required: false
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: success
+          content:
+            application/json:
+              example:
+                data:
+                - id: '5'
+                  type: models
+                  attributes:
+                    name: voluptatem
+                    description: Enim repellat pariatur. Earum modi eos. Libero tempora
+                      exercitationem.
+                    source: Enim repellat pariatur est.
+                    query_analysis: Enim repellat pariatur est.
+                    table_name: voluptatem
+                  relationships:
+                    site_scopes:
+                      data:
+                      - id: '1'
+                        type: site_scopes
+                    indicators:
+                      data: []
+                - id: '6'
+                  type: models
+                  attributes:
+                    name: cum
+                    description: Placeat commodi libero. Quo recusandae repellat.
+                      Sunt commodi tempore.
+                    source: Placeat commodi libero et.
+                    query_analysis: Placeat commodi libero et.
+                    table_name: cum
+                  relationships:
+                    site_scopes:
+                      data:
+                      - id: '1'
+                        type: site_scopes
+                    indicators:
+                      data: []
+                - id: '7'
+                  type: models
+                  attributes:
+                    name: molestiae
+                    description: Et quaerat omnis. Harum voluptas atque. Quo nesciunt
+                      voluptas.
+                    source: Et quaerat omnis veniam.
+                    query_analysis: Et quaerat omnis veniam.
+                    table_name: molestiae
+                  relationships:
+                    site_scopes:
+                      data:
+                      - id: '1'
+                        type: site_scopes
+                    indicators:
+                      data: []
+                - id: '8'
+                  type: models
+                  attributes:
+                    name: quos
+                    description: Dolores fugiat nesciunt. Ut laborum dolores. Sit
+                      neque eos.
+                    source: Dolores fugiat nesciunt accusantium.
+                    query_analysis: Dolores fugiat nesciunt accusantium.
+                    table_name: quos
+                  relationships:
+                    site_scopes:
+                      data:
+                      - id: '2'
+                        type: site_scopes
+                    indicators:
+                      data: []
+                included:
+                - id: '1'
+                  type: site_scopes
+                  attributes:
+                    name: CIGRP
+                    color: "#6ac1f3"
+                    subdomain: voluptatem
+                    has_analysis: true
+                    latitude: -14.936039153536683
+                    longitude: -29.872078307073366
+                    header_theme: Enim repellat pariatur est.
+                    zoom_level: 38
+                    linkback_text: Enim repellat pariatur. Earum modi eos. Libero
+                      tempora exercitationem.
+                    linkback_url: http://kutch-spencer.com/moises
+                    header_color: "#6ac1f3"
+                    logo_url: http://kutch-spencer.com/moises
+                    predictive_model: true
+                    analysis_options: true
+                    analytics_code:
+                    has_gef_logo:
+                  relationships:
+                    site_pages:
+                      data: []
+                - id: '2'
+                  type: site_scopes
+                  attributes:
+                    name: Otha Kemmer
+                    color: "#6f9d5c"
+                    subdomain: cum
+                    has_analysis: true
+                    latitude: -11.520917614439327
+                    longitude: -23.041835228878654
+                    header_theme: Placeat commodi libero et.
+                    zoom_level: 41
+                    linkback_text: Placeat commodi libero. Quo recusandae repellat.
+                      Sunt commodi tempore.
+                    linkback_url: http://bartoletti.com/jeremiah_cronin
+                    header_color: "#6f9d5c"
+                    logo_url: http://bartoletti.com/jeremiah_cronin
+                    predictive_model: true
+                    analysis_options: true
+                    analytics_code:
+                    has_gef_logo:
+                  relationships:
+                    site_pages:
+                      data: []
+                meta:
+                  total_models: 4
+  "/services/oembed":
+    get:
+      summary: Get appropriate iframe
+      tags:
+      - Oembed
+      parameters:
+      - name: url
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: format
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: maxwidth
+        in: query
+        required: false
+        schema:
+          type: integer
+      - name: maxheight
+        in: query
+        required: false
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: success
+          content:
+            application/json:
+              example:
+                width: 960
+                height: 600
+                version: '1.0'
+                type: rich
+                provider_name: resilienceatlas.org
+                provider_url: http://resilienceatlas.org
+                html: <iframe frameborder="0" width="960" height="600" src="https://resilienceatlas.org/embed/map?test=test"></iframe>
+        '400':
+          description: Domain does not include map path
+        '403':
+          description: Domain is not permitted
+        '404':
+          description: Domain information is missing
+        '422':
+          description: Domain is not url or base64 string
+  "/api/share/{uid}":
+    get:
+      summary: Get detail of shared url
+      tags:
+      - ShareUrl
+      parameters:
+      - name: uid
+        in: path
+        description: An unique url identifier
+        required: true
+        schema:
+          type: string
+      responses:
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              example:
+                errors:
+                - status: '404'
+                  title: Record not found
+              schema:
+                "$ref": "#/components/schemas/errors"
+        '200':
+          description: success
+          content:
+            application/json:
+              example:
+                data:
+                  id: '2'
+                  type: share_urls
+                  attributes:
+                    uid: '12345'
+                    body: body test
+  "/api/share":
+    post:
+      summary: Create new shared url
+      tags:
+      - ShareUrl
+      parameters:
+      - name: body
+        in: query
+        description: Body of shared url
+        schema:
+          type: string
+      responses:
+        '200':
+          description: success
+          content:
+            application/json:
+              example:
+                uid: 8f27ee6366dc52e929ac
+  "/api/sites":
+    get:
+      summary: Get list of all site scopes
+      tags:
+      - SiteScope
+      responses:
+        '200':
+          description: success
+          content:
+            application/json:
+              example:
+                data:
+                - id: '1'
+                  type: site_scopes
+                  attributes:
+                    name: CIGRP
+                    color: "#6ac1f3"
+                    subdomain: voluptatem
+                    has_analysis: true
+                    latitude: -14.936039153536683
+                    longitude: -29.872078307073366
+                    header_theme: Enim repellat pariatur est.
+                    zoom_level: 38
+                    linkback_text: Enim repellat pariatur. Earum modi eos. Libero
+                      tempora exercitationem.
+                    linkback_url: http://kutch-spencer.com/moises
+                    header_color: "#6ac1f3"
+                    logo_url: http://kutch-spencer.com/moises
+                    predictive_model: true
+                    analysis_options: true
+                    analytics_code:
+                    has_gef_logo:
+                  relationships:
+                    site_pages:
+                      data: []
+                - id: '2'
+                  type: site_scopes
+                  attributes:
+                    name: Otha Kemmer
+                    color: "#6f9d5c"
+                    subdomain: cum
+                    has_analysis: true
+                    latitude: -11.520917614439327
+                    longitude: -23.041835228878654
+                    header_theme: Placeat commodi libero et.
+                    zoom_level: 41
+                    linkback_text: Placeat commodi libero. Quo recusandae repellat.
+                      Sunt commodi tempore.
+                    linkback_url: http://bartoletti.com/jeremiah_cronin
+                    header_color: "#6f9d5c"
+                    logo_url: http://bartoletti.com/jeremiah_cronin
+                    predictive_model: true
+                    analysis_options: true
+                    analytics_code:
+                    has_gef_logo:
+                  relationships:
+                    site_pages:
+                      data: []
+  "/api/site":
+    get:
+      summary: Get appropriate site scope
+      tags:
+      - SiteScope
+      parameters:
+      - name: site_scope
+        in: query
+        description: Site scope subdomain
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: success
+          content:
+            application/json:
+              example:
+                data:
+                  id: '1'
+                  type: site_scopes
+                  attributes:
+                    name: CIGRP
+                    color: "#6ac1f3"
+                    subdomain: voluptatem
+                    has_analysis: true
+                    latitude: -14.936039153536683
+                    longitude: -29.872078307073366
+                    header_theme: Enim repellat pariatur est.
+                    zoom_level: 38
+                    linkback_text: Enim repellat pariatur. Earum modi eos. Libero
+                      tempora exercitationem.
+                    linkback_url: http://kutch-spencer.com/moises
+                    header_color: "#6ac1f3"
+                    logo_url: http://kutch-spencer.com/moises
+                    predictive_model: true
+                    analysis_options: true
+                    analytics_code:
+                    has_gef_logo:
+                  relationships:
+                    site_pages:
+                      data: []
+components:
+  securitySchemes: {}
+  schemas:
+    errors:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              status:
+                type: string
+              title:
+                type: string
+            required:
+            - status
+            - title
+      required:
+      - errors
+servers:
+- url: ''
+- url: "{scheme}://{host}"
+  variables:
+    scheme:
+      default: http
+    host:
+      default: localhost:3000

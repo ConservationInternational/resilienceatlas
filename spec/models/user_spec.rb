@@ -2,7 +2,7 @@
 #
 # Table name: users
 #
-#  id                     :integer          not null, primary key
+#  id                     :bigint           not null, primary key
 #  email                  :string           default(""), not null
 #  encrypted_password     :string           default(""), not null
 #  reset_password_token   :string
@@ -22,19 +22,17 @@
 #  organization_role      :string
 #
 
-require 'rails_helper'
+require "rails_helper"
 
 RSpec.describe User, type: :model do
-  before :each do
-    @user = create(:user)
+  let!(:user) { create :user }
+
+  it "User is valid" do
+    expect(user).to be_valid
+    expect(user.email).to be_present
   end
 
-  it 'User is valid' do
-    expect(@user).to       be_valid
-    expect(@user.email).to be_present
-  end
-
-  it 'Count users' do
+  it "Count users" do
     expect(User.count).to eq(1)
   end
 end

@@ -2,20 +2,19 @@
 #
 # Table name: categories
 #
-#  id          :integer          not null, primary key
+#  id          :bigint           not null, primary key
 #  name        :string           not null
 #  slug        :string           not null
 #  description :text
-#  created_at  :datetime
-#  updated_at  :datetime
+#  created_at  :datetime         not null
+#  updated_at  :datetime         not null
 #
 
 class Category < ApplicationRecord
   has_many :indicators
   validates_presence_of :slug, :name
 
-  def self.fetch_all(options={})
+  def self.fetch_all(options = {})
     Category.all
   end
-
 end

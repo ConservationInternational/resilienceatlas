@@ -2,9 +2,10 @@
 #
 # Table name: agrupations
 #
-#  id             :integer          not null, primary key
-#  layer_id       :integer
-#  layer_group_id :integer
+#  id             :bigint           not null, primary key
+#  layer_id       :bigint
+#  layer_group_id :bigint
+#  active         :boolean          default(FALSE)
 #
 
 class Agrupation < ApplicationRecord

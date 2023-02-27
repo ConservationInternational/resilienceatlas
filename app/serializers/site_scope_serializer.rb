@@ -2,7 +2,7 @@
 #
 # Table name: site_scopes
 #
-#  id               :integer          not null, primary key
+#  id               :bigint           not null, primary key
 #  name             :string
 #  color            :string
 #  subdomain        :string
@@ -17,12 +17,14 @@
 #  logo_url         :text
 #  predictive_model :boolean          default(FALSE), not null
 #  analysis_options :boolean          default(FALSE), not null
+#  analytics_code   :string
+#  has_gef_logo     :boolean
 #
 
 class SiteScopeSerializer < ActiveModel::Serializer
   attributes :id, :name, :color, :subdomain, :has_analysis, :latitude,
-             :longitude, :header_theme, :zoom_level,  :linkback_text, :linkback_url,
-             :header_color, :logo_url, :predictive_model, :analysis_options, :analytics_code,
-             :has_gef_logo
+    :longitude, :header_theme, :zoom_level, :linkback_text, :linkback_url,
+    :header_color, :logo_url, :predictive_model, :analysis_options, :analytics_code,
+    :has_gef_logo
   has_many :site_pages
 end
