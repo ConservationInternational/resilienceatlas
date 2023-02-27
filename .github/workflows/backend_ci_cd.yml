@@ -12,6 +12,7 @@ jobs:
       DATABASE_PASSWORD: postgres
       DATABASE_USER: postgres
       RAILS_ENV: test
+      NODE_OPTIONS: --openssl-legacy-provider
 
     services:
       postgres:
@@ -48,14 +49,14 @@ jobs:
           path: node_modules
           key: node-modules-${{ hashFiles('yarn.lock') }}
 
-      - name: Install Node Dependencies
-        if: steps.cache.outputs.cache-hit != 'true'
-        run: yarn install --frozen-lockfile
-
       - name: Setup database
         run: |
           bundle exec rails db:create
           bundler exec rails db:schema:load
+
+      - name: Install Node Dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: yarn install --frozen-lockfile
 
       - name: Compile FE
         run: bundle exec rake assets:precompile
