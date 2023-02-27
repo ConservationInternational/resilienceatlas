@@ -57,6 +57,9 @@ jobs:
           bundle exec rails db:create
           bundler exec rails db:schema:load
 
+      - name: Compile FE
+        run: bundle exec rake assets:precompile
+
       - name: Run tests
         run: bundle exec rspec spec --fail-fast
 
