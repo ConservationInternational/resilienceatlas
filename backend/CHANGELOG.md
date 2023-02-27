@@ -2,6 +2,7 @@
 
 **Merged pull requests:**
 
+- Moving all backend stuff to backend folder and creating room for frontend code (monorepo) [\#78](https://github.com/ConservationInternational/resilienceatlas/pull/78) ([martintomas](https://github.com/martintomas))
 - Adding github workflow setup so rspec/rubocop/brakeman are checked automatically [\#77](https://github.com/ConservationInternational/resilienceatlas/pull/77) ([martintomas](https://github.com/martintomas))
 - Adding brakeman and fixing couple of security issues [\#77](https://github.com/ConservationInternational/resilienceatlas/pull/77) ([martintomas](https://github.com/martintomas))
 - Adding rubocop/standard and fixing all linter issues [\#77](https://github.com/ConservationInternational/resilienceatlas/pull/77) ([martintomas](https://github.com/martintomas))
