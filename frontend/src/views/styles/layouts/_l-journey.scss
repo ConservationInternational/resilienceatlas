@@ -1,0 +1,27 @@
+.l-journey {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+
+  .credits {
+    position: absolute;
+    bottom: rem(4px);
+    right: rem(40px);
+    z-index: 10;
+    margin: 0;
+    font-size: rem(12px);
+    color: $font-color-3;
+
+    a {
+      color: $font-color-3;
+    }
+
+    &.chapter {
+      a {
+        color: $font-color-1 !important;
+      }
+    }
+  }
+}

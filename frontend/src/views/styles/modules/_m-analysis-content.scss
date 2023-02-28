@@ -1,0 +1,16 @@
+.m-analysis-content {
+  width: 100%;  
+  transition: .2s transform ease-in-out;
+  transform: translate(0, 0);
+  bottom: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  position: absolute;
+  overflow: hidden;
+
+  body.analyzing & {
+    transform: translate(-100%, 0);
+    overflow: visible;
+  }
+}

@@ -1,0 +1,16 @@
+.icon {
+  width: 16px;
+  height: 16px;
+  fill: #c0c0c0;
+
+  &:hover {
+    fill: $bg-color-4;
+  }
+
+  .m-toolbar & {
+    width: rem(16px);
+    height: rem(16px);
+
+    fill: $font-color-1;
+  }
+}

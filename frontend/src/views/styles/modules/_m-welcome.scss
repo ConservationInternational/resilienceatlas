@@ -1,0 +1,35 @@
+.m-welcome {
+  position: relative;
+  height: rem(565px);
+
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+
+  background-image: url('/images/home/bg-welcome.jpg');
+
+  header {
+    @extend %center;
+    width: 600px;
+
+    h2,
+    h3 {
+      text-align: center;
+      color: $font-color-3;
+      font-weight: 400;
+      line-height: 1;
+      text-transform: uppercase;
+      margin: 0;
+    }
+
+    h2 {
+      font-size: rem(100px);
+      font-family: $font-face-2;
+    }
+
+    h3 {
+      font-size: rem(38px);
+      font-family: $font-face-1;
+    }
+  }
+}

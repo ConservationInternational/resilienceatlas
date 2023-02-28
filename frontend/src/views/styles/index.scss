@@ -1,0 +1,48 @@
+@import 'mixins';
+@import 'variables';
+
+// Importing dependencies and helpers
+@import '~normalize.css/normalize.css';
+
+@import '~slick-carousel/slick/slick.css';
+@import '~slick-carousel/slick/slick-theme.css';
+
+@import '~foundation-sites/scss/foundation';
+
+// @include foundation-flex-classes;
+// @include foundation-flex-grid;
+
+// Grid
+@include foundation-grid;
+
+// Importing project settings
+@import 'base';
+@import 'icons';
+
+// Importing layouts and modules
+@import 'layouts/l-header', 'layouts/l-footer', 'layouts/l-main',
+  'layouts/l-content', 'layouts/l-journey-intro', 'layouts/l-journey-index',
+  'layouts/l-sidebar', 'layouts/l-journey';
+
+@import 'modules/_buttons', 'modules/_foundation-tabs',
+  'modules/_m-analysis-content', 'modules/_m-analysis-model',
+  'modules/_m-analysis-selectors', 'modules/_m-analysis', 'modules/_m-article',
+  'modules/_m-basemap-selectors', 'modules/_m-charts',
+  'modules/_m-content-manager', 'modules/_m-controls', 'modules/_m-disclaimer',
+  'modules/_m-discover', 'modules/_m-explore', 'modules/_m-forms',
+  'modules/_m-home-about', 'modules/_m-infowindow', 'modules/_m-journey-chapter',
+  'modules/_m-journey-conclusion', 'modules/_m-journey-embed',
+  'modules/_m-journey-grid', 'modules/_m-journey-intro',
+  'modules/_m-journey-landing', 'modules/_m-journey-pagination',
+  'modules/_m-journey-text', 'modules/_m-journey', 'modules/_m-layers-list',
+  'modules/_m-legend', 'modules/_m-loader', 'modules/_m-map',
+  'modules/_m-predictive-models', 'modules/_m-report-page',
+  'modules/_m-search-analysis', 'modules/_m-search-map', 'modules/_m-search',
+  'modules/_m-section-nav', 'modules/_m-share', 'modules/_m-sidebar',
+  'modules/_m-slider', 'modules/_m-static-page', 'modules/_m-toolbar',
+  'modules/_m-welcome', 'modules/_m-widget', 'modules/_m-widgets-list',
+  'modules/_modal', 'modules/m-user-form', 'modules/c-map-popup',
+  'modules/m-logo-attribution';
+
+// Global states
+@import 'state';
