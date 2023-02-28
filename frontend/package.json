@@ -19,7 +19,7 @@
     ]
   },
   "dependencies": {
-    "@carto/carto.js": "^4.1.11",
+    "@carto/carto.js": "4.2.2",
     "axios": "^0.18.0",
     "customize-cra": "^0.2.12",
     "express": "^4.17.1",
