@@ -4,13 +4,10 @@ ruby "3.0.4"
 
 gem "rails"
 
-gem "jquery-rails"
-gem "jquery-ui-rails"
-gem "sass-rails", "~> 5.0"
 gem "uglifier"
 gem "slim-rails"
 gem "dotenv-rails"
-gem "webpacker", "~> 5.0"
+gem "importmap-rails"
 gem "shrine"
 gem "jbuilder"
 gem "rswag"
@@ -51,7 +48,6 @@ gem "sendgrid"
 gem "rubyzip"
 gem "prawn"
 gem "prawn-table"
-gem "normalize-rails"
 gem "standard"
 
 # Translations
@@ -101,11 +97,4 @@ group :test do
   gem "rspec-request_snapshot"
   gem "rswag-specs"
   gem "webmock"
-end
-
-# Rails Assets is the frictionless proxy between Bundler and Bower.
-source "https://rails-assets.org" do
-  gem "rails-assets-foundation-sass"
-  gem "rails-assets-foundation"
-  gem "rails-assets-slick-carousel"
 end
