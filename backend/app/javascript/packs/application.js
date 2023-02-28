@@ -20,5 +20,4 @@ require('turbolinks').start();
 require("trix");
 require("@rails/actiontext");
 require('jquery');
-import './main/application';
 
