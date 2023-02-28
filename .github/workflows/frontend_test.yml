@@ -1,0 +1,72 @@
+name: Frontend Tests
+
+on:
+  push:
+    paths:
+      - 'frontend/**'
+      - ".github/workflows/frontend*"
+
+  workflow_dispatch:
+
+env:
+  NODE_ENV: production
+  PORT: 3000
+
+jobs:
+  testing-frontend:
+    name: Running frontend tests
+    runs-on: ubuntu-22.04
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 14
+          cache: 'yarn'
+          cache-dependency-path: frontend/yarn.lock
+
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
+
+      - uses: actions/cache@v3
+        id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+      
+      - name: Download build
+        uses: actions/download-artifact@v3
+        with:
+          name: build
+          path: ${{github.workspace}}/frontend/build
+
+      - name: Cypress run
+        uses: cypress-io/github-action@v5
+        with:
+          working-directory: frontend
+          install-command: yarn install --frozen-lockfile --production=false
+          start: yarn start
+          build: CI=false yarn build
+          browser: chrome
+          wait-on: http://localhost:3000
+          config-file: cypress.config.js
+          command: yarn test
+        env:
+          REACT_APP_API_HOST: ${{ secrets.REACT_APP_API_HOST }}
+          REACT_APP_API_PROD: ${{ secrets.REACT_APP_API_HOST }}
+          NODE_PATH: ./src
+          SASS_PATH: ./node_modules:/src/views/styles/
+
+      - uses: actions/upload-artifact@v3
+        if: failure()
+        with:
+          name: cypress-screenshots
+          path: ${{github.workspace}}/frontend/cypress/screenshots

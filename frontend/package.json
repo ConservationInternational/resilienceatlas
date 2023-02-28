@@ -2,20 +2,20 @@
   "name": "resilience-atlas-react",
   "version": "0.1.0",
   "private": true,
+  "main": "server",
   "scripts": {
     "analyze": "source-map-explorer 'build/static/js/*.js'",
-    "start": "react-app-rewired start",
+    "dev": "react-app-rewired start",
     "build": "react-app-rewired build",
     "test": "cypress run --headless -b chrome",
     "eject": "react-scripts eject",
-    "lint": "./node_modules/.bin/eslint --debug src/",
-    "lint:write": "./node_modules/.bin/eslint --debug src/ --fix",
-    "prettier": "./node_modules/.bin/prettier --write src/**/*.js"
+    "lint": "eslint --debug src/",
+    "lint:write": "eslint --debug src/ --fix",
+    "prettier": "prettier --write src/**/*.js"
   },
   "lint-staged": {
     "*.(js|jsx)": [
-      "yarn lint:write",
-      "git add"
+      "yarn lint"
     ]
   },
   "dependencies": {
@@ -36,8 +36,8 @@
     "numeral": "^2.0.6",
     "qs": "^6.9.7",
     "react": "^16.8.4",
-    "react-app-rewire-scss": "^1.0.2",
-    "react-app-rewired": "^2.1.1",
+    "react-app-rewire-scss": "1.0.2",
+    "react-app-rewired": "2.1.1",
     "react-beautiful-dnd": "^11.0.0-beta.3",
     "react-dangerous-html": "^1.0.0",
     "react-dom": "^16.8.4",
