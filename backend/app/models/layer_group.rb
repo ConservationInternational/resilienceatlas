@@ -27,7 +27,7 @@ class LayerGroup < ApplicationRecord
   accepts_nested_attributes_for :agrupations, allow_destroy: true
 
   translates :name, :info
-  active_admin_translates :name, :info
+  # active_admin_translates :name, :info
 
   validate :avoid_recursivity, on: :update
   validate :site_scope

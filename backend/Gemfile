@@ -2,7 +2,7 @@ source "https://rubygems.org"
 
 ruby "3.0.4"
 
-gem "rails", "6.1.4"
+gem "rails", ">= 7.0"
 
 gem "jquery-rails"
 gem "jquery-ui-rails", "~> 6.0.1"
@@ -26,9 +26,9 @@ gem "pg"
 gem "devise"
 gem "jwt"
 gem "simple_command"
-gem "activeadmin"
+gem "activeadmin", ">= 2.13"
 gem "activeadmin_addons"
-gem "active_model_serializers", "0.10.12"
+gem "active_model_serializers", ">= 0.10.13"
 gem "devise_token_auth"
 gem "will_paginate", ">= 3.0.pre"
 
@@ -59,8 +59,8 @@ gem "normalize-rails"
 gem "standard"
 
 # Translations
-gem "globalize"
-gem "activeadmin-globalize", git: "https://github.com/GeoffAbtion/activeadmin-globalize", branch: "main"
+gem "globalize", ">= 6.2"
+# gem "activeadmin-globalize", git: "https://github.com/GeoffAbtion/activeadmin-globalize", branch: "main" # TODO: Deprecated
 
 # Ordering and Tree structure for menus
 gem "active_admin-sortable_tree"
@@ -70,19 +70,19 @@ gem "factory_bot_rails"
 # gem 'activeadmin-sortable'
 
 # Ransack for Active Admin
-gem "ransack", "2.4.0"
+gem "ransack"
 
 group :production, :staging do
   gem "puma"
 end
 
 group :development, :test do
-  gem "spring"
+  # gem "spring"
   gem "byebug"
   gem "awesome_print"
   gem "faker"
-  gem "spring-commands-rspec"
-  gem "bullet"
+  # gem "spring-commands-rspec"
+  # gem "bullet"
   gem "capistrano", "~> 3.9"
   gem "capistrano-rbenv", "~> 2.2"
   gem "capistrano-bundler"
@@ -98,7 +98,7 @@ group :development do
   gem "foreman"
   gem "better_errors"
   gem "binding_of_caller"
-  gem "meta_request"
+  # gem "meta_request"
   gem "annotate"
   gem "web-console"
 end
@@ -109,7 +109,7 @@ group :test do
   gem "rspec-rails"
   gem "rspec-request_snapshot"
   gem "rswag-specs"
-  gem "database_cleaner"
+  # gem "database_cleaner"
   gem "webmock"
 end
 
