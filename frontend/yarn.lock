@@ -2879,9 +2879,8 @@ capture-exit@^1.2.0:
   dependencies:
     rsvp "^3.3.3"
 
-carto@cartodb/carto#master, "carto@github:cartodb/carto#master":
+carto@cartodb/carto#master:
   version "0.15.1-cdb5"
-  uid "85881d99dd7fcf2c4e16478b04db67108d27a50c"
   resolved "https://codeload.github.com/cartodb/carto/tar.gz/85881d99dd7fcf2c4e16478b04db67108d27a50c"
   dependencies:
     mapnik-reference "~6.0.2"
@@ -9035,9 +9034,9 @@ pbkdf2@^3.0.3:
     safe-buffer "^5.0.1"
     sha.js "^2.4.8"
 
-"perfect-scrollbar@git+https://github.com/CartoDB/perfect-scrollbar.git#master":
+"perfect-scrollbar@https://github.com/CartoDB/perfect-scrollbar.git#master":
   version "0.6.17"
-  resolved "git+https://github.com/CartoDB/perfect-scrollbar.git#f2b66c76ad3718d3c704bd7e1693ea382e44e64d"
+  resolved "https://github.com/CartoDB/perfect-scrollbar.git#f2b66c76ad3718d3c704bd7e1693ea382e44e64d"
 
 performance-now@^2.1.0:
   version "2.1.0"
@@ -12171,7 +12170,7 @@ toposort@^2.0.2:
   resolved "https://registry.yarnpkg.com/toposort/-/toposort-2.0.2.tgz#ae21768175d1559d48bef35420b2f4962f09c330"
   integrity sha1-riF2gXXRVZ1IvvNUILL0li8JwzA=
 
-"torque.js@github:CartoDB/torque#master":
+torque.js@CartoDB/torque#master:
   version "3.1.2"
   resolved "https://codeload.github.com/CartoDB/torque/tar.gz/11b73bbc9a55b7c67c1ab72759a58eb417b88555"
   dependencies:
