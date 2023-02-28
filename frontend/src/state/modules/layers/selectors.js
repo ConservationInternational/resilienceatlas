@@ -88,8 +88,10 @@ export const getGrouped = () => {
         return {
           ...g,
           active: isActive(g),
-          layers: groupLayers
-            .map(l => ({ ...l, opacity_text: getOpacityText(l.opacity) })),
+          layers: groupLayers.map(l => ({
+            ...l,
+            opacity_text: getOpacityText(l.opacity),
+          })),
           categories: categories.map(c => {
             const layers = published.filter(l => l.group === c.id);
 
@@ -100,8 +102,10 @@ export const getGrouped = () => {
             return {
               ...c,
               active: isActive(c),
-              layers: layers
-                .map(l => ({ ...l, opacity_text: getOpacityText(l.opacity) })),
+              layers: layers.map(l => ({
+                ...l,
+                opacity_text: getOpacityText(l.opacity),
+              })),
               subcategory: subcategories.map(sc => {
                 const layers = published.filter(l => l.group === sc.id);
 

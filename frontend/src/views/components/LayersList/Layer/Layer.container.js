@@ -12,7 +12,7 @@ const mapStateToProps = (state, { id, LayerGroupName }) => {
   return {
     isActive: isActive(state),
     user: state.user,
-    LayerGroupName: LayerGroupName,
+    LayerGroupName,
   };
 };
 

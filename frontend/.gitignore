@@ -28,3 +28,9 @@ yarn-error.log*
 
 # gcloud
 /gcloud
+
+# cypress
+/cypress/screenshots
+/cypress/videos
+/cypress/downloads
+cypress.*.json
