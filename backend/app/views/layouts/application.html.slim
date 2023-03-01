@@ -5,7 +5,7 @@ html lang="#{I18n.locale}"
     title = @site_name || "Resilience Atlas | #{controller_name}"
     = render :partial => "partials/head"
     = stylesheet_link_tag "application", media: "all"
-    = javascript_importmap_tags
+    = javascript_importmap_tags "application"
     = csrf_meta_tags
 
     javascript:
