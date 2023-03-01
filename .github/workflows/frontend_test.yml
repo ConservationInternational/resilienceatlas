@@ -13,10 +13,12 @@ env:
   PORT: 3000
 
 jobs:
-  build:
-    name: Building app
+  testing-frontend:
+    name: Running frontend tests
     runs-on: ubuntu-22.04
     timeout-minutes: 30
+    strategy:
+      fail-fast: false
     defaults:
       run:
         working-directory: ${{github.workspace}}/frontend
@@ -30,7 +32,7 @@ jobs:
           node-version: 14
           cache: 'yarn'
           cache-dependency-path: frontend/yarn.lock
-      
+
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
         run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
@@ -42,45 +44,12 @@ jobs:
           key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
             ${{ runner.os }}-yarn-
-            
+      
       - name: Install dependencies
         run: yarn install --production=false --frozen-lockfile
       
       - name: Build the app
         run: CI=false yarn build
-
-      - name: Upload build
-        uses: actions/upload-artifact@v3
-        with:
-          name: build
-          path: ${{github.workspace}}/frontend/build
-
-  testing-frontend:
-    name: Running frontend tests
-    runs-on: ubuntu-22.04
-    timeout-minutes: 30
-    needs: build
-    strategy:
-      fail-fast: false
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Use Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 14
-          cache: 'yarn'
-          cache-dependency-path: frontend/yarn.lock
-      
-      - name: Install dependencies
-        run: yarn install --production=false --frozen-lockfile
-      
-      - name: Download build
-        uses: actions/download-artifact@v3
-        with:
-          name: build
-          path: ${{github.workspace}}/frontend/build
 
       - name: Cypress run
         uses: cypress-io/github-action@v5
@@ -91,7 +60,7 @@ jobs:
           browser: chrome
           wait-on: http://localhost:3000
           config-file: cypress.config.js
-          command: npm run test
+          command: yarn test
         env:
           REACT_APP_API_HOST: ${{ secrets.REACT_APP_API_HOST }}
           REACT_APP_API_PROD: ${{ secrets.REACT_APP_API_HOST }}
