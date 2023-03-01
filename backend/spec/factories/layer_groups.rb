@@ -20,6 +20,7 @@
 FactoryBot.define do
   factory :layer_group do
     super_group { nil }
+    site_scope
     sequence(:slug) { |n| "LayerGroup-#{n}" }
     sequence(:name) do |n|
       Faker::Config.random = Random.new(n)
@@ -49,6 +50,5 @@ FactoryBot.define do
       Faker::Config.random = Random.new(n)
       Faker::Lorem.word
     end
-    site_scope
   end
 end

@@ -1,6 +1,6 @@
 source "https://rubygems.org"
 
-ruby "3.0.4"
+ruby "3.2.1"
 
 gem "rails"
 
@@ -10,6 +10,7 @@ gem "dotenv-rails"
 gem "importmap-rails"
 gem "shrine"
 gem "jbuilder"
+gem "rspec-rails"
 gem "rswag"
 
 gem "ed25519"
@@ -93,7 +94,9 @@ end
 group :test do
   gem "capybara", ">= 3.26"
   gem "cuprite"
-  gem "rspec-rails"
+  gem "rspec-collection_matchers"
+  gem "rspec-retry"
+  gem "super_diff"
   gem "rspec-request_snapshot"
   gem "rswag-specs"
   gem "webmock"

@@ -109,6 +109,7 @@ GEM
       activesupport (>= 3.0.0, < 7.1)
       ruby2_keywords (>= 0.0.2, < 1.0)
     ast (2.4.2)
+    attr_extras (7.1.0)
     awesome_print (1.9.2)
     bcrypt (3.1.18)
     bcrypt_pbkdf (1.1.0)
@@ -294,7 +295,6 @@ GEM
     nio4r (2.5.8)
     nokogiri (1.14.2-x86_64-darwin)
       racc (~> 1.4)
-    normalize-rails (8.0.1)
     oauth (1.1.0)
       oauth-tty (~> 1.0, >= 1.0.1)
       snaky_hash (~> 2.0)
@@ -330,10 +330,13 @@ GEM
     omniauth-twitter (1.4.0)
       omniauth-oauth (~> 1.1)
       rack
+    optimist (3.0.1)
     orm_adapter (0.5.0)
     parallel (1.22.1)
     parser (3.2.1.0)
       ast (~> 2.4.1)
+    patience_diff (1.2.0)
+      optimist (~> 3.0)
     pdf-core (0.9.0)
     pg (1.4.6)
     prawn (2.4.0)
@@ -399,6 +402,8 @@ GEM
       rspec-core (~> 3.12.0)
       rspec-expectations (~> 3.12.0)
       rspec-mocks (~> 3.12.0)
+    rspec-collection_matchers (1.2.0)
+      rspec-expectations (>= 2.99.0.beta1)
     rspec-core (3.12.1)
       rspec-support (~> 3.12.0)
     rspec-expectations (3.12.2)
@@ -417,6 +422,8 @@ GEM
       rspec-support (~> 3.11)
     rspec-request_snapshot (0.7.3)
       rspec (~> 3.0)
+    rspec-retry (0.6.2)
+      rspec-core (> 3.3)
     rspec-support (3.12.0)
     rswag (2.8.0)
       rswag-api (= 2.8.0)
@@ -496,6 +503,10 @@ GEM
       language_server-protocol (~> 3.17.0.2)
       rubocop (= 1.44.1)
       rubocop-performance (= 1.15.2)
+    super_diff (0.9.0)
+      attr_extras (>= 6.2.4)
+      diff-lcs
+      patience_diff
     temple (0.8.2)
     terrapin (0.6.0)
       climate_control (>= 0.0.3, < 1.0)
@@ -575,7 +586,6 @@ DEPENDENCIES
   importmap-rails
   jbuilder
   jwt
-  normalize-rails
   omniauth
   omniauth-facebook
   omniauth-google-oauth2
@@ -588,8 +598,10 @@ DEPENDENCIES
   rack-cors
   rails
   ransack
+  rspec-collection_matchers
   rspec-rails
   rspec-request_snapshot
+  rspec-retry
   rswag
   rswag-specs
   rubyzip
@@ -599,13 +611,14 @@ DEPENDENCIES
   simple_command
   slim-rails
   standard
+  super_diff
   uglifier
   web-console
   webmock
   will_paginate
 
 RUBY VERSION
-   ruby 3.0.4p208
+   ruby 3.2.1p31
 
 BUNDLED WITH
    2.2.33
