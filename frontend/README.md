@@ -1,5 +1,7 @@
 # Resilience Atlas web app
 
+*This version is based on the repository: [https://github.com/ConservationInternational/resilienceatlas-react](https://github.com/ConservationInternational/resilienceatlas-react)*
+
 This is the web app powering
 [resilienceatlas.org](http://www.resilienceatlas.org)
 
