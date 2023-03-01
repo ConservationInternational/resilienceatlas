@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module ActiveAdmin
   module Views
     module Pages
@@ -22,7 +23,7 @@ module ActiveAdmin
 
             active_admin_application.javascripts.each do |path|
               # -------- MONKEY PATCH -----------
-              javascript_tag = insert_importmap_for path #active_admin_namespace.use_webpacker ? javascript_pack_tag(path) : javascript_include_tag(path)
+              javascript_tag = insert_importmap_for path # active_admin_namespace.use_webpacker ? javascript_pack_tag(path) : javascript_include_tag(path)
               # ---------------------------------
               text_node(javascript_tag) if javascript_tag
             end
@@ -40,7 +41,7 @@ module ActiveAdmin
         def insert_importmap_for(path)
           return javascript_importmap_tags "active_admin" if path == "active_admin.js"
 
-          javascript_include_tag path if path =~ URI::regexp
+          javascript_include_tag path if path&.match?(URI::DEFAULT_PARSER.make_regexp)
         end
       end
     end
