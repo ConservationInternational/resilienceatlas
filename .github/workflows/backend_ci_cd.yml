@@ -3,7 +3,7 @@ name: Backend CI/CD
 on:
   push:
     paths:
-      - "backend/**'"
+      - "backend/**"
       - ".github/workflows/backend*"
   workflow_dispatch:
 
