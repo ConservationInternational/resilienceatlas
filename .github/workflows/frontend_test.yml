@@ -47,9 +47,6 @@ jobs:
       
       - name: Install dependencies
         run: yarn install --production=false --frozen-lockfile
-      
-      - name: Build the app
-        run: CI=false yarn build
 
       - name: Cypress run
         uses: cypress-io/github-action@v5
@@ -57,6 +54,7 @@ jobs:
           working-directory: frontend
           install: false
           start: yarn start
+          build: yarn build
           browser: chrome
           wait-on: http://localhost:3000
           config-file: cypress.config.js
@@ -66,6 +64,7 @@ jobs:
           REACT_APP_API_PROD: ${{ secrets.REACT_APP_API_HOST }}
           NODE_PATH: ./src
           SASS_PATH: ./node_modules:/src/views/styles/
+          CI: false
 
       - uses: actions/upload-artifact@v3
         if: failure()
