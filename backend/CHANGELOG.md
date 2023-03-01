@@ -2,6 +2,11 @@
 
 **Merged pull requests:**
 
+- Removing all obsolete or deprecated FE gems and libraries [\#87](https://github.com/ConservationInternational/resilienceatlas/pull/87) ([martintomas](https://github.com/martintomas))
+- Replacing webpacker with importmaps [\#87](https://github.com/ConservationInternational/resilienceatlas/pull/87) ([martintomas](https://github.com/martintomas))
+- Update of Ruby [\#87](https://github.com/ConservationInternational/resilienceatlas/pull/87) ([martintomas](https://github.com/martintomas))
+- Updating rest of gems and removing obsolete javascript app [\#87](https://github.com/ConservationInternational/resilienceatlas/pull/87) ([martintomas](https://github.com/martintomas))
+- Update of Rails to version 7 [\#87](https://github.com/ConservationInternational/resilienceatlas/pull/87) ([martintomas](https://github.com/martintomas))
 - Moving all backend stuff to backend folder and creating room for frontend code (monorepo) [\#78](https://github.com/ConservationInternational/resilienceatlas/pull/78) ([martintomas](https://github.com/martintomas))
 - Adding github workflow setup so rspec/rubocop/brakeman are checked automatically [\#77](https://github.com/ConservationInternational/resilienceatlas/pull/77) ([martintomas](https://github.com/martintomas))
 - Adding brakeman and fixing couple of security issues [\#77](https://github.com/ConservationInternational/resilienceatlas/pull/77) ([martintomas](https://github.com/martintomas))
