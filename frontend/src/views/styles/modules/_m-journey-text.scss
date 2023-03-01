@@ -1,0 +1,77 @@
+// $side-bar-width: 25%;
+// $side-bar-min-width: 350px;
+
+// .m-journey--text {
+//   @extend %journey;
+
+//   .wrapper {
+//     @extend %center;
+//     width: 100%;
+//   }
+// }
+
+// @mixin content($color) {
+//   width: $side-bar-width;
+//   min-width: $side-bar-min-width;
+//   margin: 0 rem(45px);
+
+//   p {
+//     color: $color;
+//     font-size: rem(20px);
+//     padding: 0 1em;
+//     font-weight: 400;
+//   }
+
+//   .highlighted {
+//     border: 1px solid rgba($color, .5);
+//     padding: 1em;
+//     margin-bottom: 1em;
+
+//     p {
+//       padding: 0;
+//       font-weight: 500;
+//     }
+//   }
+
+//   .m-controls {
+//     width: 100%;
+//     padding: 0 1em;
+
+//     #btn-next {
+//       float: right;
+//     }
+
+//     #btn-prev {
+//       background-color: transparent;
+//       border-color: $color;
+
+//       &:before {
+//         border-color: $color;
+//       }
+//     }
+//   }
+
+//   .source {
+//     font-size: rem(12px);
+//   }
+
+//   &.is-right {
+//     float: right;
+//   }
+
+//   &.is-left {
+//     float: left;
+//   }
+
+//   &.is-center {
+//     @extend %center;
+//   }
+// }
+
+// .content--light {
+//   @include content($font-color-3);
+// }
+
+// .content--dark {
+//   @include content($font-color-1);
+// }

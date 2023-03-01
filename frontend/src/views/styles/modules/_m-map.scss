@@ -1,0 +1,157 @@
+.m-map {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.leaflet-container {
+  background-color: $white;
+}
+
+/*
+  Map controls
+ */
+.leaflet-top.leaflet-right {
+  position: static; //Lets zoom control to take position after map container.
+}
+
+.leaflet-right .leaflet-control {
+  margin: 30px 0 0 0;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3);
+}
+
+.leaflet-control-zoom {
+  position: absolute;
+  top: rem(150px);
+  right: rem(10px);
+  z-index: 1;
+
+  .is-embed-page & {
+    top: rem(80px);
+  }
+}
+
+.leaflet-bar {
+  box-shadow: none;
+  border-radius: 0;
+
+  a {
+    color: $font-color-1;
+    width: rem(30px);
+    height: rem(30px);
+
+    &:hover {
+      width: rem(30px);
+      height: rem(30px);
+    }
+
+    &:first-child {
+      border-top-left-radius: 0;
+      border-top-right-radius: 0;
+      border-bottom: 1px solid rgba($bg-color-4, 0.3);
+    }
+
+    &:last-child {
+      border-bottom-left-radius: 0;
+      border-bottom-right-radius: 0;
+      border: 1px solid $bg-color-3;
+    }
+  }
+}
+
+.leaflet-control-zoom-in,
+.leaflet-control-zoom-out {
+  border: 1px solid $bg-color-3;
+}
+
+.leaflet-touch .leaflet-bar,
+.leaflet-touch .leaflet-control-layers {
+  border: 0;
+}
+
+.leaflet-draw {
+  display: none;
+}
+
+.wri_api__c-map .wri_api__map-container {
+  z-index: 0;
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3);
+}
+
+.wri_api__c-map-controls {
+  position: absolute;
+  top: rem($header-height);
+  right: rem(10px);
+  z-index: 999;
+}
+
+.wri_api__map-controls-list {
+  position: relative;
+  margin: 0;
+  padding: 0;
+}
+
+.wri_api__map-controls-list-item {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #fff;
+  width: 100%;
+  padding: 0;
+  margin-top: rem(30px);
+  border: 1px solid rgba(201, 203, 207, 0.85);
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3);
+
+  button {
+    cursor: pointer;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 30px;
+    height: 30px;
+    outline: none;
+    border: none;
+    background-color: $bg-color-1;
+    transition: background-color linear 0.16s;
+
+    &:hover {
+      background-color: darken($bg-color-1, 5%);
+    }
+
+    &.wri_api__-disabled {
+      background-color: darken($bg-color-1, 5%);
+
+      svg {
+        opacity: 0.2;
+      }
+    }
+
+    svg {
+      fill: $font-color-1;
+    }
+  }
+}
+
+.wri_api__c-zoom-control {
+  .wri_api__zoom-control-btn {
+    &:first-of-type {
+      border-bottom: 1px solid rgba(151, 151, 151, 0.3);
+    }
+  }
+}
+
+.wri_api__c-icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}

@@ -1,0 +1,22 @@
+.m-logo-attribution {
+  $logo-size: 40px;
+
+  position: absolute;
+  left: #{$sidebar-width + 10px};
+  bottom: 9px;
+  height: $logo-size;
+  padding: 6px;
+
+  box-shadow: 0 1px 4px 0 #00000033;
+  box-sizing: content-box;
+  background-color: $bg-color-1;
+
+  z-index: 1;
+
+  > img {
+    display: block;
+    width: auto;
+    max-width: none;
+    height: $logo-size;
+  }
+}
