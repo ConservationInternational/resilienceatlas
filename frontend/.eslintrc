@@ -5,7 +5,8 @@
     "cy": "readonly"
   },
   "rules": {
-    "arrow-body-style": ["error", "as-needed"]
+    "arrow-body-style": ["error", "as-needed"],
+    "import/no-cycle": 0
   },
   "settings": {
     "import/resolver": {

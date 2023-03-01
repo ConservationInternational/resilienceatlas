@@ -9,8 +9,8 @@
     "build": "react-app-rewired build",
     "test": "cypress run --headless -b chrome",
     "eject": "react-scripts eject",
-    "lint": "eslint --debug src/",
-    "lint:write": "eslint --debug src/ --fix",
+    "lint": "eslint src/",
+    "lint:write": "eslint src/ --fix",
     "prettier": "prettier --write src/**/*.js"
   },
   "lint-staged": {
