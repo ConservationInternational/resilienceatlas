@@ -544,7 +544,7 @@ GEM
     zeitwerk (2.6.7)
 
 PLATFORMS
-  x86_64-darwin-19
+  ruby
 
 DEPENDENCIES
   active_admin-sortable_tree
