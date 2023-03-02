@@ -19,7 +19,7 @@ Rails.application.routes.draw do
   patch "users/me", to: "api/v1/users#update"
 
   post "users/register", to: "api/v1/registrations#create"
-  post "users/authenticate", to: "authentication#authenticate"
+  post "users/authenticate", to: "api/v1/authentications#authenticate"
 
   # SHORTCUTS USING API
   get "services/oembed", to: "api/v1/oembeds#show"
@@ -40,6 +40,7 @@ Rails.application.routes.draw do
       get "/journeys", to: "journeys#index"
       get "/journeys/:id", to: "journeys#show"
       get "/menu-entries", to: "menu_entries#index"
+      resources :photos, only: :create
     end
   end
 
@@ -47,6 +48,4 @@ Rails.application.routes.draw do
   mount Ckeditor::Engine => "/ckeditor"
   devise_for :admin_users, ActiveAdmin::Devise.config
   ActiveAdmin.routes(self)
-
-  resources :photos, only: :create
 end

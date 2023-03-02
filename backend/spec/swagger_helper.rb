@@ -23,7 +23,7 @@ RSpec.configure do |config|
             type: :http,
             scheme: :bearer,
             bearerFormat: :JWT,
-            name: 'Authorization'
+            name: "Authorization"
           }
         },
         schemas: {
