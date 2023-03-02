@@ -1,3 +1,12 @@
+GIT
+  remote: https://github.com/martintomas/activeadmin-globalize
+  revision: 494dc287098c11cae97d9a545b8ebde04f5543b9
+  branch: main
+  specs:
+    activeadmin-globalize (0.9.10)
+      activeadmin (>= 1.0, < 3.0)
+      globalize (>= 3.1.0, < 7.0)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -554,6 +563,7 @@ DEPENDENCIES
   active_admin_theme
   active_model_serializers
   activeadmin
+  activeadmin-globalize!
   activeadmin_addons
   acts_as_list
   addressable

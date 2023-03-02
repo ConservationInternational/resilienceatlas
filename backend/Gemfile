@@ -53,7 +53,7 @@ gem "standard"
 
 # Translations
 gem "globalize"
-# gem "activeadmin-globalize", git: "https://github.com/GeoffAbtion/activeadmin-globalize", branch: "main" # TODO: Deprecated, fix
+gem "activeadmin-globalize", git: "https://github.com/martintomas/activeadmin-globalize", branch: "main"
 
 # Ordering and Tree structure for menus
 gem "active_admin-sortable_tree"
