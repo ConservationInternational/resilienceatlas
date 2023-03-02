@@ -13,15 +13,13 @@ Rails.application.routes.draw do
     end
   end
   # Users
-  get "/users/:id/finish_signup", to: "users/user_account#finish_signup", as: :finish_signup
-  patch "/users/:id/finish_signup", to: "users/user_account#finish_signup", as: :update_signup
-  get "/users/:id/profile/edit", to: "users/user_account#edit", as: :edit_user
-  patch "/users/:id/profile/update", to: "users/user_account#update", as: :update_user
+  get "/users/:id/profile/edit", to: "api/v1/users#edit", as: :edit_user
+  patch "/users/:id/profile/update", to: "api/v1/users#update", as: :update_user
+  get "users/me", to: "api/v1/users#edit"
+  patch "users/me", to: "api/v1/users#update"
 
-  post "users/authenticate", to: "authentication#authenticate"
-  get "users/me", to: "users/user_account#edit"
-  patch "users/me", to: "users/user_account#update"
   post "users/register", to: "api/v1/registrations#create"
+  post "users/authenticate", to: "authentication#authenticate"
 
   # SHORTCUTS USING API
   get "services/oembed", to: "api/v1/oembeds#show"

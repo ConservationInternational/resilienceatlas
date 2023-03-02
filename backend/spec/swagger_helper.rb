@@ -18,7 +18,14 @@ RSpec.configure do |config|
       },
       paths: {},
       components: {
-        securitySchemes: {},
+        securitySchemes: {
+          bearerAuth: {
+            type: :http,
+            scheme: :bearer,
+            bearerFormat: :JWT,
+            name: 'Authorization'
+          }
+        },
         schemas: {
           errors: {
             type: :object,
