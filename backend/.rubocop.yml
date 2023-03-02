@@ -4,7 +4,7 @@ inherit_gem:
   standard: config/base.yml
 
 AllCops:
-  TargetRubyVersion: 3.0.4
+  TargetRubyVersion: 3.2.1
   Exclude:
     - 'db/schema.rb'
     - 'bin/**/*'

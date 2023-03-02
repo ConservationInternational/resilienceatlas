@@ -5,12 +5,13 @@ html lang="#{I18n.locale}"
     title = @site_name || "Resilience Atlas | #{controller_name}"
     = render :partial => "partials/head"
     = stylesheet_link_tag "application", media: "all"
+    = javascript_importmap_tags "application"
     = csrf_meta_tags
 
     javascript:
       window.isSubdomain = "#{@subdomain}";
       window.userlogged = "#{user_signed_in?}";
-      window.name = "#{@site_name}";    
+      window.name = "#{@site_name}";
     = render :partial => "partials/transifex"
     = render :partial => "partials/analytics"
 
@@ -21,4 +22,3 @@ html lang="#{I18n.locale}"
       == yield
     == render "layouts/footer"
     == render "partials/modal"
-    = javascript_pack_tag "application"

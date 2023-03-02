@@ -4,7 +4,7 @@
     "type": "site_scopes",
     "attributes": {
       "name": "CIGRP",
-      "color": "#6ac1f3",
+      "color": "#ffdbdb",
       "subdomain": "voluptatem",
       "has_analysis": true,
       "latitude": -14.936039153536683,
@@ -13,7 +13,7 @@
       "zoom_level": 38,
       "linkback_text": "Enim repellat pariatur. Earum modi eos. Libero tempora exercitationem.",
       "linkback_url": "http://kutch-spencer.com/moises",
-      "header_color": "#6ac1f3",
+      "header_color": "#ffdbdb",
       "logo_url": "http://kutch-spencer.com/moises",
       "predictive_model": true,
       "analysis_options": true,
