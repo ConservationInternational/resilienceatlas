@@ -36,7 +36,6 @@ gem "rack-cors"
 # Utilities
 gem "seed_dump"
 gem "active_admin_theme"
-gem "ckeditor", "4.3"
 gem "sendgrid"
 gem "rubyzip"
 gem "prawn"
