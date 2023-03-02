@@ -13,12 +13,6 @@ Rails.application.routes.draw do
     end
   end
   # Users
-  devise_for :users, path: "users", path_names: {sign_in: "login", sign_out: "logout", password: "secret",
-                                                 confirmation: "verification", unlock: "unblock",
-                                                 registration: "register", sign_up: "signup"},
-    controllers: {omniauth_callbacks: "users/omniauth_callbacks",
-                  sessions: "sessions", registrations: "registrations"}
-
   get "/users/:id/finish_signup", to: "users/user_account#finish_signup", as: :finish_signup
   patch "/users/:id/finish_signup", to: "users/user_account#finish_signup", as: :update_signup
   get "/users/:id/profile/edit", to: "users/user_account#edit", as: :edit_user
@@ -27,7 +21,9 @@ Rails.application.routes.draw do
   post "users/authenticate", to: "authentication#authenticate"
   get "users/me", to: "users/user_account#edit"
   patch "users/me", to: "users/user_account#update"
+  post "users/register", to: "api/v1/registrations#create"
 
+  # SHORTCUTS USING API
   get "services/oembed", to: "api/v1/oembeds#show"
 
   # API routes
