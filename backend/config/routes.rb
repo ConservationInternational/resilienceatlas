@@ -2,16 +2,6 @@ Rails.application.routes.draw do
   mount Rswag::Ui::Engine => "/api-docs"
   mount Rswag::Api::Engine => "/api-docs"
 
-  namespace :api do
-    mount_devise_token_auth_for "AdminUser", at: "auth"
-    namespace :admin do
-      resources :layers do
-        collection do
-          get :site_scopes
-        end
-      end
-    end
-  end
   # Users
   get "/users/:id/profile/edit", to: "api/v1/users#edit", as: :edit_user
   patch "/users/:id/profile/update", to: "api/v1/users#update", as: :update_user
@@ -26,6 +16,13 @@ Rails.application.routes.draw do
 
   # API routes
   namespace :api, defaults: {format: "json"} do
+    namespace :admin do
+      resources :layers do
+        collection do
+          get :site_scopes
+        end
+      end
+    end
     scope module: :v1 do
       get "layer-groups", to: "layer_groups#index", as: "layer_groups"
       get "/layers", to: "layers#index", as: "layers"

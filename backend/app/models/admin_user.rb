@@ -32,8 +32,6 @@
 class AdminUser < ApplicationRecord
   devise :database_authenticatable, :recoverable, :rememberable, :trackable, :validatable
 
-  include DeviseTokenAuth::Concerns::User
-
   ROLES = %i[
     admin
     manager
