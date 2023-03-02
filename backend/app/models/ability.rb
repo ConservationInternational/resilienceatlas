@@ -1,19 +1,29 @@
 class Ability
   include CanCan::Ability
 
-  def initialize(user)
-    user ||= User.new # guest user (not logged in)
-    case user.role
-    when "admin"
-      # superusers can do everything, no need to specify
-      can :manage, :all
-    when "manager"
-      can :read, ActiveAdmin::Page, name: "Dashboard"
-      can :manage, [LayerGroup, Category, MapMenuEntry, Model, SitePage, SiteScope, Source, User]
-      can [:create, :update, :read], [Layer]
-    when "staff"
-      can :read, ActiveAdmin::Page, name: "Dashboard"
-      can :read, [Layer, LayerGroup, Category]
-    end
+  def initialize(admin_user)
+    @admin_user = admin_user
+
+    return admin_rights if @admin_user.admin?
+    return manager_rights if @admin_user.manager?
+
+    staff_rights if @admin_user.staff?
+  end
+
+  private
+
+  def admin_rights
+    can :manage, :all
+  end
+
+  def manager_rights
+    can :read, ActiveAdmin::Page, name: "Dashboard"
+    can :manage, [LayerGroup, Category, MapMenuEntry, Model, SitePage, SiteScope, Source, User]
+    can [:create, :update, :read], [Layer]
+  end
+
+  def staff_rights
+    can :read, ActiveAdmin::Page, name: "Dashboard"
+    can :read, [Layer, LayerGroup, Category]
   end
 end

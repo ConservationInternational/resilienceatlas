@@ -28,7 +28,7 @@ gem "will_paginate"
 
 gem "ffi"
 
-gem "cancan"
+gem "cancancan"
 
 gem "addressable"
 
