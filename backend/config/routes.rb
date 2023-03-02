@@ -28,6 +28,8 @@ Rails.application.routes.draw do
   get "users/me", to: "users/user_account#edit"
   patch "users/me", to: "users/user_account#update"
 
+  get "services/oembed", to: "api/v1/oembeds#show"
+
   # API routes
   namespace :api, defaults: {format: "json"} do
     scope module: :v1 do
@@ -47,33 +49,10 @@ Rails.application.routes.draw do
     end
   end
 
-  get "services/oembed", to: "api/v1/oembeds#show"
-
-  # Application
-  # get '/', to: 'map#index', constraints: { subdomain: /indicators.+/ }
-  # get '/', to: 'welcome#index', as: 'root'
-  get "/wef", to: "welcome#index", as: "wef"
-
-  get "map", to: "map#index", as: :map
-  get "about", to: "about#index"
-  get "journeys", to: "journeys#index"
-  get "contents/:slug", to: "contents#show"
-  get "report", to: "report#index", as: :report
-
-  resources :journeys, only: [:show]
-
-  # Embed
-  get "embed", to: "embed#index"
-  get "embed/map", to: "embed#map"
-  get "embed/journeys", to: "embed#journeys"
-  get "embed/test", to: "embed#test"
-
   # Admin routes
   mount Ckeditor::Engine => "/ckeditor"
   devise_for :admin_users, ActiveAdmin::Devise.config
   ActiveAdmin.routes(self)
 
-  # Root path
-  root to: "welcome#index"
   resources :photos, only: :create
 end
