@@ -2,6 +2,9 @@
 
 **Merged pull requests:**
 
+- Fixing ActiveAdmin view for not logged in users (monkey patch which adds support for importmaps) [\#88](https://github.com/ConservationInternational/resilienceatlas/pull/88) ([martintomas](https://github.com/martintomas))
+- Replacing deprecated cancan gem with cancancan [\#88](https://github.com/ConservationInternational/resilienceatlas/pull/88) ([martintomas](https://github.com/martintomas))
+- Enabling activeadmin-globalize which is customized fork which supports Rails 7 [\#88](https://github.com/ConservationInternational/resilienceatlas/pull/88) ([martintomas](https://github.com/martintomas))
 - Removing all obsolete or deprecated FE gems and libraries [\#87](https://github.com/ConservationInternational/resilienceatlas/pull/87) ([martintomas](https://github.com/martintomas))
 - Replacing webpacker with importmaps [\#87](https://github.com/ConservationInternational/resilienceatlas/pull/87) ([martintomas](https://github.com/martintomas))
 - Update of Ruby [\#87](https://github.com/ConservationInternational/resilienceatlas/pull/87) ([martintomas](https://github.com/martintomas))

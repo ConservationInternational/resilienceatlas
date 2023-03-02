@@ -4,9 +4,8 @@ class Ability
   def initialize(admin_user)
     @admin_user = admin_user
 
-    return admin_rights if @admin_user.admin?
-    return manager_rights if @admin_user.manager?
-
+    admin_rights if @admin_user.admin?
+    manager_rights if @admin_user.manager?
     staff_rights if @admin_user.staff?
   end
 
