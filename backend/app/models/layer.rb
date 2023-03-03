@@ -102,9 +102,8 @@ class Layer < ApplicationRecord
   accepts_nested_attributes_for :sources, allow_destroy: true
 
   translates :name, :info, :legend, :title, :data_units, :processing, :description
-  # active_admin_translates :name, :info, :legend, :title, :data_units, :processing, :description
+  active_admin_translates :name, :info, :legend, :title, :data_units, :processing, :description
 
-  default_scope { with_translations(I18n.locale) }
   scope :site, ->(site) {
                  eager_load([layer_groups: :super_group])
                    .where(layer_groups: {site_scope_id: site})

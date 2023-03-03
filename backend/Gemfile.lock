@@ -1,3 +1,12 @@
+GIT
+  remote: https://github.com/martintomas/activeadmin-globalize
+  revision: 494dc287098c11cae97d9a545b8ebde04f5543b9
+  branch: main
+  specs:
+    activeadmin-globalize (0.9.10)
+      activeadmin (>= 1.0, < 3.0)
+      globalize (>= 3.1.0, < 7.0)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -126,7 +135,7 @@ GEM
       bundler (>= 1.2.0, < 3)
       thor (~> 1.0)
     byebug (11.1.3)
-    cancan (1.6.10)
+    cancancan (3.4.0)
     capistrano (3.17.2)
       airbrussh (>= 1.0.0)
       i18n
@@ -554,6 +563,7 @@ DEPENDENCIES
   active_admin_theme
   active_model_serializers
   activeadmin
+  activeadmin-globalize!
   activeadmin_addons
   acts_as_list
   addressable
@@ -566,7 +576,7 @@ DEPENDENCIES
   brakeman
   bundler-audit
   byebug
-  cancan
+  cancancan
   capistrano (~> 3.9)
   capistrano-bundler
   capistrano-npm

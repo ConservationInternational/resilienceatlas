@@ -23,8 +23,7 @@ ActiveAdmin.register LayerGroup do
       f.has_many :agrupations, allow_destroy: true do |deg|
         deg.input :layer,
           as: :select,
-          collection: Layer.order("layer_translations.name")
-            .map { |l| ["#{l.name} - id: #{l.id}", l.id] }
+          collection: Layer.with_translations.sort_by(&:name).map { |l| ["#{l.name} - id: #{l.id}", l.id] }
         deg.input :active
       end
       f.input :site_scope
@@ -37,8 +36,7 @@ ActiveAdmin.register LayerGroup do
       f.input :layer_group_type, as: :select, collection: %w[group category subcategory subgroup]
       f.input :super_group,
         as: :select,
-        collection: LayerGroup.with_translations
-          .order("layer_group_translations.name").map { |lg| ["#{lg.name} - #{lg.id}", lg.id] }
+        collection: LayerGroup.with_translations.sort_by(&:name).map { |lg| ["#{lg.name} - #{lg.id}", lg.id] }
       # f.input :icon_class
       f.actions
     end
