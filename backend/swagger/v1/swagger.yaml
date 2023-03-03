@@ -4,6 +4,452 @@ info:
   title: API V1
   version: v1
 paths:
+  "/api/admin/layers":
+    get:
+      summary: List of layers
+      tags:
+      - Layer
+      security:
+      - tokenAuth: []
+      parameters:
+      - name: page
+        in: query
+        description: 'Page number. Default: 1'
+        required: false
+        schema:
+          type: integer
+      - name: per_page
+        in: query
+        description: 'Per page items. Default: 30'
+        required: false
+        schema:
+          type: integer
+      responses:
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                success: false
+                message: Invalid API Credentials
+        '200':
+          description: success
+          content:
+            application/json:
+              example:
+                success: true
+                message: List of all Layers
+                data:
+                - name: molestiae
+                  info: molestiae
+                  legend:
+                  title:
+                  data_units:
+                  processing:
+                  description:
+                  id: 515
+                  layer_group_id:
+                  slug: Layer-3
+                  layer_type: molestiae
+                  zindex: 25
+                  active: false
+                  order: 25
+                  color: "#157e15"
+                  layer_provider:
+                  css:
+                  interactivity: molestiae
+                  opacity:
+                  query:
+                  created_at: '2023-03-03T10:36:46.490+01:00'
+                  updated_at: '2023-03-03T10:36:46.490+01:00'
+                  locate_layer: false
+                  icon_class:
+                  published: true
+                  zoom_max: 100
+                  zoom_min: 0
+                  dashboard_order:
+                  download: false
+                  dataset_shortname:
+                  dataset_source_url:
+                  start_date:
+                  end_date:
+                  spatial_resolution:
+                  spatial_resolution_units:
+                  temporal_resolution:
+                  temporal_resolution_units:
+                  update_frequency:
+                  version:
+                  analysis_suitable: false
+                  analysis_query:
+                  layer_config:
+                  analysis_body:
+                  interaction_config:
+                - name: cum
+                  info: cum
+                  legend:
+                  title:
+                  data_units:
+                  processing:
+                  description:
+                  id: 514
+                  layer_group_id:
+                  slug: Layer-2
+                  layer_type: cum
+                  zindex: 41
+                  active: true
+                  order: 41
+                  color: "#eaf1ea"
+                  layer_provider:
+                  css:
+                  interactivity: cum
+                  opacity:
+                  query:
+                  created_at: '2023-03-03T10:36:46.471+01:00'
+                  updated_at: '2023-03-03T10:36:46.471+01:00'
+                  locate_layer: false
+                  icon_class:
+                  published: true
+                  zoom_max: 100
+                  zoom_min: 0
+                  dashboard_order:
+                  download: false
+                  dataset_shortname:
+                  dataset_source_url:
+                  start_date:
+                  end_date:
+                  spatial_resolution:
+                  spatial_resolution_units:
+                  temporal_resolution:
+                  temporal_resolution_units:
+                  update_frequency:
+                  version:
+                  analysis_suitable: false
+                  analysis_query:
+                  layer_config:
+                  analysis_body:
+                  interaction_config:
+                - name: voluptatem
+                  info: voluptatem
+                  legend:
+                  title:
+                  data_units:
+                  processing:
+                  description:
+                  id: 513
+                  layer_group_id:
+                  slug: Layer-1
+                  layer_type: voluptatem
+                  zindex: 38
+                  active: true
+                  order: 38
+                  color: "#ffdbdb"
+                  layer_provider:
+                  css:
+                  interactivity: voluptatem
+                  opacity:
+                  query:
+                  created_at: '2023-03-03T10:36:46.461+01:00'
+                  updated_at: '2023-03-03T10:36:46.461+01:00'
+                  locate_layer: false
+                  icon_class:
+                  published: true
+                  zoom_max: 100
+                  zoom_min: 0
+                  dashboard_order:
+                  download: false
+                  dataset_shortname:
+                  dataset_source_url:
+                  start_date:
+                  end_date:
+                  spatial_resolution:
+                  spatial_resolution_units:
+                  temporal_resolution:
+                  temporal_resolution_units:
+                  update_frequency:
+                  version:
+                  analysis_suitable: false
+                  analysis_query:
+                  layer_config:
+                  analysis_body:
+                  interaction_config:
+                meta_attributes:
+                  current_page: 1
+                  next_page:
+                  prev_page:
+                  total_pages: 1
+                  total_count: 3
+    post:
+      summary: Create new layer
+      tags:
+      - Layer
+      security:
+      - tokenAuth: []
+      parameters: []
+      responses:
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                success: false
+                message: Invalid API Credentials
+        '200':
+          description: success
+          content:
+            application/json:
+              example:
+                success: true
+                message: Layer Created Successfully
+                data:
+                  name: voluptatem
+                  info:
+                  legend:
+                  title:
+                  data_units:
+                  processing:
+                  description:
+                  id: 517
+                  layer_group_id:
+                  slug: Layer-1
+                  layer_type: voluptatem
+                  zindex: 38
+                  active: true
+                  order: 38
+                  color: "#ffdbdb"
+                  layer_provider:
+                  css:
+                  interactivity: voluptatem
+                  opacity:
+                  query:
+                  created_at: '2023-03-03T10:36:46.578+01:00'
+                  updated_at: '2023-03-03T10:36:46.578+01:00'
+                  locate_layer: false
+                  icon_class:
+                  published: true
+                  zoom_max: 100
+                  zoom_min: 0
+                  dashboard_order:
+                  download: false
+                  dataset_shortname:
+                  dataset_source_url:
+                  start_date:
+                  end_date:
+                  spatial_resolution:
+                  spatial_resolution_units:
+                  temporal_resolution:
+                  temporal_resolution_units:
+                  update_frequency:
+                  version:
+                  analysis_suitable: false
+                  analysis_query:
+                  layer_config:
+                  analysis_body:
+                  interaction_config:
+        '422':
+          description: Validation errors
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                layer:
+                  type: object
+  "/api/admin/layers/{id}":
+    get:
+      summary: Show detail of layer
+      tags:
+      - Layer
+      security:
+      - tokenAuth: []
+      parameters:
+      - name: id
+        in: path
+        description: Layer ID
+        required: true
+        schema:
+          type: integer
+      responses:
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                success: false
+                message: Invalid API Credentials
+        '200':
+          description: success
+          content:
+            application/json:
+              example:
+                success: true
+                message: Layer Details
+                data:
+                  name: voluptatem
+                  info: voluptatem
+                  legend:
+                  title:
+                  data_units:
+                  processing:
+                  description:
+                  id: 524
+                  layer_group_id:
+                  slug: Layer-1
+                  layer_type: voluptatem
+                  zindex: 38
+                  active: true
+                  order: 38
+                  color: "#ffdbdb"
+                  layer_provider:
+                  css:
+                  interactivity: voluptatem
+                  opacity:
+                  query:
+                  created_at: '2023-03-03T10:36:46.752+01:00'
+                  updated_at: '2023-03-03T10:36:46.752+01:00'
+                  locate_layer: false
+                  icon_class:
+                  published: true
+                  zoom_max: 100
+                  zoom_min: 0
+                  dashboard_order:
+                  download: false
+                  dataset_shortname:
+                  dataset_source_url:
+                  start_date:
+                  end_date:
+                  spatial_resolution:
+                  spatial_resolution_units:
+                  temporal_resolution:
+                  temporal_resolution_units:
+                  update_frequency:
+                  version:
+                  analysis_suitable: false
+                  analysis_query:
+                  layer_config:
+                  analysis_body:
+                  interaction_config:
+        '422':
+          description: Not Found
+          content:
+            application/json:
+              example:
+                success: false
+                message: Layer not found
+    delete:
+      summary: Delete appropriate layer
+      tags:
+      - Layer
+      security:
+      - tokenAuth: []
+      parameters:
+      - name: id
+        in: path
+        description: Layer ID
+        required: true
+        schema:
+          type: integer
+      responses:
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                success: false
+                message: Invalid API Credentials
+        '200':
+          description: success
+          content:
+            application/json:
+              example:
+                success: true
+                message: Layer Deleted Successfully
+                data:
+                  name:
+                  info:
+                  legend:
+                  title:
+                  data_units:
+                  processing:
+                  description:
+                  id: 528
+                  layer_group_id:
+                  slug: Layer-1
+                  layer_type: voluptatem
+                  zindex: 38
+                  active: true
+                  order: 38
+                  color: "#ffdbdb"
+                  layer_provider:
+                  css:
+                  interactivity: voluptatem
+                  opacity:
+                  query:
+                  created_at: '2023-03-03T10:36:46.894+01:00'
+                  updated_at: '2023-03-03T10:36:46.894+01:00'
+                  locate_layer: false
+                  icon_class:
+                  published: true
+                  zoom_max: 100
+                  zoom_min: 0
+                  dashboard_order:
+                  download: false
+                  dataset_shortname:
+                  dataset_source_url:
+                  start_date:
+                  end_date:
+                  spatial_resolution:
+                  spatial_resolution_units:
+                  temporal_resolution:
+                  temporal_resolution_units:
+                  update_frequency:
+                  version:
+                  analysis_suitable: false
+                  analysis_query:
+                  layer_config:
+                  analysis_body:
+                  interaction_config:
+        '422':
+          description: Not Found
+          content:
+            application/json:
+              example:
+                success: false
+                message: Errors
+                error:
+  "/users/authenticate":
+    post:
+      summary: Authenticate user (obtain token)
+      tags:
+      - User
+      parameters: []
+      responses:
+        '200':
+          description: success
+          content:
+            application/json:
+              example:
+                auth_token: eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxMzV9.AxZg0-2aoON9i_RZkYL21jceMlabWht2eB2NW97HhJ8
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                error:
+                  user_authentication: invalid credentials
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+              required:
+              - email
+              - password
   "/api/categories":
     get:
       summary: Get list of categories
@@ -16,7 +462,7 @@ paths:
             application/json:
               example:
                 data:
-                - id: '4'
+                - id: '214'
                   type: categories
                   attributes:
                     name: voluptatem
@@ -26,7 +472,7 @@ paths:
                   relationships:
                     indicators:
                       data: []
-                - id: '5'
+                - id: '215'
                   type: categories
                   attributes:
                     name: cum
@@ -36,7 +482,7 @@ paths:
                   relationships:
                     indicators:
                       data: []
-                - id: '6'
+                - id: '216'
                   type: categories
                   attributes:
                     name: molestiae
@@ -60,7 +506,7 @@ paths:
             application/json:
               example:
                 data:
-                - id: '4'
+                - id: '109'
                   type: indicators
                   attributes:
                     name: voluptatem
@@ -74,9 +520,9 @@ paths:
                       data: []
                     category:
                       data:
-                        id: '10'
+                        id: '220'
                         type: categories
-                - id: '5'
+                - id: '110'
                   type: indicators
                   attributes:
                     name: cum
@@ -90,9 +536,9 @@ paths:
                       data: []
                     category:
                       data:
-                        id: '11'
+                        id: '221'
                         type: categories
-                - id: '6'
+                - id: '111'
                   type: indicators
                   attributes:
                     name: molestiae
@@ -106,10 +552,10 @@ paths:
                       data: []
                     category:
                       data:
-                        id: '12'
+                        id: '222'
                         type: categories
                 included:
-                - id: '10'
+                - id: '220'
                   type: categories
                   attributes:
                     name: voluptatem
@@ -119,9 +565,9 @@ paths:
                   relationships:
                     indicators:
                       data:
-                      - id: '4'
+                      - id: '109'
                         type: indicators
-                - id: '11'
+                - id: '221'
                   type: categories
                   attributes:
                     name: cum
@@ -131,9 +577,9 @@ paths:
                   relationships:
                     indicators:
                       data:
-                      - id: '5'
+                      - id: '110'
                         type: indicators
-                - id: '12'
+                - id: '222'
                   type: categories
                   attributes:
                     name: molestiae
@@ -143,7 +589,7 @@ paths:
                   relationships:
                     indicators:
                       data:
-                      - id: '6'
+                      - id: '111'
                         type: indicators
                 meta:
                   total_indicators: 3
@@ -398,7 +844,7 @@ paths:
             application/json:
               example:
                 data:
-                - id: '5'
+                - id: '353'
                   type: layer_groups
                   attributes:
                     name: voluptatem
@@ -414,7 +860,7 @@ paths:
                   relationships:
                     super_group:
                       data:
-                - id: '6'
+                - id: '354'
                   type: layer_groups
                   attributes:
                     name: cum
@@ -431,7 +877,7 @@ paths:
                   relationships:
                     super_group:
                       data:
-                - id: '7'
+                - id: '355'
                   type: layer_groups
                   attributes:
                     name: molestiae
@@ -468,7 +914,7 @@ paths:
             application/json:
               example:
                 data:
-                - id: '4'
+                - id: '533'
                   type: layers
                   attributes:
                     name: voluptatem
@@ -479,7 +925,7 @@ paths:
                     active: true
                     order: 38
                     dashboard_order:
-                    color: "#6ac1f3"
+                    color: "#ffdbdb"
                     info: voluptatem
                     interactivity: voluptatem
                     css:
@@ -502,17 +948,17 @@ paths:
                   relationships:
                     layer_group:
                       data:
-                        id: '14'
+                        id: '362'
                         type: layer_groups
                     sources:
                       data: []
                     agrupation:
                       data:
-                        id: 4
-                        layer_id: 4
-                        layer_group_id: 14
+                        id: 240
+                        layer_id: 533
+                        layer_group_id: 362
                         active: false
-                - id: '5'
+                - id: '534'
                   type: layers
                   attributes:
                     name: cum
@@ -523,7 +969,7 @@ paths:
                     active: true
                     order: 41
                     dashboard_order:
-                    color: "#6f9d5c"
+                    color: "#eaf1ea"
                     info: cum
                     interactivity: cum
                     css:
@@ -546,17 +992,17 @@ paths:
                   relationships:
                     layer_group:
                       data:
-                        id: '14'
+                        id: '362'
                         type: layer_groups
                     sources:
                       data: []
                     agrupation:
                       data:
-                        id: 5
-                        layer_id: 5
-                        layer_group_id: 14
+                        id: 241
+                        layer_id: 534
+                        layer_group_id: 362
                         active: false
-                - id: '6'
+                - id: '535'
                   type: layers
                   attributes:
                     name: molestiae
@@ -567,7 +1013,7 @@ paths:
                     active: false
                     order: 25
                     dashboard_order:
-                    color: "#8d0116"
+                    color: "#157e15"
                     info: molestiae
                     interactivity: molestiae
                     css:
@@ -590,15 +1036,15 @@ paths:
                   relationships:
                     layer_group:
                       data:
-                        id: '14'
+                        id: '362'
                         type: layer_groups
                     sources:
                       data: []
                     agrupation:
                       data:
-                        id: 6
-                        layer_id: 6
-                        layer_group_id: 14
+                        id: 242
+                        layer_id: 535
+                        layer_group_id: 362
                         active: false
                 meta:
                   total_layers: 3
@@ -647,21 +1093,21 @@ paths:
             application/json:
               example:
                 data:
-                - id: '4'
+                - id: '97'
                   type: map_menu_entries
                   attributes:
                     label: Otha Kemmer
                     link: http://kutch-spencer.com/moises
                     position: 38
                     ancestry:
-                - id: '5'
+                - id: '98'
                   type: map_menu_entries
                   attributes:
                     label: Msgr. Genaro Cronin
                     link: http://bartoletti.com/jeremiah_cronin
                     position: 41
                     ancestry:
-                - id: '6'
+                - id: '99'
                   type: map_menu_entries
                   attributes:
                     label: Raymon Wisoky
@@ -687,7 +1133,7 @@ paths:
             application/json:
               example:
                 data:
-                - id: '5'
+                - id: '170'
                   type: models
                   attributes:
                     name: voluptatem
@@ -703,7 +1149,7 @@ paths:
                         type: site_scopes
                     indicators:
                       data: []
-                - id: '6'
+                - id: '171'
                   type: models
                   attributes:
                     name: cum
@@ -719,7 +1165,7 @@ paths:
                         type: site_scopes
                     indicators:
                       data: []
-                - id: '7'
+                - id: '172'
                   type: models
                   attributes:
                     name: molestiae
@@ -735,7 +1181,7 @@ paths:
                         type: site_scopes
                     indicators:
                       data: []
-                - id: '8'
+                - id: '173'
                   type: models
                   attributes:
                     name: quos
@@ -756,7 +1202,7 @@ paths:
                   type: site_scopes
                   attributes:
                     name: CIGRP
-                    color: "#6ac1f3"
+                    color: "#ffdbdb"
                     subdomain: voluptatem
                     has_analysis: true
                     latitude: -14.936039153536683
@@ -766,7 +1212,7 @@ paths:
                     linkback_text: Enim repellat pariatur. Earum modi eos. Libero
                       tempora exercitationem.
                     linkback_url: http://kutch-spencer.com/moises
-                    header_color: "#6ac1f3"
+                    header_color: "#ffdbdb"
                     logo_url: http://kutch-spencer.com/moises
                     predictive_model: true
                     analysis_options: true
@@ -779,7 +1225,7 @@ paths:
                   type: site_scopes
                   attributes:
                     name: Otha Kemmer
-                    color: "#6f9d5c"
+                    color: "#eaf1ea"
                     subdomain: cum
                     has_analysis: true
                     latitude: -11.520917614439327
@@ -789,7 +1235,7 @@ paths:
                     linkback_text: Placeat commodi libero. Quo recusandae repellat.
                       Sunt commodi tempore.
                     linkback_url: http://bartoletti.com/jeremiah_cronin
-                    header_color: "#6f9d5c"
+                    header_color: "#eaf1ea"
                     logo_url: http://bartoletti.com/jeremiah_cronin
                     predictive_model: true
                     analysis_options: true
@@ -847,6 +1293,72 @@ paths:
           description: Domain information is missing
         '422':
           description: Domain is not url or base64 string
+  "/api/photos":
+    post:
+      summary: Save new image
+      tags:
+      - Photo
+      parameters: []
+      responses:
+        '201':
+          description: success
+          content:
+            application/json:
+              example:
+                id: 20
+                image_data: '{"id":"2d1663012be08d6a6f65a03874634b72.jpg","storage":"store","metadata":{"filename":"picture.jpg","size":32326,"mime_type":null}}'
+                created_at: '2023-03-03T10:37:27.393+01:00'
+                updated_at: '2023-03-03T10:37:27.399+01:00'
+                url: "/uploads/store/2d1663012be08d6a6f65a03874634b72.jpg"
+                image_url: "/uploads/store/2d1663012be08d6a6f65a03874634b72.jpg"
+  "/users/register":
+    post:
+      summary: Register new user
+      tags:
+      - User
+      parameters: []
+      responses:
+        '200':
+          description: success
+          content:
+            application/json:
+              example:
+                status: created
+        '422':
+          description: Validation errors
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user:
+                  type: object
+                  properties:
+                    email:
+                      type: string
+                    password:
+                      type: string
+                    password_confirmation:
+                      type: string
+                      nullable: true
+                    first_name:
+                      type: string
+                      nullable: true
+                    last_name:
+                      type: string
+                      nullable: true
+                    organization:
+                      type: string
+                      nullable: true
+                    organization_role:
+                      type: string
+                      nullable: true
+                  required:
+                  - email
+                  - password
+                required:
+                - user
   "/api/share/{uid}":
     get:
       summary: Get detail of shared url
@@ -876,7 +1388,7 @@ paths:
             application/json:
               example:
                 data:
-                  id: '2'
+                  id: '50'
                   type: share_urls
                   attributes:
                     uid: '12345'
@@ -898,7 +1410,7 @@ paths:
           content:
             application/json:
               example:
-                uid: 8f27ee6366dc52e929ac
+                uid: ca5741c3629ef0938a0a
   "/api/sites":
     get:
       summary: Get list of all site scopes
@@ -915,7 +1427,7 @@ paths:
                   type: site_scopes
                   attributes:
                     name: CIGRP
-                    color: "#6ac1f3"
+                    color: "#ffdbdb"
                     subdomain: voluptatem
                     has_analysis: true
                     latitude: -14.936039153536683
@@ -925,7 +1437,7 @@ paths:
                     linkback_text: Enim repellat pariatur. Earum modi eos. Libero
                       tempora exercitationem.
                     linkback_url: http://kutch-spencer.com/moises
-                    header_color: "#6ac1f3"
+                    header_color: "#ffdbdb"
                     logo_url: http://kutch-spencer.com/moises
                     predictive_model: true
                     analysis_options: true
@@ -938,7 +1450,7 @@ paths:
                   type: site_scopes
                   attributes:
                     name: Otha Kemmer
-                    color: "#6f9d5c"
+                    color: "#eaf1ea"
                     subdomain: cum
                     has_analysis: true
                     latitude: -11.520917614439327
@@ -948,7 +1460,7 @@ paths:
                     linkback_text: Placeat commodi libero. Quo recusandae repellat.
                       Sunt commodi tempore.
                     linkback_url: http://bartoletti.com/jeremiah_cronin
-                    header_color: "#6f9d5c"
+                    header_color: "#eaf1ea"
                     logo_url: http://bartoletti.com/jeremiah_cronin
                     predictive_model: true
                     analysis_options: true
@@ -980,7 +1492,7 @@ paths:
                   type: site_scopes
                   attributes:
                     name: CIGRP
-                    color: "#6ac1f3"
+                    color: "#ffdbdb"
                     subdomain: voluptatem
                     has_analysis: true
                     latitude: -14.936039153536683
@@ -990,7 +1502,7 @@ paths:
                     linkback_text: Enim repellat pariatur. Earum modi eos. Libero
                       tempora exercitationem.
                     linkback_url: http://kutch-spencer.com/moises
-                    header_color: "#6ac1f3"
+                    header_color: "#ffdbdb"
                     logo_url: http://kutch-spencer.com/moises
                     predictive_model: true
                     analysis_options: true
@@ -999,8 +1511,112 @@ paths:
                   relationships:
                     site_pages:
                       data: []
+  "/users/me":
+    get:
+      summary: Obtains information about current user
+      tags:
+      - User
+      security:
+      - bearerAuth: []
+      responses:
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                errors:
+                - status: '401'
+                  title: Unauthorized
+        '200':
+          description: success
+          content:
+            application/json:
+              example:
+                id: 140
+                email: person-1@example.com
+                created_at: '2023-03-03T10:37:27.862+01:00'
+                updated_at: '2023-03-03T10:37:27.862+01:00'
+                first_name: Dawna
+                last_name: Block
+                phone: "(995) 001-7692 x452"
+                organization: voluptatem
+                organization_role: voluptatem
+    patch:
+      summary: Update current user
+      tags:
+      - User
+      security:
+      - bearerAuth: []
+      parameters: []
+      responses:
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                errors:
+                - status: '401'
+                  title: Unauthorized
+        '200':
+          description: success
+          content:
+            application/json:
+              example:
+                first_name: Jan
+                last_name: Kowalski
+                email: jankowalski@example.com
+                id: 142
+                created_at: '2023-03-03T10:37:27.945+01:00'
+                updated_at: '2023-03-03T10:37:27.973+01:00'
+                phone: "(995) 001-7692 x452"
+                organization: voluptatem
+                organization_role: voluptatem
+        '422':
+          description: Validation errors
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user:
+                  type: object
+                  properties:
+                    email:
+                      type: string
+                    password:
+                      type: string
+                    password_confirmation:
+                      type: string
+                      nullable: true
+                    first_name:
+                      type: string
+                      nullable: true
+                    last_name:
+                      type: string
+                      nullable: true
+                    organization:
+                      type: string
+                      nullable: true
+                    organization_role:
+                      type: string
+                      nullable: true
+                  required:
+                  - email
+                  - password
+                required:
+                - user
 components:
-  securitySchemes: {}
+  securitySchemes:
+    tokenAuth:
+      type: http
+      scheme: bearer
+      name: Authorization
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      name: Authorization
   schemas:
     errors:
       type: object

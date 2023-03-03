@@ -6,7 +6,7 @@ uploadAttachment = (attachment) ->
   form.append 'photo[image]', file
   # Create our XHR request
   xhr = new XMLHttpRequest
-  xhr.open 'POST', '/photos.json', true
+  xhr.open 'POST', '/api/photos.json', true
   xhr.setRequestHeader('X-CSRF-Token', $('meta[name="csrf-token"]').attr('content'))
   # Report file uploads back to Trix
 

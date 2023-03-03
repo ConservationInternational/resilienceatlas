@@ -23,7 +23,6 @@ gem "simple_command"
 gem "activeadmin"
 gem "activeadmin_addons"
 gem "active_model_serializers"
-gem "devise_token_auth"
 gem "will_paginate"
 
 gem "ffi"
@@ -34,17 +33,9 @@ gem "addressable"
 
 gem "rack-cors"
 
-# Omniauth
-gem "omniauth"
-gem "omniauth-twitter"
-gem "omniauth-facebook"
-gem "omniauth-linkedin"
-gem "omniauth-google-oauth2"
-
 # Utilities
 gem "seed_dump"
 gem "active_admin_theme"
-gem "ckeditor", "4.3"
 gem "sendgrid"
 gem "rubyzip"
 gem "prawn"
@@ -97,7 +88,7 @@ group :test do
   gem "rspec-collection_matchers"
   gem "rspec-retry"
   gem "super_diff"
-  gem "rspec-request_snapshot"
+  gem "rspec-request_snapshot", github: "tsubik/rspec-request_snapshot", branch: "fix/ignore-order"
   gem "rswag-specs"
   gem "webmock"
 end

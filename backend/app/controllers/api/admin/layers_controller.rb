@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class Api::Admin::LayersController < Api::AdminController
+class Api::Admin::LayersController < Api::Admin::ApiController
   before_action :load_layer, only: %i[update destroy show]
   include Api::Pagination
 

@@ -53,7 +53,7 @@ class ApplicationController < ActionController::Base
 
   def after_sign_in_path_for(resource)
     if resource.instance_of?(User)
-      session[:previous_url] || root_path
+      session[:previous_url] || "/"
     elsif resource.instance_of?(AdminUser)
       admin_root_path
     end

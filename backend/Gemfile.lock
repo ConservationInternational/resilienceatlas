@@ -7,6 +7,14 @@ GIT
       activeadmin (>= 1.0, < 3.0)
       globalize (>= 3.1.0, < 7.0)
 
+GIT
+  remote: https://github.com/tsubik/rspec-request_snapshot.git
+  revision: 86775ed811110a71df75605440ca41deae07cf26
+  branch: fix/ignore-order
+  specs:
+    rspec-request_snapshot (0.7.3)
+      rspec (~> 3.0)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -166,10 +174,6 @@ GEM
       xpath (~> 3.2)
     case_transform (0.2)
       activesupport
-    ckeditor (4.3.0)
-      orm_adapter (~> 0.5.0)
-      terrapin
-    climate_control (0.2.0)
     coderay (1.1.3)
     coffee-rails (5.0.0)
       coffee-script (>= 2.2.0)
@@ -194,10 +198,6 @@ GEM
       railties (>= 4.1.0)
       responders
       warden (~> 1.2.3)
-    devise_token_auth (1.2.1)
-      bcrypt (~> 3.0)
-      devise (> 3.5.2, < 5)
-      rails (>= 4.2.0, < 7.1)
     diff-lcs (1.5.0)
     dotenv (2.8.1)
     dotenv-rails (2.8.1)
@@ -215,10 +215,6 @@ GEM
       railties (>= 5.0.0)
     faker (3.1.1)
       i18n (>= 1.8.11, < 2)
-    faraday (2.7.4)
-      faraday-net_http (>= 2.0, < 3.1)
-      ruby2_keywords (>= 0.0.4)
-    faraday-net_http (3.0.2)
     ferrum (0.13)
       addressable (~> 2.5)
       concurrent-ruby (~> 1.1)
@@ -239,7 +235,6 @@ GEM
       actionpack (>= 5.2)
       activesupport (>= 5.2)
     hashdiff (1.0.1)
-    hashie (5.0.0)
     i18n (1.12.0)
       concurrent-ruby (~> 1.0)
     importmap-rails (1.1.5)
@@ -288,7 +283,6 @@ GEM
     method_source (1.0.0)
     mini_mime (1.1.2)
     minitest (5.17.0)
-    multi_xml (0.6.0)
     net-imap (0.3.4)
       date
       net-protocol
@@ -306,41 +300,6 @@ GEM
       racc (~> 1.4)
     nokogiri (1.14.2-x86_64-linux)
       racc (~> 1.4)
-    oauth (1.1.0)
-      oauth-tty (~> 1.0, >= 1.0.1)
-      snaky_hash (~> 2.0)
-      version_gem (~> 1.1)
-    oauth-tty (1.0.5)
-      version_gem (~> 1.1, >= 1.1.1)
-    oauth2 (2.0.9)
-      faraday (>= 0.17.3, < 3.0)
-      jwt (>= 1.0, < 3.0)
-      multi_xml (~> 0.5)
-      rack (>= 1.2, < 4)
-      snaky_hash (~> 2.0)
-      version_gem (~> 1.1)
-    omniauth (2.1.1)
-      hashie (>= 3.4.6)
-      rack (>= 2.2.3)
-      rack-protection
-    omniauth-facebook (9.0.0)
-      omniauth-oauth2 (~> 1.2)
-    omniauth-google-oauth2 (1.1.1)
-      jwt (>= 2.0)
-      oauth2 (~> 2.0.6)
-      omniauth (~> 2.0)
-      omniauth-oauth2 (~> 1.8.0)
-    omniauth-linkedin (0.2.0)
-      omniauth-oauth (~> 1.0)
-    omniauth-oauth (1.2.0)
-      oauth
-      omniauth (>= 1.0, < 3)
-    omniauth-oauth2 (1.8.0)
-      oauth2 (>= 1.4, < 3)
-      omniauth (~> 2.0)
-    omniauth-twitter (1.4.0)
-      omniauth-oauth (~> 1.1)
-      rack
     optimist (3.0.1)
     orm_adapter (0.5.0)
     parallel (1.22.1)
@@ -362,8 +321,6 @@ GEM
     rack (2.2.6.2)
     rack-cors (2.0.0)
       rack (>= 2.0.0)
-    rack-protection (3.0.5)
-      rack
     rack-test (2.0.2)
       rack (>= 1.3)
     rails (7.0.4.2)
@@ -431,8 +388,6 @@ GEM
       rspec-expectations (~> 3.11)
       rspec-mocks (~> 3.11)
       rspec-support (~> 3.11)
-    rspec-request_snapshot (0.7.3)
-      rspec (~> 3.0)
     rspec-retry (0.6.2)
       rspec-core (> 3.3)
     rspec-support (3.12.0)
@@ -497,9 +452,6 @@ GEM
       actionpack (>= 3.1)
       railties (>= 3.1)
       slim (>= 3.0, < 6.0, != 5.0.0)
-    snaky_hash (2.0.1)
-      hashie
-      version_gem (~> 1.1, >= 1.1.1)
     sprockets (4.2.0)
       concurrent-ruby (~> 1.0)
       rack (>= 2.2.4, < 4)
@@ -519,8 +471,6 @@ GEM
       diff-lcs
       patience_diff
     temple (0.8.2)
-    terrapin (0.6.0)
-      climate_control (>= 0.0.3, < 1.0)
     thor (1.2.1)
     tilt (2.0.11)
     timeout (0.3.2)
@@ -530,7 +480,6 @@ GEM
     uglifier (4.2.0)
       execjs (>= 0.3.0, < 3)
     unicode-display_width (2.4.2)
-    version_gem (1.1.1)
     warden (1.2.9)
       rack (>= 2.0.9)
     web-console (4.2.0)
@@ -585,10 +534,8 @@ DEPENDENCIES
   capistrano-rails
   capistrano-rbenv (~> 2.2)
   capybara (>= 3.26)
-  ckeditor (= 4.3)
   cuprite
   devise
-  devise_token_auth
   dotenv-rails
   ed25519
   factory_bot_rails
@@ -599,11 +546,6 @@ DEPENDENCIES
   importmap-rails
   jbuilder
   jwt
-  omniauth
-  omniauth-facebook
-  omniauth-google-oauth2
-  omniauth-linkedin
-  omniauth-twitter
   pg
   prawn
   prawn-table
@@ -613,7 +555,7 @@ DEPENDENCIES
   ransack
   rspec-collection_matchers
   rspec-rails
-  rspec-request_snapshot
+  rspec-request_snapshot!
   rspec-retry
   rswag
   rswag-specs

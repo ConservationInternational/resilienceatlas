@@ -19,8 +19,8 @@ end
 RSpec.configure do |config|
   config.fixture_path = "#{::Rails.root}/spec/fixtures"
   config.request_snapshots_dir = "spec/fixtures/snapshots"
-  config.request_snapshots_dynamic_attributes = %w[id uid layer_group_id layer_id]
-  config.request_snapshots_ignore_order = %w[array_node]
+  config.request_snapshots_dynamic_attributes = %w[id uid layer_group_id layer_id auth_token image_data url image_url created_at updated_at]
+  config.request_snapshots_ignore_order = %w[data]
 
   config.include RequestHelpers, type: :request
   config.include FactoryBot::Syntax::Methods

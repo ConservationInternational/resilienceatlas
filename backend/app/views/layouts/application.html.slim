@@ -3,22 +3,11 @@ doctype html
 html lang="#{I18n.locale}"
   head
     title = @site_name || "Resilience Atlas | #{controller_name}"
-    = render :partial => "partials/head"
+    = render :partial => "head"
     = stylesheet_link_tag "application", media: "all"
     = javascript_importmap_tags "application"
     = csrf_meta_tags
 
-    javascript:
-      window.isSubdomain = "#{@subdomain}";
-      window.userlogged = "#{user_signed_in?}";
-      window.name = "#{@site_name}";
-    = render :partial => "partials/transifex"
-    = render :partial => "partials/analytics"
-
   body class="is-#{controller_name}-page is-#{@subdomain}"
-    = render :partial => "partials/icons"
-    == render "layouts/header"
     .l-main-fullscreen
       == yield
-    == render "layouts/footer"
-    == render "partials/modal"
