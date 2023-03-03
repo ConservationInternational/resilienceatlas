@@ -26,10 +26,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Read .nvmrc
+        id: nvm
+        run: echo "##[set-output name=NVMRC;]$(cat .nvmrc)"
+        
       - name: Use Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 14
+          node-version: "${{ steps.nvm.outputs.NVMRC }}"
           cache: 'yarn'
           cache-dependency-path: frontend/yarn.lock
 
