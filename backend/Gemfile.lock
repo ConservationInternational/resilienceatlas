@@ -7,6 +7,14 @@ GIT
       activeadmin (>= 1.0, < 3.0)
       globalize (>= 3.1.0, < 7.0)
 
+GIT
+  remote: https://github.com/tsubik/rspec-request_snapshot.git
+  revision: 86775ed811110a71df75605440ca41deae07cf26
+  branch: fix/ignore-order
+  specs:
+    rspec-request_snapshot (0.7.3)
+      rspec (~> 3.0)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -380,8 +388,6 @@ GEM
       rspec-expectations (~> 3.11)
       rspec-mocks (~> 3.11)
       rspec-support (~> 3.11)
-    rspec-request_snapshot (0.7.3)
-      rspec (~> 3.0)
     rspec-retry (0.6.2)
       rspec-core (> 3.3)
     rspec-support (3.12.0)
@@ -549,7 +555,7 @@ DEPENDENCIES
   ransack
   rspec-collection_matchers
   rspec-rails
-  rspec-request_snapshot
+  rspec-request_snapshot!
   rspec-retry
   rswag
   rswag-specs

@@ -88,7 +88,7 @@ group :test do
   gem "rspec-collection_matchers"
   gem "rspec-retry"
   gem "super_diff"
-  gem "rspec-request_snapshot"
+  gem "rspec-request_snapshot", github: "tsubik/rspec-request_snapshot", branch: "fix/ignore-order"
   gem "rswag-specs"
   gem "webmock"
 end
