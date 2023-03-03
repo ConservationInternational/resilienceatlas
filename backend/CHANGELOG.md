@@ -2,6 +2,13 @@
 
 **Merged pull requests:**
 
+- Removing devise token auth library which was broken and not used [\#91](https://github.com/ConservationInternational/resilienceatlas/pull/91) ([martintomas](https://github.com/martintomas))
+- Removing CKEditor which was replaced by ActionText [\#91](https://github.com/ConservationInternational/resilienceatlas/pull/91) ([martintomas](https://github.com/martintomas))
+- Migrating rest of the controller actions to API namespace and covering all API endpoints with rswag tests [\#91](https://github.com/ConservationInternational/resilienceatlas/pull/91) ([martintomas](https://github.com/martintomas))
+- Removing all embedded controller actions (iframes) which were replaced by FE app [\#91](https://github.com/ConservationInternational/resilienceatlas/pull/91) ([martintomas](https://github.com/martintomas))
+- Removing Omniauth from devise which was broken and not used anymore [\#91](https://github.com/ConservationInternational/resilienceatlas/pull/91) ([martintomas](https://github.com/martintomas))
+- Removing Devise views for User which was replaced by FE app (custom login/registration using JWT token) [\#91](https://github.com/ConservationInternational/resilienceatlas/pull/91) ([martintomas](https://github.com/martintomas))
+- Removing all static pages (views and controllers) which were replaced by FE app [\#91](https://github.com/ConservationInternational/resilienceatlas/pull/91) ([martintomas](https://github.com/martintomas))
 - Fixing ActiveAdmin view for not logged in users (monkey patch which adds support for importmaps) [\#88](https://github.com/ConservationInternational/resilienceatlas/pull/88) ([martintomas](https://github.com/martintomas))
 - Replacing deprecated cancan gem with cancancan [\#88](https://github.com/ConservationInternational/resilienceatlas/pull/88) ([martintomas](https://github.com/martintomas))
 - Enabling activeadmin-globalize which is customized fork which supports Rails 7 [\#88](https://github.com/ConservationInternational/resilienceatlas/pull/88) ([martintomas](https://github.com/martintomas))
