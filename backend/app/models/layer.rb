@@ -104,6 +104,8 @@ class Layer < ApplicationRecord
   translates :name, :info, :legend, :title, :data_units, :processing, :description
   active_admin_translates :name, :info, :legend, :title, :data_units, :processing, :description
 
+  validates_presence_of :slug
+
   scope :site, ->(site) {
                  eager_load([layer_groups: :super_group])
                    .where(layer_groups: {site_scope_id: site})

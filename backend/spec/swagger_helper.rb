@@ -19,6 +19,11 @@ RSpec.configure do |config|
       paths: {},
       components: {
         securitySchemes: {
+          tokenAuth: {
+            type: :http,
+            scheme: :bearer,
+            name: "Authorization"
+          },
           bearerAuth: {
             type: :http,
             scheme: :bearer,
