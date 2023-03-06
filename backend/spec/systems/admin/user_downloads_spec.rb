@@ -19,4 +19,19 @@ RSpec.describe "Admin: User Downloads", type: :system do
       end
     end
   end
+
+  describe "#show" do
+    let!(:user_download) { create :user_download }
+
+    before do
+      visit admin_user_downloads_path
+      find("a[href='/admin/user_downloads/#{user_download.id}']", text: "View").click
+    end
+
+    it "shows user_download detail" do
+      expect(page).to have_text(user_download.subdomain)
+      expect(page).to have_text(user_download.user.name)
+      expect(page).to have_text(user_download.layer.name)
+    end
+  end
 end
