@@ -41,6 +41,7 @@ gem "rubyzip"
 gem "prawn"
 gem "prawn-table"
 gem "standard"
+gem "matrix" # needed by prawn, removed in ruby 3.1
 
 # Translations
 gem "globalize"
