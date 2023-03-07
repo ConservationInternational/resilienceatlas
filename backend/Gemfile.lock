@@ -475,14 +475,14 @@ GEM
       diff-lcs
       patience_diff
     temple (0.8.2)
+    terser (1.1.14)
+      execjs (>= 0.3.0, < 3)
     thor (1.2.1)
     tilt (2.0.11)
     timeout (0.3.2)
     ttfunk (1.7.0)
     tzinfo (2.0.6)
       concurrent-ruby (~> 1.0)
-    uglifier (4.2.0)
-      execjs (>= 0.3.0, < 3)
     unicode-display_width (2.4.2)
     warden (1.2.9)
       rack (>= 2.0.9)
@@ -573,7 +573,7 @@ DEPENDENCIES
   slim-rails
   standard
   super_diff
-  uglifier
+  terser
   web-console
   webmock
   will_paginate
