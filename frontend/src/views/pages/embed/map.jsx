@@ -1,11 +1,11 @@
 import React from 'react';
 import Helmet from 'react-helmet';
 
-import MapView from '@components/Map';
+import MapView from 'views/components/Map';
 
-import { LayerManagerProvider } from '@contexts/layerManagerCtx';
+import { LayerManagerProvider } from 'views/contexts/layerManagerCtx';
 
-import Loader from '@shared/Loader';
+import Loader from 'views/shared/Loader';
 
 const MapPage = () => (
   <LayerManagerProvider>

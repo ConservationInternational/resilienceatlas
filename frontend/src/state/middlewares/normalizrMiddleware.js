@@ -1,7 +1,7 @@
 import { normalize } from 'normalizr';
 import { createUnion } from '../utils/detectSchema';
 
-export default store => next => action => {
+export default (store) => (next) => (action) => {
   const { payload, error, meta: { schema, ...restMeta } = {} } = action;
   let { includedSchema } = action.meta || {};
 

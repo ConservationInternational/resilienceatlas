@@ -63,7 +63,7 @@ export const useRouterParams = () => {
     });
   };
 
-  const removeParam = param => {
+  const removeParam = (param) => {
     params.delete(param);
 
     history.replace({

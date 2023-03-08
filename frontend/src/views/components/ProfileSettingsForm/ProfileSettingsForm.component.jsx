@@ -1,10 +1,12 @@
-import React, { FC } from 'react';
+import type { FC } from 'react';
+import React from 'react';
 import cx from 'classnames';
-import { InjectedFormProps, Form, Field } from 'redux-form';
+import type { InjectedFormProps } from 'redux-form';
+import { Form, Field } from 'redux-form';
 
-import FormInput from '@shared/inputs/FormInput';
-import Loader from '@shared/Loader';
-import { IProfileSettingsForm } from '@modules/user';
+import FormInput from 'views/shared/inputs/FormInput';
+import Loader from 'views/shared/Loader';
+import type { IProfileSettingsForm } from 'state/modules/user';
 
 const ProfileSettingsForm: FC<InjectedFormProps<IProfileSettingsForm>> = ({
   user,
@@ -12,17 +14,9 @@ const ProfileSettingsForm: FC<InjectedFormProps<IProfileSettingsForm>> = ({
   submitting,
 }) => (
   <Form onSubmit={handleSubmit}>
-    <Field
-      component={FormInput}
-      type="email"
-      name="email"
-      label="Email"
-      autoFocus
-    />
+    <Field component={FormInput} type="email" name="email" label="Email" autoFocus />
 
-    {!!user.unconfirmed && (
-      <div>Currently waiting confirmation for: {user.email}</div>
-    )}
+    {!!user.unconfirmed && <div>Currently waiting confirmation for: {user.email}</div>}
 
     <Field
       component={FormInput}

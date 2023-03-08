@@ -2,11 +2,11 @@ import React from 'react';
 import Helmet from 'react-helmet';
 import { Row, Column } from 'react-foundation';
 
-import MapView from '@components/Map';
-import Legend from '@components/Legend';
-import { LayerAnalysis } from '@components/AnalysisPanel/AnalysisContent';
+import MapView from 'views/components/Map';
+import Legend from 'views/components/Legend';
+import { LayerAnalysis } from 'views/components/AnalysisPanel/AnalysisContent';
 
-import Loader from '@shared/Loader';
+import Loader from 'views/shared/Loader';
 
 const Report = () => (
   <>

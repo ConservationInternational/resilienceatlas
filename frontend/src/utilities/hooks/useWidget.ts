@@ -1,5 +1,5 @@
 import cx from 'classnames';
-import { AxiosRequestConfig } from 'axios';
+import type { AxiosRequestConfig } from 'axios';
 import { useMemo, useCallback } from 'react';
 import { useAxios } from './useAxios';
 
@@ -15,7 +15,7 @@ interface WidgetOptions {
  */
 export const useWidget = (
   { slug, geojson }: WidgetOptions,
-  { analysisQuery, analysisBody }: { analysisQuery: string, analysisBody: string },
+  { analysisQuery, analysisBody }: { analysisQuery: string; analysisBody: string },
 ) => {
   const query = useMemo((): AxiosRequestConfig => {
     console.log(geojson);

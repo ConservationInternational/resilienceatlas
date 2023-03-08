@@ -1,4 +1,4 @@
-import { subdomain } from '@utilities/getSubdomain';
+import { subdomain } from 'utilities/getSubdomain';
 import api, { createApiAction } from '../../utils/api';
 import { layer_group } from '../../schema';
 
@@ -10,7 +10,7 @@ export const TOGGLE = 'layer_groups / TOGGLE';
 export const OPEN_BATCH = 'layer_groups / OPEN_BATCH';
 
 // Actions
-export const toggle = id => ({
+export const toggle = (id) => ({
   type: TOGGLE,
   id,
 });

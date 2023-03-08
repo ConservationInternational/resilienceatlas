@@ -15,7 +15,7 @@ export const useToggle = (initial = false) => {
 
 export const useInput = (name, initialValue) => {
   const [value, setValue] = useState(initialValue);
-  const onChange = e => setValue(e.target.value);
+  const onChange = (e) => setValue(e.target.value);
 
   useEffect(() => setValue(initialValue), [initialValue]);
 
@@ -34,7 +34,7 @@ export const useInput = (name, initialValue) => {
 export const useUpdaterInput = (name, initialValue, updater) => {
   // setting up a input
   const [value, setValue] = useState(initialValue);
-  const onChange = e => setValue(e.target.value);
+  const onChange = (e) => setValue(e.target.value);
 
   // call update handler only if value changed
   const update = useCallback(() => {
@@ -42,7 +42,10 @@ export const useUpdaterInput = (name, initialValue, updater) => {
   }, [value, initialValue]);
 
   // adding a update handlers
-  const onKeyPress = useCallback(e => (e.keyCode === 13 || e.charCode === 13) && update(), [value]);
+  const onKeyPress = useCallback(
+    (e) => (e.keyCode === 13 || e.charCode === 13) && update(),
+    [value],
+  );
   const onBlur = useCallback(() => update(), [value]);
 
   // update current value if initial has been changed
@@ -64,7 +67,7 @@ export const useDebounce = (effect, delay, deps) => {
 export const useRouterValue = (
   name: string,
   value: any,
-  { onlyOnChange = false }: { onlyOnChange?: Boolean } = {},
+  { onlyOnChange = false }: { onlyOnChange?: boolean } = {},
 ) => {
   const prevValue = usePrevious(value, { initial: true });
 
@@ -76,7 +79,7 @@ export const useRouterValue = (
 };
 
 export const useTogglerButton = (current, setter, { activeClassName = 'is-active' } = {}) => {
-  const getTogglerProps = value => {
+  const getTogglerProps = (value) => {
     const onClick = useCallback(() => setter(value), [value]);
 
     return {

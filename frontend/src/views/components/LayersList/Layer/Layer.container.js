@@ -2,7 +2,7 @@ import { compose } from 'redux';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 
-import { toggle, setOpacity, getLayerActive } from '@modules/layers';
+import { toggle, setOpacity, getLayerActive } from 'state/modules/layers';
 
 import Layer from './Layer.component';
 

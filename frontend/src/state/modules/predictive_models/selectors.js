@@ -2,15 +2,15 @@ import { createSelector } from 'reselect';
 import { denormalize } from 'normalizr';
 import { model } from '../../schema';
 
-export const getSelected = state => state.predictive_models.selected;
+export const getSelected = (state) => state.predictive_models.selected;
 
-export const getModels = state => state.predictive_models.byId;
+export const getModels = (state) => state.predictive_models.byId;
 
-export const getCategoies = state => state.predictive_models.categories;
+export const getCategoies = (state) => state.predictive_models.categories;
 
-export const getIndicators = state => state.predictive_models.indicators;
+export const getIndicators = (state) => state.predictive_models.indicators;
 
-export const getIds = state => state.predictive_models.all;
+export const getIds = (state) => state.predictive_models.all;
 
 export const makeAll = () =>
   createSelector(
@@ -23,16 +23,16 @@ export const makeActive = () => {
   const getAll = makeAll();
 
   return createSelector([getAll, getSelected, getCategoies], (models, selected, categoriesById) => {
-    const selectedModel = models.find(m => m.id === selected);
+    const selectedModel = models.find((m) => m.id === selected);
     if (!selected || !selectedModel) return null;
 
     const { indicators } = selectedModel;
-    const categoriesIds = [...new Set(indicators.map(ind => ind.category))];
+    const categoriesIds = [...new Set(indicators.map((ind) => ind.category))];
     const categories = categoriesIds
-      .map(catId => categoriesById[catId])
-      .map(category => ({
+      .map((catId) => categoriesById[catId])
+      .map((category) => ({
         name: category.name,
-        indicators: indicators.filter(ind => ind.category === category.id),
+        indicators: indicators.filter((ind) => ind.category === category.id),
       }));
 
     return {
@@ -45,11 +45,11 @@ export const makeActive = () => {
 export const makeLayer = () => {
   const getActive = makeActive();
 
-  return createSelector([getActive], activeModel => {
+  return createSelector([getActive], (activeModel) => {
     if (!activeModel) return null;
     const columns = activeModel.indicators
-      .filter(indicator => indicator.value !== null && indicator.value !== undefined)
-      .map(ind => {
+      .filter((indicator) => indicator.value !== null && indicator.value !== undefined)
+      .map((ind) => {
         const weight = ind.value % 1 === 0 ? ind.value : ind.value.toFixed(3);
 
         return `{ 

@@ -1,4 +1,4 @@
-import { subdomain } from '@utilities/getSubdomain';
+import { subdomain } from 'utilities/getSubdomain';
 import api, { createApiAction } from '../../utils/api';
 import { layer, source } from '../../schema';
 
@@ -18,12 +18,12 @@ export const load = () =>
     includedSchema: [source],
   });
 
-export const setActives = actives => ({
+export const setActives = (actives) => ({
   type: SET_ACTIVES,
   actives,
 });
 
-export const toggle = id => ({
+export const toggle = (id) => ({
   type: TOGGLE,
   id,
 });

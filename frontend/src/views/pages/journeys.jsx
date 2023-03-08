@@ -1,7 +1,7 @@
 import React from 'react';
 import Helmet from 'react-helmet';
 
-import JourneysIntrolist from '@components/JourneysIntrolist';
+import JourneysIntrolist from 'views/components/JourneysIntrolist';
 
 const Journeys = () => (
   <>

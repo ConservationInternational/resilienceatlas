@@ -1,17 +1,10 @@
-import React, { FC, useMemo } from 'react';
-import {
-  ResponsiveContainer,
-  BarChart,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Bar,
-  Tooltip,
-} from 'recharts';
+import type { FC } from 'react';
+import React, { useMemo } from 'react';
+import { ResponsiveContainer, BarChart, XAxis, YAxis, CartesianGrid, Bar, Tooltip } from 'recharts';
 
-import InfoWindow from '@components/InfoWindow';
+import InfoWindow from 'views/components/InfoWindow';
 
-import { useWidget, formatNumber } from '@utilities';
+import { useWidget, formatNumber } from 'utilities';
 import { CustomTooltip } from './CustomTooltip';
 import DownloadCsv from './DownloadCsv';
 import DownloadImage from './DownloadImage';
@@ -55,10 +48,7 @@ export const WidgetBarChart: FC<P> = ({
           </div>
         ) : (
           <>
-            <ResponsiveContainer
-              width={responsive ? 670 : 400}
-              height={responsive ? 300 : 240}
-            >
+            <ResponsiveContainer width={responsive ? 670 : 400} height={responsive ? 300 : 240}>
               <BarChart data={data.rows} margin={{ top: 40, bottom: 50 }}>
                 <CartesianGrid vertical={false} strokeDasharray="2 2" />
                 <XAxis
@@ -69,7 +59,7 @@ export const WidgetBarChart: FC<P> = ({
                     angle: -90,
                     dx: -6,
                   }}
-                  tickFormatter={value =>
+                  tickFormatter={(value) =>
                     formatNumber({
                       value,
                       minimumFractionDigits: 1,
@@ -84,7 +74,7 @@ export const WidgetBarChart: FC<P> = ({
                   axisLine={false}
                   tickLine={false}
                   tickCount={10}
-                  tickFormatter={value =>
+                  tickFormatter={(value) =>
                     formatNumber({
                       value,
                       formatFrom: 1e3,
@@ -100,7 +90,7 @@ export const WidgetBarChart: FC<P> = ({
                 <Bar
                   barSize={responsive ? 18 : 12}
                   dataKey="count"
-                  fill={bar_color ? bar_color : "#0089CC"}
+                  fill={bar_color ? bar_color : '#0089CC'}
                 />
               </BarChart>
             </ResponsiveContainer>
@@ -136,12 +126,7 @@ export const WidgetBarChart: FC<P> = ({
 
                 {!noData && <DownloadCsv data={data} name={slug} />}
 
-                {analysisBody && (
-                  <DownloadImage
-                    analysisBody={analysisBody}
-                    geojson={geojson}
-                  />
-                )}
+                {analysisBody && <DownloadImage analysisBody={analysisBody} geojson={geojson} />}
 
                 {metadata && (
                   <button

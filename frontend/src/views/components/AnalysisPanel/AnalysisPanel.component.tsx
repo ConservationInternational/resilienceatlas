@@ -1,11 +1,12 @@
-import React, { FC, useState, useCallback, useEffect, useMemo } from 'react';
+import type { FC } from 'react';
+import React, { useState, useCallback, useEffect, useMemo } from 'react';
 import qs from 'qs';
 import cx from 'classnames';
 import { useDropzone } from 'react-dropzone';
 
-import Tabs from '@shared/Tabs';
-import { useDownloadableReport } from '@utilities/hooks/downloadableReport';
-import { useSearch } from '@utilities';
+import Tabs from 'views/shared/Tabs';
+import { useDownloadableReport } from 'utilities/hooks/downloadableReport';
+import { useSearch } from 'utilities';
 import { TABS } from '../Sidebar';
 
 import { LayerAnalysis, PredictiveModelAnalysis } from './AnalysisContent';
@@ -13,7 +14,7 @@ import { LayerAnalysis, PredictiveModelAnalysis } from './AnalysisContent';
 const ACCEPTED_EXTENSIONS = ['.json', '.geojson'];
 
 interface P {
-  drawing: Boolean;
+  drawing: boolean;
   geojson: L.GeoJSON;
 }
 
@@ -42,7 +43,7 @@ export const AnalysisPanel: FC<P> = ({
 
   const [tab, setTab] = useState(geojson && !iso ? 'shape' : 'region');
   const switchTab = useCallback(
-    e => {
+    (e) => {
       const newTab = e.target.dataset.tab;
 
       if (tab !== newTab) {
@@ -66,15 +67,13 @@ export const AnalysisPanel: FC<P> = ({
     const regex = new RegExp(`((${ACCEPTED_EXTENSIONS.join('|')}))$`);
 
     if (!regex.test(file.name)) {
-      window.alert(
-        'Only .json and .geojson files are accepted. Please select a different file.',
-      );
+      window.alert('Only .json and .geojson files are accepted. Please select a different file.');
       return;
     }
 
     const reader = new FileReader();
 
-    reader.onload = e => {
+    reader.onload = (e) => {
       try {
         const json = JSON.parse(e.target.result);
 
@@ -91,17 +90,13 @@ export const AnalysisPanel: FC<P> = ({
           'GeometryCollection',
         ];
         if (!json.type || !types.includes(json.type)) {
-          throw new Error(
-            'The file doesn\'t have a top-level "type" property correctly defined.',
-          );
+          throw new Error('The file doesn\'t have a top-level "type" property correctly defined.');
         }
 
         setGeojson(json);
       } catch (err) {
         console.error(err);
-        window.alert(
-          "The file can't be read. Make sure it's the GeoJSON is valid.",
-        );
+        window.alert("The file can't be read. Make sure it's the GeoJSON is valid.");
       }
     };
 
@@ -153,10 +148,7 @@ export const AnalysisPanel: FC<P> = ({
                   <p>Select a country or region from the list below.</p>
                   <div className="m-search-analysis">
                     <svg className="icon-search">
-                      <use
-                        xmlnsXlink="http://www.w3.org/1999/xlink"
-                        xlinkHref="#icon-search"
-                      />
+                      <use xmlnsXlink="http://www.w3.org/1999/xlink" xlinkHref="#icon-search" />
                     </svg>
                     <input
                       className="searchAnalysis"
@@ -169,16 +161,9 @@ export const AnalysisPanel: FC<P> = ({
                         <div className="search-suggestions">
                           <ul>
                             {result.map((item, key) => {
-                              const {
-                                label,
-                                name,
-                                iso,
-                                selected,
-                                optionProps,
-                              } = item;
+                              const { label, name, iso, selected, optionProps } = item;
 
-                              const isSelected =
-                                selected % result.length === key;
+                              const isSelected = selected % result.length === key;
 
                               return (
                                 <li
@@ -201,9 +186,7 @@ export const AnalysisPanel: FC<P> = ({
                   </div>
                 </Tabs.Pane>
                 <Tabs.Pane name="shape">
-                  <p>
-                    Draw on the map the area you want to analyze or pick a file.
-                  </p>
+                  <p>Draw on the map the area you want to analyze or pick a file.</p>
                   <div className="buttons">
                     <button
                       type="button"
@@ -224,33 +207,27 @@ export const AnalysisPanel: FC<P> = ({
                         ? 'Drop here'
                         : 'Click here to select a GeoJSON file or drag and drop the file here'}
                     </button>
-                    <input
-                      {...getInputProps()}
-                      hidden
-                      accept=".json,.geojson"
-                    />
+                    <input {...getInputProps()} hidden accept=".json,.geojson" />
                   </div>
                 </Tabs.Pane>
               </Tabs>
             ) : (
               <>
-                {sidebarTab === TABS.MODELS ? (
-                  <PredictiveModelAnalysis />
-                ) : (
-                  <LayerAnalysis />
-                )}
+                {sidebarTab === TABS.MODELS ? <PredictiveModelAnalysis /> : <LayerAnalysis />}
                 <div className="buttons">
                   <a className="btn -primary" {...downloadableReport}>
                     Download PDF report
                   </a>
-                  <button
-                    type="button"
-                    className="btn -secondary"
-                    onClick={resetAnalytics}
-                  >
+                  <button type="button" className="btn -secondary" onClick={resetAnalytics}>
                     Reset the analysis
-                  </button><br/>
-                  <a className="btn -primary" href="https://www.resilienceatlas.org/shinny-app" target="_blank">
+                  </button>
+                  <br />
+                  <a
+                    className="btn -primary"
+                    href="https://www.resilienceatlas.org/shinny-app"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
                     Go to Shinny App
                   </a>
                 </div>

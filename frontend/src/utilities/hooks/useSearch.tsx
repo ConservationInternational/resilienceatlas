@@ -3,14 +3,14 @@ import { clickable } from '../helpers';
 import { useInput } from './hooks';
 
 interface ExtraOptions {
-  valueKey: String;
+  valueKey: string;
   onSelect: Function;
 }
 
 export const useSearch = (
   name,
   data: Object[],
-  { valueKey = 'value', onSelect = v => v }: ExtraOptions = {},
+  { valueKey = 'value', onSelect = (v) => v }: ExtraOptions = {},
 ) => {
   const searchInput = useInput(name, '');
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -18,13 +18,10 @@ export const useSearch = (
   const result = useMemo(() => {
     if (searchInput.value && searchInput.value.length > 0) {
       return data
-        .map(d => {
+        .map((d) => {
           const text = searchInput.value.toLowerCase();
           const value = d[valueKey];
-          const index = value
-            .toLowerCase()
-            .replace(/-/gi, ' ')
-            .indexOf(text);
+          const index = value.toLowerCase().replace(/-/gi, ' ').indexOf(text);
 
           if (index >= 0) {
             const start = value.substring(0, index);

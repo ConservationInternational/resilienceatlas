@@ -2,7 +2,7 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import DangerousHTML from 'react-dangerous-html';
-import { clickable } from '@utilities';
+import { clickable } from 'utilities';
 
 export default class InfoWindow extends Component {
   static show(name, data) {
@@ -64,24 +64,14 @@ export default class InfoWindow extends Component {
               <DangerousHTML html={source} />
 
               {link && (
-                <a
-                  className="link"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  href={link}
-                >
+                <a className="link" target="_blank" rel="noopener noreferrer" href={link}>
                   {link}
                 </a>
               )}
 
               {links &&
-                links.map(lnk => (
-                  <a
-                    className="link"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    href={lnk}
-                  >
+                links.map((lnk) => (
+                  <a className="link" target="_blank" rel="noopener noreferrer" href={lnk}>
                     {lnk}
                   </a>
                 ))}

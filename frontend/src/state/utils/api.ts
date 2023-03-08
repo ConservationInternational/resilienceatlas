@@ -1,8 +1,9 @@
-import axios, { AxiosRequestConfig } from 'axios';
-import { ThunkAction, ThunkDispatch } from 'redux-thunk';
-import { schema } from 'normalizr';
+import type { AxiosRequestConfig } from 'axios';
+import axios from 'axios';
+import type { ThunkAction, ThunkDispatch } from 'redux-thunk';
+import type { schema } from 'normalizr';
 
-import { merge } from '@utilities/helpers';
+import { merge } from 'utilities/helpers';
 
 export const isProd = process.env.NODE_ENV === 'production';
 
@@ -25,9 +26,9 @@ export const updateApi = (config: AxiosRequestConfig) => {
 };
 
 type ApiAction = {
-  REQUEST: String,
-  SUCCESS: String,
-  FAIL: String,
+  REQUEST: string;
+  SUCCESS: string;
+  FAIL: string;
 };
 
 export const createApiAction = (name = ''): ApiAction => {
@@ -48,7 +49,7 @@ export const makeRequest = (method: string, url: string, options: AxiosRequestCo
     method,
     url,
     headers,
-  }).catch(error =>
+  }).catch((error) =>
     error.response
       ? Promise.reject({
           error: true,
@@ -58,13 +59,13 @@ export const makeRequest = (method: string, url: string, options: AxiosRequestCo
   );
 };
 
-type Handler = (url: String, config: AxiosRequestConfig) => Promise<any>;
+type Handler = (url: string, config: AxiosRequestConfig) => Promise<any>;
 type Handlers = {
-  get: Handler,
-  post: Handler,
-  put: Handler,
-  patch: Handler,
-  del: Handler,
+  get: Handler;
+  post: Handler;
+  put: Handler;
+  patch: Handler;
+  del: Handler;
 };
 
 export const get: Handler = (url, config) => makeRequest('get', url, config);
@@ -81,8 +82,8 @@ type Callback = (
 ) => Promise<any>;
 
 type ApiMeta = {
-  schema?: schema.Entity | schema.Array,
-  includedSchema?: schema.Entity | schema.Array | 'union',
+  schema?: schema.Entity | schema.Array;
+  includedSchema?: schema.Entity | schema.Array | 'union';
 };
 
 /**
@@ -108,7 +109,7 @@ export default function api(apiAction: ApiAction, cb: Callback, meta: ApiMeta): 
           meta,
         });
       })
-      .catch(error => {
+      .catch((error) => {
         if (error.error) {
           dispatch({
             type: apiAction.FAIL,

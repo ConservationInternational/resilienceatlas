@@ -33,10 +33,7 @@ const WelcomePage = () => (
           arrows
         >
           {JOURNEY_SLIDES.map((j, i) => (
-            <li
-              key={`slide_${i + 1}`}
-              className={cx('m-slider__item', `journey${i + 1}bg0`)}
-            >
+            <li key={`slide_${i + 1}`} className={cx('m-slider__item', `journey${i + 1}bg0`)}>
               <NavLink to={`/journeys/${i + 1}`} className={j.linkClassName}>
                 <div className="title">
                   <h3>{j.title}</h3>
@@ -45,11 +42,7 @@ const WelcomePage = () => (
                 <span className="journey-link__helper" />
               </NavLink>
               <p className="credits">
-                <a
-                  href={j.credits.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
+                <a href={j.credits.link} target="_blank" rel="noopener noreferrer">
                   {j.credits.title}
                 </a>
               </p>
@@ -102,8 +95,8 @@ const WelcomePage = () => (
           <div className="m-article is-center">
             <h2>About the data</h2>
             <p>
-              RESILIENCE ATLAS visualizes over 60 different datasets - learn
-              more about the data and methods behind the site
+              RESILIENCE ATLAS visualizes over 60 different datasets - learn more about the data and
+              methods behind the site
             </p>
             <NavLink to="/map" className="btn btn-primary theme-color">
               Analysing the data

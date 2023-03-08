@@ -1,9 +1,9 @@
 import { connect } from 'react-redux';
 
-import { getGrouped } from '@modules/layers';
+import { getGrouped } from 'state/modules/layers';
 import LayerList from './LayersList.component';
 
-const mapStateToProps = state => {
+const mapStateToProps = (state) => {
   const groupedLayers = getGrouped();
 
   return {

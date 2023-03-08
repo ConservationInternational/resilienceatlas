@@ -1,5 +1,5 @@
 import React from 'react';
-import { formatNumber } from '@utilities';
+import { formatNumber } from 'utilities';
 
 export const CustomTooltip = ({ active, payload, unit }) => {
   if (active) {

@@ -1,5 +1,5 @@
-import { subdomain } from '@utilities/getSubdomain';
-import { getRouterParam } from '@utilities';
+import { subdomain } from 'utilities/getSubdomain';
+import { getRouterParam } from 'utilities';
 import { createReducer } from '../../utils';
 import * as t from './actions';
 

@@ -12,9 +12,12 @@ const ShinnyApp = () => (
         </div>
 
         <div>
-          <iframe src='https://sparc-apps.shinyapps.io/irrecoverable_carbon_biodiversity_app_internal/' width="99%" height="1000px"/>
+          <iframe
+            src="https://sparc-apps.shinyapps.io/irrecoverable_carbon_biodiversity_app_internal/"
+            width="99%"
+            height="1000px"
+          />
         </div>
-        
       </div>
     </div>
   </>

@@ -9,10 +9,13 @@ import {
   makeActives,
   makeDefaultActives,
   setOpacity,
-} from '@modules/layers';
-import { load as loadLayerGroups, openBatch } from '@modules/layer_groups';
-import { makeLayer as makeModelLayer } from '@modules/predictive_models';
-import { setMapLayerGroupsInteraction, setMapLayerGroupsInteractionLatLng } from '@modules/map';
+} from 'state/modules/layers';
+import { load as loadLayerGroups, openBatch } from 'state/modules/layer_groups';
+import { makeLayer as makeModelLayer } from 'state/modules/predictive_models';
+import {
+  setMapLayerGroupsInteraction,
+  setMapLayerGroupsInteractionLatLng,
+} from 'state/modules/map';
 
 import MapView from './Map.component';
 
@@ -22,7 +25,7 @@ const makeMapStateToProps = () => {
   const getModelLayer = makeModelLayer();
   const getActives = makeActives();
 
-  const mapStateToProps = state => ({
+  const mapStateToProps = (state) => ({
     tab: state.ui.tab,
     site: state.site,
     layers: state.layers,

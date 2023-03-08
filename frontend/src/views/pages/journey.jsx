@@ -1,7 +1,7 @@
 import React from 'react';
 import Helmet from 'react-helmet';
 
-import Journey from '@components/Journey';
+import Journey from 'views/components/Journey';
 
 const JourneyPage = () => (
   <>

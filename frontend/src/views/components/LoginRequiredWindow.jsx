@@ -2,7 +2,7 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import DangerousHTML from 'react-dangerous-html';
-import { clickable } from '@utilities';
+import { clickable } from 'utilities';
 
 export default class LoginRequiredWindow extends Component {
   static show() {
@@ -25,7 +25,7 @@ export default class LoginRequiredWindow extends Component {
   }
 
   state = {
-    open: false
+    open: false,
   };
 
   __show = () => {
@@ -37,9 +37,7 @@ export default class LoginRequiredWindow extends Component {
   };
 
   render() {
-    const {
-      open
-    } = this.state;
+    const { open } = this.state;
 
     if (!open) return null;
 
@@ -49,8 +47,8 @@ export default class LoginRequiredWindow extends Component {
           <div className="btn-close" {...clickable(this.__hide)}>
             ×
           </div>
-          <div className="modal-container">            
-            <h4 style={{ 'text-align': 'center' }} >Please login to enable download feature.</h4>            
+          <div className="modal-container">
+            <h4 style={{ 'text-align': 'center' }}>Please login to enable download feature.</h4>
           </div>
         </div>
         <div className="modal-background" {...clickable(this.__hide)} />

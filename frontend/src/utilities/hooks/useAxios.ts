@@ -1,5 +1,6 @@
 import { useReducer, useEffect, useRef } from 'react';
-import axios, { AxiosRequestConfig } from 'axios';
+import type { AxiosRequestConfig } from 'axios';
+import axios from 'axios';
 import createReducer from '../../state/utils/createReducer';
 import { createApiAction } from '../../state/utils/api';
 
@@ -15,7 +16,7 @@ const initialState = {
 };
 
 const fetchReducer = createReducer(initialState)({
-  [FETCH.REQUEST]: state => ({
+  [FETCH.REQUEST]: (state) => ({
     ...state,
     loading: true,
     error: null,
@@ -60,7 +61,7 @@ export const useAxios = (
           data: parseData ? parseData(data) : data,
         }),
       )
-      .catch(error => console.log(error) || dispatch({ type: FETCH.FAIL, error }));
+      .catch((error) => console.log(error) || dispatch({ type: FETCH.FAIL, error }));
 
     return () => {
       if (state.loading) {

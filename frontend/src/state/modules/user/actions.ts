@@ -1,9 +1,9 @@
 import { SubmissionError } from 'redux-form';
 
-import { AUTH_TOKEN } from '@utilities/constants';
+import { AUTH_TOKEN } from 'utilities/constants';
 
 import { PORT, post } from '../../utils/api';
-import { ILoginForm, ISignupForm, IEditProfileForm } from './utils';
+import type { ILoginForm, ISignupForm, IEditProfileForm } from './utils';
 
 const URL_LOGIN = '/users/authenticate';
 const URL_SIGNUP = '/users/register';
@@ -15,17 +15,17 @@ export const EDIT_PROFILE = 'user / EDIT_PROFILE';
 export const LOGOUT = 'user / LOGOUT';
 
 // Action creators
-export const userLoggedIn = auth_token => ({
+export const userLoggedIn = (auth_token) => ({
   type: LOGIN,
   auth_token,
 });
 
-export const userSignedUp = payload => ({
+export const userSignedUp = (payload) => ({
   type: SIGNUP,
   payload,
 });
 
-export const userProfileEdited = payload => ({
+export const userProfileEdited = (payload) => ({
   type: EDIT_PROFILE,
   payload,
 });
@@ -37,8 +37,8 @@ export const userLoggedOut = () => ({
 // Actions
 export const signin = ({ email, password }: ILoginForm) =>
   post(URL_LOGIN, { data: { email, password }, baseURL: PORT })
-    .then(response => response.data)
-    .then(data => {
+    .then((response) => response.data)
+    .then((data) => {
       if (data.error || !data.auth_token) {
         throw new SubmissionError({ _error: data.error });
       }
@@ -48,8 +48,8 @@ export const signin = ({ email, password }: ILoginForm) =>
 
 export const signup = ({ email, password }: ISignupForm) =>
   post(URL_SIGNUP, { data: { user: { email, password } }, baseURL: PORT })
-    .then(response => response.data)
-    .then(data => {
+    .then((response) => response.data)
+    .then((data) => {
       if (data.status !== 'created') {
         throw new SubmissionError(data);
       }
@@ -59,7 +59,7 @@ export const signup = ({ email, password }: ISignupForm) =>
 
 export const editProfile = (values: IEditProfileForm) =>
   // MOCK
-  new Promise(resolve => {
+  new Promise((resolve) => {
     setTimeout(
       () =>
         resolve({
@@ -69,13 +69,13 @@ export const editProfile = (values: IEditProfileForm) =>
     );
   });
 
-export const login = auth_token => dispatch => {
+export const login = (auth_token) => (dispatch) => {
   localStorage.setItem(AUTH_TOKEN, auth_token);
 
   dispatch(userLoggedIn(auth_token));
 };
 
-export const logout = () => dispatch => {
+export const logout = () => (dispatch) => {
   localStorage.removeItem(AUTH_TOKEN);
 
   dispatch(userLoggedOut());

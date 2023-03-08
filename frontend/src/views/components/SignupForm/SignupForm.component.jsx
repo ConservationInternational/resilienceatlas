@@ -1,23 +1,16 @@
-import React, { FC } from 'react';
+import type { FC } from 'react';
+import React from 'react';
 import cx from 'classnames';
-import { InjectedFormProps, Form, Field } from 'redux-form';
+import type { InjectedFormProps } from 'redux-form';
+import { Form, Field } from 'redux-form';
 
-import FormInput from '@shared/inputs/FormInput';
-import Loader from '@shared/Loader';
-import { ISignupForm } from '@modules/user';
+import FormInput from 'views/shared/inputs/FormInput';
+import Loader from 'views/shared/Loader';
+import type { ISignupForm } from 'state/modules/user';
 
-const LoginForm: FC<InjectedFormProps<ISignupForm>> = ({
-  handleSubmit,
-  submitting,
-}) => (
+const LoginForm: FC<InjectedFormProps<ISignupForm>> = ({ handleSubmit, submitting }) => (
   <Form onSubmit={handleSubmit}>
-    <Field
-      component={FormInput}
-      type="email"
-      name="email"
-      label="Email"
-      autoFocus
-    />
+    <Field component={FormInput} type="email" name="email" label="Email" autoFocus />
 
     <Field
       component={FormInput}
@@ -45,11 +38,7 @@ const LoginForm: FC<InjectedFormProps<ISignupForm>> = ({
 
     <Field component={FormInput} name="organization" label="Organization" />
 
-    <Field
-      component={FormInput}
-      name="organization_role"
-      label="Organization role"
-    />
+    <Field component={FormInput} name="organization_role" label="Organization role" />
 
     <Loader loading={submitting} />
 

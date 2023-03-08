@@ -1,6 +1,7 @@
-import React, { FC, ReactNode, useMemo } from 'react';
+import type { FC, ReactNode } from 'react';
+import React, { useMemo } from 'react';
 import cx from 'classnames';
-import { WrappedFieldProps } from 'redux-form';
+import type { WrappedFieldProps } from 'redux-form';
 
 interface P {
   label: ReactNode;
@@ -25,9 +26,7 @@ const FormInput: FC<P & WrappedFieldProps> = ({
       <label htmlFor={input.name}>{label}</label>
       <br />
       <input {...input} {...rest} />
-      {Boolean(touched && error) && (
-        <div className="error-message">{errorMessage}</div>
-      )}
+      {Boolean(touched && error) && <div className="error-message">{errorMessage}</div>}
     </div>
   );
 };

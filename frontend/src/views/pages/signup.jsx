@@ -1,6 +1,6 @@
 import React from 'react';
 import { Row } from 'react-foundation';
-import SignupForm from '@components/SignupForm';
+import SignupForm from 'views/components/SignupForm';
 
 const Signup = () => (
   <div className="l-content">

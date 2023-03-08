@@ -1,10 +1,5 @@
 import React from 'react';
-import {
-  useRouterValue,
-  useToggle,
-  useTogglerButton,
-  clickable,
-} from '@utilities';
+import { useRouterValue, useToggle, useTogglerButton, clickable } from 'utilities';
 import cx from 'classnames';
 
 const Basemaps = ({ basemap, setBasemap }) => {

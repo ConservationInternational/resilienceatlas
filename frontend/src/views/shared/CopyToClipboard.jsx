@@ -1,6 +1,6 @@
 import React, { useRef, useCallback, useState } from 'react';
 
-import { clickable } from '@utilities';
+import { clickable } from 'utilities';
 
 const CopyToClipboard = ({ value }) => {
   const input = useRef();

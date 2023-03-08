@@ -1,5 +1,5 @@
 import * as Yup from 'yup';
-import { AUTH_TOKEN } from '@utilities/constants';
+import { AUTH_TOKEN } from 'utilities/constants';
 
 // LOGIN FORM //
 export interface ILoginForm {
@@ -8,9 +8,7 @@ export interface ILoginForm {
 }
 
 export const LoginSchema = Yup.object().shape({
-  email: Yup.string()
-    .email('Invalid email')
-    .required('Email is required'),
+  email: Yup.string().email('Invalid email').required('Email is required'),
   password: Yup.string()
     .min(8, 'Password is too short!')
     .max(50, 'Password is too long!')
@@ -29,9 +27,7 @@ export interface ISignupForm {
 }
 
 export const SignupSchema = Yup.object().shape({
-  email: Yup.string()
-    .email('Invalid email')
-    .required('Email is required'),
+  email: Yup.string().email('Invalid email').required('Email is required'),
 
   password: Yup.string()
     .min(8, 'Password is too short!')
@@ -56,9 +52,7 @@ export interface IEditProfileForm {
 }
 
 export const EditProfileSchema = Yup.object().shape({
-  email: Yup.string()
-    .email('Invalid email')
-    .required('Email is required'),
+  email: Yup.string().email('Invalid email').required('Email is required'),
 
   first_name: Yup.string(),
   last_name: Yup.string(),

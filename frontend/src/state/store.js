@@ -6,7 +6,9 @@ import normalizrMiddleware from './middlewares/normalizrMiddleware';
 
 const composeEnhancer = composeWithDevTools({});
 
-export default createStore(
+const initStore = createStore(
   combineReducers(reducers),
   composeEnhancer(applyMiddleware(thunkMiddleware, normalizrMiddleware)),
 );
+
+export default initStore;

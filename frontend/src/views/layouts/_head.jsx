@@ -8,10 +8,7 @@ const bare = false;
 
 const DEFAULT_TITLE = 'Resilience Atlas';
 
-const Head = ({
-  site: { name, color, subdomain, header_theme, header_color, logo_url },
-  page,
-}) => (
+const Head = ({ site: { name, color, subdomain, header_theme, header_color, logo_url }, page }) => (
   <Helmet
     defaultTitle={DEFAULT_TITLE}
     titleTemplate={`${name}${name === DEFAULT_TITLE ? ' | %s' : ''}`}
