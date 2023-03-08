@@ -47,5 +47,5 @@ bastion_host = ENV["BASTION_HOST"] || "login.resilienceatlas.org"
 bastion_user = ENV["BASTION_USER"] || "ubuntu"
 
 # Configure Capistrano to use the bastion host as a proxy
-ssh_command = "ssh #{bastion_user}@#{bastion_host} -W %h:%p"
+ssh_command = "ssh -o StrictHostKeyChecking=no #{bastion_user}@#{bastion_host} -W %h:%p"
 set :ssh_options, proxy: Net::SSH::Proxy::Command.new(ssh_command)
