@@ -2,12 +2,7 @@ import qs from 'qs';
 import { compose } from 'redux';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
-import {
-  makeActives,
-  reorder,
-  toggle as toggleLayer,
-  setOpacity,
-} from '@modules/layers';
+import { makeActives, reorder, toggle as toggleLayer, setOpacity } from '@modules/layers';
 import { makeLayer as makePredictiveModelLayer } from '@modules/predictive_models';
 
 import { TABS } from '../Sidebar';

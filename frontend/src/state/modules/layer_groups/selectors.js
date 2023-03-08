@@ -30,6 +30,4 @@ export const getSubGroups = createSelector(getPublished, published =>
 );
 
 export const getCategoriesByGroup = groupId =>
-  createSelector(getPublished, published =>
-    published.filter(lg => groupId === lg.father),
-  );
+  createSelector(getPublished, published => published.filter(lg => groupId === lg.father));

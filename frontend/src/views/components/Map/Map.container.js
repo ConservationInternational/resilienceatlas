@@ -12,10 +12,7 @@ import {
 } from '@modules/layers';
 import { load as loadLayerGroups, openBatch } from '@modules/layer_groups';
 import { makeLayer as makeModelLayer } from '@modules/predictive_models';
-import {
-  setMapLayerGroupsInteraction,
-  setMapLayerGroupsInteractionLatLng,
-} from '@modules/map';
+import { setMapLayerGroupsInteraction, setMapLayerGroupsInteractionLatLng } from '@modules/map';
 
 import MapView from './Map.component';
 
@@ -52,7 +49,4 @@ const mapDispatchToProps = {
   setOpacity,
 };
 
-export default compose(
-  withRouter,
-  connect(makeMapStateToProps, mapDispatchToProps),
-)(MapView);
+export default compose(withRouter, connect(makeMapStateToProps, mapDispatchToProps))(MapView);

@@ -2,12 +2,7 @@ import React from 'react';
 import { Switch, Route, Redirect } from 'react-router-dom';
 
 import auth, { SHARED, LOGGED, UNLOGGED } from '../utils/authorization';
-import {
-  mainLayout,
-  fullscreenLayout,
-  reportLayout,
-  embedLayout,
-} from '../layouts';
+import { mainLayout, fullscreenLayout, reportLayout, embedLayout } from '../layouts';
 
 import Welcome from '../pages/welcome';
 import About from '../pages/about';

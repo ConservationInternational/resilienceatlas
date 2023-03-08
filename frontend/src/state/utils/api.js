@@ -40,11 +40,7 @@ export const createApiAction = (name = ''): ApiAction => {
   };
 };
 
-export const makeRequest = (
-  method: string,
-  url: string,
-  options: AxiosRequestConfig = {},
-) => {
+export const makeRequest = (method: string, url: string, options: AxiosRequestConfig = {}) => {
   const headers = { ...axiosInstance.defaults.headers, ...options.headers };
 
   return axiosInstance({
@@ -74,8 +70,7 @@ type Handlers = {
 export const get: Handler = (url, config) => makeRequest('get', url, config);
 export const post: Handler = (url, config) => makeRequest('post', url, config);
 export const put: Handler = (url, config) => makeRequest('put', url, config);
-export const patch: Handler = (url, config) =>
-  makeRequest('patch', url, config);
+export const patch: Handler = (url, config) => makeRequest('patch', url, config);
 export const del: Handler = (url, config) => makeRequest('delete', url, config);
 export const requestHandlers: Handlers = { get, post, put, patch, del };
 
@@ -97,11 +92,7 @@ type ApiMeta = {
  *
  * @returns {ThunkAction} thunk, which executes provided promise and binds three dispatches for request, success and fail phase
  */
-export default function api(
-  apiAction: ApiAction,
-  cb: Callback,
-  meta: ApiMeta,
-): ThunkAction {
+export default function api(apiAction: ApiAction, cb: Callback, meta: ApiMeta): ThunkAction {
   return (dispatch, getState) => {
     dispatch({ type: apiAction.REQUEST, meta });
 

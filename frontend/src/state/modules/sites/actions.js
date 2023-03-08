@@ -6,5 +6,4 @@ const URL_SITE = '/sites';
 // Action constants
 export const LOAD = createApiAction('sites/LOAD');
 
-export const load = () =>
-  api(LOAD, ({ get }) => get(URL_SITE), { schema: [site_scope] });
+export const load = () => api(LOAD, ({ get }) => get(URL_SITE), { schema: [site_scope] });

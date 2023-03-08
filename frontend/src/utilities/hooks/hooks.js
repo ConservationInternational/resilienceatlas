@@ -42,10 +42,7 @@ export const useUpdaterInput = (name, initialValue, updater) => {
   }, [value, initialValue]);
 
   // adding a update handlers
-  const onKeyPress = useCallback(
-    e => (e.keyCode === 13 || e.charCode === 13) && update(),
-    [value],
-  );
+  const onKeyPress = useCallback(e => (e.keyCode === 13 || e.charCode === 13) && update(), [value]);
   const onBlur = useCallback(() => update(), [value]);
 
   // update current value if initial has been changed
@@ -78,11 +75,7 @@ export const useRouterValue = (
   }, [value]);
 };
 
-export const useTogglerButton = (
-  current,
-  setter,
-  { activeClassName = 'is-active' } = {},
-) => {
+export const useTogglerButton = (current, setter, { activeClassName = 'is-active' } = {}) => {
   const getTogglerProps = value => {
     const onClick = useCallback(() => setter(value), [value]);
 

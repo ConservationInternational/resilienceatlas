@@ -16,6 +16,4 @@ const makeMapStateToProps = () => {
   return mapStateToProps;
 };
 
-export default connect(makeMapStateToProps, { loadMenuItems, logout })(
-  Component,
-);
+export default connect(makeMapStateToProps, { loadMenuItems, logout })(Component);

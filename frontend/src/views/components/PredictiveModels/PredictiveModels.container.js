@@ -33,7 +33,4 @@ const mapDispatchToProps = {
   resetIndicators,
 };
 
-export default connect(
-  makeMapStateToProps,
-  mapDispatchToProps,
-)(PredictiveModels);
+export default connect(makeMapStateToProps, mapDispatchToProps)(PredictiveModels);

@@ -22,27 +22,24 @@ export const makeAll = () =>
 export const makeActive = () => {
   const getAll = makeAll();
 
-  return createSelector(
-    [getAll, getSelected, getCategoies],
-    (models, selected, categoriesById) => {
-      const selectedModel = models.find(m => m.id === selected);
-      if (!selected || !selectedModel) return null;
+  return createSelector([getAll, getSelected, getCategoies], (models, selected, categoriesById) => {
+    const selectedModel = models.find(m => m.id === selected);
+    if (!selected || !selectedModel) return null;
 
-      const { indicators } = selectedModel;
-      const categoriesIds = [...new Set(indicators.map(ind => ind.category))];
-      const categories = categoriesIds
-        .map(catId => categoriesById[catId])
-        .map(category => ({
-          name: category.name,
-          indicators: indicators.filter(ind => ind.category === category.id),
-        }));
+    const { indicators } = selectedModel;
+    const categoriesIds = [...new Set(indicators.map(ind => ind.category))];
+    const categories = categoriesIds
+      .map(catId => categoriesById[catId])
+      .map(category => ({
+        name: category.name,
+        indicators: indicators.filter(ind => ind.category === category.id),
+      }));
 
-      return {
-        ...selectedModel,
-        categories,
-      };
-    },
-  );
+    return {
+      ...selectedModel,
+      categories,
+    };
+  });
 };
 
 export const makeLayer = () => {
@@ -51,9 +48,7 @@ export const makeLayer = () => {
   return createSelector([getActive], activeModel => {
     if (!activeModel) return null;
     const columns = activeModel.indicators
-      .filter(
-        indicator => indicator.value !== null && indicator.value !== undefined,
-      )
+      .filter(indicator => indicator.value !== null && indicator.value !== undefined)
       .map(ind => {
         const weight = ind.value % 1 === 0 ? ind.value : ind.value.toFixed(3);
 
