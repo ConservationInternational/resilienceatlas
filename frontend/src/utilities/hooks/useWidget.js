@@ -15,10 +15,7 @@ interface WidgetOptions {
  */
 export const useWidget = (
   { slug, geojson }: WidgetOptions,
-  {
-    analysisQuery,
-    analysisBody,
-  }: { analysisQuery: string, analysisBody: string },
+  { analysisQuery, analysisBody }: { analysisQuery: string, analysisBody: string },
 ) => {
   const query = useMemo((): AxiosRequestConfig => {
     console.log(geojson);
@@ -35,9 +32,7 @@ export const useWidget = (
       };
     }
 
-    const geometry = geojson.features
-      ? geojson.features[0].geometry
-      : geojson.geometry || geojson;
+    const geometry = geojson.features ? geojson.features[0].geometry : geojson.geometry || geojson;
 
     const q = analysisQuery.replace(/{{geometry}}/g, JSON.stringify(geometry));
 

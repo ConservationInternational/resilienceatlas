@@ -6,9 +6,7 @@ const LayerManagerProvider = ({ children }) => {
   const layerManagerRef = useRef();
 
   return (
-    <LayerManagerContext.Provider value={layerManagerRef}>
-      {children}
-    </LayerManagerContext.Provider>
+    <LayerManagerContext.Provider value={layerManagerRef}>{children}</LayerManagerContext.Provider>
   );
 };
 

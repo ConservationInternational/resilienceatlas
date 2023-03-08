@@ -121,14 +121,8 @@ export const layer = new schema.Entity(
         // Layer manager params
         provider: provider[l.attributes.layer_provider],
         layerConfig: config[l.attributes.layer_provider],
-        decodeParams:
-          l.attributes.layer_provider === 'gee'
-            ? config.gee.decodeParams
-            : null,
-        decodeFunction:
-          l.attributes.layer_provider === 'gee'
-            ? config.gee.decodeFunction
-            : null,
+        decodeParams: l.attributes.layer_provider === 'gee' ? config.gee.decodeParams : null,
+        decodeFunction: l.attributes.layer_provider === 'gee' ? config.gee.decodeFunction : null,
         params: l.attributes.layer_provider === 'gee' ? config.gee.params : {},
         interactionConfig: l.attributes.interaction_config,
       };
@@ -168,11 +162,7 @@ export const source = new schema.Entity(
   },
 );
 
-export const country = new schema.Entity(
-  'countries',
-  {},
-  { idAttribute: 'iso' },
-);
+export const country = new schema.Entity('countries', {}, { idAttribute: 'iso' });
 
 export const category = new schema.Entity(
   'categories',

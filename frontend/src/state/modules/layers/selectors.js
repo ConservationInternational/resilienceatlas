@@ -24,10 +24,8 @@ export const getAllIds = state => state.layers.all;
 
 export const getActiveIds = state => state.layers.actives;
 
-export const getPublished = createSelector(
-  [getAllIds, getById],
-  (all, layers) =>
-    denormalize(all, [layer], { layers }).filter(i => i.published),
+export const getPublished = createSelector([getAllIds, getById], (all, layers) =>
+  denormalize(all, [layer], { layers }).filter(i => i.published),
 );
 
 export const makeActives = () =>
@@ -59,22 +57,8 @@ export const getGrouped = () => {
   const getDefaultActives = makeDefaultActives();
 
   return createSelector(
-    [
-      getPublished,
-      getGroups,
-      getCategories,
-      getSubCategories,
-      getSubGroups,
-      getDefaultActives,
-    ],
-    (
-      published,
-      groups,
-      g_categories,
-      g_subcategories,
-      g_subgroups,
-      g_defaultActive,
-    ) => {
+    [getPublished, getGroups, getCategories, getSubCategories, getSubGroups, getDefaultActives],
+    (published, groups, g_categories, g_subcategories, g_subgroups, g_defaultActive) => {
       const isActive = getActiveFromDefaults(g_defaultActive);
       if (!groups.length && !g_categories.length) {
         console.info('There aren`t groups setted.');
@@ -95,9 +79,7 @@ export const getGrouped = () => {
           categories: categories.map(c => {
             const layers = published.filter(l => l.group === c.id);
 
-            const subcategories = g_subcategories.filter(
-              s => s.father === c.id,
-            );
+            const subcategories = g_subcategories.filter(s => s.father === c.id);
 
             return {
               ...c,
@@ -137,8 +119,7 @@ export const getGrouped = () => {
   );
 };
 
-export const getLayerActive = id =>
-  createSelector(getActiveIds, ids => new Set(ids).has(id));
+export const getLayerActive = id => createSelector(getActiveIds, ids => new Set(ids).has(id));
 
 export const getInteractionLayers = () => {
   const getActive = makeActives();

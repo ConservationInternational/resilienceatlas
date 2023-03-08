@@ -21,7 +21,4 @@ const mapDispatchToProps = {
   setOpacity,
 };
 
-export default compose(
-  withRouter,
-  connect(mapStateToProps, mapDispatchToProps),
-)(Layer);
+export default compose(withRouter, connect(mapStateToProps, mapDispatchToProps))(Layer);

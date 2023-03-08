@@ -2,11 +2,7 @@ import { compose } from 'redux';
 import { connect } from 'react-redux';
 import { reduxForm } from 'redux-form';
 
-import {
-  EditProfileSchema,
-  editProfile,
-  userProfileEdited,
-} from '@modules/user';
+import { EditProfileSchema, editProfile, userProfileEdited } from '@modules/user';
 
 import { asyncValidate } from '@views/utils/asyncValidate';
 

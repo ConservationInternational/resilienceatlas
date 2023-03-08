@@ -1,8 +1,5 @@
 import { connect } from 'react-redux';
-import {
-  load as loadJourneys,
-  makeAll as makeAllJourneys,
-} from '@modules/journeys';
+import { load as loadJourneys, makeAll as makeAllJourneys } from '@modules/journeys';
 
 import JourneysIntrolist from './JourneysIntrolist.component';
 
@@ -21,7 +18,4 @@ const mapDispatchToProps = {
   loadJourneys,
 };
 
-export default connect(
-  makeMapStateToProps,
-  mapDispatchToProps,
-)(JourneysIntrolist);
+export default connect(makeMapStateToProps, mapDispatchToProps)(JourneysIntrolist);

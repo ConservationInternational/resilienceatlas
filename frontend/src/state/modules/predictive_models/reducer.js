@@ -10,16 +10,11 @@ import {
   APPLY_INDICATORS,
   RESET_INDICATORS,
 } from './actions';
-import {
-  getIndexableIndicatorValueRange,
-  buildIndicatorsFromState,
-} from './utils';
+import { getIndexableIndicatorValueRange, buildIndicatorsFromState } from './utils';
 
-const {
-  name: persistedModel = null,
-  values: persistedIndicators = [],
-} = getRouterParam('model', val =>
-  qs.parse(val, { parseArrays: true, comma: true }),
+const { name: persistedModel = null, values: persistedIndicators = [] } = getRouterParam(
+  'model',
+  val => qs.parse(val, { parseArrays: true, comma: true }),
 );
 
 const initialState = {
@@ -85,9 +80,7 @@ export default createReducer(initialState)({
     return {
       ...state,
       selected: id,
-      indicators_state: model.indicators.map(
-        ind => state.indicators[ind].indexableValue,
-      ),
+      indicators_state: model.indicators.map(ind => state.indicators[ind].indexableValue),
     };
   },
 

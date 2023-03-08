@@ -38,10 +38,7 @@ export const SignupSchema = Yup.object().shape({
     .max(50, 'Password is too long!')
     .required('Password is requred'),
 
-  password_confirmation: Yup.string().oneOf(
-    [Yup.ref('password'), null],
-    'Passwords must match',
-  ),
+  password_confirmation: Yup.string().oneOf([Yup.ref('password'), null], 'Passwords must match'),
 
   first_name: Yup.string(),
   last_name: Yup.string(),

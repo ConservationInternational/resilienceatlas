@@ -1,13 +1,6 @@
 import { merge } from '@utilities';
 import { createReducer } from '../../utils';
-import {
-  LOAD,
-  SET_ACTIVES,
-  TOGGLE,
-  SET_OPACITY,
-  REORDER,
-  SET_CHART_LIMIT,
-} from './actions';
+import { LOAD, SET_ACTIVES, TOGGLE, SET_OPACITY, REORDER, SET_CHART_LIMIT } from './actions';
 import { getPersistedLayers } from './utils';
 
 const persistedLayers = getPersistedLayers();

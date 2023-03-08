@@ -63,12 +63,7 @@ export const swapLatLng = geojson =>
     coordsToLatLng: coords => new L.LatLng(coords[0], coords[1], coords[2]),
   }).toGeoJSON();
 
-export const formatNumber = ({
-  value,
-  locale = 'en',
-  formatFrom = 10000,
-  ...rest
-}) => {
+export const formatNumber = ({ value, locale = 'en', formatFrom = 10000, ...rest }) => {
   if (value < formatFrom) {
     return new Intl.NumberFormat(locale, rest).format(value);
   }
@@ -112,11 +107,7 @@ export function getNestedChildren(arr, ancestry) {
   return out;
 }
 
-export const download = (
-  content,
-  fileName,
-  mimeType = 'application/octet-stream',
-) => {
+export const download = (content, fileName, mimeType = 'application/octet-stream') => {
   const link = document.createElement('a');
 
   if (navigator.msSaveBlob) {
@@ -139,9 +130,7 @@ export const download = (
     link.click();
     document.body.removeChild(link);
   } else {
-    history.push(
-      `data:application/octet-stream,${encodeURIComponent(content)}`,
-    ); // only this mime type is supported
+    history.push(`data:application/octet-stream,${encodeURIComponent(content)}`); // only this mime type is supported
   }
 };
 

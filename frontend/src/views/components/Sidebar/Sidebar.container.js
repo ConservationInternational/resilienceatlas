@@ -1,10 +1,6 @@
 import { connect } from 'react-redux';
 
-import {
-  toggleSidebar as toggleOpen,
-  toggleAnalysis,
-  setTab,
-} from '@modules/ui';
+import { toggleSidebar as toggleOpen, toggleAnalysis, setTab } from '@modules/ui';
 
 import Sidebar from './Sidebar.component';
 

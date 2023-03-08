@@ -13,14 +13,10 @@ export const SET_CHART_LIMIT = 'layers / SET_CHART_LIMIT';
 export const REORDER = 'layers / REORDER';
 
 export const load = () =>
-  api(
-    LOAD,
-    ({ get }) => get(URL_LAYERS, { params: { site_scope: subdomain } }),
-    {
-      schema: [layer],
-      includedSchema: [source],
-    },
-  );
+  api(LOAD, ({ get }) => get(URL_LAYERS, { params: { site_scope: subdomain } }), {
+    schema: [layer],
+    includedSchema: [source],
+  });
 
 export const setActives = actives => ({
   type: SET_ACTIVES,

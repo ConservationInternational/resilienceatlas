@@ -60,15 +60,11 @@ export const useAxios = (
           data: parseData ? parseData(data) : data,
         }),
       )
-      .catch(
-        error => console.log(error) || dispatch({ type: FETCH.FAIL, error }),
-      );
+      .catch(error => console.log(error) || dispatch({ type: FETCH.FAIL, error }));
 
     return () => {
       if (state.loading) {
-        source.current.cancel(
-          'Operation canceled because tagret component was unmounted.',
-        );
+        source.current.cancel('Operation canceled because tagret component was unmounted.');
       }
     };
   }, deps);
