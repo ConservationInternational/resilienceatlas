@@ -1,5 +1,6 @@
 describe('Journeys page', () => {
   beforeEach(() => {
+    cy.intercept('GET', '/api/journeys').as('journeysRequest');
     cy.visit('/journeys');
   });
 
@@ -9,51 +10,32 @@ describe('Journeys page', () => {
       .should('contain', 'Discover Journeys');
   });
 
-  it('should there be a list of 5 journeys', () => {
-    cy.get('.m-journey__gridelement').should('have.length', 5);
+  it('should have same length than journeys in the API', () => {
+    cy.wait('@journeysRequest').then(({ response }) => {
+      cy.wrap(response.statusCode).should('be.equal', 200);
+      cy.get('.m-journey__gridelement').should(
+        'have.length',
+        response.body.length,
+      );
+    });
   });
 
-  it('should Ethiopia journey navigates to its correspondent page', () => {
-    cy.get('.m-journey__gridelement')
-      .first()
-      .find('h2 a[href="/journeys/1"]')
-      .should('contain', 'ETHIOPIA');
-    cy.get('.m-journey__gridelement')
-      .first()
-      .find('.btn[href="/journeys/1"]')
-      .should('contain', 'Learn more');
-  });
-
-  it('should India journey navigates to its correspondent page', () => {
-    cy.get('.m-journey__gridelement')
-      .eq(2)
-      .find('h2 a[href="/journeys/3"]')
-      .should('contain', 'INDIA');
-    cy.get('.m-journey__gridelement')
-      .eq(2)
-      .find('.btn[href="/journeys/3"]')
-      .should('contain', 'Learn more');
-  });
-
-  it('should Africa journey navigates to its correspondent page', () => {
-    cy.get('.m-journey__gridelement')
-      .eq(3)
-      .find('h2 a[href="/journeys/4"]')
-      .should('contain', 'AFRICA');
-    cy.get('.m-journey__gridelement')
-      .eq(3)
-      .find('.btn[href="/journeys/4"]')
-      .should('contain', 'Learn more');
-  });
-
-  it('should Madagascar journey navigates to its correspondent page', () => {
-    cy.get('.m-journey__gridelement')
-      .eq(4)
-      .find('h2 a[href="/journeys/5"]')
-      .should('contain', 'MADAGASCAR');
-    cy.get('.m-journey__gridelement')
-      .eq(4)
-      .find('.btn[href="/journeys/5"]')
-      .should('contain', 'Learn more');
+  it('should show the journeys content according the API', () => {
+    cy.wait('@journeysRequest').then(({ response }) => {
+      cy.wrap(response.statusCode).should('be.equal', 200);
+      cy.get('.m-journey__gridelement').each(($el, index) => {
+        cy.wrap($el)
+          .find('h2')
+          .should('contain', response.body[index].title)
+          .find('a')
+          .should('have.attr', 'href')
+          .should('include', `/journeys/${response.body[index].id}`);
+        cy.wrap($el)
+          .find('.btn')
+          .should('contain', 'Learn more')
+          .should('have.attr', 'href')
+          .should('include', `/journeys/${response.body[index].id}`);
+      });
+    });
   });
 });
