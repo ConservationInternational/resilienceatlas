@@ -1,4 +1,4 @@
-import { subdomain } from '@utilities/getSubdomain';
+import { subdomain } from 'utilities/getSubdomain';
 import api, { createApiAction } from '../../utils/api';
 import { site_scope } from '../../schema';
 

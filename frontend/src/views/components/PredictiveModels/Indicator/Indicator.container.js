@@ -1,6 +1,6 @@
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { toggleIndicator, updateIndicator } from '@modules/predictive_models';
+import { toggleIndicator, updateIndicator } from 'state/modules/predictive_models';
 
 import Indicator from './Indicator.component';
 
@@ -12,7 +12,7 @@ const mapDispatchToProps = (dispatch, { index }) =>
   bindActionCreators(
     {
       toggleIndicator,
-      updateIndicator: value => updateIndicator(index, value),
+      updateIndicator: (value) => updateIndicator(index, value),
     },
     dispatch,
   );

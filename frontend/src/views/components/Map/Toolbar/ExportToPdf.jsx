@@ -5,23 +5,13 @@ const ExportToPdf = () => {
     () =>
       `${
         process.env.REACT_APP_API_PROD
-      }/webshot?filename=export-map-${new Date().getTime()}.pdf&url=${
-        window.location.href
-      }`,
+      }/webshot?filename=export-map-${new Date().getTime()}.pdf&url=${window.location.href}`,
     [],
   );
   return (
-    <a
-      href={downloadURL}
-      rel="noopener noreferrer"
-      target="_blank"
-      className="btn-export-to-pdf"
-    >
+    <a href={downloadURL} rel="noopener noreferrer" target="_blank" className="btn-export-to-pdf">
       <svg className="icon">
-        <use
-          xmlnsXlink="http://www.w3.org/1999/xlink"
-          xlinkHref="#icon-downloads"
-        />
+        <use xmlnsXlink="http://www.w3.org/1999/xlink" xlinkHref="#icon-downloads" />
       </svg>
     </a>
   );

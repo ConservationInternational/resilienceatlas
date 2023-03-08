@@ -1,25 +1,17 @@
-import React, { FC } from 'react';
+import type { FC } from 'react';
+import React from 'react';
 import cx from 'classnames';
-import { InjectedFormProps, Form, Field } from 'redux-form';
+import type { InjectedFormProps } from 'redux-form';
+import { Form, Field } from 'redux-form';
 
-import FormInput from '@shared/inputs/FormInput';
-import Loader from '@shared/Loader';
+import FormInput from 'views/shared/inputs/FormInput';
+import Loader from 'views/shared/Loader';
 
-import { ILoginForm } from '@modules/user';
+import type { ILoginForm } from 'state/modules/user';
 
-const LoginForm: FC<InjectedFormProps<ILoginForm>> = ({
-  handleSubmit,
-  submitting,
-  error,
-}) => (
+const LoginForm: FC<InjectedFormProps<ILoginForm>> = ({ handleSubmit, submitting, error }) => (
   <Form onSubmit={handleSubmit}>
-    <Field
-      component={FormInput}
-      type="email"
-      name="email"
-      label="Email"
-      autoFocus
-    />
+    <Field component={FormInput} type="email" name="email" label="Email" autoFocus />
     <Field
       component={FormInput}
       type="password"

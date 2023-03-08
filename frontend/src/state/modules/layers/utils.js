@@ -1,6 +1,6 @@
 import { normalize } from 'normalizr';
 
-import { getRouterParam } from '@utilities';
+import { getRouterParam } from 'utilities';
 
 import { persisted_layer } from '../../schema';
 
@@ -10,5 +10,5 @@ export const getPersistedLayers = () => {
   return normalize(persistedLayers || {}, [persisted_layer]);
 };
 
-export const getActiveFromDefaults = defaults => g =>
-  typeof g.active === 'undefined' ? defaults.some(id => id === g.id) : g.active;
+export const getActiveFromDefaults = (defaults) => (g) =>
+  typeof g.active === 'undefined' ? defaults.some((id) => id === g.id) : g.active;

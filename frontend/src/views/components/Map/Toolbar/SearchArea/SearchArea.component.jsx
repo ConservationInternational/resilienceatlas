@@ -1,7 +1,7 @@
 import React from 'react';
 import cx from 'classnames';
 
-import { useSearch } from '@utilities/hooks';
+import { useSearch } from 'utilities/hooks';
 
 const SearchArea = ({ fitBounds, countries }) => {
   const { searchInput, result, noResults } = useSearch('search', countries, {
@@ -13,17 +13,10 @@ const SearchArea = ({ fitBounds, countries }) => {
 
   return (
     <div className="m-search-map" id="searchBox">
-      <input
-        id="searchMap"
-        placeholder="Search area"
-        type="search"
-        {...searchInput}
-      />
+      <input id="searchMap" placeholder="Search area" type="search" {...searchInput} />
       <div className="search-box" id="searchContent">
         <div id="search-tpl">
-          <div
-            className={cx('search-content', { searching: !!searchInput.value })}
-          >
+          <div className={cx('search-content', { searching: !!searchInput.value })}>
             <div className="search-result" />
             <div className="search-suggestions">
               <ul>

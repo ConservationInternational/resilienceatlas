@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { Row } from 'react-foundation';
 import { NavLink } from 'react-router-dom';
 
-import EditProfileForm from '@components/EditProfileForm';
+import EditProfileForm from 'views/components/EditProfileForm';
 
 const Me = ({ user }) => (
   <div className="l-content">
@@ -21,4 +21,4 @@ const Me = ({ user }) => (
   </div>
 );
 
-export default connect(state => ({ user: state.user }))(Me);
+export default connect((state) => ({ user: state.user }))(Me);

@@ -19,22 +19,15 @@ const PredictiveModelLayer = ({ map, predictiveModelLayer: layerObj }) => {
       <CartoDBLayer
         map={map}
         layer={layerObj}
-        onCreate={layer => {
+        onCreate={(layer) => {
           layer.setOpacity(layerObj.opacity);
           layer.setZIndex(1000 + layerObj.order);
           // this._setAttribution(layerObj);
 
           const sublayer = layer.getSubLayer(0);
           // add infowindow interactivity to the sublayer (show cartodb_id and name columns from the table)
-          if (
-            options.sublayers.length &&
-            layer.layers[0].options.interactivity
-          ) {
-            cartodb.vis.Vis.addInfowindow(
-              map,
-              sublayer,
-              layer.layers[0].options.interactivity,
-            );
+          if (options.sublayers.length && layer.layers[0].options.interactivity) {
+            cartodb.vis.Vis.addInfowindow(map, sublayer, layer.layers[0].options.interactivity);
           }
         }}
       />

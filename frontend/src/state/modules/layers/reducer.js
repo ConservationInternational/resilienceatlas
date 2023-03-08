@@ -1,4 +1,4 @@
-import { merge } from '@utilities';
+import { merge } from 'utilities';
 import { createReducer } from '../../utils';
 import { LOAD, SET_ACTIVES, TOGGLE, SET_OPACITY, REORDER, SET_CHART_LIMIT } from './actions';
 import { getPersistedLayers } from './utils';
@@ -20,7 +20,7 @@ const initialState = {
 };
 
 export default createReducer(initialState)({
-  [LOAD.REQUEST]: state => ({
+  [LOAD.REQUEST]: (state) => ({
     ...state,
     loading: true,
     error: null,
@@ -35,10 +35,10 @@ export default createReducer(initialState)({
     // Clear up active layers in case of changing subdomain
     // we receiving different sets of layers
     // TBD: maybe clear in URL as well
-    const actives = new Set(state.actives.filter(id => layers[id]));
+    const actives = new Set(state.actives.filter((id) => layers[id]));
 
     // Toggling default active layers, received from backend
-    result.forEach(id => {
+    result.forEach((id) => {
       if (layers[id].active) actives.add(+id);
     });
 
@@ -52,7 +52,7 @@ export default createReducer(initialState)({
     };
   },
 
-  [LOAD.FAIL]: state => ({
+  [LOAD.FAIL]: (state) => ({
     ...state,
     loading: false,
     error: true,

@@ -1,5 +1,5 @@
-import { TABS } from '@components/Sidebar';
-import { getRouterParam } from '@utilities';
+import { TABS } from 'views/components/Sidebar';
+import { getRouterParam } from 'utilities';
 import { createReducer } from '../../utils';
 import { TOGGLE_SIDEBAR, TOGGLE_ANALYSIS_PANEL, SET_TAB } from './actions';
 
@@ -15,12 +15,12 @@ const initialState = {
 };
 
 export default createReducer(initialState)({
-  [TOGGLE_SIDEBAR]: state => ({
+  [TOGGLE_SIDEBAR]: (state) => ({
     ...state,
     sidebar: !state.sidebar,
   }),
 
-  [TOGGLE_ANALYSIS_PANEL]: state => ({
+  [TOGGLE_ANALYSIS_PANEL]: (state) => ({
     ...state,
     analysisPanel: !state.analysisPanel,
   }),

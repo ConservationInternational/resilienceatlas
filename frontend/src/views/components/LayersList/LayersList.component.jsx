@@ -1,20 +1,17 @@
 import React from 'react';
 import cx from 'classnames';
 import { connect } from 'react-redux';
-import Loader from '@shared/Loader';
+import Loader from 'views/shared/Loader';
 
-import { toggle as toggleGroup } from '@modules/layer_groups';
-import { clickable } from '@utilities';
+import { toggle as toggleGroup } from 'state/modules/layer_groups';
+import { clickable } from 'utilities';
 
 import Layer from './Layer';
 import Basemaps from './Basemaps';
 
-const enhance = connect(
-  null,
-  (dispatch, ownProps) => ({
-    toggleActive: () => dispatch(toggleGroup(ownProps.id)),
-  }),
-);
+const enhance = connect(null, (dispatch, ownProps) => ({
+  toggleActive: () => dispatch(toggleGroup(ownProps.id)),
+}));
 
 let Subgroup = ({ toggleActive, id, name, active, layers }) => (
   <li className="subgroup">
@@ -23,15 +20,12 @@ let Subgroup = ({ toggleActive, id, name, active, layers }) => (
       {...clickable(toggleActive)}
     >
       <div className="header-title ">{name}</div>
-      <div
-        id={`categoryHeader_${id}`}
-        className="header-switch m-form-input--switch"
-      />
+      <div id={`categoryHeader_${id}`} className="header-switch m-form-input--switch" />
     </div>
 
     {active && layers && (
       <ul className={cx('m-layers-list-panel', { 'is-active': !!active })}>
-        {layers.map(layer => (
+        {layers.map((layer) => (
           <Layer key={layer.id} {...layer} />
         ))}
       </ul>
@@ -50,10 +44,7 @@ let Category = ({ toggleActive, id, name, active, layers, subcategory }) => (
       {...clickable(toggleActive)}
     >
       <div className="header-title">{name}</div>
-      <div
-        id={`categoryHeader_${id}`}
-        className="header-switch m-form-input--switch"
-      />
+      <div id={`categoryHeader_${id}`} className="header-switch m-form-input--switch" />
     </div>
 
     {active && layers && (
@@ -62,11 +53,11 @@ let Category = ({ toggleActive, id, name, active, layers, subcategory }) => (
           'is-active': !!active,
         })}
       >
-        {layers.map(layer => (
+        {layers.map((layer) => (
           <Layer key={layer.id} LayerGroupName={name} {...layer} />
         ))}
 
-        {subcategory.map(subcat => (
+        {subcategory.map((subcat) => (
           <Subcategory key={subcat.id} {...subcat} />
         ))}
       </ul>
@@ -83,18 +74,15 @@ let Subcategory = ({ toggleActive, id, name, active, layers, subgroup }) => (
       {...clickable(toggleActive)}
     >
       <div className="header-title">{name}</div>
-      <div
-        id={`categoryHeader_${id}`}
-        className="header-switch m-form-input--switch"
-      />
+      <div id={`categoryHeader_${id}`} className="header-switch m-form-input--switch" />
     </div>
 
     {active && layers && (
       <ul className={cx('m-layers-list-panel', { 'is-active': !!active })}>
-        {layers.map(layer => (
+        {layers.map((layer) => (
           <Layer key={layer.id} {...layer} withDashboardOrder />
         ))}
-        {subgroup.map(s_group => (
+        {subgroup.map((s_group) => (
           <Subgroup key={s_group.id} {...s_group} />
         ))}
       </ul>
@@ -118,7 +106,7 @@ let Group = ({ toggleActive, id, slug, name, active, layers, categories }) => (
           <Layer key={layer.id} {...layer} withDashboardOrder />
         ))}
 
-        {categories.map(cat => (
+        {categories.map((cat) => (
           <Category key={cat.id} {...cat} />
         ))}
       </ul>
@@ -133,7 +121,7 @@ const LayersList = ({ groups, loading }) => (
     <Loader loading={loading} />
 
     <ul>
-      {groups.map(group => (
+      {groups.map((group) => (
         <Group key={group.id} {...group} />
       ))}
 

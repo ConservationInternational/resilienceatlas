@@ -11,8 +11,6 @@ class MyDocument extends Document {
     return (
       <Html lang="en">
         <Head>
-          <meta charset="utf-8" />
-
           <meta name="theme-color" content="#000000" />
           <meta name="viewport" content="width=device-width, initial-scale=1" />
           <meta
@@ -45,10 +43,7 @@ class MyDocument extends Document {
           <meta content="" property="og:type" />
           <meta content="en_US" property="og:locale" />
           <meta content="" property="og:audio" />
-          <meta
-            httpEquiv="X-UA-Compatible"
-            content="IE=11; IE=10; IE=9; IE=8; IE=7; IE=EDGE"
-          />
+          <meta httpEquiv="X-UA-Compatible" content="IE=11; IE=10; IE=9; IE=8; IE=7; IE=EDGE" />
 
           {/* manifest.json provides metadata used when your web app is installed on a
           user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/ */}
@@ -61,11 +56,11 @@ class MyDocument extends Document {
             integrity="sha512-puBpdR0798OZvTTbP4A8Ix/l+A4dHDD0DGqYW6RQ+9jxkRFclaxxQb/SJAWZfWAkuyeQUytO7+7N4QKrDh+drA=="
             crossOrigin=""
           />
-          <script
+          {/* <script
             src="https://unpkg.com/leaflet@1.4.0/dist/leaflet.js"
             integrity="sha512-QVftwZFqvtRNi0ZyCtsznlKSWOStnDORoefr1enyq5mVL4tmKB3S/EnC3rRJcxCPavG10IcrVGSmPh6Qw5lwrg=="
             crossOrigin=""
-          />
+          /> */}
         </Head>
         <body>
           <div id="root">

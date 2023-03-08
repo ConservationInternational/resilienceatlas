@@ -22,7 +22,7 @@ const initialState = {
 };
 
 export default createReducer(initialState)({
-  [LOAD.REQUEST]: state => ({
+  [LOAD.REQUEST]: (state) => ({
     ...state,
     error: null,
     loading: true,

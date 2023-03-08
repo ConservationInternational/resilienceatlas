@@ -1,18 +1,19 @@
-import React, { FC, useEffect } from 'react';
+import type { FC } from 'react';
+import React, { useEffect } from 'react';
 import Helmet from 'react-helmet';
-import { RouteComponentProps } from 'react-router-dom';
+import type { RouteComponentProps } from 'react-router-dom';
 
-import MapView from '@components/Map';
-import Sidebar from '@components/Sidebar';
-import Legend from '@components/Legend';
-import InfoWindow from '@components/InfoWindow';
-import LoginRequiredWindow from '@components/LoginRequiredWindow';
-import DownloadWindow from '@components/DownloadWindow';
-import ShareModal from '@components/ShareModal';
+import MapView from 'views/components/Map';
+import Sidebar from 'views/components/Sidebar';
+import Legend from 'views/components/Legend';
+import InfoWindow from 'views/components/InfoWindow';
+import LoginRequiredWindow from 'views/components/LoginRequiredWindow';
+import DownloadWindow from 'views/components/DownloadWindow';
+import ShareModal from 'views/components/ShareModal';
 
-import { LayerManagerProvider } from '@contexts/layerManagerCtx';
+import { LayerManagerProvider } from 'views/contexts/layerManagerCtx';
 
-import Loader from '@shared/Loader';
+import Loader from 'views/shared/Loader';
 
 const MapPage: FC<RouteComponentProps> = ({ location: { state } }) => {
   useEffect(() => {

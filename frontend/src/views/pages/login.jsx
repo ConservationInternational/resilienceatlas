@@ -1,7 +1,7 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { Row } from 'react-foundation';
-import LoginForm from '@components/LoginForm';
+import LoginForm from 'views/components/LoginForm';
 
 const Login = () => (
   <div className="l-content">

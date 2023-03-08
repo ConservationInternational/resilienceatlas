@@ -6,12 +6,12 @@ import { Map as Maps, MapControls, ZoomControl } from 'vizzuality-components';
 import { LayerManager, Layer } from 'resilience-layer-manager/dist/components';
 import { PluginLeaflet } from 'resilience-layer-manager/dist/layer-manager';
 
-import { TABS } from '@components/Sidebar';
+import { TABS } from 'views/components/Sidebar';
 
-import { BASEMAPS } from '@views/utils';
+import { BASEMAPS } from 'views/utils';
 
-import { LayerManagerContext } from '@contexts/layerManagerCtx';
-import { setRouterParam } from '@utilities';
+import { LayerManagerContext } from 'views/contexts/layerManagerCtx';
+import { setRouterParam } from 'utilities';
 
 import Toolbar from './Toolbar';
 import DrawingManager from './DrawingManager';
@@ -125,16 +125,11 @@ const MapView = ({
         },
       }}
     >
-      {map => (
+      {(map) => (
         <>
           {tab === TABS.LAYERS &&
             activeLayers.map((l, index) => (
-              <LayerManager
-                map={map}
-                plugin={PluginLeaflet}
-                ref={layerManagerRef}
-                key={l.id}
-              >
+              <LayerManager map={map} plugin={PluginLeaflet} ref={layerManagerRef} key={l.id}>
                 <Layer
                   {...omit(l, 'interactivity')}
                   slug={l.slug || l.id}
@@ -146,11 +141,11 @@ const MapView = ({
                       interactivity:
                         l.provider === 'carto' || l.provider === 'cartodb'
                           ? JSON.parse(l.interactionConfig)
-                              .output.map(o => o.column)
+                              .output.map((o) => o.column)
                               .join(',')
                           : true,
                       events: {
-                        click: e => {
+                        click: (e) => {
                           if (!drawing) {
                             setMapLayerGroupsInteraction({
                               ...e,
@@ -163,20 +158,13 @@ const MapView = ({
                       },
                     })}
                   decodeParams={
-                    l.decodeParams
-                      ? { ...l.decodeParams, chartLimit: l.chartLimit || 100 }
-                      : null
+                    l.decodeParams ? { ...l.decodeParams, chartLimit: l.chartLimit || 100 } : null
                   }
                 ></Layer>
               </LayerManager>
             ))}
           {tab === TABS.MODELS && model_layer && (
-            <LayerManager
-              map={map}
-              plugin={PluginLeaflet}
-              ref={layerManagerRef}
-              key="model_layer"
-            >
+            <LayerManager map={map} plugin={PluginLeaflet} ref={layerManagerRef} key="model_layer">
               <Layer key="model_layer" {...model_layer} />
             </LayerManager>
           )}

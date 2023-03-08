@@ -1,6 +1,6 @@
 import React, { useEffect, useCallback } from 'react';
 import { NavLink } from 'react-router-dom';
-import { sortBy } from '@utilities';
+import { sortBy } from 'utilities';
 
 const byPosition = sortBy('position');
 

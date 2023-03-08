@@ -2,7 +2,11 @@ import { compose } from 'redux';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 
-import { load as loadJourneys, loadOne as loadJourney, getJourneysLength } from '@modules/journeys';
+import {
+  load as loadJourneys,
+  loadOne as loadJourney,
+  getJourneysLength,
+} from 'state/modules/journeys';
 
 import Journey from './Journey.component';
 

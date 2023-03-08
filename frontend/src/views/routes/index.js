@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { subdomain } from '@utilities/getSubdomain';
+import { subdomain } from 'utilities/getSubdomain';
 
 import AtlasRoutes from './atlas';
 import DefaultRoutes from './default';

@@ -1,5 +1,5 @@
-export const asyncValidate = schema => async values =>
-  schema.validate(values, { abortEarly: false }).catch(errors => {
+export const asyncValidate = (schema) => async (values) =>
+  schema.validate(values, { abortEarly: false }).catch((errors) => {
     const reduxFormErrors = errors.inner.reduce(
       (acc, error) => ({
         ...acc,

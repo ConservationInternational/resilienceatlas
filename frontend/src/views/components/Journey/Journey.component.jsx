@@ -1,8 +1,9 @@
-import React, { FC, useEffect } from 'react';
-import { RouteComponentProps } from 'react-router-dom';
+import type { FC } from 'react';
+import React, { useEffect } from 'react';
+import type { RouteComponentProps } from 'react-router-dom';
 
 // Components
-import Loader from '@shared/Loader';
+import Loader from 'views/shared/Loader';
 
 import Controls from './Controls';
 
@@ -46,8 +47,7 @@ const Journey: FC<P & RouteComponentProps> = ({
     <div className="l-journey" id="journeyIndexView">
       <Loader loading={journeyLoading} />
 
-      {journeyLoaded &&
-        React.createElement(JOURNEY_TYPES[stepInfo.type], { ...stepInfo })}
+      {journeyLoaded && React.createElement(JOURNEY_TYPES[stepInfo.type], { ...stepInfo })}
 
       <Controls journeysLength={journeysLength} slideslength={steps.length} />
 

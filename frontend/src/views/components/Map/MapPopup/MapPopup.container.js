@@ -1,15 +1,15 @@
 import { connect } from 'react-redux';
 
-import { getInteractionLayers } from '@modules/layers';
+import { getInteractionLayers } from 'state/modules/layers';
 
-import { setMapLayerGroupsInteractionSelected } from '@modules/map';
+import { setMapLayerGroupsInteractionSelected } from 'state/modules/map';
 
 import MapPopup from './MapPopup.component';
 
 const makeMapStateToProps = () => {
   const interactionlayers = getInteractionLayers();
 
-  const mapStateToProps = state => ({
+  const mapStateToProps = (state) => ({
     layersInteraction: interactionlayers(state),
     layerGroupsInteraction: state.map.layerGroupsInteraction,
     layerGroupsInteractionSelected: state.map.layerGroupsInteractionSelected,

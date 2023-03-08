@@ -1,5 +1,7 @@
-import React, { FC } from 'react';
-import { RouteComponentProps, NavLink } from 'react-router-dom';
+import type { FC } from 'react';
+import React from 'react';
+import type { RouteComponentProps } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 
 const AuthLinks: FC<RouteComponentProps> = ({ match }) => (
   <>

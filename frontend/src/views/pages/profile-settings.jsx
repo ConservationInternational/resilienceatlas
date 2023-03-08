@@ -1,9 +1,11 @@
-import React, { FC } from 'react';
+import type { FC } from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
-import { NavLink, RouteComponentProps } from 'react-router-dom';
+import type { RouteComponentProps } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import { Row } from 'react-foundation';
 
-import ProfileSettingsForm from '@components/ProfileSettingsForm';
+import ProfileSettingsForm from 'views/components/ProfileSettingsForm';
 
 const ProfileSettings: FC<RouteComponentProps> = ({ history, user }) => (
   <div className="l-content">
@@ -27,4 +29,4 @@ const ProfileSettings: FC<RouteComponentProps> = ({ history, user }) => (
   </div>
 );
 
-export default connect(state => ({ user: state.user }))(ProfileSettings);
+export default connect((state) => ({ user: state.user }))(ProfileSettings);

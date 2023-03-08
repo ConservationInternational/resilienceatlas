@@ -14,7 +14,7 @@ const initialState = {
 };
 
 export default createReducer(initialState)({
-  [LOAD.REQUEST]: state => ({
+  [LOAD.REQUEST]: (state) => ({
     ...state,
     loading: true,
     error: null,

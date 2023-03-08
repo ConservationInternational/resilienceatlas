@@ -108,10 +108,7 @@ const Icons = () => (
             className="path1"
             d="M853.333 938.667h-768v-298.667h-85.333v384h938.667v-384h-85.333v298.667z"
           />
-          <path
-            className="path2"
-            d="M426.667 0h85.333v597.333h-85.333v-597.333z"
-          />
+          <path className="path2" d="M426.667 0h85.333v597.333h-85.333v-597.333z" />
           <path
             className="path3"
             d="M119.584 313.147l70.556-70.556 282.225 282.225-70.556 70.556-282.225-282.225zM754.591 242.591l70.556 70.556-352.781 352.781-70.556-70.556 352.781-352.781z"
@@ -123,14 +120,8 @@ const Icons = () => (
             className="path1"
             d="M512 1024c-282.77 0-512-229.23-512-512s229.23-512 512-512c282.77 0 512 229.23 512 512s-229.23 512-512 512zM512 950.857c242.374 0 438.857-196.483 438.857-438.857s-196.483-438.857-438.857-438.857c-242.374 0-438.857 196.483-438.857 438.857s196.483 438.857 438.857 438.857z"
           />
-          <path
-            className="path2"
-            d="M438.857 438.857h146.286v365.714h-146.286v-365.714z"
-          />
-          <path
-            className="path3"
-            d="M438.857 219.429h146.286v146.286h-146.286v-146.286z"
-          />
+          <path className="path2" d="M438.857 438.857h146.286v365.714h-146.286v-365.714z" />
+          <path className="path3" d="M438.857 219.429h146.286v146.286h-146.286v-146.286z" />
         </symbol>
         <symbol id="icon-remove" viewBox="0 0 1024 1024">
           <title>icon-remove</title>
@@ -151,10 +142,7 @@ const Icons = () => (
           viewBox="0 0 11 11"
           xmlns="https://www.w3.org/2000/svg"
         >
-          <title>
-            Rectangle 959 + Rectangle 959 Copy + Rectangle 959 + Rectangle 959
-            Copy
-          </title>
+          <title>Rectangle 959 + Rectangle 959 Copy + Rectangle 959 + Rectangle 959 Copy</title>
           <g>
             <path d="M5.62 4.672l.708.707-4.95 4.948-.706-.707z" />
             <path d="M.482 4.722h1.17V9.4H.48V4.72zM6.328 9.4v1.168H.482v-1.17h5.846z" />

@@ -2,9 +2,9 @@ import { compose } from 'redux';
 import { reduxForm } from 'redux-form';
 import { withRouter } from 'react-router-dom';
 
-import { LoginSchema, signin, login } from '@modules/user';
+import { LoginSchema, signin, login } from 'state/modules/user';
 
-import { asyncValidate } from '@views/utils/asyncValidate';
+import { asyncValidate } from 'views/utils/asyncValidate';
 
 import LoginForm from './LoginForm.component';
 

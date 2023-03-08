@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo } from 'react';
 import DangerousHTML from 'react-dangerous-html';
 import Iframe from 'react-iframe';
-import Legend from '@components/Legend';
+import Legend from 'views/components/Legend';
 import qs from 'qs';
 
 // TODO: get rid of IFrame and use Map Component
@@ -32,13 +32,12 @@ const Embed = ({
     const mapString = mapUrl.split('?')[1];
     const mapData = qs.parse(mapString);
     const layerData = JSON.parse(mapData.layers);
-    const layerDataIds = layerData.map(l => l.id);
+    const layerDataIds = layerData.map((l) => l.id);
 
     setActiveLayer(layerDataIds);
   }, [mapUrl]);
   const countryInfo =
-    countries.find(c => c.name.toLowerCase() === countryName.toLowerCase()) ||
-    {};
+    countries.find((c) => c.name.toLowerCase() === countryName.toLowerCase()) || {};
 
   const embedParams = useMemo(() => {
     const params = new URLSearchParams();

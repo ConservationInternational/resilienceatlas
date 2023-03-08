@@ -1,16 +1,17 @@
-import React, { FC, useCallback, useEffect } from 'react';
-import { RouteComponentProps } from 'react-router-dom';
+import type { FC } from 'react';
+import React, { useCallback, useEffect } from 'react';
+import type { RouteComponentProps } from 'react-router-dom';
 import cx from 'classnames';
 
-import AnalysisPanel from '@components/AnalysisPanel';
-import LayersList from '@components/LayersList';
-import PredictiveModels from '@components/PredictiveModels';
-import LogoAttribution from '@components/LogoAttribution';
+import AnalysisPanel from 'views/components/AnalysisPanel';
+import LayersList from 'views/components/LayersList';
+import PredictiveModels from 'views/components/PredictiveModels';
+import LogoAttribution from 'views/components/LogoAttribution';
 
-import LinkButton from '@shared/LinkButton';
-import Tabs from '@shared/Tabs';
+import LinkButton from 'views/shared/LinkButton';
+import Tabs from 'views/shared/Tabs';
 
-import { setRouterParam } from '@utilities';
+import { setRouterParam } from 'utilities';
 
 export const TABS = {
   LAYERS: 'layers',
@@ -19,8 +20,8 @@ export const TABS = {
 
 interface P extends RouteComponentProps {
   geojson: L.GeoJSON;
-  opened: Boolean;
-  analysisOpened: Boolean;
+  opened: boolean;
+  analysisOpened: boolean;
 }
 
 const Sidebar: FC<P> = ({

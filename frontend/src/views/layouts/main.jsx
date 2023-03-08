@@ -4,16 +4,17 @@ import Head from './_head';
 import Header from './_header';
 import Footer from './_footer';
 
-export default Page => props => (
-  <>
-    <Head />
+export default (Page) => (props) =>
+  (
+    <>
+      <Head />
 
-    <Header />
+      <Header />
 
-    <div className="l-main-fullscreen">
-      <Page {...props} />
-    </div>
+      <div className="l-main-fullscreen">
+        <Page {...props} />
+      </div>
 
-    <Footer />
-  </>
-);
+      <Footer />
+    </>
+  );
