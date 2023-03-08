@@ -1,7 +1,8 @@
-lock "3.16.0"
+lock "~> 3.17.0"
 
 set :application, "ResilienceAtlas"
 set :repo_url, "git@github.com:ConservationInternational/resilienceatlas.git"
+set :repo_tree, "backend"
 set :branch, "master"
 
 set :linked_files, %w[.env]
@@ -20,7 +21,7 @@ namespace :deploy do
     on roles(:web), in: :groups, limit: 3, wait: 10 do
       # Here we can do anything such as:
       # within release_path do
-      #   execute :rake, 'cache:clear'
+      #   execute :rake, "cache:clear"
       # end
     end
   end
@@ -35,3 +36,16 @@ namespace :downloads do
     end
   end
 end
+
+# for the bastion host
+require "net/ssh/proxy/command"
+
+# Use a default host for the bastion, but allow it to be overridden
+bastion_host = ENV["BASTION_HOST"] || "login.resilienceatlas.org"
+
+# Use the local username by default
+bastion_user = ENV["BASTION_USER"] || "ubuntu"
+
+# Configure Capistrano to use the bastion host as a proxy
+ssh_command = "ssh #{bastion_user}@#{bastion_host} -W %h:%p"
+set :ssh_options, proxy: Net::SSH::Proxy::Command.new(ssh_command)
