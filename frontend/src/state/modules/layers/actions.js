@@ -2,7 +2,9 @@ import { subdomain } from 'utilities/getSubdomain';
 import api, { createApiAction } from '../../utils/api';
 import { layer, source } from '../../schema';
 
-const URL_LAYERS = `/layers?lang=${window.currentLocation || 'en'}`;
+// TO-DO: migrate
+// const URL_LAYERS = `/layers?lang=${window.currentLocation || 'en'}`;
+const URL_LAYERS = `/layers?lang=en`;
 
 // Action constants
 export const LOAD = createApiAction('layers/LOAD');

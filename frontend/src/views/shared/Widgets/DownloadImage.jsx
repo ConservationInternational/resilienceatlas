@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
-import L from 'leaflet';
+// TO-DO: migrate
+// import L from 'leaflet';
 import { useAxios } from 'utilities';
 
 const DownloadImage = ({ analysisBody, geojson }) => {

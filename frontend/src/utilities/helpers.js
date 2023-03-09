@@ -1,5 +1,6 @@
-import L from 'leaflet';
-import history from '../history';
+// TO-DO: migrate
+// import L from 'leaflet';
+// import history from '../history';
 
 /**
  * @param  {string} key key to sort on
