@@ -29,9 +29,7 @@ describe('Specific map page', () => {
 
   it('should have a layer in the legend', () => {
     cy.wait('@layersAPIRequest');
-    cy.get('ul.m-legend__list')
-      .find('li.drag-items')
-      .should('have.length', 1);
+    cy.get('ul.m-legend__list').find('li.drag-items').should('have.length', 1);
     cy.wait('@cartoRequest');
   });
 
