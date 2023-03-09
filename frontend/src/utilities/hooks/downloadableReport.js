@@ -5,7 +5,7 @@ export const useDownloadableReport = () => {
 
   const onClick = useCallback(() => {
     const { search } = window.location;
-    const reportUrl = `${process.env.REACT_APP_API_HOST}/report${search}`;
+    const reportUrl = `${process.env.NEXT_PUBLIC_API_HOST}/report${search}`;
     const webshotUrl = 'https://www.resilienceatlas.org/webshot';
 
     setHref(

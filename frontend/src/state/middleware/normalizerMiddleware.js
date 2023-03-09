@@ -1,4 +1,4 @@
-import { normalizer } from 'normalizr';
+import { normalize } from 'normalizr';
 import { createUnion } from '../utils/detectSchema';
 
 const normalizerMiddleware = () => (next) => (action) => {
@@ -7,14 +7,14 @@ const normalizerMiddleware = () => (next) => (action) => {
 
   if (schema && payload && !error) {
     const { data, included: includedData = [], meta } = payload;
-    const normalized = normalizer(data, schema);
+    const normalized = normalize(data, schema);
     let included;
 
     if (includedSchema) {
       if (includedSchema === 'union') {
         includedSchema = createUnion(includedData);
       }
-      included = normalizer(includedData, includedSchema);
+      included = normalize(includedData, includedSchema);
     }
 
     action = {

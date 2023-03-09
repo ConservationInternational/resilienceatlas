@@ -1,6 +1,4 @@
-import React from 'react';
-
-const Footer = () => (
+const Footer: React.FC = () => (
   <footer className="l-footer theme-bg-color">
     <nav className="l-footer-nav">
       <p className="privacy">

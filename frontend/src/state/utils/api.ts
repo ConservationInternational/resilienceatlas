@@ -1,13 +1,13 @@
 import type { AxiosRequestConfig } from 'axios';
 import axios from 'axios';
-import type { ThunkAction, ThunkDispatch } from 'redux-thunk';
+import type { ThunkDispatch } from 'redux-thunk';
 import type { schema } from 'normalizr';
 
 import { merge } from 'utilities/helpers';
 
 export const isProd = process.env.NODE_ENV === 'production';
 
-export const PORT = process.env.REACT_APP_API_HOST;
+export const PORT = process.env.NEXT_PUBLIC_API_HOST;
 // uncomment this line to see map layers quickly for local testing
 // export const PORT = 'https://staging.resilienceatlas.org';
 
@@ -77,8 +77,8 @@ export const requestHandlers: Handlers = { get, post, put, patch, del };
 
 type Callback = (
   requestHandlers: Handlers,
-  dispatch: ThunkDispatch,
-  getState: Function,
+  dispatch: ThunkDispatch<unknown, unknown, any>,
+  getState: () => unknown,
 ) => Promise<any>;
 
 type ApiMeta = {
@@ -93,7 +93,7 @@ type ApiMeta = {
  *
  * @returns {ThunkAction} thunk, which executes provided promise and binds three dispatches for request, success and fail phase
  */
-export default function api(apiAction: ApiAction, cb: Callback, meta: ApiMeta): ThunkAction {
+export default function api(apiAction: ApiAction, cb: Callback, meta: ApiMeta) {
   return (dispatch, getState) => {
     dispatch({ type: apiAction.REQUEST, meta });
 

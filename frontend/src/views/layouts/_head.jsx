@@ -8,6 +8,9 @@ const bare = false;
 
 const DEFAULT_TITLE = 'Resilience Atlas';
 
+/**
+ * @deprecated This component is deprecated and will be removed in the next major release.
+ */
 const Head = ({ site: { name, color, subdomain, header_theme, header_color, logo_url }, page }) => (
   <Helmet
     defaultTitle={DEFAULT_TITLE}
