@@ -4,7 +4,7 @@ const ExportToPdf = () => {
   const downloadURL = useMemo(
     () =>
       `${
-        process.env.REACT_APP_API_PROD
+        process.env.NEXT_PUBLIC_API_HOST
       }/webshot?filename=export-map-${new Date().getTime()}.pdf&url=${window.location.href}`,
     [],
   );

@@ -5,7 +5,7 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        - REACT_APP_API_HOST=https://www.resilienceatlas.org
+        - NEXT_PUBLIC_API_HOST=https://www.resilienceatlas.org
     ports:
       - "3000:3000"
     container_name: resilienceatlas-frontend

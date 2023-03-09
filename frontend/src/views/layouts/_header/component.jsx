@@ -1,8 +1,12 @@
 import React, { useEffect, useCallback } from 'react';
-import { NavLink } from 'react-router-dom';
+import Link from 'next/link';
 import { sortBy } from 'utilities';
 
 const byPosition = sortBy('position');
+
+/**
+ * TO-DO: Migrate active class for Link component
+ */
 
 const Header = ({
   loadMenuItems,
@@ -14,7 +18,7 @@ const Header = ({
 }) => {
   useEffect(() => {
     if (!menuItemsLoaded) loadMenuItems();
-  }, []);
+  }, [loadMenuItems, menuItemsLoaded]);
 
   const renderMenuItem = useCallback(
     ({ id, label, link, children }) => (
@@ -34,57 +38,59 @@ const Header = ({
       <nav className="l-header-nav">
         <ul className="brand-area">
           <li>
-            <NavLink to="/">Resilience Atlas</NavLink>
+            <Link href="/">
+              <a>Resilience Atlas</a>
+            </Link>
           </li>
         </ul>
 
         <ul className="nav-area -resilience">
           <li className="journey-link">
-            <NavLink to="/journeys" activeClassName="is-current">
-              Journeys
-            </NavLink>
+            <Link href="/journeys" activeClassName="is-current">
+              <a>Journeys</a>
+            </Link>
           </li>
 
           <li>
-            <NavLink to="/map" activeClassName="is-current">
-              Map
-            </NavLink>
+            <Link href="/map" activeClassName="is-current">
+              <a>Map</a>
+            </Link>
 
             <ul>{menuItems.sort(byPosition).map(renderMenuItem)}</ul>
           </li>
 
           <li>
-            <NavLink to="/about" activeClassName="is-current">
-              About
-            </NavLink>
+            <Link href="/about" activeClassName="is-current">
+              <a>About</a>
+            </Link>
           </li>
 
           {loggedIn ? (
             <>
               <li>
-                <NavLink to="/me" activeClassName="is-current">
-                  Me
-                </NavLink>
+                <Link href="/me" activeClassName="is-current">
+                  <a>Me</a>
+                </Link>
               </li>
 
               <li>
-                <NavLink to="#" onClick={logout}>
+                <button type="button" onClick={logout}>
                   Logout
-                </NavLink>
+                </button>
               </li>
             </>
           ) : (
             <>
               <li>
-                <NavLink to="/login" activeClassName="is-current">
-                  Login
-                </NavLink>
+                <Link href="/login" activeClassName="is-current">
+                  <a>Login</a>
+                </Link>
               </li>
 
               <li>
-                <NavLink to="/register" activeClassName="is-current">
-                  Register
-                </NavLink>
+                <Link href="/register" activeClassName="is-current">
+                  <a>Register</a>
+                </Link>
               </li>
             </>
           )}
