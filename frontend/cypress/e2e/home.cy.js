@@ -4,12 +4,8 @@ describe('Home page', () => {
   });
 
   it('should have a welcome message', () => {
-    cy.get('.m-welcome')
-      .find('h3')
-      .should('contain', 'Welcome to');
-    cy.get('.m-welcome')
-      .find('h2')
-      .should('contain', 'RESILIENCE ATLAS');
+    cy.get('.m-welcome').find('h3').should('contain', 'Welcome to');
+    cy.get('.m-welcome').find('h2').should('contain', 'RESILIENCE ATLAS');
   });
 
   it('in journeys section should have a link to the journeys page', () => {

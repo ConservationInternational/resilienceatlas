@@ -7,10 +7,7 @@ describe('Journeys detail page', () => {
     // Navigate to the first journey detail
     cy.wait('@journeysRequest').then(({ response }) => {
       cy.wrap(response.statusCode).should('be.equal', 200);
-      cy.get('.m-journey__gridelement')
-        .first()
-        .find('.btn')
-        .click();
+      cy.get('.m-journey__gridelement').first().find('.btn').click();
     });
   });
 
@@ -36,19 +33,15 @@ describe('Journeys detail page', () => {
             break;
 
           case 'conclusion':
-            cy.get('.l-journey h2')
-              .first()
-              .contains(step.title, { matchCase: false });
+            cy.get('.l-journey h2').first().contains(step.title, { matchCase: false });
 
             if (step.subtitle) {
-              cy.get('.l-journey h3')
-                .first()
-                .contains(step.subtitle, { matchCase: false });
+              cy.get('.l-journey h3').first().contains(step.subtitle, { matchCase: false });
             }
 
             cy.get('.l-journey h3 + div')
               .first()
-              .should($div => {
+              .should(($div) => {
                 const node = document.createElement('div');
                 node.innerHTML = step.content;
                 expect($div).to.have.text(node.textContent);
@@ -67,7 +60,7 @@ describe('Journeys detail page', () => {
           case 'embed':
             cy.get('.l-journey .side-bar article > div')
               .first()
-              .should($div => {
+              .should(($div) => {
                 const node = document.createElement('div');
                 node.innerHTML = step.aside;
                 expect($div).to.have.text(node.textContent);
@@ -75,11 +68,10 @@ describe('Journeys detail page', () => {
             cy.get('.l-journey .btn-check-it')
               .first()
               .invoke('attr', 'href')
-              .should(href => {
+              .should((href) => {
                 const url = href.replace(new URL(href).origin, '');
                 const expectedUrl = step.btnUrl.replace(
-                  new URL(step.btnUrl, 'https://www.resilienceatlas.org/')
-                    .origin,
+                  new URL(step.btnUrl, 'https://www.resilienceatlas.org/').origin,
                   '',
                 );
                 expect(url).to.eq(expectedUrl);
@@ -91,9 +83,7 @@ describe('Journeys detail page', () => {
         }
 
         if (stepIndex + 1 < steps.length) {
-          cy.get('.l-journey')
-            .find('.btn-next')
-            .click();
+          cy.get('.l-journey').find('.btn-next').click();
         }
       });
     });
