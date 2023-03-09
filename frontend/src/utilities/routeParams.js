@@ -1,4 +1,6 @@
-import history from '../history';
+// TO-DO: migrate
+// import history from '../history';
+const history = { location: { pathname: '', search: '' } };
 
 /**
  * @param  {string} param name of query param you want to set

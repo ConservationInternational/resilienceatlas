@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
-import L from 'leaflet';
+// TO-DO: migrate
+// import L from 'leaflet';
 import carto from '@carto/carto.js';
 
 import Loader from 'views/shared/Loader';
