@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import cx from 'classnames';
 import Head from 'next/head';
 import { connect } from 'react-redux';
@@ -32,6 +32,11 @@ const MainLayout: React.FC<MainLayoutProps> = ({ site, page, children, dispatch 
   // NOTE: consider move this to every page that needs it using getServerSideProps
   useEffect(() => dispatch(loadSite()), [dispatch]);
 
+  const pageTitle = useMemo(
+    () => (name === 'Resilience Atlas' ? 'Resilience Atlas' : `${name} | Resilience Atlas`),
+    [name],
+  );
+
   return (
     <div
       className={cx(
@@ -43,7 +48,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ site, page, children, dispatch 
       )}
     >
       <Head>
-        <title>{name} | Resilience Atlas</title>
+        <title>{pageTitle}</title>
         <style type="text/css">{`
         :root {
           --theme-color: ${color};
