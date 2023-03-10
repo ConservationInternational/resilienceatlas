@@ -1,5 +1,3 @@
-require_relative "../../../commands/authorize_api_requests"
-
 module Api
   module V1
     class ApiController < ApplicationController
@@ -18,7 +16,7 @@ module Api
       end
 
       def authenticate_request
-        @current_user = ::AuthorizeApiRequest.call(request.headers).result
+        @current_user = AuthorizeApiRequest.call(request.headers).result
         render json: {errors: [{status: "401", title: "Unauthorized"}]}, status: 401 unless @current_user
       end
 

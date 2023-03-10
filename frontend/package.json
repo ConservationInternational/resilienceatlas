@@ -2,24 +2,24 @@
   "name": "resilience-atlas-react",
   "version": "0.1.0",
   "private": true,
+  "main": "server",
   "scripts": {
     "analyze": "source-map-explorer 'build/static/js/*.js'",
-    "start": "react-app-rewired start",
+    "dev": "react-app-rewired start",
     "build": "react-app-rewired build",
-    "test": "react-app-rewired test",
+    "test": "cypress run --headless -b chrome",
     "eject": "react-scripts eject",
-    "lint": "./node_modules/.bin/eslint --debug src/",
-    "lint:write": "./node_modules/.bin/eslint --debug src/ --fix",
-    "prettier": "./node_modules/.bin/prettier --write src/**/*.js"
+    "lint": "eslint src/",
+    "lint:write": "eslint src/ --fix",
+    "prettier": "prettier --write src/**/*.js"
   },
   "lint-staged": {
     "*.(js|jsx)": [
-      "yarn lint:write",
-      "git add"
+      "yarn lint"
     ]
   },
   "dependencies": {
-    "@carto/carto.js": "^4.1.11",
+    "@carto/carto.js": "4.2.2",
     "axios": "^0.18.0",
     "customize-cra": "^0.2.12",
     "express": "^4.17.1",
@@ -34,10 +34,10 @@
     "normalize.css": "^8.0.1",
     "normalizr": "^3.3.0",
     "numeral": "^2.0.6",
-    "qs": "^6.7.0",
+    "qs": "^6.9.7",
     "react": "^16.8.4",
-    "react-app-rewire-scss": "^1.0.2",
-    "react-app-rewired": "^2.1.1",
+    "react-app-rewire-scss": "1.0.2",
+    "react-app-rewired": "2.1.1",
     "react-beautiful-dnd": "^11.0.0-beta.3",
     "react-dangerous-html": "^1.0.0",
     "react-dom": "^16.8.4",
@@ -74,6 +74,7 @@
     "@types/react-leaflet": "^2.2.1",
     "babel-eslint": "9.0.0",
     "babel-preset-react": "^6.24.1",
+    "cypress": "^12.7.0",
     "eslint": "5.12.0",
     "eslint-config-codica": "^1.0.1",
     "eslint-import-resolver-alias": "^1.1.2",
@@ -86,7 +87,7 @@
     "lint-staged": "^8.1.5",
     "node-sass": "^4.11.0",
     "prettier": "^1.15.3",
-    "vega": "^5.3.2",
+    "vega": "^5.23.0",
     "vega-lib": "^4.4.0"
   },
   "eslintConfig": {

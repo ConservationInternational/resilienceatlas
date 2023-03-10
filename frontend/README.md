@@ -23,7 +23,7 @@ Before running the application, you need to configure it by copying `.env.exampl
 
 To start the application, run:
 
-    yarn start
+    yarn dev
 
 ## Production build
 
@@ -35,6 +35,12 @@ and then you can use your production build locally:
 
     npm i -g serve
     serve -s build
+
+alternatively and only for development and debugging purposes you can use:
+
+```
+yarn start
+```
 
 ## Deploy (Capistrano)
 

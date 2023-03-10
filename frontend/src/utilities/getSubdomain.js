@@ -2,6 +2,7 @@ import { PORT, isProd } from '../state/utils/api';
 import { getRouterParam } from './routeParams';
 
 export const getSubdomain = () => {
+  if (window.location.hostname === 'localhost') return false;
   const host = isProd
     ? PORT.replace(/(^http(s?):\/\/)|(\.com)$/g, '')
     : `localhost:${window.location.port}`;
