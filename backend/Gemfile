@@ -12,6 +12,7 @@ gem "shrine"
 gem "jbuilder"
 gem "rspec-rails"
 gem "rswag"
+gem "image_processing"
 
 gem "ed25519"
 gem "bcrypt_pbkdf"

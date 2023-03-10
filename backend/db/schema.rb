@@ -10,8 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_02_16_172121) do
-
+ActiveRecord::Schema[7.0].define(version: 2023_03_08_085947) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -20,8 +19,8 @@ ActiveRecord::Schema.define(version: 2022_02_16_172121) do
     t.text "body"
     t.string "record_type", null: false
     t.bigint "record_id", null: false
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["record_type", "record_id", "name"], name: "index_action_text_rich_texts_uniqueness", unique: true
   end
 
@@ -30,7 +29,7 @@ ActiveRecord::Schema.define(version: 2022_02_16_172121) do
     t.string "record_type", null: false
     t.bigint "record_id", null: false
     t.bigint "blob_id", null: false
-    t.datetime "created_at", null: false
+    t.datetime "created_at", precision: nil, null: false
     t.index ["blob_id"], name: "index_active_storage_attachments_on_blob_id"
     t.index ["record_type", "record_id", "name", "blob_id"], name: "index_active_storage_attachments_uniqueness", unique: true
   end
@@ -42,7 +41,7 @@ ActiveRecord::Schema.define(version: 2022_02_16_172121) do
     t.text "metadata"
     t.bigint "byte_size", null: false
     t.string "checksum", null: false
-    t.datetime "created_at", null: false
+    t.datetime "created_at", precision: nil, null: false
     t.string "service_name", null: false
     t.index ["key"], name: "index_active_storage_blobs_on_key", unique: true
   end
@@ -57,15 +56,15 @@ ActiveRecord::Schema.define(version: 2022_02_16_172121) do
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
     t.string "reset_password_token"
-    t.datetime "reset_password_sent_at"
-    t.datetime "remember_created_at"
+    t.datetime "reset_password_sent_at", precision: nil
+    t.datetime "remember_created_at", precision: nil
     t.integer "sign_in_count", default: 0, null: false
-    t.datetime "current_sign_in_at"
-    t.datetime "last_sign_in_at"
+    t.datetime "current_sign_in_at", precision: nil
+    t.datetime "last_sign_in_at", precision: nil
     t.inet "current_sign_in_ip"
     t.inet "last_sign_in_ip"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.integer "role", default: 0
     t.string "provider", default: "email", null: false
     t.string "uid", default: "", null: false
@@ -75,8 +74,8 @@ ActiveRecord::Schema.define(version: 2022_02_16_172121) do
     t.string "image"
     t.json "tokens"
     t.string "confirmation_token"
-    t.datetime "confirmed_at"
-    t.datetime "confirmation_sent_at"
+    t.datetime "confirmed_at", precision: nil
+    t.datetime "confirmation_sent_at", precision: nil
     t.string "unconfirmed_email"
     t.index ["email"], name: "index_admin_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_admin_users_on_reset_password_token", unique: true
@@ -94,8 +93,8 @@ ActiveRecord::Schema.define(version: 2022_02_16_172121) do
     t.string "name", null: false
     t.string "slug", null: false
     t.text "description"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["name"], name: "index_categories_on_name"
   end
 
@@ -109,8 +108,8 @@ ActiveRecord::Schema.define(version: 2022_02_16_172121) do
     t.string "type", limit: 30
     t.integer "width"
     t.integer "height"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["assetable_type", "assetable_id"], name: "idx_ckeditor_assetable"
     t.index ["assetable_type", "type", "assetable_id"], name: "idx_ckeditor_assetable_type"
   end
@@ -119,8 +118,8 @@ ActiveRecord::Schema.define(version: 2022_02_16_172121) do
     t.bigint "user_id"
     t.string "provider"
     t.string "uid"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["user_id"], name: "index_identities_on_user_id"
   end
 
@@ -128,8 +127,8 @@ ActiveRecord::Schema.define(version: 2022_02_16_172121) do
     t.string "name", null: false
     t.string "slug", null: false
     t.string "version"
-    t.datetime "created_at", default: "2023-02-22 11:07:57", null: false
-    t.datetime "updated_at", default: "2023-02-22 11:07:57", null: false
+    t.datetime "created_at", precision: nil, default: "2023-02-22 11:02:20", null: false
+    t.datetime "updated_at", precision: nil, default: "2023-02-22 11:02:20", null: false
     t.integer "category_id"
     t.integer "position"
     t.string "column_name"
@@ -142,11 +141,60 @@ ActiveRecord::Schema.define(version: 2022_02_16_172121) do
     t.bigint "model_id", null: false
   end
 
+  create_table "journey_step_translations", force: :cascade do |t|
+    t.bigint "journey_step_id", null: false
+    t.string "locale", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "title"
+    t.string "subtitle"
+    t.string "theme"
+    t.text "content"
+    t.index ["journey_step_id"], name: "index_journey_step_translations_on_journey_step_id"
+    t.index ["locale"], name: "index_journey_step_translations_on_locale"
+  end
+
+  create_table "journey_steps", force: :cascade do |t|
+    t.string "step_type", null: false
+    t.string "credits"
+    t.string "credits_url"
+    t.string "map_theme"
+    t.string "mask_sql"
+    t.string "map_url"
+    t.string "btn_url"
+    t.string "background_color"
+    t.integer "chapter_number"
+    t.integer "position", default: 1, null: false
+    t.bigint "journey_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["journey_id"], name: "index_journey_steps_on_journey_id"
+  end
+
+  create_table "journey_translations", force: :cascade do |t|
+    t.bigint "journey_id", null: false
+    t.string "locale", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "title"
+    t.string "subtitle"
+    t.text "theme"
+    t.index ["journey_id"], name: "index_journey_translations_on_journey_id"
+    t.index ["locale"], name: "index_journey_translations_on_locale"
+  end
+
+  create_table "journeys", force: :cascade do |t|
+    t.string "credits"
+    t.string "credits_url"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "layer_group_translations", force: :cascade do |t|
     t.bigint "layer_group_id", null: false
     t.string "locale", null: false
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.string "name"
     t.text "info"
     t.index ["layer_group_id"], name: "index_layer_group_translations_on_layer_group_id"
@@ -160,8 +208,8 @@ ActiveRecord::Schema.define(version: 2022_02_16_172121) do
     t.string "category"
     t.boolean "active"
     t.integer "order"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.string "icon_class"
     t.integer "site_scope_id", default: 1
     t.index ["site_scope_id"], name: "index_layer_groups_on_site_scope_id"
@@ -171,8 +219,8 @@ ActiveRecord::Schema.define(version: 2022_02_16_172121) do
   create_table "layer_translations", force: :cascade do |t|
     t.bigint "layer_id", null: false
     t.string "locale", null: false
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.string "name"
     t.text "info"
     t.text "legend"
@@ -197,8 +245,8 @@ ActiveRecord::Schema.define(version: 2022_02_16_172121) do
     t.text "interactivity"
     t.float "opacity"
     t.text "query"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.boolean "locate_layer", default: false
     t.string "icon_class"
     t.boolean "published", default: true
@@ -209,8 +257,8 @@ ActiveRecord::Schema.define(version: 2022_02_16_172121) do
     t.string "dataset_shortname"
     t.text "dataset_source_url"
     t.string "title"
-    t.datetime "start_date"
-    t.datetime "end_date"
+    t.datetime "start_date", precision: nil
+    t.datetime "end_date", precision: nil
     t.string "spatial_resolution"
     t.string "spatial_resolution_units"
     t.string "temporal_resolution"
@@ -236,8 +284,8 @@ ActiveRecord::Schema.define(version: 2022_02_16_172121) do
     t.string "label"
     t.string "link"
     t.integer "position"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.string "ancestry"
     t.index ["ancestry"], name: "index_map_menu_entries_on_ancestry"
   end
@@ -246,8 +294,8 @@ ActiveRecord::Schema.define(version: 2022_02_16_172121) do
     t.string "name", null: false
     t.text "description"
     t.text "source"
-    t.datetime "created_at", default: "2023-02-22 11:07:57", null: false
-    t.datetime "updated_at", default: "2023-02-22 11:07:57", null: false
+    t.datetime "created_at", precision: nil, default: "2023-02-22 11:02:20", null: false
+    t.datetime "updated_at", precision: nil, default: "2023-02-22 11:02:20", null: false
     t.text "query_analysis"
     t.string "table_name"
   end
@@ -259,15 +307,15 @@ ActiveRecord::Schema.define(version: 2022_02_16_172121) do
 
   create_table "photos", force: :cascade do |t|
     t.text "image_data"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "share_urls", force: :cascade do |t|
     t.string "uid"
     t.text "body"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "site_pages", force: :cascade do |t|
@@ -275,8 +323,8 @@ ActiveRecord::Schema.define(version: 2022_02_16_172121) do
     t.text "body"
     t.integer "priority"
     t.integer "site_scope_id"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.string "slug"
     t.index ["site_scope_id"], name: "index_site_pages_on_site_scope_id"
     t.index ["slug"], name: "index_site_pages_on_slug", unique: true
@@ -310,10 +358,10 @@ ActiveRecord::Schema.define(version: 2022_02_16_172121) do
     t.string "contact_name"
     t.string "contact_email"
     t.string "license"
-    t.datetime "last_updated"
+    t.datetime "last_updated", precision: nil
     t.string "version"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.string "spatial_resolution_units"
     t.text "license_url"
   end
@@ -322,23 +370,23 @@ ActiveRecord::Schema.define(version: 2022_02_16_172121) do
     t.string "subdomain"
     t.integer "user_id"
     t.integer "layer_id"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "users", force: :cascade do |t|
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
     t.string "reset_password_token"
-    t.datetime "reset_password_sent_at"
-    t.datetime "remember_created_at"
+    t.datetime "reset_password_sent_at", precision: nil
+    t.datetime "remember_created_at", precision: nil
     t.integer "sign_in_count", default: 0, null: false
-    t.datetime "current_sign_in_at"
-    t.datetime "last_sign_in_at"
+    t.datetime "current_sign_in_at", precision: nil
+    t.datetime "last_sign_in_at", precision: nil
     t.inet "current_sign_in_ip"
     t.inet "last_sign_in_ip"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.string "first_name"
     t.string "last_name"
     t.string "phone"
@@ -354,4 +402,5 @@ ActiveRecord::Schema.define(version: 2022_02_16_172121) do
   add_foreign_key "agrupations", "layers"
   add_foreign_key "identities", "users"
   add_foreign_key "indicators", "categories"
+  add_foreign_key "journey_steps", "journeys", on_delete: :cascade
 end

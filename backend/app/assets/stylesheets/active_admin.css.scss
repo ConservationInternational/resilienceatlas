@@ -16,6 +16,7 @@
 // @import "activeadmin-sortable";
 @import "active_admin/sortable";
 @import 'activeadmin_addons/all';
+@import "admin/has_many_collapsable";
 
 // Overriding any non-variable SASS must be done after the fact.
 // For example, to change the default status-tag color:
@@ -25,9 +26,14 @@ div#footer{display: none;}
 #layer_group_submit_action input{color: #5E6469;}
 #layer_group_submit_action:hover input{color: white;}
 .active_admin {
-  form trix-editor, form #trix-toolbar-1 {
+  form trix-editor, form trix-toolbar {
     margin-left: 20%;
     width: calc(80% - 17px);
+  }
+
+  .image-preview {
+    display: inline;
+    margin-left: 20%;
   }
 }
 .trix-content {

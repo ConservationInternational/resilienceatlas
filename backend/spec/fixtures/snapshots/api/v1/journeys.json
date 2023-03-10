@@ -1,40 +1,97 @@
-[
-  {
-    "id": 1,
-    "title": "ETHIOPIA",
-    "subtitle": "Smallholder maize",
-    "theme": "Livelihoods dependent on rainfed agricultural production and small-scale farms threatened by changing climate",
-    "bg": "thumb-1",
-    "bg-big": "thumb-big-1"
-  },
-  {
-    "id": 2,
-    "title": "ETHIOPIA",
-    "subtitle": "Pastoral livelihoods",
-    "theme": "Pastoral livelihoods threatened by changing climate",
-    "bg": "thumb-2",
-    "bg-big": "thumb-big-2"
-  },
-  {
-    "id": 3,
-    "title": "INDIA",
-    "subtitle": "Cotton production",
-    "theme": "Building resilience of an important cash crop",
-    "bg": "thumb-3",
-    "bg-big": "thumb-big-3"
-  },
-  {
-    "id": 4,
-    "title": "AFRICA",
-    "theme": "Climate change likely to affect coffee production",
-    "bg": "thumb-4",
-    "bg-big": "thumb-big-4"
-  },
-  {
-    "id": 5,
-    "title": "MADAGASCAR",
-    "theme": "Implementing climate resilient rice production",
-    "bg": "thumb-5",
-    "bg-big": "thumb-big-5"
+{
+  "data": [
+    {
+      "id": "25",
+      "type": "journeys",
+      "attributes": {
+        "title": "Enim repellat pariatur est.",
+        "subtitle": "Enim repellat pariatur est.",
+        "theme": "Enim repellat pariatur est.",
+        "background_image": {
+          "small": "http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBWZz09IiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--d7ccbbcb3a34a40dd42a727be3c14d844061aa7d/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERJd01IZ3lNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--7be8b6f6018bc25ae287d258d8836839fa7642f1/picture.jpg",
+          "medium": "http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBWZz09IiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--d7ccbbcb3a34a40dd42a727be3c14d844061aa7d/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERnd01IZzRNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--697714719ccce7b35c5f9a02aeef5bd517f3d81f/picture.jpg",
+          "original": "http://localhost:3000/rails/active_storage/blobs/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBWZz09IiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--d7ccbbcb3a34a40dd42a727be3c14d844061aa7d/picture.jpg"
+        },
+        "credits": "Enim repellat pariatur est.",
+        "credits_url": "http://kutch-spencer.com/moises"
+      },
+      "relationships": {
+        "journey_steps": {
+          "data": [
+            {
+              "id": "55",
+              "type": "journey_steps"
+            },
+            {
+              "id": "56",
+              "type": "journey_steps"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "26",
+      "type": "journeys",
+      "attributes": {
+        "title": "Placeat commodi libero et.",
+        "subtitle": "Placeat commodi libero et.",
+        "theme": "Placeat commodi libero et.",
+        "background_image": {
+          "small": "http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBXUT09IiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--5aadad9a9d3aa4a8d85077b62e23a700c8525bb4/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERJd01IZ3lNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--7be8b6f6018bc25ae287d258d8836839fa7642f1/picture.jpg",
+          "medium": "http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBXUT09IiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--5aadad9a9d3aa4a8d85077b62e23a700c8525bb4/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERnd01IZzRNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--697714719ccce7b35c5f9a02aeef5bd517f3d81f/picture.jpg",
+          "original": "http://localhost:3000/rails/active_storage/blobs/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBXUT09IiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--5aadad9a9d3aa4a8d85077b62e23a700c8525bb4/picture.jpg"
+        },
+        "credits": "Placeat commodi libero et.",
+        "credits_url": "http://bartoletti.com/jeremiah_cronin"
+      },
+      "relationships": {
+        "journey_steps": {
+          "data": [
+            {
+              "id": "57",
+              "type": "journey_steps"
+            },
+            {
+              "id": "58",
+              "type": "journey_steps"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "27",
+      "type": "journeys",
+      "attributes": {
+        "title": "Et quaerat omnis veniam.",
+        "subtitle": "Et quaerat omnis veniam.",
+        "theme": "Et quaerat omnis veniam.",
+        "background_image": {
+          "small": "http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBYQT09IiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--f824a7efae557e25416eb425000304f51d98d899/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERJd01IZ3lNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--7be8b6f6018bc25ae287d258d8836839fa7642f1/picture.jpg",
+          "medium": "http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBYQT09IiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--f824a7efae557e25416eb425000304f51d98d899/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERnd01IZzRNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--697714719ccce7b35c5f9a02aeef5bd517f3d81f/picture.jpg",
+          "original": "http://localhost:3000/rails/active_storage/blobs/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBYQT09IiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--f824a7efae557e25416eb425000304f51d98d899/picture.jpg"
+        },
+        "credits": "Et quaerat omnis veniam.",
+        "credits_url": "http://hane.com/jules"
+      },
+      "relationships": {
+        "journey_steps": {
+          "data": [
+            {
+              "id": "59",
+              "type": "journey_steps"
+            },
+            {
+              "id": "60",
+              "type": "journey_steps"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "meta": {
+    "total": 3
   }
-]
+}

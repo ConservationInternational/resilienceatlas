@@ -10,6 +10,13 @@ module ConservationInternational
   class Application < Rails::Application
     config.load_defaults 7.0
 
+    backend_url = URI.parse ENV.fetch("BACKEND_URL", "http://localhost:3000")
+    Rails.application.routes.default_url_options = {
+      host: backend_url.host,
+      port: backend_url.port,
+      protocol: backend_url.scheme
+    }
+
     # Set Time.zone default to the specified zone and make Active Record auto-convert to this zone.
     # Run "rake -D time" for a list of tasks for finding time zone names. Default is UTC.
     config.time_zone = "Europe/Madrid"
@@ -38,5 +45,7 @@ module ConservationInternational
         resource "/api/*", headers: :any, methods: [:get, :post, :options, :delete, :put], expose: ["access-token", "expiry", "token-type", "uid", "client"]
       end
     end
+
+    config.active_storage.variant_processor = :mini_magick
   end
 end

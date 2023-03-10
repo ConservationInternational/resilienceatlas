@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/martintomas/activeadmin-globalize
-  revision: 494dc287098c11cae97d9a545b8ebde04f5543b9
+  revision: b99217e8740692fff1b23c778e2ef6a49057deeb
   branch: main
   specs:
     activeadmin-globalize (0.9.10)
@@ -237,6 +237,9 @@ GEM
     hashdiff (1.0.1)
     i18n (1.12.0)
       concurrent-ruby (~> 1.0)
+    image_processing (1.12.2)
+      mini_magick (>= 4.9.5, < 5)
+      ruby-vips (>= 2.0.17, < 3)
     importmap-rails (1.1.5)
       actionpack (>= 6.0.0)
       railties (>= 6.0.0)
@@ -281,6 +284,7 @@ GEM
     marcel (1.0.2)
     matrix (0.4.2)
     method_source (1.0.0)
+    mini_magick (4.12.0)
     mini_mime (1.1.2)
     minitest (5.17.0)
     net-imap (0.3.4)
@@ -421,6 +425,8 @@ GEM
       rubocop (>= 1.7.0, < 2.0)
       rubocop-ast (>= 0.4.0)
     ruby-progressbar (1.11.0)
+    ruby-vips (2.1.4)
+      ffi (~> 1.12)
     ruby2_keywords (0.0.5)
     rubyzip (2.3.2)
     sass (3.7.4)
@@ -543,6 +549,7 @@ DEPENDENCIES
   ffi
   foreman
   globalize
+  image_processing
   importmap-rails
   jbuilder
   jwt
