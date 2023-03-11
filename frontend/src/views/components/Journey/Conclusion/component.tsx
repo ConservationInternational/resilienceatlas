@@ -2,7 +2,9 @@ import React, { useState } from 'react';
 import DangerousHTML from 'react-dangerous-html';
 import cx from 'classnames';
 
-const Conclusion = ({ background, title, subtitle, content }) => {
+import type { JourneyStep } from 'types/journeys';
+
+const Conclusion: React.FC<JourneyStep> = ({ background, title, subtitle, content }) => {
   const [isColapsed, setExpansion] = useState(false);
   return (
     <div className={`m-journey--conclusion ${background}`}>

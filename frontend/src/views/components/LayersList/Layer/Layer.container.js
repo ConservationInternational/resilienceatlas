@@ -1,6 +1,6 @@
 import { compose } from 'redux';
 import { connect } from 'react-redux';
-import { withRouter } from 'react-router-dom';
+import { withRouter } from 'next/router';
 
 import { toggle, setOpacity, getLayerActive } from 'state/modules/layers';
 

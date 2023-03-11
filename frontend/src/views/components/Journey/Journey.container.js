@@ -1,24 +1,22 @@
+import { withRouter } from 'next/router';
 import { compose } from 'redux';
 import { connect } from 'react-redux';
-import { withRouter } from 'react-router-dom';
 
 import {
   load as loadJourneys,
   loadOne as loadJourney,
   getJourneysLength,
 } from 'state/modules/journeys';
-
 import Journey from './Journey.component';
 
-const mapStateToProps = (state, { match }) => {
-  const {
-    params: { id },
-  } = match;
+const mapStateToProps = (state, { router }) => {
+  const { query } = router;
 
   return {
     journeysLength: getJourneysLength(state),
-    journeyLoaded: state.journey.loaded === id,
+    journeyLoaded: state.journey.loaded === query.id,
     journey: state.journey.data,
+    query,
   };
 };
 

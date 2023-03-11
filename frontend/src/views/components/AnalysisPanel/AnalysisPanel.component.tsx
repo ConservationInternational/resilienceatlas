@@ -28,13 +28,13 @@ export const AnalysisPanel: FC<P> = ({
   // data
   countriesLoaded,
   drawing,
-  location,
+  router,
   countries,
   geojson,
   iso,
 }) => {
   const sidebarTab = useMemo(
-    () => qs.parse(location.search, { ignoreQueryPrefix: true }).tab,
+    () => qs.parse(router.query, { ignoreQueryPrefix: true }).tab,
     [location],
   );
   useEffect(() => {
