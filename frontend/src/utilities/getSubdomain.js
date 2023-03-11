@@ -1,5 +1,5 @@
 import { PORT, isProd } from '../state/utils/api';
-import { getRouterParam } from './routeParams';
+// import { getRouterParam } from './routeParams';
 
 export const getSubdomain = () => {
   // TO-DO: migrate

@@ -1,6 +1,6 @@
-import React from 'react';
+import type { JourneyStep } from 'types/journeys';
 
-const Chapter = ({ background, title, content }) => (
+const Chapter: React.FC<JourneyStep> = ({ background, title, content }) => (
   <div className={`m-journey--chapter ${background}`}>
     <div className="chapter-mask--1 is-stretch">
       <div className="wrapper">

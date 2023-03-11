@@ -1,6 +1,6 @@
 import { connect } from 'react-redux';
 import { compose } from 'redux';
-import { withRouter } from 'react-router-dom';
+import { withRouter } from 'next/router';
 
 import { setDrawing, setGeojson, setISO } from 'state/modules/map';
 import { load as loadCountries, makeCountries } from 'state/modules/countries';

@@ -1,6 +1,7 @@
 import { compose } from 'redux';
 import { connect } from 'react-redux';
-import { withRouter } from 'react-router-dom';
+import { withRouter } from 'next/router';
+import dynamic from 'next/dynamic';
 
 import {
   load as loadLayers,
@@ -17,7 +18,7 @@ import {
   setMapLayerGroupsInteractionLatLng,
 } from 'state/modules/map';
 
-import MapView from './Map.component';
+const MapViewNoSSR = dynamic(() => import('./Map.component'), { ssr: false });
 
 const makeMapStateToProps = () => {
   const groupedLayers = getGrouped();
@@ -52,4 +53,4 @@ const mapDispatchToProps = {
   setOpacity,
 };
 
-export default compose(withRouter, connect(makeMapStateToProps, mapDispatchToProps))(MapView);
+export default compose(withRouter, connect(makeMapStateToProps, mapDispatchToProps))(MapViewNoSSR);

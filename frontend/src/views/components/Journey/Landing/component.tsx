@@ -1,6 +1,6 @@
-import React from 'react';
+import type { JourneyStep } from 'types/journeys';
 
-const Landing = ({ title, background, subtitle, theme }) => (
+const Landing: React.FC<JourneyStep> = ({ title, background, subtitle, theme }) => (
   <div className="l-journey__intro" id="journeyIndexView">
     <div className={`m-journey--landing is-stretch ${background}`}>
       <div className="row">

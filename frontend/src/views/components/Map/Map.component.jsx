@@ -34,7 +34,7 @@ const MapView = ({
   activeLayers,
   model_layer,
   defaultActiveGroups,
-  location,
+  router: { query },
   tab,
   site,
   page,
@@ -43,10 +43,11 @@ const MapView = ({
   embed,
   drawing,
 }) => {
-  const query = qs.parse(location.search, {
-    ignoreQueryPrefix: true,
-    parseArrays: true,
-  });
+  // console.log(router);
+  // const query = qs.parse(location.search, {
+  //   ignoreQueryPrefix: true,
+  //   parseArrays: true,
+  // });
 
   const layerManagerRef = useContext(LayerManagerContext);
 

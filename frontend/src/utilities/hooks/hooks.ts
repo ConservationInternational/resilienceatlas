@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import cx from 'classnames';
-import { setRouterParam } from '../routeParams';
+// import { setRouterParam } from '../routeParams';
 import { usePrevious } from './usePrevious';
 
 export const useToggle = (initial = false) => {
@@ -73,7 +73,7 @@ export const useRouterValue = (
 
   useEffect(() => {
     if (!onlyOnChange || prevValue !== value) {
-      setRouterParam(name, value);
+      // setRouterParam(name, value);
     }
   }, [value]);
 };

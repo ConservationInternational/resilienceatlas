@@ -55,9 +55,9 @@ const Embed = ({
   return (
     <div className={`m-journey--embed--light ${theme}`}>
       <div className="embebed-map">
-        <Iframe src={`${process.env.REACT_APP_SITE + mapUrl}&${embedParams}`} />
+        <Iframe src={`${mapUrl}&${embedParams}`} />
         <a
-          href={process.env.REACT_APP_SITE + btnUrl}
+          href={btnUrl}
           target="_blank"
           rel="noopener noreferrer"
           data-step={currentStep}

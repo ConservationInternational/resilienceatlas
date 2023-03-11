@@ -1,6 +1,6 @@
 // TO-DO: migrate
 // import history from '../history';
-const history = { location: { pathname: '', search: '' } };
+import router, { useRouter } from 'next/router';
 
 /**
  * @param  {string} param name of query param you want to set
@@ -18,10 +18,11 @@ export const setRouterParam = (param, value) => {
     params.set(param, value);
   } else params.delete(param);
 
-  history.replace({
-    pathname,
-    search: params.toString(),
-  });
+  // history.replace({
+  //   pathname,
+  //   search: params.toString(),
+  // });
+  router.replace({ query: params }, null, { shallow: true });
 };
 
 /**
@@ -31,11 +32,12 @@ export const setRouterParam = (param, value) => {
  * @returns  {any} value
  */
 export const getRouterParam = (param, parser) => {
-  const {
-    location: { search },
-  } = history;
+  // const {
+  //   location: { search },
+  // } = history;
+  const { query } = router;
 
-  const params = new URLSearchParams(search.slice(1));
+  const params = new URLSearchParams(query.slice(1));
   const result = params.get(param);
 
   if (parser) return parser(result);
@@ -43,9 +45,10 @@ export const getRouterParam = (param, parser) => {
 };
 
 export const useRouterParams = () => {
-  const {
-    location: { pathname, search },
-  } = history;
+  // const {
+  //   location: { pathname, search },
+  // } = history;
+  const { pathname, query } = useRouter();
 
   const params = new URLSearchParams(search.slice(1));
 
