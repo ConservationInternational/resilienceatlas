@@ -1,7 +1,8 @@
 # Changelog
 
 **Merged pull requests:**
-
+- Adding a backend GH Actions workflow to deploy to staging automatically on push to develop [\#97](https://github.com/ConservationInternational/resilienceatlas/pull/97) ([agnessa](https://github.com/agnessa))
+- Updating the backend capistrano deploy script to deploy via bastion host [\#93](https://github.com/ConservationInternational/resilienceatlas/pull/93) ([agnessa](https://github.com/agnessa))
 - Removing devise token auth library which was broken and not used [\#91](https://github.com/ConservationInternational/resilienceatlas/pull/91) ([martintomas](https://github.com/martintomas))
 - Removing CKEditor which was replaced by ActionText [\#91](https://github.com/ConservationInternational/resilienceatlas/pull/91) ([martintomas](https://github.com/martintomas))
 - Migrating rest of the controller actions to API namespace and covering all API endpoints with rswag tests [\#91](https://github.com/ConservationInternational/resilienceatlas/pull/91) ([martintomas](https://github.com/martintomas))
