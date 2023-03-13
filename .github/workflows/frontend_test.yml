@@ -62,6 +62,7 @@ jobs:
         env:
           REACT_APP_API_HOST: ${{ secrets.REACT_APP_API_HOST }}
           REACT_APP_API_PROD: ${{ secrets.REACT_APP_API_HOST }}
+          REACT_APP_SITE: ${{ secrets.REACT_APP_API_HOST }}
           NODE_PATH: ./src
           SASS_PATH: ./node_modules:/src/views/styles/
           CI: false
