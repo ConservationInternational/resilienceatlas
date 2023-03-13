@@ -1,6 +1,5 @@
-// TO-DO: migrate
 // import history from '../history';
-import router, { useRouter } from 'next/router';
+import Router from 'next/router';
 
 /**
  * @param  {string} param name of query param you want to set
@@ -9,20 +8,24 @@ import router, { useRouter } from 'next/router';
  * @returns  {void}
  */
 export const setRouterParam = (param, value) => {
-  const {
-    location: { pathname, search },
-  } = history;
+  // const {
+  //   location: { pathname, search },
+  // } = history;
 
-  const params = new URLSearchParams(search.slice(1));
-  if (value) {
-    params.set(param, value);
-  } else params.delete(param);
+  // const params = new URLSearchParams(search.slice(1));
+  // if (value) {
+  //   params.set(param, value);
+  // } else params.delete(param);
 
   // history.replace({
   //   pathname,
   //   search: params.toString(),
   // });
-  router.replace({ query: params }, null, { shallow: true });
+  Router.push({
+    query: {
+      [param]: value,
+    },
+  });
 };
 
 /**
@@ -31,32 +34,31 @@ export const setRouterParam = (param, value) => {
  *
  * @returns  {any} value
  */
-// TO-DO: migrate get Router Params
 export const getRouterParam = (param, parser) => {
   // const {
   //   location: { search },
   // } = history;
-  // const { query } = router;
 
-  // const params = new URLSearchParams(query.slice(1));
+  // const params = new URLSearchParams(search.slice(1));
   // const result = params.get(param);
 
   // if (parser) return parser(result);
   // return result;
-  return {};
+  const query = {};
+  if (parser && typeof parser === 'function') return parser(query[param] || null);
+  return query[param];
 };
 
 export const useRouterParams = () => {
+  const router = useRouter();
   // const {
   //   location: { pathname, search },
   // } = history;
-  const { pathname, query } = useRouter();
 
-  const params = new URLSearchParams(search.slice(1));
+  const params = { ...router.query };
 
   const getParam = (param, parser) => {
-    const result = params.get(param);
-
+    const result = params[param];
     if (parser) return parser(result);
     return result;
   };
@@ -64,18 +66,18 @@ export const useRouterParams = () => {
   const setParam = (param, value) => {
     params.set(param, value);
 
-    history.replace({
+    router.replace({
       pathname,
-      search: params.toString(),
+      query: params,
     });
   };
 
   const removeParam = (param) => {
     params.delete(param);
 
-    history.replace({
+    router.replace({
       pathname,
-      search: params.toString(),
+      query: params,
     });
   };
 
