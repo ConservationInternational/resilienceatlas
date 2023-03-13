@@ -4,10 +4,9 @@ import Slider from 'react-slick';
 import { Row } from 'react-foundation';
 
 import MainLayout from 'views/layouts/main';
+import { JOURNEY_SLIDES } from 'views/utils';
 
 import type { NextPageWithLayout } from './_app';
-
-import { JOURNEY_SLIDES } from 'views/utils';
 
 const Homepage: NextPageWithLayout = () => {
   return (

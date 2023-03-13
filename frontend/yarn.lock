@@ -349,6 +349,14 @@
   dependencies:
     "@types/react" "*"
 
+"@types/react-foundation@^0.9.8":
+  version "0.9.8"
+  resolved "https://registry.yarnpkg.com/@types/react-foundation/-/react-foundation-0.9.8.tgz#0c0474a1b102421428486b7697f61cce6dce1bd1"
+  integrity sha512-9LtASeVnrrH1rbY2aIe1OJruvom87LhohalGX7/709kAYTLJH/mKh//CRsLbsitTf8Lqez/rTCc6KAurycYTcw==
+  dependencies:
+    "@types/prop-types" "*"
+    "@types/react" "*"
+
 "@types/react-leaflet@^2.2.1":
   version "2.8.3"
   resolved "https://registry.yarnpkg.com/@types/react-leaflet/-/react-leaflet-2.8.3.tgz#2a806ab61f04bd4118d3f1303101d23f98a540f8"
@@ -366,6 +374,13 @@
     "@types/react" "*"
     hoist-non-react-statics "^3.3.0"
     redux "^4.0.0"
+
+"@types/react-slick@^0.23.10":
+  version "0.23.10"
+  resolved "https://registry.yarnpkg.com/@types/react-slick/-/react-slick-0.23.10.tgz#56126e6e4e95cdce7771535b2811c2c1931a7caa"
+  integrity sha512-ZiqdencANDZy6sWOWJ54LDvebuXFEhDlHtXU9FFipQR2BcYU2QJxZhvJPW6YK7cocibUiNn+YvDTbt1HtCIBVA==
+  dependencies:
+    "@types/react" "*"
 
 "@types/react@*", "@types/react@^18.0.28":
   version "18.0.28"
