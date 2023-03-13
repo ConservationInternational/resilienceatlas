@@ -120,6 +120,6 @@ const Homepage: NextPageWithLayout = () => {
   );
 };
 
-Homepage.Layout = (page) => <MainLayout>{page}</MainLayout>;
+Homepage.Layout = (page) => <MainLayout pageTitle="Welcome">{page}</MainLayout>;
 
 export default Homepage;

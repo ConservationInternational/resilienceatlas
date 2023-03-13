@@ -14,7 +14,6 @@ import { LayerManagerProvider } from 'views/contexts/layerManagerCtx';
 import Loader from 'views/shared/Loader';
 
 import type { NextPageWithLayout } from './_app';
-import Head from 'next/head';
 
 const MapPage: NextPageWithLayout = () => {
   // const { location: { state } } = props;
@@ -26,9 +25,6 @@ const MapPage: NextPageWithLayout = () => {
 
   return (
     <LayerManagerProvider>
-      <Head>
-        <title>Map | Resilience Atlas</title>
-      </Head>
       <Sidebar />
       <div className="l-content--fullscreen">
         {/* <MapView
@@ -51,6 +47,6 @@ const MapPage: NextPageWithLayout = () => {
   );
 };
 
-MapPage.Layout = (page) => <FullscreenLayout>{page}</FullscreenLayout>;
+MapPage.Layout = (page) => <FullscreenLayout pageTitle="Map">{page}</FullscreenLayout>;
 
 export default MapPage;
