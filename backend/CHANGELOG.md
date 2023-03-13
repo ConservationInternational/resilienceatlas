@@ -1,6 +1,11 @@
 # Changelog
 
 **Merged pull requests:**
+- Adding possibility to publish/unpublish journeys [\#95](https://github.com/ConservationInternational/resilienceatlas/pull/95) ([martintomas](https://github.com/martintomas))
+- Refactoring journey API endpoints so data are taken from database [\#95](https://github.com/ConservationInternational/resilienceatlas/pull/95) ([martintomas](https://github.com/martintomas))
+- Adding Administration of Journey and its steps (possibility to create/update/delete) [\#95](https://github.com/ConservationInternational/resilienceatlas/pull/95) ([martintomas](https://github.com/martintomas))
+- Adding Journey and JourneyStep models [\#95](https://github.com/ConservationInternational/resilienceatlas/pull/95) ([martintomas](https://github.com/martintomas))
+- Adding system tests for CRUD operations which can be done via Admin for existing resources [\#92](https://github.com/ConservationInternational/resilienceatlas/pull/92) ([martintomas](https://github.com/martintomas))
 - Adding a backend GH Actions workflow to deploy to staging automatically on push to develop [\#97](https://github.com/ConservationInternational/resilienceatlas/pull/97) ([agnessa](https://github.com/agnessa))
 - Updating the backend capistrano deploy script to deploy via bastion host [\#93](https://github.com/ConservationInternational/resilienceatlas/pull/93) ([agnessa](https://github.com/agnessa))
 - Removing devise token auth library which was broken and not used [\#91](https://github.com/ConservationInternational/resilienceatlas/pull/91) ([martintomas](https://github.com/martintomas))
