@@ -31,17 +31,19 @@ export const setRouterParam = (param, value) => {
  *
  * @returns  {any} value
  */
+// TO-DO: migrate get Router Params
 export const getRouterParam = (param, parser) => {
   // const {
   //   location: { search },
   // } = history;
-  const { query } = router;
+  // const { query } = router;
 
-  const params = new URLSearchParams(query.slice(1));
-  const result = params.get(param);
+  // const params = new URLSearchParams(query.slice(1));
+  // const result = params.get(param);
 
-  if (parser) return parser(result);
-  return result;
+  // if (parser) return parser(result);
+  // return result;
+  return {};
 };
 
 export const useRouterParams = () => {
