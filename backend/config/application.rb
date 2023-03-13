@@ -46,7 +46,5 @@ module ConservationInternational
         resource "/api/*", headers: :any, methods: [:get, :post, :options, :delete, :put], expose: ["access-token", "expiry", "token-type", "uid", "client"]
       end
     end
-
-    config.active_storage.variant_processor = :mini_magick
   end
 end

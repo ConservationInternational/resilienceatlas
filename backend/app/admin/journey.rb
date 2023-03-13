@@ -2,8 +2,8 @@ ActiveAdmin.register Journey do
   permit_params :credits, :credits_url, :background_image,
     translations_attributes: [:id, :locale, :title, :subtitle, :theme, :_destroy],
     journey_steps_attributes: [:id, :step_type, :position, :chapter_number, :credits, :credits_url,
-      :map_theme, :map_url, :mask_sql, :btn_url, :background_image, :background_color, :_destroy,
-      translations_attributes: [:id, :locale, :title, :subtitle, :theme, :content, :_destroy]]
+      :source, :map_url, :mask_sql, :embedded_map_url, :background_image, :background_color, :_destroy,
+      translations_attributes: [:id, :locale, :title, :subtitle, :description, :content, :_destroy]]
 
   controller do
     def scoped_collection
@@ -22,6 +22,7 @@ ActiveAdmin.register Journey do
 
     column :id
     column :title
+    column :subtitle
     column :created_at
     column :updated_at
 
@@ -33,6 +34,8 @@ ActiveAdmin.register Journey do
       row :title
       row :subtitle
       row :theme
+      row :credits
+      row :credits_url
       row :background_image do |record|
         render "admin/shared/preview", blob: record.background_image if record.background_image.present?
       end
@@ -48,7 +51,7 @@ ActiveAdmin.register Journey do
           row :position
           controller.visible(journey_step, :title) { row :title }
           controller.visible(journey_step, :subtitle) { row :subtitle }
-          controller.visible(journey_step, :theme) { row :theme }
+          controller.visible(journey_step, :description) { row :description }
           controller.visible(journey_step, :content) do
             row :content do |record|
               ActionText::Content.new(record.content)
@@ -57,10 +60,10 @@ ActiveAdmin.register Journey do
           controller.visible(journey_step, :chapter_number) { row :chapter_number }
           controller.visible(journey_step, :credits) { row :credits }
           controller.visible(journey_step, :credits_url) { row :credits_url }
-          controller.visible(journey_step, :map_theme) { row :map_theme }
+          controller.visible(journey_step, :source) { row :source }
           controller.visible(journey_step, :mask_sql) { row :mask_sql }
           controller.visible(journey_step, :map_url) { row :map_url }
-          controller.visible(journey_step, :btn_url) { row :btn_url }
+          controller.visible(journey_step, :embedded_map_url) { row :embedded_map_url }
           controller.visible(journey_step, :background_color) do
             row :background_color do |record|
               render "admin/shared/color", color: record.background_color if record.background_color.present?

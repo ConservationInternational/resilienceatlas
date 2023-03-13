@@ -24,6 +24,7 @@ gem "simple_command"
 gem "activeadmin"
 gem "activeadmin_addons"
 gem "active_model_serializers"
+gem "active_storage_validations"
 gem "will_paginate"
 
 gem "ffi"

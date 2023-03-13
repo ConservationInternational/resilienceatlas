@@ -1,3 +1,26 @@
+# == Schema Information
+#
+# Table name: journey_steps
+#
+#  id               :bigint           not null, primary key
+#  step_type        :string           not null
+#  credits          :string
+#  credits_url      :string
+#  source           :string
+#  mask_sql         :string
+#  map_url          :string
+#  embedded_map_url :string
+#  background_color :string
+#  chapter_number   :integer
+#  position         :integer          default(1), not null
+#  journey_id       :bigint           not null
+#  created_at       :datetime         not null
+#  updated_at       :datetime         not null
+#  title            :string
+#  subtitle         :string
+#  description      :string
+#  content          :text
+#
 FactoryBot.define do
   factory :journey_step do
     journey
@@ -12,7 +35,7 @@ FactoryBot.define do
       Faker::Config.random = Random.new(n)
       Faker::Lorem.sentence
     end
-    sequence(:theme) do |n|
+    sequence(:description) do |n|
       Faker::Config.random = Random.new(n)
       Faker::Lorem.sentence
     end
@@ -32,7 +55,7 @@ FactoryBot.define do
       Faker::Config.random = Random.new(n)
       Faker::Internet.url
     end
-    sequence(:map_theme) do |n|
+    sequence(:source) do |n|
       Faker::Config.random = Random.new(n)
       Faker::Lorem.sentence
     end
@@ -44,7 +67,7 @@ FactoryBot.define do
       Faker::Config.random = Random.new(n)
       Faker::Internet.url
     end
-    sequence(:btn_url) do |n|
+    sequence(:embedded_map_url) do |n|
       Faker::Config.random = Random.new(n)
       Faker::Internet.url
     end

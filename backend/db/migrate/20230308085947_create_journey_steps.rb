@@ -4,10 +4,10 @@ class CreateJourneySteps < ActiveRecord::Migration[7.0]
       t.string :step_type, null: false
       t.string :credits
       t.string :credits_url
-      t.string :map_theme
+      t.string :source
       t.string :mask_sql
       t.string :map_url
-      t.string :btn_url
+      t.string :embedded_map_url
       t.string :background_color
       t.integer :chapter_number
       t.integer :position, null: false, default: 1
@@ -18,7 +18,7 @@ class CreateJourneySteps < ActiveRecord::Migration[7.0]
 
     reversible do |dir|
       dir.up do
-        JourneyStep.create_translation_table! title: :string, subtitle: :string, theme: :string, content: :text
+        JourneyStep.create_translation_table! title: :string, subtitle: :string, description: :string, content: :text
       end
 
       dir.down do

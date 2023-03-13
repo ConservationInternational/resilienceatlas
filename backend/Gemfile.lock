@@ -75,6 +75,11 @@ GEM
       activemodel (>= 4.1, < 7.1)
       case_transform (>= 0.2)
       jsonapi-renderer (>= 0.1.1.beta1, < 0.3)
+    active_storage_validations (1.0.3)
+      activejob (>= 5.2.0)
+      activemodel (>= 5.2.0)
+      activestorage (>= 5.2.0)
+      activesupport (>= 5.2.0)
     activeadmin (2.13.1)
       arbre (~> 1.2, >= 1.2.1)
       formtastic (>= 3.1, < 5.0)
@@ -522,6 +527,7 @@ DEPENDENCIES
   active_admin-sortable_tree
   active_admin_theme
   active_model_serializers
+  active_storage_validations
   activeadmin
   activeadmin-globalize!
   activeadmin_addons

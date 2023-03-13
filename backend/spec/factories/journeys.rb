@@ -1,3 +1,16 @@
+# == Schema Information
+#
+# Table name: journeys
+#
+#  id          :bigint           not null, primary key
+#  credits     :string
+#  credits_url :string
+#  created_at  :datetime         not null
+#  updated_at  :datetime         not null
+#  title       :string
+#  subtitle    :string
+#  theme       :text
+#
 FactoryBot.define do
   factory :journey do
     sequence(:title) do |n|

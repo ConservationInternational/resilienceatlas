@@ -47,7 +47,7 @@ paths:
                   data_units:
                   processing:
                   description:
-                  id: 515
+                  id: 50
                   layer_group_id:
                   slug: Layer-3
                   layer_type: molestiae
@@ -60,8 +60,8 @@ paths:
                   interactivity: molestiae
                   opacity:
                   query:
-                  created_at: '2023-03-03T10:36:46.490+01:00'
-                  updated_at: '2023-03-03T10:36:46.490+01:00'
+                  created_at: '2023-03-13T11:59:51.642+01:00'
+                  updated_at: '2023-03-13T11:59:51.642+01:00'
                   locate_layer: false
                   icon_class:
                   published: true
@@ -91,7 +91,7 @@ paths:
                   data_units:
                   processing:
                   description:
-                  id: 514
+                  id: 49
                   layer_group_id:
                   slug: Layer-2
                   layer_type: cum
@@ -104,8 +104,8 @@ paths:
                   interactivity: cum
                   opacity:
                   query:
-                  created_at: '2023-03-03T10:36:46.471+01:00'
-                  updated_at: '2023-03-03T10:36:46.471+01:00'
+                  created_at: '2023-03-13T11:59:51.634+01:00'
+                  updated_at: '2023-03-13T11:59:51.634+01:00'
                   locate_layer: false
                   icon_class:
                   published: true
@@ -135,7 +135,7 @@ paths:
                   data_units:
                   processing:
                   description:
-                  id: 513
+                  id: 48
                   layer_group_id:
                   slug: Layer-1
                   layer_type: voluptatem
@@ -148,8 +148,8 @@ paths:
                   interactivity: voluptatem
                   opacity:
                   query:
-                  created_at: '2023-03-03T10:36:46.461+01:00'
-                  updated_at: '2023-03-03T10:36:46.461+01:00'
+                  created_at: '2023-03-13T11:59:51.628+01:00'
+                  updated_at: '2023-03-13T11:59:51.628+01:00'
                   locate_layer: false
                   icon_class:
                   published: true
@@ -208,7 +208,7 @@ paths:
                   data_units:
                   processing:
                   description:
-                  id: 517
+                  id: 52
                   layer_group_id:
                   slug: Layer-1
                   layer_type: voluptatem
@@ -221,8 +221,8 @@ paths:
                   interactivity: voluptatem
                   opacity:
                   query:
-                  created_at: '2023-03-03T10:36:46.578+01:00'
-                  updated_at: '2023-03-03T10:36:46.578+01:00'
+                  created_at: '2023-03-13T11:59:51.721+01:00'
+                  updated_at: '2023-03-13T11:59:51.721+01:00'
                   locate_layer: false
                   icon_class:
                   published: true
@@ -292,7 +292,7 @@ paths:
                   data_units:
                   processing:
                   description:
-                  id: 524
+                  id: 59
                   layer_group_id:
                   slug: Layer-1
                   layer_type: voluptatem
@@ -305,8 +305,8 @@ paths:
                   interactivity: voluptatem
                   opacity:
                   query:
-                  created_at: '2023-03-03T10:36:46.752+01:00'
-                  updated_at: '2023-03-03T10:36:46.752+01:00'
+                  created_at: '2023-03-13T11:59:51.915+01:00'
+                  updated_at: '2023-03-13T11:59:51.915+01:00'
                   locate_layer: false
                   icon_class:
                   published: true
@@ -372,7 +372,7 @@ paths:
                   data_units:
                   processing:
                   description:
-                  id: 528
+                  id: 63
                   layer_group_id:
                   slug: Layer-1
                   layer_type: voluptatem
@@ -385,8 +385,8 @@ paths:
                   interactivity: voluptatem
                   opacity:
                   query:
-                  created_at: '2023-03-03T10:36:46.894+01:00'
-                  updated_at: '2023-03-03T10:36:46.894+01:00'
+                  created_at: '2023-03-13T11:59:52.077+01:00'
+                  updated_at: '2023-03-13T11:59:52.077+01:00'
                   locate_layer: false
                   icon_class:
                   published: true
@@ -429,7 +429,7 @@ paths:
           content:
             application/json:
               example:
-                auth_token: eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxMzV9.AxZg0-2aoON9i_RZkYL21jceMlabWht2eB2NW97HhJ8
+                auth_token: eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxMiwiZXhwIjoxNjc4NzkxNTkyfQ.6QCPSf-kjK3j04G4whtJQxsUfdE_qn5C6YVEnUVI7VE
         '401':
           description: Unauthorized
           content:
@@ -462,7 +462,7 @@ paths:
             application/json:
               example:
                 data:
-                - id: '214'
+                - id: '16'
                   type: categories
                   attributes:
                     name: voluptatem
@@ -472,7 +472,7 @@ paths:
                   relationships:
                     indicators:
                       data: []
-                - id: '215'
+                - id: '17'
                   type: categories
                   attributes:
                     name: cum
@@ -482,7 +482,7 @@ paths:
                   relationships:
                     indicators:
                       data: []
-                - id: '216'
+                - id: '18'
                   type: categories
                   attributes:
                     name: molestiae
@@ -506,7 +506,7 @@ paths:
             application/json:
               example:
                 data:
-                - id: '109'
+                - id: '10'
                   type: indicators
                   attributes:
                     name: voluptatem
@@ -520,9 +520,9 @@ paths:
                       data: []
                     category:
                       data:
-                        id: '220'
+                        id: '22'
                         type: categories
-                - id: '110'
+                - id: '11'
                   type: indicators
                   attributes:
                     name: cum
@@ -536,9 +536,9 @@ paths:
                       data: []
                     category:
                       data:
-                        id: '221'
+                        id: '23'
                         type: categories
-                - id: '111'
+                - id: '12'
                   type: indicators
                   attributes:
                     name: molestiae
@@ -552,10 +552,10 @@ paths:
                       data: []
                     category:
                       data:
-                        id: '222'
+                        id: '24'
                         type: categories
                 included:
-                - id: '220'
+                - id: '22'
                   type: categories
                   attributes:
                     name: voluptatem
@@ -565,9 +565,9 @@ paths:
                   relationships:
                     indicators:
                       data:
-                      - id: '109'
+                      - id: '10'
                         type: indicators
-                - id: '221'
+                - id: '23'
                   type: categories
                   attributes:
                     name: cum
@@ -577,9 +577,9 @@ paths:
                   relationships:
                     indicators:
                       data:
-                      - id: '110'
+                      - id: '11'
                         type: indicators
-                - id: '222'
+                - id: '24'
                   type: categories
                   attributes:
                     name: molestiae
@@ -589,7 +589,7 @@ paths:
                   relationships:
                     indicators:
                       data:
-                      - id: '111'
+                      - id: '12'
                         type: indicators
                 meta:
                   total_indicators: 3
@@ -604,35 +604,66 @@ paths:
           content:
             application/json:
               example:
-              - id: 1
-                title: ETHIOPIA
-                subtitle: Smallholder maize
-                theme: Livelihoods dependent on rainfed agricultural production and
-                  small-scale farms threatened by changing climate
-                bg: thumb-1
-                bg-big: thumb-big-1
-              - id: 2
-                title: ETHIOPIA
-                subtitle: Pastoral livelihoods
-                theme: Pastoral livelihoods threatened by changing climate
-                bg: thumb-2
-                bg-big: thumb-big-2
-              - id: 3
-                title: INDIA
-                subtitle: Cotton production
-                theme: Building resilience of an important cash crop
-                bg: thumb-3
-                bg-big: thumb-big-3
-              - id: 4
-                title: AFRICA
-                theme: Climate change likely to affect coffee production
-                bg: thumb-4
-                bg-big: thumb-big-4
-              - id: 5
-                title: MADAGASCAR
-                theme: Implementing climate resilient rice production
-                bg: thumb-5
-                bg-big: thumb-big-5
+                data:
+                - id: '204'
+                  type: journeys
+                  attributes:
+                    title: Enim repellat pariatur est.
+                    subtitle: Enim repellat pariatur est.
+                    theme: Enim repellat pariatur est.
+                    background_image:
+                      small: http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBdkVDIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--3df0b89329ff8f296fd73396c93203cea33659ec/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERJd01IZ3lNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--7be8b6f6018bc25ae287d258d8836839fa7642f1/picture.jpg
+                      medium: http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBdkVDIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--3df0b89329ff8f296fd73396c93203cea33659ec/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERnd01IZzRNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--697714719ccce7b35c5f9a02aeef5bd517f3d81f/picture.jpg
+                      original: http://localhost:3000/rails/active_storage/blobs/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBdkVDIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--3df0b89329ff8f296fd73396c93203cea33659ec/picture.jpg
+                    credits: Enim repellat pariatur est.
+                    credits_url: http://kutch-spencer.com/moises
+                  relationships:
+                    journey_steps:
+                      data:
+                      - id: '455'
+                        type: journey_steps
+                      - id: '456'
+                        type: journey_steps
+                - id: '205'
+                  type: journeys
+                  attributes:
+                    title: Placeat commodi libero et.
+                    subtitle: Placeat commodi libero et.
+                    theme: Placeat commodi libero et.
+                    background_image:
+                      small: http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBdlFDIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--d0441f34f3f97e52e6e5ee60a0a61ed047736dd3/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERJd01IZ3lNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--7be8b6f6018bc25ae287d258d8836839fa7642f1/picture.jpg
+                      medium: http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBdlFDIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--d0441f34f3f97e52e6e5ee60a0a61ed047736dd3/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERnd01IZzRNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--697714719ccce7b35c5f9a02aeef5bd517f3d81f/picture.jpg
+                      original: http://localhost:3000/rails/active_storage/blobs/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBdlFDIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--d0441f34f3f97e52e6e5ee60a0a61ed047736dd3/picture.jpg
+                    credits: Placeat commodi libero et.
+                    credits_url: http://bartoletti.com/jeremiah_cronin
+                  relationships:
+                    journey_steps:
+                      data:
+                      - id: '457'
+                        type: journey_steps
+                      - id: '458'
+                        type: journey_steps
+                - id: '206'
+                  type: journeys
+                  attributes:
+                    title: Et quaerat omnis veniam.
+                    subtitle: Et quaerat omnis veniam.
+                    theme: Et quaerat omnis veniam.
+                    background_image:
+                      small: http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBdmNDIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--a8f3953dda3ea81ce98416950fbc16dbc7919603/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERJd01IZ3lNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--7be8b6f6018bc25ae287d258d8836839fa7642f1/picture.jpg
+                      medium: http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBdmNDIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--a8f3953dda3ea81ce98416950fbc16dbc7919603/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERnd01IZzRNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--697714719ccce7b35c5f9a02aeef5bd517f3d81f/picture.jpg
+                      original: http://localhost:3000/rails/active_storage/blobs/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBdmNDIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--a8f3953dda3ea81ce98416950fbc16dbc7919603/picture.jpg
+                    credits: Et quaerat omnis veniam.
+                    credits_url: http://hane.com/jules
+                  relationships:
+                    journey_steps:
+                      data:
+                      - id: '459'
+                        type: journey_steps
+                      - id: '460'
+                        type: journey_steps
+                meta:
+                  total: 3
   "/api/journeys/{id}":
     get:
       summary: Get appropriate journey
@@ -661,170 +692,85 @@ paths:
           content:
             application/json:
               example:
-              - id: 1
-                title: ETHIOPIA
-                subtitle: Livelihoods dependent on rainfed agricultural production
-                  and small-scale farms threatened by changing climate
-                steps:
-                - number: 0
-                  type: landing
-                  title: ethiopia
-                  subtitle: data insights
-                  theme: Livelihoods dependent on rainfed agricultural production
-                    and small-scale farms threatened by changing climate
-                  background: journey1bg0
-                  credits: "© Peter Essick/Aurora Photos"
-                  creditsUrl: https://ci.tandemvault.com/lightboxes/MVGRc7ujF?t=BwQlYp2iC#80549611
-                - number: 1
-                  type: conclusion
-                  background: journey1bg1
-                  backgroundColor: 48, 29, 11
-                  title: overview
-                  content: "<p>Ethiopia is the fifth largest producer of maize in
-                    Africa. The vast majority of maize production in Ethiopia (94%)
-                    is done by smallholder farmers, nearly all of whom rely on seasonal
-                    rains to support their crops.</p><p>Ethiopia has two distinct
-                    rainy seasons and one dry season. The short rainy season, or belg,
-                    occurs from February to May and the long rainy season, or kiremt,
-                    from June through September.</p><p>Changes in the seasonal rains
-                    can greatly impact food security. In 2015, a late start to the
-                    short rains in some areas of the country forced many farmers to
-                    plant crops more suited for a shorter growing season instead of
-                    maize, limiting output of a vital food source, and reducing the
-                    resilience of smallholder farmers to future challenges.</p>"
-                  credits: "© Stephen Morrison/Africa Practice/Department of Foreign
-                    Affairs and Trade/Flickr Creative Commons"
-                  creditsUrl: https://ci.tandemvault.com/lightboxes/MVGRc7ujF?t=BwQlYp2iC#35646629
-                - number: 2
-                  chapterNumber: 1
-                  background: journey1ch1
-                  type: chapter
-                  title: livelihoods
-                  content: Where will maize production be impacted by climate variability?
-                  credits: "© Blend Images/Alamy Stock Photo"
-                  creditsUrl: https://ci.tandemvault.com/lightboxes/MVGRc7ujF?t=BwQlYp2iC#69554577
-                - number: 3
-                  type: embed
-                  maskSql: select * from gadm28_adm0 where iso != 'ETH'
-                  theme: light
-                  aside: "<header><h2>Livelihoods</h2><h3>Maize production</h3></header><section><h1>Ethiopia</h1><div
-                    class='facts'><h4></h4><p>Rainfed agriculture dominates the landscape
-                    in Ethiopia, encompassing nearly 49% of its total area.</p></div></section>"
-                  mapUrl: "/embed/map?layers=%5B%7B%22id%22%3A8%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%5D&zoom=6&center=%7B%22lat%22%3A9.09124858577939%2C%22lng%22%3A38.03466796875%7D"
-                  btnUrl: "/map?layers=%5B%7B%22id%22%3A8%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%5D&zoom=6&center=%7B%22lat%22%3A9.09124858577939%2C%22lng%22%3A38.03466796875%7D"
-                - number: 4
-                  chapterNumber: 2
-                  background: journey1ch2
-                  type: chapter
-                  title: stressors & shocks
-                  content: In which locations is maize production exposed to climate
-                    variability and shocks and what is the severity?
-                  credits: "© Robert Harding Picture Library Ltd/Alamy Stock Photo"
-                  creditsUrl: https://ci.tandemvault.com/lightboxes/MVGRc7ujF?t=BwQlYp2iC#30094743
-                - number: 5
-                  maskSql: select * from gadm28_adm0 where iso != 'ETH'
-                  type: embed
-                  theme: light
-                  aside: "<header><h2>stressors & shocks</h2><h3>Maize production
-                    & short rains</h3></header><section><h1>Ethiopia</h1><div class='facts'><h4></h4><p>49%
-                    of Ethiopia is used for rainfed agriculture</p></div><div class='facts'><h4></h4><p>Rainfall
-                    during the short rains is declining at rates as high as 24% per
-                    decade in some maize-growing areas.</p><p>10% of the area currently
-                    used for maize production has been impacted by this decrease.</p></div></section>"
-                  mapUrl: "/embed/map?layers=%5B%7B%22id%22%3A168%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%2C%7B%22id%22%3A8%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%5D&zoom=6&center=%7B%22lat%22%3A9.09124858577939%2C%22lng%22%3A38.03466796875%7D"
-                  btnUrl: "/map?layers=%5B%7B%22id%22%3A168%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%2C%7B%22id%22%3A8%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%5D&zoom=6&center=%7B%22lat%22%3A9.09124858577939%2C%22lng%22%3A38.03466796875%7D"
-                - number: 6
-                  type: embed
-                  maskSql: select * from gadm28_adm0 where iso != 'ETH'
-                  theme: light
-                  aside: "<header><h2>stressors & shocks</h2><h3>Maize production
-                    & long rains</h3></header><section><h1>Ethiopia</h1><div class='facts'><h4></h4><p>49%
-                    of the land area of Ethiopia is used for rainfed agriculture</p></div><div
-                    class='facts'><h4></h4><p>Rainfall during the long rains is declining
-                    at rates as high as 11% per decade in some maize-growing areas.</p></div></section>"
-                  mapUrl: "/embed/map?layers=%5B%7B%22id%22%3A169%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%2C%7B%22id%22%3A8%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%5D&zoom=6&center=%7B%22lat%22%3A9.09124858577939%2C%22lng%22%3A38.03466796875%7D"
-                  btnUrl: "/map?layers=%5B%7B%22id%22%3A169%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%2C%7B%22id%22%3A8%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%5D&zoom=6&center=%7B%22lat%22%3A9.09124858577939%2C%22lng%22%3A38.03466796875%7D"
-                - number: 7
-                  chapterNumber: 3
-                  background: journey1ch3
-                  type: chapter
-                  title: vulnerability
-                  content: What factors affect the vulnerability of smallholder maize
-                    farmers to climate variability and shocks?
-                  credits: "© Eric Lafforgue/Alamy Stock Photo"
-                  creditsUrl: https://ci.tandemvault.com/lightboxes/MVGRc7ujF?t=BwQlYp2iC#17177125
-                - number: 8
-                  type: embed
-                  maskSql: select * from gadm28_adm0 where iso != 'ETH'
-                  theme: light
-                  aside: "<header><h2>Vulnerability</h2><h3>Fertility rates in maize
-                    production areas</h3></header><section><h1>Ethiopia</h1><div class='facts'><h4></h4><p>Fertility
-                    rates in maize producing areas are >5 children per woman.</p><p>The
-                    population of Ethiopia is projected to increase from 98,942,102
-                    to 142,900,000 by 2030, creating further stress.</p><p class='source'>
-                    Source: International Futures (IFs) forecasting system and the
-                    Pardee Center for International Futures at the University of Denver.</p></div></section>"
-                  mapUrl: "/embed/map?layers=%5B%7B%22id%22%3A42%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%2C%7B%22id%22%3A8%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%5D&zoom=6&center=%7B%22lat%22%3A9.09124858577939%2C%22lng%22%3A38.03466796875%7D"
-                  btnUrl: "/map?layers=%5B%7B%22id%22%3A28%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%2C%7B%22id%22%3A8%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%5D&zoom=6&center=%7B%22lat%22%3A9.09124858577939%2C%22lng%22%3A38.03466796875%7D"
-                - number: 9
-                  type: embed
-                  maskSql: select * from gadm28_adm0 where iso != 'ETH'
-                  theme: light
-                  aside: "<header><h2>Vulnerability</h2><h3>Mass media access in maize
-                    production areas</h3></header><section><h1>Ethiopia</h1><div class='facts'><h4></h4><p>In
-                    maize producing areas, more than 69% of women lack access to mass
-                    media.</p></div></section>"
-                  mapUrl: "/embed/map?layers=%5B%7B%22id%22%3A27%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%2C%7B%22id%22%3A8%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%5D&zoom=6&center=%7B%22lat%22%3A9.09124858577939%2C%22lng%22%3A38.03466796875%7D"
-                  btnUrl: "/map?layers=%5B%7B%22id%22%3A27%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%2C%7B%22id%22%3A8%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%5D&zoom=6&center=%7B%22lat%22%3A9.09124858577939%2C%22lng%22%3A38.03466796875%7D"
-                - number: 10
-                  type: embed
-                  maskSql: select * from gadm28_adm0 where iso != 'ETH'
-                  theme: light
-                  aside: "<header><h2>Vulnerability</h2><h3>Illiteracy rate for women
-                    in maize production areas</h3></header><section><h1>Ethiopia</h1><div
-                    class='facts'><h4></h4><p>In maize producing areas, more than
-                    half of all women are illiterate.</p></div></section>"
-                  mapUrl: "/embed/map?layers=%5B%7B%22id%22%3A44%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%2C%7B%22id%22%3A8%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%5D&zoom=6&center=%7B%22lat%22%3A9.09124858577939%2C%22lng%22%3A38.03466796875%7D"
-                  btnUrl: "/map?layers=%5B%7B%22id%22%3A26%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%2C%7B%22id%22%3A8%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%5D&zoom=6&center=%7B%22lat%22%3A9.09124858577939%2C%22lng%22%3A38.03466796875%7D"
-                - number: 11
-                  type: embed
-                  maskSql: select * from gadm28_adm0 where iso != 'ETH'
-                  theme: light
-                  aside: "<header><h2>Vulnerability</h2><h3>short rains with grain
-                    storage</h3></header><section><h1>Ethiopia</h1><div class='facts'><h4></h4><p>Post-harvest
-                    crop losses due to rotting, insect and rodent damage, and other
-                    causes reduce farmer income and can affect food security.</p><p>Increased
-                    access to grain storage is needed to enable storage of excess
-                    production and reduce post-harvest waste.</p></div></section>"
-                  mapUrl: "/embed/map?layers=%5B%7B%22id%22%3A39%2C%22opacity%22%3A1%2C%22order%22%3A3%7D%2C%7B%22id%22%3A168%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%2C%7B%22id%22%3A8%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%5D&zoom=6&center=%7B%22lat%22%3A9.09124858577939%2C%22lng%22%3A38.03466796875%7D"
-                  btnUrl: "/map?layers=%5B%7B%22id%22%3A39%2C%22opacity%22%3A1%2C%22order%22%3A3%7D%2C%7B%22id%22%3A168%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%2C%7B%22id%22%3A8%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%5D&zoom=6&center=%7B%22lat%22%3A9.09124858577939%2C%22lng%22%3A38.03466796875%7D"
-                - number: 12
-                  type: embed
-                  maskSql: select * from gadm28_adm0 where iso != 'ETH'
-                  theme: light
-                  aside: "<header><h2>Vulnerability</h2><h3>long rains with grain
-                    storage</h3></header><section><h1>Ethiopia</h1><div class='facts'><h4></h4><p>Post-harvest
-                    crop losses due to rotting, insect and rodent damage, and other
-                    causes reduce farmer income and can affect food security.</p><p>Increased
-                    access to grain storage is needed to enable storage of excess
-                    production and reduce post-harvest waste.</p></div></section>"
-                  mapUrl: "/embed/map?layers=%5B%7B%22id%22%3A39%2C%22opacity%22%3A1%2C%22order%22%3A3%7D%2C%7B%22id%22%3A169%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%2C%7B%22id%22%3A8%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%5D&zoom=6&center=%7B%22lat%22%3A9.09124858577939%2C%22lng%22%3A38.03466796875%7D"
-                  btnUrl: "/map?layers=%5B%7B%22id%22%3A39%2C%22opacity%22%3A1%2C%22order%22%3A3%7D%2C%7B%22id%22%3A169%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%2C%7B%22id%22%3A8%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%5D&zoom=6&center=%7B%22lat%22%3A9.09124858577939%2C%22lng%22%3A38.03466796875%7D"
-                - number: 13
-                  type: conclusion
-                  background: journey1bg2
-                  backgroundColor: 35, 38, 48
-                  title: insights
-                  subtitle: agricultural livelihoods & climate change in ethiopia
-                  content: "<p>Climatic changes in primary maize growing seasons will
-                    cause lower food production in areas with high sensitivity to
-                    changing precipitation patterns.</p><p>Access to information is
-                    critical to resilience of crop production. Further, without careful
-                    planning, the impact of interventions may be limited by high levels
-                    of illiteracy and lack of access to communications media, particularly
-                    among women.</p>"
-                  credits: "© Eddie Gerald/Alamy Stock Photo"
-                  creditsUrl: https://ci.tandemvault.com/lightboxes/MVGRc7ujF?t=BwQlYp2iC#73395876
+                data:
+                  id: '221'
+                  type: journeys
+                  attributes:
+                    title: Autem et et ex.
+                    subtitle: Autem et et ex.
+                    theme: Autem et et ex.
+                    background_image:
+                      small: http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBaW9EIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--e74aaa0a4f4a11e14e42db85a4f549730d1d6b6c/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERJd01IZ3lNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--7be8b6f6018bc25ae287d258d8836839fa7642f1/picture.jpg
+                      medium: http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBaW9EIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--e74aaa0a4f4a11e14e42db85a4f549730d1d6b6c/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERnd01IZzRNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--697714719ccce7b35c5f9a02aeef5bd517f3d81f/picture.jpg
+                      original: http://localhost:3000/rails/active_storage/blobs/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBaW9EIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--e74aaa0a4f4a11e14e42db85a4f549730d1d6b6c/picture.jpg
+                    credits: Autem et et ex.
+                    credits_url: http://jacobson.biz/everett
+                  relationships:
+                    journey_steps:
+                      data:
+                      - id: '487'
+                        type: journey_steps
+                      - id: '490'
+                        type: journey_steps
+                      - id: '493'
+                        type: journey_steps
+                      - id: '496'
+                        type: journey_steps
+                included:
+                - id: '487'
+                  type: journey_steps
+                  attributes:
+                    step_type: landing
+                    position: 25
+                    title: Et quaerat omnis veniam.
+                    description: Et quaerat omnis veniam.
+                    credits: Et quaerat omnis veniam.
+                    credits_url: http://hane.com/jules
+                    background_image:
+                      small: http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBaDBEIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--0a2a2cf633208d8d7d79a1a3bfa8f32db2281f57/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERJd01IZ3lNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--7be8b6f6018bc25ae287d258d8836839fa7642f1/picture.jpg
+                      medium: http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBaDBEIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--0a2a2cf633208d8d7d79a1a3bfa8f32db2281f57/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERnd01IZzRNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--697714719ccce7b35c5f9a02aeef5bd517f3d81f/picture.jpg
+                      original: http://localhost:3000/rails/active_storage/blobs/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBaDBEIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--0a2a2cf633208d8d7d79a1a3bfa8f32db2281f57/picture.jpg
+                - id: '490'
+                  type: journey_steps
+                  attributes:
+                    step_type: conclusion
+                    position: 11
+                    title: Porro soluta beatae sint.
+                    subtitle: Porro soluta beatae sint.
+                    content: Porro soluta beatae. Quia ratione facilis. Eligendi sapiente
+                      voluptatem.
+                    credits: Porro soluta beatae sint.
+                    credits_url: http://keebler.info/daine
+                    background_color: "#c2e0e0"
+                    background_image:
+                      small: http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBaUVEIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--4f756b23277993a48254cd906641da7ffcfca343/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERJd01IZ3lNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--7be8b6f6018bc25ae287d258d8836839fa7642f1/picture.jpg
+                      medium: http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBaUVEIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--4f756b23277993a48254cd906641da7ffcfca343/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERnd01IZzRNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--697714719ccce7b35c5f9a02aeef5bd517f3d81f/picture.jpg
+                      original: http://localhost:3000/rails/active_storage/blobs/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBaUVEIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--4f756b23277993a48254cd906641da7ffcfca343/picture.jpg
+                - id: '493'
+                  type: journey_steps
+                  attributes:
+                    step_type: chapter
+                    position: 93
+                    title: Impedit animi eveniet numquam.
+                    description: Impedit animi eveniet numquam.
+                    chapter_number: 93
+                    credits: Impedit animi eveniet numquam.
+                    credits_url: http://ritchie.com/jame
+                    background_image:
+                      small: http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBaVVEIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--288d8c142ad38cf474853a9e40c0e929ed1585dc/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERJd01IZ3lNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--7be8b6f6018bc25ae287d258d8836839fa7642f1/picture.jpg
+                      medium: http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBaVVEIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--288d8c142ad38cf474853a9e40c0e929ed1585dc/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERnd01IZzRNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--697714719ccce7b35c5f9a02aeef5bd517f3d81f/picture.jpg
+                      original: http://localhost:3000/rails/active_storage/blobs/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBaVVEIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--288d8c142ad38cf474853a9e40c0e929ed1585dc/picture.jpg
+                - id: '496'
+                  type: journey_steps
+                  attributes:
+                    step_type: embed
+                    position: 76
+                    content: Eum consequuntur adipisci. Facere iure beatae. In odio
+                      reiciendis.
+                    source: Eum consequuntur adipisci non.
+                    mask_sql: Eum consequuntur adipisci non.
+                    map_url: http://lind.name/alana
+                    embedded_map_url: http://lind.name/alana
   "/api/layer-groups":
     get:
       summary: Get list of layer groups
@@ -844,7 +790,7 @@ paths:
             application/json:
               example:
                 data:
-                - id: '353'
+                - id: '31'
                   type: layer_groups
                   attributes:
                     name: voluptatem
@@ -860,7 +806,7 @@ paths:
                   relationships:
                     super_group:
                       data:
-                - id: '354'
+                - id: '32'
                   type: layer_groups
                   attributes:
                     name: cum
@@ -877,7 +823,7 @@ paths:
                   relationships:
                     super_group:
                       data:
-                - id: '355'
+                - id: '33'
                   type: layer_groups
                   attributes:
                     name: molestiae
@@ -914,7 +860,7 @@ paths:
             application/json:
               example:
                 data:
-                - id: '533'
+                - id: '68'
                   type: layers
                   attributes:
                     name: voluptatem
@@ -948,17 +894,17 @@ paths:
                   relationships:
                     layer_group:
                       data:
-                        id: '362'
+                        id: '40'
                         type: layer_groups
                     sources:
                       data: []
                     agrupation:
                       data:
-                        id: 240
-                        layer_id: 533
-                        layer_group_id: 362
+                        id: 22
+                        layer_id: 68
+                        layer_group_id: 40
                         active: false
-                - id: '534'
+                - id: '69'
                   type: layers
                   attributes:
                     name: cum
@@ -992,17 +938,17 @@ paths:
                   relationships:
                     layer_group:
                       data:
-                        id: '362'
+                        id: '40'
                         type: layer_groups
                     sources:
                       data: []
                     agrupation:
                       data:
-                        id: 241
-                        layer_id: 534
-                        layer_group_id: 362
+                        id: 23
+                        layer_id: 69
+                        layer_group_id: 40
                         active: false
-                - id: '535'
+                - id: '70'
                   type: layers
                   attributes:
                     name: molestiae
@@ -1036,15 +982,15 @@ paths:
                   relationships:
                     layer_group:
                       data:
-                        id: '362'
+                        id: '40'
                         type: layer_groups
                     sources:
                       data: []
                     agrupation:
                       data:
-                        id: 242
-                        layer_id: 535
-                        layer_group_id: 362
+                        id: 24
+                        layer_id: 70
+                        layer_group_id: 40
                         active: false
                 meta:
                   total_layers: 3
@@ -1093,21 +1039,21 @@ paths:
             application/json:
               example:
                 data:
-                - id: '97'
+                - id: '10'
                   type: map_menu_entries
                   attributes:
                     label: Otha Kemmer
                     link: http://kutch-spencer.com/moises
                     position: 38
                     ancestry:
-                - id: '98'
+                - id: '11'
                   type: map_menu_entries
                   attributes:
                     label: Msgr. Genaro Cronin
                     link: http://bartoletti.com/jeremiah_cronin
                     position: 41
                     ancestry:
-                - id: '99'
+                - id: '12'
                   type: map_menu_entries
                   attributes:
                     label: Raymon Wisoky
@@ -1133,7 +1079,7 @@ paths:
             application/json:
               example:
                 data:
-                - id: '170'
+                - id: '17'
                   type: models
                   attributes:
                     name: voluptatem
@@ -1149,7 +1095,7 @@ paths:
                         type: site_scopes
                     indicators:
                       data: []
-                - id: '171'
+                - id: '18'
                   type: models
                   attributes:
                     name: cum
@@ -1165,7 +1111,7 @@ paths:
                         type: site_scopes
                     indicators:
                       data: []
-                - id: '172'
+                - id: '19'
                   type: models
                   attributes:
                     name: molestiae
@@ -1181,7 +1127,7 @@ paths:
                         type: site_scopes
                     indicators:
                       data: []
-                - id: '173'
+                - id: '20'
                   type: models
                   attributes:
                     name: quos
@@ -1305,12 +1251,12 @@ paths:
           content:
             application/json:
               example:
-                id: 20
-                image_data: '{"id":"2d1663012be08d6a6f65a03874634b72.jpg","storage":"store","metadata":{"filename":"picture.jpg","size":32326,"mime_type":null}}'
-                created_at: '2023-03-03T10:37:27.393+01:00'
-                updated_at: '2023-03-03T10:37:27.399+01:00'
-                url: "/uploads/store/2d1663012be08d6a6f65a03874634b72.jpg"
-                image_url: "/uploads/store/2d1663012be08d6a6f65a03874634b72.jpg"
+                id: 4
+                image_data: '{"id":"186fd94b00165f91aab5e9f597f9d293.jpg","storage":"store","metadata":{"filename":"picture.jpg","size":32326,"mime_type":null}}'
+                created_at: '2023-03-13T12:00:20.433+01:00'
+                updated_at: '2023-03-13T12:00:20.437+01:00'
+                url: "/uploads/store/186fd94b00165f91aab5e9f597f9d293.jpg"
+                image_url: "/uploads/store/186fd94b00165f91aab5e9f597f9d293.jpg"
   "/users/register":
     post:
       summary: Register new user
@@ -1388,7 +1334,7 @@ paths:
             application/json:
               example:
                 data:
-                  id: '50'
+                  id: '6'
                   type: share_urls
                   attributes:
                     uid: '12345'
@@ -1410,7 +1356,7 @@ paths:
           content:
             application/json:
               example:
-                uid: ca5741c3629ef0938a0a
+                uid: e4ba831522714f6659c2
   "/api/sites":
     get:
       summary: Get list of all site scopes
@@ -1532,10 +1478,10 @@ paths:
           content:
             application/json:
               example:
-                id: 140
+                id: 17
                 email: person-1@example.com
-                created_at: '2023-03-03T10:37:27.862+01:00'
-                updated_at: '2023-03-03T10:37:27.862+01:00'
+                created_at: '2023-03-13T12:00:20.758+01:00'
+                updated_at: '2023-03-13T12:00:20.758+01:00'
                 first_name: Dawna
                 last_name: Block
                 phone: "(995) 001-7692 x452"
@@ -1565,9 +1511,9 @@ paths:
                 first_name: Jan
                 last_name: Kowalski
                 email: jankowalski@example.com
-                id: 142
-                created_at: '2023-03-03T10:37:27.945+01:00'
-                updated_at: '2023-03-03T10:37:27.973+01:00'
+                id: 19
+                created_at: '2023-03-13T12:00:20.812+01:00'
+                updated_at: '2023-03-13T12:00:20.827+01:00'
                 phone: "(995) 001-7692 x452"
                 organization: voluptatem
                 organization_role: voluptatem

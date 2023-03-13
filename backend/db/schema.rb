@@ -148,7 +148,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_03_08_085947) do
     t.datetime "updated_at", null: false
     t.string "title"
     t.string "subtitle"
-    t.string "theme"
+    t.string "description"
     t.text "content"
     t.index ["journey_step_id"], name: "index_journey_step_translations_on_journey_step_id"
     t.index ["locale"], name: "index_journey_step_translations_on_locale"
@@ -158,10 +158,10 @@ ActiveRecord::Schema[7.0].define(version: 2023_03_08_085947) do
     t.string "step_type", null: false
     t.string "credits"
     t.string "credits_url"
-    t.string "map_theme"
+    t.string "source"
     t.string "mask_sql"
     t.string "map_url"
-    t.string "btn_url"
+    t.string "embedded_map_url"
     t.string "background_color"
     t.integer "chapter_number"
     t.integer "position", default: 1, null: false
