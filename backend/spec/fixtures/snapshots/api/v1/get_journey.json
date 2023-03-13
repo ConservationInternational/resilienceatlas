@@ -1,142 +1,110 @@
-[
-  {
-    "id": 1,
-    "title": "ETHIOPIA",
-    "subtitle": "Livelihoods dependent on rainfed agricultural production and small-scale farms threatened by changing climate",
-    "steps": [
-      {
-        "number": 0,
-        "type": "landing",
-        "title": "ethiopia",
-        "subtitle": "data insights",
-        "theme": "Livelihoods dependent on rainfed agricultural production and small-scale farms threatened by changing climate",
-        "background": "journey1bg0",
-        "credits": "© Peter Essick/Aurora Photos",
-        "creditsUrl": "https://ci.tandemvault.com/lightboxes/MVGRc7ujF?t=BwQlYp2iC#80549611"
+{
+  "data": {
+    "id": "221",
+    "type": "journeys",
+    "attributes": {
+      "title": "Autem et et ex.",
+      "subtitle": "Autem et et ex.",
+      "theme": "Autem et et ex.",
+      "background_image": {
+        "small": "http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBaW9EIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--e74aaa0a4f4a11e14e42db85a4f549730d1d6b6c/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERJd01IZ3lNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--7be8b6f6018bc25ae287d258d8836839fa7642f1/picture.jpg",
+        "medium": "http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBaW9EIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--e74aaa0a4f4a11e14e42db85a4f549730d1d6b6c/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERnd01IZzRNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--697714719ccce7b35c5f9a02aeef5bd517f3d81f/picture.jpg",
+        "original": "http://localhost:3000/rails/active_storage/blobs/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBaW9EIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--e74aaa0a4f4a11e14e42db85a4f549730d1d6b6c/picture.jpg"
       },
-      {
-        "number": 1,
-        "type": "conclusion",
-        "background": "journey1bg1",
-        "backgroundColor": "48, 29, 11",
-        "title": "overview",
-        "content": "<p>Ethiopia is the fifth largest producer of maize in Africa. The vast majority of maize production in Ethiopia (94%) is done by smallholder farmers, nearly all of whom rely on seasonal rains to support their crops.</p><p>Ethiopia has two distinct rainy seasons and one dry season. The short rainy season, or belg, occurs from February to May and the long rainy season, or kiremt, from June through September.</p><p>Changes in the seasonal rains can greatly impact food security. In 2015, a late start to the short rains in some areas of the country forced many farmers to plant crops more suited for a shorter growing season instead of maize, limiting output of a vital food source, and reducing the resilience of smallholder farmers to future challenges.</p>",
-        "credits": "© Stephen Morrison/Africa Practice/Department of Foreign Affairs and Trade/Flickr Creative Commons",
-        "creditsUrl": "https://ci.tandemvault.com/lightboxes/MVGRc7ujF?t=BwQlYp2iC#35646629"
-      },
-      {
-        "number": 2,
-        "chapterNumber": 1,
-        "background": "journey1ch1",
-        "type": "chapter",
-        "title": "livelihoods",
-        "content": "Where will maize production be impacted by climate variability?",
-        "credits": "© Blend Images/Alamy Stock Photo",
-        "creditsUrl": "https://ci.tandemvault.com/lightboxes/MVGRc7ujF?t=BwQlYp2iC#69554577"
-      },
-      {
-        "number": 3,
-        "type": "embed",
-        "maskSql": "select * from gadm28_adm0 where iso != 'ETH'",
-        "theme": "light",
-        "aside": "<header><h2>Livelihoods</h2><h3>Maize production</h3></header><section><h1>Ethiopia</h1><div class='facts'><h4></h4><p>Rainfed agriculture dominates the landscape in Ethiopia, encompassing nearly 49% of its total area.</p></div></section>",
-        "mapUrl": "/embed/map?layers=%5B%7B%22id%22%3A8%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%5D&zoom=6&center=%7B%22lat%22%3A9.09124858577939%2C%22lng%22%3A38.03466796875%7D",
-        "btnUrl": "/map?layers=%5B%7B%22id%22%3A8%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%5D&zoom=6&center=%7B%22lat%22%3A9.09124858577939%2C%22lng%22%3A38.03466796875%7D"
-      },
-      {
-        "number": 4,
-        "chapterNumber": 2,
-        "background": "journey1ch2",
-        "type": "chapter",
-        "title": "stressors & shocks",
-        "content": "In which locations is maize production exposed to climate variability and shocks and what is the severity?",
-        "credits": "© Robert Harding Picture Library Ltd/Alamy Stock Photo",
-        "creditsUrl": "https://ci.tandemvault.com/lightboxes/MVGRc7ujF?t=BwQlYp2iC#30094743"
-      },
-      {
-        "number": 5,
-        "maskSql": "select * from gadm28_adm0 where iso != 'ETH'",
-        "type": "embed",
-        "theme": "light",
-        "aside": "<header><h2>stressors & shocks</h2><h3>Maize production & short rains</h3></header><section><h1>Ethiopia</h1><div class='facts'><h4></h4><p>49% of Ethiopia is used for rainfed agriculture</p></div><div class='facts'><h4></h4><p>Rainfall during the short rains is declining at rates as high as 24% per decade in some maize-growing areas.</p><p>10% of the area currently used for maize production has been impacted by this decrease.</p></div></section>",
-        "mapUrl": "/embed/map?layers=%5B%7B%22id%22%3A168%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%2C%7B%22id%22%3A8%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%5D&zoom=6&center=%7B%22lat%22%3A9.09124858577939%2C%22lng%22%3A38.03466796875%7D",
-        "btnUrl": "/map?layers=%5B%7B%22id%22%3A168%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%2C%7B%22id%22%3A8%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%5D&zoom=6&center=%7B%22lat%22%3A9.09124858577939%2C%22lng%22%3A38.03466796875%7D"
-      },
-      {
-        "number": 6,
-        "type": "embed",
-        "maskSql": "select * from gadm28_adm0 where iso != 'ETH'",
-        "theme": "light",
-        "aside": "<header><h2>stressors & shocks</h2><h3>Maize production & long rains</h3></header><section><h1>Ethiopia</h1><div class='facts'><h4></h4><p>49% of the land area of Ethiopia is used for rainfed agriculture</p></div><div class='facts'><h4></h4><p>Rainfall during the long rains is declining at rates as high as 11% per decade in some maize-growing areas.</p></div></section>",
-        "mapUrl": "/embed/map?layers=%5B%7B%22id%22%3A169%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%2C%7B%22id%22%3A8%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%5D&zoom=6&center=%7B%22lat%22%3A9.09124858577939%2C%22lng%22%3A38.03466796875%7D",
-        "btnUrl": "/map?layers=%5B%7B%22id%22%3A169%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%2C%7B%22id%22%3A8%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%5D&zoom=6&center=%7B%22lat%22%3A9.09124858577939%2C%22lng%22%3A38.03466796875%7D"
-      },
-      {
-        "number": 7,
-        "chapterNumber": 3,
-        "background": "journey1ch3",
-        "type": "chapter",
-        "title": "vulnerability",
-        "content": "What factors affect the vulnerability of smallholder maize farmers to climate variability and shocks?",
-        "credits": "© Eric Lafforgue/Alamy Stock Photo",
-        "creditsUrl": "https://ci.tandemvault.com/lightboxes/MVGRc7ujF?t=BwQlYp2iC#17177125"
-      },
-      {
-        "number": 8,
-        "type": "embed",
-        "maskSql": "select * from gadm28_adm0 where iso != 'ETH'",
-        "theme": "light",
-        "aside": "<header><h2>Vulnerability</h2><h3>Fertility rates in maize production areas</h3></header><section><h1>Ethiopia</h1><div class='facts'><h4></h4><p>Fertility rates in maize producing areas are >5 children per woman.</p><p>The population of Ethiopia is projected to increase from 98,942,102 to 142,900,000 by 2030, creating further stress.</p><p class='source'> Source: International Futures (IFs) forecasting system and the Pardee Center for International Futures at the University of Denver.</p></div></section>",
-        "mapUrl": "/embed/map?layers=%5B%7B%22id%22%3A42%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%2C%7B%22id%22%3A8%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%5D&zoom=6&center=%7B%22lat%22%3A9.09124858577939%2C%22lng%22%3A38.03466796875%7D",
-        "btnUrl": "/map?layers=%5B%7B%22id%22%3A28%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%2C%7B%22id%22%3A8%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%5D&zoom=6&center=%7B%22lat%22%3A9.09124858577939%2C%22lng%22%3A38.03466796875%7D"
-      },
-      {
-        "number": 9,
-        "type": "embed",
-        "maskSql": "select * from gadm28_adm0 where iso != 'ETH'",
-        "theme": "light",
-        "aside": "<header><h2>Vulnerability</h2><h3>Mass media access in maize production areas</h3></header><section><h1>Ethiopia</h1><div class='facts'><h4></h4><p>In maize producing areas, more than 69% of women lack access to mass media.</p></div></section>",
-        "mapUrl": "/embed/map?layers=%5B%7B%22id%22%3A27%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%2C%7B%22id%22%3A8%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%5D&zoom=6&center=%7B%22lat%22%3A9.09124858577939%2C%22lng%22%3A38.03466796875%7D",
-        "btnUrl": "/map?layers=%5B%7B%22id%22%3A27%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%2C%7B%22id%22%3A8%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%5D&zoom=6&center=%7B%22lat%22%3A9.09124858577939%2C%22lng%22%3A38.03466796875%7D"
-      },
-      {
-        "number": 10,
-        "type": "embed",
-        "maskSql": "select * from gadm28_adm0 where iso != 'ETH'",
-        "theme": "light",
-        "aside": "<header><h2>Vulnerability</h2><h3>Illiteracy rate for women in maize production areas</h3></header><section><h1>Ethiopia</h1><div class='facts'><h4></h4><p>In maize producing areas, more than half of all women are illiterate.</p></div></section>",
-        "mapUrl": "/embed/map?layers=%5B%7B%22id%22%3A44%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%2C%7B%22id%22%3A8%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%5D&zoom=6&center=%7B%22lat%22%3A9.09124858577939%2C%22lng%22%3A38.03466796875%7D",
-        "btnUrl": "/map?layers=%5B%7B%22id%22%3A26%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%2C%7B%22id%22%3A8%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%5D&zoom=6&center=%7B%22lat%22%3A9.09124858577939%2C%22lng%22%3A38.03466796875%7D"
-      },
-      {
-        "number": 11,
-        "type": "embed",
-        "maskSql": "select * from gadm28_adm0 where iso != 'ETH'",
-        "theme": "light",
-        "aside": "<header><h2>Vulnerability</h2><h3>short rains with grain storage</h3></header><section><h1>Ethiopia</h1><div class='facts'><h4></h4><p>Post-harvest crop losses due to rotting, insect and rodent damage, and other causes reduce farmer income and can affect food security.</p><p>Increased access to grain storage is needed to enable storage of excess production and reduce post-harvest waste.</p></div></section>",
-        "mapUrl": "/embed/map?layers=%5B%7B%22id%22%3A39%2C%22opacity%22%3A1%2C%22order%22%3A3%7D%2C%7B%22id%22%3A168%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%2C%7B%22id%22%3A8%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%5D&zoom=6&center=%7B%22lat%22%3A9.09124858577939%2C%22lng%22%3A38.03466796875%7D",
-        "btnUrl": "/map?layers=%5B%7B%22id%22%3A39%2C%22opacity%22%3A1%2C%22order%22%3A3%7D%2C%7B%22id%22%3A168%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%2C%7B%22id%22%3A8%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%5D&zoom=6&center=%7B%22lat%22%3A9.09124858577939%2C%22lng%22%3A38.03466796875%7D"
-      },
-      {
-        "number": 12,
-        "type": "embed",
-        "maskSql": "select * from gadm28_adm0 where iso != 'ETH'",
-        "theme": "light",
-        "aside": "<header><h2>Vulnerability</h2><h3>long rains with grain storage</h3></header><section><h1>Ethiopia</h1><div class='facts'><h4></h4><p>Post-harvest crop losses due to rotting, insect and rodent damage, and other causes reduce farmer income and can affect food security.</p><p>Increased access to grain storage is needed to enable storage of excess production and reduce post-harvest waste.</p></div></section>",
-        "mapUrl": "/embed/map?layers=%5B%7B%22id%22%3A39%2C%22opacity%22%3A1%2C%22order%22%3A3%7D%2C%7B%22id%22%3A169%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%2C%7B%22id%22%3A8%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%5D&zoom=6&center=%7B%22lat%22%3A9.09124858577939%2C%22lng%22%3A38.03466796875%7D",
-        "btnUrl": "/map?layers=%5B%7B%22id%22%3A39%2C%22opacity%22%3A1%2C%22order%22%3A3%7D%2C%7B%22id%22%3A169%2C%22opacity%22%3A1%2C%22order%22%3A1%7D%2C%7B%22id%22%3A8%2C%22opacity%22%3A1%2C%22order%22%3A2%7D%5D&zoom=6&center=%7B%22lat%22%3A9.09124858577939%2C%22lng%22%3A38.03466796875%7D"
-      },
-      {
-        "number": 13,
-        "type": "conclusion",
-        "background": "journey1bg2",
-        "backgroundColor": "35, 38, 48",
-        "title": "insights",
-        "subtitle": "agricultural livelihoods & climate change in ethiopia",
-        "content": "<p>Climatic changes in primary maize growing seasons will cause lower food production in areas with high sensitivity to changing precipitation patterns.</p><p>Access to information is critical to resilience of crop production. Further, without careful planning, the impact of interventions may be limited by high levels of illiteracy and lack of access to communications media, particularly among women.</p>",
-        "credits": "© Eddie Gerald/Alamy Stock Photo",
-        "creditsUrl": "https://ci.tandemvault.com/lightboxes/MVGRc7ujF?t=BwQlYp2iC#73395876"
+      "credits": "Autem et et ex.",
+      "credits_url": "http://jacobson.biz/everett",
+      "published": true
+    },
+    "relationships": {
+      "journey_steps": {
+        "data": [
+          {
+            "id": "487",
+            "type": "journey_steps"
+          },
+          {
+            "id": "490",
+            "type": "journey_steps"
+          },
+          {
+            "id": "493",
+            "type": "journey_steps"
+          },
+          {
+            "id": "496",
+            "type": "journey_steps"
+          }
+        ]
       }
-    ]
-  }
-]
+    }
+  },
+  "included": [
+    {
+      "id": "487",
+      "type": "journey_steps",
+      "attributes": {
+        "step_type": "landing",
+        "position": 25,
+        "title": "Et quaerat omnis veniam.",
+        "description": "Et quaerat omnis veniam.",
+        "credits": "Et quaerat omnis veniam.",
+        "credits_url": "http://hane.com/jules",
+        "background_image": {
+          "small": "http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBaDBEIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--0a2a2cf633208d8d7d79a1a3bfa8f32db2281f57/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERJd01IZ3lNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--7be8b6f6018bc25ae287d258d8836839fa7642f1/picture.jpg",
+          "medium": "http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBaDBEIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--0a2a2cf633208d8d7d79a1a3bfa8f32db2281f57/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERnd01IZzRNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--697714719ccce7b35c5f9a02aeef5bd517f3d81f/picture.jpg",
+          "original": "http://localhost:3000/rails/active_storage/blobs/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBaDBEIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--0a2a2cf633208d8d7d79a1a3bfa8f32db2281f57/picture.jpg"
+        }
+      }
+    },
+    {
+      "id": "490",
+      "type": "journey_steps",
+      "attributes": {
+        "step_type": "conclusion",
+        "position": 11,
+        "title": "Porro soluta beatae sint.",
+        "subtitle": "Porro soluta beatae sint.",
+        "content": "Porro soluta beatae. Quia ratione facilis. Eligendi sapiente voluptatem.",
+        "credits": "Porro soluta beatae sint.",
+        "credits_url": "http://keebler.info/daine",
+        "background_color": "#c2e0e0",
+        "background_image": {
+          "small": "http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBaUVEIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--4f756b23277993a48254cd906641da7ffcfca343/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERJd01IZ3lNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--7be8b6f6018bc25ae287d258d8836839fa7642f1/picture.jpg",
+          "medium": "http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBaUVEIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--4f756b23277993a48254cd906641da7ffcfca343/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERnd01IZzRNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--697714719ccce7b35c5f9a02aeef5bd517f3d81f/picture.jpg",
+          "original": "http://localhost:3000/rails/active_storage/blobs/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBaUVEIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--4f756b23277993a48254cd906641da7ffcfca343/picture.jpg"
+        }
+      }
+    },
+    {
+      "id": "493",
+      "type": "journey_steps",
+      "attributes": {
+        "step_type": "chapter",
+        "position": 93,
+        "title": "Impedit animi eveniet numquam.",
+        "description": "Impedit animi eveniet numquam.",
+        "chapter_number": 93,
+        "credits": "Impedit animi eveniet numquam.",
+        "credits_url": "http://ritchie.com/jame",
+        "background_image": {
+          "small": "http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBaVVEIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--288d8c142ad38cf474853a9e40c0e929ed1585dc/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERJd01IZ3lNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--7be8b6f6018bc25ae287d258d8836839fa7642f1/picture.jpg",
+          "medium": "http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBaVVEIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--288d8c142ad38cf474853a9e40c0e929ed1585dc/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERnd01IZzRNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--697714719ccce7b35c5f9a02aeef5bd517f3d81f/picture.jpg",
+          "original": "http://localhost:3000/rails/active_storage/blobs/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBaVVEIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--288d8c142ad38cf474853a9e40c0e929ed1585dc/picture.jpg"
+        }
+      }
+    },
+    {
+      "id": "496",
+      "type": "journey_steps",
+      "attributes": {
+        "step_type": "embed",
+        "position": 76,
+        "content": "Eum consequuntur adipisci. Facere iure beatae. In odio reiciendis.",
+        "source": "Eum consequuntur adipisci non.",
+        "mask_sql": "Eum consequuntur adipisci non.",
+        "map_url": "http://lind.name/alana",
+        "embedded_map_url": "http://lind.name/alana"
+      }
+    }
+  ]
+}

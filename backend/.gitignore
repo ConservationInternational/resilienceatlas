@@ -28,6 +28,8 @@
 /node_modules
 /public/ckeditor_assets/*
 !/public/ckeditor_assets/.keep
+/public/storage/*
+!/public/storage/.keep
 
 .env
 .env.development

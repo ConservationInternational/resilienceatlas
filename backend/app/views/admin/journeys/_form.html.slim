@@ -1,0 +1,56 @@
+= semantic_form_for [:admin, resource], builder: ActiveAdmin::FormBuilder do |f|
+  = f.semantic_errors
+  = f.inputs "Translated fields" do
+    = f.translated_inputs switch_locale: false do |ff|
+      = ff.input :id, as: :hidden
+      = ff.input :locale, as: :hidden
+      = ff.input :title
+      = ff.input :subtitle
+      = ff.input :theme
+  = f.inputs "Common fields" do
+    = f.input :credits
+    = f.input :credits_url
+    == render "admin/shared/image_with_thumbnail", blob: :background_image, f: f, required: false
+    = f.input :published
+
+  = f.inputs "Journey Steps", class: "inputs has-many-collapsed" do
+    - f.has_many :journey_steps, heading: false, sortable: :position, sortable_start: 1 do |ff|
+      = ff.inputs (ff.object.new_record? ? "New Step" : "#{ff.object.step_type.to_s.capitalize} step: Page #{ff.object.position}"), class: "inputs has-many-toggle-collapse" do
+        div class="has-many-section section-hidden"
+          - ff.input :step_type, as: :select, collection: JourneyStep.step_types.keys, input_html: {class: "fields-controller"}
+          = ff.inputs "Translated fields" do
+            - ff.translated_inputs switch_locale: false do |fff|
+              - fff.input :id, as: :hidden
+              - fff.input :locale, as: :hidden
+              == render "field_section", key: :title do
+                - fff.input :title
+              == render "field_section", key: :subtitle do
+                - fff.input :subtitle
+              == render "field_section", key: :description do
+                - fff.input :description
+              == render "field_section", key: :content do
+                - fff.rich_text_area :content
+          = ff.inputs "Common fields" do
+            == render "field_section", key: :chapter_number do
+              - ff.input :chapter_number
+            == render "field_section", key: :background_image do
+              == render "admin/shared/image_with_thumbnail", blob: :background_image, f: ff, required: false, inside_has_many_block: true
+            == render "field_section", key: :background_color do
+              - ff.input :background_color, as: :color
+            == render "field_section", key: :credits do
+              - ff.input :credits
+            == render "field_section", key: :credits_url do
+              - ff.input :credits_url
+            == render "field_section", key: :source do
+              - ff.input :source
+            == render "field_section", key: :mask_sql do
+              - ff.input :mask_sql
+            == render "field_section", key: :map_url do
+              - ff.input :map_url
+            == render "field_section", key: :embedded_map_url do
+              - ff.input :embedded_map_url
+          - unless ff.object.new_record?
+            - ff.input :_destroy, as: :boolean, wrapper_html: { class: "has_many_delete" }, label: I18n.t("active_admin.has_many_delete")
+
+  = f.actions
+

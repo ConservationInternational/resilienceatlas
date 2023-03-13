@@ -1,0 +1,43 @@
+form .has-many-collapsed {
+  .has_many_container {
+    padding: 0 10px;
+
+    .has-many-toggle-collapse legend {
+      cursor: pointer;
+    }
+
+    .has-many-section {
+      padding: 10px;
+
+      li {
+        padding: 5px 0;
+
+        li label {
+          margin-left: 5px;
+        }
+      }
+
+      trix-toolbar {
+        margin-top: 5px;
+      }
+
+      trix-editor {
+        margin-bottom: 5px;
+      }
+
+      &.section-hidden {
+        display: none;
+      }
+
+      .field-hidden {
+        display: none;
+      }
+    }
+
+    .handle {
+      top: 18px;
+      right: 15px;
+      color: white;
+    }
+  }
+}
