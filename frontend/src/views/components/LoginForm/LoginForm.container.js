@@ -1,6 +1,6 @@
 import { compose } from 'redux';
 import { reduxForm } from 'redux-form';
-import { withRouter } from 'react-router-dom';
+import { withRouter } from 'next/router';
 
 import { LoginSchema, signin, login } from 'state/modules/user';
 
@@ -14,14 +14,13 @@ const withForm = reduxForm({
   onSubmit: signin,
   onSubmitSuccess: (auth_token, dispatch, props) => {
     const {
-      history,
-      location: { state: { from, ...state } = {} },
+      router: { query: { from } = {} },
     } = props;
 
     dispatch(login(auth_token));
 
     if (from) {
-      history.push(from, state);
+      router.push(from);
     }
   },
 });

@@ -18,31 +18,33 @@ import DrawingManager from './DrawingManager';
 import MapOffset from './MapOffset';
 import MapPopup from './MapPopup';
 
-const MapView = ({
-  // actions
-  loadLayers,
-  loadLayerGroups,
-  openBatch,
-  // interaction
-  setMapLayerGroupsInteraction,
-  setMapLayerGroupsInteractionLatLng,
-  layerGroupsInteraction,
-  layerGroupsInteractionSelected,
-  // data
-  layers: { loaded: layersLoaded },
-  layer_groups: { loaded: layerGroupsLoaded },
-  activeLayers,
-  model_layer,
-  defaultActiveGroups,
-  router: { query },
-  tab,
-  site,
-  page,
-  options,
-  basemap,
-  embed,
-  drawing,
-}) => {
+const MapView = (props) => {
+  const {
+    // actions
+    loadLayers,
+    loadLayerGroups,
+    openBatch,
+    // interaction
+    setMapLayerGroupsInteraction,
+    setMapLayerGroupsInteractionLatLng,
+    layerGroupsInteraction,
+    layerGroupsInteractionSelected,
+    // data
+    layers: { loaded: layersLoaded },
+    layer_groups: { loaded: layerGroupsLoaded },
+    activeLayers,
+    model_layer,
+    defaultActiveGroups,
+    router: { query },
+    tab,
+    site,
+    page,
+    options,
+    basemap,
+    embed,
+    drawing,
+  } = props;
+  console.log('props: ', props);
   // console.log(router);
   // const query = qs.parse(location.search, {
   //   ignoreQueryPrefix: true,
