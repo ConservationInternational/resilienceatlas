@@ -1,5 +1,3 @@
-import Head from 'next/head';
-
 import MapView from 'views/components/Map';
 import { LayerManagerProvider } from 'views/contexts/layerManagerCtx';
 import Loader from 'views/shared/Loader';
@@ -9,10 +7,6 @@ import type { NextPageWithLayout } from 'pages/_app';
 
 const EmbedPage: NextPageWithLayout = () => (
   <LayerManagerProvider>
-    <Head>
-      <title>Map</title>
-    </Head>
-
     <div className="l-content--fillscreen">
       <MapView
         options={{
@@ -28,6 +22,6 @@ const EmbedPage: NextPageWithLayout = () => (
   </LayerManagerProvider>
 );
 
-EmbedPage.Layout = (page) => <EmbedLayout>{page}</EmbedLayout>;
+EmbedPage.Layout = (page) => <EmbedLayout pageTitle="Map">{page}</EmbedLayout>;
 
 export default EmbedPage;

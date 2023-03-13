@@ -1,27 +1,26 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import cx from 'classnames';
 import { connect } from 'react-redux';
 
 import { load as loadSite } from 'state/modules/site';
 
+import Icons from './_icons';
 import Head from './_head';
-import Header from './_header';
-import Footer from './_footer';
 
-type MainLayoutProps = React.PropsWithChildren & {
+type ReportLayoutProps = React.PropsWithChildren & {
   site?: {
     subdomain: string;
     header_theme: string;
   };
   pageTitle: string;
-  page?: string;
   dispatch?: (action: unknown) => void;
 };
 
 // Temporary
 const bare = false;
+const page = 'report';
 
-const MainLayout: React.FC<MainLayoutProps> = ({ site, page, pageTitle, children, dispatch }) => {
+const ReportLayout: React.FC<ReportLayoutProps> = ({ site, pageTitle, children, dispatch }) => {
   const { subdomain, header_theme } = site;
 
   // Currently data fetching in Layouts are not supporting getServerSideProps
@@ -40,13 +39,12 @@ const MainLayout: React.FC<MainLayoutProps> = ({ site, page, pageTitle, children
       )}
     >
       <Head pageTitle={pageTitle} />
-      <Header />
-      <div className="l-main-fullscreen">{children}</div>
-      <Footer />
+      <Icons />
+      <div className="l-main">{children}</div>
     </div>
   );
 };
 
 const mapStateToProps = ({ site }) => ({ site });
 
-export default connect(mapStateToProps)(MainLayout);
+export default connect(mapStateToProps)(ReportLayout);

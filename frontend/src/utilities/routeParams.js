@@ -1,5 +1,5 @@
 // import history from '../history';
-import Router from 'next/router';
+import Router, { useRouter } from 'next/router';
 
 /**
  * @param  {string} param name of query param you want to set
