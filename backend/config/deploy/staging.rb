@@ -12,10 +12,5 @@ set :linked_dirs, %w[downloads public/ckeditor_assets]
 
 server "staging.resilienceatlas.org", user: "ubuntu", roles: %w[web app db], primary: true
 
-set :ssh_options, {
-  forward_agent: true,
-  auth_methods: %w[publickey]
-}
-
 set :rails_env, "production"
 set :branch, "develop"

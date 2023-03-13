@@ -10,12 +10,7 @@ set :default_env, {path: "PATH=$PATH:/home/ubuntu/.nvm/versions/node/v13.7.0/bin
 set :linked_files, %w[config/database.yml .env]
 set :linked_dirs, %w[downloads public/ckeditor_assets]
 
-server "52.54.50.38", user: "ubuntu", roles: %w[web app db], primary: true
-
-set :ssh_options, {
-  forward_agent: true,
-  auth_methods: %w[publickey]
-}
+server "app.resilienceatlas.org", user: "ubuntu", roles: %w[web app db], primary: true
 
 set :rails_env, "production"
 set :branch, "master"
