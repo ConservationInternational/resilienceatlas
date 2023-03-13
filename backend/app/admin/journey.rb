@@ -1,5 +1,5 @@
 ActiveAdmin.register Journey do
-  permit_params :credits, :credits_url, :background_image,
+  permit_params :credits, :credits_url, :background_image, :published,
     translations_attributes: [:id, :locale, :title, :subtitle, :theme, :_destroy],
     journey_steps_attributes: [:id, :step_type, :position, :chapter_number, :credits, :credits_url,
       :source, :map_url, :mask_sql, :embedded_map_url, :background_image, :background_color, :_destroy,
@@ -17,12 +17,31 @@ ActiveAdmin.register Journey do
     end
   end
 
+  member_action :publish, method: :put do
+    resource.update! published: true
+    redirect_to resource_path, notice: "Journey was published!"
+  end
+
+  member_action :unpublish, method: :put do
+    resource.update! published: false
+    redirect_to resource_path, notice: "Journey was marked as not published!"
+  end
+
+  action_item :publish, only: :show, priority: 0, if: -> { !resource.published? } do
+    link_to "Publish Journey", publish_admin_journey_path(resource), method: :put
+  end
+
+  action_item :unpublish, only: :show, priority: 0, if: -> { resource.published? } do
+    link_to "Unpublish Journey", unpublish_admin_journey_path(resource), method: :put
+  end
+
   index do
     selectable_column
 
     column :id
     column :title
     column :subtitle
+    column :published
     column :created_at
     column :updated_at
 
@@ -34,6 +53,7 @@ ActiveAdmin.register Journey do
       row :title
       row :subtitle
       row :theme
+      row :published
       row :credits
       row :credits_url
       row :background_image do |record|

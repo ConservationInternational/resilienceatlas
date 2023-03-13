@@ -7,6 +7,7 @@
 #  credits_url :string
 #  created_at  :datetime         not null
 #  updated_at  :datetime         not null
+#  published   :boolean          default(FALSE), not null
 #  title       :string
 #  subtitle    :string
 #  theme       :text

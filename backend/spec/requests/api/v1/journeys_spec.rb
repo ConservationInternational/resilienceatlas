@@ -7,13 +7,18 @@ RSpec.describe "API V1 Journeys", type: :request do
       consumes "application/json"
       produces "application/json"
 
-      let!(:journeys) { create_list :journey, 3 }
+      let!(:journeys) { create_list :journey, 3, published: true }
+      let(:unpublished_journey) { create :journey, published: false }
 
       response "200", :success do
         run_test!
 
         it "matches snapshot", generate_swagger_example: true do
           expect(response.body).to match_snapshot("api/v1/journeys")
+        end
+
+        it "does not contain unpublished journey" do
+          expect(response_json["data"].pluck("id")).not_to include(unpublished_journey.id)
         end
       end
     end

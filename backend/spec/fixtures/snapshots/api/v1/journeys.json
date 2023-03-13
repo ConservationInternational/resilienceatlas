@@ -13,7 +13,8 @@
           "original": "http://localhost:3000/rails/active_storage/blobs/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBPdz09IiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--1afd34ee54389c7d53d8ddd92be1cbfa93d59c67/picture.jpg"
         },
         "credits": "Enim repellat pariatur est.",
-        "credits_url": "http://kutch-spencer.com/moises"
+        "credits_url": "http://kutch-spencer.com/moises",
+        "published": true
       },
       "relationships": {
         "journey_steps": {
@@ -43,7 +44,8 @@
           "original": "http://localhost:3000/rails/active_storage/blobs/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBQZz09IiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--197bdb356e0fc990981560b7d507bffe4af8d16b/picture.jpg"
         },
         "credits": "Placeat commodi libero et.",
-        "credits_url": "http://bartoletti.com/jeremiah_cronin"
+        "credits_url": "http://bartoletti.com/jeremiah_cronin",
+        "published": true
       },
       "relationships": {
         "journey_steps": {
@@ -73,7 +75,8 @@
           "original": "http://localhost:3000/rails/active_storage/blobs/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBRUT09IiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--878a0776c029d77530add71899afa56ae91a2e8f/picture.jpg"
         },
         "credits": "Et quaerat omnis veniam.",
-        "credits_url": "http://hane.com/jules"
+        "credits_url": "http://hane.com/jules",
+        "published": true
       },
       "relationships": {
         "journey_steps": {

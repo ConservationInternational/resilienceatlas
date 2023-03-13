@@ -7,6 +7,7 @@
 #  credits_url :string
 #  created_at  :datetime         not null
 #  updated_at  :datetime         not null
+#  published   :boolean          default(FALSE), not null
 #  title       :string
 #  subtitle    :string
 #  theme       :text
@@ -23,4 +24,6 @@ class Journey < ApplicationRecord
   validates :credits_url, url: true
 
   accepts_nested_attributes_for :journey_steps, allow_destroy: true
+
+  scope :only_published, -> { where published: true }
 end

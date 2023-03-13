@@ -210,4 +210,34 @@ RSpec.describe "Admin: Journeys", type: :system do
       expect(page).not_to have_text(journey.title)
     end
   end
+
+  describe "#publish" do
+    let!(:journey) { create :journey, published: false }
+
+    before do
+      visit admin_journey_path(journey)
+    end
+
+    it "allows to change journey to published" do
+      click_on "Publish Journey"
+
+      expect(page).to have_text("Journey was published!")
+      expect(journey.reload).to be_published
+    end
+  end
+
+  describe "#unpublish" do
+    let!(:journey) { create :journey, published: true }
+
+    before do
+      visit admin_journey_path(journey)
+    end
+
+    it "allows to change journey to published" do
+      click_on "Unpublish Journey"
+
+      expect(page).to have_text("Journey was marked as not published!")
+      expect(journey.reload).not_to be_published
+    end
+  end
 end

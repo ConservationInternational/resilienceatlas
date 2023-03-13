@@ -12,7 +12,8 @@
         "original": "http://localhost:3000/rails/active_storage/blobs/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBaW9EIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--e74aaa0a4f4a11e14e42db85a4f549730d1d6b6c/picture.jpg"
       },
       "credits": "Autem et et ex.",
-      "credits_url": "http://jacobson.biz/everett"
+      "credits_url": "http://jacobson.biz/everett",
+      "published": true
     },
     "relationships": {
       "journey_steps": {

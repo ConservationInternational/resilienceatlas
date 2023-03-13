@@ -7,6 +7,7 @@
 #  credits_url :string
 #  created_at  :datetime         not null
 #  updated_at  :datetime         not null
+#  published   :boolean          default(FALSE), not null
 #  title       :string
 #  subtitle    :string
 #  theme       :text
@@ -32,6 +33,10 @@ FactoryBot.define do
     sequence(:credits_url) do |n|
       Faker::Config.random = Random.new(n)
       Faker::Internet.url
+    end
+    sequence(:published) do |n|
+      Faker::Config.random = Random.new(n)
+      Faker::Boolean.boolean
     end
     background_image { Rack::Test::UploadedFile.new(Rails.root.join("spec/fixtures/files/picture.jpg"), "image/jpeg") }
     journey_steps { build_list :journey_step, 2, journey: nil }
