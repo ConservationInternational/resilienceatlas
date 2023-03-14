@@ -52,6 +52,4 @@ class JourneyStep < ApplicationRecord
 
   validates :background_image, content_type: /\Aimage\/.*\z/
   validates :credits_url, url: true
-  validates :map_url, url: true
-  validates :embedded_map_url, url: true
 end

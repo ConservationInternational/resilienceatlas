@@ -1586,7 +1586,7 @@ components:
       required:
       - errors
 servers:
-- url: ''
+- url: "/"
 - url: "{scheme}://{host}"
   variables:
     scheme:

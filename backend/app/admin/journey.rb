@@ -5,6 +5,10 @@ ActiveAdmin.register Journey do
       :source, :map_url, :mask_sql, :embedded_map_url, :background_image, :background_color, :_destroy,
       translations_attributes: [:id, :locale, :title, :subtitle, :description, :content, :_destroy]]
 
+  filter :created_at
+  filter :updated_at
+  filter :published
+
   controller do
     def scoped_collection
       end_of_association_chain.includes :translations

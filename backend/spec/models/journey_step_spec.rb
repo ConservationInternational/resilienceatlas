@@ -33,21 +33,6 @@ RSpec.describe JourneyStep, type: :model do
     expect(subject).to have(1).errors_on(:credits_url)
   end
 
-  it "should not be valid when credits_url is not url" do
-    subject.credits_url = "WRONG_URL"
-    expect(subject).to have(1).errors_on(:credits_url)
-  end
-
-  it "should not be valid when map_url is not url" do
-    subject.map_url = "WRONG_URL"
-    expect(subject).to have(1).errors_on(:map_url)
-  end
-
-  it "should not be valid when embedded_map_url is not url" do
-    subject.embedded_map_url = "WRONG_URL"
-    expect(subject).to have(1).errors_on(:embedded_map_url)
-  end
-
   it "should not be valid when background_image is not image" do
     subject.background_image.attach fixture_file_upload("document.pdf")
     expect(subject).to have(1).errors_on(:background_image)
