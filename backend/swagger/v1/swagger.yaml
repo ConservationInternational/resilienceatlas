@@ -47,7 +47,7 @@ paths:
                   data_units:
                   processing:
                   description:
-                  id: 104
+                  id: 9
                   layer_group_id:
                   slug: Layer-3
                   layer_type: molestiae
@@ -60,8 +60,8 @@ paths:
                   interactivity: molestiae
                   opacity:
                   query:
-                  created_at: '2023-03-13T12:44:28.175+01:00'
-                  updated_at: '2023-03-13T12:44:28.175+01:00'
+                  created_at: '2023-03-15T13:03:56.376+01:00'
+                  updated_at: '2023-03-15T13:03:56.376+01:00'
                   locate_layer: false
                   icon_class:
                   published: true
@@ -91,7 +91,7 @@ paths:
                   data_units:
                   processing:
                   description:
-                  id: 103
+                  id: 8
                   layer_group_id:
                   slug: Layer-2
                   layer_type: cum
@@ -104,8 +104,8 @@ paths:
                   interactivity: cum
                   opacity:
                   query:
-                  created_at: '2023-03-13T12:44:28.166+01:00'
-                  updated_at: '2023-03-13T12:44:28.166+01:00'
+                  created_at: '2023-03-15T13:03:56.370+01:00'
+                  updated_at: '2023-03-15T13:03:56.370+01:00'
                   locate_layer: false
                   icon_class:
                   published: true
@@ -135,7 +135,7 @@ paths:
                   data_units:
                   processing:
                   description:
-                  id: 102
+                  id: 7
                   layer_group_id:
                   slug: Layer-1
                   layer_type: voluptatem
@@ -148,8 +148,8 @@ paths:
                   interactivity: voluptatem
                   opacity:
                   query:
-                  created_at: '2023-03-13T12:44:28.155+01:00'
-                  updated_at: '2023-03-13T12:44:28.155+01:00'
+                  created_at: '2023-03-15T13:03:56.364+01:00'
+                  updated_at: '2023-03-15T13:03:56.364+01:00'
                   locate_layer: false
                   icon_class:
                   published: true
@@ -208,7 +208,7 @@ paths:
                   data_units:
                   processing:
                   description:
-                  id: 106
+                  id: 11
                   layer_group_id:
                   slug: Layer-1
                   layer_type: voluptatem
@@ -221,8 +221,8 @@ paths:
                   interactivity: voluptatem
                   opacity:
                   query:
-                  created_at: '2023-03-13T12:44:28.256+01:00'
-                  updated_at: '2023-03-13T12:44:28.256+01:00'
+                  created_at: '2023-03-15T13:03:56.436+01:00'
+                  updated_at: '2023-03-15T13:03:56.436+01:00'
                   locate_layer: false
                   icon_class:
                   published: true
@@ -292,7 +292,7 @@ paths:
                   data_units:
                   processing:
                   description:
-                  id: 113
+                  id: 18
                   layer_group_id:
                   slug: Layer-1
                   layer_type: voluptatem
@@ -305,8 +305,8 @@ paths:
                   interactivity: voluptatem
                   opacity:
                   query:
-                  created_at: '2023-03-13T12:44:28.369+01:00'
-                  updated_at: '2023-03-13T12:44:28.369+01:00'
+                  created_at: '2023-03-15T13:03:56.546+01:00'
+                  updated_at: '2023-03-15T13:03:56.546+01:00'
                   locate_layer: false
                   icon_class:
                   published: true
@@ -372,7 +372,7 @@ paths:
                   data_units:
                   processing:
                   description:
-                  id: 117
+                  id: 22
                   layer_group_id:
                   slug: Layer-1
                   layer_type: voluptatem
@@ -385,8 +385,8 @@ paths:
                   interactivity: voluptatem
                   opacity:
                   query:
-                  created_at: '2023-03-13T12:44:28.510+01:00'
-                  updated_at: '2023-03-13T12:44:28.510+01:00'
+                  created_at: '2023-03-15T13:03:56.694+01:00'
+                  updated_at: '2023-03-15T13:03:56.694+01:00'
                   locate_layer: false
                   icon_class:
                   published: true
@@ -429,7 +429,7 @@ paths:
           content:
             application/json:
               example:
-                auth_token: eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjozNSwiZXhwIjoxNjc4Nzk0MjY4fQ.ac4m-WcirQ9RKCNOJoog3DS0zaq7dgkpPzgVFr4VdPY
+                auth_token: eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoyLCJleHAiOjE2Nzg5NjgyMzZ9.PqeseLiiDWiC6c8o2iULlM-fEZ2VcUmdonjNzaGnXwo
         '401':
           description: Unauthorized
           content:
@@ -462,7 +462,7 @@ paths:
             application/json:
               example:
                 data:
-                - id: '43'
+                - id: '4'
                   type: categories
                   attributes:
                     name: voluptatem
@@ -472,7 +472,7 @@ paths:
                   relationships:
                     indicators:
                       data: []
-                - id: '44'
+                - id: '5'
                   type: categories
                   attributes:
                     name: cum
@@ -482,7 +482,7 @@ paths:
                   relationships:
                     indicators:
                       data: []
-                - id: '45'
+                - id: '6'
                   type: categories
                   attributes:
                     name: molestiae
@@ -506,7 +506,7 @@ paths:
             application/json:
               example:
                 data:
-                - id: '23'
+                - id: '4'
                   type: indicators
                   attributes:
                     name: voluptatem
@@ -520,9 +520,9 @@ paths:
                       data: []
                     category:
                       data:
-                        id: '49'
+                        id: '10'
                         type: categories
-                - id: '24'
+                - id: '5'
                   type: indicators
                   attributes:
                     name: cum
@@ -536,9 +536,9 @@ paths:
                       data: []
                     category:
                       data:
-                        id: '50'
+                        id: '11'
                         type: categories
-                - id: '25'
+                - id: '6'
                   type: indicators
                   attributes:
                     name: molestiae
@@ -552,10 +552,10 @@ paths:
                       data: []
                     category:
                       data:
-                        id: '51'
+                        id: '12'
                         type: categories
                 included:
-                - id: '49'
+                - id: '10'
                   type: categories
                   attributes:
                     name: voluptatem
@@ -565,9 +565,9 @@ paths:
                   relationships:
                     indicators:
                       data:
-                      - id: '23'
+                      - id: '4'
                         type: indicators
-                - id: '50'
+                - id: '11'
                   type: categories
                   attributes:
                     name: cum
@@ -577,9 +577,9 @@ paths:
                   relationships:
                     indicators:
                       data:
-                      - id: '24'
+                      - id: '5'
                         type: indicators
-                - id: '51'
+                - id: '12'
                   type: categories
                   attributes:
                     name: molestiae
@@ -589,7 +589,7 @@ paths:
                   relationships:
                     indicators:
                       data:
-                      - id: '25'
+                      - id: '6'
                         type: indicators
                 meta:
                   total_indicators: 3
@@ -598,6 +598,13 @@ paths:
       summary: Get list of journeys
       tags:
       - Journey
+      parameters:
+      - name: locale
+        in: query
+        description: 'Used language. Default: en'
+        required: false
+        schema:
+          type: string
       responses:
         '200':
           description: success
@@ -605,65 +612,65 @@ paths:
             application/json:
               example:
                 data:
-                - id: '154'
+                - id: '324'
                   type: journeys
                   attributes:
                     title: Enim repellat pariatur est.
                     subtitle: Enim repellat pariatur est.
                     theme: Enim repellat pariatur est.
                     background_image:
-                      small: http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBamNDIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--02902308bf0507c2bc381f6029bd767bb05c5d64/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERJd01IZ3lNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--7be8b6f6018bc25ae287d258d8836839fa7642f1/picture.jpg
-                      medium: http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBamNDIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--02902308bf0507c2bc381f6029bd767bb05c5d64/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERnd01IZzRNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--697714719ccce7b35c5f9a02aeef5bd517f3d81f/picture.jpg
-                      original: http://localhost:3000/rails/active_storage/blobs/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBamNDIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--02902308bf0507c2bc381f6029bd767bb05c5d64/picture.jpg
+                      small: http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBbThFIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--3745b1fded8936d37214a89223d325c4290b185a/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERJd01IZ3lNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--7be8b6f6018bc25ae287d258d8836839fa7642f1/picture.jpg
+                      medium: http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBbThFIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--3745b1fded8936d37214a89223d325c4290b185a/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERnd01IZzRNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--697714719ccce7b35c5f9a02aeef5bd517f3d81f/picture.jpg
+                      original: http://localhost:3000/rails/active_storage/blobs/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBbThFIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--3745b1fded8936d37214a89223d325c4290b185a/picture.jpg
                     credits: Enim repellat pariatur est.
                     credits_url: http://kutch-spencer.com/moises
                     published: true
                   relationships:
                     journey_steps:
                       data:
-                      - id: '347'
+                      - id: '727'
                         type: journey_steps
-                      - id: '348'
+                      - id: '728'
                         type: journey_steps
-                - id: '155'
+                - id: '325'
                   type: journeys
                   attributes:
                     title: Placeat commodi libero et.
                     subtitle: Placeat commodi libero et.
                     theme: Placeat commodi libero et.
                     background_image:
-                      small: http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBam9DIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--d6b9670c9b3b7bb8c89ea6d9c75fdff13c0718f0/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERJd01IZ3lNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--7be8b6f6018bc25ae287d258d8836839fa7642f1/picture.jpg
-                      medium: http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBam9DIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--d6b9670c9b3b7bb8c89ea6d9c75fdff13c0718f0/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERnd01IZzRNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--697714719ccce7b35c5f9a02aeef5bd517f3d81f/picture.jpg
-                      original: http://localhost:3000/rails/active_storage/blobs/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBam9DIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--d6b9670c9b3b7bb8c89ea6d9c75fdff13c0718f0/picture.jpg
+                      small: http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBbklFIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--05460de1db8a52e4d4e34598a368b14b6c3dc0d6/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERJd01IZ3lNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--7be8b6f6018bc25ae287d258d8836839fa7642f1/picture.jpg
+                      medium: http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBbklFIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--05460de1db8a52e4d4e34598a368b14b6c3dc0d6/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERnd01IZzRNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--697714719ccce7b35c5f9a02aeef5bd517f3d81f/picture.jpg
+                      original: http://localhost:3000/rails/active_storage/blobs/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBbklFIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--05460de1db8a52e4d4e34598a368b14b6c3dc0d6/picture.jpg
                     credits: Placeat commodi libero et.
                     credits_url: http://bartoletti.com/jeremiah_cronin
                     published: true
                   relationships:
                     journey_steps:
                       data:
-                      - id: '349'
+                      - id: '729'
                         type: journey_steps
-                      - id: '350'
+                      - id: '730'
                         type: journey_steps
-                - id: '156'
+                - id: '326'
                   type: journeys
                   attributes:
                     title: Et quaerat omnis veniam.
                     subtitle: Et quaerat omnis veniam.
                     theme: Et quaerat omnis veniam.
                     background_image:
-                      small: http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBajBDIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--f09bc0e888ed530afaf77de5f48ac587fd491c7a/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERJd01IZ3lNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--7be8b6f6018bc25ae287d258d8836839fa7642f1/picture.jpg
-                      medium: http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBajBDIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--f09bc0e888ed530afaf77de5f48ac587fd491c7a/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERnd01IZzRNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--697714719ccce7b35c5f9a02aeef5bd517f3d81f/picture.jpg
-                      original: http://localhost:3000/rails/active_storage/blobs/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBajBDIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--f09bc0e888ed530afaf77de5f48ac587fd491c7a/picture.jpg
+                      small: http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBblVFIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--b75289ce42c963b7ed2e51834c12979c16132241/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERJd01IZ3lNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--7be8b6f6018bc25ae287d258d8836839fa7642f1/picture.jpg
+                      medium: http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBblVFIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--b75289ce42c963b7ed2e51834c12979c16132241/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERnd01IZzRNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--697714719ccce7b35c5f9a02aeef5bd517f3d81f/picture.jpg
+                      original: http://localhost:3000/rails/active_storage/blobs/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBblVFIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--b75289ce42c963b7ed2e51834c12979c16132241/picture.jpg
                     credits: Et quaerat omnis veniam.
                     credits_url: http://hane.com/jules
                     published: true
                   relationships:
                     journey_steps:
                       data:
-                      - id: '351'
+                      - id: '731'
                         type: journey_steps
-                      - id: '352'
+                      - id: '732'
                         type: journey_steps
                 meta:
                   total: 3
@@ -679,6 +686,12 @@ paths:
         required: true
         schema:
           type: integer
+      - name: locale
+        in: query
+        description: 'Used language. Default: en'
+        required: false
+        schema:
+          type: string
       responses:
         '404':
           description: Not Found
@@ -696,32 +709,32 @@ paths:
             application/json:
               example:
                 data:
-                  id: '175'
+                  id: '345'
                   type: journeys
                   attributes:
                     title: Autem et et ex.
                     subtitle: Autem et et ex.
                     theme: Autem et et ex.
                     background_image:
-                      small: http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBbndDIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--bd456ba239209bace24bb9c88c65273379c45c34/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERJd01IZ3lNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--7be8b6f6018bc25ae287d258d8836839fa7642f1/picture.jpg
-                      medium: http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBbndDIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--bd456ba239209bace24bb9c88c65273379c45c34/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERnd01IZzRNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--697714719ccce7b35c5f9a02aeef5bd517f3d81f/picture.jpg
-                      original: http://localhost:3000/rails/active_storage/blobs/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBbndDIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--bd456ba239209bace24bb9c88c65273379c45c34/picture.jpg
+                      small: http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBclFFIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--c5880e20c33898e9db9f22800829709f90e30bb1/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERJd01IZ3lNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--7be8b6f6018bc25ae287d258d8836839fa7642f1/picture.jpg
+                      medium: http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBclFFIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--c5880e20c33898e9db9f22800829709f90e30bb1/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERnd01IZzRNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--697714719ccce7b35c5f9a02aeef5bd517f3d81f/picture.jpg
+                      original: http://localhost:3000/rails/active_storage/blobs/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBclFFIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--c5880e20c33898e9db9f22800829709f90e30bb1/picture.jpg
                     credits: Autem et et ex.
                     credits_url: http://jacobson.biz/everett
                     published: true
                   relationships:
                     journey_steps:
                       data:
-                      - id: '387'
+                      - id: '767'
                         type: journey_steps
-                      - id: '390'
+                      - id: '770'
                         type: journey_steps
-                      - id: '393'
+                      - id: '773'
                         type: journey_steps
-                      - id: '396'
+                      - id: '776'
                         type: journey_steps
                 included:
-                - id: '387'
+                - id: '767'
                   type: journey_steps
                   attributes:
                     step_type: landing
@@ -731,10 +744,10 @@ paths:
                     credits: Et quaerat omnis veniam.
                     credits_url: http://hane.com/jules
                     background_image:
-                      small: http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBbThDIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--31cbf3bbd567bb12bce8f9ba436880d8b0ba0f79/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERJd01IZ3lNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--7be8b6f6018bc25ae287d258d8836839fa7642f1/picture.jpg
-                      medium: http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBbThDIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--31cbf3bbd567bb12bce8f9ba436880d8b0ba0f79/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERnd01IZzRNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--697714719ccce7b35c5f9a02aeef5bd517f3d81f/picture.jpg
-                      original: http://localhost:3000/rails/active_storage/blobs/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBbThDIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--31cbf3bbd567bb12bce8f9ba436880d8b0ba0f79/picture.jpg
-                - id: '390'
+                      small: http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBcWNFIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--3cd33b794d277bb028e99995be8985c734744a01/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERJd01IZ3lNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--7be8b6f6018bc25ae287d258d8836839fa7642f1/picture.jpg
+                      medium: http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBcWNFIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--3cd33b794d277bb028e99995be8985c734744a01/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERnd01IZzRNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--697714719ccce7b35c5f9a02aeef5bd517f3d81f/picture.jpg
+                      original: http://localhost:3000/rails/active_storage/blobs/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBcWNFIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--3cd33b794d277bb028e99995be8985c734744a01/picture.jpg
+                - id: '770'
                   type: journey_steps
                   attributes:
                     step_type: conclusion
@@ -747,10 +760,10 @@ paths:
                     credits_url: http://keebler.info/daine
                     background_color: "#c2e0e0"
                     background_image:
-                      small: http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBbk1DIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--78e1fa83d13aaa4e5ab1f2cd38449e794fc17f8d/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERJd01IZ3lNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--7be8b6f6018bc25ae287d258d8836839fa7642f1/picture.jpg
-                      medium: http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBbk1DIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--78e1fa83d13aaa4e5ab1f2cd38449e794fc17f8d/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERnd01IZzRNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--697714719ccce7b35c5f9a02aeef5bd517f3d81f/picture.jpg
-                      original: http://localhost:3000/rails/active_storage/blobs/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBbk1DIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--78e1fa83d13aaa4e5ab1f2cd38449e794fc17f8d/picture.jpg
-                - id: '393'
+                      small: http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBcXNFIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--7246cad1f51f8466aaaf6e26d0b831cac76981a3/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERJd01IZ3lNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--7be8b6f6018bc25ae287d258d8836839fa7642f1/picture.jpg
+                      medium: http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBcXNFIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--7246cad1f51f8466aaaf6e26d0b831cac76981a3/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERnd01IZzRNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--697714719ccce7b35c5f9a02aeef5bd517f3d81f/picture.jpg
+                      original: http://localhost:3000/rails/active_storage/blobs/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBcXNFIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--7246cad1f51f8466aaaf6e26d0b831cac76981a3/picture.jpg
+                - id: '773'
                   type: journey_steps
                   attributes:
                     step_type: chapter
@@ -761,10 +774,10 @@ paths:
                     credits: Impedit animi eveniet numquam.
                     credits_url: http://ritchie.com/jame
                     background_image:
-                      small: http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBbmNDIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--7f30f58ce5f5f63f7dcac4dbbacf018059afaa29/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERJd01IZ3lNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--7be8b6f6018bc25ae287d258d8836839fa7642f1/picture.jpg
-                      medium: http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBbmNDIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--7f30f58ce5f5f63f7dcac4dbbacf018059afaa29/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERnd01IZzRNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--697714719ccce7b35c5f9a02aeef5bd517f3d81f/picture.jpg
-                      original: http://localhost:3000/rails/active_storage/blobs/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBbmNDIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--7f30f58ce5f5f63f7dcac4dbbacf018059afaa29/picture.jpg
-                - id: '396'
+                      small: http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBcThFIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--f42db599d532ff40ee6364af02010c8609a61b1b/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERJd01IZ3lNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--7be8b6f6018bc25ae287d258d8836839fa7642f1/picture.jpg
+                      medium: http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBcThFIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--f42db599d532ff40ee6364af02010c8609a61b1b/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERnd01IZzRNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--697714719ccce7b35c5f9a02aeef5bd517f3d81f/picture.jpg
+                      original: http://localhost:3000/rails/active_storage/blobs/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBcThFIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--f42db599d532ff40ee6364af02010c8609a61b1b/picture.jpg
+                - id: '776'
                   type: journey_steps
                   attributes:
                     step_type: embed
@@ -787,6 +800,12 @@ paths:
         required: false
         schema:
           type: string
+      - name: locale
+        in: query
+        description: 'Used language. Default: en'
+        required: false
+        schema:
+          type: string
       responses:
         '200':
           description: success
@@ -794,7 +813,7 @@ paths:
             application/json:
               example:
                 data:
-                - id: '64'
+                - id: '5'
                   type: layer_groups
                   attributes:
                     name: voluptatem
@@ -810,7 +829,7 @@ paths:
                   relationships:
                     super_group:
                       data:
-                - id: '65'
+                - id: '6'
                   type: layer_groups
                   attributes:
                     name: cum
@@ -827,7 +846,7 @@ paths:
                   relationships:
                     super_group:
                       data:
-                - id: '66'
+                - id: '7'
                   type: layer_groups
                   attributes:
                     name: molestiae
@@ -857,6 +876,12 @@ paths:
         required: false
         schema:
           type: string
+      - name: locale
+        in: query
+        description: 'Used language. Default: en'
+        required: false
+        schema:
+          type: string
       responses:
         '200':
           description: success
@@ -864,7 +889,7 @@ paths:
             application/json:
               example:
                 data:
-                - id: '122'
+                - id: '27'
                   type: layers
                   attributes:
                     name: voluptatem
@@ -898,17 +923,17 @@ paths:
                   relationships:
                     layer_group:
                       data:
-                        id: '73'
+                        id: '14'
                         type: layer_groups
                     sources:
                       data: []
                     agrupation:
                       data:
-                        id: 40
-                        layer_id: 122
-                        layer_group_id: 73
+                        id: 4
+                        layer_id: 27
+                        layer_group_id: 14
                         active: false
-                - id: '123'
+                - id: '28'
                   type: layers
                   attributes:
                     name: cum
@@ -942,17 +967,17 @@ paths:
                   relationships:
                     layer_group:
                       data:
-                        id: '73'
+                        id: '14'
                         type: layer_groups
                     sources:
                       data: []
                     agrupation:
                       data:
-                        id: 41
-                        layer_id: 123
-                        layer_group_id: 73
+                        id: 5
+                        layer_id: 28
+                        layer_group_id: 14
                         active: false
-                - id: '124'
+                - id: '29'
                   type: layers
                   attributes:
                     name: molestiae
@@ -986,15 +1011,15 @@ paths:
                   relationships:
                     layer_group:
                       data:
-                        id: '73'
+                        id: '14'
                         type: layer_groups
                     sources:
                       data: []
                     agrupation:
                       data:
-                        id: 42
-                        layer_id: 124
-                        layer_group_id: 73
+                        id: 6
+                        layer_id: 29
+                        layer_group_id: 14
                         active: false
                 meta:
                   total_layers: 3
@@ -1043,21 +1068,21 @@ paths:
             application/json:
               example:
                 data:
-                - id: '23'
+                - id: '4'
                   type: map_menu_entries
                   attributes:
                     label: Otha Kemmer
                     link: http://kutch-spencer.com/moises
                     position: 38
                     ancestry:
-                - id: '24'
+                - id: '5'
                   type: map_menu_entries
                   attributes:
                     label: Msgr. Genaro Cronin
                     link: http://bartoletti.com/jeremiah_cronin
                     position: 41
                     ancestry:
-                - id: '25'
+                - id: '6'
                   type: map_menu_entries
                   attributes:
                     label: Raymon Wisoky
@@ -1083,7 +1108,7 @@ paths:
             application/json:
               example:
                 data:
-                - id: '36'
+                - id: '5'
                   type: models
                   attributes:
                     name: voluptatem
@@ -1099,7 +1124,7 @@ paths:
                         type: site_scopes
                     indicators:
                       data: []
-                - id: '37'
+                - id: '6'
                   type: models
                   attributes:
                     name: cum
@@ -1115,7 +1140,7 @@ paths:
                         type: site_scopes
                     indicators:
                       data: []
-                - id: '38'
+                - id: '7'
                   type: models
                   attributes:
                     name: molestiae
@@ -1131,7 +1156,7 @@ paths:
                         type: site_scopes
                     indicators:
                       data: []
-                - id: '39'
+                - id: '8'
                   type: models
                   attributes:
                     name: quos
@@ -1255,12 +1280,12 @@ paths:
           content:
             application/json:
               example:
-                id: 6
-                image_data: '{"id":"b3dae39d48e277d0a8ed5c4a63a90c48.jpg","storage":"store","metadata":{"filename":"picture.jpg","size":32326,"mime_type":null}}'
-                created_at: '2023-03-13T12:44:52.375+01:00'
-                updated_at: '2023-03-13T12:44:52.382+01:00'
-                url: "/uploads/store/b3dae39d48e277d0a8ed5c4a63a90c48.jpg"
-                image_url: "/uploads/store/b3dae39d48e277d0a8ed5c4a63a90c48.jpg"
+                id: 2
+                image_data: '{"id":"5e44c00559f4aae9bbba3829d53b3616.jpg","storage":"store","metadata":{"filename":"picture.jpg","size":32326,"mime_type":null}}'
+                created_at: '2023-03-15T13:04:23.406+01:00'
+                updated_at: '2023-03-15T13:04:23.412+01:00'
+                url: "/uploads/store/5e44c00559f4aae9bbba3829d53b3616.jpg"
+                image_url: "/uploads/store/5e44c00559f4aae9bbba3829d53b3616.jpg"
   "/users/register":
     post:
       summary: Register new user
@@ -1338,7 +1363,7 @@ paths:
             application/json:
               example:
                 data:
-                  id: '10'
+                  id: '2'
                   type: share_urls
                   attributes:
                     uid: '12345'
@@ -1360,7 +1385,7 @@ paths:
           content:
             application/json:
               example:
-                uid: ddda3b4b2cd148852bf5
+                uid: f3f1245d0c9bf08b4cb8
   "/api/sites":
     get:
       summary: Get list of all site scopes
@@ -1482,10 +1507,10 @@ paths:
           content:
             application/json:
               example:
-                id: 40
+                id: 7
                 email: person-1@example.com
-                created_at: '2023-03-13T12:44:52.628+01:00'
-                updated_at: '2023-03-13T12:44:52.628+01:00'
+                created_at: '2023-03-15T13:04:23.732+01:00'
+                updated_at: '2023-03-15T13:04:23.732+01:00'
                 first_name: Dawna
                 last_name: Block
                 phone: "(995) 001-7692 x452"
@@ -1515,9 +1540,9 @@ paths:
                 first_name: Jan
                 last_name: Kowalski
                 email: jankowalski@example.com
-                id: 42
-                created_at: '2023-03-13T12:44:52.680+01:00'
-                updated_at: '2023-03-13T12:44:52.694+01:00'
+                id: 9
+                created_at: '2023-03-15T13:04:23.782+01:00'
+                updated_at: '2023-03-15T13:04:23.797+01:00'
                 phone: "(995) 001-7692 x452"
                 organization: voluptatem
                 organization_role: voluptatem
@@ -1586,7 +1611,7 @@ components:
       required:
       - errors
 servers:
-- url: ""
+- url: ''
 - url: "{scheme}://{host}"
   variables:
     scheme:

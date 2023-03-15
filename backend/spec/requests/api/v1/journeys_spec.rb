@@ -6,6 +6,7 @@ RSpec.describe "API V1 Journeys", type: :request do
       tags "Journey"
       consumes "application/json"
       produces "application/json"
+      parameter name: :locale, in: :query, type: :string, description: "Used language. Default: en", required: false
 
       let!(:journeys) { create_list :journey, 3, published: true }
       let(:unpublished_journey) { create :journey, published: false }
@@ -30,6 +31,7 @@ RSpec.describe "API V1 Journeys", type: :request do
       consumes "application/json"
       produces "application/json"
       parameter name: :id, in: :path, type: :integer, description: "Journey ID"
+      parameter name: :locale, in: :query, type: :string, description: "Used language. Default: en", required: false
 
       let(:journey_step_landing) { create :journey_step, step_type: :landing }
       let(:journey_step_conclusion) { create :journey_step, step_type: :conclusion }
@@ -47,6 +49,37 @@ RSpec.describe "API V1 Journeys", type: :request do
 
         it "matches snapshot", generate_swagger_example: true do
           expect(response.body).to match_snapshot("api/v1/get_journey")
+        end
+
+        context "with locale" do
+          before do
+            I18n.with_locale(:en) { journey.update! title: "Title EN" }
+            I18n.with_locale(:es) { journey.update! title: "Title ES" }
+          end
+
+          run_test!
+
+          context "with en value" do
+            let(:locale) { "en" }
+
+            it "contains translated value" do
+              expect(response_json["data"]["attributes"]["title"]).to eq("Title EN")
+            end
+          end
+
+          context "with es value" do
+            let(:locale) { "es" }
+
+            it "contains translated value" do
+              expect(response_json["data"]["attributes"]["title"]).to eq("Title ES")
+            end
+          end
+
+          context "with fr value" do
+            it "fallback to default language" do
+              expect(response_json["data"]["attributes"]["title"]).to eq("Title EN")
+            end
+          end
         end
       end
     end
