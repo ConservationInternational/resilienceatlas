@@ -71,7 +71,13 @@ export default class InfoWindow extends Component {
 
               {links &&
                 links.map((lnk) => (
-                  <a className="link" target="_blank" rel="noopener noreferrer" href={lnk}>
+                  <a
+                    className="link"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    href={lnk}
+                    key={lnk}
+                  >
                     {lnk}
                   </a>
                 ))}

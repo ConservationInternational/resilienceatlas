@@ -21,11 +21,15 @@ export const setRouterParam = (param, value) => {
   //   pathname,
   //   search: params.toString(),
   // });
-  Router.push({
-    query: {
-      [param]: value,
+  Router.push(
+    {
+      query: {
+        [param]: value,
+      },
     },
-  });
+    undefined,
+    { shallow: true },
+  );
 };
 
 /**
@@ -51,10 +55,8 @@ export const getRouterParam = (param, parser) => {
 
 export const useRouterParams = () => {
   const router = useRouter();
-  // const {
-  //   location: { pathname, search },
-  // } = history;
 
+  const { pathname } = router;
   const params = { ...router.query };
 
   const getParam = (param, parser) => {
@@ -64,21 +66,29 @@ export const useRouterParams = () => {
   };
 
   const setParam = (param, value) => {
-    params.set(param, value);
+    params[param] = value;
 
-    router.replace({
-      pathname,
-      query: params,
-    });
+    router.replace(
+      {
+        pathname,
+        query: params,
+      },
+      undefined,
+      { shallow: true },
+    );
   };
 
   const removeParam = (param) => {
-    params.delete(param);
+    delete params[param];
 
-    router.replace({
-      pathname,
-      query: params,
-    });
+    router.replace(
+      {
+        pathname,
+        query: params,
+      },
+      undefined,
+      { shallow: true },
+    );
   };
 
   return { getParam, setParam, removeParam };

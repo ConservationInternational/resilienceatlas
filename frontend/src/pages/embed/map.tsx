@@ -7,7 +7,7 @@ import type { NextPageWithLayout } from 'pages/_app';
 
 const EmbedPage: NextPageWithLayout = () => (
   <LayerManagerProvider>
-    <div className="l-content--fillscreen">
+    <div className="l-content--fullscreen">
       <MapView
         options={{
           map: {

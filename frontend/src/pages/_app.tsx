@@ -7,10 +7,13 @@ import type { ReactElement, ReactNode } from 'react';
 import type { NextPage } from 'next';
 import type { AppProps } from 'next/app';
 
-// CSS
+// Third-party styles
 import 'normalize.css/normalize.css';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
+import 'leaflet/dist/leaflet.css';
+
+// Project styles
 import 'views/styles/index.scss';
 
 type ResilienceAppProps = {
@@ -69,14 +72,6 @@ const ResilienceApp = ({ Component, ...rest }: AppPropsWithLayout) => {
         {/* manifest.json provides metadata used when your web app is installed on a
           user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/ */}
         <link rel="manifest" href="/manifest.json" />
-
-        {/* Leaflet CDN */}
-        <link
-          rel="stylesheet"
-          href="https://unpkg.com/leaflet@1.4.0/dist/leaflet.css"
-          integrity="sha512-puBpdR0798OZvTTbP4A8Ix/l+A4dHDD0DGqYW6RQ+9jxkRFclaxxQb/SJAWZfWAkuyeQUytO7+7N4QKrDh+drA=="
-          crossOrigin=""
-        />
       </Head>
       <ReduxProvider store={appStore}>{getLayout(<Component {...rest.pageProps} />)}</ReduxProvider>
     </>
