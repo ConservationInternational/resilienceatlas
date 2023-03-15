@@ -1,6 +1,5 @@
 import React, { useMemo } from 'react';
-// TO-DO: migrate
-// import L from 'leaflet';
+import { geoJSON } from 'leaflet';
 import { useAxios } from 'utilities';
 
 const DownloadImage = ({ analysisBody, geojson }) => {
@@ -12,7 +11,7 @@ const DownloadImage = ({ analysisBody, geojson }) => {
       url: 'https://us-central1-gef-ld-toolbox.cloudfunctions.net/download_image',
       data: {
         assetId,
-        geometry: L.geoJSON(geojson).toGeoJSON(),
+        geometry: geoJSON(geojson).toGeoJSON(),
       },
     };
   }, [analysisBody, geojson]);

@@ -1,7 +1,3 @@
-// TO-DO: migrate
-// import L from 'leaflet';
-// import history from '../history';
-
 /**
  * @param  {string} key key to sort on
  * @param  {boolean} desc=false to sort in descending order
@@ -60,11 +56,6 @@ export const merge = (object, source) => {
 
   return newValue;
 };
-
-export const swapLatLng = (geojson) =>
-  L.geoJSON(geojson, {
-    coordsToLatLng: (coords) => new L.LatLng(coords[0], coords[1], coords[2]),
-  }).toGeoJSON();
 
 export const formatNumber = ({ value, locale = 'en', formatFrom = 10000, ...rest }) => {
   if (value < formatFrom) {
@@ -133,7 +124,7 @@ export const download = (content, fileName, mimeType = 'application/octet-stream
     link.click();
     document.body.removeChild(link);
   } else {
-    history.push(`data:application/octet-stream,${encodeURIComponent(content)}`); // only this mime type is supported
+    history.pushState(`data:application/octet-stream,${encodeURIComponent(content)}`); // only this mime type is supported
   }
 };
 
