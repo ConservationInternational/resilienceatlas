@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_03_13_110633) do
+ActiveRecord::Schema[7.0].define(version: 2023_03_15_090823) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -150,15 +150,15 @@ ActiveRecord::Schema[7.0].define(version: 2023_03_13_110633) do
     t.string "subtitle"
     t.string "description"
     t.text "content"
+    t.string "credits"
+    t.string "source"
     t.index ["journey_step_id"], name: "index_journey_step_translations_on_journey_step_id"
     t.index ["locale"], name: "index_journey_step_translations_on_locale"
   end
 
   create_table "journey_steps", force: :cascade do |t|
     t.string "step_type", null: false
-    t.string "credits"
     t.string "credits_url"
-    t.string "source"
     t.string "mask_sql"
     t.string "map_url"
     t.string "embedded_map_url"
@@ -179,12 +179,12 @@ ActiveRecord::Schema[7.0].define(version: 2023_03_13_110633) do
     t.string "title"
     t.string "subtitle"
     t.text "theme"
+    t.string "credits"
     t.index ["journey_id"], name: "index_journey_translations_on_journey_id"
     t.index ["locale"], name: "index_journey_translations_on_locale"
   end
 
   create_table "journeys", force: :cascade do |t|
-    t.string "credits"
     t.string "credits_url"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false

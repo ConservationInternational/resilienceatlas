@@ -47,8 +47,8 @@ class JourneyStep < ApplicationRecord
 
   enum :step_type, {landing: "landing", conclusion: "conclusion", chapter: "chapter", embed: "embed"}, default: :landing
 
-  translates :title, :subtitle, :description, :content
-  active_admin_translates :title, :subtitle, :description, :content
+  translates :title, :subtitle, :description, :content, :credits, :source
+  active_admin_translates :title, :subtitle, :description, :content, :credits, :source
 
   validates :background_image, content_type: /\Aimage\/.*\z/
   validates :credits_url, url: true

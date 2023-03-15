@@ -7,8 +7,8 @@
       = ff.input :title
       = ff.input :subtitle
       = ff.input :theme
+      = ff.input :credits
   = f.inputs "Common fields" do
-    = f.input :credits
     = f.input :credits_url
     == render "admin/shared/image_with_thumbnail", blob: :background_image, f: f, required: false
     = f.input :published
@@ -28,8 +28,13 @@
                 - fff.input :subtitle
               == render "field_section", key: :description do
                 - fff.input :description
+              == render "field_section", key: :credits do
+                - fff.input :credits
+              == render "field_section", key: :source do
+                - fff.input :source
               == render "field_section", key: :content do
-                - fff.rich_text_area :content
+                - fff.inputs "Content" do
+                  - fff.rich_text_area :content
           = ff.inputs "Common fields" do
             == render "field_section", key: :chapter_number do
               - ff.input :chapter_number
@@ -37,12 +42,8 @@
               == render "admin/shared/image_with_thumbnail", blob: :background_image, f: ff, required: false, inside_has_many_block: true
             == render "field_section", key: :background_color do
               - ff.input :background_color, as: :color
-            == render "field_section", key: :credits do
-              - ff.input :credits
             == render "field_section", key: :credits_url do
               - ff.input :credits_url
-            == render "field_section", key: :source do
-              - ff.input :source
             == render "field_section", key: :mask_sql do
               - ff.input :mask_sql
             == render "field_section", key: :map_url do

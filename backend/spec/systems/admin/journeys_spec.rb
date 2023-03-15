@@ -100,7 +100,7 @@ RSpec.describe "Admin: Journeys", type: :system do
       fill_in "journey[translations_attributes][0][title]", with: "New title"
       fill_in "journey[translations_attributes][0][subtitle]", with: "New subtitle"
       fill_in "journey[translations_attributes][0][theme]", with: "New theme"
-      fill_in "journey[credits]", with: "New credits"
+      fill_in "journey[translations_attributes][0][credits]", with: "New credits"
       fill_in "journey[credits_url]", with: "http://test.test"
       attach_file "journey[background_image]", Rails.root.join("spec/fixtures/files/picture.jpg")
       # landing journey step
@@ -108,7 +108,7 @@ RSpec.describe "Admin: Journeys", type: :system do
       all("fieldset.has-many-toggle-collapse").last.click
       fill_in "journey[journey_steps_attributes][0][translations_attributes][0][title]", with: "New step title"
       fill_in "journey[journey_steps_attributes][0][translations_attributes][0][description]", with: "New step description"
-      fill_in "journey[journey_steps_attributes][0][credits]", with: "New step credits"
+      fill_in "journey[journey_steps_attributes][0][translations_attributes][0][credits]", with: "New step credits"
       fill_in "journey[journey_steps_attributes][0][credits_url]", with: "http://step-test.test"
       attach_file "journey[journey_steps_attributes][0][background_image]", Rails.root.join("spec/fixtures/files/picture.jpg")
       # embed journey step
@@ -116,7 +116,7 @@ RSpec.describe "Admin: Journeys", type: :system do
       all("fieldset.has-many-toggle-collapse").last.click
       select "embed", from: "journey[journey_steps_attributes][1][step_type]"
       fill_in_rich_text_area "journey[journey_steps_attributes][1][translations_attributes][0][content]", with: "New step content"
-      fill_in "journey[journey_steps_attributes][1][source]", with: "New step source"
+      fill_in "journey[journey_steps_attributes][1][translations_attributes][0][source]", with: "New step source"
       fill_in "journey[journey_steps_attributes][1][mask_sql]", with: "New step mask_sql"
       fill_in "journey[journey_steps_attributes][1][map_url]", with: "http://map-test.test"
       fill_in "journey[journey_steps_attributes][1][embedded_map_url]", with: "http://embedded-map-test.test"
@@ -165,13 +165,13 @@ RSpec.describe "Admin: Journeys", type: :system do
       fill_in "journey[translations_attributes][0][title]", with: "Update title"
       fill_in "journey[translations_attributes][0][subtitle]", with: "Update subtitle"
       fill_in "journey[translations_attributes][0][theme]", with: "Update theme"
-      fill_in "journey[credits]", with: "Update credits"
+      fill_in "journey[translations_attributes][0][credits]", with: "Update credits"
       fill_in "journey[credits_url]", with: "http://test.test"
       attach_file "journey[background_image]", Rails.root.join("spec/fixtures/files/picture.jpg")
       # embed journey step
       all("fieldset.has-many-toggle-collapse").last.click
       fill_in_rich_text_area "journey[journey_steps_attributes][0][translations_attributes][0][content]", with: "Update step content"
-      fill_in "journey[journey_steps_attributes][0][source]", with: "Update step source"
+      fill_in "journey[journey_steps_attributes][0][translations_attributes][0][source]", with: "Update step source"
       fill_in "journey[journey_steps_attributes][0][mask_sql]", with: "Update step mask_sql"
       fill_in "journey[journey_steps_attributes][0][map_url]", with: "http://map-test.test"
       fill_in "journey[journey_steps_attributes][0][embedded_map_url]", with: "http://embedded-map-test.test"
