@@ -1,117 +1,75 @@
-# Resilience Atlas web app
+# Resilience Atlas - Front-end
 
 *This version is based on the repository: [https://github.com/ConservationInternational/resilienceatlas-react](https://github.com/ConservationInternational/resilienceatlas-react)*
 
-This is the web app powering
-[resilienceatlas.org](http://www.resilienceatlas.org)
+The front-end application of the Resilience Atlas platform is built using the following resources:
 
+- [React](https://reactjs.org/) as a UI library
+- [Next.js](https://nextjs.org/) as a framework
+- [Sass](https://sass-lang.com/) as a CSS language
+- [Foundation](https://get.foundation/) as a styles framework
+- [Redux](https://redux.js.org/) as a state manager
+- [Leaflet](https://leafletjs.com/) and [CARTO.js](https://carto.com/developers/carto-js/) as mapping technologies
 
-## Requirements:
+## Quick start
 
-- NodeJs 11.9.0+ [How to install](https://nodejs.org/download/)
-- npm 6.9.0+
-- yarn 1.13.0+ (you can use npm instead)
+In order to start modifying the app, please make sure to correctly configure your workstation:
 
-## Start here if your machine already has Requirements Installed, If you need help with installation, scroll to bottom
-Install project dependencies:
+1. Make sure you you have [Node.js](https://nodejs.org/en/) installed
+2. (Optional) Install [NVM](https://github.com/nvm-sh/nvm) to manage your different Node.js versions
+3. (Optional) Use [Visual Studio Code](https://code.visualstudio.com/) as a text editor to benefit from automatic type checking
+4. Configure your text editor with the [Prettier](https://prettier.io/), [ESLint](https://eslint.org/) and [EditorConfig](https://editorconfig.org/) plugins
+5. (Optional) Configure your editor to “format [code] on save” with ESLint and Prettier
+6. Use the correct Node.js version for this app by running `nvm use`; if you didn't install NVM (step 2), then manually install the Node.js version described in `.nvmrc`
+7. Install the dependencies: `yarn`
+8. Create a `.env` file at the root of the project by copying `.env.example` and giving a value for each of the variables (see next section for details)
+9. Run the server: `yarn dev`
 
-    yarn
+You can access a hot-reloaded version of the app on [http://localhost:3000](http://localhost:3000).
 
-## Usage
+## Environment variables
 
-Before running the application, you need to configure it by copying `.env.example` to `.env` and setting the appropriate values where needed.
+The application is configured via environment variables stored in a `.env` file that must be placed at the root of the project. You can create one by copying `.env.example` and setting a value for each key.
 
-To start the application, run:
+Below is a description of each of the keys.
 
-    yarn dev
+| Variable               | Description                                                                                                                                       |
+|------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------|
+| `NEXT_PUBLIC_SITE`     | Complete URL from which the front-end application is served (including https) and without a trailing slash (e.g. https://www.resilienceatlas.org) |
+| `NEXT_PUBLIC_API_HOST` | Complete URL of the API server (including https) and without the trailing slask (e.g. https://www.resilienceatlas.org)                            |
+| `NEXT_PUBLIC_API_PROD` | Same as NEXT_PUBLIC_API_HOST                                                                                                                      |
 
-## Production build
+## CI/CD
 
-To compile production build, run:
+When a pull request (PR) is created, a GitHub action runs the tests (`yarn test`).
 
-    yarn build
+When the PR is merged or commits are directly pushed to the `develop` branch (not recommended), the tests are also run and the application is deployed to the staging environment: https://staging.resilienceatlas.org/.
 
-and then you can use your production build locally:
+When a PR is merged to the `main` branch, the same process is also executed and the application is deployed to the production environment: https://www.resilienceatlas.org/.
 
-    npm i -g serve
-    serve -s build
+It is recommended to mention the Jira task ID either in commits or the branch names so that the deployment information can be directly available in Jira.
 
-alternatively and only for development and debugging purposes you can use:
+## Contribution rules
 
-```
-yarn start
-```
+Please, **create a PR** for any improvement or feature you want to add. Use the `develop` branch for this.
 
-## Deploy (Capistrano)
+## Vulnerability mitigation
 
-You need ruby 2.5.3, then you have to install gems using `bundle install`. To deploy to staging you have to run:
+[Dependabot's vulnerability security alerts](https://docs.github.com/en/code-security/dependabot/dependabot-alerts/about-dependabot-alerts) are configured in this repository and are displayed to the administrators.
 
-```
-	gem install bundler -v 1.17.3
-	bundle install
-    bundle exec cap staging deploy
-```
+When vulnerabilities are detected, a warning message is displayed at the top of the repository. The list of alerts can be found in the [Dependabot alerts page](https://github.com/Vizzuality/heco-invest/security/dependabot).
 
-As the deploy task takes a lot of memory we have to run the compilation separately, go to the `current` folder and run the next command:
+Here's a step by step guide on how to address vulnerabilities found in production code:
 
-```
-	cd ~/resilience-react/current
-	npm run --max_old_space_size=4000 build
-```
-## Set-up your Device
-
-### In a Virtual Machine (Windows 10)
-
-#### Enable Hyper-V
-1) Navigate to 'Apps and Features"
-2) Select *Programs and Features* on the right under related settings
-3) Select *Turn Windows Features on and Off*
-4) Select *Hyper-V* and click *ok*
-
-#### Create a Virtual Machine (Ubuntu 20.04.1 LTS)
-1) [Download Ubuntu Desktop](https://ubuntu.com/download/desktop)
-2) Navigate to *Hyper-V Manager* (If you have Admin Priveleges, you can use Hyper-V Quick Create)
-3) In *Hyper-V Manager* click *Action* dropdown on top navigation bar and select *Virtual Switch Manager*
-4) Accept External Switch Defaults and Name it Something Personal eg. (YourName-VirtualSwitch)
-5) Click *Action* dropdown on top navigation bar and select *New/VirtualMachine*
-6) This Creation Wizard is Pretty Intuitive. A few settings to remember, in the order that you'll need them:
-	- SpecifyNameAndLocation: Name the virtual machine something memorable. I recommend a combination of project name and ubuntu20.04.1
-	- SpecifyGeneration: Generation 1
-	- AssignMemory: Ubuntu Requires a Minimum of *2000 MB* of Starter Memory to Run Effectively.
-	- ConfigureNetworking: Select your custom Switch here
-	- InstallationOptions: Install Operating System from Bootable CD/DVD, Navigate to .iso file downloaded in Step 1
-	- Finish
-7) Start Virtual Machine
-
-#### Install Packages
-
-In this section we will be installing the dependencies from the Requirements Section Above onto your Virtual Machine
-1) Open Terminal by navigating through applications in the grid dot logo at the bottom of your screen.
-2) Run the following commands:
-	- apt sudo install git
-	- apt sudo install ruby
-	- apt sudo install npm
-	- apt sudo install nodejs
-	- curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
-	-echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
-
-3) Clone resilience-react repo to this machine using
-  git clone https://github.com/ConservationInternational/resilienceatlas-react.git
-
-### On Your Local Machine (Windows 10)
-
-I recommend installing [git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git) and using git Bash for installation. Although Using whatever command line tool you're most comfortable in will probably work as well.
-
-1) Install [Ruby](ruby-lang.org/en/documentation/installation)
-2) Install [node](nodejs.org/en/download)
-3) Install [yarn](classic.yarnpkg.com/en/docs/install/#windows-stable)
-4) git clone https://github.com/ConservationInternational/resilienceatlas-react.git
-
-
-## Contributing
-
-1. Fork it!
-2. Create your feature branch: `git checkout -b feature/my-new-feature`
-3. Commit your changes: `git commit -am '[Feature] Add some feature'`
-4. Push to the branch: `git push origin feature/my-new-feature`
-5. Submit a pull request :D
+1. Go to the [Dependabot alerts page](https://github.com/Vizzuality/heco-invest/security/dependabot) and locate the front-end vulnerability to address
+2. Identify if the vulnerability affects production code:
+   - To do so run `yarn npm audit --recursive --environment production`
+   - If the dependency is _not_ listed by this command, then the vulnerability only affects development code. You can dismiss the alert on GitHub as “Vulnerable code is not actually used” in the top right corner of the vulnerability page.
+   - If the dependency _is_ listed, follow the steps below.
+3. On the vulnerability page, click the “Create Dependabot security update” button
+   - This will create a Pull Request with a fix for the vulnerability. If GitHub can generate this PR, then you can merge and the security alert will disappear.
+   - If the vulnerability can't be patched automatically, follow the steps below.
+4. If the action fails, then you can semi-automatically update the vulnerable dependency by running `npm_config_yes=true npx yarn-audit-fix --only prod`
+   - `yarn-audit-fix` (see [repository](https://github.com/antongolub/yarn-audit-fix)) is a tool that applies the fixes from `npm audit fix` to Yarn installations
+   - The tool might also not be able to fix the vulnerability. If so, continue with the steps below.
+5. If the action fails, then you will have to manually update the dependencies until the vulnerability is solved
