@@ -49,7 +49,7 @@ const MapView = (props) => {
     embed,
     drawing,
   } = props;
-  const { setParam: setRouterParam } = useRouterParams();
+  const { setParam } = useRouterParams();
 
   const layerManagerRef = useContext(LayerManagerContext);
 
@@ -73,7 +73,7 @@ const MapView = (props) => {
     }));
 
     if (layersLoaded) {
-      setRouterParam('layers', JSON.stringify(hash));
+      setParam('layers', JSON.stringify(hash));
     }
   }, [activeLayers]);
 
@@ -113,18 +113,18 @@ const MapView = (props) => {
           const mapZoom = map.getZoom();
 
           if (mapZoom !== (+site.zoom_level || 5)) {
-            setRouterParam('zoom', map.getZoom());
+            setParam('zoom', map.getZoom());
           } else {
             // clear param if it's default
-            setRouterParam('zoom');
+            setParam('zoom');
           }
 
           // Update map center in url, because it basically changed
           // after 'pinches' and zoom in/out from mousewheel.
-          setRouterParam('center', qs.stringify(map.getCenter()));
+          setParam('center', qs.stringify(map.getCenter()));
         },
         dragend: (e, map) => {
-          setRouterParam('center', qs.stringify(map.getCenter()));
+          setParam('center', qs.stringify(map.getCenter()));
         },
       }}
     >

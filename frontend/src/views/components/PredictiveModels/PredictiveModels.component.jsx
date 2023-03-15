@@ -2,7 +2,7 @@ import React, { Fragment, useEffect, useMemo } from 'react';
 import qs from 'qs';
 import Loader from 'views/shared/Loader';
 
-import { setRouterParam } from 'utilities';
+import { useRouterParams } from 'utilities';
 
 import Indicator from './Indicator';
 
@@ -20,6 +20,8 @@ const PredictiveModels = ({
   modelsLoaded,
   selectedModel,
 }) => {
+  const { setParam } = useRouterParams();
+
   useEffect(() => {
     if (!modelsLoaded) loadModels();
   }, []);
@@ -27,7 +29,7 @@ const PredictiveModels = ({
   useEffect(() => {
     // detect only changes caused by user
     if (model) {
-      setRouterParam(
+      setParam(
         'model',
         qs.stringify(
           {
