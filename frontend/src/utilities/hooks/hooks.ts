@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import cx from 'classnames';
-// import { setRouterParam } from '../routeParams';
 import { usePrevious } from './usePrevious';
+import { useRouterParams } from 'utilities/routeParams';
 
 export const useToggle = (initial = false) => {
   const [toggled, setToggle] = useState(initial);
@@ -69,18 +69,19 @@ export const useRouterValue = (
   value: any,
   { onlyOnChange = false }: { onlyOnChange?: boolean } = {},
 ) => {
+  const { setParam } = useRouterParams();
   const prevValue = usePrevious(value, { initial: true });
 
   useEffect(() => {
     if (!onlyOnChange || prevValue !== value) {
-      // setRouterParam(name, value);
+      setParam(name, value);
     }
   }, [value]);
 };
 
 export const useTogglerButton = (current, setter, { activeClassName = 'is-active' } = {}) => {
   const getTogglerProps = (value) => {
-    const onClick = useCallback(() => setter(value), [value]);
+    const onClick = () => setter(value);
 
     return {
       onClick,

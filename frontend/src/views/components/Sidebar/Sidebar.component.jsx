@@ -1,6 +1,4 @@
-import type { FC } from 'react';
 import React, { useCallback, useEffect } from 'react';
-import type { RouteComponentProps } from 'react-router-dom';
 import cx from 'classnames';
 
 import AnalysisPanel from 'views/components/AnalysisPanel';
@@ -11,20 +9,14 @@ import LogoAttribution from 'views/components/LogoAttribution';
 import LinkButton from 'views/shared/LinkButton';
 import Tabs from 'views/shared/Tabs';
 
-import { setRouterParam } from 'utilities';
+import { useRouterParams } from 'utilities';
 
 export const TABS = {
   LAYERS: 'layers',
   MODELS: 'models',
 };
 
-interface P extends RouteComponentProps {
-  geojson: L.GeoJSON;
-  opened: boolean;
-  analysisOpened: boolean;
-}
-
-const Sidebar: FC<P> = ({
+const Sidebar = ({
   // Actions
   toggleOpen,
   toggleAnalysis,
@@ -37,8 +29,10 @@ const Sidebar: FC<P> = ({
   modelsLoaded,
   site,
 }) => {
+  const { setParam } = useRouterParams();
+
   useEffect(() => {
-    setRouterParam('tab', tab);
+    setParam('tab', tab);
   }, [tab]);
 
   const switchTab = useCallback(
