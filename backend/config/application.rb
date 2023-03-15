@@ -27,6 +27,7 @@ module ConservationInternational
     config.eager_load_paths << Rails.root.join("lib")
     config.i18n.available_locales = [:en, :it, :de, :es, :"pt-BR", :fr]
     config.i18n.default_locale = :en
+    config.i18n.fallbacks = [:en]
 
     # Setup scaffold
     config.generators do |g|

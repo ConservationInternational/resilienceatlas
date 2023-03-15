@@ -17,7 +17,7 @@ class Journey < ApplicationRecord
 
   has_one_attached :background_image, service: :local_public
 
-  translates :title, :subtitle, :theme, :credits
+  translates :title, :subtitle, :theme, :credits, fallbacks_for_empty_translations: true
   active_admin_translates :title, :subtitle, :theme, :credits
 
   validates :background_image, content_type: /\Aimage\/.*\z/
