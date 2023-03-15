@@ -1,3 +1,8 @@
+import 'leaflet';
+import 'leaflet.pm';
+import 'leaflet-active-area';
+import 'leaflet-utfgrid/L.UTFGrid';
+
 import React, { useCallback, useEffect, useContext } from 'react';
 import qs from 'qs';
 import omit from 'lodash/omit';
@@ -11,7 +16,7 @@ import { TABS } from 'views/components/Sidebar';
 import { BASEMAPS } from 'views/utils';
 
 import { LayerManagerContext } from 'views/contexts/layerManagerCtx';
-import { setRouterParam } from 'utilities';
+import { useRouterParams } from 'utilities';
 
 import Toolbar from './Toolbar';
 import DrawingManager from './DrawingManager';
@@ -44,12 +49,7 @@ const MapView = (props) => {
     embed,
     drawing,
   } = props;
-  console.log('props: ', props);
-  // console.log(router);
-  // const query = qs.parse(location.search, {
-  //   ignoreQueryPrefix: true,
-  //   parseArrays: true,
-  // });
+  const { setParam: setRouterParam } = useRouterParams();
 
   const layerManagerRef = useContext(LayerManagerContext);
 
@@ -166,6 +166,7 @@ const MapView = (props) => {
                 ></Layer>
               </LayerManager>
             ))}
+
           {tab === TABS.MODELS && model_layer && (
             <LayerManager map={map} plugin={PluginLeaflet} ref={layerManagerRef} key="model_layer">
               <Layer key="model_layer" {...model_layer} />

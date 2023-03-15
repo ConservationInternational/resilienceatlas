@@ -5,7 +5,6 @@ import { connect } from 'react-redux';
 import { load as loadSite } from 'state/modules/site';
 
 import Head from './_head';
-import Header from './_header';
 import Icons from './_icons';
 
 type EmbedPageProps = React.PropsWithChildren & {
@@ -41,7 +40,6 @@ const EmbedPage: React.FC<EmbedPageProps> = ({ site, page, pageTitle, children, 
     >
       <Head pageTitle={pageTitle} />
       <Icons />
-      <Header />
       <div className="l-main--embed">{children}</div>
     </div>
   );
