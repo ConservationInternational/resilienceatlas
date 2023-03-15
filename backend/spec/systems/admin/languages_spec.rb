@@ -18,9 +18,15 @@ RSpec.describe "Admin: Languages", type: :system do
   end
 
   describe "#update" do
+    let!(:locales) { I18n.available_locales }
+
     before do
       visit admin_languages_path
-      click_on I18n.available_locales.join(" ")
+      click_on locales.join(" ")
+    end
+
+    after do
+      I18n.available_locales = locales
     end
 
     it "allows to update available locales" do
