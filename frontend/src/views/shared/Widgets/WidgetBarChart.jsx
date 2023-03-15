@@ -1,4 +1,4 @@
-import type { FC } from 'react';
+import dynamic from 'next/dynamic';
 import React, { useMemo } from 'react';
 import { ResponsiveContainer, BarChart, XAxis, YAxis, CartesianGrid, Bar, Tooltip } from 'recharts';
 
@@ -7,20 +7,12 @@ import InfoWindow from 'views/components/InfoWindow';
 import { useWidget, formatNumber } from 'utilities';
 import { CustomTooltip } from './CustomTooltip';
 import DownloadCsv from './DownloadCsv';
-import DownloadImage from './DownloadImage';
+
+const DownloadImageNoSSR = dynamic(() => import('./DownloadImage'), { ssr: false });
 
 const tickOptions = { fill: '#999', fontSize: 14 };
 
-interface P {
-  name: string;
-  slug: string;
-  query: string;
-  meta_short: string;
-  metadata: string;
-  geojson: L.GeoJSON;
-}
-
-export const WidgetBarChart: FC<P> = ({
+export const WidgetBarChart = ({
   responsive,
   name,
   slug,
@@ -126,7 +118,9 @@ export const WidgetBarChart: FC<P> = ({
 
                 {!noData && <DownloadCsv data={data} name={slug} />}
 
-                {analysisBody && <DownloadImage analysisBody={analysisBody} geojson={geojson} />}
+                {analysisBody && (
+                  <DownloadImageNoSSR analysisBody={analysisBody} geojson={geojson} />
+                )}
 
                 {metadata && (
                   <button
