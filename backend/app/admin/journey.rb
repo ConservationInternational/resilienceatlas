@@ -1,9 +1,13 @@
 ActiveAdmin.register Journey do
-  permit_params :credits, :credits_url, :background_image, :published,
-    translations_attributes: [:id, :locale, :title, :subtitle, :theme, :_destroy],
-    journey_steps_attributes: [:id, :step_type, :position, :chapter_number, :credits, :credits_url,
-      :source, :map_url, :mask_sql, :embedded_map_url, :background_image, :background_color, :_destroy,
-      translations_attributes: [:id, :locale, :title, :subtitle, :description, :content, :_destroy]]
+  permit_params :credits_url, :background_image, :published,
+    translations_attributes: [:id, :locale, :title, :subtitle, :theme, :credits, :_destroy],
+    journey_steps_attributes: [:id, :step_type, :position, :chapter_number, :credits_url,
+      :map_url, :mask_sql, :embedded_map_url, :background_image, :background_color, :_destroy,
+      translations_attributes: [:id, :locale, :title, :subtitle, :description, :content, :credits, :source, :_destroy]]
+
+  filter :created_at
+  filter :updated_at
+  filter :published
 
   controller do
     def scoped_collection

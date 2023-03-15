@@ -1,6 +1,7 @@
 # Changelog
 
 **Merged pull requests:**
+- Adding data which recreates journeys at database based on original json files [\#100](https://github.com/ConservationInternational/resilienceatlas/pull/100) ([martintomas](https://github.com/martintomas))
 - PostgreSQL server upgrade to 15 in staging and production and updated GH workflow to match [\#99](https://github.com/ConservationInternational/resilienceatlas/pull/99) ([agnessa](https://github.com/agnessa))
 - Adding possibility to publish/unpublish journeys [\#95](https://github.com/ConservationInternational/resilienceatlas/pull/95) ([martintomas](https://github.com/martintomas))
 - Refactoring journey API endpoints so data are taken from database [\#95](https://github.com/ConservationInternational/resilienceatlas/pull/95) ([martintomas](https://github.com/martintomas))

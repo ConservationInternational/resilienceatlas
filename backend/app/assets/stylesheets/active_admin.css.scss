@@ -35,6 +35,11 @@ div#footer{display: none;}
     display: inline;
     margin-left: 20%;
   }
+
+  .row td:nth-child(2){
+    max-width: 60vh;
+    word-wrap: break-word;
+  }
 }
 .trix-content {
   ul {
