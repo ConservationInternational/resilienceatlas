@@ -2,7 +2,7 @@
 lock "3.4.0"
 
 set :application, "ResilienceAtlasReact"
-set :repo_url, "https://github.com/ConservationInternational/resilienceatlas-react.git"
+set :repo_url, "https://github.com/ConservationInternational/resilienceatlas.git"
 
 # Default branch is :master
 # ask :branch, `git rev-parse --abbrev-ref HEAD`.chomp
