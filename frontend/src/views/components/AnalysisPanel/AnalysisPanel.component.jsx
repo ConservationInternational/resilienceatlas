@@ -1,4 +1,3 @@
-import type { FC } from 'react';
 import React, { useState, useCallback, useEffect, useMemo } from 'react';
 import qs from 'qs';
 import cx from 'classnames';
@@ -13,12 +12,7 @@ import { LayerAnalysis, PredictiveModelAnalysis } from './AnalysisContent';
 
 const ACCEPTED_EXTENSIONS = ['.json', '.geojson'];
 
-interface P {
-  drawing: boolean;
-  geojson: L.GeoJSON;
-}
-
-export const AnalysisPanel: FC<P> = ({
+export const AnalysisPanel = ({
   // actions
   loadCountries,
   setDrawing,

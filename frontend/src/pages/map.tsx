@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 
 import FullscreenLayout from 'views/layouts/fullscreen';
 import Sidebar from 'views/components/Sidebar';
@@ -16,6 +16,7 @@ import Loader from 'views/shared/Loader';
 import type { NextPageWithLayout } from './_app';
 
 const MapPage: NextPageWithLayout = () => {
+  // TO-DO: migrate this, how it works?
   // const { location: { state } } = props;
   // useEffect(() => {
   //   if (state && state.downloadLayerUrl) {

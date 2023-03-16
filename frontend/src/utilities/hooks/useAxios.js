@@ -1,10 +1,7 @@
 import { useReducer, useEffect, useRef } from 'react';
-import type { AxiosRequestConfig } from 'axios';
 import axios from 'axios';
 import createReducer from '../../state/utils/createReducer';
 import { createApiAction } from '../../state/utils/api';
-
-type FetchResult = [any, boolean, boolean, any];
 
 const FETCH = createApiAction('FETCH');
 
@@ -43,11 +40,7 @@ const fetchReducer = createReducer(initialState)({
  *
  * @returns {array} [data, loading, lodaed, error]
  */
-export const useAxios = (
-  config: AxiosRequestConfig,
-  deps?: any[],
-  parseData?: Function,
-): FetchResult => {
+export const useAxios = (config, deps, parseData) => {
   const source = useRef(axios.CancelToken.source());
   const [state, dispatch] = useReducer(fetchReducer, initialState);
 

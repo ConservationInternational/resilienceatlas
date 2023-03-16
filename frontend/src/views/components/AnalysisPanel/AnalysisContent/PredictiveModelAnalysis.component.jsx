@@ -1,30 +1,16 @@
-import type { FC } from 'react';
 import React, { useMemo } from 'react';
 import { WidgetBarChart } from 'views/shared/Widgets/WidgetBarChart';
 
-interface P {
-  modelLayer: Object[];
-  geojson: L.GeoJSON;
-}
-
-export const PredictiveModelAnalysis: FC<P> = ({
+export const PredictiveModelAnalysis = ({
   responsiveCharts,
   selectedModel,
   model,
   loaded,
   geojson,
 }) => {
-  if (selectedModel && !loaded) return <center>Waiting until layers loaded...</center>;
-
-  if (!selectedModel) {
-    return <center>Please toggle some layers on to analyze them.</center>;
-  }
-
-  if (!model) {
-    return <center>Seems like your model is unavailable or you using wrong atlas.</center>;
-  }
-
   const analysisQuery = useMemo(() => {
+    if (!model) return null;
+
     const indicatorsColumn = model.indicators
       .filter((indicator) => indicator.value !== null && indicator.value !== undefined)
       .map(
@@ -47,6 +33,17 @@ export const PredictiveModelAnalysis: FC<P> = ({
 
     return query;
   }, [model]);
+
+  if (selectedModel && !loaded) return <center>Waiting until layers loaded...</center>;
+
+  if (!selectedModel) {
+    return <center>Please toggle some layers on to analyze them.</center>;
+  }
+
+  if (!model) {
+    return <center>Seems like your model is unavailable or you using wrong atlas.</center>;
+  }
+
   const { description, source } = model;
 
   return (

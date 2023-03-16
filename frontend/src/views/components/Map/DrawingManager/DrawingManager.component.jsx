@@ -1,19 +1,9 @@
-import type { FC } from 'react';
 import { useEffect, useRef } from 'react';
 import qs from 'qs';
 
 import { useRouterParams } from 'utilities';
 
-interface P {
-  setGeojson: (value: L.GeoJSON) => void;
-  map: L.Map;
-  drawing: boolean;
-  geojson: L.GeoJSON;
-  bounds: L.GeoJSON;
-  iso: string;
-}
-
-export const DrawingManager: FC<P> = ({
+export const DrawingManager = ({
   setGeojson,
   setDrawing,
   map,

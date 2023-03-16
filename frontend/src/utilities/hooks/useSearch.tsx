@@ -2,15 +2,10 @@ import React, { useMemo, useState, useCallback, useEffect } from 'react';
 import { clickable } from '../helpers';
 import { useInput } from './hooks';
 
-interface ExtraOptions {
-  valueKey: string;
-  onSelect: Function;
-}
-
 export const useSearch = (
   name,
-  data: Object[],
-  { valueKey = 'value', onSelect = (v) => v }: ExtraOptions = {},
+  data: Record<string, unknown>[],
+  { valueKey = 'value', onSelect = (v) => v },
 ) => {
   const searchInput = useInput(name, '');
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -20,7 +15,7 @@ export const useSearch = (
       return data
         .map((d) => {
           const text = searchInput.value.toLowerCase();
-          const value = d[valueKey];
+          const value = d[valueKey] as string;
           const index = value.toLowerCase().replace(/-/gi, ' ').indexOf(text);
 
           if (index >= 0) {
