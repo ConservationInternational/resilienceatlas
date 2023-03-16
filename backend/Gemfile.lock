@@ -1,5 +1,5 @@
 GIT
-  remote: https://github.com/martintomas/activeadmin-globalize
+  remote: https://github.com/martintomas/activeadmin-globalize.git
   revision: b99217e8740692fff1b23c778e2ef6a49057deeb
   branch: main
   specs:
