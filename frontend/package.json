@@ -12,7 +12,7 @@
     "check-types": "tsc --noemit -p tsconfig.json"
   },
   "dependencies": {
-    "@carto/carto.js": "4.2.0",
+    "@carto/carto.js": "4.2.2",
     "axios": "^0.18.0",
     "foundation-sites": "6.7.5",
     "leaflet": "1.4.0",
