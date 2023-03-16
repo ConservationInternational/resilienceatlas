@@ -33,9 +33,10 @@ The application is configured via environment variables stored in a `.env` file 
 
 Below is a description of each of the keys.
 
-| Variable               | Description                                                                                                                                       |
-|------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------|
-| `NEXT_PUBLIC_API_HOST` | Complete URL of the API server (including https) and without the trailing slask (e.g. https://www.resilienceatlas.org)                            |
+| Variable                       | Description                                                                                                                                       |
+|--------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------|
+| `NEXT_PUBLIC_API_HOST`         | Complete URL of the API server (including https) and without the trailing slask (e.g. https://www.resilienceatlas.org)                            |
+| `NEXT_PUBLIC_GOOGLE_ANALYTICS` | Optional − Google Analytics' measurement ID                                                                                                       |
 
 ## CI/CD
 
