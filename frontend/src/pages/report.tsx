@@ -14,7 +14,7 @@ const ReportPage: NextPageWithLayout = () => (
       <Row>
         <Column small={12}>
           <h2>Analysis report</h2>
-          {/* <MapView
+          <MapView
             page="report"
             options={{
               map: {
@@ -23,7 +23,7 @@ const ReportPage: NextPageWithLayout = () => (
                 zoomControl: false,
               },
             }}
-          /> */}
+          />
           <Loader />
 
           <Legend />

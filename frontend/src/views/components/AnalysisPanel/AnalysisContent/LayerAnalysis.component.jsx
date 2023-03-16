@@ -1,13 +1,7 @@
-import type { FC } from 'react';
 import React from 'react';
 import { WidgetBarChart } from 'views/shared/Widgets/WidgetBarChart';
 
-interface P {
-  activeLayers: Object[];
-  geojson: L.GeoJSON;
-}
-
-export const LayerAnalysis: FC<P> = ({
+export const LayerAnalysis = ({
   responsiveCharts,
   activeLayers,
   loaded,

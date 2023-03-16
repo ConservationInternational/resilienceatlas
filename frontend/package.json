@@ -8,7 +8,8 @@
     "start": "next start",
     "test": "cypress run --headless -b chrome",
     "lint": "next lint",
-    "prettier": "prettier --config .prettierrc.json --check --write \"./src/**/*.{tsx,jsx,ts,js}\""
+    "prettier": "prettier --config .prettierrc.json --check --write \"./src/**/*.{tsx,jsx,ts,js}\"",
+    "check-types": "tsc --noemit -p tsconfig.json"
   },
   "dependencies": {
     "@carto/carto.js": "4.2.2",

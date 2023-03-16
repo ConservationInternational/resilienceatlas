@@ -1,24 +1,11 @@
 import cx from 'classnames';
-import type { AxiosRequestConfig } from 'axios';
 import { useMemo, useCallback } from 'react';
 import { useAxios } from './useAxios';
 
 const sqlApi = 'https://cdb-cdn.resilienceatlas.org/user/ra/api/v2/sql';
 
-interface WidgetOptions {
-  slug: string;
-  geojson: L.GeoJSON;
-}
-/**
- * @param  {WidgetOptions} options
- * @param  {String} query
- */
-export const useWidget = (
-  { slug, geojson }: WidgetOptions,
-  { analysisQuery, analysisBody }: { analysisQuery: string; analysisBody: string },
-) => {
-  const query = useMemo((): AxiosRequestConfig => {
-    console.log(geojson);
+export const useWidget = ({ slug, geojson }, { analysisQuery, analysisBody }) => {
+  const query = useMemo(() => {
     if (analysisBody) {
       const { assetId } = JSON.parse(analysisBody);
 
