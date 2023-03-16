@@ -17,32 +17,32 @@
   dependencies:
     regenerator-runtime "^0.13.11"
 
-"@carto/carto.js@4.2.2":
-  version "4.2.2"
-  resolved "https://registry.npmjs.org/@carto/carto.js/-/carto.js-4.2.2.tgz"
-  integrity sha512-RGtVCADoZhecNlD2TwJ7nACqeGrPeYB8DeJW45Ngu6AUN5BIAVzBOofoD+pQpxPmfFT3i0jaC79Lu8/tbUXPYQ==
+"@carto/carto.js@4.2.0":
+  version "4.2.0"
+  resolved "https://registry.yarnpkg.com/@carto/carto.js/-/carto.js-4.2.0.tgz#d86e1eeb4ecbf00cc103e5a6e42c5ec2f7bf01dd"
+  integrity sha512-h448DTHCTJ3WjSKc81uxsnXOW8/EJV2UaZe06SQffHt1sUEsK2QJ7MsPs+uuGxXq+z89sOyHaMzvJinrm1oFhA==
   dependencies:
     "@carto/zera" "1.0.7"
     backbone "1.2.3"
     backbone-poller "^1.1.3"
     camshaft-reference "0.34.0"
-    carto cartodb/carto#master
+    carto "github:cartodb/carto#master"
     clip-path-polygon "0.1.12"
     d3-array "1.2.1"
     d3-format "1.2.0"
     d3-time-format "2.1.0"
     jquery "2.1.4"
     mustache "1.1.0"
-    perfect-scrollbar "https://github.com/CartoDB/perfect-scrollbar.git#master"
+    perfect-scrollbar "git://github.com/CartoDB/perfect-scrollbar.git#master"
     postcss "5.0.19"
     promise-polyfill "^6.1.0"
-    torque.js CartoDB/torque#master
+    torque.js "github:CartoDB/torque#master"
     underscore "1.8.3"
     whatwg-fetch "^2.0.3"
 
 "@carto/zera@1.0.7":
   version "1.0.7"
-  resolved "https://registry.npmjs.org/@carto/zera/-/zera-1.0.7.tgz"
+  resolved "https://registry.yarnpkg.com/@carto/zera/-/zera-1.0.7.tgz#2d9a2d5971058daa4449a75e006d43d61d89e0f2"
   integrity sha512-I++EJMuybbNohLsaWMpEcs2gSbUhf0JHDgubT6b63kIB8ox5NS9LHeE39vS1DOUQNlDubLp84QDrSIt/aMpA7A==
 
 "@colors/colors@1.5.0":
@@ -776,7 +776,7 @@ babel-runtime@6.x, babel-runtime@^6.11.6, babel-runtime@^6.26.0:
 
 backbone-poller@^1.1.3:
   version "1.1.4"
-  resolved "https://registry.npmjs.org/backbone-poller/-/backbone-poller-1.1.4.tgz"
+  resolved "https://registry.yarnpkg.com/backbone-poller/-/backbone-poller-1.1.4.tgz#8f88b182820702af653e6667f320ececbcbcbec6"
   integrity sha512-h+2XFKG0LhsB2dd5cWowV+ySyn46loPk5YL3DWdnRI34KbruI2P4ZNJh/qCl90n3rkAv1laEj4lfSUsbiWjDNQ==
   dependencies:
     backbone ">=0.9.*"
@@ -784,14 +784,14 @@ backbone-poller@^1.1.3:
 
 backbone@1.2.3:
   version "1.2.3"
-  resolved "https://registry.npmjs.org/backbone/-/backbone-1.2.3.tgz"
+  resolved "https://registry.yarnpkg.com/backbone/-/backbone-1.2.3.tgz#c22cfd07fc86ebbeae61d18929ed115e999d65b9"
   integrity sha512-1/eXj4agG79UDN7TWnZXcGD6BJrBwLZKCX7zYcBIy9jWf4mrtVkw7IE1VOYFnrKahsmPF9L55Tib9IQRvk027w==
   dependencies:
     underscore ">=1.7.0"
 
 backbone@>=0.9.*:
   version "1.4.1"
-  resolved "https://registry.npmjs.org/backbone/-/backbone-1.4.1.tgz"
+  resolved "https://registry.yarnpkg.com/backbone/-/backbone-1.4.1.tgz#099a78184bc07b034048a8332229c2ccca1e3e62"
   integrity sha512-ADy1ztN074YkWbHi8ojJVFe3vAanO/lrzMGZWUClIP7oDD/Pjy2vrASraUP+2EVCfIiTtCW4FChVow01XneivA==
   dependencies:
     underscore ">=1.8.3"
@@ -900,7 +900,7 @@ callsites@^3.0.0:
 
 camshaft-reference@0.34.0:
   version "0.34.0"
-  resolved "https://registry.npmjs.org/camshaft-reference/-/camshaft-reference-0.34.0.tgz"
+  resolved "https://registry.yarnpkg.com/camshaft-reference/-/camshaft-reference-0.34.0.tgz#61fee393650dd5b63b6dbf2131c57101f657979d"
   integrity sha512-oz/NyTrgQBgWBDEbjC/s00XWp/O6qxjOJpNffSlNuT30BvGNsEmfWAgMThOD9SzDkuVgTJbHZGlBr4vkYt5Bew==
 
 caniuse-lite@^1.0.30001406:
@@ -908,9 +908,10 @@ caniuse-lite@^1.0.30001406:
   resolved "https://registry.npmjs.org/caniuse-lite/-/caniuse-lite-1.0.30001462.tgz"
   integrity sha512-PDd20WuOBPiasZ7KbFnmQRyuLE7cFXW2PVd7dmALzbkUXEP46upAuCDm9eY9vho8fgNMGmbAX92QBZHzcnWIqw==
 
-carto@cartodb/carto#master:
+carto@cartodb/carto#master, "carto@github:cartodb/carto#master":
   version "0.15.1-cdb5"
-  resolved "git+ssh://git@github.com/cartodb/carto.git#85881d99dd7fcf2c4e16478b04db67108d27a50c"
+  uid "85881d99dd7fcf2c4e16478b04db67108d27a50c"
+  resolved "https://codeload.github.com/cartodb/carto/tar.gz/85881d99dd7fcf2c4e16478b04db67108d27a50c"
   dependencies:
     mapnik-reference "~6.0.2"
     optimist "~0.6.0"
@@ -918,7 +919,7 @@ carto@cartodb/carto#master:
 
 cartocolor@^4.0.2:
   version "4.0.2"
-  resolved "https://registry.npmjs.org/cartocolor/-/cartocolor-4.0.2.tgz"
+  resolved "https://registry.yarnpkg.com/cartocolor/-/cartocolor-4.0.2.tgz#ef1aa12860f6eeedc8d2420e2b9d7337937c4993"
   integrity sha512-+Gh9mb6lFxsDOLQlBLPxAHCnWXlg2W8q3AcVwqRcy95TdBbcOU89Wrb6h2Hd/6Ww1Kc1pzXmUdpnWD+xeCG0dg==
   dependencies:
     colorbrewer "1.0.0"
@@ -1010,7 +1011,7 @@ cli-truncate@^3.1.0:
 
 clip-path-polygon@0.1.12:
   version "0.1.12"
-  resolved "https://registry.npmjs.org/clip-path-polygon/-/clip-path-polygon-0.1.12.tgz"
+  resolved "https://registry.yarnpkg.com/clip-path-polygon/-/clip-path-polygon-0.1.12.tgz#98afa76441ea6c12567cb10b4a0fa456badeda45"
   integrity sha512-0AZAPZ38D/+6AbLixAHU5AbjCRUv1GpRouTiKbVgef31JsW5vgIpFrm7PbY2bx88FXPNPwPl+FsyMLNOeL/TIA==
   dependencies:
     jquery "2.1.4"
@@ -1029,7 +1030,7 @@ color-name@~1.1.4:
 
 colorbrewer@1.0.0:
   version "1.0.0"
-  resolved "https://registry.npmjs.org/colorbrewer/-/colorbrewer-1.0.0.tgz"
+  resolved "https://registry.yarnpkg.com/colorbrewer/-/colorbrewer-1.0.0.tgz#4f97333b969ba7612382be4bc3394b341fb4c8a2"
   integrity sha512-NZuIOVdErK/C6jDH3jWT/roxWJbJAinMiqEpbuWniKvQAoWdg6lGra3pPrSHvaIf8PlX8wLs/RAC6nULFJbgmg==
 
 colorette@^2.0.16, colorette@^2.0.19:
@@ -1223,7 +1224,7 @@ d3-array@1, d3-array@^1.1.1, d3-array@^1.2.0:
 
 d3-array@1.2.1:
   version "1.2.1"
-  resolved "https://registry.npmjs.org/d3-array/-/d3-array-1.2.1.tgz"
+  resolved "https://registry.yarnpkg.com/d3-array/-/d3-array-1.2.1.tgz#d1ca33de2f6ac31efadb8e050a021d7e2396d5dc"
   integrity sha512-CyINJQ0SOUHojDdFDH4JEM0552vCR1utGyLHegJHyYH0JyCpSeTPxi4OBqHMA2jJZq4NH782LtaJWBImqI/HBw==
 
 d3-array@2, d3-array@^2.0.2, d3-array@^2.3.0, d3-array@^2.3.2, d3-array@^2.4.0:
@@ -1331,7 +1332,7 @@ d3-format@1, d3-format@^1.3.2, d3-format@^1.4.4:
 
 d3-format@1.2.0:
   version "1.2.0"
-  resolved "https://registry.npmjs.org/d3-format/-/d3-format-1.2.0.tgz"
+  resolved "https://registry.yarnpkg.com/d3-format/-/d3-format-1.2.0.tgz#6b480baa886885d4651dc248a8f4ac9da16db07a"
   integrity sha512-rWwvQ1mGxY3bnrvN+qT0kVOtrE2kUjgIMoif5jankVHQ31ejeCdG5MIxCTh5KmQ+Vugvq49SgAvC0uD2UOsk9g==
 
 d3-geo-projection@^4.0.0:
@@ -1487,7 +1488,7 @@ d3-time-format@2, d3-time-format@^2.1.3, d3-time-format@^2.2.3:
 
 d3-time-format@2.1.0:
   version "2.1.0"
-  resolved "https://registry.npmjs.org/d3-time-format/-/d3-time-format-2.1.0.tgz"
+  resolved "https://registry.yarnpkg.com/d3-time-format/-/d3-time-format-2.1.0.tgz#a1d9540a1dc498817d44066b121b19a4a83e3531"
   integrity sha512-mqTsfDTylgwE3YE/VNs9oB2OGX274fO0B5j1irbgLQI+X3FPoJg25pesNxrcdZ2nBeRx/6sHDJlDyMIjWL0BGQ==
   dependencies:
     d3-time "1"
@@ -1528,7 +1529,7 @@ d3-voronoi@^1.1.2:
 
 d3@3.5.17:
   version "3.5.17"
-  resolved "https://registry.npmjs.org/d3/-/d3-3.5.17.tgz"
+  resolved "https://registry.yarnpkg.com/d3/-/d3-3.5.17.tgz#bc46748004378b21a360c9fc7cf5231790762fb8"
   integrity sha512-yFk/2idb8OHPKkbAL8QaOaqENNoMhIaSHZerk3oQsECwkObkCpJyjYwCe+OHiq6UEdhe1m8ZGARRRO3ljFjlKg==
 
 damerau-levenshtein@^1.0.8:
@@ -1817,7 +1818,7 @@ es6-error@^4.1.1:
 
 es6-promise@3.1.2:
   version "3.1.2"
-  resolved "https://registry.npmjs.org/es6-promise/-/es6-promise-3.1.2.tgz"
+  resolved "https://registry.yarnpkg.com/es6-promise/-/es6-promise-3.1.2.tgz#795e25ceb47f7babb263d151afbedd92d18e6a07"
   integrity sha512-own+br4OuSGO83tHreRkBEMHkqFgFQd6pj8UOJTUSvxFENuEj7ZwgVWXmgttzPM2GYYFWllHnZuUxgwL1g6tQA==
 
 escape-string-regexp@^1.0.5:
@@ -2560,7 +2561,7 @@ has-bigints@^1.0.1, has-bigints@^1.0.2:
 
 has-flag@^1.0.0:
   version "1.0.0"
-  resolved "https://registry.npmjs.org/has-flag/-/has-flag-1.0.0.tgz"
+  resolved "https://registry.yarnpkg.com/has-flag/-/has-flag-1.0.0.tgz#9d9e793165ce017a00f00418c43f942a7b1d11fa"
   integrity sha512-DyYHfIYwAJmjAjSSPKANxI8bFY9YtFrgkAfinBojQ8YJTOuOuav64tMUJv584SES4xl74PmuaevIyaLESHdTAA==
 
 has-flag@^4.0.0:
@@ -3043,12 +3044,12 @@ isstream@~0.1.2:
 
 jquery@2.1.4:
   version "2.1.4"
-  resolved "https://registry.npmjs.org/jquery/-/jquery-2.1.4.tgz"
+  resolved "https://registry.yarnpkg.com/jquery/-/jquery-2.1.4.tgz#228bde698a0c61431dc2630a6a154f15890d2317"
   integrity sha512-wWR+eCq/T/Qt0NcFyM+QVho0ZVzWxFYANijmSMImXiM5mjr1aOaf4SF0eOEPc92bbK2L2vDpxw3lIszus7eO8Q==
 
 js-base64@^2.1.9:
   version "2.6.4"
-  resolved "https://registry.npmjs.org/js-base64/-/js-base64-2.6.4.tgz"
+  resolved "https://registry.yarnpkg.com/js-base64/-/js-base64-2.6.4.tgz#f4e686c5de1ea1f867dbcad3d46d969428df98c4"
   integrity sha512-pZe//GGmwJndub7ZghVHz7vjb2LgC1m8B07Au3eYqeqv9emhESByMXxaEgkUkEqJe87oBbSniGYoQNIBklc7IQ==
 
 js-sdsl@^4.1.4:
@@ -3341,7 +3342,7 @@ lru-cache@^6.0.0:
 
 mapnik-reference@~6.0.2:
   version "6.0.5"
-  resolved "https://registry.npmjs.org/mapnik-reference/-/mapnik-reference-6.0.5.tgz"
+  resolved "https://registry.yarnpkg.com/mapnik-reference/-/mapnik-reference-6.0.5.tgz#d52319e1df88e5a07a811e84def2a1a423b6f05f"
   integrity sha512-ME9DcMeICtnPk1QfaNdIuIRHzyaKyMIFl8ntvS12h68ORv1ZcFE8DZu6Q+1Gjsn1ao2M+dQm4WSDXldJ7NQgDQ==
 
 math-expression-evaluator@^1.2.14:
@@ -3408,7 +3409,7 @@ minimist@^1.2.0, minimist@^1.2.6:
 
 minimist@~0.0.1:
   version "0.0.10"
-  resolved "https://registry.npmjs.org/minimist/-/minimist-0.0.10.tgz"
+  resolved "https://registry.yarnpkg.com/minimist/-/minimist-0.0.10.tgz#de3f98543dbf96082be48ad1a0c7cda836301dcf"
   integrity sha512-iotkTvxc+TwOm5Ieim8VnSNvCDjCK9S8G3scJ50ZthspSxa7jx50jkhYduuAtAjvfDUwSgOwf8+If99AlOEhyw==
 
 moment@^2.22.2, moment@^2.24.0:
@@ -3433,7 +3434,7 @@ ms@^2.1.1:
 
 mustache@1.1.0:
   version "1.1.0"
-  resolved "https://registry.npmjs.org/mustache/-/mustache-1.1.0.tgz"
+  resolved "https://registry.yarnpkg.com/mustache/-/mustache-1.1.0.tgz#0d9a554b4b3f9e248e6c2742c2579d618d2ff00f"
   integrity sha512-G0DVdrHs22u4t44VjPcweHkpR5fgr9ATJ3mi5R7F5Kxr/LK4RBpqJwPuVWaSy85+9twp1KBw+7u43PQoITBSXg==
 
 nanoid@^3.3.4:
@@ -3648,7 +3649,7 @@ open@^8.4.0:
 
 optimist@~0.6.0:
   version "0.6.1"
-  resolved "https://registry.npmjs.org/optimist/-/optimist-0.6.1.tgz"
+  resolved "https://registry.yarnpkg.com/optimist/-/optimist-0.6.1.tgz#da3ea74686fa21a19a111c326e90eb15a0196686"
   integrity sha512-snN4O4TkigujZphWLN0E//nQmm7790RYaE53DdL7ZYwee2D8DDo9/EyYiKUfN3rneWUjhJnueija3G9I2i0h3g==
   dependencies:
     minimist "~0.0.1"
@@ -3783,9 +3784,9 @@ pend@~1.2.0:
   resolved "https://registry.npmjs.org/pend/-/pend-1.2.0.tgz"
   integrity sha512-F3asv42UuXchdzt+xXqfW1OGlVBe+mxa2mqI0pg5yAHZPvFmY3Y6drSf/GQ1A86WgWEN9Kzh/WrgKa6iGcHXLg==
 
-"perfect-scrollbar@https://github.com/CartoDB/perfect-scrollbar.git#master":
+"perfect-scrollbar@git://github.com/CartoDB/perfect-scrollbar.git#master":
   version "0.6.17"
-  resolved "git+ssh://git@github.com/CartoDB/perfect-scrollbar.git#f2b66c76ad3718d3c704bd7e1693ea382e44e64d"
+  resolved "git://github.com/CartoDB/perfect-scrollbar.git#f2b66c76ad3718d3c704bd7e1693ea382e44e64d"
 
 performance-now@^2.1.0:
   version "2.1.0"
@@ -3840,12 +3841,12 @@ polygon-clipping@^0.15.3:
 
 postcss-value-parser@3.3.0:
   version "3.3.0"
-  resolved "https://registry.npmjs.org/postcss-value-parser/-/postcss-value-parser-3.3.0.tgz"
+  resolved "https://registry.yarnpkg.com/postcss-value-parser/-/postcss-value-parser-3.3.0.tgz#87f38f9f18f774a4ab4c8a232f5c5ce8872a9d15"
   integrity sha512-3gxd4RJ4x8StdKO7ETg4JrS6jsgWNFV83jZeievoisuPMBT8oCjZGCtFnoZpve9NCS27r+UtCYEDn4QVbhPHrg==
 
 postcss@5.0.19:
   version "5.0.19"
-  resolved "https://registry.npmjs.org/postcss/-/postcss-5.0.19.tgz"
+  resolved "https://registry.yarnpkg.com/postcss/-/postcss-5.0.19.tgz#b6342a01dc75b8cab7e968afda96aefc67f888af"
   integrity sha512-O5mZHjclPKM1qwIQEBXxVF1iqKB+8JE7Z7YWj0MJoOXfQ3EdIzHf8zEVuocvRXCsh8zX77sQPVcFSpj6Zs1zKg==
   dependencies:
     js-base64 "^2.1.9"
@@ -3885,7 +3886,7 @@ pretty-bytes@^5.6.0:
 
 promise-polyfill@^6.1.0:
   version "6.1.0"
-  resolved "https://registry.npmjs.org/promise-polyfill/-/promise-polyfill-6.1.0.tgz"
+  resolved "https://registry.yarnpkg.com/promise-polyfill/-/promise-polyfill-6.1.0.tgz#dfa96943ea9c121fca4de9b5868cb39d3472e057"
   integrity sha512-g0LWaH0gFsxovsU7R5LrrhHhWAWiHRnh1GPrhXnPgYsDkIqjRYUYSZEsej/wtleDrz5xVSIDbeKfidztp2XHFQ==
 
 promise@^7.1.1:
@@ -4544,7 +4545,7 @@ signal-exit@^3.0.0, signal-exit@^3.0.2, signal-exit@^3.0.7:
 
 simple-statistics@^0.9.0:
   version "0.9.2"
-  resolved "https://registry.npmjs.org/simple-statistics/-/simple-statistics-0.9.2.tgz"
+  resolved "https://registry.yarnpkg.com/simple-statistics/-/simple-statistics-0.9.2.tgz#3e35cb10308fc76963aa4ee7252e6a6ea10d28e4"
   integrity sha512-i4L0GyC+XHXhCjyCoxJ7y8jHZ6HHi8GJdWXnZ0qAT9j2fK1P2CkK7vjGuIB/5s2iQ1GuYIj1KW2wUO/sFyCOJA==
 
 slash@^2.0.0:
@@ -4600,7 +4601,7 @@ slick-carousel@^1.8.1:
 
 source-map@^0.5.1:
   version "0.5.7"
-  resolved "https://registry.npmjs.org/source-map/-/source-map-0.5.7.tgz"
+  resolved "https://registry.yarnpkg.com/source-map/-/source-map-0.5.7.tgz#8a039d2d1021d22d1ea14c80d8ea468ba2ef3fcc"
   integrity sha512-LbrmJOMUSdEVxIKvdcJzQC+nQhe8FUZQTXQy6+I75skNgn3OoQ0DZA8YnFa7gp8tqtL3KPf1kmo0R5DoApeSGQ==
 
 spdx-correct@^3.0.0:
@@ -4774,7 +4775,7 @@ supercluster@^4.1.1:
 
 supports-color@^3.1.2:
   version "3.2.3"
-  resolved "https://registry.npmjs.org/supports-color/-/supports-color-3.2.3.tgz"
+  resolved "https://registry.yarnpkg.com/supports-color/-/supports-color-3.2.3.tgz#65ac0504b3954171d8a64946b2ae3cbb8a5f54f6"
   integrity sha512-Jds2VIYDrlp5ui7t8abHN2bjAu4LV/q4N2KivFPpGH0lrka0BMq/33AmECUXlKPcHigkNaqfXRENFju+rlcy+A==
   dependencies:
     has-flag "^1.0.0"
@@ -4875,9 +4876,9 @@ toposort@^2.0.2:
   resolved "https://registry.npmjs.org/toposort/-/toposort-2.0.2.tgz"
   integrity sha512-0a5EOkAUp8D4moMi2W8ZF8jcga7BgZd91O/yabJCFY8az+XSzeGyTKs0Aoo897iV1Nj6guFq8orWDS96z91oGg==
 
-torque.js@CartoDB/torque#master:
+"torque.js@github:CartoDB/torque#master":
   version "3.1.2"
-  resolved "git+ssh://git@github.com/CartoDB/torque.git#11b73bbc9a55b7c67c1ab72759a58eb417b88555"
+  resolved "https://codeload.github.com/CartoDB/torque/tar.gz/11b73bbc9a55b7c67c1ab72759a58eb417b88555"
   dependencies:
     carto cartodb/carto#master
     d3 "3.5.17"
@@ -4933,7 +4934,7 @@ tunnel-agent@^0.6.0:
 
 turbo-carto@^0.21.1:
   version "0.21.3"
-  resolved "https://registry.npmjs.org/turbo-carto/-/turbo-carto-0.21.3.tgz"
+  resolved "https://registry.yarnpkg.com/turbo-carto/-/turbo-carto-0.21.3.tgz#01b657fad7985ae2eb2134f606f38f08222b8b71"
   integrity sha512-+eaRjoq9XhvU1U4XH5lvcBgA0P3gG7eVfCt/CUx+oqZP0kUV08kicLQeAZbmZpCYF5LYFwCppW7O1MCisnDQow==
   dependencies:
     cartocolor "^4.0.2"
@@ -4945,7 +4946,7 @@ turbo-carto@^0.21.1:
 
 turf-jenks@~1.0.1:
   version "1.0.1"
-  resolved "https://registry.npmjs.org/turf-jenks/-/turf-jenks-1.0.1.tgz"
+  resolved "https://registry.yarnpkg.com/turf-jenks/-/turf-jenks-1.0.1.tgz#5c72aea13a716eff2f0023a72cfa549a00202d7f"
   integrity sha512-fOxNwHHzMrvELSefSQx7bQlBbo5ZKzV6BU1OmyfKlC8GzE+An3/yXOl1cm+VaqiIc74zovbapHbZrR3zzPWtZQ==
   dependencies:
     simple-statistics "^0.9.0"
@@ -5003,12 +5004,12 @@ unbox-primitive@^1.0.2:
 
 underscore@*, underscore@>=1.7.0, underscore@>=1.8.3:
   version "1.13.6"
-  resolved "https://registry.npmjs.org/underscore/-/underscore-1.13.6.tgz"
+  resolved "https://registry.yarnpkg.com/underscore/-/underscore-1.13.6.tgz#04786a1f589dc6c09f761fc5f45b89e935136441"
   integrity sha512-+A5Sja4HP1M08MaXya7p5LvjuM7K6q/2EaC0+iovj/wOcMsTzMvDFbasi/oSapiwOlt252IqsKqPjCl7huKS0A==
 
 underscore@1.8.3:
   version "1.8.3"
-  resolved "https://registry.npmjs.org/underscore/-/underscore-1.8.3.tgz"
+  resolved "https://registry.yarnpkg.com/underscore/-/underscore-1.8.3.tgz#4f3fb53b106e6097fcf9cb4109f2a5e9bdfa5022"
   integrity sha512-5WsVTFcH1ut/kkhAaHf4PVgI8c7++GiVcpCGxPouI6ZVjsqPnSDf8h/8HtVqc0t4fzRXwnMK70EcZeAs3PIddg==
 
 universalify@^2.0.0:
@@ -5667,7 +5668,7 @@ whatwg-fetch@>=0.10.0:
 
 whatwg-fetch@^2.0.3:
   version "2.0.4"
-  resolved "https://registry.npmjs.org/whatwg-fetch/-/whatwg-fetch-2.0.4.tgz"
+  resolved "https://registry.yarnpkg.com/whatwg-fetch/-/whatwg-fetch-2.0.4.tgz#dde6a5df315f9d39991aa17621853d720b85566f"
   integrity sha512-dcQ1GWpOD/eEQ97k66aiEVpNnapVj90/+R+SXTPYGHpYBBypfKJEQjLrvMZ7YXbKm21gXd4NcuxUTjiv1YtLng==
 
 whatwg-url@^5.0.0:
@@ -5732,7 +5733,7 @@ word-wrap@^1.2.3:
 
 wordwrap@~0.0.2:
   version "0.0.3"
-  resolved "https://registry.npmjs.org/wordwrap/-/wordwrap-0.0.3.tgz"
+  resolved "https://registry.yarnpkg.com/wordwrap/-/wordwrap-0.0.3.tgz#a3d5da6cd5c0bc0008d37234bbaf1bed63059107"
   integrity sha512-1tMA907+V4QmxV7dbRvb4/8MaRALK6q9Abid3ndMYnbyo8piisCmeONVqVSXqQA3KaP4SLt5b7ud6E2sqP8TFw==
 
 wrap-ansi@^6.2.0:
