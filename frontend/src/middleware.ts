@@ -10,7 +10,6 @@ export function middleware(request: NextRequest) {
   }
   // Only when the subdomain is set do not allow access
   if (!!getSubdomainFromURL(PORT)) return NextResponse.redirect(new URL('/404', request.url));
-  return NextResponse.next();
 }
 
 // See "Matching Paths" below to learn more
@@ -19,7 +18,7 @@ export const config = {
     '/',
     '/about',
     '/journeys',
-    '/journeys/:path*',
+    '/journeys/:id/step/:path*',
     '/embed/:path*',
     '/login',
     '/register',
