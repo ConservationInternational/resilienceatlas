@@ -20,6 +20,10 @@ import 'leaflet/dist/leaflet.css';
 import 'views/styles/index.scss';
 
 type ResilienceAppProps = {
+  user?: {
+    first_name: string;
+    last_name: string;
+  };
   dispatch?: (action: unknown) => void;
 };
 
