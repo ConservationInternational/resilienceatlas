@@ -1,4 +1,8 @@
-module.exports = {
+/**
+ * @type {import('next').NextConfig}
+ */
+const nextConfig = {
+  poweredByHeader: false,
   eslint: {
     // !! WARN !!
     // Warning: This allows production builds to successfully complete even if
@@ -28,3 +32,5 @@ module.exports = {
     ];
   },
 };
+
+module.exports = nextConfig;

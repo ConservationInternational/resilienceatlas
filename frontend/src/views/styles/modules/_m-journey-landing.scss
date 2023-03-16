@@ -1,5 +1,5 @@
 .m-journey--landing {
-  @extend %journey;
+  @extend %journey !optional;
 
   .row {
     z-index: 1;
