@@ -1,11 +1,12 @@
-import type { FC } from 'react';
 import React from 'react';
 import cx from 'classnames';
-import type { InjectedFormProps } from 'redux-form';
 import { Form, Field } from 'redux-form';
 
 import FormInput from 'views/shared/inputs/FormInput';
 import Loader from 'views/shared/Loader';
+
+import type { FC } from 'react';
+import type { InjectedFormProps } from 'redux-form';
 import type { IEditProfileForm } from 'state/modules/user';
 
 const EditProfileForm: FC<InjectedFormProps<IEditProfileForm>> = ({ handleSubmit, submitting }) => (
