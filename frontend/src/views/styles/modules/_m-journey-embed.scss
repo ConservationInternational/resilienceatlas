@@ -157,7 +157,7 @@
 }
 
 .m-journey--embed--light {
-  @extend %journey;
+  @extend %journey !optional;
   @extend %m-journey-embed;
 
   h2 {
