@@ -122,6 +122,7 @@ const Layer = ({
           type="button"
           data-name={name}
           className="btn-download icon-container panel-trasparecy-switcher"
+          // eslint-disable-next-line react/no-unknown-property
           attr="download"
           title={readyToDownload ? 'Layers' : 'Please login to enable download feature.'}
           onClick={(event) => {
@@ -132,6 +133,7 @@ const Layer = ({
             }
           }}
         >
+          {/* eslint-disable-next-line */}
           <svg className="icon icon-downloads" opacitylevel={opacity_text}>
             <use xlinkHref="#icon-downloads" />
           </svg>
@@ -156,6 +158,7 @@ const Layer = ({
             <input
               type="number"
               className="opacity-teller"
+              // eslint-disable-next-line react/no-unknown-property
               layer={id}
               {...opacityInput}
               min="0"

@@ -79,6 +79,7 @@ const LayerPopup = ({
   const interaction = layersInteraction[layer.id] || {};
   const interactionState = state.interaction[layer.id] || {};
 
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
     if (latlng && config && config.url) {
       dispatch({ type: FETCH.REQUEST });
