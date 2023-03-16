@@ -1,7 +1,9 @@
+import { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { Row } from 'react-foundation';
 import { connect } from 'react-redux';
 
+import { isAuthenticated } from 'utilities/authenticated';
 import ProfileSettingsForm from 'views/components/ProfileSettingsForm';
 import MainLayout from 'views/layouts/main';
 
@@ -9,6 +11,11 @@ import type { NextPageWithLayout } from './_app';
 
 const ProfileSettingsPage: NextPageWithLayout = ({ user }) => {
   const router = useRouter();
+  const authenticated = isAuthenticated(user);
+
+  useEffect(() => {
+    if (!authenticated) router.push('/');
+  }, [authenticated, router]);
 
   return (
     <div className="l-content">
