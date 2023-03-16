@@ -2,7 +2,6 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import cx from 'classnames';
-import type { RouteComponentProps } from 'react-router-dom';
 
 import Tabs from 'views/shared/Tabs';
 import LinkButton from 'views/shared/LinkButton';
@@ -16,14 +15,7 @@ const TABS = {
   OEMBED: 'share-oembed',
 };
 
-type P = RouteComponentProps;
-
-interface S {
-  open: boolean;
-  tab: string;
-}
-
-export default class ShareModal extends Component<P, S> {
+export default class ShareModal extends Component {
   static show() {
     if (ShareModal.__instance) {
       ShareModal.__instance.__show();
