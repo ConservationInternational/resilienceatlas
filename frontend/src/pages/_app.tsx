@@ -1,7 +1,10 @@
+import { useEffect } from 'react';
 import { Provider as ReduxProvider } from 'react-redux';
 import Head from 'next/head';
+import { useRouter } from 'next/router';
 
 import { wrapper } from 'state/store';
+import * as ga from 'utilities/ga';
 
 import type { ReactElement, ReactNode } from 'react';
 import type { NextPage } from 'next';
@@ -29,8 +32,24 @@ type AppPropsWithLayout = AppProps & {
 };
 
 const ResilienceApp = ({ Component, ...rest }: AppPropsWithLayout) => {
+  const router = useRouter();
   const { store: appStore } = wrapper.useWrappedStore(rest);
   const getLayout = Component.Layout ?? ((page) => page);
+
+  useEffect(() => {
+    const handleRouteChange = (url) => {
+      ga.pageView(url);
+    };
+    //When the component is mounted, subscribe to router changes
+    //and log those page views
+    router.events.on('routeChangeComplete', handleRouteChange);
+
+    // If the component is unmounted, unsubscribe
+    // from the event with the `off` method
+    return () => {
+      router.events.off('routeChangeComplete', handleRouteChange);
+    };
+  }, [router.events]);
 
   return (
     <>
