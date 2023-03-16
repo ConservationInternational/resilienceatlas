@@ -40,7 +40,7 @@ const MapView = (props) => {
     activeLayers,
     model_layer,
     defaultActiveGroups,
-    router: { query },
+    router,
     tab,
     site,
     page,
@@ -49,6 +49,7 @@ const MapView = (props) => {
     embed,
     drawing,
   } = props;
+  const { query } = router;
   const { setParam } = useRouterParams();
 
   const layerManagerRef = useContext(LayerManagerContext);

@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect } from 'react';
 import cx from 'classnames';
+import { useRouter } from 'next/router';
 
 import AnalysisPanel from 'views/components/AnalysisPanel';
 import LayersList from 'views/components/LayersList';
@@ -29,11 +30,14 @@ const Sidebar = ({
   modelsLoaded,
   site,
 }) => {
+  const router = useRouter();
   const { setParam } = useRouterParams();
 
   useEffect(() => {
-    setParam('tab', tab);
-  }, [tab]);
+    if (router.isReady && tab) {
+      setParam('tab', tab);
+    }
+  }, [router.isReady, tab]);
 
   const switchTab = useCallback(
     ({ tab: newTab }) => {
