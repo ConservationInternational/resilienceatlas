@@ -7,46 +7,60 @@ This is the web app powering
 
 Requirements:
 
-* NodeJs 0.10+ [How to install](https://nodejs.org/download/)
-* Ruby 2.2.0 [How to install](https://gorails.com/setup/osx/10.10-yosemite)
+* Ruby 3.2.1
 * PostgreSQL
 
 Install global dependencies:
 
     gem install bundler
-    npm install -g grunt-cli bower
 
 Install project dependencies:
 
     bundle install
-    npm install
 
 ## Usage
 
 Before running the application, you need to configure it by copying `.env.sample` to `.evn` and setting the appropriate values where needed.
 
-To start the application, run:
+### Create database schema
 
-```
-bundle exec rails server
-```
-## API's testing steps
+`bin/rails db:create db:migrate db:seed` to setup the database
 
-Requirements:
+### Run the server
 
-* Install postman
+`bundle exec rails server` and access the project on `http://localhost:3000`
 
-Usage:
-* Import postman collection and environment files into postman
+See the generated api docs (described below) for available API endpoints. The backoffice is accessed at `/admin`.
 
-Note:
-Files are located under doc folder
+### Run the tests
+
+`bundle exec rspec`
 
 ### Run rswag to generate API documentation
 
 `SWAGGER_DRY_RUN=0 rake rswag:specs:swaggerize`
 
 Documentation can be found at `/api-docs`.
+
+### Replace snapshot files
+
+On the first run, the `match_snapshot` matcher will always return success and it will store a snapshot file. On the next runs, it will compare the response with the file content.
+
+If you need to replace snapshots, run the specs with:
+
+`REPLACE_SNAPSHOTS=true bundle exec rspec`
+
+If you only need to add, remove or replace data without replacing the whole snapshot:
+
+`CONSERVATIVE_UPDATE_SNAPSHOTS=true bundle exec rspec`
+
+### Run linters
+
+`bin/rails standard`
+
+To fix linter issues
+
+`bin/rails standard:fix`
 
 ## Deployment
 
@@ -55,15 +69,3 @@ In `config/deploy` you will find a sample file. Copy `production.rb.sample` to `
 ```
 bundle exec cap production deploy
 ```
-
-## Deploy advice
-As we remove bower to manage front dependencies, now it's necesary to change it at Heroku. Apparently, only owner can do it. So for the moment we need a fake bower.json file in order the deploy to work. Please, don't remove it before Heroku is fixed. 
-(Clara, 17/08/2015)
-
-## Contributing
-
-1. Fork it!
-2. Create your feature branch: `git checkout -b my-new-feature`
-3. Commit your changes: `git commit -am 'Add some feature'`
-4. Push to the branch: `git push origin my-new-feature`
-5. Submit a pull request :D
