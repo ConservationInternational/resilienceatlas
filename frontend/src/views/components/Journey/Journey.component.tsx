@@ -34,6 +34,8 @@ const JOURNEY_TYPES = {
   chapter: Chapter,
 };
 
+const JOURNEYS_API_READY = process.env.NEXT_PUBLIC_FEATURE_JOURNEYS_API === 'true';
+
 const Journey: FC<JourneyProps> = ({
   // Actions
   loadJourney,
@@ -45,7 +47,9 @@ const Journey: FC<JourneyProps> = ({
   journey: { steps },
 }) => {
   useEffect(() => {
-    if (!journeyLoaded && currentJourney) loadJourney(currentJourney);
+    if (JOURNEYS_API_READY && !journeyLoaded && currentJourney) {
+      loadJourney(currentJourney);
+    }
   }, [currentJourney, journeyLoaded, loadJourney]);
 
   const stepIndex = Number(step) - 1;

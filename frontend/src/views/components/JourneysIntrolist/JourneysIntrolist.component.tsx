@@ -10,13 +10,15 @@ type JourneysIntrolistProps = {
   loadJourneys: () => void;
 };
 
+const JOURNEYS_API_READY = process.env.NEXT_PUBLIC_FEATURE_JOURNEYS_API === 'true';
+
 const JourneysIntrolist: React.FC<JourneysIntrolistProps> = ({
   journeys,
   journeysLoaded,
   loadJourneys,
 }) => {
   useEffect(() => {
-    if (!journeysLoaded) loadJourneys();
+    if (!journeysLoaded && JOURNEYS_API_READY) loadJourneys();
   }, [journeysLoaded, loadJourneys]);
 
   return (
