@@ -2,22 +2,12 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import cx from 'classnames';
-import type { RouteComponentProps } from 'react-router-dom';
-import ReactGA from 'react-ga';
 
 import { clickable } from 'utilities';
 
-interface P extends RouteComponentProps {
-  user: Object;
-}
+import { event } from 'utilities/ga';
 
-interface S {
-  open: boolean;
-  terms_accepted: boolean;
-  url: string;
-}
-
-export default class DownloadWindow extends Component<P, S> {
+export default class DownloadWindow extends Component {
   static show(url, category_name, label) {
     if (DownloadWindow.__instance) {
       DownloadWindow.__instance.__show(url, category_name, label);
@@ -51,9 +41,8 @@ export default class DownloadWindow extends Component<P, S> {
     this.setState({ open: false, url: null });
   };
 
-  acceptTerms = (e: React.ChangeEvent<HTMLInputElement>) => {
+  acceptTerms = (e) => {
     const { checked } = e.target;
-    console.log(checked);
 
     this.setState(
       {
@@ -108,8 +97,10 @@ export default class DownloadWindow extends Component<P, S> {
           className={cx('btn', 'btn-secondary', 'theme-bg-color', 'btn-download-infowindow', {
             '-disabled': !terms_accepted,
           })}
-          onClick={(event) => {
-            ReactGA.event({ category: category_name, action: 'download', label: label });
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            event({ action: 'download', params: { category: category_name, label } });
           }}
         >
           Download data
