@@ -1,15 +1,8 @@
-beforeEach(() => {
-  cy.interceptAllRequests();
-
-  cy.visit('/map');
-
-  cy.wait('@siteRequest');
-  cy.wait('@layersAPIRequest');
-});
-
 describe('Map page', () => {
   beforeEach(() => {
+    cy.interceptAllRequests();
     cy.visit('/map');
+    cy.wait('@siteRequest');
   });
 
   it('should have a map', () => {
@@ -20,10 +13,13 @@ describe('Map page', () => {
 // Checking map page with specific params in the URL
 describe('Specific map page', () => {
   beforeEach(() => {
+    cy.interceptAllRequests();
     cy.visit(
       '/map?tab=layers&layers=%5B%7B"id"%3A66%2C"opacity"%3A1%2C"order"%3Anull%7D%5D&zoom=3&center=lat%3D21.94304553343818%26lng%3D-16.699218750000004',
     );
+    cy.wait('@siteRequest');
     cy.wait('@layerGroupsAPIRequest');
+    cy.wait('@layersAPIRequest');
   });
 
   it('should have a map', () => {

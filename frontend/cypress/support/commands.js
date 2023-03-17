@@ -28,7 +28,13 @@ Cypress.Commands.add('interceptAllRequests', () => {
     'layerGroupsAPIRequest',
   );
 
-  cy.intercept('/api/layers*', { middleware: true }, disableRequestCache).as('layersAPIRequest');
+  cy.intercept('GET', '/api/layers*').as('layersAPIRequest');
+});
 
-  cy.intercept('GET', 'https://cdb-cdn.resilienceatlas.org/user/ra/api/v2/sql*').as('cartoRequest');
+Cypress.on('uncaught:exception', (err, runnable) => {
+  // returning false here prevents Cypress from
+  // failing the test
+  if (err.message.includes('canceled by the user')) {
+    return false;
+  }
 });

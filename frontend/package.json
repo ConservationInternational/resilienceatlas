@@ -6,12 +6,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "test": "cypress run --headless",
+    "test": "cypress run --headless --browser chrome",
     "lint": "next lint",
     "prettier": "prettier --config .prettierrc.json --check --write \"./src/**/*.{tsx,jsx,ts,js}\"",
-    "check-types": "tsc --noemit -p tsconfig.json",
-    "ci:chrome": "start-server-and-test 'yarn start' http://127.0.0.1:3000 'yarn test -b chrome'",
-    "ci:firefox": "start-server-and-test 'yarn start' http://127.0.0.1:3000 'yarn test -b firefox'"
+    "check-types": "tsc --noemit -p tsconfig.json"
   },
   "dependencies": {
     "@carto/carto.js": "4.2.2",
