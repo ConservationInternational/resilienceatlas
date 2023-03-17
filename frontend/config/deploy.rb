@@ -1,8 +1,9 @@
 # config valid for current version and patch releases of Capistrano
 lock "3.4.0"
 
-set :application, "ResilienceAtlasReact"
+set :application, "ResilienceAtlasFrontend"
 set :repo_url, "https://github.com/ConservationInternational/resilienceatlas.git"
+set :repo_tree, "frontend"
 
 # Default branch is :master
 # ask :branch, `git rev-parse --abbrev-ref HEAD`.chomp
@@ -48,9 +49,14 @@ set :rbenv_prefix, "RBENV_ROOT=#{fetch(:rbenv_path)} RBENV_VERSION=#{fetch(:rben
 set :rbenv_map_bins, %w[rake gem bundle ruby rails]
 set :rbenv_roles, :all
 
+# NVM
+set :nvm_type, :user
+set :nvm_node, "v18.15.0"
+set :nvm_map_bins, %w[node npm yarn]
+
 # Yarn
 # set :yarn_target_path, -> { release_path.join('subdir') } # default not set
-set :yarn_flags, '--silent --no-progress'
+set :yarn_flags, '--production=false --frozen-lockfile --silent --no-progress'
 # set :yarn_roles, :all                                     # default
 # set :yarn_env_variables, { 'NODE_OPTIONS': '--max-old-space-size=4096' }
 
@@ -70,3 +76,16 @@ namespace :deploy do
 
   # before "symlink:release", :build_app
 end
+
+# # for the bastion host
+# require "net/ssh/proxy/command"
+
+# # Use a default host for the bastion, but allow it to be overridden
+# bastion_host = ENV["BASTION_HOST"] || "login.resilienceatlas.org"
+
+# # Use the local username by default
+# bastion_user = ENV["BASTION_USER"] || "ubuntu"
+
+# # Configure Capistrano to use the bastion host as a proxy
+# ssh_command = "ssh -o StrictHostKeyChecking=no #{bastion_user}@#{bastion_host} -W %h:%p"
+# set :ssh_options, proxy: Net::SSH::Proxy::Command.new(ssh_command)
