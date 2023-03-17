@@ -22,6 +22,8 @@ describe('Journeys detail page', () => {
 
         cy.url().should('include', `/journeys/${id}/step/${stepIndex + 1}`);
 
+        const expectedUrl = step.type === 'embed' ? step.btnUrl : null;
+
         switch (step.type) {
           case 'landing':
             cy.get('.l-journey__intro .intro > h1')
@@ -68,14 +70,7 @@ describe('Journeys detail page', () => {
             cy.get('.l-journey .btn-check-it')
               .first()
               .invoke('attr', 'href')
-              .should((href) => {
-                const url = href.replace(new URL(href).origin, '');
-                const expectedUrl = step.btnUrl.replace(
-                  new URL(step.btnUrl, 'https://www.resilienceatlas.org/').origin,
-                  '',
-                );
-                expect(url).to.eq(expectedUrl);
-              });
+              .should('be.equal', expectedUrl);
             break;
 
           default:
