@@ -6,14 +6,14 @@ describe('Journeys detail page', () => {
 
     // Navigate to the first journey detail
     cy.wait('@journeysRequest').then(({ response }) => {
-      cy.wrap(response.statusCode).should('be.equal', 200);
+      cy.wrap(response.statusCode).should('be.oneOf', [200, 304]);
       cy.get('.m-journey__gridelement').first().find('.btn').click();
     });
   });
 
   it('should correspond to the API response', () => {
     cy.wait('@journeyDetailRequest').then(({ response }) => {
-      cy.wrap(response.statusCode).should('be.equal', 200);
+      cy.wrap(response.statusCode).should('be.oneOf', [200, 304]);
 
       const { id, steps } = response.body[0];
 

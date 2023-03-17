@@ -1,7 +1,8 @@
-describe('Journeys page', () => {
+describe('Journeys index page', () => {
   beforeEach(() => {
-    cy.intercept('GET', '/api/journeys').as('journeysRequest');
+    cy.interceptAllRequests();
     cy.visit('/journeys');
+    cy.wait('@siteRequest');
   });
 
   it('should have a title', () => {
@@ -9,15 +10,15 @@ describe('Journeys page', () => {
   });
 
   it('should have same length than journeys in the API', () => {
-    cy.wait('@journeysRequest').then(({ response }) => {
-      cy.wrap(response.statusCode).should('be.equal', 200);
+    cy.wait('@journeyListRequest').then(({ response }) => {
+      cy.wrap(response.statusCode).should('be.oneOf', [200, 304]);
       cy.get('.m-journey__gridelement').should('have.length', response.body.length);
     });
   });
 
   it('should show the journeys content according the API', () => {
-    cy.wait('@journeysRequest').then(({ response }) => {
-      cy.wrap(response.statusCode).should('be.equal', 200);
+    cy.wait('@journeyListRequest').then(({ response }) => {
+      cy.wrap(response.statusCode).should('be.oneOf', [200, 304]);
       cy.get('.m-journey__gridelement').each(($el, index) => {
         cy.wrap($el)
           .find('h2')

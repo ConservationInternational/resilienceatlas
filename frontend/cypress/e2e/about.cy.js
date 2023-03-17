@@ -1,6 +1,10 @@
 describe('About page', () => {
   beforeEach(() => {
+    cy.interceptAllRequests();
     cy.visit('/about');
+    cy.wait('@siteRequest').then(({ response }) => {
+      cy.wrap(response.statusCode).should('be.oneOf', [200, 304]);
+    });
   });
 
   it('should have a title', () => {
