@@ -47,7 +47,7 @@ RSpec.describe "Admin: Indicators", type: :system do
     end
 
     it "allows to create new indicator" do
-      fill_in "indicator[name]", with: "New name"
+      fill_in "indicator[translations_attributes][0][name]", with: "New name"
       fill_in "indicator[slug]", with: "new-indicator"
       fill_in "indicator[position]", with: "1"
       fill_in "indicator[version]", with: "0.2"
@@ -68,7 +68,7 @@ RSpec.describe "Admin: Indicators", type: :system do
     end
 
     it "shows error when validation fails" do
-      fill_in "indicator[name]", with: ""
+      fill_in "indicator[slug]", with: ""
 
       click_on "Create Indicator"
 
@@ -86,7 +86,7 @@ RSpec.describe "Admin: Indicators", type: :system do
     end
 
     it "allows to update existing indicator" do
-      fill_in "indicator[name]", with: "Update name"
+      fill_in "indicator[translations_attributes][0][name]", with: "Update name"
 
       click_on "Update Indicator"
 

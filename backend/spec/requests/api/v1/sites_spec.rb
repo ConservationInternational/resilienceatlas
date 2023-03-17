@@ -28,6 +28,7 @@ RSpec.describe "API V1 Sites", type: :request do
       parameter name: :site_scope, in: :query, type: :string, description: "Site scope subdomain", required: false
 
       let(:default_site_scope) { create :site_scope, id: 1, name: "CIGRP" }
+      let!(:site_page) { create :site_page, site_scope: default_site_scope }
       let(:site_scope) { default_site_scope.subdomain }
 
       response "200", :success do

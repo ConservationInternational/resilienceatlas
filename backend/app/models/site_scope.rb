@@ -24,12 +24,13 @@
 class SiteScope < ApplicationRecord
   has_many :layer_groups
   has_many :site_pages
-  # validates_presence_of :name, :header_theme
+
+  translates :name, :linkback_text, fallbacks_for_empty_translations: true
+  active_admin_translates :name, :linkback_text
+
   def location
     [:latitude, :longitude]
   end
-
-  scope :by_keyword, ->(keyword) { where("name ILIKE ?", "%#{keyword}%") }
 
   def clone!
     site_scope = clone

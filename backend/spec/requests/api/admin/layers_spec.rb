@@ -163,4 +163,36 @@ RSpec.describe "API Admin Layers", type: :request do
       end
     end
   end
+
+  path "/api/admin/layers/site_scopes" do
+    get "Get list of all site scopes" do
+      tags "Layer"
+      consumes "application/json"
+      produces "application/json"
+      security [tokenAuth: []]
+      parameter name: :keyword, in: :query, type: :string, description: "Search by keyword", required: false
+
+      let!(:site_scope_1) { create :site_scope, name: "AAA" }
+      let!(:site_scope_2) { create :site_scope, name: "BBB" }
+      let("Authorization") { "Bearer #{token}" }
+
+      it_behaves_like "with unauthorized error"
+
+      response "200", :success do
+        run_test!
+
+        it "matches snapshot", generate_swagger_example: true do
+          expect(response.body).to match_snapshot("api/admin/layers_site_scopes")
+        end
+
+        context "when searching by keyword" do
+          let(:keyword) { site_scope_1.name }
+
+          it "returns just correct site scopes" do
+            expect(response_json["data"].pluck("id")).to eq([site_scope_1.id])
+          end
+        end
+      end
+    end
+  end
 end

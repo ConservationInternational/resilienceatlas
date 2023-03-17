@@ -15,6 +15,8 @@ RSpec.describe "Admin: Sources", type: :system do
     it "shows all resources" do
       Source.all.each do |source|
         expect(page).to have_text(source.id)
+        expect(page).to have_text(source.source_type)
+        expect(page).to have_text(source.reference)
       end
     end
   end
@@ -50,13 +52,13 @@ RSpec.describe "Admin: Sources", type: :system do
     end
 
     it "allows to create new source" do
+      fill_in "source[translations_attributes][0][reference]", with: "New reference"
+      fill_in "source[translations_attributes][0][reference_short]", with: "New reference short"
+      fill_in "source[translations_attributes][0][license]", with: "MIT"
       fill_in "source[source_type]", with: "New source type"
-      fill_in "source[reference]", with: "New reference"
-      fill_in "source[reference_short]", with: "New reference short"
       fill_in "source[url]", with: "http://url.com"
       fill_in "source[contact_name]", with: "New contact name"
       fill_in "source[contact_email]", with: "email@email.com"
-      fill_in "source[license]", with: "MIT"
       fill_in "source[version]", with: "v0.1"
       select "Kilometers", from: "source[spatial_resolution_units]"
       fill_in "source[license_url]", with: "http://license.com"

@@ -43,7 +43,7 @@ RSpec.describe "Admin: Map Menu Entries", type: :system do
     end
 
     it "allows to create new map_menu_entry" do
-      fill_in "map_menu_entry[label]", with: "New label"
+      fill_in "map_menu_entry[translations_attributes][0][label]", with: "New label"
       fill_in "map_menu_entry[link]", with: "http://test.test"
       fill_in "map_menu_entry[position]", with: "1"
 
@@ -57,7 +57,7 @@ RSpec.describe "Admin: Map Menu Entries", type: :system do
     end
 
     it "shows error when validation fails" do
-      fill_in "map_menu_entry[label]", with: ""
+      fill_in "map_menu_entry[position]", with: ""
 
       click_on "Create Map menu entry"
 
@@ -75,7 +75,7 @@ RSpec.describe "Admin: Map Menu Entries", type: :system do
     end
 
     it "allows to update existing map_menu_entry" do
-      fill_in "map_menu_entry[label]", with: "Update label"
+      fill_in "map_menu_entry[translations_attributes][0][label]", with: "Update label"
 
       click_on "Update Map menu entry"
 

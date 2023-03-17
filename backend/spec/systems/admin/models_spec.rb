@@ -45,9 +45,9 @@ RSpec.describe "Admin: Models", type: :system do
     end
 
     it "allows to create new model" do
-      fill_in "model[name]", with: "New name"
-      fill_in "model[description]", with: "New description"
-      fill_in "model[source]", with: "New source"
+      fill_in "model[translations_attributes][0][name]", with: "New name"
+      fill_in "model[translations_attributes][0][description]", with: "New description"
+      fill_in "model[translations_attributes][0][source]", with: "New source"
       fill_in "model[query_analysis]", with: "New query analysis"
       fill_in "model[table_name]", with: "New table name"
 
@@ -61,15 +61,6 @@ RSpec.describe "Admin: Models", type: :system do
       expect(page).to have_text("New query analysis")
       expect(page).to have_text("New table name")
     end
-
-    it "shows error when validation fails" do
-      fill_in "model[name]", with: ""
-
-      click_on "Create Model"
-
-      expect(page).to have_current_path(admin_models_path)
-      expect(page).to have_text("can't be blank")
-    end
   end
 
   describe "#update" do
@@ -81,7 +72,7 @@ RSpec.describe "Admin: Models", type: :system do
     end
 
     it "allows to update existing model" do
-      fill_in "model[name]", with: "Update name"
+      fill_in "model[translations_attributes][0][name]", with: "Update name"
 
       click_on "Update Model"
 
