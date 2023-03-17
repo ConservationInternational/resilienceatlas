@@ -39,3 +39,6 @@ cypress.*.json
 
 # typescript
 *.tsbuildinfo
+
+# capistrano
+/log/*
