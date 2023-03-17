@@ -1,4 +1,4 @@
-name: Frontend Tests
+name: Frontend CI/CD
 
 on:
   push:
@@ -53,28 +53,31 @@ jobs:
         with:
           working-directory: frontend
           install: false
-          start: yarn start
           build: yarn build
+          start: yarn start
+          headless: true
           browser: chrome
           wait-on: http://localhost:3000
           config-file: cypress.config.js
-          command: yarn test
         env:
           NEXT_PUBLIC_API_HOST: ${{ secrets.NEXT_PUBLIC_API_HOST }}
           NEXT_PUBLIC_GOOGLE_ANALYTICS: ${{ secrets.NEXT_PUBLIC_GOOGLE_ANALYTICS }}
           CI: false
+          # Recommended: pass the GitHub token lets this action correctly
+          # determine the unique run id necessary to re-run the checks
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - uses: actions/upload-artifact@v3
         if: failure()
         with:
           name: cypress-screenshots
           path: ${{github.workspace}}/frontend/cypress/screenshots
-
+  
   testing-frontend-firefox:
     name: Running frontend tests on Firefox
     runs-on: ubuntu-22.04
-    requires: testing-frontend-chrome
     timeout-minutes: 30
+    needs: testing-frontend-chrome
     strategy:
       fail-fast: false
     defaults:
@@ -111,16 +114,19 @@ jobs:
         with:
           working-directory: frontend
           install: false
-          start: yarn start
           build: yarn build
+          start: yarn start
+          headless: true
           browser: firefox
           wait-on: http://localhost:3000
           config-file: cypress.config.js
-          command: yarn test
         env:
           NEXT_PUBLIC_API_HOST: ${{ secrets.NEXT_PUBLIC_API_HOST }}
           NEXT_PUBLIC_GOOGLE_ANALYTICS: ${{ secrets.NEXT_PUBLIC_GOOGLE_ANALYTICS }}
           CI: false
+          # Recommended: pass the GitHub token lets this action correctly
+          # determine the unique run id necessary to re-run the checks
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - uses: actions/upload-artifact@v3
         if: failure()
