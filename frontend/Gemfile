@@ -2,7 +2,7 @@ source 'https://rubygems.org'
 
 ruby '3.2.1'
 
-gem 'capistrano', '~> 3.9'
+gem 'capistrano', '3.4'
 gem 'capistrano-rbenv', '~> 2.2'
 gem 'capistrano-passenger'
 gem 'capistrano-yarn'
