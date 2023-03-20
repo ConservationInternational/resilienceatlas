@@ -35,6 +35,7 @@ ActiveAdmin.register Source do
       f.input :version
       f.input :spatial_resolution_units, as: :select, collection: %w[Kilometers Degrees]
     end
+
     f.actions
   end
 
