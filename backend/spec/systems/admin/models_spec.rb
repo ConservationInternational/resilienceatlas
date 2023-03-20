@@ -61,6 +61,15 @@ RSpec.describe "Admin: Models", type: :system do
       expect(page).to have_text("New query analysis")
       expect(page).to have_text("New table name")
     end
+
+    it "shows error when validation fails" do
+      fill_in "model[translations_attributes][0][name]", with: ""
+
+      click_on "Create Model"
+
+      expect(page).to have_current_path(admin_models_path)
+      expect(page).to have_text("can't be blank")
+    end
   end
 
   describe "#update" do

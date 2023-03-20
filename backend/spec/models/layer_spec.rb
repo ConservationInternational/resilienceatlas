@@ -62,4 +62,28 @@ RSpec.describe Layer, type: :model do
   it "Count layers" do
     expect(Layer.count).to eq(1)
   end
+
+  describe "#clone!" do
+    let!(:layer) { create :layer }
+    let(:cloned_layer) { Layer.where.not(id: layer.id).last }
+
+    before do
+      I18n.with_locale(:es) { layer.update! name: "Name ES", info: "Info ES" } # add extra translation
+      layer.clone!
+    end
+
+    it "clones basic attributes" do
+      expect(cloned_layer.attributes.except("id", "name", "created_at", "updated_at"))
+        .to eq(layer.attributes.except("id", "name", "created_at", "updated_at"))
+    end
+
+    it "clones translations" do
+      expect(cloned_layer.translations.map { |t| t.attributes.except("id", "name", "layer_id", "created_at", "updated_at") })
+        .to match_array(layer.translations.map { |t| t.attributes.except("id", "name", "layer_id", "created_at", "updated_at") })
+    end
+
+    it "updates name of cloned layer" do
+      expect(cloned_layer.name).to include("#{layer.name} _copy_ ")
+    end
+  end
 end

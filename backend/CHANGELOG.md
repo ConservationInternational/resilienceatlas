@@ -1,7 +1,8 @@
 # Changelog
 
 **Merged pull requests:**
-- Removing Germany and Italy from available locales  [\#103](https://github.com/ConservationInternational/resilienceatlas/pull/103) ([martintomas](https://github.com/martintomas))
+- Refactoring entities shown at ActiveAdmin so all appropriate attributes can be translated [\#106](https://github.com/ConservationInternational/resilienceatlas/pull/106) ([martintomas](https://github.com/martintomas))
+- Removing Germany and Italy from available locales [\#103](https://github.com/ConservationInternational/resilienceatlas/pull/103) ([martintomas](https://github.com/martintomas))
 - Adding data which recreates journeys at database based on original json files [\#100](https://github.com/ConservationInternational/resilienceatlas/pull/100) ([martintomas](https://github.com/martintomas))
 - PostgreSQL server upgrade to 15 in staging and production and updated GH workflow to match [\#99](https://github.com/ConservationInternational/resilienceatlas/pull/99) ([agnessa](https://github.com/agnessa))
 - Adding possibility to publish/unpublish journeys [\#95](https://github.com/ConservationInternational/resilienceatlas/pull/95) ([martintomas](https://github.com/martintomas))

@@ -122,8 +122,9 @@ class Layer < ApplicationRecord
   end
 
   def clone!
-    l = clone
-    new_layer = Layer.new(l.attributes.except("id"))
+    new_layer = Layer.new
+    new_layer.assign_attributes attributes.except("id")
+    translations.each { |t| new_layer.translations.build t.attributes.except("id") }
     new_layer.name = "#{name} _copy_ #{DateTime.now}"
     new_layer.save!
     new_layer

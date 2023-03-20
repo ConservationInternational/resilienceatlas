@@ -33,8 +33,9 @@ class SiteScope < ApplicationRecord
   end
 
   def clone!
-    site_scope = clone
-    new_site_scope = SiteScope.new(site_scope.attributes.except("id"))
+    new_site_scope = SiteScope.new
+    new_site_scope.assign_attributes attributes.except("id")
+    translations.each { |t| new_site_scope.translations.build t.attributes.except("id") }
     new_site_scope.name = "#{name} _copy_ #{DateTime.now}"
     new_site_scope.save!
     new_site_scope

@@ -52,12 +52,11 @@ class LayerGroup < ApplicationRecord
   end
 
   def clone!
-    l_g = clone
-    new_layer_group = LayerGroup.new(l_g.attributes.except("id"))
+    new_layer_group = LayerGroup.new
+    new_layer_group.assign_attributes attributes.except("id")
+    translations.each { |t| new_layer_group.translations.build t.attributes.except("id") }
+    agrupations.each { |a| new_layer_group.agrupations.build a.attributes.except("id") }
     new_layer_group.name = "#{name} _copy_ #{DateTime.now}"
-    layers.each do |layer|
-      new_layer_group.agrupations.new(layer_id: layer.id)
-    end
     new_layer_group.save!
     new_layer_group
   end
