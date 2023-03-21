@@ -28,7 +28,7 @@ set :linked_files, %w{.env.production}
 
 # Default value for linked_dirs is []
 # append :linked_dirs, "log", "tmp/pids", "tmp/cache", "tmp/sockets", "public/system"
-set :linked_dirs, %w{node_modules .next}
+set :linked_dirs, %w{node_modules}
 
 # Default value for default_env is {}
 # set :default_env, { path: "/opt/ruby/bin:$PATH" }
