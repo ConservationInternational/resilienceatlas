@@ -48,6 +48,25 @@ When a PR is merged to the `main` branch, the same process is also executed and 
 
 It is recommended to mention the Jira task ID either in commits or the branch names so that the deployment information can be directly available in Jira.
 
+## Manual deployment
+
+We are using Capistrano to deploy the application. So, in order to deploy the application, you need to have the following:
+
+* Ruby 3.2.1 (rbenv recommended)
+
+And you can install the dependencies with:
+
+```
+gem install bundler
+bundle install
+```
+
+In case you need to manually deploy the application, you can use the following commands:
+
+```
+bundle exe cap [staging|production] deploy
+```
+
 ## Contribution rules
 
 Please, **create a PR** for any improvement or feature you want to add. Use the `develop` branch for this.
