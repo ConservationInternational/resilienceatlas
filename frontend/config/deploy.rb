@@ -24,7 +24,7 @@ set :deploy_to, '/home/ubuntu/resilienceatlas-frontend'
 
 # Default value for :linked_files is []
 # append :linked_files, "config/database.yml"
-set :linked_files, %w{.env.production}
+set :linked_fxxiles, %w{.env.production}
 
 # Default value for linked_dirs is []
 # append :linked_dirs, "log", "tmp/pids", "tmp/cache", "tmp/sockets", "public/system"
@@ -74,18 +74,18 @@ namespace :deploy do
     end
   end
 
-  # before "symlink:release", :build_app
+  before "symlink:release", :build_app
 end
 
-# # for the bastion host
-# require "net/ssh/proxy/command"
+# for the bastion host
+require "net/ssh/proxy/command"
 
-# # Use a default host for the bastion, but allow it to be overridden
-# bastion_host = ENV["BASTION_HOST"] || "login.resilienceatlas.org"
+# Use a default host for the bastion, but allow it to be overridden
+bastion_host = ENV["BASTION_HOST"] || "login.resilienceatlas.org"
 
-# # Use the local username by default
-# bastion_user = ENV["BASTION_USER"] || "ubuntu"
+# Use the local username by default
+bastion_user = ENV["BASTION_USER"] || "ubuntu"
 
-# # Configure Capistrano to use the bastion host as a proxy
-# ssh_command = "ssh -o StrictHostKeyChecking=no #{bastion_user}@#{bastion_host} -W %h:%p"
-# set :ssh_options, proxy: Net::SSH::Proxy::Command.new(ssh_command)
+# Configure Capistrano to use the bastion host as a proxy
+ssh_command = "ssh -o StrictHostKeyChecking=no #{bastion_user}@#{bastion_host} -W %h:%p"
+set :ssh_options, proxy: Net::SSH::Proxy::Command.new(ssh_command)
