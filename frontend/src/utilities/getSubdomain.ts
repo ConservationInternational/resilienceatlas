@@ -6,7 +6,9 @@ export const getSubdomainFromURL = (url: string): string => {
   const host = url.replace(/(^http(s?):\/\/)|(\.com)$/g, '');
   const subdomain = host.split('.')[0];
   // If no subdomain is set or we're in localhost, return null
-  if (!subdomain || subdomain === 'www' || subdomain === 'localhost') return null;
+  if (!subdomain || subdomain === 'www' || subdomain === 'localhost' || subdomain === 'staging') {
+    return null;
+  }
   return subdomain;
 };
 
