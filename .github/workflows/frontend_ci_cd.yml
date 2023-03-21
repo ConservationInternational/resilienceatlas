@@ -55,7 +55,7 @@ jobs:
           install: false
           build: yarn build
           start: yarn start
-          headless: true
+          headed: false
           browser: chrome
           wait-on: http://localhost:3000
           config-file: cypress.config.js
@@ -77,7 +77,7 @@ jobs:
     name: Running frontend tests on Firefox
     runs-on: ubuntu-22.04
     timeout-minutes: 30
-    needs: testing-frontend-chrome
+    needs: e2e-chrome
     strategy:
       fail-fast: false
     defaults:
@@ -116,7 +116,7 @@ jobs:
           install: false
           build: yarn build
           start: yarn start
-          headless: true
+          headed: false
           browser: firefox
           wait-on: http://localhost:3000
           config-file: cypress.config.js
@@ -134,35 +134,35 @@ jobs:
           name: cypress-screenshots
           path: ${{github.workspace}}/frontend/cypress/screenshots
 
-    deploy:
-      name: Deploy frontend
-      if: (github.head_ref || github.ref_name) == 'develop'
-      runs-on: ubuntu-22.04
-      timeout-minutes: 30
-      needs: [e2e-chrome, e2e-firefox]
+  deploy:
+    name: Deploy frontend
+    if: (github.head_ref || github.ref_name) == 'develop'
+    runs-on: ubuntu-22.04
+    timeout-minutes: 30
+    needs: [e2e-chrome, e2e-firefox]
 
-      steps:
-        - name: Checkout code
-          uses: actions/checkout@v3
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-        - name: Install ruby + gems
-          uses: ruby/setup-ruby@v1
-          with:
-            # ruby-version: 3.2.1 # Not needed with a .ruby-version file
-            bundler-cache: true
-            working-directory: frontend
+      - name: Install ruby + gems
+        uses: ruby/setup-ruby@v1
+        with:
+          # ruby-version: 3.2.1 # Not needed with a .ruby-version file
+          bundler-cache: true
+          working-directory: frontend
 
-        - name: Extract branch name
-          shell: bash
-          run: |
-            echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
-            echo "##[set-output name=branch-upper;]$(echo ${GITHUB_REF#refs/heads/} | tr a-z A-Z )"
-          id: extract_branch
+      - name: Extract branch name
+        shell: bash
+        run: |
+          echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+          echo "##[set-output name=branch-upper;]$(echo ${GITHUB_REF#refs/heads/} | tr a-z A-Z )"
+        id: extract_branch
 
-        - name: Deploy using capistrano
-          uses: miloserdow/capistrano-deploy@v3
-          with:
-            working-directory: frontend
-            target: ${{ steps.extract_branch.outputs.branch == 'master' && 'production' || 'staging' }}
-            deploy_key: ${{ secrets.DEPLOY_KEY_PASSWORD }}
-            enc_rsa_key_val: ${{ secrets.DEPLOY_ENC_KEY }}
+      - name: Deploy using capistrano
+        uses: miloserdow/capistrano-deploy@v3
+        with:
+          working-directory: frontend
+          target: ${{ steps.extract_branch.outputs.branch == 'master' && 'production' || 'staging' }}
+          deploy_key: ${{ secrets.DEPLOY_KEY_PASSWORD }}
+          enc_rsa_key_val: ${{ secrets.DEPLOY_ENC_KEY }}
