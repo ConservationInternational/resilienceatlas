@@ -24,11 +24,11 @@ set :deploy_to, '/home/ubuntu/resilienceatlas-frontend'
 
 # Default value for :linked_files is []
 # append :linked_files, "config/database.yml"
-set :linked_fxxiles, %w{.env.production}
+set :linked_files, %w{.env.production}
 
 # Default value for linked_dirs is []
 # append :linked_dirs, "log", "tmp/pids", "tmp/cache", "tmp/sockets", "public/system"
-# set :linked_dirs, %w{node_modules}
+set :linked_dirs, %w{node_modules .next build}
 
 # Default value for default_env is {}
 # set :default_env, { path: "/opt/ruby/bin:$PATH" }
