@@ -16,7 +16,7 @@ import Loader from 'views/shared/Loader';
 import type { NextPageWithLayout } from './_app';
 
 const MapPage: NextPageWithLayout = () => {
-  // TO-DO: migrate this, how it works?
+  // TODO: migrate this, how it works?
   // const { location: { state } } = props;
   // useEffect(() => {
   //   if (state && state.downloadLayerUrl) {
