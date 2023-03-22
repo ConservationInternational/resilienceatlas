@@ -1,7 +1,8 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Provider as ReduxProvider } from 'react-redux';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
+import { QueryClient, QueryClientProvider, Hydrate } from '@tanstack/react-query';
 
 import { wrapper } from 'state/store';
 import * as ga from 'utilities/ga';
@@ -10,6 +11,7 @@ import { getToken, login } from 'state/modules/user';
 import type { ReactElement, ReactNode } from 'react';
 import type { NextPage } from 'next';
 import type { AppProps } from 'next/app';
+import type { DehydratedState } from '@tanstack/react-query';
 
 // Third-party styles
 import 'normalize.css/normalize.css';
@@ -21,6 +23,7 @@ import 'leaflet/dist/leaflet.css';
 import 'views/styles/index.scss';
 
 type ResilienceAppProps = {
+  dehydratedState?: DehydratedState;
   user?: {
     first_name: string;
     last_name: string;
@@ -32,7 +35,7 @@ export type NextPageWithLayout<P = ResilienceAppProps, IP = P> = NextPage<P, IP>
   Layout?: (page: ReactElement) => ReactNode;
 };
 
-type AppPropsWithLayout = AppProps & {
+type AppPropsWithLayout = AppProps<ResilienceAppProps> & {
   Component: NextPageWithLayout;
 };
 
@@ -40,6 +43,17 @@ const ResilienceApp = ({ Component, ...rest }: AppPropsWithLayout) => {
   const router = useRouter();
   const { store: appStore } = wrapper.useWrappedStore(rest);
   const getLayout = Component.Layout ?? ((page) => page);
+
+  const [queryClient] = useState(
+    () =>
+      new QueryClient({
+        defaultOptions: {
+          queries: {
+            refetchOnWindowFocus: false,
+          },
+        },
+      }),
+  );
 
   // Getting user from local storage
   useEffect(() => {
@@ -107,7 +121,13 @@ const ResilienceApp = ({ Component, ...rest }: AppPropsWithLayout) => {
           user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/ */}
         <link rel="manifest" href="/manifest.json" />
       </Head>
-      <ReduxProvider store={appStore}>{getLayout(<Component {...rest.pageProps} />)}</ReduxProvider>
+      <ReduxProvider store={appStore}>
+        <QueryClientProvider client={queryClient}>
+          <Hydrate state={rest.pageProps.dehydratedState}>
+            {getLayout(<Component {...rest.pageProps} />)}
+          </Hydrate>
+        </QueryClientProvider>
+      </ReduxProvider>
     </>
   );
 };

@@ -209,6 +209,7 @@
 
       &:hover {
         text-decoration: none;
+        cursor: pointer;
       }
 
       &:not(.web-link):hover {
@@ -225,7 +226,6 @@
     button {
       background: none;
       border: none;
-      cursor: pointer;
       font-weight: 500;
     }
 

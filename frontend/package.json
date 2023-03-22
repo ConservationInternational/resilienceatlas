@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@carto/carto.js": "4.2.2",
+    "@tanstack/react-query": "^4.28.0",
     "axios": "^0.18.0",
     "foundation-sites": "6.7.5",
     "leaflet": "1.4.0",

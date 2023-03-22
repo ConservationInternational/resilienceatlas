@@ -13,13 +13,12 @@ const withForm = reduxForm({
   asyncValidate: asyncValidate(LoginSchema),
   onSubmit: signin,
   onSubmitSuccess: (auth_token, dispatch, props) => {
-    const {
-      router: { query: { from } = {} },
-    } = props;
+    const { router } = props;
+    const { query: { from = '/' } = {} } = router;
 
     dispatch(login(auth_token));
 
-    if (from) {
+    if (from && router.isReady) {
       router.push(from);
     }
   },

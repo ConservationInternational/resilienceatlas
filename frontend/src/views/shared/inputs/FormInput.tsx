@@ -11,6 +11,7 @@ const FormInput: FC<P & WrappedFieldProps> = ({
   input,
   meta: { touched, error },
   label,
+  defaultValue,
   ...rest
 }) => {
   const errorMessage = useMemo(() => {
@@ -20,12 +21,13 @@ const FormInput: FC<P & WrappedFieldProps> = ({
 
     return error;
   }, [error]);
+  const value = !!input.value && input.value !== '' ? input.value : defaultValue;
 
   return (
     <div className={cx('field', { 'has-error': error })}>
       <label htmlFor={input.name}>{label}</label>
       <br />
-      <input {...input} {...rest} />
+      <input {...input} {...rest} value={value} />
       {Boolean(touched && error) && <div className="error-message">{errorMessage}</div>}
     </div>
   );
