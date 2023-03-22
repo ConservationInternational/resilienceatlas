@@ -64,7 +64,7 @@ bundle install
 In case you need to manually deploy the application, you can use the following commands:
 
 ```
-bundle exe cap [staging|production] deploy
+bundle exec cap [staging|production] deploy
 ```
 
 ## Contribution rules
