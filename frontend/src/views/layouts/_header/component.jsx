@@ -1,12 +1,10 @@
 import React, { useEffect, useCallback } from 'react';
+import { useRouter } from 'next/router';
 import Link from 'next/link';
+import cx from 'classnames';
 import { sortBy } from 'utilities';
 
 const byPosition = sortBy('position');
-
-/**
- * TO-DO: Migrate active class for Link component
- */
 
 const Header = ({
   loadMenuItems,
@@ -16,6 +14,8 @@ const Header = ({
   menuItems,
   menuItemsLoaded,
 }) => {
+  const { pathname } = useRouter();
+
   useEffect(() => {
     if (!menuItemsLoaded) loadMenuItems();
   }, [loadMenuItems, menuItemsLoaded]);
@@ -46,30 +46,30 @@ const Header = ({
 
         <ul className="nav-area -resilience">
           <li className="journey-link">
-            <Link href="/journeys" activeClassName="is-current">
-              <a>Journeys</a>
+            <Link href="/journeys">
+              <a className={cx(pathname.includes('/journeys') && 'is-current')}>Journeys</a>
             </Link>
           </li>
 
           <li>
-            <Link href="/map" activeClassName="is-current">
-              <a>Map</a>
+            <Link href="/map">
+              <a className={cx(pathname.includes('/map') && 'is-current')}>Map</a>
             </Link>
 
             <ul>{menuItems.sort(byPosition).map(renderMenuItem)}</ul>
           </li>
 
           <li>
-            <Link href="/about" activeClassName="is-current">
-              <a>About</a>
+            <Link href="/about">
+              <a className={cx(pathname.includes('/about') && 'is-current')}>About</a>
             </Link>
           </li>
 
           {loggedIn ? (
             <>
               <li>
-                <Link href="/me" activeClassName="is-current">
-                  <a>Me</a>
+                <Link href="/me">
+                  <a className={cx(pathname.includes('/me') && 'is-current')}>Me</a>
                 </Link>
               </li>
 
@@ -82,14 +82,14 @@ const Header = ({
           ) : (
             <>
               <li>
-                <Link href="/login" activeClassName="is-current">
-                  <a>Login</a>
+                <Link href="/login">
+                  <a className={cx(pathname.includes('/login') && 'is-current')}>Login</a>
                 </Link>
               </li>
 
               <li>
-                <Link href="/register" activeClassName="is-current">
-                  <a>Register</a>
+                <Link href="/register">
+                  <a className={cx(pathname.includes('/register') && 'is-current')}>Register</a>
                 </Link>
               </li>
             </>

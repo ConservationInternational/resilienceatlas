@@ -46,8 +46,8 @@ export const signin = ({ email, password }: ILoginForm) =>
       return data.auth_token;
     });
 
-export const signup = ({ email, password }: ISignupForm) =>
-  post(URL_SIGNUP, { data: { user: { email, password } }, baseURL: PORT })
+export const signup = (values: ISignupForm) =>
+  post(URL_SIGNUP, { data: { user: values }, baseURL: PORT })
     .then((response) => response.data)
     .then((data) => {
       if (data.status !== 'created') {

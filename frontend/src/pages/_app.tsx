@@ -5,6 +5,7 @@ import { useRouter } from 'next/router';
 
 import { wrapper } from 'state/store';
 import * as ga from 'utilities/ga';
+import { getToken, login } from 'state/modules/user';
 
 import type { ReactElement, ReactNode } from 'react';
 import type { NextPage } from 'next';
@@ -40,6 +41,16 @@ const ResilienceApp = ({ Component, ...rest }: AppPropsWithLayout) => {
   const { store: appStore } = wrapper.useWrappedStore(rest);
   const getLayout = Component.Layout ?? ((page) => page);
 
+  // Getting user from local storage
+  useEffect(() => {
+    const userToken = getToken();
+
+    if (userToken) {
+      appStore.dispatch(login(userToken));
+    }
+  }, [appStore]);
+
+  // Google Analytics
   useEffect(() => {
     const handleRouteChange = (url) => {
       ga.pageView(url);

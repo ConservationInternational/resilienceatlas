@@ -198,7 +198,7 @@
       }
     }
 
-    a {
+    a, button {
       display: block;
       padding: rem(7px) rem(20px) rem(3px);
       color: var(--theme-color);
@@ -220,6 +220,13 @@
         background-color: var(--theme-color);
         color: $font-color-3;
       }
+    }
+
+    button {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-weight: 500;
     }
 
     .l-main--embed & {

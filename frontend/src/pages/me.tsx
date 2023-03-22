@@ -15,7 +15,7 @@ const MePage: NextPageWithLayout = ({ user }) => {
   const authenticated = isAuthenticated(user);
 
   useEffect(() => {
-    if (!authenticated) router.push('/');
+    if (!authenticated && router.isReady) router.push('/');
   }, [authenticated, router]);
 
   return (
