@@ -3,14 +3,15 @@ import { useCookiesConsent } from 'utilities/hooks/useCookiesConsent';
 
 // log the pageView with their URL
 export const pageView = (url) => {
-  window.gtag('config', process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS, {
-    page_path: url,
-  });
+  window.gtag &&
+    window.gtag('config', process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS, {
+      page_path: url,
+    });
 };
 
 // log specific events happening.
 export const event = ({ action, params }) => {
-  window.gtag('event', action, params);
+  window.gtag && window.gtag('event', action, params);
 };
 
 export const useInitGAScript = () => {
