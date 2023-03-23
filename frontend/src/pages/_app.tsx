@@ -80,6 +80,8 @@ const ResilienceApp = ({ Component, ...rest }: AppPropsWithLayout) => {
     };
   }, [router.events]);
 
+  ga.useInitGAScript();
+
   return (
     <>
       <Head>
