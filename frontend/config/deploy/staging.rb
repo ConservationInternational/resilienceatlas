@@ -6,4 +6,4 @@ set :ssh_options, {
 }
 
 set :node_env, 'production'
-set :branch, 'develop'
+set :branch, 'client/fix/deploying-capistrano'
