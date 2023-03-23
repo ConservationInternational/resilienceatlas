@@ -27,6 +27,7 @@ const NoticeContent: FC = ({}) => {
       <div className="buttons">
         <button
           type="button"
+          data-test-id="refuse"
           className="btn btn-primary -sm -inverted-color"
           onClick={onRefuseCookies}
         >
@@ -34,6 +35,7 @@ const NoticeContent: FC = ({}) => {
         </button>
         <button
           type="button"
+          data-test-id="accept"
           className="btn btn-primary -sm -inverted-color"
           onClick={onAcceptCookies}
         >
