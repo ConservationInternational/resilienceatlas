@@ -49,38 +49,86 @@
 #
 FactoryBot.define do
   factory :layer do
+    sequence(:slug) { |n| "Layer-#{n}" }
     sequence(:name) do |n|
       Faker::Config.random = Random.new(n)
       Faker::Lorem.word
     end
-    sequence(:slug) { |n| "Layer-#{n}" }
-    sequence(:layer_type) do |n|
+    sequence(:description) do |n|
+      Faker::Config.random = Random.new(n)
+      Faker::Lorem.sentence
+    end
+    sequence(:processing) do |n|
       Faker::Config.random = Random.new(n)
       Faker::Lorem.word
+    end
+    sequence(:data_units) do |n|
+      Faker::Config.random = Random.new(n)
+      Faker::Lorem.word
+    end
+    sequence(:legend) do |n|
+      Faker::Config.random = Random.new(n)
+      Faker::Lorem.sentence
+    end
+    sequence(:layer_provider) do |n|
+      Faker::Config.random = Random.new(n)
+      ["cartodb", "cog", "gee", "xyz tileset"].sample random: Random.new(n)
+    end
+    sequence(:query) do |n|
+      Faker::Config.random = Random.new(n)
+      Faker::Lorem.sentence
+    end
+    sequence(:css) do |n|
+      Faker::Config.random = Random.new(n)
+      Faker::Lorem.sentence
+    end
+    sequence(:opacity) do |n|
+      Faker::Config.random = Random.new(n)
+      Faker::Number.between from: 1, to: 100
     end
     sequence(:zindex) do |n|
       Faker::Config.random = Random.new(n)
       Faker::Number.between from: 1, to: 100
     end
-    sequence(:active) do |n|
-      Faker::Config.random = Random.new(n)
-      Faker::Boolean.boolean
-    end
     sequence(:order) do |n|
       Faker::Config.random = Random.new(n)
       Faker::Number.between from: 1, to: 100
     end
-    sequence(:color) do |n|
+    sequence(:zoom_max) do |n|
       Faker::Config.random = Random.new(n)
-      Faker::Color.hex_color
+      Faker::Number.between from: 1, to: 100
     end
-    sequence(:info) do |n|
+    sequence(:zoom_min) do |n|
       Faker::Config.random = Random.new(n)
-      Faker::Lorem.word
+      Faker::Number.between from: 1, to: 100
     end
-    sequence(:interactivity) do |n|
+    sequence(:layer_config) do |n|
       Faker::Config.random = Random.new(n)
-      Faker::Lorem.word
+      Faker::Number.between from: 1, to: 100
+    end
+    sequence(:interaction_config) do |n|
+      Faker::Config.random = Random.new(n)
+      Faker::Lorem.sentence
+    end
+    sequence(:download) do |n|
+      Faker::Config.random = Random.new(n)
+      Faker::Boolean.boolean
+    end
+    sequence(:analysis_suitable) do |n|
+      Faker::Config.random = Random.new(n)
+      Faker::Boolean.boolean
+    end
+    sequence(:analysis_query) do |n|
+      Faker::Config.random = Random.new(n)
+      Faker::Lorem.sentence
+    end
+    sequence(:analysis_body) do |n|
+      Faker::Config.random = Random.new(n)
+      Faker::Lorem.sentence
+    end
+    sequence(:dashboard_order) do |n|
+      Faker::Config.random = Random.new(n)
+      Faker::Number.between from: 1, to: 100
     end
   end
 end

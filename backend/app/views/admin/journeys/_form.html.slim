@@ -16,8 +16,8 @@
   = f.inputs "Journey Steps", class: "inputs has-many-collapsed" do
     - f.has_many :journey_steps, heading: false, sortable: :position, sortable_start: 1 do |ff|
       = ff.inputs (ff.object.new_record? ? "New Step" : "#{ff.object.step_type.to_s.capitalize} step: Page #{ff.object.position}"), class: "inputs has-many-toggle-collapse" do
-        div class="has-many-section section-hidden"
-          - ff.input :step_type, as: :select, collection: JourneyStep.step_types.keys, input_html: {class: "fields-controller"}
+        div class="has-many-section section-hidden select-dependency-container"
+          - ff.input :step_type, as: :select, collection: JourneyStep.step_types.keys, input_html: {class: "select-dependency-controller"}
           = ff.inputs "Translated fields" do
             - ff.translated_inputs switch_locale: false do |fff|
               - fff.input :id, as: :hidden
