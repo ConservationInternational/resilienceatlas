@@ -11,6 +11,7 @@
 # framework
 /.next
 /build
+/out
 /next-env.d.ts
 
 # misc
@@ -39,3 +40,6 @@ cypress.*.json
 
 # typescript
 *.tsbuildinfo
+
+# capistrano
+/log/*

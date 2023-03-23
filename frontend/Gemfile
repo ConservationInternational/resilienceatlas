@@ -1,8 +1,9 @@
 source 'https://rubygems.org'
 
-ruby '2.5.3'
+ruby '3.2.1'
 
-gem 'capistrano', '3.4'
-gem 'capistrano-rvm'
+gem 'capistrano', '~> 3.9'
+gem 'capistrano-rbenv', '~> 2.2'
 gem 'capistrano-passenger'
 gem 'capistrano-yarn'
+gem 'capistrano-nvm'
