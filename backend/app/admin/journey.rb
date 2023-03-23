@@ -1,4 +1,6 @@
 ActiveAdmin.register Journey do
+  includes :translations
+
   permit_params :credits_url, :background_image, :published,
     translations_attributes: [:id, :locale, :title, :subtitle, :theme, :credits, :_destroy],
     journey_steps_attributes: [:id, :step_type, :position, :chapter_number, :credits_url,
@@ -10,10 +12,6 @@ ActiveAdmin.register Journey do
   filter :published
 
   controller do
-    def scoped_collection
-      end_of_association_chain.includes :translations
-    end
-
     def visible(journey_step, key)
       return unless JourneyStep::AVAILABLE_FIELDS_FOR_EVERY_TYPE[key][:available_at].include? journey_step.step_type.to_sym
 
@@ -54,6 +52,7 @@ ActiveAdmin.register Journey do
 
   show do
     attributes_table do
+      row :id
       row :title
       row :subtitle
       row :theme
@@ -62,6 +61,9 @@ ActiveAdmin.register Journey do
       row :credits_url
       row :background_image do |record|
         render "admin/shared/preview", blob: record.background_image if record.background_image.present?
+      end
+      row :frontend_link do |record|
+        link_to nil, "#{ENV["FRONTEND_URL"]}/journeys/#{record.id}"
       end
       row :created_at
       row :updated_at

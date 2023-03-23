@@ -41,6 +41,9 @@ RSpec.describe "Admin: Journeys", type: :system do
       expect(page).to have_text(journey.title)
       expect(page).to have_text(journey.subtitle)
       expect(page).to have_text(journey.theme)
+      expect(page).to have_text(journey.credits)
+      expect(page).to have_text(journey.credits_url)
+      expect(page).to have_text("#{ENV["FRONTEND_URL"]}/journeys/#{journey.id}")
     end
 
     it "shows landing journey step detail" do
