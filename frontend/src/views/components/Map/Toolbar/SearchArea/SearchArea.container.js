@@ -1,14 +1,14 @@
 import { connect } from 'react-redux';
 
-import { fitBounds } from '@modules/map';
-import { makeCountries } from '@modules/countries';
+import { fitBounds } from 'state/modules/map';
+import { makeCountries } from 'state/modules/countries';
 
 import SearchArea from './SearchArea.component';
 
 const makeMapStateToProps = () => {
   const getCountries = makeCountries();
 
-  const mapStateToProps = state => ({
+  const mapStateToProps = (state) => ({
     countries: getCountries(state),
   });
 

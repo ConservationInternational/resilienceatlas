@@ -1,6 +1,6 @@
 import qs from 'qs';
 import { Array } from 'core-js';
-import { getRouterParam } from '@utilities';
+import { getRouterParam } from 'utilities';
 import { createReducer } from '../../utils';
 import {
   LOAD,
@@ -10,16 +10,11 @@ import {
   APPLY_INDICATORS,
   RESET_INDICATORS,
 } from './actions';
-import {
-  getIndexableIndicatorValueRange,
-  buildIndicatorsFromState,
-} from './utils';
+import { getIndexableIndicatorValueRange, buildIndicatorsFromState } from './utils';
 
-const {
-  name: persistedModel = null,
-  values: persistedIndicators = [],
-} = getRouterParam('model', val =>
-  qs.parse(val, { parseArrays: true, comma: true }),
+const { name: persistedModel = null, values: persistedIndicators = [] } = getRouterParam(
+  'model',
+  (val) => qs.parse(val, { parseArrays: true, comma: true }),
 );
 
 const initialState = {
@@ -43,7 +38,7 @@ const initialState = {
 };
 
 export default createReducer(initialState)({
-  [LOAD.REQUEST]: state => ({
+  [LOAD.REQUEST]: (state) => ({
     ...state,
     loading: true,
     error: null,
@@ -85,9 +80,7 @@ export default createReducer(initialState)({
     return {
       ...state,
       selected: id,
-      indicators_state: model.indicators.map(
-        ind => state.indicators[ind].indexableValue,
-      ),
+      indicators_state: model.indicators.map((ind) => state.indicators[ind].indexableValue),
     };
   },
 
@@ -115,7 +108,7 @@ export default createReducer(initialState)({
     };
   },
 
-  [APPLY_INDICATORS]: state => {
+  [APPLY_INDICATORS]: (state) => {
     const newIndicators = buildIndicatorsFromState(state);
 
     return {
@@ -127,7 +120,7 @@ export default createReducer(initialState)({
     };
   },
 
-  [RESET_INDICATORS]: state => {
+  [RESET_INDICATORS]: (state) => {
     const newIndicatorsState = Array.from(state.indicators_state).fill(4);
     const newIndicators = buildIndicatorsFromState(state, newIndicatorsState);
 

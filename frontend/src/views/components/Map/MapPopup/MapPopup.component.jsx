@@ -27,12 +27,12 @@ const MapPopup = ({
         layersInteraction: layerGroupsInteraction,
         layersInteractionSelected: layerGroupsInteractionSelected,
       }}
-      onReady={popup => {
+      onReady={(popup) => {
         popupRef.current = popup;
       }}
     >
       <LayerPopup
-        onChangeInteractiveLayer={selected => {
+        onChangeInteractiveLayer={(selected) => {
           setMapLayerGroupsInteractionSelected(selected);
         }}
       />

@@ -6,17 +6,14 @@ describe('Journeys detail page', () => {
 
     // Navigate to the first journey detail
     cy.wait('@journeysRequest').then(({ response }) => {
-      cy.wrap(response.statusCode).should('be.equal', 200);
-      cy.get('.m-journey__gridelement')
-        .first()
-        .find('.btn')
-        .click();
+      cy.wrap(response.statusCode).should('be.oneOf', [200, 304]);
+      cy.get('.m-journey__gridelement').first().find('.btn').click();
     });
   });
 
   it('should correspond to the API response', () => {
     cy.wait('@journeyDetailRequest').then(({ response }) => {
-      cy.wrap(response.statusCode).should('be.equal', 200);
+      cy.wrap(response.statusCode).should('be.oneOf', [200, 304]);
 
       const { id, steps } = response.body[0];
 
@@ -24,6 +21,8 @@ describe('Journeys detail page', () => {
         cy.log(`Testing step with index ${stepIndex} and type "${step.type}"`);
 
         cy.url().should('include', `/journeys/${id}/step/${stepIndex + 1}`);
+
+        const expectedUrl = step.type === 'embed' ? step.btnUrl : null;
 
         switch (step.type) {
           case 'landing':
@@ -36,19 +35,15 @@ describe('Journeys detail page', () => {
             break;
 
           case 'conclusion':
-            cy.get('.l-journey h2')
-              .first()
-              .contains(step.title, { matchCase: false });
+            cy.get('.l-journey h2').first().contains(step.title, { matchCase: false });
 
             if (step.subtitle) {
-              cy.get('.l-journey h3')
-                .first()
-                .contains(step.subtitle, { matchCase: false });
+              cy.get('.l-journey h3').first().contains(step.subtitle, { matchCase: false });
             }
 
             cy.get('.l-journey h3 + div')
               .first()
-              .should($div => {
+              .should(($div) => {
                 const node = document.createElement('div');
                 node.innerHTML = step.content;
                 expect($div).to.have.text(node.textContent);
@@ -67,7 +62,7 @@ describe('Journeys detail page', () => {
           case 'embed':
             cy.get('.l-journey .side-bar article > div')
               .first()
-              .should($div => {
+              .should(($div) => {
                 const node = document.createElement('div');
                 node.innerHTML = step.aside;
                 expect($div).to.have.text(node.textContent);
@@ -75,15 +70,7 @@ describe('Journeys detail page', () => {
             cy.get('.l-journey .btn-check-it')
               .first()
               .invoke('attr', 'href')
-              .should(href => {
-                const url = href.replace(new URL(href).origin, '');
-                const expectedUrl = step.btnUrl.replace(
-                  new URL(step.btnUrl, 'https://www.resilienceatlas.org/')
-                    .origin,
-                  '',
-                );
-                expect(url).to.eq(expectedUrl);
-              });
+              .should('be.equal', expectedUrl);
             break;
 
           default:
@@ -91,9 +78,7 @@ describe('Journeys detail page', () => {
         }
 
         if (stepIndex + 1 < steps.length) {
-          cy.get('.l-journey')
-            .find('.btn-next')
-            .click();
+          cy.get('.l-journey').find('.btn-next').click();
         }
       });
     });

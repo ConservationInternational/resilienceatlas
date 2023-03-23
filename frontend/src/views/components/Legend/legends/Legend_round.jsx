@@ -18,7 +18,7 @@ const LegendRound = ({ units, bubble, data }) => (
         </div>
       )}
 
-      {data.map(d => (
+      {data.map((d) => (
         <div key={d.name} className="item">
           <span style={{ backgroundColor: d.value }} /> {d.name}
         </div>

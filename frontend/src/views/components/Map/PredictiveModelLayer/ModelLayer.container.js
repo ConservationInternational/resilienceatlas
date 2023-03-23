@@ -1,13 +1,13 @@
 import { connect } from 'react-redux';
 
-import { makeLayer as makePredictiveModelLayer } from '@modules/predictive_models';
+import { makeLayer as makePredictiveModelLayer } from 'state/modules/predictive_models';
 
 import PredictiveModelLayer from './ModelLayer.component';
 
 const makeMapStateToProps = () => {
   const getPredictiveModelLayer = makePredictiveModelLayer();
 
-  const mapStateToProps = state => ({
+  const mapStateToProps = (state) => ({
     predictiveModelLayer: getPredictiveModelLayer(state),
   });
 

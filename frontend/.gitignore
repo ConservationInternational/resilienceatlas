@@ -8,8 +8,10 @@
 # testing
 /coverage
 
-# production
+# framework
+/.next
 /build
+/next-env.d.ts
 
 # misc
 .DS_Store
@@ -34,3 +36,6 @@ yarn-error.log*
 /cypress/videos
 /cypress/downloads
 cypress.*.json
+
+# typescript
+*.tsbuildinfo

@@ -1,6 +1,6 @@
 import { schema } from 'normalizr';
 
-import { generateDownloadUrl } from '@utilities/generateDownloadUrl';
+import { generateDownloadUrl } from 'utilities/generateDownloadUrl';
 
 import { birds } from './utils/decoders';
 
@@ -20,7 +20,7 @@ export const site_scope = new schema.Entity(
   'site_scopes',
   {},
   {
-    processStrategy: site => ({
+    processStrategy: (site) => ({
       id: site.id,
       ...site.attributes,
       pages: site.relationships.site_pages.data,
@@ -32,7 +32,7 @@ export const layer = new schema.Entity(
   'layers',
   {},
   {
-    processStrategy: l => {
+    processStrategy: (l) => {
       const group = l.relationships.layer_group.data;
       const source = l.relationships.sources.data;
       const layerConfig = JSON.parse(l.attributes.layer_config || '{}');
@@ -121,14 +121,8 @@ export const layer = new schema.Entity(
         // Layer manager params
         provider: provider[l.attributes.layer_provider],
         layerConfig: config[l.attributes.layer_provider],
-        decodeParams:
-          l.attributes.layer_provider === 'gee'
-            ? config.gee.decodeParams
-            : null,
-        decodeFunction:
-          l.attributes.layer_provider === 'gee'
-            ? config.gee.decodeFunction
-            : null,
+        decodeParams: l.attributes.layer_provider === 'gee' ? config.gee.decodeParams : null,
+        decodeFunction: l.attributes.layer_provider === 'gee' ? config.gee.decodeFunction : null,
         params: l.attributes.layer_provider === 'gee' ? config.gee.params : {},
         interactionConfig: l.attributes.interaction_config,
       };
@@ -142,7 +136,7 @@ export const layer_group = new schema.Entity(
   'layer_groups',
   {},
   {
-    processStrategy: lg => {
+    processStrategy: (lg) => {
       const superGroupId = lg.attributes.super_group_id;
       return {
         id: parseInt(lg.id, 10),
@@ -161,24 +155,20 @@ export const source = new schema.Entity(
   'sources',
   {},
   {
-    processStrategy: s => ({
+    processStrategy: (s) => ({
       id: parseInt(s.id, 10),
       ...s.attributes,
     }),
   },
 );
 
-export const country = new schema.Entity(
-  'countries',
-  {},
-  { idAttribute: 'iso' },
-);
+export const country = new schema.Entity('countries', {}, { idAttribute: 'iso' });
 
 export const category = new schema.Entity(
   'categories',
   {},
   {
-    processStrategy: cat => ({
+    processStrategy: (cat) => ({
       id: cat.id,
       ...cat.attributes,
     }),
@@ -189,7 +179,7 @@ export const indicator = new schema.Entity(
   'indicators',
   {},
   {
-    processStrategy: ind => ({
+    processStrategy: (ind) => ({
       id: ind.id,
       name: ind.attributes.name,
       slug: ind.attributes.slug,
@@ -203,7 +193,7 @@ export const indicator = new schema.Entity(
       humanReadableValue: getHumanReadableIndicatorValue(1),
 
       category: ind.relationships.category.data.id,
-      models: ind.relationships.models.data.map(m => m.id),
+      models: ind.relationships.models.data.map((m) => m.id),
     }),
   },
 );
@@ -212,7 +202,7 @@ export const model = new schema.Entity(
   'models',
   { indicators: [indicator], categories: [category] },
   {
-    processStrategy: mod => ({
+    processStrategy: (mod) => ({
       id: mod.id,
       name: mod.attributes.name,
       description: mod.attributes.description,
@@ -221,7 +211,7 @@ export const model = new schema.Entity(
       indicators:
         mod.relationships &&
         mod.relationships.indicators &&
-        mod.relationships.indicators.data.map(d => d.id),
+        mod.relationships.indicators.data.map((d) => d.id),
     }),
   },
 );
@@ -230,7 +220,7 @@ export const map_menu_entry = new schema.Entity(
   'map_menu_entries',
   {},
   {
-    processStrategy: entry => ({
+    processStrategy: (entry) => ({
       id: entry.id,
       ...entry.attributes,
     }),

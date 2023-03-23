@@ -1,5 +1,6 @@
-import { withRouter } from 'react-router-dom';
+import { withRouter } from 'next/router';
+import dynamic from 'next/dynamic';
 
-import DownloadWindow from './DownloadWindow.component';
+const DownloadWindowNoSSR = dynamic(() => import('./DownloadWindow.component'), { ssr: false });
 
-export default withRouter(DownloadWindow);
+export default withRouter(DownloadWindowNoSSR);

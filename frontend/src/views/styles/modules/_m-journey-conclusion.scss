@@ -1,5 +1,5 @@
 .m-journey--conclusion {
-  @extend %journey;
+  @extend %journey !optional;
 
   display: flex;
   justify-content: flex-start;

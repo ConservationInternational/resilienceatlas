@@ -1,10 +1,17 @@
-import React, { FC } from 'react';
-import { RouteComponentProps, NavLink } from 'react-router-dom';
+import { Link } from 'next/router';
 
-const AuthLinks: FC<RouteComponentProps> = ({ match }) => (
+const AuthLinks = ({ router }) => (
   <>
-    {!match.path.match('login') && <NavLink to="/login">Log in</NavLink>}
-    {!match.path.match('register') && <NavLink to="/register">Sign up</NavLink>}
+    {!router.pathname.match('login') && (
+      <Link href="/login">
+        <a>Log in</a>
+      </Link>
+    )}
+    {!router.pathname.match('register') && (
+      <Link href="/register">
+        <a>Sign up</a>
+      </Link>
+    )}
   </>
 );
 

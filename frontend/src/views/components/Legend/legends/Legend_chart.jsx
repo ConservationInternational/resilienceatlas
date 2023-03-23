@@ -13,7 +13,7 @@ import {
   YAxis,
 } from 'recharts';
 
-import { setChartLimit } from '@modules/layers';
+import { setChartLimit } from 'state/modules/layers';
 
 class LegendChart extends React.PureComponent {
   static defaultProps = {
@@ -44,12 +44,12 @@ class LegendChart extends React.PureComponent {
     setTimeout(() => {
       this.setState((state, { limit, data }) => ({
         isReady: true,
-        activeCoordinate: data.find(v => v.x === limit),
+        activeCoordinate: data.find((v) => v.x === limit),
       }));
     }, 100);
   }
 
-  changeReferenceArea = p => {
+  changeReferenceArea = (p) => {
     const { changeLimit } = this.props;
     this.setState({ activeCoordinate: p.activePayload[0].payload });
     changeLimit(p);
@@ -128,10 +128,8 @@ class LegendChart extends React.PureComponent {
                 activeDot={{ r: 3, stroke: '#8884d8' }}
               />
               <Tooltip
-                formatter={value => [yLabel.replace('{{value}}', value), 'Y']}
-                labelFormatter={value =>
-                  `X : ${xLabel.replace('{{value}}', value)}`
-                }
+                formatter={(value) => [yLabel.replace('{{value}}', value), 'Y']}
+                labelFormatter={(value) => `X : ${xLabel.replace('{{value}}', value)}`}
               />
               <ReferenceArea
                 x1={min.x}
@@ -161,13 +159,10 @@ class LegendChart extends React.PureComponent {
 }
 
 const mapDispatchToProps = (dispatch, { layerId }) => ({
-  changeLimit: value => {
+  changeLimit: (value) => {
     if (value && value.activeTooltipIndex)
       dispatch(setChartLimit(layerId, value.activeTooltipIndex));
   },
 });
 
-export default connect(
-  null,
-  mapDispatchToProps,
-)(LegendChart);
+export default connect(null, mapDispatchToProps)(LegendChart);

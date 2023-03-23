@@ -2,22 +2,12 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import cx from 'classnames';
-import { RouteComponentProps } from 'react-router-dom';
-import ReactGA from 'react-ga'
 
-import { clickable } from '@utilities';
+import { clickable } from 'utilities';
 
-interface P extends RouteComponentProps {
-  user: Object;
-}
+import { event } from 'utilities/ga';
 
-interface S {
-  open: boolean;
-  terms_accepted: boolean;
-  url: string;
-}
-
-export default class DownloadWindow extends Component<P, S> {
+export default class DownloadWindow extends Component {
   static show(url, category_name, label) {
     if (DownloadWindow.__instance) {
       DownloadWindow.__instance.__show(url, category_name, label);
@@ -44,16 +34,15 @@ export default class DownloadWindow extends Component<P, S> {
   };
 
   __show = (url, category_name, label) => {
-    this.setState({ open: true, url, category_name, label  });
+    this.setState({ open: true, url, category_name, label });
   };
 
   __hide = () => {
     this.setState({ open: false, url: null });
   };
 
-  acceptTerms = (e: React.ChangeEvent<HTMLInputElement>) => {
+  acceptTerms = (e) => {
     const { checked } = e.target;
-    console.log(checked);
 
     this.setState(
       {
@@ -72,30 +61,19 @@ export default class DownloadWindow extends Component<P, S> {
       <>
         <p>
           Before download any data, you need to read and accept our{' '}
-          <a
-            className="theme-color"
-            href="http://www.conservation.org/pages/terms.aspx"
-          >
+          <a className="theme-color" href="http://www.conservation.org/pages/terms.aspx">
             terms of use.
           </a>
         </p>
-        <input
-          type="checkbox"
-          id="terms-and-conditions"
-          onChange={this.acceptTerms}
-        />
+        <input type="checkbox" id="terms-and-conditions" onChange={this.acceptTerms} />
         <label htmlFor="terms-and-conditions">
           I have read and accepted the Conservation International terms of use
         </label>
         <a
           href={url}
-          className={cx(
-            'btn',
-            'btn-secondary',
-            'theme-bg-color',
-            'btn-download-infowindow',
-            { '-disabled': !terms_accepted },
-          )}
+          className={cx('btn', 'btn-secondary', 'theme-bg-color', 'btn-download-infowindow', {
+            '-disabled': !terms_accepted,
+          })}
         >
           Download data
         </a>
@@ -116,15 +94,13 @@ export default class DownloadWindow extends Component<P, S> {
 
         <a
           href={url}
-          className={cx(
-            'btn',
-            'btn-secondary',
-            'theme-bg-color',
-            'btn-download-infowindow',
-            { '-disabled': !terms_accepted },
-          )}
-          onClick={event => {
-            ReactGA.event({ category: category_name, action: 'download', label: label });
+          className={cx('btn', 'btn-secondary', 'theme-bg-color', 'btn-download-infowindow', {
+            '-disabled': !terms_accepted,
+          })}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            event({ action: 'download', params: { category: category_name, label } });
           }}
         >
           Download data

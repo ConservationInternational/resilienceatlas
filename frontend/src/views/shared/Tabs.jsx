@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import cx from 'classnames';
-import * as CustomTypes from '@utilities/propTypes';
+import * as CustomTypes from 'utilities/propTypes';
 
 export const Pane = ({ children, className, name, activeTab, ...props }) => (
   <div className={cx(className, { active: activeTab === name })} {...props}>
@@ -37,7 +37,7 @@ const Tabs = ({
   <>
     {!!renderTabTitle && (
       <ul className={menuClassName} role="tablist" data-tab>
-        {React.Children.map(children, Tab => {
+        {React.Children.map(children, (Tab) => {
           if (!Tab) return null;
           const { name, title, disabled } = Tab.props;
           if (hideDisabledTitles && disabled) return null;
@@ -54,7 +54,7 @@ const Tabs = ({
     )}
 
     <div {...props} className={contentClassName}>
-      {React.Children.map(children, Tab => {
+      {React.Children.map(children, (Tab) => {
         if (!Tab) return null;
         const key = Tab.props.name;
         const isActive = key === activeTab;
@@ -89,7 +89,7 @@ Tabs.defaultProps = {
   // children: null,
   renderActiveOnly: false,
   hideDisabledTitles: false,
-  onTabSwitch: () => {},
+  onTabSwitch: () => null,
   renderTabTitle: null,
   menuClassName: '',
   contentClassName: '',

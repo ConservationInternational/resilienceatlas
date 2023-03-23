@@ -1,1 +1,1 @@
-export const getUserLoggedIn = state => !!state.user.auth_token;
+export const getUserLoggedIn = (state) => !!state.user.auth_token;

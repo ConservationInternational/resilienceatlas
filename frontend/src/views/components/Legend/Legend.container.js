@@ -1,14 +1,9 @@
 import qs from 'qs';
 import { compose } from 'redux';
 import { connect } from 'react-redux';
-import { withRouter } from 'react-router-dom';
-import {
-  makeActives,
-  reorder,
-  toggle as toggleLayer,
-  setOpacity,
-} from '@modules/layers';
-import { makeLayer as makePredictiveModelLayer } from '@modules/predictive_models';
+import { withRouter } from 'next/router';
+import { makeActives, reorder, toggle as toggleLayer, setOpacity } from 'state/modules/layers';
+import { makeLayer as makePredictiveModelLayer } from 'state/modules/predictive_models';
 
 import { TABS } from '../Sidebar';
 
@@ -18,8 +13,8 @@ const makeMapStateToProps = () => {
   const getPredictiveModelLayer = makePredictiveModelLayer();
   const getActives = makeActives();
 
-  const mapStateToProps = (state, { location }) => {
-    const { tab } = qs.parse(location.search, { ignoreQueryPrefix: true });
+  const mapStateToProps = (state, { router }) => {
+    const { tab } = router.query;
 
     if (tab === TABS.MODELS) {
       return {

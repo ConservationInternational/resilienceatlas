@@ -1,10 +1,6 @@
-import { FC, useEffect } from 'react';
+import { useEffect } from 'react';
 
-interface P {
-  map: L.Map;
-}
-
-export const MapOffset: FC<P> = ({ map, sidebarOpened, analysisOpened }) => {
+export const MapOffset = ({ map, sidebarOpened, analysisOpened }) => {
   useEffect(() => {
     const sidebarPanel = document.querySelector('.l-sidebar--fullscreen');
     const analysisPanel = document.querySelector('.analysis-panel');

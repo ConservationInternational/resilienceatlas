@@ -1,12 +1,10 @@
 import React, { useMemo, useCallback } from 'react';
-import { download } from '@utilities';
+import { download } from 'utilities';
 
 const DownloadCsv = ({ name, data }) => {
   const csvContent = useMemo(() => {
     const columns = Object.keys(data.fields).join(',');
-    const rows = data.rows
-      .map(item => Object.values(item).join(','))
-      .join('\n');
+    const rows = data.rows.map((item) => Object.values(item).join(',')).join('\n');
 
     return `${columns}\n${rows}`;
   }, [data]);

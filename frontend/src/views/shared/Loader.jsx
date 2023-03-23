@@ -3,9 +3,7 @@ import PropTypes from 'prop-types';
 import cx from 'classnames';
 
 const Loader = ({ loading, text, inline }) => (
-  <div className={cx('m-loader', { 'is-loading': loading, inline })}>
-    {text}
-  </div>
+  <div className={cx('m-loader', { 'is-loading': loading, inline })}>{text}</div>
 );
 
 Loader.propTypes = {

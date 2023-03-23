@@ -1,14 +1,14 @@
 import React, { useCallback, useContext } from 'react';
 import cx from 'classnames';
 
-import InfoWindow from '@components/InfoWindow';
-import LoginRequiredWindow from '@components/LoginRequiredWindow';
-import { LayerManagerContext } from '@contexts/layerManagerCtx';
-import { useToggle, useInput, useUpdaterInput, useDebounce } from '@utilities';
+import InfoWindow from 'views/components/InfoWindow';
+import LoginRequiredWindow from 'views/components/LoginRequiredWindow';
+import { LayerManagerContext } from 'views/contexts/layerManagerCtx';
+import { useToggle, useInput, useUpdaterInput, useDebounce } from 'utilities';
 import DownloadWindow from '../../DownloadWindow/DownloadWindow.component';
-import { subdomain } from '@utilities/getSubdomain';
+import { subdomain } from 'utilities/getSubdomain';
 
-const validateOpacity = value => {
+const validateOpacity = (value) => {
   if (Number.isNaN(value)) return 1;
   if (value > 1) return 1;
   if (value < 0) return 0;
@@ -35,7 +35,7 @@ const Layer = ({
   const layerManagerRef = useContext(LayerManagerContext);
   const [isOpen, toggleOpen] = useToggle(false);
   const slider = useInput('opacity_slider', opacity_text);
-  const opacityInput = useUpdaterInput(id, opacity_text, v => {
+  const opacityInput = useUpdaterInput(id, opacity_text, (v) => {
     setOpacity(id, validateOpacity(v / 100));
   });
 
@@ -51,7 +51,7 @@ const Layer = ({
     [slider.value],
   );
 
-  var readyToDownload = (user.auth_token || subdomain);  
+  var readyToDownload = user.auth_token || subdomain;
 
   const fitMapToLayer = useCallback(() => {
     layerManagerRef.current.fitMapToLayer(id);
@@ -122,21 +122,18 @@ const Layer = ({
           type="button"
           data-name={name}
           className="btn-download icon-container panel-trasparecy-switcher"
+          // eslint-disable-next-line react/no-unknown-property
           attr="download"
-          title={
-            readyToDownload
-              ? 'Layers'
-              : 'Please login to enable download feature.'
-          }
-          onClick={event => {
-            if(readyToDownload){
+          title={readyToDownload ? 'Layers' : 'Please login to enable download feature.'}
+          onClick={(event) => {
+            if (readyToDownload) {
               DownloadWindow.show(download_url, name + ' - Layer', LayerGroupName);
-            }
-            else{
+            } else {
               LoginRequiredWindow.show();
             }
           }}
         >
+          {/* eslint-disable-next-line */}
           <svg className="icon icon-downloads" opacitylevel={opacity_text}>
             <use xlinkHref="#icon-downloads" />
           </svg>
@@ -161,6 +158,7 @@ const Layer = ({
             <input
               type="number"
               className="opacity-teller"
+              // eslint-disable-next-line react/no-unknown-property
               layer={id}
               {...opacityInput}
               min="0"

@@ -1,0 +1,135 @@
+name: Frontend CI/CD
+
+on:
+  push:
+    paths:
+      - 'frontend/**'
+      - ".github/workflows/frontend*"
+
+  workflow_dispatch:
+
+env:
+  NODE_ENV: production
+  PORT: 3000
+
+jobs:
+  testing-frontend-chrome:
+    name: Running frontend tests on Chrome
+    runs-on: ubuntu-22.04
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+    defaults:
+      run:
+        working-directory: ${{github.workspace}}/frontend
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version-file: 'frontend/.nvmrc'
+          cache: 'yarn'
+          cache-dependency-path: frontend/yarn.lock
+
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
+
+      - uses: actions/cache@v3
+        id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+      
+      - name: Install dependencies
+        run: yarn install --production=false --frozen-lockfile
+
+      - name: Cypress running on Chrome
+        uses: cypress-io/github-action@v5
+        with:
+          working-directory: frontend
+          install: false
+          build: yarn build
+          start: yarn start
+          headless: true
+          browser: chrome
+          wait-on: http://localhost:3000
+          config-file: cypress.config.js
+        env:
+          NEXT_PUBLIC_API_HOST: ${{ secrets.NEXT_PUBLIC_API_HOST }}
+          NEXT_PUBLIC_GOOGLE_ANALYTICS: ${{ secrets.NEXT_PUBLIC_GOOGLE_ANALYTICS }}
+          CI: false
+          # Recommended: pass the GitHub token lets this action correctly
+          # determine the unique run id necessary to re-run the checks
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/upload-artifact@v3
+        if: failure()
+        with:
+          name: cypress-screenshots
+          path: ${{github.workspace}}/frontend/cypress/screenshots
+  
+  testing-frontend-firefox:
+    name: Running frontend tests on Firefox
+    runs-on: ubuntu-22.04
+    timeout-minutes: 30
+    needs: testing-frontend-chrome
+    strategy:
+      fail-fast: false
+    defaults:
+      run:
+        working-directory: ${{github.workspace}}/frontend
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version-file: 'frontend/.nvmrc'
+          cache: 'yarn'
+          cache-dependency-path: frontend/yarn.lock
+
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
+
+      - uses: actions/cache@v3
+        id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+      
+      - name: Install dependencies
+        run: yarn install --production=false --frozen-lockfile
+
+      - name: Cypress running on Firefox
+        uses: cypress-io/github-action@v5
+        with:
+          working-directory: frontend
+          install: false
+          build: yarn build
+          start: yarn start
+          headless: true
+          browser: firefox
+          wait-on: http://localhost:3000
+          config-file: cypress.config.js
+        env:
+          NEXT_PUBLIC_API_HOST: ${{ secrets.NEXT_PUBLIC_API_HOST }}
+          NEXT_PUBLIC_GOOGLE_ANALYTICS: ${{ secrets.NEXT_PUBLIC_GOOGLE_ANALYTICS }}
+          CI: false
+          # Recommended: pass the GitHub token lets this action correctly
+          # determine the unique run id necessary to re-run the checks
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/upload-artifact@v3
+        if: failure()
+        with:
+          name: cypress-screenshots
+          path: ${{github.workspace}}/frontend/cypress/screenshots

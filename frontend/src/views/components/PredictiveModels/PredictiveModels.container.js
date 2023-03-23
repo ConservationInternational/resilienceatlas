@@ -6,7 +6,7 @@ import {
   resetIndicators,
   makeAll as makeAllModels,
   makeActive as makeActiveModel,
-} from '@modules/predictive_models';
+} from 'state/modules/predictive_models';
 
 import PredictiveModels from './PredictiveModels.component';
 
@@ -14,7 +14,7 @@ const makeMapStateToProps = () => {
   const getAllModels = makeAllModels();
   const getActiveModel = makeActiveModel();
 
-  const mapStateToProps = state => ({
+  const mapStateToProps = (state) => ({
     models: getAllModels(state),
     model: getActiveModel(state),
     indicatorsState: state.predictive_models.indicators_state,
@@ -33,7 +33,4 @@ const mapDispatchToProps = {
   resetIndicators,
 };
 
-export default connect(
-  makeMapStateToProps,
-  mapDispatchToProps,
-)(PredictiveModels);
+export default connect(makeMapStateToProps, mapDispatchToProps)(PredictiveModels);

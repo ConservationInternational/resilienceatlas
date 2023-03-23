@@ -2,13 +2,12 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import cx from 'classnames';
-import { RouteComponentProps } from 'react-router-dom';
 
-import Tabs from '@shared/Tabs';
-import LinkButton from '@shared/LinkButton';
-import CopyToClipboard from '@shared/CopyToClipboard';
+import Tabs from 'views/shared/Tabs';
+import LinkButton from 'views/shared/LinkButton';
+import CopyToClipboard from 'views/shared/CopyToClipboard';
 
-import { clickable } from '@utilities';
+import { clickable } from 'utilities';
 
 const TABS = {
   LINK: 'share-link',
@@ -16,14 +15,7 @@ const TABS = {
   OEMBED: 'share-oembed',
 };
 
-interface P extends RouteComponentProps {}
-
-interface S {
-  open: boolean;
-  tab: string;
-}
-
-export default class ShareModal extends Component<P, S> {
+export default class ShareModal extends Component {
   static show() {
     if (ShareModal.__instance) {
       ShareModal.__instance.__show();
@@ -56,7 +48,7 @@ export default class ShareModal extends Component<P, S> {
     this.setState({ open: false });
   };
 
-  switchTab = e => {
+  switchTab = (e) => {
     const { tab } = this.state;
     const newTab = e.currentTarget.dataset.tab;
 
@@ -84,23 +76,17 @@ export default class ShareModal extends Component<P, S> {
                 <h2>Share</h2>
 
                 <ul className="tabs tabs-secondary-content">
-                  <li
-                    className={cx('tab-title', { active: tab === TABS.LINK })}
-                  >
+                  <li className={cx('tab-title', { active: tab === TABS.LINK })}>
                     <LinkButton data-tab={TABS.LINK} onClick={this.switchTab}>
                       Link
                     </LinkButton>
                   </li>
-                  <li
-                    className={cx('tab-title', { active: tab === TABS.EMBED })}
-                  >
+                  <li className={cx('tab-title', { active: tab === TABS.EMBED })}>
                     <LinkButton data-tab={TABS.EMBED} onClick={this.switchTab}>
                       Embed
                     </LinkButton>
                   </li>
-                  <li
-                    className={cx('tab-title', { active: tab === TABS.OEMBED })}
-                  >
+                  <li className={cx('tab-title', { active: tab === TABS.OEMBED })}>
                     <LinkButton data-tab={TABS.OEMBED} onClick={this.switchTab}>
                       OEmbed
                     </LinkButton>
@@ -120,11 +106,7 @@ export default class ShareModal extends Component<P, S> {
                   <CopyToClipboard value={url} />
                 </Tabs.Pane>
 
-                <Tabs.Pane
-                  className="content"
-                  id="share-embed"
-                  name={TABS.EMBED}
-                >
+                <Tabs.Pane className="content" id="share-embed" name={TABS.EMBED}>
                   <p>Copy the embed code below to share it</p>
                   <CopyToClipboard
                     value={`<iframe frameborder="0" width="960" height="600" src="${url.replace(
@@ -134,16 +116,10 @@ export default class ShareModal extends Component<P, S> {
                   />
                 </Tabs.Pane>
 
-                <Tabs.Pane
-                  className="content"
-                  id="share-oembed"
-                  name={TABS.OEMBED}
-                >
+                <Tabs.Pane className="content" id="share-oembed" name={TABS.OEMBED}>
                   <p>Copy the oembed code below to share it</p>
                   <CopyToClipboard
-                    value={`${window.location.origin}/services/oembed/?url=${
-                      window.location.href
-                    }`}
+                    value={`${window.location.origin}/services/oembed/?url=${window.location.href}`}
                   />
                 </Tabs.Pane>
               </Tabs>
@@ -156,10 +132,7 @@ export default class ShareModal extends Component<P, S> {
                     rel="noopener noreferrer"
                   >
                     <svg className="icon">
-                      <use
-                        xmlnsXlink="https://www.w3.org/1999/xlink"
-                        xlinkHref="#icon-twitter"
-                      />
+                      <use xmlnsXlink="https://www.w3.org/1999/xlink" xlinkHref="#icon-twitter" />
                     </svg>
                   </a>
                 </div>
@@ -170,10 +143,7 @@ export default class ShareModal extends Component<P, S> {
                     rel="noopener noreferrer"
                   >
                     <svg className="icon">
-                      <use
-                        xmlnsXlink="https://www.w3.org/1999/xlink"
-                        xlinkHref="#icon-facebook"
-                      />
+                      <use xmlnsXlink="https://www.w3.org/1999/xlink" xlinkHref="#icon-facebook" />
                     </svg>
                   </a>
                 </div>
@@ -184,10 +154,7 @@ export default class ShareModal extends Component<P, S> {
                     rel="noopener noreferrer"
                   >
                     <svg className="icon">
-                      <use
-                        xmlnsXlink="https://www.w3.org/1999/xlink"
-                        xlinkHref="#icon-google"
-                      />
+                      <use xmlnsXlink="https://www.w3.org/1999/xlink" xlinkHref="#icon-google" />
                     </svg>
                   </a>
                 </div>

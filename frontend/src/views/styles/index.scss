@@ -2,15 +2,7 @@
 @import 'variables';
 
 // Importing dependencies and helpers
-@import '~normalize.css/normalize.css';
-
-@import '~slick-carousel/slick/slick.css';
-@import '~slick-carousel/slick/slick-theme.css';
-
-@import '~foundation-sites/scss/foundation';
-
-// @include foundation-flex-classes;
-// @include foundation-flex-grid;
+@import 'foundation-sites/scss/foundation';
 
 // Grid
 @include foundation-grid;

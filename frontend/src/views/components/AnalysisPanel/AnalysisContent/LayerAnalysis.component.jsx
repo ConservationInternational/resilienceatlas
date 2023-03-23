@@ -1,12 +1,7 @@
-import React, { FC } from 'react';
-import { WidgetBarChart } from '@shared/Widgets/WidgetBarChart';
+import React from 'react';
+import { WidgetBarChart } from 'views/shared/Widgets/WidgetBarChart';
 
-interface P {
-  activeLayers: Object[];
-  geojson: L.GeoJSON;
-}
-
-export const LayerAnalysis: FC<P> = ({
+export const LayerAnalysis = ({
   responsiveCharts,
   activeLayers,
   loaded,
@@ -14,10 +9,9 @@ export const LayerAnalysis: FC<P> = ({
   iso,
   countries,
 }) => {
-  if (activeLayers.length && !loaded)
-    return <center>Waiting until layers loaded...</center>;
+  if (activeLayers.length && !loaded) return <center>Waiting until layers loaded...</center>;
 
-  const analyzable = activeLayers.filter(l => l.analysisSuitable);
+  const analyzable = activeLayers.filter((l) => l.analysisSuitable);
 
   if (!activeLayers.length) {
     return <center>Please toggle some layers on to analyze them.</center>;
@@ -31,7 +25,7 @@ export const LayerAnalysis: FC<P> = ({
 
   return (
     <div className="analysis-content">
-      {analyzable.map(l => (
+      {analyzable.map((l) => (
         <WidgetBarChart
           key={l.slug}
           responsive={responsiveCharts}

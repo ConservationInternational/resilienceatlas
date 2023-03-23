@@ -13,12 +13,12 @@ export const RESET_INDICATORS = 'models / RESET_INDICATORS';
 export const APPLY_INDICATORS = 'models / APPLY_INDICATORS';
 
 // Actions
-export const select = id => ({
+export const select = (id) => ({
   type: SELECT,
   id,
 });
 
-export const toggleIndicator = index => ({
+export const toggleIndicator = (index) => ({
   type: TOGGLE_INDICATOR,
   index,
 });

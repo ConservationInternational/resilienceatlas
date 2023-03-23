@@ -2,7 +2,7 @@ import { connect } from 'react-redux';
 
 import Landing from './component';
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state) => ({
   landingInfo: state.journey.steps,
 });
 
