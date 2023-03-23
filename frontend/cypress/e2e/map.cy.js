@@ -2,11 +2,13 @@ describe('Map page', () => {
   beforeEach(() => {
     cy.interceptAllRequests();
     cy.visit('/map');
-    cy.wait('@siteRequest');
   });
 
   it('should have a map', () => {
-    cy.get('.wri_api__map-container.leaflet-container');
+    cy.wait('@siteRequest').then(({ response }) => {
+      cy.wrap(response.statusCode).should('be.oneOf', [200, 304]);
+      cy.get('.wri_api__map-container.leaflet-container');
+    });
   });
 });
 

@@ -2,7 +2,7 @@ import { subdomain } from 'utilities/getSubdomain';
 import api, { createApiAction } from '../../utils/api';
 import { layer, source } from '../../schema';
 
-// TO-DO: migrate
+// TODO: migrate
 // const URL_LAYERS = `/layers?lang=${window.currentLocation || 'en'}`;
 const URL_LAYERS = `/layers?lang=en`;
 

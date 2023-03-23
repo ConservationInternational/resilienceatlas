@@ -1,11 +1,11 @@
 describe('Journeys detail page', () => {
   beforeEach(() => {
-    cy.intercept('GET', '/api/journeys').as('journeysRequest');
-    cy.intercept('GET', '/api/journeys/*').as('journeyDetailRequest');
+    cy.interceptAllRequests();
+
     cy.visit('/journeys');
 
     // Navigate to the first journey detail
-    cy.wait('@journeysRequest').then(({ response }) => {
+    cy.wait('@journeyListRequest').then(({ response }) => {
       cy.wrap(response.statusCode).should('be.oneOf', [200, 304]);
       cy.get('.m-journey__gridelement').first().find('.btn').click();
     });
