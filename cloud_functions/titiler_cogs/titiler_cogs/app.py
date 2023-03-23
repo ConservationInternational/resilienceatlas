@@ -1,33 +1,26 @@
-import json
+import logging
+from mangum import Mangum
+from titiler.core.factory import TilerFactory
+from titiler.core.errors import DEFAULT_STATUS_CODES, add_exception_handlers
+
+from fastapi import FastAPI
+
+logging.getLogger("mangum.lifespan").setLevel(logging.ERROR)
+logging.getLogger("mangum.http").setLevel(logging.ERROR)
+
+app = FastAPI(title="Resilience COG tiler",
+              description="Cloud Optimized GeoTIFF")
+
+cog = TilerFactory()
+app.include_router(cog.router, tags=["Cloud Optimized GeoTIFF"])
+
+add_exception_handlers(app, DEFAULT_STATUS_CODES)
 
 
-def lambda_handler(event, context):
-    """Sample pure Lambda function
+@app.get("/healthz", description="Health Check", tags=["Health Check"])
+def ping():
+    """Health check."""
+    return {"ping": "pong!"}
 
-    Parameters
-    ----------
-    event: dict, required
-        API Gateway Lambda Proxy Input Format
 
-        Event doc: https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html#api-gateway-simple-proxy-for-lambda-input-format
-
-    context: object, required
-        Lambda Context runtime methods and attributes
-
-        Context doc: https://docs.aws.amazon.com/lambda/latest/dg/python-context-object.html
-
-    Returns
-    ------
-    API Gateway Lambda Proxy Output Format: dict
-
-        Return doc: https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html
-    """
-
-    return {
-        "statusCode": 200,
-        "body": json.dumps(
-            {
-                "message": "hello world",
-            }
-        ),
-    }
+handler = Mangum(app, lifespan="off")

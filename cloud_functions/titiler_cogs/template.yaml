@@ -6,39 +6,56 @@ Description: >
   Sample SAM Template for lambda-python3.9
 
 # More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
-Globals:
-  Function:
-    Timeout: 3
-    MemorySize: 128
-
 Resources:
-  HelloWorldFunction:
+  TitilerCogsFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Connectors:
+      BucketConn:
+        Properties:
+          Destination:
+            Id: resilience-atlas
+          Permissions:
+            - Read
     Properties:
       PackageType: Image
       Architectures:
         - x86_64
+      Description: 'Titiler: Dynamic tiler'
+      MemorySize: 1024
+      Timeout: 10
       Events:
-        HelloWorld:
-          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
-          Properties:
-            Path: /hello
-            Method: get
+        API:
+          Type: HttpApi
+      Environment:
+        Variables:
+          CPL_VSIL_CURL_ALLOWED_EXTENSIONS: '.tif,.TIF,.tiff'
+          GDAL_CACHEMAX: 200
+          GDAL_DISABLE_READDIR_ON_OPEN: EMPTY_DIR
+          GDAL_HTTP_MERGE_CONSECUTIVE_RANGES: YES
+          GDAL_HTTP_MULTIPLEX: YES
+          GDAL_HTTP_VERSION: 2
+          VSI_CACHE: TRUE
+          VSI_CACHE_SIZE: 536870912
+          CPL_VSIL_CURL_CACHE_SIZE: 200000000
+          GDAL_INGESTED_BYTES_AT_OPEN: 32768
+          TITILER_API_DISABLE_COG: !Ref DisableCOG
+          TITILER_API_DISABLE_STAC: !Ref DisableSTAC
+          TITILER_API_DISABLE_MOSAIC: !Ref DisableMosaic
     Metadata:
       Dockerfile: Dockerfile
-      DockerContext: ./hello_world
+      DockerContext: ./titiler_cogs
       DockerTag: python3.9-v1
 
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
   # Find out more about other implicit resources you can reference within SAM
   # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
-  HelloWorldApi:
+  TitilerCogsApi:
     Description: "API Gateway endpoint URL for Prod stage for Hello World function"
     Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/hello/"
-  HelloWorldFunction:
+  TitilerCogsFunction:
     Description: "Hello World Lambda Function ARN"
-    Value: !GetAtt HelloWorldFunction.Arn
-  HelloWorldFunctionIamRole:
+    Value: !GetAtt TitilerCogsFunction.Arn
+  TitilerCogsFunctionIamRole:
     Description: "Implicit IAM Role created for Hello World function"
-    Value: !GetAtt HelloWorldFunctionRole.Arn
+    Value: !GetAtt TitilerCogsFunctionRole.Arn
