@@ -6,7 +6,7 @@ set :repo_tree, "backend"
 set :branch, "master"
 
 set :linked_files, %w[.env]
-set :linked_dirs, %w[log tmp/pids tmp/cache tmp/sockets vendor/bundle public/system]
+set :linked_dirs, %w[log tmp/pids tmp/cache tmp/sockets vendor/bundle public/system public/storage public/uploads]
 
 set :deploy_to, "/home/ubuntu/resilienceatlas"
 
