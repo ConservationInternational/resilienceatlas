@@ -12,18 +12,11 @@ set :deploy_to, "/home/ubuntu/resilienceatlas"
 
 set :passenger_restart_with_touch, true
 
-set :nvm_type, :user
-set :nvm_node, "v13.7.0"
-set :nvm_map_bins, %w[node npm yarn]
-
 set :rbenv_type, :user # or :system, or :fullstaq (for Fullstaq Ruby), depends on your rbenv setup
 set :rbenv_ruby, "3.2.1"
-
 set :rbenv_prefix, "RBENV_ROOT=#{fetch(:rbenv_path)} RBENV_VERSION=#{fetch(:rbenv_ruby)} #{fetch(:rbenv_path)}/bin/rbenv exec"
 set :rbenv_map_bins, %w[rake gem bundle ruby rails]
 set :rbenv_roles, :all
-
-set :default_env, {path: "PATH=$PATH:/home/ubuntu/.nvm/versions/node/v13.7.0/bin"}
 
 namespace :deploy do
   after :restart, :clear_cache do
