@@ -77,7 +77,6 @@ jobs:
     name: Running frontend tests on Firefox
     runs-on: ubuntu-22.04
     timeout-minutes: 30
-    needs: e2e-chrome
     strategy:
       fail-fast: false
     defaults:
