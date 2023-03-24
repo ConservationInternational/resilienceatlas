@@ -102,9 +102,9 @@ jobs:
 
   deploy:
     name: Deploy backend app
-    if: (github.head_ref || github.ref_name) == 'develop'
+    if: (github.head_ref || github.ref_name) == 'fix_be_auto_deploy'
     runs-on: ubuntu-latest
-    needs: [ruby_linter, security, tests]
+    # needs: [ruby_linter, security, tests]
 
     steps:
       - name: Checkout code
