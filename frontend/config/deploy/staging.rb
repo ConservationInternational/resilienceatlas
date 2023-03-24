@@ -1,4 +1,4 @@
 server 'staging.resilienceatlas.org', user: 'ubuntu', roles: %w[web app db], primary: true
 
 set :node_env, 'production'
-set :branch, 'client/fix/deploying-capistrano'
+set :branch, 'develop'
