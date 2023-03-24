@@ -1,7 +1,9 @@
 # Install dependencies only when needed
 FROM node:18.15.0-bullseye AS deps
+RUN mkdir -p ~/.ssh && touch ~/.ssh/known_hosts
+RUN ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
+RUN git config --global url.http://github.com/.insteadOf ssh://git@github.com/
 WORKDIR /app
-COPY .yarn ./.yarn
 COPY package.json yarn.lock ./
 RUN yarn install --frozen-lockfile
 
