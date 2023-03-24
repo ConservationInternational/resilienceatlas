@@ -19,4 +19,4 @@ export const load = () =>
 export const loadOne = (id) =>
   STATIC_JOURNEYS
     ? api(LOAD_ONE, ({ get }) => get(`/static-journeys/${id}.json`, { baseURL: '/' }), { id })
-    : (id) => api(LOAD_ONE, ({ get }) => get(`${URL_JOURNEYS}/${id}`), { id });
+    : api(LOAD_ONE, ({ get }) => get(`${URL_JOURNEYS}/${id}`), { id });

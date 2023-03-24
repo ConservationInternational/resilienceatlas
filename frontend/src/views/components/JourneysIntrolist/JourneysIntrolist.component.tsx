@@ -19,7 +19,7 @@ type JourneysIntrolistProps = {
   loadJourneys: () => void;
 };
 
-const JourneysIntrolist: React.FC<StaticJourneysIntrolistProps | JourneysIntrolistProps> = ({
+const JourneysIntrolist: React.FC<JourneysIntrolistProps> = ({
   journeys,
   journeysLoaded,
   loadJourneys,
@@ -27,10 +27,12 @@ const JourneysIntrolist: React.FC<StaticJourneysIntrolistProps | JourneysIntroli
   useEffect(() => {
     if (!journeysLoaded) loadJourneys();
   }, [journeysLoaded, loadJourneys]);
-  if (!STATIC_JOURNEYS) {
-    return (
-      <ul className="m-journey__grid">
-        {journeys.map((journey, i: number) => {
+
+  return (
+    <ul className="m-journey__grid">
+      {journeys
+        .filter((journey) => journey.attributes.published)
+        .map((journey, i: number) => {
           const {
             attributes: {
               title,
@@ -69,9 +71,19 @@ const JourneysIntrolist: React.FC<StaticJourneysIntrolistProps | JourneysIntroli
             </li>
           );
         })}
-      </ul>
-    );
-  }
+    </ul>
+  );
+};
+
+const StaticJourneysIntrolist: React.FC<StaticJourneysIntrolistProps> = ({
+  journeys,
+  journeysLoaded,
+  loadJourneys,
+}) => {
+  useEffect(() => {
+    if (!journeysLoaded) loadJourneys();
+  }, [journeysLoaded, loadJourneys]);
+
   return (
     <ul className="m-journey__grid">
       {journeys.map((j, i) => (
@@ -102,4 +114,4 @@ const JourneysIntrolist: React.FC<StaticJourneysIntrolistProps | JourneysIntroli
   );
 };
 
-export default JourneysIntrolist;
+export default STATIC_JOURNEYS ? StaticJourneysIntrolist : JourneysIntrolist;
