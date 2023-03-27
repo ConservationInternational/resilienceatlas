@@ -98,6 +98,8 @@ const Embed = (props) => {
     mask_sql: maskSql,
     source,
     content,
+    title,
+    subtitle,
     currentStep,
     countryName,
     setActiveLayer,
@@ -149,7 +151,14 @@ const Embed = (props) => {
       <article className="side-bar">
         <div className="wrapper">
           <article>
-            <DangerousHTML html={content} />
+            <header>
+              <h2>{title}</h2>
+              <h3>{subtitle}</h3>
+            </header>
+            <section>
+              <h1>{countryName}</h1>
+              <DangerousHTML html={content} className="content" />
+            </section>
             {/* TODO: Review if source is rendered correctly */}
             {source}
             <Legend />
