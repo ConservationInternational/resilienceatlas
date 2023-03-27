@@ -36,13 +36,13 @@ Cypress.Commands.add('interceptAllRequests', () => {
   //   },
   //   disableRequestCache,
   // ).as('journeyListRequest');
-  // cy.intercept({ method: 'GET', url: '/static-journeys/1.json', middleware: true }, (req) => {
-  //   req.on('before:response', (res) => {
-  //     // force all API responses to not be cached
-  //     res.headers['cache-control'] = 'no-store';
-  //   });
-  // }).as('journeyDetailRequest');
   cy.intercept('/api/journeys', { middleware: true }, disableRequestCache).as('journeyListRequest');
+  cy.intercept({ method: 'GET', url: '/api/journeys/*', middleware: true }, (req) => {
+    req.on('before:response', (res) => {
+      // force all API responses to not be cached
+      res.headers['cache-control'] = 'no-store';
+    });
+  }).as('journeyDetailRequest');
 
   cy.intercept(
     { method: 'GET', url: '/api/layer-groups', middleware: true },
