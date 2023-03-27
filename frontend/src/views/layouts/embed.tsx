@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import cx from 'classnames';
 import { connect } from 'react-redux';
+import PrivacyBanner from 'views/components/PrivacyBanner';
 
 import { load as loadSite } from 'state/modules/site';
 
@@ -41,6 +42,7 @@ const EmbedPage: React.FC<EmbedPageProps> = ({ site, page, pageTitle, children, 
       <Head pageTitle={pageTitle} />
       <Icons />
       <div className="l-main--embed">{children}</div>
+      <PrivacyBanner />
     </div>
   );
 };
