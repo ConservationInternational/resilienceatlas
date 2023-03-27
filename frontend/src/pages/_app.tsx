@@ -11,7 +11,6 @@ import type { ReactElement, ReactNode } from 'react';
 import type { NextPage } from 'next';
 import type { AppProps } from 'next/app';
 import type { DehydratedState } from '@tanstack/react-query';
-import PrivacyBanner from 'views/components/PrivacyBanner';
 
 // Third-party styles
 import 'normalize.css/normalize.css';
@@ -127,7 +126,6 @@ const ResilienceApp = ({ Component, ...rest }: AppPropsWithLayout) => {
         <QueryClientProvider client={queryClient}>
           <Hydrate state={rest.pageProps.dehydratedState}>
             {getLayout(<Component {...rest.pageProps} />)}
-            <PrivacyBanner />
           </Hydrate>
         </QueryClientProvider>
       </ReduxProvider>

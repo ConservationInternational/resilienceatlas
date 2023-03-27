@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import cx from 'classnames';
 import { connect } from 'react-redux';
+import PrivacyBanner from 'views/components/PrivacyBanner';
 
 import { load as loadSite } from 'state/modules/site';
 
@@ -43,6 +44,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ site, page, pageTitle, children
       <Header />
       <div className="l-main-fullscreen">{children}</div>
       <Footer />
+      <PrivacyBanner />
     </div>
   );
 };
