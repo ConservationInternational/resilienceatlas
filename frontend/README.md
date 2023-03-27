@@ -38,6 +38,16 @@ Below is a description of each of the keys.
 | `NEXT_PUBLIC_API_HOST`         | Complete URL of the API server (including https) and without the trailing slask (e.g. https://www.resilienceatlas.org)                            |
 | `NEXT_PUBLIC_GOOGLE_ANALYTICS` | Optional − Google Analytics' measurement ID                                                                                                       |
 
+### How to update the environment variables
+
+Every time we update the environment variables, we need to update them in the following places:
+
+- For the Github actions scripts the environment variables are stored in the repository as GitHub secrets. In order to update them, you need to be an administrator of the repository. And also you need to update the environment variables in the GitHub actions scripts in the `.github/workflows/frontend_ci_cd.yml` file.
+- For the staging and production environments, the environment variables are stored in the server as environment variables. In order to update them, you need to be an administrator of the server. The environment variables are stored in the file `[project_path]/shared/.env.production`.
+- For the local environment, the environment variables are stored in the `.env.local` file.
+- Update the environment variables in the `README.md` file.
+- Finally, you have to update the environment variables in the `.env.example` file.
+
 ## CI/CD
 
 When a pull request (PR) is created, a GitHub action runs the tests (`yarn test`).
