@@ -118,11 +118,11 @@ const Journey: FC<JourneyProps> = ({
 
       {journeyLoaded && React.createElement(JOURNEY_TYPES[stepType], { ...attributes })}
 
-      <Controls journeysLength={journeysLength} slideslength={steps.data.length} />
+      <Controls journeysLength={journeysLength} slideslength={steps.length} />
 
       {!journeyLoading && stepType !== 'embed' && (
         <p className={`credits ${stepType}`}>
-          <a target="_blank" rel="noopener noreferrer" href={attributes.creditsUrl}>
+          <a target="_blank" rel="noopener noreferrer" href={attributes.credits_url}>
             {attributes.credits}
           </a>
         </p>

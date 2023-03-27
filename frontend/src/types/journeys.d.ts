@@ -27,9 +27,7 @@ export interface Relationships {
   journey_steps: JourneySteps;
 }
 
-export interface JourneySteps {
-  data: Datum[];
-}
+export type JourneySteps = Included[];
 
 export interface Datum {
   id: string;
