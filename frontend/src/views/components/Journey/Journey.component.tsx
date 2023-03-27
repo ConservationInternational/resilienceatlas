@@ -100,7 +100,6 @@ const Journey: FC<JourneyProps> = ({
   journeyLoading,
   journey,
 }) => {
-  console.log(journey);
   useEffect(() => {
     if (!journeyLoaded && currentJourney) loadJourney(currentJourney);
   }, [currentJourney, journeyLoaded, loadJourney]);
@@ -119,7 +118,7 @@ const Journey: FC<JourneyProps> = ({
 
       {journeyLoaded && React.createElement(JOURNEY_TYPES[stepType], { ...attributes })}
 
-      <Controls journeysLength={journeysLength} slideslength={steps.length} />
+      <Controls journeysLength={journeysLength} slideslength={steps.data.length} />
 
       {!journeyLoading && stepType !== 'embed' && (
         <p className={`credits ${stepType}`}>

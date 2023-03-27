@@ -31,6 +31,7 @@ const StaticEmbed = (props) => {
   useEffect(() => {
     if (!layersLoaded) loadLayers();
     if (!countriesLoaded) loadCountries();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -40,6 +41,7 @@ const StaticEmbed = (props) => {
     const layerDataIds = layerData.map((l) => l.id);
 
     setActiveLayer(layerDataIds);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mapUrl]);
   const countryInfo =
     countries.find((c) => c.name.toLowerCase() === countryName.toLowerCase()) || {};
