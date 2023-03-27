@@ -103,7 +103,9 @@
         "source": "Eum consequuntur adipisci non.",
         "mask_sql": "Eum consequuntur adipisci non.",
         "map_url": "http://lind.name/alana",
-        "embedded_map_url": "http://lind.name/alana"
+        "embedded_map_url": "http://lind.name/alana",
+        "title": "Eum consequuntur adipisci non.",
+        "subtitle": "Eum consequuntur adipisci non."
       }
     }
   ]
