@@ -1,15 +1,15 @@
 {
   "data": {
-    "id": "221",
+    "id": "177",
     "type": "journeys",
     "attributes": {
       "title": "Autem et et ex.",
       "subtitle": "Autem et et ex.",
       "theme": "Autem et et ex.",
       "background_image": {
-        "small": "http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBaW9EIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--e74aaa0a4f4a11e14e42db85a4f549730d1d6b6c/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERJd01IZ3lNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--7be8b6f6018bc25ae287d258d8836839fa7642f1/picture.jpg",
-        "medium": "http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBaW9EIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--e74aaa0a4f4a11e14e42db85a4f549730d1d6b6c/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERnd01IZzRNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--697714719ccce7b35c5f9a02aeef5bd517f3d81f/picture.jpg",
-        "original": "http://localhost:3000/rails/active_storage/blobs/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBaW9EIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--e74aaa0a4f4a11e14e42db85a4f549730d1d6b6c/picture.jpg"
+        "small": "http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBcklDIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--06037bdcdbb6a7834c8d005e9f71213a358b92c9/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERJd01IZ3lNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--7be8b6f6018bc25ae287d258d8836839fa7642f1/picture.jpg",
+        "medium": "http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBcklDIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--06037bdcdbb6a7834c8d005e9f71213a358b92c9/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERnd01IZzRNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--697714719ccce7b35c5f9a02aeef5bd517f3d81f/picture.jpg",
+        "original": "http://localhost:3000/rails/active_storage/blobs/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBcklDIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--06037bdcdbb6a7834c8d005e9f71213a358b92c9/picture.jpg"
       },
       "credits": "Autem et et ex.",
       "credits_url": "http://jacobson.biz/everett",
@@ -19,19 +19,19 @@
       "journey_steps": {
         "data": [
           {
-            "id": "487",
+            "id": "401",
             "type": "journey_steps"
           },
           {
-            "id": "490",
+            "id": "398",
             "type": "journey_steps"
           },
           {
-            "id": "493",
+            "id": "407",
             "type": "journey_steps"
           },
           {
-            "id": "496",
+            "id": "404",
             "type": "journey_steps"
           }
         ]
@@ -40,24 +40,7 @@
   },
   "included": [
     {
-      "id": "487",
-      "type": "journey_steps",
-      "attributes": {
-        "step_type": "landing",
-        "position": 25,
-        "title": "Et quaerat omnis veniam.",
-        "description": "Et quaerat omnis veniam.",
-        "credits": "Et quaerat omnis veniam.",
-        "credits_url": "http://hane.com/jules",
-        "background_image": {
-          "small": "http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBaDBEIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--0a2a2cf633208d8d7d79a1a3bfa8f32db2281f57/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERJd01IZ3lNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--7be8b6f6018bc25ae287d258d8836839fa7642f1/picture.jpg",
-          "medium": "http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBaDBEIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--0a2a2cf633208d8d7d79a1a3bfa8f32db2281f57/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERnd01IZzRNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--697714719ccce7b35c5f9a02aeef5bd517f3d81f/picture.jpg",
-          "original": "http://localhost:3000/rails/active_storage/blobs/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBaDBEIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--0a2a2cf633208d8d7d79a1a3bfa8f32db2281f57/picture.jpg"
-        }
-      }
-    },
-    {
-      "id": "490",
+      "id": "401",
       "type": "journey_steps",
       "attributes": {
         "step_type": "conclusion",
@@ -69,14 +52,46 @@
         "credits_url": "http://keebler.info/daine",
         "background_color": "#c2e0e0",
         "background_image": {
-          "small": "http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBaUVEIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--4f756b23277993a48254cd906641da7ffcfca343/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERJd01IZ3lNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--7be8b6f6018bc25ae287d258d8836839fa7642f1/picture.jpg",
-          "medium": "http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBaUVEIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--4f756b23277993a48254cd906641da7ffcfca343/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERnd01IZzRNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--697714719ccce7b35c5f9a02aeef5bd517f3d81f/picture.jpg",
-          "original": "http://localhost:3000/rails/active_storage/blobs/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBaUVEIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--4f756b23277993a48254cd906641da7ffcfca343/picture.jpg"
+          "small": "http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBcWtDIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--0eb69abd53a5fe05d5c57c1788eedfee00922025/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERJd01IZ3lNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--7be8b6f6018bc25ae287d258d8836839fa7642f1/picture.jpg",
+          "medium": "http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBcWtDIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--0eb69abd53a5fe05d5c57c1788eedfee00922025/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERnd01IZzRNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--697714719ccce7b35c5f9a02aeef5bd517f3d81f/picture.jpg",
+          "original": "http://localhost:3000/rails/active_storage/blobs/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBcWtDIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--0eb69abd53a5fe05d5c57c1788eedfee00922025/picture.jpg"
         }
       }
     },
     {
-      "id": "493",
+      "id": "398",
+      "type": "journey_steps",
+      "attributes": {
+        "step_type": "landing",
+        "position": 25,
+        "title": "Et quaerat omnis veniam.",
+        "description": "Et quaerat omnis veniam.",
+        "credits": "Et quaerat omnis veniam.",
+        "credits_url": "http://hane.com/jules",
+        "background_image": {
+          "small": "http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBcVVDIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--c76290d45c6e3c503497ff6ef0b426c3ddfad563/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERJd01IZ3lNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--7be8b6f6018bc25ae287d258d8836839fa7642f1/picture.jpg",
+          "medium": "http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBcVVDIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--c76290d45c6e3c503497ff6ef0b426c3ddfad563/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERnd01IZzRNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--697714719ccce7b35c5f9a02aeef5bd517f3d81f/picture.jpg",
+          "original": "http://localhost:3000/rails/active_storage/blobs/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBcVVDIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--c76290d45c6e3c503497ff6ef0b426c3ddfad563/picture.jpg"
+        }
+      }
+    },
+    {
+      "id": "407",
+      "type": "journey_steps",
+      "attributes": {
+        "step_type": "embed",
+        "position": 76,
+        "title": "Eum consequuntur adipisci non.",
+        "subtitle": "Eum consequuntur adipisci non.",
+        "content": "Eum consequuntur adipisci. Facere iure beatae. In odio reiciendis.",
+        "source": "Eum consequuntur adipisci non.",
+        "mask_sql": "Eum consequuntur adipisci non.",
+        "map_url": "http://lind.name/alana",
+        "embedded_map_url": "http://lind.name/alana"
+      }
+    },
+    {
+      "id": "404",
       "type": "journey_steps",
       "attributes": {
         "step_type": "chapter",
@@ -87,25 +102,10 @@
         "credits": "Impedit animi eveniet numquam.",
         "credits_url": "http://ritchie.com/jame",
         "background_image": {
-          "small": "http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBaVVEIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--288d8c142ad38cf474853a9e40c0e929ed1585dc/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERJd01IZ3lNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--7be8b6f6018bc25ae287d258d8836839fa7642f1/picture.jpg",
-          "medium": "http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBaVVEIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--288d8c142ad38cf474853a9e40c0e929ed1585dc/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERnd01IZzRNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--697714719ccce7b35c5f9a02aeef5bd517f3d81f/picture.jpg",
-          "original": "http://localhost:3000/rails/active_storage/blobs/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBaVVEIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--288d8c142ad38cf474853a9e40c0e929ed1585dc/picture.jpg"
+          "small": "http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBcTBDIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--9923325781851b5fb5c3ddcc71c4e9d95464ac25/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERJd01IZ3lNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--7be8b6f6018bc25ae287d258d8836839fa7642f1/picture.jpg",
+          "medium": "http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBcTBDIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--9923325781851b5fb5c3ddcc71c4e9d95464ac25/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERnd01IZzRNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--697714719ccce7b35c5f9a02aeef5bd517f3d81f/picture.jpg",
+          "original": "http://localhost:3000/rails/active_storage/blobs/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBcTBDIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--9923325781851b5fb5c3ddcc71c4e9d95464ac25/picture.jpg"
         }
-      }
-    },
-    {
-      "id": "496",
-      "type": "journey_steps",
-      "attributes": {
-        "step_type": "embed",
-        "position": 76,
-        "content": "Eum consequuntur adipisci. Facere iure beatae. In odio reiciendis.",
-        "source": "Eum consequuntur adipisci non.",
-        "mask_sql": "Eum consequuntur adipisci non.",
-        "map_url": "http://lind.name/alana",
-        "embedded_map_url": "http://lind.name/alana",
-        "title": "Eum consequuntur adipisci non.",
-        "subtitle": "Eum consequuntur adipisci non."
       }
     }
   ]
