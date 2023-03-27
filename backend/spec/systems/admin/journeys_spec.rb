@@ -74,6 +74,8 @@ RSpec.describe "Admin: Journeys", type: :system do
 
     it "shows embed journey step detail" do
       expect(page).to have_text(journey_step_embed.id)
+      expect(page).to have_text(journey_step_embed.title)
+      expect(page).to have_text(journey_step_embed.subtitle)
       expect(page).to have_text(ActionText::Content.new(journey_step_embed.content).to_plain_text)
       expect(page).to have_text(journey_step_embed.source)
       expect(page).to have_text(journey_step_embed.mask_sql)
@@ -115,6 +117,8 @@ RSpec.describe "Admin: Journeys", type: :system do
       click_on "Add New Journey step"
       all("fieldset.has-many-toggle-collapse").last.click
       select "embed", from: "journey[journey_steps_attributes][1][step_type]"
+      fill_in "journey[journey_steps_attributes][1][translations_attributes][0][title]", with: "New embed step title"
+      fill_in "journey[journey_steps_attributes][1][translations_attributes][0][subtitle]", with: "New embed step subtitle"
       fill_in_rich_text_area "journey[journey_steps_attributes][1][translations_attributes][0][content]", with: "New step content"
       fill_in "journey[journey_steps_attributes][1][translations_attributes][0][source]", with: "New step source"
       fill_in "journey[journey_steps_attributes][1][mask_sql]", with: "New step mask_sql"
@@ -135,6 +139,8 @@ RSpec.describe "Admin: Journeys", type: :system do
       expect(page).to have_text("New step credits")
       expect(page).to have_text("New credits")
       expect(page).to have_text("http://step-test.test")
+      expect(page).to have_text("New embed step title")
+      expect(page).to have_text("New embed step subtitle")
       expect(page).to have_text("New step content")
       expect(page).to have_text("New step source")
       expect(page).to have_text("New step mask_sql")
