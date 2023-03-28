@@ -8,6 +8,14 @@ GIT
       globalize (>= 3.1.0, < 7.0)
 
 GIT
+  remote: https://github.com/sportstech/sparkpost_rails.git
+  revision: 6af8ca3e32fe89f4b680dc9a2094d3a6860393fd
+  specs:
+    sparkpost_rails (1.5.5)
+      actionmailer (>= 4.0, < 8)
+      railties (>= 4.0, < 8)
+
+GIT
   remote: https://github.com/tsubik/rspec-request_snapshot.git
   revision: 86775ed811110a71df75605440ca41deae07cf26
   branch: fix/ignore-order
@@ -454,8 +462,6 @@ GEM
     seed_dump (3.3.1)
       activerecord (>= 4)
       activesupport (>= 4)
-    sendgrid (1.2.4)
-      json
     shrine (3.4.0)
       content_disposition (~> 1.0)
       down (~> 5.1)
@@ -580,10 +586,10 @@ DEPENDENCIES
   rswag-specs
   rubyzip
   seed_dump
-  sendgrid
   shrine
   simple_command
   slim-rails
+  sparkpost_rails!
   standard
   super_diff
   terser
