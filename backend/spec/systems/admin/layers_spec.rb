@@ -156,6 +156,16 @@ RSpec.describe "Admin: Layers", type: :system do
       expect(page).to have_text("New interaction_config")
       expect(page).to have_text("80")
     end
+
+    it "shows error when validation fails" do
+      select "cog", from: "layer[layer_provider]"
+      fill_in "layer[layer_config]", with: ""
+
+      click_on "Create Layer"
+
+      expect(page).to have_current_path(admin_layers_path)
+      expect(page).to have_text("can't be blank")
+    end
   end
 
   describe "#update" do

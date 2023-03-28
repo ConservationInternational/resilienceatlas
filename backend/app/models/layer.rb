@@ -104,7 +104,10 @@ class Layer < ApplicationRecord
   translates :name, :info, :legend, :title, :data_units, :processing, :description, fallbacks_for_empty_translations: true
   active_admin_translates :name, :info, :legend, :title, :data_units, :processing, :description
 
-  validates_presence_of :slug
+  validates_presence_of :slug, :layer_provider, :interaction_config
+  with_options if: -> { layer_provider == "cog" } do
+    validates_presence_of :layer_config
+  end
 
   scope :site, ->(site) {
                  eager_load([layer_groups: :super_group])

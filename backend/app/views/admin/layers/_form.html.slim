@@ -17,7 +17,7 @@
       = f.input :download
   = f.inputs "Configuration" do
     = f.inputs "Layer", class: "inputs select-dependency-container" do
-      = f.input :layer_provider, as: :select, collection: ["cartodb", "cog", "gee", "xyz tileset"], input_html: {class: "select-dependency-controller"}
+      = f.input :layer_provider, as: :select, collection: ["cartodb", "cog", "gee", "xyz tileset"], input_html: {class: "select-dependency-controller"}, required: true
       = f.input :query, wrapper_html: {class: "select-dependency-field", data: {available_for: %w[cartodb]}}
       = f.input :css, wrapper_html: {class: "select-dependency-field", data: {available_for: %w[cartodb]}}
       = f.input :opacity, wrapper_html: {class: "select-dependency-field", data: {available_for: %w[cartodb]}}
@@ -25,9 +25,9 @@
       = f.input :order, wrapper_html: {class: "select-dependency-field", data: {available_for: %w[cartodb]}}
       = f.input :zoom_max, wrapper_html: {class: "select-dependency-field", data: {available_for: %w[cartodb]}}
       = f.input :zoom_min, wrapper_html: {class: "select-dependency-field", data: {available_for: %w[cartodb]}}
-      = f.input :layer_config, wrapper_html: {class: "select-dependency-field", data: {available_for: ["xyz tileset", "gee", "cog"]}}
+      = f.input :layer_config, wrapper_html: {class: "select-dependency-field", data: {available_for: ["xyz tileset", "gee", "cog"], required_for: ["cog"]}}
     = f.inputs "Interactivity"
-      = f.input :interaction_config
+      = f.input :interaction_config, required: true
     = f.inputs "Analysis"
       = f.input :analysis_suitable, input_html: {data: {if: "checked", action: "show", target: ".analysis-query-input"}}
       = f.input :analysis_query, wrapper_html: {class: "analysis-query-input"}
