@@ -1,7 +1,8 @@
 import 'leaflet';
 import 'leaflet.pm';
 import 'leaflet-active-area';
-import 'leaflet-utfgrid/L.UTFGrid';
+// UTFGrid library requires corslite, only included in the minimized version
+import 'leaflet-utfgrid/L.UTFGrid-min';
 
 import React, { useCallback, useEffect, useContext } from 'react';
 import qs from 'qs';
