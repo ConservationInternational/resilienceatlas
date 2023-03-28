@@ -8,6 +8,14 @@ GIT
       globalize (>= 3.1.0, < 7.0)
 
 GIT
+  remote: https://github.com/sportstech/sparkpost_rails.git
+  revision: 6af8ca3e32fe89f4b680dc9a2094d3a6860393fd
+  specs:
+    sparkpost_rails (1.5.5)
+      actionmailer (>= 4.0, < 8)
+      railties (>= 4.0, < 8)
+
+GIT
   remote: https://github.com/tsubik/rspec-request_snapshot.git
   revision: 86775ed811110a71df75605440ca41deae07cf26
   branch: fix/ignore-order
@@ -278,6 +286,15 @@ GEM
       kaminari-core (= 1.2.2)
     kaminari-core (1.2.2)
     language_server-protocol (3.17.0.3)
+    launchy (2.5.2)
+      addressable (~> 2.8)
+    letter_opener (1.8.1)
+      launchy (>= 2.2, < 3)
+    letter_opener_web (2.0.0)
+      actionmailer (>= 5.2)
+      letter_opener (~> 1.7)
+      railties (>= 5.2)
+      rexml
     loofah (2.19.1)
       crass (~> 1.0.2)
       nokogiri (>= 1.5.9)
@@ -454,8 +471,6 @@ GEM
     seed_dump (3.3.1)
       activerecord (>= 4)
       activesupport (>= 4)
-    sendgrid (1.2.4)
-      json
     shrine (3.4.0)
       content_disposition (~> 1.0)
       down (~> 5.1)
@@ -564,6 +579,7 @@ DEPENDENCIES
   importmap-rails
   jbuilder
   jwt
+  letter_opener_web
   matrix
   pg
   prawn
@@ -580,10 +596,10 @@ DEPENDENCIES
   rswag-specs
   rubyzip
   seed_dump
-  sendgrid
   shrine
   simple_command
   slim-rails
+  sparkpost_rails!
   standard
   super_diff
   terser
