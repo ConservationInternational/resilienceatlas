@@ -32,7 +32,6 @@ export const useRouterParams = () => {
 
   const setParam = (param, value) => {
     params[param] = value;
-
     router.replace(
       {
         pathname,

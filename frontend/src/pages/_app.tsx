@@ -21,6 +21,7 @@ import 'leaflet/dist/leaflet.css';
 
 // Project styles
 import 'views/styles/index.scss';
+import { getRouterParam } from 'utilities';
 
 const { REACT_APP_TRANSIFEX_TOKEN } = process.env;
 
@@ -82,6 +83,8 @@ const ResilienceApp = ({ Component, ...rest }: AppPropsWithLayout) => {
     };
   }, [router.events]);
 
+  // Transifex
+
   useEffect(() => {
     tx.init({
       token: REACT_APP_TRANSIFEX_TOKEN,
@@ -90,6 +93,13 @@ const ResilienceApp = ({ Component, ...rest }: AppPropsWithLayout) => {
         : {}),
     });
   }, []);
+
+  const lang = getRouterParam('lang');
+
+  useEffect(() => {
+    // Used for initial render
+    tx.setCurrentLocale(lang);
+  }, [lang]);
 
   ga.useInitGAScript();
 

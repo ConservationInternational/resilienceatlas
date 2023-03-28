@@ -3,6 +3,7 @@ import { useRouter } from 'next/router';
 import Link from 'next/link';
 import cx from 'classnames';
 import { sortBy } from 'utilities';
+import LanguageSwitcher from 'views/components/LanguageSwitcher';
 
 const byPosition = sortBy('position');
 
@@ -94,6 +95,8 @@ const Header = ({
               </li>
             </>
           )}
+
+          <LanguageSwitcher />
         </ul>
 
         <ul className="nav-area -vital-sign">

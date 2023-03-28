@@ -54,7 +54,7 @@ export const useAxios = (config, deps, parseData) => {
           data: parseData ? parseData(data) : data,
         }),
       )
-      .catch((error) => console.log(error) || dispatch({ type: FETCH.FAIL, error }));
+      .catch((error) => console.warn(error) || dispatch({ type: FETCH.FAIL, error }));
 
     return () => {
       if (state.loading) {

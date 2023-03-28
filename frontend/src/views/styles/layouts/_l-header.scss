@@ -68,15 +68,16 @@
       background-size: contain;
       text-indent: -99999px;
 
-      .is-indicators &,
-      .is-atlas &,
-      .is-vs-theme & {
-        // background-image: image-url("logo-vs.png");
-      }
+      // TODO: Remove this?
+      // .is-indicators &,
+      // .is-atlas &,
+      // .is-vs-theme & {
+      //   // background-image: image-url("logo-vs.png");
+      // }
 
-      .is-ci-theme & {
-        // background-image: image-url("logo-ci.png");
-      }
+      // .is-ci-theme & {
+      //   // background-image: image-url("logo-ci.png");
+      // }
 
       &:hover {
         text-decoration: none;
@@ -112,6 +113,12 @@
       }
     }
 
+    .item-separator {
+      height: 20px;
+      border-left: 1px solid $gray-medium;
+      margin-right: rem(20px);
+    }
+
     > li {
       position: relative;
       display: flex;
@@ -124,6 +131,14 @@
 
       &:hover > ul {
         display: block;
+      }
+
+      &.language-switcher {
+        margin-left: 0;
+
+        .nav-item {
+          padding-left: 10px;
+        }
       }
 
       > ul {
@@ -198,7 +213,7 @@
       }
     }
 
-    a, button {
+    a, button, .nav-item {
       display: block;
       padding: rem(7px) rem(20px) rem(3px);
       color: var(--theme-color);
