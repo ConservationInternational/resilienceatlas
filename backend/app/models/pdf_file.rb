@@ -7,7 +7,6 @@ class PdfFile
     @site_name = site_name
   end
 
-  # rubocop:disable Security/Eval
   def generate_pdf_file
     Prawn::Document.generate(@pdf_file_path) do |pdf|
       # header
@@ -47,13 +46,13 @@ class PdfFile
         pdf.move_down(5)
         pdf.font_size 8
         pdf.text "Info: #{begin
-          eval(@layer["info"])[:description] # TODO: serious security risk!!!
+          JSON.parse(@layer["info"]).with_indifferent_access[:description]
         rescue
           @layer["info"]
         end}"
         pdf.move_down(5)
         pdf.text "Source: #{begin
-          eval(@layer["info"])[:source] # TODO: serious security risk!!!
+          JSON.parse(@layer["info"]).with_indifferent_access[:source]
         rescue
           @layer["info"]
         end}"
@@ -79,7 +78,6 @@ class PdfFile
       end
     end
   end
-  # rubocop:enable Security/Eval
 
   def generated_table_header(logo)
     image_file = Rails.root.join("app/assets/images/#{logo}")
