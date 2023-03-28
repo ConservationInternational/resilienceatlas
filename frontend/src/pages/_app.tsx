@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider, Hydrate } from '@tanstack/react-query
 import { wrapper } from 'state/store';
 import * as ga from 'utilities/ga';
 import { getToken, login } from 'state/modules/user';
+import { tx, PseudoTranslationPolicy } from '@transifex/native';
 
 import type { ReactElement, ReactNode } from 'react';
 import type { NextPage } from 'next';
@@ -20,6 +21,8 @@ import 'leaflet/dist/leaflet.css';
 
 // Project styles
 import 'views/styles/index.scss';
+
+const { REACT_APP_TRANSIFEX_TOKEN } = process.env;
 
 type ResilienceAppProps = {
   dehydratedState?: DehydratedState;
@@ -78,6 +81,15 @@ const ResilienceApp = ({ Component, ...rest }: AppPropsWithLayout) => {
       router.events.off('routeChangeComplete', handleRouteChange);
     };
   }, [router.events]);
+
+  useEffect(() => {
+    tx.init({
+      token: REACT_APP_TRANSIFEX_TOKEN,
+      ...(process.env.NODE_ENV === 'development'
+        ? { missingPolicy: new PseudoTranslationPolicy() }
+        : {}),
+    });
+  }, []);
 
   ga.useInitGAScript();
 

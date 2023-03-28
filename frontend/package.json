@@ -4,17 +4,23 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "next build && npm run transifex:push",
     "start": "next start",
     "test": "cypress run --headless --browser chrome",
     "lint": "next lint",
     "prettier": "prettier --config .prettierrc.json --check --write \"./src/**/*.{tsx,jsx,ts,js}\"",
-    "check-types": "tsc --noemit -p tsconfig.json"
+    "check-types": "tsc --noemit -p tsconfig.json",
+    "transifex:push": "dotenv cross-var ./node_modules/.bin/txjs-cli push src/ --token=%NEXT_PUBLIC_TRANSIFEX_TOKEN% --secret=%NEXT_PUBLIC_TRANSIFEX_SECRET%",
+    "transifex:purge": "dotenv cross-var npx txjs-cli push src/ --purge --token=%NEXT_PUBLIC_TRANSIFEX_TOKEN% --secret=%NEXT_PUBLIC_TRANSIFEX_SECRET%",
+    "transifex:refresh": "dotenv cross-var ./node_modules/.bin/txjs-cli invalidate --token=%NEXT_PUBLIC_TRANSIFEX_TOKEN% --secret=%NEXT_PUBLIC_TRANSIFEX_SECRET%"
   },
   "dependencies": {
     "@carto/carto.js": "4.2.2",
     "@tanstack/react-query": "^4.28.0",
+    "@transifex/native": "^5.2.0",
+    "@transifex/react": "^5.2.0",
     "axios": "^0.18.0",
+    "dotenv": "^16.0.3",
     "foundation-sites": "6.7.5",
     "leaflet": "1.4.0",
     "leaflet-active-area": "1.1.0",

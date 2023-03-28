@@ -1,6 +1,6 @@
 # Resilience Atlas - Front-end
 
-*This version is based on the repository: [https://github.com/ConservationInternational/resilienceatlas-react](https://github.com/ConservationInternational/resilienceatlas-react)*
+_This version is based on the repository: [https://github.com/ConservationInternational/resilienceatlas-react](https://github.com/ConservationInternational/resilienceatlas-react)_
 
 The front-end application of the Resilience Atlas platform is built using the following resources:
 
@@ -33,10 +33,12 @@ The application is configured via environment variables stored in a `.env` file 
 
 Below is a description of each of the keys.
 
-| Variable                       | Description                                                                                                                                       |
-|--------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------|
-| `NEXT_PUBLIC_API_HOST`         | Complete URL of the API server (including https) and without the trailing slask (e.g. https://www.resilienceatlas.org)                            |
-| `NEXT_PUBLIC_GOOGLE_ANALYTICS` | Optional − Google Analytics' measurement ID                                                                                                       |
+| Variable                       | Description                                                                                                            |
+| ------------------------------ | ---------------------------------------------------------------------------------------------------------------------- |
+| `NEXT_PUBLIC_API_HOST`         | Complete URL of the API server (including https) and without the trailing slask (e.g. https://www.resilienceatlas.org) |
+| `NEXT_PUBLIC_GOOGLE_ANALYTICS` | Optional − Google Analytics' measurement ID                                                                            |
+| `NEXT_PUBLIC_TRANSIFEX_TOKEN`  | Token needed for the transifex translation service                                                                     |
+| `NEXT_PUBLIC_TRANSIFEX_SECRET` | Secret needed for the transifex translation servic                                                                     |
 
 ### How to update the environment variables
 
@@ -47,6 +49,46 @@ Every time we update the environment variables, we need to update them in the fo
 - For the local environment, the environment variables are stored in the `.env.local` file.
 - Update the environment variables in the `README.md` file.
 - Finally, you have to update the environment variables in the `.env.example` file.
+
+## Translation
+
+The aplication is translated with the [transifex native](https://www.transifex.com/native/) service.
+
+## Initialization
+
+Transifex is initialized on the App.jsx file. A PseudoTranslationPolicy is provided on the development environment so we can see what translations are missing on the different languages directly on the platform on development.
+
+## Scripts
+
+There are three different scripts that use the transifex cli:
+
+`yarn transifex:push` Pushes the strings that are used in the code to transifex. This runs on every deploy
+`yarn transifex:refresh` Refreshes the strings translated on transifex to show them on develop. It can take a couple minutes to show the changes.
+`yarn transifex:purge` This command purges the strings on transifex so we only have the ones present on the code. The he strings no used anymore will be deleted.
+
+If the purge is not working correctly try to use it directly from terminal:
+
+`npx txjs-cli push src/ --purge --token=[TX TOKEN HERE] --secret=[TX SECRET HERE]`
+
+## Selecting the translation locale
+
+There is a language switcher component available on the menu.The locale is then retrieved on the App component to set the translation.
+
+## To translate strings
+
+The translation of strings will depend where is the string:
+
+### Strings inside Components
+
+For strings inside react components or containers its enough to use the useT hook or the T component
+
+```
+import { T } from '@transifex/react';
+
+const Component = () => {
+  return <T _str='Translated content n.{number}' _number={dynamic content inside the curly braces} _comment="Comment for the translators context if needed" />
+};
+```
 
 ## CI/CD
 
@@ -62,7 +104,7 @@ It is recommended to mention the Jira task ID either in commits or the branch na
 
 We are using Capistrano to deploy the application. So, in order to deploy the application, you need to have the following:
 
-* Ruby 3.2.1 (rbenv recommended)
+- Ruby 3.2.1 (rbenv recommended)
 
 And you can install the dependencies with:
 
