@@ -80,7 +80,7 @@ Rails.application.configure do
   # Do not dump schema after migrations.
   # config.active_record.dump_schema_after_migration = false
 
-  config.action_mailer.default_url_options = {host: "resilienceatlas.org"}
+  config.action_mailer.default_url_options = {host: URI.parse(ENV.fetch("BACKEND_URL")).host}
   config.action_mailer.delivery_method = :sparkpost
 
   # Store uploaded files on the local file system (see config/storage.yml for options).
