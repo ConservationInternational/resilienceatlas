@@ -23,7 +23,7 @@ import 'leaflet/dist/leaflet.css';
 import 'views/styles/index.scss';
 import { getRouterParam } from 'utilities';
 
-const { REACT_APP_TRANSIFEX_TOKEN } = process.env;
+const { NEXT_PUBLIC_TRANSIFEX_TOKEN } = process.env;
 
 type ResilienceAppProps = {
   dehydratedState?: DehydratedState;
@@ -87,7 +87,7 @@ const ResilienceApp = ({ Component, ...rest }: AppPropsWithLayout) => {
 
   useEffect(() => {
     tx.init({
-      token: REACT_APP_TRANSIFEX_TOKEN,
+      token: NEXT_PUBLIC_TRANSIFEX_TOKEN,
       ...(process.env.NODE_ENV === 'development'
         ? { missingPolicy: new PseudoTranslationPolicy() }
         : {}),

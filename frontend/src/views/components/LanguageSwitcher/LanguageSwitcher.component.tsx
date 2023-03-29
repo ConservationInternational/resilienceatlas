@@ -53,11 +53,11 @@ function LanguageSwitcher() {
                 changeLang(code);
               })
               .catch((error) => {
-                console.warn(
+                // eslint-disable-next-line no-console
+                console.error(
                   'TODO: Transifex is not initialized. Are the env variables set up?',
                   error,
                 );
-                changeLang(code);
               });
           }}
         >
