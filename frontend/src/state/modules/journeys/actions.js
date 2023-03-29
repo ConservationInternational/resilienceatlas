@@ -5,16 +5,18 @@ import { journey } from '../../schema';
 export const LOAD = createApiAction('journeys/LOAD');
 export const LOAD_ONE = createApiAction('journeys/LOAD_ONE');
 
+const URL_JOURNEYS = '/journeys';
+
+const STATIC_JOURNEYS = process.env.NEXT_PUBLIC_STATIC_JOURNEYS === 'true';
+
 export const load = () =>
-  api(LOAD, ({ get }) => get('/static-journeys/journeysPageIndex.json', { baseURL: '/' }), {
-    schema: [journey],
-  });
+  STATIC_JOURNEYS
+    ? api(LOAD, ({ get }) => get('/static-journeys/journeysPageIndex.json', { baseURL: '/' }), {
+        schema: [journey],
+      })
+    : api(LOAD, ({ get }) => get(URL_JOURNEYS), { schema: [journey] });
 
 export const loadOne = (id) =>
-  api(LOAD_ONE, ({ get }) => get(`/static-journeys/${id}.json`, { baseURL: '/' }), { id });
-
-// Recover these two fuctions when the backend is ready for journeys
-
-// const URL_JOURNEYS = '/journeys';
-// export const load = () => api(LOAD, ({ get }) => get(URL_JOURNEYS), { schema: [journey] });
-// export const loadOne = (id) => api(LOAD_ONE, ({ get }) => get(`${URL_JOURNEYS}/${id}`), { id });
+  STATIC_JOURNEYS
+    ? api(LOAD_ONE, ({ get }) => get(`/static-journeys/${id}.json`, { baseURL: '/' }), { id })
+    : api(LOAD_ONE, ({ get }) => get(`${URL_JOURNEYS}/${id}`), { id });
