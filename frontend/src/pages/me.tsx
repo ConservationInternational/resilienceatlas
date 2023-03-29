@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { Row } from 'react-foundation';
 import { useRouter } from 'next/router';
 import { connect } from 'react-redux';
+import { T } from '@transifex/react';
 
 import { isAuthenticated } from 'utilities/authenticated';
 import EditProfileForm from 'views/components/EditProfileForm';
@@ -23,13 +24,19 @@ const MePage: NextPageWithLayout = ({ user }) => {
       <Row>
         <div className="m-user-form">
           <h2>
-            Edit {user.first_name} {user.last_name}
+            <T
+              _str="Edit {first_name} {user.last_name}"
+              _first_name={user.first_name}
+              _last_name={user.last_name}
+            />
           </h2>
 
           <EditProfileForm />
 
           <Link href="/profile-settings">
-            <a>Manage account</a>
+            <a>
+              <T _str="Manage account" />
+            </a>
           </Link>
         </div>
       </Row>

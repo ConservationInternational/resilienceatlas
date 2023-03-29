@@ -4,6 +4,7 @@ import Link from 'next/link';
 import cx from 'classnames';
 import { sortBy } from 'utilities';
 import LanguageSwitcher from 'views/components/LanguageSwitcher';
+import { T } from '@transifex/react';
 
 const byPosition = sortBy('position');
 
@@ -40,7 +41,9 @@ const Header = ({
         <ul className="brand-area">
           <li>
             <Link href="/">
-              <a>Resilience Atlas</a>
+              <a>
+                <T _str="Resilience Atlas"></T>
+              </a>
             </Link>
           </li>
         </ul>
@@ -48,13 +51,17 @@ const Header = ({
         <ul className="nav-area -resilience">
           <li className="journey-link">
             <Link href="/journeys">
-              <a className={cx(pathname.includes('/journeys') && 'is-current')}>Journeys</a>
+              <a className={cx(pathname.includes('/journeys') && 'is-current')}>
+                <T _str="Journeys" />
+              </a>
             </Link>
           </li>
 
           <li>
             <Link href="/map">
-              <a className={cx(pathname.includes('/map') && 'is-current')}>Map</a>
+              <a className={cx(pathname.includes('/map') && 'is-current')}>
+                <T _str="Map" />
+              </a>
             </Link>
 
             <ul>{menuItems.sort(byPosition).map(renderMenuItem)}</ul>
@@ -62,7 +69,9 @@ const Header = ({
 
           <li>
             <Link href="/about">
-              <a className={cx(pathname.includes('/about') && 'is-current')}>About</a>
+              <a className={cx(pathname.includes('/about') && 'is-current')}>
+                <T _str="About" />
+              </a>
             </Link>
           </li>
 
@@ -70,13 +79,15 @@ const Header = ({
             <>
               <li>
                 <Link href="/me">
-                  <a className={cx(pathname.includes('/me') && 'is-current')}>Me</a>
+                  <a className={cx(pathname.includes('/me') && 'is-current')}>
+                    <T _str="Me" />
+                  </a>
                 </Link>
               </li>
 
               <li>
                 <button type="button" onClick={logout}>
-                  Logout
+                  <T _str="Logout" />
                 </button>
               </li>
             </>
@@ -84,13 +95,17 @@ const Header = ({
             <>
               <li>
                 <Link href="/login">
-                  <a className={cx(pathname.includes('/login') && 'is-current')}>Login</a>
+                  <a className={cx(pathname.includes('/login') && 'is-current')}>
+                    <T _str="Login" />
+                  </a>
                 </Link>
               </li>
 
               <li>
                 <Link href="/register">
-                  <a className={cx(pathname.includes('/register') && 'is-current')}>Register</a>
+                  <a className={cx(pathname.includes('/register') && 'is-current')}>
+                    <T _str="Register" />
+                  </a>
                 </Link>
               </li>
             </>
@@ -107,7 +122,7 @@ const Header = ({
               rel="noopener noreferrer"
               className="theme-color link-back"
             >
-              {linkback_text || 'Go back to vital signs'}
+              {linkback_text || <T _str="Go back to vital signs" />}
             </a>
           </li>
         </ul>

@@ -7,6 +7,7 @@ import { useRouterParams } from 'utilities';
 import cx from 'classnames';
 
 const AVAILABLE_LANGUAGES = ['en', 'fr', 'es', 'zh', 'pt', 'ru'];
+// Don't translate these
 const LANGUAGE_LABELS = {
   zh: '中文',
   en: 'English',

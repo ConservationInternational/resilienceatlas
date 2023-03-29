@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect } from 'react';
 import cx from 'classnames';
 import { useRouter } from 'next/router';
+import { T } from '@transifex/react';
 
 import AnalysisPanel from 'views/components/AnalysisPanel';
 import LayersList from 'views/components/LayersList';
@@ -13,8 +14,8 @@ import Tabs from 'views/shared/Tabs';
 import { useRouterParams } from 'utilities';
 
 export const TABS = {
-  LAYERS: 'layers',
-  MODELS: 'models',
+  LAYERS: <T _str="layers" />,
+  MODELS: <T _str="models" />,
 };
 
 const Sidebar = ({
@@ -26,8 +27,6 @@ const Sidebar = ({
   tab,
   opened,
   analysisOpened,
-  models,
-  modelsLoaded,
   site,
 }) => {
   const router = useRouter();
@@ -37,6 +36,7 @@ const Sidebar = ({
     if (router.isReady && tab) {
       setParam('tab', tab);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router.isReady, tab]);
 
   const switchTab = useCallback(
@@ -45,6 +45,7 @@ const Sidebar = ({
         setTab(newTab);
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [tab],
   );
 
@@ -76,7 +77,7 @@ const Sidebar = ({
             <Tabs.Pane
               id="layersListView"
               className="m-layers-list content"
-              title="Layers"
+              title={<T _str="Layers" />}
               name={TABS.LAYERS}
             >
               <LayersList />
@@ -86,7 +87,7 @@ const Sidebar = ({
               <Tabs.Pane
                 id="modelContent"
                 className="m-model-content content"
-                title="Predictive models"
+                title={<T _str="Predictive models" />}
                 name={TABS.MODELS}
               >
                 <PredictiveModels />
@@ -95,43 +96,56 @@ const Sidebar = ({
           </Tabs>
 
           <div className="sidebar-logo">
-            <p className="site-title">
-              <a
-                href="http://www.resilienceatlas.org/"
-                target="_blank"
-                rel="noopener noreferrer"
-                title="Resilience Atlas"
-              >
-                Resilience Atlas
-              </a>
+            <T
+              _str="{resilience_atlas} {by} {conservation_international}"
+              _resilience_atlas={
+                <p className="site-title">
+                  <a
+                    href="http://www.resilienceatlas.org/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title="Resilience Atlas"
+                  >
+                    <T _str="Resilience Atlas" />
+                  </a>
+                </p>
+              }
+              _by={
+                <p className="site-title-by">
+                  <T _str="by" _comment="{resilience_atlas} {by} {conservation_international}" />
+                </p>
+              }
+              _conservation_international={
+                <a
+                  className="brand-area"
+                  href="http://www.conservation.org/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title="Conservation International"
+                >
+                  <T _str="Conservation International" />
+                </a>
+              }
+            />
+            <p className="site-copyright">
+              © <T _str="2016 Conservation International" />
             </p>
-            <p className="site-title-by">by</p>
-            <a
-              className="brand-area"
-              href="http://www.conservation.org/"
-              target="_blank"
-              rel="noopener noreferrer"
-              title="Conservation International"
-            >
-              Conservation International
-            </a>
-            <p className="site-copyright">© 2016 Conservation International</p>
           </div>
         </div>
         <button
           className="btn-sidebar-toggle"
           type="button"
           onClick={toggleOpen}
-          aria-label="Toggle sidebar"
+          aria-label={<T _str="Toggle sidebar" />}
         />
         {site.has_analysis && (
           <button
             className="btn-analysis-panel-expand"
             type="button"
             onClick={toggleAnalysis}
-            aria-label="Expand analysis panel"
+            aria-label={<T _str="Expand analysis panel" />}
           >
-            Analysis
+            <T _str="Analysis" />
           </button>
         )}
         <LogoAttribution />

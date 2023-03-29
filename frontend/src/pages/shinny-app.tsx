@@ -1,4 +1,5 @@
 import MainLayout from 'views/layouts/main';
+import { T } from '@transifex/react';
 
 import type { NextPageWithLayout } from './_app';
 
@@ -6,7 +7,9 @@ const ShinnyAppPage: NextPageWithLayout = () => (
   <div className="l-content">
     <div className="l-journey__index" id="journeyIndexView">
       <div className="m-journey__title">
-        <h1>Shinny App</h1>
+        <h1>
+          <T _str="Shinny App" />
+        </h1>
       </div>
 
       <div>
