@@ -98,7 +98,7 @@ const Sidebar = ({
           <div className="sidebar-logo">
             <T
               _str="{resilience_atlas} {by} {conservation_international}"
-              _resilience_atlas={
+              resilience_atlas={
                 <p className="site-title">
                   <a
                     href="http://www.resilienceatlas.org/"
@@ -110,12 +110,12 @@ const Sidebar = ({
                   </a>
                 </p>
               }
-              _by={
+              by={
                 <p className="site-title-by">
                   <T _str="by" _comment="{resilience_atlas} {by} {conservation_international}" />
                 </p>
               }
-              _conservation_international={
+              conservation_international={
                 <a
                   className="brand-area"
                   href="http://www.conservation.org/"

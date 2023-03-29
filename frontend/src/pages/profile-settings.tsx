@@ -24,9 +24,9 @@ const ProfileSettingsPage: NextPageWithLayout = ({ user }) => {
         <div className="m-user-form">
           <h2>
             <T
-              _str="Edit {first_name} {user.last_name}"
-              _first_name={user.first_name}
-              _last_name={user.last_name}
+              _str="Edit {first_name} {last_name}"
+              first_name={user.first_name}
+              last_name={user.last_name}
             />
           </h2>
           <ProfileSettingsForm />

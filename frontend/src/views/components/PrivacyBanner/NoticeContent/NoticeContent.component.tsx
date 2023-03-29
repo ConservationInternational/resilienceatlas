@@ -17,7 +17,7 @@ const NoticeContent: FC = ({}) => {
         cookies are active by default to ensure you get the best experience. Please read our {cookiePolicy} to learn more."
           _comment="We use cookies for analytics, personalization, and marketing purposes. Only essential
         cookies are active by default to ensure you get the best experience. Please read our {cookiePolicy} to learn more."
-          _cookiePolicy={
+          cookiePolicy={
             <a
               href="https://www.conservation.org/about/our-policies/cookie-policy"
               title="cookie policy"

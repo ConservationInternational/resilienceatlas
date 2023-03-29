@@ -23,7 +23,7 @@ const Footer: React.FC = () => (
       <p className="credits">
         <T
           _str="A website designed by {vizzuality}"
-          _vizzuality={
+          vizzuality={
             <a
               href="http://www.vizzuality.com/"
               className="vizz-logo"

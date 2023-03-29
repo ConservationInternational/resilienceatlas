@@ -86,7 +86,7 @@ For strings inside react components or containers its enough to use the useT hoo
 import { T } from '@transifex/react';
 
 const Component = () => {
-  return <T _str='Translated content n.{number}' _number={dynamic content inside the curly braces} _comment="Comment for the translators context if needed" />
+  return <T _str='Translated content n.{number}' number={dynamic content inside the curly braces} _comment="Comment for the translators context if needed" />
 };
 ```
 

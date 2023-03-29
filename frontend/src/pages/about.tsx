@@ -80,7 +80,7 @@ const AboutPage: NextPageWithLayout = () => {
               </h2>
               <p>
                 <T
-                  _str="{Resilience} refers to the ability of a
+                  _str="{resilience} refers to the ability of a
                 socio-ecological system to withstand, respond to, and adapt to stresses and shocks.
                 While most of us have an intuitive understanding of resilience, the term also has
                 technical meanings. Resilience often is conceptualized and approached differently by
@@ -89,7 +89,7 @@ const AboutPage: NextPageWithLayout = () => {
                 there are surprisingly few quantitative, integrative, multi-scale and data-driven
                 analyses to inform resilience thinking and, particularly, the design of
                 interventions and investments to promote resilience."
-                  _resilience={
+                  resilience={
                     <span className="italic">
                       <T
                         _str="Resilience"
@@ -168,7 +168,7 @@ const AboutPage: NextPageWithLayout = () => {
                 different types of wealth and assets promote or diminish the resilience of systems
                 to specific stressors and shocks. To follow this framework, we suggest a 3-step
                 approach to gain insights when using RESILIENCE ATLAS."
-                  _carpenter_et_al={
+                  carpenter_et_al={
                     <a href="#McCarthy" className="link">
                       <T
                         _str="(Carpenter et al. 2001)"
@@ -189,7 +189,7 @@ const AboutPage: NextPageWithLayout = () => {
                       _str="Decide what {geography} and theme are of interest:
                     within a particular geography, which livelihood, production system, or ecosystem
                     is of interest and what how is it distributed?"
-                      _geography={
+                      geography={
                         <span className="italic">
                           <T
                             _str="geography"
@@ -211,7 +211,7 @@ const AboutPage: NextPageWithLayout = () => {
                     types of stressors, how chronic are they and which acute shocks affect these
                     systems? What is the extent of exposure and the magnitude of the stress or
                     shock?"
-                      _exposure={
+                      exposure={
                         <span className="italic">
                           <T
                             _str="exposure"
@@ -223,7 +223,7 @@ const AboutPage: NextPageWithLayout = () => {
                           />
                         </span>
                       }
-                      _stressors_and_shocks={
+                      stressors_and_shocks={
                         <span className="italic">
                           <T
                             _str="stressors and shocks:"
@@ -245,7 +245,7 @@ const AboutPage: NextPageWithLayout = () => {
                       _str="Consider {vulnerability} how do different types of wealth and assets, i.e., natural capital, human
                     capital, social capital, financial capital and manufactured capital, increase or
                     decrease the resilience of the system to these stressors and shocks?"
-                      _vulnerability={
+                      vulnerability={
                         <span className="italic">
                           <T
                             _str="vulnerability:"
@@ -266,7 +266,7 @@ const AboutPage: NextPageWithLayout = () => {
                 insights into the resilience of particular systems and places. The journeys
                 demonstrate how to use the RESILIENCE ATLAS analytical tool and database to arrive
                 at insights, and hopefully will stimulate you to explore the data further."
-                  _journeys={
+                  journeys={
                     <Link href="/journeys">
                       <a>
                         <T
@@ -284,7 +284,7 @@ const AboutPage: NextPageWithLayout = () => {
                 <T
                   _str="Take a look through the data {map}, don’t be overwhelmed, and start creating your own journeys and generating your own
                 insights."
-                  _map={
+                  map={
                     <Link href="/map">
                       <a>
                         <T
@@ -508,7 +508,7 @@ const AboutPage: NextPageWithLayout = () => {
               <p>
                 <T
                   _str="For Terms of Use, please see {terms_url}"
-                  _terms_url={
+                  terms_url={
                     <a
                       href="http://www.conservation.org/Pages/terms.aspx"
                       target="_blank"
@@ -537,7 +537,7 @@ const AboutPage: NextPageWithLayout = () => {
                 <T
                   _str="Source information for each dataset in RESILIENCE ATLAS is available via the
                 metadata link that accompanies each layer on the {main_map_page}."
-                  _main_map={
+                  main_map={
                     <Link href="/map">
                       <a>
                         <T
@@ -574,7 +574,7 @@ const AboutPage: NextPageWithLayout = () => {
                 <T
                   _str="{resilience} The ability to withstand, respond and adapt both in advance and in response to
                 stresses and shocks"
-                  _resilience={
+                  resilience={
                     <span className="italic">
                       <T
                         _str="Resilience:"
@@ -589,7 +589,7 @@ const AboutPage: NextPageWithLayout = () => {
                 <T
                   _str="{exposure} The extent of contact with a stressor or
                   shock"
-                  _exposure={
+                  exposure={
                     <span className="italic">
                       <T
                         _str="Exposure: "
@@ -607,7 +607,7 @@ const AboutPage: NextPageWithLayout = () => {
                   pressure or perturbation that causes a disturbance to a socio-ecological system.
                   Stressors may affect the structure, function and/or controls in a system. They may
                   be discrete or continuous, as well as cumulative."
-                  _stressor={
+                  stressor={
                     <span className="italic">
                       <T
                         _str="Stressor: "
@@ -621,7 +621,7 @@ const AboutPage: NextPageWithLayout = () => {
               <p>
                 <T
                   _str="{shock} A sudden stressful event (e.g., a tsunami)."
-                  _shock={
+                  shock={
                     <span className="italic">
                       <T
                         _str="Shock: "
@@ -636,17 +636,17 @@ const AboutPage: NextPageWithLayout = () => {
                   _str="{vulnerability} The degree to which a geophysical or
                   socio-ecological system is susceptible to harm, has the capacity to adapt to or is
                   unable to cope with the impacts of stressors and shocks ({mc_arthy_et_al} {adger})."
-                  _mc_arthy_et_al={
+                  mc_arthy_et_al={
                     <a href="#McCarthy" className="link">
                       McCarthy et al.
                     </a>
                   }
-                  _adger={
+                  adger={
                     <a href="#adger" className="link">
                       2001; Adger 2006
                     </a>
                   }
-                  _vulnerability={
+                  vulnerability={
                     <span className="italic">
                       <T
                         _str="Vulnerability: "
