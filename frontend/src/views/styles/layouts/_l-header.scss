@@ -135,9 +135,24 @@
 
       &.language-switcher {
         margin-left: 0;
+        max-width: 180px;
+
+        ul {
+          max-width: 150px;
+        }
 
         .nav-item {
           padding-left: 10px;
+        }
+
+        .language-item {
+          padding: 0;
+        }
+
+        .language-button {
+          padding: 10px 30px 10px 10px;
+          width: 100%;
+          text-align: left;
         }
       }
 

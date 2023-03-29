@@ -44,7 +44,7 @@ function LanguageSwitcher() {
   const _availablelanguages = mockAvailableLanguages || availableLanguages;
   const renderLanguageSwitcher = () =>
     _availablelanguages.map(({ code }, index) => (
-      <li key={code} className="-childless">
+      <li key={code} className="language-item -childless">
         <button
           type="button"
           className={cx(
