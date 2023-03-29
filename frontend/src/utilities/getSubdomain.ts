@@ -1,4 +1,4 @@
-import { PORT, isProd } from '../state/utils/api';
+import { isProd } from '../state/utils/api';
 import { getRouterParam } from './routeParams';
 
 export const getSubdomainFromURL = (url: string): string => {
@@ -19,7 +19,7 @@ export const getSubdomain = (): string => {
   const siteScope = getRouterParam('site_scope');
   if (siteScope && !isProd) return siteScope;
   // Site scope depends on the domain set in the API
-  const subdomain = getSubdomainFromURL(PORT);
+  const subdomain = getSubdomainFromURL(window.location.hostname);
   return subdomain;
 };
 
