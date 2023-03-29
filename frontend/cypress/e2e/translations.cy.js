@@ -8,9 +8,8 @@ describe('Journeys index page', () => {
     cy.get('.language-switcher').find('li').should('have.length', 6);
   });
 
-  it('should change language url on click', () => {
-    cy.get('.language-switcher').trigger('mouseover');
-    cy.get('.language-switcher .-childless button').eq(1).click({ force: true });
-    cy.url({ decode: true }).should('contain', 'fr');
+  it('should show the language string for the selected language on the selector', () => {
+    cy.visit('/?lang=fr');
+    cy.get('.language-switcher .nav-item').should('contain', 'Français');
   });
 });
