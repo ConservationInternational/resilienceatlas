@@ -7,6 +7,7 @@ import { useRouterParams } from 'utilities';
 import cx from 'classnames';
 
 const AVAILABLE_LANGUAGES = ['en', 'fr', 'es', 'zh', 'pt', 'ru'];
+
 // Don't translate these
 const LANGUAGE_LABELS = {
   zh: '中文',
@@ -17,10 +18,15 @@ const LANGUAGE_LABELS = {
   es: 'Castellano',
 };
 
-// TODO: Set ts type for languages
+type Language = {
+  code: string;
+  localized_name: string;
+  name: string;
+  rtl: boolean;
+};
 
 function LanguageSwitcher() {
-  const languages = useLanguages();
+  const languages: Language[] = useLanguages();
   const { setParam } = useRouterParams();
   const changeLang = (code: (typeof AVAILABLE_LANGUAGES)[number]) => {
     setParam('lang', code);
@@ -29,10 +35,11 @@ function LanguageSwitcher() {
   const mockAvailableLanguages = AVAILABLE_LANGUAGES.map((l) => ({
     code: l,
   }));
-  const availableLanguages = useMemo(
+  const availableLanguages = useMemo<Language[]>(
     () => languages.filter((l) => AVAILABLE_LANGUAGES.includes(l.code)),
     [languages],
   );
+
   const locale = useLocale();
   const _availablelanguages = mockAvailableLanguages || availableLanguages;
   const renderLanguageSwitcher = () =>
