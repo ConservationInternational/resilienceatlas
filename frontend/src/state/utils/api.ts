@@ -8,8 +8,6 @@ import { merge } from 'utilities/helpers';
 export const isProd = process.env.NODE_ENV === 'production';
 
 export const PORT = process.env.NEXT_PUBLIC_API_HOST;
-// uncomment this line to see map layers quickly for local testing
-// export const PORT = 'https://staging.resilienceatlas.org';
 
 const defaultConfig = {
   baseURL: `${PORT}/api`,
