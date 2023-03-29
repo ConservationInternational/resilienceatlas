@@ -62,6 +62,9 @@ jobs:
         env:
           NEXT_PUBLIC_API_HOST: ${{ secrets.NEXT_PUBLIC_API_HOST }}
           NEXT_PUBLIC_GOOGLE_ANALYTICS: ${{ secrets.NEXT_PUBLIC_GOOGLE_ANALYTICS }}
+          NEXT_PUBLIC_TRANSIFEX_TOKEN: ${{ secrets.NEXT_PUBLIC_TRANSIFEX_TOKEN }}
+          NEXT_PUBLIC_TRANSIFEX_SECRET: ${{ secrets.NEXT_PUBLIC_TRANSIFEX_SECRET }}
+
           CI: false
           # Recommended: pass the GitHub token lets this action correctly
           # determine the unique run id necessary to re-run the checks
