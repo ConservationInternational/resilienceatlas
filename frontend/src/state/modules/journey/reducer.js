@@ -9,6 +9,8 @@ const initialState = {
   error: null,
 };
 
+const STATIC_JOURNEYS = process.env.NEXT_PUBLIC_STATIC_JOURNEYS === 'true';
+
 export default createReducer(initialState)({
   [LOAD_JOURNEY.REQUEST]: (state, { meta: { id } }) => ({
     ...state,
@@ -19,7 +21,7 @@ export default createReducer(initialState)({
 
   [LOAD_JOURNEY.SUCCESS]: (state, { payload, meta: { id } }) => ({
     ...state,
-    data: payload.data[0],
+    data: STATIC_JOURNEYS ? payload.data[0] : { ...payload.data, steps: payload.included },
     loding: false,
     loaded: id,
   }),

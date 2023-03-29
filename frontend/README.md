@@ -39,6 +39,7 @@ Below is a description of each of the keys.
 | `NEXT_PUBLIC_GOOGLE_ANALYTICS` | Optional − Google Analytics' measurement ID                                                                            |
 | `NEXT_PUBLIC_TRANSIFEX_TOKEN`  | Token needed for the transifex translation service                                                                     |
 | `NEXT_PUBLIC_TRANSIFEX_SECRET` | Secret needed for the transifex translation servic                                                                     |
+| `NEXT_PUBLIC_STATIC_JOURNEYS`  | Optional − Temporary - Static journey API different from the Backend one but used on production                        |
 
 ### How to update the environment variables
 

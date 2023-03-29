@@ -14,57 +14,78 @@ describe('Journeys detail page', () => {
   it('should correspond to the API response', () => {
     cy.wait('@journeyDetailRequest').then(({ response }) => {
       cy.wrap(response.statusCode).should('be.oneOf', [200, 304]);
-
-      const { id, steps } = response.body[0];
+      const {
+        included: steps,
+        data: { id },
+      } = response.body;
 
       steps.forEach((step, stepIndex) => {
-        cy.log(`Testing step with index ${stepIndex} and type "${step.type}"`);
+        const {
+          step_type: type,
+          title,
+          subtitle,
+          description,
+          map_url: btnUrl,
+          content,
+        } = step.attributes;
+
+        cy.log(`Testing step with index ${stepIndex} and type "${type}"`);
 
         cy.url().should('include', `/journeys/${id}/step/${stepIndex + 1}`);
 
-        const expectedUrl = step.type === 'embed' ? step.btnUrl : null;
+        const expectedUrl = type === 'embed' ? btnUrl : null;
 
-        switch (step.type) {
+        switch (type) {
           case 'landing':
-            cy.get('.l-journey__intro .intro > h1')
-              .first()
-              .contains(step.title, { matchCase: false });
+            cy.get('.l-journey__intro .intro > h1').first().contains(title, { matchCase: false });
             cy.get('.l-journey__intro .intro > h3')
               .first()
-              .contains(step.theme, { matchCase: false });
+              .contains(description, { matchCase: false });
             break;
 
           case 'conclusion':
-            cy.get('.l-journey h2').first().contains(step.title, { matchCase: false });
+            cy.get('.l-journey h2').first().contains(title, { matchCase: false });
 
-            if (step.subtitle) {
-              cy.get('.l-journey h3').first().contains(step.subtitle, { matchCase: false });
+            if (subtitle) {
+              cy.get('.l-journey h3').first().contains(subtitle, { matchCase: false });
             }
 
             cy.get('.l-journey h3 + div')
               .first()
               .should(($div) => {
                 const node = document.createElement('div');
-                node.innerHTML = step.content;
+                node.innerHTML = content;
                 expect($div).to.have.text(node.textContent);
               });
             break;
 
           case 'chapter':
-            cy.get('.l-journey .chapter-intro h1')
-              .first()
-              .contains(step.title, { matchCase: false });
+            cy.get('.l-journey .chapter-intro h1').first().contains(title, { matchCase: false });
             cy.get('.l-journey .chapter-intro p')
               .first()
-              .contains(step.content, { matchCase: false });
+              .contains(description, { matchCase: false });
             break;
 
           case 'embed':
-            cy.get('.l-journey .side-bar article > div')
+            cy.get('.l-journey .side-bar article .content > div')
               .first()
               .should(($div) => {
                 const node = document.createElement('div');
-                node.innerHTML = step.aside;
+                node.innerHTML = content;
+                expect($div).to.have.text(node.textContent);
+              });
+            cy.get('.l-journey .side-bar article h2')
+              .first()
+              .should(($div) => {
+                const node = document.createElement('div');
+                node.innerHTML = title;
+                expect($div).to.have.text(node.textContent);
+              });
+            cy.get('.l-journey .side-bar article h3')
+              .first()
+              .should(($div) => {
+                const node = document.createElement('div');
+                node.innerHTML = subtitle;
                 expect($div).to.have.text(node.textContent);
               });
             cy.get('.l-journey .btn-check-it')
@@ -74,7 +95,7 @@ describe('Journeys detail page', () => {
             break;
 
           default:
-            throw new Error(`No test for the "${step.type}" journey step`);
+            throw new Error(`No test for the "${type}" journey step`);
         }
 
         if (stepIndex + 1 < steps.length) {
