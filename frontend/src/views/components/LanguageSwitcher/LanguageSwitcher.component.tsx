@@ -68,7 +68,7 @@ function LanguageSwitcher() {
               });
           }}
         >
-          {code}
+          {LANGUAGE_LABELS[code]}
         </button>
       </li>
     ));
