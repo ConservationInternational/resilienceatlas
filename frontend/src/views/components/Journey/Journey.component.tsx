@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-
+import Head from 'next/head';
 // Components
 import Loader from 'views/shared/Loader';
 
@@ -12,7 +12,7 @@ import Chapter from './Chapter';
 import type { FC } from 'react';
 import type { WithRouterProps } from 'next/dist/client/with-router';
 import type { JourneyDetail as StaticJourneyDetail } from 'types/static-journeys';
-import type { JourneyDetail } from 'types/journeys';
+import type { JourneyItem } from 'types/journeys';
 
 type StaticJourneyProps = WithRouterProps & {
   // Actions
@@ -39,7 +39,7 @@ type JourneyProps = WithRouterProps & {
   journeysLength: number;
   journeyLoaded: boolean;
   journeyLoading: boolean;
-  journey: JourneyDetail;
+  journey: JourneyItem;
 };
 
 const JOURNEY_TYPES = {
@@ -103,9 +103,9 @@ const Journey: FC<JourneyProps> = ({
   useEffect(() => {
     if (!journeyLoaded && currentJourney) loadJourney(currentJourney);
   }, [currentJourney, journeyLoaded, loadJourney]);
-
-  const { steps } = journey;
   const stepIndex = Number(step) - 1;
+  const { steps, attributes: journeyAttributes } = journey;
+  const { published } = journeyAttributes || {};
 
   if (!journeyLoaded || !journey || !steps[stepIndex]) return null;
   const stepInfo = steps[stepIndex];
@@ -113,21 +113,28 @@ const Journey: FC<JourneyProps> = ({
   const { attributes } = stepInfo;
   const { step_type: stepType } = attributes;
   return (
-    <div className="l-journey" id="journeyIndexView">
-      <Loader loading={journeyLoading} />
+    <>
+      <Head>
+        {published === false && (
+          <meta name="robots" content="noindex, nofollow, noimageindex, noarchive" />
+        )}
+      </Head>
+      <div className="l-journey" id="journeyIndexView">
+        <Loader loading={journeyLoading} />
 
-      {journeyLoaded && React.createElement(JOURNEY_TYPES[stepType], { ...attributes })}
+        {journeyLoaded && React.createElement(JOURNEY_TYPES[stepType], { ...attributes })}
 
-      <Controls journeysLength={journeysLength} slideslength={steps.length} />
+        <Controls journeysLength={journeysLength} slideslength={steps.length} />
 
-      {!journeyLoading && stepType !== 'embed' && (
-        <p className={`credits ${stepType}`}>
-          <a target="_blank" rel="noopener noreferrer" href={attributes.credits_url}>
-            {attributes.credits}
-          </a>
-        </p>
-      )}
-    </div>
+        {!journeyLoading && stepType !== 'embed' && (
+          <p className={`credits ${stepType}`}>
+            <a target="_blank" rel="noopener noreferrer" href={attributes.credits_url}>
+              {attributes.credits}
+            </a>
+          </p>
+        )}
+      </div>
+    </>
   );
 };
 
