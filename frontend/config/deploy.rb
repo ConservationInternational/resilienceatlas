@@ -78,7 +78,7 @@ namespace :deploy do
   task :push_translations do
     on roles(:app) do
       within release_path do
-        execute :yarn, 'transifex:push'
+        execute :yarn, 'transifex:push:prod'
       end
     end
   end

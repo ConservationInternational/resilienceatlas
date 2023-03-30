@@ -10,9 +10,11 @@
     "lint": "next lint",
     "prettier": "prettier --config .prettierrc.json --check --write \"./src/**/*.{tsx,jsx,ts,js}\"",
     "check-types": "tsc --noemit -p tsconfig.json",
-    "transifex:push": "dotenv cross-var ./node_modules/.bin/txjs-cli push src/ --token=%NEXT_PUBLIC_TRANSIFEX_TOKEN% --secret=%NEXT_PUBLIC_TRANSIFEX_SECRET%",
-    "transifex:purge": "dotenv cross-var ./node_modules/.bin/txjs-cli push src/ --purge --token=%NEXT_PUBLIC_TRANSIFEX_TOKEN% --secret=%NEXT_PUBLIC_TRANSIFEX_SECRET%",
-    "transifex:refresh": "dotenv cross-var ./node_modules/.bin/txjs-cli invalidate --token=%NEXT_PUBLIC_TRANSIFEX_TOKEN% --secret=%NEXT_PUBLIC_TRANSIFEX_SECRET%"
+    "transifex:push": "dotenv -e .env.local ./node_modules/.bin/txjs-cli push src/",
+    "transifex:push:prod": "dotenv -e .env.production ./node_modules/.bin/txjs-cli push src/",
+    "transifex:purge": "dotenv -e .env.local ./node_modules/.bin/txjs-cli push src/ --purge",
+    "transifex:purge:prod": "dotenv -e .env.production ./node_modules/.bin/txjs-cli push src/ --purge",
+    "transifex:refresh": "dotenv -e env.local ./node_modules/.bin/txjs-cli invalidate"
   },
   "dependencies": {
     "@carto/carto.js": "4.2.2",
@@ -20,7 +22,6 @@
     "@transifex/native": "^5.2.0",
     "@transifex/react": "^5.2.0",
     "axios": "^0.18.0",
-    "cross-var": "^1.1.0",
     "dotenv": "^16.0.3",
     "dotenv-cli": "^7.1.0",
     "foundation-sites": "6.7.5",
@@ -61,6 +62,7 @@
     "yup": "^0.27.0"
   },
   "devDependencies": {
+    "@transifex/cli": "^5.2.0",
     "@types/leaflet": "^1.4.4",
     "@types/leaflet-draw": "^0.4.14",
     "@types/node": "18.14.6",

@@ -38,7 +38,9 @@ Below is a description of each of the keys.
 | `NEXT_PUBLIC_API_HOST`         | Complete URL of the API server (including https) and without the trailing slask (e.g. https://www.resilienceatlas.org) |
 | `NEXT_PUBLIC_GOOGLE_ANALYTICS` | Optional − Google Analytics' measurement ID                                                                            |
 | `NEXT_PUBLIC_TRANSIFEX_TOKEN`  | Token needed for the transifex translation service                                                                     |
-| `NEXT_PUBLIC_TRANSIFEX_SECRET` | Secret needed for the transifex translation servic                                                                     |
+| `NEXT_PUBLIC_TRANSIFEX_SECRET` | Secret needed for the transifex translation service                                                                    |
+| `TRANSIFEX_SECRET`             | Copy of the secret to use on the CLI                                                                                   |
+| `TRANSIFEX_TOKEN`              | Copy of the token to use on the CLI                                                                                    |
 | `NEXT_PUBLIC_STATIC_JOURNEYS`  | Optional − Temporary - Static journey API different from the Backend one but used on production                        |
 
 ### How to update the environment variables
@@ -61,11 +63,14 @@ Transifex is initialized on the App.jsx file. A PseudoTranslationPolicy is provi
 
 ## Scripts
 
+Important: The scripts use the TRANSIFEX_TOKEN and TRANSIFEX_SECRET which should be a copy of NEXT_PUBLIC_TRANSIFEX_TOKEN and NEXT_PUBLIC_TRANSIFEX_SECRET and present on the correspondant env file.
 There are three different scripts that use the transifex cli:
 
-`yarn transifex:push` Pushes the strings that are used in the code to transifex. This runs on every deploy
+`yarn transifex:push` Pushes the strings that are used in the code to transifex.
+`yarn transifex:push:prod` Pushes the strings that are used in the code to transifex using the production env. This runs on the production deploy
 `yarn transifex:refresh` Refreshes the strings translated on transifex to show them on develop. It can take a couple minutes to show the changes.
-`yarn transifex:purge` This command purges the strings on transifex so we only have the ones present on the code. The he strings no used anymore will be deleted.
+`yarn transifex:purge` This command purges the strings on transifex so we only have the ones present on the code. The strings no used anymore will be deleted.
+`yarn transifex:purge:prod` This command purges the strings on transifex so we only have the ones present on the code. The strings no used anymore will be deleted. This uses the production env.
 
 If the purge is not working correctly try to use it directly from terminal:
 
