@@ -1,7 +1,7 @@
 import React, { Fragment, useEffect, useMemo } from 'react';
 import qs from 'qs';
 import Loader from 'views/shared/Loader';
-
+import { T } from '@transifex/react';
 import { useRouterParams } from 'utilities';
 
 import Indicator from './Indicator';
@@ -24,6 +24,7 @@ const PredictiveModels = ({
 
   useEffect(() => {
     if (!modelsLoaded) loadModels();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -42,6 +43,7 @@ const PredictiveModels = ({
         ),
       );
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [model, indicatorsState]);
 
   const hasChanged = useMemo(
@@ -63,12 +65,12 @@ const PredictiveModels = ({
       <div className="model-selector">
         <select
           className="js-model-selector"
-          aria-label="Select a model"
+          aria-label={<T _str="Select a model" />}
           value={selectedModel || 'default'}
           onChange={(e) => select(e.currentTarget.value)}
         >
           <option disabled value="default">
-            Select a model
+            <T _str="Select a model" />
           </option>
           {models.map(({ id, name }) => (
             <option key={id} value={id}>
@@ -103,7 +105,7 @@ const PredictiveModels = ({
           className="btn btn-small -secondary"
           onClick={resetIndicators}
         >
-          Reset
+          <T _str="Reset" />
         </button>
         <button
           type="button"
@@ -111,7 +113,7 @@ const PredictiveModels = ({
           className="btn btn-small -primary"
           onClick={applyIndicators}
         >
-          Apply
+          <T _str="Apply" />
         </button>
       </div>
     </div>
