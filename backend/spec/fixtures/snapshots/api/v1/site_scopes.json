@@ -1,0 +1,62 @@
+{
+  "data": [
+    {
+      "id": "1",
+      "type": "site_scopes",
+      "attributes": {
+        "name": "CIGRP",
+        "color": "#ffdbdb",
+        "subdomain": "voluptatem",
+        "has_analysis": true,
+        "latitude": -14.936039153536683,
+        "longitude": -29.872078307073366,
+        "header_theme": "Enim repellat pariatur est.",
+        "zoom_level": 38,
+        "linkback_text": "Enim repellat pariatur. Earum modi eos. Libero tempora exercitationem.",
+        "linkback_url": "http://kutch-spencer.com/moises",
+        "header_color": "#ffdbdb",
+        "logo_url": "http://kutch-spencer.com/moises",
+        "predictive_model": true,
+        "analysis_options": true,
+        "analytics_code": null,
+        "has_gef_logo": null
+      },
+      "relationships": {
+        "site_pages": {
+          "data": [
+
+          ]
+        }
+      }
+    },
+    {
+      "id": "2",
+      "type": "site_scopes",
+      "attributes": {
+        "name": "Otha Kemmer",
+        "color": "#eaf1ea",
+        "subdomain": "cum",
+        "has_analysis": true,
+        "latitude": -11.520917614439327,
+        "longitude": -23.041835228878654,
+        "header_theme": "Placeat commodi libero et.",
+        "zoom_level": 41,
+        "linkback_text": "Placeat commodi libero. Quo recusandae repellat. Sunt commodi tempore.",
+        "linkback_url": "http://bartoletti.com/jeremiah_cronin",
+        "header_color": "#eaf1ea",
+        "logo_url": "http://bartoletti.com/jeremiah_cronin",
+        "predictive_model": true,
+        "analysis_options": true,
+        "analytics_code": null,
+        "has_gef_logo": null
+      },
+      "relationships": {
+        "site_pages": {
+          "data": [
+
+          ]
+        }
+      }
+    }
+  ]
+}

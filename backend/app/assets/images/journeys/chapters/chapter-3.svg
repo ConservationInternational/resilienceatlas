@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="1280px" height="765px" viewBox="0 0 1280 765" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns">
+    <!-- Generator: Sketch 3.3 (11970) - http://www.bohemiancoding.com/sketch -->
+    <title>3</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <path d="M0,75 L1280,75 L1280,848 L0,848 L0,75 Z M551.820006,848 C566.027919,818.076313 574.045765,782.961115 574.045765,742.061615 C574.045765,637.376771 519.855964,573.334278 422.560638,543.776204 C503.84534,517.91289 548.182451,445.249292 548.182451,361.501416 C548.182451,285.143059 505.076927,213.711048 441.034434,175.53187 C385.613046,143.510623 308.023102,127.5 245.212196,127.5 C149.07557,127.5 62.4141287,156.356244 7.10542736e-15,213.814041 L0,388.419939 L114.664037,407.070113 C123.285142,350.417139 161.464321,309.774788 219.348882,309.774788 C267.380751,309.774788 309.254689,338.101275 309.254689,388.596317 C309.254689,416.922805 294.475652,442.786119 268.612338,455.101983 C247.675369,464.954674 208.264604,463.723088 184.864462,463.723088 L114.664037,463.723088 L114.664037,641.07153 L200.875085,641.07153 C227.969986,641.07153 266.149165,638.608357 288.31772,653.387394 C311.717862,669.398017 328.960071,697.724504 328.960071,726.050992 C328.960071,786.398725 278.465029,814.725212 224.275227,814.725212 C152.843216,814.725212 108.506105,766.693343 99.8850005,698.956091 L-2.84217094e-14,711.790476 L0,848 L551.820006,848 L551.820006,848 Z" id="path-1"></path>
+    </defs>
+    <g id="Journey-real" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" sketch:type="MSPage">
+        <g id="Journey_10" sketch:type="MSArtboardGroup" transform="translate(0.000000, -75.000000)">
+            <g id="3">
+                <use fill="none" sketch:type="MSShapeGroup" xlink:href="#path-1"></use>
+                <use fill="none" xlink:href="#path-1"></use>
+                <use fill="#FFFFFF" fill-rule="evenodd" xlink:href="#path-1"></use>
+                <use fill="none" xlink:href="#path-1"></use>
+                <use fill="none" xlink:href="#path-1"></use>
+                <use fill="none" xlink:href="#path-1"></use>
+            </g>
+        </g>
+    </g>
+</svg>

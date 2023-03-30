@@ -1,0 +1,141 @@
+{
+  "data": [
+    {
+      "id": "4",
+      "type": "indicators",
+      "attributes": {
+        "name": "voluptatem",
+        "slug": "Category-1",
+        "version": "voluptatem",
+        "position": 38,
+        "column_name": "voluptatem",
+        "operation": "voluptatem"
+      },
+      "relationships": {
+        "models": {
+          "data": [
+
+          ]
+        },
+        "category": {
+          "data": {
+            "id": "4",
+            "type": "categories"
+          }
+        }
+      }
+    },
+    {
+      "id": "5",
+      "type": "indicators",
+      "attributes": {
+        "name": "cum",
+        "slug": "Category-2",
+        "version": "cum",
+        "position": 41,
+        "column_name": "cum",
+        "operation": "cum"
+      },
+      "relationships": {
+        "models": {
+          "data": [
+
+          ]
+        },
+        "category": {
+          "data": {
+            "id": "5",
+            "type": "categories"
+          }
+        }
+      }
+    },
+    {
+      "id": "6",
+      "type": "indicators",
+      "attributes": {
+        "name": "molestiae",
+        "slug": "Category-3",
+        "version": "molestiae",
+        "position": 25,
+        "column_name": "molestiae",
+        "operation": "molestiae"
+      },
+      "relationships": {
+        "models": {
+          "data": [
+
+          ]
+        },
+        "category": {
+          "data": {
+            "id": "6",
+            "type": "categories"
+          }
+        }
+      }
+    }
+  ],
+  "included": [
+    {
+      "id": "4",
+      "type": "categories",
+      "attributes": {
+        "name": "voluptatem",
+        "slug": "Category-1",
+        "description": "Enim repellat pariatur. Earum modi eos. Libero tempora exercitationem."
+      },
+      "relationships": {
+        "indicators": {
+          "data": [
+            {
+              "id": "4",
+              "type": "indicators"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "5",
+      "type": "categories",
+      "attributes": {
+        "name": "cum",
+        "slug": "Category-2",
+        "description": "Placeat commodi libero. Quo recusandae repellat. Sunt commodi tempore."
+      },
+      "relationships": {
+        "indicators": {
+          "data": [
+            {
+              "id": "5",
+              "type": "indicators"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "6",
+      "type": "categories",
+      "attributes": {
+        "name": "molestiae",
+        "slug": "Category-3",
+        "description": "Et quaerat omnis. Harum voluptas atque. Quo nesciunt voluptas."
+      },
+      "relationships": {
+        "indicators": {
+          "data": [
+            {
+              "id": "6",
+              "type": "indicators"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "meta": {
+    "total_indicators": 3
+  }
+}

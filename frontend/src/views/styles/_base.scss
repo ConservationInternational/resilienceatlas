@@ -1,0 +1,109 @@
+// Must be 100% for off canvas to work
+html,
+body,
+#root {
+  height: 100%;
+}
+
+// Set box-sizing globally to handle padding and border widths
+*,
+*:before,
+*:after {
+  box-sizing: border-box;
+}
+
+// Default global styles
+html,
+body,
+#root {
+  font-size: $base-font-size;
+  background-color: $white;
+
+  // @extend %clear-scroll-bars;
+}
+
+// Default body styles
+body {
+  position: relative;
+  padding: 0;
+  margin: 0;
+
+  color: $font-color-1;
+  font-family: $font-face-1;
+  font-weight: 500;
+  font-style: normal;
+  line-height: $base-line-height;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  background: $bg-color-1;
+}
+
+// Links
+a {
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+p {
+  line-height: 1.2em;
+}
+
+input:focus {
+  outline: none;
+}
+
+select {
+  width: 100%;
+}
+
+[type='button'] {
+  cursor: pointer;
+}
+
+//Normalize gives an overflow: hidden which
+//makes some svg items seams cut in Firefox...
+svg:not(:root) {
+  overflow: visible !important;
+}
+
+img {
+  max-width: 100%;
+}
+
+[role='button'] {
+  outline: none;
+}
+
+.row {
+  width: 100%;
+}
+
+// Provide theme colors from backend through css variables
+
+.theme-color,
+.m-static-page a {
+  color: var(--theme-color) !important;
+}
+
+.theme-bg-color {
+  background-color: var(--theme-color) !important;
+}
+
+.l-header-nav {
+  background-color: var(--header-color, $bg-color-1);
+}
+
+.brand-area a {
+  background-image: var(--logo-url);
+}
+
+// Buttons
+[type='button'],
+[type='submit'] {
+  cursor: pointer;
+}

@@ -1,0 +1,13 @@
+doctype html
+
+html lang="#{I18n.locale}"
+  head
+    title = @site_name || "Resilience Atlas | #{controller_name}"
+    = render :partial => "head"
+    = stylesheet_link_tag "application", media: "all"
+    = javascript_importmap_tags "application"
+    = csrf_meta_tags
+
+  body class="is-#{controller_name}-page is-#{@subdomain}"
+    .l-main-fullscreen
+      == yield

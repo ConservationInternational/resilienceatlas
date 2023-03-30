@@ -1,0 +1,45 @@
+.m-journey--landing {
+  @extend %journey !optional;
+
+  .row {
+    z-index: 1;
+  }
+
+  .intro {
+    @extend %center;
+    text-align: center;
+
+    h1 {
+      color: $font-color-3;
+      text-transform: uppercase;
+      font-size: rem(144px);
+      font-family: $font-face-2;
+      font-weight: 400;
+      margin: 0;
+      line-height: 0.4em;
+      text-shadow: 0 1px 1px rgba(0, 0, 0, 0.3);
+    }
+
+    h2 {
+      display: none;
+    }
+
+    h3 {
+      color: $font-color-3;
+      font-size: rem(26px);
+      font-weight: 300;
+      line-height: 1.2em;
+      text-shadow: 0 1px 1px black;
+    }
+  }
+
+  .logo {
+    @extend %centerx;
+    width: rem(164px);
+    height: rem(52px);
+    bottom: rem(40px);
+    background-image: url('/images/logo-ci-white.svg');
+    background-position: center;
+    background-size: 100%;
+  }
+}

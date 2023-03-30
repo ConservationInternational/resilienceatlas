@@ -1,0 +1,257 @@
+.btn {
+  @extend %clean-button-or-input;
+  display: inline-block;
+  padding: rem(10px) rem(50px);
+
+  border-radius: 50px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s;
+
+  &:hover {
+    text-decoration: none;
+  }
+
+  &.btn-primary {
+    background: $bg-color-1;
+    color: var(--theme-color, $font-color-2);
+
+    &:hover {
+      background: darken($bg-color-1, 5%);
+    }
+
+    &.-inverted-color {
+      background: var(--theme-color, $font-color-2);
+      color: $bg-color-1;
+
+      &:hover {
+        background: darken-variable(var(--theme-color, $font-color-2), 5%);
+      }
+    }
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  &.btn-secondary {
+    color: $bg-color-1;
+    background: $font-color-2;
+
+    &:hover {
+      background: darken($bg-color-2, 5%);
+    }
+
+  }
+
+  &.-sm {
+    padding: rem(8px) rem(20px);
+  }
+
+  &-small {
+    padding: rem(8px) rem(40px);
+  }
+
+  &.btn-next,
+  &.btn-back {
+    padding: rem(10px) rem(20px);
+    font-size: 1rem;
+    font-weight: 300;
+    box-shadow: 0 1px 3px 0 rgba($bg-color-5, 0.3);
+    color: $gray;
+    background: $bg-color-1;
+
+    &:hover {
+      background: darken($bg-color-2, 5%);
+    }
+
+    &.btn-next &:after {
+      content: '>';
+      padding-left: 10px;
+    }
+    &.btn-back &:before {
+      content: '<';
+      padding-left: 10px;
+    }
+  }
+}
+
+.btn-prev,
+.btn-next,
+.btn-next-journey,
+.btn-check-it {
+  @extend %clean-button-or-input;
+  display: block;
+  position: relative;
+  float: left;
+  background-color: $bg-color-1;
+  font-size: rem(16px);
+  font-weight: 300;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3);
+  color: $font-color-1;
+}
+
+.btn-prev {
+  border-radius: 50px;
+  height: rem(45px);
+  padding: rem(14px) rem(20px) rem(8px) rem(40px);
+  text-transform: capitalize;
+
+  &:before {
+    @extend %centery;
+    @include arrow(15px, $font-color-1, 1px, -45deg);
+    content: '';
+    left: rem(10px);
+    transform: translate(50%, -50%) rotate(-45deg);
+  }
+}
+
+.btn-next,
+.btn-next-journey {
+  border-radius: 50px;
+  height: rem(45px);
+  padding: rem(14px) rem(40px) rem(8px) rem(20px);
+  text-transform: capitalize;
+
+  &:before {
+    @extend %centery;
+    @include arrow(15px, $font-color-1, 1px, 135deg);
+    content: '';
+    right: rem(10px);
+    transform: translate(-50%, -50%) rotate(135deg);
+  }
+}
+
+.btn-check-it {
+  text-transform: capitalize;
+  border-radius: 50px;
+  height: rem(45px);
+  padding: rem(15px) rem(20px) rem(2px);
+  position: absolute;
+  bottom: rem(40px);
+  right: rem(180px);
+  color: $font-color-1;
+  z-index: 100;
+  // background-color: $bg-color-1;
+  &:hover {
+    text-decoration: none;
+  }
+
+  &:active,
+  &:focus {
+    border: 0;
+  }
+}
+
+.btn-next-journey {
+  line-height: 1.5em;
+  padding: rem(12px) rem(40px) rem(8px) rem(20px);
+}
+
+.actions {
+  display: flex;
+  float: right;
+}
+
+.btn-action,
+.btn-info,
+.btn-download,
+.btn-visibility,
+.btn-remove,
+.btn-opacity,
+.btn-locate {
+  display: flex;
+  align-items: center;
+  padding: 0;
+  margin-left: 5px;
+  opacity: 0.8;
+
+  &:disabled,
+  &:disabled:hover {
+    opacity: 0.5;
+    cursor: default;
+
+    svg,
+    .icon {
+      fill: $bg-color-4;
+    }
+  }
+
+  &:hover {
+    opacity: 1;
+
+    svg,
+    .icon {
+      fill: $font-color-1;
+    }
+  }
+
+  svg,
+  .icon {
+    width: 12px;
+    height: 12px;
+    fill: $bg-color-4;
+
+    &.is-active {
+      display: none;
+    }
+  }
+}
+
+.btn-info {
+  @extend %clean-button-or-input;
+  // float: right;
+  // width: 22px;
+  // height: 22px;
+}
+
+.btn-visibility {
+  @extend %clean-button-or-input;
+  // float: right;
+  .icon, svg {
+    width: 16px;
+    height: 16px;
+  }
+}
+
+// opacity
+.btn-opacity {
+  .icon,
+  &.panel-trasparecy-switcher .icon-settings {
+    fill: none;
+    stroke: $bg-color-4;
+    stroke-width: 63px;
+  }
+
+  &:hover .icon {
+    stroke: $font-color-1;
+  }
+}
+
+.btn-remove {
+  @extend %clean-button-or-input;
+  // position: absolute;
+  // right: 15px;
+  // top: 3px;
+  cursor: pointer;
+
+  .is-journeys-page & {
+    display: none;
+  }
+
+  // svg {
+  //   width: 12px;
+  //   height: 12px;
+  //   fill: #979797;
+  // }
+}
+
+.btn-download-infowindow {
+  margin-top: 50px;
+
+  &.-disabled {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+}

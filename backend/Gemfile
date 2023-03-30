@@ -1,0 +1,98 @@
+source "https://rubygems.org"
+
+ruby "3.2.1"
+
+gem "rails"
+
+gem "terser"
+gem "slim-rails"
+gem "dotenv-rails"
+gem "importmap-rails"
+gem "shrine"
+gem "jbuilder"
+gem "rspec-rails"
+gem "rswag"
+gem "image_processing"
+
+gem "ed25519"
+gem "bcrypt_pbkdf"
+
+gem "pg"
+gem "devise"
+gem "jwt"
+gem "simple_command"
+gem "activeadmin"
+gem "activeadmin_addons"
+gem "active_model_serializers"
+gem "active_storage_validations"
+gem "will_paginate"
+
+gem "ffi"
+
+gem "cancancan"
+
+gem "addressable"
+
+gem "rack-cors"
+
+# Utilities
+gem "seed_dump"
+gem "active_admin_theme"
+gem "sparkpost_rails", github: "sportstech/sparkpost_rails" # Rails 7 support
+gem "rubyzip"
+gem "prawn"
+gem "prawn-table"
+gem "standard"
+gem "matrix" # needed by prawn, removed in ruby 3.1
+
+# Translations
+gem "globalize"
+gem "activeadmin-globalize", github: "martintomas/activeadmin-globalize", branch: "main"
+
+# Ordering and Tree structure for menus
+gem "active_admin-sortable_tree"
+gem "ancestry"
+gem "acts_as_list"
+gem "factory_bot_rails"
+
+# Ransack for Active Admin
+gem "ransack"
+
+group :production, :staging do
+  gem "puma"
+end
+
+group :development, :test do
+  gem "byebug"
+  gem "awesome_print"
+  gem "faker"
+  gem "capistrano", "~> 3.9"
+  gem "capistrano-rbenv", "~> 2.2"
+  gem "capistrano-bundler"
+  gem "capistrano-rails"
+  gem "capistrano-npm"
+  gem "capistrano-nvm"
+  gem "capistrano-passenger"
+end
+
+group :development do
+  gem "brakeman", require: false
+  gem "bundler-audit", require: false
+  gem "foreman"
+  gem "better_errors"
+  gem "binding_of_caller"
+  gem "annotate"
+  gem "web-console"
+  gem "letter_opener_web"
+end
+
+group :test do
+  gem "capybara", ">= 3.26"
+  gem "cuprite"
+  gem "rspec-collection_matchers"
+  gem "rspec-retry"
+  gem "super_diff"
+  gem "rspec-request_snapshot", github: "tsubik/rspec-request_snapshot", branch: "fix/ignore-order"
+  gem "rswag-specs"
+  gem "webmock"
+end
