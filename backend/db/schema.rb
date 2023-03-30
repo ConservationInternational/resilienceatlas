@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_03_15_090823) do
+ActiveRecord::Schema[7.0].define(version: 2023_03_30_113540) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -112,6 +112,24 @@ ActiveRecord::Schema[7.0].define(version: 2023_03_15_090823) do
     t.datetime "updated_at", null: false
     t.index ["assetable_type", "assetable_id"], name: "idx_ckeditor_assetable"
     t.index ["assetable_type", "type", "assetable_id"], name: "idx_ckeditor_assetable_type"
+  end
+
+  create_table "feedback_fields", force: :cascade do |t|
+    t.bigint "feedback_id", null: false
+    t.bigint "parent_id"
+    t.string "feedback_field_type", null: false
+    t.string "question"
+    t.jsonb "answers"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["feedback_id"], name: "index_feedback_fields_on_feedback_id"
+    t.index ["parent_id"], name: "index_feedback_fields_on_parent_id"
+  end
+
+  create_table "feedbacks", force: :cascade do |t|
+    t.string "language", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "identities", force: :cascade do |t|
@@ -401,6 +419,8 @@ ActiveRecord::Schema[7.0].define(version: 2023_03_15_090823) do
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "agrupations", "layer_groups"
   add_foreign_key "agrupations", "layers"
+  add_foreign_key "feedback_fields", "feedback_fields", column: "parent_id", on_delete: :cascade
+  add_foreign_key "feedback_fields", "feedbacks", on_delete: :cascade
   add_foreign_key "identities", "users"
   add_foreign_key "indicators", "categories"
   add_foreign_key "journey_steps", "journeys", on_delete: :cascade

@@ -44,6 +44,7 @@ gem "prawn"
 gem "prawn-table"
 gem "standard"
 gem "matrix" # needed by prawn, removed in ruby 3.1
+gem "json-schema"
 
 # Translations
 gem "globalize"
