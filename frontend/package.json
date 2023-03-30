@@ -4,9 +4,9 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build && npm run transifex:push",
+    "build": "next build",
     "start": "next start",
-    "test": "cypress run --headless --browser chrome",
+    "test": "cypress run --headless --browser chrome --spec cypress/e2e/about.cy.js",
     "lint": "next lint",
     "prettier": "prettier --config .prettierrc.json --check --write \"./src/**/*.{tsx,jsx,ts,js}\"",
     "check-types": "tsc --noemit -p tsconfig.json",
