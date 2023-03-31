@@ -3,8 +3,8 @@
 # Table name: models
 #
 #  id             :bigint           not null, primary key
-#  created_at     :datetime         default(Wed, 22 Feb 2023 12:02:20.403696000 CET +01:00), not null
-#  updated_at     :datetime         default(Wed, 22 Feb 2023 12:02:20.453249000 CET +01:00), not null
+#  created_at     :datetime         default(Tue, 28 Mar 2023 22:07:16.745569000 CEST +02:00), not null
+#  updated_at     :datetime         default(Tue, 28 Mar 2023 22:07:16.746270000 CEST +02:00), not null
 #  query_analysis :text
 #  table_name     :string
 #  name           :string

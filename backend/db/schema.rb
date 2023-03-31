@@ -127,7 +127,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_03_30_113540) do
     t.bigint "parent_id"
     t.string "feedback_field_type", null: false
     t.string "question"
-    t.jsonb "answers"
+    t.jsonb "answer"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["feedback_id"], name: "index_feedback_fields_on_feedback_id"
@@ -162,8 +162,8 @@ ActiveRecord::Schema[7.0].define(version: 2023_03_30_113540) do
   create_table "indicators", force: :cascade do |t|
     t.string "slug", null: false
     t.string "version"
-    t.datetime "created_at", precision: nil, default: "2023-02-22 11:02:20", null: false
-    t.datetime "updated_at", precision: nil, default: "2023-02-22 11:02:20", null: false
+    t.datetime "created_at", precision: nil, default: "2023-03-28 20:07:16", null: false
+    t.datetime "updated_at", precision: nil, default: "2023-03-28 20:07:16", null: false
     t.integer "category_id"
     t.integer "position"
     t.string "column_name"
@@ -348,8 +348,8 @@ ActiveRecord::Schema[7.0].define(version: 2023_03_30_113540) do
   end
 
   create_table "models", force: :cascade do |t|
-    t.datetime "created_at", precision: nil, default: "2023-02-22 11:02:20", null: false
-    t.datetime "updated_at", precision: nil, default: "2023-02-22 11:02:20", null: false
+    t.datetime "created_at", precision: nil, default: "2023-03-28 20:07:16", null: false
+    t.datetime "updated_at", precision: nil, default: "2023-03-28 20:07:16", null: false
     t.text "query_analysis"
     t.string "table_name"
   end

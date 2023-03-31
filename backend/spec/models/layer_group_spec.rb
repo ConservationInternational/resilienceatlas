@@ -1,3 +1,21 @@
+# == Schema Information
+#
+# Table name: layer_groups
+#
+#  id               :bigint           not null, primary key
+#  super_group_id   :integer
+#  slug             :string
+#  layer_group_type :string
+#  category         :string
+#  active           :boolean
+#  order            :integer
+#  created_at       :datetime         not null
+#  updated_at       :datetime         not null
+#  icon_class       :string
+#  site_scope_id    :integer          default(1)
+#  name             :string
+#  info             :text
+#
 require "rails_helper"
 
 RSpec.describe LayerGroup, type: :model do

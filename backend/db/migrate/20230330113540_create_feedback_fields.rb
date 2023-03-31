@@ -5,7 +5,7 @@ class CreateFeedbackFields < ActiveRecord::Migration[7.0]
       t.belongs_to :parent, foreign_key: {on_delete: :cascade, to_table: :feedback_fields}
       t.string :feedback_field_type, null: false
       t.string :question
-      t.jsonb :answers
+      t.jsonb :answer
 
       t.timestamps
     end

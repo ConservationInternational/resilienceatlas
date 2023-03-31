@@ -1,3 +1,16 @@
+# == Schema Information
+#
+# Table name: feedback_fields
+#
+#  id                  :bigint           not null, primary key
+#  feedback_id         :bigint           not null
+#  parent_id           :bigint
+#  feedback_field_type :string           not null
+#  question            :string
+#  answer              :jsonb
+#  created_at          :datetime         not null
+#  updated_at          :datetime         not null
+#
 require "rails_helper"
 
 RSpec.describe FeedbackField, type: :model do
@@ -10,48 +23,45 @@ RSpec.describe FeedbackField, type: :model do
     expect(subject).to have(1).errors_on(:feedback)
   end
 
-  it "should not be valid without answers being json" do
-    subject.answers = "not json"
-    expect(subject).to have(1).errors_on(:answers)
+  it "should not be valid without answer being json" do
+    subject.answer = "not json"
+    expect(subject).to have(1).errors_on(:answer)
   end
 
-  it "should not be valid when answers schema is wrong" do
-    subject.answers = "wrong_json"
-    expect(subject).to have(1).errors_on(:answers)
+  it "should not be valid when answer schema is wrong" do
+    subject.answer = "wrong_json"
+    expect(subject).to have(1).errors_on(:answer)
 
-    subject.answers = {"wrong" => "json"}
-    expect(subject).to have(1).errors_on(:answers)
+    subject.answer = {"wrong" => "json"}
+    expect(subject).to have(1).errors_on(:answer)
 
-    subject.answers = [{"wrong" => "json"}]
-    expect(subject).to have(1).errors_on(:answers)
+    subject.answer = {"value" => {"wrong" => "json"}}
+    expect(subject).to have(1).errors_on(:answer)
 
-    subject.answers = [{"value" => {"wrong" => "json"}}]
-    expect(subject).to have(1).errors_on(:answers)
-
-    subject.answers = [{"value" => "Red", "slug" => {"wrong" => "json"}}]
-    expect(subject).to have(1).errors_on(:answers)
+    subject.answer = {"value" => "Red", "slug" => {"wrong" => "json"}}
+    expect(subject).to have(1).errors_on(:answer)
   end
 
-  it "should be valid when answers schema is correct" do
-    subject.answers = "[{\"value\": 1}]"
-    expect(subject).not_to have(1).errors_on(:answers)
+  it "should be valid when answer schema is correct" do
+    subject.answer = "{\"value\": 1}"
+    expect(subject).not_to have(1).errors_on(:answer)
 
-    subject.answers = [{"value" => "Red"}]
-    expect(subject).not_to have(1).errors_on(:answers)
+    subject.answer = {"value" => "Red"}
+    expect(subject).not_to have(1).errors_on(:answer)
 
-    subject.answers = [{"value" => ["Red", "Blue"]}]
-    expect(subject).not_to have(1).errors_on(:answers)
+    subject.answer = {"value" => ["Red", "Blue"]}
+    expect(subject).not_to have(1).errors_on(:answer)
 
-    subject.answers = [{"value" => "Red", "slug" => "red"}]
-    expect(subject).not_to have(1).errors_on(:answers)
+    subject.answer = {"value" => "Red", "slug" => "red"}
+    expect(subject).not_to have(1).errors_on(:answer)
 
-    subject.answers = [{"value" => "Red", "slug" => nil}]
-    expect(subject).not_to have(1).errors_on(:answers)
+    subject.answer = {"value" => "Red", "slug" => nil}
+    expect(subject).not_to have(1).errors_on(:answer)
 
-    subject.answers = [{"value" => true, "slug" => "true"}]
-    expect(subject).not_to have(1).errors_on(:answers)
+    subject.answer = {"value" => true, "slug" => "true"}
+    expect(subject).not_to have(1).errors_on(:answer)
 
-    subject.answers = [{"value" => ["Red", "Blue"], "slug" => ["red", "blue"]}]
-    expect(subject).not_to have(1).errors_on(:answers)
+    subject.answer = {"value" => ["Red", "Blue"], "slug" => ["red", "blue"]}
+    expect(subject).not_to have(1).errors_on(:answer)
   end
 end

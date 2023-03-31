@@ -1,0 +1,273 @@
+{
+  "data": {
+    "id": "21",
+    "type": "feedbacks",
+    "attributes": {
+      "language": "en",
+      "created_at": "2023-03-31T14:41:09.343+02:00",
+      "updated_at": "2023-03-31T14:41:09.343+02:00"
+    },
+    "relationships": {
+      "feedback_fields": {
+        "data": [
+          {
+            "id": "141",
+            "type": "feedback_fields"
+          },
+          {
+            "id": "142",
+            "type": "feedback_fields"
+          },
+          {
+            "id": "143",
+            "type": "feedback_fields"
+          },
+          {
+            "id": "144",
+            "type": "feedback_fields"
+          },
+          {
+            "id": "145",
+            "type": "feedback_fields"
+          },
+          {
+            "id": "146",
+            "type": "feedback_fields"
+          },
+          {
+            "id": "147",
+            "type": "feedback_fields"
+          }
+        ]
+      }
+    }
+  },
+  "included": [
+    {
+      "id": "141",
+      "type": "feedback_fields",
+      "attributes": {
+        "feedback_field_type": "single_choice",
+        "question": "What is your favorite color?",
+        "answer": {
+          "slug": "red",
+          "value": "Red"
+        },
+        "created_at": "2023-03-31T14:41:09.345+02:00",
+        "updated_at": "2023-03-31T14:41:09.345+02:00"
+      },
+      "relationships": {
+        "feedback": {
+          "data": {
+            "id": "21",
+            "type": "feedbacks"
+          }
+        },
+        "parent": {
+          "data": null
+        },
+        "children": {
+          "data": [
+
+          ]
+        }
+      }
+    },
+    {
+      "id": "142",
+      "type": "feedback_fields",
+      "attributes": {
+        "feedback_field_type": "multiple_choice",
+        "question": "What are your the least favorite color?",
+        "answer": {
+          "slug": [
+            "green",
+            "yellow"
+          ],
+          "value": [
+            "Green",
+            "Yellow"
+          ]
+        },
+        "created_at": "2023-03-31T14:41:09.348+02:00",
+        "updated_at": "2023-03-31T14:41:09.348+02:00"
+      },
+      "relationships": {
+        "feedback": {
+          "data": {
+            "id": "21",
+            "type": "feedbacks"
+          }
+        },
+        "parent": {
+          "data": null
+        },
+        "children": {
+          "data": [
+
+          ]
+        }
+      }
+    },
+    {
+      "id": "143",
+      "type": "feedback_fields",
+      "attributes": {
+        "feedback_field_type": "boolean_choice",
+        "question": "Do you like blue?",
+        "answer": {
+          "slug": "true",
+          "value": true
+        },
+        "created_at": "2023-03-31T14:41:09.349+02:00",
+        "updated_at": "2023-03-31T14:41:09.349+02:00"
+      },
+      "relationships": {
+        "feedback": {
+          "data": {
+            "id": "21",
+            "type": "feedbacks"
+          }
+        },
+        "parent": {
+          "data": null
+        },
+        "children": {
+          "data": [
+
+          ]
+        }
+      }
+    },
+    {
+      "id": "144",
+      "type": "feedback_fields",
+      "attributes": {
+        "feedback_field_type": "free_answer",
+        "question": "Why you don't like yellow?",
+        "answer": {
+          "slug": "i-don-t-know",
+          "value": "I don't know"
+        },
+        "created_at": "2023-03-31T14:41:09.349+02:00",
+        "updated_at": "2023-03-31T14:41:09.349+02:00"
+      },
+      "relationships": {
+        "feedback": {
+          "data": {
+            "id": "21",
+            "type": "feedbacks"
+          }
+        },
+        "parent": {
+          "data": null
+        },
+        "children": {
+          "data": [
+
+          ]
+        }
+      }
+    },
+    {
+      "id": "145",
+      "type": "feedback_fields",
+      "attributes": {
+        "feedback_field_type": "rating",
+        "question": "Color preferences",
+        "answer": null,
+        "created_at": "2023-03-31T14:41:09.350+02:00",
+        "updated_at": "2023-03-31T14:41:09.350+02:00"
+      },
+      "relationships": {
+        "feedback": {
+          "data": {
+            "id": "21",
+            "type": "feedbacks"
+          }
+        },
+        "parent": {
+          "data": null
+        },
+        "children": {
+          "data": [
+            {
+              "id": "146",
+              "type": "feedback_fields"
+            },
+            {
+              "id": "147",
+              "type": "feedback_fields"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "146",
+      "type": "feedback_fields",
+      "attributes": {
+        "feedback_field_type": "single_choice",
+        "question": "Red",
+        "answer": {
+          "slug": "3",
+          "value": 3
+        },
+        "created_at": "2023-03-31T14:41:09.350+02:00",
+        "updated_at": "2023-03-31T14:41:09.350+02:00"
+      },
+      "relationships": {
+        "feedback": {
+          "data": {
+            "id": "21",
+            "type": "feedbacks"
+          }
+        },
+        "parent": {
+          "data": {
+            "id": "145",
+            "type": "feedback_fields"
+          }
+        },
+        "children": {
+          "data": [
+
+          ]
+        }
+      }
+    },
+    {
+      "id": "147",
+      "type": "feedback_fields",
+      "attributes": {
+        "feedback_field_type": "single_choice",
+        "question": "Blue",
+        "answer": {
+          "slug": "5",
+          "value": 5
+        },
+        "created_at": "2023-03-31T14:41:09.351+02:00",
+        "updated_at": "2023-03-31T14:41:09.351+02:00"
+      },
+      "relationships": {
+        "feedback": {
+          "data": {
+            "id": "21",
+            "type": "feedbacks"
+          }
+        },
+        "parent": {
+          "data": {
+            "id": "145",
+            "type": "feedback_fields"
+          }
+        },
+        "children": {
+          "data": [
+
+          ]
+        }
+      }
+    }
+  ]
+}
