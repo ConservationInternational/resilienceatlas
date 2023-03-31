@@ -31,6 +31,7 @@ RSpec.describe Journey, type: :model do
 
   it "should not be valid without journey steps" do
     subject.journey_steps = []
-    expect(subject).to have(1).errors_on(:journey_steps)
+    expect(subject.save).to be_falsey
+    expect(subject.errors[:journey_steps]).to include("can't be blank")
   end
 end
