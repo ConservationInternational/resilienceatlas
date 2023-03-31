@@ -1,6 +1,9 @@
 # Changelog
 
 **Merged pull requests:**
+- Fixing unsecure use of eval function [\#123](https://github.com/ConservationInternational/resilienceatlas/pull/123) ([martintomas](https://github.com/martintomas))
+- Removing analytics_code attribute from SiteScope model [\#116](https://github.com/ConservationInternational/resilienceatlas/pull/116) ([martintomas](https://github.com/martintomas))
+- Refactoring Admin Layer form [\#109](https://github.com/ConservationInternational/resilienceatlas/pull/109) ([martintomas](https://github.com/martintomas))
 - Refactoring entities shown at ActiveAdmin so all appropriate attributes can be translated [\#106](https://github.com/ConservationInternational/resilienceatlas/pull/106) ([martintomas](https://github.com/martintomas))
 - Removing Germany and Italy from available locales [\#103](https://github.com/ConservationInternational/resilienceatlas/pull/103) ([martintomas](https://github.com/martintomas))
 - Adding data which recreates journeys at database based on original json files [\#100](https://github.com/ConservationInternational/resilienceatlas/pull/100) ([martintomas](https://github.com/martintomas))
