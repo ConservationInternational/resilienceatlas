@@ -1,10 +1,12 @@
 ActiveAdmin.register Category do
-  permit_params :name, :slug, :description, indicator_ids: []
+  includes :translations, indicators: :translations
+  permit_params :slug, indicator_ids: [],
+    translations_attributes: [:id, :locale, :name, :description, :_destroy]
 
-  filter :indicators, as: :select
-  filter :name, as: :select
+  filter :translations_name_eq, as: :select, label: "Name", collection: proc { Category.with_translations.pluck(:name) }
   filter :slug, as: :select
-  filter :description
+  filter :translations_description_eq, as: :select, label: "Description", collection: proc { Category.with_translations.pluck(:description) }
+  filter :indicators, as: :select, collection: proc { Indicator.with_translations.map { |m| [m.name, m.id] } }
 
   index do
     selectable_column
@@ -24,13 +26,29 @@ ActiveAdmin.register Category do
     actions
   end
 
+  show do
+    attributes_table do
+      row :id
+      row :name
+      row :slug
+      row :description
+      row :created_at
+      row :updated_at
+    end
+  end
+
   form do |f|
     f.semantic_errors
 
+    f.inputs "Translated fields" do
+      f.translated_inputs switch_locale: false do |ff|
+        ff.input :name
+        ff.input :description
+      end
+    end
+
     f.inputs "Category fields" do
-      f.input :name
       f.input :slug
-      f.input :description
       f.input :indicators
     end
 

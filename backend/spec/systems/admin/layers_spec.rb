@@ -15,22 +15,64 @@ RSpec.describe "Admin: Layers", type: :system do
     it "shows all resources" do
       Layer.all.each do |layer|
         expect(page).to have_text(layer.name)
+        expect(page).to have_text(layer.slug)
       end
     end
   end
 
   describe "#show" do
-    let!(:layer) { create :layer }
+    context "with cartodb layer provider" do
+      let!(:layer) { create :layer, layer_provider: :cartodb, analysis_suitable: true }
 
-    before do
-      visit admin_layers_path
-      find("a[href='/admin/layers/#{layer.id}']", text: "View").click
+      before do
+        visit admin_layers_path
+        find("a[href='/admin/layers/#{layer.id}']", text: "View").click
+      end
+
+      it "shows layer detail" do
+        expect(page).to have_text(layer.id)
+        expect(page).to have_text(layer.slug)
+        expect(page).to have_text(layer.name)
+        expect(page).to have_text(layer.description)
+        expect(page).to have_text(layer.processing)
+        expect(page).to have_text(layer.data_units)
+        expect(page).to have_text(layer.legend)
+        expect(page).to have_text(layer.layer_provider)
+        expect(page).to have_text(layer.query)
+        expect(page).to have_text(layer.css)
+        expect(page).to have_text(layer.opacity.to_s)
+        expect(page).to have_text(layer.zindex.to_s)
+        expect(page).to have_text(layer.order.to_s)
+        expect(page).to have_text(layer.zoom_max.to_s)
+        expect(page).to have_text(layer.zoom_min.to_s)
+        expect(page).to have_text(layer.interaction_config)
+        expect(page).to have_text(layer.analysis_query)
+        expect(page).to have_text(layer.analysis_body)
+        expect(page).to have_text(layer.dashboard_order.to_s)
+      end
     end
 
-    it "shows layer detail" do
-      expect(page).to have_text(layer.name)
-      expect(page).to have_text(layer.slug)
-      expect(page).to have_text(layer.layer_type)
+    context "with cog layer provider" do
+      let!(:layer) { create :layer, layer_provider: :cog, analysis_suitable: false }
+
+      before do
+        visit admin_layers_path
+        find("a[href='/admin/layers/#{layer.id}']", text: "View").click
+      end
+
+      it "shows layer detail" do
+        expect(page).to have_text(layer.id)
+        expect(page).to have_text(layer.slug)
+        expect(page).to have_text(layer.name)
+        expect(page).to have_text(layer.description)
+        expect(page).to have_text(layer.processing)
+        expect(page).to have_text(layer.data_units)
+        expect(page).to have_text(layer.legend)
+        expect(page).to have_text(layer.layer_provider)
+        expect(page).to have_text(layer.layer_config)
+        expect(page).to have_text(layer.interaction_config)
+        expect(page).to have_text(layer.dashboard_order.to_s)
+      end
     end
   end
 
@@ -42,18 +84,87 @@ RSpec.describe "Admin: Layers", type: :system do
       click_on "New Layer"
     end
 
-    it "allows to create new layer" do
-      fill_in "layer[translations_attributes][0][name]", with: "New name"
+    it "allows to create new layer for cartodb layer provider" do
       fill_in "layer[slug]", with: "new-layer"
-      select "layer", from: "layer[layer_type]"
+      fill_in "layer[translations_attributes][0][name]", with: "New name"
+      fill_in "layer[translations_attributes][0][description]", with: "New description"
+      fill_in "layer[translations_attributes][0][processing]", with: "New processing"
+      fill_in "layer[translations_attributes][0][data_units]", with: "New data_units"
+      fill_in "layer[translations_attributes][0][legend]", with: "New legend"
+      select "cartodb", from: "layer[layer_provider]"
+      fill_in "layer[query]", with: "New query"
+      fill_in "layer[css]", with: "New css"
+      fill_in "layer[opacity]", with: "30.0"
+      fill_in "layer[zindex]", with: "10000"
+      fill_in "layer[order]", with: "2"
+      fill_in "layer[zoom_max]", with: "1000"
+      fill_in "layer[zoom_min]", with: "200"
+      fill_in "layer[interaction_config]", with: "New interaction_config"
+      check "layer[analysis_suitable]"
+      fill_in "layer[analysis_query]", with: "New analysis_query"
+      fill_in "layer[analysis_body]", with: "New analysis_body"
+      fill_in "layer[dashboard_order]", with: "80"
 
       click_on "Create Layer"
 
       expect(page).to have_current_path(admin_layer_path(new_layer))
       expect(page).to have_text("Layer was successfully created.")
-      expect(page).to have_text("New name")
       expect(page).to have_text("new-layer")
-      expect(page).to have_text("layer")
+      expect(page).to have_text("New name")
+      expect(page).to have_text("New description")
+      expect(page).to have_text("New processing")
+      expect(page).to have_text("New data_units")
+      expect(page).to have_text("New legend")
+      expect(page).to have_text("cartodb")
+      expect(page).to have_text("New query")
+      expect(page).to have_text("New css")
+      expect(page).to have_text("30.0")
+      expect(page).to have_text("10000")
+      expect(page).to have_text("2")
+      expect(page).to have_text("1000")
+      expect(page).to have_text("200")
+      expect(page).to have_text("New interaction_config")
+      expect(page).to have_text("New analysis_query")
+      expect(page).to have_text("New analysis_body")
+      expect(page).to have_text("80")
+    end
+
+    it "allows to create new layer for cog layer provider" do
+      fill_in "layer[slug]", with: "new-layer"
+      fill_in "layer[translations_attributes][0][name]", with: "New name"
+      fill_in "layer[translations_attributes][0][description]", with: "New description"
+      fill_in "layer[translations_attributes][0][processing]", with: "New processing"
+      fill_in "layer[translations_attributes][0][data_units]", with: "New data_units"
+      fill_in "layer[translations_attributes][0][legend]", with: "New legend"
+      select "cog", from: "layer[layer_provider]"
+      fill_in "layer[layer_config]", with: "New layer_config"
+      fill_in "layer[interaction_config]", with: "New interaction_config"
+      fill_in "layer[dashboard_order]", with: "80"
+
+      click_on "Create Layer"
+
+      expect(page).to have_current_path(admin_layer_path(new_layer))
+      expect(page).to have_text("Layer was successfully created.")
+      expect(page).to have_text("new-layer")
+      expect(page).to have_text("New name")
+      expect(page).to have_text("New description")
+      expect(page).to have_text("New processing")
+      expect(page).to have_text("New data_units")
+      expect(page).to have_text("New legend")
+      expect(page).to have_text("cog")
+      expect(page).to have_text("New layer_config")
+      expect(page).to have_text("New interaction_config")
+      expect(page).to have_text("80")
+    end
+
+    it "shows error when validation fails" do
+      select "cog", from: "layer[layer_provider]"
+      fill_in "layer[layer_config]", with: ""
+
+      click_on "Create Layer"
+
+      expect(page).to have_current_path(admin_layers_path)
+      expect(page).to have_text("can't be blank")
     end
   end
 

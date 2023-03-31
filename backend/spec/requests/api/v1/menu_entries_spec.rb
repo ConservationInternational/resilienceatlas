@@ -6,6 +6,7 @@ RSpec.describe "API V1 Map Menu Entries", type: :request do
       tags "MapMenuEntry"
       consumes "application/json"
       produces "application/json"
+      parameter name: :locale, in: :query, type: :string, description: "Used language. Default: en", required: false
 
       let!(:map_menu_entries) { create_list :map_menu_entry, 3 }
 

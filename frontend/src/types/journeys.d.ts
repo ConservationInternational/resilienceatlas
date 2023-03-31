@@ -5,6 +5,7 @@ export interface JourneyItem {
   type: string;
   attributes: Attributes;
   relationships: Relationships;
+  steps: JourneySteps;
 }
 
 export interface Attributes {
@@ -24,47 +25,21 @@ export interface BackgroundImage {
 }
 
 export interface Relationships {
-  journey_steps: JourneySteps;
+  journey_steps: { data: JourneyRelationship[] };
 }
 
-export type JourneySteps = Included[];
-
-export interface Datum {
-  id: string;
+export interface JourneyRelationship {
+  id: number;
   type: Type;
 }
+
+export type JourneySteps = Step[];
 
 export enum Type {
   JourneySteps = 'journey_steps',
 }
 
-export interface Journey {
-  data: Data;
-  included: Included[];
-}
-
-export type JourneyDetail = Journey & {
-  steps: JourneySteps;
-};
-
-export interface Data {
-  id: string;
-  type: string;
-  attributes: DataAttributes;
-  relationships: Relationships;
-}
-
-export interface DataAttributes {
-  title: string;
-  subtitle: string;
-  theme: string;
-  background_image: BackgroundImage;
-  credits: string;
-  credits_url: string;
-  published: boolean;
-}
-
-export interface Included {
+export interface Step {
   id: string;
   type: string;
   attributes: JourneyAttributes;

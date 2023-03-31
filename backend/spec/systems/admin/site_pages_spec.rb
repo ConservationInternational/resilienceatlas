@@ -31,7 +31,7 @@ RSpec.describe "Admin: Site Pages", type: :system do
 
     it "shows site_page detail" do
       expect(page).to have_text(site_page.title)
-      expect(page).to have_text(site_page.body.to_plain_text)
+      expect(page).to have_text(ActionText::Content.new(site_page.body).to_plain_text)
       expect(page).to have_text(site_page.priority)
       expect(page).to have_text(site_page.slug)
     end
@@ -47,9 +47,9 @@ RSpec.describe "Admin: Site Pages", type: :system do
     end
 
     it "allows to create new site_page" do
-      fill_in "site_page[title]", with: "New title"
+      fill_in "site_page[translations_attributes][0][title]", with: "New title"
       select site_scope.name, from: "site_page[site_scope_id]"
-      fill_in_rich_text_area with: "New body"
+      fill_in_rich_text_area "site_page[translations_attributes][0][body]", with: "New body"
       fill_in "site_page[priority]", with: "100"
       fill_in "site_page[slug]", with: "new-site-page"
 
@@ -73,7 +73,7 @@ RSpec.describe "Admin: Site Pages", type: :system do
     end
 
     it "allows to update existing site_page" do
-      fill_in "site_page[title]", with: "Update title"
+      fill_in "site_page[translations_attributes][0][title]", with: "Update title"
 
       click_on "Update Site page"
 

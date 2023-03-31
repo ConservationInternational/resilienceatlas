@@ -6,6 +6,7 @@ RSpec.describe "API V1 Categories", type: :request do
       tags "Category"
       consumes "application/json"
       produces "application/json"
+      parameter name: :locale, in: :query, type: :string, description: "Used language. Default: en", required: false
 
       let!(:categories) { create_list :category, 3 }
 

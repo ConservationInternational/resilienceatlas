@@ -15,6 +15,8 @@ RSpec.describe "Admin: Categories", type: :system do
     it "shows all resources" do
       Category.all.each do |category|
         expect(page).to have_text(category.name)
+        expect(page).to have_text(category.slug)
+        expect(page).to have_text(category.description)
       end
     end
   end
@@ -43,9 +45,9 @@ RSpec.describe "Admin: Categories", type: :system do
     end
 
     it "allows to create new category" do
-      fill_in "category[name]", with: "New name"
+      fill_in "category[translations_attributes][0][name]", with: "New name"
+      fill_in "category[translations_attributes][0][description]", with: "New description"
       fill_in "category[slug]", with: "new-category"
-      fill_in "category[description]", with: "New description"
 
       click_on "Create Category"
 
@@ -57,7 +59,7 @@ RSpec.describe "Admin: Categories", type: :system do
     end
 
     it "shows error when validation fails" do
-      fill_in "category[name]", with: ""
+      fill_in "category[slug]", with: ""
 
       click_on "Create Category"
 
@@ -75,13 +77,15 @@ RSpec.describe "Admin: Categories", type: :system do
     end
 
     it "allows to update existing category" do
-      fill_in "category[name]", with: "Update name"
+      fill_in "category[translations_attributes][0][name]", with: "Update name"
+      fill_in "category[translations_attributes][0][description]", with: "Update description"
 
       click_on "Update Category"
 
       expect(page).to have_current_path(admin_category_path(category))
       expect(page).to have_text("Category was successfully updated.")
       expect(page).to have_text("Update name")
+      expect(page).to have_text("Update description")
     end
   end
 
