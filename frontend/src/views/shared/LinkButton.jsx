@@ -6,7 +6,7 @@ const LinkButton = ({ onClick, link = '#', children, ...props }) => (
     tabIndex="0"
     role="button"
     onClick={onClick}
-    onKeyPress={e => (e.keyCode === 13 || e.which === 13) && onClick(e)}
+    onKeyPress={(e) => (e.keyCode === 13 || e.which === 13) && onClick(e)}
     {...props}
   >
     {children}

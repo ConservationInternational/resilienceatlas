@@ -1,9 +1,9 @@
 import { connect } from 'react-redux';
-import { setBasemap } from '@modules/map';
+import { setBasemap } from 'state/modules/map';
 
 import Basemaps from './Basemaps.component';
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state) => ({
   basemap: state.map.basemap,
 });
 

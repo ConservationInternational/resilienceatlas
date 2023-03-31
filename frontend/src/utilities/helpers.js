@@ -1,28 +1,27 @@
-import L from 'leaflet';
-import history from '../history';
-
 /**
  * @param  {string} key key to sort on
  * @param  {boolean} desc=false to sort in descending order
  *
  * @returns {function} to be inserted in .sort method
  */
-export const sortBy = (key, desc = false) => (a, b) => {
-  if (a[key] > b[key]) return desc ? -1 : 1;
-  if (a[key] < b[key]) return desc ? 1 : -1;
-  return 0;
-};
+export const sortBy =
+  (key, desc = false) =>
+  (a, b) => {
+    if (a[key] > b[key]) return desc ? -1 : 1;
+    if (a[key] < b[key]) return desc ? 1 : -1;
+    return 0;
+  };
 
 /**
  * @param  {function} onClick click handler to be bound to element
  *
  * @returns  {object} object of properties to semantically hanlde click
  */
-export const clickable = onClick => ({
+export const clickable = (onClick) => ({
   onClick,
   tabIndex: 0,
   role: 'button',
-  onKeyPress: e => (e.keyCode === 13 || e.charCode === 13) && onClick(),
+  onKeyPress: (e) => (e.keyCode === 13 || e.charCode === 13) && onClick(),
 });
 
 /**
@@ -30,7 +29,7 @@ export const clickable = onClick => ({
  *
  * @returns  {array} array of only unique values
  */
-export const uniq = array => Array.from(new Set(array));
+export const uniq = (array) => Array.from(new Set(array));
 
 /**
  * Deep merges two objets.
@@ -58,17 +57,7 @@ export const merge = (object, source) => {
   return newValue;
 };
 
-export const swapLatLng = geojson =>
-  L.geoJSON(geojson, {
-    coordsToLatLng: coords => new L.LatLng(coords[0], coords[1], coords[2]),
-  }).toGeoJSON();
-
-export const formatNumber = ({
-  value,
-  locale = 'en',
-  formatFrom = 10000,
-  ...rest
-}) => {
+export const formatNumber = ({ value, locale = 'en', formatFrom = 10000, ...rest }) => {
   if (value < formatFrom) {
     return new Intl.NumberFormat(locale, rest).format(value);
   }
@@ -97,7 +86,7 @@ export const formatNumber = ({
 export function getNestedChildren(arr, ancestry) {
   const out = [];
 
-  arr.forEach(item => {
+  arr.forEach((item) => {
     // eslint-disable-next-line eqeqeq
     if (item.ancestry == ancestry) {
       const children = getNestedChildren(arr, item.id);
@@ -112,11 +101,7 @@ export function getNestedChildren(arr, ancestry) {
   return out;
 }
 
-export const download = (
-  content,
-  fileName,
-  mimeType = 'application/octet-stream',
-) => {
+export const download = (content, fileName, mimeType = 'application/octet-stream') => {
   const link = document.createElement('a');
 
   if (navigator.msSaveBlob) {
@@ -139,13 +124,11 @@ export const download = (
     link.click();
     document.body.removeChild(link);
   } else {
-    history.push(
-      `data:application/octet-stream,${encodeURIComponent(content)}`,
-    ); // only this mime type is supported
+    history.pushState(`data:application/octet-stream,${encodeURIComponent(content)}`); // only this mime type is supported
   }
 };
 
-export const removeHtmlTags = str => {
+export const removeHtmlTags = (str) => {
   if (!str || !str.toString) return str;
   return str.toString().replace(/<\/?[a-z]+>/gi, '');
 };

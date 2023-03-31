@@ -1,6 +1,7 @@
 import { compose } from 'redux';
 import { connect } from 'react-redux';
-import { withRouter } from 'react-router-dom';
+import { withRouter } from 'next/router';
+import dynamic from 'next/dynamic';
 
 import {
   load as loadLayers,
@@ -9,15 +10,15 @@ import {
   makeActives,
   makeDefaultActives,
   setOpacity,
-} from '@modules/layers';
-import { load as loadLayerGroups, openBatch } from '@modules/layer_groups';
-import { makeLayer as makeModelLayer } from '@modules/predictive_models';
+} from 'state/modules/layers';
+import { load as loadLayerGroups, openBatch } from 'state/modules/layer_groups';
+import { makeLayer as makeModelLayer } from 'state/modules/predictive_models';
 import {
   setMapLayerGroupsInteraction,
   setMapLayerGroupsInteractionLatLng,
-} from '@modules/map';
+} from 'state/modules/map';
 
-import MapView from './Map.component';
+const MapViewNoSSR = dynamic(() => import('./Map.component'), { ssr: false });
 
 const makeMapStateToProps = () => {
   const groupedLayers = getGrouped();
@@ -25,7 +26,7 @@ const makeMapStateToProps = () => {
   const getModelLayer = makeModelLayer();
   const getActives = makeActives();
 
-  const mapStateToProps = state => ({
+  const mapStateToProps = (state) => ({
     tab: state.ui.tab,
     site: state.site,
     layers: state.layers,
@@ -52,7 +53,4 @@ const mapDispatchToProps = {
   setOpacity,
 };
 
-export default compose(
-  withRouter,
-  connect(makeMapStateToProps, mapDispatchToProps),
-)(MapView);
+export default compose(withRouter, connect(makeMapStateToProps, mapDispatchToProps))(MapViewNoSSR);

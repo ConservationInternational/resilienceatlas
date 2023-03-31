@@ -1,3 +1,9 @@
+import 'leaflet';
+import 'leaflet.pm';
+import 'leaflet-active-area';
+// UTFGrid library requires corslite, only included in the minimized version
+import 'leaflet-utfgrid/L.UTFGrid-min';
+
 import React, { useCallback, useEffect, useContext } from 'react';
 import qs from 'qs';
 import omit from 'lodash/omit';
@@ -6,47 +12,46 @@ import { Map as Maps, MapControls, ZoomControl } from 'vizzuality-components';
 import { LayerManager, Layer } from 'resilience-layer-manager/dist/components';
 import { PluginLeaflet } from 'resilience-layer-manager/dist/layer-manager';
 
-import { TABS } from '@components/Sidebar';
+import { TABS } from 'views/components/Sidebar';
 
-import { BASEMAPS } from '@views/utils';
+import { BASEMAPS } from 'views/utils';
 
-import { LayerManagerContext } from '@contexts/layerManagerCtx';
-import { setRouterParam } from '@utilities';
+import { LayerManagerContext } from 'views/contexts/layerManagerCtx';
+import { useRouterParams } from 'utilities';
 
 import Toolbar from './Toolbar';
 import DrawingManager from './DrawingManager';
 import MapOffset from './MapOffset';
 import MapPopup from './MapPopup';
 
-const MapView = ({
-  // actions
-  loadLayers,
-  loadLayerGroups,
-  openBatch,
-  // interaction
-  setMapLayerGroupsInteraction,
-  setMapLayerGroupsInteractionLatLng,
-  layerGroupsInteraction,
-  layerGroupsInteractionSelected,
-  // data
-  layers: { loaded: layersLoaded },
-  layer_groups: { loaded: layerGroupsLoaded },
-  activeLayers,
-  model_layer,
-  defaultActiveGroups,
-  location,
-  tab,
-  site,
-  page,
-  options,
-  basemap,
-  embed,
-  drawing,
-}) => {
-  const query = qs.parse(location.search, {
-    ignoreQueryPrefix: true,
-    parseArrays: true,
-  });
+const MapView = (props) => {
+  const {
+    // actions
+    loadLayers,
+    loadLayerGroups,
+    openBatch,
+    // interaction
+    setMapLayerGroupsInteraction,
+    setMapLayerGroupsInteractionLatLng,
+    layerGroupsInteraction,
+    layerGroupsInteractionSelected,
+    // data
+    layers: { loaded: layersLoaded },
+    layer_groups: { loaded: layerGroupsLoaded },
+    activeLayers,
+    model_layer,
+    defaultActiveGroups,
+    router,
+    tab,
+    site,
+    page,
+    options,
+    basemap,
+    embed,
+    drawing,
+  } = props;
+  const { query } = router;
+  const { setParam } = useRouterParams();
 
   const layerManagerRef = useContext(LayerManagerContext);
 
@@ -70,7 +75,7 @@ const MapView = ({
     }));
 
     if (layersLoaded) {
-      setRouterParam('layers', JSON.stringify(hash));
+      setParam('layers', JSON.stringify(hash));
     }
   }, [activeLayers]);
 
@@ -110,31 +115,26 @@ const MapView = ({
           const mapZoom = map.getZoom();
 
           if (mapZoom !== (+site.zoom_level || 5)) {
-            setRouterParam('zoom', map.getZoom());
+            setParam('zoom', map.getZoom());
           } else {
             // clear param if it's default
-            setRouterParam('zoom');
+            setParam('zoom');
           }
 
           // Update map center in url, because it basically changed
           // after 'pinches' and zoom in/out from mousewheel.
-          setRouterParam('center', qs.stringify(map.getCenter()));
+          setParam('center', qs.stringify(map.getCenter()));
         },
         dragend: (e, map) => {
-          setRouterParam('center', qs.stringify(map.getCenter()));
+          setParam('center', qs.stringify(map.getCenter()));
         },
       }}
     >
-      {map => (
+      {(map) => (
         <>
           {tab === TABS.LAYERS &&
             activeLayers.map((l, index) => (
-              <LayerManager
-                map={map}
-                plugin={PluginLeaflet}
-                ref={layerManagerRef}
-                key={l.id}
-              >
+              <LayerManager map={map} plugin={PluginLeaflet} ref={layerManagerRef} key={l.id}>
                 <Layer
                   {...omit(l, 'interactivity')}
                   slug={l.slug || l.id}
@@ -146,11 +146,11 @@ const MapView = ({
                       interactivity:
                         l.provider === 'carto' || l.provider === 'cartodb'
                           ? JSON.parse(l.interactionConfig)
-                              .output.map(o => o.column)
+                              .output.map((o) => o.column)
                               .join(',')
                           : true,
                       events: {
-                        click: e => {
+                        click: (e) => {
                           if (!drawing) {
                             setMapLayerGroupsInteraction({
                               ...e,
@@ -163,20 +163,14 @@ const MapView = ({
                       },
                     })}
                   decodeParams={
-                    l.decodeParams
-                      ? { ...l.decodeParams, chartLimit: l.chartLimit || 100 }
-                      : null
+                    l.decodeParams ? { ...l.decodeParams, chartLimit: l.chartLimit || 100 } : null
                   }
                 ></Layer>
               </LayerManager>
             ))}
+
           {tab === TABS.MODELS && model_layer && (
-            <LayerManager
-              map={map}
-              plugin={PluginLeaflet}
-              ref={layerManagerRef}
-              key="model_layer"
-            >
+            <LayerManager map={map} plugin={PluginLeaflet} ref={layerManagerRef} key="model_layer">
               <Layer key="model_layer" {...model_layer} />
             </LayerManager>
           )}

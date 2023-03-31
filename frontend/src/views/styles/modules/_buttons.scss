@@ -19,6 +19,15 @@
     &:hover {
       background: darken($bg-color-1, 5%);
     }
+
+    &.-inverted-color {
+      background: var(--theme-color, $font-color-2);
+      color: $bg-color-1;
+
+      &:hover {
+        background: darken-variable(var(--theme-color, $font-color-2), 5%);
+      }
+    }
   }
 
   &:disabled {
@@ -33,6 +42,11 @@
     &:hover {
       background: darken($bg-color-2, 5%);
     }
+
+  }
+
+  &.-sm {
+    padding: rem(8px) rem(20px);
   }
 
   &-small {

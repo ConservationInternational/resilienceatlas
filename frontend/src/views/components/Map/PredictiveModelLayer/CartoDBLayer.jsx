@@ -1,9 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
-import L from 'leaflet';
 import carto from '@carto/carto.js';
 
-import Loader from '@shared/Loader';
+import Loader from 'views/shared/Loader';
 
 const client = new carto.Client({
   username: 'ra',
@@ -11,7 +10,7 @@ const client = new carto.Client({
   serverUrl: 'https://cdb.resilienceatlas.org/user/{username}',
 });
 
-const CartoDBLayer = ({ map, onCreate, layer }: { map: L.Map }) => {
+const CartoDBLayer = ({ map, onCreate, layer }) => {
   const [loading, setLoading] = useState(false);
   const layerRef = useRef(null);
 

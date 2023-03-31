@@ -1,6 +1,7 @@
 ActiveAdmin.register SiteScope do
   includes :translations
-  permit_params :subdomain, :color, :analytics_code, :has_analysis, :latitude, :longitude, :header_theme, :zoom_level,
+
+  permit_params :subdomain, :color, :has_analysis, :latitude, :longitude, :header_theme, :zoom_level,
     :linkback_url, :header_color, :logo_url, :predictive_model, :analysis_options, :has_gef_logo,
     translations_attributes: [:id, :locale, :name, :linkback_text, :_destroy]
 
@@ -36,7 +37,6 @@ ActiveAdmin.register SiteScope do
       f.input :header_theme, as: :select, collection: %w[ci-theme vs-theme]
       f.input :header_color, as: :color
       f.input :logo_url, as: :string
-      f.input :analytics_code
       f.input :subdomain
       f.input :has_analysis
       f.input :linkback_url, as: :string
@@ -62,7 +62,6 @@ ActiveAdmin.register SiteScope do
     column :header_theme
     column :header_color
     column :logo_url
-    column :analytics_code
     column :subdomain
     column :has_analysis
     column :linkback_text
@@ -87,7 +86,6 @@ ActiveAdmin.register SiteScope do
       row :header_theme
       row :header_color
       row :logo_url
-      row :analytics_code
       row :subdomain
       row :has_analysis
       row :linkback_text

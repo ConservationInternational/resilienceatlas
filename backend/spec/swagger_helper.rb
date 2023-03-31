@@ -19,6 +19,11 @@ RSpec.configure do |config|
       paths: {},
       components: {
         securitySchemes: {
+          cookie_auth: {
+            type: :apiKey,
+            name: "_backend_session",
+            in: :cookie
+          },
           tokenAuth: {
             type: :http,
             scheme: :bearer,

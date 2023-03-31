@@ -1,1 +1,1 @@
-export const getById = state => state.sources.byId;
+export const getById = (state) => state.sources.byId;

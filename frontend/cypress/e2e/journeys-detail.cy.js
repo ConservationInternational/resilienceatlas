@@ -1,99 +1,105 @@
 describe('Journeys detail page', () => {
   beforeEach(() => {
-    cy.intercept('GET', '/api/journeys').as('journeysRequest');
-    cy.intercept('GET', '/api/journeys/*').as('journeyDetailRequest');
+    cy.interceptAllRequests();
+
     cy.visit('/journeys');
 
     // Navigate to the first journey detail
-    cy.wait('@journeysRequest').then(({ response }) => {
-      cy.wrap(response.statusCode).should('be.equal', 200);
-      cy.get('.m-journey__gridelement')
-        .first()
-        .find('.btn')
-        .click();
+    cy.wait('@journeyListRequest').then(({ response }) => {
+      cy.wrap(response.statusCode).should('be.oneOf', [200, 304]);
+      cy.get('.m-journey__gridelement').first().find('.btn').click();
     });
   });
 
   it('should correspond to the API response', () => {
     cy.wait('@journeyDetailRequest').then(({ response }) => {
-      cy.wrap(response.statusCode).should('be.equal', 200);
-
-      const { id, steps } = response.body[0];
+      cy.wrap(response.statusCode).should('be.oneOf', [200, 304]);
+      const {
+        included: steps,
+        data: { id },
+      } = response.body;
 
       steps.forEach((step, stepIndex) => {
-        cy.log(`Testing step with index ${stepIndex} and type "${step.type}"`);
+        const {
+          step_type: type,
+          title,
+          subtitle,
+          description,
+          map_url: btnUrl,
+          content,
+        } = step.attributes;
+
+        cy.log(`Testing step with index ${stepIndex} and type "${type}"`);
 
         cy.url().should('include', `/journeys/${id}/step/${stepIndex + 1}`);
 
-        switch (step.type) {
+        const expectedUrl = type === 'embed' ? btnUrl : null;
+
+        switch (type) {
           case 'landing':
-            cy.get('.l-journey__intro .intro > h1')
-              .first()
-              .contains(step.title, { matchCase: false });
+            cy.get('.l-journey__intro .intro > h1').first().contains(title, { matchCase: false });
             cy.get('.l-journey__intro .intro > h3')
               .first()
-              .contains(step.theme, { matchCase: false });
+              .contains(description, { matchCase: false });
             break;
 
           case 'conclusion':
-            cy.get('.l-journey h2')
-              .first()
-              .contains(step.title, { matchCase: false });
+            cy.get('.l-journey h2').first().contains(title, { matchCase: false });
 
-            if (step.subtitle) {
-              cy.get('.l-journey h3')
-                .first()
-                .contains(step.subtitle, { matchCase: false });
+            if (subtitle) {
+              cy.get('.l-journey h3').first().contains(subtitle, { matchCase: false });
             }
 
             cy.get('.l-journey h3 + div')
               .first()
-              .should($div => {
+              .should(($div) => {
                 const node = document.createElement('div');
-                node.innerHTML = step.content;
+                node.innerHTML = content;
                 expect($div).to.have.text(node.textContent);
               });
             break;
 
           case 'chapter':
-            cy.get('.l-journey .chapter-intro h1')
-              .first()
-              .contains(step.title, { matchCase: false });
+            cy.get('.l-journey .chapter-intro h1').first().contains(title, { matchCase: false });
             cy.get('.l-journey .chapter-intro p')
               .first()
-              .contains(step.content, { matchCase: false });
+              .contains(description, { matchCase: false });
             break;
 
           case 'embed':
-            cy.get('.l-journey .side-bar article > div')
+            cy.get('.l-journey .side-bar article .content > div')
               .first()
-              .should($div => {
+              .should(($div) => {
                 const node = document.createElement('div');
-                node.innerHTML = step.aside;
+                node.innerHTML = content;
+                expect($div).to.have.text(node.textContent);
+              });
+            cy.get('.l-journey .side-bar article h2')
+              .first()
+              .should(($div) => {
+                const node = document.createElement('div');
+                node.innerHTML = title;
+                expect($div).to.have.text(node.textContent);
+              });
+            cy.get('.l-journey .side-bar article h3')
+              .first()
+              .should(($div) => {
+                const node = document.createElement('div');
+                node.innerHTML = subtitle;
                 expect($div).to.have.text(node.textContent);
               });
             cy.get('.l-journey .btn-check-it')
               .first()
               .invoke('attr', 'href')
-              .should(href => {
-                const url = href.replace(new URL(href).origin, '');
-                const expectedUrl = step.btnUrl.replace(
-                  new URL(step.btnUrl, 'https://www.resilienceatlas.org/')
-                    .origin,
-                  '',
-                );
-                expect(url).to.eq(expectedUrl);
-              });
+              .should('be.equal', expectedUrl);
             break;
 
           default:
-            throw new Error(`No test for the "${step.type}" journey step`);
+            throw new Error(`No test for the "${type}" journey step`);
         }
 
         if (stepIndex + 1 < steps.length) {
-          cy.get('.l-journey')
-            .find('.btn-next')
-            .click();
+          cy.get('.l-journey').find('.btn-next').click();
         }
       });
     });

@@ -5,20 +5,13 @@ import {
   getIndexableIndicatorValueRange,
   getValueDescriptionFromIndex,
   getHumanReadableIndicatorValueFromIndex,
-} from '@modules/predictive_models/utils';
-import { useInput, useDebounce } from '@utilities/hooks';
+} from 'state/modules/predictive_models/utils';
+import { useInput, useDebounce } from 'utilities/hooks';
 
 const [min, max] = getIndexableIndicatorValueRange();
 const indicatorRange = { min, max };
 
-const Indicator = ({
-  updateIndicator,
-  toggleIndicator,
-  name,
-  id,
-  stateValue,
-  index,
-}) => {
+const Indicator = ({ updateIndicator, toggleIndicator, name, id, stateValue, index }) => {
   const slider = useInput(name, stateValue);
   const valueExists = typeof stateValue === 'number';
   const leftOffset = (slider.value / indicatorRange.max) * 100;
@@ -73,8 +66,9 @@ const Indicator = ({
             <span
               className="tooltip"
               style={{
-                left: `calc(${leftOffset}% - ${(leftOffset * handleSize) /
-                  100}px + ${handleSize / 2}px)`,
+                left: `calc(${leftOffset}% - ${(leftOffset * handleSize) / 100}px + ${
+                  handleSize / 2
+                }px)`,
               }}
             >
               {getValueDescriptionFromIndex(slider.value)}

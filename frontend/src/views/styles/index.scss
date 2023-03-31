@@ -2,15 +2,7 @@
 @import 'variables';
 
 // Importing dependencies and helpers
-@import '~normalize.css/normalize.css';
-
-@import '~slick-carousel/slick/slick.css';
-@import '~slick-carousel/slick/slick-theme.css';
-
-@import '~foundation-sites/scss/foundation';
-
-// @include foundation-flex-classes;
-// @include foundation-flex-grid;
+@import 'foundation-sites/scss/foundation';
 
 // Grid
 @include foundation-grid;
@@ -42,7 +34,7 @@
   'modules/_m-slider', 'modules/_m-static-page', 'modules/_m-toolbar',
   'modules/_m-welcome', 'modules/_m-widget', 'modules/_m-widgets-list',
   'modules/_modal', 'modules/m-user-form', 'modules/c-map-popup',
-  'modules/m-logo-attribution';
+  'modules/m-logo-attribution', 'modules/m-privacy-banner';
 
 // Global states
 @import 'state';

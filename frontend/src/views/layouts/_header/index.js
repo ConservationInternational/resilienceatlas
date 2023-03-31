@@ -1,12 +1,12 @@
 import { connect } from 'react-redux';
-import { load as loadMenuItems, makeMenuTree } from '@modules/map_menu_entries';
-import { logout, getUserLoggedIn } from '@modules/user';
+import { load as loadMenuItems, makeMenuTree } from 'state/modules/map_menu_entries';
+import { logout, getUserLoggedIn } from 'state/modules/user';
 import Component from './component';
 
 const makeMapStateToProps = () => {
   const getMenuItems = makeMenuTree();
 
-  const mapStateToProps = state => ({
+  const mapStateToProps = (state) => ({
     loggedIn: getUserLoggedIn(state),
     site: state.site,
     menuItems: getMenuItems(state),
@@ -16,6 +16,4 @@ const makeMapStateToProps = () => {
   return mapStateToProps;
 };
 
-export default connect(makeMapStateToProps, { loadMenuItems, logout })(
-  Component,
-);
+export default connect(makeMapStateToProps, { loadMenuItems, logout })(Component);

@@ -1,5 +1,5 @@
 .m-journey--chapter {
-  @extend %journey;
+  @extend %journey !optional;
   background-size: contain !important;
 
   .wrapper {

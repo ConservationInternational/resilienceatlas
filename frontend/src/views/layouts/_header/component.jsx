@@ -1,6 +1,8 @@
 import React, { useEffect, useCallback } from 'react';
-import { NavLink } from 'react-router-dom';
-import { sortBy } from '@utilities';
+import { useRouter } from 'next/router';
+import Link from 'next/link';
+import cx from 'classnames';
+import { sortBy } from 'utilities';
 
 const byPosition = sortBy('position');
 
@@ -12,9 +14,11 @@ const Header = ({
   menuItems,
   menuItemsLoaded,
 }) => {
+  const { pathname } = useRouter();
+
   useEffect(() => {
     if (!menuItemsLoaded) loadMenuItems();
-  }, []);
+  }, [loadMenuItems, menuItemsLoaded]);
 
   const renderMenuItem = useCallback(
     ({ id, label, link, children }) => (
@@ -34,57 +38,59 @@ const Header = ({
       <nav className="l-header-nav">
         <ul className="brand-area">
           <li>
-            <NavLink to="/">Resilience Atlas</NavLink>
+            <Link href="/">
+              <a>Resilience Atlas</a>
+            </Link>
           </li>
         </ul>
 
         <ul className="nav-area -resilience">
           <li className="journey-link">
-            <NavLink to="/journeys" activeClassName="is-current">
-              Journeys
-            </NavLink>
+            <Link href="/journeys">
+              <a className={cx(pathname.includes('/journeys') && 'is-current')}>Journeys</a>
+            </Link>
           </li>
 
           <li>
-            <NavLink to="/map" activeClassName="is-current">
-              Map
-            </NavLink>
+            <Link href="/map">
+              <a className={cx(pathname.includes('/map') && 'is-current')}>Map</a>
+            </Link>
 
             <ul>{menuItems.sort(byPosition).map(renderMenuItem)}</ul>
           </li>
 
           <li>
-            <NavLink to="/about" activeClassName="is-current">
-              About
-            </NavLink>
+            <Link href="/about">
+              <a className={cx(pathname.includes('/about') && 'is-current')}>About</a>
+            </Link>
           </li>
 
           {loggedIn ? (
             <>
               <li>
-                <NavLink to="/me" activeClassName="is-current">
-                  Me
-                </NavLink>
+                <Link href="/me">
+                  <a className={cx(pathname.includes('/me') && 'is-current')}>Me</a>
+                </Link>
               </li>
 
               <li>
-                <NavLink to="#" onClick={logout}>
+                <button type="button" onClick={logout}>
                   Logout
-                </NavLink>
+                </button>
               </li>
             </>
           ) : (
             <>
               <li>
-                <NavLink to="/login" activeClassName="is-current">
-                  Login
-                </NavLink>
+                <Link href="/login">
+                  <a className={cx(pathname.includes('/login') && 'is-current')}>Login</a>
+                </Link>
               </li>
 
               <li>
-                <NavLink to="/register" activeClassName="is-current">
-                  Register
-                </NavLink>
+                <Link href="/register">
+                  <a className={cx(pathname.includes('/register') && 'is-current')}>Register</a>
+                </Link>
               </li>
             </>
           )}

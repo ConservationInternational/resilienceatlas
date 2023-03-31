@@ -1,8 +1,8 @@
 import React, { Fragment, useEffect, useMemo } from 'react';
 import qs from 'qs';
-import Loader from '@shared/Loader';
+import Loader from 'views/shared/Loader';
 
-import { setRouterParam } from '@utilities';
+import { useRouterParams } from 'utilities';
 
 import Indicator from './Indicator';
 
@@ -20,6 +20,8 @@ const PredictiveModels = ({
   modelsLoaded,
   selectedModel,
 }) => {
+  const { setParam } = useRouterParams();
+
   useEffect(() => {
     if (!modelsLoaded) loadModels();
   }, []);
@@ -27,12 +29,12 @@ const PredictiveModels = ({
   useEffect(() => {
     // detect only changes caused by user
     if (model) {
-      setRouterParam(
+      setParam(
         'model',
         qs.stringify(
           {
             name: selectedModel,
-            values: model.indicators.map(ind => ind.indexableValue),
+            values: model.indicators.map((ind) => ind.indexableValue),
           },
           {
             arrayFormat: 'comma',
@@ -44,15 +46,12 @@ const PredictiveModels = ({
 
   const hasChanged = useMemo(
     () =>
-      model &&
-      model.indicators.some(
-        (ind, index) => ind.indexableValue !== indicatorsState[index],
-      ),
+      model && model.indicators.some((ind, index) => ind.indexableValue !== indicatorsState[index]),
     [model, indicatorsState],
   );
 
   const notDefault = useMemo(
-    () => model && model.indicators.some(ind => +ind.indexableValue !== 4),
+    () => model && model.indicators.some((ind) => +ind.indexableValue !== 4),
     [model],
   );
 
@@ -66,7 +65,7 @@ const PredictiveModels = ({
           className="js-model-selector"
           aria-label="Select a model"
           value={selectedModel || 'default'}
-          onChange={e => select(e.currentTarget.value)}
+          onChange={(e) => select(e.currentTarget.value)}
         >
           <option disabled value="default">
             Select a model
@@ -85,12 +84,10 @@ const PredictiveModels = ({
             <Fragment key={name}>
               <li className="category">{name}</li>
 
-              {indicators.map(indicator => (
+              {indicators.map((indicator) => (
                 <Indicator
                   key={indicator.name}
-                  index={model.indicators.findIndex(
-                    ind => ind.id === indicator.id,
-                  )}
+                  index={model.indicators.findIndex((ind) => ind.id === indicator.id)}
                   {...indicator}
                 />
               ))}

@@ -1,7 +1,7 @@
 module Api
   module V1
     class PhotosController < ApiController
-      # TODO: this API endpoint should be available only to Admin (session check)
+      before_action :authenticate_admin_user!
 
       def create
         @photo = Photo.new(photo_params)

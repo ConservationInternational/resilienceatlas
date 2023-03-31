@@ -4,9 +4,9 @@ import moment from 'moment';
 import numeral from 'numeral';
 import { replace } from 'resilience-layer-manager';
 
-import createReducer from '@state/utils/createReducer';
-import { createApiAction } from '@state/utils/api';
-import { removeHtmlTags } from '@utilities/helpers';
+import createReducer from 'state/utils/createReducer';
+import { createApiAction } from 'state/utils/api';
+import { removeHtmlTags } from 'utilities/helpers';
 
 const FETCH = createApiAction('FETCH');
 
@@ -16,7 +16,7 @@ const initialState = {
 };
 
 const layerDataReducer = createReducer(initialState)({
-  [FETCH.REQUEST]: state => ({
+  [FETCH.REQUEST]: (state) => ({
     ...state,
     interaction: {},
     loading: true,
@@ -31,7 +31,7 @@ const layerDataReducer = createReducer(initialState)({
     },
   }),
 
-  [FETCH.FAIL]: state => ({
+  [FETCH.FAIL]: (state) => ({
     ...state,
     loading: false,
   }),
@@ -51,15 +51,19 @@ const LayerPopup = ({
     } else if (item.type === 'number' && item.format && data) {
       data = numeral(data).format(item.format);
     } else if (item.type === 'link' && data) {
-      return <a href={data} target='_blank'> {data} </a>;
+      return (
+        <a href={data} target="_blank" rel="noreferrer">
+          {' '}
+          {data}{' '}
+        </a>
+      );
     }
 
-    return `${item.prefix || ''}${removeHtmlTags(data) || '-'}${item.suffix ||
-      ''}`;
+    return `${item.prefix || ''}${removeHtmlTags(data) || '-'}${item.suffix || ''}`;
   }, []);
 
   const layer = layersInteractionSelected
-    ? layers.find(l => l.id === +layersInteractionSelected)
+    ? layers.find((l) => l.id === +layersInteractionSelected)
     : layers[0];
 
   if (!layer) {
@@ -75,6 +79,7 @@ const LayerPopup = ({
   const interaction = layersInteraction[layer.id] || {};
   const interactionState = state.interaction[layer.id] || {};
 
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
     if (latlng && config && config.url) {
       dispatch({ type: FETCH.REQUEST });
@@ -107,9 +112,9 @@ const LayerPopup = ({
           className="popup-header-select"
           name="interactionLayers"
           value={layer.id}
-          onChange={e => onChangeInteractiveLayer(e.target.value)}
+          onChange={(e) => onChangeInteractiveLayer(e.target.value)}
         >
-          {layers.map(o => (
+          {layers.map((o) => (
             <option key={o.id} value={o.id}>
               {o.name}
             </option>
@@ -121,7 +126,7 @@ const LayerPopup = ({
         {(interaction.data || interactionState.data) && (
           <table className="popup-table">
             <tbody>
-              {output.map(outputItem => {
+              {output.map((outputItem) => {
                 const { column } = outputItem;
                 const columnArray = column.split('.');
                 const value = columnArray.reduce(
@@ -129,14 +134,18 @@ const LayerPopup = ({
                   interaction.data || interactionState.data,
                 );
                 return (
-                  <tr
-                    className="dc"
-                    key={outputItem.property || outputItem.column}
-                  >
-                    <td className="dt">
-                      {outputItem.property || outputItem.column}
+                  <tr className="dc" key={outputItem.property || outputItem.column}>
+                    <td className="dt">{outputItem.property || outputItem.column}</td>
+                    <td className="dd">
+                      {outputItem.column == 'image' ? (
+                        <img
+                          src={value}
+                          width={outputItem.image_width ? outputItem.image_width : '100'}
+                        ></img>
+                      ) : (
+                        formatValue(outputItem, value)
+                      )}
                     </td>
-                    <td className="dd">{ outputItem.column == 'image' ? <img src={value} width={outputItem.image_width ? outputItem.image_width : "100"}></img> : formatValue(outputItem, value)}</td>
                   </tr>
                 );
               })}
@@ -144,13 +153,13 @@ const LayerPopup = ({
           </table>
         )}
 
-        {state.loading &&
-          (!interaction.data || !interactionState.data) &&
-          config &&
-          config.url && <div className="popup-loader">Loading</div>}
+        {state.loading && (!interaction.data || !interactionState.data) && config && config.url && (
+          <div className="popup-loader">Loading</div>
+        )}
 
         {!state.loading &&
-          (!interaction.data && !interactionState.data) &&
+          !interaction.data &&
+          !interactionState.data &&
           config &&
           config.url &&
           'No data available'}

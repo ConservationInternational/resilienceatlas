@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_03_17_093559) do
+ActiveRecord::Schema[7.0].define(version: 2023_03_24_132712) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -399,7 +399,6 @@ ActiveRecord::Schema[7.0].define(version: 2023_03_17_093559) do
     t.text "logo_url"
     t.boolean "predictive_model", default: false, null: false
     t.boolean "analysis_options", default: false, null: false
-    t.string "analytics_code"
     t.boolean "has_gef_logo"
   end
 

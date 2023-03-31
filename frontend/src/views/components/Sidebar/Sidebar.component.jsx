@@ -1,29 +1,23 @@
-import React, { FC, useCallback, useEffect } from 'react';
-import { RouteComponentProps } from 'react-router-dom';
+import React, { useCallback, useEffect } from 'react';
 import cx from 'classnames';
+import { useRouter } from 'next/router';
 
-import AnalysisPanel from '@components/AnalysisPanel';
-import LayersList from '@components/LayersList';
-import PredictiveModels from '@components/PredictiveModels';
-import LogoAttribution from '@components/LogoAttribution';
+import AnalysisPanel from 'views/components/AnalysisPanel';
+import LayersList from 'views/components/LayersList';
+import PredictiveModels from 'views/components/PredictiveModels';
+import LogoAttribution from 'views/components/LogoAttribution';
 
-import LinkButton from '@shared/LinkButton';
-import Tabs from '@shared/Tabs';
+import LinkButton from 'views/shared/LinkButton';
+import Tabs from 'views/shared/Tabs';
 
-import { setRouterParam } from '@utilities';
+import { useRouterParams } from 'utilities';
 
 export const TABS = {
   LAYERS: 'layers',
   MODELS: 'models',
 };
 
-interface P extends RouteComponentProps {
-  geojson: L.GeoJSON;
-  opened: Boolean;
-  analysisOpened: Boolean;
-}
-
-const Sidebar: FC<P> = ({
+const Sidebar = ({
   // Actions
   toggleOpen,
   toggleAnalysis,
@@ -36,9 +30,14 @@ const Sidebar: FC<P> = ({
   modelsLoaded,
   site,
 }) => {
+  const router = useRouter();
+  const { setParam } = useRouterParams();
+
   useEffect(() => {
-    setRouterParam('tab', tab);
-  }, [tab]);
+    if (router.isReady && tab) {
+      setParam('tab', tab);
+    }
+  }, [router.isReady, tab]);
 
   const switchTab = useCallback(
     ({ tab: newTab }) => {

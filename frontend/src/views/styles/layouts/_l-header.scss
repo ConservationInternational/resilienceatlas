@@ -198,7 +198,7 @@
       }
     }
 
-    a {
+    a, button {
       display: block;
       padding: rem(7px) rem(20px) rem(3px);
       color: var(--theme-color);
@@ -209,6 +209,7 @@
 
       &:hover {
         text-decoration: none;
+        cursor: pointer;
       }
 
       &:not(.web-link):hover {
@@ -220,6 +221,12 @@
         background-color: var(--theme-color);
         color: $font-color-3;
       }
+    }
+
+    button {
+      background: none;
+      border: none;
+      font-weight: 500;
     }
 
     .l-main--embed & {

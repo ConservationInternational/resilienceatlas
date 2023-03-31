@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo } from 'react';
 import DangerousHTML from 'react-dangerous-html';
 import Iframe from 'react-iframe';
-import Legend from '@components/Legend';
+import Legend from 'views/components/Legend';
 import qs from 'qs';
 
 // TODO: get rid of IFrame and use Map Component
@@ -9,36 +9,42 @@ import qs from 'qs';
 // And to add separate mapper, to store all needed variables from redux
 // in url only on map page
 
-const Embed = ({
-  loadLayers,
-  loadCountries,
-  layersLoaded,
-  countriesLoaded,
-  countries,
-  theme,
-  mapUrl,
-  btnUrl,
-  maskSql,
-  aside,
-  currentStep,
-  countryName,
-  setActiveLayer,
-}) => {
+const STATIC_JOURNEYS = process.env.NEXT_PUBLIC_STATIC_JOURNEYS === 'true';
+
+const StaticEmbed = (props) => {
+  const {
+    loadLayers,
+    loadCountries,
+    layersLoaded,
+    countriesLoaded,
+    countries,
+    theme,
+    mapUrl,
+    btnUrl,
+    maskSql,
+    aside,
+    currentStep,
+    countryName,
+    setActiveLayer,
+  } = props;
+
   useEffect(() => {
     if (!layersLoaded) loadLayers();
     if (!countriesLoaded) loadCountries();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
   useEffect(() => {
     const mapString = mapUrl.split('?')[1];
     const mapData = qs.parse(mapString);
     const layerData = JSON.parse(mapData.layers);
-    const layerDataIds = layerData.map(l => l.id);
+    const layerDataIds = layerData.map((l) => l.id);
 
     setActiveLayer(layerDataIds);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mapUrl]);
   const countryInfo =
-    countries.find(c => c.name.toLowerCase() === countryName.toLowerCase()) ||
-    {};
+    countries.find((c) => c.name.toLowerCase() === countryName.toLowerCase()) || {};
 
   const embedParams = useMemo(() => {
     const params = new URLSearchParams();
@@ -52,13 +58,12 @@ const Embed = ({
 
     return params.toString();
   }, [countriesLoaded, countryInfo.geometry, maskSql]);
-
   return (
     <div className={`m-journey--embed--light ${theme}`}>
       <div className="embebed-map">
-        <Iframe src={`${process.env.REACT_APP_SITE + mapUrl}&${embedParams}`} />
+        <Iframe src={`${mapUrl}&${embedParams}`} />
         <a
-          href={process.env.REACT_APP_SITE + btnUrl}
+          href={btnUrl}
           target="_blank"
           rel="noopener noreferrer"
           data-step={currentStep}
@@ -82,8 +87,95 @@ const Embed = ({
   );
 };
 
+const Embed = (props) => {
+  const {
+    loadLayers,
+    loadCountries,
+    layersLoaded,
+    countriesLoaded,
+    countries,
+    theme,
+    embedded_map_url: mapUrl,
+    map_url: btnUrl,
+    mask_sql: maskSql,
+    source,
+    content,
+    title,
+    subtitle,
+    currentStep,
+    countryName,
+    setActiveLayer,
+  } = props;
+
+  useEffect(() => {
+    if (!layersLoaded) loadLayers();
+    if (!countriesLoaded) loadCountries();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    const mapString = mapUrl.split('?')[1];
+    const mapData = qs.parse(mapString);
+    const layerData = JSON.parse(mapData.layers);
+    const layerDataIds = layerData.map((l) => l.id);
+
+    setActiveLayer(layerDataIds);
+  }, [mapUrl, setActiveLayer]);
+  const countryInfo =
+    countries.find((c) => c.name.toLowerCase() === countryName.toLowerCase()) || {};
+
+  const embedParams = useMemo(() => {
+    const params = new URLSearchParams();
+
+    params.set('journeyMap', true);
+    params.set('maskSql', maskSql);
+
+    if (countriesLoaded && countryInfo.geometry) {
+      params.set('geojson', countryInfo.geometry);
+    }
+
+    return params.toString();
+  }, [countriesLoaded, countryInfo.geometry, maskSql]);
+  return (
+    <div className={`m-journey--embed--light ${theme}`}>
+      <div className="embebed-map">
+        <Iframe src={`${mapUrl}&${embedParams}`} />
+        <a
+          href={btnUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          data-step={currentStep}
+          className="btn-check-it"
+        >
+          View on map
+        </a>
+      </div>
+      <article className="side-bar">
+        <div className="wrapper">
+          <article>
+            <header>
+              <h2>{title}</h2>
+              <h3>{subtitle}</h3>
+            </header>
+            <section>
+              <h1>{countryName}</h1>
+              <DangerousHTML html={content} className="content" />
+            </section>
+            {/* TODO: Review if source is rendered correctly */}
+            {source}
+            <Legend />
+            <footer>
+              <p>INSIGHTS PROVIDED BY CONSERVATION INTERNATIONAL</p>
+            </footer>
+          </article>
+        </div>
+      </article>
+    </div>
+  );
+};
+
 Embed.defaultProps = {
   countryName: '',
 };
 
-export default Embed;
+export default STATIC_JOURNEYS ? StaticEmbed : Embed;

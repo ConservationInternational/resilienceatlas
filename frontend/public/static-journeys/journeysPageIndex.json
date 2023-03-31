@@ -1,0 +1,42 @@
+[
+  {
+    "id": 1,
+    "title": "ETHIOPIA",
+    "subtitle": "Smallholder maize",
+    "theme": "Livelihoods dependent on rainfed agricultural production and small-scale farms threatened by changing climate",
+    "bg" : "thumb-1",
+    "bg-big": "thumb-big-1"
+  },
+  {
+    "id": 2,
+    "title": "ETHIOPIA",
+    "subtitle": "Pastoral livelihoods",
+    "theme": "Pastoral livelihoods threatened by changing climate",
+    "bg" : "thumb-2",
+    "bg-big": "thumb-big-2"
+  },
+  {
+    "id": 3,
+    "title": "INDIA",
+    "subtitle": "Cotton production",
+    "theme": "Building resilience of an important cash crop",
+    "bg" : "thumb-3",
+    "bg-big": "thumb-big-3"
+  },
+  {
+    "id": 4,
+    "title": "AFRICA",
+    "theme": "Climate change likely to reduce available land for African coffee production",
+    "theme": "Climate change likely to affect coffee production",
+    "bg" : "thumb-4",
+    "bg-big": "thumb-big-4"
+  },
+  {
+    "id": 5,
+    "title": "MADAGASCAR",
+    "theme": "Ecosystem-based adaptation",
+    "theme": "Implementing climate resilient rice production",
+    "bg" : "thumb-5",
+    "bg-big": "thumb-big-5"
+  }
+]

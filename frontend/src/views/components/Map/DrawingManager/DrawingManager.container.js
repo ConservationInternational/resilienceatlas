@@ -1,10 +1,10 @@
 import { connect } from 'react-redux';
-import { setGeojson, setDrawing, setISO } from '@modules/map';
-import { getByISO } from '@modules/countries/selectors';
+import { setGeojson, setDrawing, setISO } from 'state/modules/map';
+import { getByISO } from 'state/modules/countries/selectors';
 
 import { DrawingManager } from './DrawingManager.component';
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state) => ({
   drawing: state.map.drawing,
   geojson: state.map.geojson,
   iso: state.map.iso,

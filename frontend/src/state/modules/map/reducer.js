@@ -1,5 +1,5 @@
-import { subdomain } from '@utilities/getSubdomain';
-import { getRouterParam } from '@utilities';
+import { subdomain } from 'utilities/getSubdomain';
+import { getRouterParam } from 'utilities';
 import { createReducer } from '../../utils';
 import * as t from './actions';
 
@@ -8,9 +8,7 @@ const initialState = {
   // geojson: getRouterParam('geojson', JSON.parse),
   bounds: null,
   iso: getRouterParam('iso'),
-  basemap:
-    getRouterParam('basemap') ||
-    (subdomain === 'atlas' ? 'satellite' : 'defaultmap'),
+  basemap: getRouterParam('basemap') || (subdomain === 'atlas' ? 'satellite' : 'defaultmap'),
   layerGroupsInteraction: {},
   layerGroupsInteractionSelected: null,
   layerGroupsInteractionLatLng: null,
@@ -50,18 +48,12 @@ export default createReducer(initialState)({
     },
   }),
 
-  [t.SET_MAP_LAYER_GROUPS_INTERACTION_LATLNG]: (
-    state,
-    { layerGroupsInteractionLatLng },
-  ) => ({
+  [t.SET_MAP_LAYER_GROUPS_INTERACTION_LATLNG]: (state, { layerGroupsInteractionLatLng }) => ({
     ...state,
     layerGroupsInteractionLatLng,
   }),
 
-  [t.SET_MAP_LAYER_GROUPS_INTERACTION_SELECTED]: (
-    state,
-    { layerGroupsInteractionSelected },
-  ) => ({
+  [t.SET_MAP_LAYER_GROUPS_INTERACTION_SELECTED]: (state, { layerGroupsInteractionSelected }) => ({
     ...state,
     layerGroupsInteractionSelected,
   }),

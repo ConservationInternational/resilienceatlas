@@ -6,7 +6,7 @@ export const toggleSidebar = () => ({
   type: TOGGLE_SIDEBAR,
 });
 
-export const setTab = tab => ({
+export const setTab = (tab) => ({
   type: SET_TAB,
   tab,
 });
