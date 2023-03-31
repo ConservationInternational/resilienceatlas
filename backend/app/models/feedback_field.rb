@@ -25,7 +25,6 @@ class FeedbackField < ApplicationRecord
     rating: "rating"
   }, default: :single_choice, _suffix: true
 
-  validates_presence_of :feedback, if: -> { parent.blank? }
   validates :answer, json: true
 
   before_validation :set_feedback
