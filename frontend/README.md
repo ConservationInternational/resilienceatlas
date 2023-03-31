@@ -122,6 +122,16 @@ In case you need to manually deploy the application, you can use the following c
 bundle exec cap [staging|production] deploy
 ```
 
+## Layers renderization test
+
+In order to test the renderization of the layers, you can use the following command:
+
+```
+yarn test:layers
+```
+
+It only will work if you have the `RUN_LAYERS_TESTS=1` environment variable set in the `cypress.env.json` file. Set to `0` to disable.
+
 ## Contribution rules
 
 Please, **create a PR** for any improvement or feature you want to add. Use the `develop` branch for this.
