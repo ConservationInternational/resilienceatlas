@@ -3,7 +3,6 @@ import { Provider as ReduxProvider } from 'react-redux';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { QueryClient, QueryClientProvider, Hydrate } from '@tanstack/react-query';
-
 import { wrapper } from 'state/store';
 import * as ga from 'utilities/ga';
 import { getToken, login } from 'state/modules/user';
@@ -79,6 +78,8 @@ const ResilienceApp = ({ Component, ...rest }: AppPropsWithLayout) => {
       router.events.off('routeChangeComplete', handleRouteChange);
     };
   }, [router.events]);
+
+  ga.useInitGAScript();
 
   return (
     <>

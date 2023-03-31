@@ -23,8 +23,8 @@
 #
 class JourneyStep < ApplicationRecord
   AVAILABLE_FIELDS_FOR_EVERY_TYPE = { # dont forget to add/remove fields to/from Admin and API
-    title: {available_at: %i[landing conclusion chapter]},
-    subtitle: {available_at: %i[conclusion]},
+    title: {available_at: %i[landing conclusion chapter embed]},
+    subtitle: {available_at: %i[conclusion embed]},
     description: {available_at: %i[landing chapter]},
     content: {available_at: %i[conclusion embed]},
     chapter_number: {available_at: %i[chapter]},

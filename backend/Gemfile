@@ -38,7 +38,7 @@ gem "rack-cors"
 # Utilities
 gem "seed_dump"
 gem "active_admin_theme"
-gem "sendgrid"
+gem "sparkpost_rails", github: "sportstech/sparkpost_rails" # Rails 7 support
 gem "rubyzip"
 gem "prawn"
 gem "prawn-table"
@@ -83,6 +83,7 @@ group :development do
   gem "binding_of_caller"
   gem "annotate"
   gem "web-console"
+  gem "letter_opener_web"
 end
 
 group :test do

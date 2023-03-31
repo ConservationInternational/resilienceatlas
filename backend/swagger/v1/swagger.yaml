@@ -60,8 +60,8 @@ paths:
                   interactivity: molestiae
                   opacity:
                   query:
-                  created_at: '2023-03-24T14:32:58.465+01:00'
-                  updated_at: '2023-03-24T14:32:58.465+01:00'
+                  created_at: '2023-03-31T10:06:50.960+02:00'
+                  updated_at: '2023-03-31T10:06:50.960+02:00'
                   locate_layer: false
                   icon_class:
                   published: true
@@ -104,8 +104,8 @@ paths:
                   interactivity: cum
                   opacity:
                   query:
-                  created_at: '2023-03-24T14:32:58.458+01:00'
-                  updated_at: '2023-03-24T14:32:58.458+01:00'
+                  created_at: '2023-03-31T10:06:50.957+02:00'
+                  updated_at: '2023-03-31T10:06:50.957+02:00'
                   locate_layer: false
                   icon_class:
                   published: true
@@ -148,8 +148,8 @@ paths:
                   interactivity: voluptatem
                   opacity:
                   query:
-                  created_at: '2023-03-24T14:32:58.449+01:00'
-                  updated_at: '2023-03-24T14:32:58.449+01:00'
+                  created_at: '2023-03-31T10:06:50.955+02:00'
+                  updated_at: '2023-03-31T10:06:50.955+02:00'
                   locate_layer: false
                   icon_class:
                   published: true
@@ -221,8 +221,8 @@ paths:
                   interactivity: voluptatem
                   opacity:
                   query:
-                  created_at: '2023-03-24T14:32:58.543+01:00'
-                  updated_at: '2023-03-24T14:32:58.543+01:00'
+                  created_at: '2023-03-31T10:06:50.987+02:00'
+                  updated_at: '2023-03-31T10:06:50.987+02:00'
                   locate_layer: false
                   icon_class:
                   published: true
@@ -305,8 +305,8 @@ paths:
                   interactivity: voluptatem
                   opacity:
                   query:
-                  created_at: '2023-03-24T14:32:58.692+01:00'
-                  updated_at: '2023-03-24T14:32:58.692+01:00'
+                  created_at: '2023-03-31T10:06:51.036+02:00'
+                  updated_at: '2023-03-31T10:06:51.036+02:00'
                   locate_layer: false
                   icon_class:
                   published: true
@@ -385,8 +385,8 @@ paths:
                   interactivity: voluptatem
                   opacity:
                   query:
-                  created_at: '2023-03-24T14:32:58.958+01:00'
-                  updated_at: '2023-03-24T14:32:58.958+01:00'
+                  created_at: '2023-03-31T10:06:51.078+02:00'
+                  updated_at: '2023-03-31T10:06:51.078+02:00'
                   locate_layer: false
                   icon_class:
                   published: true
@@ -429,7 +429,7 @@ paths:
           content:
             application/json:
               example:
-                auth_token: eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoyLCJleHAiOjE2Nzk3NTExNzl9.tGs6LXj3ykF6H1Dm6YZPxPMqCXBMpEOm8gl_Uo1YwBA
+                auth_token: eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoyLCJleHAiOjE2ODAzMzY0MTF9.X42-059e4Qwc3TdwVOOuBMPJi7sEldZ6ZtKBoVhU6Ho
         '401':
           description: Unauthorized
           content:
@@ -668,9 +668,9 @@ paths:
                   relationships:
                     journey_steps:
                       data:
-                      - id: '11'
-                        type: journey_steps
                       - id: '12'
+                        type: journey_steps
+                      - id: '11'
                         type: journey_steps
                 meta:
                   total: 3
@@ -725,28 +725,15 @@ paths:
                   relationships:
                     journey_steps:
                       data:
-                      - id: '47'
-                        type: journey_steps
                       - id: '50'
                         type: journey_steps
-                      - id: '53'
+                      - id: '47'
                         type: journey_steps
                       - id: '56'
                         type: journey_steps
+                      - id: '53'
+                        type: journey_steps
                 included:
-                - id: '47'
-                  type: journey_steps
-                  attributes:
-                    step_type: landing
-                    position: 25
-                    title: Et quaerat omnis veniam.
-                    description: Et quaerat omnis veniam.
-                    credits: Et quaerat omnis veniam.
-                    credits_url: http://hane.com/jules
-                    background_image:
-                      small: http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBTUT09IiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--093feffe581362132535baa8401eadfdf9033863/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERJd01IZ3lNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--7be8b6f6018bc25ae287d258d8836839fa7642f1/picture.jpg
-                      medium: http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBTUT09IiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--093feffe581362132535baa8401eadfdf9033863/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERnd01IZzRNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--697714719ccce7b35c5f9a02aeef5bd517f3d81f/picture.jpg
-                      original: http://localhost:3000/rails/active_storage/blobs/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBTUT09IiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--093feffe581362132535baa8401eadfdf9033863/picture.jpg
                 - id: '50'
                   type: journey_steps
                   attributes:
@@ -763,6 +750,32 @@ paths:
                       small: http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBUUT09IiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--27138d7d10dfd59e9a762e2dc09e4b573ccb6c6b/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERJd01IZ3lNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--7be8b6f6018bc25ae287d258d8836839fa7642f1/picture.jpg
                       medium: http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBUUT09IiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--27138d7d10dfd59e9a762e2dc09e4b573ccb6c6b/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERnd01IZzRNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--697714719ccce7b35c5f9a02aeef5bd517f3d81f/picture.jpg
                       original: http://localhost:3000/rails/active_storage/blobs/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBUUT09IiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--27138d7d10dfd59e9a762e2dc09e4b573ccb6c6b/picture.jpg
+                - id: '47'
+                  type: journey_steps
+                  attributes:
+                    step_type: landing
+                    position: 25
+                    title: Et quaerat omnis veniam.
+                    description: Et quaerat omnis veniam.
+                    credits: Et quaerat omnis veniam.
+                    credits_url: http://hane.com/jules
+                    background_image:
+                      small: http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBTUT09IiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--093feffe581362132535baa8401eadfdf9033863/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERJd01IZ3lNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--7be8b6f6018bc25ae287d258d8836839fa7642f1/picture.jpg
+                      medium: http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBTUT09IiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--093feffe581362132535baa8401eadfdf9033863/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERnd01IZzRNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--697714719ccce7b35c5f9a02aeef5bd517f3d81f/picture.jpg
+                      original: http://localhost:3000/rails/active_storage/blobs/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBTUT09IiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--093feffe581362132535baa8401eadfdf9033863/picture.jpg
+                - id: '56'
+                  type: journey_steps
+                  attributes:
+                    step_type: embed
+                    position: 76
+                    title: Eum consequuntur adipisci non.
+                    subtitle: Eum consequuntur adipisci non.
+                    content: Eum consequuntur adipisci. Facere iure beatae. In odio
+                      reiciendis.
+                    source: Eum consequuntur adipisci non.
+                    mask_sql: Eum consequuntur adipisci non.
+                    map_url: http://lind.name/alana
+                    embedded_map_url: http://lind.name/alana
                 - id: '53'
                   type: journey_steps
                   attributes:
@@ -777,17 +790,6 @@ paths:
                       small: http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBVUT09IiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--b901a2be846ccb323dcc92b5007079add7856e34/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERJd01IZ3lNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--7be8b6f6018bc25ae287d258d8836839fa7642f1/picture.jpg
                       medium: http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBVUT09IiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--b901a2be846ccb323dcc92b5007079add7856e34/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERnd01IZzRNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--697714719ccce7b35c5f9a02aeef5bd517f3d81f/picture.jpg
                       original: http://localhost:3000/rails/active_storage/blobs/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBVUT09IiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--b901a2be846ccb323dcc92b5007079add7856e34/picture.jpg
-                - id: '56'
-                  type: journey_steps
-                  attributes:
-                    step_type: embed
-                    position: 76
-                    content: Eum consequuntur adipisci. Facere iure beatae. In odio
-                      reiciendis.
-                    source: Eum consequuntur adipisci non.
-                    mask_sql: Eum consequuntur adipisci non.
-                    map_url: http://lind.name/alana
-                    embedded_map_url: http://lind.name/alana
   "/api/layer-groups":
     get:
       summary: Get list of layer groups
@@ -1271,6 +1273,8 @@ paths:
       summary: Save new image
       tags:
       - Photo
+      security:
+      - cookie_auth: []
       parameters: []
       responses:
         '201':
@@ -1279,11 +1283,17 @@ paths:
             application/json:
               example:
                 id: 2
-                image_data: '{"id":"a129e9d334b031e62bb7b465d9825ab1.jpg","storage":"store","metadata":{"filename":"picture.jpg","size":32326,"mime_type":null}}'
-                created_at: '2023-03-24T14:33:44.596+01:00'
-                updated_at: '2023-03-24T14:33:44.602+01:00'
-                url: "/uploads/store/a129e9d334b031e62bb7b465d9825ab1.jpg"
-                image_url: "/uploads/store/a129e9d334b031e62bb7b465d9825ab1.jpg"
+                image_data: '{"id":"77951a854986eb8acd57ee8b8dca1164.jpg","storage":"store","metadata":{"filename":"picture.jpg","size":32326,"mime_type":null}}'
+                created_at: '2023-03-31T10:07:00.818+02:00'
+                updated_at: '2023-03-31T10:07:00.819+02:00'
+                url: "/uploads/store/77951a854986eb8acd57ee8b8dca1164.jpg"
+                image_url: "/uploads/store/77951a854986eb8acd57ee8b8dca1164.jpg"
+        '401':
+          description: Authentication failed
+          content:
+            application/json:
+              example:
+                error: You need to sign in or sign up before continuing.
   "/users/register":
     post:
       summary: Register new user
@@ -1383,7 +1393,7 @@ paths:
           content:
             application/json:
               example:
-                uid: babd56dc206531010244
+                uid: f36d9e876ea6b3f18dde
   "/api/sites":
     get:
       summary: Get list of all site scopes
@@ -1504,8 +1514,8 @@ paths:
               example:
                 id: 7
                 email: person-1@example.com
-                created_at: '2023-03-24T14:33:45.113+01:00'
-                updated_at: '2023-03-24T14:33:45.113+01:00'
+                created_at: '2023-03-31T10:07:00.929+02:00'
+                updated_at: '2023-03-31T10:07:00.929+02:00'
                 first_name: Dawna
                 last_name: Block
                 phone: "(995) 001-7692 x452"
@@ -1536,8 +1546,8 @@ paths:
                 last_name: Kowalski
                 email: jankowalski@example.com
                 id: 9
-                created_at: '2023-03-24T14:33:45.188+01:00'
-                updated_at: '2023-03-24T14:33:45.212+01:00'
+                created_at: '2023-03-31T10:07:00.956+02:00'
+                updated_at: '2023-03-31T10:07:00.964+02:00'
                 phone: "(995) 001-7692 x452"
                 organization: voluptatem
                 organization_role: voluptatem
@@ -1578,6 +1588,10 @@ paths:
                 - user
 components:
   securitySchemes:
+    cookie_auth:
+      type: apiKey
+      name: _backend_session
+      in: cookie
     tokenAuth:
       type: http
       scheme: bearer

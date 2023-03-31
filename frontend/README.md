@@ -1,6 +1,6 @@
 # Resilience Atlas - Front-end
 
-*This version is based on the repository: [https://github.com/ConservationInternational/resilienceatlas-react](https://github.com/ConservationInternational/resilienceatlas-react)*
+_This version is based on the repository: [https://github.com/ConservationInternational/resilienceatlas-react](https://github.com/ConservationInternational/resilienceatlas-react)_
 
 The front-end application of the Resilience Atlas platform is built using the following resources:
 
@@ -33,10 +33,21 @@ The application is configured via environment variables stored in a `.env` file 
 
 Below is a description of each of the keys.
 
-| Variable                       | Description                                                                                                                                       |
-|--------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------|
-| `NEXT_PUBLIC_API_HOST`         | Complete URL of the API server (including https) and without the trailing slask (e.g. https://www.resilienceatlas.org)                            |
-| `NEXT_PUBLIC_GOOGLE_ANALYTICS` | Optional − Google Analytics' measurement ID                                                                                                       |
+| Variable                       | Description                                                                                                            |
+| ------------------------------ | ---------------------------------------------------------------------------------------------------------------------- |
+| `NEXT_PUBLIC_API_HOST`         | Complete URL of the API server (including https) and without the trailing slask (e.g. https://www.resilienceatlas.org) |
+| `NEXT_PUBLIC_GOOGLE_ANALYTICS` | Optional − Google Analytics' measurement ID                                                                            |
+| `NEXT_PUBLIC_STATIC_JOURNEYS`  | Optional − Temporary - Static journey API different from the Backend one but used on production                        |
+
+### How to update the environment variables
+
+Every time we update the environment variables, we need to update them in the following places:
+
+- For the Github actions scripts the environment variables are stored in the repository as GitHub secrets. In order to update them, you need to be an administrator of the repository. And also you need to update the environment variables in the GitHub actions scripts in the `.github/workflows/frontend_ci_cd.yml` file.
+- For the staging and production environments, the environment variables are stored in the server as environment variables. In order to update them, you need to be an administrator of the server. The environment variables are stored in the file `[project_path]/shared/.env.production`.
+- For the local environment, the environment variables are stored in the `.env.local` file.
+- Update the environment variables in the `README.md` file.
+- Finally, you have to update the environment variables in the `.env.example` file.
 
 ## CI/CD
 
@@ -52,7 +63,7 @@ It is recommended to mention the Jira task ID either in commits or the branch na
 
 We are using Capistrano to deploy the application. So, in order to deploy the application, you need to have the following:
 
-* Ruby 3.2.1 (rbenv recommended)
+- Ruby 3.2.1 (rbenv recommended)
 
 And you can install the dependencies with:
 

@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-
+import Head from 'next/head';
 // Components
 import Loader from 'views/shared/Loader';
 
@@ -11,7 +11,22 @@ import Chapter from './Chapter';
 
 import type { FC } from 'react';
 import type { WithRouterProps } from 'next/dist/client/with-router';
-import type { JourneyDetail } from 'types/journeys';
+import type { JourneyDetail as StaticJourneyDetail } from 'types/static-journeys';
+import type { JourneyItem } from 'types/journeys';
+
+type StaticJourneyProps = WithRouterProps & {
+  // Actions
+  loadJourney: (id: string) => void;
+  // Data
+  query: {
+    id: string;
+    step: string;
+  };
+  journeysLength: number;
+  journeyLoaded: boolean;
+  journeyLoading: boolean;
+  journey: StaticJourneyDetail;
+};
 
 type JourneyProps = WithRouterProps & {
   // Actions
@@ -24,7 +39,7 @@ type JourneyProps = WithRouterProps & {
   journeysLength: number;
   journeyLoaded: boolean;
   journeyLoading: boolean;
-  journey: JourneyDetail;
+  journey: JourneyItem;
 };
 
 const JOURNEY_TYPES = {
@@ -34,7 +49,9 @@ const JOURNEY_TYPES = {
   chapter: Chapter,
 };
 
-const Journey: FC<JourneyProps> = ({
+const STATIC_JOURNEYS = process.env.NEXT_PUBLIC_STATIC_JOURNEYS === 'true';
+
+const StaticJourney: FC<StaticJourneyProps> = ({
   // Actions
   loadJourney,
   // Data
@@ -42,15 +59,16 @@ const Journey: FC<JourneyProps> = ({
   journeysLength,
   journeyLoaded,
   journeyLoading,
-  journey: { steps },
+  journey,
 }) => {
   useEffect(() => {
     if (!journeyLoaded && currentJourney) loadJourney(currentJourney);
   }, [currentJourney, journeyLoaded, loadJourney]);
 
+  const { steps } = journey;
   const stepIndex = Number(step) - 1;
 
-  if (!journeyLoaded || !steps[stepIndex]) return null;
+  if (!journeyLoaded || !journey || !steps[stepIndex]) return null;
   const stepInfo = steps[stepIndex];
 
   return (
@@ -61,14 +79,63 @@ const Journey: FC<JourneyProps> = ({
 
       <Controls journeysLength={journeysLength} slideslength={steps.length} />
 
-      {!journeyLoading && stepInfo.type !== 'embed'}
-      <p className={`credits ${stepInfo.type}`}>
-        <a target="_blank" rel="noopener noreferrer" href={stepInfo.creditsUrl}>
-          {stepInfo.credits}
-        </a>
-      </p>
+      {!journeyLoading && stepInfo.type !== 'embed' && (
+        <p className={`credits ${stepInfo.type}`}>
+          <a target="_blank" rel="noopener noreferrer" href={stepInfo.creditsUrl}>
+            {stepInfo.credits}
+          </a>
+        </p>
+      )}
     </div>
   );
 };
 
-export default Journey;
+const Journey: FC<JourneyProps> = ({
+  // Actions
+  loadJourney,
+  // Data
+  query: { id: currentJourney, step },
+  journeysLength,
+  journeyLoaded,
+  journeyLoading,
+  journey,
+}) => {
+  useEffect(() => {
+    if (!journeyLoaded && currentJourney) loadJourney(currentJourney);
+  }, [currentJourney, journeyLoaded, loadJourney]);
+  const stepIndex = Number(step) - 1;
+  const { steps, attributes: journeyAttributes } = journey;
+  const { published } = journeyAttributes || {};
+
+  if (!journeyLoaded || !journey || !steps[stepIndex]) return null;
+  const stepInfo = steps[stepIndex];
+
+  const { attributes } = stepInfo;
+  const { step_type: stepType } = attributes;
+  return (
+    <>
+      <Head>
+        {published === false && (
+          <meta name="robots" content="noindex, nofollow, noimageindex, noarchive" />
+        )}
+      </Head>
+      <div className="l-journey" id="journeyIndexView">
+        <Loader loading={journeyLoading} />
+
+        {journeyLoaded && React.createElement(JOURNEY_TYPES[stepType], { ...attributes })}
+
+        <Controls journeysLength={journeysLength} slideslength={steps.length} />
+
+        {!journeyLoading && stepType !== 'embed' && (
+          <p className={`credits ${stepType}`}>
+            <a target="_blank" rel="noopener noreferrer" href={attributes.credits_url}>
+              {attributes.credits}
+            </a>
+          </p>
+        )}
+      </div>
+    </>
+  );
+};
+
+export default STATIC_JOURNEYS ? StaticJourney : Journey;

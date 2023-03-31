@@ -12,25 +12,26 @@ describe('Journeys index page', () => {
   it('should have same length than journeys in the API', () => {
     cy.wait('@journeyListRequest').then(({ response }) => {
       cy.wrap(response.statusCode).should('be.oneOf', [200, 304]);
-      cy.get('.m-journey__gridelement').should('have.length', response.body.length);
+      cy.get('.m-journey__gridelement').should('have.length', response.body.data.length);
     });
   });
 
   it('should show the journeys content according the API', () => {
     cy.wait('@journeyListRequest').then(({ response }) => {
       cy.wrap(response.statusCode).should('be.oneOf', [200, 304]);
+      cy.log(response);
       cy.get('.m-journey__gridelement').each(($el, index) => {
         cy.wrap($el)
           .find('h2')
-          .should('contain', response.body[index].title)
+          .should('contain', response.body.data[index].attributes.title)
           .find('a')
           .should('have.attr', 'href')
-          .should('include', `/journeys/${response.body[index].id}`);
+          .should('include', `/journeys/${response.body.data[index].id}`);
         cy.wrap($el)
           .find('.btn')
           .should('contain', 'Learn more')
           .should('have.attr', 'href')
-          .should('include', `/journeys/${response.body[index].id}`);
+          .should('include', `/journeys/${response.body.data[index].id}`);
       });
     });
   });

@@ -7,6 +7,7 @@ services:
       args:
         - NEXT_PUBLIC_API_HOST=https://www.resilienceatlas.org
         - NEXT_PUBLIC_GOOGLE_ANALYTICS_ID=UA-123456789-1
+        - NEXT_PUBLIC_STATIC_JOURNEYS=true
     ports:
       - "3000:3000"
     container_name: resilienceatlas-frontend

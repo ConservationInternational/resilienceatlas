@@ -48,7 +48,7 @@ RSpec.describe "API V1 Journeys", type: :request do
         run_test!
 
         it "matches snapshot", generate_swagger_example: true do
-          expect(response.body).to match_snapshot("api/v1/get_journey")
+          expect(response.body).to match_snapshot("api/v1/get_journey", ignore_order: %w[data])
         end
 
         context "with locale" do
