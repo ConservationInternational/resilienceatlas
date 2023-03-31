@@ -20,6 +20,7 @@ class Journey < ApplicationRecord
   translates :title, :subtitle, :theme, :credits, fallbacks_for_empty_translations: true
   active_admin_translates :title, :subtitle, :theme, :credits
 
+  validates_presence_of :journey_steps
   validates :background_image, content_type: /\Aimage\/.*\z/
   validates :credits_url, url: true
 

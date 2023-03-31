@@ -28,4 +28,9 @@ RSpec.describe Journey, type: :model do
     subject.background_image.attach fixture_file_upload("document.pdf")
     expect(subject).to have(1).errors_on(:background_image)
   end
+
+  it "should not be valid without journey steps" do
+    subject.journey_steps = []
+    expect(subject).to have(1).errors_on(:journey_steps)
+  end
 end

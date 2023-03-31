@@ -1,5 +1,5 @@
 = semantic_form_for [:admin, resource], builder: ActiveAdmin::FormBuilder do |f|
-  = f.semantic_errors
+  = f.semantic_errors :journey_steps, :base
   = f.inputs "Translated fields" do
     = f.translated_inputs switch_locale: false do |ff|
       = ff.input :id, as: :hidden
@@ -13,8 +13,9 @@
     == render "admin/shared/image_with_thumbnail", blob: :background_image, f: f, required: false
     = f.input :published
 
-  = f.inputs "Journey Steps", class: "inputs has-many-collapsed" do
+  = f.inputs "Journey Steps", class: "inputs has-many-collapsed use-simple-trix-toolbar" do
     - f.has_many :journey_steps, heading: false, sortable: :position, sortable_start: 1 do |ff|
+      = ff.semantic_errors
       = ff.inputs (ff.object.new_record? ? "New Step" : "#{ff.object.step_type.to_s.capitalize} step: Page #{ff.object.position}"), class: "inputs has-many-toggle-collapse" do
         div class="has-many-section section-hidden select-dependency-container"
           - ff.input :step_type, as: :select, collection: JourneyStep.step_types.keys, input_html: {class: "select-dependency-controller"}
