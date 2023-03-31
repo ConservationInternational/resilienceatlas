@@ -1,0 +1,15 @@
+= semantic_form_for [:admin, resource], builder: ActiveAdmin::FormBuilder do |f|
+  = f.semantic_errors
+  = f.inputs "Translated fields" do
+    = f.translated_inputs switch_locale: false do |ff|
+      = ff.input :id, as: :hidden
+      = ff.input :locale, as: :hidden
+      = ff.input :title
+      = ff.inputs "Body" do
+        = ff.rich_text_area :body
+
+  = f.inputs "Page details" do
+    = f.input :site_scope
+    = f.input :priority
+    = f.input :slug
+  = f.actions

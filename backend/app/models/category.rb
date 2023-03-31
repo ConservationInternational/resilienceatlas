@@ -3,18 +3,23 @@
 # Table name: categories
 #
 #  id          :bigint           not null, primary key
-#  name        :string           not null
 #  slug        :string           not null
-#  description :text
 #  created_at  :datetime         not null
 #  updated_at  :datetime         not null
+#  name        :string
+#  description :text
 #
 
 class Category < ApplicationRecord
   has_many :indicators
-  validates_presence_of :slug, :name
+
+  translates :name, :description, fallbacks_for_empty_translations: true
+  active_admin_translates :name, :description
+
+  validates_presence_of :slug
+  translation_class.validates_presence_of :name, if: -> { locale.to_s == I18n.default_locale.to_s }
 
   def self.fetch_all(options = {})
-    Category.all
+    Category.with_translations I18n.locale
   end
 end

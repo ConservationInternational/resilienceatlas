@@ -6,6 +6,7 @@ RSpec.describe "API V1 Sites", type: :request do
       tags "SiteScope"
       consumes "application/json"
       produces "application/json"
+      parameter name: :locale, in: :query, type: :string, description: "Used language. Default: en", required: false
 
       let!(:default_site_scope) { create :site_scope, id: 1, name: "CIGRP" }
       let!(:extra_site_scope) { create :site_scope, id: 2 }
@@ -26,8 +27,10 @@ RSpec.describe "API V1 Sites", type: :request do
       consumes "application/json"
       produces "application/json"
       parameter name: :site_scope, in: :query, type: :string, description: "Site scope subdomain", required: false
+      parameter name: :locale, in: :query, type: :string, description: "Used language. Default: en", required: false
 
       let(:default_site_scope) { create :site_scope, id: 1, name: "CIGRP" }
+      let!(:site_page) { create :site_page, site_scope: default_site_scope }
       let(:site_scope) { default_site_scope.subdomain }
 
       response "200", :success do

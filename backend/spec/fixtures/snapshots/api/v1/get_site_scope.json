@@ -22,9 +22,23 @@
     "relationships": {
       "site_pages": {
         "data": [
-
+          {
+            "id": "9",
+            "type": "site_pages"
+          }
         ]
       }
     }
-  }
+  },
+  "included": [
+    {
+      "id": "9",
+      "type": "site_pages",
+      "attributes": {
+        "title": "voluptatem",
+        "priority": 38,
+        "url": "/contents/SitePage-1"
+      }
+    }
+  ]
 }

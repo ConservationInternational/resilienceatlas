@@ -7,6 +7,7 @@ RSpec.describe "API V1 Models", type: :request do
       consumes "application/json"
       produces "application/json"
       parameter name: :site_scope, in: :query, type: :integer, description: "Site scope to list layers for", required: false
+      parameter name: :locale, in: :query, type: :string, description: "Used language. Default: en", required: false
 
       let(:default_site_scope) { create :site_scope, id: 1, name: "CIGRP" }
       let(:extra_site_scope) { create :site_scope, id: 2 }

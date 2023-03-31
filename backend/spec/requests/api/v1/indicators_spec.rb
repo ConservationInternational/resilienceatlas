@@ -6,6 +6,7 @@ RSpec.describe "API V1 Indicators", type: :request do
       tags "Indicator"
       consumes "application/json"
       produces "application/json"
+      parameter name: :locale, in: :query, type: :string, description: "Used language. Default: en", required: false
 
       let!(:indicators) { create_list :indicator, 3 }
 

@@ -13,9 +13,14 @@
 #
 
 class SitePage < ApplicationRecord
-  has_rich_text :body
   belongs_to :site_scope
-  validates_uniqueness_of :title, scope: :site_scope_id
-  validates_presence_of :title, :site_scope, :body, :slug
+
+  has_rich_text :body
+
+  translates :title, :body, fallbacks_for_empty_translations: true
+  active_admin_translates :title, :body
+
+  validates_presence_of :site_scope, :slug
   validates_uniqueness_of :slug
+  translation_class.validates_presence_of :title, :body, if: -> { locale.to_s == I18n.default_locale.to_s }
 end

@@ -50,8 +50,8 @@ class Api::Admin::LayersController < Api::Admin::ApiController
   end
 
   def site_scopes
-    @site_scopes = SiteScope.order("name ASC")
-    @site_scopes = @site_scopes.by_keyword(params[:keyword]) if params[:keyword].present?
+    @site_scopes = SiteScope.where(site_scope_translations: {locale: I18n.locale}).order(name: :asc)
+    @site_scopes = @site_scopes.ransack(translations_name_i_cont: params[:keyword]).result if params[:keyword].present?
     render json: {success: true, message: "List of all Site Scopes", data: @site_scopes.as_json}, status: :ok
   end
 

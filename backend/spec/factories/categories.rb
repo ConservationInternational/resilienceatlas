@@ -3,11 +3,11 @@
 # Table name: categories
 #
 #  id          :bigint           not null, primary key
-#  name        :string           not null
 #  slug        :string           not null
-#  description :text
 #  created_at  :datetime         not null
 #  updated_at  :datetime         not null
+#  name        :string
+#  description :text
 #
 FactoryBot.define do
   factory :category do

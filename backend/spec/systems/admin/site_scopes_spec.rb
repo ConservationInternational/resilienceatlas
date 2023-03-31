@@ -15,6 +15,8 @@ RSpec.describe "Admin: Site Scopes", type: :system do
     it "shows all resources" do
       SiteScope.all.each do |site_scope|
         expect(page).to have_text(site_scope.name)
+        expect(page).to have_text(site_scope.linkback_text)
+        expect(page).to have_text(site_scope.linkback_url)
       end
     end
   end
@@ -51,14 +53,14 @@ RSpec.describe "Admin: Site Scopes", type: :system do
     end
 
     it "allows to create new site_scope" do
-      fill_in "site_scope[name]", with: "New name"
+      fill_in "site_scope[translations_attributes][0][name]", with: "New name"
+      fill_in "site_scope[translations_attributes][0][linkback_text]", with: "This is link"
       fill_in "site_scope[color]", with: "#000000"
       fill_in "site_scope[subdomain]", with: "test"
       fill_in "site_scope[latitude]", with: "10.11"
       fill_in "site_scope[longitude]", with: "20.22"
       select "ci-theme", from: "site_scope[header_theme]"
       fill_in "site_scope[zoom_level]", with: "3"
-      fill_in "site_scope[linkback_text]", with: "This is link"
       fill_in "site_scope[linkback_url]", with: "http://test.test"
       fill_in "site_scope[header_color]", with: "#100000"
       fill_in "site_scope[logo_url]", with: "http://test.test/image.pjg"
@@ -89,7 +91,7 @@ RSpec.describe "Admin: Site Scopes", type: :system do
     end
 
     it "allows to update existing site_scope" do
-      fill_in "site_scope[name]", with: "Update name"
+      fill_in "site_scope[translations_attributes][0][name]", with: "Update name"
 
       click_on "Update Site scope"
 

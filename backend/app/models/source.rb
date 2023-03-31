@@ -20,4 +20,7 @@
 
 class Source < ApplicationRecord
   has_and_belongs_to_many :layers
+
+  translates :reference, :reference_short, :license, fallbacks_for_empty_translations: true
+  active_admin_translates :reference, :reference_short, :license
 end

@@ -90,12 +90,20 @@ ActiveRecord::Schema[7.0].define(version: 2023_03_24_132712) do
   end
 
   create_table "categories", force: :cascade do |t|
-    t.string "name", null: false
     t.string "slug", null: false
-    t.text "description"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["name"], name: "index_categories_on_name"
+  end
+
+  create_table "category_translations", force: :cascade do |t|
+    t.bigint "category_id", null: false
+    t.string "locale", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "name"
+    t.text "description"
+    t.index ["category_id"], name: "index_category_translations_on_category_id"
+    t.index ["locale"], name: "index_category_translations_on_locale"
   end
 
   create_table "ckeditor_assets", force: :cascade do |t|
@@ -123,8 +131,17 @@ ActiveRecord::Schema[7.0].define(version: 2023_03_24_132712) do
     t.index ["user_id"], name: "index_identities_on_user_id"
   end
 
+  create_table "indicator_translations", force: :cascade do |t|
+    t.bigint "indicator_id", null: false
+    t.string "locale", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "name"
+    t.index ["indicator_id"], name: "index_indicator_translations_on_indicator_id"
+    t.index ["locale"], name: "index_indicator_translations_on_locale"
+  end
+
   create_table "indicators", force: :cascade do |t|
-    t.string "name", null: false
     t.string "slug", null: false
     t.string "version"
     t.datetime "created_at", precision: nil, default: "2023-02-22 11:02:20", null: false
@@ -282,7 +299,6 @@ ActiveRecord::Schema[7.0].define(version: 2023_03_24_132712) do
   end
 
   create_table "map_menu_entries", force: :cascade do |t|
-    t.string "label"
     t.string "link"
     t.integer "position"
     t.datetime "created_at", null: false
@@ -291,10 +307,29 @@ ActiveRecord::Schema[7.0].define(version: 2023_03_24_132712) do
     t.index ["ancestry"], name: "index_map_menu_entries_on_ancestry"
   end
 
-  create_table "models", force: :cascade do |t|
-    t.string "name", null: false
+  create_table "map_menu_entry_translations", force: :cascade do |t|
+    t.bigint "map_menu_entry_id", null: false
+    t.string "locale", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "label"
+    t.index ["locale"], name: "index_map_menu_entry_translations_on_locale"
+    t.index ["map_menu_entry_id"], name: "index_map_menu_entry_translations_on_map_menu_entry_id"
+  end
+
+  create_table "model_translations", force: :cascade do |t|
+    t.bigint "model_id", null: false
+    t.string "locale", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "name"
     t.text "description"
     t.text "source"
+    t.index ["locale"], name: "index_model_translations_on_locale"
+    t.index ["model_id"], name: "index_model_translations_on_model_id"
+  end
+
+  create_table "models", force: :cascade do |t|
     t.datetime "created_at", precision: nil, default: "2023-02-22 11:02:20", null: false
     t.datetime "updated_at", precision: nil, default: "2023-02-22 11:02:20", null: false
     t.text "query_analysis"
@@ -319,9 +354,18 @@ ActiveRecord::Schema[7.0].define(version: 2023_03_24_132712) do
     t.datetime "updated_at", null: false
   end
 
-  create_table "site_pages", force: :cascade do |t|
+  create_table "site_page_translations", force: :cascade do |t|
+    t.bigint "site_page_id", null: false
+    t.string "locale", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.string "title"
     t.text "body"
+    t.index ["locale"], name: "index_site_page_translations_on_locale"
+    t.index ["site_page_id"], name: "index_site_page_translations_on_site_page_id"
+  end
+
+  create_table "site_pages", force: :cascade do |t|
     t.integer "priority"
     t.integer "site_scope_id"
     t.datetime "created_at", null: false
@@ -329,11 +373,20 @@ ActiveRecord::Schema[7.0].define(version: 2023_03_24_132712) do
     t.string "slug"
     t.index ["site_scope_id"], name: "index_site_pages_on_site_scope_id"
     t.index ["slug"], name: "index_site_pages_on_slug", unique: true
-    t.index ["title", "site_scope_id"], name: "index_site_pages_on_title_and_site_scope_id", unique: true
+  end
+
+  create_table "site_scope_translations", force: :cascade do |t|
+    t.bigint "site_scope_id", null: false
+    t.string "locale", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "name"
+    t.text "linkback_text"
+    t.index ["locale"], name: "index_site_scope_translations_on_locale"
+    t.index ["site_scope_id"], name: "index_site_scope_translations_on_site_scope_id"
   end
 
   create_table "site_scopes", force: :cascade do |t|
-    t.string "name"
     t.string "color"
     t.string "subdomain"
     t.boolean "has_analysis", default: false
@@ -341,7 +394,6 @@ ActiveRecord::Schema[7.0].define(version: 2023_03_24_132712) do
     t.float "longitude"
     t.string "header_theme"
     t.integer "zoom_level", default: 3
-    t.text "linkback_text"
     t.text "linkback_url"
     t.string "header_color"
     t.text "logo_url"
@@ -350,14 +402,23 @@ ActiveRecord::Schema[7.0].define(version: 2023_03_24_132712) do
     t.boolean "has_gef_logo"
   end
 
-  create_table "sources", force: :cascade do |t|
-    t.string "source_type"
+  create_table "source_translations", force: :cascade do |t|
+    t.bigint "source_id", null: false
+    t.string "locale", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.string "reference"
     t.string "reference_short"
+    t.string "license"
+    t.index ["locale"], name: "index_source_translations_on_locale"
+    t.index ["source_id"], name: "index_source_translations_on_source_id"
+  end
+
+  create_table "sources", force: :cascade do |t|
+    t.string "source_type"
     t.string "url"
     t.string "contact_name"
     t.string "contact_email"
-    t.string "license"
     t.datetime "last_updated", precision: nil
     t.string "version"
     t.datetime "created_at", null: false
