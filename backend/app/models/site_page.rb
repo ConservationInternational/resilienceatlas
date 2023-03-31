@@ -22,5 +22,5 @@ class SitePage < ApplicationRecord
 
   validates_presence_of :site_scope, :slug
   validates_uniqueness_of :slug
-  translation_class.validates_presence_of :title, :body, if: -> { locale.to_s == I18n.default_locale.to_s }
+  translation_class.validates_presence_of :title, if: -> { locale.to_s == I18n.default_locale.to_s }
 end

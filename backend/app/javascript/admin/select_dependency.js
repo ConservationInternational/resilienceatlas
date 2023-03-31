@@ -1,5 +1,3 @@
-import { addRequiredFlagToField, removeRequiredFlagFromField } from './admin/label_functions';
-
 // Set up fields for already existing sections at has many Admin container
 function initSelectDependencyFields() {
     $(".select-dependency-container").each((index, value) => {
@@ -29,10 +27,10 @@ function toggleSelectDependencyFields(container) {
     container.find(".select-dependency-field").each((index, value) => {
         let $this = $(value);
         if($.inArray(selectedOption, $this.data("availableFor")) === -1) {
-            removeRequiredFlagFromField($this);
+            removeRequiredFlagFromInput($this);
             $this.hide();
         } else {
-            ($.inArray(selectedOption, $this.data("requiredFor")) !== -1) ? addRequiredFlagToField($this) : removeRequiredFlagFromField($this);
+            ($.inArray(selectedOption, $this.data("requiredFor")) !== -1) ? addRequiredFlagToInput($this) : removeRequiredFlagFromInput($this);
             $this.show();
         }
     });

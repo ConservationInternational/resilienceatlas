@@ -1,9 +1,7 @@
 //= require active_admin/base
 //= require active_admin/sortable
 //= require trix
-//= require utils/upload_attachement
 //= require activeadmin_addons/all
 //= require active_admin/active_admin_globalize
-//= require admin/has_many_collapsable
-//= require admin/select_dependency
-//= require admin/checkbox_dependency
+//= require_tree ./utils
+//= require_tree ./admin
