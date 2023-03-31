@@ -51,16 +51,32 @@
 require "rails_helper"
 
 RSpec.describe Layer, type: :model do
-  let(:source) { create :source }
-  let!(:layer) { create :layer, sources: [source] }
+  subject { build(:layer) }
 
-  it "Layer is valid" do
-    expect(layer).to be_valid
-    expect(layer.sources.first.source_type).to eq(source.source_type)
+  it { is_expected.to be_valid }
+
+  it "should not be valid without slug" do
+    subject.slug = nil
+    expect(subject).to have(1).errors_on(:slug)
   end
 
-  it "Count layers" do
-    expect(Layer.count).to eq(1)
+  it "should not be valid without layer_provider" do
+    subject.layer_provider = nil
+    expect(subject).to have(1).errors_on(:layer_provider)
+  end
+
+  it "should not be valid without interaction_config" do
+    subject.interaction_config = nil
+    expect(subject).to have(1).errors_on(:interaction_config)
+  end
+
+  context "when layer is a cog" do
+    subject { build :layer, layer_provider: "cog" }
+
+    it "should not be valid without layer_config" do
+      subject.layer_config = nil
+      expect(subject).to have(1).errors_on(:layer_config)
+    end
   end
 
   describe "#clone!" do
