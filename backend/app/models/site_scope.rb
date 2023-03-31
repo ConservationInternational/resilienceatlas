@@ -17,7 +17,6 @@
 #  logo_url         :text
 #  predictive_model :boolean          default(FALSE), not null
 #  analysis_options :boolean          default(FALSE), not null
-#  analytics_code   :string
 #  has_gef_logo     :boolean
 #
 

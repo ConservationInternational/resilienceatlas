@@ -1,5 +1,5 @@
 ActiveAdmin.register SiteScope do
-  permit_params :name, :subdomain, :color, :analytics_code,
+  permit_params :name, :subdomain, :color,
     :has_analysis, :latitude, :longitude,
     :header_theme, :zoom_level, :linkback_text,
     :linkback_url, :header_color, :logo_url,
@@ -19,7 +19,6 @@ ActiveAdmin.register SiteScope do
       f.input :header_theme, as: :select, collection: %w[ci-theme vs-theme]
       f.input :header_color, as: :color
       f.input :logo_url, as: :string
-      f.input :analytics_code
       f.input :subdomain
       f.input :has_analysis
       f.input :linkback_text, as: :string
@@ -45,7 +44,6 @@ ActiveAdmin.register SiteScope do
     column :header_theme
     column :header_color
     column :logo_url
-    column :analytics_code
     column :subdomain
     column :has_analysis
     column :linkback_text

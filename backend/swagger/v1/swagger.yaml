@@ -60,8 +60,8 @@ paths:
                   interactivity: molestiae
                   opacity:
                   query:
-                  created_at: '2023-03-28T10:36:45.130+02:00'
-                  updated_at: '2023-03-28T10:36:45.130+02:00'
+                  created_at: '2023-03-31T10:06:50.960+02:00'
+                  updated_at: '2023-03-31T10:06:50.960+02:00'
                   locate_layer: false
                   icon_class:
                   published: true
@@ -104,8 +104,8 @@ paths:
                   interactivity: cum
                   opacity:
                   query:
-                  created_at: '2023-03-28T10:36:45.120+02:00'
-                  updated_at: '2023-03-28T10:36:45.120+02:00'
+                  created_at: '2023-03-31T10:06:50.957+02:00'
+                  updated_at: '2023-03-31T10:06:50.957+02:00'
                   locate_layer: false
                   icon_class:
                   published: true
@@ -148,8 +148,8 @@ paths:
                   interactivity: voluptatem
                   opacity:
                   query:
-                  created_at: '2023-03-28T10:36:45.109+02:00'
-                  updated_at: '2023-03-28T10:36:45.109+02:00'
+                  created_at: '2023-03-31T10:06:50.955+02:00'
+                  updated_at: '2023-03-31T10:06:50.955+02:00'
                   locate_layer: false
                   icon_class:
                   published: true
@@ -221,8 +221,8 @@ paths:
                   interactivity: voluptatem
                   opacity:
                   query:
-                  created_at: '2023-03-28T10:36:45.235+02:00'
-                  updated_at: '2023-03-28T10:36:45.235+02:00'
+                  created_at: '2023-03-31T10:06:50.987+02:00'
+                  updated_at: '2023-03-31T10:06:50.987+02:00'
                   locate_layer: false
                   icon_class:
                   published: true
@@ -305,8 +305,8 @@ paths:
                   interactivity: voluptatem
                   opacity:
                   query:
-                  created_at: '2023-03-28T10:36:45.463+02:00'
-                  updated_at: '2023-03-28T10:36:45.463+02:00'
+                  created_at: '2023-03-31T10:06:51.036+02:00'
+                  updated_at: '2023-03-31T10:06:51.036+02:00'
                   locate_layer: false
                   icon_class:
                   published: true
@@ -385,8 +385,8 @@ paths:
                   interactivity: voluptatem
                   opacity:
                   query:
-                  created_at: '2023-03-28T10:36:45.644+02:00'
-                  updated_at: '2023-03-28T10:36:45.644+02:00'
+                  created_at: '2023-03-31T10:06:51.078+02:00'
+                  updated_at: '2023-03-31T10:06:51.078+02:00'
                   locate_layer: false
                   icon_class:
                   published: true
@@ -429,7 +429,7 @@ paths:
           content:
             application/json:
               example:
-                auth_token: eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoyLCJleHAiOjE2ODAwNzkwMDV9.ds9ZiuMesJsnvQ3MzJkCvihXMnMVdipzmwp2sHlZZYo
+                auth_token: eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoyLCJleHAiOjE2ODAzMzY0MTF9.X42-059e4Qwc3TdwVOOuBMPJi7sEldZ6ZtKBoVhU6Ho
         '401':
           description: Unauthorized
           content:
@@ -1193,7 +1193,6 @@ paths:
                     logo_url: http://kutch-spencer.com/moises
                     predictive_model: true
                     analysis_options: true
-                    analytics_code:
                     has_gef_logo:
                   relationships:
                     site_pages:
@@ -1216,7 +1215,6 @@ paths:
                     logo_url: http://bartoletti.com/jeremiah_cronin
                     predictive_model: true
                     analysis_options: true
-                    analytics_code:
                     has_gef_logo:
                   relationships:
                     site_pages:
@@ -1284,12 +1282,12 @@ paths:
           content:
             application/json:
               example:
-                id: 6
-                image_data: '{"id":"6649db9d696c3a2ec7061d7e257712b9.jpg","storage":"store","metadata":{"filename":"picture.jpg","size":32326,"mime_type":null}}'
-                created_at: '2023-03-28T10:37:14.253+02:00'
-                updated_at: '2023-03-28T10:37:14.258+02:00'
-                url: "/uploads/store/6649db9d696c3a2ec7061d7e257712b9.jpg"
-                image_url: "/uploads/store/6649db9d696c3a2ec7061d7e257712b9.jpg"
+                id: 2
+                image_data: '{"id":"77951a854986eb8acd57ee8b8dca1164.jpg","storage":"store","metadata":{"filename":"picture.jpg","size":32326,"mime_type":null}}'
+                created_at: '2023-03-31T10:07:00.818+02:00'
+                updated_at: '2023-03-31T10:07:00.819+02:00'
+                url: "/uploads/store/77951a854986eb8acd57ee8b8dca1164.jpg"
+                image_url: "/uploads/store/77951a854986eb8acd57ee8b8dca1164.jpg"
         '401':
           description: Authentication failed
           content:
@@ -1395,7 +1393,7 @@ paths:
           content:
             application/json:
               example:
-                uid: e717ef237978dcecd56a
+                uid: f36d9e876ea6b3f18dde
   "/api/sites":
     get:
       summary: Get list of all site scopes
@@ -1426,7 +1424,6 @@ paths:
                     logo_url: http://kutch-spencer.com/moises
                     predictive_model: true
                     analysis_options: true
-                    analytics_code:
                     has_gef_logo:
                   relationships:
                     site_pages:
@@ -1449,7 +1446,6 @@ paths:
                     logo_url: http://bartoletti.com/jeremiah_cronin
                     predictive_model: true
                     analysis_options: true
-                    analytics_code:
                     has_gef_logo:
                   relationships:
                     site_pages:
@@ -1491,7 +1487,6 @@ paths:
                     logo_url: http://kutch-spencer.com/moises
                     predictive_model: true
                     analysis_options: true
-                    analytics_code:
                     has_gef_logo:
                   relationships:
                     site_pages:
@@ -1519,8 +1514,8 @@ paths:
               example:
                 id: 7
                 email: person-1@example.com
-                created_at: '2023-03-28T10:37:14.610+02:00'
-                updated_at: '2023-03-28T10:37:14.610+02:00'
+                created_at: '2023-03-31T10:07:00.929+02:00'
+                updated_at: '2023-03-31T10:07:00.929+02:00'
                 first_name: Dawna
                 last_name: Block
                 phone: "(995) 001-7692 x452"
@@ -1551,8 +1546,8 @@ paths:
                 last_name: Kowalski
                 email: jankowalski@example.com
                 id: 9
-                created_at: '2023-03-28T10:37:14.662+02:00'
-                updated_at: '2023-03-28T10:37:14.677+02:00'
+                created_at: '2023-03-31T10:07:00.956+02:00'
+                updated_at: '2023-03-31T10:07:00.964+02:00'
                 phone: "(995) 001-7692 x452"
                 organization: voluptatem
                 organization_role: voluptatem
