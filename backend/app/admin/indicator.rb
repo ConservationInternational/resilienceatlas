@@ -23,28 +23,6 @@ ActiveAdmin.register Indicator do
     actions
   end
 
-  # FIXME: Check which way we should display the indicators
-  # As the gem active_admin-sortable_tree doesn't display
-  # a table and we have to check for incompatibilities
-
-  # index do
-  #   column :position
-  #   column :category
-  #   column :name
-  #   column :slug
-  #   column :column_name
-  #   column :operation
-  #   column :models do |indicator|
-  #     links = []
-  #     indicator.models.map do |model|
-  #       links << link_to(model.name, admin_model_path(model.id))
-  #     end
-  #     links.reduce(:+)
-  #   end
-  #
-  #   actions
-  # end
-
   form do |f|
     f.semantic_errors
 
