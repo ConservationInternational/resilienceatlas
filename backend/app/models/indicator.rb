@@ -18,7 +18,7 @@ class Indicator < ApplicationRecord
   has_and_belongs_to_many :models
   belongs_to :category
 
-  translates :name, fallbacks_for_empty_translations: true
+  translates :name, touch: true, fallbacks_for_empty_translations: true
   active_admin_translates :name
 
   validates_presence_of :slug

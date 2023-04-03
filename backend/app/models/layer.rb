@@ -101,7 +101,7 @@ class Layer < ApplicationRecord
   accepts_nested_attributes_for :agrupations, allow_destroy: true
   accepts_nested_attributes_for :sources, allow_destroy: true
 
-  translates :name, :info, :legend, :title, :data_units, :processing, :description, fallbacks_for_empty_translations: true
+  translates :name, :info, :legend, :title, :data_units, :processing, :description, touch: true, fallbacks_for_empty_translations: true
   active_admin_translates :name, :info, :legend, :title, :data_units, :processing, :description
 
   validates_presence_of :slug, :layer_provider, :interaction_config

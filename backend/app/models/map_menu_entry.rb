@@ -14,7 +14,7 @@
 class MapMenuEntry < ApplicationRecord
   has_ancestry orphan_strategy: :destroy
 
-  translates :label, fallbacks_for_empty_translations: true
+  translates :label, touch: true, fallbacks_for_empty_translations: true
   active_admin_translates :label
 
   validates_presence_of :position

@@ -16,7 +16,7 @@ class Model < ApplicationRecord
   has_and_belongs_to_many :site_scopes
   has_and_belongs_to_many :indicators
 
-  translates :name, :description, :source, fallbacks_for_empty_translations: true
+  translates :name, :description, :source, touch: true, fallbacks_for_empty_translations: true
   active_admin_translates :name, :description, :source
 
   translation_class.validates_presence_of :name, if: -> { locale.to_s == I18n.default_locale.to_s }

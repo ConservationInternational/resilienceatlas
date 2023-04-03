@@ -13,7 +13,7 @@
 class Category < ApplicationRecord
   has_many :indicators
 
-  translates :name, :description, fallbacks_for_empty_translations: true
+  translates :name, :description, touch: true, fallbacks_for_empty_translations: true
   active_admin_translates :name, :description
 
   validates_presence_of :slug
