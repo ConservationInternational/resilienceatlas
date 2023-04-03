@@ -61,7 +61,6 @@ Transifex is initialized on the App.jsx file. A PseudoTranslationPolicy is provi
 
 ### Scripts
 
-Important: The scripts use the TRANSIFEX_TOKEN and TRANSIFEX_SECRET which should be a copy of NEXT_PUBLIC_TRANSIFEX_TOKEN and NEXT_PUBLIC_TRANSIFEX_SECRET and present on the correspondant env file.
 There are three different scripts that use the transifex cli:
 
 - `yarn transifex:push` Pushes the strings that are used in the code to transifex.
