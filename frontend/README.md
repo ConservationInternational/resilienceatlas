@@ -53,36 +53,36 @@ Every time we update the environment variables, we need to update them in the fo
 
 ## Translation
 
-The aplication is translated with the [transifex native](https://www.transifex.com/native/) service.
+The application is translated with the [Transifex Native](https://www.transifex.com/native/) service.
 
-## Initialization
+### Initialization
 
 Transifex is initialized on the App.jsx file. A PseudoTranslationPolicy is provided on the development environment so we can see what translations are missing on the different languages directly on the platform on development.
 
-## Scripts
+### Scripts
 
 Important: The scripts use the TRANSIFEX_TOKEN and TRANSIFEX_SECRET which should be a copy of NEXT_PUBLIC_TRANSIFEX_TOKEN and NEXT_PUBLIC_TRANSIFEX_SECRET and present on the correspondant env file.
 There are three different scripts that use the transifex cli:
 
-`yarn transifex:push` Pushes the strings that are used in the code to transifex.
-`yarn transifex:push:prod` Pushes the strings that are used in the code to transifex using the production env. This runs on the production deploy
-`yarn transifex:refresh` Refreshes the strings translated on transifex to show them on develop. It can take a couple minutes to show the changes.
-`yarn transifex:purge` This command purges the strings on transifex so we only have the ones present on the code. The strings no used anymore will be deleted.
-`yarn transifex:purge:prod` This command purges the strings on transifex so we only have the ones present on the code. The strings no used anymore will be deleted. This uses the production env.
+- `yarn transifex:push` Pushes the strings that are used in the code to transifex.
+- `yarn transifex:push:prod` Pushes the strings that are used in the code to transifex using the production env. This runs on the production deploy
+- `yarn transifex:refresh` Refreshes the strings translated on transifex to show them on develop. It can take a couple minutes to show the changes.
+- `yarn transifex:purge` This command purges the strings on transifex so we only have the ones present on the code. The strings no used anymore will be deleted.
+- `yarn transifex:purge:prod` This command purges the strings on transifex so we only have the ones present on the code. The strings no used anymore will be deleted. This uses the production env.
 
 If the purge is not working correctly try to use it directly from terminal:
 
 `npx txjs-cli push src/ --purge --token=[TX TOKEN HERE] --secret=[TX SECRET HERE]`
 
-## Selecting the translation locale
+### Selecting the translation locale
 
 There is a language switcher component available on the menu.The locale is then retrieved on the App component to set the translation.
 
-## To translate strings
+### To translate strings
 
 The translation of strings will depend where is the string:
 
-### Strings inside Components
+#### Strings inside Components
 
 For strings inside react components or containers its enough to use the useT hook or the T component
 
