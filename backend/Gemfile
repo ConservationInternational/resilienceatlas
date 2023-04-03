@@ -70,8 +70,6 @@ group :development, :test do
   gem "capistrano-rbenv", "~> 2.2"
   gem "capistrano-bundler"
   gem "capistrano-rails"
-  gem "capistrano-npm"
-  gem "capistrano-nvm"
   gem "capistrano-passenger"
 end
 
