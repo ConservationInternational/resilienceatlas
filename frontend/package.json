@@ -10,11 +10,9 @@
     "lint": "next lint",
     "prettier": "prettier --config .prettierrc.json --check --write \"./src/**/*.{tsx,jsx,ts,js}\"",
     "check-types": "tsc --noemit -p tsconfig.json",
-    "transifex:push": "dotenv -e .env.local ./node_modules/.bin/txjs-cli push src/",
-    "transifex:push:prod": "dotenv -e .env.production ./node_modules/.bin/txjs-cli push src/",
-    "transifex:purge": "dotenv -e .env.local ./node_modules/.bin/txjs-cli push src/ --purge",
-    "transifex:purge:prod": "dotenv -e .env.production ./node_modules/.bin/txjs-cli push src/ --purge",
-    "transifex:refresh": "dotenv -e env.local ./node_modules/.bin/txjs-cli invalidate"
+    "transifex:push": "txjs-cli push src/ --token=$(./node_modules/.bin/dotenv -e .env -c -p NEXT_PUBLIC_TRANSIFEX_TOKEN) --secret=$(./node_modules/.bin/dotenv -e .env -c -p NEXT_PUBLIC_TRANSIFEX_SECRET)",
+    "transifex:purge": "txjs-cli push src/ --token=$(./node_modules/.bin/dotenv -e .env -c -p NEXT_PUBLIC_TRANSIFEX_TOKEN) --secret=$(./node_modules/.bin/dotenv -e .env -c -p NEXT_PUBLIC_TRANSIFEX_SECRET) --purge",
+    "transifex:refresh": "txjs-cli invalidate --token=$(./node_modules/.bin/dotenv -e .env -c -p NEXT_PUBLIC_TRANSIFEX_TOKEN) --secret=$(./node_modules/.bin/dotenv -e .env -c -p NEXT_PUBLIC_TRANSIFEX_SECRET)"
   },
   "dependencies": {
     "@carto/carto.js": "4.2.2",
