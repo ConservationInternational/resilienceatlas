@@ -74,7 +74,17 @@ namespace :deploy do
     end
   end
 
+  desc 'Transifex: Push translations'
+  task :push_translations do
+    on roles(:app) do
+      within release_path do
+        execute :yarn, 'transifex:push'
+      end
+    end
+  end
+
   before "symlink:release", :build_app
+  after "build_app", :push_translations
 end
 
 # for the bastion host

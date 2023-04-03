@@ -6,6 +6,7 @@ import { connect } from 'react-redux';
 import { isAuthenticated } from 'utilities/authenticated';
 import ProfileSettingsForm from 'views/components/ProfileSettingsForm';
 import MainLayout from 'views/layouts/main';
+import { T } from '@transifex/react';
 
 import type { NextPageWithLayout } from './_app';
 
@@ -22,12 +23,20 @@ const ProfileSettingsPage: NextPageWithLayout = ({ user }) => {
       <Row>
         <div className="m-user-form">
           <h2>
-            Edit {user.first_name} {user.last_name}
+            <T
+              _str="Edit {first_name} {last_name}"
+              first_name={user.first_name}
+              last_name={user.last_name}
+            />
           </h2>
           <ProfileSettingsForm />
-          <h3>Cancel my account</h3>
+          <h3>
+            <T _str="Cancel my account" />
+          </h3>
 
-          <p>Unhappy?</p>
+          <p>
+            <T _str="Unhappy?" />
+          </p>
 
           <input type="submit" value="Cancel my account" />
 

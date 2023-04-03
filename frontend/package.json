@@ -6,15 +6,22 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "test": "cypress run --headless --browser chrome",
+    "test": "cypress run --headless --browser chrome --spec cypress/e2e/about.cy.js",
     "lint": "next lint",
     "prettier": "prettier --config .prettierrc.json --check --write \"./src/**/*.{tsx,jsx,ts,js}\"",
-    "check-types": "tsc --noemit -p tsconfig.json"
+    "check-types": "tsc --noemit -p tsconfig.json",
+    "transifex:push": "txjs-cli push src/ --token=$(./node_modules/.bin/dotenv -e .env -c -p NEXT_PUBLIC_TRANSIFEX_TOKEN) --secret=$(./node_modules/.bin/dotenv -e .env -c -p NEXT_PUBLIC_TRANSIFEX_SECRET)",
+    "transifex:purge": "txjs-cli push src/ --token=$(./node_modules/.bin/dotenv -e .env -c -p NEXT_PUBLIC_TRANSIFEX_TOKEN) --secret=$(./node_modules/.bin/dotenv -e .env -c -p NEXT_PUBLIC_TRANSIFEX_SECRET) --purge",
+    "transifex:refresh": "txjs-cli invalidate --token=$(./node_modules/.bin/dotenv -e .env -c -p NEXT_PUBLIC_TRANSIFEX_TOKEN) --secret=$(./node_modules/.bin/dotenv -e .env -c -p NEXT_PUBLIC_TRANSIFEX_SECRET)"
   },
   "dependencies": {
     "@carto/carto.js": "4.2.2",
     "@tanstack/react-query": "^4.28.0",
+    "@transifex/native": "^5.2.0",
+    "@transifex/react": "^5.2.0",
     "axios": "^0.21.2",
+    "dotenv": "^16.0.3",
+    "dotenv-cli": "^7.1.0",
     "foundation-sites": "6.7.5",
     "leaflet": "1.4.0",
     "leaflet-active-area": "1.1.0",
@@ -53,6 +60,7 @@
     "yup": "^0.27.0"
   },
   "devDependencies": {
+    "@transifex/cli": "^5.2.0",
     "@types/leaflet": "^1.4.4",
     "@types/leaflet-draw": "^0.4.14",
     "@types/node": "18.14.6",

@@ -1,3 +1,5 @@
+import { T } from '@transifex/react';
+
 const Footer: React.FC = () => (
   <footer className="l-footer theme-bg-color">
     <nav className="l-footer-nav">
@@ -7,23 +9,31 @@ const Footer: React.FC = () => (
           target="_blank"
           rel="noopener noreferrer"
         >
-          Privacy policy
+          <T _str="Privacy policy" />
         </a>
       </p>
       <p className="privacy">
-        <a href="mailto:resilience@conservation.org">Contact us</a>
-      </p>
-      <p className="copyright">&copy; 2015 Conservation International</p>
-      <p className="credits">
-        A website designed by&nbsp;
-        <a
-          href="http://www.vizzuality.com/"
-          className="vizz-logo"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          vizzuality
+        <a href="mailto:resilience@conservation.org">
+          <T _str="Contact us" />
         </a>
+      </p>
+      <p className="copyright">
+        &copy; <T _str="2015 Conservation International" />
+      </p>
+      <p className="credits">
+        <T
+          _str="A website designed by {vizzuality}"
+          vizzuality={
+            <a
+              href="http://www.vizzuality.com/"
+              className="vizz-logo"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              vizzuality
+            </a>
+          }
+        />
       </p>
     </nav>
   </footer>

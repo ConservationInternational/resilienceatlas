@@ -60,4 +60,8 @@ Cypress.on('uncaught:exception', (err) => {
   if (err.message.includes('canceled by the user')) {
     return false;
   }
+  // axios abort error not considered an error
+  if (err.message.includes('Request aborted')) {
+    return false;
+  }
 });

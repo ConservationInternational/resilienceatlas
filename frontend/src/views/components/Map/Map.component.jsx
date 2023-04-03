@@ -33,8 +33,6 @@ const MapView = (props) => {
     // interaction
     setMapLayerGroupsInteraction,
     setMapLayerGroupsInteractionLatLng,
-    layerGroupsInteraction,
-    layerGroupsInteractionSelected,
     // data
     layers: { loaded: layersLoaded },
     layer_groups: { loaded: layerGroupsLoaded },
@@ -58,12 +56,14 @@ const MapView = (props) => {
   useEffect(() => {
     if (!layersLoaded) loadLayers();
     if (!layerGroupsLoaded) loadLayerGroups();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
     if (layersLoaded && layerGroupsLoaded && defaultActiveGroups.length) {
       openBatch(defaultActiveGroups);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [layersLoaded, layerGroupsLoaded]);
 
   useEffect(() => {
@@ -77,6 +77,7 @@ const MapView = (props) => {
     if (layersLoaded) {
       setParam('layers', JSON.stringify(hash));
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeLayers]);
 
   const getCenter = useCallback(() => {
@@ -94,6 +95,7 @@ const MapView = (props) => {
     }
 
     return { lat: 3.86, lng: 47.28 };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [site.latitude, query.center]);
 
   return (
@@ -133,7 +135,7 @@ const MapView = (props) => {
       {(map) => (
         <>
           {tab === TABS.LAYERS &&
-            activeLayers.map((l, index) => (
+            activeLayers.map((l) => (
               <LayerManager map={map} plugin={PluginLeaflet} ref={layerManagerRef} key={l.id}>
                 <Layer
                   {...omit(l, 'interactivity')}
