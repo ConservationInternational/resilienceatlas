@@ -7,6 +7,8 @@
 // commands please read more here:
 // https://on.cypress.io/custom-commands
 // ***********************************************
+const compareSnapshotCommand = require('cypress-image-diff-js/dist/command');
+compareSnapshotCommand();
 
 const disableRequestCache = (req) => {
   req.on('before:response', (res) => {

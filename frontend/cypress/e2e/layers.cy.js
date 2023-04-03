@@ -18,9 +18,7 @@ describe('Layers', () => {
     cy.intercept(
       { method: 'GET', url: '/api/layer-groups', middleware: true },
       disableRequestCache,
-      {
-        fixture: 'layer-groups.json',
-      },
+      { fixture: 'layer-groups.json' },
     ).as('layerGroupsAPIRequest');
 
     // Overriding the layers API request to use a fixture
@@ -33,15 +31,18 @@ describe('Layers', () => {
         middleware: true,
       },
       disableRequestCache,
-      { fixture: 'layers-original.prod.json' },
+      // Un-comment next line and remove `cypress-visual-screenshots/baseline` folder contents
+      // to redo the baseline screenshots
+      // { fixture: 'layers-original.prod.json' },
     ).as('layersAPIRequest');
   });
 
   if (Cypress.env('RUN_LAYERS_TESTS')) {
-    data.slice(0, 10).forEach((layerData) => {
-      it(`layer ID: ${layerData.id} should render in a map`, () => {
+    data.forEach((layerData) => {
+      it(`layer ID: ${layerData.id} renderization should match with original one`, () => {
         cy.log(`Layer: ${layerData.id}`);
 
+        // Checking one tile request to see if the layer is rendered
         cy.intercept('/user/ra/api/v1/map/**/3/6/4.png', { requestTimeout: 90000 }).as(
           'rasterTileRequests',
         );
@@ -55,70 +56,11 @@ describe('Layers', () => {
             // TODO: find a way to wait for the layer to be rendered
             // time to render the layer after being requested
             cy.wait(3000);
-            cy.screenshot(`layer-original-${layerData.id}`, { overwrite: true });
+            // cy.screenshot(`layer-original-${layerData.id}`, { overwrite: true });
+            cy.compareSnapshot(`layer-original-${layerData.id}`, 0.2);
           }
         });
       });
     });
-
-    // it('load layers from fixture', () => {
-    //   cy.fixture('layers-original.prod.json').then((layers) => {
-    //     const { data } = layers;
-    //     cy.log(`Loaded ${data.length} layers`);
-    //     data.slice(0, 10).forEach((layer) => {
-    //       cy.log(`Layer: ${layer.id}`);
-
-    //       // Intercepts
-    //       cy.intercept('/user/ra/api/v1/map/**/3/6/4.png', { requestTimeout: 90000 }).as(
-    //         'rasterTileRequests',
-    //       );
-    //       // if (layer.attributes.layer_provider === 'cartodb') {
-    //       //   cy.intercept('/user/ra/api/v1/map/**/3/6/4.grid.json', { requestTimeout: 90000 }).as(
-    //       //     'cartoTileRequests',
-    //       //   );
-    //       // }
-
-    //       // if (layer.attributes.layer_provider === 'raster') {
-    //       //   cy.intercept('/user/ra/api/v1/map/**/3/6/4.png', { requestTimeout: 90000 }).as(
-    //       //     'rasterTileRequests',
-    //       //   );
-    //       // }
-
-    //       // Using embed view to load the layers
-    //       cy.visit(`/embed/map?layers=[{"id":${layer.id},"opacity":1,"order":null}]&zoom=3`);
-    //       cy.wait(['@siteAPIRequest', '@layerGroupsAPIRequest', '@layersAPIRequest']);
-
-    //       // Intercepts the layers requests depending on the layer provider
-    //       // if (layer.attributes.layer_provider === 'cartodb') {
-    //       //   cy.wait('@cartoTileRequests').then((interception) => {
-    //       //     if (interception.response.statusCode === 200) {
-    //       //       // TODO: find a way to wait for the layer to be rendered
-    //       //       // time to render the layer after being requested
-    //       //       cy.wait(3000);
-    //       //       cy.screenshot(`layer-original-${layer.id}`, { overwrite: true });
-    //       //     }
-    //       //   });
-    //       // }
-    //       // if (layer.attributes.layer_provider === 'raster') {
-    //       //   cy.wait('@rasterTileRequests').then((interception) => {
-    //       //     if (interception.response.statusCode === 200) {
-    //       //       // TODO: find a way to wait for the layer to be rendered
-    //       //       // time to render the layer after being requested
-    //       //       cy.wait(3000);
-    //       //       cy.screenshot(`layer-original-${layer.id}`, { overwrite: true });
-    //       //     }
-    //       //   });
-    //       // }
-    //       cy.wait('@rasterTileRequests').then((interception) => {
-    //         if (interception.response.statusCode === 200) {
-    //           // TODO: find a way to wait for the layer to be rendered
-    //           // time to render the layer after being requested
-    //           cy.wait(3000);
-    //           cy.screenshot(`layer-original-${layer.id}`, { overwrite: true });
-    //         }
-    //       });
-    //     });
-    //   });
-    // });
   }
 });

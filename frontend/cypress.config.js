@@ -1,4 +1,5 @@
 const { defineConfig } = require('cypress');
+const getCompareSnapshotsPlugin = require('cypress-image-diff-js/dist/plugin');
 
 module.exports = defineConfig({
   defaultCommandTimeout: 10000,
@@ -11,5 +12,8 @@ module.exports = defineConfig({
     video: false,
     viewportWidth: 1280,
     viewportHeight: 920,
+    setupNodeEvents(on, config) {
+      getCompareSnapshotsPlugin(on, config);
+    },
   },
 });

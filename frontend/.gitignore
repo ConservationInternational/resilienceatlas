@@ -37,6 +37,9 @@ yarn-error.log*
 /cypress/videos
 /cypress/downloads
 cypress.*.json
+/cypress-visual-report/*
+/cypress-visual-screenshots/*
+!/cypress-visual-screenshots/baseline
 
 # typescript
 *.tsbuildinfo
