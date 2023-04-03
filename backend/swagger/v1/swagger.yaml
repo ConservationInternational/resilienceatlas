@@ -60,8 +60,8 @@ paths:
                   interactivity:
                   opacity: 25.0
                   query: Et quaerat omnis veniam.
-                  created_at: '2023-03-31T14:47:58.726+02:00'
-                  updated_at: '2023-03-31T14:47:58.726+02:00'
+                  created_at: '2023-04-03T08:35:05.410+02:00'
+                  updated_at: '2023-04-03T08:35:05.410+02:00'
                   locate_layer: false
                   icon_class:
                   published: true
@@ -104,8 +104,8 @@ paths:
                   interactivity:
                   opacity: 41.0
                   query: Placeat commodi libero et.
-                  created_at: '2023-03-31T14:47:58.722+02:00'
-                  updated_at: '2023-03-31T14:47:58.722+02:00'
+                  created_at: '2023-04-03T08:35:05.407+02:00'
+                  updated_at: '2023-04-03T08:35:05.407+02:00'
                   locate_layer: false
                   icon_class:
                   published: true
@@ -148,8 +148,8 @@ paths:
                   interactivity:
                   opacity: 38.0
                   query: Enim repellat pariatur est.
-                  created_at: '2023-03-31T14:47:58.719+02:00'
-                  updated_at: '2023-03-31T14:47:58.719+02:00'
+                  created_at: '2023-04-03T08:35:05.404+02:00'
+                  updated_at: '2023-04-03T08:35:05.404+02:00'
                   locate_layer: false
                   icon_class:
                   published: true
@@ -221,8 +221,8 @@ paths:
                   interactivity:
                   opacity: 38.0
                   query: Enim repellat pariatur est.
-                  created_at: '2023-03-31T14:47:58.751+02:00'
-                  updated_at: '2023-03-31T14:47:58.751+02:00'
+                  created_at: '2023-04-03T08:35:05.440+02:00'
+                  updated_at: '2023-04-03T08:35:05.440+02:00'
                   locate_layer: false
                   icon_class:
                   published: true
@@ -305,8 +305,8 @@ paths:
                   interactivity:
                   opacity: 38.0
                   query: Enim repellat pariatur est.
-                  created_at: '2023-03-31T14:47:58.805+02:00'
-                  updated_at: '2023-03-31T14:47:58.805+02:00'
+                  created_at: '2023-04-03T08:35:05.496+02:00'
+                  updated_at: '2023-04-03T08:35:05.496+02:00'
                   locate_layer: false
                   icon_class:
                   published: true
@@ -385,8 +385,8 @@ paths:
                   interactivity:
                   opacity: 38.0
                   query: Enim repellat pariatur est.
-                  created_at: '2023-03-31T14:47:58.870+02:00'
-                  updated_at: '2023-03-31T14:47:58.870+02:00'
+                  created_at: '2023-04-03T08:35:05.566+02:00'
+                  updated_at: '2023-04-03T08:35:05.566+02:00'
                   locate_layer: false
                   icon_class:
                   published: true
@@ -493,7 +493,7 @@ paths:
           content:
             application/json:
               example:
-                auth_token: eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoyLCJleHAiOjE2ODAzNTMyNzl9.C8UHtycmbDVkEqwuDZyae62_8gqIcCjyx1I7i9KmPfg
+                auth_token: eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoyLCJleHAiOjE2ODA1OTAxMDV9.F-3A3Fv23_NyO2q6Wy9uocoCGHPtqVpbyqzOzCN33YA
         '401':
           description: Unauthorized
           content:
@@ -569,7 +569,7 @@ paths:
     post:
       summary: Save new feedback
       tags:
-      - Photo
+      - Feedback
       parameters: []
       responses:
         '200':
@@ -578,31 +578,31 @@ paths:
             application/json:
               example:
                 data:
-                  id: '4'
+                  id: '2'
                   type: feedbacks
                   attributes:
                     language: en
-                    created_at: '2023-03-31T14:47:59.293+02:00'
-                    updated_at: '2023-03-31T14:47:59.293+02:00'
+                    created_at: '2023-04-03T08:35:05.982+02:00'
+                    updated_at: '2023-04-03T08:35:05.982+02:00'
                   relationships:
                     feedback_fields:
                       data:
-                      - id: '22'
+                      - id: '8'
                         type: feedback_fields
-                      - id: '23'
+                      - id: '9'
                         type: feedback_fields
-                      - id: '24'
+                      - id: '10'
                         type: feedback_fields
-                      - id: '25'
+                      - id: '11'
                         type: feedback_fields
-                      - id: '26'
+                      - id: '12'
                         type: feedback_fields
-                      - id: '27'
+                      - id: '13'
                         type: feedback_fields
-                      - id: '28'
+                      - id: '14'
                         type: feedback_fields
                 included:
-                - id: '22'
+                - id: '8'
                   type: feedback_fields
                   attributes:
                     feedback_field_type: single_choice
@@ -610,18 +610,18 @@ paths:
                     answer:
                       slug: red
                       value: Red
-                    created_at: '2023-03-31T14:47:59.295+02:00'
-                    updated_at: '2023-03-31T14:47:59.295+02:00'
+                    created_at: '2023-04-03T08:35:05.983+02:00'
+                    updated_at: '2023-04-03T08:35:05.983+02:00'
                   relationships:
                     feedback:
                       data:
-                        id: '4'
+                        id: '2'
                         type: feedbacks
                     parent:
                       data:
                     children:
                       data: []
-                - id: '23'
+                - id: '9'
                   type: feedback_fields
                   attributes:
                     feedback_field_type: multiple_choice
@@ -633,18 +633,18 @@ paths:
                       value:
                       - Green
                       - Yellow
-                    created_at: '2023-03-31T14:47:59.295+02:00'
-                    updated_at: '2023-03-31T14:47:59.295+02:00'
+                    created_at: '2023-04-03T08:35:05.984+02:00'
+                    updated_at: '2023-04-03T08:35:05.984+02:00'
                   relationships:
                     feedback:
                       data:
-                        id: '4'
+                        id: '2'
                         type: feedbacks
                     parent:
                       data:
                     children:
                       data: []
-                - id: '24'
+                - id: '10'
                   type: feedback_fields
                   attributes:
                     feedback_field_type: boolean_choice
@@ -652,18 +652,18 @@ paths:
                     answer:
                       slug: 'true'
                       value: true
-                    created_at: '2023-03-31T14:47:59.296+02:00'
-                    updated_at: '2023-03-31T14:47:59.296+02:00'
+                    created_at: '2023-04-03T08:35:05.985+02:00'
+                    updated_at: '2023-04-03T08:35:05.985+02:00'
                   relationships:
                     feedback:
                       data:
-                        id: '4'
+                        id: '2'
                         type: feedbacks
                     parent:
                       data:
                     children:
                       data: []
-                - id: '25'
+                - id: '11'
                   type: feedback_fields
                   attributes:
                     feedback_field_type: free_answer
@@ -671,39 +671,39 @@ paths:
                     answer:
                       slug: i-don-t-know
                       value: I don't know
-                    created_at: '2023-03-31T14:47:59.297+02:00'
-                    updated_at: '2023-03-31T14:47:59.297+02:00'
+                    created_at: '2023-04-03T08:35:05.986+02:00'
+                    updated_at: '2023-04-03T08:35:05.986+02:00'
                   relationships:
                     feedback:
                       data:
-                        id: '4'
+                        id: '2'
                         type: feedbacks
                     parent:
                       data:
                     children:
                       data: []
-                - id: '26'
+                - id: '12'
                   type: feedback_fields
                   attributes:
                     feedback_field_type: rating
                     question: Color preferences
                     answer:
-                    created_at: '2023-03-31T14:47:59.298+02:00'
-                    updated_at: '2023-03-31T14:47:59.298+02:00'
+                    created_at: '2023-04-03T08:35:05.987+02:00'
+                    updated_at: '2023-04-03T08:35:05.987+02:00'
                   relationships:
                     feedback:
                       data:
-                        id: '4'
+                        id: '2'
                         type: feedbacks
                     parent:
                       data:
                     children:
                       data:
-                      - id: '27'
+                      - id: '13'
                         type: feedback_fields
-                      - id: '28'
+                      - id: '14'
                         type: feedback_fields
-                - id: '27'
+                - id: '13'
                   type: feedback_fields
                   attributes:
                     feedback_field_type: single_choice
@@ -711,20 +711,20 @@ paths:
                     answer:
                       slug: '3'
                       value: 3
-                    created_at: '2023-03-31T14:47:59.299+02:00'
-                    updated_at: '2023-03-31T14:47:59.299+02:00'
+                    created_at: '2023-04-03T08:35:05.988+02:00'
+                    updated_at: '2023-04-03T08:35:05.988+02:00'
                   relationships:
                     feedback:
                       data:
-                        id: '4'
+                        id: '2'
                         type: feedbacks
                     parent:
                       data:
-                        id: '26'
+                        id: '12'
                         type: feedback_fields
                     children:
                       data: []
-                - id: '28'
+                - id: '14'
                   type: feedback_fields
                   attributes:
                     feedback_field_type: single_choice
@@ -732,16 +732,16 @@ paths:
                     answer:
                       slug: '5'
                       value: 5
-                    created_at: '2023-03-31T14:47:59.300+02:00'
-                    updated_at: '2023-03-31T14:47:59.300+02:00'
+                    created_at: '2023-04-03T08:35:05.989+02:00'
+                    updated_at: '2023-04-03T08:35:05.989+02:00'
                   relationships:
                     feedback:
                       data:
-                        id: '4'
+                        id: '2'
                         type: feedbacks
                     parent:
                       data:
-                        id: '26'
+                        id: '12'
                         type: feedback_fields
                     children:
                       data: []
@@ -1607,11 +1607,11 @@ paths:
             application/json:
               example:
                 id: 2
-                image_data: '{"id":"01d18dfca5739a468cd46d1135592893.jpg","storage":"store","metadata":{"filename":"picture.jpg","size":32326,"mime_type":null}}'
-                created_at: '2023-03-31T14:48:09.318+02:00'
-                updated_at: '2023-03-31T14:48:09.320+02:00'
-                url: "/uploads/store/01d18dfca5739a468cd46d1135592893.jpg"
-                image_url: "/uploads/store/01d18dfca5739a468cd46d1135592893.jpg"
+                image_data: '{"id":"106cf13e74f3725bbfd9821dd727dcfa.jpg","storage":"store","metadata":{"filename":"picture.jpg","size":32326,"mime_type":null}}'
+                created_at: '2023-04-03T08:35:15.640+02:00'
+                updated_at: '2023-04-03T08:35:15.642+02:00'
+                url: "/uploads/store/106cf13e74f3725bbfd9821dd727dcfa.jpg"
+                image_url: "/uploads/store/106cf13e74f3725bbfd9821dd727dcfa.jpg"
         '401':
           description: Authentication failed
           content:
@@ -1717,7 +1717,7 @@ paths:
           content:
             application/json:
               example:
-                uid: 5f7f719fa5248c3265e1
+                uid: f3b9840b1188ae5f6bd4
   "/api/sites":
     get:
       summary: Get list of all site scopes
@@ -1860,8 +1860,8 @@ paths:
               example:
                 id: 7
                 email: person-1@example.com
-                created_at: '2023-03-31T14:48:09.477+02:00'
-                updated_at: '2023-03-31T14:48:09.477+02:00'
+                created_at: '2023-04-03T08:35:15.817+02:00'
+                updated_at: '2023-04-03T08:35:15.817+02:00'
                 first_name: Dawna
                 last_name: Block
                 phone: "(995) 001-7692 x452"
@@ -1892,8 +1892,8 @@ paths:
                 last_name: Kowalski
                 email: jankowalski@example.com
                 id: 9
-                created_at: '2023-03-31T14:48:09.508+02:00'
-                updated_at: '2023-03-31T14:48:09.517+02:00'
+                created_at: '2023-04-03T08:35:15.847+02:00'
+                updated_at: '2023-04-03T08:35:15.856+02:00'
                 phone: "(995) 001-7692 x452"
                 organization: voluptatem
                 organization_role: voluptatem

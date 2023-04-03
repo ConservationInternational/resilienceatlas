@@ -45,8 +45,9 @@ FactoryBot.define do
       question { "Color preferences" }
       answer { nil }
 
-      after_build do |feedback_field|
-        build :feedback_field, :single_choice, parent: feedback_field, question: "Do you like red color?", answer: {value: 3, slug: "3"}
+      after(:build, :create) do |feedback_field, _evaluator|
+        create :feedback_field, :single_choice, parent: feedback_field, question: "Do you like red color?", answer: {value: 3, slug: "3"}
+        create :feedback_field, :single_choice, parent: feedback_field, question: "Do you like blue color?", answer: {value: 5, slug: "5"}
       end
     end
   end

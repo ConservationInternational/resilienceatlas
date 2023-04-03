@@ -3,7 +3,7 @@ require "swagger_helper"
 RSpec.describe "API V1 Feedbacks", type: :request do
   path "/api/feedbacks" do
     post "Save new feedback" do
-      tags "Photo"
+      tags "Feedback"
       consumes "application/json"
       produces "application/json"
       parameter name: :feedback_params, in: :body, schema: {
