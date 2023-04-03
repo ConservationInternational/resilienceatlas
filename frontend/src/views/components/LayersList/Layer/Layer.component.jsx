@@ -1,5 +1,6 @@
 import React, { useCallback, useContext } from 'react';
 import cx from 'classnames';
+import { event } from 'utilities/ga';
 
 import InfoWindow from 'views/components/InfoWindow';
 import LoginRequiredWindow from 'views/components/LoginRequiredWindow';
@@ -15,31 +16,37 @@ const validateOpacity = (value) => {
   return value;
 };
 
-const Layer = ({
-  toggle,
-  setOpacity,
-  id,
-  name,
-  isActive,
-  opacity_text,
-  info,
-  download,
-  download_url,
-  dashboard_order,
-  withDashboardOrder,
-  type,
-  slug,
-  user,
-  LayerGroupName,
-}) => {
+const Layer = (props) => {
+  const {
+    toggle,
+    setOpacity,
+    id,
+    name,
+    isActive,
+    opacity_text,
+    info,
+    download,
+    download_url,
+    dashboard_order,
+    withDashboardOrder,
+    type,
+    slug,
+    user,
+    subcategoryName,
+    groupName,
+    categoryName,
+    subgroupName,
+  } = props;
   const layerManagerRef = useContext(LayerManagerContext);
   const [isOpen, toggleOpen] = useToggle(false);
   const slider = useInput('opacity_slider', opacity_text);
   const opacityInput = useUpdaterInput(id, opacity_text, (v) => {
     setOpacity(id, validateOpacity(v / 100));
   });
-
-  const toggleLayer = useCallback(() => toggle(id), [id]);
+  const toggleLayer = useCallback(() => {
+    toggle(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id]);
 
   useDebounce(
     () => {
@@ -55,7 +62,27 @@ const Layer = ({
 
   const fitMapToLayer = useCallback(() => {
     layerManagerRef.current.fitMapToLayer(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const sendAnalyticsEvent = () =>
+    event({
+      action: 'select_item',
+      params: {
+        items: [
+          {
+            item_id: id,
+            item_name: name,
+            item_category: groupName,
+            item_category2: categoryName,
+            item_category3: subcategoryName,
+            item_category4: subgroupName,
+          },
+        ],
+        item_list_name: 'Map Layers',
+        item_list_id: 'map_layers',
+      },
+    });
 
   return (
     <li
@@ -72,7 +99,12 @@ const Layer = ({
           className="panel-input-switch"
           id={`layer_${id}`}
           checked={isActive}
-          onChange={toggleLayer}
+          onChange={() => {
+            toggleLayer();
+            if (!isActive) {
+              sendAnalyticsEvent();
+            }
+          }}
         />
         <label htmlFor={`layer_${id}`} />
       </div>
@@ -125,9 +157,9 @@ const Layer = ({
           // eslint-disable-next-line react/no-unknown-property
           attr="download"
           title={readyToDownload ? 'Layers' : 'Please login to enable download feature.'}
-          onClick={(event) => {
+          onClick={() => {
             if (readyToDownload) {
-              DownloadWindow.show(download_url, name + ' - Layer', LayerGroupName);
+              DownloadWindow.show(download_url, name + ' - Layer', categoryName);
             } else {
               LoginRequiredWindow.show();
             }
