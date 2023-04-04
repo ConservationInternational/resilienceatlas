@@ -1,6 +1,6 @@
 require "swagger_helper"
 
-RSpec.describe "API V1 Registration", type: :request do
+RSpec.describe "API V1 Photos", type: :request do
   let(:admin_user) { create :admin_user }
 
   path "/api/photos" do

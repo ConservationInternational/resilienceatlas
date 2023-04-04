@@ -5,8 +5,8 @@
 #  id          :bigint           not null, primary key
 #  slug        :string           not null
 #  version     :string
-#  created_at  :datetime         default(Wed, 22 Feb 2023 12:02:20.466026000 CET +01:00), not null
-#  updated_at  :datetime         default(Wed, 22 Feb 2023 12:02:20.474090000 CET +01:00), not null
+#  created_at  :datetime         default(Tue, 28 Mar 2023 22:07:16.747487000 CEST +02:00), not null
+#  updated_at  :datetime         default(Tue, 28 Mar 2023 22:07:16.747956000 CEST +02:00), not null
 #  category_id :integer
 #  position    :integer
 #  column_name :string

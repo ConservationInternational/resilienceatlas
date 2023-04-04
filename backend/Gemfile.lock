@@ -572,6 +572,7 @@ DEPENDENCIES
   image_processing
   importmap-rails
   jbuilder
+  json-schema
   jwt
   letter_opener_web
   matrix

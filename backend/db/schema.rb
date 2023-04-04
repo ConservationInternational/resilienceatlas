@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_03_24_132712) do
+ActiveRecord::Schema[7.0].define(version: 2023_03_30_113540) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -122,6 +122,24 @@ ActiveRecord::Schema[7.0].define(version: 2023_03_24_132712) do
     t.index ["assetable_type", "type", "assetable_id"], name: "idx_ckeditor_assetable_type"
   end
 
+  create_table "feedback_fields", force: :cascade do |t|
+    t.bigint "feedback_id", null: false
+    t.bigint "parent_id"
+    t.string "feedback_field_type", null: false
+    t.string "question"
+    t.jsonb "answer"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["feedback_id"], name: "index_feedback_fields_on_feedback_id"
+    t.index ["parent_id"], name: "index_feedback_fields_on_parent_id"
+  end
+
+  create_table "feedbacks", force: :cascade do |t|
+    t.string "language", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "identities", force: :cascade do |t|
     t.bigint "user_id"
     t.string "provider"
@@ -144,8 +162,8 @@ ActiveRecord::Schema[7.0].define(version: 2023_03_24_132712) do
   create_table "indicators", force: :cascade do |t|
     t.string "slug", null: false
     t.string "version"
-    t.datetime "created_at", precision: nil, default: "2023-02-22 11:02:20", null: false
-    t.datetime "updated_at", precision: nil, default: "2023-02-22 11:02:20", null: false
+    t.datetime "created_at", precision: nil, default: "2023-03-28 20:07:16", null: false
+    t.datetime "updated_at", precision: nil, default: "2023-03-28 20:07:16", null: false
     t.integer "category_id"
     t.integer "position"
     t.string "column_name"
@@ -330,8 +348,8 @@ ActiveRecord::Schema[7.0].define(version: 2023_03_24_132712) do
   end
 
   create_table "models", force: :cascade do |t|
-    t.datetime "created_at", precision: nil, default: "2023-02-22 11:02:20", null: false
-    t.datetime "updated_at", precision: nil, default: "2023-02-22 11:02:20", null: false
+    t.datetime "created_at", precision: nil, default: "2023-03-28 20:07:16", null: false
+    t.datetime "updated_at", precision: nil, default: "2023-03-28 20:07:16", null: false
     t.text "query_analysis"
     t.string "table_name"
   end
@@ -461,6 +479,8 @@ ActiveRecord::Schema[7.0].define(version: 2023_03_24_132712) do
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "agrupations", "layer_groups"
   add_foreign_key "agrupations", "layers"
+  add_foreign_key "feedback_fields", "feedback_fields", column: "parent_id", on_delete: :cascade
+  add_foreign_key "feedback_fields", "feedbacks", on_delete: :cascade
   add_foreign_key "identities", "users"
   add_foreign_key "indicators", "categories"
   add_foreign_key "journey_steps", "journeys", on_delete: :cascade

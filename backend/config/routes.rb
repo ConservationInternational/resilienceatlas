@@ -38,6 +38,7 @@ Rails.application.routes.draw do
       get "/journeys/:id", to: "journeys#show"
       get "/menu-entries", to: "menu_entries#index"
       resources :photos, only: :create
+      resources :feedbacks, only: :create
     end
   end
 

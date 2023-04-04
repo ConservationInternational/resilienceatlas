@@ -1,3 +1,24 @@
+# == Schema Information
+#
+# Table name: site_scopes
+#
+#  id               :bigint           not null, primary key
+#  color            :string
+#  subdomain        :string
+#  has_analysis     :boolean          default(FALSE)
+#  latitude         :float
+#  longitude        :float
+#  header_theme     :string
+#  zoom_level       :integer          default(3)
+#  linkback_url     :text
+#  header_color     :string
+#  logo_url         :text
+#  predictive_model :boolean          default(FALSE), not null
+#  analysis_options :boolean          default(FALSE), not null
+#  has_gef_logo     :boolean
+#  name             :string
+#  linkback_text    :text
+#
 require "rails_helper"
 
 RSpec.describe SiteScope, type: :model do
