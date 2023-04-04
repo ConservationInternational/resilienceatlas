@@ -3,19 +3,38 @@ Transform: AWS::Serverless-2016-10-31
 Description: >
   python3.9
 
-  Sample SAM Template for lambda-python3.9
+  Sample SAM Template for titiler-cogs
 
 # More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Parameters:
+  DisableCOG:
+    Type: String
+    Default: "false"
+    AllowedValues:
+      - "true"
+      - "false"
+
+  DisableMosaic:
+    Type: String
+    Default: "true"
+    AllowedValues:
+      - "true"
+      - "false"
+
+  DisableSTAC:
+    Type: String
+    Default: "true"
+    AllowedValues:
+      - "true"
+      - "false"
+
+  LambdaLayerVersion:
+    Type: String
+    Default: 5
+
 Resources:
   TitilerCogsFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
-    Connectors:
-      BucketConn:
-        Properties:
-          Destination:
-            Id: resilience-atlas
-          Permissions:
-            - Read
     Properties:
       PackageType: Image
       Architectures:
@@ -51,11 +70,11 @@ Outputs:
   # Find out more about other implicit resources you can reference within SAM
   # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
   TitilerCogsApi:
-    Description: "API Gateway endpoint URL for Prod stage for Hello World function"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/hello/"
+    Description: "API Gateway endpoint URL for Prod stage for Titiler Cogs function"
+    Value: !Sub "https://${ServerlessHttpApi}.execute-api.${AWS::Region}.amazonaws.com"
   TitilerCogsFunction:
-    Description: "Hello World Lambda Function ARN"
+    Description: "Titiler Cogs Lambda Function ARN"
     Value: !GetAtt TitilerCogsFunction.Arn
   TitilerCogsFunctionIamRole:
-    Description: "Implicit IAM Role created for Hello World function"
+    Description: "Implicit IAM Role created for Titiler Cogs function"
     Value: !GetAtt TitilerCogsFunctionRole.Arn
