@@ -55,6 +55,10 @@ describe('Analysis should work for Livelihoods zones layer', () => {
     cy.get('ul.m-legend__list').find('li.drag-items').should('have.length', 1);
   });
 
+  it('should have a source in the layer', () => {
+    cy.get('ul.m-legend__list').find('li.drag-items .source').should('have.length', 1);
+  });
+
   it('should have an active layer in the sidebar', () => {
     cy.get('#layer_1429').should('be.checked');
   });
