@@ -121,6 +121,7 @@ const Legend = ({ activeLayers, reorder, loading, toggleLayer, setOpacity }) => 
                                   className="source-link"
                                   target="_blank"
                                   rel="noopener noreferrer"
+                                  href={sourceUrl}
                                 >
                                   {sourceUrl}
                                 </a>
