@@ -56,7 +56,6 @@ describe('Layers', () => {
             // TODO: find a way to wait for the layer to be rendered
             // time to render the layer after being requested
             cy.wait(3000);
-            // cy.screenshot(`layer-original-${layerData.id}`, { overwrite: true });
             cy.compareSnapshot(`layer-original-${layerData.id}`, 0.2);
           }
         });

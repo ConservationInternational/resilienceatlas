@@ -5,7 +5,7 @@ RUN ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
 RUN git config --global url.http://github.com/.insteadOf ssh://git@github.com/
 WORKDIR /app
 COPY package.json yarn.lock ./
-RUN yarn install --frozen-lockfile
+RUN yarn install --frozen-lockfile --production=false
 
 # Rebuild the source code only when needed
 FROM node:18.15.0-bullseye AS builder

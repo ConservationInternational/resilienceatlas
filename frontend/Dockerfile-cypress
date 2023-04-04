@@ -1,0 +1,18 @@
+FROM cypress/included:12.7.0
+
+RUN apt-get update -y && apt-get upgrade -y
+RUN apt-get install -y openssh-server openssh-client git
+
+RUN mkdir -p ~/.ssh && touch ~/.ssh/known_hosts
+RUN ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
+RUN git config --global url.http://github.com/.insteadOf ssh://git@github.com/
+
+# ENV CYPRESS_RUN_LAYERS_TESTS true
+
+WORKDIR /code
+
+COPY package.json .
+COPY yarn.lock .
+RUN yarn install --frozen-lockfile --production=false
+
+COPY . /code

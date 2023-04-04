@@ -4,31 +4,33 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-      args:
-        - NEXT_PUBLIC_API_HOST=https://www.resilienceatlas.org
-        - NEXT_PUBLIC_GOOGLE_ANALYTICS_ID=UA-123456789-1
-        - NEXT_PUBLIC_STATIC_JOURNEYS=true
     ports:
       - "3000:3000"
     container_name: resilienceatlas-frontend
-    command: node server
+    command: yarn start
+    env_file:
+      - .env.local
     environment:
       - PORT=3000
       - NODE_ENV=production
+      - NEXT_PUBLIC_GOOGLE_ANALYTICS_ID=UA-123456789-1
+      - NEXT_PUBLIC_STATIC_JOURNEYS=true
   # e2e/docker-compose.yml from repo
   # https://github.com/bahmutov/cypress-open-from-docker-compose
   # Cypress container
   cypress:
-    # the Docker image to use from https://github.com/cypress-io/cypress-docker-images
-    image: "cypress/included:12.7.0"
+    build:
+      context: .
+      dockerfile: Dockerfile-cypress
     depends_on:
       - client
-    command: cypress run --browser chrome --headless
+    command: cypress run --headless --browser chrome
     environment:
+      # set to 0, to skip layers test
+      - CYPRESS_RUN_LAYERS_TESTS=0
       # pass base url to test pointing at the web application
       - CYPRESS_baseUrl=http://client:3000
-    # share the current folder as volume to avoid copying
-    working_dir: /test
     volumes:
-      - ./cypress:/test/cypress/
-      - ./cypress.config.js:/test/cypress.config.js
+      - ./cypress:/code/cypress/
+      - ./cypress-visual-screenshots:/code/cypress-visual-screenshots
+      - ./cypress.config.js:/code/cypress.config.js

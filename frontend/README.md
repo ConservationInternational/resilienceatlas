@@ -132,6 +132,12 @@ yarn test:layers
 
 It only will work if you have the `RUN_LAYERS_TESTS=1` environment variable set in the `cypress.env.json` file. Set to `0` to disable.
 
+Due to this comment on the library, we recommend use Docker to run the test using the next command:
+
+```
+docker compose up --build
+```
+
 ## Contribution rules
 
 Please, **create a PR** for any improvement or feature you want to add. Use the `develop` branch for this.
