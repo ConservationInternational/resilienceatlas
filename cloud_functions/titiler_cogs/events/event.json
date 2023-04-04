@@ -1,7 +1,7 @@
 {
-    "body": "{\"message\": \"hello world\"}",
-    "resource": "/hello",
-    "path": "/hello",
+    "body": "{\"ping\": \"pong!\"}",
+    "resource": "/healthz",
+    "path": "/healthz",
     "httpMethod": "GET",
     "isBase64Encoded": false,
     "queryStringParameters": {
