@@ -4,7 +4,7 @@ version = 0.1
 
 [default]
 [default.global.parameters]
-stack_name = "lambda-python3.9"
+stack_name = "titiler-cogs"
 
 [default.build.parameters]
 parallel = true
@@ -15,11 +15,13 @@ lint = true
 [default.deploy.parameters]
 capabilities = "CAPABILITY_IAM"
 confirm_changeset = true
-resolve_s3 = true
-resolve_image_repos = true
+s3_bucket = "resilience-atlas-build-artifacts-bucket"
+image_repository = "resilience-atlas-pipeline-resources-imagerepository"
+region = "us-east-1"
+parameter_overrides = "DisableCOG=\"false\" DisableMosaic=\"true\" DisableSTAC=\"true\" LambdaLayerVersion=\"5\""
 
 [default.package.parameters]
-resolve_s3 = true
+s3_bucket = "resilience-atlas-build-artifacts-bucket"
 
 [default.sync.parameters]
 watch = true
