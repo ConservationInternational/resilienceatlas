@@ -33,7 +33,6 @@ const EditProfileForm: FC<InjectedFormProps<IEditProfileForm>> = ({
   const { data: userData } = data || {};
 
   if (isLoading && !data) return <Loader loading={isLoading} />;
-  const submitValue = (<T _str="Update" />) as unknown as string;
 
   return (
     <Form onSubmit={handleSubmit}>
@@ -77,13 +76,14 @@ const EditProfileForm: FC<InjectedFormProps<IEditProfileForm>> = ({
       <Loader loading={submitting} />
 
       <div className="actions">
-        <input
+        <button
           className={cx('btn-submit', { 'is-loading': submitting })}
           type="submit"
           name="commit"
-          value={submitValue}
           disabled={submitting}
-        />
+        >
+          <T _str="Update" />
+        </button>
       </div>
     </Form>
   );

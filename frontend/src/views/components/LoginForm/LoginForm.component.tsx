@@ -11,7 +11,6 @@ import Loader from 'views/shared/Loader';
 import type { ILoginForm } from 'state/modules/user';
 
 const LoginForm: FC<InjectedFormProps<ILoginForm>> = ({ handleSubmit, submitting, error }) => {
-  const submitValue = (<T _str="Log in" />) as unknown as string;
   return (
     <Form onSubmit={handleSubmit}>
       <Field component={FormInput} type="email" name="email" label="Email" autoFocus />
@@ -30,13 +29,14 @@ const LoginForm: FC<InjectedFormProps<ILoginForm>> = ({ handleSubmit, submitting
       )}
 
       <div className="actions">
-        <input
+        <button
           className={cx('btn-submit', { 'is-loading': submitting })}
           type="submit"
           name="commit"
-          value={submitValue}
           disabled={submitting}
-        />
+        >
+          <T _str="Log in" />
+        </button>
       </div>
     </Form>
   );

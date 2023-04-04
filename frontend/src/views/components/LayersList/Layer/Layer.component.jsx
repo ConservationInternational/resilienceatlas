@@ -1,6 +1,7 @@
 import React, { useCallback, useContext } from 'react';
 import cx from 'classnames';
 import { event } from 'utilities/ga';
+import { T } from '@transifex/react';
 
 import InfoWindow from 'views/components/InfoWindow';
 import LoginRequiredWindow from 'views/components/LoginRequiredWindow';
@@ -156,10 +157,16 @@ const Layer = (props) => {
           className="btn-download icon-container panel-trasparecy-switcher"
           // eslint-disable-next-line react/no-unknown-property
           attr="download"
-          title={readyToDownload ? 'Layers' : 'Please login to enable download feature.'}
+          title={
+            readyToDownload ? (
+              <T _str="Layers" />
+            ) : (
+              <T _str="Please login to enable download feature." />
+            )
+          }
           onClick={() => {
             if (readyToDownload) {
-              DownloadWindow.show(download_url, name + ' - Layer', categoryName);
+              DownloadWindow.show(download_url, `${name} - ${(<T _str="Layer" />)}`, categoryName);
             } else {
               LoginRequiredWindow.show();
             }

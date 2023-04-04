@@ -52,13 +52,14 @@ const LoginForm: FC<InjectedFormProps<ISignupForm>> = ({ handleSubmit, submittin
     <Loader loading={submitting} />
 
     <div className="actions">
-      <input
+      <button
         className={cx('btn-submit', { 'is-loading': submitting })}
         type="submit"
         name="commit"
-        value={(<T _str="Sign up" />) as unknown as string}
         disabled={submitting}
-      />
+      >
+        <T _str="Sign up" />
+      </button>
     </div>
   </Form>
 );
