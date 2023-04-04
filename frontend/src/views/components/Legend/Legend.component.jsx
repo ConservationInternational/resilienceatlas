@@ -3,7 +3,7 @@ import cx from 'classnames';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import Loader from 'views/shared/Loader';
 import InfoWindow from 'views/components/InfoWindow';
-
+import { T } from '@transifex/react';
 import { sortBy, useToggle, clickable } from 'utilities';
 import LegendItem from './LegendItem';
 
@@ -13,6 +13,7 @@ const Legend = ({ activeLayers, reorder, loading, toggleLayer, setOpacity }) => 
   const [opened, toggleOpen] = useToggle(true);
   const onDragEnd = useCallback(
     ({ source, destination }) => destination && reorder(source.index, destination.index),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [],
   );
 
@@ -23,7 +24,9 @@ const Legend = ({ activeLayers, reorder, loading, toggleLayer, setOpacity }) => 
           <div className={cx('m-legend', { 'is-changing': isDraggingOver })}>
             <div className="wrapper">
               <header className={cx('m-legend__header', { 'is-minimize': !opened })}>
-                <h2 className="title">Legend</h2>
+                <h2 className="title">
+                  <T _str="Legend" />
+                </h2>
                 <span className="btn-minimize" {...clickable(toggleOpen)} />
               </header>
 
@@ -32,9 +35,17 @@ const Legend = ({ activeLayers, reorder, loading, toggleLayer, setOpacity }) => 
 
                 <ul {...droppableProps} ref={innerRef} className="m-legend__list">
                   {activeLayers.sort(byOrder).map((layer, index) => {
-                    const { id, name, notAvailableByZoom, opacity, legend, info } = layer;
+                    const {
+                      id,
+                      name,
+                      notAvailableByZoom,
+                      opacity,
+                      legend,
+                      info,
+                      sourceReference,
+                      sourceUrl,
+                    } = layer;
                     const layerVisible = opacity > 0;
-
                     return (
                       <Draggable key={id} draggableId={id} index={index}>
                         {({ draggableProps, dragHandleProps, innerRef: dragRef }) => (
@@ -98,6 +109,23 @@ const Legend = ({ activeLayers, reorder, loading, toggleLayer, setOpacity }) => 
                               )}
                             </header>
                             <LegendItem legend={legend} layer={layer} />
+                            {sourceReference && (
+                              <div className="source-container">
+                                <div className="source">
+                                  <span className="source-bold">
+                                    <T _str="Source:" />{' '}
+                                  </span>
+                                  <span>{sourceReference}</span>
+                                </div>
+                                <a
+                                  className="source-link"
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                >
+                                  {sourceUrl}
+                                </a>
+                              </div>
+                            )}
                           </li>
                         )}
                       </Draggable>

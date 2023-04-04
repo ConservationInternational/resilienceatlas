@@ -197,22 +197,6 @@ $side-bar-width: 360px;
             }
           }
         }
-
-        // .btn-visibility {
-        //   right: 0;
-        //   top: 3px;
-        //   cursor: pointer;
-
-        //   svg {
-        //     width: 15px;
-        //     height: 15px;
-        //     fill: $bg-color-4;
-
-        //     &.is-active {
-        //       display: none;
-        //     }
-        //   }
-        // }
       }
     }
 
@@ -220,6 +204,26 @@ $side-bar-width: 360px;
       background-color: $bg-color-1;
       box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.2);
       cursor: grabbing;
+    }
+    .source-container {
+      margin: 10px 0 0 10px;
+      font-size: 12px;
+      line-height: 14px;
+      color: $font-color-1;
+      font-weight: 400;
+
+      .source  {
+        margin-bottom: 5px;
+      }
+
+      .source-bold {
+        font-weight: bold;
+      }
+
+      .source-link {
+        text-decoration: underline;
+        font-style: italic;
+      }
     }
   }
 

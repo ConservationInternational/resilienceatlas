@@ -34,7 +34,7 @@ export const layer = new schema.Entity(
   {
     processStrategy: (l) => {
       const group = l.relationships.layer_group.data;
-      const source = l.relationships.sources.data;
+      const source = l.relationships.sources.data.map((s) => s.id);
       const layerConfig = JSON.parse(l.attributes.layer_config || '{}');
       const config = {
         cartodb: {
@@ -113,7 +113,7 @@ export const layer = new schema.Entity(
         download_url: l.attributes.download ? generateDownloadUrl(l) : null,
         dataset_shortname: l.attributes.dataset_shortname || null,
         dataset_source_url: l.attributes.dataset_source_url || null,
-        attributions: source ? parseInt(source.id, 10) : null,
+        attributions: source && source.length ? source : null,
         analysisSuitable: l.attributes.analysis_suitable,
         analysisQuery: l.attributes.analysis_query,
         analysisBody: l.attributes.analysis_body,
