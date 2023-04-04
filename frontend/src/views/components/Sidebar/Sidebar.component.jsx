@@ -104,7 +104,7 @@ const Sidebar = ({
                     href="http://www.resilienceatlas.org/"
                     target="_blank"
                     rel="noopener noreferrer"
-                    title="Resilience Atlas"
+                    title={<T _str="Resilience Atlas" />}
                   >
                     <T _str="Resilience Atlas" />
                   </a>
@@ -121,7 +121,7 @@ const Sidebar = ({
                   href="http://www.conservation.org/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  title="Conservation International"
+                  title={<T _str="Conservation International" />}
                 >
                   <T _str="Conservation International" />
                 </a>

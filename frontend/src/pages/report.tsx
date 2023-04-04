@@ -5,7 +5,7 @@ import MapView from 'views/components/Map';
 import Legend from 'views/components/Legend';
 import { LayerAnalysis } from 'views/components/AnalysisPanel/AnalysisContent';
 import Loader from 'views/shared/Loader';
-
+import { T } from '@transifex/react';
 import type { NextPageWithLayout } from './_app';
 
 const ReportPage: NextPageWithLayout = () => (
@@ -13,7 +13,9 @@ const ReportPage: NextPageWithLayout = () => (
     <div className="l-content m-report-page">
       <Row>
         <Column small={12}>
-          <h2>Analysis report</h2>
+          <h2>
+            <T _str="Analysis report" />
+          </h2>
           <MapView
             page="report"
             options={{

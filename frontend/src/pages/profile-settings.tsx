@@ -41,7 +41,7 @@ const ProfileSettingsPage: NextPageWithLayout = ({ user }) => {
           <input type="submit" value="Cancel my account" />
 
           <button type="button" onClick={router.back}>
-            Back
+            <T _str="Back" />
           </button>
         </div>
       </Row>

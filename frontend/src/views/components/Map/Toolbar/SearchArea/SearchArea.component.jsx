@@ -1,5 +1,6 @@
 import React from 'react';
 import cx from 'classnames';
+import { T } from '@transifex/react';
 
 import { useSearch } from 'utilities/hooks';
 
@@ -40,7 +41,11 @@ const SearchArea = ({ fitBounds, countries }) => {
                 })}
               </ul>
 
-              {noResults && <div className="no-results">No results</div>}
+              {noResults && (
+                <div className="no-results">
+                  <T _str="No results" />
+                </div>
+              )}
             </div>
           </div>
         </div>

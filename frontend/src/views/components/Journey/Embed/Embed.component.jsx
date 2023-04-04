@@ -4,6 +4,7 @@ import Iframe from 'react-iframe';
 import Legend from 'views/components/Legend';
 import qs from 'qs';
 import cx from 'classnames';
+import { T } from '@transifex/react';
 
 // TODO: get rid of IFrame and use Map Component
 // It requires to refactor map to use redux instead of url in all cases
@@ -150,7 +151,7 @@ const Embed = (props) => {
           data-step={currentStep}
           className={cx('btn-check-it', { 'last-step': isLastStep })}
         >
-          View on map
+          <T _str="View on map" />
         </a>
       </div>
       <article className="side-bar">
@@ -168,7 +169,9 @@ const Embed = (props) => {
             {source}
             <Legend />
             <footer>
-              <p>INSIGHTS PROVIDED BY CONSERVATION INTERNATIONAL</p>
+              <p>
+                <T _str="INSIGHTS PROVIDED BY CONSERVATION INTERNATIONAL" />
+              </p>
             </footer>
           </article>
         </div>

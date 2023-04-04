@@ -1,5 +1,6 @@
 import React from 'react';
 import { WidgetBarChart } from 'views/shared/Widgets/WidgetBarChart';
+import { T } from '@transifex/react';
 
 export const LayerAnalysis = ({
   responsiveCharts,
@@ -9,16 +10,29 @@ export const LayerAnalysis = ({
   iso,
   countries,
 }) => {
-  if (activeLayers.length && !loaded) return <center>Waiting until layers loaded...</center>;
+  if (activeLayers.length && !loaded)
+    return (
+      <center>
+        <T _str="Waiting until layers loaded..." />
+      </center>
+    );
 
   const analyzable = activeLayers.filter((l) => l.analysisSuitable);
 
   if (!activeLayers.length) {
-    return <center>Please toggle some layers on to analyze them.</center>;
+    return (
+      <center>
+        <T _str="Please toggle some layers on to analyze them." />
+      </center>
+    );
   }
 
   if (!analyzable.length) {
-    return <center>None of the active layers can be analyzed.</center>;
+    return (
+      <center>
+        <T _str="None of the active layers can be analyzed." />
+      </center>
+    );
   }
 
   const geometry = iso ? JSON.parse(countries[iso].geometry) : geojson;
@@ -42,7 +56,9 @@ export const LayerAnalysis = ({
       ))}
 
       {activeLayers.length !== analyzable.length && (
-        <p>Some active layers can&apos;t be analyzed.</p>
+        <p>
+          <T _str="Some active layers can't be analyzed." />
+        </p>
       )}
     </div>
   );

@@ -19,6 +19,7 @@ const StaticLanding: React.FC<StaticJourneyStep> = ({ title, background, subtitl
     </div>
   </div>
 );
+
 const Landing: React.FC<JourneyAttributes> = ({
   title,
   background_image: backgroundImage,

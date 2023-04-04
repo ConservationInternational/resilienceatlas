@@ -2,6 +2,7 @@ import React, { useState, useCallback, useEffect, useMemo } from 'react';
 import qs from 'qs';
 import cx from 'classnames';
 import { useDropzone } from 'react-dropzone';
+import { T } from '@transifex/react';
 
 import Tabs from 'views/shared/Tabs';
 import { useDownloadableReport } from 'utilities/hooks/downloadableReport';
@@ -29,10 +30,12 @@ export const AnalysisPanel = ({
 }) => {
   const sidebarTab = useMemo(
     () => qs.parse(router.query, { ignoreQueryPrefix: true }).tab,
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [location],
   );
   useEffect(() => {
     if (!countriesLoaded) loadCountries();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const [tab, setTab] = useState(geojson && !iso ? 'shape' : 'region');
@@ -45,16 +48,19 @@ export const AnalysisPanel = ({
         setGeojson(null);
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [tab],
   );
 
   const toggleDrawing = useCallback(() => {
     setDrawing(!drawing);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [drawing]);
 
   const resetAnalytics = useCallback(() => {
     setGeojson(null);
     setISO(null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const onDrop = useCallback(([file]) => {
@@ -89,12 +95,14 @@ export const AnalysisPanel = ({
 
         setGeojson(json);
       } catch (err) {
+        // eslint-disable-next-line no-console
         console.error(err);
         window.alert("The file can't be read. Make sure it's the GeoJSON is valid.");
       }
     };
 
     reader.readAsText(file);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
   const { searchInput, result, noResults } = useSearch('search', countries, {
@@ -112,7 +120,7 @@ export const AnalysisPanel = ({
           onClick={toggle}
           aria-label="Contract analysis panel"
         />
-        Analysis
+        <T _str="Analysis" />
       </div>
       <div className="content">
         <div id="analysisSelectorsView" className="m-analysis-selectors">
@@ -124,7 +132,7 @@ export const AnalysisPanel = ({
                 data-tab="region"
                 onClick={switchTab}
               >
-                Country or region
+                <T _str="Country or region" />
               </button>
               <button
                 type="button"
@@ -132,14 +140,16 @@ export const AnalysisPanel = ({
                 data-tab="shape"
                 onClick={switchTab}
               >
-                Draw or upload shape
+                <T _str="Draw or upload shape" />
               </button>
             </div>
 
             {!(geojson || iso) ? (
               <Tabs activeTab={tab} renderActiveOnly>
                 <Tabs.Pane name="region">
-                  <p>Select a country or region from the list below.</p>
+                  <p>
+                    <T _str="Select a country or region from the list below." />
+                  </p>
                   <div className="m-search-analysis">
                     <svg className="icon-search">
                       <use xmlnsXlink="http://www.w3.org/1999/xlink" xlinkHref="#icon-search" />
@@ -175,12 +185,18 @@ export const AnalysisPanel = ({
                           </ul>
                         </div>
                       </div>
-                      {noResults && <div>No results</div>}
+                      {noResults && (
+                        <div>
+                          <T _str="No results" />
+                        </div>
+                      )}
                     </div>
                   </div>
                 </Tabs.Pane>
                 <Tabs.Pane name="shape">
-                  <p>Draw on the map the area you want to analyze or pick a file.</p>
+                  <p>
+                    <T _str="Draw on the map the area you want to analyze or pick a file." />
+                  </p>
                   <div className="buttons">
                     <button
                       type="button"
@@ -197,9 +213,11 @@ export const AnalysisPanel = ({
                       type="button"
                       className={cx('btn -dotted', { '-active': isDragActive })}
                     >
-                      {isDragActive
-                        ? 'Drop here'
-                        : 'Click here to select a GeoJSON file or drag and drop the file here'}
+                      {isDragActive ? (
+                        <T _str="Drop here" />
+                      ) : (
+                        <T _str="Click here to select a GeoJSON file or drag and drop the file here" />
+                      )}
                     </button>
                     <input {...getInputProps()} hidden accept=".json,.geojson" />
                   </div>
@@ -210,10 +228,10 @@ export const AnalysisPanel = ({
                 {sidebarTab === TABS.MODELS ? <PredictiveModelAnalysis /> : <LayerAnalysis />}
                 <div className="buttons">
                   <a className="btn -primary" {...downloadableReport}>
-                    Download PDF report
+                    <T _str="Download PDF report" />
                   </a>
                   <button type="button" className="btn -secondary" onClick={resetAnalytics}>
-                    Reset the analysis
+                    <T _str="Reset the analysis" />
                   </button>
                   <br />
                   <a
@@ -222,7 +240,7 @@ export const AnalysisPanel = ({
                     target="_blank"
                     rel="noreferrer"
                   >
-                    Go to Shinny App
+                    <T _str="Go to Shinny App" />
                   </a>
                 </div>
               </>

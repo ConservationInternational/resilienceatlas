@@ -93,6 +93,30 @@ const Component = () => {
 };
 ```
 
+#### Strings inside constants
+
+For strings inside constants we will have to create a function that encapsulates that string and is called everytime the locale changes.
+
+```
+constant.js
+
+import { t } from '@transifex/native';
+
+export const getTranslation = () => t('Translated content');
+
+
+component.js
+import { getTranslation } from './constant';
+import { useLocale } from '@transifex/react';
+
+const Component = () => {
+  const locale = useLocale();
+  const translation = useMemo(() => getTranslation(), [locale]);
+
+  return translation;
+};
+```
+
 ## CI/CD
 
 When a pull request (PR) is created, a GitHub action runs the tests (`yarn test`).

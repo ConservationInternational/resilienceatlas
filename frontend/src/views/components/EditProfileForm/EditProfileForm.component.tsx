@@ -6,6 +6,7 @@ import axios from 'axios';
 
 import FormInput from 'views/shared/inputs/FormInput';
 import Loader from 'views/shared/Loader';
+import { T } from '@transifex/react';
 
 import type { FC } from 'react';
 import type { InjectedFormProps } from 'redux-form';
@@ -32,6 +33,7 @@ const EditProfileForm: FC<InjectedFormProps<IEditProfileForm>> = ({
   const { data: userData } = data || {};
 
   if (isLoading && !data) return <Loader loading={isLoading} />;
+  const submitValue = (<T _str="Update" />) as unknown as string;
 
   return (
     <Form onSubmit={handleSubmit}>
@@ -39,7 +41,7 @@ const EditProfileForm: FC<InjectedFormProps<IEditProfileForm>> = ({
         component={FormInput}
         type="email"
         name="email"
-        label="Email"
+        label={<T _str="Email" />}
         autoFocus
         defaultValue={userData?.email}
       />
@@ -47,28 +49,28 @@ const EditProfileForm: FC<InjectedFormProps<IEditProfileForm>> = ({
       <Field
         component={FormInput}
         name="first_name"
-        label="First name"
+        label={<T _str="First name" />}
         defaultValue={userData?.first_name}
       />
 
       <Field
         component={FormInput}
         name="last_name"
-        label="Last name"
+        label={<T _str="Last name" />}
         defaultValue={userData?.last_name}
       />
 
       <Field
         component={FormInput}
         name="organization"
-        label="Organization"
+        label={<T _str="Organization" />}
         defaultValue={userData?.organization}
       />
 
       <Field
         component={FormInput}
         name="organization_role"
-        label="Organization role"
+        label={<T _str="Organization role" />}
         defaultValue={userData?.organization_role}
       />
 
@@ -79,7 +81,7 @@ const EditProfileForm: FC<InjectedFormProps<IEditProfileForm>> = ({
           className={cx('btn-submit', { 'is-loading': submitting })}
           type="submit"
           name="commit"
-          value="Update"
+          value={submitValue}
           disabled={submitting}
         />
       </div>

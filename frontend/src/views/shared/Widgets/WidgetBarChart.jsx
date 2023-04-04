@@ -3,6 +3,7 @@ import React, { useMemo } from 'react';
 import { ResponsiveContainer, BarChart, XAxis, YAxis, CartesianGrid, Bar, Tooltip } from 'recharts';
 
 import InfoWindow from 'views/components/InfoWindow';
+import { T } from '@transifex/react';
 
 import { useWidget, formatNumber } from 'utilities';
 import { CustomTooltip } from './CustomTooltip';
@@ -36,7 +37,9 @@ export const WidgetBarChart = ({
       {loaded &&
         (noData ? (
           <div className="widget-no-data">
-            <h3>NO DATA AVAILABLE</h3>
+            <h3>
+              <T _str="NO DATA AVAILABLE" />
+            </h3>
           </div>
         ) : (
           <>
@@ -90,22 +93,30 @@ export const WidgetBarChart = ({
             {data.stats && (
               <ul className="m-widget__stats">
                 <li className="stats-item">
-                  <span className="stats-item__label">Max: </span>
+                  <span className="stats-item__label">
+                    <T _str="Max:" _comment="Max number on the widget bar chart" />{' '}
+                  </span>
                   {formatNumber({ value: data.stats.max })}&nbsp;
                   {unit}
                 </li>
                 <li className="stats-item">
-                  <span className="stats-item__label">Min: </span>
+                  <span className="stats-item__label">
+                    <T _str="Min:" _comment="Min number on the widget bar chart" />{' '}
+                  </span>
                   {formatNumber({ value: data.stats.min })}&nbsp;
                   {unit}
                 </li>
                 <li className="stats-item">
-                  <span className="stats-item__label">Std. deviation: </span>
+                  <span className="stats-item__label">
+                    <T _str="Std. deviation:" _comment="Std. deviation: on the widget bar chart" />{' '}
+                  </span>
                   {formatNumber({ value: data.stats.stdev })}&nbsp;
                   {unit}
                 </li>
                 <li className="stats-item">
-                  <span className="stats-item__label">Sum: </span>
+                  <span className="stats-item__label">
+                    <T _str="Sum:" _comment="Sum: on the widget bar chart" />{' '}
+                  </span>
                   {formatNumber({ value: data.stats.sum })}&nbsp;
                   {unit}
                 </li>
@@ -128,7 +139,7 @@ export const WidgetBarChart = ({
                     className="btn-analysis btn-analysis__info"
                     data-info={metadata}
                     data-name={name}
-                    title="View detailed info"
+                    title={<T _str="View detailed info" />}
                     onClick={() => InfoWindow.show(name, metadata)}
                   >
                     <svg className="icon icon-info">

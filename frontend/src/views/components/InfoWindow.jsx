@@ -3,6 +3,7 @@ import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import DangerousHTML from 'react-dangerous-html';
 import { clickable } from 'utilities';
+import { T } from '@transifex/react';
 
 export default class InfoWindow extends Component {
   static show(name, data) {
@@ -56,10 +57,14 @@ export default class InfoWindow extends Component {
           <div className="modal-container">
             <h1>{name}</h1>
 
-            <h4>Description</h4>
+            <h4>
+              <T _str="Description" />
+            </h4>
             <p>{description}</p>
 
-            <h4>Source</h4>
+            <h4>
+              <T _str="Source" />
+            </h4>
             <div className="source">
               <DangerousHTML html={source} />
 

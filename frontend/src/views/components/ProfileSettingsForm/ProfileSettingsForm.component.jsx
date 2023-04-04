@@ -1,15 +1,20 @@
 import React from 'react';
 import cx from 'classnames';
 import { Form, Field } from 'redux-form';
+import { T } from '@transifex/react';
 
 import FormInput from 'views/shared/inputs/FormInput';
 import Loader from 'views/shared/Loader';
 
 const ProfileSettingsForm = ({ user, handleSubmit, submitting }) => (
   <Form onSubmit={handleSubmit}>
-    <Field component={FormInput} type="email" name="email" label="Email" autoFocus />
+    <Field component={FormInput} type="email" name="email" label={<T _str="Email" />} autoFocus />
 
-    {!!user.unconfirmed && <div>Currently waiting confirmation for: {user.email}</div>}
+    {!!user.unconfirmed && (
+      <div>
+        <T _str="Currently waiting confirmation for: {email}" email={user.email} />
+      </div>
+    )}
 
     <Field
       component={FormInput}
@@ -17,7 +22,18 @@ const ProfileSettingsForm = ({ user, handleSubmit, submitting }) => (
       name="password"
       label={
         <span>
-          Password<em>(leave blank if you don&apos;t want to change it)</em>
+          <T
+            _str="Password{leave_it_blank}"
+            _comment="Password<em>(leave blank if you don't want to change it)</em>"
+            leave_it_blank={
+              <em>
+                <T
+                  _str="(leave blank if you don't want to change it)"
+                  _comment="Password<em>(leave blank if you don't want to change it)</em>"
+                />
+              </em>
+            }
+          />
         </span>
       }
       autoComplete="off"
@@ -27,7 +43,7 @@ const ProfileSettingsForm = ({ user, handleSubmit, submitting }) => (
       component={FormInput}
       type="password"
       name="password_confirmation"
-      label="Password confirmation"
+      label={<T _str="Password confirmation" />}
       autoComplete="off"
     />
 
@@ -37,8 +53,19 @@ const ProfileSettingsForm = ({ user, handleSubmit, submitting }) => (
       name="current_password"
       label={
         <span>
-          Current password
-          <em>(we need your current password to confirm your changes)</em>
+          <T
+            _str="Current password
+            {we_need_your_password}"
+            _comment="Current password<em>(we need your current password to confirm your changes)</em>"
+            we_need_your_password={
+              <em>
+                <T
+                  _str="(we need your current password to confirm your changes)"
+                  _comment="Current password<em>(we need your current password to confirm your changes)</em>"
+                />
+              </em>
+            }
+          />
         </span>
       }
     />
@@ -50,7 +77,7 @@ const ProfileSettingsForm = ({ user, handleSubmit, submitting }) => (
         className={cx('btn-submit', { 'is-loading': submitting })}
         type="submit"
         name="commit"
-        value="Update"
+        value={<T _str="Update" />}
         disabled={submitting}
       />
     </div>
