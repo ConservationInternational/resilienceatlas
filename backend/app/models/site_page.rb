@@ -17,7 +17,7 @@ class SitePage < ApplicationRecord
 
   has_rich_text :body
 
-  translates :title, :body, fallbacks_for_empty_translations: true
+  translates :title, :body, touch: true, fallbacks_for_empty_translations: true
   active_admin_translates :title, :body
 
   validates_presence_of :site_scope, :slug

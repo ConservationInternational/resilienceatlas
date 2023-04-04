@@ -49,3 +49,23 @@ div#footer{display: none;}
     list-style-type: decimal !important;
   }
 }
+.use-simple-trix-toolbar {
+  .trix-button--icon-code {
+    display: none;
+  }
+  .trix-button--icon-bullet-list {
+    display: none;
+  }
+  .trix-button--icon-number-list {
+    display: none;
+  }
+  .trix-button--icon-decrease-nesting-level {
+    display: none;
+  }
+  .trix-button--icon-increase-nesting-level {
+    display: none;
+  }
+  .trix-button-group--file-tools {
+    display: none;
+  }
+}

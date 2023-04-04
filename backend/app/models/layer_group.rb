@@ -25,7 +25,7 @@ class LayerGroup < ApplicationRecord
   belongs_to :site_scope
   accepts_nested_attributes_for :agrupations, allow_destroy: true
 
-  translates :name, :info, fallbacks_for_empty_translations: true
+  translates :name, :info, touch: true, fallbacks_for_empty_translations: true
   active_admin_translates :name, :info
 
   validate :avoid_recursivity, on: :update
