@@ -1,3 +1,18 @@
+# == Schema Information
+#
+# Table name: homepages
+#
+#  id                  :bigint           not null, primary key
+#  homepage_journey_id :bigint
+#  site_scope_id       :bigint           not null
+#  credits_url         :string
+#  show_journeys       :boolean          default(FALSE), not null
+#  created_at          :datetime         not null
+#  updated_at          :datetime         not null
+#  title               :string
+#  subtitle            :string
+#  credits             :string
+#
 class HomepageSerializer < ActiveModel::Serializer
   include BlobSerializer
 
