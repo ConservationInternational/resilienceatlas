@@ -1,4 +1,22 @@
+# == Schema Information
+#
+# Table name: homepages
+#
+#  id                :bigint           not null, primary key
+#  credits_url       :string
+#  position          :integer          default(1), not null
+#  show_journeys     :boolean          default(FALSE), not null
+#  journeys_position :integer          default(0), not null
+#  created_at        :datetime         not null
+#  updated_at        :datetime         not null
+#  title             :string
+#  subtitle          :string
+#  credits           :string
+#  journeys_title    :string
+#
 class Homepage < ApplicationRecord
+  has_many :homepage_sections, dependent: :destroy
+
   has_one_attached :background_image, service: :local_public
 
   translates :title, :subtitle, :credits, :journeys_title, touch: true, fallbacks_for_empty_translations: true

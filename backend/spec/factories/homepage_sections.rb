@@ -1,21 +1,24 @@
 # == Schema Information
 #
-# Table name: homepages
+# Table name: homepage_sections
 #
 #  id                :bigint           not null, primary key
-#  credits_url       :string
+#  homepage_id       :bigint           not null
+#  button_url        :string
+#  image_position    :string
+#  image_credits_url :string
+#  background_color  :string
 #  position          :integer          default(1), not null
-#  show_journeys     :boolean          default(FALSE), not null
-#  journeys_position :integer          default(0), not null
 #  created_at        :datetime         not null
 #  updated_at        :datetime         not null
 #  title             :string
 #  subtitle          :string
-#  credits           :string
-#  journeys_title    :string
+#  button_text       :string
+#  image_credits     :string
 #
 FactoryBot.define do
-  factory :homepage do
+  factory :homepage_section do
+    homepage
     sequence(:title) do |n|
       Faker::Config.random = Random.new(n)
       Faker::Lorem.sentence
@@ -24,22 +27,21 @@ FactoryBot.define do
       Faker::Config.random = Random.new(n)
       Faker::Lorem.sentence
     end
-    sequence(:credits) do |n|
+    sequence(:button_text) do |n|
       Faker::Config.random = Random.new(n)
       Faker::Lorem.sentence
     end
-    sequence(:credits_url) do |n|
+    sequence(:button_url) do |n|
       Faker::Config.random = Random.new(n)
       Faker::Internet.url
     end
-    background_image { Rack::Test::UploadedFile.new(Rails.root.join("spec/fixtures/files/picture.jpg"), "image/jpeg") }
-    sequence(:show_journeys) do |n|
-      Faker::Config.random = Random.new(n)
-      Faker::Boolean.boolean
+    image { Rack::Test::UploadedFile.new(Rails.root.join("spec/fixtures/files/picture.jpg"), "image/jpeg") }
+    sequence(:image_position) do |n|
+      HomepageSection.image_positions.keys.sample random: Random.new(n)
     end
-    sequence(:journeys_title) do |n|
+    sequence(:background_color) do |n|
       Faker::Config.random = Random.new(n)
-      Faker::Lorem.sentence
+      Faker::Color.hex_color
     end
   end
 end
