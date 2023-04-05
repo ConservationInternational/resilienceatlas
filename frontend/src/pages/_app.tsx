@@ -21,7 +21,6 @@ import 'leaflet/dist/leaflet.css';
 
 // Project styles
 import 'views/styles/index.scss';
-import { getRouterParam } from 'utilities';
 
 const { NEXT_PUBLIC_TRANSIFEX_TOKEN } = process.env;
 
@@ -94,12 +93,11 @@ const ResilienceApp = ({ Component, ...rest }: AppPropsWithLayout) => {
     });
   }, []);
 
-  const lang = getRouterParam('lang');
-
   useEffect(() => {
     // Used for initial render
-    tx.setCurrentLocale(lang);
-  }, [lang]);
+    tx.setCurrentLocale(router.locale);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   ga.useInitGAScript();
 
