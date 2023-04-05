@@ -130,11 +130,11 @@ Please, **create a PR** for any improvement or feature you want to add. Use the 
 
 [Dependabot's vulnerability security alerts](https://docs.github.com/en/code-security/dependabot/dependabot-alerts/about-dependabot-alerts) are configured in this repository and are displayed to the administrators.
 
-When vulnerabilities are detected, a warning message is displayed at the top of the repository. The list of alerts can be found in the [Dependabot alerts page](https://github.com/Vizzuality/heco-invest/security/dependabot).
+When vulnerabilities are detected, a warning message is displayed at the top of the repository. The list of alerts can be found in the [Dependabot alerts page](https://github.com/ConservationInternational/resilienceatlas/security/dependabot).
 
 Here's a step by step guide on how to address vulnerabilities found in production code:
 
-1. Go to the [Dependabot alerts page](https://github.com/Vizzuality/heco-invest/security/dependabot) and locate the front-end vulnerability to address
+1. Go to the [Dependabot alerts page](https://github.com/ConservationInternational/resilienceatlas/security/dependabot) and locate the front-end vulnerability to address
 2. Identify if the vulnerability affects production code:
    - To do so run `yarn npm audit --recursive --environment production`
    - If the dependency is _not_ listed by this command, then the vulnerability only affects development code. You can dismiss the alert on GitHub as “Vulnerable code is not actually used” in the top right corner of the vulnerability page.
