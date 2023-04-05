@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { useTour } from '@reactour/tour';
 
 import FullscreenLayout from 'views/layouts/fullscreen';
 import Sidebar from 'views/components/Sidebar';
@@ -15,6 +16,8 @@ import Loader from 'views/shared/Loader';
 import type { NextPageWithLayout } from './_app';
 
 const MapPage: NextPageWithLayout = () => {
+  const { isOpen, currentStep, steps, setIsOpen, setCurrentStep } = useTour();
+
   // TODO: migrate this, how it works?
   // const { location: { state } } = props;
   // useEffect(() => {
@@ -22,6 +25,8 @@ const MapPage: NextPageWithLayout = () => {
   //     DownloadWindow.show(state.downloadLayerUrl);
   //   }
   // }, []);
+
+  useEffect(() => setIsOpen(true), []);
 
   return (
     <LayerManagerProvider>

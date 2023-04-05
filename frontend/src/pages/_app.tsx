@@ -3,10 +3,14 @@ import { Provider as ReduxProvider } from 'react-redux';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { QueryClient, QueryClientProvider, Hydrate } from '@tanstack/react-query';
+import { tx, PseudoTranslationPolicy } from '@transifex/native';
+import { TourProvider } from '@reactour/tour';
+import { getRouterParam } from 'utilities';
+
 import { wrapper } from 'state/store';
 import * as ga from 'utilities/ga';
 import { getToken, login } from 'state/modules/user';
-import { tx, PseudoTranslationPolicy } from '@transifex/native';
+import TOUR_STEPS from 'constants/tour-steps';
 
 import type { ReactElement, ReactNode } from 'react';
 import type { NextPage } from 'next';
@@ -21,9 +25,17 @@ import 'leaflet/dist/leaflet.css';
 
 // Project styles
 import 'views/styles/index.scss';
-import { getRouterParam } from 'utilities';
 
 const { NEXT_PUBLIC_TRANSIFEX_TOKEN } = process.env;
+const REACT_TOUR_OPTIONS = {
+  steps: TOUR_STEPS,
+  showDots: false,
+  badgeContent: ({ currentStep, totalSteps }) => (
+    <>
+      Map tour {currentStep + 1}/{totalSteps}
+    </>
+  ),
+};
 
 type ResilienceAppProps = {
   dehydratedState?: DehydratedState;
@@ -146,9 +158,11 @@ const ResilienceApp = ({ Component, ...rest }: AppPropsWithLayout) => {
       </Head>
       <ReduxProvider store={appStore}>
         <QueryClientProvider client={queryClient}>
-          <Hydrate state={rest.pageProps.dehydratedState}>
-            {getLayout(<Component {...rest.pageProps} />)}
-          </Hydrate>
+          <TourProvider {...REACT_TOUR_OPTIONS}>
+            <Hydrate state={rest.pageProps.dehydratedState}>
+              {getLayout(<Component {...rest.pageProps} />)}
+            </Hydrate>
+          </TourProvider>
         </QueryClientProvider>
       </ReduxProvider>
     </>
