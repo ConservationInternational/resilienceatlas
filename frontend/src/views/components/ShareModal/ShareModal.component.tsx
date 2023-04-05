@@ -1,12 +1,13 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import ReactModal from 'react-modal';
 import cx from 'classnames';
+import axios from 'axios';
+import { useRouter } from 'next/router';
+import { useQuery } from '@tanstack/react-query';
 
 import Tabs from 'views/shared/Tabs';
 import LinkButton from 'views/shared/LinkButton';
 import CopyToClipboard from 'views/shared/CopyToClipboard';
-
-import { useRouter } from 'next/router';
 
 type ShareModalProps = {
   isOpen: boolean;
@@ -25,6 +26,29 @@ const ShareModal: React.FC<ShareModalProps> = ({ isOpen, setIsOpen }) => {
 
   const origin = typeof window !== 'undefined' ? window.location.origin : '';
   const url = `${origin}${asPath}`;
+  const embedUrl = url.replace('map', 'embed/map');
+
+  // Generating shorten URL
+  const { data: shortenUrlData } = useQuery<{ uid: string }>(['url-shortener', url], () =>
+    axios({
+      method: 'POST',
+      url: `${process.env.NEXT_PUBLIC_API_HOST}/api/share`,
+      data: {
+        body: url,
+      },
+    }).then((res) => res.data),
+  );
+
+  // Generating shorten URL for embed
+  const { data: shortenEmbedUrlData } = useQuery<{ uid: string }>(['url-shortener', embedUrl], () =>
+    axios({
+      method: 'POST',
+      url: `${process.env.NEXT_PUBLIC_API_HOST}/api/share`,
+      data: {
+        body: embedUrl,
+      },
+    }).then((res) => res.data),
+  );
 
   const switchTab = useCallback(
     (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -37,6 +61,16 @@ const ShareModal: React.FC<ShareModalProps> = ({ isOpen, setIsOpen }) => {
   );
 
   const handleClose = useCallback(() => setIsOpen(false), [setIsOpen]);
+
+  const shortenUrl = useMemo(() => {
+    if (!shortenUrlData) return url;
+    return `${origin}/share/${shortenUrlData.uid}`;
+  }, [origin, shortenUrlData, url]);
+
+  const shortenEmbedUrl = useMemo(() => {
+    if (!shortenEmbedUrlData) return embedUrl;
+    return `${origin}/share/${shortenEmbedUrlData.uid}`;
+  }, [embedUrl, origin, shortenEmbedUrlData]);
 
   return (
     <ReactModal
@@ -83,29 +117,26 @@ const ShareModal: React.FC<ShareModalProps> = ({ isOpen, setIsOpen }) => {
             >
               <Tabs.Pane id="share-link" className="content" name={TABS.LINK}>
                 <p>Copy the link below to share it</p>
-                <CopyToClipboard value={url} />
+                <CopyToClipboard value={shortenUrl} />
               </Tabs.Pane>
 
               <Tabs.Pane className="content" id="share-embed" name={TABS.EMBED}>
                 <p>Copy the embed code below to share it</p>
                 <CopyToClipboard
-                  value={`<iframe frameborder="0" width="960" height="600" src="${url.replace(
-                    'map',
-                    'embed/map',
-                  )}"></iframe>`}
+                  value={`<iframe frameborder="0" width="960" height="600" src="${shortenEmbedUrl}"></iframe>`}
                 />
               </Tabs.Pane>
 
               <Tabs.Pane className="content" id="share-oembed" name={TABS.OEMBED}>
                 <p>Copy the oembed code below to share it</p>
-                <CopyToClipboard value={`${origin}/services/oembed/?url=${url}`} />
+                <CopyToClipboard value={`${origin}/services/oembed/?url=${shortenUrl}`} />
               </Tabs.Pane>
             </Tabs>
 
             <div className="social-links">
               <div className="btn-social twitter">
                 <a
-                  href={`https://twitter.com/share?url=${url}`}
+                  href={`https://twitter.com/share?url=${shortenUrl}`}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -116,7 +147,7 @@ const ShareModal: React.FC<ShareModalProps> = ({ isOpen, setIsOpen }) => {
               </div>
               <div className="btn-social facebook">
                 <a
-                  href={`https://www.facebook.com/sharer.php?u=${url}`}
+                  href={`https://www.facebook.com/sharer.php?u=${shortenUrl}`}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -127,7 +158,7 @@ const ShareModal: React.FC<ShareModalProps> = ({ isOpen, setIsOpen }) => {
               </div>
               <div className="btn-social google">
                 <a
-                  href={`https://plus.google.com/share?url=${url}`}
+                  href={`https://plus.google.com/share?url=${shortenUrl}`}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
