@@ -9,6 +9,8 @@ import Tabs from 'views/shared/Tabs';
 import LinkButton from 'views/shared/LinkButton';
 import CopyToClipboard from 'views/shared/CopyToClipboard';
 
+import type { SharedURLPayload } from 'types/shared-url';
+
 type ShareModalProps = {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
@@ -29,7 +31,7 @@ const ShareModal: React.FC<ShareModalProps> = ({ isOpen, setIsOpen }) => {
   const embedUrl = url.replace('map', 'embed/map');
 
   // Generating shorten URL
-  const { data: shortenUrlData } = useQuery<{ uid: string }>(['url-shortener', url], () =>
+  const { data: shortenUrlData } = useQuery<SharedURLPayload>(['url-shortener', url], () =>
     axios({
       method: 'POST',
       url: `${process.env.NEXT_PUBLIC_API_HOST}/api/share`,
@@ -40,14 +42,16 @@ const ShareModal: React.FC<ShareModalProps> = ({ isOpen, setIsOpen }) => {
   );
 
   // Generating shorten URL for embed
-  const { data: shortenEmbedUrlData } = useQuery<{ uid: string }>(['url-shortener', embedUrl], () =>
-    axios({
-      method: 'POST',
-      url: `${process.env.NEXT_PUBLIC_API_HOST}/api/share`,
-      data: {
-        body: embedUrl,
-      },
-    }).then((res) => res.data),
+  const { data: shortenEmbedUrlData } = useQuery<SharedURLPayload>(
+    ['url-shortener', embedUrl],
+    () =>
+      axios({
+        method: 'POST',
+        url: `${process.env.NEXT_PUBLIC_API_HOST}/api/share`,
+        data: {
+          body: embedUrl,
+        },
+      }).then((res) => res.data),
   );
 
   const switchTab = useCallback(
@@ -174,5 +178,7 @@ const ShareModal: React.FC<ShareModalProps> = ({ isOpen, setIsOpen }) => {
     </ReactModal>
   );
 };
+
+ReactModal.setAppElement('#root');
 
 export default ShareModal;
