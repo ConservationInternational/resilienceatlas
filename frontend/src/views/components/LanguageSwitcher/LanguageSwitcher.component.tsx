@@ -6,7 +6,7 @@ import { useLanguages, useLocale } from '@transifex/react';
 import { useRouterParams } from 'utilities';
 import cx from 'classnames';
 
-const AVAILABLE_LANGUAGES = ['en', 'fr', 'es', 'zh', 'pt', 'ru'];
+const AVAILABLE_LANGUAGES = ['en', 'fr', 'es', 'zh-CN', 'pt_BR', 'ru'];
 
 // Don't translate these
 const LANGUAGE_LABELS = {
@@ -15,7 +15,7 @@ const LANGUAGE_LABELS = {
   fr: 'Français',
   pt: 'Português',
   ru: 'Русский',
-  es: 'Castellano',
+  es: 'Español',
 };
 
 type Language = {
