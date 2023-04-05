@@ -16,7 +16,7 @@
 #  button_text       :string
 #  image_credits     :string
 #
-require 'rails_helper'
+require "rails_helper"
 
 RSpec.describe HomepageSection, type: :model do
   subject { build(:homepage_section) }

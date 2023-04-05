@@ -2,19 +2,18 @@
 #
 # Table name: homepages
 #
-#  id                :bigint           not null, primary key
-#  credits_url       :string
-#  position          :integer          default(1), not null
-#  show_journeys     :boolean          default(FALSE), not null
-#  journeys_position :integer          default(0), not null
-#  created_at        :datetime         not null
-#  updated_at        :datetime         not null
-#  title             :string
-#  subtitle          :string
-#  credits           :string
-#  journeys_title    :string
+#  id                  :bigint           not null, primary key
+#  homepage_journey_id :bigint
+#  site_scope_id       :bigint           not null
+#  credits_url         :string
+#  show_journeys       :boolean          default(FALSE), not null
+#  created_at          :datetime         not null
+#  updated_at          :datetime         not null
+#  title               :string
+#  subtitle            :string
+#  credits             :string
 #
-require 'rails_helper'
+require "rails_helper"
 
 RSpec.describe Homepage, type: :model do
   subject { build(:homepage) }
@@ -36,16 +35,6 @@ RSpec.describe Homepage, type: :model do
     expect(subject).to have(1).errors_on(:background_image)
   end
 
-  it "should not be valid without position" do
-    subject.position = nil
-    expect(subject).to have(2).errors_on(:position)
-  end
-
-  it "should not be valid when position is negative" do
-    subject.position = -1
-    expect(subject).to have(1).errors_on(:position)
-  end
-
   it "should not be valid without title" do
     subject.title = nil
     expect(subject.save).to be_falsey
@@ -58,23 +47,17 @@ RSpec.describe Homepage, type: :model do
     expect(subject.errors["translations.subtitle"]).to include("can't be blank")
   end
 
+  it "should not be valid when multiple homepages uses same site scope" do
+    subject.save!
+    expect(build(:homepage, site_scope: subject.site_scope)).to have(1).errors_on(:site_scope_id)
+  end
+
   context "when show_journeys is true" do
-    before { subject.show_journeys = true }
+    subject { build(:homepage, show_journeys: true) }
 
-    it "should not be valid without journeys_title" do
-      subject.journeys_title = nil
-      expect(subject.save).to be_falsey
-      expect(subject.errors["translations.journeys_title"]).to include("can't be blank")
-    end
-
-    it "should not be valid without journeys_position" do
-      subject.journeys_position = nil
-      expect(subject).to have(2).errors_on(:journeys_position)
-    end
-
-    it "should not be valid when journeys_position is negative" do
-      subject.journeys_position = -1
-      expect(subject).to have(1).errors_on(:journeys_position)
+    it "should not be valid without homepage_journey" do
+      subject.homepage_journey = nil
+      expect(subject).to have(1).errors_on(:homepage_journey)
     end
   end
 end

@@ -39,6 +39,14 @@ FactoryBot.define do
     sequence(:image_position) do |n|
       HomepageSection.image_positions.keys.sample random: Random.new(n)
     end
+    sequence(:image_credits) do |n|
+      Faker::Config.random = Random.new(n)
+      Faker::Lorem.sentence
+    end
+    sequence(:image_credits_url) do |n|
+      Faker::Config.random = Random.new(n)
+      Faker::Internet.url
+    end
     sequence(:background_color) do |n|
       Faker::Config.random = Random.new(n)
       Faker::Color.hex_color

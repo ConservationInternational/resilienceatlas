@@ -31,7 +31,7 @@ class HomepageSection < ApplicationRecord
 
   validates :button_url, url: true
   validates :image_credits_url, url: true
-  validates :position, presence: true, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
+  validates :position, presence: true, numericality: {only_integer: true, greater_than_or_equal_to: 0}
   validates :image_position, presence: true
   validates :image, presence: true, content_type: /\Aimage\/.*\z/
 end

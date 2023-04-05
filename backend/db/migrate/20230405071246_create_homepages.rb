@@ -1,17 +1,17 @@
 class CreateHomepages < ActiveRecord::Migration[7.0]
   def change
     create_table :homepages do |t|
+      t.belongs_to :homepage_journey, foreign_key: {on_delete: :nullify}
+      t.belongs_to :site_scope, foreign_key: {on_delete: :cascade}, null: false, index: {unique: true}
       t.string :credits_url
-      t.integer :position, null: false, default: 1
       t.boolean :show_journeys, null: false, default: false
-      t.integer :journeys_position, null: false, default: 0
 
       t.timestamps
     end
 
     reversible do |dir|
       dir.up do
-        Homepage.create_translation_table! title: :string, subtitle: :string, credits: :string, journeys_title: :string
+        Homepage.create_translation_table! title: :string, subtitle: :string, credits: :string
       end
 
       dir.down do

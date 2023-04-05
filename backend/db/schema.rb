@@ -140,6 +140,22 @@ ActiveRecord::Schema[7.0].define(version: 2023_04_05_074139) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "homepage_journey_translations", force: :cascade do |t|
+    t.bigint "homepage_journey_id", null: false
+    t.string "locale", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "title"
+    t.index ["homepage_journey_id"], name: "index_homepage_journey_translations_on_homepage_journey_id"
+    t.index ["locale"], name: "index_homepage_journey_translations_on_locale"
+  end
+
+  create_table "homepage_journeys", force: :cascade do |t|
+    t.integer "position", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "homepage_section_translations", force: :cascade do |t|
     t.bigint "homepage_section_id", null: false
     t.string "locale", null: false
@@ -173,18 +189,19 @@ ActiveRecord::Schema[7.0].define(version: 2023_04_05_074139) do
     t.string "title"
     t.string "subtitle"
     t.string "credits"
-    t.string "journeys_title"
     t.index ["homepage_id"], name: "index_homepage_translations_on_homepage_id"
     t.index ["locale"], name: "index_homepage_translations_on_locale"
   end
 
   create_table "homepages", force: :cascade do |t|
+    t.bigint "homepage_journey_id"
+    t.bigint "site_scope_id", null: false
     t.string "credits_url"
-    t.integer "position", default: 1, null: false
     t.boolean "show_journeys", default: false, null: false
-    t.integer "journeys_position", default: 0, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["homepage_journey_id"], name: "index_homepages_on_homepage_journey_id"
+    t.index ["site_scope_id"], name: "index_homepages_on_site_scope_id", unique: true
   end
 
   create_table "identities", force: :cascade do |t|
@@ -529,6 +546,8 @@ ActiveRecord::Schema[7.0].define(version: 2023_04_05_074139) do
   add_foreign_key "feedback_fields", "feedback_fields", column: "parent_id", on_delete: :cascade
   add_foreign_key "feedback_fields", "feedbacks", on_delete: :cascade
   add_foreign_key "homepage_sections", "homepages", on_delete: :cascade
+  add_foreign_key "homepages", "homepage_journeys", on_delete: :nullify
+  add_foreign_key "homepages", "site_scopes", on_delete: :cascade
   add_foreign_key "identities", "users"
   add_foreign_key "indicators", "categories"
   add_foreign_key "journey_steps", "journeys", on_delete: :cascade

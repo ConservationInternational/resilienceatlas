@@ -1,7 +1,9 @@
 - blob_object = f.object.public_send blob
 - inside_has_many_block = defined?(inside_has_many_block) ? inside_has_many_block : false
+- show_image = blob_object.present? && !blob_object.blob.new_record?
+- required = defined?(required) ? required && !show_image : false
 
-- if blob_object.present?
+- if show_image
   = link_to url_for(blob_object)
     = image_tag blob_object.variant(resize: "200x200"), class: "image-preview"
 - if inside_has_many_block
