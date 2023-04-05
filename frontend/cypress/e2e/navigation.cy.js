@@ -5,21 +5,21 @@ describe('Main menu', () => {
 
   it('clicking on the logo should navigate to the home page', () => {
     cy.get('.brand-area').find('a').click();
-    cy.location('pathname').should('eq', '/');
+    cy.location('pathname').should('eq', '/en/');
   });
 
   it('clicking on "Journeys" should navigate to the journeys page', () => {
-    cy.get('.nav-area').find('a[href="/journeys"]').click();
-    cy.location('pathname').should('eq', '/journeys');
+    cy.get('.nav-area').find('a[href="/en/journeys/"]').click();
+    cy.location('pathname').should('eq', '/en/journeys/');
   });
 
   it('clicking on "About" should navigate to the about page', () => {
-    cy.get('.nav-area').find('a[href="/about"]').click();
-    cy.location('pathname').should('eq', '/about');
+    cy.get('.nav-area').find('a[href="/en/about/"]').click();
+    cy.location('pathname').should('eq', '/en/about/');
   });
 
   it('clicking on "Map" should navigate to the map page', () => {
-    cy.get('.nav-area').find('a[href="/map"]').click();
-    cy.location('pathname').should('eq', '/map');
+    cy.get('.nav-area').find('a[href="/en/map/"]').click();
+    cy.location('pathname').should('eq', '/en/map/');
   });
 });
