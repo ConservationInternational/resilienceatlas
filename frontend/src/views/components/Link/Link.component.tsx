@@ -10,7 +10,7 @@ function LinkWithLang(props) {
     pathname: props.href.pathname || props.href,
     query: {
       ...props.href?.query,
-      lang,
+      ...(lang ? { lang } : {}),
     },
   };
 
