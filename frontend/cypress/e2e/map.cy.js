@@ -68,3 +68,49 @@ describe('Analysis should work for Livelihoods zones layer', () => {
     cy.get('#analysisPanelView').should('be.visible');
   });
 });
+
+describe('Share modal should show shorten URL', () => {
+  const shortenUrl = 'http://localhost:3000/share/cb69ec73745eb70c4a5d';
+
+  beforeEach(() => {
+    cy.interceptAllRequests();
+
+    cy.intercept('POST', '/api/share', {
+      fixture: 'share-url-encode.json',
+    }).as('shareEncodeRequest');
+
+    cy.intercept('GET', '/api/share/cb69ec73745eb70c4a5d', {
+      fixture: 'share-url-decode.json',
+    }).as('shareDecodeRequest');
+  });
+
+  it('should show shorten URL', () => {
+    cy.visit(
+      '/map?tab=&center=lat%3D14.214466896745083%26lng%3D28.242759704589844&layers=%5B%7B"id"%3A66%2C"opacity"%3A1%2C"order"%3Anull%7D%5D&zoom=4',
+    );
+
+    cy.wait('@siteRequest');
+    cy.wait('@layerGroupsAPIRequest');
+    cy.wait('@layersAPIRequest');
+
+    cy.get('.wri_api__map-container.leaflet-container');
+
+    cy.get('.btn-share').click();
+    cy.wait(1000);
+    cy.get('.m-share').should('be.visible');
+    cy.get('input.url').should('have.value', shortenUrl);
+  });
+
+  it('should load the correct url and map given a short url', () => {
+    cy.visit(shortenUrl);
+
+    // waiting redirect
+    cy.wait(1000);
+
+    cy.wait('@siteRequest');
+    cy.wait('@layerGroupsAPIRequest');
+    cy.wait('@layersAPIRequest');
+
+    cy.get('.wri_api__map-container.leaflet-container');
+  });
+});
