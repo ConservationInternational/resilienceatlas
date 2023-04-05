@@ -6,7 +6,6 @@ import Legend from 'views/components/Legend';
 import InfoWindow from 'views/components/InfoWindow';
 import LoginRequiredWindow from 'views/components/LoginRequiredWindow';
 import DownloadWindow from 'views/components/DownloadWindow';
-import ShareModal from 'views/components/ShareModal';
 import MapView from 'views/components/Map';
 
 import { LayerManagerProvider } from 'views/contexts/layerManagerCtx';
@@ -42,7 +41,6 @@ const MapPage: NextPageWithLayout = () => {
         <InfoWindow />
         <DownloadWindow />
         <LoginRequiredWindow />
-        <ShareModal />
       </div>
     </LayerManagerProvider>
   );
