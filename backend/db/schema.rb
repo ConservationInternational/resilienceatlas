@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_03_30_113540) do
+ActiveRecord::Schema[7.0].define(version: 2023_04_05_071246) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -136,6 +136,28 @@ ActiveRecord::Schema[7.0].define(version: 2023_03_30_113540) do
 
   create_table "feedbacks", force: :cascade do |t|
     t.string "language", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "homepage_translations", force: :cascade do |t|
+    t.bigint "homepage_id", null: false
+    t.string "locale", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "title"
+    t.string "subtitle"
+    t.string "credits"
+    t.string "journeys_title"
+    t.index ["homepage_id"], name: "index_homepage_translations_on_homepage_id"
+    t.index ["locale"], name: "index_homepage_translations_on_locale"
+  end
+
+  create_table "homepages", force: :cascade do |t|
+    t.string "credits_url"
+    t.integer "position", default: 1, null: false
+    t.boolean "show_journeys", default: false, null: false
+    t.integer "journeys_position", default: 0, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
