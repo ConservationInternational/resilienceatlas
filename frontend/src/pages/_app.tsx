@@ -124,12 +124,11 @@ const ResilienceApp = ({ Component, ...rest }: AppPropsWithLayout) => {
     });
   }, []);
 
-  const lang = getRouterParam('lang');
-
   useEffect(() => {
     // Used for initial render
-    tx.setCurrentLocale(lang);
-  }, [lang]);
+    tx.setCurrentLocale(router.locale);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   ga.useInitGAScript();
 

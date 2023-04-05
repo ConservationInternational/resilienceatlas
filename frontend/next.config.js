@@ -30,6 +30,12 @@ const nextConfig = {
       },
     ];
   },
+  i18n: {
+    locales: ['default', 'en', 'fr', 'es', 'zh-CN', 'pt-BR', 'ru'],
+    defaultLocale: 'default',
+    localeDetection: false,
+  },
+  trailingSlash: true,
 };
 
 module.exports = nextConfig;

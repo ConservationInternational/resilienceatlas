@@ -3,17 +3,18 @@ import React, { useMemo } from 'react';
 
 import { tx } from '@transifex/native';
 import { useLanguages, useLocale } from '@transifex/react';
-import { useRouterParams } from 'utilities';
 import cx from 'classnames';
 
-const AVAILABLE_LANGUAGES = ['en', 'fr', 'es', 'zh-CN', 'pt_BR', 'ru'];
+const AVAILABLE_LANGUAGES = ['en', 'fr', 'es', 'zh-CN', 'pt-BR', 'ru'];
+
+import { useRouter } from 'next/router';
 
 // Don't translate these
 const LANGUAGE_LABELS = {
-  zh: '中文',
+  'zh-CN': '中文',
   en: 'English',
   fr: 'Français',
-  pt: 'Português',
+  'pt-BR': 'Português',
   ru: 'Русский',
   es: 'Español',
 };
@@ -27,14 +28,22 @@ type Language = {
 
 function LanguageSwitcher() {
   const languages: Language[] = useLanguages();
-  const { setParam } = useRouterParams();
-  const changeLang = (code: (typeof AVAILABLE_LANGUAGES)[number]) => {
-    setParam('lang', code);
+  const router = useRouter();
+
+  const setLanguage = (locale) => {
+    const { pathname, asPath, query } = router;
+    // change just the locale and maintain all other route information including href's query
+    router.push({ pathname, query }, asPath, { locale });
+  };
+
+  const changeLang = (locale: (typeof AVAILABLE_LANGUAGES)[number]) => {
+    setLanguage(locale);
   };
 
   const mockAvailableLanguages = AVAILABLE_LANGUAGES.map((l) => ({
     code: l,
   }));
+
   const availableLanguages = useMemo<Language[]>(
     () => languages.filter((l) => AVAILABLE_LANGUAGES.includes(l.code)),
     [languages],
