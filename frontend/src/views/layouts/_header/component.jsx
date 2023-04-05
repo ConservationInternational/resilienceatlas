@@ -1,6 +1,6 @@
 import React, { useEffect, useCallback } from 'react';
 import { useRouter } from 'next/router';
-import Link from 'next/link';
+import Link from 'views/components/Link';
 import cx from 'classnames';
 import { sortBy } from 'utilities';
 import LanguageSwitcher from 'views/components/LanguageSwitcher';

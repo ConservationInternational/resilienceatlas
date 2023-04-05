@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import cx from 'classnames';
-import Link from 'next/link';
+import Link from 'views/components/Link';
 import { T } from '@transifex/react';
 
 import type { JourneyList } from 'types/journeys';

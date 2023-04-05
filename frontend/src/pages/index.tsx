@@ -1,5 +1,6 @@
 import Link from 'next/link';
-
+import cx from 'classnames';
+import Slider from 'react-slick';
 import { Row } from 'react-foundation';
 
 import MainLayout from 'views/layouts/main';

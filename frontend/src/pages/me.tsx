@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import Link from 'next/link';
+import Link from 'views/components/Link';
 import { Row } from 'react-foundation';
 import { useRouter } from 'next/router';
 import { connect } from 'react-redux';
