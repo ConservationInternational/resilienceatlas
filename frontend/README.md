@@ -59,6 +59,10 @@ The application is translated with the [Transifex Native](https://www.transifex.
 
 Transifex is initialized on the App.jsx file. A PseudoTranslationPolicy is provided on the development environment so we can see what translations are missing on the different languages directly on the platform on development.
 
+### Links
+
+We are using the lang url parameter to keep the language on the frontend so its important to use the Link component on the views folder instead of next/link. This component will always preserve the previous page lang parameter.
+
 ### Scripts
 
 There are three different scripts that use the transifex cli:

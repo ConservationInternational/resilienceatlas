@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import Link from 'views/components/Link';
 import { Row } from 'react-foundation';
 
 import LoginForm from 'views/components/LoginForm';
