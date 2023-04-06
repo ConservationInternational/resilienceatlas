@@ -11,7 +11,7 @@ describe('Home page', () => {
   });
 
   it('in journeys section should have a link to the journeys page', () => {
-    cy.get('.m-discover__bottom')
+    cy.get('.m-home-journeys__bottom')
       .find('a.btn-primary[href="/journeys"]')
       .should('contain', 'More journeys')
       .click();
