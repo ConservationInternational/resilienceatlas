@@ -6,11 +6,11 @@
   background-size: cover;
   background-repeat: no-repeat;
 
-  background-image: url('/images/home/bg-welcome.jpg');
-
-  header {
+  &__header {
     @extend %center;
-    width: 600px;
+    width: 100%;
+    word-wrap: break-word;
+    padding: 0 2.5rem;
 
     h2,
     h3 {
@@ -30,6 +30,23 @@
     h3 {
       font-size: rem(38px);
       font-family: $font-face-1;
+    }
+  }
+
+  &__credits {
+    position: absolute;
+    bottom: 10px;
+    margin: 0;
+    right: 20px;
+
+    a {
+      color: $font-color-3;
+    }
+  }
+
+  @media screen and (max-width: 800px) {
+    &__header {
+      max-width: 600px;
     }
   }
 }

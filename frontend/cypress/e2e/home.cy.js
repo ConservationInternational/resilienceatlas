@@ -6,7 +6,7 @@ describe('Home page', () => {
   });
 
   it('should have a welcome message', () => {
-    cy.get('.m-home-intro').find('h3').should('contain', 'Welcome to');
+    cy.get('.m-home-intro').find('h3').should('contain', 'WELCOME TO');
     cy.get('.m-home-intro').find('h2').should('contain', 'RESILIENCE ATLAS');
   });
 

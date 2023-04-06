@@ -4,18 +4,20 @@ import Intro from 'views/components/Home/Intro';
 import Journeys from 'views/components/Home/Journeys';
 import Section from 'views/components/Home/Section';
 
-import HOME_SECTIONS_DATA from 'data/home-sections';
+import INTRO_DATA from 'data/home-intro';
 import JOURNEY_DATA from 'data/home-journey';
+import SECTIONS_DATA from 'data/home-sections';
 
 import type { NextPageWithLayout } from './_app';
 
 const Homepage: NextPageWithLayout = () => {
-  const sections = HOME_SECTIONS_DATA.sort((a, b) => a.position - b.position);
+  const intro = INTRO_DATA;
   const journey = JOURNEY_DATA;
+  const sections = SECTIONS_DATA.sort((a, b) => a.position - b.position);
 
   return (
     <>
-      <Intro />
+      <Intro {...intro} />
       <Journeys {...journey} />
       {sections.map((section) => (
         <Section key={section.id} {...section} />
