@@ -1,11 +1,13 @@
+// TODO Simao Home | Update e2e tests to work with API data, not only mocked data
+
 describe('Home page', () => {
   beforeEach(() => {
     cy.visit('/');
   });
 
   it('should have a welcome message', () => {
-    cy.get('.m-welcome').find('h3').should('contain', 'Welcome to');
-    cy.get('.m-welcome').find('h2').should('contain', 'RESILIENCE ATLAS');
+    cy.get('.m-home-intro').find('h3').should('contain', 'Welcome to');
+    cy.get('.m-home-intro').find('h2').should('contain', 'RESILIENCE ATLAS');
   });
 
   it('in journeys section should have a link to the journeys page', () => {
@@ -17,7 +19,8 @@ describe('Home page', () => {
   });
 
   it('in explore section should have a link to the map page', () => {
-    cy.get('.m-explore')
+    cy.get('.m-home-section')
+      .eq(0)
       .find('a.btn-primary[href="/map"]')
       .should('contain', 'Go to the map')
       .click();
@@ -25,7 +28,8 @@ describe('Home page', () => {
   });
 
   it('in about section should have a link to the about page', () => {
-    cy.get('.m-home-about')
+    cy.get('.m-home-section')
+      .eq(1)
       .find('a.btn-primary[href="/about"]')
       .should('contain', 'Learn more')
       .click();
@@ -33,7 +37,8 @@ describe('Home page', () => {
   });
 
   it('in about section should have a link to the map page', () => {
-    cy.get('.m-home-about')
+    cy.get('.m-home-section')
+      .eq(2)
       .find('a.btn-primary[href="/map"]')
       .should('contain', 'Analysing the data')
       .click();
