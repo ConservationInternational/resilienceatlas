@@ -1,7 +1,7 @@
 const HOME_SECTIONS = [
   {
     id: 'about-the-data',
-    position: 2,
+    position: 3,
     title: 'About the data',
     subtitle:
       'RESILIENCE ATLAS visualizes over 60 different datasets - learn more about the data and methods behind the site',
@@ -15,7 +15,7 @@ const HOME_SECTIONS = [
   },
   {
     id: 'explore-the-map',
-    position: 0,
+    position: 1,
     title: 'Explore the map',
     subtitle: 'Evidence-based decision-making to build resilience',
     button_text: 'Go to the map',
@@ -28,7 +28,7 @@ const HOME_SECTIONS = [
   },
   {
     id: 'about-resilience-atlas',
-    position: 1,
+    position: 2,
     title: 'About Resilience Atlas',
     subtitle: 'Learn more about RESILIENCE ATLAS',
     button_text: 'Learn more',

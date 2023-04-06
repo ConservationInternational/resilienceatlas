@@ -1,7 +1,8 @@
-.m-discover {
+.m-home-journeys {
   position: relative;
   background-color: $font-color-4;
-  .m-discover__title {
+
+  &__title {
     position: relative;
     height: 150px;
 
@@ -19,7 +20,7 @@
     }
   }
 
-  .m-discover__bottom {
+  &__bottom {
     height: 150px;
     position: relative;
 
