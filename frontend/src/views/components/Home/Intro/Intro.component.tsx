@@ -1,8 +1,8 @@
 import React from 'react';
 
-const Welcome: React.FC = () => {
+const Intro: React.FC = () => {
   return (
-    <div className="m-welcome">
+    <div className="m-home-intro">
       <header>
         <h3>Welcome to</h3>
         <h2>RESILIENCE ATLAS</h2>
@@ -11,4 +11,4 @@ const Welcome: React.FC = () => {
   );
 };
 
-export default Welcome;
+export default Intro;

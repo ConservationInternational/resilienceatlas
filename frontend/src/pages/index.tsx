@@ -1,6 +1,6 @@
 import MainLayout from 'views/layouts/main';
 
-import Welcome from 'views/components/Home/Welcome';
+import Intro from 'views/components/Home/Intro';
 import Discover from 'views/components/Home/Discover';
 import Section from 'views/components/Home/Section';
 
@@ -13,7 +13,7 @@ const Homepage: NextPageWithLayout = () => {
 
   return (
     <>
-      <Welcome />
+      <Intro />
       <Discover />
       {sections.map((section) => (
         <Section key={section.id} {...section} />
