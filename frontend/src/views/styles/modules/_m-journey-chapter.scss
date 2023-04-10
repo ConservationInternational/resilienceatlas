@@ -26,6 +26,30 @@
     margin-top: 0;
   }
 
+  .chapter-number-container {
+    position: absolute;
+    bottom: 0;
+    height: 100%;
+    overflow: hidden;
+
+    .chapter-number {
+      font-family: $font-face-3;
+      height: 100%;
+      display: flex;
+      align-items: flex-end;
+      font-size: 70vw;
+      padding-bottom: 15vw;
+      margin-left: -20%;
+
+      background-size: cover;
+      background-position: left bottom;
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      color: transparent;
+    }
+  }
+
   .chapter-intro {
     float: right;
     width: 30%;
@@ -39,18 +63,3 @@
     }
   }
 }
-
-// .chapter-mask--1 {
-//   @extend %image-requirements;
-//   background-image: image-url("journeys/chapters/chapter-1.svg");
-// }
-
-// .chapter-mask--2 {
-//   @extend %image-requirements;
-//   background-image: image-url("journeys/chapters/chapter-2.svg");
-// }
-
-// .chapter-mask--3 {
-//   @extend %image-requirements;
-//   background-image: image-url("journeys/chapters/chapter-3.svg");
-// }

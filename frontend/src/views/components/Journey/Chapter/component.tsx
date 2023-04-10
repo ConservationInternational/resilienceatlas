@@ -20,18 +20,26 @@ const Chapter: React.FC<JourneyAttributes> = ({
   background_image: backgroundImage,
   title,
   description,
-}) => (
-  <div
-    className="m-journey--chapter"
-    style={{ backgroundImage: `url(${backgroundImage?.original})` }}
-  >
-    <div className="wrapper">
-      <div className="chapter-intro">
-        <h1>{title}</h1>
-        <p>{description}</p>
+  chapter_number: chapterNumber,
+}) => {
+  return (
+    <div className="m-journey--chapter">
+      <div className="chapter-number-container">
+        <div
+          className="chapter-number"
+          style={{ backgroundImage: `url(${backgroundImage?.original})` }}
+        >
+          {chapterNumber}
+        </div>
+      </div>
+      <div className="wrapper">
+        <div className="chapter-intro">
+          <h1>{title}</h1>
+          <p>{description}</p>
+        </div>
       </div>
     </div>
-  </div>
-);
+  );
+};
 
 export default STATIC_JOURNEYS ? StaticChapter : Chapter;
