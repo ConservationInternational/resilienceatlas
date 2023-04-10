@@ -13,8 +13,7 @@ const Legend = ({ activeLayers, reorder, loading, toggleLayer, setOpacity }) => 
   const [opened, toggleOpen] = useToggle(true);
   const onDragEnd = useCallback(
     ({ source, destination }) => destination && reorder(source.index, destination.index),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [],
+    [reorder],
   );
 
   return (
