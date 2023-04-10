@@ -16,6 +16,19 @@ const StaticChapter: React.FC<StaticJourneyStep> = ({ background, title, content
   </div>
 );
 
+function hexToRGB(hex: string, alpha: number) {
+  if (!hex) return 'rgba(0, 0, 0, 0)';
+  const r = parseInt(hex.slice(1, 3), 16),
+    g = parseInt(hex.slice(3, 5), 16),
+    b = parseInt(hex.slice(5, 7), 16);
+
+  if (alpha) {
+    return 'rgba(' + r + ', ' + g + ', ' + b + ', ' + alpha + ')';
+  } else {
+    return 'rgb(' + r + ', ' + g + ', ' + b + ')';
+  }
+}
+
 const Chapter: React.FC<JourneyAttributes> = ({
   background_image: backgroundImage,
   title,
@@ -23,18 +36,6 @@ const Chapter: React.FC<JourneyAttributes> = ({
   chapter_number: chapterNumber,
   background_color: backgroundColor,
 }) => {
-  function hexToRGB(hex: string, alpha: number) {
-    const r = parseInt(hex.slice(1, 3), 16),
-      g = parseInt(hex.slice(3, 5), 16),
-      b = parseInt(hex.slice(5, 7), 16);
-
-    if (alpha) {
-      return 'rgba(' + r + ', ' + g + ', ' + b + ', ' + alpha + ')';
-    } else {
-      return 'rgb(' + r + ', ' + g + ', ' + b + ')';
-    }
-  }
-
   return (
     <div className="m-journey--chapter">
       <div className="chapter-number-container">
