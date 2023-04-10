@@ -3,6 +3,7 @@ import DangerousHTML from 'react-dangerous-html';
 import Iframe from 'react-iframe';
 import Legend from 'views/components/Legend';
 import qs from 'qs';
+import cx from 'classnames';
 
 // TODO: get rid of IFrame and use Map Component
 // It requires to refactor map to use redux instead of url in all cases
@@ -105,6 +106,7 @@ const Embed = (props) => {
     currentStep,
     countryName,
     setActiveLayer,
+    isLastStep,
   } = props;
 
   useEffect(() => {
@@ -145,7 +147,7 @@ const Embed = (props) => {
           target="_blank"
           rel="noopener noreferrer"
           data-step={currentStep}
-          className="btn-check-it"
+          className={cx('btn-check-it', { 'last-step': isLastStep })}
         >
           View on map
         </a>

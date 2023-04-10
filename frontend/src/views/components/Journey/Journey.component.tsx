@@ -122,7 +122,11 @@ const Journey: FC<JourneyProps> = ({
       <div className="l-journey" id="journeyIndexView">
         <Loader loading={journeyLoading} />
 
-        {journeyLoaded && React.createElement(JOURNEY_TYPES[stepType], { ...attributes })}
+        {journeyLoaded &&
+          React.createElement(JOURNEY_TYPES[stepType], {
+            ...attributes,
+            isLastStep: stepIndex === steps.length - 1,
+          })}
 
         <Controls journeysLength={journeysLength} slideslength={steps.length} />
 
