@@ -21,13 +21,35 @@ const Chapter: React.FC<JourneyAttributes> = ({
   title,
   description,
   chapter_number: chapterNumber,
+  background_color: backgroundColor,
 }) => {
+  function hexToRGB(hex: string, alpha: number) {
+    const r = parseInt(hex.slice(1, 3), 16),
+      g = parseInt(hex.slice(3, 5), 16),
+      b = parseInt(hex.slice(5, 7), 16);
+
+    if (alpha) {
+      return 'rgba(' + r + ', ' + g + ', ' + b + ', ' + alpha + ')';
+    } else {
+      return 'rgb(' + r + ', ' + g + ', ' + b + ')';
+    }
+  }
+
   return (
     <div className="m-journey--chapter">
       <div className="chapter-number-container">
         <div
           className="chapter-number"
-          style={{ backgroundImage: `url(${backgroundImage?.original})` }}
+          style={{
+            background: `
+              linear-gradient(0deg, ${hexToRGB(backgroundColor, 0.6)},${hexToRGB(
+              backgroundColor,
+              0.6,
+            )}), linear-gradient(0deg, ${backgroundColor}, ${backgroundColor}), linear-gradient(0deg, #000, #000), url(${
+              backgroundImage?.original
+            })
+            `,
+          }}
         >
           {chapterNumber}
         </div>

@@ -41,12 +41,16 @@
       padding-bottom: 15vw;
       margin-left: -20%;
 
-      background-size: cover;
+      background-blend-mode: normal, multiply, color, normal;
       background-position: left bottom;
-      background-clip: text;
-      -webkit-background-clip: text;
+
       -webkit-text-fill-color: transparent;
       color: transparent;
+
+      // As we are setting the background image on the style, we need these importants
+      background-clip: text !important;
+      background-size: cover !important;
+      -webkit-background-clip: text !important;
     }
   }
 
