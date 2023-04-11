@@ -130,6 +130,13 @@ In order to test the renderization of the layers, you can use the following comm
 yarn test:layers
 ```
 
+Also, there is a minimal test for the layers which only check some specified layer IDs:
+
+```
+yarn test:layers-minimal
+```
+
+
 It only will work if you have the `RUN_LAYERS_TESTS=1` environment variable set in the `cypress.env.json` file. Set to `0` to disable.
 
 Due to this comment on the library, we recommend use Docker to run the test using the next command:

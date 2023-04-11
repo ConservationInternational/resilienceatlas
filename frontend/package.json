@@ -8,6 +8,7 @@
     "start": "next start",
     "test": "cypress run --headless --browser chrome",
     "test:layers": "cypress run --headless --browser chrome --spec \"cypress/e2e/layers.cy.js\"",
+    "test:layers-minimal": "cypress run --headless --browser chrome --spec \"cypress/e2e/layers-minimal.cy.js\"",
     "lint": "next lint",
     "prettier": "prettier --config .prettierrc.json --check --write \"./src/**/*.{tsx,jsx,ts,js}\"",
     "check-types": "tsc --noemit -p tsconfig.json",
