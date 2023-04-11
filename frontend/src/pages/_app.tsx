@@ -5,6 +5,7 @@ import { useRouter } from 'next/router';
 import { QueryClient, QueryClientProvider, Hydrate } from '@tanstack/react-query';
 import { tx, PseudoTranslationPolicy } from '@transifex/native';
 import { TourProvider } from '@reactour/tour';
+import { CookiesProvider } from 'react-cookie';
 import { getRouterParam } from 'utilities';
 
 import { wrapper } from 'state/store';
@@ -158,11 +159,13 @@ const ResilienceApp = ({ Component, ...rest }: AppPropsWithLayout) => {
       </Head>
       <ReduxProvider store={appStore}>
         <QueryClientProvider client={queryClient}>
-          <TourProvider {...REACT_TOUR_OPTIONS}>
-            <Hydrate state={rest.pageProps.dehydratedState}>
-              {getLayout(<Component {...rest.pageProps} />)}
-            </Hydrate>
-          </TourProvider>
+          <CookiesProvider>
+            <TourProvider {...REACT_TOUR_OPTIONS}>
+              <Hydrate state={rest.pageProps.dehydratedState}>
+                {getLayout(<Component {...rest.pageProps} />)}
+              </Hydrate>
+            </TourProvider>
+          </CookiesProvider>
         </QueryClientProvider>
       </ReduxProvider>
     </>

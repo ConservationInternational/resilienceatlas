@@ -1,3 +1,4 @@
+import { useCookies } from 'react-cookie';
 import React, { useEffect } from 'react';
 import { useTour } from '@reactour/tour';
 
@@ -16,7 +17,9 @@ import Loader from 'views/shared/Loader';
 import type { NextPageWithLayout } from './_app';
 
 const MapPage: NextPageWithLayout = () => {
-  const { isOpen, currentStep, steps, setIsOpen, setCurrentStep } = useTour();
+  const [cookies, setCookie] = useCookies(['mapTour']);
+  const { mapTour } = cookies;
+  const { isOpen, setIsOpen } = useTour();
 
   // TODO: migrate this, how it works?
   // const { location: { state } } = props;
@@ -26,7 +29,14 @@ const MapPage: NextPageWithLayout = () => {
   //   }
   // }, []);
 
-  useEffect(() => setIsOpen(true), []);
+  useEffect(() => {
+    // Showing the map tour only once,
+    // to show it again remove cookies from the browser
+    if (!mapTour && !isOpen) {
+      setCookie('mapTour', 'enabled');
+      setIsOpen(true);
+    }
+  }, [isOpen, mapTour, setCookie, setIsOpen]);
 
   return (
     <LayerManagerProvider>
