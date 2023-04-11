@@ -1,23 +1,17 @@
 /* eslint-disable @next/next/no-img-element */
 import React, { useMemo } from 'react';
-
+import localesJson from '../../../../locales.config.json';
 import { tx } from '@transifex/native';
 import { useLanguages, useLocale } from '@transifex/react';
 import cx from 'classnames';
-
-const AVAILABLE_LANGUAGES = ['en', 'fr', 'es', 'zh-CN', 'pt-BR', 'ru'];
+import { setCookie } from 'utilities/helpers';
 
 import { useRouter } from 'next/router';
 
-// Don't translate these
-const LANGUAGE_LABELS = {
-  'zh-CN': '中文',
-  en: 'English',
-  fr: 'Français',
-  'pt-BR': 'Português',
-  ru: 'Русский',
-  es: 'Español',
-};
+const LANGUAGE_LABELS = localesJson.locales.reduce((acc, locale) => {
+  acc[locale.locale] = locale.name;
+  return acc;
+}, {});
 
 type Language = {
   code: string;
@@ -35,18 +29,21 @@ function LanguageSwitcher() {
     // change just the locale and maintain all other route information including href's query
     router.push({ pathname, query }, asPath, { locale });
   };
-
-  const changeLang = (locale: (typeof AVAILABLE_LANGUAGES)[number]) => {
+  const { locales } = router;
+  const changeLang = (locale: (typeof locales)[number]) => {
     setLanguage(locale);
+
+    // Set a cookie for 1 year so that the user preference is kept
+    setCookie('NEXT_LOCALE', `${locale}; path=/; max-age=31536000; secure`);
   };
 
-  const mockAvailableLanguages = AVAILABLE_LANGUAGES.map((l) => ({
+  const mockAvailableLanguages = locales.map((l) => ({
     code: l,
   }));
 
   const availableLanguages = useMemo<Language[]>(
-    () => languages.filter((l) => AVAILABLE_LANGUAGES.includes(l.code)),
-    [languages],
+    () => languages.filter((l) => locales.includes(l.code)),
+    [languages, locales],
   );
 
   const locale = useLocale();

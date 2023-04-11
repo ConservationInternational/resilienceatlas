@@ -1,0 +1,34 @@
+{
+  "locales": [
+    {
+      "locale": "en",
+      "default": true,
+      "name": "English"
+    },
+    {
+      "locale": "es",
+      "default": false,
+      "name": "Español"
+    },
+    {
+      "locale": "fr",
+      "default": false,
+      "name": "Français"
+    },
+    {
+      "locale": "pt-BR",
+      "default": false,
+      "name": "Português"
+    },
+    {
+      "locale": "ru",
+      "default": false,
+      "name": "Русский"
+    },
+    {
+      "locale": "zh-CN",
+      "default": false,
+      "name": "中文"
+    }
+  ]
+}

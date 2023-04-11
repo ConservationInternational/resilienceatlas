@@ -21,15 +21,6 @@ export function middleware(request: NextRequest) {
   ) {
     return;
   }
-
-  // Set the default locale (en) as a prefix if we don't have a locale in the url
-  if (request.nextUrl.locale === 'default') {
-    const locale = request.cookies.get('NEXT_LOCALE') || 'en';
-
-    return NextResponse.redirect(
-      new URL(`/${locale}${request.nextUrl.pathname}${request.nextUrl.search}`, request.url),
-    );
-  }
 }
 
 // See "Matching Paths" below to learn more

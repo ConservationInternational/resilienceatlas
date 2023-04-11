@@ -1,3 +1,5 @@
+const { locales } = require('./locales.config.json');
+
 /**
  * @type {import('next').NextConfig}
  */
@@ -31,11 +33,10 @@ const nextConfig = {
     ];
   },
   i18n: {
-    locales: ['default', 'en', 'fr', 'es', 'zh-CN', 'pt-BR', 'ru'],
-    defaultLocale: 'default',
+    locales: locales.map(({ locale }) => locale),
+    defaultLocale: locales.find((locale) => locale.default).locale,
     localeDetection: false,
   },
-  trailingSlash: true,
 };
 
 module.exports = nextConfig;
