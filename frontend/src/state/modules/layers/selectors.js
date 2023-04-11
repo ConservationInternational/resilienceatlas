@@ -20,6 +20,8 @@ export const getLoaded = (state) => state.layers.loaded;
 
 export const getById = (state) => state.layers.byId;
 
+const getSourcesById = (state) => state.sources.byId;
+
 export const getAllIds = (state) => state.layers.all;
 
 export const getActiveIds = (state) => state.layers.actives;
@@ -28,9 +30,29 @@ export const getPublished = createSelector([getAllIds, getById], (all, layers) =
   denormalize(all, [layer], { layers }).filter((i) => i.published),
 );
 
+const getSources = (attributions, sourcesById) => {
+  if (!attributions || !attributions[0]) return {};
+  const id = attributions[0];
+  if (!sourcesById[id]) return {};
+
+  const { reference_short, url } = sourcesById[id];
+  return {
+    sourceReference: reference_short,
+    sourceUrl: url,
+  };
+};
+
 export const makeActives = () =>
-  createSelector([getActiveIds, getById, getLoaded], (ids, layers, loaded) =>
-    loaded ? denormalize(ids, [layer], { layers }) : [],
+  createSelector(
+    [getActiveIds, getById, getLoaded, getSourcesById],
+    (ids, layers, loaded, sourcesById) => {
+      if (!loaded) return [];
+      const activeLayers = denormalize(ids, [layer], { layers });
+      return activeLayers.map((layer) => ({
+        ...layer,
+        ...getSources(layer.attributions, sourcesById),
+      }));
+    },
   );
 
 export const makeDefaultActives = () => {
