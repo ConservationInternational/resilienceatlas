@@ -21,6 +21,7 @@
 #
 
 class SiteScope < ApplicationRecord
+  has_one :homepage, dependent: :destroy
   has_many :layer_groups
   has_many :site_pages
 

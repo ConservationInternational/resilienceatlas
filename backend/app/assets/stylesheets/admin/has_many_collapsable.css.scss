@@ -15,6 +15,10 @@ form .has-many-collapsed {
         li label {
           margin-left: 5px;
         }
+
+        .select2-container {
+          width: 75% !important;
+        }
       }
 
       trix-toolbar {

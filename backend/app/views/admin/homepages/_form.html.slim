@@ -1,0 +1,46 @@
+= semantic_form_for [:admin, resource], builder: ActiveAdmin::FormBuilder do |f|
+  = f.semantic_errors :homepage_sections, :base
+  = f.inputs "Translated fields" do
+    = f.translated_inputs switch_locale: false do |ff|
+      = ff.input :id, as: :hidden
+      = ff.input :locale, as: :hidden
+      = ff.input :title
+      = ff.input :subtitle
+      = ff.input :credits
+  = f.inputs "Common fields" do
+    = f.input :site_scope
+    = f.input :credits_url
+    == render "admin/shared/image_with_thumbnail", blob: :background_image, f: f, required: true
+
+  = f.inputs "Journeys" do
+    = f.input :show_journeys, required: false, input_html: {data: {if: "checked", action: "show", target: ".show-journeys-input"}}
+    = f.semantic_fields_for :homepage_journey, f.object.homepage_journey || f.object.build_homepage_journey do |ff|
+      = ff.input :position, wrapper_html: {class: "show-journeys-input"}
+      = ff.inputs "Translated fields", class: "inputs show-journeys-input" do
+        = ff.translated_inputs switch_locale: false do |fff|
+          = fff.input :id, as: :hidden
+          = fff.input :locale, as: :hidden
+          = fff.input :title
+
+  = f.inputs "Sections", class: "inputs has-many-collapsed" do
+    - f.has_many :homepage_sections, heading: false, sortable: :position, sortable_start: 1 do |ff|
+      = ff.semantic_errors
+      = ff.inputs (ff.object.new_record? ? "New Section" : ff.object.title.to_s), class: "inputs has-many-toggle-collapse" do
+        div class="has-many-section section-hidden"
+          = ff.inputs "Translated fields" do
+            - ff.translated_inputs switch_locale: false do |fff|
+              - fff.input :id, as: :hidden
+              - fff.input :locale, as: :hidden
+              - fff.input :title
+              - fff.input :subtitle
+              - fff.input :button_text
+              - fff.input :image_credits
+          = ff.inputs "Common fields" do
+            - ff.input :button_url
+            == render "admin/shared/image_with_thumbnail", blob: :image, f: ff, required: true, inside_has_many_block: true
+            - ff.input :image_position, as: :select, collection: HomepageSection.image_positions.keys
+            - ff.input :image_credits_url
+            - ff.input :background_color
+          - unless ff.object.new_record?
+            - ff.input :_destroy, as: :boolean, wrapper_html: { class: "has_many_delete" }, label: I18n.t("active_admin.has_many_delete")
+  = f.actions

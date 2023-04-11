@@ -37,6 +37,7 @@ Rails.application.routes.draw do
       get "/journeys", to: "journeys#index"
       get "/journeys/:id", to: "journeys#show"
       get "/menu-entries", to: "menu_entries#index"
+      get "/homepage", to: "homepages#show"
       resources :photos, only: :create
       resources :feedbacks, only: :create
     end
