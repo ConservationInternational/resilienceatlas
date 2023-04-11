@@ -17,13 +17,13 @@ export const config = {
   matcher: [
     '/',
     '/about',
+    '/embed/:path*',
     '/journeys',
     '/journeys/:id/step/:path*',
-    '/embed/:path*',
     '/login',
-    '/register',
     '/me',
     '/profile-settings',
+    '/register',
     '/shinny-app',
   ],
 };
