@@ -132,3 +132,28 @@ export const removeHtmlTags = (str) => {
   if (!str || !str.toString) return str;
   return str.toString().replace(/<\/?[a-z]+>/gi, '');
 };
+
+/**
+ * Get a cookie value by key
+ * @param key Cookie to retrieve
+ */
+export const getCookie = function (key) {
+  if (!key) return null;
+  try {
+    return document.cookie
+      .split('; ')
+      .find((row) => row.startsWith(`${key}=`))
+      ?.split('=')[1];
+  } catch (err) {
+    return null;
+  }
+};
+
+/**
+ * Set a cookie value by key
+ * @param key Cookie key to set
+ * @param value Cookie value to set
+ */
+export const setCookie = function (key, value) {
+  document.cookie = `${key}=${value}`;
+};

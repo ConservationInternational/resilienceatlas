@@ -12,6 +12,7 @@ import type { ReactElement, ReactNode } from 'react';
 import type { NextPage } from 'next';
 import type { AppProps } from 'next/app';
 import type { DehydratedState } from '@tanstack/react-query';
+import { getCookie, setCookie } from 'utilities/helpers';
 
 // Third-party styles
 import 'normalize.css/normalize.css';
@@ -45,7 +46,7 @@ const ResilienceApp = ({ Component, ...rest }: AppPropsWithLayout) => {
   const router = useRouter();
   const { store: appStore } = wrapper.useWrappedStore(rest);
   const getLayout = Component.Layout ?? ((page) => page);
-
+  const { locale, locales, asPath } = router;
   const [queryClient] = useState(
     () =>
       new QueryClient({
@@ -83,7 +84,6 @@ const ResilienceApp = ({ Component, ...rest }: AppPropsWithLayout) => {
   }, [router.events]);
 
   // Transifex
-
   useEffect(() => {
     tx.init({
       token: NEXT_PUBLIC_TRANSIFEX_TOKEN,
@@ -95,9 +95,35 @@ const ResilienceApp = ({ Component, ...rest }: AppPropsWithLayout) => {
 
   useEffect(() => {
     // Used for initial render
-    tx.setCurrentLocale(router.locale);
+    tx.setCurrentLocale(locale);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [router]);
+
+  // WARN: do not modify without knowing exactly what are the consequences
+  // When the user visits any page, Next.js determines the supported locale the user is using:
+  // https://nextjs.org/docs/advanced-features/i18n-routing#automatic-locale-detection
+  // This locale is the one that can be retrieved through the `useRouter` hook as well as the one
+  // used by the server-side requests made through the `withLocalizedRequests` HOC.
+  // The client requests are also localized by default when using the axios instances in
+  // `services/api.ts`, nevertheless, they don't rely on Next.js `locale` attribute but rather on
+  // the `NEXT_LOCALE` cookie since we can't have access to the Next.js hook there. If no cookie is
+  // set, then the requests fallbacks to the default locale set in `locales.config.json`.
+  // Look at this example:
+  // - The user's browser is set in English
+  // - The application's default locale is Spanish
+  // - This is the user's first visit
+  // - If the user goes on a fully static page (such as the Login) all of its content will be
+  //   displayed in English (Next.js determines the locale based on the `Accept-Language` header)
+  // - If the user goes to a non-static page (such as Journeys), all the content rendered on the
+  //   server will be in English, but all the requests made on the client will fetch content in
+  //   Spanish since no `NEXT_LOCALE` cookie exists
+  // For this reason, we want to always set the cookie on the first given opportunity.
+  useEffect(() => {
+    if (!getCookie('NEXT_LOCALE')) {
+      // Set a cookie for 1 year
+      setCookie('NEXT_LOCALE', `${locale}; path=/; max-age=31536000; secure`);
+    }
+  }, [locale]);
 
   ga.useInitGAScript();
 
@@ -141,6 +167,20 @@ const ResilienceApp = ({ Component, ...rest }: AppPropsWithLayout) => {
         {/* manifest.json provides metadata used when your web app is installed on a
           user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/ */}
         <link rel="manifest" href="/manifest.json" />
+
+        {locales.map((locale) => (
+          <link
+            key={locale}
+            rel="alternate"
+            hrefLang={locale}
+            href={`${process.env.NEXT_PUBLIC_FRONTEND_URL}/${locale}${asPath}`}
+          />
+        ))}
+        <link
+          rel="alternate"
+          hrefLang="x-default"
+          href={`${process.env.NEXT_PUBLIC_FRONTEND_URL}${asPath}`}
+        />
       </Head>
       <ReduxProvider store={appStore}>
         <QueryClientProvider client={queryClient}>
