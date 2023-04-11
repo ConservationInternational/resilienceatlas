@@ -1,3 +1,5 @@
+import shareUrlEncodeFixture from '../fixtures/share-url-decode.json';
+
 describe('Map page', () => {
   beforeEach(() => {
     cy.interceptAllRequests();
@@ -70,7 +72,7 @@ describe('Analysis should work for Livelihoods zones layer', () => {
 });
 
 describe('Share modal should show shorten URL', () => {
-  const shortenUrl = 'http://localhost:3000/share/cb69ec73745eb70c4a5d';
+  const shortenUrl = `http://localhost:3000/share/${shareUrlEncodeFixture.attributes.uid}`;
 
   beforeEach(() => {
     cy.interceptAllRequests();
