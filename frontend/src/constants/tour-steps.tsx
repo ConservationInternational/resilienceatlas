@@ -1,4 +1,6 @@
-const TOUR_STEPS = [
+import type { StepType } from '@reactour/tour';
+
+const TOUR_STEPS: StepType[] = [
   {
     selector: '.wri_api__map-controls-list',
     content: 'Use the basic map tools to zoom in and out, find a location, and share what you see.',

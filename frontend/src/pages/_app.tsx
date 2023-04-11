@@ -13,10 +13,13 @@ import * as ga from 'utilities/ga';
 import { getToken, login } from 'state/modules/user';
 import TOUR_STEPS from 'constants/tour-steps';
 
+import { Badge, Navigation } from 'views/components/MapTour';
+
 import type { ReactElement, ReactNode } from 'react';
 import type { NextPage } from 'next';
 import type { AppProps } from 'next/app';
 import type { DehydratedState } from '@tanstack/react-query';
+import type { ProviderProps as MapTourProviderProps } from '@reactour/tour';
 
 // Third-party styles
 import 'normalize.css/normalize.css';
@@ -28,14 +31,23 @@ import 'leaflet/dist/leaflet.css';
 import 'views/styles/index.scss';
 
 const { NEXT_PUBLIC_TRANSIFEX_TOKEN } = process.env;
-const REACT_TOUR_OPTIONS = {
+const REACT_TOUR_OPTIONS: Omit<MapTourProviderProps, 'children'> = {
   steps: TOUR_STEPS,
   showDots: false,
+  className: 'map-tour-popover',
+  maskClassName: 'map-tour-mask',
   badgeContent: ({ currentStep, totalSteps }) => (
     <>
       Map tour {currentStep + 1}/{totalSteps}
     </>
   ),
+  styles: {
+    close: (base) => ({ ...base, color: '#555' }),
+  },
+  components: {
+    Badge,
+    Navigation,
+  },
 };
 
 type ResilienceAppProps = {
