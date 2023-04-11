@@ -81,7 +81,7 @@ describe('Share modal should show shorten URL', () => {
       fixture: 'share-url-encode.json',
     }).as('shareEncodeRequest');
 
-    cy.intercept('GET', '/api/share/cb69ec73745eb70c4a5d', {
+    cy.intercept('GET', `/api/share/${shareUrlEncodeFixture.attributes.uid}`, {
       fixture: 'share-url-decode.json',
     }).as('shareDecodeRequest');
   });
