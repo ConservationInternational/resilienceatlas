@@ -119,7 +119,6 @@ const ResilienceApp = ({ Component, ...rest }: AppPropsWithLayout) => {
   }, [router.events]);
 
   // Transifex
-
   useEffect(() => {
     // Used for initial render
     tx.init({
