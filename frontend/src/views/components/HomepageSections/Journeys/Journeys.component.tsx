@@ -3,11 +3,11 @@ import Link from 'next/link';
 import Slider from 'react-slick';
 import { T } from '@transifex/react';
 
-import type { JourneyList } from 'types/journeys';
+import type { JourneyItem } from 'types/journeys';
 
 type JourneysProps = {
   title: string;
-  journeys: JourneyList;
+  journeys: JourneyItem[];
   journeysLoaded: boolean;
   loadJourneys: () => void;
 };
@@ -44,30 +44,37 @@ const Journeys: React.FC<JourneysProps> = ({
           infinite
           arrows
         >
-          {journeys.map((journey) => (
-            <li key={journey.id} className="m-slider__item">
-              <span
-                className="m-slider__image"
-                style={{
-                  backgroundImage: `url(${journey.background_image?.original})`,
-                }}
-              />
-              <Link href={`/journeys/${journey.id}`}>
-                <a>
-                  <div className="title">
-                    <h3>{journey.title}</h3>
-                    <h2>{journey.subtitle}</h2>
-                  </div>
-                  <span className="journey-link__helper" />
-                </a>
-              </Link>
-              <p className="credits">
-                <a href={journey.credits_url} target="_blank" rel="noopener noreferrer">
-                  {journey.credits}
-                </a>
-              </p>
-            </li>
-          ))}
+          {journeys.map((journey) => {
+            const { id, background_image, title, subtitle, credits, credits_url } = journey;
+            return (
+              <li key={id} className="m-slider__item">
+                <span
+                  className="m-slider__image"
+                  style={{
+                    ...(background_image && {
+                      backgroundImage: `url(${journey.background_image?.original})`,
+                    }),
+                  }}
+                />
+                <Link href={`/journeys/${id}`}>
+                  <a>
+                    <div className="title">
+                      {subtitle && <h2>{subtitle}</h2>}
+                      <h3>{title}</h3>
+                    </div>
+                    <span className="journey-link__helper" />
+                  </a>
+                </Link>
+                {credits && credits_url && (
+                  <p className="credits">
+                    <a href={credits_url} target="_blank" rel="noopener noreferrer">
+                      {credits}
+                    </a>
+                  </p>
+                )}
+              </li>
+            );
+          })}
         </Slider>
       </div>
 

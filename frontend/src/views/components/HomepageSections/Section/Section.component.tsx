@@ -2,7 +2,7 @@ import React from 'react';
 import Link from 'next/link';
 import cx from 'classnames';
 
-import type { SectionItem } from 'types/home-section';
+import type { SectionItem } from 'types/homepage';
 
 type SectionProps = Omit<SectionItem, 'id' | 'position'>;
 
@@ -20,12 +20,13 @@ const Section: React.FC<SectionProps> = ({
   return (
     <div
       className={cx('m-home-section', {
-        'm-home-section--gradient': image && image_position === 'cover',
+        'm-home-section--gradient': image.original && image_position === 'cover',
       })}
       style={{
         backgroundColor: background_color,
         backgroundSize: image_position === 'cover' && 'cover',
-        ...(image && image_position === 'cover' && { backgroundImage: `url(${image})` }),
+        ...(image?.original &&
+          image_position === 'cover' && { backgroundImage: `url(${image.original})` }),
       }}
     >
       <div className="m-home-section__container">
@@ -37,7 +38,7 @@ const Section: React.FC<SectionProps> = ({
           })}
         >
           <h2>{title}</h2>
-          <p>{subtitle}</p>
+          {subtitle && <p>{subtitle}</p>}
           {button_text && button_url && (
             <Link href={button_url}>
               <a className="btn btn-primary theme-color">{button_text}</a>
@@ -45,15 +46,15 @@ const Section: React.FC<SectionProps> = ({
           )}
         </div>
       </div>
-      {image && image_position !== 'cover' && (
+      {image?.original && image_position !== 'cover' && (
         <figure
           className={`m-home-section__figure m-home-section__figure--${image_position}`}
           style={{
-            backgroundImage: `url(${image})`,
+            backgroundImage: `url(${image.original})`,
           }}
         />
       )}
-      {image && image_credits && (
+      {image?.original && image_credits && image_credits_url && (
         <p
           className={cx('m-home-section__credits', {
             'm-home-section__credits--left': image_position === 'left',

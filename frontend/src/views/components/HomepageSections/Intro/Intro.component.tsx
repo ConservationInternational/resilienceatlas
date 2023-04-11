@@ -1,12 +1,8 @@
 import React from 'react';
 
-type IntroProps = {
-  title: string;
-  subtitle?: string;
-  background_image: string;
-  credits?: string;
-  credits_url?: string;
-};
+import type { Intro as IntroType } from 'types/homepage';
+
+type IntroProps = IntroType;
 
 const Intro: React.FC<IntroProps> = ({
   title,
@@ -19,11 +15,11 @@ const Intro: React.FC<IntroProps> = ({
     <div
       className="m-home-intro"
       style={{
-        backgroundImage: `url(${background_image})`,
+        ...(background_image && { backgroundImage: `url(${background_image?.original})` }),
       }}
     >
       <div className="m-home-intro__header">
-        <h3>{subtitle}</h3>
+        {subtitle && <h3>{subtitle}</h3>}
         <h2>{title}</h2>
       </div>
       {background_image && credits && (
