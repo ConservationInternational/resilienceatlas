@@ -1,6 +1,5 @@
 import type { JourneyStep as StaticJourneyStep } from 'types/static-journeys';
 import type { JourneyAttributes } from 'types/journeys';
-
 const STATIC_JOURNEYS = process.env.NEXT_PUBLIC_STATIC_JOURNEYS === 'true';
 
 const StaticChapter: React.FC<StaticJourneyStep> = ({ background, title, content }) => (
@@ -35,34 +34,38 @@ const Chapter: React.FC<JourneyAttributes> = ({
   description,
   chapter_number: chapterNumber,
   background_color: backgroundColor,
-}) => {
-  return (
-    <div className="m-journey--chapter">
-      <div className="chapter-number-container">
-        <div
-          className="chapter-number"
-          style={{
-            background: `
+}) => (
+  <div
+    className="m-journey--chapter"
+    // Fallback for old journeys with number masked directly on the image
+    {...(backgroundColor
+      ? {}
+      : { style: { backgroundImage: `url(${backgroundImage?.original})` } })}
+  >
+    <div className="chapter-number-container">
+      <div
+        className="chapter-number"
+        style={{
+          background: `
               linear-gradient(0deg, ${hexToRGB(backgroundColor, 0.6)},${hexToRGB(
-              backgroundColor,
-              0.6,
-            )}), linear-gradient(0deg, ${backgroundColor}, ${backgroundColor}), linear-gradient(0deg, #000, #000), url(${
-              backgroundImage?.original
-            })
+            backgroundColor,
+            0.6,
+          )}), linear-gradient(0deg, ${backgroundColor}, ${backgroundColor}), linear-gradient(0deg, #000, #000), url(${
+            backgroundImage?.original
+          })
             `,
-          }}
-        >
-          {chapterNumber}
-        </div>
-      </div>
-      <div className="wrapper">
-        <div className="chapter-intro">
-          <h1>{title}</h1>
-          <p>{description}</p>
-        </div>
+        }}
+      >
+        {chapterNumber}
       </div>
     </div>
-  );
-};
+    <div className="wrapper">
+      <div className="chapter-intro">
+        <h1>{title}</h1>
+        <p>{description}</p>
+      </div>
+    </div>
+  </div>
+);
 
 export default STATIC_JOURNEYS ? StaticChapter : Chapter;
