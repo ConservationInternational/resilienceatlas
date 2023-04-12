@@ -35,7 +35,6 @@ const nextConfig = {
   i18n: {
     locales: locales.map(({ locale }) => locale),
     defaultLocale: locales.find((locale) => locale.default).locale,
-    localeDetection: false,
   },
 };
 
