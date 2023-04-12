@@ -12,41 +12,28 @@ class Api::Admin::LayersController < Api::Admin::ApiController
   end
 
   def create
-    @layer = Layer.new(layer_params)
-    if @layer.save
+    Layer.transaction do
+      @layer = Layer.create!(layer_params)
       Api::Admin::LayersManager.new(@layer, params[:site_scope_id]).link_layer_group if params[:site_scope_id].present?
       render json: {success: true, message: "Layer Created Successfully", data: @layer.as_json}, status: :ok
-    else
-      render json: {success: false, message: "Errors", error: @layer.errors.full_messages},
-        status: :unprocessable_entity
     end
   end
 
   def destroy
-    if @layer&.destroy
-      render json: {success: true, message: "Layer Deleted Successfully", data: @layer.as_json}, status: :ok
-    else
-      render json: {success: false, message: "Errors", error: @layer&.errors&.full_messages},
-        status: :unprocessable_entity
-    end
+    @layer.destroy!
+    render json: {success: true, message: "Layer Deleted Successfully", data: @layer.as_json}, status: :ok
   end
 
   def update
-    if @layer&.update(layer_params)
+    Layer.transaction do
+      @layer.update!(layer_params)
       Api::Admin::LayersManager.new(@layer, params[:site_scope_id]).link_layer_group if params[:site_scope_id].present?
       render json: {success: true, message: "Layer Updated Successfully", data: @layer.as_json}, status: :ok
-    else
-      render json: {success: false, message: "Errors", error: @layer&.errors&.full_messages},
-        status: :unprocessable_entity
     end
   end
 
   def show
-    if @layer.present?
-      render json: {success: true, message: "Layer Details", data: @layer.as_json}, status: :ok
-    else
-      render json: {success: false, message: "Layer not found"}, status: :unprocessable_entity
-    end
+    render json: {success: true, message: "Layer Details", data: @layer.as_json}, status: :ok
   end
 
   def site_scopes
@@ -62,7 +49,7 @@ class Api::Admin::LayersController < Api::Admin::ApiController
   end
 
   def load_layer
-    @layer = Layer.find_by(id: params[:id])
+    @layer = Layer.find params[:id]
   end
 
   def per_page
