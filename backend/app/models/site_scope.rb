@@ -28,6 +28,8 @@ class SiteScope < ApplicationRecord
   translates :name, :linkback_text, touch: true, fallbacks_for_empty_translations: true
   active_admin_translates :name, :linkback_text
 
+  translation_class.validates_presence_of :name, if: -> { locale.to_s == I18n.default_locale.to_s }
+
   def location
     [:latitude, :longitude]
   end
