@@ -1,6 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 import React, { useMemo } from 'react';
-import localesJson from '../../../../locales.config.json';
+import localesJson from 'locales.config.json';
 import { tx } from '@transifex/native';
 import { useLanguages, useLocale } from '@transifex/react';
 import cx from 'classnames';
@@ -37,6 +37,7 @@ function LanguageSwitcher() {
     setCookie('NEXT_LOCALE', `${locale}; path=/; max-age=31536000; secure`);
   };
 
+  // This works until we load the languages from transifex or if we don't have them configured
   const mockAvailableLanguages = locales.map((l) => ({
     code: l,
   }));
