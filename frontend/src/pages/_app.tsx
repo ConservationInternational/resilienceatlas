@@ -133,10 +133,8 @@ const ResilienceApp = ({ Component, ...rest }: AppPropsWithLayout) => {
   // WARN: do not modify without knowing exactly what are the consequences
   // When the user visits any page, Next.js determines the supported locale the user is using:
   // https://nextjs.org/docs/advanced-features/i18n-routing#automatic-locale-detection
-  // This locale is the one that can be retrieved through the `useRouter` hook as well as the one
-  // used by the server-side requests made through the `withLocalizedRequests` HOC.
-  // The client requests are also localized by default when using the axios instances in
-  // `services/api.ts`, nevertheless, they don't rely on Next.js `locale` attribute but rather on
+  // This locale is the one that can be retrieved through the `useRouter` hook.
+  // The client requests don't rely on Next.js `locale` attribute but rather on
   // the `NEXT_LOCALE` cookie since we can't have access to the Next.js hook there. If no cookie is
   // set, then the requests fallbacks to the default locale set in `locales.config.json`.
   // Look at this example:
