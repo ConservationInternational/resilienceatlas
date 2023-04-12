@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - 'master'
+      - 'develop'
       - 'feature**'
     paths:
       - "cloud_functions/titiler_cogs/**"
@@ -76,7 +77,7 @@ jobs:
     # which will build the stack and deploy to a stack named with branch name.
     # https://github.com/actions/setup-python
     # https://github.com/aws-actions/configure-aws-credentials#notice-node12-deprecation-warning
-    if: startsWith(github.ref, 'refs/heads/feature')
+    if: startsWith(github.ref, 'refs/heads/feature') || github.ref == 'refs/heads/develop'
     needs: [test]
     runs-on: ubuntu-latest
     steps:
