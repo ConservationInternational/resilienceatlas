@@ -16,7 +16,7 @@
       "name": "Français"
     },
     {
-      "locale": "pt-BR",
+      "locale": "pt_BR",
       "default": false,
       "name": "Português"
     },
@@ -26,7 +26,7 @@
       "name": "Русский"
     },
     {
-      "locale": "zh-CN",
+      "locale": "zh_CN",
       "default": false,
       "name": "中文"
     }
