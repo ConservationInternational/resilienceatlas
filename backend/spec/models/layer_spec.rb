@@ -70,6 +70,12 @@ RSpec.describe Layer, type: :model do
     expect(subject).to have(1).errors_on(:interaction_config)
   end
 
+  it "should not be valid without name" do
+    subject.name = nil
+    expect(subject.save).to be_falsey
+    expect(subject.errors["translations.name"]).to include("can't be blank")
+  end
+
   context "when layer is a cog" do
     subject { build :layer, layer_provider: "cog" }
 

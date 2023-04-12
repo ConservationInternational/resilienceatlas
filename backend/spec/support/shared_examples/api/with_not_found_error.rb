@@ -6,8 +6,6 @@ RSpec.shared_examples "with not found error" do
     let(:uid) { "not-found" }
     let(:slug) { "not-found" }
 
-    schema "$ref" => "#/components/schemas/errors"
-
     run_test!
   end
 end

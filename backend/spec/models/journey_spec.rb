@@ -29,7 +29,14 @@ RSpec.describe Journey, type: :model do
     expect(subject).to have(1).errors_on(:background_image)
   end
 
+  it "should not be valid without title" do
+    subject.title = nil
+    expect(subject.save).to be_falsey
+    expect(subject.errors["translations.title"]).to include("can't be blank")
+  end
+
   it "should not be valid without journey steps" do
+    subject.save!
     subject.journey_steps = []
     expect(subject.save).to be_falsey
     expect(subject.errors[:journey_steps]).to include("can't be blank")

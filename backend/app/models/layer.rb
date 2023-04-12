@@ -104,6 +104,8 @@ class Layer < ApplicationRecord
   translates :name, :info, :legend, :title, :data_units, :processing, :description, touch: true, fallbacks_for_empty_translations: true
   active_admin_translates :name, :info, :legend, :title, :data_units, :processing, :description
 
+  translation_class.validates_presence_of :name, if: -> { locale.to_s == I18n.default_locale.to_s }
+
   validates_presence_of :slug, :layer_provider, :interaction_config
   with_options if: -> { layer_provider == "cog" } do
     validates_presence_of :layer_config

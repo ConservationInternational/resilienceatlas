@@ -48,8 +48,7 @@ RSpec.describe Homepage, type: :model do
   end
 
   it "should not be valid when multiple homepages uses same site scope" do
-    subject.save!
-    expect(build(:homepage, site_scope: subject.site_scope)).to have(1).errors_on(:site_scope_id)
+    expect(build(:homepage, site_scope: create(:homepage).site_scope)).to have(1).errors_on(:site_scope_id)
   end
 
   context "when show_journeys is true" do
