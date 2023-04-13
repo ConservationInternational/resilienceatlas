@@ -33,6 +33,7 @@ import 'views/styles/index.scss';
 const { NEXT_PUBLIC_TRANSIFEX_TOKEN } = process.env;
 const REACT_TOUR_OPTIONS: Omit<MapTourProviderProps, 'children'> = {
   steps: TOUR_STEPS,
+  padding: 4,
   showDots: false,
   className: 'map-tour-popover',
   maskClassName: 'map-tour-mask',
@@ -42,12 +43,15 @@ const REACT_TOUR_OPTIONS: Omit<MapTourProviderProps, 'children'> = {
     </>
   ),
   styles: {
+    maskWrapper: (base) => ({ ...base, opacity: 0.3 }),
     close: (base) => ({ ...base, color: '#555' }),
   },
   components: {
     Badge,
     Navigation,
   },
+  // Disabling interaction on the overlay mask
+  onClickMask: () => null,
 };
 
 type ResilienceAppProps = {
