@@ -69,6 +69,9 @@ const SearchArea: React.FC<SearchAreaProps> = ({ fitBounds, countries, onAfterCh
                 )}
               </Combobox.Option>
             ))}
+            {filteredCountries.length === 0 && (
+              <div className="search-combobox-message">No results found</div>
+            )}
           </Combobox.Options>
         </div>
       </Combobox>
