@@ -41,36 +41,23 @@
       top: 0;
       right: 30px;
       width: 0;
-      height: rem(29px);
-      padding-left: 10px;
-      border: none;
       opacity: 0;
-      transition: width 0.3s $easeInSine;
-      background-color: $bg-color-1;
     }
 
-    input {
-      margin-top: rem(3px);
-      border: none;
-      height: rem(24px);
+    .search-combobox-input {
       width: 0;
       transition: width 0.3s $easeInSine;
-
-      @include placeholder() {
-        font-size: rem(14px);
-        color: $font-color-1;
-      }
     }
 
     &:hover {
       .m-search-map {
-        width: 200px;
-        box-shadow: -2px 1px 3px 0 rgba(0, 0, 0, 0.1);
         opacity: 1;
+        width: rem(200px);
+        box-shadow: -2px 1px 3px 0 rgba(0, 0, 0, 0.1);
+      }
 
-        input {
-          width: 100%;
-        }
+      .search-combobox-input {
+        width: 100%;
       }
     }
   }

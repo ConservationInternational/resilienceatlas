@@ -1,49 +1,50 @@
 .m-search-map {
-  @extend %search;
+  height: rem(29px);
+  border: none;
+  transition: width 0.3s $easeInSine;
+  background-color: $bg-color-1;
 
-  .search-box {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    z-index: 10;
-    transform: translatey(100%);
-    width: rem(190px);
-    max-height: rem(300px);
+  .search-combobox-input {
+    margin-top: rem(3px);
+    border: none;
+    height: rem(24px);
     background-color: $white;
-    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3);
 
-    .search-content {
-      .focus & {
-        padding: rem(10px) rem(7px);
+    @include placeholder() {
+      font-size: rem(14px);
+      color: $font-color-1;
+    }
+  }
+
+  .search-combobox-options {
+    width: 100%;
+    padding: rem(10px) 0;
+    max-height: rem(208px);
+    overflow-y: scroll;
+    background-color: $white;
+    @extend %clear-scroll-bars;
+
+    ul {
+      padding: 0;
+      margin: 0;
+      box-shadow: none;
+    }
+
+    li {
+      padding: 0 rem(10px);
+
+      &.is-active {
+        background: $gray-light;
       }
     }
 
-    .search-suggestions {
-      padding: rem(10px) 0;
-      max-height: rem(208px);
-      overflow-y: scroll;
-      @extend %clear-scroll-bars;
-
-      ul {
-        box-shadow: none;
-
-        li.search-area {
-          padding: 0 rem(10px);
-
-          &.selected {
-            background: $gray-light;
-          }
-        }
-      }
-    }
-
-    .name {
+    .option-label {
       line-height: rem(25px);
 
-      span {
-        font-weight: 500;
-        text-decoration: underline;
-        top: auto;
+      .m-highlighted-text--selected {
+        font-weight: bold;
+        text-decoration: none;
+        color: black;
       }
     }
   }

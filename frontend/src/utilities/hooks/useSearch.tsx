@@ -2,6 +2,9 @@ import React, { useMemo, useState, useCallback, useEffect } from 'react';
 import { clickable } from '../helpers';
 import { useInput } from './hooks';
 
+/**
+ * @deprecated The method should not be used
+ */
 export const useSearch = (
   name,
   data: Record<string, unknown>[],
