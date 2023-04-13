@@ -1,4 +1,5 @@
 import React, { useCallback } from 'react';
+import { T } from '@transifex/react';
 
 import type { components } from '@reactour/tour';
 
@@ -23,7 +24,7 @@ const MapTourNavigation: NavigationProps = ({ steps, currentStep, setCurrentStep
           disabled={isLastStep}
           data-testid="map-tour-next-button"
         >
-          Next
+          <T _str="Next" />
         </button>
       )}
       {!isLastStep && (
@@ -33,7 +34,7 @@ const MapTourNavigation: NavigationProps = ({ steps, currentStep, setCurrentStep
           onClick={handleClose}
           data-testid="map-tour-skip-button"
         >
-          Skip
+          <T _str="Skip" />
         </button>
       )}
       {isLastStep && (
@@ -43,7 +44,7 @@ const MapTourNavigation: NavigationProps = ({ steps, currentStep, setCurrentStep
           onClick={handleClose}
           data-testid="map-tour-close-button"
         >
-          Close
+          <T _str="Close" />
         </button>
       )}
     </div>

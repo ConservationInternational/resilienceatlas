@@ -6,10 +6,11 @@ import { QueryClient, QueryClientProvider, Hydrate } from '@tanstack/react-query
 import { tx, PseudoTranslationPolicy } from '@transifex/native';
 import { TourProvider } from '@reactour/tour';
 import { CookiesProvider } from 'react-cookie';
-import { getRouterParam } from 'utilities';
+import { T } from '@transifex/react';
 
 import { wrapper } from 'state/store';
 import * as ga from 'utilities/ga';
+import { getRouterParam } from 'utilities';
 import { getToken, login } from 'state/modules/user';
 import TOUR_STEPS from 'constants/tour-steps';
 
@@ -39,7 +40,7 @@ const REACT_TOUR_OPTIONS: Omit<MapTourProviderProps, 'children'> = {
   maskClassName: 'map-tour-mask',
   badgeContent: ({ currentStep, totalSteps }) => (
     <>
-      Map tour {currentStep + 1}/{totalSteps}
+      <T _str="Map tour" /> {currentStep + 1}/{totalSteps}
     </>
   ),
   styles: {
