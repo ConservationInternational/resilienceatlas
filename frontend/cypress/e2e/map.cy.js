@@ -2,8 +2,11 @@ import shareUrlEncodeFixture from '../fixtures/share-url-decode.json';
 
 describe('Map page', () => {
   beforeEach(() => {
+    cy.clearCookies();
     cy.interceptAllRequests();
     cy.visit('/map');
+    // Remove map tour
+    cy.get('.reactour__close-button').click();
   });
 
   it('should have a map', () => {
@@ -17,6 +20,7 @@ describe('Map page', () => {
 // Checking map page with specific params in the URL
 describe('Specific map page', () => {
   beforeEach(() => {
+    cy.clearCookies();
     cy.interceptAllRequests();
     cy.visit(
       '/map?tab=layers&layers=%5B%7B"id"%3A66%2C"opacity"%3A1%2C"order"%3Anull%7D%5D&zoom=3&center=lat%3D21.94304553343818%26lng%3D-16.699218750000004',
@@ -24,6 +28,9 @@ describe('Specific map page', () => {
     cy.wait('@siteRequest');
     cy.wait('@layerGroupsAPIRequest');
     cy.wait('@layersAPIRequest');
+
+    // Remove map tour
+    cy.get('.reactour__close-button').click();
   });
 
   it('should have a map', () => {
@@ -41,12 +48,16 @@ describe('Specific map page', () => {
 
 describe('Analysis should work for Livelihoods zones layer', () => {
   beforeEach(() => {
+    cy.clearCookies();
     cy.interceptAllRequests();
     // url with layer id 1429
     cy.visit('/map?tab=layers&layers=%5B%7B"id"%3A1429%2C"opacity"%3A1%2C"order"%3Anull%7D%5D');
     cy.wait('@siteRequest');
     cy.wait('@layerGroupsAPIRequest');
     cy.wait('@layersAPIRequest');
+
+    // Remove map tour
+    cy.get('.reactour__close-button').click();
   });
 
   it('should have a map', () => {
@@ -87,6 +98,8 @@ describe('Share modal should show shorten URL', () => {
   });
 
   it('should show shorten URL', () => {
+    cy.clearCookies();
+
     cy.visit(
       '/map?tab=&center=lat%3D14.214466896745083%26lng%3D28.242759704589844&layers=%5B%7B"id"%3A66%2C"opacity"%3A1%2C"order"%3Anull%7D%5D&zoom=4',
     );
@@ -94,6 +107,9 @@ describe('Share modal should show shorten URL', () => {
     cy.wait('@siteRequest');
     cy.wait('@layerGroupsAPIRequest');
     cy.wait('@layersAPIRequest');
+
+    // Remove map tour
+    cy.get('.reactour__close-button').click();
 
     cy.get('.wri_api__map-container.leaflet-container');
 
@@ -114,5 +130,37 @@ describe('Share modal should show shorten URL', () => {
     cy.wait('@layersAPIRequest');
 
     cy.get('.wri_api__map-container.leaflet-container');
+  });
+});
+
+describe('Map tour should be shown only once', () => {
+  beforeEach(() => {
+    cy.clearCookies();
+    cy.interceptAllRequests();
+    cy.visit('/map');
+    cy.wait('@siteRequest');
+    cy.wait('@layerGroupsAPIRequest');
+    cy.wait('@layersAPIRequest');
+  });
+
+  it('should show map tour', () => {
+    cy.get('.map-tour-popover').should('exist');
+  });
+
+  it('should have 4 steps', () => {
+    cy.get('button[data-testid="map-tour-next-button"]').click();
+    cy.get('button[data-testid="map-tour-next-button"]').click();
+    cy.get('button[data-testid="map-tour-next-button"]').click();
+    cy.get('button[data-testid="map-tour-close-button"]').click();
+  });
+
+  it('should skip map tour', () => {
+    cy.get('button[data-testid="map-tour-skip-button"]').click();
+    cy.get('.map-tour-popover').should('not.exist');
+  });
+
+  it('should close map tour clicking on the x icon', () => {
+    cy.get('.reactour__close-button').click();
+    cy.get('.map-tour-popover').should('not.exist');
   });
 });

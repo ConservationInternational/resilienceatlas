@@ -17,17 +17,32 @@ const MapTourNavigation: NavigationProps = ({ steps, currentStep, setCurrentStep
   return (
     <div className="map-tour-navigation">
       {!isLastStep && (
-        <button type="button" onClick={handleNext} disabled={isLastStep}>
+        <button
+          type="button"
+          onClick={handleNext}
+          disabled={isLastStep}
+          data-testid="map-tour-next-button"
+        >
           Next
         </button>
       )}
       {!isLastStep && (
-        <button type="button" className="skip-button" onClick={handleClose}>
+        <button
+          type="button"
+          className="skip-button"
+          onClick={handleClose}
+          data-testid="map-tour-skip-button"
+        >
           Skip
         </button>
       )}
       {isLastStep && (
-        <button type="button" className="skip-button" onClick={handleClose}>
+        <button
+          type="button"
+          className="skip-button"
+          onClick={handleClose}
+          data-testid="map-tour-close-button"
+        >
           Close
         </button>
       )}
