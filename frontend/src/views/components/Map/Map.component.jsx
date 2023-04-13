@@ -34,8 +34,8 @@ const MapView = (props) => {
     setMapLayerGroupsInteraction,
     setMapLayerGroupsInteractionLatLng,
     // data
-    layers: { loaded: layersLoaded },
-    layer_groups: { loaded: layerGroupsLoaded },
+    layers: { loaded: layersLoaded, loadedLocale: layersLoadedLocale },
+    layer_groups: { loaded: layerGroupsLoaded, loadedLocale: layerGroupsLoadedLocale },
     activeLayers,
     model_layer,
     defaultActiveGroups,
@@ -48,16 +48,17 @@ const MapView = (props) => {
     embed,
     drawing,
   } = props;
-  const { query } = router;
+  const { query, locale } = router;
   const { setParam } = useRouterParams();
-
   const layerManagerRef = useContext(LayerManagerContext);
 
   useEffect(() => {
-    if (!layersLoaded) loadLayers();
-    if (!layerGroupsLoaded) loadLayerGroups();
+    if (!layersLoaded || layersLoadedLocale !== locale) {
+      loadLayers(locale);
+    }
+    if (!layerGroupsLoaded || layerGroupsLoadedLocale !== locale) loadLayerGroups(locale);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [locale]);
 
   useEffect(() => {
     if (layersLoaded && layerGroupsLoaded && defaultActiveGroups.length) {

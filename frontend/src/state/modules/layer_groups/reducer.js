@@ -10,6 +10,7 @@ const initialState = {
   ],
   loading: false,
   loaded: false,
+  loadedLocale: null,
   error: null,
 };
 
@@ -19,14 +20,16 @@ export default createReducer(initialState)({
     loading: true,
     error: null,
   }),
-  [LOAD.SUCCESS]: (state, { payload }) => ({
-    ...state,
-    byId: payload.entities.layer_groups,
-    all: payload.result,
-    loaded: true,
-    loading: false,
-  }),
-
+  [LOAD.SUCCESS]: (state, { payload, meta: { locale } }) => {
+    return {
+      ...state,
+      byId: payload.entities.layer_groups,
+      all: payload.result,
+      loaded: true,
+      loadedLocale: locale,
+      loading: false,
+    };
+  },
   [LOAD.FAIL]: (state) => ({
     ...state,
     loading: false,
