@@ -1,14 +1,15 @@
 .m-search-map {
-  height: rem(29px);
-  border: none;
-  transition: width 0.3s $easeInSine;
+  position: relative;
   background-color: $bg-color-1;
 
   .search-combobox-input {
-    margin-top: rem(3px);
+    margin-top: 0;
+    padding: rem(4px) rem(10px);
     border: none;
-    height: rem(24px);
+    height: rem(30px);
+    font-size: rem(14px);
     background-color: $white;
+    width: 100%;
 
     @include placeholder() {
       font-size: rem(14px);
@@ -17,11 +18,15 @@
   }
 
   .search-combobox-options {
+    position: absolute;
     width: 100%;
-    padding: rem(10px) 0;
+    margin-top: 1px;
     max-height: rem(208px);
     overflow-y: scroll;
     background-color: $white;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3);
+    z-index: 10;
+
     @extend %clear-scroll-bars;
 
     ul {
@@ -31,7 +36,7 @@
     }
 
     li {
-      padding: 0 rem(10px);
+      padding: rem(2px) rem(10px);
 
       &.is-active {
         background: $gray-light;
@@ -39,6 +44,7 @@
     }
 
     .option-label {
+      font-size: rem(14px);
       line-height: rem(25px);
 
       .m-highlighted-text--selected {

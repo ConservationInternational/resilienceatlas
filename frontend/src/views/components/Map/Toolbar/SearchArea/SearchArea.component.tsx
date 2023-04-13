@@ -14,9 +14,10 @@ type Country = {
 type SearchAreaProps = {
   fitBounds: (bounds: number[]) => void;
   countries: Country[];
+  onAfterChange: () => void;
 };
 
-const SearchArea: React.FC<SearchAreaProps> = ({ fitBounds, countries }) => {
+const SearchArea: React.FC<SearchAreaProps> = ({ fitBounds, countries, onAfterChange }) => {
   const [selectedCountry, setSelectedCountry] = useState(null);
   const [query, setQuery] = useState('');
 
@@ -38,9 +39,13 @@ const SearchArea: React.FC<SearchAreaProps> = ({ fitBounds, countries }) => {
   const handleChange = useCallback(
     (country: Country) => {
       setSelectedCountry(country);
-      if (country) fitBounds(JSON.parse(country.geometry));
+      if (country) {
+        fitBounds(JSON.parse(country.geometry));
+        // Close popover
+        onAfterChange();
+      }
     },
-    [fitBounds, setSelectedCountry],
+    [fitBounds, onAfterChange],
   );
 
   return (

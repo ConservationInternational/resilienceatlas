@@ -185,8 +185,8 @@ const MapView = (props) => {
 
           {page !== 'report' && (
             <MapControls customClass="c-map-controls">
-              <Toolbar />
               <ZoomControl map={map} />
+              <Toolbar />
             </MapControls>
           )}
         </>
