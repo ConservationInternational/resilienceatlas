@@ -3,15 +3,24 @@ import { Provider as ReduxProvider } from 'react-redux';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { QueryClient, QueryClientProvider, Hydrate } from '@tanstack/react-query';
+import { tx, PseudoTranslationPolicy } from '@transifex/native';
+import { TourProvider } from '@reactour/tour';
+import { CookiesProvider } from 'react-cookie';
+import { T } from '@transifex/react';
+
 import { wrapper } from 'state/store';
 import * as ga from 'utilities/ga';
+import { getRouterParam } from 'utilities';
 import { getToken, login } from 'state/modules/user';
-import { tx, PseudoTranslationPolicy } from '@transifex/native';
+import TOUR_STEPS from 'constants/tour-steps';
+
+import { Badge, Navigation } from 'views/components/MapTour';
 
 import type { ReactElement, ReactNode } from 'react';
 import type { NextPage } from 'next';
 import type { AppProps } from 'next/app';
 import type { DehydratedState } from '@tanstack/react-query';
+import type { ProviderProps as MapTourProviderProps } from '@reactour/tour';
 
 // Third-party styles
 import 'normalize.css/normalize.css';
@@ -21,9 +30,30 @@ import 'leaflet/dist/leaflet.css';
 
 // Project styles
 import 'views/styles/index.scss';
-import { getRouterParam } from 'utilities';
 
 const { NEXT_PUBLIC_TRANSIFEX_TOKEN } = process.env;
+const REACT_TOUR_OPTIONS: Omit<MapTourProviderProps, 'children'> = {
+  steps: TOUR_STEPS,
+  padding: 4,
+  showDots: false,
+  className: 'map-tour-popover',
+  maskClassName: 'map-tour-mask',
+  badgeContent: ({ currentStep, totalSteps }) => (
+    <>
+      <T _str="Map tour" /> {currentStep + 1}/{totalSteps}
+    </>
+  ),
+  styles: {
+    maskWrapper: (base) => ({ ...base, opacity: 0.3 }),
+    close: (base) => ({ ...base, color: '#555' }),
+  },
+  components: {
+    Badge,
+    Navigation,
+  },
+  // Disabling interaction on the overlay mask
+  onClickMask: () => null,
+};
 
 type ResilienceAppProps = {
   dehydratedState?: DehydratedState;
@@ -146,9 +176,13 @@ const ResilienceApp = ({ Component, ...rest }: AppPropsWithLayout) => {
       </Head>
       <ReduxProvider store={appStore}>
         <QueryClientProvider client={queryClient}>
-          <Hydrate state={rest.pageProps.dehydratedState}>
-            {getLayout(<Component {...rest.pageProps} />)}
-          </Hydrate>
+          <CookiesProvider>
+            <TourProvider {...REACT_TOUR_OPTIONS}>
+              <Hydrate state={rest.pageProps.dehydratedState}>
+                {getLayout(<Component {...rest.pageProps} />)}
+              </Hydrate>
+            </TourProvider>
+          </CookiesProvider>
         </QueryClientProvider>
       </ReduxProvider>
     </>
