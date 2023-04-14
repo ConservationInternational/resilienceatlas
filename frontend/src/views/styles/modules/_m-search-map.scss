@@ -13,7 +13,7 @@
 
     @include placeholder() {
       font-size: rem(14px);
-      color: $font-color-1;
+      color: $gray-medium;
     }
   }
 
@@ -36,7 +36,7 @@
     }
 
     li {
-      padding: rem(2px) rem(10px);
+      padding: rem(5px) rem(10px);
 
       &.is-active {
         background: $gray-light;
@@ -45,7 +45,7 @@
 
     .option-label {
       font-size: rem(14px);
-      line-height: rem(25px);
+      line-height: 1;
 
       .m-highlighted-text--selected {
         font-weight: bold;
@@ -59,6 +59,6 @@
     padding: rem(10px);
     font-size: rem(14px);
     font-weight: normal;
-    color: $font-color-1;
+    color: $gray-medium;
   }
 }
