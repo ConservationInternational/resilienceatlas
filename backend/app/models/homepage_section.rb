@@ -21,7 +21,7 @@ class HomepageSection < ApplicationRecord
 
   has_one_attached :image, service: :local_public
 
-  enum :image_position, {left: "left", right: "right", cover: "cover"}, default: :left, _prefix: :image_position
+  enum :image_position, {left: "left", right: "right", cover: "cover"}, default: :left, prefix: true
 
   translates :title, :subtitle, :button_text, :image_credits, touch: true, fallbacks_for_empty_translations: true
   active_admin_translates :title, :subtitle, :button_text, :image_credits

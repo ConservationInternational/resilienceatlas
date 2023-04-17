@@ -1,0 +1,39 @@
+= semantic_form_for [:admin, resource], builder: ActiveAdmin::FormBuilder do |f|
+  = f.semantic_errors :base
+  = f.inputs "Translated fields" do
+    = f.translated_inputs switch_locale: false do |ff|
+      = ff.input :id, as: :hidden
+      = ff.input :locale, as: :hidden
+      = ff.input :title
+      = ff.input :image_credits
+  = f.inputs "Common fields" do
+    = f.input :slug
+    == render "admin/shared/image_with_thumbnail", blob: :image, f: f
+    = f.input :image_credits_url
+
+  = f.inputs "Sections", class: "inputs has-many-collapsed" do
+    - f.has_many :sections, heading: false, sortable: :position, sortable_start: 1 do |ff|
+      = ff.semantic_errors
+      = ff.inputs (ff.object.new_record? ? "New Section" : ff.object.title.to_s), class: "inputs has-many-toggle-collapse" do
+        div class="has-many-section section-hidden"
+          = ff.inputs "Translated fields" do
+            - ff.translated_inputs switch_locale: false do |fff|
+              - fff.input :id, as: :hidden
+              - fff.input :locale, as: :hidden
+              - fff.input :title
+          = ff.inputs "Common fields" do
+            - ff.input :slug
+            - ff.input :title_size
+            - ff.input :show_at_navigation
+          = ff.inputs "Section specific data" do
+            div class="select-dependency-container"
+              - ff.input :section_type, as: :select, collection: StaticPage::Section.section_types.keys, input_html: {class: "select-dependency-controller"}
+              div class="select-dependency-field trix-toolbar-disable-attachment" style="margin: 10px;" data-available-for=["paragraph"]
+                == render "section_paragraph", f: ff
+              div class="select-dependency-field has-many-collapsed" style="margin: 10px;" data-available-for=["items"]
+                == render "section_items", f: ff
+              div class="select-dependency-field has-many-collapsed" style="margin: 10px;" data-available-for=["references"]
+                == render "section_references", f: ff
+          - unless ff.object.new_record?
+            - ff.input :_destroy, as: :boolean, wrapper_html: { class: "has_many_delete" }, label: I18n.t("active_admin.has_many_delete")
+  = f.actions

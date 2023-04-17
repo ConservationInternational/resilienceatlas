@@ -1,0 +1,11 @@
+- f.has_many :section_references, heading: false, sortable: :position, sortable_start: 1 do |ff|
+  = ff.semantic_errors
+  = ff.inputs (ff.object.new_record? ? "New Section Reference" : ff.object.slug.to_s), class: "inputs has-many-toggle-collapse" do
+    div class="has-many-section section-hidden use-simple-trix-toolbar"
+      = ff.inputs "Translated fields" do
+        - ff.translated_inputs switch_locale: false do |fff|
+          - fff.input :id, as: :hidden
+          - fff.input :locale, as: :hidden
+          = fff.rich_text_area :text
+      = ff.inputs "Common fields" do
+        - ff.input :slug
