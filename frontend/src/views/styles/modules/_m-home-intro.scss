@@ -2,6 +2,12 @@
   position: relative;
   height: rem(565px);
 
+  @media screen and (max-width: 800px) {
+    padding-top: rem(320px);
+    height: rem(500px);
+    margin-bottom: rem(-120px);
+  }
+
   background-position: center;
   background-size: cover;
   background-repeat: no-repeat;
@@ -9,8 +15,8 @@
   &__header {
     @extend %center;
     width: 100%;
-    word-wrap: break-word;
     padding: 0 2.5rem;
+    word-wrap: normal;
 
     h2,
     h3 {
@@ -25,6 +31,11 @@
     h2 {
       font-size: rem(100px);
       font-family: $font-face-2;
+
+      @media screen and (max-width: 800px) {
+        margin-top: 1rem;
+        font-size: rem(60px);
+      }
     }
 
     h3 {

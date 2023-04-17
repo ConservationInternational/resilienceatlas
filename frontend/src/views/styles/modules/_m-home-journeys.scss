@@ -6,6 +6,11 @@
     position: relative;
     height: 150px;
 
+    @media screen and (max-width: 800px) {
+      line-height: 4rem;
+      height: 220px;
+    }
+
     h2 {
       @extend %center;
       width: 100%;
