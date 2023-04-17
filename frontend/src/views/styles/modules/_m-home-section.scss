@@ -4,6 +4,7 @@
 
   &--gradient {
     min-height: rem(510px);
+    background-position: center;
 
     &:before {
       background-image: linear-gradient(
