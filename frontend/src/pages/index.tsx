@@ -1,6 +1,4 @@
 import Link from 'next/link';
-import cx from 'classnames';
-import Slider from 'react-slick';
 import { Row } from 'react-foundation';
 
 import MainLayout from 'views/layouts/main';
@@ -8,8 +6,13 @@ import MainLayout from 'views/layouts/main';
 import JourneySlider from 'views/components/JourneySlider';
 
 import type { NextPageWithLayout } from './_app';
+import { getServerSideTranslations } from 'i18n';
+import { useSetServerSideTranslations, withTranslations } from 'utilities/hooks/transifex';
+import type { GetServerSidePropsContext } from 'next';
 
-const Homepage: NextPageWithLayout = () => {
+const Homepage: NextPageWithLayout = ({ translations, setTranslations }) => {
+  useSetServerSideTranslations({ setTranslations, translations });
+
   return (
     <>
       <div className="m-welcome">
@@ -91,6 +94,17 @@ const Homepage: NextPageWithLayout = () => {
   );
 };
 
-Homepage.Layout = (page) => <MainLayout pageTitle="Welcome">{page}</MainLayout>;
+Homepage.Layout = (page, translations) => (
+  <MainLayout pageTitle={translations['Welcome']}>{page}</MainLayout>
+);
 
-export default Homepage;
+export default withTranslations(Homepage);
+
+export async function getServerSideProps(context: GetServerSidePropsContext) {
+  const { translations } = await getServerSideTranslations(context);
+  return {
+    props: {
+      translations,
+    },
+  };
+}

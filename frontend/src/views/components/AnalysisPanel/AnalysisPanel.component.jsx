@@ -10,6 +10,7 @@ import { useSearch } from 'utilities';
 import { TABS } from '../Sidebar';
 
 import { LayerAnalysis, PredictiveModelAnalysis } from './AnalysisContent';
+import { getServerSideTranslations } from 'i18n';
 
 const ACCEPTED_EXTENSIONS = ['.json', '.geojson'];
 
@@ -27,6 +28,7 @@ export const AnalysisPanel = ({
   countries,
   geojson,
   iso,
+  translations,
 }) => {
   const sidebarTab = useMemo(
     () => qs.parse(router.query, { ignoreQueryPrefix: true }).tab,
@@ -111,6 +113,8 @@ export const AnalysisPanel = ({
   });
   const downloadableReport = useDownloadableReport();
 
+  <T _str={'Contract analysis panel'} />;
+
   return (
     <div className="m-sidebar analysis-panel" id="analysisPanelView">
       <div className="title">
@@ -118,7 +122,7 @@ export const AnalysisPanel = ({
           className="btn-analysis-panel-contract"
           type="button"
           onClick={toggle}
-          aria-label="Contract analysis panel"
+          aria-label={translations && translations['Contract analysis panel']}
         />
         <T _str="Analysis" />
       </div>
@@ -156,7 +160,7 @@ export const AnalysisPanel = ({
                     </svg>
                     <input
                       className="searchAnalysis"
-                      placeholder="Type country"
+                      placeholder={translations && translations['Type country']}
                       type="search"
                       {...searchInput}
                     />
@@ -203,7 +207,7 @@ export const AnalysisPanel = ({
                       className="btn -primary js-toggle-draw"
                       onClick={toggleDrawing}
                     >
-                      {drawing ? 'Cancel' : 'Start drawing'}
+                      {drawing ? 'Cancel' : <T _str="Start drawing" />}
                     </button>
                     <br />
                     or
@@ -252,3 +256,12 @@ export const AnalysisPanel = ({
     </div>
   );
 };
+
+export async function getServerSideProps(context) {
+  const { translations } = await getServerSideTranslations(context);
+  return {
+    props: {
+      translations,
+    },
+  };
+}

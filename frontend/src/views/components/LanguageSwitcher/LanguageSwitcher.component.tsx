@@ -2,17 +2,17 @@
 import React, { useCallback, useMemo } from 'react';
 import localesJson from 'locales.config.json';
 import cx from 'classnames';
-import { setCookie } from 'utilities/helpers';
 import { useRouter } from 'next/router';
+import { useCookies } from 'react-cookie';
 
 const LANGUAGE_LABELS = localesJson.locales.reduce((acc, locale) => {
   acc[locale.locale] = locale.name;
   return acc;
 }, {});
 
-function LanguageSwitcher() {
+function LanguageSwitcher({ translations }) {
   const router = useRouter();
-
+  const [, setCookie] = useCookies(['NEXT_LOCALE']);
   const changeLang = useCallback(
     (locale: string) => {
       // Set a cookie for 1 year so that the user preference is kept
@@ -22,7 +22,7 @@ function LanguageSwitcher() {
       // change just the locale and maintain all other route information including href's query
       router.push({ pathname, query }, asPath, { locale });
     },
-    [router],
+    [router, setCookie],
   );
 
   const { locales, locale } = router;
@@ -57,7 +57,10 @@ function LanguageSwitcher() {
   return (
     <li className="language-switcher">
       <span className="item-separator" />
-      <img src="/images/svg-icons/language.svg" alt="language-icon" />
+      <img
+        src="/images/svg-icons/language.svg"
+        alt={translations && translations['language-icon']}
+      />
       <div className="nav-item">{LANGUAGE_LABELS[locale]}</div>
       <ul>{renderLanguageSwitcher()}</ul>
     </li>

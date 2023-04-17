@@ -11,6 +11,7 @@ const makeMapStateToProps = () => {
     site: state.site,
     menuItems: getMenuItems(state),
     menuItemsLoaded: state.map_menu_entries.loaded,
+    translations: state.translations.data,
   });
 
   return mapStateToProps;

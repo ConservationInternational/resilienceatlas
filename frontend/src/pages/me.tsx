@@ -1,17 +1,21 @@
 import { useEffect } from 'react';
-import Link from 'views/components/Link';
+import Link from 'next/link';
 import { Row } from 'react-foundation';
 import { useRouter } from 'next/router';
 import { connect } from 'react-redux';
 import { T } from '@transifex/react';
-
+import { setTranslations } from 'state/modules/translations';
 import { isAuthenticated } from 'utilities/authenticated';
 import EditProfileForm from 'views/components/EditProfileForm';
 import MainLayout from 'views/layouts/main';
-
+import { getServerSideTranslations } from 'i18n';
+import { useSetServerSideTranslations } from 'utilities/hooks/transifex';
+import type { GetServerSidePropsContext } from 'next';
 import type { NextPageWithLayout } from './_app';
 
-const MePage: NextPageWithLayout = ({ user }) => {
+const MePage: NextPageWithLayout = ({ user, translations, setTranslations }) => {
+  useSetServerSideTranslations({ setTranslations, translations });
+
   const router = useRouter();
   const authenticated = isAuthenticated(user);
 
@@ -44,8 +48,22 @@ const MePage: NextPageWithLayout = ({ user }) => {
   );
 };
 
-MePage.Layout = (page) => <MainLayout pageTitle="Me">{page}</MainLayout>;
+MePage.Layout = (page, translations) => (
+  <MainLayout pageTitle={translations['Me']}>{page}</MainLayout>
+);
 
 const mapStateToProps = (state) => ({ user: state.user });
+const mapDispatchToProps = {
+  setTranslations,
+};
 
-export default connect(mapStateToProps)(MePage);
+export default connect(mapStateToProps, mapDispatchToProps)(MePage);
+
+export async function getServerSideProps(context: GetServerSidePropsContext) {
+  const { translations } = await getServerSideTranslations(context);
+  return {
+    props: {
+      translations,
+    },
+  };
+}

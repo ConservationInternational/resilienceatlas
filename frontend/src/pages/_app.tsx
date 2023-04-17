@@ -5,23 +5,22 @@ import { useRouter } from 'next/router';
 import { QueryClient, QueryClientProvider, Hydrate } from '@tanstack/react-query';
 import { tx, PseudoTranslationPolicy } from '@transifex/native';
 import { TourProvider } from '@reactour/tour';
-import { CookiesProvider } from 'react-cookie';
+import { CookiesProvider, useCookies } from 'react-cookie';
 import { T } from '@transifex/react';
 
 import { wrapper } from 'state/store';
 import * as ga from 'utilities/ga';
-import { getRouterParam } from 'utilities';
 import { getToken, login } from 'state/modules/user';
 import TOUR_STEPS from 'constants/tour-steps';
 
 import { Badge, Navigation } from 'views/components/MapTour';
 
+import type { Translations } from 'types/transifex';
 import type { ReactElement, ReactNode } from 'react';
 import type { NextPage } from 'next';
 import type { AppProps } from 'next/app';
 import type { DehydratedState } from '@tanstack/react-query';
 import type { ProviderProps as MapTourProviderProps } from '@reactour/tour';
-import { getCookie, setCookie } from 'utilities/helpers';
 
 // Third-party styles
 import 'normalize.css/normalize.css';
@@ -62,11 +61,16 @@ type ResilienceAppProps = {
     first_name: string;
     last_name: string;
   };
+  translations: Translations;
+  setTranslations?: (translations: Translations) => {
+    type: string;
+    translations: Translations;
+  };
   dispatch?: (action: unknown) => void;
 };
 
 export type NextPageWithLayout<P = ResilienceAppProps, IP = P> = NextPage<P, IP> & {
-  Layout?: (page: ReactElement) => ReactNode;
+  Layout?: (page: ReactElement, translations: Translations) => ReactNode;
 };
 
 type AppPropsWithLayout = AppProps<ResilienceAppProps> & {
@@ -91,10 +95,10 @@ const ResilienceApp = ({ Component, ...rest }: AppPropsWithLayout) => {
 
   // Getting user from local storage
   useEffect(() => {
-    const userToken = getToken();
+    const token = getToken();
 
-    if (userToken) {
-      appStore.dispatch(login(userToken));
+    if (token) {
+      appStore.dispatch(login(token));
     }
   }, [appStore]);
 
@@ -115,21 +119,22 @@ const ResilienceApp = ({ Component, ...rest }: AppPropsWithLayout) => {
   }, [router.events]);
 
   // Transifex
+
   useEffect(() => {
+    // Used for initial render
     tx.init({
       token: NEXT_PUBLIC_TRANSIFEX_TOKEN,
       ...(process.env.NODE_ENV === 'development'
         ? { missingPolicy: new PseudoTranslationPolicy() }
         : {}),
     });
-  }, []);
 
-  useEffect(() => {
-    // Used for initial render
     tx.setCurrentLocale(locale);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router]);
 
+  const [cookies, setCookie] = useCookies(['NEXT_LOCALE']);
+  const { NEXT_LOCALE } = cookies;
   // WARN: do not modify without knowing exactly what are the consequences
   // When the user visits any page, Next.js determines the supported locale the user is using:
   // https://nextjs.org/docs/advanced-features/i18n-routing#automatic-locale-detection
@@ -148,11 +153,11 @@ const ResilienceApp = ({ Component, ...rest }: AppPropsWithLayout) => {
   //   Spanish since no `NEXT_LOCALE` cookie exists
   // For this reason, we want to always set the cookie on the first given opportunity.
   useEffect(() => {
-    if (!getCookie('NEXT_LOCALE')) {
+    if (!NEXT_LOCALE) {
       // Set a cookie for 1 year
       setCookie('NEXT_LOCALE', `${locale}; path=/; max-age=31536000; secure`);
     }
-  }, [locale]);
+  }, [locale, NEXT_LOCALE, setCookie]);
 
   ga.useInitGAScript();
 
@@ -216,7 +221,7 @@ const ResilienceApp = ({ Component, ...rest }: AppPropsWithLayout) => {
           <CookiesProvider>
             <TourProvider {...REACT_TOUR_OPTIONS}>
               <Hydrate state={rest.pageProps.dehydratedState}>
-                {getLayout(<Component {...rest.pageProps} />)}
+                {getLayout(<Component {...rest.pageProps} />, rest.pageProps?.translations)}
               </Hydrate>
             </TourProvider>
           </CookiesProvider>

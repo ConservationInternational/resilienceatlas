@@ -7,40 +7,58 @@ import { LayerAnalysis } from 'views/components/AnalysisPanel/AnalysisContent';
 import Loader from 'views/shared/Loader';
 import { T } from '@transifex/react';
 import type { NextPageWithLayout } from './_app';
+import { getServerSideTranslations } from 'i18n';
 
-const ReportPage: NextPageWithLayout = () => (
-  <div className="l-content">
-    <div className="l-content m-report-page">
-      <Row>
-        <Column small={12}>
-          <h2>
-            <T _str="Analysis report" />
-          </h2>
-          <MapView
-            page="report"
-            options={{
-              map: {
-                minZoom: 2,
-                maxZoom: 25,
-                zoomControl: false,
-              },
-            }}
-          />
-          <Loader />
+import type { GetServerSidePropsContext } from 'next';
+import { useSetServerSideTranslations, withTranslations } from 'utilities/hooks/transifex';
 
-          <Legend />
+const ReportPage: NextPageWithLayout = ({ translations, setTranslations }) => {
+  useSetServerSideTranslations({ setTranslations, translations });
+  return (
+    <div className="l-content">
+      <div className="l-content m-report-page">
+        <Row>
+          <Column small={12}>
+            <h2>
+              <T _str="Analysis report" />
+            </h2>
+            <MapView
+              page="report"
+              options={{
+                map: {
+                  minZoom: 2,
+                  maxZoom: 25,
+                  zoomControl: false,
+                },
+              }}
+            />
+            <Loader />
 
-          <LayerAnalysis responsiveCharts width={670} />
+            <Legend />
 
-          <a href="http://resilienceatlas.org/" className="logo">
-            <span />
-          </a>
-        </Column>
-      </Row>
+            <LayerAnalysis responsiveCharts width={670} />
+
+            <a href="http://resilienceatlas.org/" className="logo">
+              <span />
+            </a>
+          </Column>
+        </Row>
+      </div>
     </div>
-  </div>
+  );
+};
+
+ReportPage.Layout = (page, translations) => (
+  <ReportLayout pageTitle={translations['Report']}>{page}</ReportLayout>
 );
 
-ReportPage.Layout = (page) => <ReportLayout pageTitle="Report">{page}</ReportLayout>;
+export default withTranslations(ReportPage);
 
-export default ReportPage;
+export async function getServerSideProps(context: GetServerSidePropsContext) {
+  const { translations } = await getServerSideTranslations(context);
+  return {
+    props: {
+      translations,
+    },
+  };
+}

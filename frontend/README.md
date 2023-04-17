@@ -59,10 +59,6 @@ The application is translated with the [Transifex Native](https://www.transifex.
 
 Transifex is initialized on the App.jsx file. A PseudoTranslationPolicy is provided on the development environment so we can see what translations are missing on the different languages directly on the platform on development.
 
-### Links
-
-We are using the lang url parameter to keep the language on the frontend so its important to use the Link component on the views folder instead of next/link. This component will always preserve the previous page lang parameter.
-
 ### Scripts
 
 There are three different scripts that use the transifex cli:
@@ -79,7 +75,23 @@ If the purge is not working correctly try to use it directly from terminal:
 
 ### Selecting the translation locale
 
-There is a language switcher component available on the menu.The locale is then retrieved on the App component to set the translation.
+There is a language switcher component available on the menu. The locale is then retrieved on the App component to set the translation.
+
+### Server-side translation
+
+In some components we need to render items inside `placeholder`, `alt`, `meta` tags, etc for this we can't use the regular client side translations and we have to update them server-side.
+
+- The server side translations have to be requested on every page using `getServerSideProps`and the `getServerSideTranslations` function and set on redux using the `useSetServerSideTranslations` hook. Then we will be able to use them in any component.
+
+- To use them we just have to pick the desired string from the available translations object. `translations['Page title']`
+
+- We use the `withTranslations` HOC to be able to add the `setTranslations` redux action to each page component.
+
+- To be able to use the translations on the Layouts we also pass them directly to them on the `_app.tsx` file.
+
+- As this strings won't be automatically recognised by transifex when we push, there is a json file inside server-side-translations folder: `server-side-translation-content.json` In this file we should add every string that needs to be translated server-side. Then the `push-server-strings.js` file is run with the `yarn transifex:push` on `package.json`.
+
+[More info](https://developers.transifex.com/docs/nextjs#use-getserversideprops-to-load-translations)
 
 ### To translate strings
 

@@ -4,7 +4,7 @@ import { T } from '@transifex/react';
 
 import { useSearch } from 'utilities/hooks';
 
-const SearchArea = ({ fitBounds, countries }) => {
+const SearchArea = ({ fitBounds, countries, translations }) => {
   const { searchInput, result, noResults } = useSearch('search', countries, {
     valueKey: 'name',
     onSelect: ({ geometry }) => {
@@ -14,7 +14,12 @@ const SearchArea = ({ fitBounds, countries }) => {
 
   return (
     <div className="m-search-map" id="searchBox">
-      <input id="searchMap" placeholder="Search area" type="search" {...searchInput} />
+      <input
+        id="searchMap"
+        placeholder={translations && translations['Search area']}
+        type="search"
+        {...searchInput}
+      />
       <div className="search-box" id="searchContent">
         <div id="search-tpl">
           <div className={cx('search-content', { searching: !!searchInput.value })}>

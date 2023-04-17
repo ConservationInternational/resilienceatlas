@@ -14,6 +14,7 @@ import type { FC } from 'react';
 import type { WithRouterProps } from 'next/dist/client/with-router';
 import type { JourneyDetail as StaticJourneyDetail } from 'types/static-journeys';
 import type { JourneyItem } from 'types/journeys';
+import type { Translations } from 'types/transifex';
 
 type StaticJourneyProps = WithRouterProps & {
   // Actions
@@ -44,6 +45,7 @@ type JourneyProps = WithRouterProps & {
   journey: JourneyItem;
   journeysLoaded: boolean;
   journeysById: JourneyItem[];
+  translations: Translations;
 };
 
 const JOURNEY_TYPES = {
@@ -105,6 +107,7 @@ const Journey: FC<JourneyProps> = ({
   journey,
   journeysLoaded,
   journeysById,
+  translations,
 }) => {
   useEffect(() => {
     if (!journeyLoaded && currentJourney) loadJourney(currentJourney);
@@ -137,6 +140,7 @@ const Journey: FC<JourneyProps> = ({
         {journeyLoaded &&
           React.createElement(JOURNEY_TYPES[stepType], {
             ...attributes,
+            translations,
             isLastStep: stepIndex === steps.length - 1,
           })}
 

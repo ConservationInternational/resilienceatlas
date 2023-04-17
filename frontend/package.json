@@ -10,7 +10,8 @@
     "lint": "next lint",
     "prettier": "prettier --config .prettierrc.json --check --write \"./src/**/*.{tsx,jsx,ts,js}\"",
     "check-types": "tsc --noemit -p tsconfig.json",
-    "transifex:push": "txjs-cli push src/ --token=$(./node_modules/.bin/dotenv -e .env -c -p NEXT_PUBLIC_TRANSIFEX_TOKEN) --secret=$(./node_modules/.bin/dotenv -e .env -c -p NEXT_PUBLIC_TRANSIFEX_SECRET)",
+    "transifex:push-server-strings": "TOKEN=$(./node_modules/.bin/dotenv -e .env -c -p NEXT_PUBLIC_TRANSIFEX_TOKEN) SECRET=$(./node_modules/.bin/dotenv -e .env -c -p NEXT_PUBLIC_TRANSIFEX_SECRET) node ./server-side-translations/push-server-strings.js",
+    "transifex:push": "yarn run transifex:push-server-strings && txjs-cli push src/ --token=$(./node_modules/.bin/dotenv -e .env -c -p NEXT_PUBLIC_TRANSIFEX_TOKEN) --secret=$(./node_modules/.bin/dotenv -e .env -c -p NEXT_PUBLIC_TRANSIFEX_SECRET)",
     "transifex:purge": "txjs-cli push src/ --token=$(./node_modules/.bin/dotenv -e .env -c -p NEXT_PUBLIC_TRANSIFEX_TOKEN) --secret=$(./node_modules/.bin/dotenv -e .env -c -p NEXT_PUBLIC_TRANSIFEX_SECRET) --purge",
     "transifex:refresh": "txjs-cli invalidate --token=$(./node_modules/.bin/dotenv -e .env -c -p NEXT_PUBLIC_TRANSIFEX_TOKEN) --secret=$(./node_modules/.bin/dotenv -e .env -c -p NEXT_PUBLIC_TRANSIFEX_SECRET)"
   },

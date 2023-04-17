@@ -1,3 +1,5 @@
+import type { Translations } from './transifex';
+
 export type JourneyList = JourneyItem[];
 
 export interface JourneyItem {
@@ -61,4 +63,5 @@ export interface JourneyAttributes {
   mask_sql?: string;
   map_url?: string;
   embedded_map_url?: string;
+  translations: Translations;
 }

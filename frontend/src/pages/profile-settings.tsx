@@ -2,15 +2,19 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { Row } from 'react-foundation';
 import { connect } from 'react-redux';
-
+import { setTranslations } from 'state/modules/translations';
 import { isAuthenticated } from 'utilities/authenticated';
 import ProfileSettingsForm from 'views/components/ProfileSettingsForm';
 import MainLayout from 'views/layouts/main';
 import { T } from '@transifex/react';
-
+import { getServerSideTranslations } from 'i18n';
+import { useSetServerSideTranslations } from 'utilities/hooks/transifex';
+import type { GetServerSidePropsContext } from 'next';
 import type { NextPageWithLayout } from './_app';
 
-const ProfileSettingsPage: NextPageWithLayout = ({ user }) => {
+const ProfileSettingsPage: NextPageWithLayout = ({ user, setTranslations, translations }) => {
+  useSetServerSideTranslations({ setTranslations, translations });
+
   const router = useRouter();
   const authenticated = isAuthenticated(user);
 
@@ -49,8 +53,21 @@ const ProfileSettingsPage: NextPageWithLayout = ({ user }) => {
   );
 };
 
-ProfileSettingsPage.Layout = (page) => <MainLayout pageTitle="Profile settings">{page}</MainLayout>;
+ProfileSettingsPage.Layout = (page, translations) => (
+  <MainLayout pageTitle={translations['Profile settings']}>{page}</MainLayout>
+);
 
 const mapStateToProps = (state) => ({ user: state.user });
+const mapDispatchToProps = {
+  setTranslations,
+};
+export default connect(mapStateToProps, mapDispatchToProps)(ProfileSettingsPage);
 
-export default connect(mapStateToProps)(ProfileSettingsPage);
+export async function getServerSideProps(context: GetServerSidePropsContext) {
+  const { translations } = await getServerSideTranslations(context);
+  return {
+    props: {
+      translations,
+    },
+  };
+}

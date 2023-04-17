@@ -1,6 +1,6 @@
 import React, { useEffect, useCallback } from 'react';
 import { useRouter } from 'next/router';
-import Link from 'views/components/Link';
+import Link from 'next/link';
 import cx from 'classnames';
 import { sortBy } from 'utilities';
 import LanguageSwitcher from 'views/components/LanguageSwitcher';
@@ -15,6 +15,7 @@ const Header = ({
   site: { linkback_text, linkback_url },
   menuItems,
   menuItemsLoaded,
+  translations,
 }) => {
   const { pathname } = useRouter();
 
@@ -111,7 +112,7 @@ const Header = ({
             </>
           )}
 
-          <LanguageSwitcher />
+          <LanguageSwitcher translations={translations} />
         </ul>
 
         <ul className="nav-area -vital-sign">

@@ -12,6 +12,7 @@ const StaticConclusion: React.FC<StaticJourneyStep> = ({
   title,
   subtitle,
   content,
+  translations,
 }) => {
   const [isColapsed, setExpansion] = useState(false);
   return (
@@ -39,7 +40,7 @@ const StaticConclusion: React.FC<StaticJourneyStep> = ({
               'is-colapsed': isColapsed,
             })}
             onClick={() => setExpansion(!isColapsed)}
-            aria-label="Colapse/expand overview panel"
+            aria-label={translations && translations['Colapse/expand overview panel']}
           />
           <div className="shadow" />
         </div>
@@ -54,6 +55,7 @@ const Conclusion: React.FC<JourneyAttributes> = ({
   title,
   subtitle,
   content,
+  translations,
 }) => {
   const [isColapsed, setExpansion] = useState(false);
   return (
@@ -85,7 +87,7 @@ const Conclusion: React.FC<JourneyAttributes> = ({
               'is-colapsed': isColapsed,
             })}
             onClick={() => setExpansion(!isColapsed)}
-            aria-label="Colapse/expand overview panel"
+            aria-label={translations && translations['Collapse/expand overview panel']}
           />
           <div
             className="shadow"

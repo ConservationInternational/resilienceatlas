@@ -136,14 +136,14 @@ const Sidebar = ({
           className="btn-sidebar-toggle"
           type="button"
           onClick={toggleOpen}
-          aria-label={<T _str="Toggle sidebar" />}
+          aria-label={translations && translations['Toggle sidebar']}
         />
         {site.has_analysis && (
           <button
             className="btn-analysis-panel-expand"
             type="button"
             onClick={toggleAnalysis}
-            aria-label={<T _str="Expand analysis panel" />}
+            aria-label={translations && translations['Expand analysis panel']}
           >
             <T _str="Analysis" />
           </button>

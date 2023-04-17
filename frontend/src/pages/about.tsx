@@ -1,13 +1,18 @@
 /* eslint-disable @next/next/no-img-element */
-import Link from 'views/components/Link';
+import Link from 'next/link';
 import { Row, Column } from 'react-foundation';
 
 import MainLayout from 'views/layouts/main';
 import { T } from '@transifex/react';
-
+import { getServerSideTranslations } from 'i18n';
+import { useSetServerSideTranslations, withTranslations } from 'utilities/hooks/transifex';
+import type { GetServerSidePropsContext } from 'next';
 import type { NextPageWithLayout } from './_app';
 
-const AboutPage: NextPageWithLayout = () => {
+const AboutPage: NextPageWithLayout = (props) => {
+  const { translations, setTranslations } = props;
+  useSetServerSideTranslations({ setTranslations, translations });
+
   return (
     <div className="l-content">
       <div className="l-hero">
@@ -466,15 +471,15 @@ const AboutPage: NextPageWithLayout = () => {
               <section>
                 <img
                   src="https://trackjs.com/assets/external/badge.gif"
-                  alt="(Protected by TrackJS JavaScript Error Monitoring)"
+                  alt={translations['(Protected by TrackJS JavaScript Error Monitoring)']}
                   className="team-photo"
                 />
               </section>
 
               <section>
                 <img
-                  src="https://d26gfdfi90p7cf.cloudfront.net/rollbar-badge.144534.o.png"
-                  alt="Error Tracking"
+                  src="https://cdn.rollbar.com/wp-content/themes/rollbar/assets/img/logo-color-rollbar.svg"
+                  alt={translations['Error Tracking']}
                   className="team-photo"
                 />
                 <div className="team-bio">
@@ -697,6 +702,17 @@ const AboutPage: NextPageWithLayout = () => {
   );
 };
 
-AboutPage.Layout = (page) => <MainLayout pageTitle="About">{page}</MainLayout>;
+AboutPage.Layout = (page, translations) => (
+  <MainLayout pageTitle={translations['About']}>{page}</MainLayout>
+);
 
-export default AboutPage;
+export default withTranslations(AboutPage);
+
+export async function getServerSideProps(context: GetServerSidePropsContext) {
+  const { translations } = await getServerSideTranslations(context);
+  return {
+    props: {
+      translations,
+    },
+  };
+}

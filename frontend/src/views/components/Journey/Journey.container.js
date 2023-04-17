@@ -19,6 +19,7 @@ const mapStateToProps = (state, { router }) => {
     journeysLength: getJourneysLength(state),
     journeyLoaded: state.journey.loaded === query.id,
     journey: state.journey.data,
+    translations: state.translations.data,
     query,
   };
 };

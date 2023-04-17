@@ -21,6 +21,7 @@ const makeMapStateToProps = () => {
     selectedModel: state.predictive_models.selected,
     modelsLoading: state.predictive_models.loading,
     modelsLoaded: state.predictive_models.loaded,
+    translations: state.translations.data,
   });
 
   return mapStateToProps;

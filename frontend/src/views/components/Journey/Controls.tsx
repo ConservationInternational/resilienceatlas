@@ -1,6 +1,6 @@
 import React from 'react';
 import cx from 'classnames';
-import Link from 'views/components/Link';
+import Link from 'next/link';
 import { withRouter } from 'next/router';
 import { T } from '@transifex/react';
 
