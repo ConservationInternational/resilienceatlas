@@ -61,6 +61,7 @@ Cypress.Commands.add('interceptAllRequests', () => {
   );
 });
 
+// Converts a hex color (eg: #FFFFFF) to an rgb string (eg: rgb(255, 255, 255)
 Cypress.Commands.add('hexToRgb', (hexStr) => {
   const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hexStr);
   try {
