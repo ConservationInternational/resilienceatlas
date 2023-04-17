@@ -114,14 +114,15 @@ const Embed = (props) => {
     if (!countriesLoaded) loadCountries();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
   useEffect(() => {
     const mapString = mapUrl.split('?')[1];
-    const mapData = qs.parse(mapString);
-    const layerData = JSON.parse(mapData.layers);
-    const layerDataIds = layerData.map((l) => l.id);
+    if (mapString) {
+      const mapData = mapString && qs.parse(mapString);
+      const layerData = mapData && JSON.parse(mapData.layers);
+      const layerDataIds = layerData?.map((l) => l.id);
 
-    setActiveLayer(layerDataIds);
+      setActiveLayer(layerDataIds);
+    }
   }, [mapUrl, setActiveLayer]);
   const countryInfo =
     countries.find((c) => c.name.toLowerCase() === countryName.toLowerCase()) || {};
@@ -161,7 +162,7 @@ const Embed = (props) => {
             </header>
             <section>
               <h1>{countryName}</h1>
-              <DangerousHTML html={content} className="content" />
+              {content && <DangerousHTML html={content} className="content" />}
             </section>
             {/* TODO: Review if source is rendered correctly */}
             {source}
