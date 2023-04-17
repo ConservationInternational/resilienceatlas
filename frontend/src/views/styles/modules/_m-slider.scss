@@ -10,6 +10,10 @@ $backgrounds-thumb: 'thumb-0', 'thumb-1', 'thumb-2', 'thumb-3', 'thumb-4',
   background-color: $font-color-4;
   height: rem(565px);
 
+  @media screen and (max-width: 800px) {
+    height: rem(200px);
+  }
+
   .m-slider__image {
     position: absolute;
     width: 100%;
@@ -22,6 +26,10 @@ $backgrounds-thumb: 'thumb-0', 'thumb-1', 'thumb-2', 'thumb-3', 'thumb-4',
   .m-slider__item {
     position: relative;
     height: rem(565px);
+
+    @media screen and (max-width: 800px) {
+      height: rem(200px);
+    }
     // margin-left: 25px;
     // margin-right: 25px;
 
@@ -54,8 +62,13 @@ $backgrounds-thumb: 'thumb-0', 'thumb-1', 'thumb-2', 'thumb-3', 'thumb-4',
       left: 50%;
       top: 100%;
       transform: translate(-50%, -100%);
+      padding-top: 20px;
       padding-bottom: 20px;
       z-index: 2;
+
+      @media screen and (max-width: 800px) {
+        height: 100%;
+      }
     }
 
     .credits {
@@ -67,6 +80,11 @@ $backgrounds-thumb: 'thumb-0', 'thumb-1', 'thumb-2', 'thumb-3', 'thumb-4',
       color: $font-color-3;
       a {
         color: $font-color-3;
+      }
+
+      @media screen and (max-width: 800px) {
+        text-align: center;
+        right: 0;
       }
     }
 
