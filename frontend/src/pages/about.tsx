@@ -9,8 +9,7 @@ import { useSetServerSideTranslations, withTranslations } from 'utilities/hooks/
 import type { GetServerSidePropsContext } from 'next';
 import type { NextPageWithLayout } from './_app';
 
-const AboutPage: NextPageWithLayout = (props) => {
-  const { translations, setTranslations } = props;
+const AboutPage: NextPageWithLayout = ({ translations, setTranslations }) => {
   useSetServerSideTranslations({ setTranslations, translations });
 
   return (

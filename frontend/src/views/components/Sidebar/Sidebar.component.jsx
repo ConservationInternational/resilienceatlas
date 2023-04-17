@@ -28,6 +28,7 @@ const Sidebar = ({
   opened,
   analysisOpened,
   site,
+  translations,
 }) => {
   const router = useRouter();
   const { setParam } = useRouterParams();
