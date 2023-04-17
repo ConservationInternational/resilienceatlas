@@ -18,9 +18,11 @@ describe('Journeys index page', () => {
 
   it('should show the journeys content according the API', () => {
     cy.wait('@journeyListRequest').then(({ response }) => {
+      // console.log('@journeyListRequest', { response });
       cy.wrap(response.statusCode).should('be.oneOf', [200, 304]);
       cy.log(response);
       cy.get('.m-journey__gridelement').each(($el, index) => {
+        // console.log($el);
         cy.wrap($el)
           .find('h2')
           .should('contain', response.body.data[index].attributes.title)

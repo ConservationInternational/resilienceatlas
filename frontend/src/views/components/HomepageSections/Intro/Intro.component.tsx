@@ -22,7 +22,7 @@ const Intro: React.FC<IntroProps> = ({
         {subtitle && <h3>{subtitle}</h3>}
         <h2>{title}</h2>
       </div>
-      {background_image && credits && (
+      {background_image && credits && credits_url && (
         <p className="m-home-intro__credits">
           <a target="_blank" rel="noopener noreferrer" href={credits_url}>
             {credits}
