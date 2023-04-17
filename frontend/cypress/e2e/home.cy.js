@@ -99,7 +99,7 @@ describe('Homepage', () => {
         const { included: sections } = response.body;
         const journeySections = sections?.filter(({ type }) => type === 'homepage_journeys');
 
-        cy.get('.m-home-journeys').should('have.length', journeySections.length);
+        cy.get('.m-home-journeys').should('have.length', journeySections?.length || 0);
       });
     });
 
@@ -173,14 +173,14 @@ describe('Homepage', () => {
   });
 
   context('sections', () => {
-    it('should display the correct sections content', () => {
+    it('should display sections if returned by the API', () => {
       cy.wait('@homepageRequest').then(({ response }) => {
         cy.wrap(response.statusCode).should('be.oneOf', [200, 304]);
 
         const { included } = response.body;
         const sections = included?.filter(({ type }) => type === 'homepage_sections');
 
-        if (!sections) return cy.skip();
+        cy.get('.m-home-section').should('have.length', sections.length || 0);
       });
     });
 
