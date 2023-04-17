@@ -22,6 +22,7 @@ const Section: React.FC<SectionProps> = ({
       className={cx('m-home-section', {
         'm-home-section--gradient': image.original && image_position === 'cover',
       })}
+      data-cy="homepage-section"
       style={{
         backgroundColor: background_color,
         backgroundSize: image_position === 'cover' && 'cover',

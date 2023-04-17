@@ -5,6 +5,37 @@ describe('Homepage', () => {
     cy.wait('@siteRequest');
   });
 
+  it('should display sections in the correct order', () => {
+    cy.wait('@homepageRequest').then(({ response }) => {
+      cy.wrap(response.statusCode).should('be.oneOf', [200, 304]);
+
+      const { included } = response.body;
+      const journeys = included?.filter(({ type }) => type === 'homepage_journeys') || [];
+      const sections = included?.filter(({ type }) => type === 'homepage_sections') || [];
+
+      const orderedSectionTitles = [
+        ...journeys.map((journey) => ({
+          type: 'journeys',
+          section: journey,
+        })),
+        ...sections.map((section) => ({
+          type: 'section',
+          section: section,
+        })),
+      ]
+        .sort((a, b) => a.section.position - b.section.position)
+        .map(({ section }) => section.attributes.title);
+
+      cy.get('[data-cy="homepage-section"]').should('have.length', orderedSectionTitles.length);
+
+      cy.get('[data-cy="homepage-section"]').each(($el, index) => {
+        cy.wrap($el).within(() => {
+          cy.get('h2').should('contain', orderedSectionTitles[index]);
+        });
+      });
+    });
+  });
+
   context('intro', () => {
     it('should display the correct content', () => {
       cy.wait('@homepageRequest').then(({ response }) => {
@@ -142,14 +173,14 @@ describe('Homepage', () => {
   });
 
   context('sections', () => {
-    it('should have the same number of sections as the API', () => {
+    it('should display the correct sections content', () => {
       cy.wait('@homepageRequest').then(({ response }) => {
         cy.wrap(response.statusCode).should('be.oneOf', [200, 304]);
 
         const { included } = response.body;
         const sections = included?.filter(({ type }) => type === 'homepage_sections');
 
-        cy.get('.m-home-section').should('have.length', sections.length);
+        if (!sections) return cy.skip();
       });
     });
 

@@ -30,7 +30,7 @@ const Journeys: React.FC<JourneysProps> = ({
   if (!journeysLoaded) return null;
 
   return (
-    <div className="m-home-journeys">
+    <div className="m-home-journeys" data-cy="homepage-section">
       <div className="m-home-journeys__title">
         <h2>{title}</h2>
       </div>
