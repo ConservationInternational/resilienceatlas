@@ -69,7 +69,6 @@
       font-size: rem(18px);
       text-transform: uppercase;
       font-weight: 400;
-      // text-shadow: 0 1px 1px black;
     }
 
     p {
@@ -79,6 +78,11 @@
       &:last-child {
         margin-bottom: 0;
       }
+    }
+
+    a {
+      color: $font-color-3;
+      text-decoration: underline;
     }
 
     .scrolldown-link:before {
@@ -127,4 +131,3 @@
     }
   }
 }
-

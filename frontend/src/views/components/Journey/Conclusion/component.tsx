@@ -65,6 +65,7 @@ const Conclusion: React.FC<JourneyAttributes> = ({
         className={cx('content', 'scroll-container', {
           'is-colapsed': isColapsed,
         })}
+        style={{ backgroundColor }}
       >
         <div className="extra-wrapper scroll-wrapper">
           <div className="wrapper scroll-text">
@@ -86,7 +87,10 @@ const Conclusion: React.FC<JourneyAttributes> = ({
             onClick={() => setExpansion(!isColapsed)}
             aria-label="Colapse/expand overview panel"
           />
-          <div className="shadow" />
+          <div
+            className="shadow"
+            style={{ boxShadow: `inset 0px -50px 26px -14px ${backgroundColor}` }}
+          />
         </div>
       </div>
     </div>

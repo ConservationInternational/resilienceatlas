@@ -133,7 +133,11 @@
   right: rem(180px);
   color: $font-color-1;
   z-index: 100;
-  // background-color: $bg-color-1;
+
+  &.last-step {
+    right: rem(210px);
+  }
+
   &:hover {
     text-decoration: none;
   }

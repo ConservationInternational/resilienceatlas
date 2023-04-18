@@ -3,8 +3,9 @@ import Head from 'next/head';
 // Components
 import Loader from 'views/shared/Loader';
 
-import Controls from './Controls';
 import Landing from './Landing';
+import Controls from './Controls';
+import StaticControls from './StaticControls';
 import Conclusion from './Conclusion';
 import Embed from './Embed';
 import Chapter from './Chapter';
@@ -31,6 +32,7 @@ type StaticJourneyProps = WithRouterProps & {
 type JourneyProps = WithRouterProps & {
   // Actions
   loadJourney: (id: string) => void;
+  loadJourneys: () => void;
   // Data
   query: {
     id: string;
@@ -40,6 +42,8 @@ type JourneyProps = WithRouterProps & {
   journeyLoaded: boolean;
   journeyLoading: boolean;
   journey: JourneyItem;
+  journeysLoaded: boolean;
+  journeysById: JourneyItem[];
 };
 
 const JOURNEY_TYPES = {
@@ -77,7 +81,7 @@ const StaticJourney: FC<StaticJourneyProps> = ({
 
       {journeyLoaded && React.createElement(JOURNEY_TYPES[stepInfo.type], { ...stepInfo })}
 
-      <Controls journeysLength={journeysLength} slideslength={steps.length} />
+      <StaticControls journeysLength={journeysLength} slideslength={steps.length} />
 
       {!journeyLoading && stepInfo.type !== 'embed' && (
         <p className={`credits ${stepInfo.type}`}>
@@ -93,16 +97,24 @@ const StaticJourney: FC<StaticJourneyProps> = ({
 const Journey: FC<JourneyProps> = ({
   // Actions
   loadJourney,
+  loadJourneys,
   // Data
   query: { id: currentJourney, step },
-  journeysLength,
   journeyLoaded,
   journeyLoading,
   journey,
+  journeysLoaded,
+  journeysById,
 }) => {
   useEffect(() => {
     if (!journeyLoaded && currentJourney) loadJourney(currentJourney);
   }, [currentJourney, journeyLoaded, loadJourney]);
+
+  useEffect(() => {
+    if (!journeysLoaded) loadJourneys();
+  }, [journeysLoaded, loadJourneys]);
+
+  const journeyIds = journeysById && Object.keys(journeysById).map((id) => +id);
   const stepIndex = Number(step) - 1;
   const { steps, attributes: journeyAttributes } = journey;
   const { published } = journeyAttributes || {};
@@ -122,9 +134,13 @@ const Journey: FC<JourneyProps> = ({
       <div className="l-journey" id="journeyIndexView">
         <Loader loading={journeyLoading} />
 
-        {journeyLoaded && React.createElement(JOURNEY_TYPES[stepType], { ...attributes })}
+        {journeyLoaded &&
+          React.createElement(JOURNEY_TYPES[stepType], {
+            ...attributes,
+            isLastStep: stepIndex === steps.length - 1,
+          })}
 
-        <Controls journeysLength={journeysLength} slideslength={steps.length} />
+        <Controls journeyIds={journeyIds} slideslength={steps.length} />
 
         {!journeyLoading && stepType !== 'embed' && (
           <p className={`credits ${stepType}`}>

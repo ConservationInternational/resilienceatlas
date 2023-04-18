@@ -26,6 +26,34 @@
     margin-top: 0;
   }
 
+  .chapter-number-container {
+    position: absolute;
+    bottom: 0;
+    height: 100%;
+    overflow: hidden;
+
+    .chapter-number {
+      font-family: $font-face-3;
+      height: 100%;
+      display: flex;
+      align-items: flex-end;
+      font-size: 70vw;
+      padding-bottom: 15vw;
+      margin-left: -20%;
+
+      background-blend-mode: normal, multiply, color, normal;
+      background-position: left bottom;
+
+      -webkit-text-fill-color: transparent;
+      color: transparent;
+
+      // As we are setting the background image on the style, we need these importants
+      background-clip: text !important;
+      background-size: cover !important;
+      -webkit-background-clip: text !important;
+    }
+  }
+
   .chapter-intro {
     float: right;
     width: 30%;
@@ -39,18 +67,3 @@
     }
   }
 }
-
-// .chapter-mask--1 {
-//   @extend %image-requirements;
-//   background-image: image-url("journeys/chapters/chapter-1.svg");
-// }
-
-// .chapter-mask--2 {
-//   @extend %image-requirements;
-//   background-image: image-url("journeys/chapters/chapter-2.svg");
-// }
-
-// .chapter-mask--3 {
-//   @extend %image-requirements;
-//   background-image: image-url("journeys/chapters/chapter-3.svg");
-// }

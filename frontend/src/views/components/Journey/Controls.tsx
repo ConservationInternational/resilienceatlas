@@ -7,7 +7,7 @@ import type { WithRouterProps } from 'next/dist/client/with-router';
 
 type ControlsProps = WithRouterProps & {
   slideslength: number;
-  journeysLength: number;
+  journeyIds: number[];
 };
 
 const Controls: React.FC<ControlsProps> = ({
@@ -15,23 +15,34 @@ const Controls: React.FC<ControlsProps> = ({
     query: { id, step },
   },
   slideslength,
-  journeysLength,
-}) => (
-  <div className={cx('m-controls', { 'is-first': +step === 1 })}>
-    <Link href={`/journeys/${id}/step/${Number(step) - 1}`}>
-      <a className={cx('btn-prev', { 'is-hidden': Number(step) < 2 })}>back</a>
-    </Link>
+  journeyIds,
+}) => {
+  const isLastJourney = +id === journeyIds[journeyIds.length - 1];
+  const journeyIndex = journeyIds.indexOf(+id);
+  const isBackHidden = Number(step) < 2;
 
-    {+step === slideslength ? (
-      <Link href={`/journeys/${+id === journeysLength ? 1 : +id + 1}`}>
-        <a className="btn-next-journey">Next journey</a>
+  return (
+    <div
+      className={cx('m-controls', {
+        'is-first': +step === 1,
+        'no-back-button': isBackHidden,
+      })}
+    >
+      <Link href={`/journeys/${id}/step/${Number(step) - 1}`}>
+        <a className={cx('btn-prev', { 'is-hidden': isBackHidden })}>back</a>
       </Link>
-    ) : (
-      <Link href={`/journeys/${id}/step/${+step + 1}`}>
-        <a className="btn-next">continue</a>
-      </Link>
-    )}
-  </div>
-);
+
+      {+step === slideslength ? (
+        <Link href={`/journeys/${isLastJourney ? journeyIds[0] : journeyIds[journeyIndex + 1]}`}>
+          <a className="btn-next-journey">Next journey</a>
+        </Link>
+      ) : (
+        <Link href={`/journeys/${id}/step/${+step + 1}`}>
+          <a className="btn-next">continue</a>
+        </Link>
+      )}
+    </div>
+  );
+};
 
 export default withRouter(Controls);
