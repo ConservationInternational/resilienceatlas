@@ -1,11 +1,12 @@
 .m-home-intro {
   position: relative;
+  display: flex;
+  width: 100%;
   height: rem(565px);
 
   @media screen and (max-width: 800px) {
-    padding-top: rem(320px);
-    height: rem(500px);
-    margin-bottom: rem(-120px);
+    height: rem(300px);
+    margin-bottom: rem(-20px);
   }
 
   background-position: center;
@@ -17,6 +18,10 @@
     width: 100%;
     padding: 0 2.5rem;
     word-wrap: normal;
+
+    @media screen and (max-width: 400px) {
+      padding: 0;
+    }
 
     h2,
     h3 {

@@ -32,6 +32,10 @@
     color: $font-color-3;
     padding: 0 rem(100px);
 
+    @media screen and (max-width: 400px) {
+      padding: 0;
+    }
+
     &--center {
       @extend %center;
       width: 100%;
