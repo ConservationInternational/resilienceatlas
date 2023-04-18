@@ -1,3 +1,16 @@
+# == Schema Information
+#
+# Table name: static_page_section_paragraphs
+#
+#  id                :bigint           not null, primary key
+#  section_id        :bigint           not null
+#  image_position    :string           not null
+#  image_credits_url :string
+#  created_at        :datetime         not null
+#  updated_at        :datetime         not null
+#  text              :text
+#  image_credits     :string
+#
 require "rails_helper"
 
 RSpec.describe StaticPage::SectionParagraph, type: :model do

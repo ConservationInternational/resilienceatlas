@@ -1,3 +1,16 @@
+# == Schema Information
+#
+# Table name: static_page_section_paragraphs
+#
+#  id                :bigint           not null, primary key
+#  section_id        :bigint           not null
+#  image_position    :string           not null
+#  image_credits_url :string
+#  created_at        :datetime         not null
+#  updated_at        :datetime         not null
+#  text              :text
+#  image_credits     :string
+#
 module StaticPage
   class SectionParagraph < ApplicationRecord
     belongs_to :section, class_name: "StaticPage::Section", inverse_of: :section_paragraph

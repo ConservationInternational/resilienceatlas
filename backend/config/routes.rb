@@ -40,6 +40,7 @@ Rails.application.routes.draw do
       get "/homepage", to: "homepages#show"
       resources :photos, only: :create
       resources :feedbacks, only: :create
+      resources :static_pages, only: :show
     end
   end
 

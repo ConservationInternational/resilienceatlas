@@ -1,3 +1,15 @@
+# == Schema Information
+#
+# Table name: static_page_bases
+#
+#  id                :bigint           not null, primary key
+#  slug              :string           not null
+#  image_credits_url :string
+#  created_at        :datetime         not null
+#  updated_at        :datetime         not null
+#  title             :string
+#  image_credits     :string
+#
 module StaticPage
   class Base < ApplicationRecord
     has_many :sections, class_name: "StaticPage::Section", foreign_key: "static_page_id", inverse_of: :static_page, dependent: :destroy

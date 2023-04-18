@@ -1,3 +1,16 @@
+# == Schema Information
+#
+# Table name: static_page_section_paragraphs
+#
+#  id                :bigint           not null, primary key
+#  section_id        :bigint           not null
+#  image_position    :string           not null
+#  image_credits_url :string
+#  created_at        :datetime         not null
+#  updated_at        :datetime         not null
+#  text              :text
+#  image_credits     :string
+#
 FactoryBot.define do
   factory :static_page_section_paragraph, class: "StaticPage::SectionParagraph" do
     section factory: :static_page_section

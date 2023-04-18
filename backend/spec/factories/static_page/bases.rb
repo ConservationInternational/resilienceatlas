@@ -1,3 +1,15 @@
+# == Schema Information
+#
+# Table name: static_page_bases
+#
+#  id                :bigint           not null, primary key
+#  slug              :string           not null
+#  image_credits_url :string
+#  created_at        :datetime         not null
+#  updated_at        :datetime         not null
+#  title             :string
+#  image_credits     :string
+#
 FactoryBot.define do
   factory :static_page, class: "StaticPage::Base" do
     sequence(:slug) { |n| "StaticPage-#{n}" }
