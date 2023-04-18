@@ -209,8 +209,6 @@
 .slick-prev {
   height: 100%;
   width: 95px;
-
-  // top: 10px;
   left: 0px;
 
   &:before {
@@ -223,8 +221,7 @@
 .slick-next {
   height: 100%;
   width: 95px;
-  // top: 10px;
-  right: 0px;
+  right: 24px;
 
   &:before {
     position: absolute;

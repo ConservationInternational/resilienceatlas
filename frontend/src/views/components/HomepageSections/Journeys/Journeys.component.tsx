@@ -38,11 +38,19 @@ const Journeys: React.FC<JourneysProps> = ({
         <Slider
           className="m-slider__itemlist"
           slidesToShow={1}
-          centerMode
           centerPadding="120px"
           draggable
           infinite
           arrows
+          centerMode
+          responsive={[
+            {
+              breakpoint: 800,
+              settings: {
+                centerMode: false,
+              },
+            },
+          ]}
         >
           {journeys.map((journey) => {
             const { id, background_image, title, subtitle, credits, credits_url } = journey;
