@@ -67,6 +67,14 @@ const JourneySlider: React.FC<JourneySliderProps> = ({
         draggable
         infinite
         arrows
+        responsive={[
+          {
+            breakpoint: 800,
+            settings: {
+              centerMode: false,
+            },
+          },
+        ]}
       >
         {journeys.map((journey) => {
           const { attributes, id } = journey || {};
