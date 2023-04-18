@@ -80,6 +80,15 @@ RSpec.describe "Admin: Site Scopes", type: :system do
       expect(page).to have_text("#100000")
       expect(page).to have_text("http://test.test/image.pjg")
     end
+
+    it "shows error when validation fails" do
+      fill_in "site_scope[translations_attributes][0][name]", with: ""
+
+      click_on "Create Site scope"
+
+      expect(page).to have_current_path(admin_site_scopes_path)
+      expect(page).to have_text("can't be blank")
+    end
   end
 
   describe "#update" do

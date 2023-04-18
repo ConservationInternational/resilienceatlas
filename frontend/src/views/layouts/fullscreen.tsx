@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import cx from 'classnames';
 import { connect } from 'react-redux';
 import PrivacyBanner from 'views/components/PrivacyBanner';
-
+import type { TypedT } from 'types/transifex';
 import { load as loadSite } from 'state/modules/site';
 
 import Head from './_head';
@@ -14,7 +14,7 @@ type FullscreenLayoutProps = React.PropsWithChildren & {
     subdomain: string;
     header_theme: string;
   };
-  pageTitle: string;
+  pageTitle: string | TypedT;
   page?: string;
   dispatch?: (action: unknown) => void;
 };

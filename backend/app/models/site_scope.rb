@@ -21,11 +21,14 @@
 #
 
 class SiteScope < ApplicationRecord
+  has_one :homepage, dependent: :destroy
   has_many :layer_groups
   has_many :site_pages
 
   translates :name, :linkback_text, touch: true, fallbacks_for_empty_translations: true
   active_admin_translates :name, :linkback_text
+
+  translation_class.validates_presence_of :name, if: -> { locale.to_s == I18n.default_locale.to_s }
 
   def location
     [:latitude, :longitude]

@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/martintomas/activeadmin-globalize.git
-  revision: a939ef6cc910ef089b948ec60a91b32f4f3b4288
+  revision: 1b1128f4f91171689cc3dd1ff390bff4ce2e8895
   branch: main
   specs:
     activeadmin-globalize (0.9.10)
@@ -319,12 +319,12 @@ GEM
       net-protocol
     net-ssh (7.1.0)
     nio4r (2.5.8)
-    nokogiri (1.14.2)
+    nokogiri (1.14.3)
       mini_portile2 (~> 2.8.0)
       racc (~> 1.4)
-    nokogiri (1.14.2-x86_64-darwin)
+    nokogiri (1.14.3-x86_64-darwin)
       racc (~> 1.4)
-    nokogiri (1.14.2-x86_64-linux)
+    nokogiri (1.14.3-x86_64-linux)
       racc (~> 1.4)
     optimist (3.0.1)
     orm_adapter (0.5.0)

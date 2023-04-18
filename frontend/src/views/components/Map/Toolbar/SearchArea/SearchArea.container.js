@@ -10,6 +10,7 @@ const makeMapStateToProps = () => {
 
   const mapStateToProps = (state) => ({
     countries: getCountries(state),
+    translations: state.translations.data,
   });
 
   return mapStateToProps;

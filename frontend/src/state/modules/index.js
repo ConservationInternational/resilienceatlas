@@ -12,3 +12,4 @@ export { default as predictive_models } from './predictive_models';
 export { default as sources } from './sources';
 export { default as countries } from './countries';
 export { default as homepage } from './homepage';
+export { default as translations } from './translations';

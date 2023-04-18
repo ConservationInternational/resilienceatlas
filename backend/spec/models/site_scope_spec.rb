@@ -26,6 +26,12 @@ RSpec.describe SiteScope, type: :model do
 
   it { is_expected.to be_valid }
 
+  it "should not be valid without name" do
+    subject.name = nil
+    expect(subject.save).to be_falsey
+    expect(subject.errors["translations.name"]).to include("can't be blank")
+  end
+
   describe "#clone!" do
     let!(:site_scope) { create :site_scope }
     let(:cloned_site_scope) { SiteScope.where.not(id: site_scope.id).last }

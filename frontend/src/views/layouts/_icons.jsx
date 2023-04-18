@@ -1,4 +1,5 @@
 import React from 'react';
+import { T } from '@transifex/react';
 
 const Icons = () => (
   <>
@@ -33,77 +34,99 @@ const Icons = () => (
           />
         </symbol>
         <symbol id="icon-analyze" viewBox="0 0 1280 1024">
-          <title>analyze</title>
+          <title>
+            <T _str="analyze" />
+          </title>
           <path
             className="path1"
             d="M242.198 192h192v576h-192v-576zM562.198 320h192v448h-192v-448zM882.198 0h192v768h-192v-768zM1266.198 896v128h-1216v-128h1216z"
           />
         </symbol>
         <symbol id="icon-search" viewBox="0 0 1024 1024">
-          <title>search</title>
+          <title>
+            <T _str="search" />
+          </title>
           <path
             className="path1"
             d="M973.802 859.239l-108.707 108.060-261.586-264.339c-61.128 41.074-134.713 65.040-213.895 65.040-212.077 0-384-171.923-384-384s171.923-384 384-384c212.077 0 384 171.923 384 384 0 79.257-24.012 152.906-65.157 214.070l265.345 261.169zM389.614 640c141.385 0 256-114.615 256-256s-114.615-256-256-256c-141.385 0-256 114.615-256 256s114.615 256 256 256z"
           />
         </symbol>
         <symbol id="icon-settings" viewBox="0 0 658 1024">
-          <title>opacity</title>
+          <title>
+            <T _str="opacity" />
+          </title>
           <path
             className="path1"
             d="M329.143 1024c181.781 0 329.143-147.362 329.143-329.143s-188.082-322.494-329.143-694.857c-141.061 372.364-329.143 513.077-329.143 694.857s147.362 329.143 329.143 329.143z"
           />
         </symbol>
         <symbol id="icon-share" viewBox="0 0 1088 1024">
-          <title>share</title>
+          <title>
+            <T _str="share" />
+          </title>
           <path
             className="path1"
             d="M29.802 512c0 106.24 85.76 192 192 192 51.84 0 99.2-20.48 133.12-53.76l316.16 158.080c-0.64 7.68-1.28 15.36-1.28 23.68 0 106.24 85.76 192 192 192s192-85.76 192-192c0-106.24-85.76-192-192-192-51.84 0-98.56 20.48-133.12 53.76l-316.8-158.080c1.28-7.68 1.92-15.36 1.92-23.68s-0.64-16-1.92-23.68l316.8-158.080c33.92 33.28 81.28 53.76 133.12 53.76 106.24 0 192-85.76 192-192s-85.76-192-192-192c-106.24 0-192 85.76-192 192 0 8.32 0.64 16 1.28 23.68l-316.16 158.080c-33.92-33.28-81.28-53.76-133.12-53.76-106.24 0-192 85.76-192 192z"
           />
         </symbol>
         <symbol id="icon-visibilityoff" viewBox="0 0 1024 1024">
-          <title>visibilityoff</title>
+          <title>
+            <T _str="visibilityoff" />
+          </title>
           <path
             className="path1"
             d="M843.485 114.318l-723.284 734.221 60.315 61.145 723.284-734.221-60.315-61.145zM726.085 443.235c7.539 21.625 11.683 44.657 11.683 68.765 0 119.967-101.076 217.234-225.769 217.234-20.795 0-40.762-2.817-59.901-7.87l-61.557 62.469c39.105 7.954 79.786 12.179 121.459 12.179 217.649 0 406.961-114.913 503.73-284.094-42.254-73.903-102.32-137.366-174.649-185.502l-114.996 116.737zM286.231 512c0-119.967 101.076-217.234 225.769-217.234 20.795 0 40.762 2.817 59.901 7.87l61.557-62.469c-39.105-8.036-79.786-12.179-121.459-12.179-217.649 0-406.961 114.913-503.73 284.094 42.254 73.903 102.32 137.366 174.649 185.502l114.996-116.737c-7.539-21.625-11.683-44.657-11.683-68.765zM475.629 400.318c-39.935 12.096-71.003 43.414-81.442 82.685l81.442-82.685zM548.371 623.682c39.935-12.096 71.003-43.33 81.442-82.685l-81.442 82.685z"
           />
         </symbol>
         <symbol id="icon-visibilityon" viewBox="0 0 1024 1024">
-          <title>visibilityon</title>
+          <title>
+            <T _str="visibilityon" />
+          </title>
           <path
             className="path1"
             d="M286.231 517.489c0-111.931 101.076-202.736 225.769-202.736s225.769 90.804 225.769 202.736c0 111.931-101.076 202.736-225.769 202.736s-225.769-90.804-225.769-202.736zM1015.73 517.489c-96.769-157.913-286.083-318.145-503.73-318.145s-406.961 160.234-503.73 318.145c96.769 157.913 286.083 318.145 503.73 318.145s406.961-160.234 503.73-318.145zM390.377 517.489c0 60.315 54.432 109.114 121.623 109.114s121.623-48.881 121.623-109.114c0-60.315-54.432-109.114-121.623-109.114s-121.623 48.881-121.623 109.114z"
           />
         </symbol>
         <symbol id="icon-drag" viewBox="0 0 640 1024">
-          <title>draggable</title>
+          <title>
+            <T _str="draggable" />
+          </title>
           <path
             className="path1"
             d="M0 768h256v256h-256v-256zM384 768h256v256h-256v-256zM0 384h256v256h-256v-256zM384 384h256v256h-256v-256zM0 0h256v256h-256v-256zM384 0h256v256h-256v-256z"
           />
         </symbol>
         <symbol id="icon-back-arrow" viewBox="0 0 745 1024">
-          <title>icon-back-arrow</title>
+          <title>
+            <T _str="icon-back-arrow" />
+          </title>
           <path
             className="path1"
             d="M537.879 43.753l-487.61 487.796 65.908 65.815 421.702 421.702 131.631-131.91-421.702-421.702v131.724l421.702-421.702-131.631-131.724z"
           />
         </symbol>
         <symbol id="icon-check" viewBox="0 0 1303 1024">
-          <title>icon-check</title>
+          <title>
+            <T _str="icon-check" />
+          </title>
           <path
             className="path1"
             d="M27.276 531.27l494.499 494.499 714.007-873.844-144.291-117.853-648.844 794.065 137.961-6.889-421.702-421.702-131.631 131.724z"
           />
         </symbol>
         <symbol id="icon-next-arrow" viewBox="0 0 585 1024">
-          <title>icon-next-arrow</title>
+          <title>
+            <T _str="icon-next-arrow" />
+          </title>
           <path
             className="path1"
             d="M52.175 1018.344l506.344-506.344-17.213-17.262-488.984-489.082-34.572 34.523 489.082 489.082v-34.523l-489.131 489.082 34.475 34.523z"
           />
         </symbol>
         <symbol id="icon-downloads" viewBox="0 0 939 1024">
-          <title>downloads</title>
+          <title>
+            <T _str="downloads" />
+          </title>
           <path
             className="path1"
             d="M853.333 938.667h-768v-298.667h-85.333v384h938.667v-384h-85.333v298.667z"
@@ -115,7 +138,9 @@ const Icons = () => (
           />
         </symbol>
         <symbol id="icon-info" viewBox="0 0 1024 1024">
-          <title>info</title>
+          <title>
+            <T _str="info" />
+          </title>
           <path
             className="path1"
             d="M512 1024c-282.77 0-512-229.23-512-512s229.23-512 512-512c282.77 0 512 229.23 512 512s-229.23 512-512 512zM512 950.857c242.374 0 438.857-196.483 438.857-438.857s-196.483-438.857-438.857-438.857c-242.374 0-438.857 196.483-438.857 438.857s196.483 438.857 438.857 438.857z"
@@ -124,7 +149,9 @@ const Icons = () => (
           <path className="path3" d="M438.857 219.429h146.286v146.286h-146.286v-146.286z" />
         </symbol>
         <symbol id="icon-remove" viewBox="0 0 1024 1024">
-          <title>icon-remove</title>
+          <title>
+            <T _str="icon-remove" />
+          </title>
           <path
             className="path1"
             d="M512 0c-282.77 0-512 229.23-512 512s229.23 512 512 512 512-229.23 512-512-229.23-512-512-512zM512 928c-229.75 0-416-186.25-416-416s186.25-416 416-416 416 186.25 416 416-186.25 416-416 416z"
@@ -142,7 +169,9 @@ const Icons = () => (
           viewBox="0 0 11 11"
           xmlns="https://www.w3.org/2000/svg"
         >
-          <title>Rectangle 959 + Rectangle 959 Copy + Rectangle 959 + Rectangle 959 Copy</title>
+          <title>
+            <T _str="zoom-pan" />
+          </title>
           <g>
             <path d="M5.62 4.672l.708.707-4.95 4.948-.706-.707z" />
             <path d="M.482 4.722h1.17V9.4H.48V4.72zM6.328 9.4v1.168H.482v-1.17h5.846z" />
@@ -155,17 +184,23 @@ const Icons = () => (
 
         {/* Copypasted only needed from Vizzuality-components to prevent overrighting similar icons */}
         <symbol id="icon-plus" viewBox="0 0 32 32">
-          <title>plus</title>
+          <title>
+            <T _str="plus" />
+          </title>
           <path d="M13.865 5v8.8h-8.865v4.4h8.865v8.8h4.271v-8.8h8.865v-4.4h-8.865v-8.8z" />
         </symbol>
 
         <symbol id="icon-minus" viewBox="0 0 32 32">
-          <title>minus</title>
+          <title>
+            <T _str="minus" />
+          </title>
           <path d="M5.5 17.909h20.894v-3.818h-20.894z" />
         </symbol>
 
         <symbol id="icon-crop" viewBox="0 0 22 22">
-          <title>crop</title>
+          <title>
+            <T _str="crop" />
+          </title>
           <path d="M17,15 L19,15 L19,7 C19,5.9 18.1,5 17,5 L9,5 L9,7 L17,7 L17,15 Z M7,17 L7,1 L5,1 L5,5 L1,5 L1,7 L5,7 L5,17 C5,18.1 5.9,19 7,19 L17,19 L17,23 L19,23 L19,19 L23,19 L23,17 L7,17 Z" />
         </symbol>
       </defs>

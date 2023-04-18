@@ -16,6 +16,7 @@ const mapStateToProps = (state) => {
     drawing: state.map.drawing,
     geojson: state.map.geojson,
     iso: state.map.iso,
+    translations: state.translations.data,
   };
 };
 

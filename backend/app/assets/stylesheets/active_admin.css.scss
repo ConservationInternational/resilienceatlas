@@ -49,6 +49,13 @@ div#footer{display: none;}
     list-style-type: decimal !important;
   }
 }
+
+.trix-toolbar-disable-attachment {
+  .trix-button-group--file-tools {
+    display: none;
+  }
+}
+
 .use-simple-trix-toolbar {
   .trix-button--icon-code {
     display: none;

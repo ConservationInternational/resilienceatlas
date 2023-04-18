@@ -1,6 +1,7 @@
 import React from 'react';
 import { useRouterValue, useToggle, useTogglerButton, clickable } from 'utilities';
 import cx from 'classnames';
+import { T } from '@transifex/react';
 
 const Basemaps = ({ basemap, setBasemap }) => {
   const [opened, toggleOpened] = useToggle(false);
@@ -15,27 +16,37 @@ const Basemaps = ({ basemap, setBasemap }) => {
         className={cx('m-layers-list-header', { 'is-active': opened })}
         {...clickable(toggleOpened)}
       >
-        <div className="header-title theme-color">basemap</div>
+        <div className="header-title theme-color">
+          <T _str="basemap" />
+        </div>
       </div>
       <ul className={cx('m-basemap-selectors', { 'is-active': opened })}>
         <li>
           <button type="button" {...getTogglerProps('satellite')}>
-            <span className="icon-satellite">Satellite</span>
+            <span className="icon-satellite">
+              <T _str="Satellite" />
+            </span>
           </button>
         </li>
         <li>
           <button type="button" {...getTogglerProps('topographic')}>
-            <span className="icon-topographic">Topographic</span>
+            <span className="icon-topographic">
+              <T _str="Topographic" />
+            </span>
           </button>
         </li>
         <li>
           <button type="button" {...getTogglerProps('dark')}>
-            <span className="icon-dark">Dark</span>
+            <span className="icon-dark">
+              <T _str="Dark" />
+            </span>
           </button>
         </li>
         <li>
           <button type="button" {...getTogglerProps('defaultmap')}>
-            <span className="icon-default">Default</span>
+            <span className="icon-default">
+              <T _str="Default" />
+            </span>
           </button>
         </li>
       </ul>

@@ -15,6 +15,7 @@ const Header = ({
   site: { linkback_text, linkback_url },
   menuItems,
   menuItemsLoaded,
+  translations,
 }) => {
   const { pathname } = useRouter();
 
@@ -111,7 +112,7 @@ const Header = ({
             </>
           )}
 
-          <LanguageSwitcher />
+          <LanguageSwitcher translations={translations} />
         </ul>
 
         <ul className="nav-area -vital-sign">

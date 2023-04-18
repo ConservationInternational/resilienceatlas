@@ -3,6 +3,8 @@ import DangerousHTML from 'react-dangerous-html';
 import Iframe from 'react-iframe';
 import Legend from 'views/components/Legend';
 import qs from 'qs';
+import cx from 'classnames';
+import { T } from '@transifex/react';
 
 // TODO: get rid of IFrame and use Map Component
 // It requires to refactor map to use redux instead of url in all cases
@@ -105,6 +107,7 @@ const Embed = (props) => {
     currentStep,
     countryName,
     setActiveLayer,
+    isLastStep,
   } = props;
 
   useEffect(() => {
@@ -112,14 +115,15 @@ const Embed = (props) => {
     if (!countriesLoaded) loadCountries();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
   useEffect(() => {
     const mapString = mapUrl.split('?')[1];
-    const mapData = qs.parse(mapString);
-    const layerData = JSON.parse(mapData.layers);
-    const layerDataIds = layerData.map((l) => l.id);
+    if (mapString) {
+      const mapData = mapString && qs.parse(mapString);
+      const layerData = mapData && JSON.parse(mapData.layers);
+      const layerDataIds = layerData?.map((l) => l.id);
 
-    setActiveLayer(layerDataIds);
+      setActiveLayer(layerDataIds);
+    }
   }, [mapUrl, setActiveLayer]);
   const countryInfo =
     countries.find((c) => c.name.toLowerCase() === countryName.toLowerCase()) || {};
@@ -145,9 +149,9 @@ const Embed = (props) => {
           target="_blank"
           rel="noopener noreferrer"
           data-step={currentStep}
-          className="btn-check-it"
+          className={cx('btn-check-it', { 'last-step': isLastStep })}
         >
-          View on map
+          <T _str="View on map" />
         </a>
       </div>
       <article className="side-bar">
@@ -159,13 +163,15 @@ const Embed = (props) => {
             </header>
             <section>
               <h1>{countryName}</h1>
-              <DangerousHTML html={content} className="content" />
+              {content && <DangerousHTML html={content} className="content" />}
             </section>
             {/* TODO: Review if source is rendered correctly */}
             {source}
             <Legend />
             <footer>
-              <p>INSIGHTS PROVIDED BY CONSERVATION INTERNATIONAL</p>
+              <p>
+                <T _str="INSIGHTS PROVIDED BY CONSERVATION INTERNATIONAL" />
+              </p>
             </footer>
           </article>
         </div>

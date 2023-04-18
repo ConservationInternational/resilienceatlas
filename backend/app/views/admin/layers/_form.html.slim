@@ -34,4 +34,6 @@
       = f.input :analysis_body, wrapper_html: {class: "analysis-query-input"}
     = f.inputs "Dashboard"
       = f.input :dashboard_order
-  = f.actions
+  = f.actions do
+    = f.action :submit
+    = f.cancel_link

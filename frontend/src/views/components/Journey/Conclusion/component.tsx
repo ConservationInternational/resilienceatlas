@@ -12,6 +12,7 @@ const StaticConclusion: React.FC<StaticJourneyStep> = ({
   title,
   subtitle,
   content,
+  translations,
 }) => {
   const [isColapsed, setExpansion] = useState(false);
   return (
@@ -39,7 +40,7 @@ const StaticConclusion: React.FC<StaticJourneyStep> = ({
               'is-colapsed': isColapsed,
             })}
             onClick={() => setExpansion(!isColapsed)}
-            aria-label="Colapse/expand overview panel"
+            aria-label={translations && translations['Collapse/expand overview panel']}
           />
           <div className="shadow" />
         </div>
@@ -54,6 +55,7 @@ const Conclusion: React.FC<JourneyAttributes> = ({
   title,
   subtitle,
   content,
+  translations,
 }) => {
   const [isColapsed, setExpansion] = useState(false);
   return (
@@ -65,6 +67,7 @@ const Conclusion: React.FC<JourneyAttributes> = ({
         className={cx('content', 'scroll-container', {
           'is-colapsed': isColapsed,
         })}
+        style={{ backgroundColor }}
       >
         <div className="extra-wrapper scroll-wrapper">
           <div className="wrapper scroll-text">
@@ -84,9 +87,12 @@ const Conclusion: React.FC<JourneyAttributes> = ({
               'is-colapsed': isColapsed,
             })}
             onClick={() => setExpansion(!isColapsed)}
-            aria-label="Colapse/expand overview panel"
+            aria-label={translations && translations['Collapse/expand overview panel']}
           />
-          <div className="shadow" />
+          <div
+            className="shadow"
+            style={{ boxShadow: `inset 0px -50px 26px -14px ${backgroundColor}` }}
+          />
         </div>
       </div>
     </div>

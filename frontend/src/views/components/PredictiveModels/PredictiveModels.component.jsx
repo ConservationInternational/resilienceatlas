@@ -19,6 +19,7 @@ const PredictiveModels = ({
   modelsLoading,
   modelsLoaded,
   selectedModel,
+  translations,
 }) => {
   const { setParam } = useRouterParams();
 
@@ -65,7 +66,7 @@ const PredictiveModels = ({
       <div className="model-selector">
         <select
           className="js-model-selector"
-          aria-label={<T _str="Select a model" />}
+          aria-label={translations && translations['Select a model']}
           value={selectedModel || 'default'}
           onChange={(e) => select(e.currentTarget.value)}
         >

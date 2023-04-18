@@ -1,0 +1,13 @@
+= f.semantic_fields_for :section_paragraph, f.object.section_paragraph || f.object.build_section_paragraph do |ff|
+  = ff.semantic_errors
+  = ff.inputs "Translated fields" do
+    - ff.translated_inputs switch_locale: false do |fff|
+      - fff.input :id, as: :hidden
+      - fff.input :locale, as: :hidden
+      - fff.input :image_credits
+      = fff.inputs "Text" do
+        = fff.rich_text_area :text
+  = ff.inputs "Common fields" do
+    == render "admin/shared/image_with_thumbnail", blob: :image, f: ff, required: true, inside_has_many_block: true
+    - ff.input :image_position, as: :select, collection: StaticPage::SectionParagraph.image_positions.keys
+    - ff.input :image_credits_url
