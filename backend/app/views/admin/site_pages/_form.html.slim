@@ -12,4 +12,6 @@
     = f.input :site_scope
     = f.input :priority
     = f.input :slug
-  = f.actions
+  = f.actions do
+    = f.action :submit
+    = f.cancel_link

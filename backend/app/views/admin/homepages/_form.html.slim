@@ -43,4 +43,6 @@
             - ff.input :background_color
           - unless ff.object.new_record?
             - ff.input :_destroy, as: :boolean, wrapper_html: { class: "has_many_delete" }, label: I18n.t("active_admin.has_many_delete")
-  = f.actions
+  = f.actions do
+    = f.action :submit
+    = f.cancel_link
