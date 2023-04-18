@@ -1,5 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
+import { T } from '@transifex/react';
 
 import JourneySlider from 'views/components/JourneySlider';
 
@@ -17,7 +18,9 @@ const Journeys: React.FC<JourneysProps> = ({ title }) => {
 
       <div className="m-home-journeys__bottom">
         <Link href="/journeys">
-          <a className="btn btn-primary">More journeys</a>
+          <a className="btn btn-primary">
+            <T _str="More journeys" />
+          </a>
         </Link>
       </div>
     </div>
