@@ -1,8 +1,8 @@
 /* eslint-disable no-underscore-dangle */
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
-import DangerousHTML from 'react-dangerous-html';
 import { clickable } from 'utilities';
+import { T } from '@transifex/react';
 
 export default class LoginRequiredWindow extends Component {
   static show() {
@@ -48,7 +48,9 @@ export default class LoginRequiredWindow extends Component {
             ×
           </div>
           <div className="modal-container">
-            <h4 style={{ 'text-align': 'center' }}>Please login to enable download feature.</h4>
+            <h4 style={{ 'text-align': 'center' }}>
+              <T _str="Please login to enable download feature." />
+            </h4>
           </div>
         </div>
         <div className="modal-background" {...clickable(this.__hide)} />

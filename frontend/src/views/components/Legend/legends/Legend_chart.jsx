@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import { T } from '@transifex/react';
 import {
   AreaChart,
   Area,
@@ -98,7 +99,7 @@ class LegendChart extends React.PureComponent {
                 fontSize={10}
               >
                 <Label
-                  value="Proportion of area protected"
+                  value={<T _str="Proportion of area protected" />}
                   offset={-200}
                   position="insideTop"
                   fontSize={9}
@@ -111,7 +112,7 @@ class LegendChart extends React.PureComponent {
                 ticks={[min.y, mid.y, max.y]}
                 fontSize={10}
                 label={{
-                  value: 'Proportion of carbon storage saved',
+                  value: <T _str="Proportion of carbon storage saved" />,
                   angle: -90,
                   position: 'insideBottomLeft',
                   fontSize: 9,

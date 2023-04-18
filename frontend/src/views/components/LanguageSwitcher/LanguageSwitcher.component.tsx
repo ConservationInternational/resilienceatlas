@@ -1,71 +1,52 @@
 /* eslint-disable @next/next/no-img-element */
-import React, { useMemo } from 'react';
-
-import { tx } from '@transifex/native';
-import { useLanguages, useLocale } from '@transifex/react';
-import { useRouterParams } from 'utilities';
+import React, { useCallback, useMemo } from 'react';
+import localesJson from 'locales.config.json';
 import cx from 'classnames';
+import { useRouter } from 'next/router';
+import { useCookies } from 'react-cookie';
 
-const AVAILABLE_LANGUAGES = ['en', 'fr', 'es', 'zh', 'pt', 'ru'];
+const LANGUAGE_LABELS = localesJson.locales.reduce((acc, locale) => {
+  acc[locale.locale] = locale.name;
+  return acc;
+}, {});
 
-// Don't translate these
-const LANGUAGE_LABELS = {
-  zh: '中文',
-  en: 'English',
-  fr: 'Français',
-  pt: 'Português',
-  ru: 'Русский',
-  es: 'Castellano',
-};
+function LanguageSwitcher({ translations }) {
+  const router = useRouter();
+  const [, setCookie] = useCookies(['NEXT_LOCALE']);
+  const changeLang = useCallback(
+    (locale: string) => {
+      // Set a cookie for 1 year so that the user preference is kept
+      setCookie('NEXT_LOCALE', `${locale}; path=/; max-age=31536000; secure`);
 
-type Language = {
-  code: string;
-  localized_name: string;
-  name: string;
-  rtl: boolean;
-};
-
-function LanguageSwitcher() {
-  const languages: Language[] = useLanguages();
-  const { setParam } = useRouterParams();
-  const changeLang = (code: (typeof AVAILABLE_LANGUAGES)[number]) => {
-    setParam('lang', code);
-  };
-
-  const mockAvailableLanguages = AVAILABLE_LANGUAGES.map((l) => ({
-    code: l,
-  }));
-  const availableLanguages = useMemo<Language[]>(
-    () => languages.filter((l) => AVAILABLE_LANGUAGES.includes(l.code)),
-    [languages],
+      const { pathname, asPath, query } = router;
+      // change just the locale and maintain all other route information including href's query
+      router.push({ pathname, query }, asPath, { locale });
+    },
+    [router, setCookie],
   );
 
-  const locale = useLocale();
-  const _availablelanguages = mockAvailableLanguages || availableLanguages;
+  const { locales, locale } = router;
+
+  const availableLanguages = useMemo(
+    () =>
+      locales.map((l) => ({
+        code: l,
+      })),
+    [locales],
+  );
+
   const renderLanguageSwitcher = () =>
-    _availablelanguages.map(({ code }, index) => (
+    availableLanguages.map(({ code }, index) => (
       <li key={code} className="language-item -childless">
         <button
           type="button"
           className={cx(
             'language-button',
-            (locale.length >= 2 ? locale : 'en') === code && 'selected',
-            index !== _availablelanguages.length - 1 && 'separator',
+            locale === code && 'selected',
+            index !== availableLanguages.length - 1 && 'separator',
           )}
           onClick={() => {
-            // We need to wait until the locale is loaded to avoid race conditions
-
-            tx.setCurrentLocale(code)
-              .then(() => {
-                changeLang(code);
-              })
-              .catch((error) => {
-                // eslint-disable-next-line no-console
-                console.error(
-                  'TODO: Transifex is not initialized. Are the env variables set up?',
-                  error,
-                );
-              });
+            changeLang(code);
           }}
         >
           {LANGUAGE_LABELS[code]}
@@ -76,8 +57,11 @@ function LanguageSwitcher() {
   return (
     <li className="language-switcher">
       <span className="item-separator" />
-      <img src="/images/svg-icons/language.svg" alt="language-icon" />
-      <div className="nav-item">{LANGUAGE_LABELS[locale || 'en']}</div>
+      <img
+        src="/images/svg-icons/language.svg"
+        alt={translations && translations['language-icon']}
+      />
+      <div className="nav-item">{LANGUAGE_LABELS[locale]}</div>
       <ul>{renderLanguageSwitcher()}</ul>
     </li>
   );

@@ -13,10 +13,12 @@ import MapView from 'views/components/Map';
 import { LayerManagerProvider } from 'views/contexts/layerManagerCtx';
 
 import Loader from 'views/shared/Loader';
-
 import type { NextPageWithLayout } from './_app';
+import { getServerSideTranslations } from 'i18n';
+import { withTranslations, useSetServerSideTranslations } from 'utilities/hooks/transifex';
+import type { GetServerSidePropsContext } from 'next';
 
-const MapPage: NextPageWithLayout = () => {
+const MapPage: NextPageWithLayout = ({ translations, setTranslations }) => {
   const [cookies, setCookie] = useCookies(['mapTour']);
   const { mapTour } = cookies;
   const { isOpen, setIsOpen } = useTour();
@@ -28,6 +30,7 @@ const MapPage: NextPageWithLayout = () => {
   //     DownloadWindow.show(state.downloadLayerUrl);
   //   }
   // }, []);
+  useSetServerSideTranslations({ setTranslations, translations });
 
   useEffect(() => {
     // Showing the map tour only once,
@@ -61,6 +64,17 @@ const MapPage: NextPageWithLayout = () => {
   );
 };
 
-MapPage.Layout = (page) => <FullscreenLayout pageTitle="Map">{page}</FullscreenLayout>;
+MapPage.Layout = (page, translations) => (
+  <FullscreenLayout pageTitle={translations['Map']}>{page}</FullscreenLayout>
+);
 
-export default MapPage;
+export default withTranslations(MapPage);
+
+export async function getServerSideProps(context: GetServerSidePropsContext) {
+  const { translations } = await getServerSideTranslations(context);
+  return {
+    props: {
+      translations,
+    },
+  };
+}

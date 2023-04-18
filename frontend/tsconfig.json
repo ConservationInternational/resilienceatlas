@@ -1,6 +1,10 @@
 {
   "compilerOptions": {
     "baseUrl": "./src",
+    "paths": {
+      "locales.config.json": ["../locales.config.json"],
+      "i18n": ["../i18n.js"]
+    },
     "target": "ES6",
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,

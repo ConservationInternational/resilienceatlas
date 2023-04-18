@@ -28,6 +28,7 @@ const Sidebar = ({
   opened,
   analysisOpened,
   site,
+  translations,
 }) => {
   const router = useRouter();
   const { setParam } = useRouterParams();
@@ -104,7 +105,7 @@ const Sidebar = ({
                     href="http://www.resilienceatlas.org/"
                     target="_blank"
                     rel="noopener noreferrer"
-                    title="Resilience Atlas"
+                    title={<T _str="Resilience Atlas" />}
                   >
                     <T _str="Resilience Atlas" />
                   </a>
@@ -121,7 +122,7 @@ const Sidebar = ({
                   href="http://www.conservation.org/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  title="Conservation International"
+                  title={<T _str="Conservation International" />}
                 >
                   <T _str="Conservation International" />
                 </a>
@@ -136,14 +137,14 @@ const Sidebar = ({
           className="btn-sidebar-toggle"
           type="button"
           onClick={toggleOpen}
-          aria-label={<T _str="Toggle sidebar" />}
+          aria-label={translations && translations['Toggle sidebar']}
         />
         {site.has_analysis && (
           <button
             className="btn-analysis-panel-expand"
             type="button"
             onClick={toggleAnalysis}
-            aria-label={<T _str="Expand analysis panel" />}
+            aria-label={translations && translations['Expand analysis panel']}
           >
             <T _str="Analysis" />
           </button>

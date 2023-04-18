@@ -3,23 +3,39 @@ import { Row } from 'react-foundation';
 import SignupForm from 'views/components/SignupForm';
 import MainLayout from 'views/layouts/main';
 import { T } from '@transifex/react';
-
+import { getServerSideTranslations } from 'i18n';
+import { withTranslations, useSetServerSideTranslations } from 'utilities/hooks/transifex';
+import type { GetServerSidePropsContext } from 'next';
 import type { NextPageWithLayout } from './_app';
 
-const SignupPage: NextPageWithLayout = () => (
-  <div className="l-content">
-    <Row>
-      <div className="m-user-form">
-        <h2>
-          <T _str="Sign up" />
-        </h2>
+const SignupPage: NextPageWithLayout = ({ setTranslations, translations }) => {
+  useSetServerSideTranslations({ setTranslations, translations });
 
-        <SignupForm />
-      </div>
-    </Row>
-  </div>
+  return (
+    <div className="l-content">
+      <Row>
+        <div className="m-user-form">
+          <h2>
+            <T _str="Sign up" />
+          </h2>
+
+          <SignupForm />
+        </div>
+      </Row>
+    </div>
+  );
+};
+
+SignupPage.Layout = (page, translations) => (
+  <MainLayout pageTitle={translations['Sign up']}>{page}</MainLayout>
 );
 
-SignupPage.Layout = (page) => <MainLayout pageTitle="Sign up">{page}</MainLayout>;
-
-export default SignupPage;
+export default withTranslations(SignupPage);
+export async function getServerSideProps(context: GetServerSidePropsContext) {
+  const { translations } = await getServerSideTranslations(context);
+  return {
+    props: {
+      translations,
+    },
+  };
+}

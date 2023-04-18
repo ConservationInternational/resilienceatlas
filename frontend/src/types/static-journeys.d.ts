@@ -1,3 +1,5 @@
+import type { Translations } from './transifex';
+
 export type Journey = {
   id: number;
   title: string;
@@ -20,6 +22,7 @@ export type JourneyStep = {
   credits: string;
   creditsUrl: string;
   content: string;
+  translations: Translations;
 };
 
 export type JourneyDetail = Journey & {

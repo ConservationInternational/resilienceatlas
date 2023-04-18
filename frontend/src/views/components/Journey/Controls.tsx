@@ -2,6 +2,7 @@ import React from 'react';
 import cx from 'classnames';
 import Link from 'next/link';
 import { withRouter } from 'next/router';
+import { T } from '@transifex/react';
 
 import type { WithRouterProps } from 'next/dist/client/with-router';
 
@@ -29,16 +30,22 @@ const Controls: React.FC<ControlsProps> = ({
       })}
     >
       <Link href={`/journeys/${id}/step/${Number(step) - 1}`}>
-        <a className={cx('btn-prev', { 'is-hidden': isBackHidden })}>back</a>
+        <a className={cx('btn-prev', { 'is-hidden': isBackHidden })}>
+          <T _str="back" />
+        </a>
       </Link>
 
       {+step === slideslength ? (
         <Link href={`/journeys/${isLastJourney ? journeyIds[0] : journeyIds[journeyIndex + 1]}`}>
-          <a className="btn-next-journey">Next journey</a>
+          <a className="btn-next-journey">
+            <T _str="Next journey" />
+          </a>
         </Link>
       ) : (
         <Link href={`/journeys/${id}/step/${+step + 1}`}>
-          <a className="btn-next">continue</a>
+          <a className="btn-next">
+            <T _str="continue" />
+          </a>
         </Link>
       )}
     </div>

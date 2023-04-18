@@ -1,6 +1,5 @@
 import React from 'react';
 import cx from 'classnames';
-
 import {
   getIndexableIndicatorValueRange,
   getValueDescriptionFromIndex,
@@ -16,7 +15,6 @@ const Indicator = ({ updateIndicator, toggleIndicator, name, id, stateValue, ind
   const valueExists = typeof stateValue === 'number';
   const leftOffset = (slider.value / indicatorRange.max) * 100;
   const handleSize = 12;
-
   useDebounce(
     () => {
       if (valueExists && slider.value !== stateValue) {

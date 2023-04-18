@@ -5,17 +5,17 @@ import { useRouter } from 'next/router';
 import { QueryClient, QueryClientProvider, Hydrate } from '@tanstack/react-query';
 import { tx, PseudoTranslationPolicy } from '@transifex/native';
 import { TourProvider } from '@reactour/tour';
-import { CookiesProvider } from 'react-cookie';
+import { CookiesProvider, useCookies } from 'react-cookie';
 import { T } from '@transifex/react';
 
 import { wrapper } from 'state/store';
 import * as ga from 'utilities/ga';
-import { getRouterParam } from 'utilities';
 import { getToken, login } from 'state/modules/user';
 import TOUR_STEPS from 'constants/tour-steps';
 
 import { Badge, Navigation } from 'views/components/MapTour';
 
+import type { Translations } from 'types/transifex';
 import type { ReactElement, ReactNode } from 'react';
 import type { NextPage } from 'next';
 import type { AppProps } from 'next/app';
@@ -61,11 +61,16 @@ type ResilienceAppProps = {
     first_name: string;
     last_name: string;
   };
+  translations: Translations;
+  setTranslations?: (translations: Translations) => {
+    type: string;
+    translations: Translations;
+  };
   dispatch?: (action: unknown) => void;
 };
 
 export type NextPageWithLayout<P = ResilienceAppProps, IP = P> = NextPage<P, IP> & {
-  Layout?: (page: ReactElement) => ReactNode;
+  Layout?: (page: ReactElement, translations: Translations) => ReactNode;
 };
 
 type AppPropsWithLayout = AppProps<ResilienceAppProps> & {
@@ -76,7 +81,7 @@ const ResilienceApp = ({ Component, ...rest }: AppPropsWithLayout) => {
   const router = useRouter();
   const { store: appStore } = wrapper.useWrappedStore(rest);
   const getLayout = Component.Layout ?? ((page) => page);
-
+  const { locale, locales, asPath } = router;
   const [queryClient] = useState(
     () =>
       new QueryClient({
@@ -90,10 +95,10 @@ const ResilienceApp = ({ Component, ...rest }: AppPropsWithLayout) => {
 
   // Getting user from local storage
   useEffect(() => {
-    const userToken = getToken();
+    const token = getToken();
 
-    if (userToken) {
-      appStore.dispatch(login(userToken));
+    if (token) {
+      appStore.dispatch(login(token));
     }
   }, [appStore]);
 
@@ -116,20 +121,43 @@ const ResilienceApp = ({ Component, ...rest }: AppPropsWithLayout) => {
   // Transifex
 
   useEffect(() => {
+    // Used for initial render
     tx.init({
       token: NEXT_PUBLIC_TRANSIFEX_TOKEN,
       ...(process.env.NODE_ENV === 'development'
         ? { missingPolicy: new PseudoTranslationPolicy() }
         : {}),
     });
-  }, []);
 
-  const lang = getRouterParam('lang');
+    tx.setCurrentLocale(locale);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [router]);
 
+  const [cookies, setCookie] = useCookies(['NEXT_LOCALE']);
+  const { NEXT_LOCALE } = cookies;
+  // WARN: do not modify without knowing exactly what are the consequences
+  // When the user visits any page, Next.js determines the supported locale the user is using:
+  // https://nextjs.org/docs/advanced-features/i18n-routing#automatic-locale-detection
+  // This locale is the one that can be retrieved through the `useRouter` hook.
+  // The client requests don't rely on Next.js `locale` attribute but rather on
+  // the `NEXT_LOCALE` cookie since we can't have access to the Next.js hook there. If no cookie is
+  // set, then the requests fallbacks to the default locale set in `locales.config.json`.
+  // Look at this example:
+  // - The user's browser is set in English
+  // - The application's default locale is Spanish
+  // - This is the user's first visit
+  // - If the user goes on a fully static page (such as the Login) all of its content will be
+  //   displayed in English (Next.js determines the locale based on the `Accept-Language` header)
+  // - If the user goes to a non-static page (such as Journeys), all the content rendered on the
+  //   server will be in English, but all the requests made on the client will fetch content in
+  //   Spanish since no `NEXT_LOCALE` cookie exists
+  // For this reason, we want to always set the cookie on the first given opportunity.
   useEffect(() => {
-    // Used for initial render
-    tx.setCurrentLocale(lang);
-  }, [lang]);
+    if (!NEXT_LOCALE) {
+      // Set a cookie for 1 year
+      setCookie('NEXT_LOCALE', `${locale}; path=/; max-age=31536000; secure`);
+    }
+  }, [locale, NEXT_LOCALE, setCookie]);
 
   ga.useInitGAScript();
 
@@ -173,13 +201,27 @@ const ResilienceApp = ({ Component, ...rest }: AppPropsWithLayout) => {
         {/* manifest.json provides metadata used when your web app is installed on a
           user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/ */}
         <link rel="manifest" href="/manifest.json" />
+
+        {locales.map((locale) => (
+          <link
+            key={locale}
+            rel="alternate"
+            hrefLang={locale}
+            href={`${process.env.NEXT_PUBLIC_FRONTEND_URL}/${locale}${asPath}`}
+          />
+        ))}
+        <link
+          rel="alternate"
+          hrefLang="x-default"
+          href={`${process.env.NEXT_PUBLIC_FRONTEND_URL}${asPath}`}
+        />
       </Head>
       <ReduxProvider store={appStore}>
         <QueryClientProvider client={queryClient}>
           <CookiesProvider>
             <TourProvider {...REACT_TOUR_OPTIONS}>
               <Hydrate state={rest.pageProps.dehydratedState}>
-                {getLayout(<Component {...rest.pageProps} />)}
+                {getLayout(<Component {...rest.pageProps} />, rest.pageProps?.translations)}
               </Hydrate>
             </TourProvider>
           </CookiesProvider>

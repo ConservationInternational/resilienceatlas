@@ -1,7 +1,7 @@
 import {
   INDICATOR_VALUES,
   INDICATOR_HUMAN_READABLE_VALUES,
-  INDICATOR_VALUE_DESC,
+  getIndicatorValueDesc,
 } from 'utilities/constants';
 
 export const getIndexableIndicatorValue = (value) => {
@@ -27,7 +27,7 @@ export const getRealIndicatorValueFromIndex = (indexValue) => INDICATOR_VALUES[i
 export const getHumanReadableIndicatorValueFromIndex = (indexValue) =>
   INDICATOR_HUMAN_READABLE_VALUES[indexValue];
 
-export const getValueDescriptionFromIndex = (indexValue) => INDICATOR_VALUE_DESC[indexValue];
+export const getValueDescriptionFromIndex = (indexValue) => getIndicatorValueDesc()[indexValue];
 
 // I'm not proud of necessity of this helper
 // but it helps to persist value from url more clearly

@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { geoJSON } from 'leaflet';
 import { useAxios } from 'utilities';
+import { T } from '@transifex/react';
 
 const DownloadImage = ({ analysisBody, geojson }) => {
   const query = useMemo(() => {
@@ -23,7 +24,7 @@ const DownloadImage = ({ analysisBody, geojson }) => {
     <a
       type="button"
       className="btn-analysis btn-analysis-download"
-      title="Download cropped image"
+      title={<T _str="Download cropped image" />}
       href={url.download_url}
     >
       <svg className="icon icon-crop">

@@ -2,6 +2,7 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import cx from 'classnames';
+import { T } from '@transifex/react';
 
 import { clickable } from 'utilities';
 
@@ -60,14 +61,23 @@ export default class DownloadWindow extends Component {
     return (
       <>
         <p>
-          Before download any data, you need to read and accept our{' '}
-          <a className="theme-color" href="http://www.conservation.org/pages/terms.aspx">
-            terms of use.
-          </a>
+          <T
+            _str="Before download any data, you need to read and accept our {terms_of_use}."
+            terms_of_use={
+              <a className="theme-color" href="http://www.conservation.org/pages/terms.aspx">
+                <T
+                  _str="terms of use"
+                  _comment={
+                    'Before download any data, you need to read and accept our {terms_of_use}.'
+                  }
+                />
+              </a>
+            }
+          />
         </p>
         <input type="checkbox" id="terms-and-conditions" onChange={this.acceptTerms} />
         <label htmlFor="terms-and-conditions">
-          I have read and accepted the Conservation International terms of use
+          <T _str="I have read and accepted the Conservation International terms of use" />
         </label>
         <a
           href={url}
@@ -75,7 +85,7 @@ export default class DownloadWindow extends Component {
             '-disabled': !terms_accepted,
           })}
         >
-          Download data
+          <T _str="Download data" />
         </a>
       </>
     );
@@ -90,7 +100,9 @@ export default class DownloadWindow extends Component {
 
     return (
       <>
-        <p>Click to continue with download</p>
+        <p>
+          <T _str="Click to continue with download" />
+        </p>
 
         <a
           href={url}
@@ -103,7 +115,7 @@ export default class DownloadWindow extends Component {
             event({ action: 'download', params: { category: category_name, label } });
           }}
         >
-          Download data
+          <T _str="Download data" />
         </a>
       </>
     );
@@ -121,7 +133,9 @@ export default class DownloadWindow extends Component {
             ×
           </div>
           <div className="modal-container">
-            <h1>Download</h1>
+            <h1>
+              <T _str="Download" />
+            </h1>
 
             {this.renderContent()}
           </div>

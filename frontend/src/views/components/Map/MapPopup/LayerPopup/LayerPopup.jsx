@@ -1,8 +1,10 @@
+/* eslint-disable @next/next/no-img-element */
 import React, { useReducer, useCallback, useEffect } from 'react';
 import axios from 'axios';
 import moment from 'moment';
 import numeral from 'numeral';
 import { replace } from 'resilience-layer-manager';
+import { T } from '@transifex/react';
 
 import createReducer from 'state/utils/createReducer';
 import { createApiAction } from 'state/utils/api';
@@ -103,6 +105,7 @@ const LayerPopup = ({
     return () => {
       popup.remove();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -140,6 +143,7 @@ const LayerPopup = ({
                       {outputItem.column == 'image' ? (
                         <img
                           src={value}
+                          alt={<T _str="Output image" />}
                           width={outputItem.image_width ? outputItem.image_width : '100'}
                         ></img>
                       ) : (

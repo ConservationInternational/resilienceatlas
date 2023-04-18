@@ -1,3 +1,7 @@
+const { locales } = require('./locales.config.json');
+
+const { NEXT_PUBLIC_TRANSIFEX_TOKEN } = process.env;
+
 /**
  * @type {import('next').NextConfig}
  */
@@ -29,6 +33,13 @@ const nextConfig = {
         permanent: true,
       },
     ];
+  },
+  i18n: {
+    locales: locales.map(({ locale }) => locale),
+    defaultLocale: locales.find((locale) => locale.default).locale,
+  },
+  publicRuntimeConfig: {
+    TxNativePublicToken: NEXT_PUBLIC_TRANSIFEX_TOKEN,
   },
 };
 

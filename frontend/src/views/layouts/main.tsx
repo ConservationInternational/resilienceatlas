@@ -8,13 +8,14 @@ import { load as loadSite } from 'state/modules/site';
 import Head from './_head';
 import Header from './_header';
 import Footer from './_footer';
+import type { TypedT } from 'types/transifex';
 
 type MainLayoutProps = React.PropsWithChildren & {
   site?: {
     subdomain: string;
     header_theme: string;
   };
-  pageTitle: string;
+  pageTitle: string | TypedT;
   page?: string;
   dispatch?: (action: unknown) => void;
 };
@@ -22,14 +23,13 @@ type MainLayoutProps = React.PropsWithChildren & {
 // Temporary
 const bare = false;
 
-const MainLayout: React.FC<MainLayoutProps> = ({ site, page, pageTitle, children, dispatch }) => {
+const MainLayout: React.FC<MainLayoutProps> = (props) => {
+  const { site, page, pageTitle, children, dispatch } = props;
   const { subdomain, header_theme } = site;
-
   // Currently data fetching in Layouts are not supporting getServerSideProps
   // https://nextjs.org/docs/basic-features/layouts#data-fetching
   // NOTE: consider move this to every page that needs it using getServerSideProps
   useEffect(() => dispatch(loadSite()), [dispatch]);
-
   return (
     <div
       className={cx(

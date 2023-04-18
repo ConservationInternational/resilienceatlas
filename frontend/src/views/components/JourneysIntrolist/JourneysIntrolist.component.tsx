@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import cx from 'classnames';
 import Link from 'next/link';
+import { T } from '@transifex/react';
 
 import type { JourneyList } from 'types/journeys';
 import type { JourneyList as StaticJourneyList } from 'types/static-journeys';
@@ -55,7 +56,9 @@ const JourneysIntrolist: React.FC<JourneysIntrolistProps> = ({
                   <p>{theme}</p>
                 </span>
                 <Link href={`/journeys/${id}`}>
-                  <a className="btn btn-secondary theme-bg-color">Learn more</a>
+                  <a className="btn btn-secondary theme-bg-color">
+                    <T _str="Learn more" />
+                  </a>
                 </Link>
               </div>
               <Link href={`/journeys/${id}`}>
@@ -100,7 +103,9 @@ const StaticJourneysIntrolist: React.FC<StaticJourneysIntrolistProps> = ({
               <p>{j.theme}</p>
             </span>
             <Link href={`/journeys/${j.id}`}>
-              <a className="btn btn-secondary theme-bg-color">Learn more</a>
+              <a className="btn btn-secondary theme-bg-color">
+                <T _str="Learn more" />
+              </a>
             </Link>
           </div>
           <Link href={`/journeys/${j.id}`}>
