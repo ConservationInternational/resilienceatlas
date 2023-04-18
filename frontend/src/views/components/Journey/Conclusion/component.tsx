@@ -40,7 +40,7 @@ const StaticConclusion: React.FC<StaticJourneyStep> = ({
               'is-colapsed': isColapsed,
             })}
             onClick={() => setExpansion(!isColapsed)}
-            aria-label={translations && translations['Colapse/expand overview panel']}
+            aria-label={translations && translations['Collapse/expand overview panel']}
           />
           <div className="shadow" />
         </div>

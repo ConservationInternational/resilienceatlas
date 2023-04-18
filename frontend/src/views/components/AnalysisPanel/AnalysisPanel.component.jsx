@@ -207,7 +207,7 @@ export const AnalysisPanel = ({
                       className="btn -primary js-toggle-draw"
                       onClick={toggleDrawing}
                     >
-                      {drawing ? 'Cancel' : <T _str="Start drawing" />}
+                      {drawing ? <T _str="Cancel" /> : <T _str="Start drawing" />}
                     </button>
                     <br />
                     or
