@@ -2,13 +2,19 @@ import { subdomain } from 'utilities/getSubdomain';
 import { getRouterParam } from 'utilities';
 import { createReducer } from '../../utils';
 import * as t from './actions';
+import type { MAP_LABELS } from 'views/components/LayersList/Basemaps/constants';
 
-const initialState = {
+export interface MapState {
+  labels: (typeof MAP_LABELS)[number];
+}
+
+const initialState: MapState = {
   drawing: false,
   // geojson: getRouterParam('geojson', JSON.parse),
   bounds: null,
   iso: getRouterParam('iso'),
   basemap: getRouterParam('basemap') || (subdomain === 'atlas' ? 'satellite' : 'defaultmap'),
+  labels: getRouterParam('labels') || 'light',
   layerGroupsInteraction: {},
   layerGroupsInteractionSelected: null,
   layerGroupsInteractionLatLng: null,
@@ -28,6 +34,10 @@ export default createReducer(initialState)({
   [t.SET_BASEMAP]: (state, { payload }) => ({
     ...state,
     basemap: payload,
+  }),
+  [t.SET_LABELS]: (state, { payload }) => ({
+    ...state,
+    labels: payload,
   }),
 
   [t.SET_BOUNDS]: (state, { payload }) => ({

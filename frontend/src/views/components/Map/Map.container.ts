@@ -33,6 +33,7 @@ const makeMapStateToProps = () => {
     drawing: state.map.drawing,
     geojson: state.map.geojson,
     basemap: state.map.basemap,
+    labels: state.map.labels,
     layer_groups: state.layer_groups,
     activeLayers: getActives(state),
     model_layer: getModelLayer(state),

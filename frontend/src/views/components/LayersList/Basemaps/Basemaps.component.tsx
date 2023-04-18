@@ -1,12 +1,21 @@
-import React from 'react';
 import { useRouterValue, useToggle, useTogglerButton, clickable } from 'utilities';
 import cx from 'classnames';
 import { T } from '@transifex/react';
+import { MAP_LABELS_OPTIONS } from 'views/components/LayersList/Basemaps/constants';
+import type { BASEMAP_LABELS, MAP_LABELS } from 'views/components/LayersList/Basemaps/constants';
 
-const Basemaps = ({ basemap, setBasemap }) => {
+type BasemapsProps = {
+  basemap: (typeof BASEMAP_LABELS)[number];
+  labels: (typeof MAP_LABELS)[number];
+  setBasemap: (basemap: (typeof BASEMAP_LABELS)[number]) => void;
+  setLabels: (labels: (typeof MAP_LABELS)[number]) => void;
+};
+
+const Basemaps = ({ basemap, labels, setBasemap, setLabels }: BasemapsProps) => {
   const [opened, toggleOpened] = useToggle(false);
 
   useRouterValue('basemap', basemap, { onlyOnChange: true });
+  useRouterValue('labels', labels, { onlyOnChange: true });
 
   const { getTogglerProps } = useTogglerButton(basemap, setBasemap);
 
@@ -49,6 +58,26 @@ const Basemaps = ({ basemap, setBasemap }) => {
             </span>
           </button>
         </li>
+      </ul>
+      <ul className={cx('m-labels-selectors', { 'is-active': opened })}>
+        {MAP_LABELS_OPTIONS.map(({ label, value }) => (
+          <li key={value}>
+            <div className="panel-item-switch m-form-input--switch label-option">
+              <input
+                type="checkbox"
+                data-name={value}
+                className="panel-input-switch"
+                id={`label-${value}`}
+                checked={value === labels}
+                onChange={() => {
+                  setLabels(value);
+                }}
+              />
+              <label htmlFor={`label-${value}`} />
+              <span>{label}</span>
+            </div>
+          </li>
+        ))}
       </ul>
     </li>
   );

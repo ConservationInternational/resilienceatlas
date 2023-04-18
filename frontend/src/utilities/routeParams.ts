@@ -30,7 +30,7 @@ export const useRouterParams = () => {
     return result;
   };
 
-  const setParam = (param, value) => {
+  const setParam = (param: string, value: string): void => {
     params[param] = value;
     router.replace(
       {

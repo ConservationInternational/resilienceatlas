@@ -3,7 +3,7 @@ import cx from 'classnames';
 import { usePrevious } from './usePrevious';
 import { useRouterParams } from 'utilities/routeParams';
 
-export const useToggle = (initial = false) => {
+export const useToggle = (initial = false): [boolean, () => void] => {
   const [toggled, setToggle] = useState(initial);
 
   const toggle = useCallback(() => {
