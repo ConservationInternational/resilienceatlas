@@ -54,8 +54,8 @@ const MapView = (props) => {
   const layerManagerRef = useContext(LayerManagerContext);
 
   useEffect(() => {
-    if (!layersLoaded || layersLoadedLocale !== locale) loadLayers();
-    if (!layerGroupsLoaded || layerGroupsLoadedLocale !== locale) loadLayerGroups();
+    if (!layersLoaded || layersLoadedLocale !== locale) loadLayers(locale);
+    if (!layerGroupsLoaded || layerGroupsLoadedLocale !== locale) loadLayerGroups(locale);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [locale]);
 
