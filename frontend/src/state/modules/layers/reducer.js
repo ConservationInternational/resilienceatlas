@@ -16,6 +16,7 @@ const initialState = {
   actives: [...persistedLayers.result],
   loading: false,
   loaded: false,
+  loadedLocale: null,
   error: null,
 };
 
@@ -26,7 +27,7 @@ export default createReducer(initialState)({
     error: null,
   }),
 
-  [LOAD.SUCCESS]: (state, { payload }) => {
+  [LOAD.SUCCESS]: (state, { payload, meta: { locale } }) => {
     const {
       entities: { layers },
       result,
@@ -44,11 +45,12 @@ export default createReducer(initialState)({
 
     return {
       ...state,
-      byId: merge(layers, state.byId),
+      byId: merge(state.byId, layers),
       all: payload.result,
       actives: [...actives],
       loading: false,
       loaded: true,
+      loadedLocale: locale,
     };
   },
 

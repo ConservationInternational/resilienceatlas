@@ -1,6 +1,7 @@
 import { subdomain } from 'utilities/getSubdomain';
 import api, { createApiAction } from '../../utils/api';
 import { layer_group } from '../../schema';
+import { toBackendLocale } from 'utilities/helpers';
 
 const URL_LAYER_GROUPS = '/layer-groups';
 
@@ -20,7 +21,15 @@ export const openBatch = (ids = []) => ({
   ids,
 });
 
-export const load = () =>
-  api(LOAD, ({ get }) => get(URL_LAYER_GROUPS, { params: { site_scope: subdomain } }), {
-    schema: [layer_group],
-  });
+export const load = (locale) =>
+  api(
+    LOAD,
+    ({ get }) =>
+      get(URL_LAYER_GROUPS, {
+        params: { site_scope: subdomain, locale: toBackendLocale(locale) },
+      }),
+    {
+      schema: [layer_group],
+      locale,
+    },
+  );

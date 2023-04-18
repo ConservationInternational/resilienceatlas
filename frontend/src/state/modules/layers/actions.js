@@ -1,10 +1,11 @@
 import { subdomain } from 'utilities/getSubdomain';
 import api, { createApiAction } from '../../utils/api';
 import { layer, source } from '../../schema';
+import { toBackendLocale } from 'utilities/helpers';
 
 // TODO: migrate
 // const URL_LAYERS = `/layers?lang=${window.currentLocation || 'en'}`;
-const URL_LAYERS = `/layers?lang=en`;
+const URL_LAYERS = `/layers`;
 
 // Action constants
 export const LOAD = createApiAction('layers/LOAD');
@@ -14,11 +15,17 @@ export const SET_OPACITY = 'layers / SET_OPACITY';
 export const SET_CHART_LIMIT = 'layers / SET_CHART_LIMIT';
 export const REORDER = 'layers / REORDER';
 
-export const load = () =>
-  api(LOAD, ({ get }) => get(URL_LAYERS, { params: { site_scope: subdomain } }), {
-    schema: [layer],
-    includedSchema: [source],
-  });
+export const load = (locale) =>
+  api(
+    LOAD,
+    ({ get }) =>
+      get(URL_LAYERS, { params: { site_scope: subdomain, locale: toBackendLocale(locale) } }),
+    {
+      schema: [layer],
+      includedSchema: [source],
+      locale,
+    },
+  );
 
 export const setActives = (actives) => ({
   type: SET_ACTIVES,
