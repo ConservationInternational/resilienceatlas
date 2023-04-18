@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_04_05_074139) do
+ActiveRecord::Schema[7.0].define(version: 2023_04_13_154821) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -509,6 +509,105 @@ ActiveRecord::Schema[7.0].define(version: 2023_04_05_074139) do
     t.text "license_url"
   end
 
+  create_table "static_page_base_translations", force: :cascade do |t|
+    t.bigint "static_page_base_id", null: false
+    t.string "locale", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "title"
+    t.string "image_credits"
+    t.index ["locale"], name: "index_static_page_base_translations_on_locale"
+    t.index ["static_page_base_id"], name: "index_static_page_base_translations_on_static_page_base_id"
+  end
+
+  create_table "static_page_bases", force: :cascade do |t|
+    t.string "slug", null: false
+    t.string "image_credits_url"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["slug"], name: "index_static_page_bases_on_slug", unique: true
+  end
+
+  create_table "static_page_section_item_translations", force: :cascade do |t|
+    t.bigint "static_page_section_item_id", null: false
+    t.string "locale", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "title"
+    t.text "description"
+    t.index ["locale"], name: "index_static_page_section_item_translations_on_locale"
+    t.index ["static_page_section_item_id"], name: "index_fa4aaafd643913512d32f726a2d5386348fe26b9"
+  end
+
+  create_table "static_page_section_items", force: :cascade do |t|
+    t.bigint "section_id", null: false
+    t.integer "position", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["section_id"], name: "index_static_page_section_items_on_section_id"
+  end
+
+  create_table "static_page_section_paragraph_translations", force: :cascade do |t|
+    t.bigint "static_page_section_paragraph_id", null: false
+    t.string "locale", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.text "text"
+    t.string "image_credits"
+    t.index ["locale"], name: "index_static_page_section_paragraph_translations_on_locale"
+    t.index ["static_page_section_paragraph_id"], name: "index_f17c96ce33322e20078393ba2050031b69c21daa"
+  end
+
+  create_table "static_page_section_paragraphs", force: :cascade do |t|
+    t.bigint "section_id", null: false
+    t.string "image_position", null: false
+    t.string "image_credits_url"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["section_id"], name: "index_static_page_section_paragraphs_on_section_id"
+  end
+
+  create_table "static_page_section_reference_translations", force: :cascade do |t|
+    t.bigint "static_page_section_reference_id", null: false
+    t.string "locale", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.text "text"
+    t.index ["locale"], name: "index_static_page_section_reference_translations_on_locale"
+    t.index ["static_page_section_reference_id"], name: "index_20a5e4f35f4caac5967f343864093a95839d0632"
+  end
+
+  create_table "static_page_section_references", force: :cascade do |t|
+    t.bigint "section_id", null: false
+    t.string "slug"
+    t.integer "position", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["section_id"], name: "index_static_page_section_references_on_section_id"
+  end
+
+  create_table "static_page_section_translations", force: :cascade do |t|
+    t.bigint "static_page_section_id", null: false
+    t.string "locale", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "title"
+    t.index ["locale"], name: "index_static_page_section_translations_on_locale"
+    t.index ["static_page_section_id"], name: "index_5003c0227599fab8954262af0e37841ad7785126"
+  end
+
+  create_table "static_page_sections", force: :cascade do |t|
+    t.bigint "static_page_id", null: false
+    t.integer "position", null: false
+    t.string "slug"
+    t.string "section_type", null: false
+    t.integer "title_size", default: 2
+    t.boolean "show_at_navigation", default: false, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["static_page_id"], name: "index_static_page_sections_on_static_page_id"
+  end
+
   create_table "user_downloads", force: :cascade do |t|
     t.string "subdomain"
     t.integer "user_id"
@@ -551,4 +650,8 @@ ActiveRecord::Schema[7.0].define(version: 2023_04_05_074139) do
   add_foreign_key "identities", "users"
   add_foreign_key "indicators", "categories"
   add_foreign_key "journey_steps", "journeys", on_delete: :cascade
+  add_foreign_key "static_page_section_items", "static_page_sections", column: "section_id", on_delete: :cascade
+  add_foreign_key "static_page_section_paragraphs", "static_page_sections", column: "section_id", on_delete: :cascade
+  add_foreign_key "static_page_section_references", "static_page_sections", column: "section_id", on_delete: :cascade
+  add_foreign_key "static_page_sections", "static_page_bases", column: "static_page_id", on_delete: :cascade
 end

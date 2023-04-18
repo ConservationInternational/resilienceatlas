@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/martintomas/activeadmin-globalize.git
-  revision: a939ef6cc910ef089b948ec60a91b32f4f3b4288
+  revision: 1b1128f4f91171689cc3dd1ff390bff4ce2e8895
   branch: main
   specs:
     activeadmin-globalize (0.9.10)
