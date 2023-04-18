@@ -1,6 +1,6 @@
 - f.has_many :section_references, heading: false, sortable: :position, sortable_start: 1 do |ff|
   = ff.semantic_errors
-  = ff.inputs (ff.object.new_record? ? "New Section Reference" : ff.object.slug.to_s), class: "inputs has-many-toggle-collapse" do
+  = ff.inputs ((ff.object.new_record? ? "New Section Reference" : ff.object.slug.to_s).presence || "Reference Without Slug"), class: "inputs has-many-toggle-collapse" do
     div class="has-many-section section-hidden use-simple-trix-toolbar"
       = ff.inputs "Translated fields" do
         - ff.translated_inputs switch_locale: false do |fff|
@@ -10,3 +10,5 @@
             = fff.rich_text_area :text
       = ff.inputs "Common fields" do
         - ff.input :slug
+      - unless ff.object.new_record?
+        - ff.input :_destroy, as: :boolean, wrapper_html: { class: "has_many_delete" }, label: I18n.t("active_admin.has_many_delete")

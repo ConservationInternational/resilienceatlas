@@ -11,3 +11,5 @@
             = fff.rich_text_area :description
       = ff.inputs "Common fields" do
         == render "admin/shared/image_with_thumbnail", blob: :image, f: ff, inside_has_many_block: true
+      - unless ff.object.new_record?
+        - ff.input :_destroy, as: :boolean, wrapper_html: { class: "has_many_delete" }, label: I18n.t("active_admin.has_many_delete")
