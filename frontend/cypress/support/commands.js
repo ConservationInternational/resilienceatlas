@@ -45,7 +45,7 @@ Cypress.Commands.add('interceptAllRequests', () => {
   }).as('journeyDetailRequest');
 
   cy.intercept(
-    { method: 'GET', url: '/api/layer-groups', middleware: true },
+    { method: 'GET', url: '/api/layer-groups*', middleware: true },
     disableRequestCache,
   ).as('layerGroupsAPIRequest');
 
