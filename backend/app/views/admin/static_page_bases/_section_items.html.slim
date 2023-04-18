@@ -7,6 +7,7 @@
           - fff.input :id, as: :hidden
           - fff.input :locale, as: :hidden
           - fff.input :title
-          = fff.rich_text_area :description
+          = fff.inputs "Description" do
+            = fff.rich_text_area :description
       = ff.inputs "Common fields" do
         == render "admin/shared/image_with_thumbnail", blob: :image, f: ff, inside_has_many_block: true

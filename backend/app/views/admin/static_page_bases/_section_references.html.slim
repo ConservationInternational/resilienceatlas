@@ -6,6 +6,7 @@
         - ff.translated_inputs switch_locale: false do |fff|
           - fff.input :id, as: :hidden
           - fff.input :locale, as: :hidden
-          = fff.rich_text_area :text
+          = fff.inputs "Text" do
+            = fff.rich_text_area :text
       = ff.inputs "Common fields" do
         - ff.input :slug
