@@ -146,11 +146,13 @@ describe('Homepage', () => {
                 const { id, attributes } = journeys[index];
 
                 cy.wrap($el).within(() => {
-                  cy.get('.m-slider__image').should(
-                    'have.attr',
-                    'style',
-                    `background-image: url("${attributes.background_image.original}");`,
-                  );
+                  cy.get('.journey-link-container')
+                    .should('have.attr', 'href', `/journeys/${id}`)
+                    .should(
+                      'have.attr',
+                      'style',
+                      `background-image: url("${attributes.background_image.original}");`,
+                    );
 
                   cy.get('h2').should('contain', attributes.subtitle);
                   cy.get('h3').should('contain', attributes.title);
@@ -158,12 +160,6 @@ describe('Homepage', () => {
                   cy.get('.credits a')
                     .should('contain', attributes.credits)
                     .should('have.attr', 'href', attributes.credits_url);
-
-                  cy.get('a:has(.journey-link__helper)').should(
-                    'have.attr',
-                    'href',
-                    `/journeys/${id}`,
-                  );
                 });
               });
           });
