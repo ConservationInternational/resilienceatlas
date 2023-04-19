@@ -111,6 +111,7 @@ const MapView = (props) => {
         scrollWheelZoom: !embed,
         drawControl: true,
         minZoom: 3,
+        maxZoom: 13,
       }}
       events={{
         zoomend: (e, map) => {

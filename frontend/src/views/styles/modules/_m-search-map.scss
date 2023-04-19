@@ -57,8 +57,49 @@
 
   .search-combobox-message {
     padding: rem(10px);
-    font-size: rem(14px);
+    font-size: rem(12px);
     font-weight: normal;
     color: $gray-medium;
+
+    p {
+      margin: 0.5rem 0;
+
+      &.--highlighted {
+        color: black;
+      }
+    }
+
+    ul {
+      margin: 0.5rem 0;
+      padding-left: 10px;
+    }
+
+    li {
+      margin: 0;
+      padding: 0;
+
+      &.--highlighted {
+        color: black;
+      }
+    }
+  }
+
+  .search-combobox-input-coordinates {
+    padding: rem(10px) 0;
+
+    font-size: rem(12px);
+    font-weight: normal;
+    color: $gray-medium;
+
+    > span {
+      border-radius: rem(14px);
+      padding: rem(6px) rem(10px);
+
+      color: $white;
+      font-weight: 500;
+      text-transform: uppercase;
+
+      background-color: var(--theme-color, $bg-color-2);
+    }
   }
 }

@@ -16,9 +16,8 @@ type SearchAreaProps = {
   onAfterChange: () => void;
 };
 
-type Place = {
-  description: string;
-  place_id: string;
+type Place = google.maps.places.AutocompletePrediction & {
+  latLngString?: string;
 };
 
 const googleAPILoader = new Loader({
@@ -40,36 +39,54 @@ googleAPILoader.load().then(async () => {
   geocoderService = new Geocoder();
 });
 
+const COORDINATES_REGEX =
+  /^(?<longitude>-?\d{1,}(\.\d{1,})?)(\s{1,}|\s{0,},\s{0,})(?<latitude>-?\d{1,}(\.\d{1,})?)$/;
+
+const isCoordinates = (keyword: string) => COORDINATES_REGEX.test(keyword);
+
+const fromGeometryToPolygonBounds = (geometry) => {
+  const boundsJSON = geometry.viewport.toJSON();
+  const bounds: BBox = [boundsJSON.west, boundsJSON.south, boundsJSON.east, boundsJSON.north];
+  return bboxPolygon(bounds);
+};
+
+const isNumber = (value: string): boolean => !Number.isNaN(Number(value));
+
 /**
  * Only works on the client side because of window dependency
  */
 const SearchArea: React.FC<SearchAreaProps> = ({ fitBounds, onAfterChange }) => {
   const t = useT();
-  const locale = useLocale();
+  const locale: string = useLocale();
   const [selectedPlace, setSelectedPlace] = useState<Place>(null);
-  const [query, setQuery] = useState('');
-  const [searchTerm] = useDebounce(query, 1000);
+  const [query, setQuery] = useState<string>('');
+  const [searchTerm] = useDebounce(query, 300);
 
   const currentLocale = locale && locale !== '' ? locale : 'en';
 
-  const { data: places, isLoading } = useQuery<Place[]>(
-    ['places'],
+  const { data, isLoading } = useQuery<google.maps.places.AutocompleteResponse>(
+    ['places', searchTerm],
     () => {
-      const request = autocompleteService
-        .getPlacePredictions({
-          input: searchTerm,
-          language: currentLocale, // Default to English
-        })
-        .then((response: { predictions: Place[] }) => response?.predictions);
+      const request = autocompleteService.getPlacePredictions({
+        input: searchTerm,
+        language: currentLocale, // Default to English
+      });
       return request;
     },
     {
-      enabled: !!searchTerm && searchTerm.length > 0,
+      // Only fetch if the search term is not empty, is not a number, and is not coordinates
+      enabled:
+        !!searchTerm &&
+        searchTerm.length > 0 &&
+        !isCoordinates(searchTerm) &&
+        !isNumber(searchTerm),
       refetchOnMount: false,
       refetchOnWindowFocus: false,
       refetchOnReconnect: false,
     },
   );
+
+  const { predictions: places } = data || {};
 
   const handleInputChange = useCallback(
     (event: React.FormEvent<HTMLInputElement>) => {
@@ -81,24 +98,22 @@ const SearchArea: React.FC<SearchAreaProps> = ({ fitBounds, onAfterChange }) => 
   const handleChange = useCallback(
     async (place: Place) => {
       setSelectedPlace(place);
-      if (place && geocoderService) {
-        // Requesting geometry given a place id
-        try {
-          const { results } = await geocoderService.geocode({ placeId: place.place_id });
-          const geometry = results[0].geometry;
-          const boundsJSON = geometry.viewport.toJSON();
-          const bounds: BBox = [
-            boundsJSON.west,
-            boundsJSON.south,
-            boundsJSON.east,
-            boundsJSON.north,
-          ];
-          const polygon = bboxPolygon(bounds);
-          fitBounds(polygon);
-          onAfterChange();
-        } catch (error) {
-          console.error(error);
-        }
+
+      // Requesting geometry given coordinates
+      if (isCoordinates(place?.latLngString)) {
+        const { longitude, latitude } = place.latLngString.match(COORDINATES_REGEX).groups;
+        const { results } = await geocoderService.geocode({
+          location: { lat: Number(latitude), lng: Number(longitude) },
+        });
+        fitBounds(fromGeometryToPolygonBounds(results[0].geometry));
+        onAfterChange();
+      }
+
+      // Requesting geometry given a place id
+      else if (place?.place_id) {
+        const { results } = await geocoderService.geocode({ placeId: place.place_id });
+        fitBounds(fromGeometryToPolygonBounds(results[0].geometry));
+        onAfterChange();
       }
     },
     [fitBounds, onAfterChange],
@@ -109,7 +124,7 @@ const SearchArea: React.FC<SearchAreaProps> = ({ fitBounds, onAfterChange }) => 
       <Combobox value={selectedPlace} by="place_id" onChange={handleChange} nullable>
         <Combobox.Input
           onChange={handleInputChange}
-          displayValue={(place: Place) => place?.description}
+          displayValue={(place: Place) => place?.description || place?.latLngString}
           className="search-combobox-input"
           placeholder={t('Search by country, city, town, coordinates')}
         />
@@ -126,14 +141,48 @@ const SearchArea: React.FC<SearchAreaProps> = ({ fitBounds, onAfterChange }) => 
                 )}
               </Combobox.Option>
             ))}
-            {places?.length === 0 && (
+            {places?.length === 0 && !isLoading && (
               <div className="search-combobox-message">
                 <T _str="No results found" />
               </div>
             )}
-            {!places && isLoading && (
+            {!places && isLoading && !isCoordinates(searchTerm) && !isNumber(searchTerm) && (
               <div className="search-combobox-message">
                 <T _str="Loading..." />
+              </div>
+            )}
+            {!places && isCoordinates(searchTerm) && (
+              <Combobox.Option
+                value={{ place_id: null, description: null, latLngString: searchTerm }}
+                defaultChecked
+              >
+                <div className="search-combobox-input-coordinates">
+                  <span>Enter</span> to navigate coordinates
+                </div>
+              </Combobox.Option>
+            )}
+            {isNumber(searchTerm) && (
+              <div className="search-combobox-message">
+                <p>
+                  <T _str="Are you typing coordinates?" />
+                </p>
+                <p className="--highlighted">
+                  <T _str="Try to follow one of these formats" />:
+                </p>
+                <ul>
+                  <li className="--highlighted">
+                    <strong>-3.7034, 40.4306</strong> (<T _str="coma and space" />)
+                  </li>
+                  <li className="--highlighted">
+                    <strong>-3.7034,40.4306</strong> (<T _str="only coma" />)
+                  </li>
+                  <li className="--highlighted">
+                    <strong>-3.7034 40.4306</strong> (<T _str="only space" />)
+                  </li>
+                </ul>
+                <p>
+                  (<T _str="Longitude, Latitude in decimal degrees" />)
+                </p>
               </div>
             )}
           </Combobox.Options>
