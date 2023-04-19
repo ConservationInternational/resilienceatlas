@@ -1,3 +1,15 @@
+# == Schema Information
+#
+# Table name: static_page_section_items
+#
+#  id          :bigint           not null, primary key
+#  section_id  :bigint           not null
+#  position    :integer          not null
+#  created_at  :datetime         not null
+#  updated_at  :datetime         not null
+#  title       :string
+#  description :text
+#
 FactoryBot.define do
   factory :static_page_section_item, class: "StaticPage::SectionItem" do
     section factory: :static_page_section

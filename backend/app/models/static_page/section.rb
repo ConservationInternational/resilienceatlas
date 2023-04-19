@@ -1,3 +1,18 @@
+# == Schema Information
+#
+# Table name: static_page_sections
+#
+#  id                 :bigint           not null, primary key
+#  static_page_id     :bigint           not null
+#  position           :integer          not null
+#  slug               :string
+#  section_type       :string           not null
+#  title_size         :integer          default(2)
+#  show_at_navigation :boolean          default(FALSE), not null
+#  created_at         :datetime         not null
+#  updated_at         :datetime         not null
+#  title              :string
+#
 module StaticPage
   class Section < ApplicationRecord
     belongs_to :static_page, class_name: "StaticPage::Base", inverse_of: :sections

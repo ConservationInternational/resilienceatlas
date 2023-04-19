@@ -1,3 +1,15 @@
+# == Schema Information
+#
+# Table name: static_page_section_items
+#
+#  id          :bigint           not null, primary key
+#  section_id  :bigint           not null
+#  position    :integer          not null
+#  created_at  :datetime         not null
+#  updated_at  :datetime         not null
+#  title       :string
+#  description :text
+#
 module StaticPage
   class SectionItem < ApplicationRecord
     belongs_to :section, class_name: "StaticPage::Section", inverse_of: :section_items

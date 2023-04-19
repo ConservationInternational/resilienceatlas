@@ -1,3 +1,15 @@
+# == Schema Information
+#
+# Table name: static_page_section_items
+#
+#  id          :bigint           not null, primary key
+#  section_id  :bigint           not null
+#  position    :integer          not null
+#  created_at  :datetime         not null
+#  updated_at  :datetime         not null
+#  title       :string
+#  description :text
+#
 require "rails_helper"
 
 RSpec.describe StaticPage::SectionItem, type: :model do
