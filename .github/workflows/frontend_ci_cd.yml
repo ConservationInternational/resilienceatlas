@@ -64,6 +64,7 @@ jobs:
           NEXT_PUBLIC_GOOGLE_ANALYTICS: ${{ secrets.NEXT_PUBLIC_GOOGLE_ANALYTICS }}
           NEXT_PUBLIC_TRANSIFEX_TOKEN: ${{ secrets.NEXT_PUBLIC_TRANSIFEX_TOKEN }}
           NEXT_PUBLIC_TRANSIFEX_SECRET: ${{ secrets.NEXT_PUBLIC_TRANSIFEX_SECRET }}
+          NEXT_PUBLIC_GOOGLE_API_KEY: ${{ secrets.NEXT_PUBLIC_GOOGLE_API_KEY }}
 
           CI: false
           # Recommended: pass the GitHub token lets this action correctly
@@ -127,6 +128,7 @@ jobs:
           NEXT_PUBLIC_GOOGLE_ANALYTICS: ${{ secrets.NEXT_PUBLIC_GOOGLE_ANALYTICS }}
           NEXT_PUBLIC_TRANSIFEX_TOKEN: ${{ secrets.NEXT_PUBLIC_TRANSIFEX_TOKEN }}
           NEXT_PUBLIC_TRANSIFEX_SECRET: ${{ secrets.NEXT_PUBLIC_TRANSIFEX_SECRET }}
+          NEXT_PUBLIC_GOOGLE_API_KEY: ${{ secrets.NEXT_PUBLIC_GOOGLE_API_KEY }}
           CI: false
           # Recommended: pass the GitHub token lets this action correctly
           # determine the unique run id necessary to re-run the checks
