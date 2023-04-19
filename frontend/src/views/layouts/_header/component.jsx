@@ -49,7 +49,9 @@ const Header = ({
             </Link>
           </li>
         </ul>
-
+        <ul className="nav-area">
+          <LanguageSwitcher translations={translations} />
+        </ul>
         <ul className="nav-area -resilience">
           <li className="journey-link">
             <Link href="/journeys">
@@ -112,10 +114,7 @@ const Header = ({
               </li>
             </>
           )}
-
-          <LanguageSwitcher translations={translations} />
         </ul>
-
         <ul className="nav-area -vital-sign">
           <li>
             <a
