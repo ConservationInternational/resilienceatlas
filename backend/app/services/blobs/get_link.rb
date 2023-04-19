@@ -16,7 +16,7 @@ module Blobs
     private
 
     def modify(original_blob)
-      options.present? ? original_blob.variant(options) : original_blob
+      (options.present? && original_blob.variable?) ? original_blob.variant(options) : original_blob
     end
   end
 end
