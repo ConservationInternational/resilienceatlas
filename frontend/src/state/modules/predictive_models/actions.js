@@ -1,3 +1,4 @@
+import { toBackendLocale } from 'utilities/helpers';
 import api, { createApiAction } from '../../utils/api';
 import { model } from '../../schema';
 
@@ -37,13 +38,13 @@ export const resetIndicators = () => ({
   type: RESET_INDICATORS,
 });
 
-export const load = () =>
+export const load = (locale) =>
   api(
     LOAD,
     ({ get }, d, getState) => {
       const site_scope = getState().site.id;
 
-      return get(URL_MODELS, { params: { site_scope } });
+      return get(URL_MODELS, { params: { site_scope, locale: toBackendLocale(locale) } });
     },
     {
       schema: [model],

@@ -18,7 +18,7 @@ const disableRequestCache = (req) => {
 Cypress.Commands.add('interceptAllRequests', () => {
   cy.log('Intercepting requests');
 
-  cy.intercept({ method: 'GET', url: '/api/site', middleware: true }, disableRequestCache).as(
+  cy.intercept({ method: 'GET', url: '/api/site*', middleware: true }, disableRequestCache).as(
     'siteRequest',
   );
 

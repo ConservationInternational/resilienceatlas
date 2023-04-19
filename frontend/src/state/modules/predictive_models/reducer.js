@@ -28,12 +28,15 @@ const initialState = {
   indicators: {
     /* [indicatorId]: { indicator } */
   },
-  indicators_state: persistedIndicators.map(Number),
+  indicators_state: Array.isArray(persistedIndicators)
+    ? persistedIndicators?.map(Number)
+    : persistedIndicators?.split(',').map(Number),
   categories: {
     /* [categoryId]: { category } */
   },
   loading: false,
   loaded: false,
+  loadedLocale: null,
   error: null,
 };
 
@@ -44,7 +47,7 @@ export default createReducer(initialState)({
     error: null,
   }),
 
-  [LOAD.SUCCESS]: (state, { payload, included }) => {
+  [LOAD.SUCCESS]: (state, { payload, included, meta: { locale } }) => {
     const { models = {} } = payload.entities;
     const { categories, indicators } = included.entities;
     const newState = {
@@ -55,6 +58,7 @@ export default createReducer(initialState)({
       indicators,
       loading: false,
       loaded: true,
+      loadedLocale: locale,
     };
 
     const newIndicators = buildIndicatorsFromState(newState);

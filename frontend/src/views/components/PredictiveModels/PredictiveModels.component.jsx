@@ -3,7 +3,7 @@ import qs from 'qs';
 import Loader from 'views/shared/Loader';
 import { T } from '@transifex/react';
 import { useRouterParams } from 'utilities';
-
+import { useRouter } from 'next/router';
 import Indicator from './Indicator';
 
 const PredictiveModels = ({
@@ -18,15 +18,17 @@ const PredictiveModels = ({
   indicatorsState,
   modelsLoading,
   modelsLoaded,
+  modelsLoadedLocale,
   selectedModel,
   translations,
 }) => {
+  const { locale } = useRouter();
   const { setParam } = useRouterParams();
 
   useEffect(() => {
-    if (!modelsLoaded) loadModels();
+    if (!modelsLoaded || modelsLoadedLocale !== locale) loadModels(locale);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [locale]);
 
   useEffect(() => {
     // detect only changes caused by user
@@ -71,7 +73,7 @@ const PredictiveModels = ({
           onChange={(e) => select(e.currentTarget.value)}
         >
           <option disabled value="default">
-            <T _str="Select a model" />
+            {(translations && translations['Select a model']) || 'Select a model'}
           </option>
           {models.map(({ id, name }) => (
             <option key={id} value={id}>
