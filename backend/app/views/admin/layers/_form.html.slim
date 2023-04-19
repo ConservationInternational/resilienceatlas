@@ -2,6 +2,7 @@
   = f.semantic_errors
   = f.inputs "Layer metadata" do
     = f.input :slug
+    = f.input :published
     = f.inputs "Translated fields" do
       = f.translated_inputs switch_locale: false do |ff|
         = ff.input :id, as: :hidden
