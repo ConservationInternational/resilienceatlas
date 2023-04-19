@@ -5,7 +5,7 @@
 
 - if show_image
   = link_to url_for(blob_object)
-    = image_tag blob_object.variant(resize: "200x200"), class: "image-preview"
+    = image_tag (blob_object.variable? ? blob_object.variant(resize: "200x200") : blob_object), class: "image-preview", style: "max-width: 200px; max-height: 200px;"
 - if inside_has_many_block
   - f.input blob, as: :file, input_html: { accept: "image/*" }, required: required
 - else
