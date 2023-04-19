@@ -25,14 +25,15 @@ const bare = false;
 const EmbedPage: React.FC<EmbedPageProps> = (props) => {
   const { site, page, pageTitle, children, dispatch } = props;
   const { subdomain, header_theme } = site;
+  const router = useRouter();
+  const { locale, query } = router;
 
   // Currently data fetching in Layouts are not supporting getServerSideProps
   // https://nextjs.org/docs/basic-features/layouts#data-fetching
   // NOTE: consider move this to every page that needs it using getServerSideProps
-  useEffect(() => dispatch(loadSite()), [dispatch]);
+  useEffect(() => dispatch(loadSite(locale)), [dispatch, locale]);
 
-  const router = useRouter();
-  const isJourneyMap = router?.query?.journeyMap;
+  const isJourneyMap = query?.journeyMap;
 
   return (
     <div

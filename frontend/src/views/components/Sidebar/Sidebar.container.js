@@ -12,6 +12,7 @@ const mapStateToProps = (state) => ({
   models: state.predictive_models.all,
   modelsLoaded: state.predictive_models.loaded,
   site: state.site,
+  translations: state.translations.data,
 });
 
 const mapDispatchToProps = {
