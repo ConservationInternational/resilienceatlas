@@ -113,3 +113,15 @@ aws cloudformation delete-stack --stack-name titiler_cogs
 See the [AWS SAM developer guide](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/what-is-sam.html) for an introduction to SAM specification, the SAM CLI, and serverless application concepts.
 
 Next, you can use AWS Serverless Application Repository to deploy ready to use Apps that go beyond hello world samples and learn how authors developed their applications: [AWS Serverless Application Repository main page](https://aws.amazon.com/serverless/serverlessrepo/)
+
+## data migration
+
+```bash
+# install migration script dependencies
+pip install --upgrade google-auth google-auth-oauthlib google-auth-httplib2 google-api-python-client requests boto3
+```
+
+```bash
+# run migration script
+python layers_migration.py
+```
