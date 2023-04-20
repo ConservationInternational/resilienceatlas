@@ -1,7 +1,7 @@
 ActiveAdmin.register Layer do
   includes :translations
 
-  permit_params :name, :slug, :zindex, :order, :query, :layer_config, :layer_provider, :css, :opacity,
+  permit_params :name, :slug, :published, :zindex, :order, :query, :layer_config, :layer_provider, :css, :opacity,
     :legend, :zoom_max, :zoom_min, :dashboard_order, :source_id, :data_units, :analysis_suitable,
     :analysis_query, :analysis_body, :interaction_config, :processing, :download, :description, source_ids: [],
     translations_attributes: [:id, :locale, :name, :legend, :data_units, :processing, :description, :_destroy]
@@ -17,6 +17,24 @@ ActiveAdmin.register Layer do
   filter :analysis_suitable
   filter :layer_groups, as: :select, collection: proc { LayerGroup.with_translations.sort_by(&:name).map { |m| [m.name, m.id] } }
   filter :site_scopes, as: :select, collection: proc { SiteScope.with_translations.sort_by(&:name).map { |m| [m.name, m.id] } }
+
+  member_action :publish, method: :put do
+    resource.update! published: true
+    redirect_to resource_path, notice: "Layer was published!"
+  end
+
+  member_action :unpublish, method: :put do
+    resource.update! published: false
+    redirect_to resource_path, notice: "Layer was marked as not published!"
+  end
+
+  action_item :publish, only: :show, priority: 0, if: -> { !resource.published? } do
+    link_to "Publish Layer", publish_admin_layer_path(resource), method: :put
+  end
+
+  action_item :unpublish, only: :show, priority: 0, if: -> { resource.published? } do
+    link_to "Unpublish Layer", unpublish_admin_layer_path(resource), method: :put
+  end
 
   index do
     selectable_column
@@ -36,6 +54,7 @@ ActiveAdmin.register Layer do
       row :slug
       row :name
       row :description
+      row :published
       row :processing
       row :data_units
       row :legend

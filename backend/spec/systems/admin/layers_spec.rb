@@ -204,4 +204,34 @@ RSpec.describe "Admin: Layers", type: :system do
       expect(page).not_to have_text(layer.name)
     end
   end
+
+  describe "#publish" do
+    let!(:layer) { create :layer, published: false }
+
+    before do
+      visit admin_layer_path(layer)
+    end
+
+    it "allows to change layer to published" do
+      click_on "Publish Layer"
+
+      expect(page).to have_text("Layer was published!")
+      expect(layer.reload).to be_published
+    end
+  end
+
+  describe "#unpublish" do
+    let!(:layer) { create :layer, published: true }
+
+    before do
+      visit admin_layer_path(layer)
+    end
+
+    it "allows to change layer to published" do
+      click_on "Unpublish Layer"
+
+      expect(page).to have_text("Layer was marked as not published!")
+      expect(layer.reload).not_to be_published
+    end
+  end
 end
