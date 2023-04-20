@@ -122,7 +122,7 @@ class Layer < ApplicationRecord
     else
       1
     end
-    layers = Layer.with_translations(I18n.locale)
+    layers = Layer.with_translations
     layers.site(site_scope)
   end
 

@@ -2,7 +2,7 @@ module Api
   module V1
     class MenuEntriesController < ApiController
       def index
-        menu_entries = MapMenuEntry.with_translations I18n.locale
+        menu_entries = MapMenuEntry.with_translations
         render json: menu_entries
       end
     end
