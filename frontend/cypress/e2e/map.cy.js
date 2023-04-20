@@ -170,30 +170,25 @@ describe('Search box should allow cities and coordinates', () => {
     cy.clearCookies();
     cy.interceptAllRequests();
 
-    cy.intercept(
-      'GET',
-      'https://maps.googleapis.com/maps/api/place/js/AutocompletionService.GetPredictionsJson*',
-    ).as('googleAutocompleteRequest');
-
-    cy.intercept('GET', 'https://maps.googleapis.com/maps/api/js/GeocodeService.Search*').as(
-      'googleGeocodeRequest',
-    );
-
     cy.visit('/map');
-
-    // Remove map tour
-    cy.get('.reactour__close-button').click();
 
     cy.wait('@siteRequest');
     cy.wait('@layerGroupsAPIRequest');
     cy.wait('@layersAPIRequest');
+
+    // Remove map tour
+    cy.get('.reactour__close-button').click();
   });
 
   it('should allow to search for a city', () => {
     cy.get('.m-toolbar-item--button').click();
     cy.get('.search-combobox-input').type('Madrid');
+    cy.wait(500); // waiting for debounce
     cy.wait('@googleAutocompleteRequest'); // waiting for the autocomplete
+    cy.get('.search-combobox-options').should('be.visible');
+    cy.get('.search-combobox-options').find('li').should('have.length', 5);
     cy.get('.search-combobox-input').type('{enter}');
+    cy.get('.search-combobox-input').should('not.exist');
     cy.wait('@googleGeocodeRequest'); // waiting for the geocode
     cy.url().should('include', 'lat%3D40.437').should('include', 'lng%3D-3.67');
   });
@@ -202,7 +197,9 @@ describe('Search box should allow cities and coordinates', () => {
     cy.get('.m-toolbar-item--button').click();
     cy.get('.search-combobox-input').type('-3, 40');
     cy.wait(500); // waiting for debounce
+    cy.get('.search-combobox-input-coordinates').should('be.visible');
     cy.get('.search-combobox-input').type('{enter}');
+    cy.get('.search-combobox-input').should('not.exist');
     cy.wait('@googleGeocodeRequest'); // waiting for the geocode
     cy.url().should('include', 'lat%3D40');
   });

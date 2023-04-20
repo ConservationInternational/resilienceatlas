@@ -59,6 +59,29 @@ Cypress.Commands.add('interceptAllRequests', () => {
   cy.intercept({ method: 'GET', url: '/api/layers*', middleware: true }, disableRequestCache).as(
     'layersAPIRequest',
   );
+
+  // cy.intercept(
+  //   'GET',
+  //   'https://maps.googleapis.com/maps/api/place/js/AutocompletionService.GetPredictionsJson*',
+  // ).as('googleAutocompleteRequest');
+
+  cy.intercept(
+    {
+      method: 'GET',
+      url: 'https://maps.googleapis.com/maps/api/place/js/AutocompletionService.GetPredictionsJson*',
+      middleware: true,
+    },
+    disableRequestCache,
+  ).as('googleAutocompleteRequest');
+
+  cy.intercept(
+    {
+      method: 'GET',
+      url: 'https://maps.googleapis.com/maps/api/js/GeocodeService.Search?*',
+      middleware: true,
+    },
+    disableRequestCache,
+  ).as('googleGeocodeRequest');
 });
 
 // Converts a hex color (eg: #FFFFFF) to an rgb string (eg: rgb(255, 255, 255)
