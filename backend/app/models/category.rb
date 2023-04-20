@@ -20,6 +20,6 @@ class Category < ApplicationRecord
   translation_class.validates_presence_of :name, if: -> { locale.to_s == I18n.default_locale.to_s }
 
   def self.fetch_all(options = {})
-    Category.with_translations I18n.locale
+    Category.with_translations
   end
 end

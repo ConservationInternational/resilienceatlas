@@ -2,7 +2,7 @@ module Api
   module V1
     class ModelsController < ApiController
       def index
-        @models = Model.fetch_all(model_params).with_translations I18n.locale
+        @models = Model.fetch_all(model_params).with_translations
         render json: @models,
           meta: {total_models: @models.size},
           include: [:site_scopes, :indicators, "indicators.category"]

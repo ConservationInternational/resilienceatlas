@@ -4,7 +4,7 @@ module Api
       include SitesFilters
 
       def index
-        sites = SiteScope.with_translations I18n.locale
+        sites = SiteScope.with_translations
         render json: sites
       end
 

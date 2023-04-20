@@ -28,6 +28,6 @@ class Indicator < ApplicationRecord
   acts_as_list scope: :category
 
   def self.fetch_all(options = {})
-    Indicator.with_translations I18n.locale
+    Indicator.with_translations
   end
 end

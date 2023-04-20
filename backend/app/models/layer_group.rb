@@ -47,7 +47,7 @@ class LayerGroup < ApplicationRecord
     else
       1
     end
-    layer_groups = LayerGroup.with_translations(I18n.locale)
+    layer_groups = LayerGroup.with_translations
     layer_groups.site(site_scope)
   end
 
