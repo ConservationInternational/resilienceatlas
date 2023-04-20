@@ -1,9 +1,16 @@
-.m-discover {
+.m-home-journeys {
   position: relative;
   background-color: $font-color-4;
-  .m-discover__title {
+
+  &__title {
     position: relative;
     height: 150px;
+
+    @media screen and (max-width: 800px) {
+      line-height: 4rem;
+      height: 220px;
+      margin-bottom: rem(-40px);
+    }
 
     h2 {
       @extend %center;
@@ -19,12 +26,13 @@
     }
   }
 
-  .m-discover__bottom {
+  &__bottom {
     height: 150px;
     position: relative;
 
     .btn {
       @extend %center;
+      text-align: center;
     }
   }
 }

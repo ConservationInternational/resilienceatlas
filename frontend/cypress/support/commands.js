@@ -15,6 +15,11 @@ const disableRequestCache = (req) => {
   });
 };
 
+// Command to allow skipping tests programmatically
+Cypress.Commands.add('skip', function () {
+  this.skip();
+});
+
 Cypress.Commands.add('interceptAllRequests', () => {
   cy.log('Intercepting requests');
 
@@ -26,6 +31,8 @@ Cypress.Commands.add('interceptAllRequests', () => {
     { method: 'GET', url: '/api/menu-entries', middleware: true },
     disableRequestCache,
   ).as('menuEntriesRequest');
+
+  cy.intercept('/api/homepage', { middleware: true }, disableRequestCache).as('homepageRequest');
 
   // TODO: remove comments when API is ready
   // cy.intercept(
@@ -52,6 +59,20 @@ Cypress.Commands.add('interceptAllRequests', () => {
   cy.intercept({ method: 'GET', url: '/api/layers*', middleware: true }, disableRequestCache).as(
     'layersAPIRequest',
   );
+});
+
+// Converts a hex color (eg: #FFFFFF) to an rgb string (eg: rgb(255, 255, 255)
+Cypress.Commands.add('hexToRgb', (hexStr) => {
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hexStr);
+  try {
+    return `rgb(${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(
+      result[3],
+      16,
+    )})`;
+  } catch (error) {
+    cy.error(error);
+    return '';
+  }
 });
 
 Cypress.on('uncaught:exception', () => {

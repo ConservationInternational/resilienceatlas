@@ -1,0 +1,68 @@
+.m-home-intro {
+  position: relative;
+  display: flex;
+  width: 100%;
+  height: rem(565px);
+
+  @media screen and (max-width: 800px) {
+    height: rem(300px);
+    margin-bottom: rem(-20px);
+  }
+
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+
+  &__header {
+    @extend %center;
+    width: 100%;
+    padding: 0 2.5rem;
+    word-wrap: normal;
+
+    @media screen and (max-width: 400px) {
+      padding: 0;
+    }
+
+    h2,
+    h3 {
+      text-align: center;
+      color: $font-color-3;
+      font-weight: 400;
+      line-height: 1;
+      text-transform: uppercase;
+      margin: 0;
+    }
+
+    h2 {
+      font-size: rem(100px);
+      font-family: $font-face-2;
+
+      @media screen and (max-width: 800px) {
+        margin-top: 1rem;
+        font-size: rem(60px);
+      }
+    }
+
+    h3 {
+      font-size: rem(38px);
+      font-family: $font-face-1;
+    }
+  }
+
+  &__credits {
+    position: absolute;
+    bottom: 10px;
+    margin: 0;
+    right: 20px;
+
+    a {
+      color: $font-color-3;
+    }
+  }
+
+  @media screen and (max-width: 800px) {
+    &__header {
+      max-width: 600px;
+    }
+  }
+}
