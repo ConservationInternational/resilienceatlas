@@ -28,7 +28,7 @@ export default createReducer(initialState)({
     loading: true,
   }),
 
-  [LOAD.SUCCESS]: (state, { payload }) => {
+  [LOAD.SUCCESS]: (state, { payload, meta: { locale } }) => {
     const data = payload.entities.site_scopes[payload.result];
 
     return {
@@ -38,6 +38,7 @@ export default createReducer(initialState)({
 
       loading: false,
       loaded: true,
+      loadedLocale: locale,
     };
   },
 

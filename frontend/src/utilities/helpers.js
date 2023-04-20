@@ -145,3 +145,5 @@ export function hexToRGB(hex, alpha) {
     return 'rgb(' + r + ', ' + g + ', ' + b + ')';
   }
 }
+
+export const toBackendLocale = (locale) => locale && locale.replace('_', '-');

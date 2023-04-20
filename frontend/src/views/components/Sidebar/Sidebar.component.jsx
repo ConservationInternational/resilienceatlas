@@ -13,9 +13,10 @@ import Tabs from 'views/shared/Tabs';
 
 import { useRouterParams } from 'utilities';
 
+// SSR translated strings
 export const TABS = {
-  LAYERS: <T _str="layers" />,
-  MODELS: <T _str="models" />,
+  LAYERS: 'layers',
+  MODELS: 'models',
 };
 
 const Sidebar = ({
@@ -69,7 +70,7 @@ const Sidebar = ({
             menuClassName="tabs tabs-secondary-content"
             renderTabTitle={({ name, title, active, onTabSwitch }) => (
               <li className={cx('tab-title', { active })}>
-                <LinkButton data-section={name} onClick={onTabSwitch}>
+                <LinkButton data-section={translations && translations[name]} onClick={onTabSwitch}>
                   {title}
                 </LinkButton>
               </li>

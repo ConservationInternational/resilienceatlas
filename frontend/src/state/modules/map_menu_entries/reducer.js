@@ -10,6 +10,7 @@ const initialState = {
   ],
   loading: false,
   loaded: false,
+  loadedLocale: null,
   error: null,
 };
 

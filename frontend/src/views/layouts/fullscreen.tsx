@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import PrivacyBanner from 'views/components/PrivacyBanner';
 import type { TypedT } from 'types/transifex';
 import { load as loadSite } from 'state/modules/site';
+import { useRouter } from 'next/router';
 
 import Head from './_head';
 import Header from './_header';
@@ -30,11 +31,12 @@ const FullscreenLayout: React.FC<FullscreenLayoutProps> = ({
   dispatch,
 }) => {
   const { subdomain, header_theme } = site;
-
+  const router = useRouter();
+  const { locale } = router;
   // Currently data fetching in Layouts are not supporting getServerSideProps
   // https://nextjs.org/docs/basic-features/layouts#data-fetching
   // NOTE: consider move this to every page that needs it using getServerSideProps
-  useEffect(() => dispatch(loadSite()), [dispatch]);
+  useEffect(() => dispatch(loadSite(locale)), [dispatch, locale]);
 
   return (
     <div

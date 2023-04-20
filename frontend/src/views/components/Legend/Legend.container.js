@@ -1,4 +1,3 @@
-import qs from 'qs';
 import { compose } from 'redux';
 import { connect } from 'react-redux';
 import { withRouter } from 'next/router';

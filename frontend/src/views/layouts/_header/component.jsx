@@ -15,13 +15,14 @@ const Header = ({
   site: { linkback_text, linkback_url },
   menuItems,
   menuItemsLoaded,
+  menuItemsLoadedLocale,
   translations,
 }) => {
-  const { pathname } = useRouter();
+  const { pathname, locale } = useRouter();
 
   useEffect(() => {
-    if (!menuItemsLoaded) loadMenuItems();
-  }, [loadMenuItems, menuItemsLoaded]);
+    if (!menuItemsLoaded || menuItemsLoadedLocale !== locale) loadMenuItems(locale);
+  }, [loadMenuItems, menuItemsLoaded, menuItemsLoadedLocale, locale]);
 
   const renderMenuItem = useCallback(
     ({ id, label, link, children }) => (
@@ -48,7 +49,9 @@ const Header = ({
             </Link>
           </li>
         </ul>
-
+        <ul className="nav-area">
+          <LanguageSwitcher translations={translations} />
+        </ul>
         <ul className="nav-area -resilience">
           <li className="journey-link">
             <Link href="/journeys">
@@ -111,10 +114,7 @@ const Header = ({
               </li>
             </>
           )}
-
-          <LanguageSwitcher translations={translations} />
         </ul>
-
         <ul className="nav-area -vital-sign">
           <li>
             <a
