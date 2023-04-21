@@ -157,7 +157,15 @@ const SearchArea: React.FC<SearchAreaProps> = ({ fitBounds, onAfterChange }) => 
                 defaultChecked
               >
                 <div className="search-combobox-input-coordinates">
-                  <T _str={'{enter} to navigate coordinates'} enter={<span><T _str="Enter" _comment="Enter to navigate coordinates"/></span>} _comment="Enter to navigate coordinates" />
+                  <T
+                    _str={'{enter} to navigate coordinates'}
+                    enter={
+                      <span>
+                        <T _str="Enter" _comment="Enter to navigate coordinates" />
+                      </span>
+                    }
+                    _comment="Enter to navigate coordinates"
+                  />
                 </div>
               </Combobox.Option>
             )}
@@ -171,7 +179,7 @@ const SearchArea: React.FC<SearchAreaProps> = ({ fitBounds, onAfterChange }) => 
                 </p>
                 <ul>
                   <li className="--highlighted">
-                    <strong>-3.7034, 40.4306</strong> (<T _str="coma and space" />)
+                    <strong>-3.7034, 40.4306</strong> (<T _str="comma and space" />)
                   </li>
                   <li className="--highlighted">
                     <strong>-3.7034,40.4306</strong> (<T _str="only coma" />)
