@@ -1,0 +1,9 @@
+.m-highlighted-text {
+  font-weight: inherit;
+  color: inherit;
+
+  .m-highlighted-text--selected {
+    font-weight: bold;
+    text-decoration: underline;
+  }
+}

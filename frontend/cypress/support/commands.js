@@ -34,15 +34,6 @@ Cypress.Commands.add('interceptAllRequests', () => {
 
   cy.intercept('/api/homepage', { middleware: true }, disableRequestCache).as('homepageRequest');
 
-  // TODO: remove comments when API is ready
-  // cy.intercept(
-  //   {
-  //     url: '/static-journeys/journeysPageIndex.json',
-  //     method: 'GET',
-  //     middleware: true,
-  //   },
-  //   disableRequestCache,
-  // ).as('journeyListRequest');
   cy.intercept('/api/journeys', { middleware: true }, disableRequestCache).as('journeyListRequest');
   cy.intercept({ method: 'GET', url: '/api/journeys/*', middleware: true }, (req) => {
     req.on('before:response', (res) => {
@@ -59,6 +50,24 @@ Cypress.Commands.add('interceptAllRequests', () => {
   cy.intercept({ method: 'GET', url: '/api/layers*', middleware: true }, disableRequestCache).as(
     'layersAPIRequest',
   );
+
+  cy.intercept(
+    {
+      method: 'GET',
+      url: 'https://maps.googleapis.com/maps/api/place/js/AutocompletionService.GetPredictionsJson*',
+      middleware: true,
+    },
+    disableRequestCache,
+  ).as('googleAutocompleteRequest');
+
+  cy.intercept(
+    {
+      method: 'GET',
+      url: 'https://maps.googleapis.com/maps/api/js/GeocodeService.Search?*',
+      middleware: true,
+    },
+    disableRequestCache,
+  ).as('googleGeocodeRequest');
 });
 
 // Converts a hex color (eg: #FFFFFF) to an rgb string (eg: rgb(255, 255, 255)
