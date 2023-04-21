@@ -13,14 +13,14 @@ import boto3
 # Google Sheets API setup
 SCOPES = ["https://www.googleapis.com/auth/spreadsheets.readonly"]
 SPREADSHEET_ID = "your_spreadsheet_id"
-RANGE_NAME = "Sheet1!A1:B"
+RANGE_NAME = "Sheet1!G1:I"
 
 # AWS S3 setup
 s3 = boto3.client("s3")
 
 
-# Read inputs from Google Sheet
-def read_inputs():
+# google credentials setup
+def get_credentials():
     creds = None
     if os.path.exists("token.pickle"):
         with open("token.pickle", "rb") as token:
@@ -36,6 +36,13 @@ def read_inputs():
         with open("token.pickle", "wb") as token:
             pickle.dump(creds, token)
 
+    return creds
+
+
+# Read inputs from Google Sheet
+def read_inputs():
+    creds = get_credentials()
+
     service = build("sheets", "v4", credentials=creds)
 
     result = (
@@ -50,6 +57,24 @@ def read_inputs():
     else:
         logging.warning(f"Data found.")
     return values
+
+
+def write_value_in_sheet(value, column, row):
+    creds = get_credentials()
+    service = build("sheets", "v4", credentials=creds)
+    body = {"majorDimension": "ROWS", "values": [[value]]}
+    range_name = f"Sheet1!{column}{row}"
+    result = (
+        service.spreadsheets()
+        .values()
+        .update(
+            spreadsheetId=SPREADSHEET_ID,
+            range=range_name,
+            valueInputOption="USER_ENTERED",
+            body=body,
+        )
+    )
+    logging.info(f"{str(result)}")
 
 
 # Download TIFF file
@@ -102,6 +127,7 @@ def upload_cog(local_path: Path, bucket, key):
 
 
 def process_file(
+    idx: int,
     bucket: str,
     input_file: Path,
     output_file: Path,
@@ -125,9 +151,9 @@ def process_file(
     create_overviews(local_input_file, operation)
     transform_cog(local_input_file, local_output_file)
     upload_cog(local_output_file, bucket, output_file)
-
     os.remove(local_input_file)
     os.remove(local_output_file)
+    write_value_in_sheet("yes", "E", idx + 2)
 
 
 # Process TIFF files
@@ -135,13 +161,20 @@ def process_file(
 
 def process_tiff_files():
     inputs = read_inputs()
-    for bucket, input_file, output_file, operation in inputs:
+    for pos, (bucket, input_file, output_file, operation) in enumerate(inputs):
         input_file = Path(input_file)
-        if not input_file or input_file.exists() or input_file.suffix != ".tif":
-            logging.warning("Could not find file: %s" % input_file)
+        row = pos + 2
+        status_col = "E"
+        try:
+            if not input_file or input_file.exists() or input_file.suffix != ".tif":
+                raise Exception("Could not find file: %s" % input_file)
+            process_file(pos, bucket, input_file, output_file, operation)
+        except Exception as e:
+            logging.exception(
+                f"Failed to process file: {input_file} because: \n {str(e)}"
+            )
+            write_value_in_sheet("no", status_col, row)
             continue
-
-        process_file(bucket, input_file, output_file, operation)
 
 
 if __name__ == "__main__":
