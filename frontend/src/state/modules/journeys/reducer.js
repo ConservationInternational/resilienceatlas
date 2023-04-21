@@ -10,6 +10,7 @@ const initialState = {
   ],
   loading: false,
   loaded: false,
+  loadedLocale: null,
   error: null,
 };
 
@@ -20,12 +21,13 @@ export default createReducer(initialState)({
     error: null,
   }),
 
-  [LOAD.SUCCESS]: (state, { payload }) => ({
+  [LOAD.SUCCESS]: (state, { payload, meta: { locale } }) => ({
     ...state,
     byId: payload.entities.journeys,
     all: payload.result,
-    loding: false,
+    loading: false,
     loaded: true,
+    loadedLocale: locale,
   }),
 
   [LOAD.FAIL]: (state, { error }) => ({

@@ -1,8 +1,7 @@
 import React, { useEffect } from 'react';
 import Head from 'next/head';
-// Components
+import { useRouter } from 'next/router';
 import Loader from 'views/shared/Loader';
-
 import Landing from './Landing';
 import Controls from './Controls';
 import StaticControls from './StaticControls';
@@ -18,7 +17,7 @@ import type { Translations } from 'types/transifex';
 
 type StaticJourneyProps = WithRouterProps & {
   // Actions
-  loadJourney: (id: string) => void;
+  loadJourney: (id: string, locale: string) => void;
   // Data
   query: {
     id: string;
@@ -27,13 +26,14 @@ type StaticJourneyProps = WithRouterProps & {
   journeysLength: number;
   journeyLoaded: boolean;
   journeyLoading: boolean;
+  journeysLoadedLocale: string;
   journey: StaticJourneyDetail;
 };
 
 type JourneyProps = WithRouterProps & {
   // Actions
-  loadJourney: (id: string) => void;
-  loadJourneys: () => void;
+  loadJourney: (id: string, locale: string) => void;
+  loadJourneys: (locale: string) => void;
   // Data
   query: {
     id: string;
@@ -42,6 +42,7 @@ type JourneyProps = WithRouterProps & {
   journeysLength: number;
   journeyLoaded: boolean;
   journeyLoading: boolean;
+  journeysLoadedLocale: string;
   journey: JourneyItem;
   journeysLoaded: boolean;
   journeysById: JourneyItem[];
@@ -67,9 +68,10 @@ const StaticJourney: FC<StaticJourneyProps> = ({
   journeyLoading,
   journey,
 }) => {
+  const { locale } = useRouter();
   useEffect(() => {
-    if (!journeyLoaded && currentJourney) loadJourney(currentJourney);
-  }, [currentJourney, journeyLoaded, loadJourney]);
+    if (!journeyLoaded && currentJourney) loadJourney(currentJourney, locale);
+  }, [currentJourney, journeyLoaded, loadJourney, locale]);
 
   const { steps } = journey;
   const stepIndex = Number(step) - 1;
@@ -106,16 +108,20 @@ const Journey: FC<JourneyProps> = ({
   journeyLoading,
   journey,
   journeysLoaded,
+  journeysLoadedLocale,
   journeysById,
   translations,
 }) => {
+  const { locale } = useRouter();
   useEffect(() => {
-    if (!journeyLoaded && currentJourney) loadJourney(currentJourney);
-  }, [currentJourney, journeyLoaded, loadJourney]);
+    if (currentJourney && (!journeyLoaded || journeysLoadedLocale !== locale)) {
+      loadJourney(currentJourney, locale);
+    }
+  }, [currentJourney, journeyLoaded, loadJourney, locale, journeysLoadedLocale]);
 
   useEffect(() => {
-    if (!journeysLoaded) loadJourneys();
-  }, [journeysLoaded, loadJourneys]);
+    if (!journeysLoaded || journeysLoadedLocale !== locale) loadJourneys(locale);
+  }, [journeysLoaded, loadJourneys, locale, journeysLoadedLocale]);
 
   const journeyIds = journeysById && Object.keys(journeysById).map((id) => +id);
   const stepIndex = Number(step) - 1;

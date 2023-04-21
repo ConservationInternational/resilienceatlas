@@ -2,9 +2,11 @@ import React, { useEffect, useMemo } from 'react';
 import DangerousHTML from 'react-dangerous-html';
 import Iframe from 'react-iframe';
 import Legend from 'views/components/Legend';
+import InfoWindow from 'views/components/InfoWindow';
 import qs from 'qs';
 import cx from 'classnames';
 import { T } from '@transifex/react';
+import { useRouter } from 'next/router';
 
 // TODO: get rid of IFrame and use Map Component
 // It requires to refactor map to use redux instead of url in all cases
@@ -94,6 +96,7 @@ const Embed = (props) => {
     loadLayers,
     loadCountries,
     layersLoaded,
+    layersLocaleLoaded,
     countriesLoaded,
     countries,
     theme,
@@ -109,12 +112,14 @@ const Embed = (props) => {
     setActiveLayer,
     isLastStep,
   } = props;
-
+  const { locale } = useRouter();
   useEffect(() => {
-    if (!layersLoaded) loadLayers();
+    if (!layersLoaded || layersLocaleLoaded !== locale) {
+      loadLayers(locale);
+    }
     if (!countriesLoaded) loadCountries();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [locale]);
   useEffect(() => {
     const mapString = mapUrl.split('?')[1];
     if (mapString) {
@@ -143,9 +148,9 @@ const Embed = (props) => {
   return (
     <div className={`m-journey--embed--light ${theme}`}>
       <div className="embebed-map">
-        <Iframe src={`${mapUrl}&${embedParams}`} />
+        <Iframe src={`/${locale}${mapUrl}&${embedParams}`} />
         <a
-          href={btnUrl}
+          href={`/${locale}${btnUrl}`}
           target="_blank"
           rel="noopener noreferrer"
           data-step={currentStep}
@@ -168,6 +173,7 @@ const Embed = (props) => {
             {/* TODO: Review if source is rendered correctly */}
             {source}
             <Legend />
+            <InfoWindow />
             <footer>
               <p>
                 <T _str="INSIGHTS PROVIDED BY CONSERVATION INTERNATIONAL" />

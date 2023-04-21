@@ -22,7 +22,7 @@ export default createReducer(initialState)({
   [LOAD_JOURNEY.SUCCESS]: (state, { payload, meta: { id } }) => ({
     ...state,
     data: STATIC_JOURNEYS ? payload.data[0] : { ...payload.data, steps: payload.included },
-    loding: false,
+    loading: false,
     loaded: id,
   }),
 

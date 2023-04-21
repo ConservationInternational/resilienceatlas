@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import cx from 'classnames';
 import Link from 'next/link';
 import { T } from '@transifex/react';
+import { useRouter } from 'next/router';
 
 import type { JourneyList } from 'types/journeys';
 import type { JourneyList as StaticJourneyList } from 'types/static-journeys';
@@ -17,17 +18,20 @@ type StaticJourneysIntrolistProps = {
 type JourneysIntrolistProps = {
   journeys: JourneyList;
   journeysLoaded: boolean;
-  loadJourneys: () => void;
+  loadJourneys: (locale: string) => void;
+  journeysLoadedLocale: string;
 };
 
 const JourneysIntrolist: React.FC<JourneysIntrolistProps> = ({
   journeys,
   journeysLoaded,
   loadJourneys,
+  journeysLoadedLocale,
 }) => {
+  const { locale } = useRouter();
   useEffect(() => {
-    if (!journeysLoaded) loadJourneys();
-  }, [journeysLoaded, loadJourneys]);
+    if (!journeysLoaded || journeysLoadedLocale !== locale) loadJourneys(locale);
+  }, [journeysLoaded, loadJourneys, locale, journeysLoadedLocale]);
 
   return (
     <ul className="m-journey__grid">
