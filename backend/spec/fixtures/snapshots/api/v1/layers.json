@@ -1,10 +1,11 @@
 {
   "data": [
     {
-      "id": "4",
+      "id": "318",
       "type": "layers",
       "attributes": {
         "name": "voluptatem",
+        "description": "Enim repellat pariatur est.",
         "slug": "Layer-1",
         "layer_type": null,
         "zindex": 38,
@@ -36,30 +37,34 @@
       "relationships": {
         "layer_group": {
           "data": {
-            "id": "2",
+            "id": "199",
             "type": "layer_groups"
           }
         },
         "sources": {
           "data": [
-
+            {
+              "id": "19",
+              "type": "sources"
+            }
           ]
         },
         "agrupation": {
           "data": {
-            "id": 4,
-            "layer_id": 4,
-            "layer_group_id": 2,
+            "id": 137,
+            "layer_id": 318,
+            "layer_group_id": 199,
             "active": false
           }
         }
       }
     },
     {
-      "id": "5",
+      "id": "319",
       "type": "layers",
       "attributes": {
         "name": "cum",
+        "description": "Placeat commodi libero et.",
         "slug": "Layer-2",
         "layer_type": null,
         "zindex": 41,
@@ -91,30 +96,34 @@
       "relationships": {
         "layer_group": {
           "data": {
-            "id": "2",
+            "id": "199",
             "type": "layer_groups"
           }
         },
         "sources": {
           "data": [
-
+            {
+              "id": "19",
+              "type": "sources"
+            }
           ]
         },
         "agrupation": {
           "data": {
-            "id": 5,
-            "layer_id": 5,
-            "layer_group_id": 2,
+            "id": 138,
+            "layer_id": 319,
+            "layer_group_id": 199,
             "active": false
           }
         }
       }
     },
     {
-      "id": "6",
+      "id": "320",
       "type": "layers",
       "attributes": {
         "name": "molestiae",
+        "description": "Et quaerat omnis veniam.",
         "slug": "Layer-3",
         "layer_type": null,
         "zindex": 25,
@@ -146,23 +155,37 @@
       "relationships": {
         "layer_group": {
           "data": {
-            "id": "2",
+            "id": "199",
             "type": "layer_groups"
           }
         },
         "sources": {
           "data": [
-
+            {
+              "id": "19",
+              "type": "sources"
+            }
           ]
         },
         "agrupation": {
           "data": {
-            "id": 6,
-            "layer_id": 6,
-            "layer_group_id": 2,
+            "id": 139,
+            "layer_id": 320,
+            "layer_group_id": 199,
             "active": false
           }
         }
+      }
+    }
+  ],
+  "included": [
+    {
+      "id": "19",
+      "type": "sources",
+      "attributes": {
+        "reference": "voluptatem",
+        "reference_short": "voluptatem",
+        "url": "http://kutch-spencer.com/moises"
       }
     }
   ],

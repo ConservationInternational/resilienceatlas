@@ -50,7 +50,7 @@
 
 class LayerSerializer < ActiveModel::Serializer
   cache key: "layer_#{I18n.locale}"
-  attributes :name, :slug, :layer_type, :zindex, :opacity, :active, :order,
+  attributes :name, :description, :slug, :layer_type, :zindex, :opacity, :active, :order,
     :dashboard_order, :color, :info, :interactivity, :css, :query, :layer_config, :layer_provider,
     :published, :locate_layer, :icon_class, :legend, :zoom_max, :zoom_min, :download,
     :dataset_shortname, :dataset_source_url, :analysis_suitable, :analysis_query, :analysis_body,
