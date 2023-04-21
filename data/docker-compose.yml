@@ -1,0 +1,33 @@
+version:  '3.8'
+services:
+## this is for working with dask; uncomment if needed
+#  scheduler:
+#    context: ./notebooks
+#    dockerfile: Dockerfile
+#    #image: daskdev/dask
+#    hostname: dask-scheduler
+#    ports:
+#      - "8786:8786"
+#      - "8787:8787"
+#    command: ["dask-scheduler"]
+#
+#  worker:
+#    context: ./notebooks
+#    dockerfile: Dockerfile
+#    #image: daskdev/dask
+#    volumes:
+#        - ./data:/home/jovyan/work/datasets
+#        - ./notebooks:/home/jovyan/work/notebooks
+#        - ${LOCAL_MODULES}:/home/jovyan/work/modules
+#    hostname: dask-worker
+#    command: ["dask-worker", "tcp://scheduler:8786"]
+    test-notebooks:
+      build:
+        context: ./notebooks
+        dockerfile: Dockerfile
+      volumes:
+        - ./data:/home/mambauser/data
+        - ./notebooks:/home/mambauser/notebooks
+      ports:
+        - 8887:8888
+      container_name: test_jupyter_notebook

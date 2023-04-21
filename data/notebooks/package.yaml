@@ -1,0 +1,38 @@
+name: base
+channels:
+  - conda-forge
+  - default
+  - defaults
+  - nodefaults
+  - javascript
+  - pip
+platforms:
+  - linux-64
+dependencies:
+  - python>=3.8
+  - nodejs>=14
+  - notebook
+  - jupyterhub
+  - jupyterlab
+  - bokeh
+  - cartopy
+  - cython
+  - dask
+  - dask-cloudprovider
+  - numpy
+  - h5py
+  - h5netcdf
+  - ipywidgets
+  - geopandas
+  - metpy
+  - netcdf4
+  - xarray
+  - s3fs
+  - gcsfs
+  - fsspec
+  - watchdog
+  - flake8
+  - black[jupyter]
+  - python-dotenv
+  - pre-commit
+  - click

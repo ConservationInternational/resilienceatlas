@@ -9,3 +9,4 @@ This repository contains all the code and documentation necessary to set up and 
 | frontend          | Frontend application                                        | [frontend/README.md](frontend/README.md)                |
 | backend           | The Ruby on Rails backend application (API + backoffice)    | [backend/README.md](backend/README.md)                  |
 | cloud_functions   | cloud functions code folder                                 | [cloud_functions/README.md](cloud_functions/README.md)  |
+| data              | data folder where diverse scripts for data management lives | [data/README.md](data/README.md)  |
