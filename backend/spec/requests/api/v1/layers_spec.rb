@@ -11,7 +11,8 @@ RSpec.describe "API V1 Layer", type: :request do
 
       let(:default_site_scope) { create :site_scope, id: 1, name: "CIGRP" }
       let(:layer_group) { create :layer_group, site_scope: default_site_scope }
-      let!(:layers) { create_list :layer, 3, download: false, layer_groups: [layer_group] }
+      let(:source) { create :source }
+      let!(:layers) { create_list :layer, 3, download: false, layer_groups: [layer_group], sources: [source] }
       let(:site_scope) { default_site_scope.subdomain }
 
       response "200", :success do
