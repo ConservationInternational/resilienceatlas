@@ -111,6 +111,7 @@ const MapView = (props) => {
         scrollWheelZoom: !embed,
         drawControl: true,
         minZoom: 3,
+        maxZoom: 13,
       }}
       events={{
         zoomend: (e, map) => {
@@ -185,8 +186,8 @@ const MapView = (props) => {
 
           {page !== 'report' && (
             <MapControls customClass="c-map-controls">
-              <Toolbar />
               <ZoomControl map={map} />
+              <Toolbar />
             </MapControls>
           )}
         </>

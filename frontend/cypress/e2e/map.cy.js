@@ -164,3 +164,43 @@ describe('Map tour should be shown only once', () => {
     cy.get('.map-tour-popover').should('not.exist');
   });
 });
+
+describe('Search box should allow cities and coordinates', () => {
+  beforeEach(() => {
+    cy.clearCookies();
+    cy.interceptAllRequests();
+
+    cy.visit('/map');
+
+    cy.wait('@siteRequest');
+    cy.wait('@layerGroupsAPIRequest');
+    cy.wait('@layersAPIRequest');
+
+    // Remove map tour
+    cy.get('.reactour__close-button').click();
+  });
+
+  it('should allow to search for a city', () => {
+    cy.get('.m-toolbar-item--button').click();
+    cy.get('.search-combobox-input').type('Madrid');
+    cy.wait(500); // waiting for debounce
+    cy.wait('@googleAutocompleteRequest'); // waiting for the autocomplete
+    cy.get('.search-combobox-options').should('be.visible');
+    cy.get('.search-combobox-options').find('li').should('have.length', 5);
+    cy.get('.search-combobox-input').type('{enter}');
+    cy.get('.search-combobox-input').should('not.exist');
+    cy.wait('@googleGeocodeRequest'); // waiting for the geocode
+    cy.url().should('include', 'lat%3D40.437').should('include', 'lng%3D-3.67');
+  });
+
+  it('should allow to search for coordinates', () => {
+    cy.get('.m-toolbar-item--button').click();
+    cy.get('.search-combobox-input').type('-3, 40');
+    cy.wait(500); // waiting for debounce
+    cy.get('.search-combobox-input-coordinates').should('be.visible');
+    cy.get('.search-combobox-input').type('{enter}');
+    cy.get('.search-combobox-input').should('not.exist');
+    cy.wait('@googleGeocodeRequest'); // waiting for the geocode
+    cy.url().should('include', 'lat%3D40');
+  });
+});

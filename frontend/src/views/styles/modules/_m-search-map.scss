@@ -1,50 +1,105 @@
 .m-search-map {
-  @extend %search;
+  position: relative;
+  background-color: $bg-color-1;
 
-  .search-box {
+  .search-combobox-input {
+    margin-top: 0;
+    padding: rem(4px) rem(10px);
+    border: none;
+    height: rem(30px);
+    font-size: rem(14px);
+    background-color: $white;
+    width: 100%;
+
+    @include placeholder() {
+      font-size: rem(14px);
+      color: $gray-medium;
+    }
+  }
+
+  .search-combobox-options {
     position: absolute;
-    bottom: 0;
-    left: 0;
-    z-index: 10;
-    transform: translatey(100%);
-    width: rem(190px);
-    max-height: rem(300px);
+    width: 100%;
+    margin-top: 1px;
+    max-height: rem(208px);
+    overflow-y: scroll;
     background-color: $white;
     box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3);
+    z-index: 10;
 
-    .search-content {
-      .focus & {
-        padding: rem(10px) rem(7px);
+    @extend %clear-scroll-bars;
+
+    ul {
+      padding: 0;
+      margin: 0;
+      box-shadow: none;
+    }
+
+    li {
+      padding: rem(5px) rem(10px);
+
+      &.is-active {
+        background: $gray-light;
       }
     }
 
-    .search-suggestions {
-      padding: rem(10px) 0;
-      max-height: rem(208px);
-      overflow-y: scroll;
-      @extend %clear-scroll-bars;
+    .option-label {
+      font-size: rem(14px);
+      line-height: 1;
 
-      ul {
-        box-shadow: none;
+      .m-highlighted-text--selected {
+        font-weight: bold;
+        text-decoration: none;
+        color: black;
+      }
+    }
+  }
 
-        li.search-area {
-          padding: 0 rem(10px);
+  .search-combobox-message {
+    padding: rem(10px);
+    font-size: rem(12px);
+    font-weight: normal;
+    color: $gray-medium;
 
-          &.selected {
-            background: $gray-light;
-          }
-        }
+    p {
+      margin: 0.5rem 0;
+
+      &.--highlighted {
+        color: black;
       }
     }
 
-    .name {
-      line-height: rem(25px);
+    ul {
+      margin: 0.5rem 0;
+      padding-left: 10px;
+    }
 
-      span {
-        font-weight: 500;
-        text-decoration: underline;
-        top: auto;
+    li {
+      margin: 0;
+      padding: 0;
+
+      &.--highlighted {
+        color: black;
       }
+    }
+  }
+
+  .search-combobox-input-coordinates {
+    padding: rem(10px) 0;
+
+    font-size: rem(12px);
+    font-weight: normal;
+    color: $gray-medium;
+
+    > span {
+      border-radius: rem(14px);
+      padding: rem(6px) rem(10px);
+
+      color: $white;
+      font-weight: 500;
+      text-transform: uppercase;
+
+      background-color: var(--theme-color, $bg-color-2);
     }
   }
 }

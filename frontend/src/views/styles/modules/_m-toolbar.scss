@@ -1,13 +1,8 @@
 .m-toolbar {
-  // position: absolute;
-  // top: rem($header-height);
-  // margin-top: rem(10px);
-  // right: rem(10px);
   z-index: 1;
 
   ul {
     @extend %clean-lists;
-    // box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3);
   }
 
   &__item {
@@ -35,44 +30,29 @@
     }
   }
 
-  .search {
-    .m-search-map {
-      position: absolute;
-      top: 0;
-      right: 30px;
-      width: 0;
-      height: rem(29px);
-      padding-left: 10px;
-      border: none;
-      opacity: 0;
-      transition: width 0.3s $easeInSine;
-      background-color: $bg-color-1;
+  .m-toolbar__item--search {
+    position: absolute;
+    right: 0;
+    display: flex;
+    flex-direction: row-reverse;
+    flex-wrap: nowrap;
+    min-width: rem(30px);
+    width: auto;
+    z-index: 2;
+
+    &.is-open {
+      box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3);
     }
+  }
 
-    input {
-      margin-top: rem(3px);
-      border: none;
-      height: rem(24px);
-      width: 0;
-      transition: width 0.3s $easeInSine;
+  .m-toolbar-item--button {
+    width: rem(30px);
+    height: rem(30px);
+  }
 
-      @include placeholder() {
-        font-size: rem(14px);
-        color: $font-color-1;
-      }
-    }
-
-    &:hover {
-      .m-search-map {
-        width: 200px;
-        box-shadow: -2px 1px 3px 0 rgba(0, 0, 0, 0.1);
-        opacity: 1;
-
-        input {
-          width: 100%;
-        }
-      }
-    }
+  .m-toolbar-item--panel {
+    width: rem(280px);
+    background-color: $bg-color-1;
   }
 
   button {
