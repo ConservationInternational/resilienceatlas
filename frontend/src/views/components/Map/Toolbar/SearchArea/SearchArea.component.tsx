@@ -157,7 +157,7 @@ const SearchArea: React.FC<SearchAreaProps> = ({ fitBounds, onAfterChange }) => 
                 defaultChecked
               >
                 <div className="search-combobox-input-coordinates">
-                  <span>Enter</span> to navigate coordinates
+                  <T _str={'{enter} to navigate coordinates'} enter={<span><T _str="Enter" _comment="Enter to navigate coordinates"/></span>} _comment="Enter to navigate coordinates" />
                 </div>
               </Combobox.Option>
             )}
