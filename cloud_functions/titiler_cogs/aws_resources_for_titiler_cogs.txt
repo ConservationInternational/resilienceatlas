@@ -2,15 +2,15 @@ AWS SAM was used to create the resources needed for hosting and automated deploy
 
 # ECR repositories
 
-## resilience-atlas-pipeline-resources-imagerepository
+## resilience-atlas-pipeline-resources
 
-Create a new repository with default settings called resilience-atlas-pipeline-resources-imagerepository
+Create a new repository with default settings called resilience-atlas-pipeline-resources
 
 OUTPUT: ARN of the created resource
 
 # S3 buckets
 
-## resilience-atlas-build-artifacts-bucket
+## resilience-atlas-build-artifacts
 
 Create a new S3 bucket, uncheck the "Block all public access" checkbox
 
@@ -25,8 +25,8 @@ Once created, in the permissions tab paste the following bucket policy:
             "Principal": "*",
             "Action": "s3:*",
             "Resource": [
-                "arn:aws:s3:::resilience-atlas-build-artifacts-bucket/*",
-                "arn:aws:s3:::resilience-atlas-build-artifacts-bucket"
+                "arn:aws:s3:::resilience-atlas-build-artifacts/*",
+                "arn:aws:s3:::resilience-atlas-build-artifacts"
             ],
             "Condition": {
                 "Bool": {
@@ -49,8 +49,8 @@ Once created, in the permissions tab paste the following bucket policy:
                 "s3:List*"
             ],
             "Resource": [
-                "arn:aws:s3:::resilience-atlas-build-artifacts-bucket/*",
-                "arn:aws:s3:::resilience-atlas-build-artifacts-bucket"
+                "arn:aws:s3:::resilience-atlas-build-artifacts/*",
+                "arn:aws:s3:::resilience-atlas-build-artifacts"
             ]
         }
     ]
@@ -180,8 +180,8 @@ Once role is created, on the permissions tab use the "create inline policy" butt
                 "s3:List*"
             ],
             "Resource": [
-                "arn:aws:s3:::resilience-atlas-build-artifacts-bucket/*",
-                "arn:aws:s3:::resilience-atlas-build-artifacts-bucket"
+                "arn:aws:s3:::resilience-atlas-build-artifacts/*",
+                "arn:aws:s3:::resilience-atlas-build-artifacts"
             ],
             "Effect": "Allow"
         },
@@ -245,5 +245,12 @@ OUTPUTS:
 - access key / secret
 
 
+# For terraform
 
+## Create a user to run terraform scripts
 
+resilience-atlas-TerraformUser
+
+And generate an access key (for the Command Line Interface)
+
+This user requires the following permissions: TODO
