@@ -13,6 +13,8 @@ const makeMapStateToProps = () => {
     countries: getCountries(state),
     countriesLoaded: state.countries.loaded,
     countryName: STATIC_JOURNEYS ? state.journey.data.title : state.journey.data.attributes.title,
+    layersLoaded: state.layers.loaded,
+    layersLocaleLoaded: state.layers.localeLoaded,
   });
 
   return mapStateToProps;

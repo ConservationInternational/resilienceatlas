@@ -4,7 +4,7 @@ import cx from 'classnames';
 import axios from 'axios';
 import { useRouter } from 'next/router';
 import { useQuery } from '@tanstack/react-query';
-
+import { T } from '@transifex/react';
 import Tabs from 'views/shared/Tabs';
 import LinkButton from 'views/shared/LinkButton';
 import CopyToClipboard from 'views/shared/CopyToClipboard';
@@ -95,22 +95,24 @@ const ShareModal: React.FC<ShareModalProps> = ({ isOpen, setIsOpen }) => {
         <div className="modal-container is-loading-share">
           <div className="modal-content">
             <div className="share-nav">
-              <h2>Share</h2>
+              <h2>
+                <T _str="Share" />
+              </h2>
 
               <ul className="tabs tabs-secondary-content">
                 <li className={cx('tab-title', { active: tab === TABS.LINK })}>
                   <LinkButton data-tab={TABS.LINK} onClick={switchTab}>
-                    Link
+                    <T _str="Link" />
                   </LinkButton>
                 </li>
                 <li className={cx('tab-title', { active: tab === TABS.EMBED })}>
                   <LinkButton data-tab={TABS.EMBED} onClick={switchTab}>
-                    Embed
+                    <T _str="Embed" />
                   </LinkButton>
                 </li>
                 <li className={cx('tab-title', { active: tab === TABS.OEMBED })}>
                   <LinkButton data-tab={TABS.OEMBED} onClick={switchTab}>
-                    OEmbed
+                    <T _str="OEmbed" />
                   </LinkButton>
                 </li>
               </ul>
@@ -124,19 +126,25 @@ const ShareModal: React.FC<ShareModalProps> = ({ isOpen, setIsOpen }) => {
               menuClassName="tabs tabs-secondary-content"
             >
               <Tabs.Pane id="share-link" className="content" name={TABS.LINK}>
-                <p>Copy the link below to share it</p>
+                <p>
+                  <T _str="Copy the link below to share it" />
+                </p>
                 <CopyToClipboard value={shortenUrl} />
               </Tabs.Pane>
 
               <Tabs.Pane className="content" id="share-embed" name={TABS.EMBED}>
-                <p>Copy the embed code below to share it</p>
+                <p>
+                  <T _str="Copy the embed code below to share it" />
+                </p>
                 <CopyToClipboard
                   value={`<iframe frameborder="0" width="960" height="600" src="${shortenEmbedUrl}"></iframe>`}
                 />
               </Tabs.Pane>
 
               <Tabs.Pane className="content" id="share-oembed" name={TABS.OEMBED}>
-                <p>Copy the oembed code below to share it</p>
+                <p>
+                  <T _str="Copy the oembed code below to share it" />
+                </p>
                 <CopyToClipboard value={`${origin}/services/oembed/?url=${shortenUrl}`} />
               </Tabs.Pane>
             </Tabs>

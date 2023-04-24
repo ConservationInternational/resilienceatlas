@@ -33,8 +33,9 @@ Cypress.Commands.add('interceptAllRequests', () => {
   ).as('menuEntriesRequest');
 
   cy.intercept('/api/homepage', { middleware: true }, disableRequestCache).as('homepageRequest');
-
-  cy.intercept('/api/journeys', { middleware: true }, disableRequestCache).as('journeyListRequest');
+  cy.intercept('/api/journeys*', { middleware: true }, disableRequestCache).as(
+    'journeyListRequest',
+  );
   cy.intercept({ method: 'GET', url: '/api/journeys/*', middleware: true }, (req) => {
     req.on('before:response', (res) => {
       // force all API responses to not be cached
