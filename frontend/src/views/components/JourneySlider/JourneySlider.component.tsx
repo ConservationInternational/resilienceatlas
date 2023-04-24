@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import cx from 'classnames';
 import Link from 'next/link';
 import Slider from 'react-slick';
+import { useRouter } from 'next/router';
 
 import type { JourneyItem } from 'types/journeys';
 import { JOURNEY_SLIDES as STATIC_JOURNEY_SLIDES } from 'views/utils';
@@ -10,7 +11,8 @@ const STATIC_JOURNEYS = process.env.NEXT_PUBLIC_STATIC_JOURNEYS === 'true';
 type JourneySliderProps = {
   journeys: JourneyItem[];
   journeysLoaded: boolean;
-  loadJourneys: () => void;
+  loadJourneys: (locale: string) => void;
+  journeysLoadedLocale: string;
 };
 
 const StaticJourneySlider: React.FC = () => {
@@ -52,10 +54,14 @@ const JourneySlider: React.FC<JourneySliderProps> = ({
   journeys,
   journeysLoaded,
   loadJourneys,
+  journeysLoadedLocale,
 }) => {
+  const { locale } = useRouter();
   useEffect(() => {
-    if (!journeysLoaded) loadJourneys();
-  }, [journeysLoaded, loadJourneys]);
+    if (!journeysLoaded || journeysLoadedLocale !== locale) {
+      loadJourneys(locale);
+    }
+  }, [journeysLoaded, loadJourneys, locale, journeysLoadedLocale]);
   if (!journeys) return null;
   return (
     <div className="m-slider" id="sliderView">

@@ -49,5 +49,6 @@ export const load = (locale) =>
     {
       schema: [model],
       includedSchema: 'union',
+      locale,
     },
   );

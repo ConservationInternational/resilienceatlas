@@ -15,5 +15,6 @@ export const load = (locale) =>
       get(URL_SITE, { params: { site_scope: subdomain, locale: toBackendLocale(locale) } }),
     {
       schema: site_scope,
+      locale,
     },
   );

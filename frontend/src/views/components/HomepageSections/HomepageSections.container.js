@@ -7,6 +7,7 @@ const mapStateToProps = (state) => {
   return {
     homepage: state.homepage,
     homepageLoaded: state.homepage?.loaded,
+    homepageLoadedLocale: state.homepage?.loadedLocale,
   };
 };
 
