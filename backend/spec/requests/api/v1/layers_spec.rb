@@ -37,7 +37,8 @@ RSpec.describe "API V1 Layer", type: :request do
 
       let(:default_site_scope) { create :site_scope, id: 1, name: "CIGRP" }
       let(:layer_group) { create :layer_group, site_scope: default_site_scope }
-      let(:layer) { create :layer, download: true, layer_groups: [layer_group] }
+      let(:source) { create :source }
+      let(:layer) { create :layer, download: true, layer_groups: [layer_group], sources: [source] }
       let(:stub_layer_zip) { "#{Rails.root}/downloads/#{layer.name.parameterize}-date-#{DateTime.now.to_date.to_s.parameterize}-main.zip" }
       let(:id) { layer.id }
 
