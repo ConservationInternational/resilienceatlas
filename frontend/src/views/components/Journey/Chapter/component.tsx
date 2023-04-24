@@ -27,7 +27,7 @@ const Chapter: React.FC<JourneyAttributes> = ({
   <div
     className="m-journey--chapter"
     // Fallback for old journeys with number masked directly on the image
-    {...(backgroundColor
+    {...(backgroundColor && backgroundColor !== '#000000'
       ? {}
       : { style: { backgroundImage: `url(${backgroundImage?.original})` } })}
   >
@@ -35,13 +35,15 @@ const Chapter: React.FC<JourneyAttributes> = ({
       <div
         className="chapter-number"
         style={{
-          background: `
+          background:
+            !backgroundImage?.original &&
+            `
               linear-gradient(0deg, ${hexToRGB(backgroundColor, 0.6)},${hexToRGB(
-            backgroundColor,
-            0.6,
-          )}), linear-gradient(0deg, ${backgroundColor}, ${backgroundColor}), linear-gradient(0deg, #000, #000), url(${
-            backgroundImage?.original
-          })
+              backgroundColor,
+              0.6,
+            )}), linear-gradient(0deg, ${backgroundColor}, ${backgroundColor}), linear-gradient(0deg, #000, #000), url(${
+              backgroundImage?.original
+            })
             `,
         }}
       >
