@@ -18,7 +18,7 @@
 #
 
 class LayerGroup < ApplicationRecord
-  has_many :agrupations
+  has_many :agrupations, dependent: :destroy
   has_many :layers, through: :agrupations
   belongs_to :super_group, class_name: "LayerGroup", optional: true
   has_many :sub_groups, class_name: "LayerGroup", foreign_key: :super_group_id, dependent: :nullify
