@@ -11,5 +11,6 @@ export { default as layer_groups } from './layer_groups';
 export { default as predictive_models } from './predictive_models';
 export { default as sources } from './sources';
 export { default as countries } from './countries';
+export { default as about } from './about';
 export { default as homepage } from './homepage';
 export { default as translations } from './translations';
