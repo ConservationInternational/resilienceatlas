@@ -45,17 +45,8 @@ class PdfFile
         pdf.text "Layer: #{@layer["name"]}", size: 10
         pdf.move_down(5)
         pdf.font_size 8
-        pdf.text "Info: #{begin
-          JSON.parse(@layer["info"]).with_indifferent_access[:description]
-        rescue
-          @layer["info"]
-        end}"
+        pdf.text "Info: #{@layer["description"]}"
         pdf.move_down(5)
-        pdf.text "Source: #{begin
-          JSON.parse(@layer["info"]).with_indifferent_access[:source]
-        rescue
-          @layer["info"]
-        end}"
         pdf.move_down(10)
         pdf.table generated_table_data, width: pdf.bounds.width, row_colors: ["F6F6F6", "FFFFFF"], cell_style: {border_width: 0,
                                                                                                                 border_color: "F0F0F0",

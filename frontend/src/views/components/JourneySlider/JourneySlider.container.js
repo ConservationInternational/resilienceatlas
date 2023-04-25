@@ -9,6 +9,7 @@ const makeMapStateToProps = () => {
   const mapStateToProps = (state) => ({
     journeys: getAllJourneys(state),
     journeysLoaded: state.journeys.loaded,
+    journeysLoadedLocale: state.journeys.loadedLocale,
   });
 
   return mapStateToProps;

@@ -17,6 +17,7 @@ export const load = (locale) =>
       })
     : api(LOAD, ({ get }) => get(URL_JOURNEYS, { params: { locale: toBackendLocale(locale) } }), {
         schema: [journey],
+        locale,
       });
 
 export const loadOne = (id, locale) =>
@@ -25,5 +26,5 @@ export const loadOne = (id, locale) =>
     : api(
         LOAD_ONE,
         ({ get }) => get(`${URL_JOURNEYS}/${id}`, { params: { locale: toBackendLocale(locale) } }),
-        { id },
+        { id, locale },
       );

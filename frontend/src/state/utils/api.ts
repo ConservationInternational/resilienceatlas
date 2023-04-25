@@ -114,6 +114,7 @@ export default function api(apiAction: ApiAction, cb: Callback, meta: ApiMeta) {
             meta,
           });
         } else {
+          // eslint-disable-next-line no-console
           console.error(error);
         }
       });

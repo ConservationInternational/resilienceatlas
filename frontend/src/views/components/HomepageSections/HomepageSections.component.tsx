@@ -5,6 +5,7 @@ import Journeys from './Journeys';
 import Section from './Section';
 
 import type { Intro as IntroType, JourneyItem, SectionItem } from 'types/homepage';
+import { useRouter } from 'next/router';
 
 const HOMEPAGE_COMPONENTS = {
   journeys: Journeys,
@@ -18,19 +19,23 @@ type HomepageSectionsProps = {
     sections: SectionItem[];
   };
   homepageLoaded: boolean;
-  loadHomepage: () => void;
+  homepageLoadedLocale: string;
+  loadHomepage: (locale: string) => void;
 };
 
 const HomepageSections: React.FC<HomepageSectionsProps> = ({
   homepage,
   homepageLoaded,
+  homepageLoadedLocale,
   loadHomepage,
 }) => {
   const { intro, journeys = [], sections = [] } = homepage;
-
+  const { locale } = useRouter();
   useEffect(() => {
-    if (!homepageLoaded) loadHomepage();
-  }, [homepageLoaded, loadHomepage]);
+    if (!homepageLoaded || homepageLoadedLocale !== locale) {
+      loadHomepage(locale);
+    }
+  }, [loadHomepage, locale, homepageLoadedLocale, homepageLoaded]);
 
   const homepageSections = useMemo(
     () =>
