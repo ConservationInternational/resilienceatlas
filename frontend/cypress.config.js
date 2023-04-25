@@ -5,6 +5,9 @@ module.exports = defineConfig({
   requestTimeout: 30000,
   responseTimeout: 30000,
   execTimeout: 60000,
+  hosts: {
+    '*.localhost': '127.0.0.1',
+  },
   e2e: {
     baseUrl: 'http://localhost:3000',
     screenshotOnRunFailure: true,
