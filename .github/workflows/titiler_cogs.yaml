@@ -18,20 +18,20 @@ on:
       - ".github/workflows/titiler_cogs*"
 
 env:
-  PIPELINE_USER_ACCESS_KEY_ID_: ${{ secrets.PIPELINE_USER_ACCESS_KEY_ID_ }}
-  PIPELINE_USER_SECRET_ACCESS_KEY_: ${{ secrets.PIPELINE_USER_SECRET_ACCESS_KEY_ }}
+  PIPELINE_USER_ACCESS_KEY_ID_: ${{ secrets.PIPELINE_USER_ACCESS_KEY_ID }}
+  PIPELINE_USER_SECRET_ACCESS_KEY_: ${{ secrets.PIPELINE_USER_ACCESS_KEY_SECRET }}
   SAM_TEMPLATE: cloud_functions/titiler_cogs/template.yaml
   TESTING_STACK_NAME: titiler-cogs-staging
-  TESTING_PIPELINE_EXECUTION_ROLE: arn:aws:iam::744899542263:role/resilience-atlas-PipelineExecutionRole
-  TESTING_CLOUDFORMATION_EXECUTION_ROLE: arn:aws:iam::744899542263:role/resilience-atlas-CloudFormationExecutionRole
-  TESTING_ARTIFACTS_BUCKET: resilience-atlas-build-artifacts-bucket
-  TESTING_IMAGE_REPOSITORY: 744899542263.dkr.ecr.us-east-1.amazonaws.com/resilience-atlas-pipeline-resources-imagerepository
+  TESTING_PIPELINE_EXECUTION_ROLE: arn:aws:iam::217105793245:role/resilience-atlas-PipelineExecutionRole
+  TESTING_CLOUDFORMATION_EXECUTION_ROLE: arn:aws:iam::217105793245:role/resilience-atlas-CloudFormationExecutionRole
+  TESTING_ARTIFACTS_BUCKET: resilience-atlas-build-artifacts
+  TESTING_IMAGE_REPOSITORY: 217105793245.dkr.ecr.us-east-1.amazonaws.com/resilience-atlas-pipeline-resources
   TESTING_REGION: us-east-1
   PROD_STACK_NAME: titiler-cogs-production
-  PROD_PIPELINE_EXECUTION_ROLE: arn:aws:iam::744899542263:role/resilience-atlas-PipelineExecutionRole
-  PROD_CLOUDFORMATION_EXECUTION_ROLE: arn:aws:iam::744899542263:role/resilience-atlas-CloudFormationExecutionRole
-  PROD_ARTIFACTS_BUCKET: resilience-atlas-build-artifacts-bucket
-  PROD_IMAGE_REPOSITORY: 744899542263.dkr.ecr.us-east-1.amazonaws.com/resilience-atlas-pipeline-resources-imagerepository
+  PROD_PIPELINE_EXECUTION_ROLE: arn:aws:iam::217105793245:role/resilience-atlas-PipelineExecutionRole
+  PROD_CLOUDFORMATION_EXECUTION_ROLE: arn:aws:iam::217105793245:role/resilience-atlas-CloudFormationExecutionRole
+  PROD_ARTIFACTS_BUCKET: resilience-atlas-build-artifacts
+  PROD_IMAGE_REPOSITORY: 217105793245.dkr.ecr.us-east-1.amazonaws.com/resilience-atlas-pipeline-resources
   PROD_REGION: us-east-1
 
 jobs:
