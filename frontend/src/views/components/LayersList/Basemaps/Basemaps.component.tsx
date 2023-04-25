@@ -1,7 +1,9 @@
-import { useRouterValue, useToggle, useTogglerButton, clickable } from 'utilities';
+import { useMemo } from 'react';
 import cx from 'classnames';
-import { T } from '@transifex/react';
-import { MAP_LABELS_OPTIONS } from 'views/components/LayersList/Basemaps/constants';
+import { T, useLocale } from '@transifex/react';
+
+import { useRouterValue, useToggle, useTogglerButton, clickable } from 'utilities';
+import { getMapLabelOptions } from 'views/components/LayersList/Basemaps/constants';
 import type { BASEMAP_LABELS, MAP_LABELS } from 'views/components/LayersList/Basemaps/constants';
 
 type BasemapsProps = {
@@ -18,6 +20,10 @@ const Basemaps = ({ basemap, labels, setBasemap, setLabels }: BasemapsProps) => 
   useRouterValue('labels', labels, { onlyOnChange: true });
 
   const { getTogglerProps } = useTogglerButton(basemap, setBasemap);
+
+  const locale = useLocale();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const translatedLabels = useMemo(() => getMapLabelOptions(), [locale]);
 
   return (
     <li>
@@ -60,7 +66,7 @@ const Basemaps = ({ basemap, labels, setBasemap, setLabels }: BasemapsProps) => 
         </li>
       </ul>
       <ul className={cx('m-labels-selectors', { 'is-active': opened })}>
-        {MAP_LABELS_OPTIONS.map(({ label, value }) => (
+        {translatedLabels.map(({ label, value }) => (
           <li key={value}>
             <div className="panel-item-switch m-form-input--switch label-option">
               <input

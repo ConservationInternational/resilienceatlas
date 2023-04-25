@@ -14,7 +14,7 @@ const initialState: MapState = {
   bounds: null,
   iso: getRouterParam('iso'),
   basemap: getRouterParam('basemap') || (subdomain === 'atlas' ? 'satellite' : 'defaultmap'),
-  labels: getRouterParam('labels') || 'light',
+  labels: getRouterParam('labels') || 'none',
   layerGroupsInteraction: {},
   layerGroupsInteractionSelected: null,
   layerGroupsInteractionLatLng: null,
