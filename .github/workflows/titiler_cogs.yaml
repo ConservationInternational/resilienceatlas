@@ -17,23 +17,6 @@ on:
       - "cloud_functions/titiler_cogs/**"
       - ".github/workflows/titiler_cogs*"
 
-env:
-  PIPELINE_USER_ACCESS_KEY_ID_: ${{ secrets.PIPELINE_USER_ACCESS_KEY_ID }}
-  PIPELINE_USER_SECRET_ACCESS_KEY_: ${{ secrets.PIPELINE_USER_ACCESS_KEY_SECRET }}
-  SAM_TEMPLATE: cloud_functions/titiler_cogs/template.yaml
-  TESTING_STACK_NAME: titiler-cogs-staging
-  TESTING_PIPELINE_EXECUTION_ROLE: arn:aws:iam::217105793245:role/resilience-atlas-PipelineExecutionRole
-  TESTING_CLOUDFORMATION_EXECUTION_ROLE: arn:aws:iam::217105793245:role/resilience-atlas-CloudFormationExecutionRole
-  TESTING_ARTIFACTS_BUCKET: resilience-atlas-build-artifacts
-  TESTING_IMAGE_REPOSITORY: 217105793245.dkr.ecr.us-east-1.amazonaws.com/resilience-atlas-pipeline-resources
-  TESTING_REGION: us-east-1
-  PROD_STACK_NAME: titiler-cogs-production
-  PROD_PIPELINE_EXECUTION_ROLE: arn:aws:iam::217105793245:role/resilience-atlas-PipelineExecutionRole
-  PROD_CLOUDFORMATION_EXECUTION_ROLE: arn:aws:iam::217105793245:role/resilience-atlas-CloudFormationExecutionRole
-  PROD_ARTIFACTS_BUCKET: resilience-atlas-build-artifacts
-  PROD_IMAGE_REPOSITORY: 217105793245.dkr.ecr.us-east-1.amazonaws.com/resilience-atlas-pipeline-resources
-  PROD_REGION: us-east-1
-
 jobs:
   test:
     if: github.event_name == 'push'
@@ -55,10 +38,10 @@ jobs:
       - name: Assume the testing pipeline user role
         uses: aws-actions/configure-aws-credentials@v1-node16
         with:
-          aws-access-key-id: ${{ env.PIPELINE_USER_ACCESS_KEY_ID_ }}
-          aws-secret-access-key: ${{ env.PIPELINE_USER_SECRET_ACCESS_KEY_ }}
-          aws-region: ${{ env.TESTING_REGION }}
-          role-to-assume: ${{ env.TESTING_PIPELINE_EXECUTION_ROLE }}
+          aws-access-key-id: ${{ secrets.PIPELINE_USER_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.PIPELINE_USER_ACCESS_KEY_SECRET }}
+          aws-region: ${{ secrets.TESTING_REGION }}
+          role-to-assume: ${{ secrets.TESTING_PIPELINE_EXECUTION_ROLE }}
           role-session-name: testing-packaging
           role-duration-seconds: 3600
           role-skip-session-tagging: true
@@ -90,10 +73,10 @@ jobs:
       - name: Assume the testing pipeline user role
         uses: aws-actions/configure-aws-credentials@v1-node16
         with:
-          aws-access-key-id: ${{ env.PIPELINE_USER_ACCESS_KEY_ID_ }}
-          aws-secret-access-key: ${{ env.PIPELINE_USER_SECRET_ACCESS_KEY_ }}
-          aws-region: ${{ env.TESTING_REGION }}
-          role-to-assume: ${{ env.TESTING_PIPELINE_EXECUTION_ROLE }}
+          aws-access-key-id: ${{ secrets.PIPELINE_USER_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.PIPELINE_USER_ACCESS_KEY_SECRET }}
+          aws-region: ${{ secrets.TESTING_REGION }}
+          role-to-assume: ${{ secrets.TESTING_PIPELINE_EXECUTION_ROLE }}
           role-session-name: feature-deployment
           role-duration-seconds: 3600
           role-skip-session-tagging: true
@@ -125,10 +108,10 @@ jobs:
       - name: Assume the testing pipeline user role
         uses: aws-actions/configure-aws-credentials@v1-node16
         with:
-          aws-access-key-id: ${{ env.PIPELINE_USER_ACCESS_KEY_ID_ }}
-          aws-secret-access-key: ${{ env.PIPELINE_USER_SECRET_ACCESS_KEY_ }}
-          aws-region: ${{ env.TESTING_REGION }}
-          role-to-assume: ${{ env.TESTING_PIPELINE_EXECUTION_ROLE }}
+          aws-access-key-id: ${{ secrets.PIPELINE_USER_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.PIPELINE_USER_ACCESS_KEY_SECRET }}
+          aws-region: ${{ secrets.TESTING_REGION }}
+          role-to-assume: ${{ secrets.TESTING_PIPELINE_EXECUTION_ROLE }}
           role-session-name: testing-packaging
           role-duration-seconds: 3600
           role-skip-session-tagging: true
@@ -149,10 +132,10 @@ jobs:
       - name: Assume the prod pipeline user role
         uses: aws-actions/configure-aws-credentials@v1-node16
         with:
-          aws-access-key-id: ${{ env.PIPELINE_USER_ACCESS_KEY_ID_ }}
-          aws-secret-access-key: ${{ env.PIPELINE_USER_SECRET_ACCESS_KEY_ }}
-          aws-region: ${{ env.PROD_REGION }}
-          role-to-assume: ${{ env.PROD_PIPELINE_EXECUTION_ROLE }}
+          aws-access-key-id: ${{ secrets.PIPELINE_USER_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.PIPELINE_USER_ACCESS_KEY_SECRET }}
+          aws-region: ${{ secrets.PROD_REGION }}
+          role-to-assume: ${{ secrets.PROD_PIPELINE_EXECUTION_ROLE }}
           role-session-name: prod-packaging
           role-duration-seconds: 3600
           role-skip-session-tagging: true
@@ -186,10 +169,10 @@ jobs:
       - name: Assume the testing pipeline user role
         uses: aws-actions/configure-aws-credentials@v1-node16
         with:
-          aws-access-key-id: ${{ env.PIPELINE_USER_ACCESS_KEY_ID_ }}
-          aws-secret-access-key: ${{ env.PIPELINE_USER_SECRET_ACCESS_KEY_ }}
-          aws-region: ${{ env.TESTING_REGION }}
-          role-to-assume: ${{ env.TESTING_PIPELINE_EXECUTION_ROLE }}
+          aws-access-key-id: ${{ secrets.PIPELINE_USER_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.PIPELINE_USER_ACCESS_KEY_SECRET }}
+          aws-region: ${{ secrets.TESTING_REGION }}
+          role-to-assume: ${{ secrets.TESTING_PIPELINE_EXECUTION_ROLE }}
           role-session-name: testing-deployment
           role-duration-seconds: 3600
           role-skip-session-tagging: true
@@ -233,10 +216,10 @@ jobs:
       - name: Assume the prod pipeline user role
         uses: aws-actions/configure-aws-credentials@v1-node16
         with:
-          aws-access-key-id: ${{ env.PIPELINE_USER_ACCESS_KEY_ID_ }}
-          aws-secret-access-key: ${{ env.PIPELINE_USER_SECRET_ACCESS_KEY_ }}
-          aws-region: ${{ env.PROD_REGION }}
-          role-to-assume: ${{ env.PROD_PIPELINE_EXECUTION_ROLE }}
+          aws-access-key-id: ${{ secrets.PIPELINE_USER_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.PIPELINE_USER_ACCESS_KEY_SECRET }}
+          aws-region: ${{ secrets.PROD_REGION }}
+          role-to-assume: ${{ secrets.PROD_PIPELINE_EXECUTION_ROLE }}
           role-session-name: prod-deployment
           role-duration-seconds: 3600
           role-skip-session-tagging: true

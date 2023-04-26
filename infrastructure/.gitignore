@@ -1,7 +1,0 @@
-.terraform
-terraform.tfstate.*
-terraform.tfstate
-base/vars/*
-state/vars/*
-!base/vars/terraform.tfvars
-!state/vars/terraform.tfvars

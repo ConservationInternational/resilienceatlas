@@ -2,3 +2,10 @@
 .idea
 .vscode
 
+infrastructure/base/.terraform
+infrastructure/base/vars/*
+infrastructure/!base/vars/terraform.tfvars
+
+infrastructure/state/.terraform
+infrastructure/state/vars/*
+infrastructure/!state/vars/terraform.tfvars
