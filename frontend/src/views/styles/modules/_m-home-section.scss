@@ -80,16 +80,18 @@
     bottom: 10px;
     margin: 0;
 
+    &,
+    & a {
+      color: $font-color-3;
+    }
+
+
     &--left {
       left: 20px;
     }
 
     &--right {
       right: 20px;
-    }
-
-    a {
-      color: $font-color-3;
     }
   }
 
