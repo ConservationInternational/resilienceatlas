@@ -30,7 +30,6 @@
 
   &__content {
     color: $font-color-3;
-    padding: 0 rem(100px);
 
     @media screen and (max-width: 400px) {
       padding: 0;
@@ -43,17 +42,14 @@
       max-width: 960px;
     }
 
-    &--left,
-    &-right {
-      width: 50%;
-    }
-
     &--left {
       text-align: left;
+      margin-right: 50%;
     }
 
     &--right {
       text-align: right;
+      margin-left: 50%;
     }
 
     h2 {
