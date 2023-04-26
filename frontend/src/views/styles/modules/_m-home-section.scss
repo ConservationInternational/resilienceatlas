@@ -87,10 +87,14 @@
 
 
     &--left {
-      left: 20px;
+      left: calc(50% + 20px);
     }
 
     &--right {
+      right: calc(50% + 20px);;
+    }
+
+    &--cover {
       right: 20px;
     }
   }

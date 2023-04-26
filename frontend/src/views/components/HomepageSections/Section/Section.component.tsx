@@ -59,7 +59,8 @@ const Section: React.FC<SectionProps> = ({
         <p
           className={cx('m-home-section__credits', {
             'm-home-section__credits--left': image_position === 'left',
-            'm-home-section__credits--right': image_position !== 'left',
+            'm-home-section__credits--right': image_position === 'right',
+            'm-home-section__credits--cover': image_position === 'cover',
           })}
         >
           {image_credits_url ? (
