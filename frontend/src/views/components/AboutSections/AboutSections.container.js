@@ -8,6 +8,7 @@ const mapStateToProps = (state) => {
     about: state.about?.data,
     aboutLoaded: state.about?.loaded,
     aboutLoadedLocale: state.about?.loadedLocale,
+    translations: state.translations.data,
   };
 };
 

@@ -2,8 +2,8 @@ export interface About {
   intro: AboutAttributes;
   sections: (IncludedAttributes & {
     paragraph?: IncludedAttributes;
-    items?: IncludedAttributes;
-    references?: IncludedAttributes;
+    items?: IncludedAttributes[];
+    references?: IncludedAttributes[];
   })[];
 }
 
@@ -16,7 +16,7 @@ export enum SectionTypes {
   section = 'static_page_sections',
   paragraphs = 'static_page_section_paragraphs',
   items = 'static_page_section_items',
-  references = 'static_page_section_paragraphs',
+  references = 'static_page_section_references',
 }
 
 export interface AboutData {
