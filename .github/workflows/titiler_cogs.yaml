@@ -52,7 +52,7 @@ jobs:
         run: |
           sam delete \
             --stack-name $(echo ${FEATURE_BRANCH_NAME##*/} | tr -cd '[a-zA-Z0-9-]') \
-            --region ${TESTING_REGION} \
+            --region ${{ secrets.TESTING_REGION }} \
             --no-prompts
 
   build-and-deploy-feature:
@@ -86,11 +86,11 @@ jobs:
         run: |
           sam deploy --stack-name $(echo ${GITHUB_REF##*/} | tr -cd '[a-zA-Z0-9-]') \
             --capabilities CAPABILITY_IAM \
-            --region ${TESTING_REGION} \
-            --s3-bucket ${TESTING_ARTIFACTS_BUCKET} \
-            --image-repository ${TESTING_IMAGE_REPOSITORY} \
+            --region ${{ secrets.TESTING_REGION }} \
+            --s3-bucket ${{ secrets.TESTING_ARTIFACTS_BUCKET }} \
+            --image-repository ${{ secrets.TESTING_IMAGE_REPOSITORY }} \
             --no-fail-on-empty-changeset \
-            --role-arn ${TESTING_CLOUDFORMATION_EXECUTION_ROLE}
+            --role-arn ${{ secrets.TESTING_CLOUDFORMATION_EXECUTION_ROLE }}
 
   build-and-package:
     if: github.ref == 'refs/heads/master'
@@ -119,9 +119,9 @@ jobs:
       - name: Upload artifacts to testing artifact buckets
         run: |
           sam package \
-            --s3-bucket ${TESTING_ARTIFACTS_BUCKET} \
-            --image-repository ${TESTING_IMAGE_REPOSITORY} \
-            --region ${TESTING_REGION} \
+            --s3-bucket ${{ secrets.TESTING_ARTIFACTS_BUCKET }} \
+            --image-repository ${{ secrets.TESTING_IMAGE_REPOSITORY }} \
+            --region ${{ secrets.TESTING_REGION }} \
             --output-template-file packaged-testing.yaml
 
       - uses: actions/upload-artifact@v2
@@ -143,9 +143,9 @@ jobs:
       - name: Upload artifacts to production artifact buckets
         run: |
           sam package \
-            --s3-bucket ${PROD_ARTIFACTS_BUCKET} \
-            --image-repository ${PROD_IMAGE_REPOSITORY} \
-            --region ${PROD_REGION} \
+            --s3-bucket ${{ secrets.PROD_ARTIFACTS_BUCKET }} \
+            --image-repository ${{ secrets.PROD_IMAGE_REPOSITORY }} \
+            --region ${{ secrets.PROD_REGION }} \
             --output-template-file packaged-prod.yaml
 
       - uses: actions/upload-artifact@v2
@@ -179,14 +179,14 @@ jobs:
 
       - name: Deploy to testing account
         run: |
-          sam deploy --stack-name ${TESTING_STACK_NAME} \
+          sam deploy --stack-name ${{ secrets.TESTING_STACK_NAME }} \
             --template packaged-testing.yaml \
             --capabilities CAPABILITY_IAM \
-            --region ${TESTING_REGION} \
-            --s3-bucket ${TESTING_ARTIFACTS_BUCKET} \
-            --image-repository ${TESTING_IMAGE_REPOSITORY} \
+            --region ${{ secrets.TESTING_REGION }} \
+            --s3-bucket ${{ secrets.TESTING_ARTIFACTS_BUCKET }} \
+            --image-repository ${{ secrets.TESTING_IMAGE_REPOSITORY }} \
             --no-fail-on-empty-changeset \
-            --role-arn ${TESTING_CLOUDFORMATION_EXECUTION_ROLE}
+            --role-arn ${{ secrets.TESTING_CLOUDFORMATION_EXECUTION_ROLE }}
 
   integration-test:
     if: github.ref == 'refs/heads/master'
@@ -226,11 +226,11 @@ jobs:
 
       - name: Deploy to production account
         run: |
-          sam deploy --stack-name ${PROD_STACK_NAME} \
+          sam deploy --stack-name ${{ secrets.PROD_STACK_NAME }} \
             --template packaged-prod.yaml \
             --capabilities CAPABILITY_IAM \
-            --region ${PROD_REGION} \
-            --s3-bucket ${PROD_ARTIFACTS_BUCKET} \
-            --image-repository ${PROD_IMAGE_REPOSITORY} \
+            --region ${{ secrets.PROD_REGION }} \
+            --s3-bucket ${{ secrets.PROD_ARTIFACTS_BUCKET }} \
+            --image-repository ${{ secrets.PROD_IMAGE_REPOSITORY }} \
             --no-fail-on-empty-changeset \
-            --role-arn ${PROD_CLOUDFORMATION_EXECUTION_ROLE}
+            --role-arn ${{ secrets.PROD_CLOUDFORMATION_EXECUTION_ROLE }}
