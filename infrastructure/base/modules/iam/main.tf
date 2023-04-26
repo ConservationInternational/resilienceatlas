@@ -7,16 +7,6 @@ resource "aws_iam_access_key" "pipeline_user_access_key" {
   user = aws_iam_user.pipeline_user.name
 }
 
-resource "local_file" "pipeline_user_access_key_id" {
-  content  = aws_iam_access_key.pipeline_user_access_key.id
-  filename = "access_key_id.txt"
-}
-
-resource "local_file" "pipeline_user_access_key_secret" {
-  content  = aws_iam_access_key.pipeline_user_access_key.secret
-  filename = "access_key_secret.txt"
-}
-
 resource "aws_iam_user_policy" "pipeline_user_policy" {
   name   = "ResilienceAtlasAssumePipelineUserPolicy"
   user   = aws_iam_user.pipeline_user.name
