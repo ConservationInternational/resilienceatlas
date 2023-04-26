@@ -30,6 +30,7 @@ interface MapViewProps {
   labels: (typeof MAP_LABELS)[number];
   basemap: (typeof BASEMAP_LABELS)[number];
   router: NextRouter;
+  onLoadingLayers?: (loaded: boolean) => void;
   [k: string]: unknown;
 }
 
@@ -57,6 +58,7 @@ const MapView = (props: MapViewProps) => {
     labels,
     embed,
     drawing,
+    onLoadingLayers,
   } = props;
   const { query, locale } = router;
   const { setParam } = useRouterParams();
@@ -107,6 +109,17 @@ const MapView = (props: MapViewProps) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [site.latitude, query.center]);
 
+  const onLayerLoading = useCallback(
+    (_isAnyLayerLoading: boolean) => {
+      onLoadingLayers?.(_isAnyLayerLoading);
+    },
+    [onLoadingLayers],
+  );
+
+  const onLayerLoaded = useCallback(() => {
+    onLayerLoading(false);
+  }, [onLayerLoading]);
+
   return (
     <Maps
       customClass="m-map"
@@ -122,6 +135,10 @@ const MapView = (props: MapViewProps) => {
         maxZoom: 13,
       }}
       events={{
+        layeradd: ({ layer }) => {
+          onLayerLoading(true);
+          layer.on('load', onLayerLoaded);
+        },
         zoomend: (e, map) => {
           const mapZoom = map.getZoom();
 

@@ -1,5 +1,5 @@
 import { useCookies } from 'react-cookie';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTour } from '@reactour/tour';
 
 import FullscreenLayout from 'views/layouts/fullscreen';
@@ -9,10 +9,10 @@ import InfoWindow from 'views/components/InfoWindow';
 import LoginRequiredWindow from 'views/components/LoginRequiredWindow';
 import DownloadWindow from 'views/components/DownloadWindow';
 import MapView from 'views/components/Map';
+import MapLoadingScreen from 'views/components/Map/loading-screen';
 
 import { LayerManagerProvider } from 'views/contexts/layerManagerCtx';
 
-import Loader from 'views/shared/Loader';
 import type { NextPageWithLayout } from './_app';
 import { getServerSideTranslations } from 'i18n';
 import { withTranslations, useSetServerSideTranslations } from 'utilities/hooks/transifex';
@@ -22,6 +22,7 @@ const MapPage: NextPageWithLayout = ({ translations, setTranslations }) => {
   const [cookies, setCookie] = useCookies(['mapTour']);
   const { mapTour } = cookies;
   const { isOpen, setIsOpen } = useTour();
+  const [anyLayerLoading, setAnyLayerLoading] = useState(false);
 
   // TODO: migrate this, how it works?
   // const { location: { state } } = props;
@@ -45,7 +46,19 @@ const MapPage: NextPageWithLayout = ({ translations, setTranslations }) => {
     <LayerManagerProvider>
       <Sidebar />
       <div className="l-content--fullscreen">
+        {anyLayerLoading && (
+          <MapLoadingScreen
+            styles={{
+              // 350px is the width of the left sidebar
+              width: 'calc(100% - 350px)',
+              left: 350,
+            }}
+          />
+        )}
         <MapView
+          onLoadingLayers={(loaded) => {
+            setAnyLayerLoading(loaded);
+          }}
           options={{
             map: {
               minZoom: 2,
@@ -54,7 +67,6 @@ const MapPage: NextPageWithLayout = ({ translations, setTranslations }) => {
             },
           }}
         />
-        <Loader />
         <Legend />
         <InfoWindow />
         <DownloadWindow />

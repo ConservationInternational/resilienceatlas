@@ -1,0 +1,26 @@
+.m-map-loading-screen {
+  z-index: 1000;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background-color: rgba($white, .85);
+
+  .loader-position {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, 0);
+  }
+
+  .spinner {
+    position: relative;
+    top: -45px;
+    left: -35px;
+    @include spinner(69px, 8px, $blue);
+  }
+
+  .text {
+    font-size: 20px;
+    font-weight: 600;
+  }
+}
