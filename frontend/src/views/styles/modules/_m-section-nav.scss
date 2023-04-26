@@ -10,6 +10,8 @@
 
   display: flex;
   justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
 
   a {
     font-size: 14px;
@@ -17,9 +19,5 @@
     text-transform: uppercase;
     color: #555;
     margin-right: 10px;
-
-    @media screen and (min-width: 700px) {
-      margin-right: 0;
-    }
   }
 }
