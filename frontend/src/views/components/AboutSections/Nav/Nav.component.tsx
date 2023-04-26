@@ -17,7 +17,11 @@ const Nav: React.FC<NavProps> = ({ links, translations }) => {
           <ul className="m-section-nav">
             {links.map((link) => (
               <li key={`nav-${link.slug}`}>
-                <a href={`#${link.slug}`} title={translations['About section link']}>
+                <a
+                  href={`#${link.slug}`}
+                  className="link"
+                  title={translations['About section link']}
+                >
                   {link.title}
                 </a>
               </li>

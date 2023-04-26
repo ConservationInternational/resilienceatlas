@@ -1,9 +1,11 @@
 .m-static-page {
+
+  font-weight: 400;
+
   h2 {
      margin-top: 0;
      font-size: rem(64px);
      font-family: $font-face-2;
-     font-weight: 400;
      text-transform: uppercase;
      line-height: .9em;
      margin-bottom: rem(20px);
@@ -17,7 +19,7 @@
     overflow: hidden;
     margin-bottom: 30px;
 
-    p {
+    div {
       margin-top: 0;
     }
   }
@@ -31,14 +33,19 @@
     color: $bg-color-2;
   }
 
-  p {
+  div {
     font-size: 16px;
-    font-weight: 400;
     letter-spacing: 1px;
     line-height: 1.4em;
   }
 
-  p:first-child {
+  .paragraph {
+    div:last-child {
+      margin-bottom: 16px;
+    }
+  }
+
+  div:first-child {
     margin-top: 0;
   }
 
@@ -90,7 +97,7 @@
       font-size: rem(18px);
       font-weight: 700;
     }
-    p {
+    div {
       font-size: rem(14px);
     }
   }
@@ -102,11 +109,12 @@
       padding-bottom: rem(10px);
     }
 
-    .credits {
-      a {
-        color: $font-color-1;
-        font-size: 12px;
-      }
+  }
+
+  .credits {
+    a {
+      display: block;
+      margin-bottom: 16px;
     }
   }
 }

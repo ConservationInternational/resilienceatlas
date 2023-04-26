@@ -16,5 +16,10 @@
     font-weight: 700;
     text-transform: uppercase;
     color: #555;
+    margin-right: 10px;
+
+    @media screen and (min-width: 700px) {
+      margin-right: 0;
+    }
   }
 }

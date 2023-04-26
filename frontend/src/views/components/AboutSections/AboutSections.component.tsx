@@ -6,7 +6,7 @@ import Intro from './Intro';
 import Nav from './Nav';
 import { Row, Column } from 'react-foundation';
 import { translations } from 'state/modules';
-import DangerousHTML from 'react-dangerous-html';
+import CustomHtmlRenderer from 'views/components/CustomHtmlRenderer';
 
 type AboutSectionsProps = {
   about: About;
@@ -55,7 +55,7 @@ const AboutSections: React.FC<AboutSectionsProps> = ({
             return (
               <Column small={12} medium={getColumnSize()}>
                 <TitleComponent>{title}</TitleComponent>
-                {text && <DangerousHTML html={text} />}
+                {text && <CustomHtmlRenderer className="paragraph" content={text} />}
                 {items &&
                   items.map((item) => (
                     <section key={`item-${item.title}`}>
@@ -66,7 +66,7 @@ const AboutSections: React.FC<AboutSectionsProps> = ({
                       />
                       <div className="team-bio">
                         <h3>{item.title}</h3>
-                        {item.description && <DangerousHTML html={item.description} />}
+                        {item.description && <CustomHtmlRenderer content={item.description} />}
                       </div>
                     </section>
                   ))}
@@ -74,7 +74,7 @@ const AboutSections: React.FC<AboutSectionsProps> = ({
                   <div className="references">
                     {references.map((reference) => (
                       <p key={`reference-${reference.slug}`} id={reference.slug}>
-                        <DangerousHTML html={reference.text} />
+                        <CustomHtmlRenderer content={reference.text} />
                       </p>
                     ))}
                   </div>
