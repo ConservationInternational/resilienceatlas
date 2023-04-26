@@ -1,5 +1,5 @@
 resource "aws_s3_bucket" "build_artifacts_bucket" {
-  bucket = "resilience-atlas-build-artifacts"
+  bucket = var.bucket_name
 }
 
 data "aws_iam_policy_document" "resilience_atlas_access_for_deployment_document" {
