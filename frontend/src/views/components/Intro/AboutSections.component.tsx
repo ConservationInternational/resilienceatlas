@@ -1,8 +1,7 @@
 import React, { useEffect } from 'react';
 import type { About } from 'types/about';
 import { useRouter } from 'next/router';
-import Intro from './Intro';
-import Nav from './Nav';
+import { Row, Column } from 'react-foundation';
 
 type AboutSectionsProps = {
   about: About;
@@ -25,11 +24,22 @@ const AboutSections: React.FC<AboutSectionsProps> = ({
   }, [loadAbout, locale, aboutLoadedLocale, aboutLoaded]);
 
   if (!aboutLoaded || !about) return null;
-  const { intro, sections } = about;
+  const { intro } = about;
+  const { title, image, image_credits, image_credits_url } = intro;
   return (
     <div className="l-content">
-      <Intro {...intro} />
-      <Nav links={sections.map((s) => ({ title: s.title, slug: s.slug }))} />
+      <div className="l-hero" style={{ backgroundImage: `url(${image.original})` }}>
+        <Row>
+          <Column small={12} medium={8}>
+            <h1 className="title">{title}</h1>
+          </Column>
+        </Row>
+        <p className="credits">
+          <a href={image_credits_url} target="_blank" rel="noopener noreferrer">
+            {image_credits}
+          </a>
+        </p>
+      </div>
     </div>
   );
 };

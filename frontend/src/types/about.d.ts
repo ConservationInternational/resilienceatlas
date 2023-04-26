@@ -1,13 +1,10 @@
 export interface About {
   intro: AboutAttributes;
-  sections: (
-    | IncludedAttributes
-    | {
-        paragraph?: IncludedAttributes;
-        items?: IncludedAttributes;
-        references?: IncludedAttributes;
-      }
-  )[];
+  sections: (IncludedAttributes & {
+    paragraph?: IncludedAttributes;
+    items?: IncludedAttributes;
+    references?: IncludedAttributes;
+  })[];
 }
 
 export interface RawAbout {
