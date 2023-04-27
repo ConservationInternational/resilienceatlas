@@ -10,11 +10,14 @@
 
   display: flex;
   justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
 
   a {
     font-size: 14px;
     font-weight: 700;
     text-transform: uppercase;
     color: #555;
+    margin-right: 10px;
   }
 }
