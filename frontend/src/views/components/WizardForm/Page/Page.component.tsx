@@ -20,12 +20,17 @@ const Page: React.FC<{
     question: string;
     description?: string;
     answers: string[];
+    customAnswer?: {
+      id: string;
+      label: string;
+    };
   }[];
   previousButton?: string;
   nextButton?: string;
   submitButton: string;
   isLastPage: boolean;
   isFirstPage: boolean;
+  formValues: object;
 }> = (props) => {
   const {
     title,
@@ -37,6 +42,7 @@ const Page: React.FC<{
     previousButton,
     nextButton,
     submitButton,
+    formValues,
   } = props;
 
   const getAnswerComponent = (type) => {
@@ -67,7 +73,6 @@ const Page: React.FC<{
           )}
 
           {questions.map((question) => {
-            // const { id, question: questionText, description, type } = question;
             const { id, type, question: questionText, description } = question;
             const AnswerComponent = getAnswerComponent(type);
 
@@ -78,7 +83,7 @@ const Page: React.FC<{
                   <span className="m-wizard-form__form-content-description">{description}</span>
                 )}
                 <div className="m-wizard-form__form-content-wrapper">
-                  <AnswerComponent {...question} />
+                  <AnswerComponent {...question} formValues={formValues} />
                 </div>
               </section>
             );
