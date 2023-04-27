@@ -1,9 +1,9 @@
 {
   "light": {
-    "url": "https://api.mapbox.com/styles/v1/cigrp/ciztvip04005h2sup0z42fqip/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoiY2lncnAiLCJhIjoiYTQ5YzVmYTk4YzM0ZWM4OTU1ZjQxMWI5ZDNiNTQ5M2IifQ.SBgo9jJftBDx4c5gX4wm3g"
+    "url": "https://api.mapbox.com/styles/v1/cigrp/clgyr7y4u009l01qt32300lx9/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoiY2lncnAiLCJhIjoiYTQ5YzVmYTk4YzM0ZWM4OTU1ZjQxMWI5ZDNiNTQ5M2IifQ.SBgo9jJftBDx4c5gX4wm3g"
   },
   "dark": {
-    "url": "https://api.mapbox.com/styles/v1/cigrp/cixtein9t001j2rnr4b9uzugr/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoiY2lncnAiLCJhIjoiYTQ5YzVmYTk4YzM0ZWM4OTU1ZjQxMWI5ZDNiNTQ5M2IifQ.SBgo9jJftBDx4c5gX4wm3g"
+    "url": "https://api.mapbox.com/styles/v1/cigrp/clgyh74fy00g901qy2bmmerq9/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoiY2lncnAiLCJhIjoiYTQ5YzVmYTk4YzM0ZWM4OTU1ZjQxMWI5ZDNiNTQ5M2IifQ.SBgo9jJftBDx4c5gX4wm3g"
   },
   "none": {
     "url": ""
