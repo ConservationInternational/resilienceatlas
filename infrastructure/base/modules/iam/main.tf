@@ -30,7 +30,7 @@ data "aws_iam_policy_document" "pipeline_user_policy_document" {
 resource "aws_iam_role" "cloud_formation_role" {
   name               = "resilience-atlas-CloudFormationExecutionRole"
   assume_role_policy = data.aws_iam_policy_document.cloud_formation_role_assume_role_policy_document.json
-  tags = {
+  tags               = {
     Role = "cloud-formation-execution-role"
   }
 }
@@ -54,8 +54,87 @@ resource "aws_iam_role_policy" "cloud_formation_policy" {
 
 data "aws_iam_policy_document" "cloud_formation_role_policy_document" {
   statement {
-    actions   = ["*"]
+    actions = [
+      "cloudformation:*"
+    ]
     resources = ["*"]
+    effect    = "Allow"
+  }
+  statement {
+    actions = [
+      "lambda:*"
+    ]
+    resources = ["*"]
+    effect    = "Allow"
+  }
+  statement {
+    actions = [
+      "apigateway:*"
+    ]
+    resources = ["*"]
+    effect    = "Allow"
+  }
+  statement {
+    actions = [
+      "iam:CreateRole",
+      "iam:DeleteRole",
+      "iam:PutRolePolicy",
+      "iam:DeleteRolePolicy",
+      "iam:GetRole",
+      "iam:DetachRolePolicy",
+      "iam:TagRole",
+      "iam:PassRole",
+      "iam:AttachRolePolicy",
+      "iam:CreateServiceLinkedRole"
+    ]
+    resources = ["*"]
+    effect    = "Allow"
+  }
+  statement {
+    actions = [
+      "s3:DeleteObject",
+      "s3:GetObject*",
+      "s3:PutObject*",
+      "s3:GetBucket*",
+      "s3:List*"
+    ]
+    resources = [
+      "${var.build_artifacts_bucket_arn}/*",
+      var.build_artifacts_bucket_arn
+    ]
+    effect = "Allow"
+  }
+
+  statement {
+    actions   = ["ecr:GetAuthorizationToken"]
+    resources = ["*"]
+    effect    = "Allow"
+  }
+
+  statement {
+    actions   = ["acm:*"]
+    resources = ["*"]
+    effect    = "Allow"
+  }
+
+  statement {
+    actions   = ["route53:*"]
+    resources = ["*"]
+    effect    = "Allow"
+  }
+
+  statement {
+    actions = [
+      "ecr:GetDownloadUrlForLayer",
+      "ecr:BatchDeleteImage",
+      "ecr:BatchGetImage",
+      "ecr:BatchCheckLayerAvailability",
+      "ecr:PutImage",
+      "ecr:InitiateLayerUpload",
+      "ecr:UploadLayerPart",
+      "ecr:CompleteLayerUpload"
+    ]
+    resources = [var.pipeline_resources_arn]
     effect    = "Allow"
   }
 }
@@ -64,7 +143,7 @@ data "aws_iam_policy_document" "cloud_formation_role_policy_document" {
 resource "aws_iam_role" "pipeline_role" {
   name               = "resilience-atlas-PipelineExecutionRole"
   assume_role_policy = data.aws_iam_policy_document.pipeline_role_assume_role_policy_document.json
-  tags = {
+  tags               = {
     Role = "pipeline-execution-role"
   }
 }
