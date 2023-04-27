@@ -10,7 +10,7 @@ on:
 jobs:
   tests:
     name: Run backend tests
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     env:
       DEVISE_KEY: secret
       SECRET_KEY_BASE: secret
@@ -60,7 +60,7 @@ jobs:
 
   ruby_linter:
     name: Run backend rubocop
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     steps:
       - name: Checkout️
@@ -79,7 +79,7 @@ jobs:
 
   security:
     name: Run backend security
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     steps:
       - name: Checkout️
@@ -103,7 +103,7 @@ jobs:
   deploy:
     name: Deploy backend app
     if: (github.head_ref || github.ref_name) == 'develop' || (github.head_ref || github.ref_name) == 'master'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs: [ruby_linter, security, tests]
 
     steps:
