@@ -136,8 +136,15 @@ const MapView = (props: MapViewProps) => {
       }}
       events={{
         layeradd: ({ layer }) => {
+          if (
+            // to avoid displaying loading state with labels
+            layer?._url?.startsWith('https://api.mapbox.com/styles/v1/cigrp') ||
+            // to avoid displaying loading state when the user interacts with the map (click on a layer)
+            layer.hasOwnProperty('_content')
+          )
+            return null;
           onLayerLoading(true);
-          layer.on('load', onLayerLoaded);
+          return layer.on('load', onLayerLoaded);
         },
         zoomend: (e, map) => {
           const mapZoom = map.getZoom();
