@@ -55,16 +55,21 @@ const Section: React.FC<SectionProps> = ({
           }}
         />
       )}
-      {image?.original && image_credits && image_credits_url && (
+      {image?.original && image_credits && (
         <p
           className={cx('m-home-section__credits', {
             'm-home-section__credits--left': image_position === 'left',
-            'm-home-section__credits--right': image_position !== 'left',
+            'm-home-section__credits--right': image_position === 'right',
+            'm-home-section__credits--cover': image_position === 'cover',
           })}
         >
-          <a target="_blank" rel="noopener noreferrer" href={image_credits_url}>
-            {image_credits}
-          </a>
+          {image_credits_url ? (
+            <a target="_blank" rel="noopener noreferrer" href={image_credits_url}>
+              {image_credits}
+            </a>
+          ) : (
+            <>{image_credits}</>
+          )}
         </p>
       )}
     </div>

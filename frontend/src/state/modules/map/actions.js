@@ -1,6 +1,7 @@
 export const SET_DRAWING = 'map / SET_DRAWING';
 export const SET_GEOJSON = 'map / SET_GEOJSON';
 export const SET_BASEMAP = 'map / SET_BASEMAP';
+export const SET_LABELS = 'map / SET_LABELS';
 export const SET_BOUNDS = 'map / SET_BOUNDS';
 export const SET_ISO = 'map / SET_ISO';
 export const SET_MAP_LAYER_GROUPS_INTERACTION = 'map / SET_LAYER_GROUPS_INTERACTION';
@@ -20,6 +21,11 @@ export const setGeojson = (payload) => ({
 
 export const setBasemap = (payload) => ({
   type: SET_BASEMAP,
+  payload,
+});
+
+export const setLabels = (payload) => ({
+  type: SET_LABELS,
   payload,
 });
 

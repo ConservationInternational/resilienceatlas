@@ -14,17 +14,26 @@ import { PluginLeaflet } from 'resilience-layer-manager/dist/layer-manager';
 
 import { TABS } from 'views/components/Sidebar';
 
-import { BASEMAPS } from 'views/utils';
+import { BASEMAPS, LABELS } from 'views/utils';
 
 import { LayerManagerContext } from 'views/contexts/layerManagerCtx';
 import { useRouterParams } from 'utilities';
+import type { MAP_LABELS, BASEMAP_LABELS } from 'views/components/LayersList/Basemaps/constants';
+import type { NextRouter } from 'next/router';
 
 import Toolbar from './Toolbar';
 import DrawingManager from './DrawingManager';
 import MapOffset from './MapOffset';
 import MapPopup from './MapPopup';
 
-const MapView = (props) => {
+interface MapViewProps {
+  labels: (typeof MAP_LABELS)[number];
+  basemap: (typeof BASEMAP_LABELS)[number];
+  router: NextRouter;
+  [k: string]: unknown;
+}
+
+const MapView = (props: MapViewProps) => {
   const {
     // actions
     loadLayers,
@@ -45,12 +54,12 @@ const MapView = (props) => {
     page,
     options,
     basemap,
+    labels,
     embed,
     drawing,
   } = props;
   const { query, locale } = router;
   const { setParam } = useRouterParams();
-
   const layerManagerRef = useContext(LayerManagerContext);
 
   useEffect(() => {
@@ -82,7 +91,7 @@ const MapView = (props) => {
 
   const getCenter = useCallback(() => {
     if (query.center) {
-      const decodeCenter = decodeURIComponent(query.center);
+      const decodeCenter = decodeURIComponent(query.center as string);
       if (decodeCenter && decodeCenter[0] === '{') {
         return JSON.parse(decodeCenter);
       }
@@ -101,9 +110,8 @@ const MapView = (props) => {
   return (
     <Maps
       customClass="m-map"
-      basemap={{
-        url: BASEMAPS[basemap].url,
-      }}
+      label={LABELS[labels]}
+      basemap={BASEMAPS[basemap]}
       mapOptions={{
         ...options.map,
         zoom: query.zoom || site.zoom_level || 5,

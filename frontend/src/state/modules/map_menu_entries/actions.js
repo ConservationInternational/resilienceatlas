@@ -10,4 +10,5 @@ export const LOAD = createApiAction('map_menu_entries/LOAD');
 export const load = (locale) =>
   api(LOAD, ({ get }) => get(URL_ENTRIES, { params: { locale: toBackendLocale(locale) } }), {
     schema: [map_menu_entry],
+    locale,
   });

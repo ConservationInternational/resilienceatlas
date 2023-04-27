@@ -33,7 +33,7 @@ describe('Journeys detail page', () => {
 
         cy.url().should('include', `/journeys/${id}/step/${stepIndex + 1}`);
 
-        const expectedUrl = type === 'embed' ? btnUrl : null;
+        const expectedUrl = type === 'embed' ? `/en${btnUrl}` : null;
 
         switch (type) {
           case 'landing':

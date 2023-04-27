@@ -39,8 +39,8 @@ Below is a description of each of the keys.
 | `NEXT_PUBLIC_GOOGLE_ANALYTICS` | Optional − Google Analytics' measurement ID                                                                            |
 | `NEXT_PUBLIC_TRANSIFEX_TOKEN`  | Token needed for the transifex translation service                                                                     |
 | `NEXT_PUBLIC_TRANSIFEX_SECRET` | Secret needed for the transifex translation service                                                                    |
-| `NEXT_PUBLIC_STATIC_JOURNEYS`  | Optional − Temporary - Static journey API different from the Backend one but used on production   
-| `NEXT_PUBLIC_GOOGLE_API_KEY`   | Optional - Google API Key |
+| `NEXT_PUBLIC_STATIC_JOURNEYS`  | Optional − Temporary - Static journey API different from the Backend one but used on production                        |
+| `NEXT_PUBLIC_GOOGLE_API_KEY`   |  Optional - Google API Key                                                                                             |
 
 ### How to update the environment variables
 
@@ -58,7 +58,7 @@ The application is translated with the [Transifex Native](https://www.transifex.
 
 ### Initialization
 
-Transifex is initialized on the App.jsx file. A PseudoTranslationPolicy is provided on the development environment so we can see what translations are missing on the different languages directly on the platform on development.
+Transifex is initialized on the App.jsx file. A [PseudoTranslationPolicy](https://developers.transifex.com/docs/javascript-sdk-missing-translations#pseudo-translation) is provided on the development environment so we can see what translations are missing on the different languages directly on the platform on development.
 
 ### Scripts
 
@@ -133,6 +133,11 @@ const Component = () => {
   return translation;
 };
 ```
+
+## Subdomains
+
+The application has different subdomains that can be accessed through the map menu and only show the map page and a back link. E.g https://africa.resilienceatlas.org/
+These subdomains are configured on the backend as site_scope and we can emulate this url on the frontend with the URL parameter `?site_scope=site_scope_name`
 
 ## CI/CD
 

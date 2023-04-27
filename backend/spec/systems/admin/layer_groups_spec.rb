@@ -83,7 +83,8 @@ RSpec.describe "Admin: Layer Groups", type: :system do
   end
 
   describe "#delete" do
-    let!(:layer_group) { create :layer_group, name: "Custom Name" }
+    let(:layer) { create :layer }
+    let!(:layer_group) { create :layer_group, name: "Custom Name", layers: [layer] }
 
     before do
       visit admin_layer_groups_path

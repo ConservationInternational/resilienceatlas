@@ -10,6 +10,7 @@ const initialState = {
   },
   loading: false,
   loaded: false,
+  loadedLocale: null,
   error: null,
 };
 
@@ -20,7 +21,7 @@ export default createReducer(initialState)({
     error: null,
   }),
 
-  [LOAD.SUCCESS]: (state, { payload }) => {
+  [LOAD.SUCCESS]: (state, { payload, meta: { locale } }) => {
     const getSectionsForType = (type) =>
       (payload.included || [])
         .filter((included) => included.type === type)
@@ -33,6 +34,7 @@ export default createReducer(initialState)({
       sections: getSectionsForType(SectionTypes.Section),
       loading: false,
       loaded: true,
+      loadedLocale: locale,
     };
   },
 

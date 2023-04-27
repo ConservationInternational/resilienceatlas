@@ -182,7 +182,7 @@ const SearchArea: React.FC<SearchAreaProps> = ({ fitBounds, onAfterChange }) => 
                     <strong>-3.7034, 40.4306</strong> (<T _str="comma and space" />)
                   </li>
                   <li className="--highlighted">
-                    <strong>-3.7034,40.4306</strong> (<T _str="only coma" />)
+                    <strong>-3.7034,40.4306</strong> (<T _str="only comma" />)
                   </li>
                   <li className="--highlighted">
                     <strong>-3.7034 40.4306</strong> (<T _str="only space" />)
