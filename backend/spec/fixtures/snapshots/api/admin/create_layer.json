@@ -54,6 +54,6 @@
     "timeline_start_date": null,
     "timeline_end_date": null,
     "timeline_default_date": null,
-    "timeline_period": null
+    "timeline_period": "yearly"
   }
 }
