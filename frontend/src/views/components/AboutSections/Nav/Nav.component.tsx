@@ -1,15 +1,13 @@
 import { Row, Column } from 'react-foundation';
-import type { Translations } from 'types/transifex';
 
 type NavProps = {
   links: {
     title: string;
     slug: string;
   }[];
-  translations: Translations;
 };
 
-const Nav: React.FC<NavProps> = ({ links, translations }) => {
+const Nav: React.FC<NavProps> = ({ links }) => {
   return (
     <nav className="l-section-nav">
       <Row>
@@ -17,11 +15,7 @@ const Nav: React.FC<NavProps> = ({ links, translations }) => {
           <ul className="m-section-nav">
             {links.map((link) => (
               <li key={`nav-${link.slug}`}>
-                <a
-                  href={`#${link.slug}`}
-                  className="link"
-                  title={translations['About section link']}
-                >
+                <a href={`#${link.slug}`} className="link">
                   {link.title}
                 </a>
               </li>
