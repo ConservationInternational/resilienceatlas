@@ -2,6 +2,16 @@
   background-color: $bg-color-5;
   padding: 20px 0;
 
+  label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    > input[type="text"] {
+      width: 100%;
+    }
+  }
+
   &__header {
     padding: 28px 0;
     max-width: 75rem;
@@ -168,6 +178,10 @@
 
       &-wrapper {
         margin-top: 16px;
+
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
       }
 
       &-error-message {
