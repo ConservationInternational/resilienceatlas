@@ -29,19 +29,21 @@ module "route53" {
   route53_zone_name = var.route53_zone_name
 }
 
-module "github_secrets" {
-  source     = "./modules/github_secrets"
-  repo_name  = "resilienceatlas"
+module "github_values" {
+  source     = "./modules/github_values"
+  repo_name  = var.github_repo_name
   secret_map = {
     PIPELINE_USER_ACCESS_KEY_ID     = module.iam.pipeline_user_access_key_id
     PIPELINE_USER_SECRET_ACCESS_KEY = module.iam.pipeline_user_access_key_secret
-    SAM_TEMPLATE                    = "cloud_functions/titiler_cogs/template.yaml"
-    STACK_NAME                      = "titiler-cogs-production"
     ROUTE53_ZONE_ID                 = module.route53.route53_zone_id
     PIPELINE_EXECUTION_ROLE         = module.iam.pipeline_role_arn
     CLOUDFORMATION_EXECUTION_ROLE   = module.iam.cloud_formation_role_arn
     ARTIFACTS_BUCKET                = var.bucket_name
     IMAGE_REPOSITORY                = module.ecr.pipeline_resources_url
+  }
+  variable_map = {
+    SAM_TEMPLATE                    = "cloud_functions/titiler_cogs/template.yaml"
+    STACK_NAME                      = "titiler-cogs-production"
     REGION                          = var.aws_region
     FQDN                            = "titiler.${var.route53_zone_name}"
   }
