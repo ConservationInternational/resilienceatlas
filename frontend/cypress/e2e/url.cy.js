@@ -22,10 +22,12 @@ describe('URL Management', () => {
   });
 
   it('A user visits some other page in an subdomain', () => {
-    cy.intercept('http://subdomain.localhost:3000/404').as('pageRequest');
-    cy.visit('http://subdomain.localhost:3000/about', { failOnStatusCode: false });
-    cy.wait('@pageRequest').then((interception) => {
-      expect(interception.response.statusCode).to.eq(404);
+    cy.request({
+      url: 'http://subdomain.localhost:3000/about',
+      followRedirect: true, // This will follow the redirection
+      failOnStatusCode: false, // This allows the test to continue even if the status code is not 2xx or 3xx
+    }).then((response) => {
+      expect(response.status).to.eq(404);
     });
   });
 });
