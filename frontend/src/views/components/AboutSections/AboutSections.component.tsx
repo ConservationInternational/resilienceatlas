@@ -53,20 +53,21 @@ const AboutSections: React.FC<AboutSectionsProps> = ({
             };
             const TitleComponent = title_size === 2 ? 'h2' : 'h3';
             return (
-              <Column small={12} medium={getColumnSize()}>
+              <Column className="text-column" small={12} medium={getColumnSize()}>
                 <TitleComponent>{title}</TitleComponent>
                 {text && <CustomHtmlRenderer className="paragraph" content={text} />}
                 {items &&
                   items.map((item) => (
                     <section key={`item-${item.title}`}>
-                      <img
-                        src={item.image?.original}
-                        alt={translations['Team photo']}
-                        className="team-photo"
-                      />
-                      <div className="team-bio">
+                      <img src={item.image?.original} className="item-image" alt={item.title} />
+                      <div className="item-content">
                         <h3>{item.title}</h3>
-                        {item.description && <CustomHtmlRenderer content={item.description} />}
+                        {item.description && (
+                          <CustomHtmlRenderer
+                            dataTest="item-description"
+                            content={item.description}
+                          />
+                        )}
                       </div>
                     </section>
                   ))}
@@ -85,7 +86,7 @@ const AboutSections: React.FC<AboutSectionsProps> = ({
 
           const renderImageColumn = () =>
             image?.original && (
-              <Column small={12} medium={6}>
+              <Column small={12} medium={6} className="image-column">
                 <figure>
                   <img src={image?.original} alt={translations['About page image']} />
                   <figcaption className="credits">

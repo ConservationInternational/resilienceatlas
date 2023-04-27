@@ -2,7 +2,15 @@ import React from 'react';
 import type { Element } from 'html-react-parser';
 import parse, { domToReact } from 'html-react-parser';
 
-const CustomHtmlRenderer = ({ content, className }: { content: string; className?: string }) => {
+const CustomHtmlRenderer = ({
+  content,
+  className,
+  dataTest,
+}: {
+  content: string;
+  className?: string;
+  dataTest?: string;
+}) => {
   const options = {
     replace: (domNode: Element) => {
       if (domNode.name === 'a') {
@@ -16,7 +24,11 @@ const CustomHtmlRenderer = ({ content, className }: { content: string; className
     },
   };
 
-  return <div className={className}>{parse(content, options)}</div>;
+  return (
+    <div className={className} data-test={dataTest}>
+      {parse(content, options)}
+    </div>
+  );
 };
 
 export default CustomHtmlRenderer;
