@@ -2,6 +2,10 @@
   position: relative;
   padding: 6.25rem 0 12.5rem;
 
+  @media screen and (max-width: 800px) {
+    padding: 6.25rem 0
+  }
+
   &--gradient {
     min-height: rem(510px);
     background-position: center;
@@ -45,11 +49,19 @@
     &--left {
       text-align: left;
       margin-right: 50%;
+
+      @media screen and (max-width: 800px) {
+        margin-right: 0;
+      }
     }
 
     &--right {
       text-align: right;
       margin-left: 50%;
+
+      @media screen and (max-width: 800px) {
+        margin-left: 0;
+      }
     }
 
     h2 {
