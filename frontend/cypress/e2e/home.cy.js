@@ -254,7 +254,7 @@ describe('Homepage', () => {
             if (attributes.image_credits && attributes.image_credits_url) {
               cy.wrap($el).within(() => {
                 cy.get('.m-home-section__credits')
-                  .should('have.class', 'm-home-section__credits--right')
+                  .should('have.class', 'm-home-section__credits--cover')
                   .within(() => {
                     cy.get('a')
                       .should('contain', attributes.image_credits)

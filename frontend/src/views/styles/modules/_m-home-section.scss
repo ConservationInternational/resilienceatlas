@@ -2,6 +2,10 @@
   position: relative;
   padding: 6.25rem 0 12.5rem;
 
+  @media screen and (max-width: 800px) {
+    padding: 6.25rem 0;
+  }
+
   &--gradient {
     min-height: rem(510px);
     background-position: center;
@@ -23,14 +27,11 @@
   }
 
   &__container {
-    max-width: 75rem;
-    margin-right: auto;
-    margin-left: auto;
+    margin: 0 auto;
   }
 
   &__content {
     color: $font-color-3;
-    padding: 0 rem(100px);
 
     @media screen and (max-width: 400px) {
       padding: 0;
@@ -39,21 +40,30 @@
     &--center {
       @extend %center;
       width: 100%;
-      text-align: center;
       max-width: 960px;
-    }
-
-    &--left,
-    &-right {
-      width: 50%;
+      text-align: center;
     }
 
     &--left {
       text-align: left;
+      padding-right: calc(50% + 20px);
+      margin-left: 5%;
+
+      @media screen and (max-width: 800px) {
+        padding-right: 0;
+        margin-left: 0;
+      }
     }
 
     &--right {
       text-align: right;
+      padding-left: calc(50% + 20px);
+      margin-right: 5%;
+
+      @media screen and (max-width: 800px) {
+        padding-left: 0;
+        margin-right: 0;
+      }
     }
 
     h2 {
@@ -84,16 +94,22 @@
     bottom: 10px;
     margin: 0;
 
+    &,
+    & a {
+      color: $font-color-3;
+    }
+
+
     &--left {
-      left: 20px;
+      left: calc(50% + 20px);
     }
 
     &--right {
-      right: 20px;
+      right: calc(50% + 20px);;
     }
 
-    a {
-      color: $font-color-3;
+    &--cover {
+      right: 20px;
     }
   }
 
