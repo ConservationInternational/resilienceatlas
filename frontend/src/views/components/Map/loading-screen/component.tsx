@@ -4,7 +4,7 @@ const MapLoadingScreen = ({ styles = {} }: { styles?: CSSProperties }) => (
   <div className="m-map-loading-screen" style={styles}>
     <div className="loader-position">
       <div className="spinner" />
-      <span className="text">The map is loading</span>
+      <span className="text">Loading...</span>
     </div>
   </div>
 );

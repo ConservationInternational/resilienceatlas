@@ -1,6 +1,7 @@
-import { useCookies } from 'react-cookie';
 import React, { useEffect, useState } from 'react';
+import { useCookies } from 'react-cookie';
 import { useTour } from '@reactour/tour';
+import { getServerSideTranslations } from 'i18n';
 
 import FullscreenLayout from 'views/layouts/fullscreen';
 import Sidebar from 'views/components/Sidebar';
@@ -13,9 +14,8 @@ import MapLoadingScreen from 'views/components/Map/loading-screen';
 
 import { LayerManagerProvider } from 'views/contexts/layerManagerCtx';
 
-import type { NextPageWithLayout } from './_app';
-import { getServerSideTranslations } from 'i18n';
 import { withTranslations, useSetServerSideTranslations } from 'utilities/hooks/transifex';
+import type { NextPageWithLayout } from './_app';
 import type { GetServerSidePropsContext } from 'next';
 
 const MapPage: NextPageWithLayout = ({ translations, setTranslations }) => {

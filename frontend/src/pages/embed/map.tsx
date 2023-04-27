@@ -17,7 +17,6 @@ const EmbedPage: NextPageWithLayout = ({ translations, setTranslations }) => {
   return (
     <LayerManagerProvider>
       <div className="l-content--fullscreen">
-        <MapLoadingScreen />
         {anyLayerLoading && <MapLoadingScreen />}
         <MapView
           onLoadingLayers={(loaded) => {
