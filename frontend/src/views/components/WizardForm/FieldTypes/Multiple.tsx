@@ -4,7 +4,26 @@ import { Field } from 'redux-form';
 import ErrorMessage from 'views/components/WizardForm/ErrorMessage';
 
 const CheckboxGroup = (props) => {
-  const { name, answers, input, meta } = props;
+  const { answers, input, meta, customAnswer } = props;
+  const { name } = input;
+
+  const acceptCustomAnswer = customAnswer?.id && customAnswer?.label;
+
+  const handleAnswerCheckboxClick = (event, id) => {
+    let newValue = [...input.value];
+
+    if (event.target.checked) {
+      newValue.push(id);
+    } else {
+      newValue.splice(newValue.indexOf(id), 1);
+    }
+
+    if (Array.isArray(newValue) && !newValue.length) {
+      newValue = undefined;
+    }
+
+    return input.onChange(newValue);
+  };
 
   return (
     <>
@@ -16,35 +35,60 @@ const CheckboxGroup = (props) => {
               name={`${name}[${index}]`}
               value={answer.id}
               checked={input.value.indexOf(answer.id) !== -1}
-              onChange={(event) => {
-                let newValue = [...input.value];
-
-                if (event.target.checked) {
-                  newValue.push(answer.id);
-                } else {
-                  newValue.splice(newValue.indexOf(answer.id), 1);
-                }
-
-                if (Array.isArray(newValue) && !newValue.length) {
-                  newValue = undefined;
-                }
-
-                return input.onChange(newValue);
-              }}
+              onChange={(event) => handleAnswerCheckboxClick(event, answer.id)}
             />
             {answer.label}
           </label>
         </div>
       ))}
+      {acceptCustomAnswer && (
+        <div className="checkbox">
+          <label>
+            <input
+              type="checkbox"
+              name={customAnswer.id}
+              onChange={(event) => handleAnswerCheckboxClick(event, customAnswer.id)}
+            />
+            {customAnswer.label}
+            <Field
+              name={customAnswer.id}
+              component={(customProps) => {
+                const { input: customInput, meta: customInputMeta } = customProps;
+                return (
+                  <>
+                    <input
+                      ref={(input) => {
+                        if (!customInputMeta?.active) return;
+                        input?.focus();
+                      }}
+                      type="text"
+                      {...customInput}
+                    />
+                    <ErrorMessage {...customInputMeta} />
+                  </>
+                );
+              }}
+            />
+          </label>
+        </div>
+      )}
       <ErrorMessage {...meta} />
     </>
   );
 };
 
 const Multiple = (props) => {
-  const { id: name, answers } = props;
+  const { id: name, answers, customAnswer, formValues } = props;
 
-  return <Field component={CheckboxGroup} name={name} answers={answers} />;
+  return (
+    <Field
+      component={CheckboxGroup}
+      name={name}
+      answers={answers}
+      formValues={formValues}
+      customAnswer={customAnswer}
+    />
+  );
 };
 
 export default Multiple;
