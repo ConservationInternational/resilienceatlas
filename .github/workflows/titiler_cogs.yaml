@@ -30,7 +30,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.PIPELINE_USER_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.PIPELINE_USER_ACCESS_KEY_SECRET }}
-          aws-region: ${{ secrets.REGION }}
+          aws-region: ${{ vars.REGION }}
           role-to-assume: ${{ secrets.PIPELINE_EXECUTION_ROLE }}
           role-session-name: testing-packaging
           role-duration-seconds: 3600
@@ -46,7 +46,7 @@ jobs:
         run: |
           sam delete \
             --stack-name $(echo ${FEATURE_BRANCH_NAME##*/} | tr -cd '[a-zA-Z0-9-]') \
-            --region ${{ secrets.REGION }} \
+            --region ${{ vars.REGION }} \
             --no-prompts
 
   build-and-deploy-feature:
@@ -66,7 +66,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.PIPELINE_USER_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.PIPELINE_USER_ACCESS_KEY_SECRET }}
-          aws-region: ${{ secrets.REGION }}
+          aws-region: ${{ vars.REGION }}
           role-to-assume: ${{ secrets.PIPELINE_EXECUTION_ROLE }}
           role-session-name: feature-deployment
           role-duration-seconds: 3600
@@ -78,15 +78,15 @@ jobs:
           use-installer: true
 
       - name: Build SAM template
-        run: sam build --template ${{ secrets.SAM_TEMPLATE }} --use-container
+        run: sam build --template ${{ vars.SAM_TEMPLATE }} --use-container
 
       - name: Deploy to feature stack in the testing account
         shell: bash
         run: |
           sam deploy --stack-name $(echo ${GITHUB_REF##*/} | tr -cd '[a-zA-Z0-9-]') \
-            --parameter-overrides ZoneId=${{ secrets.ROUTE53_ZONE_ID }},FQDN=${{ secrets.FQDN }} \
+            --parameter-overrides FQDN=${{ vars.FQDN }} ZoneId=${{ secrets.ROUTE53_ZONE_ID }} \
             --capabilities CAPABILITY_IAM \
-            --region ${{ secrets.REGION }} \
+            --region ${{ vars.REGION }} \
             --s3-bucket ${{ secrets.ARTIFACTS_BUCKET }} \
             --image-repository ${{ secrets.IMAGE_REPOSITORY }} \
             --no-fail-on-empty-changeset \
@@ -105,7 +105,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.PIPELINE_USER_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.PIPELINE_USER_ACCESS_KEY_SECRET }}
-          aws-region: ${{ secrets.REGION }}
+          aws-region: ${{ vars.REGION }}
           role-to-assume: ${{ secrets.PIPELINE_EXECUTION_ROLE }}
           role-session-name: prod-building
           role-duration-seconds: 3600
@@ -116,14 +116,14 @@ jobs:
           use-installer: true
 
       - name: Build resources
-        run: sam build --template ${{ secrets.SAM_TEMPLATE }} --use-container
+        run: sam build --template ${{ vars.SAM_TEMPLATE }} --use-container
 
       - name: Upload artifacts to production artifact buckets
         run: |
           sam package \
             --s3-bucket ${{ secrets.ARTIFACTS_BUCKET }} \
             --image-repository ${{ secrets.IMAGE_REPOSITORY }} \
-            --region ${{ secrets.REGION }} \
+            --region ${{ vars.REGION }} \
             --output-template-file packaged-prod.yaml
 
       - uses: actions/upload-artifact@v2
@@ -146,7 +146,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.PIPELINE_USER_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.PIPELINE_USER_ACCESS_KEY_SECRET }}
-          aws-region: ${{ secrets.REGION }}
+          aws-region: ${{ vars.REGION }}
           role-to-assume: ${{ secrets.PIPELINE_EXECUTION_ROLE }}
           role-session-name: prod-deployment
           role-duration-seconds: 3600
@@ -162,10 +162,11 @@ jobs:
 
       - name: Deploy to production account
         run: |
-          sam deploy --stack-name ${{ secrets.STACK_NAME }} \
+          sam deploy --stack-name ${{ vars.STACK_NAME }} \
+            --parameter-overrides FQDN=${{ vars.FQDN }} ZoneId=${{ secrets.ROUTE53_ZONE_ID }} \
             --template packaged-prod.yaml \
             --capabilities CAPABILITY_IAM \
-            --region ${{ secrets.REGION }} \
+            --region ${{ vars.REGION }} \
             --s3-bucket ${{ secrets.ARTIFACTS_BUCKET }} \
             --image-repository ${{ secrets.IMAGE_REPOSITORY }} \
             --no-fail-on-empty-changeset \
