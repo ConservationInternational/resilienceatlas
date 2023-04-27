@@ -39,6 +39,14 @@
 #  layer_config              :text
 #  analysis_body             :text
 #  interaction_config        :text
+#  timeline                  :boolean          default(FALSE)
+#  timeline_overlap          :string
+#  timeline_steps            :date             default([]), is an Array
+#  timeline_start_date       :date
+#  timeline_end_date         :date
+#  timeline_default_date     :date
+#  timeline_period           :string
+#  timeline_format           :string           default("%m/%d/%Y")
 #  name                      :string
 #  info                      :text
 #  legend                    :text

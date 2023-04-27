@@ -48,6 +48,13 @@ RSpec.describe "Admin: Layers", type: :system do
         expect(page).to have_text(layer.interaction_config)
         expect(page).to have_text(layer.analysis_query)
         expect(page).to have_text(layer.analysis_body)
+        expect(page).to have_text(layer.timeline_overlap)
+        expect(page).to have_text(layer.timeline_steps.join(", "))
+        expect(page).to have_text(layer.timeline_start_date)
+        expect(page).to have_text(layer.timeline_end_date)
+        expect(page).to have_text(layer.timeline_default_date)
+        expect(page).to have_text(layer.timeline_period)
+        expect(page).to have_text(layer.timeline_format)
         expect(page).to have_text(layer.dashboard_order.to_s)
       end
     end
