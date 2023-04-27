@@ -24,24 +24,25 @@ module "s3" {
   pipeline_role_arn        = module.iam.pipeline_role_arn
 }
 
+module "route53" {
+  source            = "./modules/route53"
+  route53_zone_name = var.route53_zone_name
+}
+
 module "github_secrets" {
   source     = "./modules/github_secrets"
   repo_name  = "resilienceatlas"
   secret_map = {
-    PIPELINE_USER_ACCESS_KEY_ID           = module.iam.pipeline_user_access_key_id
-    PIPELINE_USER_SECRET_ACCESS_KEY       = module.iam.pipeline_user_access_key_secret
-    SAM_TEMPLATE                          = "cloud_functions/titiler_cogs/template.yaml"
-    TESTING_STACK_NAME                    = "titiler-cogs-staging"
-    TESTING_PIPELINE_EXECUTION_ROLE       = module.iam.pipeline_role_arn
-    TESTING_CLOUDFORMATION_EXECUTION_ROLE = module.iam.cloud_formation_role_arn
-    TESTING_ARTIFACTS_BUCKET              = var.bucket_name
-    TESTING_IMAGE_REPOSITORY              = module.ecr.pipeline_resources_url
-    TESTING_REGION                        = var.aws_region
-    PROD_STACK_NAME                       = "titiler-cogs-production"
-    PROD_PIPELINE_EXECUTION_ROLE          = module.iam.pipeline_role_arn
-    PROD_CLOUDFORMATION_EXECUTION_ROLE    = module.iam.cloud_formation_role_arn
-    PROD_ARTIFACTS_BUCKET                 = var.bucket_name
-    PROD_IMAGE_REPOSITORY                 = module.ecr.pipeline_resources_url
-    PROD_REGION                           = var.aws_region
+    PIPELINE_USER_ACCESS_KEY_ID     = module.iam.pipeline_user_access_key_id
+    PIPELINE_USER_SECRET_ACCESS_KEY = module.iam.pipeline_user_access_key_secret
+    SAM_TEMPLATE                    = "cloud_functions/titiler_cogs/template.yaml"
+    STACK_NAME                      = "titiler-cogs-production"
+    ROUTE53_ZONE_ID                 = module.route53.route53_zone_id
+    PIPELINE_EXECUTION_ROLE         = module.iam.pipeline_role_arn
+    CLOUDFORMATION_EXECUTION_ROLE   = module.iam.cloud_formation_role_arn
+    ARTIFACTS_BUCKET                = var.bucket_name
+    IMAGE_REPOSITORY                = module.ecr.pipeline_resources_url
+    REGION                          = var.aws_region
+    FQDN                            = "titiler.${var.route53_zone_name}"
   }
 }
