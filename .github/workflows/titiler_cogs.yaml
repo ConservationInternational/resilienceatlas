@@ -84,7 +84,7 @@ jobs:
         shell: bash
         run: |
           sam deploy --stack-name $(echo ${GITHUB_REF##*/} | tr -cd '[a-zA-Z0-9-]') \
-            --parameter-overrides FQDN=${{ vars.FQDN }}, ZoneId=${{ secrets.ROUTE53_ZONE_ID }} \
+            --parameter-overrides FQDN=${{ vars.FQDN }},  ZoneId=${{ secrets.ROUTE53_ZONE_ID }} \
             --capabilities CAPABILITY_IAM \
             --region ${{ vars.REGION }} \
             --s3-bucket ${{ secrets.ARTIFACTS_BUCKET }} \
@@ -163,7 +163,7 @@ jobs:
       - name: Deploy to production account
         run: |
           sam deploy --stack-name ${{ vars.STACK_NAME }} \
-            --parameter-overrides FQDN=${{ vars.FQDN }}, ZoneId=${{ secrets.ROUTE53_ZONE_ID }} \
+            --parameter-overrides FQDN=${{ vars.FQDN }},  ZoneId=${{ secrets.ROUTE53_ZONE_ID }} \
             --template packaged-prod.yaml \
             --capabilities CAPABILITY_IAM \
             --region ${{ vars.REGION }} \
