@@ -84,6 +84,25 @@ RSpec.describe Layer, type: :model do
     expect(subject.errors["translations.name"]).to include("can't be blank")
   end
 
+  context "when timeline is enabled" do
+    subject { build :layer, timeline: true }
+
+    it "should not be valid without timeline_overlap" do
+      subject.timeline_overlap = nil
+      expect(subject).to have(1).errors_on(:timeline_overlap)
+    end
+
+    it "should not be valid without timeline_start_date" do
+      subject.timeline_start_date = nil
+      expect(subject).to have(1).errors_on(:timeline_start_date)
+    end
+
+    it "should not be valid without timeline_format" do
+      subject.timeline_format = nil
+      expect(subject).to have(1).errors_on(:timeline_format)
+    end
+  end
+
   context "when layer is a cog" do
     subject { build :layer, layer_provider: "cog" }
 
