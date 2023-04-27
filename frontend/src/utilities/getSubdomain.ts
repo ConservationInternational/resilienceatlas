@@ -8,9 +8,14 @@ export const getSubdomainFromURL = (url: string): string => {
   // If no subdomain is set or we're in localhost, return null
   if (
     !subdomain ||
+    // Happens when loading https://www.resilienceatlas.org
     subdomain === 'www' ||
-    subdomain.startsWith('localhost') ||
-    subdomain === 'staging'
+    // Happens when loading https://resilienceatlas.org
+    subdomain === 'resilienceatlas' ||
+    // Happens when loading https://staging.resilienceatlas.org
+    subdomain === 'staging' ||
+    // Happens when loading http://localhost:3000 (for example)
+    subdomain.startsWith('localhost')
   ) {
     return null;
   }
