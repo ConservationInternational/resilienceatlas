@@ -12,7 +12,6 @@ const LOCATIONS_LIST = [
   { id: 'oceania', label: 'Oceania' },
   { id: 'south_america', label: 'South America' },
   { id: 'uk', label: 'UK' },
-  { id: 'other', label: 'Other' },
 ];
 
 export const INTRO = {
@@ -31,8 +30,11 @@ export const INTRO = {
         { id: 'private', label: 'Private' },
         { id: 'donor', label: 'Donor' },
         { id: 'media', label: 'Media' },
-        { id: 'work_sector_other', label: 'Other' },
       ],
+      customAnswer: {
+        id: 'work_sector_other',
+        label: 'Other',
+      },
     },
     {
       id: 'gender',
@@ -46,8 +48,11 @@ export const INTRO = {
         { id: 'transgender', label: 'Transgender' },
         { id: 'non_binary', label: 'Non-binary' },
         { id: 'no_answer', label: 'Prefer not to answer' },
-        { id: 'gender_other', label: 'Other:' },
       ],
+      customAnswer: {
+        id: 'gender_other',
+        label: 'Other',
+      },
     },
     {
       id: 'location',
@@ -55,6 +60,10 @@ export const INTRO = {
       required: true,
       question: 'Where are you located?',
       answers: LOCATIONS_LIST,
+      customAnswer: {
+        id: 'intro_location_other',
+        label: 'Other',
+      },
     },
     {
       id: 'projects_locations',
@@ -62,6 +71,10 @@ export const INTRO = {
       required: true,
       question: 'Where are your project(s) located?',
       answers: LOCATIONS_LIST,
+      customAnswer: {
+        id: 'intro_projects_location_other',
+        label: 'Other',
+      },
     },
     {
       id: 'how_did_you_find',
@@ -78,8 +91,11 @@ export const INTRO = {
           label: 'Conservation International webinar/workshop/training',
         },
         { id: 'dont_remember', label: "Don't recall" },
-        { id: 'how_did_you_find_other', label: 'Other' },
       ],
+      customAnswer: {
+        id: 'how_did_you_find_other',
+        label: 'Other',
+      },
     },
   ],
 };
@@ -106,8 +122,11 @@ export const TOOL_USE = {
         { id: 'inform_advocacy', label: 'Inform advocacy' },
         { id: 'inform_journalism', label: 'Inform journalism' },
         { id: 'have_not_used', label: 'I have not used the Resilience Atlas' },
-        { id: 'usage_other', label: 'Other' },
       ],
+      customAnswer: {
+        id: 'usage_other',
+        label: 'Other',
+      },
     },
     {
       id: 'usage_projects',
@@ -159,8 +178,11 @@ export const MAP = {
             'Interactivity - turning layers on and off, reordering layers, changing transparency',
         },
         { id: 'data_download', label: 'Data download' },
-        { id: 'map_useful_features-other', label: 'Other' },
       ],
+      customAnswer: {
+        id: 'map_useful_features_other',
+        label: 'Other',
+      },
     },
     {
       id: 'useful_features',
@@ -184,9 +206,12 @@ export const MAP = {
         },
         { id: 'data_download', label: 'Data download' },
         { id: 'data_analysis', label: 'Data analysis' },
-        { id: 'data_download', label: 'Download PDF report of data analysis' },
-        { id: 'coming_back_features_other', label: 'Other:' },
+        { id: 'data_download_report', label: 'Download PDF report of data analysis' },
       ],
+      customAnswer: {
+        id: 'coming_back_features_other',
+        label: 'Other',
+      },
     },
     {
       id: 'usefulness-feedback',
