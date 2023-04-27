@@ -163,6 +163,7 @@ jobs:
       - name: Deploy to production account
         run: |
           sam deploy --stack-name ${{ secrets.STACK_NAME }} \
+            --parameter-overrides ZoneId=${{ secrets.ROUTE53_ZONE_ID }},FQDN=${{ secrets.FQDN }} \
             --template packaged-prod.yaml \
             --capabilities CAPABILITY_IAM \
             --region ${{ secrets.REGION }} \
