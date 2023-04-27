@@ -73,6 +73,7 @@ Resources:
     Type: AWS::Serverless::Api
     Properties:
       CacheClusterEnabled: true
+      CacheClusterSize: "1.6"
       StageName: Prod
       Domain:
         DomainName: !Ref FQDN
