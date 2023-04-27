@@ -46,7 +46,18 @@
       "analysis_query": "Et quaerat omnis veniam.",
       "layer_config": "25",
       "analysis_body": "Et quaerat omnis veniam.",
-      "interaction_config": "Et quaerat omnis veniam."
+      "interaction_config": "Et quaerat omnis veniam.",
+      "timeline": false,
+      "timeline_overlap": "Et quaerat omnis veniam.",
+      "timeline_steps": [
+        "2022-08-10",
+        "2022-08-27",
+        "2020-09-13"
+      ],
+      "timeline_start_date": "2022-08-10",
+      "timeline_end_date": "2022-08-10",
+      "timeline_default_date": "2022-08-10",
+      "timeline_period": "daily"
     },
     {
       "name": "cum",
@@ -92,7 +103,18 @@
       "analysis_query": "Placeat commodi libero et.",
       "layer_config": "41",
       "analysis_body": "Placeat commodi libero et.",
-      "interaction_config": "Placeat commodi libero et."
+      "interaction_config": "Placeat commodi libero et.",
+      "timeline": true,
+      "timeline_overlap": "Placeat commodi libero et.",
+      "timeline_steps": [
+        "2021-06-11",
+        "2021-05-08",
+        "2020-10-26"
+      ],
+      "timeline_start_date": "2021-06-11",
+      "timeline_end_date": "2021-06-11",
+      "timeline_default_date": "2021-06-11",
+      "timeline_period": "yearly"
     },
     {
       "name": "voluptatem",
@@ -138,7 +160,18 @@
       "analysis_query": "Enim repellat pariatur est.",
       "layer_config": "38",
       "analysis_body": "Enim repellat pariatur est.",
-      "interaction_config": "Enim repellat pariatur est."
+      "interaction_config": "Enim repellat pariatur est.",
+      "timeline": true,
+      "timeline_overlap": "Enim repellat pariatur est.",
+      "timeline_steps": [
+        "2022-11-27",
+        "2020-08-23",
+        "2022-06-25"
+      ],
+      "timeline_start_date": "2022-11-27",
+      "timeline_end_date": "2022-11-27",
+      "timeline_default_date": "2022-11-27",
+      "timeline_period": "monthly"
     }
   ],
   "meta_attributes": {

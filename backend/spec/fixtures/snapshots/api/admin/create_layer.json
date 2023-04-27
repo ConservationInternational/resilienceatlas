@@ -45,6 +45,15 @@
     "analysis_query": "Enim repellat pariatur est.",
     "layer_config": "38",
     "analysis_body": "Enim repellat pariatur est.",
-    "interaction_config": "Enim repellat pariatur est."
+    "interaction_config": "Enim repellat pariatur est.",
+    "timeline": false,
+    "timeline_overlap": null,
+    "timeline_steps": [
+
+    ],
+    "timeline_start_date": null,
+    "timeline_end_date": null,
+    "timeline_default_date": null,
+    "timeline_period": null
   }
 }

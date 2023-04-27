@@ -54,7 +54,8 @@ class LayerSerializer < ActiveModel::Serializer
     :dashboard_order, :color, :info, :interactivity, :css, :query, :layer_config, :layer_provider,
     :published, :locate_layer, :icon_class, :legend, :zoom_max, :zoom_min, :download,
     :dataset_shortname, :dataset_source_url, :analysis_suitable, :analysis_query, :analysis_body,
-    :interaction_config
+    :interaction_config, :timeline, :timeline_overlap, :timeline_steps, :timeline_start_date,
+    :timeline_end_date, :timeline_default_date, :timeline_period, :timeline_format
   has_one :layer_group, serializer: LayerGroupSerializer
   has_many :sources, each_serializer: SourceSerializer
   has_one :agrupation

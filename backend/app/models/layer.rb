@@ -106,7 +106,13 @@ class Layer < ApplicationRecord
 
   translation_class.validates_presence_of :name, if: -> { locale.to_s == I18n.default_locale.to_s }
 
+  enum :timeline_period, {yearly: "yearly", monthly: "monthly", daily: "daily"}, default: :right, prefix: true
+
   validates_presence_of :slug, :layer_provider, :interaction_config
+  validates :timeline, inclusion: {in: [true, false]}
+  with_options if: -> { timeline } do
+    validates_presence_of :timeline_overlap, :timeline_period, :timeline_start_date, :timeline_format
+  end
   with_options if: -> { layer_provider == "cog" } do
     validates_presence_of :layer_config
   end
