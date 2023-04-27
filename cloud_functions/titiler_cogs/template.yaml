@@ -3,7 +3,7 @@ Transform: AWS::Serverless-2016-10-31
 Description: 'SAM Template for titiler-cogs using python v3.9'
 
 Parameters:
-  FQDN:
+  Route53FQDN:
     Type: String
     Description: Fully qualified domain name (www.example.com) to use for the Lambda function.
   ZoneId:
