@@ -1,4 +1,6 @@
 import React from 'react';
+import { compose } from 'redux';
+import { connect } from 'react-redux';
 import { reduxForm } from 'redux-form';
 
 import { ToolUseSchema } from 'state/modules/feedback';
@@ -24,9 +26,14 @@ const ToolUse = (props) => {
   );
 };
 
-export default reduxForm({
-  form: 'Feedback',
-  destroyOnUnmount: false,
-  forceUnregisterOnUnmount: true,
-  asyncValidate: asyncValidate(ToolUseSchema),
-})(ToolUse);
+export default compose(
+  reduxForm({
+    form: 'Feedback',
+    destroyOnUnmount: false,
+    forceUnregisterOnUnmount: true,
+    asyncValidate: asyncValidate(ToolUseSchema),
+  }),
+  connect((state) => ({
+    formValues: state['form']['Feedback']?.values,
+  })),
+)(ToolUse) as React.ComponentType;

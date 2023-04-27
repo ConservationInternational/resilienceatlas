@@ -1,4 +1,6 @@
 import React from 'react';
+import { compose } from 'redux';
+import { connect } from 'react-redux';
 import { reduxForm } from 'redux-form';
 
 import { WebsiteSchema } from 'state/modules/feedback';
@@ -23,9 +25,14 @@ const Website = (props) => {
   );
 };
 
-export default reduxForm({
-  form: 'Feedback',
-  destroyOnUnmount: false,
-  forceUnregisterOnUnmount: true,
-  asyncValidate: asyncValidate(WebsiteSchema),
-})(Website);
+export default compose(
+  reduxForm({
+    form: 'Feedback',
+    destroyOnUnmount: false,
+    forceUnregisterOnUnmount: true,
+    asyncValidate: asyncValidate(WebsiteSchema),
+  }),
+  connect((state) => ({
+    formValues: state['form']['Feedback']?.values,
+  })),
+)(Website) as React.ComponentType;

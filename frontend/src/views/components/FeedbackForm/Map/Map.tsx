@@ -1,4 +1,6 @@
 import React from 'react';
+import { compose } from 'redux';
+import { connect } from 'react-redux';
 import { reduxForm } from 'redux-form';
 
 import { MapSchema } from 'state/modules/feedback';
@@ -24,9 +26,14 @@ const Map = (props) => {
   );
 };
 
-export default reduxForm({
-  form: 'Feedback',
-  destroyOnUnmount: false,
-  forceUnregisterOnUnmount: true,
-  asyncValidate: asyncValidate(MapSchema),
-})(Map);
+export default compose(
+  reduxForm({
+    form: 'Feedback',
+    destroyOnUnmount: false,
+    forceUnregisterOnUnmount: true,
+    asyncValidate: asyncValidate(MapSchema),
+  }),
+  connect((state) => ({
+    formValues: state['form']['Feedback']?.values,
+  })),
+)(Map) as React.ComponentType;

@@ -1,4 +1,6 @@
 import React from 'react';
+import { compose } from 'redux';
+import { connect } from 'react-redux';
 import { reduxForm } from 'redux-form';
 
 import { IntroSchema } from 'state/modules/feedback';
@@ -23,9 +25,14 @@ const Intro = (props) => {
   );
 };
 
-export default reduxForm({
-  form: 'Feedback',
-  destroyOnUnmount: false,
-  forceUnregisterOnUnmount: true,
-  asyncValidate: asyncValidate(IntroSchema),
-})(Intro);
+export default compose(
+  reduxForm({
+    form: 'Feedback',
+    destroyOnUnmount: false,
+    forceUnregisterOnUnmount: true,
+    asyncValidate: asyncValidate(IntroSchema),
+  }),
+  connect((state) => ({
+    formValues: state['form']['Feedback']?.values,
+  })),
+)(Intro) as React.ComponentType;
