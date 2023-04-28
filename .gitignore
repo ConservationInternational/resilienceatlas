@@ -11,3 +11,4 @@ infrastructure/state/vars/*
 infrastructure/!state/vars/terraform.tfvars
 
 .aws-sam
+cloud_functions/titiler_cogs/.aws-sam
