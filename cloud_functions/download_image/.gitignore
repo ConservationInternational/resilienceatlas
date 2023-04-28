@@ -1,0 +1,7 @@
+*/node_modules
+.DS_STORE
+npm-debug.log
+prod.env
+*.env
+package-lock.json
+*privatekey.json

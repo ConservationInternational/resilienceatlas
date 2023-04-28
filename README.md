@@ -6,5 +6,6 @@ This repository contains all the code and documentation necessary to set up and 
 
 | Subdirectory name | Description                                                 | Documentation                                                                                            |
 |-------------------|-------------------------------------------------------------|----------------------------------------------------------------------------------------------------------|
-| frontend          | Frontend application                                        | [frontend/README.md](frontend/README.md)             |
-| backend           | The Ruby on Rails backend application (API + backoffice)    | [backend/README.md](backend/README.md)               |
+| frontend          | Frontend application                                        | [frontend/README.md](frontend/README.md)                |
+| backend           | The Ruby on Rails backend application (API + backoffice)    | [backend/README.md](backend/README.md)                  |
+| cloud_functions   | cloud functions code folder                                 | [cloud_functions/README.md](cloud_functions/README.md)  |

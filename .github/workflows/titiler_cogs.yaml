@@ -1,0 +1,173 @@
+name: TiTiler COGS pipeline
+
+on:
+  push:
+    branches:
+      - 'master'
+      - 'develop'
+      - 'feature**'
+    paths:
+      - "cloud_functions/titiler_cogs/**"
+      - ".github/workflows/titiler_cogs*"
+
+  delete:
+    branches:
+      - 'feature**'
+    paths:
+      - "cloud_functions/titiler_cogs/**"
+      - ".github/workflows/titiler_cogs*"
+
+jobs:
+  delete-feature:
+    if: startsWith(github.event.ref, 'feature') && github.event_name == 'delete'
+    name: Delete feature branch deployment from AWS
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Signing in to AWS
+        uses: aws-actions/configure-aws-credentials@v1-node16
+        with:
+          aws-access-key-id: ${{ secrets.PIPELINE_USER_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.PIPELINE_USER_ACCESS_KEY_SECRET }}
+          aws-region: ${{ vars.REGION }}
+          role-to-assume: ${{ secrets.PIPELINE_EXECUTION_ROLE }}
+          role-session-name: testing-packaging
+          role-duration-seconds: 3600
+          role-skip-session-tagging: true
+
+      - uses: aws-actions/setup-sam@v2
+        with:
+          use-installer: true
+
+      - name: Delete feature branch stack
+        env:
+          FEATURE_BRANCH_NAME: ${{ github.event.ref }}
+        run: |
+          sam delete \
+            --stack-name $(echo ${FEATURE_BRANCH_NAME##*/} | tr -cd '[a-zA-Z0-9-]') \
+            --region ${{ vars.REGION }} \
+            --no-prompts
+
+  build-and-deploy-feature:
+    # this stage is triggered only for feature branches (feature*),
+    # which will build the stack and deploy to a stack named with branch name.
+    # https://github.com/actions/setup-python
+    # https://github.com/aws-actions/configure-aws-credentials#notice-node12-deprecation-warning
+    if: startsWith(github.ref, 'refs/heads/feature') || github.ref == 'refs/heads/develop'
+    name: Deploy develop/feature branch stack to AWS
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout the code
+        uses: actions/checkout@v3
+
+      - name: Signing in to AWS
+        uses: aws-actions/configure-aws-credentials@v1-node16
+        with:
+          aws-access-key-id: ${{ secrets.PIPELINE_USER_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.PIPELINE_USER_ACCESS_KEY_SECRET }}
+          aws-region: ${{ vars.REGION }}
+          role-to-assume: ${{ secrets.PIPELINE_EXECUTION_ROLE }}
+          role-session-name: feature-deployment
+          role-duration-seconds: 3600
+          role-skip-session-tagging: true
+
+      - name: Install AWS SAM CLI
+        uses: aws-actions/setup-sam@v2
+        with:
+          use-installer: true
+
+      - name: Build SAM template
+        run: sam build --template ${{ vars.SAM_TEMPLATE }} --use-container
+
+      - name: Deploy to feature stack in the testing account
+        shell: bash
+        run: |
+          sam deploy --stack-name $(echo ${GITHUB_REF##*/} | tr -cd '[a-zA-Z0-9-]') \
+            --parameter-overrides FQDN=$(echo ${GITHUB_REF##*/} | tr -cd '[a-zA-Z0-9-]').${{ vars.FQDN }} ZoneId=${{ secrets.ROUTE53_ZONE_ID }} \
+            --capabilities CAPABILITY_IAM \
+            --region ${{ vars.REGION }} \
+            --s3-bucket ${{ secrets.ARTIFACTS_BUCKET }} \
+            --image-repository ${{ secrets.IMAGE_REPOSITORY }} \
+            --no-fail-on-empty-changeset \
+            --role-arn ${{ secrets.CLOUDFORMATION_EXECUTION_ROLE }}
+
+  build-and-package:
+    name: Deploy develop/feature branch stack to AWS
+    if: github.ref == 'refs/heads/master'
+
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Signing in to AWS
+        uses: aws-actions/configure-aws-credentials@v1-node16
+        with:
+          aws-access-key-id: ${{ secrets.PIPELINE_USER_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.PIPELINE_USER_ACCESS_KEY_SECRET }}
+          aws-region: ${{ vars.REGION }}
+          role-to-assume: ${{ secrets.PIPELINE_EXECUTION_ROLE }}
+          role-session-name: prod-building
+          role-duration-seconds: 3600
+          role-skip-session-tagging: true
+
+      - uses: aws-actions/setup-sam@v2
+        with:
+          use-installer: true
+
+      - name: Build resources
+        run: sam build --template ${{ vars.SAM_TEMPLATE }} --use-container
+
+      - name: Upload artifacts to production artifact buckets
+        run: |
+          sam package \
+            --s3-bucket ${{ secrets.ARTIFACTS_BUCKET }} \
+            --image-repository ${{ secrets.IMAGE_REPOSITORY }} \
+            --region ${{ vars.REGION }} \
+            --output-template-file packaged-prod.yaml
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: packaged-prod.yaml
+          path: packaged-prod.yaml
+
+  deploy-prod:
+    if: github.ref == 'refs/heads/master'
+    needs: [build-and-package]
+    runs-on: ubuntu-22.04
+    # Configure GitHub Action Environment to have a manual approval step before deployment to production
+    # https://docs.github.com/en/actions/reference/environments
+    # environment: <configured-environment>
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Signing in to AWS
+        uses: aws-actions/configure-aws-credentials@v1-node16
+        with:
+          aws-access-key-id: ${{ secrets.PIPELINE_USER_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.PIPELINE_USER_ACCESS_KEY_SECRET }}
+          aws-region: ${{ vars.REGION }}
+          role-to-assume: ${{ secrets.PIPELINE_EXECUTION_ROLE }}
+          role-session-name: prod-deployment
+          role-duration-seconds: 3600
+          role-skip-session-tagging: true
+
+      - uses: aws-actions/setup-sam@v2
+        with:
+          use-installer: true
+
+      - uses: actions/download-artifact@v2
+        with:
+          name: packaged-prod.yaml
+
+      - name: Deploy to production account
+        run: |
+          sam deploy --stack-name ${{ vars.STACK_NAME }} \
+            --parameter-overrides FQDN=${{ vars.FQDN }} ZoneId=${{ secrets.ROUTE53_ZONE_ID }} \
+            --template packaged-prod.yaml \
+            --capabilities CAPABILITY_IAM \
+            --region ${{ vars.REGION }} \
+            --s3-bucket ${{ secrets.ARTIFACTS_BUCKET }} \
+            --image-repository ${{ secrets.IMAGE_REPOSITORY }} \
+            --no-fail-on-empty-changeset \
+            --role-arn ${{ secrets.CLOUDFORMATION_EXECUTION_ROLE }}
