@@ -2,17 +2,13 @@ name: TiTiler COGS deployment pipeline
 
 on:
   push:
-    branches:
-      - 'master'
-      - 'develop'
-      - 'feature**'
     paths:
       - "cloud_functions/titiler_cogs/**"
       - ".github/workflows/titiler_cogs*"
 
 jobs:
   build-and-deploy-feature:
-    if: !github.ref == 'refs/heads/master'
+    if: github.ref != 'refs/heads/master'
     name: Deploy develop/feature branch stack to AWS
     runs-on: ubuntu-22.04
     steps:
