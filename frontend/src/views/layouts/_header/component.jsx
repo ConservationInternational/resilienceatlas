@@ -26,7 +26,7 @@ const Header = ({
 
   const renderMenuItem = useCallback(
     ({ id, label, link, children }) => (
-      <li key={id}>
+      <li key={id} className={cx({ 'is-link': link })}>
         {link ? <a href={link}>{label}</a> : label}
 
         {!!(children && children.length) && (
