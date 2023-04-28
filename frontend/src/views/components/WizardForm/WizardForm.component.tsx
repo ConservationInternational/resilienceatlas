@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import React, { Children, useState } from 'react';
+import cx from 'classnames';
 
 import Pagination from './Pagination/Pagination.component';
 
@@ -10,8 +11,19 @@ const WizardForm: React.FC<{
   submitButton?: string;
   onSubmit: (values) => void;
   children: unknown | unknown[];
+  formSubmitted: boolean;
+  outroComponent: unknown;
 }> = (props) => {
-  const { title, subtitle, description, submitButton, onSubmit, children } = props;
+  const {
+    title,
+    subtitle,
+    description,
+    submitButton,
+    onSubmit,
+    children,
+    formSubmitted,
+    outroComponent,
+  } = props;
 
   // Initialized to the current page number, not array indexes
   const [currentPage, setCurrentPage] = useState(1);
@@ -49,25 +61,38 @@ const WizardForm: React.FC<{
     isLastPage,
   });
 
+  const Outro = outroComponent as React.ElementType;
+  const displayOutro = formSubmitted && outroComponent;
+  const displayPage = !displayOutro;
+
   return (
-    <div className="m-wizard-form">
+    <div
+      className={cx('m-wizard-form', {
+        'm-wizard-form--background-image': formSubmitted,
+      })}
+    >
       <div className="m-wizard-form__header">
         <button type="button" className="btn btn-primary">
           {/* TODO SIMAO: Translate */}
           Go back to map
         </button>
       </div>
-      {numPages > 1 && <Pagination currentPage={currentPage} numPages={numPages} />}
-      <div className="m-wizard-form__wrapper">
-        {isFirstPage && (
-          <div className="m-wizard-form__form-header">
-            {title && <h1>{title}</h1>}
-            {subtitle && <h2>{subtitle}</h2>}
-            {description && <p>{description}</p>}
+      {displayPage && (
+        <>
+          {numPages > 1 && <Pagination currentPage={currentPage} numPages={numPages} />}
+          <div className="m-wizard-form__wrapper">
+            {isFirstPage && (
+              <div className="m-wizard-form__form-header">
+                {title && <h1>{title}</h1>}
+                {subtitle && <h2>{subtitle}</h2>}
+                {description && <p>{description}</p>}
+              </div>
+            )}
+            {Page}
           </div>
-        )}
-        {Page}
-      </div>
+        </>
+      )}
+      {displayOutro && <Outro />}
     </div>
   );
 };

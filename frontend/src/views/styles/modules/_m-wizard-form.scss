@@ -2,6 +2,24 @@
   background-color: $bg-color-5;
   padding: 20px 0;
 
+  &--background-image {
+    height: 100%;
+
+    &:before {
+      content: '';
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
+
+      background-image: url('/images/feedback/bg-outro.png');
+      background-repeat: no-repeat;
+      background-position: center;
+      background-size: cover;
+    }
+  }
+
   label {
     display: flex;
     align-items: baseline;
@@ -90,6 +108,11 @@
   }
 
   &__header {
+    position: relative;
+  }
+
+  &__header,
+  &__outro {
     padding: 28px 0;
     max-width: 75rem;
     margin: 0 auto;
@@ -335,6 +358,43 @@
           padding: 30px 10px;
         }
       }
+    }
+  }
+
+  &__outro {
+    @extend %center;
+    width: 100%;
+    padding: 0 2.5rem;
+    word-wrap: normal;
+
+    @media screen and (max-width: 400px) {
+      padding: 0;
+    }
+
+    h1,
+    h2 {
+      text-align: center;
+      color: $font-color-3;
+      font-weight: 400;
+      line-height: 1;
+      margin: 0;
+    }
+
+    h1 {
+      font-size: rem(64px);
+      font-family: $font-face-2;
+      text-transform: uppercase;
+      margin-top: 20px;
+
+      @media screen and (max-width: 800px) {
+        margin-top: 1rem;
+        font-size: rem(36px);
+      }
+    }
+
+    h2 {
+      font-size: rem(22px);
+      font-family: $font-face-1;
     }
   }
 }
