@@ -14,6 +14,7 @@ const RATINGS = [
   {
     id: 3,
     label: '3',
+    description: 'Neutral',
   },
   {
     id: 4,
@@ -63,7 +64,7 @@ const RatingGroup = (props) => {
         const { id: name, label } = answer;
         return (
           <tr key={name}>
-            <td>{label}</td>
+            <td colSpan={2}>{label}</td>
             <Field component={RatingItem} name={`${fieldName}[${index}].${name}`} answer={props} />
           </tr>
         );
@@ -79,7 +80,7 @@ const Rating = (props) => {
     <table className="m-wizard-form__form-table">
       <thead>
         <tr>
-          <th>&nbsp;</th>
+          <th colSpan={2}>&nbsp;</th>
           {RATINGS.map((rating) => {
             const { id, label, description } = rating;
 
