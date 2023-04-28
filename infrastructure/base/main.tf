@@ -45,6 +45,6 @@ module "github_values" {
     SAM_TEMPLATE                    = "cloud_functions/titiler_cogs/template.yaml"
     STACK_NAME                      = "titiler-cogs-production"
     REGION                          = var.aws_region
-    FQDN                            = "titiler.${var.route53_zone_name}"
+    FQDN                            = "tt.${var.route53_zone_name}"
   }
 }
