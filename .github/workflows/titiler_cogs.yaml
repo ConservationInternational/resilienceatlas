@@ -17,6 +17,8 @@ on:
       - "cloud_functions/titiler_cogs/**"
       - ".github/workflows/titiler_cogs*"
 
+  workflow_dispatch:
+
 jobs:
   delete-feature:
     if: startsWith(github.event.ref, 'feature') && github.event_name == 'delete'
