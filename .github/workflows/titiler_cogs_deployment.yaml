@@ -1,4 +1,4 @@
-name: TiTiler COGS pipeline
+name: TiTiler COGS deployment pipeline
 
 on:
   push:
@@ -10,51 +10,9 @@ on:
       - "cloud_functions/titiler_cogs/**"
       - ".github/workflows/titiler_cogs*"
 
-  delete:
-    branches:
-      - 'feature**'
-    paths:
-      - "cloud_functions/titiler_cogs/**"
-      - ".github/workflows/titiler_cogs*"
-
 jobs:
-  delete-feature:
-    if: startsWith(github.event.ref, 'feature') && github.event_name == 'delete'
-    name: Delete feature branch deployment from AWS
-    runs-on: ubuntu-22.04
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Signing in to AWS
-        uses: aws-actions/configure-aws-credentials@v1-node16
-        with:
-          aws-access-key-id: ${{ secrets.PIPELINE_USER_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.PIPELINE_USER_ACCESS_KEY_SECRET }}
-          aws-region: ${{ vars.REGION }}
-          role-to-assume: ${{ secrets.PIPELINE_EXECUTION_ROLE }}
-          role-session-name: testing-packaging
-          role-duration-seconds: 3600
-          role-skip-session-tagging: true
-
-      - uses: aws-actions/setup-sam@v2
-        with:
-          use-installer: true
-
-      - name: Delete feature branch stack
-        env:
-          FEATURE_BRANCH_NAME: ${{ github.event.ref }}
-        run: |
-          sam delete \
-            --stack-name $(echo ${FEATURE_BRANCH_NAME##*/} | tr -cd '[a-zA-Z0-9-]') \
-            --region ${{ vars.REGION }} \
-            --no-prompts
-
   build-and-deploy-feature:
-    # this stage is triggered only for feature branches (feature*),
-    # which will build the stack and deploy to a stack named with branch name.
-    # https://github.com/actions/setup-python
-    # https://github.com/aws-actions/configure-aws-credentials#notice-node12-deprecation-warning
-    if: startsWith(github.ref, 'refs/heads/feature') || github.ref == 'refs/heads/develop'
+    if: !github.ref == 'refs/heads/master'
     name: Deploy develop/feature branch stack to AWS
     runs-on: ubuntu-22.04
     steps:

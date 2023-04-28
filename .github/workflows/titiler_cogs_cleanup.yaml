@@ -1,0 +1,41 @@
+name: TiTiler COGS deployment pipeline
+
+on:
+  delete:
+    branches-ignore:
+      - 'master'
+    paths:
+      - "cloud_functions/titiler_cogs/**"
+      - ".github/workflows/titiler_cogs*"
+
+jobs:
+  delete-feature:
+    name: Delete feature branch deployment from AWS
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Signing in to AWS
+        uses: aws-actions/configure-aws-credentials@v1-node16
+        with:
+          aws-access-key-id: ${{ secrets.PIPELINE_USER_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.PIPELINE_USER_ACCESS_KEY_SECRET }}
+          aws-region: ${{ vars.REGION }}
+          role-to-assume: ${{ secrets.PIPELINE_EXECUTION_ROLE }}
+          role-session-name: testing-packaging
+          role-duration-seconds: 3600
+          role-skip-session-tagging: true
+
+      - uses: aws-actions/setup-sam@v2
+        with:
+          use-installer: true
+
+      - name: Delete feature branch stack
+        env:
+          FEATURE_BRANCH_NAME: ${{ github.event.ref }}
+        run: |
+          sam delete \
+            --stack-name $(echo ${GITHUB_REF##*/} | tr -cd '[a-zA-Z0-9-]') \
+            --region ${{ vars.REGION }} \
+            --no-prompts
+
