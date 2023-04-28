@@ -1,4 +1,4 @@
-name: TiTiler COGS deployment pipeline
+name: TiTiler COGS cleanup
 
 on:
   delete:
@@ -11,7 +11,7 @@ on:
 
 jobs:
   delete-feature:
-    name: Delete feature branch deployment from AWS
+    name: Delete feature branch stack from AWS
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3

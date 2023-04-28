@@ -1,4 +1,4 @@
-name: TiTiler COGS deployment pipeline
+name: TiTiler COGS deployment
 
 on:
   push:
