@@ -12,7 +12,6 @@ const Page: React.FC<{
   title: string;
   onPrevious: () => void;
   handleSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
-
   questions: {
     id: string;
     type: FeedbackFieldTypes;

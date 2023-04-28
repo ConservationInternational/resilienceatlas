@@ -1,14 +1,17 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Field } from 'redux-form';
 
 import Section from 'views/components/WizardForm/Section';
 import ErrorMessage from 'views/components/WizardForm/ErrorMessage';
 
 const CheckboxGroup = (props) => {
-  const { answers, input, meta, customAnswer } = props;
+  const { answers, input, meta, customAnswer, onError } = props;
   const { name } = input;
 
-  const acceptCustomAnswer = customAnswer?.id && customAnswer?.label;
+  useEffect(() => {
+    const { touched, error } = meta;
+    onError(touched && error);
+  }, [meta, onError]);
 
   const handleAnswerCheckboxClick = (event, id) => {
     let newValue = [...input.value];
@@ -25,6 +28,8 @@ const CheckboxGroup = (props) => {
 
     return input.onChange(newValue);
   };
+
+  const acceptCustomAnswer = customAnswer?.id && customAnswer?.label;
 
   return (
     <>
@@ -81,14 +86,17 @@ const CheckboxGroup = (props) => {
 const Multiple = (props) => {
   const { id: name, answers, customAnswer, formValues } = props;
 
+  const [hasError, setHasError] = useState(false);
+
   return (
-    <Section {...props}>
+    <Section error={hasError} {...props}>
       <Field
         component={CheckboxGroup}
         name={name}
         answers={answers}
         formValues={formValues}
         customAnswer={customAnswer}
+        onError={setHasError}
       />
     </Section>
   );

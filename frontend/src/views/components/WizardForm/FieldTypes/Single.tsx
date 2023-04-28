@@ -1,12 +1,17 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Field } from 'redux-form';
 
 import Section from 'views/components/WizardForm/Section';
 import ErrorMessage from 'views/components/WizardForm/ErrorMessage';
 
 const RadioGroup = (props) => {
-  const { input, meta, answers, customAnswer } = props;
+  const { input, meta, answers, customAnswer, onError } = props;
   const { name } = input;
+
+  useEffect(() => {
+    const { touched, error } = meta;
+    onError(touched && error);
+  }, [meta, onError]);
 
   const acceptCustomAnswer = customAnswer?.id && customAnswer?.label;
 
@@ -47,7 +52,6 @@ const RadioGroup = (props) => {
           </label>
         </div>
       )}
-      <ErrorMessage {...meta} />
     </>
   );
 };
@@ -55,14 +59,17 @@ const RadioGroup = (props) => {
 const Single = (props) => {
   const { id: name, answers, customAnswer, formValues } = props;
 
+  const [hasError, setHasError] = useState(false);
+
   return (
-    <Section {...props}>
+    <Section error={hasError} {...props}>
       <Field
         component={RadioGroup}
         name={name}
         answers={answers}
         formValues={formValues}
         customAnswer={customAnswer}
+        onError={setHasError}
       />
     </Section>
   );

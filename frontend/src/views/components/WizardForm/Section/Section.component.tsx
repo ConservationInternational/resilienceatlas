@@ -6,12 +6,13 @@ const Section: React.FC<
     required?: boolean;
     question: string;
     description?: string;
+    error?: boolean;
   }>
 > = (props) => {
-  const { question, description, required, children } = props;
+  const { question, description, required, error = false, children } = props;
 
   return (
-    <section>
+    <section className={cx({ error: error })}>
       <div
         className={cx('m-wizard-form__form-content-title', {
           'm-wizard-form__form-content-title--required': required,
