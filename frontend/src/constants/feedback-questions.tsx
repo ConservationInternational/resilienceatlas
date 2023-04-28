@@ -149,16 +149,20 @@ export const MAP = {
         'Please rate the following on a scale of 1 (strongly disagree) to 5 (strongly agree):',
       answers: [
         {
-          id: 'ease_of_navigation',
-          label: 'It was easy to navigate the website',
+          id: 'understood_different_datasets',
+          label: 'I understood what the different datasets represented',
         },
         {
-          id: 'found_information',
-          label: 'I found the information that I needed',
+          id: 'able_to_find_datasets',
+          label: 'I was able to find the dataset(s) I was looking for',
         },
         {
-          id: 'tool_use_clear',
-          label: 'It was clear how the tool should be used',
+          id: 'able_to_get_results',
+          label: 'I was able to get the results that I wanted',
+        },
+        {
+          id: 'mapping_tool_as_expected',
+          label: 'The mapping tool worked as I expected it to',
         },
       ],
     },
@@ -251,7 +255,20 @@ export const WEBSITE = {
       type: FeedbackFieldTypes.Rating,
       question:
         'Please rate the following on a scale of 1 (strongly disagree) to 5 (strongly agree):',
-      answers: ['TODO'],
+      answers: [
+        {
+          id: 'ease_of_navigation',
+          label: 'It was easy to navigate the website',
+        },
+        {
+          id: 'found_information',
+          label: 'I found the information that I needed',
+        },
+        {
+          id: 'tool_use_clear',
+          label: 'It was clear how the tool should be used',
+        },
+      ],
     },
     {
       id: 'website_usefulness',
