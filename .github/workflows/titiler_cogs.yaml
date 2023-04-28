@@ -84,7 +84,7 @@ jobs:
         shell: bash
         run: |
           sam deploy --stack-name $(echo ${GITHUB_REF##*/} | tr -cd '[a-zA-Z0-9-]') \
-            --parameter-overrides FQDN=${{ vars.FQDN }} ZoneId=${{ secrets.ROUTE53_ZONE_ID }} \
+            --parameter-overrides FQDN=$(echo ${GITHUB_REF##*/} | tr -cd '[a-zA-Z0-9-]').${{ vars.FQDN }} ZoneId=${{ secrets.ROUTE53_ZONE_ID }} \
             --capabilities CAPABILITY_IAM \
             --region ${{ vars.REGION }} \
             --s3-bucket ${{ secrets.ARTIFACTS_BUCKET }} \
