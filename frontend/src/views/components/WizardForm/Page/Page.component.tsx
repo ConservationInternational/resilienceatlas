@@ -1,5 +1,4 @@
 import React from 'react';
-import cx from 'classnames';
 
 import Boolean from 'views/components/WizardForm/FieldTypes/Boolean';
 import Single from 'views/components/WizardForm/FieldTypes/Single';
@@ -74,26 +73,10 @@ const Page: React.FC<{
           )}
 
           {questions.map((question) => {
-            const { id, type, question: questionText, description, required } = question;
+            const { id, type } = question;
             const AnswerComponent = getAnswerComponent(type);
 
-            return (
-              <section key={id}>
-                <div
-                  className={cx('m-wizard-form__form-content-title', {
-                    'm-wizard-form__form-content-title--required': required,
-                  })}
-                >
-                  {questionText}
-                </div>
-                {description && (
-                  <span className="m-wizard-form__form-content-description">{description}</span>
-                )}
-                <div className="m-wizard-form__form-content-wrapper">
-                  <AnswerComponent {...question} formValues={formValues} />
-                </div>
-              </section>
-            );
+            return <AnswerComponent key={id} {...question} formValues={formValues} />;
           })}
         </div>
         <div className="m-wizard-form__form-footer">

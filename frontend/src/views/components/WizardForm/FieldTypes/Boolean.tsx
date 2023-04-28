@@ -1,6 +1,7 @@
 import React from 'react';
 import { Field } from 'redux-form';
 
+import Section from 'views/components/WizardForm/Section';
 import ErrorMessage from 'views/components/WizardForm/ErrorMessage';
 
 const RadioGroup = (props) => {
@@ -31,7 +32,11 @@ const Boolean = (props) => {
 
   const normalize = (value) => value === 'true';
 
-  return <Field component={RadioGroup} name={name} answers={answers} normalize={normalize} />;
+  return (
+    <Section {...props}>
+      <Field component={RadioGroup} name={name} answers={answers} normalize={normalize} />
+    </Section>
+  );
 };
 
 export default Boolean;

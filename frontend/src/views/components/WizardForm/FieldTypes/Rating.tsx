@@ -1,6 +1,8 @@
 import React, { useEffect } from 'react';
 import { Field, FieldArray } from 'redux-form';
 
+import Section from 'views/components/WizardForm/Section';
+
 const RATINGS = [
   {
     id: 1,
@@ -77,30 +79,32 @@ const Rating = (props) => {
   const { id: name, answers } = props;
 
   return (
-    <table className="m-wizard-form__form-table">
-      <thead>
-        <tr>
-          <th colSpan={2}>&nbsp;</th>
-          {RATINGS.map((rating) => {
-            const { id, label, description } = rating;
+    <Section {...props}>
+      <table className="m-wizard-form__form-table">
+        <thead>
+          <tr>
+            <th colSpan={2}>&nbsp;</th>
+            {RATINGS.map((rating) => {
+              const { id, label, description } = rating;
 
-            return (
-              <th key={id}>
-                <div className="ratings-header">
-                  <span className="ratings-header__label">{label}</span>
-                  {description && (
-                    <span className="ratings-header__description">{description}</span>
-                  )}
-                </div>
-              </th>
-            );
-          })}
-        </tr>
-      </thead>
-      <tbody>
-        <FieldArray component={RatingGroup} name={name} answers={answers} />
-      </tbody>
-    </table>
+              return (
+                <th key={id}>
+                  <div className="ratings-header">
+                    <span className="ratings-header__label">{label}</span>
+                    {description && (
+                      <span className="ratings-header__description">{description}</span>
+                    )}
+                  </div>
+                </th>
+              );
+            })}
+          </tr>
+        </thead>
+        <tbody>
+          <FieldArray component={RatingGroup} name={name} answers={answers} />
+        </tbody>
+      </table>
+    </Section>
   );
 };
 

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Field } from 'redux-form';
 
+import Section from 'views/components/WizardForm/Section';
 import ErrorMessage from 'views/components/WizardForm/ErrorMessage';
 
 const RadioGroup = (props) => {
@@ -53,14 +54,17 @@ const RadioGroup = (props) => {
 
 const Single = (props) => {
   const { id: name, answers, customAnswer, formValues } = props;
+
   return (
-    <Field
-      component={RadioGroup}
-      name={name}
-      answers={answers}
-      formValues={formValues}
-      customAnswer={customAnswer}
-    />
+    <Section {...props}>
+      <Field
+        component={RadioGroup}
+        name={name}
+        answers={answers}
+        formValues={formValues}
+        customAnswer={customAnswer}
+      />
+    </Section>
   );
 };
 
