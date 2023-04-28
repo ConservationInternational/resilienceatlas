@@ -1,4 +1,5 @@
-FROM mambaorg/micromamba:0.27.0 AS base
+FROM mambaorg/micromamba:1.4 AS base
+
 
 COPY --chown=$MAMBA_USER:$MAMBA_USER environment.conda-lock.yaml /tmp/environment.conda-lock.yaml
 

@@ -35,7 +35,10 @@ endif
 #################################################################################
 ## Initiate Docker compose and build services:
 up:
-	$(DOCKER_CMD) build && $(DOCKER_CMD) up
+	$(DOCKER_CMD) build && $(DOCKER_CMD) up test-notebooks
+
+run-app:
+	$(DOCKER_CMD) up --build app titiler
 
 ## Generate lockfile for Python dependencies:
 ## https://github.com/conda-incubator/conda-lock
