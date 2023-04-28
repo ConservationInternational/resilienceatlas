@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-and-deploy-feature:
+  build-and-deploy-feature-branch:
     if: github.ref != 'refs/heads/master'
     name: Deploy develop/feature branch stack to AWS
     runs-on: ubuntu-22.04
@@ -47,8 +47,8 @@ jobs:
             --no-fail-on-empty-changeset \
             --role-arn ${{ secrets.CLOUDFORMATION_EXECUTION_ROLE }}
 
-  build-and-package:
-    name: Deploy develop/feature branch stack to AWS
+  build-and-deploy-production:
+    name: Deploy the production stack to AWS
     if: github.ref == 'refs/heads/master'
 
     runs-on: ubuntu-22.04
@@ -73,53 +73,10 @@ jobs:
       - name: Build resources
         run: sam build --template ${{ vars.SAM_TEMPLATE }} --use-container
 
-      - name: Upload artifacts to production artifact buckets
-        run: |
-          sam package \
-            --s3-bucket ${{ secrets.ARTIFACTS_BUCKET }} \
-            --image-repository ${{ secrets.IMAGE_REPOSITORY }} \
-            --region ${{ vars.REGION }} \
-            --output-template-file packaged-prod.yaml
-
-      - uses: actions/upload-artifact@v2
-        with:
-          name: packaged-prod.yaml
-          path: packaged-prod.yaml
-
-  deploy-prod:
-    if: github.ref == 'refs/heads/master'
-    needs: [build-and-package]
-    runs-on: ubuntu-22.04
-    # Configure GitHub Action Environment to have a manual approval step before deployment to production
-    # https://docs.github.com/en/actions/reference/environments
-    # environment: <configured-environment>
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Signing in to AWS
-        uses: aws-actions/configure-aws-credentials@v1-node16
-        with:
-          aws-access-key-id: ${{ secrets.PIPELINE_USER_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.PIPELINE_USER_ACCESS_KEY_SECRET }}
-          aws-region: ${{ vars.REGION }}
-          role-to-assume: ${{ secrets.PIPELINE_EXECUTION_ROLE }}
-          role-session-name: prod-deployment
-          role-duration-seconds: 3600
-          role-skip-session-tagging: true
-
-      - uses: aws-actions/setup-sam@v2
-        with:
-          use-installer: true
-
-      - uses: actions/download-artifact@v2
-        with:
-          name: packaged-prod.yaml
-
       - name: Deploy to production account
         run: |
           sam deploy --stack-name ${{ vars.STACK_NAME }} \
             --parameter-overrides FQDN=${{ vars.FQDN }} ZoneId=${{ secrets.ROUTE53_ZONE_ID }} \
-            --template packaged-prod.yaml \
             --capabilities CAPABILITY_IAM \
             --region ${{ vars.REGION }} \
             --s3-bucket ${{ secrets.ARTIFACTS_BUCKET }} \
