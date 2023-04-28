@@ -196,7 +196,7 @@ export const MAP = {
       type: FeedbackFieldTypes.Multiple,
       question: 'What features have made you come back to the Resilience Atlas?',
       answers: [
-        { id: 'diverse_datasets,', label: 'Diverse datasets in one location' },
+        { id: 'diverse_datasets', label: 'Diverse datasets in one location' },
         { id: 'new_datasets', label: 'Access to new datasets' },
         { id: 'web_platform', label: 'Web-based platform' },
         { id: 'journeys', label: 'Journeys' },
