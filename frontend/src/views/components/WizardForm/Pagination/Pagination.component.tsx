@@ -12,8 +12,7 @@ const Pagination: React.FC<{
           <span
             key={index}
             className={cx('m-wizard-form__pagination-item', {
-              // TODO Simao: Retest this
-              active: currentPage - 1 == index,
+              active: currentPage - 1 >= index,
             })}
           >
             <span className="m-wizard-form__pagination-item-number">{index + 1}</span>
