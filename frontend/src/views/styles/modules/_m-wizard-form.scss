@@ -226,23 +226,20 @@
         &.error {
           border: 1px solid $light-red;
         }
-
-        &.required {
-          label:after {
-            content: '*';
-            color: $light-red;
-            width: 10px;
-            height: 10px;
-            position: absolute;
-            right: -14px;
-          }
-        }
       }
 
       &-title {
         position: relative;
         font-weight: 600;
         padding: 2px 0;
+
+        &--required {
+          &:after {
+            content: '*';
+            color: $light-red;
+            padding-left: 6px;
+          }
+        }
       }
 
       &-description {

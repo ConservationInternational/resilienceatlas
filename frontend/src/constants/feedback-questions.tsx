@@ -79,7 +79,6 @@ export const INTRO = {
     {
       id: 'how_did_you_find',
       type: FeedbackFieldTypes.Multiple,
-      required: true,
       question: 'How did you find out about the Resilience Atlas?',
       answers: [
         { id: 'internet_search', label: 'Internet search' },
@@ -131,7 +130,6 @@ export const TOOL_USE = {
     {
       id: 'usage_projects',
       type: FeedbackFieldTypes.FreeAnswer,
-      required: true,
       question: 'Briefly explain the project(s) that you have used the Resilience Atlas for:',
     },
   ],
