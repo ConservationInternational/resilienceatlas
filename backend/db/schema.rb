@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_04_13_154821) do
+ActiveRecord::Schema[7.0].define(version: 2023_04_26_132503) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -370,6 +370,14 @@ ActiveRecord::Schema[7.0].define(version: 2023_04_13_154821) do
     t.text "layer_config"
     t.text "analysis_body"
     t.text "interaction_config"
+    t.boolean "timeline", default: false
+    t.string "timeline_overlap"
+    t.date "timeline_steps", default: [], array: true
+    t.date "timeline_start_date"
+    t.date "timeline_end_date"
+    t.date "timeline_default_date"
+    t.string "timeline_period"
+    t.string "timeline_format", default: "%Y-%m-%d"
     t.index ["layer_group_id"], name: "index_layers_on_layer_group_id"
   end
 

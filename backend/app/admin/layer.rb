@@ -3,8 +3,22 @@ ActiveAdmin.register Layer do
 
   permit_params :name, :slug, :published, :zindex, :order, :query, :layer_config, :layer_provider, :css, :opacity,
     :legend, :zoom_max, :zoom_min, :dashboard_order, :source_id, :data_units, :analysis_suitable,
-    :analysis_query, :analysis_body, :interaction_config, :processing, :download, :description, source_ids: [],
+    :timeline, :timeline_overlap, :timeline_steps, :timeline_start_date, :timeline_end_date, :timeline_default_date,
+    :timeline_period, :timeline_format, :analysis_query, :analysis_body, :interaction_config, :processing, :download,
+    :description,
+    source_ids: [],
     translations_attributes: [:id, :locale, :name, :legend, :data_units, :processing, :description, :_destroy]
+
+  controller do
+    def save_resource(resource)
+      resource.timeline_steps = params["layer"]["timeline_steps"].to_s.split(",").map do |date|
+        Date.strptime date.strip, "%Y-%m-%d"
+      end
+      super
+    rescue Date::Error
+      resource.errors.add :timeline_steps, "Invalid date format"
+    end
+  end
 
   member_action :clone, only: :show, method: :get do
     n = resource.clone!
@@ -12,9 +26,10 @@ ActiveAdmin.register Layer do
   end
 
   filter :slug
-  filter :translations_name_eq, as: :select, label: "Name", collection: proc { Layer.with_translations.pluck(:name).sort }
+  filter :translations_name_eq, as: :select, label: "Name", collection: proc { Layer.with_translations.pluck(:name).map(&:to_s).sort }
   filter :layer_provider, as: :select
   filter :analysis_suitable
+  filter :timeline
   filter :layer_groups, as: :select, collection: proc { LayerGroup.with_translations.sort_by(&:name).map { |m| [m.name, m.id] } }
   filter :site_scopes, as: :select, collection: proc { SiteScope.with_translations.sort_by(&:name).map { |m| [m.name, m.id] } }
 
@@ -75,6 +90,18 @@ ActiveAdmin.register Layer do
       row :analysis_suitable
       row :analysis_query if resource.analysis_suitable
       row :analysis_body if resource.analysis_suitable
+      row :timeline
+      if resource.timeline
+        row :timeline_overlap
+        row :timeline_steps do |record|
+          record.timeline_steps.join(", ")
+        end
+        row :timeline_start_date
+        row :timeline_end_date
+        row :timeline_default_date
+        row :timeline_period
+        row :timeline_format
+      end
       row :dashboard_order
     end
   end

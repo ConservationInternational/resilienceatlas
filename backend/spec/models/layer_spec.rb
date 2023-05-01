@@ -39,6 +39,14 @@
 #  layer_config              :text
 #  analysis_body             :text
 #  interaction_config        :text
+#  timeline                  :boolean          default(FALSE)
+#  timeline_overlap          :string
+#  timeline_steps            :date             default([]), is an Array
+#  timeline_start_date       :date
+#  timeline_end_date         :date
+#  timeline_default_date     :date
+#  timeline_period           :string
+#  timeline_format           :string           default("%m/%d/%Y")
 #  name                      :string
 #  info                      :text
 #  legend                    :text
@@ -74,6 +82,25 @@ RSpec.describe Layer, type: :model do
     subject.name = nil
     expect(subject.save).to be_falsey
     expect(subject.errors["translations.name"]).to include("can't be blank")
+  end
+
+  context "when timeline is enabled" do
+    subject { build :layer, timeline: true }
+
+    it "should not be valid without timeline_overlap" do
+      subject.timeline_overlap = nil
+      expect(subject).to have(1).errors_on(:timeline_overlap)
+    end
+
+    it "should not be valid without timeline_start_date" do
+      subject.timeline_start_date = nil
+      expect(subject).to have(1).errors_on(:timeline_start_date)
+    end
+
+    it "should not be valid without timeline_format" do
+      subject.timeline_format = nil
+      expect(subject).to have(1).errors_on(:timeline_format)
+    end
   end
 
   context "when layer is a cog" do
