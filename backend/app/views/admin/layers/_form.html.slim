@@ -36,7 +36,7 @@
     = f.inputs "Timeline"
       = f.input :timeline, input_html: {data: {if: "checked", action: "show", target: ".timeline-query-input"}}, required: false
       = f.input :timeline_overlap, wrapper_html: {class: "timeline-query-input"}, required: true
-      = f.input :timeline_steps, as: :string, input_html: { value: Array.wrap(f.object.timeline_steps).join(", ") }, wrapper_html: {class: "timeline-query-input"}, placeholder: "Optionally define individual steps manually in format mm/dd/YYYY divided by comma"
+      = f.input :timeline_steps, as: :string, input_html: { value: Array.wrap(f.object.timeline_steps).join(", ") }, wrapper_html: {class: "timeline-query-input"}, placeholder: "Optionally define individual steps manually in format YYYY-mm-dd divided by comma"
       = f.input :timeline_start_date, wrapper_html: {class: "timeline-query-input"}, required: true
       = f.input :timeline_end_date, wrapper_html: {class: "timeline-query-input"}
       = f.input :timeline_default_date, wrapper_html: {class: "timeline-query-input"}
