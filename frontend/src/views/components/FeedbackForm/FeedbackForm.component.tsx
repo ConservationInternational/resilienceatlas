@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 
 import WizardForm from 'views/components/WizardForm/WizardForm.component';
 
-import Intro from 'views/components/FeedbackForm/Pages/Intro/Intro';
-import ToolUse from 'views/components/FeedbackForm/Pages/ToolUse/ToolUse';
-import Map from 'views/components/FeedbackForm/Pages/Map/Map';
-import Website from 'views/components/FeedbackForm/Pages/Website/Website';
+import Intro from './Pages/Intro';
+import ToolUse from './Pages/ToolUse';
+import Map from './Pages/Map';
+import Website from './Pages/Website';
 
 import Outro from 'views/components/FeedbackForm/Outro/Outro';
 
