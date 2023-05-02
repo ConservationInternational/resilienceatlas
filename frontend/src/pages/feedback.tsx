@@ -21,6 +21,15 @@ export default withTranslations(Feedback);
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   const { translations } = await getServerSideTranslations(context);
+  const { query } = context;
+
+  // Prevent feedback page from being accessed directly
+  if (!query.returnPath) {
+    return {
+      notFound: true,
+    };
+  }
+
   return {
     props: {
       translations,

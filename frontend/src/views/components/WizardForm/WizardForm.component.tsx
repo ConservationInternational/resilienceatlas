@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import React, { Children, useState } from 'react';
+import { useRouter } from 'next/router';
 import cx from 'classnames';
 
 import Pagination from './Pagination/Pagination.component';
@@ -13,6 +14,8 @@ const WizardForm: React.FC<{
   children: unknown | unknown[];
   formSubmitted: boolean;
   outroComponent: unknown;
+  backBtnPath?: string;
+  backBtnText?: string;
 }> = (props) => {
   const {
     title,
@@ -23,10 +26,17 @@ const WizardForm: React.FC<{
     children,
     formSubmitted,
     outroComponent,
+    backBtnPath,
+    backBtnText,
   } = props;
-
   // Initialized to the current page number, not array indexes
   const [currentPage, setCurrentPage] = useState(1);
+
+  const router = useRouter();
+
+  const handleBackButtonClick = () => {
+    router.push(backBtnPath);
+  };
 
   const handlePreviousPageClick = () => {
     setCurrentPage(currentPage - 1);
@@ -44,7 +54,6 @@ const WizardForm: React.FC<{
     }
   };
 
-  // Todo Simao: Fix types
   const pagesComponents = Children.toArray(children as ReactNode[]) as React.ReactElement[];
   const currentPageComponent = pagesComponents[currentPage - 1];
 
@@ -71,12 +80,13 @@ const WizardForm: React.FC<{
         'm-wizard-form--background-image': formSubmitted,
       })}
     >
-      <div className="m-wizard-form__header">
-        <button type="button" className="btn btn-primary">
-          {/* TODO SIMAO: Translate */}
-          Go back to map
-        </button>
-      </div>
+      {backBtnPath && (
+        <div className="m-wizard-form__header">
+          <button type="button" className="btn btn-primary" onClick={handleBackButtonClick}>
+            {backBtnText || 'Go back'}
+          </button>
+        </div>
+      )}
       {displayPage && (
         <>
           {numPages > 1 && <Pagination currentPage={currentPage} numPages={numPages} />}

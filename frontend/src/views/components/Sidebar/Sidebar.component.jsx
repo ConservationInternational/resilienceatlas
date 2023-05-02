@@ -51,6 +51,15 @@ const Sidebar = ({
     [tab],
   );
 
+  const handleFeedbackBtnClick = () => {
+    router.push(
+      `feedback/?returnPath=${encodeURIComponent(router.asPath)}&returnText=${encodeURIComponent(
+        'Go back to map',
+      )}`,
+      'feedback',
+    );
+  };
+
   return (
     <div
       className={cx('l-sidebar--fullscreen', {
@@ -151,6 +160,9 @@ const Sidebar = ({
           </button>
         )}
         <LogoAttribution />
+        <button className="btn-map-feedback" type="button" onClick={handleFeedbackBtnClick}>
+          Feedback
+        </button>
       </div>
     </div>
   );

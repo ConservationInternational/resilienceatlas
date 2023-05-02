@@ -96,6 +96,24 @@
       color: $white;
     }
   }
+
+  .btn-map-feedback {
+    position: absolute;
+    bottom: 0;
+    left: #{$sidebar-width + 10px};
+    height: rem(28px);
+    padding: 0 14px;
+    text-transform: uppercase;
+    background-color: $gray-70;
+    border: 0;
+    box-shadow: 0 1px 4px 0 rgba(0, 0, 0, .2);
+    letter-spacing: .1em;
+    font-weight: 700;
+    color: $white;
+    font-size: 12px;
+    line-height: 32px;
+    outline: none;
+  }
 }
 
 .l-sidebar--fullscreen {

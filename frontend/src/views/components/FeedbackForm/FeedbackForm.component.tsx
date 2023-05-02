@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useRouter } from 'next/router';
 
 import WizardForm from 'views/components/WizardForm/WizardForm.component';
 
@@ -11,6 +12,9 @@ import Outro from 'views/components/FeedbackForm/Outro/Outro';
 
 const FeedbackForm = () => {
   const [submitted, setSubmitted] = useState(false);
+
+  const { query } = useRouter();
+  const { returnPath, returnText } = query;
 
   const handleSubmit = (values) => {
     // TODO Simao: Process values and make API query
@@ -26,6 +30,8 @@ const FeedbackForm = () => {
       onSubmit={handleSubmit}
       formSubmitted={submitted}
       outroComponent={Outro}
+      backBtnPath={returnPath as string}
+      backBtnText={returnText as string}
     >
       <Intro />
       <ToolUse />
