@@ -33,7 +33,7 @@ export const INTRO = {
       ],
       customAnswer: {
         id: 'work_sector_other',
-        label: 'Other',
+        label: 'Other:',
       },
     },
     {
@@ -51,7 +51,7 @@ export const INTRO = {
       ],
       customAnswer: {
         id: 'gender_other',
-        label: 'Other',
+        label: 'Other:',
       },
     },
     {
@@ -62,7 +62,7 @@ export const INTRO = {
       answers: LOCATIONS_LIST,
       customAnswer: {
         id: 'intro_location_other',
-        label: 'Other',
+        label: 'Other:',
       },
     },
     {
@@ -73,7 +73,7 @@ export const INTRO = {
       answers: LOCATIONS_LIST,
       customAnswer: {
         id: 'intro_projects_location_other',
-        label: 'Other',
+        label: 'Other:',
       },
     },
     {
@@ -93,7 +93,7 @@ export const INTRO = {
       ],
       customAnswer: {
         id: 'how_did_you_find_other',
-        label: 'Other',
+        label: 'Other:',
       },
     },
   ],
@@ -124,7 +124,7 @@ export const TOOL_USE = {
       ],
       customAnswer: {
         id: 'usage_other',
-        label: 'Other',
+        label: 'Other:',
       },
     },
     {
@@ -183,7 +183,7 @@ export const MAP = {
       ],
       customAnswer: {
         id: 'map_useful_features_other',
-        label: 'Other',
+        label: 'Other:',
       },
     },
     {
@@ -212,11 +212,11 @@ export const MAP = {
       ],
       customAnswer: {
         id: 'coming_back_features_other',
-        label: 'Other',
+        label: 'Other:',
       },
     },
     {
-      id: 'usefulness-feedback',
+      id: 'usefulness_feedback',
       type: FeedbackFieldTypes.Multiple,
       question: 'What would make the Resilience Atlas more useful?',
       description:
@@ -228,8 +228,11 @@ export const MAP = {
         },
         { id: 'customizable_reports', label: 'Customizable PDF report' },
         { id: 'save_maps', label: 'Ability to save maps when logged in' },
-        { id: 'usefulness_feedback_other', label: 'Other:' },
       ],
+      customAnswer: {
+        id: 'usefulness_feedback_other',
+        label: 'Other:',
+      },
     },
     {
       id: 'new_feature_suggestion',
