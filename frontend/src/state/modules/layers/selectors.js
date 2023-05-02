@@ -48,10 +48,12 @@ export const makeActives = () =>
     (ids, layers, loaded, sourcesById) => {
       if (!loaded) return [];
       const activeLayers = denormalize(ids, [layer], { layers });
-      return activeLayers.map((layer) => ({
-        ...layer,
-        ...getSources(layer.attributions, sourcesById),
-      }));
+      return activeLayers
+        .filter((activeLayers) => !!activeLayers)
+        .map((layer) => ({
+          ...layer,
+          ...getSources(layer.attributions, sourcesById),
+        }));
     },
   );
 
