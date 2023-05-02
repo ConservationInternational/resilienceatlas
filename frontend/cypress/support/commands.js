@@ -33,6 +33,9 @@ Cypress.Commands.add('interceptAllRequests', () => {
   ).as('menuEntriesRequest');
 
   cy.intercept('/api/homepage*', { middleware: true }, disableRequestCache).as('homepageRequest');
+  cy.intercept('/api/static_pages/about*', { middleware: true }, disableRequestCache).as(
+    'aboutRequest',
+  );
   cy.intercept('/api/journeys*', { middleware: true }, disableRequestCache).as(
     'journeyListRequest',
   );

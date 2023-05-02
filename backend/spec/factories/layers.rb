@@ -39,6 +39,14 @@
 #  layer_config              :text
 #  analysis_body             :text
 #  interaction_config        :text
+#  timeline                  :boolean          default(FALSE)
+#  timeline_overlap          :string
+#  timeline_steps            :date             default([]), is an Array
+#  timeline_start_date       :date
+#  timeline_end_date         :date
+#  timeline_default_date     :date
+#  timeline_period           :string
+#  timeline_format           :string           default("%m/%d/%Y")
 #  name                      :string
 #  info                      :text
 #  legend                    :text
@@ -71,7 +79,6 @@ FactoryBot.define do
       Faker::Lorem.sentence
     end
     sequence(:layer_provider) do |n|
-      Faker::Config.random = Random.new(n)
       ["cartodb", "cog", "gee", "xyz tileset"].sample random: Random.new(n)
     end
     sequence(:query) do |n|
@@ -125,6 +132,32 @@ FactoryBot.define do
     sequence(:analysis_body) do |n|
       Faker::Config.random = Random.new(n)
       Faker::Lorem.sentence
+    end
+    sequence(:timeline) do |n|
+      Faker::Config.random = Random.new(n)
+      Faker::Boolean.boolean
+    end
+    sequence(:timeline_overlap) do |n|
+      Faker::Config.random = Random.new(n)
+      Faker::Lorem.sentence
+    end
+    sequence(:timeline_steps) do |n|
+      (Date.new(2020, 1, 1)..Date.new(2022, 12, 31)).to_a.sample 3, random: Random.new(n)
+    end
+    sequence(:timeline_start_date) do |n|
+      Faker::Config.random = Random.new(n)
+      Faker::Date.between from: Date.new(2020, 1, 1), to: Date.new(2022, 12, 31)
+    end
+    sequence(:timeline_end_date) do |n|
+      Faker::Config.random = Random.new(n)
+      Faker::Date.between from: Date.new(2020, 1, 1), to: Date.new(2022, 12, 31)
+    end
+    sequence(:timeline_default_date) do |n|
+      Faker::Config.random = Random.new(n)
+      Faker::Date.between from: Date.new(2020, 1, 1), to: Date.new(2022, 12, 31)
+    end
+    sequence(:timeline_period) do |n|
+      Layer.timeline_periods.keys.sample random: Random.new(n)
     end
     sequence(:dashboard_order) do |n|
       Faker::Config.random = Random.new(n)

@@ -145,12 +145,20 @@ const Embed = (props) => {
 
     return params.toString();
   }, [countriesLoaded, countryInfo.geometry, maskSql]);
+
+  const provideAbsoluteOrRelativeUrl = (url) => {
+    if (url.startsWith('http')) {
+      return url.replace('resilienceatlas.org/', `resilienceatlas.org/${locale}/`);
+    }
+    return `/${locale}${url}`;
+  };
+
   return (
     <div className={`m-journey--embed--light ${theme}`}>
       <div className="embebed-map">
-        <Iframe src={`/${locale}${mapUrl}&${embedParams}`} />
+        <Iframe src={`${provideAbsoluteOrRelativeUrl(mapUrl)}&${embedParams}`} />
         <a
-          href={`/${locale}${btnUrl}`}
+          href={provideAbsoluteOrRelativeUrl(btnUrl)}
           target="_blank"
           rel="noopener noreferrer"
           data-step={currentStep}

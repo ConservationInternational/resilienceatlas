@@ -215,13 +215,18 @@
 
               a {
                 padding: 0;
-                color: $font-color-1;
                 text-transform: none;
-
-                &:hover {
-                  background: transparent;
-                }
               }
+            }
+          }
+
+          &.is-link {
+            &:after {
+              display: none;
+            }
+
+            > a {
+              padding: 0;
             }
           }
         }
@@ -230,7 +235,7 @@
 
     a, button, .nav-item {
       display: block;
-      padding: rem(7px) rem(20px) rem(3px);
+      padding: rem(10px);
       color: var(--theme-color);
       border-radius: 3px;
       font-size: rem(14px);
@@ -307,7 +312,6 @@
   margin-top: -65px;
   width: 100%;
   height: rem(310px);
-  background-image: url('/images/about-hero.jpg');
   background-repeat: no-repeat;
   background-position: center;
   background-size: cover;

@@ -48,6 +48,13 @@ RSpec.describe "Admin: Layers", type: :system do
         expect(page).to have_text(layer.interaction_config)
         expect(page).to have_text(layer.analysis_query)
         expect(page).to have_text(layer.analysis_body)
+        expect(page).to have_text(layer.timeline_overlap)
+        expect(page).to have_text(layer.timeline_steps.join(", "))
+        expect(page).to have_text(layer.timeline_start_date)
+        expect(page).to have_text(layer.timeline_end_date)
+        expect(page).to have_text(layer.timeline_default_date)
+        expect(page).to have_text(layer.timeline_period)
+        expect(page).to have_text(layer.timeline_format)
         expect(page).to have_text(layer.dashboard_order.to_s)
       end
     end
@@ -103,6 +110,14 @@ RSpec.describe "Admin: Layers", type: :system do
       check "layer[analysis_suitable]"
       fill_in "layer[analysis_query]", with: "New analysis_query"
       fill_in "layer[analysis_body]", with: "New analysis_body"
+      check "layer[timeline]"
+      fill_in "layer[timeline_overlap]", with: "New timeline_overlap"
+      fill_in "layer[timeline_steps]", with: "2000-01-01,2000-01-02,2000-01-03"
+      fill_in "layer[timeline_start_date]", with: "2000-01-01"
+      fill_in "layer[timeline_end_date]", with: "2000-01-03"
+      fill_in "layer[timeline_default_date]", with: "2000-01-01"
+      select "daily", from: "layer[timeline_period]"
+      fill_in "layer[timeline_format]", with: "%Y-%m-%d"
       fill_in "layer[dashboard_order]", with: "80"
 
       click_on "Create Layer"
@@ -126,6 +141,12 @@ RSpec.describe "Admin: Layers", type: :system do
       expect(page).to have_text("New interaction_config")
       expect(page).to have_text("New analysis_query")
       expect(page).to have_text("New analysis_body")
+      expect(page).to have_text("New timeline_overlap")
+      expect(page).to have_text("2000-01-01")
+      expect(page).to have_text("2000-01-02")
+      expect(page).to have_text("2000-01-03")
+      expect(page).to have_text("daily")
+      expect(page).to have_text("%Y-%m-%d")
       expect(page).to have_text("80")
     end
 
@@ -165,6 +186,16 @@ RSpec.describe "Admin: Layers", type: :system do
 
       expect(page).to have_current_path(admin_layers_path)
       expect(page).to have_text("can't be blank")
+    end
+
+    it "shows errors when timeline steps are invalid" do
+      check "layer[timeline]"
+      fill_in "layer[timeline_steps]", with: "WRONG DATE"
+
+      click_on "Create Layer"
+
+      expect(page).to have_current_path(admin_layers_path)
+      expect(page).to have_text("Invalid date format")
     end
   end
 

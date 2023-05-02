@@ -39,6 +39,14 @@
 #  layer_config              :text
 #  analysis_body             :text
 #  interaction_config        :text
+#  timeline                  :boolean          default(FALSE)
+#  timeline_overlap          :string
+#  timeline_steps            :date             default([]), is an Array
+#  timeline_start_date       :date
+#  timeline_end_date         :date
+#  timeline_default_date     :date
+#  timeline_period           :string
+#  timeline_format           :string           default("%m/%d/%Y")
 #  name                      :string
 #  info                      :text
 #  legend                    :text
@@ -106,7 +114,13 @@ class Layer < ApplicationRecord
 
   translation_class.validates_presence_of :name, if: -> { locale.to_s == I18n.default_locale.to_s }
 
+  enum :timeline_period, {yearly: "yearly", monthly: "monthly", daily: "daily"}, default: :yearly, prefix: true
+
   validates_presence_of :slug, :layer_provider, :interaction_config
+  validates :timeline, inclusion: {in: [true, false]}
+  with_options if: -> { timeline } do
+    validates_presence_of :timeline_overlap, :timeline_period, :timeline_start_date, :timeline_format
+  end
   with_options if: -> { layer_provider == "cog" } do
     validates_presence_of :layer_config
   end
