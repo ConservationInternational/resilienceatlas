@@ -2,7 +2,7 @@ import { compose } from 'redux';
 import { connect } from 'react-redux';
 import { reduxForm } from 'redux-form';
 
-import { EditProfileSchema, editProfile, userProfileEdited } from 'state/modules/user';
+import { EditProfileSchema, loadUserData, editProfile } from 'state/modules/user';
 
 import { asyncValidate } from 'views/utils/asyncValidate';
 
@@ -21,9 +21,7 @@ const withForm = reduxForm({
   form: 'EditProfileForm',
   asyncValidate: asyncValidate(EditProfileSchema),
   onSubmit: editProfile,
-  onSubmitSuccess: (result, dispatch) => {
-    dispatch(userProfileEdited(result));
-  },
+  onSubmitSuccess: (_, dispatch) => dispatch(loadUserData()),
 });
 
 export default compose(withConnect, withForm)(EditProfileForm);

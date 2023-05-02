@@ -30,6 +30,12 @@
     font-family: $font-face-1;
   }
 
+  .general-error-message {
+    color: $red;
+    bottom: 6px;
+    font-size: 14px;
+  }
+
   .field {
     position: relative;
     padding-bottom: 14px;

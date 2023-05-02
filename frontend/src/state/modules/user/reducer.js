@@ -1,8 +1,9 @@
 import { createReducer } from '../../utils';
-import { LOGIN, EDIT_PROFILE, LOGOUT } from './actions';
+import { LOGIN, LOGOUT, LOAD_USER } from './actions';
 
 const initialState = {
   auth_token: null,
+  data: null,
 };
 
 export default createReducer(initialState)({
@@ -11,12 +12,12 @@ export default createReducer(initialState)({
     auth_token,
   }),
 
-  [EDIT_PROFILE]: (state, { payload }) => ({
-    ...state,
-    ...payload,
-  }),
-
   [LOGOUT]: () => ({
     auth_token: null,
+  }),
+
+  [LOAD_USER]: (state, { data }) => ({
+    ...state,
+    data,
   }),
 });
