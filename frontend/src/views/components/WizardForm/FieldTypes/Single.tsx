@@ -52,6 +52,7 @@ const RadioGroup = (props) => {
           </label>
         </div>
       )}
+      <ErrorMessage {...meta} />
     </>
   );
 };
