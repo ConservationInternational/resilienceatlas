@@ -254,6 +254,59 @@
 
       &-title {
         position: relative;
+        text-align: center;
+        font-weight: 600;
+        padding: 2px 0;
+
+        &--required {
+          &:after {
+            content: '*';
+            color: $light-red;
+            padding-left: 6px;
+          }
+        }
+
+        h3 {
+          font-family: $font-face-2;
+          text-transform: uppercase;
+          font-size: rem(50px);
+          color: $gray;
+          margin: 0;
+          line-height: 1;
+          padding-bottom: 20px;
+        }
+
+        p {
+          font-family: $font-face-1;
+          font-size: rem(20px);
+          font-weight: 400;
+          line-height: rem(28px);
+          color: $font-color-1;
+        }
+      }
+
+      &-description {
+        display: block;
+        padding: 2px 0;
+        color: $gray-medium;
+      }
+
+      &-wrapper {
+        margin-top: 16px;
+
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+    }
+
+    &-section {
+      display: grid;
+      gap: 4px;
+      padding: 20px 0;
+
+      &-title {
+        position: relative;
         font-weight: 600;
         padding: 2px 0;
 

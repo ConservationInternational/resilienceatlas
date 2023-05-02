@@ -12,7 +12,7 @@ const ErrorMessage = ({ touched, error }) => {
   return (
     <>
       {touched && error && (
-        <span className="m-wizard-form__form-content-error-message">{errorMessage}</span>
+        <span className="m-wizard-form__form-section-error-message">{errorMessage}</span>
       )}
     </>
   );

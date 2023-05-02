@@ -14,16 +14,16 @@ const Section: React.FC<
   return (
     <section className={cx({ error: error })}>
       <div
-        className={cx('m-wizard-form__form-content-title', {
-          'm-wizard-form__form-content-title--required': required,
+        className={cx('m-wizard-form__form-section-title', {
+          'm-wizard-form__form-section-title--required': required,
         })}
       >
         {question}
       </div>
       {description && (
-        <span className="m-wizard-form__form-content-description">{description}</span>
+        <span className="m-wizard-form__form-section-description">{description}</span>
       )}
-      <div className="m-wizard-form__form-content-wrapper">{children}</div>
+      <div className="m-wizard-form__form-section-wrapper">{children}</div>
     </section>
   );
 };
