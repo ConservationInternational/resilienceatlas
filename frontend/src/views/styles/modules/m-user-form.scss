@@ -30,6 +30,28 @@
     font-family: $font-face-1;
   }
 
+  button[type="button"] {
+    height: 35px;
+    padding: 2px 20px;
+    color: $font-color-4;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    line-height: 35px;
+    border: 0;
+    background: transparent;
+    outline: none;
+
+    &:hover,
+    &:active,
+    &.-active {
+      color: $white;
+      background: $gray-70;
+      border-radius: 3px;
+    }
+  }
+
   .general-error-message {
     color: $red;
     bottom: 6px;

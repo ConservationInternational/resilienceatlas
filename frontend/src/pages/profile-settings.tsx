@@ -10,13 +10,33 @@ import { T } from '@transifex/react';
 import { getServerSideTranslations } from 'i18n';
 import { useSetServerSideTranslations } from 'utilities/hooks/transifex';
 import type { GetServerSidePropsContext } from 'next';
-import type { NextPageWithLayout } from './_app';
+import type { NextPageWithLayout, ResilienceAppProps } from './_app';
+import { loadUserData } from 'state/modules/user';
 
-const ProfileSettingsPage: NextPageWithLayout = ({ user, setTranslations, translations }) => {
+type ProfileSettingsPageProps = ResilienceAppProps & {
+  user: {
+    auth_token: string;
+    data?: Record<string, unknown>;
+  };
+  loadUserData: () => void;
+};
+
+const ProfileSettingsPage: NextPageWithLayout<ProfileSettingsPageProps> = ({
+  user,
+  translations,
+  setTranslations,
+  loadUserData,
+}) => {
   useSetServerSideTranslations({ setTranslations, translations });
 
   const router = useRouter();
   const authenticated = isAuthenticated(user);
+
+  useEffect(() => {
+    if (!user.data && !!user.auth_token) {
+      loadUserData();
+    }
+  }, [user, loadUserData]);
 
   useEffect(() => {
     if (!authenticated) router.push('/');
@@ -26,27 +46,33 @@ const ProfileSettingsPage: NextPageWithLayout = ({ user, setTranslations, transl
     <div className="l-content">
       <Row>
         <div className="m-user-form">
-          <h2>
-            <T
-              _str="Edit {first_name} {last_name}"
-              first_name={user.first_name}
-              last_name={user.last_name}
-            />
-          </h2>
-          <ProfileSettingsForm />
-          <h3>
-            <T _str="Cancel my account" />
-          </h3>
+          {!user.data && <div className="is-loading" />}
 
-          <p>
-            <T _str="Unhappy?" />
-          </p>
+          {!!user.data && (
+            <>
+              <h2>
+                <T
+                  _str="Edit {first_name} {last_name}"
+                  first_name={user.data.first_name}
+                  last_name={user.data.last_name}
+                />
+              </h2>
+              <ProfileSettingsForm />
+              {/* <h3>
+                <T _str="Delete my account" />
+              </h3>
 
-          <input type="submit" value="Cancel my account" />
+              <p>
+                <T _str="This action cannot be undone." />
+              </p>
 
-          <button type="button" onClick={router.back}>
-            <T _str="Back" />
-          </button>
+              <input type="submit" value={t('Delete my account')} /> */}
+
+              <button type="button" onClick={router.back}>
+                <T _str="Back" />
+              </button>
+            </>
+          )}
         </div>
       </Row>
     </div>
@@ -60,6 +86,7 @@ ProfileSettingsPage.Layout = (page, translations) => (
 const mapStateToProps = (state) => ({ user: state.user });
 const mapDispatchToProps = {
   setTranslations,
+  loadUserData,
 };
 export default connect(mapStateToProps, mapDispatchToProps)(ProfileSettingsPage);
 

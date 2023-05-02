@@ -76,8 +76,20 @@ export const editProfile = (values: IEditProfileForm, _, props) =>
     headers: {
       Authorization: `Bearer ${props.user.auth_token}`,
     },
-  }).catch(() => {
-    throw new SubmissionError({ _error: 'Unable to edit the profile' });
+  }).catch((response) => {
+    if (response.data?.errors) {
+      throw new SubmissionError(
+        Object.entries(response.data?.errors as Record<string, string[]>).reduce(
+          (res, tuple) => ({
+            ...res,
+            [tuple[0]]: tuple[1].join(', '),
+          }),
+          {},
+        ),
+      );
+    } else {
+      throw new SubmissionError({ _error: 'Unable to edit the profile' });
+    }
   });
 
 export const login = (auth_token) => (dispatch) => {
