@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/router';
 
-import WizardForm from 'views/components/WizardForm/WizardForm.component';
+import WizardForm from 'views/components/WizardForm';
 
 import Intro from './Pages/Intro';
 import ToolUse from './Pages/ToolUse';
 import Map from './Pages/Map';
 import Website from './Pages/Website';
+import Outro from './Outro/Outro';
 
-import Outro from 'views/components/FeedbackForm/Outro/Outro';
+import { processFeedbackForm } from 'state/modules/feedback';
 
 const FeedbackForm = () => {
   const [submitted, setSubmitted] = useState(false);
@@ -18,7 +19,10 @@ const FeedbackForm = () => {
 
   const handleSubmit = (values) => {
     // TODO Simao: Process values and make API query
-    console.log(values);
+    const requestData = processFeedbackForm(values);
+
+    console.log(requestData);
+
     setSubmitted(true);
   };
 
