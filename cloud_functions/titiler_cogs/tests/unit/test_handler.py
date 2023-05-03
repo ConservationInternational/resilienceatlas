@@ -68,10 +68,5 @@ def test_lambda_handler(apigw_event, mocker):
     data = json.loads(ret["body"])
 
     assert ret["statusCode"] == 200
-<<<<<<< HEAD
-    assert "ping" in ret["body"]
-    assert data["ping"] == "pong!"
-=======
     assert "message" in ret["body"]
     assert data["message"] == "hello world"
->>>>>>> origin/cloud_functions
