@@ -1,0 +1,28 @@
+name: base
+channels:
+  - conda-forge
+  - gdal-master
+  - default
+  - defaults
+  - nodefaults
+  - javascript
+  - pip
+platforms:
+  - linux-64
+dependencies:
+  - python>=3.10
+  - nodejs>=14
+  - notebook
+  - jupyterhub
+  - jupyterlab
+  - cartopy
+  - numpy
+  - ipywidgets
+  - geopandas
+  - s3fs
+  - gcsfs
+  - fsspec
+  - python-dotenv
+  - rio-cogeo
+  - rasterstats
+  - folium
