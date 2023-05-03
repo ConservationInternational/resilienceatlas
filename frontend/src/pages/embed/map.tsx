@@ -1,8 +1,7 @@
 import { useState } from 'react';
-import MapView from 'views/components/Map';
 import { getServerSideTranslations } from 'i18n';
+import MapView from 'views/components/Map';
 import { LayerManagerProvider } from 'views/contexts/layerManagerCtx';
-import Loader from 'views/shared/Loader';
 import EmbedLayout from 'views/layouts/embed';
 import MapLoadingScreen from 'views/components/Map/loading-screen';
 import { useSetServerSideTranslations, withTranslations } from 'utilities/hooks/transifex';
@@ -30,7 +29,6 @@ const EmbedPage: NextPageWithLayout = ({ translations, setTranslations }) => {
             },
           }}
         />
-        <Loader />
       </div>
     </LayerManagerProvider>
   );

@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
+import { connect } from 'react-redux';
 import { useCookies } from 'react-cookie';
 import { useTour } from '@reactour/tour';
 import { getServerSideTranslations } from 'i18n';
@@ -18,7 +19,7 @@ import { withTranslations, useSetServerSideTranslations } from 'utilities/hooks/
 import type { NextPageWithLayout } from './_app';
 import type { GetServerSidePropsContext } from 'next';
 
-const MapPage: NextPageWithLayout = ({ translations, setTranslations }) => {
+const MapPage: NextPageWithLayout = ({ translations, setTranslations, isSidebarOpen }) => {
   const [cookies, setCookie] = useCookies(['mapTour']);
   const { mapTour } = cookies;
   const { isOpen, setIsOpen } = useTour();
@@ -42,6 +43,9 @@ const MapPage: NextPageWithLayout = ({ translations, setTranslations }) => {
     }
   }, [isOpen, mapTour, setCookie, setIsOpen]);
 
+  // ? 350px is the width of the left sidebar
+  const sidebarSize = useMemo(() => (isSidebarOpen ? 350 : 25), [isSidebarOpen]);
+
   return (
     <LayerManagerProvider>
       <Sidebar />
@@ -49,9 +53,8 @@ const MapPage: NextPageWithLayout = ({ translations, setTranslations }) => {
         {anyLayerLoading && (
           <MapLoadingScreen
             styles={{
-              // 350px is the width of the left sidebar
-              width: 'calc(100% - 350px)',
-              left: 350,
+              width: `calc(100% - ${sidebarSize}px)`,
+              left: sidebarSize,
             }}
           />
         )}
@@ -80,7 +83,10 @@ MapPage.Layout = (page, translations) => (
   <FullscreenLayout pageTitle={translations['Map']}>{page}</FullscreenLayout>
 );
 
-export default withTranslations(MapPage);
+export default connect(
+  (state) => ({ isSidebarOpen: state.ui.sidebar }),
+  null,
+)(withTranslations(MapPage));
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   const { translations } = await getServerSideTranslations(context);

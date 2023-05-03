@@ -155,18 +155,6 @@ const Embed = (props) => {
 
   return (
     <div className={`m-journey--embed--light ${theme}`}>
-      <div className="embebed-map">
-        <Iframe src={`${provideAbsoluteOrRelativeUrl(mapUrl)}&${embedParams}`} />
-        <a
-          href={provideAbsoluteOrRelativeUrl(btnUrl)}
-          target="_blank"
-          rel="noopener noreferrer"
-          data-step={currentStep}
-          className={cx('btn-check-it', { 'last-step': isLastStep })}
-        >
-          <T _str="View on map" />
-        </a>
-      </div>
       <article className="side-bar">
         <div className="wrapper">
           <article>
@@ -190,6 +178,18 @@ const Embed = (props) => {
           </article>
         </div>
       </article>
+      <div className="embebed-map">
+        <Iframe src={`${provideAbsoluteOrRelativeUrl(mapUrl)}&${embedParams}`} />
+        <a
+          href={provideAbsoluteOrRelativeUrl(btnUrl)}
+          target="_blank"
+          rel="noopener noreferrer"
+          data-step={currentStep}
+          className={cx('btn-check-it', { 'last-step': isLastStep })}
+        >
+          <T _str="View on map" />
+        </a>
+      </div>
     </div>
   );
 };
