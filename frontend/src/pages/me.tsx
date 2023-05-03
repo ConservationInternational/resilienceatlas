@@ -5,19 +5,39 @@ import { useRouter } from 'next/router';
 import { connect } from 'react-redux';
 import { T } from '@transifex/react';
 import { setTranslations } from 'state/modules/translations';
+import { loadUserData } from 'state/modules/user';
 import { isAuthenticated } from 'utilities/authenticated';
 import EditProfileForm from 'views/components/EditProfileForm';
 import MainLayout from 'views/layouts/main';
 import { getServerSideTranslations } from 'i18n';
 import { useSetServerSideTranslations } from 'utilities/hooks/transifex';
 import type { GetServerSidePropsContext } from 'next';
-import type { NextPageWithLayout } from './_app';
+import type { NextPageWithLayout, ResilienceAppProps } from './_app';
 
-const MePage: NextPageWithLayout = ({ user, translations, setTranslations }) => {
+type MePageProps = ResilienceAppProps & {
+  user: {
+    auth_token: string;
+    data?: Record<string, unknown>;
+  };
+  loadUserData: () => void;
+};
+
+const MePage: NextPageWithLayout<MePageProps> = ({
+  user,
+  translations,
+  setTranslations,
+  loadUserData,
+}) => {
   useSetServerSideTranslations({ setTranslations, translations });
 
   const router = useRouter();
   const authenticated = isAuthenticated(user);
+
+  useEffect(() => {
+    if (!user.data && !!user.auth_token) {
+      loadUserData();
+    }
+  }, [user, loadUserData]);
 
   useEffect(() => {
     if (!authenticated && router.isReady) router.push('/');
@@ -27,21 +47,30 @@ const MePage: NextPageWithLayout = ({ user, translations, setTranslations }) => 
     <div className="l-content">
       <Row>
         <div className="m-user-form">
-          <h2>
-            <T
-              _str="Edit {first_name} {last_name}"
-              first_name={user.first_name}
-              last_name={user.last_name}
-            />
-          </h2>
+          {!user.data && <div className="is-loading" />}
 
-          <EditProfileForm />
+          {!!user.data && (
+            <>
+              <h2>
+                {!user.data && <T _str="Edit profile" />}
+                {!!user.data && (
+                  <T
+                    _str="Edit {first_name} {last_name}"
+                    first_name={user.data.first_name}
+                    last_name={user.data.last_name}
+                  />
+                )}
+              </h2>
 
-          <Link href="/profile-settings">
-            <a>
-              <T _str="Manage account" />
-            </a>
-          </Link>
+              <EditProfileForm />
+
+              <Link href="/profile-settings">
+                <a>
+                  <T _str="Manage account" />
+                </a>
+              </Link>
+            </>
+          )}
         </div>
       </Row>
     </div>
@@ -55,6 +84,7 @@ MePage.Layout = (page, translations) => (
 const mapStateToProps = (state) => ({ user: state.user });
 const mapDispatchToProps = {
   setTranslations,
+  loadUserData,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(MePage);
