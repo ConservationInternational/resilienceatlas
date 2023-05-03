@@ -1,24 +1,4 @@
-import type { JourneyStep as StaticJourneyStep } from 'types/static-journeys';
 import type { JourneyAttributes } from 'types/journeys';
-
-const STATIC_JOURNEYS = process.env.NEXT_PUBLIC_STATIC_JOURNEYS === 'true';
-
-const StaticLanding: React.FC<StaticJourneyStep> = ({ title, background, subtitle, theme }) => (
-  <div className="l-journey__intro" id="journeyIndexView">
-    <div className={`m-journey--landing is-stretch ${background}`}>
-      <div className="row">
-        <div className="large-12">
-          <div className="intro">
-            <h1>{title}</h1>
-            <h2>{subtitle}</h2>
-            <h3>{theme}</h3>
-          </div>
-        </div>
-      </div>
-      <div className="logo" />
-    </div>
-  </div>
-);
 
 const Landing: React.FC<JourneyAttributes> = ({
   title,
@@ -45,4 +25,4 @@ const Landing: React.FC<JourneyAttributes> = ({
   </div>
 );
 
-export default STATIC_JOURNEYS ? StaticLanding : Landing;
+export default Landing;
