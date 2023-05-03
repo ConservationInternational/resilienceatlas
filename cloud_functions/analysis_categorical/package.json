@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "license": "MIT",
-  "author": "Alicia Arenzana <alicia.arenzana@vizzuality.com>",
+  "author": "Alicia Arenzana <info@vizzuality.com>",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/GoogleCloudPlatform/nodejs-docs-samples.git"
