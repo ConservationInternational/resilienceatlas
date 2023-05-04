@@ -42,8 +42,8 @@ Resources:
         API:
           Type: Api
           Properties:
-            Path: /
-            Method: GET
+            Path: /{proxy+}
+            Method: ANY
             RestApiId: !Ref RestApiGateway
       Environment:
         Variables:
