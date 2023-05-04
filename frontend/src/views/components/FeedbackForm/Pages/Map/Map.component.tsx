@@ -1,12 +1,15 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 
 import Page from 'views/components/WizardForm/Page';
-
-import { MAP } from 'constants/feedback-questions';
+import { useRouter } from 'next/router';
+import { getMap } from 'constants/feedback-questions';
 
 const Map = (props) => {
   const { handleSubmit, ...rest } = props;
-  const { title, previousButton, nextButton, questions } = MAP;
+  const { locale } = useRouter();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const translatedMap = useMemo(() => getMap(), [locale]);
+  const { title, previousButton, nextButton, questions } = translatedMap;
 
   return (
     <Page

@@ -1,12 +1,15 @@
-import React from 'react';
-
+import React, { useMemo } from 'react';
+import { useRouter } from 'next/router';
 import Page from 'views/components/WizardForm/Page';
 
-import { INTRO } from 'constants/feedback-questions';
+import { getIntro } from 'constants/feedback-questions';
 
 const Intro = (props) => {
   const { handleSubmit, ...rest } = props;
-  const { title, nextButton, questions } = INTRO;
+  const { locale } = useRouter();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const intro = useMemo(() => getIntro(), [locale]);
+  const { title, nextButton, questions } = intro;
 
   return (
     <Page

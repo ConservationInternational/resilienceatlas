@@ -1,299 +1,306 @@
 import { FeedbackFieldTypes } from 'types/wizard-form.d';
+import { t } from '@transifex/native';
 
-const LOCATIONS_LIST = [
-  { id: 'africa', label: 'Africa' },
-  { id: 'asia', label: 'Asia' },
-  { id: 'caribbean', label: 'Caribbean' },
-  { id: 'central_america', label: 'Central America' },
-  { id: 'eastern_europe', label: 'Eastern Europe' },
-  { id: 'european_union', label: 'European Union' },
-  { id: 'middle_east', label: 'Middle East' },
-  { id: 'north_america', label: 'North America' },
-  { id: 'oceania', label: 'Oceania' },
-  { id: 'south_america', label: 'South America' },
-  { id: 'uk', label: 'UK' },
+const getLocationsList = () => [
+  { id: 'africa', label: t('Africa') },
+  { id: 'asia', label: t('Asia') },
+  { id: 'caribbean', label: t('Caribbean') },
+  { id: 'central_america', label: t('Central America') },
+  { id: 'eastern_europe', label: t('Eastern Europe') },
+  { id: 'european_union', label: t('European Union') },
+  { id: 'middle_east', label: t('Middle East') },
+  { id: 'north_america', label: t('North America') },
+  { id: 'oceania', label: t('Oceania') },
+  { id: 'south_america', label: t('South America') },
+  { id: 'uk', label: t('UK') },
 ];
 
-export const INTRO = {
-  title: 'Intro',
-  nextButton: 'Tool Use',
+export const getIntro = () => ({
+  title: t('Intro'),
+  nextButton: t('Tool Use'),
   questions: [
     {
       id: 'work_sector',
       type: FeedbackFieldTypes.Single,
       required: true,
-      question: 'What sector do you work in?',
+      question: t('What sector do you work in?'),
       answers: [
-        { id: 'government', label: 'Government' },
-        { id: 'academia', label: 'Academia' },
-        { id: 'non_profit', label: 'Non-profit' },
-        { id: 'private', label: 'Private' },
-        { id: 'donor', label: 'Donor' },
-        { id: 'media', label: 'Media' },
+        { id: 'government', label: t('Government') },
+        { id: 'academia', label: t('Academia') },
+        { id: 'non_profit', label: t('Non-profit') },
+        { id: 'private', label: t('Private') },
+        { id: 'donor', label: t('Donor') },
+        { id: 'media', label: t('Media') },
       ],
       customAnswer: {
         id: 'work_sector_other',
-        label: 'Other:',
+        label: t('Other:'),
       },
     },
     {
       id: 'gender',
       type: FeedbackFieldTypes.Single,
       required: true,
-      question: 'What is your gender?',
-      description: 'This question helps us to report on _____ goals.',
+      question: t('What is your gender?'),
+      description: t('This question helps us to report on _____ goals.'),
       answers: [
-        { id: 'female', label: 'Female' },
-        { id: 'male', label: 'Male' },
-        { id: 'transgender', label: 'Transgender' },
-        { id: 'non_binary', label: 'Non-binary' },
-        { id: 'no_answer', label: 'Prefer not to answer' },
+        { id: 'female', label: t('Female') },
+        { id: 'male', label: t('Male') },
+        { id: 'transgender', label: t('Transgender') },
+        { id: 'non_binary', label: t('Non-binary') },
+        { id: 'no_answer', label: t('Prefer not to answer') },
       ],
       customAnswer: {
         id: 'gender_other',
-        label: 'Other:',
+        label: t('Other:'),
       },
     },
     {
       id: 'location',
       type: FeedbackFieldTypes.Single,
       required: true,
-      question: 'Where are you located?',
-      answers: LOCATIONS_LIST,
+      question: t('Where are you located?'),
+      answers: getLocationsList(),
       customAnswer: {
         id: 'intro_location_other',
-        label: 'Other:',
+        label: t('Other:'),
       },
     },
     {
       id: 'projects_locations',
       type: FeedbackFieldTypes.Multiple,
       required: true,
-      question: 'Where are your project(s) located?',
-      answers: LOCATIONS_LIST,
+      question: t('Where are your project(s) located?'),
+      answers: getLocationsList(),
       customAnswer: {
         id: 'intro_projects_location_other',
-        label: 'Other:',
+        label: t('Other:'),
       },
     },
     {
       id: 'how_did_you_find',
       type: FeedbackFieldTypes.Multiple,
-      question: 'How did you find out about the Resilience Atlas?',
+      question: t('How did you find out about the Resilience Atlas?'),
       answers: [
-        { id: 'internet_search', label: 'Internet search' },
-        { id: 'colleagues_word_of_mouth', label: 'Colleagues/word-of-mouth' },
-        { id: 'social_media', label: 'Social media (twitter, facebook)' },
-        { id: 'peer_reviewed_publication', label: 'Peer-reviewed publication' },
+        { id: 'internet_search', label: t('Internet search') },
+        { id: 'colleagues_word_of_mouth', label: t('Colleagues/word-of-mouth') },
+        { id: 'social_media', label: t('Social media (twitter, facebook)') },
+        { id: 'peer_reviewed_publication', label: t('Peer-reviewed publication') },
         {
           id: 'conservation_international',
-          label: 'Conservation International webinar/workshop/training',
+          label: t('Conservation International webinar/workshop/training'),
         },
-        { id: 'dont_remember', label: "Don't recall" },
+        { id: 'dont_remember', label: t("Don't recall") },
       ],
       customAnswer: {
         id: 'how_did_you_find_other',
-        label: 'Other:',
+        label: t('Other:'),
       },
     },
   ],
-};
+});
 
-export const TOOL_USE = {
-  title: 'Tool Use',
-  previousButton: 'Intro',
-  nextButton: 'Map',
+export const getToolUse = () => ({
+  title: t('Tool Use'),
+  previousButton: t('Intro'),
+  nextButton: t('Map'),
   questions: [
     {
       id: 'usage',
       type: FeedbackFieldTypes.Single,
       required: true,
-      question: 'What are you using the Resilience Atlas for?',
+      question: t('What are you using the Resilience Atlas for?'),
       answers: [
-        { id: 'conduct_research', label: 'Conduct research' },
-        { id: 'design_and_or_inform', label: 'Design and/or inform policy' },
-        { id: 'inform_conservation', label: 'Inform conservation or land management decisions' },
-        { id: 'inform_prioritize_investiments', label: 'Inform/prioritize investment decisions' },
+        { id: 'conduct_research', label: t('Conduct research') },
+        { id: 'design_and_or_inform', label: t('Design and/or inform policy') },
+        { id: 'inform_conservation', label: t('Inform conservation or land management decisions') },
+        {
+          id: 'inform_prioritize_investiments',
+          label: t('Inform/prioritize investment decisions'),
+        },
         {
           id: 'prioritize-¡_adaptation',
-          label: 'Prioritize adaptation & sustainable development interventions',
+          label: t('Prioritize adaptation & sustainable development interventions'),
         },
-        { id: 'inform_advocacy', label: 'Inform advocacy' },
-        { id: 'inform_journalism', label: 'Inform journalism' },
-        { id: 'have_not_used', label: 'I have not used the Resilience Atlas' },
+        { id: 'inform_advocacy', label: t('Inform advocacy') },
+        { id: 'inform_journalism', label: t('Inform journalism') },
+        { id: 'have_not_used', label: t('I have not used the Resilience Atlas') },
       ],
       customAnswer: {
         id: 'usage_other',
-        label: 'Other:',
+        label: t('Other:'),
       },
     },
     {
       id: 'usage_projects',
       type: FeedbackFieldTypes.FreeAnswer,
-      question: 'Briefly explain the project(s) that you have used the Resilience Atlas for:',
+      question: t('Briefly explain the project(s) that you have used the Resilience Atlas for:'),
     },
   ],
-};
+});
 
-export const MAP = {
-  title: 'Map',
-  previousButton: 'Tool Use',
-  nextButton: 'Website',
+export const getMap = () => ({
+  title: t('Map'),
+  previousButton: t('Tool Use'),
+  nextButton: t('Website'),
   questions: [
     {
       id: 'map_rating',
       type: FeedbackFieldTypes.Rating,
-      question:
+      question: t(
         'Please rate the following on a scale of 1 (strongly disagree) to 5 (strongly agree):',
+      ),
       answers: [
         {
           id: 'understood_different_datasets',
-          label: 'I understood what the different datasets represented',
+          label: t('I understood what the different datasets represented'),
         },
         {
           id: 'able_to_find_datasets',
-          label: 'I was able to find the dataset(s) I was looking for',
+          label: t('I was able to find the dataset(s) I was looking for'),
         },
         {
           id: 'able_to_get_results',
-          label: 'I was able to get the results that I wanted',
+          label: t('I was able to get the results that I wanted'),
         },
         {
           id: 'mapping_tool_as_expected',
-          label: 'The mapping tool worked as I expected it to',
+          label: t('The mapping tool worked as I expected it to'),
         },
       ],
     },
     {
       id: 'map_useful_features',
       type: FeedbackFieldTypes.Multiple,
-      question: 'What features of the Resilience Atlas are most useful?',
+      question: t('What features of the Resilience Atlas are most useful?'),
       answers: [
-        { id: 'diverse_datasets', label: 'Diverse datasets in one location' },
-        { id: 'access_datasets', label: 'Access to new datasets' },
-        { id: 'web_platform', label: 'Web-based platform' },
-        { id: 'journeys', label: 'Journeys' },
-        { id: 'multiple_layers', label: 'Overlaying multiple layers' },
+        { id: 'diverse_datasets', label: t('Diverse datasets in one location') },
+        { id: 'access_datasets', label: t('Access to new datasets') },
+        { id: 'web_platform', label: t('Web-based platform') },
+        { id: 'journeys', label: t('Journeys') },
+        { id: 'multiple_layers', label: t('Overlaying multiple layers') },
         {
           id: 'interactivity',
           label:
             'Interactivity - turning layers on and off, reordering layers, changing transparency',
         },
-        { id: 'data_download', label: 'Data download' },
+        { id: 'data_download', label: t('Data download') },
       ],
       customAnswer: {
         id: 'map_useful_features_other',
-        label: 'Other:',
+        label: t('Other:'),
       },
     },
     {
       id: 'useful_features',
       type: FeedbackFieldTypes.FreeAnswer,
-      question: 'Why were these features particularly useful to you?',
+      question: t('Why were these features particularly useful to you?'),
     },
     {
       id: 'coming_back_features',
       type: FeedbackFieldTypes.Multiple,
-      question: 'What features have made you come back to the Resilience Atlas?',
+      question: t('What features have made you come back to the Resilience Atlas?'),
       answers: [
-        { id: 'diverse_datasets', label: 'Diverse datasets in one location' },
-        { id: 'new_datasets', label: 'Access to new datasets' },
-        { id: 'web_platform', label: 'Web-based platform' },
-        { id: 'journeys', label: 'Journeys' },
-        { id: 'multiple_layers', label: 'Overlaying multiple layers' },
+        { id: 'diverse_datasets', label: t('Diverse datasets in one location') },
+        { id: 'new_datasets', label: t('Access to new datasets') },
+        { id: 'web_platform', label: t('Web-based platform') },
+        { id: 'journeys', label: t('Journeys') },
+        { id: 'multiple_layers', label: t('Overlaying multiple layers') },
         {
           id: 'interactivity',
           label:
             'Interactivity - turning layers on and off, reordering layers, changing transparency',
         },
-        { id: 'data_download', label: 'Data download' },
-        { id: 'data_analysis', label: 'Data analysis' },
-        { id: 'data_download_report', label: 'Download PDF report of data analysis' },
+        { id: 'data_download', label: t('Data download') },
+        { id: 'data_analysis', label: t('Data analysis') },
+        { id: 'data_download_report', label: t('Download PDF report of data analysis') },
       ],
       customAnswer: {
         id: 'coming_back_features_other',
-        label: 'Other:',
+        label: t('Other:'),
       },
     },
     {
       id: 'usefulness_feedback',
       type: FeedbackFieldTypes.Multiple,
-      question: 'What would make the Resilience Atlas more useful?',
-      description:
+      question: t('What would make the Resilience Atlas more useful?'),
+      description: t(
         'Please write additional ideas under "other", and expand on them in the box below.',
+      ),
       answers: [
         {
           id: 'increased_data_visualization',
-          label: 'Increased data visualization functionality',
+          label: t('Increased data visualization functionality'),
         },
-        { id: 'customizable_reports', label: 'Customizable PDF report' },
-        { id: 'save_maps', label: 'Ability to save maps when logged in' },
+        { id: 'customizable_reports', label: t('Customizable PDF report') },
+        { id: 'save_maps', label: t('Ability to save maps when logged in') },
       ],
       customAnswer: {
         id: 'usefulness_feedback_other',
-        label: 'Other:',
+        label: t('Other:'),
       },
     },
     {
       id: 'new_feature_suggestion',
       type: FeedbackFieldTypes.FreeAnswer,
-      question: 'If you suggested a new feature, please describe it further:',
+      question: t('If you suggested a new feature, please describe it further:'),
     },
     {
       id: 'new_feature_suggestion_explanation',
       type: FeedbackFieldTypes.FreeAnswer,
-      question: 'Why would these new features be useful to you?',
+      question: t('Why would these new features be useful to you?'),
     },
   ],
-};
+});
 
-export const WEBSITE = {
-  title: 'Website',
-  previousButton: 'Map',
+export const getWebsite = () => ({
+  title: t('Website'),
+  previousButton: t('Map'),
   questions: [
     {
       id: 'website_rating',
       type: FeedbackFieldTypes.Rating,
-      question:
+      question: t(
         'Please rate the following on a scale of 1 (strongly disagree) to 5 (strongly agree):',
+      ),
       answers: [
         {
           id: 'ease_of_navigation',
-          label: 'It was easy to navigate the website',
+          label: t('It was easy to navigate the website'),
         },
         {
           id: 'found_information',
-          label: 'I found the information that I needed',
+          label: t('I found the information that I needed'),
         },
         {
           id: 'tool_use_clear',
-          label: 'It was clear how the tool should be used',
+          label: t('It was clear how the tool should be used'),
         },
       ],
     },
     {
       id: 'website_usefulness',
       type: FeedbackFieldTypes.Multiple,
-      question: 'What parts of the Resilience Atlas website were useful for your work?',
+      question: t('What parts of the Resilience Atlas website were useful for your work?'),
       answers: [
-        { id: 'journeys', label: 'Journeys' },
-        { id: 'map', label: 'Map' },
-        { id: 'about', label: 'About' },
+        { id: 'journeys', label: t('Journeys') },
+        { id: 'map', label: t('Map') },
+        { id: 'about', label: t('About') },
       ],
     },
     {
       id: 'would_you_recommend',
       type: FeedbackFieldTypes.Boolean,
-      question: 'Would you recommend the Resilience Atlas to a colleague?',
+      question: t('Would you recommend the Resilience Atlas to a colleague?'),
       answers: [
         {
           id: 'yes',
-          label: 'Yes',
+          label: t('Yes'),
           value: true,
         },
         {
           id: 'no',
-          label: 'No',
+          label: t('No'),
           value: false,
         },
       ],
@@ -301,18 +308,19 @@ export const WEBSITE = {
     {
       id: 'recommendation_explanation',
       type: FeedbackFieldTypes.FreeAnswer,
-      question: 'Why or why not?',
+      question: t('Why or why not?'),
     },
     {
       id: 'thoughts',
       type: FeedbackFieldTypes.FreeAnswer,
-      question: 'Is there anything else you want to say about the Resilience Atlas?',
+      question: t('Is there anything else you want to say about the Resilience Atlas?'),
     },
     {
       id: 'accepts_contact',
       type: FeedbackFieldTypes.FreeAnswer,
-      question:
+      question: t(
         "If you're willing to be contacted about your answers, please leave your email address:",
+      ),
     },
   ],
-};
+});
