@@ -6,7 +6,16 @@ on:
       - "cloud_functions/titiler_cogs/**"
       - ".github/workflows/titiler_cogs*"
   workflow_dispatch:
-
+    inputs:
+      deploy_master:
+        description: 'Deploy to the production stack'
+        required: false
+        default: 'false'
+        type: boolean
+      branch:
+        description: 'Branch to deploy'
+        required: false
+        type: string
 jobs:
   build-and-deploy-feature-branch:
     if: github.ref != 'refs/heads/master'
@@ -15,6 +24,8 @@ jobs:
     steps:
       - name: Checkout the code
         uses: actions/checkout@v3
+        with:
+          ref: ${{ inputs.branch || github.ref }}
 
       - name: Signing in to AWS
         uses: aws-actions/configure-aws-credentials@v1-node16
@@ -53,7 +64,10 @@ jobs:
 
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout the code
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ inputs.branch || github.ref }}
 
       - name: Signing in to AWS
         uses: aws-actions/configure-aws-credentials@v1-node16
