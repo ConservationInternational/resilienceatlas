@@ -6,6 +6,8 @@ import Multiple from 'views/components/WizardForm/FieldTypes/Multiple';
 import FreeAnswer from 'views/components/WizardForm/FieldTypes/FreeAnswer';
 import Rating from 'views/components/WizardForm/FieldTypes/Rating';
 
+import ErrorMessage from 'views/components/WizardForm/ErrorMessage';
+
 import { FeedbackFieldTypes } from 'types/wizard-form.d';
 
 const Page: React.FC<{
@@ -30,6 +32,7 @@ const Page: React.FC<{
   isLastPage: boolean;
   isFirstPage: boolean;
   formValues: object;
+  errorMessage?: string;
 }> = (props) => {
   const {
     title,
@@ -42,6 +45,7 @@ const Page: React.FC<{
     nextButton,
     submitButton,
     formValues,
+    errorMessage,
   } = props;
 
   const getAnswerComponent = (type) => {
@@ -78,6 +82,7 @@ const Page: React.FC<{
             return <AnswerComponent key={id} {...question} formValues={formValues} />;
           })}
         </div>
+        {errorMessage && <ErrorMessage touched={true} error={errorMessage} />}
         <div className="m-wizard-form__form-footer">
           {!isFirstPage && (
             <button className="btn btn-primary" type="button" onClick={onPrevious}>

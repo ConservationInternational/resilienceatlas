@@ -16,6 +16,7 @@ const WizardForm: React.FC<{
   outroComponent: unknown;
   backBtnPath?: string;
   backBtnText?: string;
+  errorMessage?: string;
 }> = (props) => {
   const {
     title,
@@ -28,6 +29,7 @@ const WizardForm: React.FC<{
     outroComponent,
     backBtnPath,
     backBtnText,
+    errorMessage,
   } = props;
   // Initialized to the current page number, not array indexes
   const [currentPage, setCurrentPage] = useState(1);
@@ -68,6 +70,7 @@ const WizardForm: React.FC<{
     submitButton,
     isFirstPage,
     isLastPage,
+    errorMessage,
   });
 
   const Outro = outroComponent as React.ElementType;
