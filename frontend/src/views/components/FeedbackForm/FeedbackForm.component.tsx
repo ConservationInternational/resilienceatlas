@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { connect } from 'react-redux';
+import { reset } from 'redux-form';
 import { useRouter } from 'next/router';
 
 import WizardForm from 'views/components/WizardForm';
@@ -11,7 +13,7 @@ import Outro from './Outro/Outro';
 
 import { processFeedbackForm, submitFeedback } from 'state/modules/feedback';
 
-const FeedbackForm = () => {
+const FeedbackForm = ({ resetForm }) => {
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState(null);
 
@@ -24,7 +26,10 @@ const FeedbackForm = () => {
     const feedbackData = processFeedbackForm(values);
 
     submitFeedback(feedbackData)
-      .then(() => setSubmitted(true))
+      .then(() => {
+        setSubmitted(true);
+        resetForm();
+      })
       .catch(() => setError('There was an error submitting your form.'));
   };
 
@@ -50,4 +55,10 @@ const FeedbackForm = () => {
   );
 };
 
-export default FeedbackForm;
+const mapDispatchToProps = (dispatch) => {
+  return {
+    resetForm: () => dispatch(reset('Feedback')),
+  };
+};
+
+export default connect(null, mapDispatchToProps)(FeedbackForm);
