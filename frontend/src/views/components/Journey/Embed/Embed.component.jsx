@@ -75,9 +75,7 @@ const Embed = (props) => {
 
   const provideAbsoluteOrRelativeUrl = (url) => {
     if (url.startsWith('http')) {
-      return url
-        .replace(/(:\/\/)(?!www.)([^\/]+)/, `://www.$2`) // Temporary solution until redirects are fixed. Use regex to add www. to url
-        .replace('resilienceatlas.org/', `resilienceatlas.org/${locale}/`);
+      return url.replace('resilienceatlas.org/', `resilienceatlas.org/${locale}/`);
     }
     return `/${locale}${url}`;
   };
