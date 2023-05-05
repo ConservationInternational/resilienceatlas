@@ -47,7 +47,6 @@
     "analysis_body": "Enim repellat pariatur est.",
     "interaction_config": "Enim repellat pariatur est.",
     "timeline": true,
-    "timeline_overlap": "Enim repellat pariatur est.",
     "timeline_steps": [
       "2022-11-27",
       "2020-08-23",
@@ -56,6 +55,8 @@
     "timeline_start_date": "2022-11-27",
     "timeline_end_date": "2022-11-27",
     "timeline_default_date": "2022-11-27",
-    "timeline_period": "monthly"
+    "timeline_period": "monthly",
+    "analysis_text_template": "Enim repellat pariatur est.",
+    "analysis_type": "histogram"
   }
 }

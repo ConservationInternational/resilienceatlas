@@ -40,13 +40,13 @@
 #  analysis_body             :text
 #  interaction_config        :text
 #  timeline                  :boolean          default(FALSE)
-#  timeline_overlap          :string
 #  timeline_steps            :date             default([]), is an Array
 #  timeline_start_date       :date
 #  timeline_end_date         :date
 #  timeline_default_date     :date
 #  timeline_period           :string
 #  timeline_format           :string           default("%m/%d/%Y")
+#  analysis_type             :string
 #  name                      :string
 #  info                      :text
 #  legend                    :text
@@ -54,6 +54,7 @@
 #  data_units                :string
 #  processing                :string
 #  description               :text
+#  analysis_text_template    :text
 #
 
 class LayerSerializer < ActiveModel::Serializer
@@ -62,7 +63,7 @@ class LayerSerializer < ActiveModel::Serializer
     :dashboard_order, :color, :info, :interactivity, :css, :query, :layer_config, :layer_provider,
     :published, :locate_layer, :icon_class, :legend, :zoom_max, :zoom_min, :download,
     :dataset_shortname, :dataset_source_url, :analysis_suitable, :analysis_query, :analysis_body,
-    :interaction_config, :timeline, :timeline_overlap, :timeline_steps, :timeline_start_date,
+    :analysis_type, :analysis_text_template, :interaction_config, :timeline, :timeline_steps, :timeline_start_date,
     :timeline_end_date, :timeline_default_date, :timeline_period, :timeline_format
   has_one :layer_group, serializer: LayerGroupSerializer
   has_many :sources, each_serializer: SourceSerializer
@@ -83,5 +84,9 @@ class LayerSerializer < ActiveModel::Serializer
   def agrupation
     return if layer_group.blank?
     object.agrupations.where(layer_id: object.id, layer_group_id: layer_group.id).first
+  end
+
+  def timeline_steps
+    Array.wrap(object.timeline_steps).sort
   end
 end
