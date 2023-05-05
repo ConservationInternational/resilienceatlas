@@ -17,6 +17,7 @@ const initialState = {
   loading: false,
   loaded: false,
   loadedLocale: null,
+  loadedSubdomain: null,
   error: null,
 };
 
@@ -27,7 +28,7 @@ export default createReducer(initialState)({
     error: null,
   }),
 
-  [LOAD.SUCCESS]: (state, { payload, meta: { locale } }) => {
+  [LOAD.SUCCESS]: (state, { payload, meta: { locale, subdomain } }) => {
     const {
       entities: { layers },
       result,
@@ -51,6 +52,7 @@ export default createReducer(initialState)({
       loading: false,
       loaded: true,
       loadedLocale: locale,
+      loadedSubdomain: subdomain,
     };
   },
 

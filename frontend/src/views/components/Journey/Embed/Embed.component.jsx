@@ -7,6 +7,7 @@ import qs from 'qs';
 import cx from 'classnames';
 import { T } from '@transifex/react';
 import { useRouter } from 'next/router';
+import { getSubdomainFromURL } from 'utilities/getSubdomain';
 
 // TODO: get rid of IFrame and use Map Component
 // It requires to refactor map to use redux instead of url in all cases
@@ -19,6 +20,7 @@ const Embed = (props) => {
     loadCountries,
     layersLoaded,
     layersLocaleLoaded,
+    layersLoadedSubdomain,
     countriesLoaded,
     countries,
     theme,
@@ -36,12 +38,15 @@ const Embed = (props) => {
   } = props;
   const { locale } = useRouter();
   useEffect(() => {
-    if (!layersLoaded || layersLocaleLoaded !== locale) {
-      loadLayers(locale);
+    const siteScope = mapUrl.startsWith('http') && getSubdomainFromURL(mapUrl);
+    const subdomainIsDifferentThanLoaded =
+      layersLoadedSubdomain !== siteScope && (layersLoadedSubdomain || siteScope);
+    if (!layersLoaded || layersLocaleLoaded !== locale || subdomainIsDifferentThanLoaded) {
+      loadLayers(locale, siteScope);
     }
     if (!countriesLoaded) loadCountries();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [locale]);
+  }, [locale, mapUrl]);
   useEffect(() => {
     const mapString = mapUrl.split('?')[1];
     if (mapString) {
@@ -70,7 +75,9 @@ const Embed = (props) => {
 
   const provideAbsoluteOrRelativeUrl = (url) => {
     if (url.startsWith('http')) {
-      return url.replace('resilienceatlas.org/', `resilienceatlas.org/${locale}/`);
+      return url
+        .replace(/(:\/\/)(?!www.)([^\/]+)/, `://www.$2`) // Temporary solution until redirects are fixed. Use regex to add www. to url
+        .replace('resilienceatlas.org/', `resilienceatlas.org/${locale}/`);
     }
     return `/${locale}${url}`;
   };

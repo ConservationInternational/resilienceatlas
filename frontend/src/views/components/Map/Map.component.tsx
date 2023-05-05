@@ -18,6 +18,7 @@ import { BASEMAPS, LABELS } from 'views/utils';
 
 import { LayerManagerContext } from 'views/contexts/layerManagerCtx';
 import { useRouterParams } from 'utilities';
+import { subdomain } from 'utilities/getSubdomain';
 import type { MAP_LABELS, BASEMAP_LABELS } from 'views/components/LayersList/Basemaps/constants';
 import type { NextRouter } from 'next/router';
 
@@ -44,8 +45,16 @@ const MapView = (props: MapViewProps) => {
     setMapLayerGroupsInteraction,
     setMapLayerGroupsInteractionLatLng,
     // data
-    layers: { loaded: layersLoaded, loadedLocale: layersLoadedLocale },
-    layer_groups: { loaded: layerGroupsLoaded, loadedLocale: layerGroupsLoadedLocale },
+    layers: {
+      loaded: layersLoaded,
+      loadedLocale: layersLoadedLocale,
+      loadedSubdomain: layersLoadedSubdomain,
+    },
+    layer_groups: {
+      loaded: layerGroupsLoaded,
+      loadedLocale: layerGroupsLoadedLocale,
+      loadedSubdomain: layerGroupsLoadedSubdomain,
+    },
     activeLayers,
     model_layer,
     defaultActiveGroups,
@@ -63,10 +72,22 @@ const MapView = (props: MapViewProps) => {
   const { query, locale } = router;
   const { setParam } = useRouterParams();
   const layerManagerRef = useContext(LayerManagerContext);
-
   useEffect(() => {
-    if (!layersLoaded || layersLoadedLocale !== locale) loadLayers(locale);
-    if (!layerGroupsLoaded || layerGroupsLoadedLocale !== locale) loadLayerGroups(locale);
+    const subdomainIsDifferentThanLoaded =
+      layersLoadedSubdomain !== subdomain && (layersLoadedSubdomain || subdomain);
+    if (!layersLoaded || layersLoadedLocale !== locale || subdomainIsDifferentThanLoaded) {
+      loadLayers(locale);
+    }
+    const layerGroupssubdomainIsDifferentThanLoaded =
+      layerGroupsLoadedSubdomain !== subdomain && (layerGroupsLoadedSubdomain || subdomain);
+
+    if (
+      !layerGroupsLoaded ||
+      layerGroupsLoadedLocale !== locale ||
+      layerGroupssubdomainIsDifferentThanLoaded
+    ) {
+      loadLayerGroups(locale);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [locale]);
 

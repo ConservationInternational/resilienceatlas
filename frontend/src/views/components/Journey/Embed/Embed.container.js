@@ -14,6 +14,7 @@ const makeMapStateToProps = () => {
     countryName: state.journey.data.attributes.title,
     layersLoaded: state.layers.loaded,
     layersLocaleLoaded: state.layers.localeLoaded,
+    layersSubdomainLoaded: state.layers.subdomainLoaded,
   });
 
   return mapStateToProps;

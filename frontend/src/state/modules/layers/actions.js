@@ -15,15 +15,18 @@ export const SET_OPACITY = 'layers / SET_OPACITY';
 export const SET_CHART_LIMIT = 'layers / SET_CHART_LIMIT';
 export const REORDER = 'layers / REORDER';
 
-export const load = (locale) =>
+export const load = (locale, siteScope) =>
   api(
     LOAD,
     ({ get }) =>
-      get(URL_LAYERS, { params: { site_scope: subdomain, locale: toBackendLocale(locale) } }),
+      get(URL_LAYERS, {
+        params: { site_scope: siteScope || subdomain, locale: toBackendLocale(locale) },
+      }),
     {
       schema: [layer],
       includedSchema: [source],
       locale,
+      subdomain: siteScope || subdomain,
     },
   );
 

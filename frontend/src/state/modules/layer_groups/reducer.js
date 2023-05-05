@@ -20,13 +20,14 @@ export default createReducer(initialState)({
     loading: true,
     error: null,
   }),
-  [LOAD.SUCCESS]: (state, { payload, meta: { locale } }) => {
+  [LOAD.SUCCESS]: (state, { payload, meta: { locale, subdomain } }) => {
     return {
       ...state,
       byId: payload.entities.layer_groups,
       all: payload.result,
       loaded: true,
       loadedLocale: locale,
+      loadedSubdomain: subdomain,
       loading: false,
     };
   },
