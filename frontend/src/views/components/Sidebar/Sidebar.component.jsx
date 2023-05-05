@@ -12,6 +12,7 @@ import LinkButton from 'views/shared/LinkButton';
 import Tabs from 'views/shared/Tabs';
 
 import { useRouterParams } from 'utilities';
+import { subdomain } from 'utilities/getSubdomain';
 
 // SSR translated strings
 export const TABS = {
@@ -59,6 +60,8 @@ const Sidebar = ({
       'feedback',
     );
   };
+
+  const displayFeedbackButton = !subdomain;
 
   return (
     <div
@@ -160,9 +163,11 @@ const Sidebar = ({
           </button>
         )}
         <LogoAttribution />
-        <button className="btn-map-feedback" type="button" onClick={handleFeedbackBtnClick}>
-          Feedback
-        </button>
+        {displayFeedbackButton && (
+          <button className="btn-map-feedback" type="button" onClick={handleFeedbackBtnClick}>
+            <T _str="Feedback" />
+          </button>
+        )}
       </div>
     </div>
   );
