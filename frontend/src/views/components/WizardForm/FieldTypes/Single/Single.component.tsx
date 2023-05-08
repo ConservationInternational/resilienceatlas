@@ -4,6 +4,23 @@ import { Field } from 'redux-form';
 import Section from 'views/components/WizardForm/Section';
 import ErrorMessage from 'views/components/WizardForm/ErrorMessage';
 
+const InputField = (customProps) => {
+  const { input: customInput, meta: customInputMeta } = customProps;
+  return (
+    <>
+      <input
+        ref={(input) => {
+          if (!customInputMeta?.active) return;
+          input?.focus();
+        }}
+        type="text"
+        {...customInput}
+      />
+      <ErrorMessage targetId="parent-error" {...customInputMeta} />
+    </>
+  );
+};
+
 const RadioGroup = (props) => {
   const { input, meta, answers, customAnswer, onError } = props;
   const { name } = input;
@@ -42,29 +59,10 @@ const RadioGroup = (props) => {
             <input type="radio" {...input} name={name} value={customAnswer.id} />
             {customAnswer.label}
           </label>
-          <Field
-            name={customAnswer.id}
-            component={(customProps) => {
-              const { input: customInput, meta: customInputMeta } = customProps;
-
-              return (
-                <>
-                  <input
-                    ref={(input) => {
-                      if (!customInputMeta?.active) return;
-                      input?.focus();
-                    }}
-                    type="text"
-                    {...customInput}
-                  />
-                  <ErrorMessage {...customInputMeta} />
-                </>
-              );
-            }}
-          />
+          <Field name={customAnswer.id} component={InputField} />
         </div>
       )}
-      <ErrorMessage {...errors} />
+      <ErrorMessage id="parent-error" {...errors} />
     </>
   );
 };
