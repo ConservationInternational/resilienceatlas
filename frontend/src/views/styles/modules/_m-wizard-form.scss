@@ -450,4 +450,55 @@
       font-family: $font-face-1;
     }
   }
+
+  &__button {
+    @extend %clean-button-or-input;
+
+    display: flex;
+    color: $font-color-5;
+    font-size: rem(14px);
+    line-height: rem(14px);
+    border: 1px solid $blue;
+    font-weight: 600;
+    border-radius: 50px;
+    padding: rem(12px) rem(30px);
+
+    &--previous,
+    &--next {
+      &:before,
+      &:after {
+        display: inline-block;
+        width: 7px;
+        height: 7px;
+        margin-top: 2px;
+        border-bottom: 2px solid $blue;
+        border-left: 2px solid $blue;
+      }
+
+      &:hover {
+        background-color: $lighter-blue;
+      }
+    }
+
+    &--previous {
+      &:before {
+        content: '';
+        margin-right: 8px;
+        transform: rotate(45deg);
+      }
+    }
+
+    &--next {
+      &:after {
+        content: '';
+        margin-left: 8px;
+        transform: rotate(225deg);
+      }
+    }
+
+    &--submit {
+      background-color: $blue;
+      color: $white;
+    }
+  }
 }

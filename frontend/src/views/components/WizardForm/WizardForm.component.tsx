@@ -85,7 +85,11 @@ const WizardForm: React.FC<{
     >
       {backBtnPath && (
         <div className="m-wizard-form__header">
-          <button type="button" className="btn btn-primary" onClick={handleBackButtonClick}>
+          <button
+            type="button"
+            className="m-wizard-form__button m-wizard-form__button--previous"
+            onClick={handleBackButtonClick}
+          >
             {backBtnText || 'Go back'}
           </button>
         </div>
