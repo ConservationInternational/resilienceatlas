@@ -8,14 +8,23 @@ const RadioGroup = (props) => {
   const { input, meta, answers, customAnswer, onError } = props;
   const { name } = input;
 
-  useEffect(() => {
-    const { touched, error } = meta;
-    onError(touched && error);
-  }, [meta, onError]);
+  const [errors, setErrors] = useState(null);
+
+  // onError(touched && error);
 
   const acceptCustomAnswer = customAnswer?.id && customAnswer?.label;
 
-  // TODO Simao improve errors
+  useEffect(() => {
+    if (meta.error) {
+      setErrors(meta);
+    } else {
+      setErrors(null);
+    }
+  }, [meta]);
+
+  useEffect(() => {
+    onError(errors);
+  }, [errors, onError]);
 
   return (
     <>
@@ -37,6 +46,7 @@ const RadioGroup = (props) => {
             name={customAnswer.id}
             component={(customProps) => {
               const { input: customInput, meta: customInputMeta } = customProps;
+
               return (
                 <>
                   <input
@@ -54,7 +64,7 @@ const RadioGroup = (props) => {
           />
         </div>
       )}
-      <ErrorMessage {...meta} />
+      <ErrorMessage {...errors} />
     </>
   );
 };
