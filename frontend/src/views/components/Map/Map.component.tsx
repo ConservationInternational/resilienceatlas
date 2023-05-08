@@ -72,19 +72,19 @@ const MapView = (props: MapViewProps) => {
   const { query, locale } = router;
   const { setParam } = useRouterParams();
   const layerManagerRef = useContext(LayerManagerContext);
+  const subdomainIsDifferentThanLoaded =
+    layersLoadedSubdomain !== subdomain && (layersLoadedSubdomain || subdomain);
+  const layerGroupsSubdomainIsDifferentThanLoaded =
+    layerGroupsLoadedSubdomain !== subdomain && (layerGroupsLoadedSubdomain || subdomain);
   useEffect(() => {
-    const subdomainIsDifferentThanLoaded =
-      layersLoadedSubdomain !== subdomain && (layersLoadedSubdomain || subdomain);
     if (!layersLoaded || layersLoadedLocale !== locale || subdomainIsDifferentThanLoaded) {
       loadLayers(locale);
     }
-    const layerGroupssubdomainIsDifferentThanLoaded =
-      layerGroupsLoadedSubdomain !== subdomain && (layerGroupsLoadedSubdomain || subdomain);
 
     if (
       !layerGroupsLoaded ||
       layerGroupsLoadedLocale !== locale ||
-      layerGroupssubdomainIsDifferentThanLoaded
+      layerGroupsSubdomainIsDifferentThanLoaded
     ) {
       loadLayerGroups(locale);
     }

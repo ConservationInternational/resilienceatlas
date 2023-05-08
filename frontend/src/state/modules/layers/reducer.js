@@ -1,4 +1,3 @@
-import { merge } from 'utilities';
 import { createReducer } from '../../utils';
 import { LOAD, SET_ACTIVES, TOGGLE, SET_OPACITY, REORDER, SET_CHART_LIMIT } from './actions';
 import { getPersistedLayers } from './utils';
@@ -46,7 +45,7 @@ export default createReducer(initialState)({
 
     return {
       ...state,
-      byId: merge(state.byId, layers),
+      byId: layers,
       all: payload.result,
       actives: [...actives],
       loading: false,

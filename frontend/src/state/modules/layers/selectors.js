@@ -49,7 +49,7 @@ export const makeActives = () =>
       if (!loaded) return [];
       const activeLayers = denormalize(ids, [layer], { layers });
       return activeLayers
-        .filter((activeLayers) => !!activeLayers)
+        .filter((activeLayer) => !!activeLayer)
         .map((layer) => ({
           ...layer,
           ...getSources(layer.attributions, sourcesById),
