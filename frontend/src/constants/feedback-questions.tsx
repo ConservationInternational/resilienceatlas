@@ -36,66 +36,66 @@ export const INTRO = {
         label: 'Other:',
       },
     },
-    {
-      id: 'gender',
-      type: FeedbackFieldTypes.Single,
-      required: true,
-      question: 'What is your gender?',
-      description: 'This question helps us to report on _____ goals.',
-      answers: [
-        { id: 'female', label: 'Female' },
-        { id: 'male', label: 'Male' },
-        { id: 'transgender', label: 'Transgender' },
-        { id: 'non_binary', label: 'Non-binary' },
-        { id: 'no_answer', label: 'Prefer not to answer' },
-      ],
-      customAnswer: {
-        id: 'gender_other',
-        label: 'Other:',
-      },
-    },
-    {
-      id: 'location',
-      type: FeedbackFieldTypes.Single,
-      required: true,
-      question: 'Where are you located?',
-      answers: LOCATIONS_LIST,
-      customAnswer: {
-        id: 'intro_location_other',
-        label: 'Other:',
-      },
-    },
-    {
-      id: 'projects_locations',
-      type: FeedbackFieldTypes.Multiple,
-      required: true,
-      question: 'Where are your project(s) located?',
-      answers: LOCATIONS_LIST,
-      customAnswer: {
-        id: 'intro_projects_location_other',
-        label: 'Other:',
-      },
-    },
-    {
-      id: 'how_did_you_find',
-      type: FeedbackFieldTypes.Multiple,
-      question: 'How did you find out about the Resilience Atlas?',
-      answers: [
-        { id: 'internet_search', label: 'Internet search' },
-        { id: 'colleagues_word_of_mouth', label: 'Colleagues/word-of-mouth' },
-        { id: 'social_media', label: 'Social media (twitter, facebook)' },
-        { id: 'peer_reviewed_publication', label: 'Peer-reviewed publication' },
-        {
-          id: 'conservation_international',
-          label: 'Conservation International webinar/workshop/training',
-        },
-        { id: 'dont_remember', label: "Don't recall" },
-      ],
-      customAnswer: {
-        id: 'how_did_you_find_other',
-        label: 'Other:',
-      },
-    },
+    // {
+    //   id: 'gender',
+    //   type: FeedbackFieldTypes.Single,
+    //   required: true,
+    //   question: 'What is your gender?',
+    //   description: 'This question helps us to report on _____ goals.',
+    //   answers: [
+    //     { id: 'female', label: 'Female' },
+    //     { id: 'male', label: 'Male' },
+    //     { id: 'transgender', label: 'Transgender' },
+    //     { id: 'non_binary', label: 'Non-binary' },
+    //     { id: 'no_answer', label: 'Prefer not to answer' },
+    //   ],
+    //   customAnswer: {
+    //     id: 'gender_other',
+    //     label: 'Other:',
+    //   },
+    // },
+    // {
+    //   id: 'location',
+    //   type: FeedbackFieldTypes.Single,
+    //   required: true,
+    //   question: 'Where are you located?',
+    //   answers: LOCATIONS_LIST,
+    //   customAnswer: {
+    //     id: 'intro_location_other',
+    //     label: 'Other:',
+    //   },
+    // },
+    // {
+    //   id: 'projects_locations',
+    //   type: FeedbackFieldTypes.Multiple,
+    //   required: true,
+    //   question: 'Where are your project(s) located?',
+    //   answers: LOCATIONS_LIST,
+    //   customAnswer: {
+    //     id: 'intro_projects_location_other',
+    //     label: 'Other:',
+    //   },
+    // },
+    // {
+    //   id: 'how_did_you_find',
+    //   type: FeedbackFieldTypes.Multiple,
+    //   question: 'How did you find out about the Resilience Atlas?',
+    //   answers: [
+    //     { id: 'internet_search', label: 'Internet search' },
+    //     { id: 'colleagues_word_of_mouth', label: 'Colleagues/word-of-mouth' },
+    //     { id: 'social_media', label: 'Social media (twitter, facebook)' },
+    //     { id: 'peer_reviewed_publication', label: 'Peer-reviewed publication' },
+    //     {
+    //       id: 'conservation_international',
+    //       label: 'Conservation International webinar/workshop/training',
+    //     },
+    //     { id: 'dont_remember', label: "Don't recall" },
+    //   ],
+    //   customAnswer: {
+    //     id: 'how_did_you_find_other',
+    //     label: 'Other:',
+    //   },
+    // },
   ],
 };
 
