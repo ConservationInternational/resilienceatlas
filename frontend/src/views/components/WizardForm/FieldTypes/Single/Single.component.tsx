@@ -15,6 +15,8 @@ const RadioGroup = (props) => {
 
   const acceptCustomAnswer = customAnswer?.id && customAnswer?.label;
 
+  // TODO Simao improve errors
+
   return (
     <>
       {answers.map((answer) => (
@@ -26,30 +28,30 @@ const RadioGroup = (props) => {
         </div>
       ))}
       {acceptCustomAnswer && (
-        <div className="checkbox">
+        <div className="m-wizard-form__custom-answer">
           <label>
             <input type="radio" {...input} name={name} value={customAnswer.id} />
             {customAnswer.label}
-            <Field
-              name={customAnswer.id}
-              component={(customProps) => {
-                const { input: customInput, meta: customInputMeta } = customProps;
-                return (
-                  <>
-                    <input
-                      ref={(input) => {
-                        if (!customInputMeta?.active) return;
-                        input?.focus();
-                      }}
-                      type="text"
-                      {...customInput}
-                    />
-                    <ErrorMessage {...customInputMeta} />
-                  </>
-                );
-              }}
-            />
           </label>
+          <Field
+            name={customAnswer.id}
+            component={(customProps) => {
+              const { input: customInput, meta: customInputMeta } = customProps;
+              return (
+                <>
+                  <input
+                    ref={(input) => {
+                      if (!customInputMeta?.active) return;
+                      input?.focus();
+                    }}
+                    type="text"
+                    {...customInput}
+                  />
+                  <ErrorMessage {...customInputMeta} />
+                </>
+              );
+            }}
+          />
         </div>
       )}
       <ErrorMessage {...meta} />

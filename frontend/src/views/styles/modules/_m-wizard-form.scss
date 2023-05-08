@@ -414,6 +414,11 @@
     }
   }
 
+  &__custom-answer {
+    display: flex;
+    gap: 8px;
+  }
+
   &__outro {
     @extend %center;
     width: 100%;

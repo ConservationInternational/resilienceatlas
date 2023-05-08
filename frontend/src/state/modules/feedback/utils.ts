@@ -13,6 +13,10 @@ const VALIDATION_ERRORS = {
 
 export const IntroSchema = Yup.object().shape({
   work_sector: Yup.string().required(VALIDATION_ERRORS.required),
+  work_sector_other: Yup.string().when('work_sector', {
+    is: (val) => val === 'work_sector_other',
+    then: (schema) => schema.required(VALIDATION_ERRORS.required),
+  }),
   // gender: Yup.string().required(VALIDATION_ERRORS.required),
   // location: Yup.string().required(VALIDATION_ERRORS.required),
   // projects_locations: Yup.array().required(VALIDATION_ERRORS.required),
