@@ -4,6 +4,25 @@ import { Field } from 'redux-form';
 import Section from 'views/components/WizardForm/Section';
 import ErrorMessage from 'views/components/WizardForm/ErrorMessage';
 
+const InputField = (props) => {
+  const { input, meta, groupErrorId } = props;
+  const { active } = meta || {};
+
+  return (
+    <>
+      <input
+        ref={(input) => {
+          if (!active) return;
+          input?.focus();
+        }}
+        type="text"
+        {...input}
+      />
+      <ErrorMessage targetId={groupErrorId} {...meta} />
+    </>
+  );
+};
+
 const RadioGroup = (props) => {
   const { input, meta, answers, customAnswer, onError } = props;
   const { name } = input;
@@ -14,7 +33,7 @@ const RadioGroup = (props) => {
   }, [meta, onError]);
 
   const acceptCustomAnswer = customAnswer?.id && customAnswer?.label;
-
+  const groupErrorId = `radio-group-error-${name}`;
   return (
     <>
       {answers.map((answer) => (
@@ -32,27 +51,12 @@ const RadioGroup = (props) => {
             {customAnswer.label}
             <Field
               name={customAnswer.id}
-              component={(customProps) => {
-                const { input: customInput, meta: customInputMeta } = customProps;
-                return (
-                  <>
-                    <input
-                      ref={(input) => {
-                        if (!customInputMeta?.active) return;
-                        input?.focus();
-                      }}
-                      type="text"
-                      {...customInput}
-                    />
-                    <ErrorMessage {...customInputMeta} />
-                  </>
-                );
-              }}
+              component={(props) => <InputField {...props} groupErrorId={groupErrorId} />}
             />
           </label>
         </div>
       )}
-      <ErrorMessage {...meta} />
+      <ErrorMessage id={groupErrorId} {...meta} />
     </>
   );
 };

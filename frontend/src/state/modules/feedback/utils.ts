@@ -13,13 +13,33 @@ const VALIDATION_ERRORS = {
 
 export const IntroSchema = Yup.object().shape({
   work_sector: Yup.string().required(VALIDATION_ERRORS.required),
+  work_sector_other: Yup.string().when('work_sector', {
+    is: (val: string) => val === 'work_sector_other',
+    then: (schema) => schema.required(VALIDATION_ERRORS.required),
+  }),
   gender: Yup.string().required(VALIDATION_ERRORS.required),
+  gender_other: Yup.string().when('gender', {
+    is: (val: string) => val === 'gender_other',
+    then: (schema) => schema.required(VALIDATION_ERRORS.required),
+  }),
   location: Yup.string().required(VALIDATION_ERRORS.required),
+  intro_location_other: Yup.string().when('location', {
+    is: (val: string) => val === 'intro_location_other',
+    then: (schema) => schema.required(VALIDATION_ERRORS.required),
+  }),
   projects_locations: Yup.array().required(VALIDATION_ERRORS.required),
+  projects_locations_other: Yup.string().when('projects_locations', {
+    is: (val: string) => val === 'projects_locations_other',
+    then: (schema) => schema.required(VALIDATION_ERRORS.required),
+  }),
 });
 
 export const ToolUseSchema = Yup.object().shape({
   usage: Yup.string().required(VALIDATION_ERRORS.required),
+  usage_other: Yup.string().when('usage', {
+    is: (val: string) => val === 'usage_other',
+    then: (schema) => schema.required(VALIDATION_ERRORS.required),
+  }),
 });
 
 export const MapSchema = Yup.object().shape({});
