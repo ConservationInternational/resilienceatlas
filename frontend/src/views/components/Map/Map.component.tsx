@@ -88,8 +88,17 @@ const MapView = (props: MapViewProps) => {
     ) {
       loadLayerGroups(locale);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [locale]);
+  }, [
+    layerGroupsLoaded,
+    layerGroupsLoadedLocale,
+    layerGroupsSubdomainIsDifferentThanLoaded,
+    layersLoaded,
+    layersLoadedLocale,
+    loadLayerGroups,
+    loadLayers,
+    locale,
+    subdomainIsDifferentThanLoaded,
+  ]);
 
   useEffect(() => {
     if (layersLoaded && layerGroupsLoaded && defaultActiveGroups.length) {
