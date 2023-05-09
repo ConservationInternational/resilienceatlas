@@ -66,8 +66,7 @@ export default class InfoWindow extends Component {
               <T _str="Source" />
             </h4>
             <div className="source">
-              <DangerousHTML html={source} />
-
+              {source && <DangerousHTML html={source} />}
               {link && (
                 <a className="link" target="_blank" rel="noopener noreferrer" href={link}>
                   {link}

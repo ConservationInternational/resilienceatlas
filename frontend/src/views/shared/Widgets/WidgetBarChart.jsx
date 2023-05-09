@@ -20,7 +20,7 @@ export const WidgetBarChart = ({
   analysisQuery,
   analysisBody,
   meta_short,
-  metadata,
+  info,
   legend,
   geojson,
 }) => {
@@ -133,14 +133,14 @@ export const WidgetBarChart = ({
                   <DownloadImageNoSSR analysisBody={analysisBody} geojson={geojson} />
                 )}
 
-                {metadata && (
+                {info && (
                   <button
                     type="button"
                     className="btn-analysis btn-analysis__info"
-                    data-info={metadata}
+                    data-info={info}
                     data-name={name}
                     title={<T _str="View detailed info" />}
-                    onClick={() => InfoWindow.show(name, metadata)}
+                    onClick={() => InfoWindow.show(name, info)}
                   >
                     <svg className="icon icon-info">
                       <use xlinkHref="#icon-info" />

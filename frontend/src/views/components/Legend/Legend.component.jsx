@@ -37,16 +37,8 @@ const Legend = ({ activeLayers, reorder, loading, toggleLayer, setOpacity }) => 
                     .filter(Boolean)
                     .sort(byOrder)
                     .map((layer, index) => {
-                      const {
-                        id,
-                        name,
-                        notAvailableByZoom,
-                        opacity,
-                        legend,
-                        info,
-                        sourceReference,
-                        sourceUrl,
-                      } = layer;
+                      const { id, name, notAvailableByZoom, opacity, legend, info } = layer;
+                      const { source, link } = info || {};
                       const layerVisible = opacity > 0;
                       return (
                         <Draggable key={id} draggableId={id} index={index}>
@@ -75,7 +67,7 @@ const Legend = ({ activeLayers, reorder, loading, toggleLayer, setOpacity }) => 
                                       type="button"
                                       className="btn-info"
                                       {...clickable(() => {
-                                        InfoWindow.show(name, JSON.parse(info));
+                                        InfoWindow.show(name, info);
                                       })}
                                       data-layer-id={id}
                                     >
@@ -113,21 +105,21 @@ const Legend = ({ activeLayers, reorder, loading, toggleLayer, setOpacity }) => 
                                 )}
                               </header>
                               <LegendItem legend={legend} layer={layer} />
-                              {sourceReference && (
+                              {source && (
                                 <div className="source-container">
                                   <div className="source">
                                     <span className="source-bold">
                                       <T _str="Source:" />{' '}
                                     </span>
-                                    <span>{sourceReference}</span>
+                                    <span>{source}</span>
                                   </div>
                                   <a
                                     className="source-link"
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    href={sourceUrl}
+                                    href={link}
                                   >
-                                    {sourceUrl}
+                                    {link}
                                   </a>
                                 </div>
                               )}

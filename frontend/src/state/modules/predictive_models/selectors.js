@@ -52,10 +52,10 @@ export const makeLayer = () => {
       .map((ind) => {
         const weight = ind.value % 1 === 0 ? ind.value : ind.value.toFixed(3);
 
-        return `{ 
-            "column_name": "${ind.column}", 
-            "weight": ${weight}, 
-            "operation": "${ind.operation || '+'}" 
+        return `{
+            "column_name": "${ind.column}",
+            "weight": ${weight},
+            "operation": "${ind.operation || '+'}"
           }`;
       });
 
@@ -102,10 +102,6 @@ export const makeLayer = () => {
       slug: 'predictive-model-layer',
       name: activeModel.name,
       type: 'cartodb',
-      description: `{
-          "description": "${activeModel.description || ''}", 
-          "source": "${activeModel.source || ''}"
-        }`,
       cartocss,
       interactivity: '',
       sql,
@@ -125,15 +121,12 @@ export const makeLayer = () => {
       group: -1,
       active: true,
       published: true,
-      info: `{
-          "description":"${activeModel.description || ''}", 
-          "source":"${activeModel.source || ''}"
-        }`,
+      description: activeModel.description || '',
       dashboard_order: null,
       download: false,
       dataset_shortname: null,
       dataset_source_url: null,
-      attributions: false,
+      sourceIds: null,
       // for layer-manager
       provider: 'cartodb',
       layerProvider: 'cartodb',

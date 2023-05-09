@@ -50,7 +50,7 @@ export const LayerAnalysis = ({
           name={l.name}
           meta_short={l.name}
           legend={l.legend}
-          metadata={JSON.parse(l.info || 'null')}
+          info={l.info}
           geojson={geometry}
         />
       ))}
