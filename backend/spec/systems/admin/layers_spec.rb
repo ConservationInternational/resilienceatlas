@@ -48,7 +48,8 @@ RSpec.describe "Admin: Layers", type: :system do
         expect(page).to have_text(layer.interaction_config)
         expect(page).to have_text(layer.analysis_query)
         expect(page).to have_text(layer.analysis_body)
-        expect(page).to have_text(layer.timeline_overlap)
+        expect(page).to have_text(layer.analysis_type)
+        expect(page).to have_text(layer.analysis_text_template)
         expect(page).to have_text(layer.timeline_steps.join(", "))
         expect(page).to have_text(layer.timeline_start_date)
         expect(page).to have_text(layer.timeline_end_date)
@@ -98,6 +99,7 @@ RSpec.describe "Admin: Layers", type: :system do
       fill_in "layer[translations_attributes][0][processing]", with: "New processing"
       fill_in "layer[translations_attributes][0][data_units]", with: "New data_units"
       fill_in "layer[translations_attributes][0][legend]", with: "New legend"
+      fill_in "layer[translations_attributes][0][analysis_text_template]", with: "New analysis_text_template"
       select "cartodb", from: "layer[layer_provider]"
       fill_in "layer[query]", with: "New query"
       fill_in "layer[css]", with: "New css"
@@ -108,10 +110,10 @@ RSpec.describe "Admin: Layers", type: :system do
       fill_in "layer[zoom_min]", with: "200"
       fill_in "layer[interaction_config]", with: "New interaction_config"
       check "layer[analysis_suitable]"
+      select "text", from: "layer[analysis_type]"
       fill_in "layer[analysis_query]", with: "New analysis_query"
       fill_in "layer[analysis_body]", with: "New analysis_body"
       check "layer[timeline]"
-      fill_in "layer[timeline_overlap]", with: "New timeline_overlap"
       fill_in "layer[timeline_steps]", with: "2000-01-01,2000-01-02,2000-01-03"
       fill_in "layer[timeline_start_date]", with: "2000-01-01"
       fill_in "layer[timeline_end_date]", with: "2000-01-03"
@@ -139,9 +141,10 @@ RSpec.describe "Admin: Layers", type: :system do
       expect(page).to have_text("1000")
       expect(page).to have_text("200")
       expect(page).to have_text("New interaction_config")
+      expect(page).to have_text("text")
       expect(page).to have_text("New analysis_query")
       expect(page).to have_text("New analysis_body")
-      expect(page).to have_text("New timeline_overlap")
+      expect(page).to have_text("New analysis_text_template")
       expect(page).to have_text("2000-01-01")
       expect(page).to have_text("2000-01-02")
       expect(page).to have_text("2000-01-03")
@@ -186,6 +189,17 @@ RSpec.describe "Admin: Layers", type: :system do
 
       expect(page).to have_current_path(admin_layers_path)
       expect(page).to have_text("can't be blank")
+    end
+
+    it "shows errors when analysis is invalid" do
+      select "cog", from: "layer[layer_provider]"
+      check "layer[analysis_suitable]"
+      select "text", from: "layer[analysis_type]"
+
+      click_on "Create Layer"
+
+      expect(page).to have_current_path(admin_layers_path)
+      expect(page).to have_text("analysis type has to be histogram for cog provider")
     end
 
     it "shows errors when timeline steps are invalid" do

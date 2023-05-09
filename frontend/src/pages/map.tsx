@@ -1,6 +1,8 @@
+import React, { useEffect, useState, useMemo } from 'react';
+import { connect } from 'react-redux';
 import { useCookies } from 'react-cookie';
-import React, { useEffect } from 'react';
 import { useTour } from '@reactour/tour';
+import { getServerSideTranslations } from 'i18n';
 
 import FullscreenLayout from 'views/layouts/fullscreen';
 import Sidebar from 'views/components/Sidebar';
@@ -9,19 +11,19 @@ import InfoWindow from 'views/components/InfoWindow';
 import LoginRequiredWindow from 'views/components/LoginRequiredWindow';
 import DownloadWindow from 'views/components/DownloadWindow';
 import MapView from 'views/components/Map';
+import MapLoadingScreen from 'views/components/Map/loading-screen';
 
 import { LayerManagerProvider } from 'views/contexts/layerManagerCtx';
 
-import Loader from 'views/shared/Loader';
-import type { NextPageWithLayout } from './_app';
-import { getServerSideTranslations } from 'i18n';
 import { withTranslations, useSetServerSideTranslations } from 'utilities/hooks/transifex';
+import type { NextPageWithLayout } from './_app';
 import type { GetServerSidePropsContext } from 'next';
 
-const MapPage: NextPageWithLayout = ({ translations, setTranslations }) => {
+const MapPage: NextPageWithLayout = ({ translations, setTranslations, isSidebarOpen }) => {
   const [cookies, setCookie] = useCookies(['mapTour']);
   const { mapTour } = cookies;
   const { isOpen, setIsOpen } = useTour();
+  const [anyLayerLoading, setAnyLayerLoading] = useState(false);
 
   // TODO: migrate this, how it works?
   // const { location: { state } } = props;
@@ -41,11 +43,25 @@ const MapPage: NextPageWithLayout = ({ translations, setTranslations }) => {
     }
   }, [isOpen, mapTour, setCookie, setIsOpen]);
 
+  // ? 350px is the width of the left sidebar
+  const sidebarSize = useMemo(() => (isSidebarOpen ? 350 : 25), [isSidebarOpen]);
+
   return (
     <LayerManagerProvider>
       <Sidebar />
       <div className="l-content--fullscreen">
+        {anyLayerLoading && (
+          <MapLoadingScreen
+            styles={{
+              width: `calc(100% - ${sidebarSize}px)`,
+              left: sidebarSize,
+            }}
+          />
+        )}
         <MapView
+          onLoadingLayers={(loaded) => {
+            setAnyLayerLoading(loaded);
+          }}
           options={{
             map: {
               minZoom: 2,
@@ -54,7 +70,6 @@ const MapPage: NextPageWithLayout = ({ translations, setTranslations }) => {
             },
           }}
         />
-        <Loader />
         <Legend />
         <InfoWindow />
         <DownloadWindow />
@@ -68,7 +83,10 @@ MapPage.Layout = (page, translations) => (
   <FullscreenLayout pageTitle={translations['Map']}>{page}</FullscreenLayout>
 );
 
-export default withTranslations(MapPage);
+export default connect(
+  (state) => ({ isSidebarOpen: state.ui.sidebar }),
+  null,
+)(withTranslations(MapPage));
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   const { translations } = await getServerSideTranslations(context);

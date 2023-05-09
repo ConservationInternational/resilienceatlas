@@ -40,13 +40,13 @@
 #  analysis_body             :text
 #  interaction_config        :text
 #  timeline                  :boolean          default(FALSE)
-#  timeline_overlap          :string
 #  timeline_steps            :date             default([]), is an Array
 #  timeline_start_date       :date
 #  timeline_end_date         :date
 #  timeline_default_date     :date
 #  timeline_period           :string
 #  timeline_format           :string           default("%m/%d/%Y")
+#  analysis_type             :string
 #  name                      :string
 #  info                      :text
 #  legend                    :text
@@ -54,6 +54,7 @@
 #  data_units                :string
 #  processing                :string
 #  description               :text
+#  analysis_text_template    :text
 #
 
 require "rails_helper"
@@ -84,15 +85,27 @@ RSpec.describe Layer, type: :model do
     expect(subject.errors["translations.name"]).to include("can't be blank")
   end
 
+  context "when analysis is enabled" do
+    subject { build :layer, analysis_suitable: true }
+
+    it "should not be valid when analysis type is not text for cartodb provider" do
+      subject.layer_provider = "cartodb"
+      subject.analysis_type = "histogram"
+      expect(subject).to have(1).errors_on(:analysis_type)
+    end
+
+    it "should not be valid when analysis type is not histogram for cog provider" do
+      subject.layer_provider = "cog"
+      subject.analysis_type = "text"
+      expect(subject).to have(1).errors_on(:analysis_type)
+    end
+  end
+
   context "when timeline is enabled" do
     subject { build :layer, timeline: true }
 
-    it "should not be valid without timeline_overlap" do
-      subject.timeline_overlap = nil
-      expect(subject).to have(1).errors_on(:timeline_overlap)
-    end
-
-    it "should not be valid without timeline_start_date" do
+    it "should not be valid without timeline_start_date when timeline_steps are empty" do
+      subject.timeline_steps = []
       subject.timeline_start_date = nil
       expect(subject).to have(1).errors_on(:timeline_start_date)
     end

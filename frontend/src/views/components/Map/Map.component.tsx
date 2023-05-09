@@ -18,6 +18,7 @@ import { BASEMAPS, LABELS } from 'views/utils';
 
 import { LayerManagerContext } from 'views/contexts/layerManagerCtx';
 import { useRouterParams } from 'utilities';
+import { subdomain } from 'utilities/getSubdomain';
 import type { MAP_LABELS, BASEMAP_LABELS } from 'views/components/LayersList/Basemaps/constants';
 import type { NextRouter } from 'next/router';
 
@@ -30,6 +31,7 @@ interface MapViewProps {
   labels: (typeof MAP_LABELS)[number];
   basemap: (typeof BASEMAP_LABELS)[number];
   router: NextRouter;
+  onLoadingLayers?: (loaded: boolean) => void;
   [k: string]: unknown;
 }
 
@@ -43,8 +45,16 @@ const MapView = (props: MapViewProps) => {
     setMapLayerGroupsInteraction,
     setMapLayerGroupsInteractionLatLng,
     // data
-    layers: { loaded: layersLoaded, loadedLocale: layersLoadedLocale },
-    layer_groups: { loaded: layerGroupsLoaded, loadedLocale: layerGroupsLoadedLocale },
+    layers: {
+      loaded: layersLoaded,
+      loadedLocale: layersLoadedLocale,
+      loadedSubdomain: layersLoadedSubdomain,
+    },
+    layer_groups: {
+      loaded: layerGroupsLoaded,
+      loadedLocale: layerGroupsLoadedLocale,
+      loadedSubdomain: layerGroupsLoadedSubdomain,
+    },
     activeLayers,
     model_layer,
     defaultActiveGroups,
@@ -57,16 +67,38 @@ const MapView = (props: MapViewProps) => {
     labels,
     embed,
     drawing,
+    onLoadingLayers,
   } = props;
   const { query, locale } = router;
   const { setParam } = useRouterParams();
   const layerManagerRef = useContext(LayerManagerContext);
-
+  const subdomainIsDifferentThanLoaded =
+    layersLoadedSubdomain !== subdomain && (layersLoadedSubdomain || subdomain);
+  const layerGroupsSubdomainIsDifferentThanLoaded =
+    layerGroupsLoadedSubdomain !== subdomain && (layerGroupsLoadedSubdomain || subdomain);
   useEffect(() => {
-    if (!layersLoaded || layersLoadedLocale !== locale) loadLayers(locale);
-    if (!layerGroupsLoaded || layerGroupsLoadedLocale !== locale) loadLayerGroups(locale);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [locale]);
+    if (!layersLoaded || layersLoadedLocale !== locale || subdomainIsDifferentThanLoaded) {
+      loadLayers(locale);
+    }
+
+    if (
+      !layerGroupsLoaded ||
+      layerGroupsLoadedLocale !== locale ||
+      layerGroupsSubdomainIsDifferentThanLoaded
+    ) {
+      loadLayerGroups(locale);
+    }
+  }, [
+    layerGroupsLoaded,
+    layerGroupsLoadedLocale,
+    layerGroupsSubdomainIsDifferentThanLoaded,
+    layersLoaded,
+    layersLoadedLocale,
+    loadLayerGroups,
+    loadLayers,
+    locale,
+    subdomainIsDifferentThanLoaded,
+  ]);
 
   useEffect(() => {
     if (layersLoaded && layerGroupsLoaded && defaultActiveGroups.length) {
@@ -107,6 +139,17 @@ const MapView = (props: MapViewProps) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [site.latitude, query.center]);
 
+  const onLayerLoading = useCallback(
+    (_isAnyLayerLoading: boolean) => {
+      onLoadingLayers?.(_isAnyLayerLoading);
+    },
+    [onLoadingLayers],
+  );
+
+  const onLayerLoaded = useCallback(() => {
+    onLayerLoading(false);
+  }, [onLayerLoading]);
+
   return (
     <Maps
       customClass="m-map"
@@ -122,6 +165,17 @@ const MapView = (props: MapViewProps) => {
         maxZoom: 13,
       }}
       events={{
+        layeradd: ({ layer }) => {
+          if (
+            // to avoid displaying loading state with labels
+            layer?._url?.startsWith('https://api.mapbox.com/styles/v1/cigrp') ||
+            // to avoid displaying loading state when the user interacts with the map (click on a layer)
+            layer.hasOwnProperty('_content')
+          )
+            return null;
+          onLayerLoading(true);
+          return layer.on('load', onLayerLoaded);
+        },
         zoomend: (e, map) => {
           const mapZoom = map.getZoom();
 

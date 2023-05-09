@@ -40,13 +40,13 @@
 #  analysis_body             :text
 #  interaction_config        :text
 #  timeline                  :boolean          default(FALSE)
-#  timeline_overlap          :string
 #  timeline_steps            :date             default([]), is an Array
 #  timeline_start_date       :date
 #  timeline_end_date         :date
 #  timeline_default_date     :date
 #  timeline_period           :string
 #  timeline_format           :string           default("%m/%d/%Y")
+#  analysis_type             :string
 #  name                      :string
 #  info                      :text
 #  legend                    :text
@@ -54,6 +54,7 @@
 #  data_units                :string
 #  processing                :string
 #  description               :text
+#  analysis_text_template    :text
 #
 FactoryBot.define do
   factory :layer do
@@ -133,13 +134,13 @@ FactoryBot.define do
       Faker::Config.random = Random.new(n)
       Faker::Lorem.sentence
     end
+    sequence(:analysis_text_template) do |n|
+      Faker::Config.random = Random.new(n)
+      Faker::Lorem.sentence
+    end
     sequence(:timeline) do |n|
       Faker::Config.random = Random.new(n)
       Faker::Boolean.boolean
-    end
-    sequence(:timeline_overlap) do |n|
-      Faker::Config.random = Random.new(n)
-      Faker::Lorem.sentence
     end
     sequence(:timeline_steps) do |n|
       (Date.new(2020, 1, 1)..Date.new(2022, 12, 31)).to_a.sample 3, random: Random.new(n)
@@ -162,6 +163,16 @@ FactoryBot.define do
     sequence(:dashboard_order) do |n|
       Faker::Config.random = Random.new(n)
       Faker::Number.between from: 1, to: 100
+    end
+
+    after(:build) do |layer, _evaluator|
+      layer.analysis_type = if layer.layer_provider == "cog"
+        "histogram"
+      elsif layer.layer_provider == "cartodb"
+        "text"
+      else
+        "categorical"
+      end
     end
   end
 end

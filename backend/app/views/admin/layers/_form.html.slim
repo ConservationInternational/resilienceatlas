@@ -12,6 +12,9 @@
         = ff.input :processing
         = ff.input :data_units
         = ff.input :legend
+        span style="margin: 10px 10px 0 10px;font-size: small;display: block;"
+          = "Sentence displayed as a result of the analysis. To inject values, use the {{attributeName}} format where attributeName is the name of an attribute that is returned by the analysis query."
+          = ff.input :analysis_text_template, as: :string
     = f.inputs "Metadata sources" do
       = f.input :sources, as: :select, collection: Source.with_translations.all.map { |s| ["#{s.source_type} - Ref: #{s.reference_short}", s.id] }, label: "Select sources:", multiple: true
     = f.inputs "Data download" do
@@ -19,6 +22,8 @@
   = f.inputs "Configuration" do
     = f.inputs "Layer", class: "inputs select-dependency-container" do
       = f.input :layer_provider, as: :select, collection: ["cartodb", "cog", "gee", "xyz tileset", "raster"], input_html: {class: "select-dependency-controller"}, required: true
+      span class="select-dependency-field" style="margin: 0 10px;font-size: small;display: block;" data-available-for=["cartodb", "xyz tileset", "cog"]
+        = " If the layer has a timeline, {year}, {month} and {day} will be substituted with the corresponding values. Note that these values could be an empty string depending on the period choice (yearly, monthly or daily)."
       = f.input :query, wrapper_html: {class: "select-dependency-field", data: {available_for: %w[cartodb raster]}}
       = f.input :css, wrapper_html: {class: "select-dependency-field", data: {available_for: %w[cartodb raster]}}
       = f.input :opacity, wrapper_html: {class: "select-dependency-field", data: {available_for: %w[cartodb raster]}}
@@ -31,16 +36,18 @@
       = f.input :interaction_config, required: true
     = f.inputs "Analysis"
       = f.input :analysis_suitable, input_html: {data: {if: "checked", action: "show", target: ".analysis-query-input"}}
+      = f.input :analysis_type, as: :select, collection: Layer.analysis_types.keys, required: true, wrapper_html: { class: "analysis-query-input" }
       = f.input :analysis_query, wrapper_html: {class: "analysis-query-input"}
       = f.input :analysis_body, wrapper_html: {class: "analysis-query-input"}
     = f.inputs "Timeline"
       = f.input :timeline, input_html: {data: {if: "checked", action: "show", target: ".timeline-query-input"}}, required: false
-      = f.input :timeline_overlap, wrapper_html: {class: "timeline-query-input"}, required: true
       = f.input :timeline_steps, as: :string, input_html: { value: Array.wrap(f.object.timeline_steps).join(", ") }, wrapper_html: {class: "timeline-query-input"}, placeholder: "Optionally define individual steps manually in format YYYY-mm-dd divided by comma"
-      = f.input :timeline_start_date, wrapper_html: {class: "timeline-query-input"}, required: true
+      = f.input :timeline_start_date, wrapper_html: {class: "timeline-query-input"}, required: false
       = f.input :timeline_end_date, wrapper_html: {class: "timeline-query-input"}
-      = f.input :timeline_default_date, wrapper_html: {class: "timeline-query-input"}
+      = f.input :timeline_default_date, wrapper_html: {class: "timeline-query-input"}, required: true
       = f.input :timeline_period, as: :select, collection: Layer.timeline_periods.keys, required: true, wrapper_html: {class: "timeline-query-input"}
+      span style="margin: 0 10px;font-size: small;display: block;" class="timeline-query-input"
+        = "String indicating in which format the dates will be displayed in the application"
       = f.input :timeline_format, wrapper_html: {class: "timeline-query-input"}, required: true
     = f.inputs "Dashboard"
       = f.input :dashboard_order

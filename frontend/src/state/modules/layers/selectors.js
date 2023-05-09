@@ -48,10 +48,12 @@ export const makeActives = () =>
     (ids, layers, loaded, sourcesById) => {
       if (!loaded) return [];
       const activeLayers = denormalize(ids, [layer], { layers });
-      return activeLayers.map((layer) => ({
-        ...layer,
-        ...getSources(layer.attributions, sourcesById),
-      }));
+      return activeLayers
+        .filter((activeLayer) => !!activeLayer)
+        .map((layer) => ({
+          ...layer,
+          ...getSources(layer.attributions, sourcesById),
+        }));
     },
   );
 
@@ -83,6 +85,7 @@ export const getGrouped = () => {
     (published, groups, g_categories, g_subcategories, g_subgroups, g_defaultActive) => {
       const isActive = getActiveFromDefaults(g_defaultActive);
       if (!groups.length && !g_categories.length) {
+        // eslint-disable-next-line no-console
         console.info('There aren`t groups setted.');
         return groups;
       }

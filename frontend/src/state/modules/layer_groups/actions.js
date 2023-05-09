@@ -21,15 +21,16 @@ export const openBatch = (ids = []) => ({
   ids,
 });
 
-export const load = (locale) =>
+export const load = (locale, siteScope) =>
   api(
     LOAD,
     ({ get }) =>
       get(URL_LAYER_GROUPS, {
-        params: { site_scope: subdomain, locale: toBackendLocale(locale) },
+        params: { site_scope: siteScope || subdomain, locale: toBackendLocale(locale) },
       }),
     {
       schema: [layer_group],
       locale,
+      subdomain: siteScope || subdomain,
     },
   );
