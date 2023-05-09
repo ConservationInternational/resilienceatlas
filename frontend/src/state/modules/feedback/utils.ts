@@ -9,6 +9,7 @@ import { INTRO, TOOL_USE, MAP, WEBSITE } from 'constants/feedback-questions';
 
 const VALIDATION_ERRORS = {
   required: 'This is a required question',
+  custom_empty: '"Other:" field cannot be empty',
 };
 
 export const IntroSchema = Yup.object().shape({
@@ -28,9 +29,13 @@ export const IntroSchema = Yup.object().shape({
     then: (schema) => schema.required(VALIDATION_ERRORS.required),
   }),
   projects_locations: Yup.array().required(VALIDATION_ERRORS.required),
-  projects_locations_other: Yup.string().when('projects_locations', {
-    is: (val: string) => val === 'projects_locations_other',
-    then: (schema) => schema.required(VALIDATION_ERRORS.required),
+  intro_projects_location_other: Yup.string().when('projects_locations', {
+    is: (val: string) => val?.includes('intro_projects_location_other'),
+    then: (schema) => schema.required(VALIDATION_ERRORS.custom_empty),
+  }),
+  how_did_you_find_other: Yup.string().when('how_did_you_find', {
+    is: (val: string) => val?.includes('how_did_you_find_other'),
+    then: (schema) => schema.required(VALIDATION_ERRORS.custom_empty),
   }),
 });
 
@@ -42,7 +47,20 @@ export const ToolUseSchema = Yup.object().shape({
   }),
 });
 
-export const MapSchema = Yup.object().shape({});
+export const MapSchema = Yup.object().shape({
+  map_useful_features_other: Yup.string().when('map_useful_features', {
+    is: (val: string) => val?.includes('map_useful_features_other'),
+    then: (schema) => schema.required(VALIDATION_ERRORS.custom_empty),
+  }),
+  coming_back_features_other: Yup.string().when('coming_back_features', {
+    is: (val: string) => val?.includes('coming_back_features_other'),
+    then: (schema) => schema.required(VALIDATION_ERRORS.custom_empty),
+  }),
+  usefulness_feedback_other: Yup.string().when('usefulness_feedback', {
+    is: (val: string) => val?.includes('usefulness_feedback_other'),
+    then: (schema) => schema.required(VALIDATION_ERRORS.custom_empty),
+  }),
+});
 
 export const WebsiteSchema = Yup.object().shape({});
 

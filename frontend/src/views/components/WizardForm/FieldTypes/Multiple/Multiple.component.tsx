@@ -4,6 +4,25 @@ import { Field } from 'redux-form';
 import Section from 'views/components/WizardForm/Section';
 import ErrorMessage from 'views/components/WizardForm/ErrorMessage';
 
+const InputField = (props) => {
+  const { input, meta, groupErrorId } = props;
+  const { active } = meta || {};
+
+  return (
+    <>
+      <input
+        ref={(input) => {
+          if (!active) return;
+          input?.focus();
+        }}
+        type="text"
+        {...input}
+      />
+      <ErrorMessage targetId={groupErrorId} {...meta} />
+    </>
+  );
+};
+
 const CheckboxGroup = (props) => {
   const { answers, input, meta, customAnswer, onError } = props;
   const { name } = input;
@@ -30,6 +49,7 @@ const CheckboxGroup = (props) => {
   };
 
   const acceptCustomAnswer = customAnswer?.id && customAnswer?.label;
+  const groupErrorId = `checkbox-group-error-${name}`;
 
   return (
     <>
@@ -58,27 +78,12 @@ const CheckboxGroup = (props) => {
             {customAnswer.label}
             <Field
               name={customAnswer.id}
-              component={(customProps) => {
-                const { input: customInput, meta: customInputMeta } = customProps;
-                return (
-                  <>
-                    <input
-                      ref={(input) => {
-                        if (!customInputMeta?.active) return;
-                        input?.focus();
-                      }}
-                      type="text"
-                      {...customInput}
-                    />
-                    <ErrorMessage {...customInputMeta} />
-                  </>
-                );
-              }}
+              component={(props) => <InputField {...props} groupErrorId={groupErrorId} />}
             />
           </label>
         </div>
       )}
-      <ErrorMessage {...meta} />
+      <ErrorMessage id={groupErrorId} {...meta} />
     </>
   );
 };
