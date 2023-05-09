@@ -141,7 +141,7 @@ const Layer = (props) => {
           data-info={info}
           data-name={name}
           onClick={() => {
-            InfoWindow.show(name, JSON.parse(info));
+            InfoWindow.show(name, info);
           }}
         >
           <svg className="icon icon-info">

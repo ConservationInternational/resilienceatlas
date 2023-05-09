@@ -30,15 +30,18 @@ export const getPublished = createSelector([getAllIds, getById], (all, layers) =
   denormalize(all, [layer], { layers }).filter((i) => i.published),
 );
 
-const getSources = (attributions, sourcesById) => {
-  if (!attributions || !attributions[0]) return {};
-  const id = attributions[0];
-  if (!sourcesById[id]) return {};
+const getInfo = (sourcesById, layer) => {
+  const { description, sourceIds } = layer;
+  let info = { description };
+  if (!sourceIds || !sourceIds[0]) return info;
 
+  const id = sourceIds[0];
+  if (!sourcesById[id]) return info;
   const { reference_short, url } = sourcesById[id];
   return {
-    sourceReference: reference_short,
-    sourceUrl: url,
+    ...info,
+    source: reference_short,
+    link: url,
   };
 };
 
@@ -52,7 +55,7 @@ export const makeActives = () =>
         .filter((activeLayer) => !!activeLayer)
         .map((layer) => ({
           ...layer,
-          ...getSources(layer.attributions, sourcesById),
+          info: getInfo(sourcesById, layer),
         }));
     },
   );
@@ -81,8 +84,24 @@ export const getGrouped = () => {
   const getDefaultActives = makeDefaultActives();
 
   return createSelector(
-    [getPublished, getGroups, getCategories, getSubCategories, getSubGroups, getDefaultActives],
-    (published, groups, g_categories, g_subcategories, g_subgroups, g_defaultActive) => {
+    [
+      getPublished,
+      getGroups,
+      getCategories,
+      getSubCategories,
+      getSubGroups,
+      getDefaultActives,
+      getSourcesById,
+    ],
+    (
+      published,
+      groups,
+      g_categories,
+      g_subcategories,
+      g_subgroups,
+      g_defaultActive,
+      sourcesById,
+    ) => {
       const isActive = getActiveFromDefaults(g_defaultActive);
       if (!groups.length && !g_categories.length) {
         // eslint-disable-next-line no-console
@@ -94,24 +113,28 @@ export const getGrouped = () => {
 
         const categories = g_categories.filter((c) => c.father === g.id);
 
+        const getLayerProps = (layer) => ({
+          opacity_text: getOpacityText(layer.opacity),
+          info: getInfo(sourcesById, layer),
+        });
+
         return {
           ...g,
           active: isActive(g),
           layers: groupLayers.map((l) => ({
             ...l,
-            opacity_text: getOpacityText(l.opacity),
+            ...getLayerProps(l),
           })),
           categories: categories.map((c) => {
             const layers = published.filter((l) => l.group === c.id);
 
             const subcategories = g_subcategories.filter((s) => s.father === c.id);
-
             return {
               ...c,
               active: isActive(c),
               layers: layers.map((l) => ({
                 ...l,
-                opacity_text: getOpacityText(l.opacity),
+                ...getLayerProps(l),
               })),
               subcategory: subcategories.map((sc) => {
                 const layers = published.filter((l) => l.group === sc.id);
@@ -123,7 +146,7 @@ export const getGrouped = () => {
                   active: isActive(sc),
                   layers: layers.sort(byDashboardOrder).map((l) => ({
                     ...l,
-                    opacity_text: getOpacityText(l.opacity),
+                    ...getLayerProps(l),
                   })),
                   subgroup: subgroups.map((sg) => ({
                     ...sg,
@@ -131,7 +154,7 @@ export const getGrouped = () => {
                       .filter((layer) => layer.group === sg.id)
                       .map((l) => ({
                         ...l,
-                        opacity_text: getOpacityText(l.opacity),
+                        ...getLayerProps(l),
                       })),
                   })),
                 };

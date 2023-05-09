@@ -34,7 +34,7 @@ export const layer = new schema.Entity(
   {
     processStrategy: (l) => {
       const group = l.relationships.layer_group.data;
-      const source = l.relationships.sources.data.map((s) => s.id);
+      const sourcesIds = l.relationships.sources.data.map((s) => s.id);
       const layerConfig = JSON.parse(l.attributes.layer_config || '{}');
       const config = {
         cartodb: {
@@ -93,7 +93,6 @@ export const layer = new schema.Entity(
         slug: l.attributes.slug,
         name: l.attributes.name,
         type: l.attributes.layer_provider,
-        description: l.attributes.info,
         cartocss: l.attributes.css,
         interactivity: l.attributes.interactivity,
         sql: l.attributes.query,
@@ -107,13 +106,13 @@ export const layer = new schema.Entity(
         group: group ? parseInt(group.id, 10) : null,
         active: l.relationships.agrupation.data.active,
         published: l.attributes.published,
-        info: l.attributes.info,
+        description: l.attributes.description,
         dashboard_order: l.attributes.dashboard_order,
         download: l.attributes.download || null,
         download_url: l.attributes.download ? generateDownloadUrl(l) : null,
         dataset_shortname: l.attributes.dataset_shortname || null,
         dataset_source_url: l.attributes.dataset_source_url || null,
-        attributions: source && source.length ? source : null,
+        sourceIds: sourcesIds && sourcesIds.length ? sourcesIds : null,
         analysisSuitable: l.attributes.analysis_suitable,
         analysisQuery: l.attributes.analysis_query,
         analysisBody: l.attributes.analysis_body,
