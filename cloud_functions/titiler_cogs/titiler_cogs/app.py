@@ -31,7 +31,7 @@ cog = TilerFactory()
 app.include_router(cog.router, tags=["Cloud Optimized GeoTIFF"])
 app.add_middleware(
         CacheControlMiddleware,
-        cachecontrol="public",
+        cachecontrol="public, max-age=3600",
         cachecontrol_max_http_code=400, # https://github.com/developmentseed/titiler/pull/444
         exclude_path={r"/healthz"},
     )
