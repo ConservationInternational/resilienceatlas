@@ -1,7 +1,7 @@
 {
   "data": [
     {
-      "id": "318",
+      "id": "259",
       "type": "layers",
       "attributes": {
         "name": "molestiae",
@@ -32,118 +32,48 @@
         "analysis_suitable": false,
         "analysis_query": "Et quaerat omnis veniam.",
         "analysis_body": "Et quaerat omnis veniam.",
+        "analysis_type": "categorical",
+        "analysis_text_template": "Et quaerat omnis veniam.",
         "interaction_config": "Et quaerat omnis veniam.",
         "timeline": false,
-        "timeline_overlap": "Et quaerat omnis veniam.",
         "timeline_steps": [
+          "2020-09-13",
           "2022-08-10",
-          "2022-08-27",
-          "2020-09-13"
+          "2022-08-27"
         ],
         "timeline_start_date": "2022-08-10",
         "timeline_end_date": "2022-08-10",
         "timeline_default_date": "2022-08-10",
         "timeline_period": "daily",
-        "timeline_format": "%Y-%m-%d"
+        "timeline_format": "%m/%d/%Y"
       },
       "relationships": {
         "layer_group": {
           "data": {
-            "id": "199",
+            "id": "96",
             "type": "layer_groups"
           }
         },
         "sources": {
           "data": [
             {
-              "id": "19",
+              "id": "40",
               "type": "sources"
             }
           ]
         },
         "agrupation": {
           "data": {
-            "id": 137,
-            "layer_id": 318,
-            "layer_group_id": 199,
+            "id": 60,
+            "layer_id": 259,
+            "layer_group_id": 96,
             "active": false
           }
         }
       }
     },
     {
-      "id": "319",
-      "type": "layers",
-      "attributes": {
-        "name": "voluptatem",
-        "description": "Enim repellat pariatur est.",
-        "slug": "Layer-1",
-        "layer_type": null,
-        "zindex": 38,
-        "opacity": 38.0,
-        "active": null,
-        "order": 38,
-        "dashboard_order": 38,
-        "color": null,
-        "info": null,
-        "interactivity": null,
-        "css": "Enim repellat pariatur est.",
-        "query": "Enim repellat pariatur est.",
-        "layer_config": "38",
-        "layer_provider": "cog",
-        "published": true,
-        "locate_layer": false,
-        "icon_class": null,
-        "legend": "Enim repellat pariatur est.",
-        "zoom_max": 38,
-        "zoom_min": 38,
-        "download": false,
-        "dataset_shortname": null,
-        "dataset_source_url": null,
-        "analysis_suitable": true,
-        "analysis_query": "Enim repellat pariatur est.",
-        "analysis_body": "Enim repellat pariatur est.",
-        "interaction_config": "Enim repellat pariatur est.",
-        "timeline": true,
-        "timeline_overlap": "Enim repellat pariatur est.",
-        "timeline_steps": [
-          "2022-11-27",
-          "2020-08-23",
-          "2022-06-25"
-        ],
-        "timeline_start_date": "2022-11-27",
-        "timeline_end_date": "2022-11-27",
-        "timeline_default_date": "2022-11-27",
-        "timeline_period": "monthly",
-        "timeline_format": "%Y-%m-%d"
-      },
-      "relationships": {
-        "layer_group": {
-          "data": {
-            "id": "199",
-            "type": "layer_groups"
-          }
-        },
-        "sources": {
-          "data": [
-            {
-              "id": "19",
-              "type": "sources"
-            }
-          ]
-        },
-        "agrupation": {
-          "data": {
-            "id": 138,
-            "layer_id": 319,
-            "layer_group_id": 199,
-            "active": false
-          }
-        }
-      }
-    },
-    {
-      "id": "320",
+      "id": "258",
       "type": "layers",
       "attributes": {
         "name": "cum",
@@ -174,40 +104,113 @@
         "analysis_suitable": true,
         "analysis_query": "Placeat commodi libero et.",
         "analysis_body": "Placeat commodi libero et.",
+        "analysis_type": "text",
+        "analysis_text_template": "Placeat commodi libero et.",
         "interaction_config": "Placeat commodi libero et.",
         "timeline": true,
-        "timeline_overlap": "Placeat commodi libero et.",
         "timeline_steps": [
-          "2021-06-11",
+          "2020-10-26",
           "2021-05-08",
-          "2020-10-26"
+          "2021-06-11"
         ],
         "timeline_start_date": "2021-06-11",
         "timeline_end_date": "2021-06-11",
         "timeline_default_date": "2021-06-11",
         "timeline_period": "yearly",
-        "timeline_format": "%Y-%m-%d"
+        "timeline_format": "%m/%d/%Y"
       },
       "relationships": {
         "layer_group": {
           "data": {
-            "id": "199",
+            "id": "96",
             "type": "layer_groups"
           }
         },
         "sources": {
           "data": [
             {
-              "id": "19",
+              "id": "40",
               "type": "sources"
             }
           ]
         },
         "agrupation": {
           "data": {
-            "id": 139,
-            "layer_id": 320,
-            "layer_group_id": 199,
+            "id": 59,
+            "layer_id": 258,
+            "layer_group_id": 96,
+            "active": false
+          }
+        }
+      }
+    },
+    {
+      "id": "257",
+      "type": "layers",
+      "attributes": {
+        "name": "voluptatem",
+        "description": "Enim repellat pariatur est.",
+        "slug": "Layer-1",
+        "layer_type": null,
+        "zindex": 38,
+        "opacity": 38.0,
+        "active": null,
+        "order": 38,
+        "dashboard_order": 38,
+        "color": null,
+        "info": null,
+        "interactivity": null,
+        "css": "Enim repellat pariatur est.",
+        "query": "Enim repellat pariatur est.",
+        "layer_config": "38",
+        "layer_provider": "cog",
+        "published": true,
+        "locate_layer": false,
+        "icon_class": null,
+        "legend": "Enim repellat pariatur est.",
+        "zoom_max": 38,
+        "zoom_min": 38,
+        "download": false,
+        "dataset_shortname": null,
+        "dataset_source_url": null,
+        "analysis_suitable": true,
+        "analysis_query": "Enim repellat pariatur est.",
+        "analysis_body": "Enim repellat pariatur est.",
+        "analysis_type": "histogram",
+        "analysis_text_template": "Enim repellat pariatur est.",
+        "interaction_config": "Enim repellat pariatur est.",
+        "timeline": true,
+        "timeline_steps": [
+          "2020-08-23",
+          "2022-06-25",
+          "2022-11-27"
+        ],
+        "timeline_start_date": "2022-11-27",
+        "timeline_end_date": "2022-11-27",
+        "timeline_default_date": "2022-11-27",
+        "timeline_period": "monthly",
+        "timeline_format": "%m/%d/%Y"
+      },
+      "relationships": {
+        "layer_group": {
+          "data": {
+            "id": "96",
+            "type": "layer_groups"
+          }
+        },
+        "sources": {
+          "data": [
+            {
+              "id": "40",
+              "type": "sources"
+            }
+          ]
+        },
+        "agrupation": {
+          "data": {
+            "id": 58,
+            "layer_id": 257,
+            "layer_group_id": 96,
             "active": false
           }
         }
@@ -216,7 +219,7 @@
   ],
   "included": [
     {
-      "id": "19",
+      "id": "40",
       "type": "sources",
       "attributes": {
         "reference": "voluptatem",

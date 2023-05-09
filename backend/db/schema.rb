@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_04_26_132503) do
+ActiveRecord::Schema[7.0].define(version: 2023_05_05_085906) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -328,6 +328,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_04_26_132503) do
     t.string "data_units"
     t.string "processing"
     t.text "description"
+    t.text "analysis_text_template"
     t.index ["layer_id"], name: "index_layer_translations_on_layer_id"
     t.index ["locale"], name: "index_layer_translations_on_locale"
   end
@@ -371,13 +372,13 @@ ActiveRecord::Schema[7.0].define(version: 2023_04_26_132503) do
     t.text "analysis_body"
     t.text "interaction_config"
     t.boolean "timeline", default: false
-    t.string "timeline_overlap"
     t.date "timeline_steps", default: [], array: true
     t.date "timeline_start_date"
     t.date "timeline_end_date"
     t.date "timeline_default_date"
     t.string "timeline_period"
-    t.string "timeline_format", default: "%Y-%m-%d"
+    t.string "timeline_format", default: "%m/%d/%Y"
+    t.string "analysis_type"
     t.index ["layer_group_id"], name: "index_layers_on_layer_group_id"
   end
 

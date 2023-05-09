@@ -2,12 +2,13 @@ ActiveAdmin.register Layer do
   includes :translations
 
   permit_params :name, :slug, :published, :zindex, :order, :query, :layer_config, :layer_provider, :css, :opacity,
-    :legend, :zoom_max, :zoom_min, :dashboard_order, :source_id, :data_units, :analysis_suitable,
-    :timeline, :timeline_overlap, :timeline_steps, :timeline_start_date, :timeline_end_date, :timeline_default_date,
+    :legend, :zoom_max, :zoom_min, :dashboard_order, :source_id, :data_units, :analysis_suitable, :analysis_type,
+    :timeline, :timeline_steps, :timeline_start_date, :timeline_end_date, :timeline_default_date,
     :timeline_period, :timeline_format, :analysis_query, :analysis_body, :interaction_config, :processing, :download,
     :description,
     source_ids: [],
-    translations_attributes: [:id, :locale, :name, :legend, :data_units, :processing, :description, :_destroy]
+    translations_attributes: [:id, :locale, :name, :legend, :data_units, :processing, :description, :analysis_text_template,
+      :_destroy]
 
   controller do
     def save_resource(resource)
@@ -88,11 +89,14 @@ ActiveAdmin.register Layer do
       end
       row :interaction_config
       row :analysis_suitable
-      row :analysis_query if resource.analysis_suitable
-      row :analysis_body if resource.analysis_suitable
+      if resource.analysis_suitable
+        row :analysis_type
+        row :analysis_query
+        row :analysis_body
+        row :analysis_text_template
+      end
       row :timeline
       if resource.timeline
-        row :timeline_overlap
         row :timeline_steps do |record|
           record.timeline_steps.join(", ")
         end

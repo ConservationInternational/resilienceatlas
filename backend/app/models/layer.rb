@@ -40,13 +40,13 @@
 #  analysis_body             :text
 #  interaction_config        :text
 #  timeline                  :boolean          default(FALSE)
-#  timeline_overlap          :string
 #  timeline_steps            :date             default([]), is an Array
 #  timeline_start_date       :date
 #  timeline_end_date         :date
 #  timeline_default_date     :date
 #  timeline_period           :string
 #  timeline_format           :string           default("%m/%d/%Y")
+#  analysis_type             :string
 #  name                      :string
 #  info                      :text
 #  legend                    :text
@@ -54,6 +54,7 @@
 #  data_units                :string
 #  processing                :string
 #  description               :text
+#  analysis_text_template    :text
 #
 
 require "zip"
@@ -95,6 +96,7 @@ class Layer < ApplicationRecord
     version
     analysis_suitable
     analysis_query
+    analysis_type
     layer_config
     analysis_body
     interaction_config
@@ -109,17 +111,24 @@ class Layer < ApplicationRecord
   accepts_nested_attributes_for :agrupations, allow_destroy: true
   accepts_nested_attributes_for :sources, allow_destroy: true
 
-  translates :name, :info, :legend, :title, :data_units, :processing, :description, touch: true, fallbacks_for_empty_translations: true
-  active_admin_translates :name, :info, :legend, :title, :data_units, :processing, :description
+  translates :name, :info, :legend, :title, :data_units, :processing, :description, :analysis_text_template, touch: true, fallbacks_for_empty_translations: true
+  active_admin_translates :name, :info, :legend, :title, :data_units, :processing, :description, :analysis_text_template
 
   translation_class.validates_presence_of :name, if: -> { locale.to_s == I18n.default_locale.to_s }
 
   enum :timeline_period, {yearly: "yearly", monthly: "monthly", daily: "daily"}, default: :yearly, prefix: true
+  enum :analysis_type, {histogram: "histogram", categorical: "categorical", text: "text"}, default: :histogram, prefix: true
 
   validates_presence_of :slug, :layer_provider, :interaction_config
   validates :timeline, inclusion: {in: [true, false]}
+  with_options if: -> { analysis_suitable } do
+    validates_presence_of :analysis_type
+    validates_inclusion_of :analysis_type, in: %w[text], message: "analysis type has to be text for cartodb provider", if: -> { layer_provider.to_s == "cartodb" && analysis_suitable }
+    validates_inclusion_of :analysis_type, in: %w[histogram], message: "analysis type has to be histogram for cog provider", if: -> { layer_provider.to_s == "cog" && analysis_suitable }
+  end
   with_options if: -> { timeline } do
-    validates_presence_of :timeline_overlap, :timeline_period, :timeline_start_date, :timeline_format
+    validates_presence_of :timeline_period, :timeline_format, :timeline_default_date
+    validates_presence_of :timeline_start_date, message: "required unless Steps defined", if: -> { timeline_steps.blank? && timeline }
   end
   with_options if: -> { layer_provider == "cog" } do
     validates_presence_of :layer_config
