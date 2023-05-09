@@ -72,6 +72,8 @@ Resources:
   RestApiGateway: # Creates an HTTP API endpoint under the custom domain
     Type: AWS::Serverless::Api
     Properties:
+      BinaryMediaTypes:
+        - "*/*"
       CacheClusterEnabled: true
       CacheClusterSize: "1.6"
       StageName: Prod
