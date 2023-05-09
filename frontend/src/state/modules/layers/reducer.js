@@ -1,4 +1,3 @@
-import { merge } from 'utilities';
 import { createReducer } from '../../utils';
 import { LOAD, SET_ACTIVES, TOGGLE, SET_OPACITY, REORDER, SET_CHART_LIMIT } from './actions';
 import { getPersistedLayers } from './utils';
@@ -17,6 +16,7 @@ const initialState = {
   loading: false,
   loaded: false,
   loadedLocale: null,
+  loadedSubdomain: null,
   error: null,
 };
 
@@ -27,7 +27,7 @@ export default createReducer(initialState)({
     error: null,
   }),
 
-  [LOAD.SUCCESS]: (state, { payload, meta: { locale } }) => {
+  [LOAD.SUCCESS]: (state, { payload, meta: { locale, subdomain } }) => {
     const {
       entities: { layers },
       result,
@@ -45,12 +45,13 @@ export default createReducer(initialState)({
 
     return {
       ...state,
-      byId: merge(state.byId, layers),
+      byId: layers,
       all: payload.result,
       actives: [...actives],
       loading: false,
       loaded: true,
       loadedLocale: locale,
+      loadedSubdomain: subdomain,
     };
   },
 
