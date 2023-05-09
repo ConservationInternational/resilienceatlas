@@ -1,6 +1,7 @@
 import logging
 from mangum import Mangum
 from titiler.core.factory import TilerFactory
+from titiler.core.middleware import CacheControlMiddleware
 from titiler.core.errors import DEFAULT_STATUS_CODES, add_exception_handlers
 
 from fastapi import FastAPI, HTTPException, Query
@@ -28,6 +29,12 @@ app = FastAPI(title="Resilience COG tiler", description="Cloud Optimized GeoTIFF
 
 cog = TilerFactory()
 app.include_router(cog.router, tags=["Cloud Optimized GeoTIFF"])
+app.add_middleware(
+        CacheControlMiddleware,
+        cachecontrol="public",
+        cachecontrol_max_http_code=400, # https://github.com/developmentseed/titiler/pull/444
+        exclude_path={r"/healthz"},
+    )
 
 add_exception_handlers(app, DEFAULT_STATUS_CODES)
 
