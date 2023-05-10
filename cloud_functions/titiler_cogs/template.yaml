@@ -76,6 +76,10 @@ Resources:
         - "*/*"
       CacheClusterEnabled: true
       CacheClusterSize: "1.6"
+      Cors:
+        AllowMethods: "'OPTIONS,GET'"
+        AllowHeaders: "'Content-Type'"
+        AllowOrigin: "'*'"
       StageName: Prod
       Domain:
         DomainName: !Ref FQDN
