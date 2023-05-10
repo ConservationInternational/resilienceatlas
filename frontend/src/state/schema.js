@@ -13,6 +13,7 @@ const provider = {
   cartodb: 'carto',
   raster: 'carto',
   'xyz tileset': 'leaflet',
+  cog: 'leaflet',
   gee: 'leaflet',
 };
 
@@ -85,6 +86,9 @@ export const layer = new schema.Entity(
           ...layerConfig,
           decodeFunction: birds,
           canvas: true,
+        },
+        cog: {
+          ...layerConfig,
         },
       };
 
