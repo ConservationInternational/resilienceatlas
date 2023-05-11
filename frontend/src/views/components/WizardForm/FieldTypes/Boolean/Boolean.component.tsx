@@ -16,15 +16,14 @@ const RadioGroup = (props) => {
     <>
       {answers.map((answer) => (
         <div key={answer.id}>
-          <label key={answer.id}>
-            <input
-              type="radio"
-              {...input}
-              value={answer.value}
-              checked={answer.value === input.value}
-            />
-            {answer.label}
-          </label>
+          <input
+            type="radio"
+            {...input}
+            id={`${input.name}-${answer.id}`}
+            value={answer.value}
+            checked={answer.value === input.value}
+          />
+          <label htmlFor={`${input.name}-${answer.id}`}>{answer.label}</label>
         </div>
       ))}
       <ErrorMessage {...meta} />

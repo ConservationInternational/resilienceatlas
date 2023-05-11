@@ -55,26 +55,26 @@ const CheckboxGroup = (props) => {
     <>
       {answers.map((answer, index) => (
         <div className="checkbox" key={index}>
-          <label>
-            <input
-              type="checkbox"
-              name={`${name}[${index}]`}
-              value={answer.id}
-              checked={input.value.indexOf(answer.id) !== -1}
-              onChange={(event) => handleAnswerCheckboxClick(event, answer.id)}
-            />
-            {answer.label}
-          </label>
+          <input
+            type="checkbox"
+            name={`${name}[${index}]`}
+            id={`${name}-${answer.id}`}
+            value={answer.id}
+            checked={input.value.indexOf(answer.id) !== -1}
+            onChange={(event) => handleAnswerCheckboxClick(event, answer.id)}
+          />
+          <label htmlFor={`${name}-${answer.id}`}>{answer.label}</label>
         </div>
       ))}
       {acceptCustomAnswer && (
         <div className="checkbox">
-          <label>
-            <input
-              type="checkbox"
-              name={customAnswer.id}
-              onChange={(event) => handleAnswerCheckboxClick(event, customAnswer.id)}
-            />
+          <input
+            type="checkbox"
+            id={`${name}-${customAnswer.id}`}
+            name={customAnswer.id}
+            onChange={(event) => handleAnswerCheckboxClick(event, customAnswer.id)}
+          />
+          <label htmlFor={`${name}-${customAnswer.id}`}>
             {customAnswer.label}
             <Field
               name={customAnswer.id}

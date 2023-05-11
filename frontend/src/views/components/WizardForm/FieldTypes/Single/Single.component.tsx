@@ -38,16 +38,26 @@ const RadioGroup = (props) => {
     <>
       {answers.map((answer) => (
         <div key={answer.id}>
-          <label key={answer.value}>
-            <input type="radio" {...input} value={answer.id} checked={answer.id === input.value} />
-            {answer.label}
-          </label>
+          <input
+            type="radio"
+            {...input}
+            id={`${input.name}-${answer.id}`}
+            value={answer.id}
+            checked={answer.id === input.value}
+          />
+          <label htmlFor={`${input.name}-${answer.id}`}>{answer.label}</label>
         </div>
       ))}
       {acceptCustomAnswer && (
         <div className="checkbox">
-          <label>
-            <input type="radio" {...input} name={name} value={customAnswer.id} />
+          <input
+            type="radio"
+            {...input}
+            id={`${input.name}-${customAnswer.id}`}
+            name={name}
+            value={customAnswer.id}
+          />
+          <label htmlFor={`${input.name}-${customAnswer.id}`}>
             {customAnswer.label}
             <Field
               name={customAnswer.id}

@@ -39,22 +39,26 @@
   }
 
   input[type="radio"] {
-    position: relative;
-    width: 0;
-    margin-right: 14px;
+    @extend .is-visually-hidden;
 
-    &:before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      height: 13px;
-      width: 13px;
-      border: 1px solid $gray-70;
-      border-radius: 50%;
+    & + label {
+      display: inline-flex;
+      position: relative;
+      padding-left: 21px;
+
+      &:before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 13px;
+        width: 13px;
+        border: 1px solid $gray-70;
+        border-radius: 50%;
+      }
     }
 
-    &:checked {
+    &:checked + label {
       &:before {
         border: 1px solid $blue;
       }
@@ -73,21 +77,25 @@
   }
 
   input[type="checkbox"] {
-    position: relative;
-    width: 0;
-    margin-right: 14px;
+    @extend .is-visually-hidden;
 
-    &:before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      height: 13px;
-      width: 13px;
-      border: 1px solid $gray-70;
+    & + label {
+      display: inline-flex;
+      position: relative;
+      padding-left: 21px;
+
+      &:before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 13px;
+        width: 13px;
+        border: 1px solid $gray-70;
+      }
     }
 
-    &:checked {
+    &:checked + label {
       &:before {
         border: 1px solid $blue;
         background-color: $blue;

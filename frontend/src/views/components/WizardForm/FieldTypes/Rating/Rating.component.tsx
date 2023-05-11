@@ -38,7 +38,14 @@ const RatingItem = (props) => {
     return (
       <>
         <td key={index}>
-          <input type="radio" {...input} value={id} checked={id == input.value} />
+          <input
+            type="radio"
+            {...input}
+            id={`${input.name}-${id}`}
+            value={id}
+            checked={id == input.value}
+          />
+          <label htmlFor={`${input.name}-${id}`} />
         </td>
       </>
     );
