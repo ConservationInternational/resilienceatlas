@@ -104,7 +104,10 @@ export const processFeedbackForm = (formValues) => {
 
     if (question.customAnswer) {
       const customAnswer = valuesData.find(({ id }) => id === question.customAnswer.id);
-      if (customAnswer) {
+
+      // If `answer` is not defined, then the user wrote something in the the “Other” field but
+      // selected one of the predefined answers
+      if (customAnswer && !answer) {
         answerData = buildAttributes(question, customAnswer.value);
       }
     }
@@ -136,7 +139,9 @@ export const processFeedbackForm = (formValues) => {
     if (question.customAnswer) {
       const customAnswer = valuesData.find(({ id }) => id === question.customAnswer.id);
 
-      if (customAnswer) {
+      // If `formAnswerValues` doesn't include `question.customAnswer.id`, then the user wrote
+      // something in the “Other” field but did not check the checkbox
+      if (customAnswer && formAnswerValues.includes(question.customAnswer.id)) {
         if (answers.length) {
           answerData?.answer?.value?.push(customAnswer.value);
         } else {
