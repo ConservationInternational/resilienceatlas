@@ -82,11 +82,13 @@ export const processFeedbackForm = (formValues) => {
       id: question.id,
       feedback_field_type: question.type,
       question: question.question,
-      ...(answer && {
-        answer: {
-          value: answer,
-        },
-      }),
+      ...(answer !== null && answer !== undefined
+        ? {
+            answer: {
+              value: answer,
+            },
+          }
+        : {}),
     };
   };
 
@@ -167,7 +169,7 @@ export const processFeedbackForm = (formValues) => {
     );
 
     if (answer) {
-      answerData = buildAttributes(question, answer.label);
+      answerData = buildAttributes(question, answer.label === 'Yes');
     }
 
     if (answerData) {
