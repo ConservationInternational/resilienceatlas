@@ -12,7 +12,7 @@ logging.getLogger("rio-tiler").setLevel(logging.ERROR)
 
 origins = [
     "http://localhost",
-    "http://localhost:8080",
+    "http://localhost:3000",
     "http://resilience.org",
     "http://*.resilience.org",
     "http://vitalsigns.org",
