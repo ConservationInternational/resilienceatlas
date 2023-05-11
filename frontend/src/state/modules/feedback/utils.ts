@@ -227,14 +227,19 @@ export const processFeedbackForm = (formValues) => {
     switch (type) {
       case FeedbackFieldTypes.Single:
         processSingle(question);
+        break;
       case FeedbackFieldTypes.Multiple:
         processMultiple(question);
+        break;
       case FeedbackFieldTypes.Boolean:
         processBoolean(question);
+        break;
       case FeedbackFieldTypes.FreeAnswer:
         processFreeAnswer(question);
+        break;
       case FeedbackFieldTypes.Rating:
         processRating(question);
+        break;
     }
   });
 
