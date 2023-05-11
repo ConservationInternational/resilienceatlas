@@ -206,10 +206,10 @@ export const processFeedbackForm = (formValues) => {
         const answer = formValues[questionAnswer.id];
         if (!answer) return null;
         return {
-          feedback_field_type: FeedbackFieldTypes.Rating,
+          feedback_field_type: FeedbackFieldTypes.Single,
           question: questionAnswer.label,
           answer: {
-            value: answer,
+            value: +answer,
           },
         };
       })
