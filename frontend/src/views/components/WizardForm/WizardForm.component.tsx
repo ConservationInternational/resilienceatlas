@@ -2,13 +2,15 @@ import type { ReactNode } from 'react';
 import React, { Children, useState } from 'react';
 import { useRouter } from 'next/router';
 import cx from 'classnames';
+import type { TypedT } from 'types/transifex';
+import { T } from '@transifex/react';
 
 import Pagination from './Pagination/Pagination.component';
 
 const WizardForm: React.FC<{
-  title?: string;
-  subtitle?: string;
-  description?: string;
+  title?: TypedT;
+  subtitle?: TypedT;
+  description?: TypedT;
   submitButton?: string;
   onSubmit: (values) => void;
   children: unknown | unknown[];
@@ -90,7 +92,7 @@ const WizardForm: React.FC<{
             className="m-wizard-form__button m-wizard-form__button--previous"
             onClick={handleBackButtonClick}
           >
-            {backBtnText || 'Go back'}
+            {backBtnText || <T _str="Go back" />}
           </button>
         </div>
       )}

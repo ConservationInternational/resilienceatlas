@@ -113,6 +113,8 @@ const Component = () => {
 
 For strings inside constants we will have to create a function that encapsulates that string and is called everytime the locale changes.
 
+Important: The locale has to come from the transifex useLocale hook instead of next on this case as the transifex/native 't' function will be used and it reads this value instead of the next locale.
+
 ```
 constant.js
 

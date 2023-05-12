@@ -1,12 +1,17 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 
 import Page from 'views/components/WizardForm/Page';
-
-import { WEBSITE } from 'constants/feedback-questions';
+import { useLocale } from '@transifex/react';
+import { getWebsite } from 'constants/feedback-questions';
 
 const Website = (props) => {
   const { handleSubmit, ...rest } = props;
-  const { title, previousButton, questions } = WEBSITE;
+  // Use transifex locale here instead of next as the content is translated with the transifex native component
+  const locale = useLocale();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const website = useMemo(() => getWebsite(), [locale]);
+
+  const { title, previousButton, questions } = website;
 
   return (
     <Page

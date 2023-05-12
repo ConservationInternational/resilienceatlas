@@ -1,5 +1,6 @@
 import React from 'react';
 import cx from 'classnames';
+import { T } from '@transifex/react';
 
 import Boolean from 'views/components/WizardForm/FieldTypes/Boolean';
 import Single from 'views/components/WizardForm/FieldTypes/Single';
@@ -91,7 +92,7 @@ const Page: React.FC<{
               type="button"
               onClick={onPrevious}
             >
-              {previousButton || 'Previous'}
+              {previousButton || <T _str="Previous" />}
             </button>
           )}
           <button
@@ -101,7 +102,7 @@ const Page: React.FC<{
             })}
             type="submit"
           >
-            {isLastPage ? submitButton || 'Submit' : nextButton || 'Next'}
+            {isLastPage ? submitButton || <T _str="Submit" /> : nextButton || <T _str="Next" />}
           </button>
         </div>
       </form>

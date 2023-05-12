@@ -1,13 +1,14 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { Field, FieldArray } from 'redux-form';
-
+import { t } from '@transifex/native';
+import { useRouter } from 'next/router';
 import Section from 'views/components/WizardForm/Section';
 
-const RATINGS = [
+const getRatings = () => [
   {
     id: 1,
     label: '1',
-    description: 'Strongly Disagree',
+    description: t('Strongly Disagree'),
   },
   {
     id: 2,
@@ -16,7 +17,7 @@ const RATINGS = [
   {
     id: 3,
     label: '3',
-    description: 'Neutral',
+    description: t('Neutral'),
   },
   {
     id: 4,
@@ -25,14 +26,16 @@ const RATINGS = [
   {
     id: 5,
     label: '5',
-    description: 'Strongly Agree',
+    description: t('Strongly Agree'),
   },
 ];
 
 const RatingItem = (props) => {
   const { input } = props;
-
-  return RATINGS.map((rating, index) => {
+  const { locale } = useRouter();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const ratings = useMemo(() => getRatings(), [locale]);
+  return ratings.map((rating, index) => {
     const { id } = rating;
 
     return (
@@ -84,14 +87,16 @@ const RatingGroup = (props) => {
 
 const Rating = (props) => {
   const { id: name, answers } = props;
-
+  const { locale } = useRouter();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const ratings = useMemo(() => getRatings(), [locale]);
   return (
     <Section {...props}>
       <table className="m-wizard-form__form-table">
         <thead>
           <tr>
             <th colSpan={2}>&nbsp;</th>
-            {RATINGS.map((rating) => {
+            {ratings.map((rating) => {
               const { id, label, description } = rating;
 
               return (
