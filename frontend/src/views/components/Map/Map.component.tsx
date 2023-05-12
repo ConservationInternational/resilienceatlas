@@ -209,7 +209,7 @@ const MapView = (props: MapViewProps) => {
                     !!l.interactionConfig &&
                     !!l.interactionConfig.length && {
                       interactivity:
-                        l.provider === 'carto' || l.provider === 'cartodb'
+                        l.provider === 'carto' || l.provider === 'cartodb' || l.provider === 'cog'
                           ? JSON.parse(l.interactionConfig)
                               .output.map((o) => o.column)
                               .join(',')

@@ -3,6 +3,7 @@ import React, { useReducer, useCallback, useEffect } from 'react';
 import axios from 'axios';
 import moment from 'moment';
 import numeral from 'numeral';
+import get from 'lodash/get';
 import { replace } from 'resilience-layer-manager';
 import { T } from '@transifex/react';
 
@@ -89,11 +90,14 @@ const LayerPopup = ({
       axios
         .get(replace(config.url, latlng), {})
         .then(({ data }) => {
+          // For COGs column in interactionConfig should always be 'values[*]' or 'values.*'
+          const data =
+            layer.type === 'cog' ? { values: data?.values } : data && data.rows && data.rows[0];
           dispatch({
             type: FETCH.SUCCESS,
             payload: {
               ...layer,
-              data: data && data.rows && data.rows[0],
+              data,
             },
           });
         })
@@ -132,10 +136,15 @@ const LayerPopup = ({
               {output.map((outputItem) => {
                 const { column } = outputItem;
                 const columnArray = column.split('.');
-                const value = columnArray.reduce(
-                  (acc, c) => acc[c],
-                  interaction.data || interactionState.data,
-                );
+                const value =
+                  layer.type === 'cog'
+                    ? columnArray.map((column) =>
+                        get(interaction.data || interactionState.data, column),
+                      )
+                    : columnArray.reduce(
+                        (acc, c) => acc[c],
+                        interaction.data || interactionState.data,
+                      );
                 return (
                   <tr className="dc" key={outputItem.property || outputItem.column}>
                     <td className="dt">{outputItem.property || outputItem.column}</td>

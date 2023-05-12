@@ -1,5 +1,5 @@
 import { schema } from 'normalizr';
-
+import { replace } from 'resilience-layer-manager';
 import { generateDownloadUrl } from 'utilities/generateDownloadUrl';
 
 import { birds } from './utils/decoders';
@@ -13,6 +13,7 @@ const provider = {
   cartodb: 'carto',
   raster: 'carto',
   'xyz tileset': 'leaflet',
+  cog: 'leaflet',
   gee: 'leaflet',
 };
 
@@ -85,6 +86,20 @@ export const layer = new schema.Entity(
           ...layerConfig,
           decodeFunction: birds,
           canvas: true,
+        },
+        // We need to manually parse the COG layer parameters because the layer manager doesn't support the object on colormap
+        cog: {
+          ...layerConfig,
+          parse: false,
+          body: {
+            ...layerConfig.body,
+            url: replace(layerConfig?.body?.url, {
+              ...layerConfig.params,
+              colormap: layerConfig.params?.colormap
+                ? encodeURIComponent(JSON.stringify(layerConfig.params.colormap))
+                : null,
+            }),
+          },
         },
       };
 
