@@ -16,14 +16,14 @@ import { processFeedbackForm, submitFeedback } from 'state/modules/feedback';
 const FeedbackForm = ({ resetForm }) => {
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState(null);
-
+  const { locale } = useRouter();
   const { query } = useRouter();
   const { returnPath, returnText } = query;
 
   const handleSubmit = (values) => {
     setError(null);
 
-    const feedbackData = processFeedbackForm(values);
+    const feedbackData = processFeedbackForm(values, locale);
 
     submitFeedback(feedbackData)
       .then(() => {

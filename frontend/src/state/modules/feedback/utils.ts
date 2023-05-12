@@ -65,7 +65,7 @@ export const WebsiteSchema = Yup.object().shape({});
 
 // FORM PROCESSING
 
-export const processFeedbackForm = (formValues) => {
+export const processFeedbackForm = (formValues, locale) => {
   let processedData = [];
 
   // Prepare questions and form values data in a way that's easier to process.
@@ -82,7 +82,7 @@ export const processFeedbackForm = (formValues) => {
     return {
       id: question.id,
       feedback_field_type: question.type,
-      question: question.question,
+      question: question.questionRaw,
       ...(answer !== null && answer !== undefined
         ? {
             answer: {
@@ -102,7 +102,7 @@ export const processFeedbackForm = (formValues) => {
 
     const answer = question.answers.find(({ id }) => id === formAnswer.value);
     if (answer) {
-      answerData = buildAttributes(question, answer.label);
+      answerData = buildAttributes(question, answer.labelRaw || answer.label);
     }
 
     if (question.customAnswer) {
@@ -132,8 +132,11 @@ export const processFeedbackForm = (formValues) => {
     ) as string[];
 
     const answers = (formAnswerValues || [])
-      .map((answer) => question.answers.find(({ id }) => id === answer)?.label)
-      .filter((answer) => !!answer);
+      .map((answer) => {
+        const answerValue = question.answers.find(({ id }) => id === answer);
+        return answerValue?.labelRaw || answerValue?.label;
+      })
+      .filter(Boolean);
 
     if (answers.length) {
       answerData = buildAttributes(question, answers);
@@ -208,7 +211,7 @@ export const processFeedbackForm = (formValues) => {
         if (!answer) return null;
         return {
           feedback_field_type: FeedbackFieldTypes.Single,
-          question: questionAnswer.label,
+          question: questionAnswer.labelRaw || questionAnswer.label,
           answer: {
             value: +answer,
           },
@@ -253,11 +256,9 @@ export const processFeedbackForm = (formValues) => {
 
   // Prevent potential id conflicts and remove the id property; the API doesn't expect it.
   processedData = uniqBy(processedData, ({ id }) => id).map(({ id, ...item }) => item);
-
   return {
     feedback: {
-      // TODO Simao: Update the language property to the correct one
-      language: 'en',
+      language: locale,
       feedback_fields_attributes: processedData,
     },
   };

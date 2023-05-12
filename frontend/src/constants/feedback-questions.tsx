@@ -17,7 +17,6 @@ const getLocationsList = () => [
 
 export const getIntro = () => ({
   title: t('Intro'),
-  titleRaw: 'Intro',
   nextButton: t('Tool Use'),
   questions: [
     {
@@ -37,7 +36,6 @@ export const getIntro = () => ({
       customAnswer: {
         id: 'work_sector_other',
         label: t('Other:'),
-        labelRaw: 'Other:',
       },
     },
     {
@@ -57,7 +55,6 @@ export const getIntro = () => ({
       customAnswer: {
         id: 'gender_other',
         label: t('Other:'),
-        labelRaw: 'Other:',
       },
     },
     {
@@ -70,7 +67,6 @@ export const getIntro = () => ({
       customAnswer: {
         id: 'intro_location_other',
         label: t('Other:'),
-        labelRaw: 'Other:',
       },
     },
     {
@@ -83,7 +79,6 @@ export const getIntro = () => ({
       customAnswer: {
         id: 'intro_projects_location_other',
         label: t('Other:'),
-        labelRaw: 'Other:',
       },
     },
     {
@@ -118,7 +113,6 @@ export const getIntro = () => ({
       customAnswer: {
         id: 'how_did_you_find_other',
         label: t('Other:'),
-        labelRaw: 'Other:',
       },
     },
   ],
@@ -126,7 +120,6 @@ export const getIntro = () => ({
 
 export const getToolUse = () => ({
   title: t('Tool Use'),
-  titleRaw: 'Tool Use',
   previousButton: t('Intro'),
   nextButton: t('Map'),
   questions: [
@@ -169,7 +162,6 @@ export const getToolUse = () => ({
       customAnswer: {
         id: 'usage_other',
         label: t('Other:'),
-        labelRaw: 'Other:',
       },
     },
     {
@@ -183,7 +175,6 @@ export const getToolUse = () => ({
 
 export const getMap = () => ({
   title: t('Map'),
-  titleRaw: 'Map',
   previousButton: t('Tool Use'),
   nextButton: t('Website'),
   questions: [
@@ -254,7 +245,6 @@ export const getMap = () => ({
       customAnswer: {
         id: 'map_useful_features_other',
         label: t('Other:'),
-        labelRaw: 'Other:',
       },
     },
     {
@@ -305,7 +295,6 @@ export const getMap = () => ({
       customAnswer: {
         id: 'coming_back_features_other',
         label: t('Other:'),
-        labelRaw: 'Other:',
       },
     },
     {
@@ -336,7 +325,6 @@ export const getMap = () => ({
       customAnswer: {
         id: 'usefulness_feedback_other',
         label: t('Other:'),
-        labelRaw: 'Other:',
       },
     },
     {
@@ -356,7 +344,6 @@ export const getMap = () => ({
 
 export const getWebsite = () => ({
   title: t('Website'),
-  titleRaw: 'Website',
   previousButton: t('Map'),
   questions: [
     {
