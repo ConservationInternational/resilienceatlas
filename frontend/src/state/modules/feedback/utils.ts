@@ -1,15 +1,14 @@
 import * as Yup from 'yup';
 import flatten from 'lodash/flatten';
 import uniqBy from 'lodash/uniqBy';
-
 import { FeedbackFieldTypes } from 'types/wizard-form.d';
-import { INTRO, TOOL_USE, MAP, WEBSITE } from 'constants/feedback-questions';
+import { getIntro, getToolUse, getMap, getWebsite } from 'constants/feedback-questions';
 
 // VALIDATION
 
 const VALIDATION_ERRORS = {
-  required: 'This is a required question',
-  custom_empty: '"Other:" field cannot be empty',
+  required: 'required',
+  custom_empty: 'custom_empty',
 };
 
 export const IntroSchema = Yup.object().shape({
@@ -70,7 +69,9 @@ export const processFeedbackForm = (formValues) => {
   let processedData = [];
 
   // Prepare questions and form values data in a way that's easier to process.
-  const questionsData = flatten([INTRO, TOOL_USE, MAP, WEBSITE].map((item) => item.questions));
+  const questionsData = flatten(
+    [getIntro(), getToolUse(), getMap(), getWebsite()].map((item) => item.questions),
+  );
   const valuesData = Object.entries(formValues).map(([id, value]) => ({
     id,
     value,
