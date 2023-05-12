@@ -60,7 +60,7 @@ export default class InfoWindow extends Component {
             <h4>
               <T _str="Description" />
             </h4>
-            <p>{description}</p>
+            <p>{description ?? '−'}</p>
 
             <h4>
               <T _str="Source" />
@@ -85,6 +85,7 @@ export default class InfoWindow extends Component {
                     {lnk}
                   </a>
                 ))}
+              {!source && !link && !links && '−'}
             </div>
           </div>
         </div>

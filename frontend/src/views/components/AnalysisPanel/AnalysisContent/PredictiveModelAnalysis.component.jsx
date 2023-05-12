@@ -56,7 +56,7 @@ export const PredictiveModelAnalysis = ({
         analysisQuery={analysisQuery}
         analysisBody={model.analysisBody}
         name={model.name}
-        meta_short={model.name}
+        shortMeta={model.name}
         metadata={{ description, source }}
         geojson={geojson}
       />

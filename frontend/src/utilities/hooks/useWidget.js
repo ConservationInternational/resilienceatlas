@@ -36,13 +36,13 @@ export const useWidget = ({ slug, geojson }, { analysisQuery, analysisBody }) =>
 
   const rootWidgetProps = useCallback(
     () => ({
-      id: `widget-${slug}`,
+      id: `widget-${slug.replace(' ', '-')}`,
       className: cx('m-widget', {
         'is-loading': loading,
         loaded,
       }),
     }),
-    [loading],
+    [loading, loaded, slug],
   );
 
   const noData = !data || !data.rows || !data.rows.length;
