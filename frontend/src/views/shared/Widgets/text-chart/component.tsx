@@ -1,7 +1,6 @@
 import type { FC } from 'react';
 import { useMemo } from 'react';
-import { T } from '@transifex/react';
-import { t } from '@transifex/native';
+import { T, useT } from '@transifex/react';
 
 import InfoWindow from 'views/components/InfoWindow';
 import { useWidget } from 'utilities';
@@ -18,6 +17,8 @@ export const TextChart: FC<TextChartProps> = ({
   info,
   geojson,
 }: TextChartProps) => {
+  const t = useT();
+
   const { rootWidgetProps, loaded, data, noData } = useWidget(
     { slug, geojson },
     { analysisQuery, analysisBody },
