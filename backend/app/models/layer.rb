@@ -124,7 +124,8 @@ class Layer < ApplicationRecord
   with_options if: -> { analysis_suitable } do
     validates_presence_of :analysis_type
     validates_inclusion_of :analysis_type, in: %w[text], message: "analysis type has to be text for cartodb provider", if: -> { layer_provider.to_s == "cartodb" && analysis_suitable }
-    validates_inclusion_of :analysis_type, in: %w[histogram], message: "analysis type has to be histogram for cog provider", if: -> { layer_provider.to_s == "cog" && analysis_suitable }
+    validates_inclusion_of :analysis_type, in: %w[histogram categorical], message: "analysis type has to be histogram or categorical for cog provider", if: -> { layer_provider.to_s == "cog" && analysis_suitable }
+    validates_inclusion_of :analysis_type, in: %w[histogram], message: "analysis type has to be histogram", if: -> { !layer_provider.to_s.in?(%w[cartodb cog]) && analysis_suitable }
   end
   with_options if: -> { timeline } do
     validates_presence_of :timeline_period, :timeline_format, :timeline_default_date

@@ -199,7 +199,7 @@ RSpec.describe "Admin: Layers", type: :system do
       click_on "Create Layer"
 
       expect(page).to have_current_path(admin_layers_path)
-      expect(page).to have_text("analysis type has to be histogram for cog provider")
+      expect(page).to have_text("analysis type has to be histogram or categorical for cog provider")
     end
 
     it "shows errors when timeline steps are invalid" do

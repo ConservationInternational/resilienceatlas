@@ -88,16 +88,58 @@ RSpec.describe Layer, type: :model do
   context "when analysis is enabled" do
     subject { build :layer, analysis_suitable: true }
 
-    it "should not be valid when analysis type is not text for cartodb provider" do
+    it "should not be valid when analysis type is histogram for cartodb provider" do
       subject.layer_provider = "cartodb"
       subject.analysis_type = "histogram"
       expect(subject).to have(1).errors_on(:analysis_type)
     end
 
-    it "should not be valid when analysis type is not histogram for cog provider" do
+    it "should not be valid when analysis type is categorical for cartodb provider" do
+      subject.layer_provider = "cartodb"
+      subject.analysis_type = "categorical"
+      expect(subject).to have(1).errors_on(:analysis_type)
+    end
+
+    it "should be valid when analysis type is text for cartodb provider" do
+      subject.layer_provider = "cartodb"
+      subject.analysis_type = "text"
+      expect(subject).not_to have(1).errors_on(:analysis_type)
+    end
+
+    it "should not be valid when analysis type is text for cog provider" do
       subject.layer_provider = "cog"
       subject.analysis_type = "text"
       expect(subject).to have(1).errors_on(:analysis_type)
+    end
+
+    it "should be valid when analysis type is text for cog provider" do
+      subject.layer_provider = "cog"
+      subject.analysis_type = "histogram"
+      expect(subject).not_to have(1).errors_on(:analysis_type)
+    end
+
+    it "should be valid when analysis type is categorical for cog provider" do
+      subject.layer_provider = "cog"
+      subject.analysis_type = "categorical"
+      expect(subject).not_to have(1).errors_on(:analysis_type)
+    end
+
+    it "should not be valid when analysis type is text for raster provider" do
+      subject.layer_provider = "raster"
+      subject.analysis_type = "text"
+      expect(subject).to have(1).errors_on(:analysis_type)
+    end
+
+    it "should not be valid when analysis type is histogram for raster provider" do
+      subject.layer_provider = "raster"
+      subject.analysis_type = "categorical"
+      expect(subject).to have(1).errors_on(:analysis_type)
+    end
+
+    it "should be valid when analysis type is histogram for raster provider" do
+      subject.layer_provider = "raster"
+      subject.analysis_type = "histogram"
+      expect(subject).not_to have(1).errors_on(:analysis_type)
     end
   end
 
