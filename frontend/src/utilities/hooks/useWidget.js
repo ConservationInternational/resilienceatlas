@@ -4,17 +4,28 @@ import { useAxios } from './useAxios';
 
 const sqlApi = 'https://cdb-cdn.resilienceatlas.org/user/ra/api/v2/sql';
 
-export const useWidget = ({ slug, geojson }, { analysisQuery, analysisBody }) => {
+export const useWidget = ({ slug, geojson }, { type, analysisQuery, analysisBody }) => {
   const query = useMemo(() => {
     if (analysisBody) {
       const { assetId } = JSON.parse(analysisBody);
+      let parsedQuery = analysisQuery;
+
+      if (type === 'cog') {
+        const parsedBody = JSON.parse(analysisBody);
+        const { params } = parsedBody || {};
+        Object.entries(params).forEach(([key, value]) => {
+          parsedQuery = parsedQuery.replace(`{{${key}}}`, value);
+        });
+      }
 
       return {
         method: 'post',
-        url: analysisQuery,
+        url: parsedQuery,
         data: {
           assetId,
-          geometry: L.geoJSON(geojson).toGeoJSON(),
+          ...(type === 'cog'
+            ? { ...L.geoJSON(geojson).toGeoJSON() }
+            : { geometry: L.geoJSON(geojson).toGeoJSON() }),
         },
       };
     }
@@ -30,7 +41,7 @@ export const useWidget = ({ slug, geojson }, { analysisQuery, analysisBody }) =>
         q,
       },
     };
-  }, [geojson, analysisQuery, analysisBody]);
+  }, [analysisBody, geojson, analysisQuery, type]);
 
   const [data, loading, loaded] = useAxios(query, [query]);
 

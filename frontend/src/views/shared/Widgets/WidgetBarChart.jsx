@@ -23,10 +23,11 @@ export const WidgetBarChart = ({
   info,
   legend,
   geojson,
+  type,
 }) => {
   const { rootWidgetProps, loaded, data, noData } = useWidget(
     { slug, geojson },
-    { analysisQuery, analysisBody },
+    { type, analysisQuery, analysisBody },
   );
 
   const { unit, bar_color } = useMemo(() => JSON.parse(legend), [legend]);
