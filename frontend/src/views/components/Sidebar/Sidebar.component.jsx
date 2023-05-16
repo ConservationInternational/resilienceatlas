@@ -53,7 +53,7 @@ const Sidebar = ({
   );
 
   const handleFeedbackBtnClick = () => {
-    const goBackString = translations['Go back to map'] || 'Go back to map';
+    const goBackString = translations['Go back to map'];
     router.push(
       `feedback/?returnPath=${encodeURIComponent(router.asPath)}&returnText=${encodeURIComponent(
         goBackString,
