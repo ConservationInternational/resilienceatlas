@@ -42,6 +42,8 @@ $white: #fff;
 $white-medium: #eee;
 $black: #000;
 $black-charcoal: #222;
+$lighter-blue: #D6F6FF;
+$light-blue: #f1fcff;
 $blue: #0089cc;
 $theme-color-default: #ddd;
 $gray: #555;
@@ -51,6 +53,7 @@ $gray-5: #f6f6f6;
 $gray-6: #e9e9e9;
 $gray-7: #d1d1d1;
 $gray-70: #555555;
+$light-red: #E80202;
 $red: #b0003a;
 
 /*
@@ -62,11 +65,13 @@ $bg-color-3: $gray-light;
 $bg-color-4: $gray-medium;
 $bg-color-5: $black;
 $bg-color-6: $white-medium;
+$bg-color-5: $light-blue;
 
 $font-color-1: $gray;
 $font-color-2: $theme-color-default;
 $font-color-3: $white;
 $font-color-4: $black-charcoal;
+$font-color-5: $blue;
 
 /*
   Animations --> provisonal aquí para poder probarlas.
