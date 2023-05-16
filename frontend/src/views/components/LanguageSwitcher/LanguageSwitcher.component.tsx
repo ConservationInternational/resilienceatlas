@@ -4,6 +4,7 @@ import localesJson from 'locales.config.json';
 import cx from 'classnames';
 import { useRouter } from 'next/router';
 import { useCookies } from 'react-cookie';
+import { tx } from '@transifex/native';
 
 const LANGUAGE_LABELS = localesJson.locales.reduce((acc, locale) => {
   acc[locale.locale] = locale.name;
@@ -18,9 +19,12 @@ function LanguageSwitcher({ translations }) {
       // Set a cookie for 1 year so that the user preference is kept
       setCookie('NEXT_LOCALE', `${locale}; path=/; max-age=31536000; secure`);
 
-      const { pathname, asPath, query } = router;
-      // change just the locale and maintain all other route information including href's query
-      router.push({ pathname, query }, asPath, { locale });
+      // We need to change the transifex locale first to avoid transifex native library race conditions
+      tx.setCurrentLocale(locale).then(() => {
+        const { pathname, asPath, query } = router;
+        // change just the locale and maintain all other route information including href's query
+        router.push({ pathname, query }, asPath, { locale });
+      });
     },
     [router, setCookie],
   );

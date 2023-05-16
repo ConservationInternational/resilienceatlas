@@ -12,6 +12,7 @@ import LinkButton from 'views/shared/LinkButton';
 import Tabs from 'views/shared/Tabs';
 
 import { useRouterParams } from 'utilities';
+import { subdomain } from 'utilities/getSubdomain';
 
 // SSR translated strings
 export const TABS = {
@@ -50,6 +51,18 @@ const Sidebar = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [tab],
   );
+
+  const handleFeedbackBtnClick = () => {
+    const goBackString = translations['Go back to map'];
+    router.push(
+      `feedback/?returnPath=${encodeURIComponent(router.asPath)}&returnText=${encodeURIComponent(
+        goBackString,
+      )}`,
+      'feedback',
+    );
+  };
+
+  const displayFeedbackButton = !subdomain;
 
   return (
     <div
@@ -151,6 +164,11 @@ const Sidebar = ({
           </button>
         )}
         <LogoAttribution />
+        {displayFeedbackButton && (
+          <button className="btn-map-feedback" type="button" onClick={handleFeedbackBtnClick}>
+            <T _str="Feedback" />
+          </button>
+        )}
       </div>
     </div>
   );

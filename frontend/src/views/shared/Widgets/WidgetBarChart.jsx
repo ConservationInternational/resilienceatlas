@@ -19,7 +19,7 @@ export const WidgetBarChart = ({
   slug,
   analysisQuery,
   analysisBody,
-  meta_short,
+  shortMeta,
   info,
   legend,
   geojson,
@@ -123,9 +123,9 @@ export const WidgetBarChart = ({
               </ul>
             )}
 
-            {meta_short && (
+            {shortMeta && (
               <div className="meta-short">
-                {meta_short}
+                {shortMeta}
 
                 {!noData && <DownloadCsv data={data} name={slug} />}
 
