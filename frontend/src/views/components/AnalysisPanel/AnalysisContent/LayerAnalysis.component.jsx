@@ -1,6 +1,7 @@
 import React from 'react';
 import { WidgetBarChart } from 'views/shared/Widgets/WidgetBarChart';
 import { T } from '@transifex/react';
+import TextChart from 'views/shared/Widgets/text-chart/component';
 
 export const LayerAnalysis = ({
   responsiveCharts,
@@ -39,21 +40,41 @@ export const LayerAnalysis = ({
 
   return (
     <div className="analysis-content">
-      {analyzable.map((l) => (
-        <WidgetBarChart
-          key={l.slug}
-          responsive={responsiveCharts}
-          slug={l.slug}
-          type={l.type}
-          analysisQuery={l.analysisQuery}
-          analysisBody={l.analysisBody}
-          name={l.name}
-          meta_short={l.name}
-          legend={l.legend}
-          info={l.info}
-          geojson={geometry}
-        />
-      ))}
+      {analyzable.map((l) => {
+        switch (l.analysisType) {
+          case 'text':
+            return (
+              <TextChart
+                key={l.slug}
+                slug={l.slug}
+                analysisQuery={l.analysisQuery}
+                analysisBody={l.analysisBody}
+                analysisTextTemplate={l.analysisTextTemplate}
+                name={l.name}
+                shortMeta={l.name}
+                info={l.info}
+                geojson={geometry}
+              />
+            );
+          case 'histogram':
+          default:
+            return (
+              <WidgetBarChart
+                key={l.slug}
+                responsive={responsiveCharts}
+                slug={l.slug}
+                type={l.type}
+                analysisQuery={l.analysisQuery}
+                analysisBody={l.analysisBody}
+                name={l.name}
+                shortMeta={l.name}
+                legend={l.legend}
+                info={l.info}
+                geojson={geometry}
+              />
+            );
+        }
+      })}
 
       {activeLayers.length !== analyzable.length && (
         <p>

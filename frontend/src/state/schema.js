@@ -129,8 +129,10 @@ export const layer = new schema.Entity(
         dataset_source_url: l.attributes.dataset_source_url || null,
         sourceIds: sourcesIds && sourcesIds.length ? sourcesIds : null,
         analysisSuitable: l.attributes.analysis_suitable,
+        analysisType: l.attributes.analysis_type,
         analysisQuery: l.attributes.analysis_query,
         analysisBody: l.attributes.analysis_body,
+        analysisTextTemplate: l.attributes.analysis_text_template,
         layerProvider: l.attributes.layer_provider,
         // Layer manager params
         provider: provider[l.attributes.layer_provider],

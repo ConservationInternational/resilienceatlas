@@ -119,6 +119,12 @@
     height: 220px;
   }
 
+  .widget-text-chart {
+    margin: 12px 0 23px;
+    padding: 0 16px;
+    font-size: rem(20px);
+  }
+
   &__stats {
     font-size: rem(13px);
     color: $gray-70;

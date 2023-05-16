@@ -32,14 +32,14 @@ export const getPublished = createSelector([getAllIds, getById], (all, layers) =
 
 const getInfo = (sourcesById, layer) => {
   const { description, sourceIds } = layer;
-  let info = { description };
+  let info = description ? { description } : null;
   if (!sourceIds || !sourceIds[0]) return info;
 
   const id = sourceIds[0];
   if (!sourcesById[id]) return info;
   const { reference_short, url } = sourcesById[id];
   return {
-    ...info,
+    ...(info ?? {}),
     source: reference_short,
     link: url,
   };
