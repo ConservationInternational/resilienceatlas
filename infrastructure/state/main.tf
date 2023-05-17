@@ -1,10 +1,13 @@
 resource "aws_s3_bucket" "terraform-state-bucket" {
-  bucket = "resilience-atlas-terraform-state"
+  bucket = "resilienceatlas-terraform-state"
 }
 
-resource "aws_s3_bucket_acl" "terraform-state-bucket-acl" {
+resource "aws_s3_bucket_ownership_controls" "terraform-state-bucket-ownership-controls" {
   bucket = aws_s3_bucket.terraform-state-bucket.id
-  acl    = "private"
+
+  rule {
+    object_ownership = "BucketOwnerEnforced"
+  }
 }
 
 resource "aws_s3_bucket_versioning" "terraform-state-bucket-versioning" {
