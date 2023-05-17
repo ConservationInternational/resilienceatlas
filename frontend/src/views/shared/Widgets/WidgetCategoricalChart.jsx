@@ -6,7 +6,7 @@ import { T } from '@transifex/react';
 
 import { useWidget, formatNumber } from 'utilities';
 import { CustomTooltip } from './CustomTooltip';
-// import DownloadCsv from './DownloadCsv';
+import DownloadCsv from './DownloadCsv';
 
 const DownloadImageNoSSR = dynamic(() => import('./DownloadImage'), { ssr: false });
 
@@ -57,11 +57,19 @@ export const WidgetCategoricalChart = ({
 
   const { unit, data: legendData } = useMemo(() => JSON.parse(legend), [legend]);
   const mergedBarData = useMemo(() => {
-    return data?.rows?.map((d) => {
-      const legendItem = legendData.find((l) => l.mappingValue === d.mappingValue);
-      return { count: d.count, color: legendItem?.value, name: legendItem?.name };
-    });
+    return data?.rows
+      ?.map((d) => {
+        const legendItem = legendData.find((l) => l.mappingValue === d.mappingValue);
+        return { count: d.count, color: legendItem?.value, name: legendItem?.name };
+      })
+      .sort((a, b) => b.count - a.count);
   }, [data, legendData]);
+  const downloadData = useMemo(() => {
+    return {
+      fields: ['name', 'count'],
+      rows: mergedBarData?.map((d) => ({ name: d.name, count: d.count })),
+    };
+  }, [mergedBarData]);
 
   const height = useMemo(() => mergedBarData?.length * BAR_HEIGHT + 50, [mergedBarData]);
   const width = responsive ? 670 : 400;
@@ -155,7 +163,7 @@ export const WidgetCategoricalChart = ({
             {shortMeta && (
               <div className="meta-short">
                 {shortMeta}
-                {/* {!noData && <DownloadCsv data={data} name={slug} />} */}
+                {!noData && <DownloadCsv data={downloadData} name={slug} />}
                 {analysisBody && (
                   <DownloadImageNoSSR analysisBody={analysisBody} geojson={geojson} />
                 )}
