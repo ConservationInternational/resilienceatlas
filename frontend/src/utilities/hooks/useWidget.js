@@ -42,7 +42,7 @@ export const useWidget = ({ slug, geojson }, { type, analysisQuery, analysisBody
         q,
       },
     };
-  }, [analysisBody, geojson, analysisQuery, type]);
+  }, [analysisBody, geojson, analysisQuery, isCOGLayer]);
 
   const [data, loading, loaded] = useAxios(query, [query]);
 
