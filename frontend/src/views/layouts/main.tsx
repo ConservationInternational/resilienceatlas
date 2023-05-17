@@ -9,6 +9,7 @@ import { useRouter } from 'next/router';
 import Head from './_head';
 import Header from './_header';
 import Footer from './_footer';
+import Icons from './_icons';
 import type { TypedT } from 'types/transifex';
 
 type MainLayoutProps = React.PropsWithChildren & {
@@ -48,6 +49,7 @@ const MainLayout: React.FC<MainLayoutProps> = (props) => {
       <div className="l-main-fullscreen">{children}</div>
       <Footer />
       <PrivacyBanner />
+      <Icons />
     </div>
   );
 };
