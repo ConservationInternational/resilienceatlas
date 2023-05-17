@@ -1,5 +1,6 @@
 import React from 'react';
 import { WidgetBarChart } from 'views/shared/Widgets/WidgetBarChart';
+import { WidgetCategoricalChart } from 'views/shared/Widgets/WidgetCategoricalChart';
 import { T } from '@transifex/react';
 import TextChart from 'views/shared/Widgets/text-chart/component';
 
@@ -52,6 +53,22 @@ export const LayerAnalysis = ({
                 analysisTextTemplate={l.analysisTextTemplate}
                 name={l.name}
                 shortMeta={l.name}
+                info={l.info}
+                geojson={geometry}
+              />
+            );
+          case 'categorical':
+            return (
+              <WidgetCategoricalChart
+                key={l.slug}
+                responsive={responsiveCharts}
+                slug={l.slug}
+                type={l.type}
+                analysisQuery={l.analysisQuery}
+                analysisBody={l.analysisBody}
+                name={l.name}
+                shortMeta={l.name}
+                legend={l.legend}
                 info={l.info}
                 geojson={geometry}
               />

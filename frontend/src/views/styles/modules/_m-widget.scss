@@ -85,6 +85,19 @@
     }
   }
 
+  .categories {
+    font-size: rem(11px);
+  }
+
+  .categorical-labels {
+    font-size: rem(11px);
+  }
+
+  .categorical-x-axis-label {
+    font-size: rem(11px);
+    fill: $gray-medium;
+  }
+
   .widget-no-data {
     display: flex;
     align-items: center;
@@ -103,6 +116,12 @@
     margin-left: 16px;
     position: relative;
     padding-top: 2px;
+  }
+
+  .with-ellipsis {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
   }
 
   .btn-analysis {

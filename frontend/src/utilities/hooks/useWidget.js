@@ -5,12 +5,13 @@ import { useAxios } from './useAxios';
 const sqlApi = 'https://cdb-cdn.resilienceatlas.org/user/ra/api/v2/sql';
 
 export const useWidget = ({ slug, geojson }, { type, analysisQuery, analysisBody }) => {
+  const isCOGLayer = useMemo(() => type === 'cog', [type]);
   const query = useMemo(() => {
     if (analysisBody) {
       const { assetId } = JSON.parse(analysisBody);
       let parsedQuery = analysisQuery;
 
-      if (type === 'cog') {
+      if (isCOGLayer) {
         const parsedBody = JSON.parse(analysisBody);
         const { params } = parsedBody || {};
         Object.entries(params).forEach(([key, value]) => {
@@ -23,7 +24,7 @@ export const useWidget = ({ slug, geojson }, { type, analysisQuery, analysisBody
         url: parsedQuery,
         data: {
           assetId,
-          ...(type === 'cog'
+          ...(isCOGLayer
             ? { ...L.geoJSON(geojson).toGeoJSON() }
             : { geometry: L.geoJSON(geojson).toGeoJSON() }),
         },
@@ -56,13 +57,26 @@ export const useWidget = ({ slug, geojson }, { type, analysisQuery, analysisBody
     [loading, loaded, slug],
   );
 
-  const noData = !data || !data.rows || !data.rows.length;
+  const noData =
+    !data ||
+    (isCOGLayer ? !data.features || !data.features.length : !data.rows || !data.rows.length);
 
+  let parsedData = data;
+  if (isCOGLayer) {
+    const statistics = data?.features?.[0]?.properties?.statistics;
+    const firstColumn = statistics && Object.values(statistics)?.[0];
+    const { histogram } = firstColumn || {};
+    const rows = histogram?.[0].map((count, i) => ({
+      mappingValue: histogram[1][i],
+      count,
+    }));
+    parsedData = { rows, stats: firstColumn };
+  }
   return {
     rootWidgetProps,
     loaded,
     loading,
-    data,
+    data: parsedData,
     noData,
   };
 };
