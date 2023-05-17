@@ -23,7 +23,7 @@
     = f.inputs "Layer", class: "inputs select-dependency-container" do
       = f.input :layer_provider, as: :select, collection: ["cartodb", "cog", "gee", "xyz tileset", "raster"], input_html: {class: "select-dependency-controller"}, required: true
       span class="select-dependency-field" style="margin: 0 10px;font-size: small;display: block;" data-available-for=["cartodb", "xyz tileset", "cog"]
-        = " If the layer has a timeline, {year}, {month} and {day} will be substituted with the corresponding values. Note that these values could be an empty string depending on the period choice (yearly, monthly or daily)."
+        = "If the layer has a timeline, {{year}}, {{month}} and {{day}} will be substituted with the corresponding values. Note that these values could be an empty string depending on the period choice (yearly, monthly or daily)."
       = f.input :query, wrapper_html: {class: "select-dependency-field", data: {available_for: %w[cartodb raster]}}
       = f.input :css, wrapper_html: {class: "select-dependency-field", data: {available_for: %w[cartodb raster]}}
       = f.input :opacity, wrapper_html: {class: "select-dependency-field", data: {available_for: %w[cartodb raster]}}
