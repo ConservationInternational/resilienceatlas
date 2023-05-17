@@ -8,6 +8,8 @@ infrastructure/!base/vars/terraform.tfvars
 
 infrastructure/state/.terraform
 infrastructure/state/vars/*
+infrastructure/state/terraform.tfstate
+infrastructure/state/terraform.tfstate.backup
 infrastructure/!state/vars/terraform.tfvars
 
 .aws-sam
