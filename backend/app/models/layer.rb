@@ -135,10 +135,7 @@ class Layer < ApplicationRecord
     validates_presence_of :layer_config
   end
 
-  scope :site, ->(site) {
-                 eager_load([layer_groups: :super_group])
-                   .where(layer_groups: {site_scope_id: site})
-               }
+  scope :site, ->(site) { left_joins(layer_groups: :super_group).where(layer_groups: {site_scope_id: site}) }
 
   def self.fetch_all(options = {})
     site_scope = if options[:site_scope]

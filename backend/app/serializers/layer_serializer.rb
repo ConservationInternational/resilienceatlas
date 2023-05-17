@@ -73,17 +73,13 @@ class LayerSerializer < ActiveModel::Serializer
     "layers"
   end
 
-  def sources
-    object.sources
-  end
-
   def layer_group
-    object.layer_groups.where(site_scope_id: instance_options[:site_scope]).first
+    object.layer_groups.find { |r| r.site_scope_id == instance_options[:site_scope] }
   end
 
   def agrupation
     return if layer_group.blank?
-    object.agrupations.where(layer_id: object.id, layer_group_id: layer_group.id).first
+    object.agrupations.find { |r| r.layer_id == object.id && r.layer_group_id == layer_group.id }
   end
 
   def timeline_steps
