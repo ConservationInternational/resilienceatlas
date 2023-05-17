@@ -7,7 +7,7 @@ module Api
       include SitesFilters
 
       def index
-        @layers = Layer.fetch_all(layers_params).includes :sources, :agrupations, layer_groups: :super_group
+        @layers = Layer.fetch_all(layers_params).includes :agrupations, sources: :translations, layer_groups: [:translations, super_group: :translations]
         render json: @layers, meta: {total_layers: @layers.size}, include: ["layer_groups", "sources"], site_scope: layers_params[:site_scope].to_i
       end
 
