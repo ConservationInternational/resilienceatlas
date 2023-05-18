@@ -29,8 +29,27 @@ export const WidgetBarChart = ({
     { slug, geojson },
     { type, analysisQuery, analysisBody },
   );
-
   const { unit, bar_color } = useMemo(() => JSON.parse(legend), [legend]);
+  const isCOG = useMemo(() => type === 'cog', [type]);
+
+  const mergedBarData = useMemo(() => {
+    return isCOG
+      ? data?.rows
+          ?.map((d) => {
+            return { count: d.count, min: d.mappingValue };
+          })
+          .sort((a, b) => a.min - b.min)
+      : data?.rows;
+  }, [data, isCOG]);
+
+  const downloadData = useMemo(() => {
+    return isCOG
+      ? {
+          fields: ['name', 'count'],
+          rows: mergedBarData?.map((d) => ({ name: d.name, min: d.count })),
+        }
+      : data;
+  }, [mergedBarData, isCOG, data]);
 
   return (
     <div {...rootWidgetProps()}>
@@ -45,7 +64,7 @@ export const WidgetBarChart = ({
         ) : (
           <>
             <ResponsiveContainer width={responsive ? 670 : 400} height={responsive ? 300 : 240}>
-              <BarChart data={data.rows} margin={{ top: 40, bottom: 50 }}>
+              <BarChart data={mergedBarData} margin={{ top: 40, bottom: 50 }}>
                 <CartesianGrid vertical={false} strokeDasharray="2 2" />
                 <XAxis
                   dataKey="min"
@@ -58,7 +77,7 @@ export const WidgetBarChart = ({
                   tickFormatter={(value) =>
                     formatNumber({
                       value,
-                      minimumFractionDigits: 1,
+                      minimumFractionDigits: isCOG ? 0 : 1,
                       maximumFractionDigits: 1,
                     })
                   }
@@ -128,7 +147,7 @@ export const WidgetBarChart = ({
               <div className="meta-short">
                 {shortMeta}
 
-                {!noData && <DownloadCsv data={data} name={slug} />}
+                {!noData && <DownloadCsv data={downloadData} name={slug} />}
 
                 {analysisBody && (
                   <DownloadImageNoSSR analysisBody={analysisBody} geojson={geojson} />
