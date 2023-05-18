@@ -77,7 +77,7 @@ export const WidgetBarChart = ({
                   tickFormatter={(value) =>
                     formatNumber({
                       value,
-                      minimumFractionDigits: isCOG ? 0 : 1,
+                      minimumFractionDigits: 1,
                       maximumFractionDigits: 1,
                     })
                   }
@@ -101,7 +101,9 @@ export const WidgetBarChart = ({
                   padding={{ right: 20 }}
                 />
 
-                <Tooltip content={<CustomTooltip unit={unit} />} />
+                <Tooltip
+                  content={<CustomTooltip unit={unit} minimumFractionDigits={isCOG && 0} />}
+                />
                 <Bar
                   barSize={responsive ? 18 : 12}
                   dataKey="count"
