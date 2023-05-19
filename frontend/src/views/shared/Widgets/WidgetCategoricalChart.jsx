@@ -4,7 +4,7 @@ import { ResponsiveContainer, BarChart, XAxis, YAxis, Bar, Rectangle, Tooltip } 
 import InfoWindow from 'views/components/InfoWindow';
 import { T } from '@transifex/react';
 
-import { useWidget, formatNumber } from 'utilities';
+import { useWidget } from 'utilities';
 import { CustomTooltip } from './CustomTooltip';
 import DownloadCsv from './DownloadCsv';
 
@@ -31,7 +31,6 @@ const CustomBar = (props) => {
         y={y + barHeight / 2 + RECTANGLE_PADDING}
         height={barHeight - barHeight / 2}
       />
-      ;
     </g>
   );
 };
@@ -65,9 +64,10 @@ export const WidgetCategoricalChart = ({
       .sort((a, b) => b.count - a.count);
   }, [data, legendData]);
   const downloadData = useMemo(() => {
+    const escapeCommasForCsv = (text) => `"${text}"`;
     return {
-      fields: ['name', 'count'],
-      rows: mergedBarData?.map((d) => ({ name: d.name, count: d.count })),
+      fields: { name: 'name', count: 'count' },
+      rows: mergedBarData?.map((d) => ({ name: escapeCommasForCsv(d.name), count: d.count })),
     };
   }, [mergedBarData]);
 
@@ -126,40 +126,6 @@ export const WidgetCategoricalChart = ({
                 <Bar dataKey="count" unit={unit} shape={<CustomBar chartWidth={width} />} />
               </BarChart>
             </ResponsiveContainer>
-
-            {data.stats && (
-              <ul className="m-widget__stats">
-                <li className="stats-item">
-                  <span className="stats-item__label">
-                    <T _str="Max:" _comment="Max number on the widget bar chart" />{' '}
-                  </span>
-                  {formatNumber({ value: data.stats.max })}&nbsp;
-                  {unit}
-                </li>
-                <li className="stats-item">
-                  <span className="stats-item__label">
-                    <T _str="Min:" _comment="Min number on the widget bar chart" />{' '}
-                  </span>
-                  {formatNumber({ value: data.stats.min })}&nbsp;
-                  {unit}
-                </li>
-                <li className="stats-item">
-                  <span className="stats-item__label">
-                    <T _str="Std. deviation:" _comment="Std. deviation: on the widget bar chart" />{' '}
-                  </span>
-                  {formatNumber({ value: data.stats.std })}&nbsp;
-                  {unit}
-                </li>
-                <li className="stats-item">
-                  <span className="stats-item__label">
-                    <T _str="Sum:" _comment="Sum: on the widget bar chart" />{' '}
-                  </span>
-                  {formatNumber({ value: data.stats.sum })}&nbsp;
-                  {unit}
-                </li>
-              </ul>
-            )}
-
             {shortMeta && (
               <div className="meta-short">
                 {shortMeta}
