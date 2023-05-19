@@ -122,10 +122,17 @@ const MapView = (props: MapViewProps) => {
   }, [activeLayers]);
 
   const getCenter = useCallback(() => {
+    const DEFAULT_CENTER = { lat: 3.86, lng: 47.28 };
     if (query.center) {
       const decodeCenter = decodeURIComponent(query.center as string);
       if (decodeCenter && decodeCenter[0] === '{') {
-        return JSON.parse(decodeCenter);
+        try {
+          return JSON.parse(decodeCenter);
+        } catch (error) {
+          // eslint-disable-next-line no-console
+          console.error('Error parsing center', decodeCenter, error);
+          return DEFAULT_CENTER;
+        }
       }
       const center = qs.parse(query.center);
       return center;
@@ -135,7 +142,7 @@ const MapView = (props: MapViewProps) => {
       return { lat: site.latitude, lng: site.longitude };
     }
 
-    return { lat: 3.86, lng: 47.28 };
+    return DEFAULT_CENTER;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [site.latitude, query.center]);
 
