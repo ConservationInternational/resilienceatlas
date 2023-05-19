@@ -3,7 +3,7 @@ import React, { useMemo } from 'react';
 import { ResponsiveContainer, BarChart, XAxis, YAxis, Bar, Rectangle, Tooltip } from 'recharts';
 import InfoWindow from 'views/components/InfoWindow';
 import { T } from '@transifex/react';
-
+import { escapeCommasForCsv } from 'utilities/helpers';
 import { useWidget } from 'utilities';
 import { CustomTooltip } from './CustomTooltip';
 import DownloadCsv from './DownloadCsv';
@@ -64,7 +64,6 @@ export const WidgetCategoricalChart = ({
       .sort((a, b) => b.count - a.count);
   }, [data, legendData]);
   const downloadData = useMemo(() => {
-    const escapeCommasForCsv = (text) => `"${text}"`;
     return {
       fields: { name: 'name', count: 'count' },
       rows: mergedBarData?.map((d) => ({ name: escapeCommasForCsv(d.name), count: d.count })),

@@ -147,3 +147,5 @@ export function hexToRGB(hex, alpha) {
 }
 
 export const toBackendLocale = (locale) => locale && locale.replace('_', '-');
+
+export const escapeCommasForCsv = (text) => `"${text}"`;

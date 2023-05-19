@@ -45,8 +45,11 @@ export const WidgetBarChart = ({
   const downloadData = useMemo(() => {
     return isCOG
       ? {
-          fields: ['name', 'count'],
-          rows: mergedBarData?.map((d) => ({ name: d.name, min: d.count })),
+          fields: { value: 'value', count: 'count' },
+          rows: mergedBarData?.map((d) => ({
+            name: d.min,
+            min: d.count,
+          })),
         }
       : data;
   }, [mergedBarData, isCOG, data]);
