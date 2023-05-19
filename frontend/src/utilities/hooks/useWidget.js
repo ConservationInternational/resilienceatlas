@@ -8,15 +8,14 @@ export const useWidget = ({ slug, geojson }, { type, analysisQuery, analysisBody
   const isCOGLayer = useMemo(() => type === 'cog', [type]);
   const query = useMemo(() => {
     if (analysisBody) {
-      const { assetId } = JSON.parse(analysisBody);
+      const { assetId, params } = JSON.parse(analysisBody);
       let parsedQuery = analysisQuery;
 
-      if (isCOGLayer) {
-        const parsedBody = JSON.parse(analysisBody);
-        const { params } = parsedBody || {};
-        Object.entries(params).forEach(([key, value]) => {
-          parsedQuery = parsedQuery.replace(`{{${key}}}`, value);
-        });
+      if (isCOGLayer && params && typeof params === 'object') {
+        params &&
+          Object.entries(params).forEach(([key, value]) => {
+            parsedQuery = parsedQuery.replace(`{{${key}}}`, value);
+          });
       }
 
       return {
