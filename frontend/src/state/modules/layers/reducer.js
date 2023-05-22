@@ -1,5 +1,13 @@
 import { createReducer } from '../../utils';
-import { LOAD, SET_ACTIVES, TOGGLE, SET_OPACITY, REORDER, SET_CHART_LIMIT } from './actions';
+import {
+  LOAD,
+  SET_ACTIVES,
+  TOGGLE,
+  SET_OPACITY,
+  REORDER,
+  SET_CHART_LIMIT,
+  SET_DATE,
+} from './actions';
 import { getPersistedLayers } from './utils';
 
 const persistedLayers = getPersistedLayers();
@@ -103,6 +111,16 @@ export default createReducer(initialState)({
       [id]: {
         ...state.byId[id],
         opacity,
+      },
+    },
+  }),
+  [SET_DATE]: (state, { id, date }) => ({
+    ...state,
+    byId: {
+      ...state.byId,
+      [id]: {
+        ...state.byId[id],
+        date,
       },
     },
   }),
