@@ -16,7 +16,7 @@ const LegendTimeline = ({ timeline, layerName, setDate, selected }: LegendTimeli
     const resolutionPeriods = {
       yearly: 'year',
       monthly: 'month',
-      dayly: 'day',
+      daily: 'day',
     };
     return resolutionPeriods[period];
   }, [period]);
