@@ -12,10 +12,9 @@ export const useWidget = ({ slug, geojson }, { type, analysisQuery, analysisBody
       let parsedQuery = analysisQuery;
 
       if (isCOGLayer && params && typeof params === 'object') {
-        params &&
-          Object.entries(params).forEach(([key, value]) => {
-            parsedQuery = parsedQuery.replace(`{{${key}}}`, value);
-          });
+        Object.entries(params).forEach(([key, value]) => {
+          parsedQuery = parsedQuery.replace(`{{${key}}}`, value);
+        });
       }
 
       return {
