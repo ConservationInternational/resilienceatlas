@@ -108,13 +108,13 @@ const MapView = (props: MapViewProps) => {
   }, [layersLoaded, layerGroupsLoaded]);
 
   useEffect(() => {
-    const hash = activeLayers.map(({ id, opacity, chartLimit, order }) => ({
+    const hash = activeLayers.map(({ id, opacity, chartLimit, order, date }) => ({
       id,
       opacity,
       order,
       chartLimit,
+      date,
     }));
-
     if (layersLoaded) {
       setParam('layers', JSON.stringify(hash));
     }
