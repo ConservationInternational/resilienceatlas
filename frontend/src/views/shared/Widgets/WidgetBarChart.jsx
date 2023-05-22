@@ -23,13 +23,36 @@ export const WidgetBarChart = ({
   info,
   legend,
   geojson,
+  type,
 }) => {
   const { rootWidgetProps, loaded, data, noData } = useWidget(
     { slug, geojson },
-    { analysisQuery, analysisBody },
+    { type, analysisQuery, analysisBody },
   );
-
   const { unit, bar_color } = useMemo(() => JSON.parse(legend), [legend]);
+  const isCOG = useMemo(() => type === 'cog', [type]);
+
+  const mergedBarData = useMemo(() => {
+    return isCOG
+      ? data?.rows
+          ?.map((d) => {
+            return { count: d.count, min: d.mappingValue };
+          })
+          .sort((a, b) => a.min - b.min)
+      : data?.rows;
+  }, [data, isCOG]);
+
+  const downloadData = useMemo(() => {
+    return isCOG
+      ? {
+          fields: { value: 'value', count: 'count' },
+          rows: mergedBarData?.map((d) => ({
+            name: d.min,
+            min: d.count,
+          })),
+        }
+      : data;
+  }, [mergedBarData, isCOG, data]);
 
   return (
     <div {...rootWidgetProps()}>
@@ -44,7 +67,7 @@ export const WidgetBarChart = ({
         ) : (
           <>
             <ResponsiveContainer width={responsive ? 670 : 400} height={responsive ? 300 : 240}>
-              <BarChart data={data.rows} margin={{ top: 40, bottom: 50 }}>
+              <BarChart data={mergedBarData} margin={{ top: 40, bottom: 50 }}>
                 <CartesianGrid vertical={false} strokeDasharray="2 2" />
                 <XAxis
                   dataKey="min"
@@ -81,7 +104,9 @@ export const WidgetBarChart = ({
                   padding={{ right: 20 }}
                 />
 
-                <Tooltip content={<CustomTooltip unit={unit} />} />
+                <Tooltip
+                  content={<CustomTooltip unit={unit} minimumFractionDigits={isCOG && 0} />}
+                />
                 <Bar
                   barSize={responsive ? 18 : 12}
                   dataKey="count"
@@ -127,7 +152,7 @@ export const WidgetBarChart = ({
               <div className="meta-short">
                 {shortMeta}
 
-                {!noData && <DownloadCsv data={data} name={slug} />}
+                {!noData && <DownloadCsv data={downloadData} name={slug} />}
 
                 {analysisBody && (
                   <DownloadImageNoSSR analysisBody={analysisBody} geojson={geojson} />
