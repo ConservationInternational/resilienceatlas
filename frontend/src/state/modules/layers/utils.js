@@ -1,4 +1,6 @@
 import { normalize } from 'normalizr';
+import { timeParse } from 'd3-time-format';
+import { replace } from 'resilience-layer-manager';
 
 import { getRouterParam } from 'utilities';
 
@@ -12,3 +14,43 @@ export const getPersistedLayers = () => {
 
 export const getActiveFromDefaults = (defaults) => (g) =>
   typeof g.active === 'undefined' ? defaults.some((id) => id === g.id) : g.active;
+
+export const parseDates = (layer) => {
+  const { timeline, date } = layer;
+  if (!timeline) return layer;
+
+  const getDateParams = (timeline, date) => {
+    const parseDate = timeParse(timeline.format);
+    const selectedDate = !!date ? parseDate(date) : timeline.defaultDate;
+    return {
+      day: selectedDate.getDate(),
+      month: String(selectedDate.getMonth() + 1).padStart(2, '0'), // Months need to have 2 digits
+      year: selectedDate.getFullYear(),
+    };
+  };
+  const replaceDates = (str) => replace(str, getDateParams(timeline, date));
+  const { layerConfig } = layer;
+  return {
+    ...layer,
+    analysisBody: layer.analysisBody && replaceDates(layer.analysisBody),
+    interactionConfig: layer.interactionConfig && replaceDates(layer.interactionConfig),
+    layerConfig: {
+      ...layerConfig,
+      body: {
+        ...layerConfig.body,
+        url: layerConfig?.body?.url && replaceDates(layerConfig.body.url),
+        layers:
+          layer.type === 'cartodb' &&
+          layerConfig?.body?.layers?.map((l) => ({
+            ...l,
+            // Carto Layers
+            options: l.options && {
+              ...l.options,
+              cartocss: l.options.cartocss && replaceDates(l.options.cartocss),
+              sql: l.options.sql && replaceDates(l.options.sql),
+            },
+          })),
+      },
+    },
+  };
+};

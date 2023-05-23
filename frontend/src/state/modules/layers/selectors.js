@@ -1,7 +1,7 @@
 import { createSelector } from 'reselect';
 import { denormalize } from 'normalizr';
-
 import { sortBy } from 'utilities/helpers';
+import { parseDates, getActiveFromDefaults } from './utils';
 
 import {
   getById as getGroupsById,
@@ -11,7 +11,6 @@ import {
   getSubGroups,
 } from '../layer_groups';
 import { layer } from '../../schema';
-import { getActiveFromDefaults } from './utils';
 
 const byDashboardOrder = sortBy('dashboard_order');
 const getOpacityText = (v) => parseInt(v * 100, 10);
@@ -54,7 +53,7 @@ export const makeActives = () =>
       return activeLayers
         .filter((activeLayer) => !!activeLayer)
         .map((layer) => ({
-          ...layer,
+          ...parseDates(layer),
           info: getInfo(sourcesById, layer),
         }));
     },
@@ -118,13 +117,15 @@ export const getGrouped = () => {
           info: getInfo(sourcesById, layer),
         });
 
+        const parseLayer = (layer) => ({
+          ...parseDates(layer),
+          ...getLayerProps(layer),
+        });
+
         return {
           ...g,
           active: isActive(g),
-          layers: groupLayers.map((l) => ({
-            ...l,
-            ...getLayerProps(l),
-          })),
+          layers: groupLayers.map(parseLayer),
           categories: categories.map((c) => {
             const layers = published.filter((l) => l.group === c.id);
 
@@ -132,10 +133,7 @@ export const getGrouped = () => {
             return {
               ...c,
               active: isActive(c),
-              layers: layers.map((l) => ({
-                ...l,
-                ...getLayerProps(l),
-              })),
+              layers: layers.map(parseLayer),
               subcategory: subcategories.map((sc) => {
                 const layers = published.filter((l) => l.group === sc.id);
 
@@ -144,18 +142,10 @@ export const getGrouped = () => {
                 return {
                   ...sc,
                   active: isActive(sc),
-                  layers: layers.sort(byDashboardOrder).map((l) => ({
-                    ...l,
-                    ...getLayerProps(l),
-                  })),
+                  layers: layers.sort(byDashboardOrder).map(parseLayer),
                   subgroup: subgroups.map((sg) => ({
                     ...sg,
-                    layers: published
-                      .filter((layer) => layer.group === sg.id)
-                      .map((l) => ({
-                        ...l,
-                        ...getLayerProps(l),
-                      })),
+                    layers: published.filter((layer) => layer.group === sg.id).map(parseLayer),
                   })),
                 };
               }),

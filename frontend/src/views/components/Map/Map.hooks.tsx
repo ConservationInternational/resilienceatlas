@@ -1,43 +1,7 @@
-import { useMemo, useEffect, useCallback } from 'react';
-import { replace } from 'resilience-layer-manager';
-import { timeParse } from 'd3-time-format';
+import { useEffect, useCallback } from 'react';
 import qs from 'qs';
 
-export const useUpdateDateInLayers = (activeLayers) =>
-  useMemo(() => {
-    const getDateParams = (timeline, date) => {
-      const parseDate = timeParse(timeline.format);
-      const selectedDate = date ? parseDate(date) : timeline.defaultDate;
-      return {
-        day: selectedDate.getDate(),
-        month: selectedDate.getMonth(),
-        year: selectedDate.getFullYear(),
-      };
-    };
-
-    return activeLayers.map((layer) => {
-      const { layerConfig, timeline, date } = layer || {};
-      if (!timeline) {
-        return layer;
-      }
-      // Only for COG layers?
-      const parsedLayer = {
-        ...layer,
-        layerConfig: {
-          ...layerConfig,
-          body: {
-            ...layerConfig.body,
-            url:
-              layerConfig?.body?.url &&
-              replace(layerConfig?.body?.url, getDateParams(timeline, date)),
-          },
-        },
-      };
-      return parsedLayer;
-    });
-  }, [activeLayers]);
-
-export const useLoadLayers = (
+export const useLoadLayers = ({
   layersLoadedSubdomain,
   subdomain,
   layerGroupsLoadedSubdomain,
@@ -48,7 +12,18 @@ export const useLoadLayers = (
   loadLayerGroups,
   layerGroupsLoaded,
   layerGroupsLoadedLocale,
-) => {
+}: {
+  layersLoadedSubdomain: string;
+  subdomain: string;
+  layerGroupsLoadedSubdomain: string;
+  layersLoaded: boolean;
+  layersLoadedLocale: string;
+  locale: string;
+  loadLayers: (locale: string) => void;
+  loadLayerGroups: (locale: string) => void;
+  layerGroupsLoaded: boolean;
+  layerGroupsLoadedLocale: string;
+}) => {
   const subdomainIsDifferentThanLoaded =
     layersLoadedSubdomain !== subdomain && (layersLoadedSubdomain || subdomain);
   const layerGroupsSubdomainIsDifferentThanLoaded =
@@ -79,7 +54,18 @@ export const useLoadLayers = (
   ]);
 };
 
-export const useGetCenter = (site, query) =>
+export const useGetCenter = ({
+  site,
+  query,
+}: {
+  site: {
+    latitude: number;
+    longitude: number;
+  };
+  query: {
+    center?: string;
+  };
+}) =>
   useCallback(() => {
     const DEFAULT_CENTER = { lat: 3.86, lng: 47.28 };
     if (query.center) {

@@ -12,7 +12,7 @@ import { Map as Maps, MapControls, ZoomControl } from 'vizzuality-components';
 import { LayerManager, Layer } from 'resilience-layer-manager/dist/components';
 import { PluginLeaflet } from 'resilience-layer-manager/dist/layer-manager';
 import { TABS } from 'views/components/Sidebar';
-import { useUpdateDateInLayers, useLoadLayers, useGetCenter } from './Map.hooks';
+import { useLoadLayers, useGetCenter } from './Map.hooks';
 import { BASEMAPS, LABELS } from 'views/utils';
 
 import { LayerManagerContext } from 'views/contexts/layerManagerCtx';
@@ -63,7 +63,7 @@ const MapView = (props: MapViewProps) => {
   const { setParam } = useRouterParams();
   const layerManagerRef = useContext(LayerManagerContext);
 
-  useLoadLayers(
+  useLoadLayers({
     layersLoadedSubdomain,
     subdomain,
     layerGroupsLoadedSubdomain,
@@ -74,7 +74,7 @@ const MapView = (props: MapViewProps) => {
     loadLayerGroups,
     layerGroupsLoaded,
     layerGroupsLoadedLocale,
-  );
+  });
 
   // Open default active layer groups
   useEffect(() => {
@@ -99,10 +99,7 @@ const MapView = (props: MapViewProps) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeLayers]);
 
-  // Update selected date in active layers
-  const displayedActiveLayers = useUpdateDateInLayers(activeLayers);
-
-  const getCenter = useGetCenter(site, query);
+  const getCenter = useGetCenter({ site, query });
 
   const onLayerLoading = useCallback(
     (_isAnyLayerLoading: boolean) => {
@@ -163,7 +160,7 @@ const MapView = (props: MapViewProps) => {
       {(map) => (
         <>
           {tab === TABS.LAYERS &&
-            displayedActiveLayers.map((l) => (
+            activeLayers.map((l) => (
               <LayerManager map={map} plugin={PluginLeaflet} ref={layerManagerRef} key={l.id}>
                 <Layer
                   {...omit(l, 'interactivity')}
