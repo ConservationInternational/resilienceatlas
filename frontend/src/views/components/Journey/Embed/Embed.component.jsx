@@ -17,12 +17,9 @@ import { getSubdomainFromURL } from 'utilities/getSubdomain';
 const Embed = (props) => {
   const {
     loadLayers,
-    loadCountries,
     layersLoaded,
     layersLocaleLoaded,
     layersLoadedSubdomain,
-    countriesLoaded,
-    countries,
     theme,
     embedded_map_url: mapUrl,
     map_url: btnUrl,
@@ -44,7 +41,7 @@ const Embed = (props) => {
     if (!layersLoaded || layersLocaleLoaded !== locale || subdomainIsDifferentThanLoaded) {
       loadLayers(locale, siteScope);
     }
-    if (!countriesLoaded) loadCountries();
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [locale, mapUrl]);
   useEffect(() => {
@@ -57,8 +54,6 @@ const Embed = (props) => {
       setActiveLayer(layerDataIds);
     }
   }, [mapUrl, setActiveLayer]);
-  const countryInfo =
-    countries.find((c) => c.name.toLowerCase() === countryName.toLowerCase()) || {};
 
   const embedParams = useMemo(() => {
     const params = new URLSearchParams();
@@ -66,12 +61,18 @@ const Embed = (props) => {
     params.set('journeyMap', true);
     params.set('maskSql', maskSql);
 
-    if (countriesLoaded && countryInfo.geometry) {
-      params.set('geojson', countryInfo.geometry);
-    }
+    // TODO: We get a 431 error when we send the geojson. Headers too long.
+    // We may think about a better way to display the geojson
+
+    // const countryInfo =
+    //   countries.find((c) => c.name.toLowerCase() === countryName.toLowerCase()) || {};
+
+    // if (countriesLoaded && countryInfo.geometry) {
+    //   params.set('geojson', countryInfo.geometry);
+    // }
 
     return params.toString();
-  }, [countriesLoaded, countryInfo.geometry, maskSql]);
+  }, [maskSql]);
 
   const provideAbsoluteOrRelativeUrl = (url) => {
     if (url.startsWith('http')) {
@@ -93,7 +94,6 @@ const Embed = (props) => {
               <h1>{countryName}</h1>
               {content && <DangerousHTML html={content} className="content" />}
             </section>
-            {/* TODO: Review if source is rendered correctly */}
             {source}
             <Legend />
             <InfoWindow />
