@@ -34,16 +34,6 @@ export const layer = new schema.Entity(
   {},
   {
     processStrategy: (l) => {
-      const getDefaultTimeParams = () => {
-        const parseDate = timeParse(l.attributes.timeline_format);
-        const parsedDefaultDate = parseDate(l.attributes.timeline_default_date);
-        return {
-          day: parsedDefaultDate.getDate(),
-          month: parsedDefaultDate.getMonth(),
-          year: parsedDefaultDate.getFullYear(),
-        };
-      };
-
       const getTimeline = () => {
         const parseDate = timeParse(l.attributes.timeline_format);
         return {
@@ -57,7 +47,6 @@ export const layer = new schema.Entity(
         };
       };
 
-      const defaultMonthYear = l.attributes.timeline ? getDefaultTimeParams() : null;
       const group = l.relationships.layer_group.data;
       const sourcesIds = l.relationships.sources.data.map((s) => s.id);
       const layerConfig = JSON.parse(l.attributes.layer_config || '{}');
@@ -124,10 +113,6 @@ export const layer = new schema.Entity(
                 colormap: layerConfig.params?.colormap
                   ? encodeURIComponent(JSON.stringify(layerConfig.params.colormap))
                   : null,
-                url:
-                  layerConfig.params?.url && l.attributes.timeline // Only for time layers
-                    ? replace(layerConfig.params.url, defaultMonthYear)
-                    : layerConfig.params?.url,
               }),
           },
         },

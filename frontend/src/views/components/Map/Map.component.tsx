@@ -7,33 +7,22 @@ import 'leaflet-utfgrid/L.UTFGrid-min';
 import React, { useCallback, useEffect, useContext } from 'react';
 import qs from 'qs';
 import omit from 'lodash/omit';
-
+import type { MapViewProps } from './types';
 import { Map as Maps, MapControls, ZoomControl } from 'vizzuality-components';
 import { LayerManager, Layer } from 'resilience-layer-manager/dist/components';
 import { PluginLeaflet } from 'resilience-layer-manager/dist/layer-manager';
-
 import { TABS } from 'views/components/Sidebar';
-
+import { useUpdateDateInLayers, useLoadLayers, useGetCenter } from './Map.hooks';
 import { BASEMAPS, LABELS } from 'views/utils';
 
 import { LayerManagerContext } from 'views/contexts/layerManagerCtx';
 import { useRouterParams } from 'utilities';
 import { subdomain } from 'utilities/getSubdomain';
-import type { MAP_LABELS, BASEMAP_LABELS } from 'views/components/LayersList/Basemaps/constants';
-import type { NextRouter } from 'next/router';
 
 import Toolbar from './Toolbar';
 import DrawingManager from './DrawingManager';
 import MapOffset from './MapOffset';
 import MapPopup from './MapPopup';
-
-interface MapViewProps {
-  labels: (typeof MAP_LABELS)[number];
-  basemap: (typeof BASEMAP_LABELS)[number];
-  router: NextRouter;
-  onLoadingLayers?: (loaded: boolean) => void;
-  [k: string]: unknown;
-}
 
 const MapView = (props: MapViewProps) => {
   const {
@@ -69,37 +58,25 @@ const MapView = (props: MapViewProps) => {
     drawing,
     onLoadingLayers,
   } = props;
+
   const { query, locale } = router;
   const { setParam } = useRouterParams();
   const layerManagerRef = useContext(LayerManagerContext);
-  const subdomainIsDifferentThanLoaded =
-    layersLoadedSubdomain !== subdomain && (layersLoadedSubdomain || subdomain);
-  const layerGroupsSubdomainIsDifferentThanLoaded =
-    layerGroupsLoadedSubdomain !== subdomain && (layerGroupsLoadedSubdomain || subdomain);
-  useEffect(() => {
-    if (!layersLoaded || layersLoadedLocale !== locale || subdomainIsDifferentThanLoaded) {
-      loadLayers(locale);
-    }
 
-    if (
-      !layerGroupsLoaded ||
-      layerGroupsLoadedLocale !== locale ||
-      layerGroupsSubdomainIsDifferentThanLoaded
-    ) {
-      loadLayerGroups(locale);
-    }
-  }, [
-    layerGroupsLoaded,
-    layerGroupsLoadedLocale,
-    layerGroupsSubdomainIsDifferentThanLoaded,
+  useLoadLayers(
+    layersLoadedSubdomain,
+    subdomain,
+    layerGroupsLoadedSubdomain,
     layersLoaded,
     layersLoadedLocale,
-    loadLayerGroups,
-    loadLayers,
     locale,
-    subdomainIsDifferentThanLoaded,
-  ]);
+    loadLayers,
+    loadLayerGroups,
+    layerGroupsLoaded,
+    layerGroupsLoadedLocale,
+  );
 
+  // Open default active layer groups
   useEffect(() => {
     if (layersLoaded && layerGroupsLoaded && defaultActiveGroups.length) {
       openBatch(defaultActiveGroups);
@@ -107,6 +84,7 @@ const MapView = (props: MapViewProps) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [layersLoaded, layerGroupsLoaded]);
 
+  // Update URL with active layers
   useEffect(() => {
     const hash = activeLayers.map(({ id, opacity, chartLimit, order, date }) => ({
       id,
@@ -121,30 +99,10 @@ const MapView = (props: MapViewProps) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeLayers]);
 
-  const getCenter = useCallback(() => {
-    const DEFAULT_CENTER = { lat: 3.86, lng: 47.28 };
-    if (query.center) {
-      const decodeCenter = decodeURIComponent(query.center as string);
-      if (decodeCenter && decodeCenter[0] === '{') {
-        try {
-          return JSON.parse(decodeCenter);
-        } catch (error) {
-          // eslint-disable-next-line no-console
-          console.error('Error parsing center', decodeCenter, error);
-          return DEFAULT_CENTER;
-        }
-      }
-      const center = qs.parse(query.center);
-      return center;
-    }
+  // Update selected date in active layers
+  const displayedActiveLayers = useUpdateDateInLayers(activeLayers);
 
-    if (site.latitude) {
-      return { lat: site.latitude, lng: site.longitude };
-    }
-
-    return DEFAULT_CENTER;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [site.latitude, query.center]);
+  const getCenter = useGetCenter(site, query);
 
   const onLayerLoading = useCallback(
     (_isAnyLayerLoading: boolean) => {
@@ -190,7 +148,7 @@ const MapView = (props: MapViewProps) => {
             setParam('zoom', map.getZoom());
           } else {
             // clear param if it's default
-            setParam('zoom');
+            setParam('zoom', null);
           }
 
           // Update map center in url, because it basically changed
@@ -205,7 +163,7 @@ const MapView = (props: MapViewProps) => {
       {(map) => (
         <>
           {tab === TABS.LAYERS &&
-            activeLayers.map((l) => (
+            displayedActiveLayers.map((l) => (
               <LayerManager map={map} plugin={PluginLeaflet} ref={layerManagerRef} key={l.id}>
                 <Layer
                   {...omit(l, 'interactivity')}
