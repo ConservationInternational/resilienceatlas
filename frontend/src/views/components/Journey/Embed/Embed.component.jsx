@@ -27,13 +27,10 @@ const getLayerData = (mapUrl) => {
 const Embed = (props) => {
   const {
     loadLayers,
-    loadCountries,
     layersLoaded,
     layersLocaleLoaded,
     layersLoadedSubdomain,
     layersById,
-    countriesLoaded,
-    countries,
     theme,
     embedded_map_url: mapUrl,
     map_url: btnUrl,
@@ -57,7 +54,7 @@ const Embed = (props) => {
     if (!layersLoaded || layersLocaleLoaded !== locale || subdomainIsDifferentThanLoaded) {
       loadLayers(locale, siteScope);
     }
-    if (!countriesLoaded) loadCountries();
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [locale, mapUrl]);
 
@@ -103,21 +100,24 @@ const Embed = (props) => {
     }
   }, [mapUrl, setActiveLayer]);
 
-  const countryInfo =
-    countries.find((c) => c.name.toLowerCase() === countryName.toLowerCase()) || {};
-
   const embedParams = useMemo(() => {
     const params = new URLSearchParams();
 
     params.set('journeyMap', true);
     params.set('maskSql', maskSql);
 
-    if (countriesLoaded && countryInfo.geometry) {
-      params.set('geojson', countryInfo.geometry);
-    }
+    // TODO: We get a 431 error when we send the geojson. Headers too long.
+    // We may think about a better way to display the geojson
+
+    // const countryInfo =
+    //   countries.find((c) => c.name.toLowerCase() === countryName.toLowerCase()) || {};
+
+    // if (countriesLoaded && countryInfo.geometry) {
+    //   params.set('geojson', countryInfo.geometry);
+    // }
 
     return params.toString();
-  }, [countriesLoaded, countryInfo.geometry, maskSql]);
+  }, [maskSql]);
 
   return (
     <div className={`m-journey--embed--light ${theme}`}>
