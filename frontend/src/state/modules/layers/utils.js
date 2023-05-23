@@ -34,6 +34,8 @@ export const parseDates = (layer) => {
     ...layer,
     analysisBody: layer.analysisBody && replaceDates(layer.analysisBody),
     interactionConfig: layer.interactionConfig && replaceDates(layer.interactionConfig),
+    cartocss: layer.cartocss && replaceDates(layer.cartocss),
+    sql: layer.sql && replaceDates(layer.cartocss),
     layerConfig: {
       ...layerConfig,
       body: {
