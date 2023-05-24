@@ -8,11 +8,28 @@ import cx from 'classnames';
 import { T } from '@transifex/react';
 import { useRouter } from 'next/router';
 import { getSubdomainFromURL } from 'utilities/getSubdomain';
+import { URL_PERSISTED_KEYS } from 'state/modules/layers';
 
 // TODO: get rid of IFrame and use Map Component
 // It requires to refactor map to use redux instead of url in all cases
 // And to add separate mapper, to store all needed variables from redux
 // in url only on map page
+
+const getLayerData = (mapUrl) => {
+  const mapString = mapUrl.split('?')[1];
+  if (mapString) {
+    const mapData = mapString && qs.parse(mapString);
+    return mapData && JSON.parse(mapData.layers);
+  }
+  return null;
+};
+
+const provideAbsoluteOrRelativeUrl = (url, locale) => {
+  if (url.startsWith('http')) {
+    return url.replace('resilienceatlas.org/', `resilienceatlas.org/${locale}/`);
+  }
+  return `/${locale}${url}`;
+};
 
 const Embed = (props) => {
   const {
@@ -21,6 +38,7 @@ const Embed = (props) => {
     layersLoaded,
     layersLocaleLoaded,
     layersLoadedSubdomain,
+    layersById,
     countriesLoaded,
     countries,
     theme,
@@ -37,6 +55,8 @@ const Embed = (props) => {
     isLastStep,
   } = props;
   const { locale } = useRouter();
+
+  // Load layers and countries when needed
   useEffect(() => {
     const siteScope = mapUrl.startsWith('http') && getSubdomainFromURL(mapUrl);
     const subdomainIsDifferentThanLoaded =
@@ -47,16 +67,38 @@ const Embed = (props) => {
     if (!countriesLoaded) loadCountries();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [locale, mapUrl]);
-  useEffect(() => {
-    const mapString = mapUrl.split('?')[1];
-    if (mapString) {
-      const mapData = mapString && qs.parse(mapString);
-      const layerData = mapData && JSON.parse(mapData.layers);
-      const layerDataIds = layerData?.map((l) => l.id);
 
+  // Update map url with the new selected params on the legend
+  const mapURLWithParams = useMemo(() => {
+    const currentURL = new URL(mapUrl);
+    const layers = currentURL.searchParams.get('layers');
+    if (!layers) return mapUrl;
+
+    const parsedLayers = layers && JSON.parse(layers);
+    const updatedLayers = parsedLayers.reduce((acc, layer, index) => {
+      const layerUpdatedData = layersById[layer.id];
+      if (layerUpdatedData) {
+        URL_PERSISTED_KEYS.forEach((key) => {
+          if (layerUpdatedData[key]) {
+            acc[index][key] = layerUpdatedData[key];
+          }
+        });
+      }
+      return acc;
+    }, parsedLayers);
+    currentURL.searchParams.set('layers', JSON.stringify(updatedLayers));
+    return currentURL ? currentURL.toString() : mapUrl;
+  }, [mapUrl, layersById]);
+
+  // Set active layer
+  useEffect(() => {
+    const layerData = getLayerData(mapUrl);
+    if (layerData) {
+      const layerDataIds = layerData?.map((l) => l.id);
       setActiveLayer(layerDataIds);
     }
   }, [mapUrl, setActiveLayer]);
+
   const countryInfo =
     countries.find((c) => c.name.toLowerCase() === countryName.toLowerCase()) || {};
 
@@ -72,13 +114,6 @@ const Embed = (props) => {
 
     return params.toString();
   }, [countriesLoaded, countryInfo.geometry, maskSql]);
-
-  const provideAbsoluteOrRelativeUrl = (url) => {
-    if (url.startsWith('http')) {
-      return url.replace('resilienceatlas.org/', `resilienceatlas.org/${locale}/`);
-    }
-    return `/${locale}${url}`;
-  };
 
   return (
     <div className={`m-journey--embed--light ${theme}`}>
@@ -106,9 +141,9 @@ const Embed = (props) => {
         </div>
       </article>
       <div className="embebed-map">
-        <Iframe src={`${provideAbsoluteOrRelativeUrl(mapUrl)}&${embedParams}`} />
+        <Iframe src={`${provideAbsoluteOrRelativeUrl(mapURLWithParams, locale)}&${embedParams}`} />
         <a
-          href={provideAbsoluteOrRelativeUrl(btnUrl)}
+          href={provideAbsoluteOrRelativeUrl(btnUrl, locale)}
           target="_blank"
           rel="noopener noreferrer"
           data-step={currentStep}
