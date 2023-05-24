@@ -7,6 +7,7 @@ import 'leaflet-utfgrid/L.UTFGrid-min';
 import React, { useCallback, useEffect, useContext } from 'react';
 import qs from 'qs';
 import omit from 'lodash/omit';
+import pick from 'lodash/pick';
 import type { MapViewProps } from './types';
 import { Map as Maps, MapControls, ZoomControl } from 'vizzuality-components';
 import { LayerManager, Layer } from 'resilience-layer-manager/dist/components';
@@ -14,6 +15,7 @@ import { PluginLeaflet } from 'resilience-layer-manager/dist/layer-manager';
 import { TABS } from 'views/components/Sidebar';
 import { useLoadLayers, useGetCenter } from './Map.hooks';
 import { BASEMAPS, LABELS } from 'views/utils';
+import { URL_PERSISTED_KEYS } from 'state/modules/layers/utils';
 
 import { LayerManagerContext } from 'views/contexts/layerManagerCtx';
 import { useRouterParams } from 'utilities';
@@ -86,13 +88,9 @@ const MapView = (props: MapViewProps) => {
 
   // Update URL with active layers
   useEffect(() => {
-    const hash = activeLayers.map(({ id, opacity, chartLimit, order, date }) => ({
-      id,
-      opacity,
-      order,
-      chartLimit,
-      date,
-    }));
+    const hash = activeLayers.map((activeLayer) =>
+      pick(activeLayer, ['id', ...URL_PERSISTED_KEYS]),
+    );
     if (layersLoaded) {
       setParam('layers', JSON.stringify(hash));
     }

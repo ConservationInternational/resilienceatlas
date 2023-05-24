@@ -6,6 +6,8 @@ import { getRouterParam } from 'utilities';
 
 import { persisted_layer } from '../../schema';
 
+export const URL_PERSISTED_KEYS = ['date', 'opacity', 'order', 'chartLimit'];
+
 export const getPersistedLayers = () => {
   const persistedLayers = getRouterParam('layers', JSON.parse);
 
