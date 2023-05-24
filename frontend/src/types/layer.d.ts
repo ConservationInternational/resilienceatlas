@@ -4,5 +4,5 @@ export interface Timeline {
   defaultDate: Date;
   period: string;
   format: string;
-  steps: string[];
+  steps: Date[];
 }
