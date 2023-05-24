@@ -1,6 +1,7 @@
-import Datepicker from 'views/shared/datepicker/component';
+import Datepicker from 'views/shared/datepicker';
 import { useCallback } from 'react';
 import type { Timeline } from 'types/layer';
+import { T } from '@transifex/react';
 
 interface LegendTimelineProps {
   timeline: Timeline;
@@ -24,9 +25,16 @@ const LegendTimeline = ({ timeline, layerName, setDate, selected }: LegendTimeli
   return (
     <>
       <div className="m-legend-timeline">
-        <span className="timeline-title">Display {layerName} in</span>
+        <label htmlFor="timeline-datepicker" className="timeline-title">
+          <T
+            _str="Display {layerName} in"
+            layerName={layerName}
+            _comment="Display {Land use} in {Jan 2020}"
+          />
+        </label>
         <span className="timeline">
           <Datepicker
+            id="timeline-datepicker"
             startDate={startDate}
             endDate={endDate}
             selected={selected}
