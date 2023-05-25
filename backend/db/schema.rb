@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_05_05_085906) do
+ActiveRecord::Schema[7.0].define(version: 2023_05_25_082446) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -377,7 +377,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_05_05_085906) do
     t.date "timeline_end_date"
     t.date "timeline_default_date"
     t.string "timeline_period"
-    t.string "timeline_format", default: "%m/%d/%Y"
+    t.string "timeline_format", default: "yyyy-MM-dd"
     t.string "analysis_type"
     t.index ["layer_group_id"], name: "index_layers_on_layer_group_id"
   end
