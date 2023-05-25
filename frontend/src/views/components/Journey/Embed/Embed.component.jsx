@@ -24,13 +24,6 @@ const getLayerData = (mapUrl) => {
   return null;
 };
 
-const provideAbsoluteOrRelativeUrl = (url, locale) => {
-  if (url.startsWith('http')) {
-    return url.replace('resilienceatlas.org/', `resilienceatlas.org/${locale}/`);
-  }
-  return `/${locale}${url}`;
-};
-
 const Embed = (props) => {
   const {
     loadLayers,
@@ -54,7 +47,21 @@ const Embed = (props) => {
     setActiveLayer,
     isLastStep,
   } = props;
-  const { locale } = useRouter();
+  const { locale, locales } = useRouter();
+
+  const absoluteOrRelativeUrlWithCurrentLocale = useCallback(
+    (url) => {
+      const localeInURL = url && locales && locales.find((l) => url.includes(`/${l}/`));
+      const isRelative = url && url.startsWith('/');
+      if (isRelative) {
+        return localeInURL ? url.replace(`/${localeInURL}/`, `/${locale}/`) : `/${locale}${url}`;
+      }
+      return localeInURL
+        ? url.replace(`/${localeInURL}/`, `/${locale}/`)
+        : url.replace(/(https?:\/\/.+)(\/)/, `$1/${locale}/`);
+    },
+    [locale, locales],
+  );
 
   // Load layers and countries when needed
   useEffect(() => {
@@ -151,9 +158,11 @@ const Embed = (props) => {
         </div>
       </article>
       <div className="embebed-map">
-        <Iframe src={`${provideAbsoluteOrRelativeUrl(mapURLWithParams, locale)}&${embedParams}`} />
+        <Iframe
+          src={`${absoluteOrRelativeUrlWithCurrentLocale(mapURLWithParams)}&${embedParams}`}
+        />
         <a
-          href={provideAbsoluteOrRelativeUrl(btnURLWithParams, locale)}
+          href={absoluteOrRelativeUrlWithCurrentLocale(btnURLWithParams)}
           target="_blank"
           rel="noopener noreferrer"
           data-step={currentStep}
