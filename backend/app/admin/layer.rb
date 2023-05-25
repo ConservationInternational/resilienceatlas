@@ -4,7 +4,7 @@ ActiveAdmin.register Layer do
   permit_params :name, :slug, :published, :zindex, :order, :query, :layer_config, :layer_provider, :css, :opacity,
     :legend, :zoom_max, :zoom_min, :dashboard_order, :source_id, :data_units, :analysis_suitable, :analysis_type,
     :timeline, :timeline_steps, :timeline_start_date, :timeline_end_date, :timeline_default_date,
-    :timeline_period, :timeline_format, :analysis_query, :analysis_body, :interaction_config, :processing, :download,
+    :timeline_period, :analysis_query, :analysis_body, :interaction_config, :processing, :download,
     :description,
     source_ids: [],
     translations_attributes: [:id, :locale, :name, :legend, :data_units, :processing, :description, :analysis_text_template,
@@ -104,7 +104,6 @@ ActiveAdmin.register Layer do
         row :timeline_end_date
         row :timeline_default_date
         row :timeline_period
-        row :timeline_format
       end
       row :dashboard_order
     end

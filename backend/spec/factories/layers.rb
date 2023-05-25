@@ -45,7 +45,6 @@
 #  timeline_end_date         :date
 #  timeline_default_date     :date
 #  timeline_period           :string
-#  timeline_format           :string           default("%m/%d/%Y")
 #  analysis_type             :string
 #  name                      :string
 #  info                      :text

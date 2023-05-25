@@ -44,8 +44,7 @@
         "timeline_start_date": "2022-08-10",
         "timeline_end_date": "2022-08-10",
         "timeline_default_date": "2022-08-10",
-        "timeline_period": "daily",
-        "timeline_format": "%m/%d/%Y"
+        "timeline_period": "daily"
       },
       "relationships": {
         "layer_group": {
@@ -116,8 +115,7 @@
         "timeline_start_date": "2021-06-11",
         "timeline_end_date": "2021-06-11",
         "timeline_default_date": "2021-06-11",
-        "timeline_period": "yearly",
-        "timeline_format": "%m/%d/%Y"
+        "timeline_period": "yearly"
       },
       "relationships": {
         "layer_group": {
@@ -188,8 +186,7 @@
         "timeline_start_date": "2022-11-27",
         "timeline_end_date": "2022-11-27",
         "timeline_default_date": "2022-11-27",
-        "timeline_period": "monthly",
-        "timeline_format": "%m/%d/%Y"
+        "timeline_period": "monthly"
       },
       "relationships": {
         "layer_group": {

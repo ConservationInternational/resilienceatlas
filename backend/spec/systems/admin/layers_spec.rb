@@ -55,7 +55,6 @@ RSpec.describe "Admin: Layers", type: :system do
         expect(page).to have_text(layer.timeline_end_date)
         expect(page).to have_text(layer.timeline_default_date)
         expect(page).to have_text(layer.timeline_period)
-        expect(page).to have_text(layer.timeline_format)
         expect(page).to have_text(layer.dashboard_order.to_s)
       end
     end
@@ -119,7 +118,6 @@ RSpec.describe "Admin: Layers", type: :system do
       fill_in "layer[timeline_end_date]", with: "2000-01-03"
       fill_in "layer[timeline_default_date]", with: "2000-01-01"
       select "daily", from: "layer[timeline_period]"
-      fill_in "layer[timeline_format]", with: "yyyy-MM-dd"
       fill_in "layer[dashboard_order]", with: "80"
 
       click_on "Create Layer"
@@ -149,7 +147,6 @@ RSpec.describe "Admin: Layers", type: :system do
       expect(page).to have_text("2000-01-02")
       expect(page).to have_text("2000-01-03")
       expect(page).to have_text("daily")
-      expect(page).to have_text("yyyy-MM-dd")
       expect(page).to have_text("80")
     end
 

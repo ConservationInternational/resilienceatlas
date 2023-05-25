@@ -45,7 +45,6 @@
 #  timeline_end_date         :date
 #  timeline_default_date     :date
 #  timeline_period           :string
-#  timeline_format           :string           default("%m/%d/%Y")
 #  analysis_type             :string
 #  name                      :string
 #  info                      :text
@@ -128,7 +127,7 @@ class Layer < ApplicationRecord
     validates_inclusion_of :analysis_type, in: %w[histogram], message: "analysis type has to be histogram", if: -> { !layer_provider.to_s.in?(%w[cartodb cog]) && analysis_suitable }
   end
   with_options if: -> { timeline } do
-    validates_presence_of :timeline_period, :timeline_format, :timeline_default_date
+    validates_presence_of :timeline_period, :timeline_default_date
     validates_presence_of :timeline_start_date, message: "required unless Steps defined", if: -> { timeline_steps.blank? && timeline }
   end
   with_options if: -> { layer_provider == "cog" } do

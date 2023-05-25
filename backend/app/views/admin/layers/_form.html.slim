@@ -46,9 +46,6 @@
       = f.input :timeline_end_date, wrapper_html: {class: "timeline-query-input"}
       = f.input :timeline_default_date, wrapper_html: {class: "timeline-query-input"}, required: true
       = f.input :timeline_period, as: :select, collection: Layer.timeline_periods.keys, required: true, wrapper_html: {class: "timeline-query-input"}
-      span style="margin: 0 10px;font-size: small;display: block;" class="timeline-query-input"
-        = "String indicating in which format the dates will be displayed in the application"
-      = f.input :timeline_format, wrapper_html: {class: "timeline-query-input"}, required: true
     = f.inputs "Dashboard"
       = f.input :dashboard_order
   = f.actions do

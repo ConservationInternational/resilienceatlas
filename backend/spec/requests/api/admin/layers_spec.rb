@@ -93,7 +93,7 @@ RSpec.describe "API Admin Layers", type: :request do
       it_behaves_like "with not found error"
 
       response "200", :success do
-        let(:layer_params) { {layer: build(:layer).attributes.except("timeline_format", "updated_at", "created_at")} }
+        let(:layer_params) { {layer: build(:layer).attributes.except("updated_at", "created_at")} }
 
         run_test!
 

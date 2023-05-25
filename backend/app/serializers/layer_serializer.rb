@@ -45,7 +45,6 @@
 #  timeline_end_date         :date
 #  timeline_default_date     :date
 #  timeline_period           :string
-#  timeline_format           :string           default("%m/%d/%Y")
 #  analysis_type             :string
 #  name                      :string
 #  info                      :text
@@ -64,7 +63,7 @@ class LayerSerializer < ActiveModel::Serializer
     :published, :locate_layer, :icon_class, :legend, :zoom_max, :zoom_min, :download,
     :dataset_shortname, :dataset_source_url, :analysis_suitable, :analysis_query, :analysis_body,
     :analysis_type, :analysis_text_template, :interaction_config, :timeline, :timeline_steps, :timeline_start_date,
-    :timeline_end_date, :timeline_default_date, :timeline_period, :timeline_format
+    :timeline_end_date, :timeline_default_date, :timeline_period
   has_one :layer_group, serializer: LayerGroupSerializer
   has_many :sources, each_serializer: SourceSerializer
   has_one :agrupation
