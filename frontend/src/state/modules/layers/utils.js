@@ -1,5 +1,4 @@
 import { normalize } from 'normalizr';
-import { timeParse } from 'd3-time-format';
 import { replace } from 'resilience-layer-manager';
 
 import { getRouterParam } from 'utilities';
@@ -22,8 +21,7 @@ export const parseDates = (layer) => {
   if (!timeline) return layer;
 
   const getDateParams = (timeline, date) => {
-    const parseDate = timeParse(timeline.format);
-    const selectedDate = !!date ? parseDate(date) : timeline.defaultDate;
+    const selectedDate = !!date ? new Date(date) : timeline.defaultDate;
     return {
       day: selectedDate.getDate(),
       month: String(selectedDate.getMonth() + 1).padStart(2, '0'), // Months need to have 2 digits

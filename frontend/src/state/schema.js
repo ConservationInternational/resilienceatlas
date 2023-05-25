@@ -1,7 +1,6 @@
 import { schema } from 'normalizr';
 import { replace } from 'resilience-layer-manager';
 import { generateDownloadUrl } from 'utilities/generateDownloadUrl';
-import { timeParse } from 'd3-time-format';
 import { birds } from './utils/decoders';
 
 import {
@@ -34,18 +33,13 @@ export const layer = new schema.Entity(
   {},
   {
     processStrategy: (l) => {
-      const getTimeline = () => {
-        const parseDate = timeParse(l.attributes.timeline_format);
-        return {
-          defaultDate: parseDate(l.attributes.timeline_default_date),
-          endDate: parseDate(l.attributes.timeline_end_date),
-          startDate: parseDate(l.attributes.timeline_start_date),
-          format: l.attributes.timeline_format,
-          period: l.attributes.timeline_period,
-          steps:
-            l.attributes.timeline_steps && l.attributes.timeline_steps.map((d) => parseDate(d)),
-        };
-      };
+      const getTimeline = () => ({
+        defaultDate: new Date(l.attributes.timeline_default_date),
+        endDate: new Date(l.attributes.timeline_end_date),
+        startDate: new Date(l.attributes.timeline_start_date),
+        period: l.attributes.timeline_period,
+        steps: l.attributes.timeline_steps && l.attributes.timeline_steps.map((d) => new Date(d)),
+      });
 
       const group = l.relationships.layer_group.data;
       const sourcesIds = l.relationships.sources.data.map((s) => s.id);
