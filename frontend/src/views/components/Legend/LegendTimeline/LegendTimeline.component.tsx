@@ -6,11 +6,18 @@ import { T } from '@transifex/react';
 interface LegendTimelineProps {
   timeline: Timeline;
   layerName: string;
+  layerId: string;
   setDate: (date: Date) => void;
   selected: Date;
 }
 
-const LegendTimeline = ({ timeline, layerName, setDate, selected }: LegendTimelineProps) => {
+const LegendTimeline = ({
+  timeline,
+  layerName,
+  layerId,
+  setDate,
+  selected,
+}: LegendTimelineProps) => {
   const { startDate, endDate, period, steps } = timeline;
 
   const getResolution = useCallback(() => {
@@ -22,10 +29,12 @@ const LegendTimeline = ({ timeline, layerName, setDate, selected }: LegendTimeli
     return resolutionPeriods[period];
   }, [period]);
 
+  const datePickerId = `timeline-datepicker-${layerId}`;
+
   return (
     <>
       <div className="m-legend-timeline">
-        <label htmlFor="timeline-datepicker" className="timeline-title">
+        <label htmlFor={datePickerId} className="timeline-title">
           <T
             _str="Display {layerName} in"
             layerName={layerName}
@@ -34,7 +43,7 @@ const LegendTimeline = ({ timeline, layerName, setDate, selected }: LegendTimeli
         </label>
         <span className="timeline">
           <Datepicker
-            id="timeline-datepicker"
+            id={datePickerId}
             startDate={startDate}
             endDate={endDate}
             selected={selected}
