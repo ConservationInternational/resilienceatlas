@@ -37,6 +37,7 @@ jobs:
           role-session-name: feature-deployment
           role-duration-seconds: 3600
           role-skip-session-tagging: true
+          mask-aws-account-id: false
 
       - name: Install AWS SAM CLI
         uses: aws-actions/setup-sam@v2
