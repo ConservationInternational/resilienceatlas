@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "test": "cypress run --headless --browser chrome",
+    "test:open": "cypress open",
     "lint": "next lint",
     "prettier": "prettier --config .prettierrc.json --check --write \"./src/**/*.{tsx,jsx,ts,js}\"",
     "check-types": "tsc --noemit -p tsconfig.json",

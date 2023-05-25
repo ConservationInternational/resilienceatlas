@@ -32,8 +32,9 @@ describe('Journeys detail page', () => {
         cy.log(`Testing step with index ${stepIndex} and type "${type}"`);
 
         cy.url().should('include', `/journeys/${id}/step/${stepIndex + 1}`);
-
-        const expectedUrl = type === 'embed' ? `/en${btnUrl}` : null;
+        const isRelativeUrl = (url) => url && url.startsWith('/');
+        const embeddedUrl = isRelativeUrl(btnUrl) ? `/en${btnUrl}` : btnUrl;
+        const expectedUrl = type === 'embed' ? embeddedUrl : null;
 
         switch (type) {
           case 'landing':

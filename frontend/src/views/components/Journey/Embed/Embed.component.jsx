@@ -70,11 +70,11 @@ const Embed = (props) => {
 
   // Update map url with the new selected params on the legend
   const mapURLWithParams = useMemo(() => {
-    const currentURL = new URL(mapUrl);
-    const layers = currentURL.searchParams.get('layers');
-    if (!layers) return mapUrl;
+    const isURLRelative = mapUrl && mapUrl.startsWith('/');
+    const currentURL = new URL(mapUrl, isURLRelative ? window.location.origin : undefined);
+    const parsedLayers = getLayerData(mapUrl);
+    if (!parsedLayers) return mapUrl;
 
-    const parsedLayers = layers && JSON.parse(layers);
     const updatedLayers = parsedLayers.reduce((acc, layer, index) => {
       const layerUpdatedData = layersById[layer.id];
       if (layerUpdatedData) {
@@ -87,7 +87,8 @@ const Embed = (props) => {
       return acc;
     }, parsedLayers);
     currentURL.searchParams.set('layers', JSON.stringify(updatedLayers));
-    return currentURL ? currentURL.toString() : mapUrl;
+    if (!currentURL) return mapUrl;
+    return isURLRelative ? `${currentURL.pathname}${currentURL.search}` : currentURL.toString();
   }, [mapUrl, layersById]);
 
   // Set active layer
