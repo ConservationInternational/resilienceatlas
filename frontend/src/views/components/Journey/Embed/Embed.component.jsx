@@ -9,7 +9,7 @@ import { T } from '@transifex/react';
 import { useRouter } from 'next/router';
 import { getSubdomainFromURL } from 'utilities/getSubdomain';
 import { URL_PERSISTED_KEYS } from 'state/modules/layers';
-
+import { absoluteOrRelativeUrlWithCurrentLocale } from 'utilities/helpers';
 // TODO: get rid of IFrame and use Map Component
 // It requires to refactor map to use redux instead of url in all cases
 // And to add separate mapper, to store all needed variables from redux
@@ -48,20 +48,6 @@ const Embed = (props) => {
     isLastStep,
   } = props;
   const { locale, locales } = useRouter();
-
-  const absoluteOrRelativeUrlWithCurrentLocale = useCallback(
-    (url) => {
-      const localeInURL = url && locales && locales.find((l) => url.includes(`/${l}/`));
-      const isRelative = url && url.startsWith('/');
-      if (isRelative) {
-        return localeInURL ? url.replace(`/${localeInURL}/`, `/${locale}/`) : `/${locale}${url}`;
-      }
-      return localeInURL
-        ? url.replace(`/${localeInURL}/`, `/${locale}/`)
-        : url.replace(/(https?:\/\/.+)(\/)/, `$1/${locale}/`);
-    },
-    [locale, locales],
-  );
 
   // Load layers and countries when needed
   useEffect(() => {
@@ -159,10 +145,14 @@ const Embed = (props) => {
       </article>
       <div className="embebed-map">
         <Iframe
-          src={`${absoluteOrRelativeUrlWithCurrentLocale(mapURLWithParams)}&${embedParams}`}
+          src={`${absoluteOrRelativeUrlWithCurrentLocale(
+            mapURLWithParams,
+            locale,
+            locales,
+          )}&${embedParams}`}
         />
         <a
-          href={absoluteOrRelativeUrlWithCurrentLocale(btnURLWithParams)}
+          href={absoluteOrRelativeUrlWithCurrentLocale(btnURLWithParams, locale, locales)}
           target="_blank"
           rel="noopener noreferrer"
           data-step={currentStep}
