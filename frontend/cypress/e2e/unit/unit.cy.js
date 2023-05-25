@@ -27,5 +27,12 @@ describe('absoluteOrRelativeUrlWithCurrentLocale', function () {
     expect(absoluteOrRelativeUrlWithCurrentLocale('/en/embed?whatever', locale, locales)).to.eq(
       '/es/embed?whatever',
     );
+    expect(
+      absoluteOrRelativeUrlWithCurrentLocale(
+        'http://localhost:3000/en/map?tab=layers&layers=%center%es%22',
+        locale,
+        locales,
+      ),
+    ).to.eq('http://localhost:3000/es/map?tab=layers&layers=%center%es%22');
   });
 });
