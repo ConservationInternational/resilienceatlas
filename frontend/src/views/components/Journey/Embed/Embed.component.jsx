@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import DangerousHTML from 'react-dangerous-html';
 import Iframe from 'react-iframe';
 import Legend from 'views/components/Legend';
@@ -69,11 +69,11 @@ const Embed = (props) => {
   }, [locale, mapUrl]);
 
   // Update map url with the new selected params on the legend
-  const mapURLWithParams = useMemo(() => {
-    const isURLRelative = mapUrl && mapUrl.startsWith('/');
-    const currentURL = new URL(mapUrl, isURLRelative ? window.location.origin : undefined);
-    const parsedLayers = getLayerData(mapUrl);
-    if (!parsedLayers) return mapUrl;
+  const addParamsToUrl = useCallback((url, layersById) => {
+    const isURLRelative = url && url.startsWith('/');
+    const currentURL = new URL(url, isURLRelative ? window.location.origin : undefined);
+    const parsedLayers = getLayerData(url);
+    if (!parsedLayers) return url;
 
     const updatedLayers = parsedLayers.reduce((acc, layer, index) => {
       const layerUpdatedData = layersById[layer.id];
@@ -87,9 +87,19 @@ const Embed = (props) => {
       return acc;
     }, parsedLayers);
     currentURL.searchParams.set('layers', JSON.stringify(updatedLayers));
-    if (!currentURL) return mapUrl;
+    if (!currentURL) return url;
     return isURLRelative ? `${currentURL.pathname}${currentURL.search}` : currentURL.toString();
-  }, [mapUrl, layersById]);
+  }, []);
+
+  const mapURLWithParams = useMemo(
+    () => addParamsToUrl(mapUrl, layersById),
+    [addParamsToUrl, mapUrl, layersById],
+  );
+
+  const btnURLWithParams = useMemo(
+    () => addParamsToUrl(btnUrl, layersById),
+    [addParamsToUrl, btnUrl, layersById],
+  );
 
   // Set active layer
   useEffect(() => {
@@ -144,7 +154,7 @@ const Embed = (props) => {
       <div className="embebed-map">
         <Iframe src={`${provideAbsoluteOrRelativeUrl(mapURLWithParams, locale)}&${embedParams}`} />
         <a
-          href={provideAbsoluteOrRelativeUrl(btnUrl, locale)}
+          href={provideAbsoluteOrRelativeUrl(btnURLWithParams, locale)}
           target="_blank"
           rel="noopener noreferrer"
           data-step={currentStep}
