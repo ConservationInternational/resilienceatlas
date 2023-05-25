@@ -139,9 +139,8 @@ const Embed = (props) => {
               <h1>{countryName}</h1>
               {content && <DangerousHTML html={content} className="content" />}
             </section>
-            {/* TODO: Review if source is rendered correctly */}
             {source}
-            <Legend />
+            <Legend defaultEmbedURLLayerParams={getLayerData(mapUrl)} />
             <InfoWindow />
             <footer>
               <p>

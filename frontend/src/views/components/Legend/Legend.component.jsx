@@ -10,7 +10,14 @@ import LegendTimeline from './LegendTimeline';
 
 const byOrder = sortBy('order', 'DESC');
 
-const Legend = ({ activeLayers, reorder, loading, toggleLayer, setOpacity }) => {
+const Legend = ({
+  activeLayers,
+  reorder,
+  loading,
+  toggleLayer,
+  setOpacity,
+  defaultEmbedURLLayerParams,
+}) => {
   const [opened, toggleOpen] = useToggle(true);
   const onDragEnd = useCallback(
     ({ source, destination }) => destination && reorder(source.index, destination.index),
@@ -37,16 +44,14 @@ const Legend = ({ activeLayers, reorder, loading, toggleLayer, setOpacity }) => 
                     .filter(Boolean)
                     .sort(byOrder)
                     .map((layer, index) => {
-                      const {
-                        id,
-                        name,
-                        notAvailableByZoom,
-                        opacity,
-                        legend,
-                        info,
-                        timeline,
-                        date,
-                      } = layer;
+                      const { id, name, notAvailableByZoom, legend, info, timeline } = layer;
+
+                      const defaultParams = defaultEmbedURLLayerParams?.find(
+                        (l) => l.id === layer.id,
+                      );
+                      const date = layer.date || defaultParams?.date;
+                      const opacity = layer.opacity || defaultParams?.opacity;
+
                       const { source, link } = info || {};
                       const layerVisible = opacity > 0;
 

@@ -16,19 +16,21 @@ export const getPersistedLayers = () => {
 export const getActiveFromDefaults = (defaults) => (g) =>
   typeof g.active === 'undefined' ? defaults.some((id) => id === g.id) : g.active;
 
-export const parseDates = (layer) => {
+export const parseDates = (layer, defaultURLDate) => {
   const { timeline, date } = layer;
   if (!timeline) return layer;
+  const defaultDate = defaultURLDate ? new Date(defaultURLDate) : timeline.defaultDate;
 
-  const getDateParams = (timeline, date) => {
-    const selectedDate = !!date ? new Date(date) : timeline.defaultDate;
+  const getDateParams = () => {
+    const selectedDate = !!date ? new Date(date) : defaultDate;
     return {
       day: selectedDate.getDate(),
       month: String(selectedDate.getMonth() + 1).padStart(2, '0'), // Months need to have 2 digits
       year: selectedDate.getFullYear(),
     };
   };
-  const replaceDates = (str) => replace(str, getDateParams(timeline, date));
+
+  const replaceDates = (str) => replace(str, getDateParams());
   const { layerConfig } = layer;
   return {
     ...layer,
