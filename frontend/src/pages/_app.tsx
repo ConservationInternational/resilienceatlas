@@ -58,6 +58,7 @@ const REACT_TOUR_OPTIONS: Omit<MapTourProviderProps, 'children'> = {
 export type ResilienceAppProps = {
   dehydratedState?: DehydratedState;
   translations: Translations;
+  published: boolean;
   setTranslations?: (translations: Translations) => {
     type: string;
     translations: Translations;
@@ -65,7 +66,15 @@ export type ResilienceAppProps = {
   dispatch?: (action: unknown) => void;
 };
 
+export type JourneyPageProps = ResilienceAppProps & {
+  published: boolean;
+};
+
 export type NextPageWithLayout<P = ResilienceAppProps, IP = P> = NextPage<P, IP> & {
+  Layout?: (page: ReactElement, translations: Translations) => ReactNode;
+};
+
+export type JourneyNextPageWithLayout<P = JourneyPageProps, IP = P> = NextPage<P, IP> & {
   Layout?: (page: ReactElement, translations: Translations) => ReactNode;
 };
 
