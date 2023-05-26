@@ -34,5 +34,12 @@ describe('absoluteOrRelativeUrlWithCurrentLocale', function () {
         locales,
       ),
     ).to.eq('http://localhost:3000/es/map?tab=layers&layers=%center%es%22');
+    expect(
+      absoluteOrRelativeUrlWithCurrentLocale(
+        'https://staging.resilienceatlas.org/embed/map?tab=layers&layers=...',
+        locale,
+        locales,
+      ),
+    ).to.eq('https://staging.resilienceatlas.org/es/embed/map?tab=layers&layers=...');
   });
 });
