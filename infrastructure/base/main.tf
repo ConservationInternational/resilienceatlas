@@ -19,7 +19,7 @@ module "ecr" {
 
 module "s3" {
   source                   = "./modules/s3"
-  bucket_name              = "resilienceatlas-build-artifacts"
+  bucket_name              = var.build_artifacts_bucket_name
   cloud_formation_role_arn = module.iam.cloud_formation_role_arn
   pipeline_role_arn        = module.iam.pipeline_role_arn
 }
@@ -39,7 +39,7 @@ module "github_values" {
    ROUTE53_ZONE_ID                 = module.route53.route53_zone_id
    PIPELINE_EXECUTION_ROLE         = module.iam.pipeline_role_arn
    CLOUDFORMATION_EXECUTION_ROLE   = module.iam.cloud_formation_role_arn
-   ARTIFACTS_BUCKET                = var.bucket_name
+   ARTIFACTS_BUCKET                = var.build_artifacts_bucket_name
    IMAGE_REPOSITORY                = module.ecr.pipeline_resources_url
  }
  variable_map = {
