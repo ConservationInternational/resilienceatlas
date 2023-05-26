@@ -9,7 +9,7 @@ resource "github_actions_secret" "github_secret" {
 resource "github_actions_variable" "github_variable" {
   for_each = var.variable_map
 
-  repository      = var.repo_name
-  variable_name     = each.key
-  value = each.value
+  repository    = var.repo_name
+  variable_name = each.key
+  value         = each.value
 }

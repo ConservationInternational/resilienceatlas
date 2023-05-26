@@ -12,7 +12,7 @@ This deployment workflow relies on the coordination of different tools and servi
 to your infrastructure, you must:
 
 - Be conformable with using and have installed [Terraform](https://www.terraform.io/) v1.4.5
-- Be familiar with [Github Actions](https://github.com/features/actions) and a Github API Key with permissions to
+- Be familiar with [GitHub Actions](https://github.com/features/actions) and a Github API Key with permissions to
   manipulate secrets.
 - Have configured the [AWS CLI](https://aws.amazon.com/cli/) with access to the desired AWS account.
 

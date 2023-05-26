@@ -3,8 +3,8 @@ variable "repo_name" {
 }
 
 variable "secret_map" {
-  type      = map(string)
-  default   = {}
+  type    = map(string)
+  default = {}
 }
 
 variable "variable_map" {
