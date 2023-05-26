@@ -58,7 +58,6 @@ const REACT_TOUR_OPTIONS: Omit<MapTourProviderProps, 'children'> = {
 export type ResilienceAppProps = {
   dehydratedState?: DehydratedState;
   translations: Translations;
-  published: boolean;
   setTranslations?: (translations: Translations) => {
     type: string;
     translations: Translations;
