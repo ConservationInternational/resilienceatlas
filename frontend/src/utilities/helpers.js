@@ -158,5 +158,5 @@ export const absoluteOrRelativeUrlWithCurrentLocale = (url, locale, locales) => 
   }
   return localeInURL
     ? url.replace(`/${localeInURL}/`, `/${locale}/`)
-    : url.replace(/(https?:\/\/.+)(\/)/, `$1/${locale}/`);
+    : url.replace(/(\/[^\/]+\/)/, `$1${locale}/`);
 };
