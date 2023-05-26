@@ -6,7 +6,7 @@ import { toBackendLocale } from 'utilities/helpers';
 export const LOAD = createApiAction('journeys/LOAD');
 export const LOAD_ONE = createApiAction('journeys/LOAD_ONE');
 
-const URL_JOURNEYS = '/journeys';
+export const URL_JOURNEYS = '/journeys';
 
 export const load = (locale) =>
   api(LOAD, ({ get }) => get(URL_JOURNEYS, { params: { locale: toBackendLocale(locale) } }), {

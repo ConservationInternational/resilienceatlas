@@ -1,5 +1,4 @@
 import React, { useEffect } from 'react';
-import Head from 'next/head';
 import { useRouter } from 'next/router';
 import Loader from 'views/shared/Loader';
 import Landing from './Landing';
@@ -66,8 +65,7 @@ const Journey: FC<JourneyProps> = ({
 
   const journeyIds = journeysById && Object.keys(journeysById).map((id) => +id);
   const stepIndex = Number(step) - 1;
-  const { steps, attributes: journeyAttributes } = journey;
-  const { published } = journeyAttributes || {};
+  const { steps } = journey;
 
   if (!journeyLoaded || !journey || !steps[stepIndex]) return null;
   const stepInfo = steps[stepIndex];
@@ -75,33 +73,26 @@ const Journey: FC<JourneyProps> = ({
   const { attributes } = stepInfo;
   const { step_type: stepType } = attributes;
   return (
-    <>
-      <Head>
-        {published === false && (
-          <meta name="robots" content="noindex, nofollow, noimageindex, noarchive" />
-        )}
-      </Head>
-      <div className="l-journey" id="journeyIndexView">
-        <Loader loading={journeyLoading} />
+    <div className="l-journey" id="journeyIndexView">
+      <Loader loading={journeyLoading} />
 
-        {journeyLoaded &&
-          React.createElement(JOURNEY_TYPES[stepType], {
-            ...attributes,
-            translations,
-            isLastStep: stepIndex === steps.length - 1,
-          })}
+      {journeyLoaded &&
+        React.createElement(JOURNEY_TYPES[stepType], {
+          ...attributes,
+          translations,
+          isLastStep: stepIndex === steps.length - 1,
+        })}
 
-        <Controls journeyIds={journeyIds} slideslength={steps.length} />
+      <Controls journeyIds={journeyIds} slideslength={steps.length} />
 
-        {!journeyLoading && stepType !== 'embed' && (
-          <p className={`credits ${stepType}`}>
-            <a target="_blank" rel="noopener noreferrer" href={attributes.credits_url}>
-              {attributes.credits}
-            </a>
-          </p>
-        )}
-      </div>
-    </>
+      {!journeyLoading && stepType !== 'embed' && (
+        <p className={`credits ${stepType}`}>
+          <a target="_blank" rel="noopener noreferrer" href={attributes.credits_url}>
+            {attributes.credits}
+          </a>
+        </p>
+      )}
+    </div>
   );
 };
 
