@@ -1,9 +1,9 @@
-output "pipeline_resources_arn" {
-  description = "The Amazon Resource Name (ARN) assigned to the repository."
-  value       = try(aws_ecr_repository.pipeline_resources.arn, "")
+output "ecr_repository_arn" {
+  description = "The Amazon Resource Name (ARN) assigned to the ECR repository."
+  value       = try(aws_ecr_repository.repository.arn, "")
 }
 
-output "pipeline_resources_url" {
-  description = "The URL assigned to the repository."
-  value       = try(aws_ecr_repository.pipeline_resources.repository_url, "")
+output "ecr_repository_url" {
+  description = "The URL assigned to the ECR repository."
+  value       = try(aws_ecr_repository.repository.repository_url, "")
 }
