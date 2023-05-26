@@ -9,7 +9,7 @@ variable "allowed_account_id" {
   description = "AWS account id to which the resources will be deployed"
 }
 
-variable "build_artifacts_bucket_name" {
+variable "bucket_name_prefix" {
   type        = string
   description = "The name of the S3 bucket to store build artifacts data"
 }

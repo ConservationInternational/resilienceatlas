@@ -10,7 +10,7 @@ terraform {
 module "iam" {
   source                     = "./modules/iam"
   ecr_repository_arn         = module.ecr.ecr_repository_arn
-  build_artifacts_bucket_arn = module.s3.build_artifacts_bucket_arn
+  build_artifacts_bucket_arn = module.build_artifacts.build_artifacts_bucket_arn
 }
 
 module "ecr" {
@@ -19,9 +19,16 @@ module "ecr" {
   aws_region          = var.aws_region
 }
 
-module "s3" {
-  source                   = "./modules/s3"
-  bucket_name              = var.build_artifacts_bucket_name
+module "build_artifacts" {
+  source                   = "./modules/build_artifacts"
+  bucket_name              = "${var.bucket_name_prefix}-build-artifacts"
+  cloud_formation_role_arn = module.iam.cloud_formation_role_arn
+  pipeline_role_arn        = module.iam.pipeline_role_arn
+}
+
+module "data_store" {
+  source                   = "./modules/data_store"
+  bucket_name              = "${var.bucket_name_prefix}-data"
   cloud_formation_role_arn = module.iam.cloud_formation_role_arn
   pipeline_role_arn        = module.iam.pipeline_role_arn
 }
@@ -41,7 +48,7 @@ module "github_values" {
     ROUTE53_ZONE_ID                 = module.route53.route53_zone_id
     PIPELINE_EXECUTION_ROLE         = module.iam.pipeline_role_arn
     CLOUDFORMATION_EXECUTION_ROLE   = module.iam.cloud_formation_role_arn
-    ARTIFACTS_BUCKET                = var.build_artifacts_bucket_name
+    ARTIFACTS_BUCKET                = module.build_artifacts.bucket_name
     IMAGE_REPOSITORY                = module.ecr.ecr_repository_url
   }
   variable_map = {

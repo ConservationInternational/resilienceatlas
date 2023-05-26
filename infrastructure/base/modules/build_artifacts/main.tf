@@ -1,4 +1,4 @@
-resource "aws_s3_bucket" "build_artifacts_bucket" {
+resource "aws_s3_bucket" "bucket" {
   bucket = var.bucket_name
 }
 
@@ -6,8 +6,8 @@ data "aws_iam_policy_document" "resilience_atlas_access_for_deployment_document"
   statement {
     actions = ["s3:*"]
     resources = [
-      "${aws_s3_bucket.build_artifacts_bucket.arn}/*",
-      aws_s3_bucket.build_artifacts_bucket.arn
+      "${aws_s3_bucket.bucket.arn}/*",
+      aws_s3_bucket.bucket.arn
     ]
     principals {
       type        = "AWS"
@@ -29,8 +29,8 @@ data "aws_iam_policy_document" "resilience_atlas_access_for_deployment_document"
       "s3:List*"
     ]
     resources = [
-      "${aws_s3_bucket.build_artifacts_bucket.arn}/*",
-      aws_s3_bucket.build_artifacts_bucket.arn
+      "${aws_s3_bucket.bucket.arn}/*",
+      aws_s3_bucket.bucket.arn
     ]
     principals {
       type = "AWS"
@@ -44,6 +44,6 @@ data "aws_iam_policy_document" "resilience_atlas_access_for_deployment_document"
 }
 
 resource "aws_s3_bucket_policy" "ResilienceAtlasAccessForDeployment" {
-  bucket = aws_s3_bucket.build_artifacts_bucket.id
+  bucket = aws_s3_bucket.bucket.id
   policy = data.aws_iam_policy_document.resilience_atlas_access_for_deployment_document.json
 }
