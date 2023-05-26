@@ -44,7 +44,7 @@ const getInfo = (sourcesById, layer) => {
   };
 };
 
-export const makeActives = () =>
+export const makeActives = (defaultEmbedURLLayerParams) =>
   createSelector(
     [getActiveIds, getById, getLoaded, getSourcesById],
     (ids, layers, loaded, sourcesById) => {
@@ -52,10 +52,13 @@ export const makeActives = () =>
       const activeLayers = denormalize(ids, [layer], { layers });
       return activeLayers
         .filter((activeLayer) => !!activeLayer)
-        .map((layer) => ({
-          ...parseDates(layer),
-          info: getInfo(sourcesById, layer),
-        }));
+        .map((layer) => {
+          const defaultLayerParams = defaultEmbedURLLayerParams?.find((l) => l.id === layer.id);
+          return {
+            ...parseDates(layer, defaultLayerParams?.date),
+            info: getInfo(sourcesById, layer),
+          };
+        });
     },
   );
 

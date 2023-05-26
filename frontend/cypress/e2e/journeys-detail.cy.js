@@ -1,3 +1,5 @@
+import { locales } from 'locales.config.json';
+
 describe('Journeys detail page', () => {
   beforeEach(() => {
     cy.interceptAllRequests();
@@ -33,7 +35,13 @@ describe('Journeys detail page', () => {
 
         cy.url().should('include', `/journeys/${id}/step/${stepIndex + 1}`);
 
-        const expectedUrl = type === 'embed' ? `/en${btnUrl}` : null;
+        const isRelativeUrl = (url) => url && url.startsWith('/');
+        const localeSlugs = locales.map(({ locale }) => locale);
+        const localeInURL = btnUrl && localeSlugs.find((l) => btnUrl.includes(`/${l}/`));
+        const embeddedUrl = isRelativeUrl(btnUrl)
+          ? `/en${btnUrl}`
+          : btnUrl && btnUrl.replace(`/${localeInURL}/`, `/en/`);
+        const expectedUrl = type === 'embed' ? embeddedUrl : null;
 
         switch (type) {
           case 'landing':

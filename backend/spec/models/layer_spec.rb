@@ -45,7 +45,6 @@
 #  timeline_end_date         :date
 #  timeline_default_date     :date
 #  timeline_period           :string
-#  timeline_format           :string           default("%m/%d/%Y")
 #  analysis_type             :string
 #  name                      :string
 #  info                      :text
@@ -150,11 +149,6 @@ RSpec.describe Layer, type: :model do
       subject.timeline_steps = []
       subject.timeline_start_date = nil
       expect(subject).to have(1).errors_on(:timeline_start_date)
-    end
-
-    it "should not be valid without timeline_format" do
-      subject.timeline_format = nil
-      expect(subject).to have(1).errors_on(:timeline_format)
     end
   end
 

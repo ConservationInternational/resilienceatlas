@@ -8,7 +8,7 @@ import {
   SET_CHART_LIMIT,
   SET_DATE,
 } from './actions';
-import { getPersistedLayers } from './utils';
+import { getPersistedLayers, URL_PERSISTED_KEYS } from './utils';
 
 const persistedLayers = getPersistedLayers();
 
@@ -40,10 +40,12 @@ export default createReducer(initialState)({
       entities: { layers },
       result,
     } = payload;
+    const { byId: persistedById } = state;
 
     // Clear up active layers in case of changing subdomain
     // we receiving different sets of layers
     // TBD: maybe clear in URL as well
+
     const actives = new Set(state.actives.filter((id) => layers[id]));
 
     // Toggling default active layers, received from backend
@@ -51,9 +53,28 @@ export default createReducer(initialState)({
       if (layers[id].active) actives.add(+id);
     });
 
+    // Update fetched layers with persisted data
+    const persistedValues = (id) =>
+      URL_PERSISTED_KEYS.reduce((acc, key) => {
+        if (persistedById[id] && persistedById[id][key]) {
+          acc[key] = persistedById[id][key];
+        }
+        return acc;
+      }, {});
+
+    const updatedLayers = Object.keys(state.byId).reduce(
+      (acc, id) => {
+        if (layers[id]) {
+          acc[id] = { ...layers[id], ...persistedValues(id) };
+        }
+        return acc;
+      },
+      { ...layers },
+    );
+
     return {
       ...state,
-      byId: layers,
+      byId: updatedLayers,
       all: payload.result,
       actives: [...actives],
       loading: false,

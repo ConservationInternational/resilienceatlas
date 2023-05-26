@@ -7,7 +7,7 @@ class Api::Admin::LayersController < Api::Admin::ApiController
   def index
     @layers = Layer.order("created_at DESC")
     @layers = @layers.paginate page: page, per_page: per_page
-    render json: {success: true, message: "List of all Layers", data: @layers.as_json(except: [:timeline_format]), meta_attributes: meta_attributes(@layers)},
+    render json: {success: true, message: "List of all Layers", data: @layers.as_json, meta_attributes: meta_attributes(@layers)},
       status: :ok
   end
 
@@ -15,13 +15,13 @@ class Api::Admin::LayersController < Api::Admin::ApiController
     Layer.transaction do
       @layer = Layer.create!(layer_params)
       Api::Admin::LayersManager.new(@layer, params[:site_scope_id]).link_layer_group if params[:site_scope_id].present?
-      render json: {success: true, message: "Layer Created Successfully", data: @layer.as_json(except: [:timeline_format])}, status: :ok
+      render json: {success: true, message: "Layer Created Successfully", data: @layer.as_json}, status: :ok
     end
   end
 
   def destroy
     @layer.destroy!
-    render json: {success: true, message: "Layer Deleted Successfully", data: @layer.as_json(except: [:timeline_format])}, status: :ok
+    render json: {success: true, message: "Layer Deleted Successfully", data: @layer.as_json}, status: :ok
   end
 
   def update
@@ -29,12 +29,12 @@ class Api::Admin::LayersController < Api::Admin::ApiController
       puts layer_params.inspect
       @layer.update!(layer_params)
       Api::Admin::LayersManager.new(@layer, params[:site_scope_id]).link_layer_group if params[:site_scope_id].present?
-      render json: {success: true, message: "Layer Updated Successfully", data: @layer.as_json(except: [:timeline_format])}, status: :ok
+      render json: {success: true, message: "Layer Updated Successfully", data: @layer.as_json}, status: :ok
     end
   end
 
   def show
-    render json: {success: true, message: "Layer Details", data: @layer.as_json(except: [:timeline_format])}, status: :ok
+    render json: {success: true, message: "Layer Details", data: @layer.as_json}, status: :ok
   end
 
   def site_scopes

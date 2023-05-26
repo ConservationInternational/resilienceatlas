@@ -1,15 +1,23 @@
-import Datepicker from 'views/shared/datepicker/component';
+import Datepicker from 'views/shared/datepicker';
 import { useCallback } from 'react';
 import type { Timeline } from 'types/layer';
+import { T } from '@transifex/react';
 
 interface LegendTimelineProps {
   timeline: Timeline;
   layerName: string;
+  layerId: string;
   setDate: (date: Date) => void;
   selected: Date;
 }
 
-const LegendTimeline = ({ timeline, layerName, setDate, selected }: LegendTimelineProps) => {
+const LegendTimeline = ({
+  timeline,
+  layerName,
+  layerId,
+  setDate,
+  selected,
+}: LegendTimelineProps) => {
   const { startDate, endDate, period, steps } = timeline;
 
   const getResolution = useCallback(() => {
@@ -21,12 +29,21 @@ const LegendTimeline = ({ timeline, layerName, setDate, selected }: LegendTimeli
     return resolutionPeriods[period];
   }, [period]);
 
+  const datePickerId = `timeline-datepicker-${layerId}`;
+
   return (
     <>
       <div className="m-legend-timeline">
-        <span className="timeline-title">Display {layerName} in</span>
+        <label htmlFor={datePickerId} className="timeline-title">
+          <T
+            _str="Display {layerName} in"
+            layerName={layerName}
+            _comment="Display {Land use} in {Jan 2020}"
+          />
+        </label>
         <span className="timeline">
           <Datepicker
+            id={datePickerId}
             startDate={startDate}
             endDate={endDate}
             selected={selected}

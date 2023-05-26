@@ -1,10 +1,11 @@
 import { normalize } from 'normalizr';
-import { timeParse } from 'd3-time-format';
 import { replace } from 'resilience-layer-manager';
 
 import { getRouterParam } from 'utilities';
 
 import { persisted_layer } from '../../schema';
+
+export const URL_PERSISTED_KEYS = ['date', 'opacity', 'order', 'chartLimit'];
 
 export const getPersistedLayers = () => {
   const persistedLayers = getRouterParam('layers', JSON.parse);
@@ -15,20 +16,21 @@ export const getPersistedLayers = () => {
 export const getActiveFromDefaults = (defaults) => (g) =>
   typeof g.active === 'undefined' ? defaults.some((id) => id === g.id) : g.active;
 
-export const parseDates = (layer) => {
+export const parseDates = (layer, defaultURLDate) => {
   const { timeline, date } = layer;
   if (!timeline) return layer;
+  const defaultDate = defaultURLDate ? new Date(defaultURLDate) : timeline.defaultDate;
 
-  const getDateParams = (timeline, date) => {
-    const parseDate = timeParse(timeline.format);
-    const selectedDate = !!date ? parseDate(date) : timeline.defaultDate;
+  const getDateParams = () => {
+    const selectedDate = !!date ? new Date(date) : defaultDate;
     return {
       day: selectedDate.getDate(),
       month: String(selectedDate.getMonth() + 1).padStart(2, '0'), // Months need to have 2 digits
       year: selectedDate.getFullYear(),
     };
   };
-  const replaceDates = (str) => replace(str, getDateParams(timeline, date));
+
+  const replaceDates = (str) => replace(str, getDateParams());
   const { layerConfig } = layer;
   return {
     ...layer,

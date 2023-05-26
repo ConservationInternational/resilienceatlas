@@ -149,3 +149,14 @@ export function hexToRGB(hex, alpha) {
 export const toBackendLocale = (locale) => locale && locale.replace('_', '-');
 
 export const escapeCommasForCsv = (text) => `"${text}"`;
+
+export const absoluteOrRelativeUrlWithCurrentLocale = (url, locale, locales) => {
+  const localeInURL = url && locales && locales.find((l) => url.includes(`/${l}/`));
+  const isRelative = url && url.startsWith('/');
+  if (isRelative) {
+    return localeInURL ? url.replace(`/${localeInURL}/`, `/${locale}/`) : `/${locale}${url}`;
+  }
+  return localeInURL
+    ? url.replace(`/${localeInURL}/`, `/${locale}/`)
+    : url.replace(/(https?:\/\/.+)(\/)/, `$1/${locale}/`);
+};
