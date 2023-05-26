@@ -9,9 +9,9 @@ variable "allowed_account_id" {
   description = "AWS account id to which the resources will be deployed"
 }
 
-variable "bucket_name" {
+variable "build_artifacts_bucket_name" {
   type        = string
-  description = "The name of the S3 bucket to store application data"
+  description = "The name of the S3 bucket to store build artifacts data"
 }
 
 variable "base_route53_zone_name" {
