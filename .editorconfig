@@ -20,7 +20,6 @@ indent_style = tab
 profile = black
 
 [*.md]
-indent_style = tab
 trim_trailing_whitespace = false
 
 [*.yml]
