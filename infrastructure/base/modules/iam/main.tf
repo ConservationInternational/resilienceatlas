@@ -134,7 +134,7 @@ data "aws_iam_policy_document" "cloud_formation_role_policy_document" {
       "ecr:UploadLayerPart",
       "ecr:CompleteLayerUpload"
     ]
-    resources = [var.pipeline_resources_arn]
+    resources = [var.ecr_repository_arn]
     effect    = "Allow"
   }
 }
@@ -221,7 +221,7 @@ data "aws_iam_policy_document" "pipeline_role_policy_document" {
       "ecr:UploadLayerPart",
       "ecr:CompleteLayerUpload"
     ]
-    resources = [var.pipeline_resources_arn]
+    resources = [var.ecr_repository_arn]
     effect    = "Allow"
   }
 }
