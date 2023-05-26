@@ -10,9 +10,10 @@ import Legend from './Legend.component';
 
 const makeMapStateToProps = () => {
   const getPredictiveModelLayer = makePredictiveModelLayer();
-  const getActives = makeActives();
+  const getActives = (state, defaultEmbedURLLayerParams) =>
+    makeActives(defaultEmbedURLLayerParams)(state);
 
-  const mapStateToProps = (state, { router }) => {
+  const mapStateToProps = (state, { router, defaultEmbedURLLayerParams }) => {
     const { tab } = router.query;
 
     if (tab === TABS.MODELS) {
@@ -23,7 +24,7 @@ const makeMapStateToProps = () => {
     }
 
     return {
-      activeLayers: getActives(state),
+      activeLayers: getActives(state, defaultEmbedURLLayerParams),
       loading: state.layers.actives.length > 0 && state.layers.loading,
     };
   };

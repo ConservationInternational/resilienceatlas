@@ -6,16 +6,23 @@ import InfoWindow from 'views/components/InfoWindow';
 import { T } from '@transifex/react';
 import { sortBy, useToggle, clickable } from 'utilities';
 import LegendItem from './LegendItem';
+import LegendTimeline from './LegendTimeline';
 
 const byOrder = sortBy('order', 'DESC');
 
-const Legend = ({ activeLayers, reorder, loading, toggleLayer, setOpacity }) => {
+const Legend = ({
+  activeLayers,
+  reorder,
+  loading,
+  toggleLayer,
+  setOpacity,
+  defaultEmbedURLLayerParams,
+}) => {
   const [opened, toggleOpen] = useToggle(true);
   const onDragEnd = useCallback(
     ({ source, destination }) => destination && reorder(source.index, destination.index),
     [reorder],
   );
-
   return (
     <DragDropContext onDragEnd={onDragEnd}>
       <Droppable droppableId="legendLayers">
@@ -37,9 +44,17 @@ const Legend = ({ activeLayers, reorder, loading, toggleLayer, setOpacity }) => 
                     .filter(Boolean)
                     .sort(byOrder)
                     .map((layer, index) => {
-                      const { id, name, notAvailableByZoom, opacity, legend, info } = layer;
+                      const { id, name, notAvailableByZoom, legend, info, timeline } = layer;
+
+                      const defaultParams = defaultEmbedURLLayerParams?.find(
+                        (l) => l.id === layer.id,
+                      );
+                      const date = layer.date || defaultParams?.date;
+                      const opacity = layer.opacity || defaultParams?.opacity;
+
                       const { source, link } = info || {};
                       const layerVisible = opacity > 0;
+
                       return (
                         <Draggable key={id} draggableId={id} index={index}>
                           {({ draggableProps, dragHandleProps, innerRef: dragRef }) => (
@@ -122,6 +137,14 @@ const Legend = ({ activeLayers, reorder, loading, toggleLayer, setOpacity }) => 
                                     {link}
                                   </a>
                                 </div>
+                              )}
+                              {timeline && (
+                                <LegendTimeline
+                                  selectedDate={date}
+                                  layerId={id}
+                                  layerName={name}
+                                  timeline={timeline}
+                                />
                               )}
                             </li>
                           )}

@@ -1,7 +1,6 @@
 import { schema } from 'normalizr';
 import { replace } from 'resilience-layer-manager';
 import { generateDownloadUrl } from 'utilities/generateDownloadUrl';
-
 import { birds } from './utils/decoders';
 
 import {
@@ -34,6 +33,14 @@ export const layer = new schema.Entity(
   {},
   {
     processStrategy: (l) => {
+      const getTimeline = () => ({
+        defaultDate: new Date(l.attributes.timeline_default_date),
+        endDate: new Date(l.attributes.timeline_end_date),
+        startDate: new Date(l.attributes.timeline_start_date),
+        period: l.attributes.timeline_period,
+        steps: l.attributes.timeline_steps && l.attributes.timeline_steps.map((d) => new Date(d)),
+      });
+
       const group = l.relationships.layer_group.data;
       const sourcesIds = l.relationships.sources.data.map((s) => s.id);
       const layerConfig = JSON.parse(l.attributes.layer_config || '{}');
@@ -93,12 +100,14 @@ export const layer = new schema.Entity(
           parse: false,
           body: {
             ...layerConfig.body,
-            url: replace(layerConfig?.body?.url, {
-              ...layerConfig.params,
-              colormap: layerConfig.params?.colormap
-                ? encodeURIComponent(JSON.stringify(layerConfig.params.colormap))
-                : null,
-            }),
+            url:
+              layerConfig?.body?.url &&
+              replace(layerConfig?.body?.url, {
+                ...layerConfig.params,
+                colormap: layerConfig.params?.colormap
+                  ? encodeURIComponent(JSON.stringify(layerConfig.params.colormap))
+                  : null,
+              }),
           },
         },
       };
@@ -134,6 +143,7 @@ export const layer = new schema.Entity(
         analysisBody: l.attributes.analysis_body,
         analysisTextTemplate: l.attributes.analysis_text_template,
         layerProvider: l.attributes.layer_provider,
+        timeline: l.attributes.timeline && getTimeline(),
         // Layer manager params
         provider: provider[l.attributes.layer_provider],
         layerConfig: config[l.attributes.layer_provider],

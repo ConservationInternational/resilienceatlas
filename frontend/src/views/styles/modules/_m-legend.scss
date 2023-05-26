@@ -444,3 +444,21 @@ li[data-id='38'] .item span {
   background-color: transparent !important;
   background-image: url('/images/pastoralPattern.png') !important;
 }
+
+.m-legend-timeline {
+  margin-top: 20px;
+  display: flex;
+  align-items: center;
+
+  .timeline-title {
+    font-size: rem(12px);
+    margin-right: 5px;
+  }
+
+  .timeline {
+    flex: 1;
+    max-width: 140px;
+    // Year info is cropped without this min-width
+    min-width: 80px;
+  }
+}

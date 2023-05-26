@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import DangerousHTML from 'react-dangerous-html';
 import Iframe from 'react-iframe';
 import Legend from 'views/components/Legend';
@@ -8,11 +8,21 @@ import cx from 'classnames';
 import { T } from '@transifex/react';
 import { useRouter } from 'next/router';
 import { getSubdomainFromURL } from 'utilities/getSubdomain';
-
+import { URL_PERSISTED_KEYS } from 'state/modules/layers';
+import { absoluteOrRelativeUrlWithCurrentLocale } from 'utilities/helpers';
 // TODO: get rid of IFrame and use Map Component
 // It requires to refactor map to use redux instead of url in all cases
 // And to add separate mapper, to store all needed variables from redux
 // in url only on map page
+
+const getLayerData = (mapUrl) => {
+  const mapString = mapUrl.split('?')[1];
+  if (mapString) {
+    const mapData = mapString && qs.parse(mapString);
+    return mapData && JSON.parse(mapData.layers);
+  }
+  return null;
+};
 
 const Embed = (props) => {
   const {
@@ -21,6 +31,7 @@ const Embed = (props) => {
     layersLoaded,
     layersLocaleLoaded,
     layersLoadedSubdomain,
+    layersById,
     countriesLoaded,
     countries,
     theme,
@@ -36,7 +47,9 @@ const Embed = (props) => {
     setActiveLayer,
     isLastStep,
   } = props;
-  const { locale } = useRouter();
+  const { locale, locales } = useRouter();
+
+  // Load layers and countries when needed
   useEffect(() => {
     const siteScope = mapUrl.startsWith('http') && getSubdomainFromURL(mapUrl);
     const subdomainIsDifferentThanLoaded =
@@ -47,16 +60,49 @@ const Embed = (props) => {
     if (!countriesLoaded) loadCountries();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [locale, mapUrl]);
-  useEffect(() => {
-    const mapString = mapUrl.split('?')[1];
-    if (mapString) {
-      const mapData = mapString && qs.parse(mapString);
-      const layerData = mapData && JSON.parse(mapData.layers);
-      const layerDataIds = layerData?.map((l) => l.id);
 
+  // Update map url with the new selected params on the legend
+  const addParamsToUrl = useCallback((url, layersById) => {
+    const isURLRelative = url && url.startsWith('/');
+    const currentURL = new URL(url, isURLRelative ? window.location.origin : undefined);
+    const parsedLayers = getLayerData(url);
+    if (!parsedLayers) return url;
+
+    const updatedLayers = parsedLayers.reduce((acc, layer, index) => {
+      const layerUpdatedData = layersById[layer.id];
+      if (layerUpdatedData) {
+        URL_PERSISTED_KEYS.forEach((key) => {
+          if (layerUpdatedData[key]) {
+            acc[index][key] = layerUpdatedData[key];
+          }
+        });
+      }
+      return acc;
+    }, parsedLayers);
+    currentURL.searchParams.set('layers', JSON.stringify(updatedLayers));
+    if (!currentURL) return url;
+    return isURLRelative ? `${currentURL.pathname}${currentURL.search}` : currentURL.toString();
+  }, []);
+
+  const mapURLWithParams = useMemo(
+    () => addParamsToUrl(mapUrl, layersById),
+    [addParamsToUrl, mapUrl, layersById],
+  );
+
+  const btnURLWithParams = useMemo(
+    () => addParamsToUrl(btnUrl, layersById),
+    [addParamsToUrl, btnUrl, layersById],
+  );
+
+  // Set active layer
+  useEffect(() => {
+    const layerData = getLayerData(mapUrl);
+    if (layerData) {
+      const layerDataIds = layerData?.map((l) => l.id);
       setActiveLayer(layerDataIds);
     }
   }, [mapUrl, setActiveLayer]);
+
   const countryInfo =
     countries.find((c) => c.name.toLowerCase() === countryName.toLowerCase()) || {};
 
@@ -73,13 +119,6 @@ const Embed = (props) => {
     return params.toString();
   }, [countriesLoaded, countryInfo.geometry, maskSql]);
 
-  const provideAbsoluteOrRelativeUrl = (url) => {
-    if (url.startsWith('http')) {
-      return url.replace('resilienceatlas.org/', `resilienceatlas.org/${locale}/`);
-    }
-    return `/${locale}${url}`;
-  };
-
   return (
     <div className={`m-journey--embed--light ${theme}`}>
       <article className="side-bar">
@@ -93,9 +132,8 @@ const Embed = (props) => {
               <h1>{countryName}</h1>
               {content && <DangerousHTML html={content} className="content" />}
             </section>
-            {/* TODO: Review if source is rendered correctly */}
             {source}
-            <Legend />
+            <Legend defaultEmbedURLLayerParams={getLayerData(mapUrl)} />
             <InfoWindow />
             <footer>
               <p>
@@ -106,9 +144,15 @@ const Embed = (props) => {
         </div>
       </article>
       <div className="embebed-map">
-        <Iframe src={`${provideAbsoluteOrRelativeUrl(mapUrl)}&${embedParams}`} />
+        <Iframe
+          src={`${absoluteOrRelativeUrlWithCurrentLocale(
+            mapURLWithParams,
+            locale,
+            locales,
+          )}&${embedParams}`}
+        />
         <a
-          href={provideAbsoluteOrRelativeUrl(btnUrl)}
+          href={absoluteOrRelativeUrlWithCurrentLocale(btnURLWithParams, locale, locales)}
           target="_blank"
           rel="noopener noreferrer"
           data-step={currentStep}
