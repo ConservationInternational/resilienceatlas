@@ -5,8 +5,6 @@ import type { schema } from 'normalizr';
 
 import { merge } from 'utilities/helpers';
 
-export const isProd = process.env.NODE_ENV === 'production';
-
 export const PORT = process.env.NEXT_PUBLIC_API_HOST;
 
 const defaultConfig = {

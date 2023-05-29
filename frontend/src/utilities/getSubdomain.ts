@@ -1,5 +1,6 @@
-import { isProd } from '../state/utils/api';
 import { getRouterParam } from './routeParams';
+
+const isProd = process.env.NODE_ENV === 'production';
 
 export const getSubdomainFromURL = (url: string): string => {
   // Site scope depends on the domain set in the API
@@ -14,6 +15,8 @@ export const getSubdomainFromURL = (url: string): string => {
     subdomain === 'resilienceatlas' ||
     // Happens when loading https://staging.resilienceatlas.org
     subdomain === 'staging' ||
+    // Happens when loading https://app.resilienceatlas.org
+    subdomain === 'app' ||
     // Happens when loading http://localhost:3000 (for example)
     subdomain.startsWith('localhost')
   ) {
