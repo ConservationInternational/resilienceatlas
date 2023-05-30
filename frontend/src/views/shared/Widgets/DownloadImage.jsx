@@ -9,7 +9,7 @@ const DownloadImage = ({ analysisBody, geojson }) => {
 
     return {
       method: 'post',
-      url: 'https://us-central1-gef-ld-toolbox.cloudfunctions.net/download_image',
+      url: 'https://downloadimage.tt.resilienceatlas.org',
       data: {
         assetId,
         geometry: geoJSON(geojson).toGeoJSON(),
