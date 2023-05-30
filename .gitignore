@@ -1,6 +1,7 @@
 .DS_Store
 .idea
 .vscode
+node_modules
 
 infrastructure/base/.terraform
 infrastructure/base/vars/*
