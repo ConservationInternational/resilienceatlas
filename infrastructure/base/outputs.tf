@@ -16,3 +16,15 @@ output "pipeline_execution_role" {
   value     = module.iam.pipeline_role_arn
   sensitive = true
 }
+
+output "histogram_url" {
+  value     = "histogram.${module.route53.route53_domain}"
+}
+
+output "download_imnage_url" {
+  value     = "downloadimage.${module.route53.route53_domain}"
+}
+
+output "raster_interaction_url" {
+  value     = "rasterinteraction.${module.route53.route53_domain}"
+}

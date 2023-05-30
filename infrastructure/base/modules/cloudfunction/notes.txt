@@ -1,0 +1,10 @@
+iam.serviceAccounts.actAs
+iam.serviceAccounts.list
+
+
+
+Service Account Admin
+Service Account User
+Storage Admin
+Artifact Registry Administrator
+Compute Load Balancer Admin
