@@ -29,3 +29,19 @@ variable "github_repo_name" {
   type        = string
   description = "The name of the Github repo where the source code is stored."
 }
+
+# GCP account config
+variable "gcp_region" {
+  type        = string
+  description = "GCP region"
+}
+
+variable "gcp_zone" {
+  type        = string
+  description = "GCP zone"
+}
+
+variable "gcp_project_id" {
+  type        = string
+  description = "GCP project id"
+}

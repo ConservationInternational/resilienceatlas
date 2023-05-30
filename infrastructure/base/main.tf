@@ -37,6 +37,45 @@ module "route53" {
   source                 = "./modules/route53"
   base_route53_zone_name = var.base_route53_zone_name
   prefix                 = var.route53_prefix
+  gcp_lb_ip              = module.cloud_load_balancer.load-balancer-ip
+}
+
+
+module "cloud_analysis_histogram" {
+  source        = "./modules/cloudfunction"
+  function_name = "analysis_histogram"
+  gcp_region    = var.gcp_region
+  source_dir    = "${path.module}/../../cloud_functions/analysis_histogram"
+  runtime       = "nodejs18"
+  entry_point   = "histogram"
+}
+
+module "cloud_analysis_raster_interaction" {
+  source        = "./modules/cloudfunction"
+  function_name = "raster_interaction"
+  gcp_region    = var.gcp_region
+  source_dir    = "${path.module}/../../cloud_functions/raster_interaction"
+  runtime       = "nodejs18"
+  entry_point   = "rasterInteraction"
+}
+
+module "cloud_analysis_download_image" {
+  source        = "./modules/cloudfunction"
+  function_name = "download_image"
+  gcp_region    = var.gcp_region
+  source_dir    = "${path.module}/../../cloud_functions/download_image"
+  runtime       = "python311"
+  entry_point   = "download_image"
+}
+
+module "cloud_load_balancer" {
+  source                          = "./modules/load-balancer"
+  domain                          = "tt.resilienceatlas.org"
+  name                            = "resilienceatlas"
+  region                          = var.gcp_region
+  histogram_service_name          = module.cloud_analysis_histogram.function_service_name
+  download_image_service_name     = module.cloud_analysis_download_image.function_service_name
+  raster_interaction_service_name = module.cloud_analysis_raster_interaction.function_service_name
 }
 
 module "github_values" {

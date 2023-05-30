@@ -1,5 +1,9 @@
 terraform {
   required_providers {
+    google = {
+      source  = "hashicorp/google"
+      version = "~> 4.66"
+    }
     aws = {
       source  = "hashicorp/aws"
       version = "~> 4.64.0"
@@ -10,6 +14,12 @@ terraform {
     }
   }
   required_version = "~> 1.4.5"
+}
+
+provider "google" {
+  project = var.gcp_project_id
+  region  = var.gcp_region
+  zone    = var.gcp_zone
 }
 
 provider "aws" {
