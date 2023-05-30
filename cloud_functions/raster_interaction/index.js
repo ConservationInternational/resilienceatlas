@@ -1,4 +1,5 @@
 const ee = require("@google/earthengine");
+const functions = require('@google-cloud/functions-framework');
 const PRIVATE_KEY = require("./privatekey.json");
 
 const serialize = (originalData) => {
@@ -18,7 +19,7 @@ const interact_raster = (input) => {
 	return ee.Image(input.asset_id.replaceAll("'", "")).reduceRegion(reducer);
 };
 
-exports.rasterInteraction = (req, res) => {
+functions.http('rasterInteraction', (req, res) => {
 	const params = req.query;
 
 	res.set("Access-Control-Allow-Origin", "*");
@@ -44,4 +45,4 @@ exports.rasterInteraction = (req, res) => {
 		},
 		(e) => console.error(`Authentication error: ${e}`)
 	);
-};
+});

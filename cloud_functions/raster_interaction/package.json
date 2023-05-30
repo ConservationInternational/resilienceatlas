@@ -3,31 +3,16 @@
   "version": "0.0.1",
   "private": true,
   "license": "MIT",
-  "author": "Alicia Arenzana <alicia.arenzana@vizzuality.com>",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/GoogleCloudPlatform/nodejs-docs-samples.git"
-  },
+  "author": "Vizzuality <info@vizzuality.com>",
   "engines": {
-    "node": ">=20"
+    "node": ">=18"
   },
   "dependencies": {
-    "@google/earthengine": "^0.1.351"
+    "@google-cloud/functions-framework": "^3.2.0",
+    "@google/earthengine": "^0.1.354"
   },
   "cloud-repo-tools": {
     "requiresKeyFile": true,
     "requiresProjectId": true
-  },
-  "scripts": {
-    "start": "functions-framework --target=rasterInteraction"
-  },
-  "bugs": {
-    "url": "https://github.com/GoogleCloudPlatform/nodejs-docs-samples/issues"
-  },
-  "homepage": "https://github.com/GoogleCloudPlatform/nodejs-docs-samples#readme",
-  "main": "index.js",
-  "devDependencies": {
-    "@google-cloud/functions-framework": "^3.2.0"
-  },
-  "description": "this is a test"
+  }
 }

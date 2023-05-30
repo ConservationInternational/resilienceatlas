@@ -1,4 +1,5 @@
 const ee = require('@google/earthengine');
+const functions = require('@google-cloud/functions-framework');
 const PRIVATE_KEY = require('./privatekey.json');
 
 
@@ -50,13 +51,13 @@ const calcHistogram = (assetId, geometry) => {
   return histogram;
 };
 
-exports.histogram = (req, res) => {
+functions.http('histogram', (req, res) => {
   const assetId = req.body.assetId;
   const geometry = req.body.geometry;
-  
+
   res.set('Access-Control-Allow-Origin', '*');
   res.set('Content-Type', 'application/json');
-  
+
 
   if (req.method === 'OPTIONS') {
    // Send response to OPTIONS requests
@@ -73,7 +74,7 @@ exports.histogram = (req, res) => {
         const result = calcHistogram(assetId, geometry);
         result.evaluate((json) => res.status(200).send(serialize(json)));
       });
-    }, 
+    },
     e => console.error(`Authentication error: ${e}`)
   );
-};
+});
