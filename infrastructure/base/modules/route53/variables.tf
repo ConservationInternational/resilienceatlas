@@ -7,3 +7,8 @@ variable "prefix" {
   type        = string
   description = "Prefix to use for the Route53 zone created by this module. Will be prepended to the existing zone name."
 }
+
+variable "gcp_lb_ip" {
+  type        = string
+  description = "The IP address of the GCP load balancer to use for the DNS records."
+}
