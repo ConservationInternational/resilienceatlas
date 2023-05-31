@@ -43,7 +43,7 @@ module "route53" {
 
 module "cloud_analysis_histogram" {
   source        = "./modules/cloudfunction"
-  function_name = "analysis_histogram"
+  function_name = "analysis_histogram_v2"
   gcp_region    = var.gcp_region
   source_dir    = "${path.module}/../../cloud_functions/analysis_histogram"
   runtime       = "nodejs18"
@@ -52,7 +52,7 @@ module "cloud_analysis_histogram" {
 
 module "cloud_analysis_raster_interaction" {
   source        = "./modules/cloudfunction"
-  function_name = "raster_interaction"
+  function_name = "raster_interaction_v2"
   gcp_region    = var.gcp_region
   source_dir    = "${path.module}/../../cloud_functions/raster_interaction"
   runtime       = "nodejs18"
@@ -61,7 +61,7 @@ module "cloud_analysis_raster_interaction" {
 
 module "cloud_analysis_download_image" {
   source        = "./modules/cloudfunction"
-  function_name = "download_image"
+  function_name = "download_image_v2"
   gcp_region    = var.gcp_region
   source_dir    = "${path.module}/../../cloud_functions/download_image"
   runtime       = "python311"

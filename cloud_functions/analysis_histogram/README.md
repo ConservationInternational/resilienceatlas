@@ -2,7 +2,7 @@
 
 To create a Google Cloud Function v2 we need a [Google Cloud Project](https://cloud.google.com/resource-manager/docs/creating-managing-projects) and [gcloud SDK](https://cloud.google.com/sdk/docs/).
 
-## dependencies
+## Dependencies
 
 Google cloud project: `gef-ld-toolbox`
 
