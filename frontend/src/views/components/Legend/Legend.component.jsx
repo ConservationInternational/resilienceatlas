@@ -8,7 +8,7 @@ import { sortBy, useToggle, clickable } from 'utilities';
 import LegendItem from './LegendItem';
 import LegendTimeline from './LegendTimeline';
 
-const byOrder = sortBy('order', 'DESC');
+const byOrder = sortBy('order', true);
 
 const Legend = ({
   activeLayers,
