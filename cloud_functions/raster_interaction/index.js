@@ -37,7 +37,14 @@ functions.http('rasterInteraction', (req, res) => {
 		() => {
 			ee.initialize(null, null, () => {
 				const result = interact_raster(params);
-				console.log(result.getInfo());
+				try {
+					result.getInfo();
+				} catch (error) {
+					console.error(`Could not load image: ${error.toString()}`);
+					// This would likely be the ideal response, but adds a BC break
+					// return res.status(404).send(serialize({ error: error.message }));
+					return res.status(200).send(serialize(null));
+				}
 				result.evaluate((json) =>
 					res.status(200).send(serialize(json))
 				);
