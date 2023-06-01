@@ -1,14 +1,19 @@
 import { connect } from 'react-redux';
 
-import { load as loadLayers, setActives as setActiveLayer } from 'state/modules/layers';
-
+import {
+  load as loadLayers,
+  setActives as setActiveLayer,
+  makeActives,
+} from 'state/modules/layers';
 import JourneyEmbed from './Embed.component';
 
 const makeMapStateToProps = () => {
+  const getActives = makeActives();
+
   const mapStateToProps = (state) => ({
     countryName: state.journey.data.attributes.title,
     layersLoaded: state.layers.loaded,
-    layersById: state.layers.byId,
+    activeLayers: getActives(state),
     layersLocaleLoaded: state.layers.localeLoaded,
     layersSubdomainLoaded: state.layers.subdomainLoaded,
   });
