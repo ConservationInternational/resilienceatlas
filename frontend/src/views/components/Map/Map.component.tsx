@@ -3,7 +3,7 @@ import 'leaflet.pm';
 import 'leaflet-active-area';
 // UTFGrid library requires corslite, only included in the minimized version
 import 'leaflet-utfgrid/L.UTFGrid-min';
-import { sortBy, useRouterParams } from 'utilities';
+import { useRouterParams } from 'utilities';
 import React, { useCallback, useEffect, useContext } from 'react';
 import qs from 'qs';
 import omit from 'lodash/omit';
@@ -108,7 +108,6 @@ const MapView = (props: MapViewProps) => {
     onLayerLoading(false);
   }, [onLayerLoading]);
 
-  const byOrder = (a: number, b: number) => sortBy('order', true)(a, b);
   const MAX_LAYER_Z_INDEX = 1000;
 
   return (
@@ -159,7 +158,7 @@ const MapView = (props: MapViewProps) => {
       {(map) => (
         <>
           {tab === TABS.LAYERS &&
-            activeLayers.sort(byOrder).map((l, index) => (
+            activeLayers.map((l, index) => (
               <LayerManager map={map} plugin={PluginLeaflet} ref={layerManagerRef} key={l.id}>
                 <Layer
                   {...omit(l, 'interactivity')}
