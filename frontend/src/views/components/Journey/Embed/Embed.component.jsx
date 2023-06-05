@@ -133,7 +133,7 @@ const Embed = (props) => {
               {content && <DangerousHTML html={content} className="content" />}
             </section>
             {source}
-            <Legend defaultEmbedURLLayerParams={getLayerData(mapUrl)} />
+            <Legend isEmbed defaultEmbedURLLayerParams={getLayerData(mapUrl)} />
             <InfoWindow />
             <footer>
               <p>
