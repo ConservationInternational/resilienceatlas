@@ -17,6 +17,7 @@ const Legend = ({
   toggleLayer,
   setOpacity,
   defaultEmbedURLLayerParams,
+  isEmbed,
 }) => {
   const [opened, toggleOpen] = useToggle(true);
   const onDragEnd = useCallback(
@@ -91,31 +92,36 @@ const Legend = ({
                                       </svg>
                                     </button>
 
-                                    <button
-                                      type="button"
-                                      className={cx('btn-action', 'btn-visibility')}
-                                      {...clickable(() => setOpacity(id, layerVisible ? 0 : 1))}
-                                      data-id={id}
-                                    >
-                                      <svg>
-                                        <use
-                                          xlinkHref={`#icon-visibility${
-                                            layerVisible ? 'on' : 'off'
-                                          }`}
-                                        />
-                                      </svg>
-                                    </button>
+                                    {!isEmbed && (
+                                      <button
+                                        type="button"
+                                        className={cx('btn-action', 'btn-visibility')}
+                                        {...clickable(() => setOpacity(id, layerVisible ? 0 : 1))}
+                                        data-id={id}
+                                      >
+                                        {' '}
+                                        <svg>
+                                          <use
+                                            xlinkHref={`#icon-visibility${
+                                              layerVisible ? 'on' : 'off'
+                                            }`}
+                                          />
+                                        </svg>
+                                      </button>
+                                    )}
 
-                                    <button
-                                      type="button"
-                                      className="btn-remove"
-                                      {...clickable(() => toggleLayer(id))}
-                                      data-layer-id={id}
-                                    >
-                                      <svg className="icon">
-                                        <use xlinkHref="#icon-remove" />
-                                      </svg>
-                                    </button>
+                                    {!isEmbed && (
+                                      <button
+                                        type="button"
+                                        className="btn-remove"
+                                        {...clickable(() => toggleLayer(id))}
+                                        data-layer-id={id}
+                                      >
+                                        <svg className="icon">
+                                          <use xlinkHref="#icon-remove" />
+                                        </svg>
+                                      </button>
+                                    )}
                                   </div>
                                 )}
                               </header>
