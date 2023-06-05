@@ -121,7 +121,8 @@ export const layer = new schema.Entity(
         interactivity: l.attributes.interactivity,
         sql: l.attributes.query,
         color: l.attributes.color,
-        opacity: l.attributes.opacity,
+        // Opacity should start with 1 if it's missing
+        opacity: l.attributes.opacity === null ? 1 : l.attributes.opacity,
         no_opacity: l.attributes.opacity === 0,
         order: l.attributes.order || null,
         maxZoom: l.attributes.zoom_max || 100,
