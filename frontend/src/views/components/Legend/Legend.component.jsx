@@ -86,7 +86,6 @@ const Legend = ({
                                       <use xlinkHref="#icon-info" />
                                     </svg>
                                   </button>
-
                                   {!isEmbed && (
                                     <button
                                       type="button"
