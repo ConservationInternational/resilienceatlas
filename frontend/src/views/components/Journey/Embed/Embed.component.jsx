@@ -30,7 +30,7 @@ const Embed = (props) => {
     layersLoaded,
     layersLocaleLoaded,
     layersLoadedSubdomain,
-    layersById,
+    activeLayers,
     theme,
     embedded_map_url: mapUrl,
     map_url: btnUrl,
@@ -45,7 +45,6 @@ const Embed = (props) => {
     isLastStep,
   } = props;
   const { locale, locales } = useRouter();
-
   // Load layers and countries when needed
   useEffect(() => {
     const siteScope = mapUrl.startsWith('http') && getSubdomainFromURL(mapUrl);
@@ -59,36 +58,42 @@ const Embed = (props) => {
   }, [locale, mapUrl]);
 
   // Update map url with the new selected params on the legend
-  const addParamsToUrl = useCallback((url, layersById) => {
+  const addParamsToUrl = useCallback((url, activeLayers) => {
     const isURLRelative = url && url.startsWith('/');
     const currentURL = new URL(url, isURLRelative ? window.location.origin : undefined);
     const parsedLayers = getLayerData(url);
     if (!parsedLayers) return url;
 
-    const updatedLayers = parsedLayers.reduce((acc, layer, index) => {
-      const layerUpdatedData = layersById[layer.id];
-      if (layerUpdatedData) {
-        URL_PERSISTED_KEYS.forEach((key) => {
-          if (layerUpdatedData[key]) {
-            acc[index][key] = layerUpdatedData[key];
-          }
-        });
-      }
-      return acc;
-    }, parsedLayers);
+    const updatedLayers = parsedLayers
+      .reduce((acc, layer, index) => {
+        const layerUpdatedData = activeLayers?.find((id) => id === layer.id);
+        if (layerUpdatedData) {
+          URL_PERSISTED_KEYS.forEach((key) => {
+            if (layerUpdatedData[key]) {
+              acc[index][key] = layerUpdatedData[key];
+            }
+          });
+        }
+        return acc;
+      }, parsedLayers)
+      .sort((a, b) => {
+        // Ensure the order of the layers is the same as the activeLayers
+        const aIndex = activeLayers?.findIndex((l) => l.id === a.id);
+        const bIndex = activeLayers?.findIndex((l) => l.id === b.id);
+        return aIndex - bIndex;
+      });
     currentURL.searchParams.set('layers', JSON.stringify(updatedLayers));
     if (!currentURL) return url;
     return isURLRelative ? `${currentURL.pathname}${currentURL.search}` : currentURL.toString();
   }, []);
 
-  const mapURLWithParams = useMemo(
-    () => addParamsToUrl(mapUrl, layersById),
-    [addParamsToUrl, mapUrl, layersById],
-  );
+  const mapURLWithParams = useMemo(() => {
+    return addParamsToUrl(mapUrl, activeLayers);
+  }, [addParamsToUrl, mapUrl, activeLayers]);
 
   const btnURLWithParams = useMemo(
-    () => addParamsToUrl(btnUrl, layersById),
-    [addParamsToUrl, btnUrl, layersById],
+    () => addParamsToUrl(btnUrl, activeLayers),
+    [addParamsToUrl, btnUrl, activeLayers],
   );
 
   // Set active layer

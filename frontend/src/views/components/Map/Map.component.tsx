@@ -3,7 +3,7 @@ import 'leaflet.pm';
 import 'leaflet-active-area';
 // UTFGrid library requires corslite, only included in the minimized version
 import 'leaflet-utfgrid/L.UTFGrid-min';
-
+import { useRouterParams } from 'utilities';
 import React, { useCallback, useEffect, useContext } from 'react';
 import qs from 'qs';
 import omit from 'lodash/omit';
@@ -18,9 +18,7 @@ import { BASEMAPS, LABELS } from 'views/utils';
 import { URL_PERSISTED_KEYS } from 'state/modules/layers/utils';
 
 import { LayerManagerContext } from 'views/contexts/layerManagerCtx';
-import { useRouterParams } from 'utilities';
 import { subdomain } from 'utilities/getSubdomain';
-
 import Toolbar from './Toolbar';
 import DrawingManager from './DrawingManager';
 import MapOffset from './MapOffset';
@@ -110,6 +108,8 @@ const MapView = (props: MapViewProps) => {
     onLayerLoading(false);
   }, [onLayerLoading]);
 
+  const MAX_LAYER_Z_INDEX = 1000;
+
   return (
     <Maps
       customClass="m-map"
@@ -158,12 +158,13 @@ const MapView = (props: MapViewProps) => {
       {(map) => (
         <>
           {tab === TABS.LAYERS &&
-            activeLayers.map((l) => (
+            activeLayers.map((l, index) => (
               <LayerManager map={map} plugin={PluginLeaflet} ref={layerManagerRef} key={l.id}>
                 <Layer
                   {...omit(l, 'interactivity')}
                   slug={l.slug || l.id}
                   key={l.id}
+                  zIndex={MAX_LAYER_Z_INDEX - index}
                   // Interaction
                   {...(!!l.interactionConfig &&
                     !!l.interactionConfig &&
