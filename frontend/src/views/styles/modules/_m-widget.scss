@@ -98,6 +98,18 @@
     fill: $gray-medium;
   }
 
+  .yAxisLabel {
+    font-size: rem(13px);
+    transform: translateX(80px);
+    text-anchor: end;
+    fill: $gray-medium;
+  }
+
+  .xAxisLabel {
+    font-size: rem(13px);
+    fill: $gray-medium;
+  }
+
   .widget-no-data {
     display: flex;
     align-items: center;

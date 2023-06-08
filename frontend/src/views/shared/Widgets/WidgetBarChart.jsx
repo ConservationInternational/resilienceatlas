@@ -1,9 +1,18 @@
 import dynamic from 'next/dynamic';
 import React, { useMemo } from 'react';
-import { ResponsiveContainer, BarChart, XAxis, YAxis, CartesianGrid, Bar, Tooltip } from 'recharts';
+import {
+  ResponsiveContainer,
+  BarChart,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Bar,
+  Tooltip,
+  Label,
+} from 'recharts';
 
 import InfoWindow from 'views/components/InfoWindow';
-import { T } from '@transifex/react';
+import { T, useT } from '@transifex/react';
 
 import { useWidget, formatNumber } from 'utilities';
 import { CustomTooltip } from './CustomTooltip';
@@ -25,13 +34,14 @@ export const WidgetBarChart = ({
   geojson,
   type,
 }) => {
+  const t = useT();
   const { rootWidgetProps, loaded, data, noData } = useWidget(
     { slug, geojson },
     { type, analysisQuery, analysisBody },
   );
-  const { unit, bar_color } = useMemo(() => JSON.parse(legend), [legend]);
+  const { unit: singleUnit, units, bar_color } = useMemo(() => JSON.parse(legend), [legend]);
+  const unit = singleUnit || units;
   const isCOG = useMemo(() => type === 'cog', [type]);
-
   const mergedBarData = useMemo(() => {
     return isCOG
       ? data?.rows
@@ -86,7 +96,21 @@ export const WidgetBarChart = ({
                   }
                   textAnchor="end"
                   tickLine={false}
-                />
+                >
+                  <Label
+                    value={t(
+                      `${
+                        unit || t('Value', { comment: 'Value bins in continuous bar chart' })
+                      } bins`,
+                      {
+                        comment: '{unit} bins in continuous bar chart',
+                      },
+                    )}
+                    position="bottom"
+                    offset={36}
+                    className="xAxisLabel"
+                  />
+                </XAxis>
                 <YAxis
                   allowDataOverflow
                   axisLine={false}
@@ -102,7 +126,16 @@ export const WidgetBarChart = ({
                   unit={unit}
                   tick={{ ...tickOptions }}
                   padding={{ right: 20 }}
-                />
+                >
+                  <Label
+                    value={t('Frequency', {
+                      comment: 'Frequency of values in continuous bar chart',
+                    })}
+                    position="insideTopLeft"
+                    offset={-26}
+                    className="yAxisLabel"
+                  />
+                </YAxis>
 
                 <Tooltip
                   content={<CustomTooltip unit={unit} minimumFractionDigits={isCOG && 0} />}
