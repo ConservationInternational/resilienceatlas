@@ -39,7 +39,15 @@ export const WidgetBarChart = ({
     { slug, geojson },
     { type, analysisQuery, analysisBody },
   );
-  const { unit: singleUnit, units, bar_color } = useMemo(() => JSON.parse(legend), [legend]);
+  const { unit: singleUnit, units, bar_color } = useMemo(() => {
+    try {
+      return JSON.parse(legend);
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.error('Json parse failed', e)
+      return {};
+    }
+  }, [legend]);
   const unit = singleUnit || units;
   const isCOG = useMemo(() => type === 'cog', [type]);
   const mergedBarData = useMemo(() => {
