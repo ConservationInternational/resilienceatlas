@@ -34,7 +34,7 @@ export const TextChart: FC<TextChartProps> = ({
       if (typeof value === 'number') {
         value = value.toFixed(2);
       }
-
+      if (!value) return null;
       return res.replace(`{{${key}}}`, `<strong>${value}</strong>`);
     }, analysisTextTemplate);
   }, [data, analysisTextTemplate]);
@@ -44,7 +44,7 @@ export const TextChart: FC<TextChartProps> = ({
       <div className="name">{name}</div>
       {loaded && (
         <>
-          {noData && (
+          {(noData || !sentence) && (
             <div className="widget-no-data">
               <h3>
                 <T _str="NO DATA AVAILABLE" />
