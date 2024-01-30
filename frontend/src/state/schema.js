@@ -86,7 +86,7 @@ export const layer = new schema.Entity(
         'xyz tileset': {
           type: 'tileLayer',
           body: {
-            url: l.attributes.query,
+            url: layerConfig?.body?.url,
           },
         },
         gee: {

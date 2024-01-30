@@ -5326,9 +5326,9 @@ reselect@^4.0.0:
   resolved "https://registry.npmjs.org/reselect/-/reselect-4.1.7.tgz"
   integrity sha512-Zu1xbUt3/OPwsXL46hvOOoQrap2azE7ZQbokq61BQfiXvhewsKDwhMeZjTX9sX0nvw1t/U5Audyn1I9P/m9z0A==
 
-"resilience-layer-manager@https://github.com/ConservationInternational/resilienceatlas-layermanager.git#1.0.4":
+"resilience-layer-manager@github:ConservationInternational/resilienceatlas-layermanager#1.0.4":
   version "1.0.4"
-  resolved "git+ssh://git@github.com/ConservationInternational/resilienceatlas-layermanager.git#71310fb9e4a5da227e754cfb8e29b74a4b4e35de"
+  resolved "https://codeload.github.com/ConservationInternational/resilienceatlas-layermanager/tar.gz/71310fb9e4a5da227e754cfb8e29b74a4b4e35de"
   dependencies:
     axios "^0.18.0"
     lodash "^4.17.11"
