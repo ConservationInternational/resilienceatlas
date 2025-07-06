@@ -41,6 +41,11 @@ jobs:
           sudo apt update
           sudo apt-get -yqq install libpq-dev postgresql-client-15
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
       - name: Install ruby + gems
         uses: ruby/setup-ruby@v1
         with:

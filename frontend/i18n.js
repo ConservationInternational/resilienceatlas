@@ -14,31 +14,44 @@ export async function getServerSideTranslations({ locale, locales }) {
   // for example, de-de -> de_DE
   const txLocale = normalizeLocale(locale);
 
-  tx.init({
-    token: NEXT_PUBLIC_TRANSIFEX_TOKEN,
-    ...(process.env.NODE_ENV === 'development'
-      ? { missingPolicy: new PseudoTranslationPolicy() }
-      : {}),
-  });
+  // Only initialize Transifex if a token is provided and not empty
+  if (NEXT_PUBLIC_TRANSIFEX_TOKEN && NEXT_PUBLIC_TRANSIFEX_TOKEN.trim() !== '') {
+    tx.init({
+      token: NEXT_PUBLIC_TRANSIFEX_TOKEN,
+      ...(process.env.NODE_ENV === 'development'
+        ? { missingPolicy: new PseudoTranslationPolicy() }
+        : {}),
+    });
 
-  // load translations over-the-air
-  await tx.fetchTranslations(txLocale);
+    // load translations over-the-air
+    await tx.fetchTranslations(txLocale);
 
-  // bind a helper object in the Native instance for auto-refresh
-  tx._autorefresh = tx._autorefresh || {};
-  if (!tx._autorefresh[txLocale]) {
-    tx._autorefresh[txLocale] = Date.now();
+    // bind a helper object in the Native instance for auto-refresh
+    tx._autorefresh = tx._autorefresh || {};
+    if (!tx._autorefresh[txLocale]) {
+      tx._autorefresh[txLocale] = Date.now();
+    }
+
+    // check for stale content in the background
+    if (Date.now() - tx._autorefresh[txLocale] > TRANSLATIONS_TTL_SEC * 1000) {
+      tx._autorefresh[txLocale] = Date.now();
+      tx.fetchTranslations(txLocale, { refresh: true });
+    }
+
+    return {
+      locale,
+      locales,
+      translations: tx.cache.getTranslations(txLocale),
+    };
+  } else {
+    // Return empty translations when no token is provided
+    console.warn(
+      'Transifex token not provided for server-side translations. Translation service disabled.',
+    );
+    return {
+      locale,
+      locales,
+      translations: {},
+    };
   }
-
-  // check for stale content in the background
-  if (Date.now() - tx._autorefresh[txLocale] > TRANSLATIONS_TTL_SEC * 1000) {
-    tx._autorefresh[txLocale] = Date.now();
-    tx.fetchTranslations(txLocale, { refresh: true });
-  }
-
-  return {
-    locale,
-    locales,
-    translations: tx.cache.getTranslations(txLocale),
-  };
 }

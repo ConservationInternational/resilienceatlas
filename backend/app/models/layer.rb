@@ -110,13 +110,28 @@ class Layer < ApplicationRecord
   accepts_nested_attributes_for :agrupations, allow_destroy: true
   accepts_nested_attributes_for :sources, allow_destroy: true
 
-  translates :name, :info, :legend, :title, :data_units, :processing, :description, :analysis_text_template, touch: true, fallbacks_for_empty_translations: true
-  active_admin_translates :name, :info, :legend, :title, :data_units, :processing, :description, :analysis_text_template
+  # Translation setup - protected against migration errors
+  begin
+    translates :name, :info, :legend, :title, :data_units, :processing, :description, :analysis_text_template, touch: true, fallbacks_for_empty_translations: true
+    active_admin_translates :name, :info, :legend, :title, :data_units, :processing, :description, :analysis_text_template
+    
+    # Only add translation validations if the translation_class is defined
+    if respond_to?(:translation_class) && translation_class
+      translation_class.validates_presence_of :name, if: -> { locale.to_s == I18n.default_locale.to_s }
+    end
+  rescue ActiveRecord::NoDatabaseError, ActiveRecord::ConnectionNotEstablished, ActiveRecord::StatementInvalid => e
+    # Database not available yet - skip translation setup for now
+    Rails.logger&.info "Skipping Layer translations setup - database not ready: #{e.message}"
+  end
 
-  translation_class.validates_presence_of :name, if: -> { locale.to_s == I18n.default_locale.to_s }
-
-  enum :timeline_period, {yearly: "yearly", monthly: "monthly", daily: "daily"}, default: :yearly, prefix: true
-  enum :analysis_type, {histogram: "histogram", categorical: "categorical", text: "text"}, default: :histogram, prefix: true
+  # Only define enums if the table and columns exist to avoid migration issues
+  if table_exists? && column_names.include?('timeline_period')
+    enum :timeline_period, {yearly: "yearly", monthly: "monthly", daily: "daily"}, default: :yearly, prefix: true
+  end
+  
+  if table_exists? && column_names.include?('analysis_type')
+    enum :analysis_type, {histogram: "histogram", categorical: "categorical", text: "text"}, default: :histogram, prefix: true
+  end
 
   validates_presence_of :slug, :layer_provider, :interaction_config
   validates :timeline, inclusion: {in: [true, false]}

@@ -1,6 +1,8 @@
 export { reducer as form } from 'redux-form';
 export { default as ui } from './ui';
 export { default as site } from './site';
+export { default as sites } from './sites';
+export { default as siteScopeAuth } from './site_scope_auth';
 export { default as map_menu_entries } from './map_menu_entries';
 export { default as user } from './user';
 export { default as map } from './map';

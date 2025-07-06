@@ -4,6 +4,8 @@ import thunkMiddleware from 'redux-thunk';
 import { composeWithDevTools } from 'redux-devtools-extension/developmentOnly';
 import * as reducers from './modules';
 import normalizerMiddleware from './middleware/normalizerMiddleware';
+import siteScopeAuthMiddleware from './middleware/siteScopeAuthMiddleware';
+import siteLoadMiddleware from './middleware/siteLoadMiddleware';
 
 const composeEnhancer = composeWithDevTools({});
 const combinedReducer = combineReducers(reducers);
@@ -21,7 +23,17 @@ const reducer = (state, action) => {
 };
 
 const initStore = () =>
-  createStore(reducer, composeEnhancer(applyMiddleware(thunkMiddleware, normalizerMiddleware)));
+  createStore(
+    reducer,
+    composeEnhancer(
+      applyMiddleware(
+        thunkMiddleware,
+        normalizerMiddleware,
+        siteScopeAuthMiddleware,
+        siteLoadMiddleware,
+      ),
+    ),
+  );
 
 export default initStore;
 

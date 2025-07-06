@@ -45,7 +45,7 @@
     "numeral": "^2.0.6",
     "qs": "^6.9.7",
     "react": "17.0.2",
-    "react-beautiful-dnd": "^11.0.0-beta.3",
+    "react-beautiful-dnd": "^13.1.1",
     "react-cookie": "^4.1.1",
     "react-dangerous-html": "^1.0.0",
     "react-datepicker": "^4.11.0",
@@ -54,10 +54,10 @@
     "react-foundation": "0.9.7",
     "react-iframe": "^1.8.0",
     "react-modal": "^3.16.1",
-    "react-redux": "6.0.1",
+    "react-redux": "^7.2.9",
     "react-router": "^4.3.1",
     "react-slick": "0.29.0",
-    "recharts": "^1.5.0",
+    "recharts": "^2.5.0",
     "redux": "^4.0.1",
     "redux-devtools-extension": "^2.13.8",
     "redux-form": "^8.2.3",
@@ -102,6 +102,11 @@
     "minimist": "1.2.7",
     "mustache": "2.2.1",
     "node-fetch": "2.6.7",
-    "underscore": "1.12.1"
+    "underscore": "1.12.1",
+    "react-redux": "^7.2.9",
+    "react-beautiful-dnd": "^13.1.1",
+    "recharts": "^2.5.0",
+    "resilience-layer-manager/react": "17.0.2",
+    "resilience-layer-manager/react-dom": "17.0.2"
   }
 }

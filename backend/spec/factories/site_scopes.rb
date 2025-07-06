@@ -31,51 +31,26 @@ FactoryBot.define do
     end
     sequence(:subdomain) do |n|
       Faker::Config.random = Random.new(n)
-      Faker::Lorem.word
+      Faker::Internet.domain_word
     end
-    sequence(:has_analysis) do |n|
-      Faker::Config.random = Random.new(n)
-      Faker::Boolean.boolean
-    end
-    sequence(:latitude) do |n|
-      Faker::Config.random = Random.new(n)
-      Faker::Address.latitude
-    end
-    sequence(:longitude) do |n|
-      Faker::Config.random = Random.new(n)
-      Faker::Address.longitude
-    end
-    sequence(:header_theme) do |n|
-      Faker::Config.random = Random.new(n)
-      Faker::Lorem.sentence
-    end
-    sequence(:zoom_level) do |n|
-      Faker::Config.random = Random.new(n)
-      Faker::Number.between from: 1, to: 100
-    end
-    sequence(:linkback_text) do |n|
-      Faker::Config.random = Random.new(n)
-      Faker::Lorem.paragraph
-    end
-    sequence(:linkback_url) do |n|
-      Faker::Config.random = Random.new(n)
-      Faker::Internet.url
-    end
-    sequence(:header_color) do |n|
-      Faker::Config.random = Random.new(n)
-      Faker::Color.hex_color
-    end
-    sequence(:logo_url) do |n|
-      Faker::Config.random = Random.new(n)
-      Faker::Internet.url
-    end
-    sequence(:predictive_model) do |n|
-      Faker::Config.random = Random.new(n)
-      Faker::Boolean.boolean
-    end
-    sequence(:analysis_options) do |n|
-      Faker::Config.random = Random.new(n)
-      Faker::Boolean.boolean
+    has_analysis { false }
+    password_protected { false }
+    latitude { Faker::Address.latitude }
+    longitude { Faker::Address.longitude }
+    header_theme { ['ci-theme', 'vs-theme'].sample }
+    zoom_level { rand(1..10) }
+    linkback_text { Faker::Lorem.sentence }
+    linkback_url { Faker::Internet.url }
+    header_color { Faker::Color.hex_color }
+    logo_url { Faker::Internet.url }
+    predictive_model { false }
+    analysis_options { false }
+    has_gef_logo { false }
+
+    trait :password_protected do
+      password_protected { true }
+      username { 'testuser' }
+      password { 'password123' }
     end
   end
 end

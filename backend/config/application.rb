@@ -1,4 +1,4 @@
-require File.expand_path("../boot", __FILE__)
+require_relative "boot"
 
 require "rails/all"
 
@@ -8,7 +8,7 @@ Bundler.require(*Rails.groups)
 
 module ConservationInternational
   class Application < Rails::Application
-    config.load_defaults 7.0
+    config.load_defaults 7.2
 
     backend_url = URI.parse ENV.fetch("BACKEND_URL", "http://localhost:3000")
     Rails.application.routes.default_url_options = {
@@ -23,8 +23,7 @@ module ConservationInternational
 
     # The default locale is :en and all translations from config/locales/*.rb,yml are auto loaded.
     # config.i18n.load_path += Dir[Rails.root.join('my', 'locales', '*.{rb,yml}').to_s]
-    config.autoload_paths << Rails.root.join("lib")
-    config.eager_load_paths << Rails.root.join("lib")
+    config.autoload_lib(ignore: %w[assets tasks])
     config.i18n.available_locales = [:en, :es, :"pt-BR", :fr, :ru, :"zh-CN"]
     config.i18n.default_locale = :en
     config.i18n.fallbacks = [:en]

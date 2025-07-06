@@ -1,0 +1,122 @@
+services:
+  db-test:
+    image: postgis/postgis:15-3.3
+    environment:
+      - POSTGRES_DB=cigrp_test
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_test_data:/var/lib/postgresql/data
+    networks:
+      - test-network
+    restart: unless-stopped
+
+  backend-test:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    environment:
+      - RAILS_ENV=test
+      - DATABASE_URL=postgis://postgres:postgres@db-test:5432/cigrp_test
+      - DATABASE_USER=postgres
+      - DATABASE_PASSWORD=postgres
+      - DATABASE_PORT=5432
+      - SECRET_KEY_BASE=test_secret_key_base_at_least_30_characters_long
+      - DEVISE_KEY=test_devise_key_at_least_30_characters_long
+      - BACKEND_URL=http://localhost:3000
+      - RAILS_FORCE_SSL=false
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./backend:/app
+      - bundle_cache:/usr/local/bundle
+    networks:
+      - test-network
+    depends_on:
+      - db-test
+    command: >
+      bash -c "
+        bundle install &&
+        while ! pg_isready -h db-test -p 5432 -U postgres; do
+          echo 'Waiting for database to be ready...'
+          sleep 2
+        done &&
+        PGPASSWORD=postgres psql -h db-test -U postgres -d cigrp_test -c 'CREATE EXTENSION IF NOT EXISTS postgis; CREATE EXTENSION IF NOT EXISTS postgis_topology;' || true &&
+        echo 'Creating test database...' &&
+        RAILS_ENV=test bundle exec rails db:create || true &&
+        echo 'Running database migrations...' &&
+        RAILS_ENV=test bundle exec rails db:migrate --trace &&
+        echo 'Seeding test database...' &&
+        RAILS_ENV=test bundle exec rails db:seed || true &&
+        echo 'Starting Rails server in background...' &&
+        RAILS_ENV=test bundle exec rails server -b 0.0.0.0 -p 3001 &
+        echo 'Waiting for Rails server to start...' &&
+        sleep 15 &&
+        echo 'Running all RSpec tests (excluding slow system tests for CI)...' &&
+        RAILS_ENV=test bundle exec rspec --format documentation --exclude-pattern '**/systems/**/*_spec.rb'"
+
+  frontend-app:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_API_HOST=http://backend-test:3001
+      # TODO: Set these to your actual Transifex credentials
+      - NEXT_PUBLIC_TRANSIFEX_TOKEN=${NEXT_PUBLIC_TRANSIFEX_TOKEN:-your_transifex_token_here}
+      - NEXT_PUBLIC_TRANSIFEX_SECRET=${NEXT_PUBLIC_TRANSIFEX_SECRET:-your_transifex_secret_here}
+    ports:
+      - "3000:3000"
+    networks:
+      - test-network
+    depends_on:
+      - backend-test
+    command: >
+      bash -c "
+        echo 'Waiting for backend to be ready...' &&
+        until curl -f http://backend-test:3001/health || curl -f http://backend-test:3001/api/v1/categories; do
+          echo 'Backend not ready, waiting...'
+          sleep 5
+        done &&
+        echo 'Backend is ready, starting frontend...' &&
+        npm start"
+
+  frontend-test:
+    image: cypress/included:12.9.0
+    working_dir: /app
+    environment:
+      - NODE_ENV=test
+      - CYPRESS_baseUrl=http://frontend-app:3000
+    volumes:
+      - ./frontend:/app
+      - node_modules_test:/app/node_modules
+      - cypress_cache:/root/.cache/Cypress
+    networks:
+      - test-network
+    depends_on:
+      - frontend-app
+    entrypoint: ""
+    command: >
+      bash -c "
+        yarn install &&
+        npx cypress install &&
+        echo 'Waiting for frontend app to be ready...' &&
+        until node -e 'const net=require(\"net\");const s=net.createConnection(3000,\"frontend-app\");s.on(\"connect\",()=>process.exit(0));s.on(\"error\",()=>process.exit(1));' 2>/dev/null; do
+          echo 'Frontend app not ready yet, waiting...'
+          sleep 5
+        done &&
+        echo 'Frontend app is ready! Starting tests...' &&
+        npx cypress run --config-file cypress.docker.config.js"
+
+networks:
+  test-network:
+    driver: bridge
+
+volumes:
+  postgres_test_data:
+  bundle_cache:
+  node_modules_test:
+  frontend_node_modules:
+  cypress_cache:

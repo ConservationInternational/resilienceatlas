@@ -10,9 +10,13 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_05_25_083553) do
+ActiveRecord::Schema[7.2].define(version: 2025_07_02_120000) do
+  create_schema "topology"
+
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+  enable_extension "postgis"
+  enable_extension "postgis_topology"
 
   create_table "action_text_rich_texts", force: :cascade do |t|
     t.string "name", null: false
@@ -226,8 +230,8 @@ ActiveRecord::Schema[7.0].define(version: 2023_05_25_083553) do
   create_table "indicators", force: :cascade do |t|
     t.string "slug", null: false
     t.string "version"
-    t.datetime "created_at", precision: nil, default: "2023-03-28 20:07:16", null: false
-    t.datetime "updated_at", precision: nil, default: "2023-03-28 20:07:16", null: false
+    t.datetime "created_at", precision: nil, default: "2025-07-06 17:50:21", null: false
+    t.datetime "updated_at", precision: nil, default: "2025-07-06 17:50:21", null: false
     t.integer "category_id"
     t.integer "position"
     t.string "column_name"
@@ -297,8 +301,8 @@ ActiveRecord::Schema[7.0].define(version: 2023_05_25_083553) do
     t.datetime "updated_at", null: false
     t.string "name"
     t.text "info"
+    t.index ["layer_group_id", "locale"], name: "index_layer_group_translations_on_layer_group_id_and_locale", unique: true
     t.index ["layer_group_id"], name: "index_layer_group_translations_on_layer_group_id"
-    t.index ["locale"], name: "index_layer_group_translations_on_locale"
   end
 
   create_table "layer_groups", force: :cascade do |t|
@@ -329,8 +333,8 @@ ActiveRecord::Schema[7.0].define(version: 2023_05_25_083553) do
     t.string "processing"
     t.text "description"
     t.text "analysis_text_template"
+    t.index ["layer_id", "locale"], name: "index_layer_translations_on_layer_id_and_locale", unique: true
     t.index ["layer_id"], name: "index_layer_translations_on_layer_id"
-    t.index ["locale"], name: "index_layer_translations_on_locale"
   end
 
   create_table "layers", force: :cascade do |t|
@@ -420,8 +424,8 @@ ActiveRecord::Schema[7.0].define(version: 2023_05_25_083553) do
   end
 
   create_table "models", force: :cascade do |t|
-    t.datetime "created_at", precision: nil, default: "2023-03-28 20:07:16", null: false
-    t.datetime "updated_at", precision: nil, default: "2023-03-28 20:07:16", null: false
+    t.datetime "created_at", precision: nil, default: "2025-07-06 17:50:21", null: false
+    t.datetime "updated_at", precision: nil, default: "2025-07-06 17:50:21", null: false
     t.text "query_analysis"
     t.string "table_name"
   end
@@ -490,6 +494,10 @@ ActiveRecord::Schema[7.0].define(version: 2023_05_25_083553) do
     t.boolean "predictive_model", default: false, null: false
     t.boolean "analysis_options", default: false, null: false
     t.boolean "has_gef_logo"
+    t.boolean "password_protected", default: false, null: false
+    t.string "username"
+    t.string "encrypted_password"
+    t.index ["password_protected"], name: "index_site_scopes_on_password_protected"
   end
 
   create_table "source_translations", force: :cascade do |t|
@@ -658,6 +666,8 @@ ActiveRecord::Schema[7.0].define(version: 2023_05_25_083553) do
   add_foreign_key "identities", "users"
   add_foreign_key "indicators", "categories"
   add_foreign_key "journey_steps", "journeys", on_delete: :cascade
+  add_foreign_key "layer_group_translations", "layer_groups"
+  add_foreign_key "layer_translations", "layers"
   add_foreign_key "static_page_section_items", "static_page_sections", column: "section_id", on_delete: :cascade
   add_foreign_key "static_page_section_paragraphs", "static_page_sections", column: "section_id", on_delete: :cascade
   add_foreign_key "static_page_section_references", "static_page_sections", column: "section_id", on_delete: :cascade

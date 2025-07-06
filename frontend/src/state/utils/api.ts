@@ -4,6 +4,7 @@ import type { ThunkDispatch } from 'redux-thunk';
 import type { schema } from 'normalizr';
 
 import { merge } from 'utilities/helpers';
+import { subdomain } from 'utilities/getSubdomain';
 
 export const PORT = process.env.NEXT_PUBLIC_API_HOST;
 
@@ -16,6 +17,14 @@ const defaultConfig = {
 };
 
 let axiosInstance = axios.create(defaultConfig);
+
+// Function to get site scope token from localStorage
+const getSiteScopeToken = (siteScope = subdomain) => {
+  if (typeof window !== 'undefined') {
+    return localStorage.getItem(`site_scope_token_${siteScope}`);
+  }
+  return null;
+};
 
 export const updateApi = (config: AxiosRequestConfig) => {
   axiosInstance = axios.create(merge(defaultConfig, config));
@@ -40,19 +49,39 @@ export const createApiAction = (name = ''): ApiAction => {
 export const makeRequest = (method: string, url: string, options: AxiosRequestConfig = {}) => {
   const headers = { ...axiosInstance.defaults.headers, ...options.headers };
 
+  // Add site scope token if available and this is a site-specific request
+  const siteScope = options.params?.site_scope || subdomain;
+  const siteScopeToken = getSiteScopeToken(siteScope);
+
+  if (siteScopeToken) {
+    headers['Site-Scope-Token'] = siteScopeToken;
+  }
+
   return axiosInstance({
     ...options,
     method,
     url,
     headers,
-  }).catch((error) =>
-    error.response
+  }).catch((error) => {
+    // Check if this is a site scope authentication error
+    if (
+      error.response?.status === 401 &&
+      error.response?.data?.errors?.[0]?.meta?.requires_authentication
+    ) {
+      // This is a site scope authentication error
+      // Clear the potentially invalid token
+      if (siteScopeToken && typeof window !== 'undefined') {
+        localStorage.removeItem(`site_scope_token_${siteScope}`);
+      }
+    }
+
+    return error.response
       ? Promise.reject({
           error: true,
           ...error.response,
         })
-      : Promise.reject({ error: error.message }),
-  );
+      : Promise.reject({ error: error.message });
+  });
 };
 
 type Handler = (url: string, config: AxiosRequestConfig) => Promise<any>;

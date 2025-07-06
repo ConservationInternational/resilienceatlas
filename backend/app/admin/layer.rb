@@ -21,7 +21,7 @@ ActiveAdmin.register Layer do
     end
   end
 
-  member_action :clone, only: :show, method: :get do
+  member_action :duplicate, only: :show, method: :get do
     n = resource.clone!
     redirect_to edit_admin_layer_path(n)
   end
@@ -60,7 +60,7 @@ ActiveAdmin.register Layer do
     column :slug
     column :published
     actions defaults: true do |layer|
-      link_to "Clone", clone_admin_layer_path(layer)
+      link_to "Duplicate", duplicate_admin_layer_path(layer)
     end
   end
 

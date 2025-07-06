@@ -6,7 +6,7 @@
       "attributes": {
         "name": "voluptatem",
         "slug": "Category-1",
-        "description": "Enim repellat pariatur. Earum modi eos. Libero tempora exercitationem."
+        "description": "Description for category 1. This is a consistent test description."
       },
       "relationships": {
         "indicators": {
@@ -22,7 +22,7 @@
       "attributes": {
         "name": "cum",
         "slug": "Category-2",
-        "description": "Placeat commodi libero. Quo recusandae repellat. Sunt commodi tempore."
+        "description": "Description for category 2. This is a consistent test description."
       },
       "relationships": {
         "indicators": {
@@ -38,7 +38,7 @@
       "attributes": {
         "name": "molestiae",
         "slug": "Category-3",
-        "description": "Et quaerat omnis. Harum voluptas atque. Quo nesciunt voluptas."
+        "description": "Description for category 3. This is a consistent test description."
       },
       "relationships": {
         "indicators": {

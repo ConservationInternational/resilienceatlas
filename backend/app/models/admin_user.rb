@@ -38,5 +38,5 @@ class AdminUser < ApplicationRecord
     staff
   ].freeze
 
-  enum role: ROLES
+  enum :role, ROLES
 end

@@ -1,0 +1,47 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3000"
+    environment:
+      - RAILS_ENV=production
+      - DATABASE_URL=${DATABASE_URL}
+      - SECRET_KEY_BASE=${SECRET_KEY_BASE}
+      - DEVISE_KEY=${DEVISE_KEY}
+      - WEBSHOT_URL=${WEBSHOT_URL}
+      - RESILIENCE_API_KEY=${RESILIENCE_API_KEY}
+      - BACKEND_URL=${BACKEND_URL}
+      - FRONTEND_URL=${FRONTEND_URL}
+      - SPARKPOST_API_KEY=${SPARKPOST_API_KEY}
+    env_file:
+      - .env
+    networks:
+      - app-network
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_API_HOST=${NEXT_PUBLIC_API_HOST}
+      - NEXT_PUBLIC_GOOGLE_ANALYTICS=${NEXT_PUBLIC_GOOGLE_ANALYTICS}
+      - NEXT_PUBLIC_TRANSIFEX_TOKEN=${NEXT_PUBLIC_TRANSIFEX_TOKEN}
+      - NEXT_PUBLIC_TRANSIFEX_SECRET=${NEXT_PUBLIC_TRANSIFEX_SECRET}
+      - NEXT_PUBLIC_GOOGLE_API_KEY=${NEXT_PUBLIC_GOOGLE_API_KEY}
+    env_file:
+      - .env
+    networks:
+      - app-network
+    restart: unless-stopped
+    depends_on:
+      - backend
+
+networks:
+  app-network:
+    driver: bridge

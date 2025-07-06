@@ -14,6 +14,7 @@ import { getToken, login } from 'state/modules/user';
 import TOUR_STEPS from 'constants/tour-steps';
 
 import { Badge, Navigation } from 'views/components/MapTour';
+import SiteScopeAuthModal from 'views/components/SiteScopeAuthModal';
 
 import type { Translations } from 'types/transifex';
 import type { ReactElement, ReactNode } from 'react';
@@ -125,15 +126,21 @@ const ResilienceApp = ({ Component, ...rest }: AppPropsWithLayout) => {
   // Transifex
 
   useEffect(() => {
-    // Used for initial render
-    tx.init({
-      token: NEXT_PUBLIC_TRANSIFEX_TOKEN,
-      ...(process.env.NODE_ENV === 'development'
-        ? { missingPolicy: new PseudoTranslationPolicy() }
-        : {}),
-    });
+    // Only initialize Transifex if a token is provided and not empty
+    if (NEXT_PUBLIC_TRANSIFEX_TOKEN && NEXT_PUBLIC_TRANSIFEX_TOKEN.trim() !== '') {
+      // Used for initial render
+      tx.init({
+        token: NEXT_PUBLIC_TRANSIFEX_TOKEN,
+        ...(process.env.NODE_ENV === 'development'
+          ? { missingPolicy: new PseudoTranslationPolicy() }
+          : {}),
+      });
 
-    tx.setCurrentLocale(locale);
+      tx.setCurrentLocale(locale);
+    } else if (process.env.NODE_ENV === 'development') {
+      // In development without token, just log a warning
+      console.warn('Transifex token not provided. Translation service disabled.');
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router]);
 
@@ -226,6 +233,7 @@ const ResilienceApp = ({ Component, ...rest }: AppPropsWithLayout) => {
             <TourProvider {...REACT_TOUR_OPTIONS}>
               <Hydrate state={rest.pageProps.dehydratedState}>
                 {getLayout(<Component {...rest.pageProps} />, rest.pageProps?.translations)}
+                <SiteScopeAuthModal />
               </Hydrate>
             </TourProvider>
           </CookiesProvider>
