@@ -29,9 +29,11 @@ jobs:
 
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
+      with:
+        driver-opts: image=moby/buildkit:buildx-stable-1
 
     - name: Cache Docker layers
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: /tmp/.buildx-cache
         key: ${{ runner.os }}-backend-buildx-${{ github.sha }}
@@ -40,11 +42,12 @@ jobs:
 
     - name: Build backend test image
       run: |
-        docker build \
+        docker buildx build \
           --cache-from=type=local,src=/tmp/.buildx-cache \
           --cache-to=type=local,dest=/tmp/.buildx-cache-new,mode=max \
           --target test \
           --tag resilienceatlas-backend:test \
+          --load \
           ./backend
 
     - name: Move cache
@@ -76,6 +79,9 @@ jobs:
 
     - name: Setup test database
       run: |
+        # Ensure tmp directory exists for test results
+        mkdir -p backend/tmp
+        
         docker-compose -f docker-compose.test.yml run --rm backend-test \
           bash -c "
             bundle exec rails db:create RAILS_ENV=test &&
@@ -101,6 +107,18 @@ jobs:
       run: |
         docker-compose -f docker-compose.test.yml run --rm backend-test \
           bash -c "bundle exec bundle-audit check --update"
+
+    - name: Verify test results
+      run: |
+        if [ -f backend/tmp/rspec.xml ]; then
+          echo "Test results file found at backend/tmp/rspec.xml"
+          ls -la backend/tmp/
+        else
+          echo "Test results file not found at backend/tmp/rspec.xml"
+          echo "Contents of backend/tmp directory:"
+          ls -la backend/tmp/ || echo "backend/tmp directory does not exist"
+          exit 1
+        fi
 
     - name: Publish test results
       uses: dorny/test-reporter@v1

@@ -32,9 +32,11 @@ jobs:
 
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
+      with:
+        driver-opts: image=moby/buildkit:buildx-stable-1
 
     - name: Cache Docker layers
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: /tmp/.buildx-cache
         key: ${{ runner.os }}-integration-buildx-${{ github.sha }}
@@ -71,16 +73,17 @@ jobs:
 
     - name: Build backend test image
       run: |
-        docker build \
+        docker buildx build \
           --cache-from=type=local,src=/tmp/.buildx-cache \
           --cache-to=type=local,dest=/tmp/.buildx-cache-new,mode=max \
           --target test \
           --tag resilienceatlas-backend:integration-test \
+          --load \
           ./backend
 
     - name: Build frontend test image
       run: |
-        docker build \
+        docker buildx build \
           --cache-from=type=local,src=/tmp/.buildx-cache \
           --cache-to=type=local,dest=/tmp/.buildx-cache-new,mode=max \
           --target test \
@@ -90,6 +93,7 @@ jobs:
           --build-arg NEXT_PUBLIC_TRANSIFEX_SECRET=integration_test_secret \
           --build-arg NEXT_PUBLIC_GOOGLE_API_KEY=integration_test_api_key \
           --tag resilienceatlas-frontend:integration-test \
+          --load \
           ./frontend
 
     - name: Move cache
@@ -263,7 +267,7 @@ jobs:
         reporter: java-junit
 
     - name: Upload integration test artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       if: failure()
       with:
         name: integration-test-artifacts-${{ matrix.browser }}
