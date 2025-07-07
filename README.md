@@ -22,6 +22,7 @@ The project implements comprehensive testing with Docker-based workflows:
 
 #### Backend Tests (`backend_tests.yml`)
 - **Testing**: RSpec test suite with PostgreSQL database
+- **System Tests**: Capybara-based browser tests for admin interface using Chrome
 - **Linting**: RuboCop code style checks  
 - **Security**: Brakeman security analysis and Bundle Audit for dependency vulnerabilities
 - **Triggers**: Runs on pushes/PRs to the `backend/` directory
@@ -43,6 +44,7 @@ The project implements comprehensive testing with Docker-based workflows:
 Key testing features:
 - Docker-based isolated test environments
 - Multi-browser E2E testing (Chrome and Firefox)
+- System tests for admin interface using Capybara and Chrome
 - Comprehensive test reporting with JUnit integration
 - Test artifacts collection (screenshots, videos on failure)
 - Health checks and service dependency management
@@ -189,39 +191,68 @@ The project includes Docker configuration for easy development and deployment. T
 
 #### Backend Tests (RSpec)
 ```bash
-# Run all backend tests (linting, security, unit tests)
-docker compose -f docker-compose.test.yml run --rm backend-test bash -c "chmod +x ./bin/test && ./bin/test"
+# Run all backend tests (linting, security, unit tests - excludes system tests by default)
+docker compose -f docker-compose.test.yml run --rm backend-test ./bin/test
+
+# Run all tests including system tests
+docker compose -f docker-compose.test.yml run --rm backend-test ./bin/test rspec
 
 # Run specific test commands
-docker compose -f docker-compose.test.yml run --rm backend-test bash -c "chmod +x ./bin/test && ./bin/test rspec"
-docker compose -f docker-compose.test.yml run --rm backend-test bash -c "chmod +x ./bin/test && ./bin/test lint"
-docker compose -f docker-compose.test.yml run --rm backend-test bash -c "chmod +x ./bin/test && ./bin/test security"
-docker compose -f docker-compose.test.yml run --rm backend-test bash -c "chmod +x ./bin/test && ./bin/test audit"
+docker compose -f docker-compose.test.yml run --rm backend-test ./bin/test rspec
+docker compose -f docker-compose.test.yml run --rm backend-test ./bin/test lint
+docker compose -f docker-compose.test.yml run --rm backend-test ./bin/test security
+docker compose -f docker-compose.test.yml run --rm backend-test ./bin/test audit
 
 # Run specific test file
-docker compose -f docker-compose.test.yml run --rm backend-test bash -c "chmod +x ./bin/test && ./bin/test rspec spec/models/user_spec.rb"
+docker compose -f docker-compose.test.yml run --rm backend-test ./bin/test rspec spec/models/user_spec.rb
 
 # Show all available commands
-docker compose -f docker-compose.test.yml run --rm backend-test bash -c "chmod +x ./bin/test && ./bin/test help"
+docker compose -f docker-compose.test.yml run --rm backend-test ./bin/test help
 ```
 
 #### Frontend Tests (ESLint/TypeScript/Prettier)
 ```bash
 # Run all frontend checks (linting, type-check, prettier, build)
-docker compose -f docker-compose.test.yml run --rm --no-deps frontend-test bash -c "chmod +x ./bin/test && ./bin/test"
+docker compose -f docker-compose.test.yml run --rm --no-deps frontend-test ./bin/test
 
 # Run specific test commands
-docker compose -f docker-compose.test.yml run --rm --no-deps frontend-test bash -c "chmod +x ./bin/test && ./bin/test lint"
-docker compose -f docker-compose.test.yml run --rm --no-deps frontend-test bash -c "chmod +x ./bin/test && ./bin/test type-check"
-docker compose -f docker-compose.test.yml run --rm --no-deps frontend-test bash -c "chmod +x ./bin/test && ./bin/test prettier"
-docker compose -f docker-compose.test.yml run --rm --no-deps frontend-test bash -c "chmod +x ./bin/test && ./bin/test build"
+docker compose -f docker-compose.test.yml run --rm --no-deps frontend-test ./bin/test lint
+docker compose -f docker-compose.test.yml run --rm --no-deps frontend-test ./bin/test type-check
+docker compose -f docker-compose.test.yml run --rm --no-deps frontend-test ./bin/test prettier
+docker compose -f docker-compose.test.yml run --rm --no-deps frontend-test ./bin/test build
 
 # Run Cypress e2e tests (requires backend services)
-docker compose -f docker-compose.test.yml run --rm frontend-test bash -c "chmod +x ./bin/test && ./bin/test cypress"
+docker compose -f docker-compose.test.yml run --rm frontend-test ./bin/test cypress
 
 # Show all available commands
-docker compose -f docker-compose.test.yml run --rm --no-deps frontend-test bash -c "chmod +x ./bin/test && ./bin/test help"
+docker compose -f docker-compose.test.yml run --rm --no-deps frontend-test ./bin/test help
 ```
+
+#### System Tests (Browser-based)
+System tests use Capybara with Chrome to test the admin interface and user interactions:
+
+```bash
+# Run system tests only (with Chrome verification)
+docker compose -f docker-compose.test.yml run --rm backend-test ./bin/test system
+
+# Run system tests (skip Chrome verification)
+docker compose -f docker-compose.test.yml run --rm backend-test ./bin/test system-force
+
+# Verify Chrome setup for system tests
+docker compose -f docker-compose.test.yml run --rm backend-test ./bin/test verify-chrome
+
+# Run specific system test file
+docker compose -f docker-compose.test.yml run --rm backend-test ./bin/test system spec/systems/admin/auth_spec.rb
+```
+
+System tests cover:
+- Admin authentication and authorization
+- CRUD operations for all admin models (layers, indicators, journeys, etc.)
+- File uploads and data management
+- User interface interactions
+- Browser-based workflows
+
+**Note**: System tests require Chrome and Xvfb for headless browser testing. They are excluded from the default test run due to longer execution time.
 
 #### Integration Tests (Full E2E)
 ```bash
@@ -238,7 +269,7 @@ The project uses ESLint and RuboCop for code quality enforcement. Common issues 
 docker compose -f docker-compose.test.yml run --rm backend-test bash -c "bundle exec rubocop -A"
 
 # Run specific checks
-docker compose -f docker-compose.test.yml run --rm backend-test bash -c "chmod +x ./bin/test && ./bin/test lint"
+docker compose -f docker-compose.test.yml run --rm backend-test ./bin/test lint
 ```
 
 #### Frontend (ESLint)

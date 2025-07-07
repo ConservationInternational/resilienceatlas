@@ -110,65 +110,27 @@ RSpec.configure do |config|
   end
 
   config.prepend_before(:each, type: :system) do
-    # Debug: Test Chrome startup manually before the test
-    puts "[SYSTEM_TEST] About to start system test: #{self.class.description}"
-    puts "[SYSTEM_TEST] Testing Chrome wrapper directly..."
-    
-    # Test Chrome wrapper manually
-    test_result = system("/app/chrome_wrapper.sh --version > /tmp/chrome-test.log 2>&1")
-    if test_result
-      puts "[SYSTEM_TEST] Chrome wrapper test succeeded"
-      chrome_version = File.read("/tmp/chrome-test.log").strip rescue "unknown"
-      puts "[SYSTEM_TEST] Chrome version: #{chrome_version}"
-    else
-      puts "[SYSTEM_TEST] Chrome wrapper test failed!"
-      log_content = File.read("/tmp/chrome-test.log") rescue "no log available"
-      puts "[SYSTEM_TEST] Chrome test log: #{log_content}"
-    end
-    
-    # Check for any existing Chrome processes
-    chrome_processes = `pgrep -f chrome || true`.strip
-    if chrome_processes.empty?
-      puts "[SYSTEM_TEST] No existing Chrome processes found"
-    else
-      puts "[SYSTEM_TEST] Existing Chrome processes: #{chrome_processes}"
-    end
-    
-    # Check Xvfb status
-    xvfb_status = `pgrep -x Xvfb || true`.strip
-    if xvfb_status.empty?
-      puts "[SYSTEM_TEST] No Xvfb process found"
-    else
-      puts "[SYSTEM_TEST] Xvfb running with PID: #{xvfb_status}"
-    end
-    
-    puts "[SYSTEM_TEST] Starting Capybara driver..."
     driven_by Capybara.javascript_driver
     
     # Try to access the driver to trigger browser startup
     begin
-      puts "[SYSTEM_TEST] Accessing Capybara current session..."
       session = Capybara.current_session
-      puts "[SYSTEM_TEST] Current session: #{session.class.name}"
-      
       if session.respond_to?(:driver) && session.driver.respond_to?(:browser)
-        puts "[SYSTEM_TEST] Accessing browser through driver..."
-        browser = session.driver.browser
-        puts "[SYSTEM_TEST] Browser class: #{browser.class.name}"
+        session.driver.browser
       end
     rescue => e
-      puts "[SYSTEM_TEST] Error accessing browser: #{e.class.name}: #{e.message}"
-      puts "[SYSTEM_TEST] Backtrace: #{e.backtrace.first(5).join("\n")}"
-      
-      # Check Chrome logs
+      puts "[SYSTEM_TEST] Error starting browser: #{e.class.name}: #{e.message}"
+      # Only show logs on error for debugging
       if Dir.exist?("/tmp/chrome-logs")
-        puts "[SYSTEM_TEST] Chrome logs available:"
         Dir.glob("/tmp/chrome-logs/*.log").each do |log_file|
-          puts "[SYSTEM_TEST] Log file: #{log_file}"
+          puts "[SYSTEM_TEST] Chrome log (#{log_file}):"
           content = File.read(log_file) rescue "could not read"
-          puts content.split("\n").first(10).join("\n") # First 10 lines
+          puts content.split("\n").last(5).join("\n") # Last 5 lines only
         end
       end
+      raise e
+    end
+  end
       
       raise e # Re-raise the error so the test fails
     end
