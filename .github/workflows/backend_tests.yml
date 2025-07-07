@@ -82,28 +82,25 @@ jobs:
         # Ensure tmp directory exists for test results
         mkdir -p backend/tmp
         
+        docker compose -f docker-compose.test.yml run --rm backend-test ./bin/test help
         docker compose -f docker-compose.test.yml run --rm backend-test \
           bash -c "RAILS_ENV=test bundle exec rails db:test_setup"
 
     - name: Run RSpec tests
       run: |
-        docker compose -f docker-compose.test.yml run --rm backend-test \
-          bash -c "bundle exec rspec spec --format RspecJunitFormatter --out tmp/rspec.xml --format progress"
+        docker compose -f docker-compose.test.yml run --rm backend-test ./bin/test junit
 
     - name: Run RuboCop linting
       run: |
-        docker compose -f docker-compose.test.yml run --rm backend-test \
-          bash -c "bundle exec standardrb --format github"
+        docker compose -f docker-compose.test.yml run --rm backend-test ./bin/test lint
 
     - name: Run Brakeman security analysis
       run: |
-        docker compose -f docker-compose.test.yml run --rm backend-test \
-          bash -c "bundle exec brakeman --format github"
+        docker compose -f docker-compose.test.yml run --rm backend-test ./bin/test security
 
     - name: Run Bundle Audit
       run: |
-        docker compose -f docker-compose.test.yml run --rm backend-test \
-          bash -c "bundle exec bundle-audit check --update"
+        docker compose -f docker-compose.test.yml run --rm backend-test ./bin/test audit
 
     - name: Verify test results
       run: |

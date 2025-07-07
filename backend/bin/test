@@ -1,0 +1,66 @@
+#!/bin/bash
+set -e
+
+echo "🔧 Installing dependencies..."
+bundle install
+
+case "${1:-all}" in
+  "rspec"|"specs"|"tests")
+    echo "🧪 Running RSpec tests..."
+    bundle exec rspec "${@:2}"
+    ;;
+  "lint"|"linting")
+    echo "🔍 Running StandardRB linting..."
+    bundle exec standardrb "${@:2}"
+    ;;
+  "security"|"brakeman")
+    echo "🔒 Running Brakeman security analysis..."
+    bundle exec brakeman "${@:2}"
+    ;;
+  "audit")
+    echo "🛡️ Running Bundle Audit..."
+    bundle exec bundle-audit check --update
+    ;;
+  "junit")
+    echo "🧪 Running RSpec tests with JUnit output..."
+    bundle exec rspec --format RspecJunitFormatter --out tmp/rspec.xml --format progress "${@:2}"
+    ;;
+  "all")
+    echo "🚀 Running all backend tests..."
+    echo "📝 Running linting..."
+    bundle exec standardrb
+    echo "🔒 Running security analysis..."
+    bundle exec brakeman
+    echo "🛡️ Running audit..."
+    bundle exec bundle-audit check --update
+    echo "🧪 Running tests..."
+    bundle exec rspec
+    echo "✅ All backend tests completed!"
+    ;;
+  "help"|"--help"|"-h")
+    echo "Backend Test Runner"
+    echo ""
+    echo "Usage: ./bin/test [command] [options]"
+    echo ""
+    echo "Commands:"
+    echo "  rspec, specs, tests  Run RSpec tests"
+    echo "  lint, linting        Run StandardRB linting"
+    echo "  security, brakeman   Run Brakeman security analysis"
+    echo "  audit               Run Bundle Audit"
+    echo "  junit               Run RSpec with JUnit XML output"
+    echo "  all                 Run all tests (default)"
+    echo "  help                Show this help message"
+    echo ""
+    echo "Examples:"
+    echo "  ./bin/test                           # Run all tests"
+    echo "  ./bin/test rspec                     # Run all RSpec tests"
+    echo "  ./bin/test rspec spec/models/        # Run specific test directory"
+    echo "  ./bin/test lint                      # Run linting only"
+    echo "  ./bin/test security                  # Run security analysis only"
+    ;;
+  *)
+    echo "❌ Unknown command: $1"
+    echo "Run './bin/test help' for usage information"
+    exit 1
+    ;;
+esac

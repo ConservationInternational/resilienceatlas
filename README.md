@@ -189,17 +189,46 @@ The project includes Docker configuration for easy development and deployment. T
 
 #### Backend Tests (RSpec)
 ```bash
-docker-compose -f docker-compose.test.yml run backend-test
+# Run all backend tests (linting, security, unit tests)
+docker compose -f docker-compose.test.yml run --rm backend-test ./bin/test
+
+# Run specific test commands
+docker compose -f docker-compose.test.yml run --rm backend-test ./bin/test rspec
+docker compose -f docker-compose.test.yml run --rm backend-test ./bin/test lint
+docker compose -f docker-compose.test.yml run --rm backend-test ./bin/test security
+docker compose -f docker-compose.test.yml run --rm backend-test ./bin/test audit
+
+# Run specific test file
+docker compose -f docker-compose.test.yml run --rm backend-test ./bin/test rspec spec/models/user_spec.rb
+
+# Show all available commands
+docker compose -f docker-compose.test.yml run --rm backend-test ./bin/test help
 ```
 
-#### Frontend Tests (Cypress)
+#### Frontend Tests (Jest/ESLint/TypeScript)
 ```bash
-docker-compose -f docker-compose.test.yml run frontend-test
+# Run all frontend tests (linting, type-check, unit tests, build)
+docker compose -f docker-compose.test.yml run --rm --no-deps frontend-test ./bin/test
+
+# Run specific test commands
+docker compose -f docker-compose.test.yml run --rm --no-deps frontend-test ./bin/test jest
+docker compose -f docker-compose.test.yml run --rm --no-deps frontend-test ./bin/test lint
+docker compose -f docker-compose.test.yml run --rm --no-deps frontend-test ./bin/test type-check
+docker compose -f docker-compose.test.yml run --rm --no-deps frontend-test ./bin/test build
+
+# Run tests with coverage
+docker compose -f docker-compose.test.yml run --rm --no-deps frontend-test ./bin/test coverage
+
+# Run tests in watch mode (for development)
+docker compose -f docker-compose.test.yml run --rm --no-deps frontend-test ./bin/test watch
+
+# Show all available commands
+docker compose -f docker-compose.test.yml run --rm --no-deps frontend-test ./bin/test help
 ```
 
-#### Run All Tests
+#### Integration Tests (Full E2E)
 ```bash
-docker-compose -f docker-compose.test.yml up --abort-on-container-exit
+docker compose -f docker-compose.test.yml up --abort-on-container-exit
 ```
 
 ### Development Workflow

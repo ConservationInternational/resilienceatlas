@@ -74,23 +74,19 @@ jobs:
 
     - name: Run Jest unit tests
       run: |
-        docker compose -f docker-compose.test.yml run --rm frontend-test \
-          bash -c "npm run test:unit -- --coverage --watchAll=false --testResultsProcessor=jest-junit"
+        docker compose -f docker-compose.test.yml run --rm --no-deps frontend-test ./bin/test junit
 
     - name: Run ESLint
       run: |
-        docker compose -f docker-compose.test.yml run --rm frontend-test \
-          bash -c "npm run lint"
+        docker compose -f docker-compose.test.yml run --rm --no-deps frontend-test ./bin/test lint
 
     - name: Run TypeScript check
       run: |
-        docker compose -f docker-compose.test.yml run --rm frontend-test \
-          bash -c "npm run type-check"
+        docker compose -f docker-compose.test.yml run --rm --no-deps frontend-test ./bin/test type-check
 
     - name: Build application
       run: |
-        docker compose -f docker-compose.test.yml run --rm frontend-test \
-          bash -c "npm run build"
+        docker compose -f docker-compose.test.yml run --rm --no-deps frontend-test ./bin/test build
 
     - name: Publish test results
       uses: dorny/test-reporter@v1

@@ -1,0 +1,82 @@
+#!/bin/bash
+set -e
+
+echo "🔧 Installing dependencies..."
+npm install
+
+case "${1:-all}" in
+  "jest"|"unit"|"tests")
+    echo "🧪 Running Jest unit tests..."
+    npm run test:unit -- "${@:2}"
+    ;;
+  "jest:watch"|"watch")
+    echo "👀 Running Jest tests in watch mode..."
+    npm run test:unit -- --watch "${@:2}"
+    ;;
+  "jest:coverage"|"coverage")
+    echo "📊 Running Jest tests with coverage..."
+    npm run test:unit -- --coverage "${@:2}"
+    ;;
+  "lint"|"linting")
+    echo "🔍 Running ESLint..."
+    npm run lint "${@:2}"
+    ;;
+  "lint:fix"|"fix")
+    echo "🔧 Running ESLint with auto-fix..."
+    npm run lint -- --fix "${@:2}"
+    ;;
+  "type-check"|"types"|"tsc")
+    echo "🏷️ Running TypeScript type checking..."
+    npm run type-check "${@:2}"
+    ;;
+  "build")
+    echo "🏗️ Building application..."
+    npm run build "${@:2}"
+    ;;
+  "junit")
+    echo "🧪 Running Jest tests with JUnit output..."
+    npm run test:unit -- --coverage --watchAll=false --testResultsProcessor=jest-junit "${@:2}"
+    ;;
+  "all")
+    echo "🚀 Running all frontend tests..."
+    echo "🔍 Running ESLint..."
+    npm run lint
+    echo "🏷️ Running TypeScript check..."
+    npm run type-check
+    echo "🧪 Running unit tests..."
+    npm run test:unit -- --watchAll=false
+    echo "🏗️ Building application..."
+    npm run build
+    echo "✅ All frontend tests completed!"
+    ;;
+  "help"|"--help"|"-h")
+    echo "Frontend Test Runner"
+    echo ""
+    echo "Usage: ./bin/test [command] [options]"
+    echo ""
+    echo "Commands:"
+    echo "  jest, unit, tests    Run Jest unit tests"
+    echo "  watch               Run Jest tests in watch mode"
+    echo "  coverage            Run Jest tests with coverage"
+    echo "  lint, linting       Run ESLint"
+    echo "  fix                 Run ESLint with auto-fix"
+    echo "  type-check, types   Run TypeScript type checking"
+    echo "  build               Build the application"
+    echo "  junit               Run Jest with JUnit XML output"
+    echo "  all                 Run all tests (default)"
+    echo "  help                Show this help message"
+    echo ""
+    echo "Examples:"
+    echo "  ./bin/test                           # Run all tests"
+    echo "  ./bin/test jest                      # Run unit tests"
+    echo "  ./bin/test watch                     # Run tests in watch mode"
+    echo "  ./bin/test coverage                  # Run tests with coverage"
+    echo "  ./bin/test lint                      # Run linting only"
+    echo "  ./bin/test types                     # Run type checking only"
+    ;;
+  *)
+    echo "❌ Unknown command: $1"
+    echo "Run './bin/test help' for usage information"
+    exit 1
+    ;;
+esac
