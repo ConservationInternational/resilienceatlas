@@ -131,8 +131,4 @@ RSpec.configure do |config|
       raise e
     end
   end
-      
-      raise e # Re-raise the error so the test fails
-    end
-  end
 end
