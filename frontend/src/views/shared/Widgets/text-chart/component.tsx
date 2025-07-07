@@ -21,7 +21,7 @@ export const TextChart: FC<TextChartProps> = ({
 
   const { rootWidgetProps, loaded, data, noData } = useWidget(
     { slug, geojson },
-    { analysisQuery, analysisBody },
+    { type: 'text', analysisQuery, analysisBody },
   );
 
   const sentence = useMemo(() => {

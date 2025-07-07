@@ -45,6 +45,7 @@ export const useAxios = (config, deps, parseData) => {
   const [state, dispatch] = useReducer(fetchReducer, initialState);
 
   useEffect(() => {
+    const currentSource = source.current;
     dispatch({ type: FETCH.REQUEST });
 
     axios(config)
@@ -58,8 +59,8 @@ export const useAxios = (config, deps, parseData) => {
       .catch((error) => console.warn(error) || dispatch({ type: FETCH.FAIL, error }));
 
     return () => {
-      if (state.loading && source.current) {
-        source.current.cancel('Operation canceled because tagret component was unmounted.');
+      if (state.loading && currentSource) {
+        currentSource.cancel('Operation canceled because tagret component was unmounted.');
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps

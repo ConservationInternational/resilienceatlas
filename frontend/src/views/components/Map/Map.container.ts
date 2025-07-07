@@ -2,6 +2,7 @@ import { compose } from 'redux';
 import { connect } from 'react-redux';
 import { withRouter } from 'next/router';
 import dynamic from 'next/dynamic';
+import type { RootState } from 'state/types';
 
 import {
   load as loadLayers,
@@ -26,7 +27,7 @@ const makeMapStateToProps = () => {
   const getModelLayer = makeModelLayer();
   const getActives = makeActives();
 
-  const mapStateToProps = (state) => ({
+  const mapStateToProps = (state: RootState) => ({
     tab: state.ui.tab,
     site: state.site,
     layers: state.layers,
@@ -35,10 +36,10 @@ const makeMapStateToProps = () => {
     basemap: state.map.basemap,
     labels: state.map.labels,
     layer_groups: state.layer_groups,
-    activeLayers: getActives(state),
-    model_layer: getModelLayer(state),
-    defaultActiveGroups: defaultActives(state),
-    grouped: groupedLayers(state),
+    activeLayers: getActives(state as any),
+    model_layer: getModelLayer(state as any),
+    defaultActiveGroups: defaultActives(state as any),
+    grouped: groupedLayers(state as any),
   });
 
   return mapStateToProps;

@@ -25,7 +25,7 @@ class Journey < ApplicationRecord
 
   # Translation setup - only add extra features if database is ready and not during migration
   # This prevents errors during migrations when tables don't exist yet
-  unless defined?(Rails::Generators) || (Rails.env.test? && ENV["RAILS_MIGRATE"])
+  if !defined?(Rails::Generators) && !(Rails.env.test? && ENV["RAILS_MIGRATE"])
     begin
       if defined?(Globalize) && ActiveRecord::Base.connection&.table_exists?(:journeys)
         active_admin_translates :title, :subtitle, :theme, :credits

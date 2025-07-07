@@ -64,6 +64,7 @@ export type ResilienceAppProps = {
     translations: Translations;
   };
   dispatch?: (action: unknown) => void;
+  isSidebarOpen?: boolean;
 };
 
 export type JourneyPageProps = ResilienceAppProps & {
@@ -228,7 +229,7 @@ const ResilienceApp = ({ Component, ...rest }: AppPropsWithLayout) => {
           href={`${process.env.NEXT_PUBLIC_FRONTEND_URL}${asPath}`}
         />
       </Head>
-      <ReduxProvider store={appStore}>
+      <ReduxProvider store={appStore} key="redux-provider">
         <QueryClientProvider client={queryClient}>
           <CookiesProvider>
             <TourProvider {...REACT_TOUR_OPTIONS}>

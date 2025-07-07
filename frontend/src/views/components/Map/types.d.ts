@@ -53,3 +53,16 @@ export interface MapViewProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   setMapLayerGroupsInteractionLatLng: (e: any) => void;
 }
+
+// Props that the connected component accepts (after HOCs)
+export interface ConnectedMapViewProps {
+  onLoadingLayers?: (loaded: boolean) => void;
+  page?: string;
+  options?: {
+    map: {
+      minZoom: number;
+      maxZoom: number;
+      zoomControl: boolean;
+    };
+  };
+}

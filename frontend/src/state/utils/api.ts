@@ -1,4 +1,4 @@
-import type { AxiosRequestConfig } from 'axios';
+import type { AxiosRequestConfig, Method } from 'axios';
 import axios from 'axios';
 import type { ThunkDispatch } from 'redux-thunk';
 import type { schema } from 'normalizr';
@@ -46,7 +46,7 @@ export const createApiAction = (name = ''): ApiAction => {
   };
 };
 
-export const makeRequest = (method: string, url: string, options: AxiosRequestConfig = {}) => {
+export const makeRequest = (method: Method, url: string, options: AxiosRequestConfig = {}) => {
   const headers = { ...axiosInstance.defaults.headers, ...options.headers };
 
   // Add site scope token if available and this is a site-specific request

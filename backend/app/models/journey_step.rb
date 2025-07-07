@@ -55,7 +55,7 @@ class JourneyStep < ApplicationRecord
 
   # Translation setup - only initialize if database is ready and not during migration
   # This prevents errors during migrations when tables don't exist yet
-  unless defined?(Rails::Generators) || (Rails.env.test? && ENV["RAILS_MIGRATE"])
+  if !defined?(Rails::Generators) && !(Rails.env.test? && ENV["RAILS_MIGRATE"])
     begin
       if ActiveRecord::Base.connection&.table_exists?(:journey_steps)
         translates :title, :subtitle, :description, :content, :credits, :source, touch: true, fallbacks_for_empty_translations: true

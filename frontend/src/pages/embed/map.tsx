@@ -21,13 +21,6 @@ const EmbedPage: NextPageWithLayout = ({ translations, setTranslations }) => {
           onLoadingLayers={(loaded) => {
             setAnyLayerLoading(loaded);
           }}
-          options={{
-            map: {
-              minZoom: 2,
-              maxZoom: 25,
-              zoomControl: false,
-            },
-          }}
         />
       </div>
     </LayerManagerProvider>

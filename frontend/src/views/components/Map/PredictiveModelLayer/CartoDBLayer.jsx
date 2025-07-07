@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import carto from '@carto/carto.js';
 
@@ -12,7 +12,6 @@ const client = new carto.Client({
 
 const CartoDBLayer = ({ map, layer }) => {
   const [loading, setLoading] = useState(false);
-  const layerRef = useRef(null);
 
   useEffect(() => {
     setLoading(true);
@@ -24,11 +23,12 @@ const CartoDBLayer = ({ map, layer }) => {
 
     client.addLayers([cartolayer]);
 
-    client.getLeafletLayer().addTo(map);
+    const leafletLayer = client.getLeafletLayer();
+    leafletLayer.addTo(map);
 
     return () => {
-      if (layerRef.current) {
-        map.removeLayer(layerRef.current);
+      if (leafletLayer) {
+        map.removeLayer(leafletLayer);
       }
     };
   }, [layer.cartocss, layer.sql, map]);

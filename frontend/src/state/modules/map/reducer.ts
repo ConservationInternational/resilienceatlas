@@ -6,6 +6,14 @@ import type { MAP_LABELS } from 'views/components/LayersList/Basemaps/constants'
 
 export interface MapState {
   labels: (typeof MAP_LABELS)[number];
+  drawing: boolean;
+  bounds: any;
+  iso: string | null;
+  basemap: string;
+  layerGroupsInteraction: Record<string, any>;
+  layerGroupsInteractionSelected: any;
+  layerGroupsInteractionLatLng: any;
+  geojson?: any;
 }
 
 const initialState: MapState = {
@@ -14,7 +22,7 @@ const initialState: MapState = {
   bounds: null,
   iso: getRouterParam('iso'),
   basemap: getRouterParam('basemap') || (subdomain === 'atlas' ? 'satellite' : 'defaultmap'),
-  labels: getRouterParam('labels') || 'none',
+  labels: (getRouterParam('labels') as (typeof MAP_LABELS)[number]) || 'none',
   layerGroupsInteraction: {},
   layerGroupsInteractionSelected: null,
   layerGroupsInteractionLatLng: null,

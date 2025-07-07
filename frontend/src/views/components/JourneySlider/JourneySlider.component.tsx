@@ -28,6 +28,7 @@ const JourneySlider: React.FC<JourneySliderProps> = ({
   return (
     <div className="m-slider" id="sliderView">
       <Slider
+        key="journey-slider"
         className="m-slider__itemlist"
         slidesToShow={1}
         centerMode

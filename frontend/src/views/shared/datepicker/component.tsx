@@ -127,7 +127,7 @@ export const Datepicker: FC<DatepickerProps> = ({
                 onChange={({ target: { value } }) => changeMonth(months.indexOf(value))}
                 aria-label={t('Month')}
               >
-                {months.map((option) => (
+                {months.map((option: string) => (
                   <option key={option} value={option}>
                     {option}
                   </option>
