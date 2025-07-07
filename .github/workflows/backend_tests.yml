@@ -1,0 +1,125 @@
+name: Backend Tests
+
+on:
+  push:
+    paths:
+      - 'backend/**'
+      - '.github/workflows/backend_tests.yml'
+      - 'docker-compose.test.yml'
+  pull_request:
+    paths:
+      - 'backend/**'
+      - '.github/workflows/backend_tests.yml'
+      - 'docker-compose.test.yml'
+  workflow_dispatch:
+
+env:
+  DOCKER_BUILDKIT: 1
+  COMPOSE_DOCKER_CLI_BUILD: 1
+
+jobs:
+  backend-tests:
+    name: Backend Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Cache Docker layers
+      uses: actions/cache@v3
+      with:
+        path: /tmp/.buildx-cache
+        key: ${{ runner.os }}-backend-buildx-${{ github.sha }}
+        restore-keys: |
+          ${{ runner.os }}-backend-buildx-
+
+    - name: Build backend test image
+      run: |
+        docker build \
+          --cache-from=type=local,src=/tmp/.buildx-cache \
+          --cache-to=type=local,dest=/tmp/.buildx-cache-new,mode=max \
+          --target test \
+          --tag resilienceatlas-backend:test \
+          ./backend
+
+    - name: Move cache
+      run: |
+        rm -rf /tmp/.buildx-cache
+        mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+
+    - name: Start test services
+      run: |
+        # Create test environment file
+        cat > .env.test << EOF
+        RAILS_ENV=test
+        DATABASE_URL=postgres://postgres:postgres@db-test:5432/resilienceatlas_test
+        DATABASE_HOST=db-test
+        DATABASE_PORT=5432
+        DATABASE_NAME=resilienceatlas_test
+        DATABASE_USER=postgres
+        DATABASE_PASSWORD=postgres
+        SECRET_KEY_BASE=test_secret_key_base_that_is_long_enough_for_rails_to_accept_it_properly
+        DEVISE_KEY=test_devise_key_that_is_also_long_enough_for_the_application_to_work
+        REDIS_URL=redis://redis-test:6379/0
+        EOF
+        
+        # Start test database and services
+        docker-compose -f docker-compose.test.yml up -d db-test redis-test
+        
+        # Wait for database to be ready
+        timeout 60s bash -c 'until docker-compose -f docker-compose.test.yml exec -T db-test pg_isready -U postgres; do sleep 2; done'
+
+    - name: Setup test database
+      run: |
+        docker-compose -f docker-compose.test.yml run --rm backend-test \
+          bash -c "
+            bundle exec rails db:create RAILS_ENV=test &&
+            bundle exec rails db:schema:load RAILS_ENV=test
+          "
+
+    - name: Run RSpec tests
+      run: |
+        docker-compose -f docker-compose.test.yml run --rm backend-test \
+          bash -c "bundle exec rspec spec --format RspecJunitFormatter --out tmp/rspec.xml --format progress"
+
+    - name: Run RuboCop linting
+      run: |
+        docker-compose -f docker-compose.test.yml run --rm backend-test \
+          bash -c "bundle exec standardrb --format github"
+
+    - name: Run Brakeman security analysis
+      run: |
+        docker-compose -f docker-compose.test.yml run --rm backend-test \
+          bash -c "bundle exec brakeman --format github"
+
+    - name: Run Bundle Audit
+      run: |
+        docker-compose -f docker-compose.test.yml run --rm backend-test \
+          bash -c "bundle exec bundle-audit check --update"
+
+    - name: Publish test results
+      uses: dorny/test-reporter@v1
+      if: success() || failure()
+      with:
+        name: Backend RSpec Tests
+        path: backend/tmp/rspec.xml
+        reporter: java-junit
+
+    - name: Upload coverage reports
+      if: always()
+      run: |
+        if docker-compose -f docker-compose.test.yml run --rm backend-test test -f coverage/coverage.json; then
+          docker-compose -f docker-compose.test.yml run --rm backend-test \
+            bash -c "cat coverage/coverage.json"
+        fi
+
+    - name: Cleanup
+      if: always()
+      run: |
+        docker-compose -f docker-compose.test.yml down -v
+        docker system prune -f

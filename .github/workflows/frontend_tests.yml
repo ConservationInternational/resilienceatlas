@@ -1,0 +1,181 @@
+name: Frontend Tests
+
+on:
+  push:
+    paths:
+      - 'frontend/**'
+      - '.github/workflows/frontend_tests.yml'
+      - 'docker-compose.test.yml'
+  pull_request:
+    paths:
+      - 'frontend/**'
+      - '.github/workflows/frontend_tests.yml'
+      - 'docker-compose.test.yml'
+  workflow_dispatch:
+
+env:
+  DOCKER_BUILDKIT: 1
+  COMPOSE_DOCKER_CLI_BUILD: 1
+
+jobs:
+  frontend-tests:
+    name: Frontend Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Cache Docker layers
+      uses: actions/cache@v3
+      with:
+        path: /tmp/.buildx-cache
+        key: ${{ runner.os }}-frontend-buildx-${{ github.sha }}
+        restore-keys: |
+          ${{ runner.os }}-frontend-buildx-
+
+    - name: Build frontend test image
+      run: |
+        docker build \
+          --cache-from=type=local,src=/tmp/.buildx-cache \
+          --cache-to=type=local,dest=/tmp/.buildx-cache-new,mode=max \
+          --target test \
+          --build-arg NEXT_PUBLIC_API_HOST=http://localhost:3001 \
+          --build-arg NEXT_PUBLIC_GOOGLE_ANALYTICS=GA_TEST_ID \
+          --build-arg NEXT_PUBLIC_TRANSIFEX_TOKEN=test_token \
+          --build-arg NEXT_PUBLIC_TRANSIFEX_SECRET=test_secret \
+          --build-arg NEXT_PUBLIC_GOOGLE_API_KEY=test_api_key \
+          --tag resilienceatlas-frontend:test \
+          ./frontend
+
+    - name: Move cache
+      run: |
+        rm -rf /tmp/.buildx-cache
+        mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+
+    - name: Create test environment
+      run: |
+        cat > .env.test << EOF
+        NODE_ENV=test
+        NEXT_PUBLIC_API_HOST=http://localhost:3001
+        NEXT_PUBLIC_GOOGLE_ANALYTICS=GA_TEST_ID
+        NEXT_PUBLIC_TRANSIFEX_TOKEN=test_token
+        NEXT_PUBLIC_TRANSIFEX_SECRET=test_secret
+        NEXT_PUBLIC_GOOGLE_API_KEY=test_api_key
+        PORT=3000
+        EOF
+
+    - name: Run Jest unit tests
+      run: |
+        docker-compose -f docker-compose.test.yml run --rm frontend-test \
+          bash -c "npm run test:unit -- --coverage --watchAll=false --testResultsProcessor=jest-junit"
+
+    - name: Run ESLint
+      run: |
+        docker-compose -f docker-compose.test.yml run --rm frontend-test \
+          bash -c "npm run lint"
+
+    - name: Run TypeScript check
+      run: |
+        docker-compose -f docker-compose.test.yml run --rm frontend-test \
+          bash -c "npm run type-check"
+
+    - name: Build application
+      run: |
+        docker-compose -f docker-compose.test.yml run --rm frontend-test \
+          bash -c "npm run build"
+
+    - name: Start services for E2E tests
+      run: |
+        # Start backend and frontend services
+        docker-compose -f docker-compose.test.yml up -d db-test redis-test
+        
+        # Wait for database
+        timeout 60s bash -c 'until docker-compose -f docker-compose.test.yml exec -T db-test pg_isready -U postgres; do sleep 2; done'
+        
+        # Setup backend database
+        docker-compose -f docker-compose.test.yml run --rm backend-test \
+          bash -c "
+            RAILS_ENV=test bundle exec rails db:create &&
+            RAILS_ENV=test bundle exec rails db:schema:load &&
+            RAILS_ENV=test bundle exec rails db:seed
+          "
+        
+        # Start backend service
+        docker-compose -f docker-compose.test.yml up -d backend-test
+        
+        # Wait for backend to be ready
+        timeout 120s bash -c 'until curl -f http://localhost:3001/api/health 2>/dev/null; do sleep 5; done'
+        
+        # Start frontend service
+        docker-compose -f docker-compose.test.yml up -d frontend-test
+        
+        # Wait for frontend to be ready
+        timeout 120s bash -c 'until curl -f http://localhost:3000 2>/dev/null; do sleep 5; done'
+
+    - name: Run Cypress E2E tests (Chrome)
+      run: |
+        docker-compose -f docker-compose.test.yml run --rm \
+          -e CYPRESS_baseUrl=http://frontend-test:3000 \
+          -e CYPRESS_apiUrl=http://backend-test:3001 \
+          cypress-chrome \
+          bash -c "
+            npx cypress run \
+              --browser chrome \
+              --headless \
+              --config video=true,screenshotOnRunFailure=true \
+              --reporter junit \
+              --reporter-options mochaFile=cypress/results/results-chrome-[hash].xml
+          "
+
+    - name: Run Cypress E2E tests (Firefox)
+      run: |
+        docker-compose -f docker-compose.test.yml run --rm \
+          -e CYPRESS_baseUrl=http://frontend-test:3000 \
+          -e CYPRESS_apiUrl=http://backend-test:3001 \
+          cypress-firefox \
+          bash -c "
+            npx cypress run \
+              --browser firefox \
+              --headless \
+              --config video=true,screenshotOnRunFailure=true \
+              --reporter junit \
+              --reporter-options mochaFile=cypress/results/results-firefox-[hash].xml
+          "
+
+    - name: Publish test results
+      uses: dorny/test-reporter@v1
+      if: success() || failure()
+      with:
+        name: Frontend Tests
+        path: |
+          frontend/jest-results.xml
+          frontend/cypress/results/*.xml
+        reporter: java-junit
+
+    - name: Upload coverage reports
+      if: always()
+      run: |
+        if docker-compose -f docker-compose.test.yml run --rm frontend-test test -f coverage/lcov.info; then
+          echo "Coverage report found"
+        fi
+
+    - name: Upload Cypress artifacts
+      uses: actions/upload-artifact@v3
+      if: failure()
+      with:
+        name: cypress-artifacts
+        path: |
+          frontend/cypress/videos
+          frontend/cypress/screenshots
+        retention-days: 7
+
+    - name: Cleanup
+      if: always()
+      run: |
+        docker-compose -f docker-compose.test.yml down -v
+        docker system prune -f
