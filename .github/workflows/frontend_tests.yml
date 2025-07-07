@@ -72,37 +72,25 @@ jobs:
         PORT=3000
         EOF
 
-    - name: Run Jest unit tests
-      run: |
-        docker compose -f docker-compose.test.yml run --rm --no-deps frontend-test ./bin/test junit
-
     - name: Run ESLint
       run: |
-        docker compose -f docker-compose.test.yml run --rm --no-deps frontend-test ./bin/test lint
+        docker compose -f docker-compose.test.yml run --rm --no-deps frontend-test \
+          bash -c "chmod +x ./bin/test && ./bin/test lint"
 
     - name: Run TypeScript check
       run: |
-        docker compose -f docker-compose.test.yml run --rm --no-deps frontend-test ./bin/test type-check
+        docker compose -f docker-compose.test.yml run --rm --no-deps frontend-test \
+          bash -c "chmod +x ./bin/test && ./bin/test type-check"
+
+    - name: Run Prettier check
+      run: |
+        docker compose -f docker-compose.test.yml run --rm --no-deps frontend-test \
+          bash -c "chmod +x ./bin/test && ./bin/test prettier"
 
     - name: Build application
       run: |
-        docker compose -f docker-compose.test.yml run --rm --no-deps frontend-test ./bin/test build
-
-    - name: Publish test results
-      uses: dorny/test-reporter@v1
-      if: success() || failure()
-      with:
-        name: Frontend Tests
-        path: |
-          frontend/jest-results.xml
-        reporter: java-junit
-
-    - name: Upload coverage reports
-      if: always()
-      run: |
-        if docker compose -f docker-compose.test.yml run --rm frontend-test test -f coverage/lcov.info; then
-          echo "Coverage report found"
-        fi
+        docker compose -f docker-compose.test.yml run --rm --no-deps frontend-test \
+          bash -c "chmod +x ./bin/test && ./bin/test build"
 
     - name: Cleanup
       if: always()

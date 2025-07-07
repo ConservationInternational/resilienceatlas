@@ -87,19 +87,23 @@ jobs:
 
     - name: Run RSpec tests
       run: |
-        docker compose -f docker-compose.test.yml run --rm backend-test ./bin/test junit
+        docker compose -f docker-compose.test.yml run --rm backend-test \
+          bash -c "chmod +x ./bin/test && ./bin/test junit"
 
     - name: Run RuboCop linting
       run: |
-        docker compose -f docker-compose.test.yml run --rm backend-test ./bin/test lint
+        docker compose -f docker-compose.test.yml run --rm backend-test \
+          bash -c "chmod +x ./bin/test && ./bin/test lint"
 
     - name: Run Brakeman security analysis
       run: |
-        docker compose -f docker-compose.test.yml run --rm backend-test ./bin/test security
+        docker compose -f docker-compose.test.yml run --rm backend-test \
+          bash -c "chmod +x ./bin/test && ./bin/test security"
 
     - name: Run Bundle Audit
       run: |
-        docker compose -f docker-compose.test.yml run --rm backend-test ./bin/test audit
+        docker compose -f docker-compose.test.yml run --rm backend-test \
+          bash -c "chmod +x ./bin/test && ./bin/test audit"
 
     - name: Verify test results
       run: |

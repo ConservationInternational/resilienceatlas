@@ -190,40 +190,37 @@ The project includes Docker configuration for easy development and deployment. T
 #### Backend Tests (RSpec)
 ```bash
 # Run all backend tests (linting, security, unit tests)
-docker compose -f docker-compose.test.yml run --rm backend-test ./bin/test
+docker compose -f docker-compose.test.yml run --rm backend-test bash -c "chmod +x ./bin/test && ./bin/test"
 
 # Run specific test commands
-docker compose -f docker-compose.test.yml run --rm backend-test ./bin/test rspec
-docker compose -f docker-compose.test.yml run --rm backend-test ./bin/test lint
-docker compose -f docker-compose.test.yml run --rm backend-test ./bin/test security
-docker compose -f docker-compose.test.yml run --rm backend-test ./bin/test audit
+docker compose -f docker-compose.test.yml run --rm backend-test bash -c "chmod +x ./bin/test && ./bin/test rspec"
+docker compose -f docker-compose.test.yml run --rm backend-test bash -c "chmod +x ./bin/test && ./bin/test lint"
+docker compose -f docker-compose.test.yml run --rm backend-test bash -c "chmod +x ./bin/test && ./bin/test security"
+docker compose -f docker-compose.test.yml run --rm backend-test bash -c "chmod +x ./bin/test && ./bin/test audit"
 
 # Run specific test file
-docker compose -f docker-compose.test.yml run --rm backend-test ./bin/test rspec spec/models/user_spec.rb
+docker compose -f docker-compose.test.yml run --rm backend-test bash -c "chmod +x ./bin/test && ./bin/test rspec spec/models/user_spec.rb"
 
 # Show all available commands
-docker compose -f docker-compose.test.yml run --rm backend-test ./bin/test help
+docker compose -f docker-compose.test.yml run --rm backend-test bash -c "chmod +x ./bin/test && ./bin/test help"
 ```
 
-#### Frontend Tests (Jest/ESLint/TypeScript)
+#### Frontend Tests (ESLint/TypeScript/Prettier)
 ```bash
-# Run all frontend tests (linting, type-check, unit tests, build)
-docker compose -f docker-compose.test.yml run --rm --no-deps frontend-test ./bin/test
+# Run all frontend checks (linting, type-check, prettier, build)
+docker compose -f docker-compose.test.yml run --rm --no-deps frontend-test bash -c "chmod +x ./bin/test && ./bin/test"
 
 # Run specific test commands
-docker compose -f docker-compose.test.yml run --rm --no-deps frontend-test ./bin/test jest
-docker compose -f docker-compose.test.yml run --rm --no-deps frontend-test ./bin/test lint
-docker compose -f docker-compose.test.yml run --rm --no-deps frontend-test ./bin/test type-check
-docker compose -f docker-compose.test.yml run --rm --no-deps frontend-test ./bin/test build
+docker compose -f docker-compose.test.yml run --rm --no-deps frontend-test bash -c "chmod +x ./bin/test && ./bin/test lint"
+docker compose -f docker-compose.test.yml run --rm --no-deps frontend-test bash -c "chmod +x ./bin/test && ./bin/test type-check"
+docker compose -f docker-compose.test.yml run --rm --no-deps frontend-test bash -c "chmod +x ./bin/test && ./bin/test prettier"
+docker compose -f docker-compose.test.yml run --rm --no-deps frontend-test bash -c "chmod +x ./bin/test && ./bin/test build"
 
-# Run tests with coverage
-docker compose -f docker-compose.test.yml run --rm --no-deps frontend-test ./bin/test coverage
-
-# Run tests in watch mode (for development)
-docker compose -f docker-compose.test.yml run --rm --no-deps frontend-test ./bin/test watch
+# Run Cypress e2e tests (requires backend services)
+docker compose -f docker-compose.test.yml run --rm frontend-test bash -c "chmod +x ./bin/test && ./bin/test cypress"
 
 # Show all available commands
-docker compose -f docker-compose.test.yml run --rm --no-deps frontend-test ./bin/test help
+docker compose -f docker-compose.test.yml run --rm --no-deps frontend-test bash -c "chmod +x ./bin/test && ./bin/test help"
 ```
 
 #### Integration Tests (Full E2E)
