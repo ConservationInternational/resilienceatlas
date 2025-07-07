@@ -22,6 +22,39 @@ namespace :db do
     exec cmd
   end
 
+  desc "Sets up test database safely, handling PostGIS schemas"
+  task test_setup: :environment do
+    puts "Setting up test database safely..."
+    
+    # Drop database if it exists
+    begin
+      Rake::Task["db:drop"].invoke
+      puts "✓ Dropped existing test database"
+    rescue => e
+      puts "Database drop failed or database didn't exist: #{e.message}"
+    end
+    
+    # Create database
+    Rake::Task["db:create"].invoke
+    puts "✓ Created test database"
+    
+    # Load schema with error handling
+    begin
+      Rake::Task["db:schema:load"].invoke
+      puts "✓ Loaded database schema"
+    rescue ActiveRecord::StatementInvalid => e
+      if e.message.include?("already exists")
+        puts "⚠ Schema elements already exist, continuing..."
+        # Try to run migrations instead
+        Rake::Task["db:migrate"].invoke rescue nil
+      else
+        raise e
+      end
+    end
+    
+    puts "✅ Test database setup completed"
+  end
+
   private
 
   def with_config

@@ -83,10 +83,7 @@ jobs:
         mkdir -p backend/tmp
         
         docker compose -f docker-compose.test.yml run --rm backend-test \
-          bash -c "
-            bundle exec rails db:create RAILS_ENV=test &&
-            bundle exec rails db:schema:load RAILS_ENV=test
-          "
+          bash -c "RAILS_ENV=test bundle exec rails db:test_setup"
 
     - name: Run RSpec tests
       run: |

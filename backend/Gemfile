@@ -48,6 +48,7 @@ gem "prawn", "~> 2.5"
 gem "prawn-table", "~> 0.2"
 gem "standard", "~> 1.45"
 gem "json-schema", "~> 5.1"
+gem "ostruct", "~> 0.6"
 
 # Translations
 gem "globalize", "~> 7.0"

@@ -116,8 +116,8 @@ jobs:
         # Create and setup database
         docker compose -f docker-compose.test.yml run --rm backend-test \
           bash -c "
-            RAILS_ENV=test bundle exec rails db:create &&
-            RAILS_ENV=test bundle exec rails db:schema:load &&
+            # Use Rails built-in database preparation which handles existing schemas better
+            RAILS_ENV=test bundle exec rails db:prepare &&
             RAILS_ENV=test bundle exec rails db:seed
           "
         
