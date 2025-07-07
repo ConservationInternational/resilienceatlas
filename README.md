@@ -14,38 +14,67 @@ This repository contains all the code and documentation necessary to set up and 
 
 ## CI/CD Process
 
-The project uses GitHub Actions for continuous integration and deployment. The CI/CD workflows are organized into three main categories:
+The project uses GitHub Actions for continuous integration and deployment. The CI/CD workflows are organized into comprehensive testing and deployment categories:
 
-### Frontend CI/CD
+### Testing Workflows
 
-The frontend CI/CD pipeline (`frontend_ci_cd.yml`) includes:
+The project implements comprehensive testing with Docker-based workflows:
 
-- **Testing**: End-to-end tests using Cypress on both Chrome and Firefox browsers
-- **Deployment**: Automatic deployment using Capistrano to staging (develop branch) and production (master branch)
-- **Triggers**: Runs on pushes to the `frontend/` directory or workflow file changes
-
-Key features:
-- Runs tests in parallel on multiple browsers
-- Uses Node.js version specified in `.nvmrc`
-- Caches yarn dependencies for faster builds
-- Uploads test screenshots on failure for debugging
-- Environment-based deployments (staging for develop, production for master)
-
-### Backend CI/CD
-
-The backend CI/CD pipeline (`backend_ci_cd.yml`) includes:
-
+#### Backend Tests (`backend_tests.yml`)
 - **Testing**: RSpec test suite with PostgreSQL database
-- **Linting**: RuboCop code style checks
+- **Linting**: RuboCop code style checks  
 - **Security**: Brakeman security analysis and Bundle Audit for dependency vulnerabilities
-- **Deployment**: Automatic deployment using Capistrano to staging and production environments
-- **Triggers**: Runs on pushes to the `backend/` directory or workflow file changes
+- **Triggers**: Runs on pushes/PRs to the `backend/` directory
 
-Key features:
-- Uses PostGIS-enabled PostgreSQL for testing
-- Parallel execution of tests, linting, and security checks
-- Ruby version management with bundler caching
-- Comprehensive security scanning
+#### Frontend Tests (`frontend_tests.yml`)
+- **Unit Testing**: Jest tests for components and utilities
+- **E2E Testing**: Cypress tests on Chrome and Firefox browsers
+- **Linting**: ESLint and TypeScript validation
+- **Build Verification**: Ensures application builds successfully
+- **Triggers**: Runs on pushes/PRs to the `frontend/` directory
+
+#### Integration Tests (`integration_tests.yml`)
+- **Full-Stack Testing**: Complete frontend-backend integration testing
+- **API Testing**: Backend integration tests focused on API endpoints
+- **Performance Testing**: Basic response time validation
+- **Data Consistency**: Verifies data flows correctly between systems
+- **Triggers**: Runs on pushes/PRs to `develop` and `main` branches
+
+Key testing features:
+- Docker-based isolated test environments
+- Multi-browser E2E testing (Chrome and Firefox)
+- Comprehensive test reporting with JUnit integration
+- Test artifacts collection (screenshots, videos on failure)
+- Health checks and service dependency management
+
+See [.github/TESTING.md](.github/TESTING.md) for detailed testing documentation.
+
+### ECS Deployment Workflows
+
+The project uses AWS ECS (Elastic Container Service) for deployment with separate workflows for staging and production:
+
+#### Staging Deployment (`ecs_deploy_staging.yml`)
+- **Triggers**: Pushes to the `develop` branch (after tests pass)
+- **Target**: staging.resilienceatlas.org
+- **Features**: Builds and deploys both frontend and backend containers to ECS
+- **Environment**: Uses staging-specific environment variables and secrets
+- **Database Refresh**: Automatically copies production database to staging before deployment
+
+#### Production Deployment (`ecs_deploy_production.yml`)
+- **Triggers**: Pushes to the `main` branch (after all tests pass)
+- **Target**: resilienceatlas.org
+- **Features**: Builds and deploys both frontend and backend containers to ECS
+- **Environment**: Uses production-specific environment variables and secrets
+
+Key deployment features:
+- Containerized deployment using Docker multi-stage builds
+- AWS ECR for container image storage
+- ECS with EC2-based cluster for container orchestration
+- Application Load Balancers for traffic distribution
+- AWS Secrets Manager for secure credential management
+- Automatic health checks and service stability verification
+- Deployment only proceeds after all relevant tests pass
+- **Staging database refresh**: Production data automatically copied to staging for realistic testing
 
 ### TiTiler COGs Workflows
 
@@ -72,6 +101,45 @@ Key features:
 - **Cost Optimization**: Prevents accumulation of unused AWS resources
 
 The TiTiler COGs service provides dynamic tile generation for Cloud Optimized GeoTIFFs (COGs) and is deployed as AWS Lambda functions behind API Gateway. See [cloud_functions/titiler_cogs/README.md](cloud_functions/titiler_cogs/README.md) for detailed deployment and usage instructions.
+
+## Production Deployment
+
+### AWS ECS Deployment
+
+The application is deployed to AWS ECS (Elastic Container Service) using EC2-based clusters for both staging and production environments:
+
+- **Staging**: [staging.resilienceatlas.org](https://staging.resilienceatlas.org) (deployed from `develop` branch)
+- **Production**: [resilienceatlas.org](https://resilienceatlas.org) (deployed from `master`/`main` branch)
+
+#### Deployment Architecture
+
+- **Container Registry**: AWS ECR for storing Docker images
+- **Orchestration**: AWS ECS with EC2 cluster (`resilienceatlas-cluster`)
+- **Load Balancing**: Application Load Balancers for traffic distribution
+- **Secret Management**: AWS Secrets Manager for secure credential storage
+- **Monitoring**: CloudWatch logs and ECS service metrics
+
+#### Setting Up ECS Deployment
+
+1. **Prerequisites**: AWS account with appropriate IAM permissions, Python 3.7+, AWS CLI configured
+
+2. **Infrastructure Setup**:
+   ```bash
+   cd scripts
+   pip install -r requirements.txt
+   python setup_ecs_infrastructure.py --account-id YOUR_AWS_ACCOUNT_ID
+   ```
+
+3. **Services Creation**:
+   ```bash
+   python create_ecs_services.py --account-id YOUR_AWS_ACCOUNT_ID
+   ```
+
+4. **Configure Secrets**: Update AWS Secrets Manager entries with real database URLs and application secrets
+
+5. **GitHub Actions**: Configure repository secrets for automatic deployments
+
+See [DOCKER.md](DOCKER.md) for detailed setup instructions and [scripts/README.md](scripts/README.md) for script documentation.
 
 ## Docker Setup
 

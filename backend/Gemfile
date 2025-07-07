@@ -70,11 +70,6 @@ group :development, :test do
   gem "byebug", "~> 11.1"
   gem "awesome_print", "~> 1.9"
   gem "faker", "~> 3.5"
-  gem "capistrano", "~> 3.19"
-  gem "capistrano-rbenv", "~> 2.2"
-  gem "capistrano-bundler", "~> 2.1"
-  gem "capistrano-rails", "~> 1.6"
-  gem "capistrano-passenger", "~> 0.2"
 end
 
 group :development do

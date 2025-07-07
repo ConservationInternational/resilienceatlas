@@ -45,8 +45,8 @@ Below is a description of each of the keys.
 
 Every time we update the environment variables, we need to update them in the following places:
 
-- For the Github actions scripts the environment variables are stored in the repository as GitHub secrets. In order to update them, you need to be an administrator of the repository. And also you need to update the environment variables in the GitHub actions scripts in the `.github/workflows/frontend_ci_cd.yml` file.
-- For the staging and production environments, the environment variables are stored in the server as environment variables. In order to update them, you need to be an administrator of the server. The environment variables are stored in the file `[project_path]/shared/.env.production`.
+- For the GitHub Actions scripts, the environment variables are stored in the repository as GitHub secrets. In order to update them, you need to be an administrator of the repository. The environment variables are used in the workflows: `.github/workflows/frontend_tests.yml`, `.github/workflows/ecs_deploy_staging.yml`, and `.github/workflows/ecs_deploy_production.yml`.
+- For the ECS deployment environments, the environment variables are configured in the task definitions and AWS Secrets Manager. See `.github/SECRETS.md` for details.
 - For the local environment, the environment variables are stored in the `.env.local` file.
 - Update the environment variables in the `README.md` file.
 - Finally, you have to update the environment variables in the `.env.example` file.
@@ -150,24 +150,36 @@ When a PR is merged to the `main` branch, the same process is also executed and 
 
 It is recommended to mention the Jira task ID either in commits or the branch names so that the deployment information can be directly available in Jira.
 
-## Manual deployment
+## Deployment
 
-We are using Capistrano to deploy the application. So, in order to deploy the application, you need to have the following:
+Deployment is now fully automated using GitHub Actions and AWS ECS. The application is automatically deployed when:
 
-- Ruby 3.2.1 (rbenv recommended)
+- **Staging**: Push to `develop` branch (after tests pass)
+- **Production**: Push to `main` branch (after tests pass)
 
-And you can install the dependencies with:
+### Deployment Architecture
 
-```
-gem install bundler
-bundle install
-```
+- **Staging**: staging.resilienceatlas.org
+- **Production**: resilienceatlas.org
+- **Infrastructure**: AWS ECS with EC2 cluster
+- **Container Registry**: AWS ECR
+- **Database**: 
+  - Staging: Containerized PostgreSQL with production data copy
+  - Production: AWS RDS PostgreSQL
 
-In case you need to manually deploy the application, you can use the following commands:
+### Manual Deployment
 
-```
-bundle exec cap [staging|production] deploy
-```
+If you need to trigger a deployment manually:
+
+1. Go to GitHub Actions in the repository
+2. Select the appropriate workflow:
+   - "ECS Deploy - Staging" for staging
+   - "ECS Deploy - Production" for production
+3. Click "Run workflow" and select the branch
+
+For more details, see:
+- `.github/SECRETS.md` - Required secrets configuration
+- `DOCKER.md` - Docker and deployment guide
 
 ## Contribution rules
 
