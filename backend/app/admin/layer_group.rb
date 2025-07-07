@@ -3,7 +3,7 @@ ActiveAdmin.register LayerGroup do
     :site_scope_id, agrupations_attributes: [:layer_id, :id, :active, :_destroy],
     translations_attributes: [:id, :locale, :name, :info, :_destroy]
 
-  member_action :clone, only: :show, method: :get do
+  member_action :duplicate, only: :show, method: :get do
     n = resource.clone!
 
     redirect_to edit_admin_layer_group_path(n)
@@ -55,7 +55,7 @@ ActiveAdmin.register LayerGroup do
     column :order
     column :updated_at
     actions defaults: true do |layer_group|
-      link_to "Clone", clone_admin_layer_group_path(layer_group)
+      link_to "Duplicate", duplicate_admin_layer_group_path(layer_group)
     end
   end
 end

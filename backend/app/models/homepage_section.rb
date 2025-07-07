@@ -17,17 +17,37 @@
 #  image_credits     :string
 #
 class HomepageSection < ApplicationRecord
+  # Always include basic globalize support if available
+  # This ensures create_translation_table! is available for migrations
+  if defined?(Globalize)
+    translates :title, :subtitle, :button_text, :image_credits, touch: true, fallbacks_for_empty_translations: true
+  end
+
   belongs_to :homepage
 
   has_one_attached :image, service: :local_public
 
   enum :image_position, {left: "left", right: "right", cover: "cover"}, default: :left, prefix: true
 
-  translates :title, :subtitle, :button_text, :image_credits, touch: true, fallbacks_for_empty_translations: true
-  active_admin_translates :title, :subtitle, :button_text, :image_credits
-
-  translation_class.validates_presence_of :title, if: -> { locale.to_s == I18n.default_locale.to_s }
-  translation_class.validates_presence_of :subtitle, if: -> { locale.to_s == I18n.default_locale.to_s }
+  # Translation setup - only initialize if database is ready and not during migration
+  # This prevents errors during migrations when tables don't exist yet
+  unless defined?(Rails::Generators) || Rails.env.test? && ENV['RAILS_MIGRATE']
+    begin
+      if ActiveRecord::Base.connection && ActiveRecord::Base.connection.table_exists?(:homepage_sections)
+        translates :title, :subtitle, :button_text, :image_credits, touch: true, fallbacks_for_empty_translations: true
+        active_admin_translates :title, :subtitle, :button_text, :image_credits
+        
+        # Only add translation validations if the translation_class is defined
+        if respond_to?(:translation_class) && translation_class
+          translation_class.validates_presence_of :title, if: -> { locale.to_s == I18n.default_locale.to_s }
+          translation_class.validates_presence_of :subtitle, if: -> { locale.to_s == I18n.default_locale.to_s }
+        end
+      end
+    rescue ActiveRecord::NoDatabaseError, ActiveRecord::ConnectionNotEstablished, ActiveRecord::StatementInvalid
+      # Database not available yet - skip translation setup for now
+      Rails.logger&.info "Skipping HomepageSection translations setup - database not ready"
+    end
+  end
 
   validates :button_url, url: true
   validates :image_credits_url, url: true

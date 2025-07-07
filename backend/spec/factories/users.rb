@@ -36,7 +36,7 @@ FactoryBot.define do
     end
     sequence(:phone) do |n|
       Faker::Config.random = Random.new(n)
-      Faker::PhoneNumber.phone_number
+      "#{sprintf('%03d', n % 1000)}-#{sprintf('%03d', (n + 100) % 1000)}-#{sprintf('%04d', (n + 1000) % 10000)}"
     end
     sequence(:organization) do |n|
       Faker::Config.random = Random.new(n)

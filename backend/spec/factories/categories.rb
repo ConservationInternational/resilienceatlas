@@ -17,8 +17,7 @@ FactoryBot.define do
     end
     sequence(:slug) { |n| "Category-#{n}" }
     sequence(:description) do |n|
-      Faker::Config.random = Random.new(n)
-      Faker::Lorem.paragraph
+      "Description for category #{n}. This is a consistent test description."
     end
   end
 end

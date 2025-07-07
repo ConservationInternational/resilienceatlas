@@ -3,6 +3,7 @@ ActiveAdmin.register SiteScope do
 
   permit_params :subdomain, :color, :has_analysis, :latitude, :longitude, :header_theme, :zoom_level,
     :linkback_url, :header_color, :logo_url, :predictive_model, :analysis_options, :has_gef_logo,
+    :password_protected, :username, :password,
     translations_attributes: [:id, :locale, :name, :linkback_text, :_destroy]
 
   filter :layer_groups, as: :select, collection: proc { LayerGroup.with_translations.map { |m| [m.name, m.id] } }
@@ -13,10 +14,11 @@ ActiveAdmin.register SiteScope do
   filter :predictive_model
   filter :analysis_options
   filter :has_gef_logo
+  filter :password_protected
   filter :latitude
   filter :longitude
 
-  member_action :clone, only: :show, method: :get do
+  member_action :duplicate, only: :show, method: :get do
     n = resource.clone!
 
     redirect_to edit_admin_site_scope_path(n)
@@ -44,6 +46,14 @@ ActiveAdmin.register SiteScope do
       f.input :analysis_options
       f.input :has_gef_logo, label: "Has GEF logo"
     end
+    
+    f.inputs "Password Protection" do
+      f.input :password_protected, label: "Enable password protection"
+      f.input :username, label: "Username (required if password protected)", 
+              hint: "Username for accessing this site scope"
+      f.input :password, as: :password, label: "Password (leave blank to keep current)", 
+              hint: "Minimum 6 characters. Leave blank to keep existing password."
+    end
 
     f.inputs "Location", {data: {geousable: "yes"}} do
       f.input :latitude, input_html: {class: "lat"}
@@ -69,12 +79,14 @@ ActiveAdmin.register SiteScope do
     column :predictive_model
     column :analysis_options
     column :has_gef_logo
+    column :password_protected
+    column :username
     column :latitude
     column :longitude
     column :zoom_level
 
     actions defaults: true do |site_scope|
-      link_to "Clone", clone_admin_site_scope_path(site_scope)
+      link_to "Duplicate", duplicate_admin_site_scope_path(site_scope)
     end
   end
 
@@ -93,6 +105,9 @@ ActiveAdmin.register SiteScope do
       row :predictive_model
       row :analysis_options
       row :has_gef_logo
+      row :password_protected
+      row :username
+      row("Password Set") { |site_scope| site_scope.encrypted_password.present? ? "Yes" : "No" }
       row :latitude
       row :longitude
       row :zoom_level

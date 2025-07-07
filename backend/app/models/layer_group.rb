@@ -25,8 +25,14 @@ class LayerGroup < ApplicationRecord
   belongs_to :site_scope
   accepts_nested_attributes_for :agrupations, allow_destroy: true
 
-  translates :name, :info, touch: true, fallbacks_for_empty_translations: true
-  active_admin_translates :name, :info
+  # Translation setup - protected against migration errors
+  begin
+    translates :name, :info, touch: true, fallbacks_for_empty_translations: true
+    active_admin_translates :name, :info
+  rescue ActiveRecord::NoDatabaseError, ActiveRecord::ConnectionNotEstablished, ActiveRecord::StatementInvalid => e
+    # Database not available yet - skip translation setup for now
+    Rails.logger&.info "Skipping LayerGroup translations setup - database not ready: #{e.message}"
+  end
 
   validate :avoid_recursivity, on: :update
   validate :super_group_scope

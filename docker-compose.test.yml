@@ -1,0 +1,179 @@
+services:
+  # Test Database
+  db-test:
+    image: postgis/postgis:15-3.3
+    environment:
+      - POSTGRES_DB=resilienceatlas_test
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_test_data:/var/lib/postgresql/data
+    networks:
+      - test-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis for test environment
+  redis-test:
+    image: redis:7-alpine
+    ports:
+      - "6380:6379"
+    networks:
+      - test-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Backend test service
+  backend-test:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: test
+    environment:
+      - RAILS_ENV=test
+      - DATABASE_URL=postgis://postgres:postgres@db-test:5432/resilienceatlas_test
+      - DATABASE_HOST=db-test
+      - DATABASE_PORT=5432
+      - DATABASE_NAME=resilienceatlas_test
+      - DATABASE_USER=postgres
+      - DATABASE_PASSWORD=postgres
+      - SECRET_KEY_BASE=test_secret_key_base_that_is_long_enough_for_rails_to_accept_it_properly
+      - DEVISE_KEY=test_devise_key_that_is_also_long_enough_for_the_application_to_work
+      - REDIS_URL=redis://redis-test:6379/0
+      - BACKEND_URL=http://backend-test:3001
+      - FRONTEND_URL=http://frontend-test:3000
+      - CORS_ORIGINS=http://frontend-test:3000,http://localhost:3000
+      - RAILS_FORCE_SSL=false
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./backend:/app
+      - bundle_cache:/usr/local/bundle
+      - ./backend/tmp:/app/tmp
+    networks:
+      - test-network
+    depends_on:
+      db-test:
+        condition: service_healthy
+      redis-test:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    command: >
+      bash -c "
+        bundle install &&
+        echo 'Installing development dependencies...' &&
+        bundle check || bundle install &&
+        echo 'Starting Rails server...' &&
+        bundle exec rails server -b 0.0.0.0 -p 3001
+      "
+
+  # Frontend test service
+  frontend-test:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      target: test
+    environment:
+      - NODE_ENV=test
+      - NEXT_PUBLIC_API_HOST=http://backend-test:3001
+      - NEXT_PUBLIC_GOOGLE_ANALYTICS=GA_TEST_ID
+      - NEXT_PUBLIC_TRANSIFEX_TOKEN=test_token
+      - NEXT_PUBLIC_TRANSIFEX_SECRET=test_secret
+      - NEXT_PUBLIC_GOOGLE_API_KEY=test_api_key
+      - PORT=3000
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - node_modules_test:/app/node_modules
+      - ./frontend/cypress:/app/cypress
+    networks:
+      - test-network
+    depends_on:
+      backend-test:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    command: >
+      bash -c "
+        npm install &&
+        echo 'Building frontend application...' &&
+        npm run build &&
+        echo 'Starting frontend server...' &&
+        npm start
+      "
+
+  # Cypress Chrome for E2E testing
+  cypress-chrome:
+    image: cypress/included:13.6.2
+    working_dir: /app
+    environment:
+      - NODE_ENV=test
+      - CYPRESS_baseUrl=http://frontend-test:3000
+      - CYPRESS_apiUrl=http://backend-test:3001
+      - CYPRESS_video=true
+      - CYPRESS_screenshotOnRunFailure=true
+    volumes:
+      - ./frontend:/app
+      - cypress_cache:/root/.cache/Cypress
+      - ./frontend/cypress:/app/cypress
+    networks:
+      - test-network
+    depends_on:
+      frontend-test:
+        condition: service_healthy
+    entrypoint: ""
+    profiles:
+      - testing
+
+  # Cypress Firefox for E2E testing
+  cypress-firefox:
+    image: cypress/included:13.6.2
+    working_dir: /app
+    environment:
+      - NODE_ENV=test
+      - CYPRESS_baseUrl=http://frontend-test:3000
+      - CYPRESS_apiUrl=http://backend-test:3001
+      - CYPRESS_video=true
+      - CYPRESS_screenshotOnRunFailure=true
+    volumes:
+      - ./frontend:/app
+      - cypress_cache:/root/.cache/Cypress
+      - ./frontend/cypress:/app/cypress
+    networks:
+      - test-network
+    depends_on:
+      frontend-test:
+        condition: service_healthy
+    entrypoint: ""
+    profiles:
+      - testing
+
+networks:
+  test-network:
+    driver: bridge
+
+volumes:
+  postgres_test_data:
+  bundle_cache:
+  node_modules_test:
+  frontend_node_modules:
+  cypress_cache:

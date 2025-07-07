@@ -23,7 +23,7 @@ class FeedbackField < ApplicationRecord
     multiple_choice: "multiple_choice",
     free_answer: "free_answer",
     rating: "rating"
-  }, default: :single_choice, _suffix: true
+  }, default: :single_choice, suffix: true
 
   validates :answer, json: true
 

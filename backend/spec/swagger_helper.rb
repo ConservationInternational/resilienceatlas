@@ -4,9 +4,11 @@ RSpec.configure do |config|
   config.swagger_root = Rails.root.join("swagger").to_s
 
   config.after :each, generate_swagger_example: true do |example|
-    example.metadata[:response][:content] = {
-      "application/json" => {example: JSON.parse(response.body, symbolize_names: true)}
-    }
+    if response&.body
+      example.metadata[:response][:content] = {
+        "application/json" => {example: JSON.parse(response.body, symbolize_names: true)}
+      }
+    end
   end
 
   config.swagger_docs = {

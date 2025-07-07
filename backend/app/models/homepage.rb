@@ -21,11 +21,30 @@ class Homepage < ApplicationRecord
 
   has_one_attached :background_image, service: :local_public
 
-  translates :title, :subtitle, :credits, touch: true, fallbacks_for_empty_translations: true
-  active_admin_translates :title, :subtitle, :credits
+  # Always include basic globalize support if available
+  # This ensures create_translation_table! is available for migrations
+  if defined?(Globalize)
+    translates :title, :subtitle, :credits, touch: true, fallbacks_for_empty_translations: true
+  end
 
-  translation_class.validates_presence_of :title, if: -> { locale.to_s == I18n.default_locale.to_s }
-  translation_class.validates_presence_of :subtitle, if: -> { locale.to_s == I18n.default_locale.to_s }
+  # Translation setup - only add extra features if database is ready and not during migration
+  # This prevents errors during migrations when tables don't exist yet
+  unless defined?(Rails::Generators) || Rails.env.test? && ENV['RAILS_MIGRATE']
+    begin
+      if defined?(Globalize) && ActiveRecord::Base.connection && ActiveRecord::Base.connection.table_exists?(:homepages)
+        active_admin_translates :title, :subtitle, :credits
+        
+        # Only add translation validations if the translation_class is defined
+        if respond_to?(:translation_class) && translation_class
+          translation_class.validates_presence_of :title, if: -> { locale.to_s == I18n.default_locale.to_s }
+          translation_class.validates_presence_of :subtitle, if: -> { locale.to_s == I18n.default_locale.to_s }
+        end
+      end
+    rescue ActiveRecord::NoDatabaseError, ActiveRecord::ConnectionNotEstablished, ActiveRecord::StatementInvalid => e
+      # Database not available yet - skip extra translation setup for now
+      Rails.logger&.info "Skipping Homepage extra translations setup - database not ready: #{e.message}"
+    end
+  end
 
   validates_presence_of :homepage_journey, if: -> { show_journeys }
   validates_uniqueness_of :site_scope_id

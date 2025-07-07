@@ -11,13 +11,33 @@
 #
 
 class Category < ApplicationRecord
+  # Always include basic globalize support if available
+  # This ensures create_translation_table! is available for migrations
+  if defined?(Globalize)
+    translates :name, :description, touch: true, fallbacks_for_empty_translations: true
+  end
+
   has_many :indicators
 
-  translates :name, :description, touch: true, fallbacks_for_empty_translations: true
-  active_admin_translates :name, :description
+  # Translation setup - only add extra features if database is ready and not during migration
+  # This prevents errors during migrations when tables don't exist yet
+  unless defined?(Rails::Generators) || Rails.env.test? && ENV['RAILS_MIGRATE']
+    begin
+      if defined?(Globalize) && ActiveRecord::Base.connection && ActiveRecord::Base.connection.table_exists?(:category_translations)
+        active_admin_translates :name, :description
+        
+        # Only add translation validations if the translation_class is defined
+        if respond_to?(:translation_class) && translation_class
+          translation_class.validates_presence_of :name, if: -> { locale.to_s == I18n.default_locale.to_s }
+        end
+      end
+    rescue ActiveRecord::NoDatabaseError, ActiveRecord::ConnectionNotEstablished, ActiveRecord::StatementInvalid => e
+      # Database not available yet - skip extra translation setup for now
+      Rails.logger&.info "Skipping Category extra translations setup - database not ready: #{e.message}"
+    end
+  end
 
   validates_presence_of :slug
-  translation_class.validates_presence_of :name, if: -> { locale.to_s == I18n.default_locale.to_s }
 
   def self.fetch_all(options = {})
     Category.with_translations
