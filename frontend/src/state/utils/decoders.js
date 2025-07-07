@@ -24,4 +24,5 @@ export const birds = (data, w, h, z, params) => {
   }
 };
 
-export default { birds };
+const decoders = { birds };
+export default decoders;

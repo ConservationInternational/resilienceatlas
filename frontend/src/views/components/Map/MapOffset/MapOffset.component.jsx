@@ -19,7 +19,7 @@ export const MapOffset = ({ map, sidebarOpened, analysisOpened }) => {
     });
 
     map.setView(center, zoom, { animate: true });
-  }, [sidebarOpened, analysisOpened]);
+  }, [sidebarOpened, analysisOpened, map]);
 
   return null;
 };

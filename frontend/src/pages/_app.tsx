@@ -139,6 +139,7 @@ const ResilienceApp = ({ Component, ...rest }: AppPropsWithLayout) => {
       tx.setCurrentLocale(locale);
     } else if (process.env.NODE_ENV === 'development') {
       // In development without token, just log a warning
+      // eslint-disable-next-line no-console
       console.warn('Transifex token not provided. Translation service disabled.');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

@@ -114,7 +114,7 @@ class Layer < ApplicationRecord
   begin
     translates :name, :info, :legend, :title, :data_units, :processing, :description, :analysis_text_template, touch: true, fallbacks_for_empty_translations: true
     active_admin_translates :name, :info, :legend, :title, :data_units, :processing, :description, :analysis_text_template
-    
+
     # Only add translation validations if the translation_class is defined
     if respond_to?(:translation_class) && translation_class
       translation_class.validates_presence_of :name, if: -> { locale.to_s == I18n.default_locale.to_s }
@@ -125,11 +125,11 @@ class Layer < ApplicationRecord
   end
 
   # Only define enums if the table and columns exist to avoid migration issues
-  if table_exists? && column_names.include?('timeline_period')
+  if table_exists? && column_names.include?("timeline_period")
     enum :timeline_period, {yearly: "yearly", monthly: "monthly", daily: "daily"}, default: :yearly, prefix: true
   end
-  
-  if table_exists? && column_names.include?('analysis_type')
+
+  if table_exists? && column_names.include?("analysis_type")
     enum :analysis_type, {histogram: "histogram", categorical: "categorical", text: "text"}, default: :histogram, prefix: true
   end
 
@@ -227,7 +227,7 @@ class Layer < ApplicationRecord
     source_date = sources.map { |s| s.updated_at.to_date.to_s.parameterize }.compact.flatten.max if sources.any?
     objects_date = [self_date, source_date].compact.max
 
-    return true if file_date >= objects_date
+    true if file_date >= objects_date
   end
 
   def zipfile_name(subdomain)

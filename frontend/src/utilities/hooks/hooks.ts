@@ -39,14 +39,14 @@ export const useUpdaterInput = (name, initialValue, updater) => {
   // call update handler only if value changed
   const update = useCallback(() => {
     if (value !== initialValue) updater(value);
-  }, [value, initialValue]);
+  }, [value, initialValue, updater]);
 
   // adding a update handlers
   const onKeyPress = useCallback(
     (e) => (e.keyCode === 13 || e.charCode === 13) && update(),
-    [value],
+    [update],
   );
-  const onBlur = useCallback(() => update(), [value]);
+  const onBlur = useCallback(() => update(), [update]);
 
   // update current value if initial has been changed
   useEffect(() => {
@@ -61,11 +61,13 @@ export const useDebounce = (effect, delay, deps) => {
     const timeout = setTimeout(effect, delay);
 
     return () => clearTimeout(timeout);
-  }, deps);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [effect, delay, ...deps]);
 };
 
 export const useRouterValue = (
   name: string,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   value: any,
   { onlyOnChange = false }: { onlyOnChange?: boolean } = {},
 ) => {
@@ -76,7 +78,7 @@ export const useRouterValue = (
     if (!onlyOnChange || prevValue !== value) {
       setParam(name, value);
     }
-  }, [value]);
+  }, [value, onlyOnChange, prevValue, name, setParam]);
 };
 
 export const useTogglerButton = (current, setter, { activeClassName = 'is-active' } = {}) => {

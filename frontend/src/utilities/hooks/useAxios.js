@@ -54,14 +54,16 @@ export const useAxios = (config, deps, parseData) => {
           data: parseData ? parseData(data) : data,
         }),
       )
+      // eslint-disable-next-line no-console
       .catch((error) => console.warn(error) || dispatch({ type: FETCH.FAIL, error }));
 
     return () => {
-      if (state.loading) {
+      if (state.loading && source.current) {
         source.current.cancel('Operation canceled because tagret component was unmounted.');
       }
     };
-  }, deps);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [config, parseData, state.loading, ...deps]);
 
   return [state.data, state.loading, state.loaded, state.error];
 };

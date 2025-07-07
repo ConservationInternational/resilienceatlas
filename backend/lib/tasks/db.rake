@@ -25,7 +25,7 @@ namespace :db do
   desc "Sets up test database safely, handling PostGIS schemas"
   task test_setup: :environment do
     puts "Setting up test database safely..."
-    
+
     # Drop database if it exists
     begin
       Rake::Task["db:drop"].invoke
@@ -33,11 +33,11 @@ namespace :db do
     rescue => e
       puts "Database drop failed or database didn't exist: #{e.message}"
     end
-    
+
     # Create database
     Rake::Task["db:create"].invoke
     puts "✓ Created test database"
-    
+
     # Load schema with error handling
     begin
       Rake::Task["db:schema:load"].invoke
@@ -46,12 +46,16 @@ namespace :db do
       if e.message.include?("already exists")
         puts "⚠ Schema elements already exist, continuing..."
         # Try to run migrations instead
-        Rake::Task["db:migrate"].invoke rescue nil
+        begin
+          Rake::Task["db:migrate"].invoke
+        rescue
+          nil
+        end
       else
         raise e
       end
     end
-    
+
     puts "✅ Test database setup completed"
   end
 

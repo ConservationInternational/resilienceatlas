@@ -10,7 +10,7 @@ const client = new carto.Client({
   serverUrl: 'https://cdb.resilienceatlas.org/user/{username}',
 });
 
-const CartoDBLayer = ({ map, onCreate, layer }) => {
+const CartoDBLayer = ({ map, layer }) => {
   const [loading, setLoading] = useState(false);
   const layerRef = useRef(null);
 
@@ -31,7 +31,7 @@ const CartoDBLayer = ({ map, onCreate, layer }) => {
         map.removeLayer(layerRef.current);
       }
     };
-  }, []);
+  }, [layer.cartocss, layer.sql, map]);
 
   if (loading) return <Loader loading />;
 

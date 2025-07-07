@@ -46,13 +46,13 @@ ActiveAdmin.register SiteScope do
       f.input :analysis_options
       f.input :has_gef_logo, label: "Has GEF logo"
     end
-    
+
     f.inputs "Password Protection" do
       f.input :password_protected, label: "Enable password protection"
-      f.input :username, label: "Username (required if password protected)", 
-              hint: "Username for accessing this site scope"
-      f.input :password, as: :password, label: "Password (leave blank to keep current)", 
-              hint: "Minimum 6 characters. Leave blank to keep existing password."
+      f.input :username, label: "Username (required if password protected)",
+        hint: "Username for accessing this site scope"
+      f.input :password, as: :password, label: "Password (leave blank to keep current)",
+        hint: "Minimum 6 characters. Leave blank to keep existing password."
     end
 
     f.inputs "Location", {data: {geousable: "yes"}} do

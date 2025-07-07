@@ -84,6 +84,7 @@ export const makeRequest = (method: string, url: string, options: AxiosRequestCo
   });
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Handler = (url: string, config: AxiosRequestConfig) => Promise<any>;
 type Handlers = {
   get: Handler;
@@ -102,8 +103,10 @@ export const requestHandlers: Handlers = { get, post, put, patch, del };
 
 type Callback = (
   requestHandlers: Handlers,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   dispatch: ThunkDispatch<unknown, unknown, any>,
   getState: () => unknown,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ) => Promise<any>;
 
 type ApiMeta = {

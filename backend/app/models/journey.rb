@@ -18,18 +18,18 @@ class Journey < ApplicationRecord
   if defined?(Globalize)
     translates :title, :subtitle, :theme, :credits, touch: true, fallbacks_for_empty_translations: true
   end
-  
+
   has_many :journey_steps, dependent: :destroy
 
   has_one_attached :background_image, service: :local_public
 
   # Translation setup - only add extra features if database is ready and not during migration
   # This prevents errors during migrations when tables don't exist yet
-  unless defined?(Rails::Generators) || Rails.env.test? && ENV['RAILS_MIGRATE']
+  unless defined?(Rails::Generators) || (Rails.env.test? && ENV["RAILS_MIGRATE"])
     begin
-      if defined?(Globalize) && ActiveRecord::Base.connection && ActiveRecord::Base.connection.table_exists?(:journeys)
+      if defined?(Globalize) && ActiveRecord::Base.connection&.table_exists?(:journeys)
         active_admin_translates :title, :subtitle, :theme, :credits
-        
+
         # Only add translation validations if the translation_class is defined
         if respond_to?(:translation_class) && translation_class
           translation_class.validates_presence_of :title, if: -> { locale.to_s == I18n.default_locale.to_s }

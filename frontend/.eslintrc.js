@@ -13,10 +13,12 @@ module.exports = {
       node: true,
     },
     'import/extensions': ['.js', '.jsx', '.ts', '.tsx'],
+    'import/ignore': ['leaflet'],
   },
   rules: {
     'import/no-named-as-default': ['off'],
     'import/no-named-as-default-member': ['off'],
+    'import/namespace': ['error', { allowComputed: true }],
     'prettier/prettier': ['error'],
     'no-console': ['warn'],
     'no-debugger': ['warn'],

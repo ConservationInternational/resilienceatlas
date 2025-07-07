@@ -7,7 +7,7 @@ class CreateTranslations < ActiveRecord::Migration[6.0]
           t.references :layer, null: false, foreign_key: true
           t.string :locale, null: false
           t.timestamps null: false
-          
+
           t.string :name
           t.text :info
           t.text :legend
@@ -16,7 +16,7 @@ class CreateTranslations < ActiveRecord::Migration[6.0]
           t.string :processing
           t.text :description
         end
-        
+
         add_index :layer_translations, [:layer_id, :locale], unique: true
 
         # Copy existing data
@@ -39,11 +39,11 @@ class CreateTranslations < ActiveRecord::Migration[6.0]
           t.references :layer_group, null: false, foreign_key: true
           t.string :locale, null: false
           t.timestamps null: false
-          
+
           t.string :name
           t.text :info
         end
-        
+
         add_index :layer_group_translations, [:layer_group_id, :locale], unique: true
 
         # Copy existing layer group data

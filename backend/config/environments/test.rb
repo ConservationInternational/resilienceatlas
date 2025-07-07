@@ -46,7 +46,7 @@ Rails.application.configure do
   config.active_storage.service = :test
 
   config.action_mailer.default_url_options = {host: "localhost", port: 3000}
-  
+
   # Set default URL options for the test environment
   Rails.application.routes.default_url_options = {
     host: "localhost",

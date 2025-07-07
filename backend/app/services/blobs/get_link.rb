@@ -11,7 +11,7 @@ module Blobs
       return if original_blob.blank?
 
       modified_blob = modify(original_blob)
-      
+
       # For test environment, try to use only_path first to avoid host issues
       if Rails.env.test?
         begin

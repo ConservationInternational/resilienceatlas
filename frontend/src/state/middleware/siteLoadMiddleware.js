@@ -1,12 +1,12 @@
 import { LOAD } from '../modules/site/actions';
-import { showModal, checkSiteScopeAccess } from '../modules/site_scope_auth/actions';
+import { checkSiteScopeAccess } from '../modules/site_scope_auth/actions';
 import { subdomain } from 'utilities/getSubdomain';
 
 /**
  * Middleware to handle site scope authentication after site loading
  */
 const siteLoadMiddleware =
-  ({ dispatch, getState }) =>
+  ({ dispatch }) =>
   (next) =>
   (action) => {
     const result = next(action);

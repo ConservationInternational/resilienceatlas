@@ -75,8 +75,9 @@
   "devDependencies": {
     "@transifex/cli": "^5.2.0",
     "@types/google.maps": "^3.52.5",
-    "@types/leaflet": "^1.4.4",
+    "@types/leaflet": "1.7.11",
     "@types/leaflet-draw": "^0.4.14",
+    "@types/lodash": "4.14.191",
     "@types/node": "18.14.6",
     "@types/react": "^18.0.28",
     "@types/react-dom": "^18.0.11",
@@ -95,7 +96,7 @@
     "lint-staged": "^13.1.2",
     "prettier": "2.8.3",
     "start-server-and-test": "^2.0.0",
-    "typescript": "4.5.2"
+    "typescript": "4.9.5"
   },
   "resolutions": {
     "axios": "0.27.2",

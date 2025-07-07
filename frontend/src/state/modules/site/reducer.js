@@ -1,6 +1,5 @@
 import { createReducer } from '../../utils';
 import { LOAD } from './actions';
-import { showModal } from '../site_scope_auth/actions';
 
 const initialState = {
   has_analysis: false,

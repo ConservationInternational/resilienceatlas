@@ -228,111 +228,23 @@ docker compose -f docker-compose.test.yml run --rm --no-deps frontend-test bash 
 docker compose -f docker-compose.test.yml up --abort-on-container-exit
 ```
 
-### Development Workflow
+### Fixing Linting Issues
 
-When developing with Docker:
+The project uses ESLint and RuboCop for code quality enforcement. Common issues and their fixes:
 
-1. **Start the development environment:**
-   ```bash
-   docker-compose -f docker-compose.dev.yml up
-   ```
+#### Backend (RuboCop)
+```bash
+# Auto-fix most RuboCop issues
+docker compose -f docker-compose.test.yml run --rm backend-test bash -c "bundle exec rubocop -A"
 
-2. **The development setup includes hot reloading:**
-   - Frontend: Changes to files in `frontend/` will trigger automatic rebuilds
-   - Backend: Changes to files in `backend/` will restart the Rails server
+# Run specific checks
+docker compose -f docker-compose.test.yml run --rm backend-test bash -c "chmod +x ./bin/test && ./bin/test lint"
+```
 
-3. **Access the applications:**
-   - Frontend: http://localhost:3000
-   - Backend API: http://localhost:3001
-   - Database: localhost:5432 (postgres/postgres)
+#### Frontend (ESLint)
+Common ESLint warnings and fixes:
 
-4. **Run commands in containers:**
-   ```bash
-   # Backend commands
-   docker-compose -f docker-compose.dev.yml exec backend bundle exec rails console
-   docker-compose -f docker-compose.dev.yml exec backend bundle exec rails db:migrate
-   
-   # Frontend commands
-   docker-compose -f docker-compose.dev.yml exec frontend yarn add package-name
-   docker-compose -f docker-compose.dev.yml exec frontend yarn lint
-   ```
-
-5. **Stop the environment:**
-   ```bash
-   docker-compose -f docker-compose.dev.yml down
-   ```
-
-6. **Clean up (remove volumes):**
-   ```bash
-   docker-compose -f docker-compose.dev.yml down -v
-   ```
-
-### Environment Variables
-
-The Docker setup uses environment variables from `.env` file in the project root. Copy `.env.example` to `.env` and configure:
-
-#### Backend Variables
-- `DATABASE_URL` - PostgreSQL connection string (production only)
-- `SECRET_KEY_BASE` - Rails secret key
-- `DEVISE_KEY` - Devise authentication key
-- `BACKEND_URL` - Backend URL for CORS configuration
-- `FRONTEND_URL` - Frontend URL for CORS configuration
-
-#### Frontend Variables
-- `NEXT_PUBLIC_API_HOST` - Backend API URL
-- `NEXT_PUBLIC_GOOGLE_ANALYTICS` - Google Analytics ID
-- `NEXT_PUBLIC_TRANSIFEX_TOKEN` - Transifex token for translations
-- `NEXT_PUBLIC_TRANSIFEX_SECRET` - Transifex secret
-- `NEXT_PUBLIC_GOOGLE_API_KEY` - Google API key
-
-### Troubleshooting
-
-#### Common Issues
-
-1. **Port conflicts**: If ports 3000, 3001, or 5432 are in use, modify the port mappings in the docker-compose files.
-
-2. **Permission issues**: On Linux/macOS, you might need to fix file permissions:
-   ```bash
-   sudo chown -R $USER:$USER .
-   ```
-
-3. **Database connection issues**: Ensure the database container is fully started before the backend connects:
-   ```bash
-   docker-compose -f docker-compose.dev.yml logs db
-   ```
-
-4. **Git SSH authentication issues**: If you get "Host key verification failed" errors when installing frontend dependencies:
-   ```bash
-   # Stop containers if running
-   docker-compose -f docker-compose.dev.yml down
-   
-   # Remove the problematic yarn.lock file
-   rm frontend/yarn.lock
-   
-   # Clear Docker cache and rebuild
-   docker-compose -f docker-compose.dev.yml build --no-cache
-   docker-compose -f docker-compose.dev.yml up
-   ```
-   
-   Alternatively, you can configure git to use HTTPS instead of SSH by running:
-   ```bash
-   docker-compose -f docker-compose.dev.yml run frontend git config --global url."https://github.com/".insteadOf "ssh://git@github.com/"
-   docker-compose -f docker-compose.dev.yml run frontend yarn install
-   ```
-
-5. **Cypress/Xvfb missing dependency errors**: If you get "Your system is missing the dependency: Xvfb" errors during frontend startup:
-   
-   This happens because Cypress tries to verify its installation. The development environment is configured to skip Cypress binary installation via `CYPRESS_INSTALL_BINARY=0`. If you still encounter this issue:
-   ```bash
-   # Stop containers and clear cache
-   docker-compose -f docker-compose.dev.yml down -v
-   docker-compose -f docker-compose.dev.yml build --no-cache
-   docker-compose -f docker-compose.dev.yml up
-   ```
-
-6. **Clear cache and rebuild**:
-   ```bash
-   docker-compose -f docker-compose.dev.yml down -v
-   docker-compose -f docker-compose.dev.yml build --no-cache
-   docker-compose -f docker-compose.dev.yml up
-   ```
+1. **Console statements**: Add `// eslint-disable-next-line no-console` before console statements in development code
+2. **Unused variables**: Remove unused imports and variables, or prefix with underscore if needed for interface compliance
+3. **React Hook dependencies**: Add missing dependencies to useEffect, useCallback, and useMemo dependency arrays
+4. **TypeScript any types**: Add `// eslint-disable-next-line @typescript-eslint/no-explicit

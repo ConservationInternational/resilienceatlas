@@ -5,7 +5,7 @@ import choropleth from './Legend_choropleth';
 import chart from './Legend_chart';
 import legendimage from './Legend_image';
 
-export default {
+const legends = {
   custom,
   border,
   choropleth,
@@ -14,3 +14,5 @@ export default {
   'legend-round': round,
   chart,
 };
+
+export default legends;

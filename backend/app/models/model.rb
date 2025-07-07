@@ -24,12 +24,12 @@ class Model < ApplicationRecord
 
   # Translation setup - only initialize if database is ready and not during migration
   # This prevents errors during migrations when tables don't exist yet
-  unless defined?(Rails::Generators) || Rails.env.test? && ENV['RAILS_MIGRATE']
+  unless defined?(Rails::Generators) || (Rails.env.test? && ENV["RAILS_MIGRATE"])
     begin
-      if ActiveRecord::Base.connection && ActiveRecord::Base.connection.table_exists?(:models)
+      if ActiveRecord::Base.connection&.table_exists?(:models)
         translates :name, :description, :source, touch: true, fallbacks_for_empty_translations: true
         active_admin_translates :name, :description, :source
-        
+
         # Only add translation validations if the translation_class is defined
         if respond_to?(:translation_class) && translation_class
           translation_class.validates_presence_of :name, if: -> { locale.to_s == I18n.default_locale.to_s }

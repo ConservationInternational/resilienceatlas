@@ -39,12 +39,16 @@ export const WidgetBarChart = ({
     { slug, geojson },
     { type, analysisQuery, analysisBody },
   );
-  const { unit: singleUnit, units, bar_color } = useMemo(() => {
+  const {
+    unit: singleUnit,
+    units,
+    bar_color,
+  } = useMemo(() => {
     try {
       return JSON.parse(legend);
     } catch (e) {
       // eslint-disable-next-line no-console
-      console.error('Json parse failed', e)
+      console.error('Json parse failed', e);
       return {};
     }
   }, [legend]);

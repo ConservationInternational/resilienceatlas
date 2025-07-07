@@ -16,7 +16,9 @@ export interface MapViewProps {
     loadedLocale: string;
     loadedSubdomain: string;
   };
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   activeLayers: any[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   model_layer: any;
   defaultActiveGroups: string[];
   tab: string;
@@ -46,6 +48,8 @@ export interface MapViewProps {
   loadLayerGroups: (locale: string) => void;
   openBatch: (defaultActiveGroups: string[]) => void;
   // interaction
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   setMapLayerGroupsInteraction: (e: any) => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   setMapLayerGroupsInteractionLatLng: (e: any) => void;
 }
