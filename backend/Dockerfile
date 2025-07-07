@@ -30,11 +30,31 @@ FROM base AS test
 RUN apt-get update -qq && apt-get install -y \
   wget \
   gnupg \
-  && wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
-  && sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list' \
+  xvfb \
+  ca-certificates \
+  fonts-liberation \
+  libasound2 \
+  libatk-bridge2.0-0 \
+  libdrm2 \
+  libgtk-3-0 \
+  libnspr4 \
+  libnss3 \
+  libxss1 \
+  libxtst6 \
+  xdg-utils \
+  sudo \
+  && wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | gpg --dearmor -o /usr/share/keyrings/googlechrome-linux-keyring.gpg \
+  && sh -c 'echo "deb [arch=amd64 signed-by=/usr/share/keyrings/googlechrome-linux-keyring.gpg] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list' \
   && apt-get update \
   && apt-get install -y google-chrome-stable \
+  && google-chrome --version \
+  && which google-chrome \
   && rm -rf /var/lib/apt/lists/*
+
+# Create a non-root user for running Chrome (Chrome refuses to run as root in newer versions)
+RUN groupadd -r appuser && useradd -r -g appuser -G audio,video appuser \
+  && mkdir -p /home/appuser \
+  && chown -R appuser:appuser /home/appuser
 
 # Install test gems
 RUN bundle install --with test development
@@ -42,11 +62,21 @@ RUN bundle install --with test development
 # Copy the application code
 COPY . .
 
-# Make scripts executable
-RUN chmod +x bin/test bin/rails bin/rake bin/setup bin/spring
+# Make scripts executable including Chrome wrapper
+RUN chmod +x bin/test bin/rails bin/rake bin/setup bin/spring chrome_wrapper.sh
 
 # Create directories for logs and tmp
 RUN mkdir -p log tmp/cache tmp/pids tmp/sockets tmp/storage
+
+# Create a proper temp directory for appuser (not world-writable) and fix permissions
+RUN mkdir -p /tmp/appuser-tmp /home/appuser/.cache /home/appuser/.config /home/appuser/.local/share/applications \
+  && chown -R appuser:appuser /app /tmp/appuser-tmp /home/appuser \
+  && chmod -R 755 /app \
+  && chmod 755 /tmp/appuser-tmp \
+  && chmod -R 755 /home/appuser
+
+# Switch to appuser for running the application
+USER appuser
 
 # Expose port 3001 for test environment
 EXPOSE 3001

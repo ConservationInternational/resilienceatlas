@@ -53,6 +53,9 @@ services:
       - FRONTEND_URL=http://frontend-test:3000
       - CORS_ORIGINS=http://frontend-test:3000,http://localhost:3000
       - RAILS_FORCE_SSL=false
+      - HEADLESS=true
+      - DISPLAY=:99
+      - SKIP_SYSTEM_TESTS=${SKIP_SYSTEM_TESTS:-false}
     ports:
       - "3001:3001"
     volumes:
@@ -72,12 +75,35 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
+    shm_size: 2gb
+    security_opt:
+      - seccomp:unconfined
+    cap_add:
+      - SYS_ADMIN
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
     command: >
       bash -c "
+        set -e
+        echo '🔧 Installing dependencies...' &&
         bundle install &&
-        echo 'Installing development dependencies...' &&
         bundle check || bundle install &&
-        echo 'Starting Rails server...' &&
+        
+        echo '🖥️  Setting up virtual display...' &&
+        Xvfb :99 -screen 0 1920x1080x24 -ac +extension GLX +render -noreset > /dev/null 2>&1 &
+        export DISPLAY=:99
+        sleep 5 &&
+        
+        echo '🔍 Verifying display setup...' &&
+        ps aux | grep Xvfb | grep -v grep || echo 'Warning: Xvfb not found' &&
+        
+        echo '🌐 Testing Chrome with wrapper...' &&
+        timeout 30 /app/chrome_wrapper.sh --version > /dev/null 2>&1 &&
+        echo '✅ Chrome startup test successful' &&
+        
+        echo '🚀 Starting Rails server...' &&
         bundle exec rails server -b 0.0.0.0 -p 3001
       "
 

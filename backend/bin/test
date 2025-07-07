@@ -9,6 +9,87 @@ case "${1:-all}" in
     echo "🧪 Running RSpec tests..."
     bundle exec rspec "${@:2}"
     ;;
+  "rspec-no-system"|"specs-no-system"|"tests-no-system")
+    echo "🧪 Running RSpec tests (excluding system tests)..."
+    bundle exec rspec --exclude-pattern="spec/systems/**/*_spec.rb" "${@:2}"
+    ;;
+  "system"|"system-tests")
+    echo "🧪 Running system tests only..."
+    echo "🔍 Pre-flight checks..."
+    
+    # Check Chrome wrapper
+    echo "Testing Chrome wrapper:"
+    if [ -f "/app/chrome_wrapper.sh" ]; then
+      echo "✅ Chrome wrapper found at /app/chrome_wrapper.sh"
+      ls -la /app/chrome_wrapper.sh
+      
+      # Test wrapper directly
+      echo "Testing wrapper execution:"
+      if timeout 30 /app/chrome_wrapper.sh --version > /tmp/wrapper-test.log 2>&1; then
+        echo "✅ Chrome wrapper test succeeded"
+        cat /tmp/wrapper-test.log
+      else
+        echo "❌ Chrome wrapper test failed"
+        cat /tmp/wrapper-test.log || echo "No log available"
+      fi
+    else
+      echo "❌ Chrome wrapper not found at /app/chrome_wrapper.sh"
+    fi
+    
+    # Check DISPLAY and Xvfb
+    echo "DISPLAY environment: $DISPLAY"
+    if [ "$DISPLAY" = ":99" ]; then
+      echo "Checking Xvfb on display :99"
+      if pgrep -x "Xvfb" > /dev/null; then
+        echo "✅ Xvfb is already running"
+      else
+        echo "Starting Xvfb for display :99"
+        Xvfb :99 -screen 0 1920x1080x24 > /dev/null 2>&1 &
+        sleep 3
+        if pgrep -x "Xvfb" > /dev/null; then
+          echo "✅ Xvfb started successfully"
+        else
+          echo "❌ Failed to start Xvfb"
+        fi
+      fi
+    fi
+    
+    # Clear any old chrome logs
+    rm -rf /tmp/chrome-logs
+    mkdir -p /tmp/chrome-logs
+    
+    echo "🧪 Starting system tests..."
+    bundle exec rspec spec/systems/ --format documentation "${@:2}"
+    ;;
+  "system-force"|"system-tests-force")
+    echo "🧪 Running system tests (forced, ignoring Chrome check)..."
+    # Clear any old chrome logs
+    rm -rf /tmp/chrome-logs
+    mkdir -p /tmp/chrome-logs
+    
+    bundle exec rspec spec/systems/ --format documentation "${@:2}"
+    ;;
+  "verify-chrome"|"chrome-check")
+    echo "🔍 Checking Chrome installation..."
+    echo "Chrome version:"
+    google-chrome --version || echo "❌ Chrome not found"
+    echo "Chrome location:"
+    which google-chrome || echo "❌ Chrome not in PATH"
+    echo "Chrome wrapper:"
+    ls -la chrome_wrapper.sh || echo "❌ Chrome wrapper not found"
+    echo "Xvfb test:"
+    Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
+    XVFB_PID=$!
+    sleep 2
+    if ps -p $XVFB_PID > /dev/null; then
+      echo "✅ Xvfb started successfully"
+      echo "Testing Chrome wrapper with Xvfb:"
+      DISPLAY=:99 timeout 30 ./chrome_wrapper.sh --version --headless > /dev/null 2>&1 && echo "✅ Chrome wrapper works" || echo "❌ Chrome wrapper failed"
+      kill $XVFB_PID
+    else
+      echo "❌ Xvfb failed to start"
+    fi
+    ;;
   "lint"|"linting")
     echo "🔍 Running StandardRB linting..."
     bundle exec standardrb "${@:2}"
@@ -25,6 +106,10 @@ case "${1:-all}" in
     echo "🧪 Running RSpec tests with JUnit output..."
     bundle exec rspec --format RspecJunitFormatter --out tmp/rspec.xml --format progress "${@:2}"
     ;;
+  "junit-no-system")
+    echo "🧪 Running RSpec tests (excluding system tests) with JUnit output..."
+    bundle exec rspec --exclude-pattern="spec/systems/**/*_spec.rb" --format RspecJunitFormatter --out tmp/rspec.xml --format progress "${@:2}"
+    ;;
   "all")
     echo "🚀 Running all backend tests..."
     echo "📝 Running linting..."
@@ -37,23 +122,44 @@ case "${1:-all}" in
     bundle exec rspec
     echo "✅ All backend tests completed!"
     ;;
+  "all-no-system")
+    echo "🚀 Running all backend tests (excluding system tests)..."
+    echo "📝 Running linting..."
+    bundle exec standardrb
+    echo "🔒 Running security analysis..."
+    bundle exec brakeman
+    echo "🛡️ Running audit..."
+    bundle exec bundle-audit check --update
+    echo "🧪 Running tests (excluding system tests)..."
+    bundle exec rspec --exclude-pattern="spec/systems/**/*_spec.rb"
+    echo "✅ All backend tests completed!"
+    ;;
   "help"|"--help"|"-h")
     echo "Backend Test Runner"
     echo ""
     echo "Usage: ./bin/test [command] [options]"
     echo ""
     echo "Commands:"
-    echo "  rspec, specs, tests  Run RSpec tests"
-    echo "  lint, linting        Run StandardRB linting"
-    echo "  security, brakeman   Run Brakeman security analysis"
-    echo "  audit               Run Bundle Audit"
-    echo "  junit               Run RSpec with JUnit XML output"
-    echo "  all                 Run all tests (default)"
-    echo "  help                Show this help message"
+    echo "  rspec, specs, tests      Run RSpec tests"
+    echo "  rspec-no-system          Run RSpec tests excluding system tests"
+    echo "  system, system-tests     Run system tests only (with Chrome check)"
+    echo "  system-force             Run system tests (skip Chrome check)"
+    echo "  verify-chrome, chrome-check  Verify Chrome installation"
+    echo "  lint, linting           Run StandardRB linting"
+    echo "  security, brakeman      Run Brakeman security analysis"
+    echo "  audit                   Run Bundle Audit"
+    echo "  junit                   Run RSpec with JUnit XML output"
+    echo "  junit-no-system         Run RSpec (no system) with JUnit XML output"
+    echo "  all                     Run all tests (default)"
+    echo "  all-no-system           Run all tests excluding system tests"
+    echo "  help                    Show this help message"
     echo ""
     echo "Examples:"
     echo "  ./bin/test                           # Run all tests"
+    echo "  ./bin/test all-no-system             # Run all tests except browser tests"
     echo "  ./bin/test rspec                     # Run all RSpec tests"
+    echo "  ./bin/test rspec-no-system           # Run RSpec tests without browser tests"
+    echo "  ./bin/test system                    # Run system/browser tests only"
     echo "  ./bin/test rspec spec/models/        # Run specific test directory"
     echo "  ./bin/test lint                      # Run linting only"
     echo "  ./bin/test security                  # Run security analysis only"

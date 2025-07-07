@@ -41,7 +41,7 @@ module ActiveAdmin
         def insert_importmap_for(path)
           return javascript_importmap_tags "active_admin" if path == "active_admin.js"
 
-          javascript_include_tag path if path&.match?(URI::DEFAULT_PARSER.make_regexp)
+          javascript_include_tag path if path.is_a?(String) && path&.match?(URI::DEFAULT_PARSER.make_regexp)
         end
       end
     end
