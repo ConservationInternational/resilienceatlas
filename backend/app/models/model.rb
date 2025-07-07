@@ -50,4 +50,12 @@ class Model < ApplicationRecord
       Model.all
     end
   end
+
+  def self.ransackable_attributes(auth_object = nil)
+    %w[id created_at updated_at query_analysis table_name name description source]
+  end
+
+  def self.ransackable_associations(auth_object = nil)
+    %w[site_scopes indicators translations]
+  end
 end

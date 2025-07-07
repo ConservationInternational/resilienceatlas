@@ -7,6 +7,27 @@ require "rspec/rails"
 
 require "super_diff/rspec-rails"
 
+# Configure Capybara for system tests to prevent selenium driver conflicts
+require "capybara/rails"
+if defined?(Capybara)
+  # Ensure we don't accidentally use selenium drivers
+  Capybara.register_driver :selenium do |app|
+    raise "Selenium driver disabled! Use :cuprite instead."
+  end
+  
+  Capybara.register_driver :selenium_headless do |app|
+    raise "Selenium driver disabled! Use :cuprite instead."
+  end
+  
+  Capybara.register_driver :selenium_chrome do |app|
+    raise "Selenium driver disabled! Use :cuprite instead."
+  end
+  
+  Capybara.register_driver :selenium_chrome_headless do |app|
+    raise "Selenium driver disabled! Use :cuprite instead."
+  end
+end
+
 Dir[Rails.root.join("spec", "support", "**", "*.rb")].sort.each { |f| require f }
 
 begin

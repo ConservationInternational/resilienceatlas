@@ -5,45 +5,12 @@ require "rails_helper"
 ENV['TMPDIR'] = '/tmp/appuser-tmp' if File.directory?('/tmp/appuser-tmp')
 
 # Increase default wait times for more stable tests
-Capybara.default_max_wait_time = 60  # Increased from 30
+Capybara.default_max_wait_time = 30  # Reduced from 60 for faster tests
 Capybara.default_normalize_ws = true
 Capybara.enable_aria_label = true
 Capybara.automatic_reload = true
 
-# Configure Ferrum timeouts at module level (this is critical for the websocket timeout)
-if defined?(Ferrum)
-  Ferrum.class_eval do
-    class Browser
-      def ws_url_timeout
-        180 # Increased from 60 seconds to give Chrome more time to start
-      end
-      
-      # Override command timeout for better stability
-      def command_timeout
-        120
-      end
-    end
-  end
-end
-
 Capybara.register_driver(:cuprite) do |app|
-  # Debug logging
-  puts "[CUPRITE] Registering driver with browser_path: /app/chrome_wrapper.sh"
-  puts "[CUPRITE] Current environment variables:"
-  puts "  DISPLAY: #{ENV['DISPLAY']}"
-  puts "  HEADLESS: #{ENV['HEADLESS']}"
-  puts "  HOME: #{ENV['HOME']}"
-  puts "  USER: #{ENV['USER']}"
-  
-  # Check if our wrapper exists and is executable
-  wrapper_path = "/app/chrome_wrapper.sh"
-  if File.exist?(wrapper_path)
-    puts "[CUPRITE] Chrome wrapper found at #{wrapper_path}"
-    puts "[CUPRITE] Wrapper permissions: #{File.stat(wrapper_path).mode.to_s(8)}"
-  else
-    puts "[CUPRITE] ERROR: Chrome wrapper NOT found at #{wrapper_path}"
-  end
-  
   options = {
     window_size: [1920, 1080],
     # Ferrum-specific options for browser startup
@@ -58,66 +25,48 @@ Capybara.register_driver(:cuprite) do |app|
       "disable-renderer-backgrounding": nil,
       "disable-backgrounding-occluded-windows": nil
     },
-    # Critical timeout settings - significantly increased for stability
-    timeout: 120,            # Cuprite command timeout (increased from 60)
-    process_timeout: 180,    # Process spawn timeout (increased from 120)
+    # Critical timeout settings - optimized for speed vs stability
+    timeout: 60,            # Reduced from 120 for faster tests
+    process_timeout: 120,   # Reduced from 180
     # Use our Chrome wrapper with absolute path
     browser_path: "/app/chrome_wrapper.sh",
     headless: ENV["HEADLESS"] != "false",
-    # Slow down operations for more stability in containers
-    slowmo: ENV["CI"] ? 0.2 : 0.1,  # Added slowmo even for non-CI
+    # Reduce slowmo for faster tests
+    slowmo: ENV["CI"] ? 0.1 : 0.05,  # Reduced for speed
     inspector: false,
     # Additional options to help with container stability
     ignore_https_errors: true,
     ignore_default_browser_options: false,
-    # Set larger receive buffer
-    ws_max_receive_size: 1024 * 1024 * 10, # 10MB
+    # Set receive buffer
+    ws_max_receive_size: 1024 * 1024 * 5, # Reduced from 10MB to 5MB
     # Temp directory configuration for Ferrum
     tmpdir: "/tmp/appuser-tmp",
     # Additional stability options
     xvfb: ENV["DISPLAY"] == ":99",
-    # Retry failed commands
-    retry_interval: 1.0,
+    # Reduce retry interval for faster recovery
+    retry_interval: 0.5,
     # Better modal handling
-    pending_connection_errors: false
+    pending_connection_errors: false,
+    # Optimize for speed
+    ws_url_timeout: 120  # Reduced from 180
   }
   
-  # Add ws_url_timeout if supported
-  begin
-    options[:ws_url_timeout] = 180  # Increased from 120 to give Chrome even more time
-  rescue ArgumentError
-    # Older version of Cuprite/Ferrum might not support this
-    puts "[CUPRITE] ws_url_timeout not supported, using alternatives"
-  end
-  
-  puts "[CUPRITE] Driver options: #{options.inspect}"
-  
-  # Create the driver
-  driver = Capybara::Cuprite::Driver.new(app, **options)
-  
-  # Add debug hooks if possible
-  if driver.respond_to?(:browser) && driver.browser.respond_to?(:on)
-    puts "[CUPRITE] Adding debug hooks to browser"
-    
-    # Hook into browser events if supported
-    begin
-      driver.browser.on(:stderr) do |data|
-        puts "[CUPRITE] Chrome stderr: #{data}"
-      end
-      
-      driver.browser.on(:stdout) do |data|
-        puts "[CUPRITE] Chrome stdout: #{data}"
-      end
-    rescue => e
-      puts "[CUPRITE] Could not add browser hooks: #{e.message}"
-    end
-  end
-  
-  driver
+  Capybara::Cuprite::Driver.new(app, **options)
 end
 
 # Configure Capybara to use :cuprite driver by default
-Capybara.default_driver = Capybara.javascript_driver = :cuprite
+Capybara.default_driver = :cuprite
+Capybara.javascript_driver = :cuprite
+
+# Ensure we're not using any selenium drivers
+Capybara.drivers.delete(:selenium)
+Capybara.drivers.delete(:selenium_headless)
+Capybara.drivers.delete(:selenium_chrome)
+Capybara.drivers.delete(:selenium_chrome_headless)
+
+puts "[SYSTEM_TEST] Configured drivers: #{Capybara.drivers.keys}"
+puts "[SYSTEM_TEST] Default driver: #{Capybara.default_driver}"
+puts "[SYSTEM_TEST] JavaScript driver: #{Capybara.javascript_driver}"
 
 RSpec.configure do |config|
   config.include PageHelpers, type: :system
@@ -129,68 +78,70 @@ RSpec.configure do |config|
     Rails.application.default_url_options[:host] = was_host
   end
 
-  config.prepend_before(:each, type: :system) do
-    driven_by Capybara.javascript_driver
-    
-    # Try to access the driver to trigger browser startup with better error handling
-    begin
-      session = Capybara.current_session
-      if session.respond_to?(:driver) && session.driver.respond_to?(:browser)
-        puts "[SYSTEM_TEST] Starting browser for test: #{self.class.description}"
-        
-        # Try to start browser with retry logic
-        retries = 3
-        begin
-          browser = session.driver.browser
-          # Test browser connectivity
-          browser.evaluate("1 + 1") if browser.respond_to?(:evaluate)
-          puts "[SYSTEM_TEST] Browser started successfully"
-        rescue => browser_error
-          retries -= 1
-          if retries > 0
-            puts "[SYSTEM_TEST] Browser startup failed (#{browser_error.class.name}: #{browser_error.message}), retrying... (#{retries} attempts left)"
-            sleep 2
-            retry
-          else
-            raise browser_error
-          end
-        end
-      end
-    rescue => e
-      puts "[SYSTEM_TEST] Error starting browser: #{e.class.name}: #{e.message}"
-      puts "[SYSTEM_TEST] Backtrace:"
-      puts e.backtrace.first(10).join("\n")
+  # Use shared browser session for better performance
+  config.before(:suite) do
+    if RSpec.configuration.files_to_run.any? { |f| f.include?('systems/') || f.include?('system/') }
+      puts "[SYSTEM_TEST] Starting shared browser session for test suite"
       
-      # Only show logs on error for debugging
-      if Dir.exist?("/tmp/chrome-logs")
-        Dir.glob("/tmp/chrome-logs/*.log").each do |log_file|
-          puts "[SYSTEM_TEST] Chrome log (#{log_file}):"
-          content = File.read(log_file) rescue "could not read"
-          puts content.split("\n").last(10).join("\n") # Last 10 lines instead of 5
-        end
-      end
-      
-      # Show Chrome processes for debugging
+      # Pre-warm the browser session to avoid startup delays
       begin
-        processes = `ps aux | grep -i chrome` rescue "Could not get process list"
-        puts "[SYSTEM_TEST] Chrome processes:"
-        puts processes
-      rescue
-        # Ignore if ps command fails
+        Capybara.current_session.visit('about:blank')
+        puts "[SYSTEM_TEST] Shared browser session ready"
+      rescue => e
+        puts "[SYSTEM_TEST] Warning: Could not pre-warm browser session: #{e.message}"
       end
-      
-      raise e
+    end
+  end
+
+  config.before(:each, type: :system) do
+    # Ensure we're using the right driver
+    Capybara.current_driver = :cuprite
+    puts "[SYSTEM_TEST] Using driver: #{Capybara.current_driver}"
+    
+    # Verify driver exists
+    unless Capybara.drivers.key?(:cuprite)
+      raise "Cuprite driver not registered! Available drivers: #{Capybara.drivers.keys}"
+    end
+    
+    # Just reset the session, don't restart the browser
+    begin
+      Capybara.current_session.reset!
+    rescue => e
+      puts "[SYSTEM_TEST] Warning: Could not reset session: #{e.message}"
+      # If reset fails, try to restart the session
+      Capybara.current_session.quit
+      Capybara.current_driver = :cuprite
     end
   end
   
-  # Add after hook to clean up browser state
+  # Clean up after each test but keep browser alive
   config.after(:each, type: :system) do
     begin
-      if Capybara.current_session.driver.respond_to?(:reset!)
-        Capybara.current_session.driver.reset!
+      # Clear cookies and localStorage but keep browser running
+      if Capybara.current_session.driver.respond_to?(:browser)
+        browser = Capybara.current_session.driver.browser
+        if browser.respond_to?(:evaluate)
+          browser.evaluate('localStorage.clear()') rescue nil
+          browser.evaluate('sessionStorage.clear()') rescue nil
+        end
+      end
+      
+      # Reset Capybara session state
+      Capybara.current_session.reset!
+    rescue => e
+      puts "[SYSTEM_TEST] Warning: Could not clean up session: #{e.message}"
+    end
+  end
+
+  # Clean up browser at the end of the test suite
+  config.after(:suite) do
+    begin
+      if Capybara.current_session
+        puts "[SYSTEM_TEST] Closing shared browser session"
+        Capybara.current_session.quit
       end
     rescue => e
-      puts "[SYSTEM_TEST] Warning: Could not reset driver: #{e.message}"
+      puts "[SYSTEM_TEST] Warning: Could not close browser session: #{e.message}"
     end
   end
 end

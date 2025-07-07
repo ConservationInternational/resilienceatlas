@@ -50,6 +50,14 @@ class Journey < ApplicationRecord
 
   scope :only_published, -> { where published: true }
 
+  def self.ransackable_attributes(auth_object = nil)
+    %w[id slug theme background_image_file_name published created_at updated_at]
+  end
+
+  def self.ransackable_associations(auth_object = nil)
+    %w[journey_steps site_scopes translations]
+  end
+
   private
 
   # Validation of presence of relation(s) which is updated via nested attributes and contains translated attributes needs to be done

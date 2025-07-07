@@ -43,4 +43,12 @@ class SitePage < ApplicationRecord
   end
 
   validates_presence_of :site_scope, :slug
+
+  def self.ransackable_attributes(auth_object = nil)
+    %w[id title body priority site_scope_id created_at updated_at slug]
+  end
+
+  def self.ransackable_associations(auth_object = nil)
+    %w[site_scope translations]
+  end
 end

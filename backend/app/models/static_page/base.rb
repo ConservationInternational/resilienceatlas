@@ -27,5 +27,13 @@ module StaticPage
     validates :image, presence: true, content_type: /\Aimage\/.*\z/
 
     accepts_nested_attributes_for :sections, allow_destroy: true
+
+    def self.ransackable_attributes(auth_object = nil)
+      %w[id slug image_credits_url created_at updated_at title image_credits]
+    end
+
+    def self.ransackable_associations(auth_object = nil)
+      %w[sections translations image_attachment image_blob]
+    end
   end
 end

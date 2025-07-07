@@ -45,11 +45,11 @@ ActiveAdmin.register Layer do
   end
 
   action_item :publish, only: :show, priority: 0, if: -> { !resource.published? } do
-    link_to "Publish Layer", publish_admin_layer_path(resource), method: :put
+    link_to "Publish Layer", publish_admin_layer_path(resource), data: { method: :put }
   end
 
   action_item :unpublish, only: :show, priority: 0, if: -> { resource.published? } do
-    link_to "Unpublish Layer", unpublish_admin_layer_path(resource), method: :put
+    link_to "Unpublish Layer", unpublish_admin_layer_path(resource), data: { method: :put }
   end
 
   index do
