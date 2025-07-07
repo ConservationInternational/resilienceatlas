@@ -82,7 +82,6 @@ jobs:
         # Ensure tmp directory exists for test results
         mkdir -p backend/tmp
         
-        docker compose -f docker-compose.test.yml run --rm backend-test ./bin/test help
         docker compose -f docker-compose.test.yml run --rm backend-test \
           bash -c "RAILS_ENV=test bundle exec rails db:test_setup"
 

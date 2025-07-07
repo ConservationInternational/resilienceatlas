@@ -28,6 +28,9 @@ COPY package.json yarn.lock ./
 # Copy application source
 COPY . .
 
+# Make scripts executable
+RUN chmod +x bin/test
+
 # Set build arguments with default values
 ARG NEXT_PUBLIC_API_HOST=http://localhost:3001
 ARG NEXT_PUBLIC_GOOGLE_ANALYTICS=GA_TEST_ID

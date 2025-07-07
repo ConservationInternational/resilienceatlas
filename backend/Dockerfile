@@ -1,5 +1,5 @@
 # Use the official Ruby image
-FROM ruby:3.4.4-bullseye as base
+FROM ruby:3.4.4-bullseye AS base
 
 # Install dependencies
 RUN apt-get update -qq && apt-get install -y \
@@ -24,7 +24,7 @@ COPY Gemfile Gemfile.lock ./
 RUN bundle install
 
 # Test stage
-FROM base as test
+FROM base AS test
 
 # Install additional test dependencies including Chrome for system tests
 RUN apt-get update -qq && apt-get install -y \
@@ -42,6 +42,9 @@ RUN bundle install --with test development
 # Copy the application code
 COPY . .
 
+# Make scripts executable
+RUN chmod +x bin/test bin/rails bin/rake bin/setup bin/spring
+
 # Create directories for logs and tmp
 RUN mkdir -p log tmp/cache tmp/pids tmp/sockets tmp/storage
 
@@ -49,7 +52,7 @@ RUN mkdir -p log tmp/cache tmp/pids tmp/sockets tmp/storage
 EXPOSE 3001
 
 # Production stage
-FROM base as production
+FROM base AS production
 
 # Copy the application code
 COPY . .
