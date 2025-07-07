@@ -39,6 +39,15 @@ class Category < ApplicationRecord
 
   validates_presence_of :slug
 
+  # Ransack configuration - explicitly allowlist searchable attributes for security
+  def self.ransackable_attributes(auth_object = nil)
+    ["created_at", "id", "id_value", "slug", "updated_at", "name", "description"]
+  end
+
+  def self.ransackable_associations(auth_object = nil)
+    ["indicators", "translations"]
+  end
+
   def self.fetch_all(options = {})
     Category.with_translations
   end

@@ -53,6 +53,18 @@ class Homepage < ApplicationRecord
   validates :background_image, presence: true, content_type: /\Aimage\/.*\z/
   validates :credits_url, url: true
 
+  # Ransack configuration - explicitly allowlist searchable attributes for security
+  def self.ransackable_attributes(auth_object = nil)
+    %w[
+      id homepage_journey_id site_scope_id credits_url show_journeys
+      created_at updated_at title subtitle credits
+    ]
+  end
+  
+  def self.ransackable_associations(auth_object = nil)
+    %w[site_scope homepage_journey homepage_sections translations background_image_attachment]
+  end
+
   accepts_nested_attributes_for :homepage_journey, allow_destroy: true
   accepts_nested_attributes_for :homepage_sections, allow_destroy: true
 end

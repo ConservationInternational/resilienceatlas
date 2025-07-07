@@ -135,6 +135,25 @@ class Layer < ApplicationRecord
 
   validates_presence_of :slug, :layer_provider, :interaction_config
   validates :timeline, inclusion: {in: [true, false]}
+  
+  # Ransack configuration - explicitly allowlist searchable attributes for security
+  def self.ransackable_attributes(auth_object = nil)
+    %w[
+      active analysis_body analysis_query analysis_suitable analysis_type color created_at css
+      dashboard_order dataset_shortname dataset_source_url download end_date icon_class id
+      id_value interaction_config interactivity layer_config layer_group_id layer_provider
+      layer_type locate_layer opacity order published query slug spatial_resolution
+      spatial_resolution_units start_date temporal_resolution temporal_resolution_units
+      timeline timeline_default_date timeline_end_date timeline_period timeline_start_date
+      timeline_steps update_frequency updated_at version zindex zoom_max zoom_min name
+      info legend title data_units processing description analysis_text_template
+    ]
+  end
+  
+  def self.ransackable_associations(auth_object = nil)
+    %w[agrupations layer_groups site_scopes sources translations]
+  end
+
   with_options if: -> { analysis_suitable } do
     validates_presence_of :analysis_type
     validates_inclusion_of :analysis_type, in: %w[text], message: "analysis type has to be text for cartodb provider", if: -> { layer_provider.to_s == "cartodb" && analysis_suitable }

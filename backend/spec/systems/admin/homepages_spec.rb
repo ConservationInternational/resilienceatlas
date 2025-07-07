@@ -65,29 +65,36 @@ RSpec.describe "Admin: Homepages", type: :system do
     end
 
     it "allows to create new homepage" do
+      # Wait for page to fully load
+      wait_for_page_load
+      
       # base homepage
-      fill_in "homepage[translations_attributes][0][title]", with: "New title"
-      fill_in "homepage[translations_attributes][0][subtitle]", with: "New subtitle"
-      fill_in "homepage[translations_attributes][0][credits]", with: "New credits"
+      safe_fill_in "homepage[translations_attributes][0][title]", with: "New title"
+      safe_fill_in "homepage[translations_attributes][0][subtitle]", with: "New subtitle"
+      safe_fill_in "homepage[translations_attributes][0][credits]", with: "New credits"
       select site_scope.name, from: "homepage[site_scope_id]"
-      fill_in "homepage[credits_url]", with: "https://credits-url.com"
+      safe_fill_in "homepage[credits_url]", with: "https://credits-url.com"
       attach_file "homepage[background_image]", Rails.root.join("spec/fixtures/files/picture.jpg")
+      
       # journeys
       check "homepage[show_journeys]"
-      fill_in "homepage[homepage_journey_attributes][position]", with: "0"
-      fill_in "homepage[homepage_journey_attributes][translations_attributes][0][title]", with: "New journey title"
-      # homepage sections
-      click_on "Add New Homepage section"
-      fill_in "homepage[homepage_sections_attributes][0][translations_attributes][0][title]", with: "New section title"
-      fill_in "homepage[homepage_sections_attributes][0][translations_attributes][0][subtitle]", with: "New section subtitle"
-      fill_in "homepage[homepage_sections_attributes][0][translations_attributes][0][button_text]", with: "New section button text"
-      fill_in "homepage[homepage_sections_attributes][0][translations_attributes][0][image_credits]", with: "New section image credits"
-      fill_in "homepage[homepage_sections_attributes][0][button_url]", with: "https://button-url.com"
+      safe_fill_in "homepage[homepage_journey_attributes][position]", with: "0"
+      safe_fill_in "homepage[homepage_journey_attributes][translations_attributes][0][title]", with: "New journey title"
+      
+      # homepage sections - click to add and wait for it to appear
+      safe_click "input[value='Add New Homepage section']"
+      wait_for_element "input[name='homepage[homepage_sections_attributes][0][translations_attributes][0][title]']", timeout: 15
+      
+      safe_fill_in "homepage[homepage_sections_attributes][0][translations_attributes][0][title]", with: "New section title"
+      safe_fill_in "homepage[homepage_sections_attributes][0][translations_attributes][0][subtitle]", with: "New section subtitle"
+      safe_fill_in "homepage[homepage_sections_attributes][0][translations_attributes][0][button_text]", with: "New section button text"
+      safe_fill_in "homepage[homepage_sections_attributes][0][translations_attributes][0][image_credits]", with: "New section image credits"
+      safe_fill_in "homepage[homepage_sections_attributes][0][button_url]", with: "https://button-url.com"
       attach_file "homepage[homepage_sections_attributes][0][image]", Rails.root.join("spec/fixtures/files/picture.jpg")
       select "cover", from: "homepage[homepage_sections_attributes][0][image_position]"
-      fill_in "homepage[homepage_sections_attributes][0][image_credits_url]", with: "https://image-credits-url.com"
+      safe_fill_in "homepage[homepage_sections_attributes][0][image_credits_url]", with: "https://image-credits-url.com"
 
-      click_on "Create Homepage"
+      safe_click "input[value='Create Homepage']"
 
       expect(page).to have_current_path(admin_homepage_path(new_homepage))
       expect(page).to have_text("Homepage was successfully created.")
@@ -128,29 +135,42 @@ RSpec.describe "Admin: Homepages", type: :system do
     end
 
     it "allows to update existing homepage" do
+      # Wait for page to fully load
+      wait_for_page_load
+      
       # base homepage
-      fill_in "homepage[translations_attributes][0][title]", with: "Updated title"
-      fill_in "homepage[translations_attributes][0][subtitle]", with: "Updated subtitle"
-      fill_in "homepage[translations_attributes][0][credits]", with: "Updated credits"
+      safe_fill_in "homepage[translations_attributes][0][title]", with: "Updated title"
+      safe_fill_in "homepage[translations_attributes][0][subtitle]", with: "Updated subtitle"
+      safe_fill_in "homepage[translations_attributes][0][credits]", with: "Updated credits"
       select site_scope.name, from: "homepage[site_scope_id]"
-      fill_in "homepage[credits_url]", with: "https://credits-url.com"
+      safe_fill_in "homepage[credits_url]", with: "https://credits-url.com"
       attach_file "homepage[background_image]", Rails.root.join("spec/fixtures/files/picture.jpg")
+      
       # journeys
       check "homepage[show_journeys]"
-      fill_in "homepage[homepage_journey_attributes][position]", with: "0"
-      fill_in "homepage[homepage_journey_attributes][translations_attributes][0][title]", with: "Updated journey title"
-      # homepage sections
-      all("fieldset.has-many-toggle-collapse").last.click
-      fill_in "homepage[homepage_sections_attributes][0][translations_attributes][0][title]", with: "Updated section title"
-      fill_in "homepage[homepage_sections_attributes][0][translations_attributes][0][subtitle]", with: "Updated section subtitle"
-      fill_in "homepage[homepage_sections_attributes][0][translations_attributes][0][button_text]", with: "Updated section button text"
-      fill_in "homepage[homepage_sections_attributes][0][translations_attributes][0][image_credits]", with: "Updated section image credits"
-      fill_in "homepage[homepage_sections_attributes][0][button_url]", with: "https://button-url.com"
+      safe_fill_in "homepage[homepage_journey_attributes][position]", with: "0"
+      safe_fill_in "homepage[homepage_journey_attributes][translations_attributes][0][title]", with: "Updated journey title"
+      
+      # homepage sections - expand the collapsible section first
+      fieldset = all("fieldset.has-many-toggle-collapse").last
+      if fieldset
+        fieldset.click
+        sleep 0.5  # Give time for animation
+      end
+      
+      # Wait for the fields to be visible and enabled
+      wait_for_element "input[name='homepage[homepage_sections_attributes][0][translations_attributes][0][title]']:not([disabled])", timeout: 15
+      
+      safe_fill_in "homepage[homepage_sections_attributes][0][translations_attributes][0][title]", with: "Updated section title"
+      safe_fill_in "homepage[homepage_sections_attributes][0][translations_attributes][0][subtitle]", with: "Updated section subtitle"
+      safe_fill_in "homepage[homepage_sections_attributes][0][translations_attributes][0][button_text]", with: "Updated section button text"
+      safe_fill_in "homepage[homepage_sections_attributes][0][translations_attributes][0][image_credits]", with: "Updated section image credits"
+      safe_fill_in "homepage[homepage_sections_attributes][0][button_url]", with: "https://button-url.com"
       attach_file "homepage[homepage_sections_attributes][0][image]", Rails.root.join("spec/fixtures/files/picture.jpg")
       select "cover", from: "homepage[homepage_sections_attributes][0][image_position]"
-      fill_in "homepage[homepage_sections_attributes][0][image_credits_url]", with: "https://image-credits-url.com"
+      safe_fill_in "homepage[homepage_sections_attributes][0][image_credits_url]", with: "https://image-credits-url.com"
 
-      click_on "Update Homepage"
+      safe_click "input[value='Update Homepage']"
 
       expect(page).to have_current_path(admin_homepage_path(homepage))
       expect(page).to have_text("Homepage was successfully updated.")
@@ -180,8 +200,8 @@ RSpec.describe "Admin: Homepages", type: :system do
     it "deletes existing homepage" do
       expect(page).to have_text(homepage.title)
 
-      accept_confirm do
-        find("a[data-method='delete'][href='/admin/homepages/#{homepage.id}']").click
+      safe_accept_confirm do
+        safe_click "a[data-method='delete'][href='/admin/homepages/#{homepage.id}']"
       end
 
       expect(page).not_to have_text(homepage.title)

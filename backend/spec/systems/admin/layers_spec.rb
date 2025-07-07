@@ -92,12 +92,15 @@ RSpec.describe "Admin: Layers", type: :system do
     end
 
     it "allows to create new layer for cartodb layer provider" do
-      fill_in "layer[slug]", with: "new-layer"
-      fill_in "layer[translations_attributes][0][name]", with: "New name"
-      fill_in "layer[translations_attributes][0][description]", with: "New description"
-      fill_in "layer[translations_attributes][0][processing]", with: "New processing"
-      fill_in "layer[translations_attributes][0][data_units]", with: "New data_units"
-      fill_in "layer[translations_attributes][0][legend]", with: "New legend"
+      # Wait for page to load
+      wait_for_page_load
+      
+      safe_fill_in "layer[slug]", with: "new-layer"
+      safe_fill_in "layer[translations_attributes][0][name]", with: "New name"
+      safe_fill_in "layer[translations_attributes][0][description]", with: "New description"
+      safe_fill_in "layer[translations_attributes][0][processing]", with: "New processing"
+      safe_fill_in "layer[translations_attributes][0][data_units]", with: "New data_units"
+      safe_fill_in "layer[translations_attributes][0][legend]", with: "New legend"
       fill_in "layer[translations_attributes][0][analysis_text_template]", with: "New analysis_text_template"
       select "cartodb", from: "layer[layer_provider]"
       fill_in "layer[query]", with: "New query"
@@ -255,7 +258,11 @@ RSpec.describe "Admin: Layers", type: :system do
     end
 
     it "allows to change layer to published" do
-      click_on "Publish Layer"
+      # Wait for page to load
+      wait_for_page_load
+      
+      # Use the safer approach with method handling
+      safe_click_method_link "Publish Layer", method: :put
 
       expect(page).to have_text("Layer was published!")
       expect(layer.reload).to be_published
@@ -270,7 +277,11 @@ RSpec.describe "Admin: Layers", type: :system do
     end
 
     it "allows to change layer to published" do
-      click_on "Unpublish Layer"
+      # Wait for page to load
+      wait_for_page_load
+      
+      # Use the safer approach with method handling
+      safe_click_method_link "Unpublish Layer", method: :put
 
       expect(page).to have_text("Layer was marked as not published!")
       expect(layer.reload).not_to be_published

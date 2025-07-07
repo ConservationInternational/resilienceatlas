@@ -35,6 +35,19 @@ class User < ApplicationRecord
 
   has_many :user_downloads
 
+  # Ransack configuration - explicitly allowlist searchable attributes for security
+  def self.ransackable_attributes(auth_object = nil)
+    %w[
+      id email first_name last_name phone organization organization_role
+      created_at updated_at sign_in_count current_sign_in_at last_sign_in_at
+      current_sign_in_ip last_sign_in_ip remember_created_at
+    ]
+  end
+  
+  def self.ransackable_associations(auth_object = nil)
+    %w[identities user_downloads]
+  end
+
   def name
     "#{first_name} #{last_name}"
   end

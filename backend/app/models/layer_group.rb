@@ -37,6 +37,18 @@ class LayerGroup < ApplicationRecord
   validate :avoid_recursivity, on: :update
   validate :super_group_scope
 
+  # Ransack configuration - explicitly allowlist searchable attributes for security
+  def self.ransackable_attributes(auth_object = nil)
+    %w[
+      id super_group_id slug layer_group_type category active order created_at updated_at
+      icon_class site_scope_id name info
+    ]
+  end
+  
+  def self.ransackable_associations(auth_object = nil)
+    %w[agrupations layers super_group sub_groups site_scope translations]
+  end
+
   scope :site, ->(site) { where(site_scope_id: site) }
 
   def avoid_recursivity

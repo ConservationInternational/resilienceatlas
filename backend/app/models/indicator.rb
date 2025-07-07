@@ -47,6 +47,15 @@ class Indicator < ApplicationRecord
 
   acts_as_list scope: :category
 
+  # Ransack configuration - explicitly allowlist searchable attributes for security
+  def self.ransackable_attributes(auth_object = nil)
+    ["category_id", "column_name", "created_at", "id", "operation", "position", "slug", "updated_at", "version", "name"]
+  end
+
+  def self.ransackable_associations(auth_object = nil)
+    ["category", "models", "translations"]
+  end
+
   def self.fetch_all(options = {})
     Indicator.with_translations
   end
