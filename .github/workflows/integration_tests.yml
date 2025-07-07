@@ -104,17 +104,17 @@ jobs:
     - name: Start infrastructure services
       run: |
         # Start database and Redis
-        docker-compose -f docker-compose.test.yml up -d db-test redis-test
+        docker compose -f docker-compose.test.yml up -d db-test redis-test
         
         # Wait for database to be ready
-        timeout 60s bash -c 'until docker-compose -f docker-compose.test.yml exec -T db-test pg_isready -U postgres; do sleep 2; done'
+        timeout 60s bash -c 'until docker compose -f docker-compose.test.yml exec -T db-test pg_isready -U postgres; do sleep 2; done'
         
         echo "✅ Infrastructure services started"
 
     - name: Setup and start backend
       run: |
         # Create and setup database
-        docker-compose -f docker-compose.test.yml run --rm backend-test \
+        docker compose -f docker-compose.test.yml run --rm backend-test \
           bash -c "
             RAILS_ENV=test bundle exec rails db:create &&
             RAILS_ENV=test bundle exec rails db:schema:load &&
@@ -122,7 +122,7 @@ jobs:
           "
         
         # Start backend service in background
-        docker-compose -f docker-compose.test.yml up -d backend-test
+        docker compose -f docker-compose.test.yml up -d backend-test
         
         # Wait for backend to be ready with health check
         echo "Waiting for backend to be ready..."
@@ -151,7 +151,7 @@ jobs:
     - name: Start frontend service
       run: |
         # Start frontend service
-        docker-compose -f docker-compose.test.yml up -d frontend-test
+        docker compose -f docker-compose.test.yml up -d frontend-test
         
         # Wait for frontend to be ready
         echo "Waiting for frontend to be ready..."
@@ -177,7 +177,7 @@ jobs:
         fi
         
         # Test API calls from frontend perspective
-        docker-compose -f docker-compose.test.yml exec -T frontend-test \
+        docker compose -f docker-compose.test.yml exec -T frontend-test \
           curl -f http://backend-test:3001/api/health
         
         echo "✅ Full stack connectivity verified"
@@ -185,7 +185,7 @@ jobs:
     - name: Run API integration tests
       run: |
         # Run backend API tests that verify frontend-backend integration
-        docker-compose -f docker-compose.test.yml run --rm backend-test \
+        docker compose -f docker-compose.test.yml run --rm backend-test \
           bash -c "
             RAILS_ENV=test bundle exec rspec spec/integration \
               --format RspecJunitFormatter \
@@ -196,7 +196,7 @@ jobs:
     - name: Run end-to-end integration tests
       run: |
         # Run Cypress integration tests
-        docker-compose -f docker-compose.test.yml run --rm \
+        docker compose -f docker-compose.test.yml run --rm \
           -e CYPRESS_baseUrl=http://frontend-test:3000 \
           -e CYPRESS_apiUrl=http://backend-test:3001 \
           cypress-${{ matrix.browser }} \
@@ -234,7 +234,7 @@ jobs:
         echo "Testing data consistency..."
         
         # Create test data via API
-        docker-compose -f docker-compose.test.yml run --rm backend-test \
+        docker compose -f docker-compose.test.yml run --rm backend-test \
           bash -c "
             RAILS_ENV=test bundle exec rails runner '
               # Create test data and verify it can be retrieved
@@ -250,11 +250,11 @@ jobs:
       if: failure()
       run: |
         echo "=== Backend Logs ==="
-        docker-compose -f docker-compose.test.yml logs backend-test --tail=100
+        docker compose -f docker-compose.test.yml logs backend-test --tail=100
         echo "=== Frontend Logs ==="
-        docker-compose -f docker-compose.test.yml logs frontend-test --tail=100
+        docker compose -f docker-compose.test.yml logs frontend-test --tail=100
         echo "=== Database Logs ==="
-        docker-compose -f docker-compose.test.yml logs db-test --tail=50
+        docker compose -f docker-compose.test.yml logs db-test --tail=50
 
     - name: Publish test results
       uses: dorny/test-reporter@v1
@@ -280,7 +280,7 @@ jobs:
     - name: Cleanup
       if: always()
       run: |
-        docker-compose -f docker-compose.test.yml down -v
+        docker compose -f docker-compose.test.yml down -v
         docker system prune -f
 
   integration-summary:

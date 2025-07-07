@@ -74,34 +74,34 @@ jobs:
 
     - name: Run Jest unit tests
       run: |
-        docker-compose -f docker-compose.test.yml run --rm frontend-test \
+        docker compose -f docker-compose.test.yml run --rm frontend-test \
           bash -c "npm run test:unit -- --coverage --watchAll=false --testResultsProcessor=jest-junit"
 
     - name: Run ESLint
       run: |
-        docker-compose -f docker-compose.test.yml run --rm frontend-test \
+        docker compose -f docker-compose.test.yml run --rm frontend-test \
           bash -c "npm run lint"
 
     - name: Run TypeScript check
       run: |
-        docker-compose -f docker-compose.test.yml run --rm frontend-test \
+        docker compose -f docker-compose.test.yml run --rm frontend-test \
           bash -c "npm run type-check"
 
     - name: Build application
       run: |
-        docker-compose -f docker-compose.test.yml run --rm frontend-test \
+        docker compose -f docker-compose.test.yml run --rm frontend-test \
           bash -c "npm run build"
 
     - name: Start services for E2E tests
       run: |
         # Start backend and frontend services
-        docker-compose -f docker-compose.test.yml up -d db-test redis-test
+        docker compose -f docker-compose.test.yml up -d db-test redis-test
         
         # Wait for database
-        timeout 60s bash -c 'until docker-compose -f docker-compose.test.yml exec -T db-test pg_isready -U postgres; do sleep 2; done'
+        timeout 60s bash -c 'until docker compose -f docker-compose.test.yml exec -T db-test pg_isready -U postgres; do sleep 2; done'
         
         # Setup backend database
-        docker-compose -f docker-compose.test.yml run --rm backend-test \
+        docker compose -f docker-compose.test.yml run --rm backend-test \
           bash -c "
             RAILS_ENV=test bundle exec rails db:create &&
             RAILS_ENV=test bundle exec rails db:schema:load &&
@@ -109,20 +109,20 @@ jobs:
           "
         
         # Start backend service
-        docker-compose -f docker-compose.test.yml up -d backend-test
+        docker compose -f docker-compose.test.yml up -d backend-test
         
         # Wait for backend to be ready
         timeout 120s bash -c 'until curl -f http://localhost:3001/api/health 2>/dev/null; do sleep 5; done'
         
         # Start frontend service
-        docker-compose -f docker-compose.test.yml up -d frontend-test
+        docker compose -f docker-compose.test.yml up -d frontend-test
         
         # Wait for frontend to be ready
         timeout 120s bash -c 'until curl -f http://localhost:3000 2>/dev/null; do sleep 5; done'
 
     - name: Run Cypress E2E tests (Chrome)
       run: |
-        docker-compose -f docker-compose.test.yml run --rm \
+        docker compose -f docker-compose.test.yml run --rm \
           -e CYPRESS_baseUrl=http://frontend-test:3000 \
           -e CYPRESS_apiUrl=http://backend-test:3001 \
           cypress-chrome \
@@ -137,7 +137,7 @@ jobs:
 
     - name: Run Cypress E2E tests (Firefox)
       run: |
-        docker-compose -f docker-compose.test.yml run --rm \
+        docker compose -f docker-compose.test.yml run --rm \
           -e CYPRESS_baseUrl=http://frontend-test:3000 \
           -e CYPRESS_apiUrl=http://backend-test:3001 \
           cypress-firefox \
@@ -163,7 +163,7 @@ jobs:
     - name: Upload coverage reports
       if: always()
       run: |
-        if docker-compose -f docker-compose.test.yml run --rm frontend-test test -f coverage/lcov.info; then
+        if docker compose -f docker-compose.test.yml run --rm frontend-test test -f coverage/lcov.info; then
           echo "Coverage report found"
         fi
 
@@ -180,5 +180,5 @@ jobs:
     - name: Cleanup
       if: always()
       run: |
-        docker-compose -f docker-compose.test.yml down -v
+        docker compose -f docker-compose.test.yml down -v
         docker system prune -f
