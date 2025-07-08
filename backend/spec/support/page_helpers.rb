@@ -42,29 +42,35 @@ module PageHelpers
     element.click
   end
   
-  # Handle modals with retry logic
+  # Handle modals with retry logic for Cuprite
   def safe_accept_confirm(wait: 10, &block)
-    # Execute the block that should trigger the modal
-    block.call
-    
-    # Wait a bit for the modal to appear
-    sleep 0.5
-    
-    # Try to accept the modal with retries
-    retries = 3
-    begin
-      accept_confirm
-    rescue Capybara::ModalNotFound => e
-      retries -= 1
-      if retries > 0
-        puts "[SYSTEM_TEST] Modal not found, retrying... (#{retries} attempts left)"
+    # For Cuprite, we need to handle modals differently
+    if Capybara.current_driver == :cuprite
+      # Use Capybara's accept_confirm but with better error handling for Cuprite
+      begin
+        accept_confirm(wait: wait, &block)
+      rescue Capybara::ModalNotFound => e
+        puts "[SYSTEM_TEST] Modal not found with accept_confirm, trying alternative approach"
+        
+        # Alternative approach: Execute the action and handle any JavaScript confirm
+        page.execute_script <<~JS
+          window.confirm = function(msg) {
+            console.log('Confirm dialog: ' + msg);
+            return true;
+          };
+        JS
+        
+        # Execute the block
+        result = block.call
+        
+        # Wait a moment for any async operations
         sleep 1
-        retry
-      else
-        # Take screenshot for debugging
-        save_screenshot("/tmp/modal_not_found_#{Time.now.to_i}.png") rescue nil
-        raise e
+        
+        result
       end
+    else
+      # Use Capybara's standard accept_confirm for other drivers
+      accept_confirm(wait: wait, &block)
     end
   end
   

@@ -31,7 +31,25 @@ RSpec.configure do |config|
 
   # callback to be run between retries
   config.retry_callback = proc do |ex|
-    Capybara.reset! if ex.metadata[:type] == :system
+    if ex.metadata[:type] == :system
+      # Force cuprite driver and prevent any selenium fallback
+      Capybara.current_driver = :cuprite
+      # Only reset if we successfully have cuprite driver
+      if Capybara.current_driver == :cuprite
+        begin
+          Capybara.current_session.reset!
+        rescue => e
+          puts "[RETRY] Warning: Could not reset session: #{e.message}"
+          # If reset fails, quit and force cuprite again
+          begin
+            Capybara.current_session.quit
+            Capybara.current_driver = :cuprite
+          rescue => quit_error
+            puts "[RETRY] Warning: Could not quit session: #{quit_error.message}"
+          end
+        end
+      end
+    end
   end
 
   config.order = :random

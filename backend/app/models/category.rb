@@ -17,7 +17,7 @@ class Category < ApplicationRecord
     translates :name, :description, touch: true, fallbacks_for_empty_translations: true
   end
 
-  has_many :indicators
+  has_many :indicators, dependent: :restrict_with_error
 
   # Translation setup - only add extra features if database is ready and not during migration
   # This prevents errors during migrations when tables don't exist yet

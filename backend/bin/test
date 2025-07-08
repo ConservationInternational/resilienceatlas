@@ -59,7 +59,14 @@ case "${1:-all}" in
     mkdir -p /tmp/chrome-logs
     
     echo "🧪 Starting system tests..."
-    bundle exec rspec spec/systems/ --format documentation "${@:2}"
+    # If specific files are provided as additional arguments, run those; otherwise run all system tests
+    if [ $# -gt 1 ]; then
+      echo "Running specific system tests: ${@:2}"
+      bundle exec rspec --format documentation "${@:2}"
+    else
+      echo "Running all system tests in spec/systems/"
+      bundle exec rspec spec/systems/ --format documentation
+    fi
     ;;
   "system-force"|"system-tests-force")
     echo "🧪 Running system tests (forced, ignoring Chrome check)..."
