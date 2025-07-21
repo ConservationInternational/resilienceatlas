@@ -84,7 +84,7 @@
     "@types/react-slick": "^0.23.10",
     "@typescript-eslint/eslint-plugin": "5.13.0",
     "@typescript-eslint/parser": "5.13.0",
-    "cypress": "^12.7.0",
+    "cypress": "^14.5.2",
     "eslint": "8.23.1",
     "eslint-config-next": "12.2.3",
     "eslint-config-prettier": "8.6.0",
