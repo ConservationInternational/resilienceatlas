@@ -25,7 +25,7 @@
     "@transifex/native": "^5.2.0",
     "@transifex/react": "^5.2.0",
     "@turf/bbox-polygon": "^6.5.0",
-    "axios": "^0.21.2",
+    "axios": "^0.30.0",
     "classnames": "^2.3.2",
     "date-fns": "^2.30.0",
     "dotenv": "^16.0.3",
