@@ -149,7 +149,7 @@ services:
 
   # Cypress Chrome for E2E testing
   cypress-chrome:
-    image: cypress/included:13.6.2
+    image: cypress/included:13.17.0
     working_dir: /app
     environment:
       - NODE_ENV=test
@@ -172,7 +172,7 @@ services:
 
   # Cypress Firefox for E2E testing
   cypress-firefox:
-    image: cypress/included:13.6.2
+    image: cypress/included:13.17.0
     working_dir: /app
     environment:
       - NODE_ENV=test
@@ -192,6 +192,30 @@ services:
     entrypoint: ""
     profiles:
       - testing
+
+  # Integration tests service
+  integration-test:
+    image: node:20.18.1-alpine
+    working_dir: /app
+    environment:
+      - FRONTEND_URL=http://frontend-test:3000
+      - BACKEND_URL=http://backend-test:3001
+    volumes:
+      - ./integration-tests:/app
+    networks:
+      - test-network
+    depends_on:
+      frontend-test:
+        condition: service_healthy
+      backend-test:
+        condition: service_healthy
+    command: >
+      sh -c "
+        npm install &&
+        npm test
+      "
+    profiles:
+      - integration
 
 networks:
   test-network:

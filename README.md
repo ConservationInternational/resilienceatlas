@@ -4,13 +4,13 @@
 
 This repository contains all the code and documentation necessary to set up and deploy the project. It is organised in 4 main subdirectories, with accompanying documentation inside each.
 
-| Subdirectory name | Description                                                 | Documentation                                          |
-|-------------------|-------------------------------------------------------------|--------------------------------------------------------|
-| frontend          | Frontend application                                        | [frontend/README.md](frontend/README.md)               |
-| backend           | The Ruby on Rails backend application (API + backoffice)    | [backend/README.md](backend/README.md)                 |
-| cloud_functions   | cloud functions code folder                                 | [cloud_functions/README.md](cloud_functions/README.md) |
-| infrastructure    | The Terraform project for TiTiler COG tiler as AWS lambda   | [infrastructure/README.md](infrastructure/README.md)   |
-| data              | data folder where diverse scripts for data management lives | [data/README.md](data/README.md)                       |
+| Subdirectory name | Description                                                 | Documentation                                          | Tech Stack                    |
+|-------------------|-------------------------------------------------------------|--------------------------------------------------------|-------------------------------|
+| frontend          | Frontend application                                        | [frontend/README.md](frontend/README.md)               | React 18.3.1, Next.js 14.2.15, Node.js 20.18.1 |
+| backend           | The Ruby on Rails backend application (API + backoffice)    | [backend/README.md](backend/README.md)                 | Ruby 3.4.4, Rails 7.2.x      |
+| cloud_functions   | cloud functions code folder                                 | [cloud_functions/README.md](cloud_functions/README.md) | Various AWS Lambda functions  |
+| infrastructure    | The Terraform project for TiTiler COG tiler as AWS lambda   | [infrastructure/README.md](infrastructure/README.md)   | Terraform, AWS                |
+| data              | data folder where diverse scripts for data management lives | [data/README.md](data/README.md)                       | Various data processing tools |
 
 ## CI/CD Process
 

@@ -1,8 +1,8 @@
 # Base dependencies stage
 FROM node:20.18.1-bullseye AS base
 RUN mkdir -p ~/.ssh && touch ~/.ssh/known_hosts
-RUN ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
-RUN git config --global url.http://github.com/.insteadOf ssh://git@github.com/
+# Skip ssh-keyscan to avoid network issues in restricted environments  
+RUN git config --global url.https://github.com/.insteadOf ssh://git@github.com/
 WORKDIR /app
 COPY package.json yarn.lock ./
 
