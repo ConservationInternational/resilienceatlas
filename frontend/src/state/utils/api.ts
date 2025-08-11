@@ -47,7 +47,11 @@ export const createApiAction = (name = ''): ApiAction => {
 };
 
 export const makeRequest = (method: Method, url: string, options: AxiosRequestConfig = {}) => {
-  const headers = { ...axiosInstance.defaults.headers, ...options.headers };
+  // Create headers object carefully to avoid type issues with new axios version
+  const headers: Record<string, any> = {
+    ...axiosInstance.defaults.headers.common,
+    ...options.headers,
+  };
 
   // Add site scope token if available and this is a site-specific request
   const siteScope = options.params?.site_scope || subdomain;

@@ -1,5 +1,5 @@
 # Base dependencies stage
-FROM node:18.15.0-bullseye AS base
+FROM node:20.18.1-bullseye AS base
 RUN mkdir -p ~/.ssh && touch ~/.ssh/known_hosts
 RUN ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
 RUN git config --global url.http://github.com/.insteadOf ssh://git@github.com/
@@ -15,7 +15,7 @@ FROM base AS dev-deps
 RUN yarn install --frozen-lockfile
 
 # Test stage
-FROM node:18.15.0-bullseye AS test
+FROM node:20.18.1-bullseye AS test
 WORKDIR /app
 
 # Install curl for health checks
@@ -54,7 +54,7 @@ ENV PORT=3000
 CMD ["yarn", "dev"]
 
 # Rebuild the source code only when needed
-FROM node:18.15.0-bullseye AS builder
+FROM node:20.18.1-bullseye AS builder
 WORKDIR /app
 
 # Set build arguments
@@ -82,7 +82,7 @@ ENV NEXT_TELEMETRY_DISABLED=1
 RUN yarn build
 
 # Production image, copy all the files and run next
-FROM node:18.15.0-bullseye AS production
+FROM node:20.18.1-bullseye AS production
 WORKDIR /app
 
 ENV NODE_ENV=production
