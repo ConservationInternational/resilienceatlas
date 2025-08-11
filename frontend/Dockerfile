@@ -1,8 +1,10 @@
 # Base dependencies stage
 FROM node:22.11.0-bullseye AS base
 RUN mkdir -p ~/.ssh && touch ~/.ssh/known_hosts
-# Skip ssh-keyscan to avoid network issues in restricted environments  
-RUN git config --global url.https://github.com/.insteadOf ssh://git@github.com/
+# Configure git to use HTTPS instead of SSH for all git operations
+RUN git config --global url.https://github.com/.insteadOf ssh://git@github.com/ && \
+    git config --global url.https://github.com/.insteadOf git@github.com: && \
+    git config --global url.https://github.com/.insteadOf git+ssh://git@github.com/
 WORKDIR /app
 COPY package.json package-lock.json .npmrc ./
 
@@ -11,7 +13,7 @@ FROM base AS deps
 # Retry npm install up to 3 times for network resilience
 RUN for i in {1..3}; do \
       echo "npm install attempt $i of 3" && \
-      npm ci --only=production --legacy-peer-deps && \
+      timeout 300 npm ci --only=production --legacy-peer-deps --no-audit --no-fund && \
       echo "✅ Production dependencies installed successfully" && \
       break || \
       ([ $i -eq 3 ] && echo "❌ Failed to install production dependencies after 3 attempts" && exit 1) || \
@@ -23,7 +25,7 @@ FROM base AS dev-deps
 # Retry npm install up to 3 times for network resilience
 RUN for i in {1..3}; do \
       echo "npm install attempt $i of 3" && \
-      npm ci --legacy-peer-deps && \
+      timeout 300 npm ci --legacy-peer-deps --no-audit --no-fund && \
       echo "✅ All dependencies installed successfully" && \
       break || \
       ([ $i -eq 3 ] && echo "❌ Failed to install dependencies after 3 attempts" && exit 1) || \

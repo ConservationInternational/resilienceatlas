@@ -40,6 +40,14 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-frontend-buildx-
 
+    - name: Configure DNS for better connectivity
+      run: |
+        echo "nameserver 8.8.8.8" | sudo tee /etc/resolv.conf.backup > /dev/null
+        echo "nameserver 1.1.1.1" | sudo tee -a /etc/resolv.conf.backup > /dev/null  
+        sudo cp /etc/resolv.conf.backup /etc/resolv.conf
+        echo "🔧 DNS configuration updated"
+        nslookup registry.npmjs.org || echo "DNS lookup failed"
+
     - name: Check network connectivity
       run: |
         echo "🔍 Checking network connectivity..."
@@ -49,6 +57,17 @@ jobs:
         curl -I https://github.com/ || echo "❌ GitHub not reachable"
         echo "Testing docker.io:"
         curl -I https://registry-1.docker.io/ || echo "❌ Docker registry not reachable"
+
+    - name: Validate frontend configuration
+      run: |
+        echo "🔍 Validating frontend configuration..."
+        cd frontend
+        echo "Checking package.json syntax:"
+        node -e "console.log('✅ package.json is valid JSON')" -e "require('./package.json')"
+        echo "Checking .nvmrc version:"
+        cat .nvmrc
+        echo "Checking .npmrc configuration:"
+        cat .npmrc || echo "No .npmrc found"
 
     - name: Build frontend test image
       run: |
