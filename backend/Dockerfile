@@ -95,6 +95,9 @@ RUN mkdir -p /tmp/appuser-tmp /home/appuser/.cache /home/appuser/.config /home/a
 # Switch to appuser for running the application
 USER appuser
 
+# Ensure tmp directory is writable by appuser after user switch
+RUN mkdir -p /app/tmp && chmod -R 755 /app/tmp
+
 # Expose port 3001 for test environment
 EXPOSE 3001
 

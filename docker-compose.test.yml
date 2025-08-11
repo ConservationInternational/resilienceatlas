@@ -61,7 +61,6 @@ services:
     volumes:
       - ./backend:/app
       - bundle_cache:/usr/local/bundle
-      - ./backend/tmp:/app/tmp
     networks:
       - test-network
     depends_on:
