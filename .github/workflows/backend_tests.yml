@@ -50,26 +50,63 @@ jobs:
       uses: docker/setup-buildx-action@v3
       with:
         driver-opts: image=moby/buildkit:buildx-stable-1
+        buildkitd-flags: --allow-insecure-entitlement security.insecure
 
-    - name: Cache Docker layers
+    - name: Generate cache keys
+      id: cache-keys
+      run: |
+        # Generate content-based cache keys for better cache reuse
+        echo "dockerfile-hash=$(sha256sum backend/Dockerfile | cut -d' ' -f1)" >> $GITHUB_OUTPUT
+        echo "gemfile-hash=$(sha256sum backend/Gemfile backend/Gemfile.lock | sha256sum | cut -d' ' -f1)" >> $GITHUB_OUTPUT
+        echo "ruby-version=$(cat backend/.ruby-version 2>/dev/null || echo '3.4.4')" >> $GITHUB_OUTPUT
+        echo "date=$(date +%Y%m%d)" >> $GITHUB_OUTPUT
+
+    - name: Cache Docker buildx layers
       uses: actions/cache@v4
       with:
         path: /tmp/.buildx-cache
-        key: ${{ runner.os }}-backend-buildx-${{ github.sha }}
+        key: ${{ runner.os }}-backend-buildx-${{ steps.cache-keys.outputs.dockerfile-hash }}-${{ steps.cache-keys.outputs.gemfile-hash }}
         restore-keys: |
+          ${{ runner.os }}-backend-buildx-${{ steps.cache-keys.outputs.dockerfile-hash }}-
           ${{ runner.os }}-backend-buildx-
+          ${{ runner.os }}-buildx-
 
-    - name: Build backend test image
+    - name: Cache Ruby dependencies
+      uses: actions/cache@v4
+      with:
+        path: |
+          /tmp/.bundle-cache
+          backend/vendor/bundle
+        key: ${{ runner.os }}-ruby-${{ steps.cache-keys.outputs.ruby-version }}-${{ steps.cache-keys.outputs.gemfile-hash }}
+        restore-keys: |
+          ${{ runner.os }}-ruby-${{ steps.cache-keys.outputs.ruby-version }}-
+          ${{ runner.os }}-ruby-
+
+    - name: Warm Docker cache with base images
+      run: |
+        # Pre-pull base images to warm the cache
+        echo "🔥 Warming cache with base images..."
+        docker pull ruby:3.4.4-bullseye || echo "Could not pre-pull Ruby base image"
+        docker pull postgis/postgis:15-3.3 || echo "Could not pre-pull PostGIS image"
+        
+        # Show current cache status
+        echo "📊 Current cache status:"
+        du -sh /tmp/.buildx-cache 2>/dev/null || echo "No existing cache found"
+
+    - name: Build backend test image with enhanced caching
       run: |
         # Retry Docker build up to 3 times in case of network issues
         for i in {1..3}; do
           echo "Build attempt $i of 3"
           if docker buildx build \
             --cache-from=type=local,src=/tmp/.buildx-cache \
+            --cache-from=type=gha \
             --cache-to=type=local,dest=/tmp/.buildx-cache-new,mode=max \
+            --cache-to=type=gha,mode=max \
             --target test \
             --tag resilienceatlas-backend:test \
             --load \
+            --build-arg BUILDKIT_INLINE_CACHE=1 \
             ./backend; then
             echo "✅ Build successful on attempt $i"
             break
@@ -86,6 +123,15 @@ jobs:
       run: |
         rm -rf /tmp/.buildx-cache
         mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+
+    - name: Report cache analytics
+      run: |
+        echo "📊 Cache analytics:"
+        echo "Final cache size: $(du -sh /tmp/.buildx-cache 2>/dev/null || echo 'Unknown')"
+        echo "Cache directory contents:"
+        ls -la /tmp/.buildx-cache/ 2>/dev/null || echo "Cache directory not found"
+        echo "Docker system info:"
+        docker system df
 
     - name: Start test services
       run: |

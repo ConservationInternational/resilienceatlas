@@ -1,5 +1,9 @@
 # Base dependencies stage
 FROM node:22.11.0-bullseye AS base
+
+# Enable BuildKit inline cache
+ARG BUILDKIT_INLINE_CACHE=1
+
 RUN mkdir -p ~/.ssh && touch ~/.ssh/known_hosts
 
 # Enhanced git configuration for SSH dependency handling and network resilience

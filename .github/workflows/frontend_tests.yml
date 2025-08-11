@@ -31,14 +31,38 @@ jobs:
       uses: docker/setup-buildx-action@v3
       with:
         driver-opts: image=moby/buildkit:buildx-stable-1
+        buildkitd-flags: --allow-insecure-entitlement security.insecure
 
-    - name: Cache Docker layers
+    - name: Generate cache keys
+      id: cache-keys
+      run: |
+        # Generate content-based cache keys for better cache reuse
+        echo "dockerfile-hash=$(sha256sum frontend/Dockerfile | cut -d' ' -f1)" >> $GITHUB_OUTPUT
+        echo "package-hash=$(sha256sum frontend/package.json frontend/package-lock.json | sha256sum | cut -d' ' -f1)" >> $GITHUB_OUTPUT
+        echo "node-version=$(cat frontend/.nvmrc 2>/dev/null || echo '22.11.0')" >> $GITHUB_OUTPUT
+        echo "date=$(date +%Y%m%d)" >> $GITHUB_OUTPUT
+
+    - name: Cache Docker buildx layers
       uses: actions/cache@v4
       with:
         path: /tmp/.buildx-cache
-        key: ${{ runner.os }}-frontend-buildx-${{ github.sha }}
+        key: ${{ runner.os }}-frontend-buildx-${{ steps.cache-keys.outputs.dockerfile-hash }}-${{ steps.cache-keys.outputs.package-hash }}
         restore-keys: |
+          ${{ runner.os }}-frontend-buildx-${{ steps.cache-keys.outputs.dockerfile-hash }}-
           ${{ runner.os }}-frontend-buildx-
+          ${{ runner.os }}-buildx-
+
+    - name: Cache Node.js dependencies
+      uses: actions/cache@v4
+      with:
+        path: |
+          /tmp/.npm-cache
+          frontend/node_modules
+          frontend/.next/cache
+        key: ${{ runner.os }}-node-${{ steps.cache-keys.outputs.node-version }}-${{ steps.cache-keys.outputs.package-hash }}
+        restore-keys: |
+          ${{ runner.os }}-node-${{ steps.cache-keys.outputs.node-version }}-
+          ${{ runner.os }}-node-
 
     - name: Configure DNS for better connectivity
       run: |
@@ -79,7 +103,17 @@ jobs:
           echo "✅ Removed conflicting yarn.lock"
         fi
 
-    - name: Build frontend test image
+    - name: Warm Docker cache with base images
+      run: |
+        # Pre-pull base images to warm the cache
+        echo "🔥 Warming cache with base images..."
+        docker pull node:22.11.0-bullseye || echo "Could not pre-pull Node base image"
+        
+        # Show current cache status
+        echo "📊 Current cache status:"
+        du -sh /tmp/.buildx-cache 2>/dev/null || echo "No existing cache found"
+
+    - name: Build frontend test image with enhanced caching
       run: |
         # Set environment variables for better network resilience and Cypress CDN access
         export CYPRESS_DOWNLOAD_PATH_TEMPLATE="https://download.cypress.io/desktop/\${version}?platform=\${platform}&arch=\${arch}"
@@ -97,7 +131,9 @@ jobs:
           echo "Build attempt $i of 3"
           if docker buildx build \
             --cache-from=type=local,src=/tmp/.buildx-cache \
+            --cache-from=type=gha \
             --cache-to=type=local,dest=/tmp/.buildx-cache-new,mode=max \
+            --cache-to=type=gha,mode=max \
             --target test \
             --build-arg NEXT_PUBLIC_API_HOST=http://localhost:3001 \
             --build-arg NEXT_PUBLIC_GOOGLE_ANALYTICS=GA_TEST_ID \
@@ -105,6 +141,7 @@ jobs:
             --build-arg NEXT_PUBLIC_TRANSIFEX_SECRET=test_secret \
             --build-arg NEXT_PUBLIC_GOOGLE_API_KEY=test_api_key \
             --build-arg CYPRESS_INSTALL_BINARY=0 \
+            --build-arg BUILDKIT_INLINE_CACHE=1 \
             --tag resilienceatlas-frontend:test \
             --load \
             ./frontend; then
@@ -121,6 +158,7 @@ jobs:
               --build-arg NEXT_PUBLIC_TRANSIFEX_SECRET=test_secret \
               --build-arg NEXT_PUBLIC_GOOGLE_API_KEY=test_api_key \
               --build-arg CYPRESS_INSTALL_BINARY=0 \
+              --build-arg BUILDKIT_INLINE_CACHE=1 \
               --tag resilienceatlas-frontend:test \
               --load \
               ./frontend --progress=plain || true
@@ -135,6 +173,15 @@ jobs:
       run: |
         rm -rf /tmp/.buildx-cache
         mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+
+    - name: Report cache analytics
+      run: |
+        echo "📊 Cache analytics:"
+        echo "Final cache size: $(du -sh /tmp/.buildx-cache 2>/dev/null || echo 'Unknown')"
+        echo "Cache directory contents:"
+        ls -la /tmp/.buildx-cache/ 2>/dev/null || echo "Cache directory not found"
+        echo "Docker system info:"
+        docker system df
 
     - name: Create test environment
       run: |
