@@ -74,28 +74,54 @@ jobs:
 
     - name: Build backend test image
       run: |
-        docker buildx build \
-          --cache-from=type=local,src=/tmp/.buildx-cache \
-          --cache-to=type=local,dest=/tmp/.buildx-cache-new,mode=max \
-          --target test \
-          --tag resilienceatlas-backend:integration-test \
-          --load \
-          ./backend
+        # Retry Docker build up to 3 times in case of network issues
+        for i in {1..3}; do
+          echo "Build attempt $i of 3"
+          if docker buildx build \
+            --cache-from=type=local,src=/tmp/.buildx-cache \
+            --cache-to=type=local,dest=/tmp/.buildx-cache-new,mode=max \
+            --target test \
+            --tag resilienceatlas-backend:integration-test \
+            --load \
+            ./backend; then
+            echo "✅ Backend build successful on attempt $i"
+            break
+          elif [ $i -eq 3 ]; then
+            echo "❌ Backend build failed after 3 attempts"
+            exit 1
+          else
+            echo "⚠️ Backend build attempt $i failed, retrying in 30 seconds..."
+            sleep 30
+          fi
+        done
 
     - name: Build frontend test image
       run: |
-        docker buildx build \
-          --cache-from=type=local,src=/tmp/.buildx-cache \
-          --cache-to=type=local,dest=/tmp/.buildx-cache-new,mode=max \
-          --target test \
-          --build-arg NEXT_PUBLIC_API_HOST=http://backend-test:3001 \
-          --build-arg NEXT_PUBLIC_GOOGLE_ANALYTICS=GA_INTEGRATION_TEST_ID \
-          --build-arg NEXT_PUBLIC_TRANSIFEX_TOKEN=integration_test_token \
-          --build-arg NEXT_PUBLIC_TRANSIFEX_SECRET=integration_test_secret \
-          --build-arg NEXT_PUBLIC_GOOGLE_API_KEY=integration_test_api_key \
-          --tag resilienceatlas-frontend:integration-test \
-          --load \
-          ./frontend
+        # Retry Docker build up to 3 times in case of network issues  
+        for i in {1..3}; do
+          echo "Build attempt $i of 3"
+          if docker buildx build \
+            --cache-from=type=local,src=/tmp/.buildx-cache \
+            --cache-to=type=local,dest=/tmp/.buildx-cache-new,mode=max \
+            --target test \
+            --build-arg NEXT_PUBLIC_API_HOST=http://backend-test:3001 \
+            --build-arg NEXT_PUBLIC_GOOGLE_ANALYTICS=GA_INTEGRATION_TEST_ID \
+            --build-arg NEXT_PUBLIC_TRANSIFEX_TOKEN=integration_test_token \
+            --build-arg NEXT_PUBLIC_TRANSIFEX_SECRET=integration_test_secret \
+            --build-arg NEXT_PUBLIC_GOOGLE_API_KEY=integration_test_api_key \
+            --tag resilienceatlas-frontend:integration-test \
+            --load \
+            ./frontend; then
+            echo "✅ Frontend build successful on attempt $i"
+            break
+          elif [ $i -eq 3 ]; then
+            echo "❌ Frontend build failed after 3 attempts"
+            exit 1
+          else
+            echo "⚠️ Frontend build attempt $i failed, retrying in 30 seconds..."
+            sleep 30
+          fi
+        done
 
     - name: Move cache
       run: |

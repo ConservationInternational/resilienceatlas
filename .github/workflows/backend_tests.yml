@@ -42,13 +42,26 @@ jobs:
 
     - name: Build backend test image
       run: |
-        docker buildx build \
-          --cache-from=type=local,src=/tmp/.buildx-cache \
-          --cache-to=type=local,dest=/tmp/.buildx-cache-new,mode=max \
-          --target test \
-          --tag resilienceatlas-backend:test \
-          --load \
-          ./backend
+        # Retry Docker build up to 3 times in case of network issues
+        for i in {1..3}; do
+          echo "Build attempt $i of 3"
+          if docker buildx build \
+            --cache-from=type=local,src=/tmp/.buildx-cache \
+            --cache-to=type=local,dest=/tmp/.buildx-cache-new,mode=max \
+            --target test \
+            --tag resilienceatlas-backend:test \
+            --load \
+            ./backend; then
+            echo "✅ Build successful on attempt $i"
+            break
+          elif [ $i -eq 3 ]; then
+            echo "❌ Build failed after 3 attempts"
+            exit 1
+          else
+            echo "⚠️ Build attempt $i failed, retrying in 30 seconds..."
+            sleep 30
+          fi
+        done
 
     - name: Move cache
       run: |

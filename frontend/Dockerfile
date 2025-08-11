@@ -8,11 +8,27 @@ COPY package.json package-lock.json .npmrc ./
 
 # Install dependencies only when needed
 FROM base AS deps
-RUN npm ci --only=production --legacy-peer-deps
+# Retry npm install up to 3 times for network resilience
+RUN for i in {1..3}; do \
+      echo "npm install attempt $i of 3" && \
+      npm ci --only=production --legacy-peer-deps && \
+      echo "✅ Production dependencies installed successfully" && \
+      break || \
+      ([ $i -eq 3 ] && echo "❌ Failed to install production dependencies after 3 attempts" && exit 1) || \
+      (echo "⚠️ npm install attempt $i failed, retrying in 10 seconds..." && sleep 10); \
+    done
 
 # Development/Test dependencies
 FROM base AS dev-deps
-RUN npm ci --legacy-peer-deps
+# Retry npm install up to 3 times for network resilience
+RUN for i in {1..3}; do \
+      echo "npm install attempt $i of 3" && \
+      npm ci --legacy-peer-deps && \
+      echo "✅ All dependencies installed successfully" && \
+      break || \
+      ([ $i -eq 3 ] && echo "❌ Failed to install dependencies after 3 attempts" && exit 1) || \
+      (echo "⚠️ npm install attempt $i failed, retrying in 10 seconds..." && sleep 10); \
+    done
 
 # Test stage
 FROM node:22.11.0-bullseye AS test

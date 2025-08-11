@@ -40,20 +40,43 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-frontend-buildx-
 
+    - name: Check network connectivity
+      run: |
+        echo "🔍 Checking network connectivity..."
+        echo "Testing registry.npmjs.org:"
+        curl -I https://registry.npmjs.org/ || echo "❌ npm registry not reachable"
+        echo "Testing github.com:"
+        curl -I https://github.com/ || echo "❌ GitHub not reachable"
+        echo "Testing docker.io:"
+        curl -I https://registry-1.docker.io/ || echo "❌ Docker registry not reachable"
+
     - name: Build frontend test image
       run: |
-        docker buildx build \
-          --cache-from=type=local,src=/tmp/.buildx-cache \
-          --cache-to=type=local,dest=/tmp/.buildx-cache-new,mode=max \
-          --target test \
-          --build-arg NEXT_PUBLIC_API_HOST=http://localhost:3001 \
-          --build-arg NEXT_PUBLIC_GOOGLE_ANALYTICS=GA_TEST_ID \
-          --build-arg NEXT_PUBLIC_TRANSIFEX_TOKEN=test_token \
-          --build-arg NEXT_PUBLIC_TRANSIFEX_SECRET=test_secret \
-          --build-arg NEXT_PUBLIC_GOOGLE_API_KEY=test_api_key \
-          --tag resilienceatlas-frontend:test \
-          --load \
-          ./frontend
+        # Retry Docker build up to 3 times in case of network issues
+        for i in {1..3}; do
+          echo "Build attempt $i of 3"
+          if docker buildx build \
+            --cache-from=type=local,src=/tmp/.buildx-cache \
+            --cache-to=type=local,dest=/tmp/.buildx-cache-new,mode=max \
+            --target test \
+            --build-arg NEXT_PUBLIC_API_HOST=http://localhost:3001 \
+            --build-arg NEXT_PUBLIC_GOOGLE_ANALYTICS=GA_TEST_ID \
+            --build-arg NEXT_PUBLIC_TRANSIFEX_TOKEN=test_token \
+            --build-arg NEXT_PUBLIC_TRANSIFEX_SECRET=test_secret \
+            --build-arg NEXT_PUBLIC_GOOGLE_API_KEY=test_api_key \
+            --tag resilienceatlas-frontend:test \
+            --load \
+            ./frontend; then
+            echo "✅ Build successful on attempt $i"
+            break
+          elif [ $i -eq 3 ]; then
+            echo "❌ Build failed after 3 attempts"
+            exit 1
+          else
+            echo "⚠️ Build attempt $i failed, retrying in 30 seconds..."
+            sleep 30
+          fi
+        done
 
     - name: Move cache
       run: |
