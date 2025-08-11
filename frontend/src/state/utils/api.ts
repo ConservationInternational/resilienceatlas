@@ -49,11 +49,11 @@ export const createApiAction = (name = ''): ApiAction => {
 export const makeRequest = (method: Method, url: string, options: AxiosRequestConfig = {}) => {
   // Create headers object carefully to avoid type issues with new axios version
   const headers: Record<string, string | number | boolean> = {};
-  
+
   // Safely merge headers from axios defaults and options
   const commonHeaders = axiosInstance.defaults.headers.common || {};
   const optionHeaders = options.headers || {};
-  
+
   // Convert axios headers to simple key-value pairs, handling arrays
   Object.entries(commonHeaders).forEach(([key, value]) => {
     if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
@@ -62,7 +62,7 @@ export const makeRequest = (method: Method, url: string, options: AxiosRequestCo
       headers[key] = value.join(', ');
     }
   });
-  
+
   Object.entries(optionHeaders).forEach(([key, value]) => {
     if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
       headers[key] = value;
