@@ -46,7 +46,7 @@
     "qs": "^6.9.7",
     "react": "18.3.1",
     "react-beautiful-dnd": "^13.1.1",
-    "react-cookie": "^4.1.1",
+    "react-cookie": "^8.0.1",
     "react-dangerous-html": "^1.0.0",
     "react-datepicker": "^4.11.0",
     "react-dom": "18.3.1",
