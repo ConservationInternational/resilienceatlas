@@ -1,3 +1,4 @@
+# Integration tests with Cypress - download.cypress.io now allowlisted
 name: Integration Tests
 
 on:
