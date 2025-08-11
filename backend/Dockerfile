@@ -93,7 +93,9 @@ RUN mkdir -p /tmp/appuser-tmp /home/appuser/.cache /home/appuser/.config /home/a
   && chmod -R 775 /app/log /app/tmp /app/public/uploads \
   && touch /app/log/test.log \
   && chown appuser:appuser /app/log/test.log \
-  && chmod 664 /app/log/test.log
+  && chmod 664 /app/log/test.log \
+  && chown appuser:appuser /app/Gemfile.lock \
+  && chmod 664 /app/Gemfile.lock
 
 # Switch to appuser for running the application
 USER appuser
