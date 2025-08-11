@@ -36,9 +36,13 @@ const makeMapStateToProps = () => {
     basemap: state.map.basemap,
     labels: state.map.labels,
     layer_groups: state.layer_groups,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     activeLayers: getActives(state as any),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     model_layer: getModelLayer(state as any),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     defaultActiveGroups: defaultActives(state as any),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     grouped: groupedLayers(state as any),
   });
 
