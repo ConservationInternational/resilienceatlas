@@ -69,7 +69,7 @@
     "use-debounce": "^9.0.4",
     "vega": "5.33.0",
     "vega-lib": "4.4.0",
-    "vizzuality-components": "^1.1.1",
+    "vizzuality-components": "^3.0.3",
     "yup": "^0.32.11"
   },
   "devDependencies": {
