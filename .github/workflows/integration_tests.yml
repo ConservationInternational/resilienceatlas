@@ -96,7 +96,7 @@ jobs:
     - name: Build backend test image
       run: |
         # Retry Docker build up to 3 times in case of network issues
-        for i in {1..3}; do
+        for i in $(seq 1 3); do
           echo "Build attempt $i of 3"
           if docker buildx build \
             --cache-from=type=local,src=/tmp/.buildx-cache \
@@ -119,7 +119,7 @@ jobs:
     - name: Build frontend test image
       run: |
         # Retry Docker build up to 3 times in case of network issues  
-        for i in {1..3}; do
+        for i in $(seq 1 3); do
           echo "Build attempt $i of 3"
           if docker buildx build \
             --cache-from=type=local,src=/tmp/.buildx-cache \
@@ -326,13 +326,13 @@ jobs:
         
         # Test backend response times
         echo "Testing backend performance..."
-        for i in {1..5}; do
+        for i in $(seq 1 5); do
           time curl -s http://localhost:3001/api/health > /dev/null
         done
         
         # Test frontend response times
         echo "Testing frontend performance..."
-        for i in {1..5}; do
+        for i in $(seq 1 5); do
           time curl -s http://localhost:3000 > /dev/null
         done
         
