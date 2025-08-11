@@ -38,7 +38,7 @@
     "leaflet.pm": "2.0.3",
     "lodash": "^4.17.11",
     "moment": "^2.24.0",
-    "next": "^14.2.15",
+    "next": "14.2.31",
     "next-redux-wrapper": "^8.1.0",
     "normalize.css": "^8.0.1",
     "normalizr": "^3.3.0",
