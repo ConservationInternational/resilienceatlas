@@ -16,3 +16,7 @@ infrastructure/!state/vars/terraform.tfvars
 .aws-sam
 cloud_functions/titiler_cogs/.aws-sam
 .env
+
+# Docker build cache (test directories)
+.buildx-cache*
+/tmp/.buildx-cache*
