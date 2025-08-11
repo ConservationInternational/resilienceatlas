@@ -1,6 +1,9 @@
 # Use the official Ruby image
 FROM ruby:3.4.4-bullseye AS base
 
+# Enable BuildKit inline cache
+ARG BUILDKIT_INLINE_CACHE=1
+
 # Configure package manager for better network resilience
 RUN echo 'Acquire::Retries "3";' >> /etc/apt/apt.conf.d/80-retries && \
     echo 'Acquire::http::Timeout "60";' >> /etc/apt/apt.conf.d/80-timeout

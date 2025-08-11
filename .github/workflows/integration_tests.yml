@@ -56,14 +56,31 @@ jobs:
       uses: docker/setup-buildx-action@v3
       with:
         driver-opts: image=moby/buildkit:buildx-stable-1
+        buildkitd-flags: --allow-insecure-entitlement security.insecure
 
-    - name: Cache Docker layers
+    - name: Generate cache keys
+      id: cache-keys
+      run: |
+        # Generate content-based cache keys for better cache reuse
+        echo "backend-dockerfile-hash=$(sha256sum backend/Dockerfile | cut -d' ' -f1)" >> $GITHUB_OUTPUT
+        echo "frontend-dockerfile-hash=$(sha256sum frontend/Dockerfile | cut -d' ' -f1)" >> $GITHUB_OUTPUT
+        echo "gemfile-hash=$(sha256sum backend/Gemfile backend/Gemfile.lock | sha256sum | cut -d' ' -f1)" >> $GITHUB_OUTPUT
+        echo "package-hash=$(sha256sum frontend/package.json frontend/package-lock.json | sha256sum | cut -d' ' -f1)" >> $GITHUB_OUTPUT
+        echo "ruby-version=$(cat backend/.ruby-version 2>/dev/null || echo '3.4.4')" >> $GITHUB_OUTPUT
+        echo "node-version=$(cat frontend/.nvmrc 2>/dev/null || echo '22.11.0')" >> $GITHUB_OUTPUT
+        echo "date=$(date +%Y%m%d)" >> $GITHUB_OUTPUT
+
+    - name: Cache Docker buildx layers (multi-service)
       uses: actions/cache@v4
       with:
         path: /tmp/.buildx-cache
-        key: ${{ runner.os }}-integration-buildx-${{ github.sha }}
+        key: ${{ runner.os }}-integration-buildx-${{ steps.cache-keys.outputs.backend-dockerfile-hash }}-${{ steps.cache-keys.outputs.frontend-dockerfile-hash }}-${{ steps.cache-keys.outputs.gemfile-hash }}-${{ steps.cache-keys.outputs.package-hash }}
         restore-keys: |
+          ${{ runner.os }}-integration-buildx-${{ steps.cache-keys.outputs.backend-dockerfile-hash }}-${{ steps.cache-keys.outputs.frontend-dockerfile-hash }}-
           ${{ runner.os }}-integration-buildx-
+          ${{ runner.os }}-backend-buildx-${{ steps.cache-keys.outputs.backend-dockerfile-hash }}-
+          ${{ runner.os }}-frontend-buildx-${{ steps.cache-keys.outputs.frontend-dockerfile-hash }}-
+          ${{ runner.os }}-buildx-
 
     - name: Create test environment file
       run: |
@@ -93,37 +110,56 @@ jobs:
         PORT=3000
         EOF
 
-    - name: Build backend test image
+    - name: Warm Docker cache with base images
       run: |
-        # Retry Docker build up to 3 times in case of network issues
-        for i in $(seq 1 3); do
-          echo "Build attempt $i of 3"
-          if docker buildx build \
+        # Pre-pull base images to warm the cache
+        echo "🔥 Warming cache with base images..."
+        docker pull ruby:3.4.4-bullseye || echo "Could not pre-pull Ruby base image"
+        docker pull node:22.11.0-bullseye || echo "Could not pre-pull Node base image" 
+        docker pull postgis/postgis:15-3.3 || echo "Could not pre-pull PostGIS image"
+        docker pull cypress/included:13.15.0 || echo "Could not pre-pull Cypress image"
+        
+        # Show current cache status
+        echo "📊 Current cache status:"
+        du -sh /tmp/.buildx-cache 2>/dev/null || echo "No existing cache found"
+
+    - name: Build services with coordinated caching (docker bake)
+      run: |
+        # Use docker bake for coordinated multi-service builds
+        echo "🏗️ Building services with coordinated caching..."
+        
+        # Try coordinated build first (more efficient caching)
+        if docker buildx bake \
+          --file .github/docker-bake.hcl \
+          --set="*.cache-from=type=local,src=/tmp/.buildx-cache" \
+          --set="*.cache-from=type=gha" \
+          --set="*.cache-to=type=local,dest=/tmp/.buildx-cache-new,mode=max" \
+          --set="*.cache-to=type=gha,mode=max" \
+          --load \
+          integration 2>/dev/null; then
+          echo "✅ Coordinated build successful"
+        else
+          echo "⚠️ Coordinated build failed, falling back to individual builds..."
+          
+          # Fallback to individual builds if bake fails
+          echo "Building backend..."
+          docker buildx build \
             --cache-from=type=local,src=/tmp/.buildx-cache \
+            --cache-from=type=gha \
             --cache-to=type=local,dest=/tmp/.buildx-cache-new,mode=max \
+            --cache-to=type=gha,mode=max \
             --target test \
             --tag resilienceatlas-backend:integration-test \
             --load \
-            ./backend; then
-            echo "✅ Backend build successful on attempt $i"
-            break
-          elif [ $i -eq 3 ]; then
-            echo "❌ Backend build failed after 3 attempts"
-            exit 1
-          else
-            echo "⚠️ Backend build attempt $i failed, retrying in 30 seconds..."
-            sleep 30
-          fi
-        done
-
-    - name: Build frontend test image
-      run: |
-        # Retry Docker build up to 3 times in case of network issues  
-        for i in $(seq 1 3); do
-          echo "Build attempt $i of 3"
-          if docker buildx build \
+            --build-arg BUILDKIT_INLINE_CACHE=1 \
+            ./backend
+            
+          echo "Building frontend..."
+          docker buildx build \
             --cache-from=type=local,src=/tmp/.buildx-cache \
+            --cache-from=type=gha \
             --cache-to=type=local,dest=/tmp/.buildx-cache-new,mode=max \
+            --cache-to=type=gha,mode=max \
             --target test \
             --build-arg NEXT_PUBLIC_API_HOST=http://backend-test:3001 \
             --build-arg NEXT_PUBLIC_GOOGLE_ANALYTICS=GA_INTEGRATION_TEST_ID \
@@ -131,24 +167,25 @@ jobs:
             --build-arg NEXT_PUBLIC_TRANSIFEX_SECRET=integration_test_secret \
             --build-arg NEXT_PUBLIC_GOOGLE_API_KEY=integration_test_api_key \
             --build-arg CYPRESS_INSTALL_BINARY=0 \
+            --build-arg BUILDKIT_INLINE_CACHE=1 \
             --tag resilienceatlas-frontend:integration-test \
             --load \
-            ./frontend; then
-            echo "✅ Frontend build successful on attempt $i"
-            break
-          elif [ $i -eq 3 ]; then
-            echo "❌ Frontend build failed after 3 attempts"
-            exit 1
-          else
-            echo "⚠️ Frontend build attempt $i failed, retrying in 30 seconds..."
-            sleep 30
-          fi
-        done
+            ./frontend
+        fi
 
     - name: Move cache
       run: |
         rm -rf /tmp/.buildx-cache
         mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+
+    - name: Report cache analytics
+      run: |
+        echo "📊 Cache analytics:"
+        echo "Final cache size: $(du -sh /tmp/.buildx-cache 2>/dev/null || echo 'Unknown')"
+        echo "Cache directory contents:"
+        ls -la /tmp/.buildx-cache/ 2>/dev/null || echo "Cache directory not found"
+        echo "Docker system info:"
+        docker system df
 
     - name: Start infrastructure services
       run: |
