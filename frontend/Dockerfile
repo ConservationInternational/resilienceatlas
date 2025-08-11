@@ -1,21 +1,21 @@
 # Base dependencies stage
-FROM node:20.18.1-bullseye AS base
+FROM node:22.11.0-bullseye AS base
 RUN mkdir -p ~/.ssh && touch ~/.ssh/known_hosts
 # Skip ssh-keyscan to avoid network issues in restricted environments  
 RUN git config --global url.https://github.com/.insteadOf ssh://git@github.com/
 WORKDIR /app
-COPY package.json yarn.lock ./
+COPY package.json package-lock.json .npmrc ./
 
 # Install dependencies only when needed
 FROM base AS deps
-RUN yarn install --frozen-lockfile
+RUN npm ci --only=production --legacy-peer-deps
 
 # Development/Test dependencies
 FROM base AS dev-deps
-RUN yarn install --frozen-lockfile
+RUN npm ci --legacy-peer-deps
 
 # Test stage
-FROM node:20.18.1-bullseye AS test
+FROM node:22.11.0-bullseye AS test
 WORKDIR /app
 
 # Install curl for health checks
@@ -23,7 +23,7 @@ RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
 
 # Copy dependencies
 COPY --from=dev-deps /app/node_modules ./node_modules
-COPY package.json yarn.lock ./
+COPY package.json package-lock.json .npmrc ./
 
 # Copy application source
 COPY . .
@@ -51,10 +51,10 @@ EXPOSE 3000
 ENV PORT=3000
 
 # Default command for test stage
-CMD ["yarn", "dev"]
+CMD ["npm", "run", "dev"]
 
 # Rebuild the source code only when needed
-FROM node:20.18.1-bullseye AS builder
+FROM node:22.11.0-bullseye AS builder
 WORKDIR /app
 
 # Set build arguments
@@ -79,10 +79,10 @@ COPY --from=deps /app/node_modules ./node_modules
 # Uncomment the following line in case you want to disable telemetry during the build.
 ENV NEXT_TELEMETRY_DISABLED=1
 
-RUN yarn build
+RUN npm run build
 
 # Production image, copy all the files and run next
-FROM node:20.18.1-bullseye AS production
+FROM node:22.11.0-bullseye AS production
 WORKDIR /app
 
 ENV NODE_ENV=production

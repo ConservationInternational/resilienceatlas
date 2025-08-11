@@ -140,7 +140,7 @@ services:
       start_period: 60s
     command: >
       bash -c "
-        npm install &&
+        npm install --legacy-peer-deps &&
         echo 'Building frontend application...' &&
         npm run build &&
         echo 'Starting frontend server...' &&
@@ -195,7 +195,7 @@ services:
 
   # Integration tests service
   integration-test:
-    image: node:20.18.1-alpine
+    image: node:22.11.0-alpine
     working_dir: /app
     environment:
       - FRONTEND_URL=http://frontend-test:3000
