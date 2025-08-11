@@ -129,7 +129,6 @@ services:
       - NEXT_PUBLIC_TRANSIFEX_SECRET=test_secret
       - NEXT_PUBLIC_GOOGLE_API_KEY=test_api_key
       - PORT=3000
-      - CYPRESS_DOWNLOAD_PATH_TEMPLATE=https://download.cypress.io/desktop/$${version}?platform=$${platform}&arch=$${arch}
       - CYPRESS_INSTALL_BINARY=0
       - CYPRESS_CACHE_FOLDER=/tmp/cypress-cache
       - NPM_CONFIG_AUDIT=false
@@ -155,7 +154,7 @@ services:
       bash -c "
         set -e
         echo '🔧 Installing dependencies...' &&
-        npm install --legacy-peer-deps &&
+        npm install --legacy-peer-deps --no-audit --no-fund &&
         
         echo '🔍 Verifying installation...' &&
         node --version &&
@@ -172,7 +171,7 @@ services:
 
   # Cypress Chrome for E2E testing
   cypress-chrome:
-    image: cypress/included:13.17.0
+    image: cypress/included:13.15.0
     working_dir: /app
     environment:
       - NODE_ENV=test
@@ -195,7 +194,7 @@ services:
 
   # Cypress Firefox for E2E testing
   cypress-firefox:
-    image: cypress/included:13.17.0
+    image: cypress/included:13.15.0
     working_dir: /app
     environment:
       - NODE_ENV=test
