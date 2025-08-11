@@ -12,6 +12,9 @@ Rails.application.configure do
   # preloads Rails for running tests, you may have to set it to true.
   config.eager_load = false
 
+  # Explicitly set secret_key_base to avoid local_secret.txt generation issues in Docker
+  config.secret_key_base = ENV.fetch("SECRET_KEY_BASE", "1d62e79bcd377aaac15e01e681ef2fc252ebb7317eae776001a0f3e149a6bf1d91cb999755fd4d2d466cc302d5d6e851902391082b30620f9826f7d24e4b5fc3")
+
   # Configure static file server for tests with Cache-Control for performance.
   config.public_file_server.enabled = true
   config.public_file_server.headers = {
