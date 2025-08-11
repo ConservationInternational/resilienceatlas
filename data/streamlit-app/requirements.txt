@@ -1,5 +1,5 @@
 scikit-learn==1.2.2
-streamlit==1.21.0
+streamlit==1.37.0
 palettable==3.3.0
 leafmap==0.19.0
 localtileserver==0.6.4
