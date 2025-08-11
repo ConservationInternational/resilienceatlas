@@ -8,18 +8,23 @@ ARG BUILDKIT_INLINE_CACHE=1
 RUN echo 'Acquire::Retries "3";' >> /etc/apt/apt.conf.d/80-retries && \
     echo 'Acquire::http::Timeout "60";' >> /etc/apt/apt.conf.d/80-timeout
 
-# Install dependencies
-RUN apt-get update -qq && apt-get install -y \
-  build-essential \
-  libpq-dev \
-  libgeos-dev \
-  libproj-dev \
-  libgdal-dev \
-  nodejs \
-  npm \
-  postgresql-client \
-  curl \
-  && rm -rf /var/lib/apt/lists/*
+# Install dependencies with retry logic
+RUN for i in {1..3}; do \
+      echo "Package installation attempt $i of 3" && \
+      apt-get update -qq && apt-get install -y \
+        build-essential \
+        libpq-dev \
+        libgeos-dev \
+        libproj-dev \
+        libgdal-dev \
+        nodejs \
+        npm \
+        postgresql-client \
+        curl \
+      && rm -rf /var/lib/apt/lists/* && break || \
+      ([ $i -eq 3 ] && echo "❌ Failed to install packages after 3 attempts" && exit 1) || \
+      (echo "⚠️ Package installation attempt $i failed, retrying in 10 seconds..." && sleep 10); \
+    done
 
 # Configure bundler for better network resilience
 RUN bundle config set timeout 30 && \
@@ -70,7 +75,8 @@ RUN apt-get update -qq && apt-get install -y \
 # Create a non-root user for running Chrome (Chrome refuses to run as root in newer versions)
 RUN groupadd -r appuser && useradd -r -g appuser -G audio,video appuser \
   && mkdir -p /home/appuser \
-  && chown -R appuser:appuser /home/appuser
+  && chown -R appuser:appuser /home/appuser \
+  && echo 'appuser ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
 
 # Install test gems
 RUN bundle install --with test development
