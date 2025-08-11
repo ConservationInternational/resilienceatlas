@@ -86,7 +86,16 @@ services:
     command: >
       bash -c "
         set -e
-        echo '🔧 Installing dependencies...' &&
+        echo '🔧 Fixing permissions after volume mount...' &&
+        
+        # Fix ownership and permissions for files that need to be writable
+        sudo chown -R appuser:appuser /app &&
+        sudo chmod 664 /app/Gemfile.lock &&
+        sudo chmod 755 /app/bin/* &&
+        sudo chmod 755 /app/chrome_wrapper.sh &&
+        sudo chmod -R 755 /app/tmp /app/log &&
+        
+        echo '📦 Installing dependencies...' &&
         bundle install &&
         bundle check || bundle install &&
         

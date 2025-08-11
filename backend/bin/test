@@ -2,7 +2,23 @@
 set -e
 
 echo "🔧 Installing dependencies..."
-bundle install
+# Check if we can write to Gemfile.lock and fix permissions if needed
+if [ ! -w "Gemfile.lock" ]; then
+  echo "⚠️  Gemfile.lock not writable, attempting to fix permissions..."
+  if command -v sudo >/dev/null 2>&1; then
+    sudo chmod 664 Gemfile.lock 2>/dev/null || echo "Could not fix Gemfile.lock permissions"
+  else
+    echo "sudo not available, trying to continue anyway..."
+  fi
+fi
+
+# Try bundle install, but don't fail if gems are already satisfied
+if ! bundle check >/dev/null 2>&1; then
+  echo "Dependencies not satisfied, running bundle install..."
+  bundle install
+else
+  echo "Dependencies already satisfied, skipping bundle install"
+fi
 
 case "${1:-all}" in
   "rspec"|"specs"|"tests")
