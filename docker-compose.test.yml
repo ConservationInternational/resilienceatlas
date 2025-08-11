@@ -119,6 +119,8 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
       target: test
+      args:
+        - CYPRESS_INSTALL_BINARY=0
     environment:
       - NODE_ENV=test
       - NEXT_PUBLIC_API_HOST=http://backend-test:3001
@@ -127,6 +129,11 @@ services:
       - NEXT_PUBLIC_TRANSIFEX_SECRET=test_secret
       - NEXT_PUBLIC_GOOGLE_API_KEY=test_api_key
       - PORT=3000
+      - CYPRESS_DOWNLOAD_PATH_TEMPLATE=https://download.cypress.io/desktop/$${version}?platform=$${platform}&arch=$${arch}
+      - CYPRESS_INSTALL_BINARY=0
+      - CYPRESS_CACHE_FOLDER=/tmp/cypress-cache
+      - NPM_CONFIG_AUDIT=false
+      - NPM_CONFIG_FUND=false
     ports:
       - "3000:3000"
     volumes:

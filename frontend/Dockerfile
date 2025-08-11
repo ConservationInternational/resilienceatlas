@@ -16,6 +16,10 @@ RUN npm config set registry https://registry.npmjs.org/ && \
     npm config set fetch-retry-maxtimeout 60000 && \
     npm config set fetch-retries 5
 
+# Set Cypress environment variables for controlled downloads
+ENV CYPRESS_DOWNLOAD_PATH_TEMPLATE="https://download.cypress.io/desktop/\${version}?platform=\${platform}&arch=\${arch}"
+ENV CYPRESS_CACHE_FOLDER="/tmp/cypress-cache"
+
 WORKDIR /app
 COPY package.json package-lock.json .npmrc ./
 
@@ -33,12 +37,23 @@ RUN for i in {1..3}; do \
 
 # Development/Test dependencies
 FROM base AS dev-deps
+# Set build arg for conditional Cypress installation
+ARG CYPRESS_INSTALL_BINARY=1
+ENV CYPRESS_INSTALL_BINARY=$CYPRESS_INSTALL_BINARY
+
 # Retry npm install up to 3 times for network resilience
 RUN for i in {1..3}; do \
       echo "npm install attempt $i of 3" && \
-      timeout 300 npm ci --legacy-peer-deps --no-audit --no-fund && \
-      echo "✅ All dependencies installed successfully" && \
-      break || \
+      if [ "$CYPRESS_INSTALL_BINARY" = "0" ]; then \
+        echo "Skipping Cypress binary installation" && \
+        timeout 300 npm ci --legacy-peer-deps --no-audit --no-fund --ignore-scripts && \
+        echo "✅ Dependencies installed successfully (without Cypress)" && \
+        break; \
+      else \
+        timeout 300 npm ci --legacy-peer-deps --no-audit --no-fund && \
+        echo "✅ All dependencies installed successfully" && \
+        break; \
+      fi || \
       ([ $i -eq 3 ] && echo "❌ Failed to install dependencies after 3 attempts" && exit 1) || \
       (echo "⚠️ npm install attempt $i failed, retrying in 10 seconds..." && sleep 10); \
     done

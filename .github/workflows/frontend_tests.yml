@@ -68,9 +68,22 @@ jobs:
         cat .nvmrc
         echo "Checking .npmrc configuration:"
         cat .npmrc || echo "No .npmrc found"
+        echo "Checking for conflicting package managers:"
+        if [ -f "yarn.lock" ]; then
+          echo "❌ yarn.lock found - this will conflict with npm!"
+          rm -f yarn.lock
+          echo "✅ Removed conflicting yarn.lock"
+        fi
 
     - name: Build frontend test image
       run: |
+        # Set environment variables for better network resilience
+        export CYPRESS_DOWNLOAD_PATH_TEMPLATE="https://download.cypress.io/desktop/\${version}?platform=\${platform}&arch=\${arch}"
+        export CYPRESS_INSTALL_BINARY=0  # Skip Cypress binary download during Docker build
+        export CYPRESS_CACHE_FOLDER=/tmp/cypress-cache
+        export NPM_CONFIG_AUDIT=false
+        export NPM_CONFIG_FUND=false
+        
         # Retry Docker build up to 3 times in case of network issues
         for i in {1..3}; do
           echo "Build attempt $i of 3"
@@ -83,6 +96,7 @@ jobs:
             --build-arg NEXT_PUBLIC_TRANSIFEX_TOKEN=test_token \
             --build-arg NEXT_PUBLIC_TRANSIFEX_SECRET=test_secret \
             --build-arg NEXT_PUBLIC_GOOGLE_API_KEY=test_api_key \
+            --build-arg CYPRESS_INSTALL_BINARY=0 \
             --tag resilienceatlas-frontend:test \
             --load \
             ./frontend; then
@@ -90,6 +104,18 @@ jobs:
             break
           elif [ $i -eq 3 ]; then
             echo "❌ Build failed after 3 attempts"
+            echo "Checking build logs for debugging..."
+            docker buildx build \
+              --target test \
+              --build-arg NEXT_PUBLIC_API_HOST=http://localhost:3001 \
+              --build-arg NEXT_PUBLIC_GOOGLE_ANALYTICS=GA_TEST_ID \
+              --build-arg NEXT_PUBLIC_TRANSIFEX_TOKEN=test_token \
+              --build-arg NEXT_PUBLIC_TRANSIFEX_SECRET=test_secret \
+              --build-arg NEXT_PUBLIC_GOOGLE_API_KEY=test_api_key \
+              --build-arg CYPRESS_INSTALL_BINARY=0 \
+              --tag resilienceatlas-frontend:test \
+              --load \
+              ./frontend --progress=plain || true
             exit 1
           else
             echo "⚠️ Build attempt $i failed, retrying in 30 seconds..."
@@ -112,6 +138,11 @@ jobs:
         NEXT_PUBLIC_TRANSIFEX_SECRET=test_secret
         NEXT_PUBLIC_GOOGLE_API_KEY=test_api_key
         PORT=3000
+        CYPRESS_DOWNLOAD_PATH_TEMPLATE=https://download.cypress.io/desktop/\${version}?platform=\${platform}&arch=\${arch}
+        CYPRESS_INSTALL_BINARY=0
+        CYPRESS_CACHE_FOLDER=/tmp/cypress-cache
+        NPM_CONFIG_AUDIT=false
+        NPM_CONFIG_FUND=false
         EOF
 
     - name: Run ESLint
