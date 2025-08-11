@@ -48,7 +48,7 @@ export const createApiAction = (name = ''): ApiAction => {
 
 export const makeRequest = (method: Method, url: string, options: AxiosRequestConfig = {}) => {
   // Create headers object carefully to avoid type issues with new axios version
-  const headers: Record<string, any> = {
+  const headers: Record<string, string | number | boolean> = {
     ...axiosInstance.defaults.headers.common,
     ...options.headers,
   };
