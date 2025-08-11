@@ -57,6 +57,10 @@ jobs:
         curl -I https://github.com/ || echo "❌ GitHub not reachable"
         echo "Testing docker.io:"
         curl -I https://registry-1.docker.io/ || echo "❌ Docker registry not reachable"
+        echo "Testing download.cypress.io:"
+        curl -I https://download.cypress.io/ || echo "❌ Cypress download CDN not reachable"
+        echo "Testing cdn.cypress.io:"
+        curl -I https://cdn.cypress.io/desktop/13.17.0/linux-x64/cypress.zip || echo "❌ Cypress binary CDN not reachable"
 
     - name: Validate frontend configuration
       run: |
@@ -77,12 +81,16 @@ jobs:
 
     - name: Build frontend test image
       run: |
-        # Set environment variables for better network resilience
+        # Set environment variables for better network resilience and Cypress CDN access
         export CYPRESS_DOWNLOAD_PATH_TEMPLATE="https://download.cypress.io/desktop/\${version}?platform=\${platform}&arch=\${arch}"
         export CYPRESS_INSTALL_BINARY=0  # Skip Cypress binary download during Docker build
         export CYPRESS_CACHE_FOLDER=/tmp/cypress-cache
         export NPM_CONFIG_AUDIT=false
         export NPM_CONFIG_FUND=false
+        
+        # Test Cypress CDN connectivity before build
+        echo "🔍 Testing Cypress CDN connectivity..."
+        curl -I https://cdn.cypress.io/desktop/13.17.0/linux-x64/cypress.zip || echo "⚠️ Cypress CDN may not be accessible"
         
         # Retry Docker build up to 3 times in case of network issues
         for i in {1..3}; do

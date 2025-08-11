@@ -16,9 +16,11 @@ RUN npm config set registry https://registry.npmjs.org/ && \
     npm config set fetch-retry-maxtimeout 60000 && \
     npm config set fetch-retries 5
 
-# Set Cypress environment variables for controlled downloads
+# Set Cypress environment variables for controlled downloads with both CDN domains
 ENV CYPRESS_DOWNLOAD_PATH_TEMPLATE="https://download.cypress.io/desktop/\${version}?platform=\${platform}&arch=\${arch}"
 ENV CYPRESS_CACHE_FOLDER="/tmp/cypress-cache"
+# Additional CDN configuration for Cypress binary downloads
+ENV CYPRESS_BINARY_VERSION="13.17.0"
 
 WORKDIR /app
 COPY package.json package-lock.json .npmrc ./

@@ -49,6 +49,8 @@ jobs:
         curl -I https://registry-1.docker.io/ || echo "❌ Docker registry not reachable"
         echo "Testing download.cypress.io:"
         curl -I https://download.cypress.io/ || echo "❌ Cypress downloads not reachable"
+        echo "Testing cdn.cypress.io:"
+        curl -I https://cdn.cypress.io/desktop/13.17.0/linux-x64/cypress.zip || echo "❌ Cypress binary CDN not reachable"
 
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
