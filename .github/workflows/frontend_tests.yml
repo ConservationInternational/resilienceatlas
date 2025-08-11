@@ -40,20 +40,96 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-frontend-buildx-
 
+    - name: Configure DNS for better connectivity
+      run: |
+        echo "nameserver 8.8.8.8" | sudo tee /etc/resolv.conf.backup > /dev/null
+        echo "nameserver 1.1.1.1" | sudo tee -a /etc/resolv.conf.backup > /dev/null  
+        sudo cp /etc/resolv.conf.backup /etc/resolv.conf
+        echo "🔧 DNS configuration updated"
+        nslookup registry.npmjs.org || echo "DNS lookup failed"
+
+    - name: Check network connectivity
+      run: |
+        echo "🔍 Checking network connectivity..."
+        echo "Testing registry.npmjs.org:"
+        curl -I https://registry.npmjs.org/ || echo "❌ npm registry not reachable"
+        echo "Testing github.com:"
+        curl -I https://github.com/ || echo "❌ GitHub not reachable"
+        echo "Testing docker.io:"
+        curl -I https://registry-1.docker.io/ || echo "❌ Docker registry not reachable"
+        echo "Testing download.cypress.io:"
+        curl -I https://download.cypress.io/ || echo "❌ Cypress download CDN not reachable"
+        echo "Testing cdn.cypress.io:"
+        curl -I https://cdn.cypress.io/desktop/13.17.0/linux-x64/cypress.zip || echo "❌ Cypress binary CDN not reachable"
+
+    - name: Validate frontend configuration
+      run: |
+        echo "🔍 Validating frontend configuration..."
+        cd frontend
+        echo "Checking package.json syntax:"
+        node -e "console.log('✅ package.json is valid JSON')" -e "require('./package.json')"
+        echo "Checking .nvmrc version:"
+        cat .nvmrc
+        echo "Checking .npmrc configuration:"
+        cat .npmrc || echo "No .npmrc found"
+        echo "Checking for conflicting package managers:"
+        if [ -f "yarn.lock" ]; then
+          echo "❌ yarn.lock found - this will conflict with npm!"
+          rm -f yarn.lock
+          echo "✅ Removed conflicting yarn.lock"
+        fi
+
     - name: Build frontend test image
       run: |
-        docker buildx build \
-          --cache-from=type=local,src=/tmp/.buildx-cache \
-          --cache-to=type=local,dest=/tmp/.buildx-cache-new,mode=max \
-          --target test \
-          --build-arg NEXT_PUBLIC_API_HOST=http://localhost:3001 \
-          --build-arg NEXT_PUBLIC_GOOGLE_ANALYTICS=GA_TEST_ID \
-          --build-arg NEXT_PUBLIC_TRANSIFEX_TOKEN=test_token \
-          --build-arg NEXT_PUBLIC_TRANSIFEX_SECRET=test_secret \
-          --build-arg NEXT_PUBLIC_GOOGLE_API_KEY=test_api_key \
-          --tag resilienceatlas-frontend:test \
-          --load \
-          ./frontend
+        # Set environment variables for better network resilience and Cypress CDN access
+        export CYPRESS_DOWNLOAD_PATH_TEMPLATE="https://download.cypress.io/desktop/\${version}?platform=\${platform}&arch=\${arch}"
+        export CYPRESS_INSTALL_BINARY=0  # Skip Cypress binary download during Docker build
+        export CYPRESS_CACHE_FOLDER=/tmp/cypress-cache
+        export NPM_CONFIG_AUDIT=false
+        export NPM_CONFIG_FUND=false
+        
+        # Test Cypress CDN connectivity before build
+        echo "🔍 Testing Cypress CDN connectivity..."
+        curl -I https://cdn.cypress.io/desktop/13.17.0/linux-x64/cypress.zip || echo "⚠️ Cypress CDN may not be accessible"
+        
+        # Retry Docker build up to 3 times in case of network issues
+        for i in {1..3}; do
+          echo "Build attempt $i of 3"
+          if docker buildx build \
+            --cache-from=type=local,src=/tmp/.buildx-cache \
+            --cache-to=type=local,dest=/tmp/.buildx-cache-new,mode=max \
+            --target test \
+            --build-arg NEXT_PUBLIC_API_HOST=http://localhost:3001 \
+            --build-arg NEXT_PUBLIC_GOOGLE_ANALYTICS=GA_TEST_ID \
+            --build-arg NEXT_PUBLIC_TRANSIFEX_TOKEN=test_token \
+            --build-arg NEXT_PUBLIC_TRANSIFEX_SECRET=test_secret \
+            --build-arg NEXT_PUBLIC_GOOGLE_API_KEY=test_api_key \
+            --build-arg CYPRESS_INSTALL_BINARY=0 \
+            --tag resilienceatlas-frontend:test \
+            --load \
+            ./frontend; then
+            echo "✅ Build successful on attempt $i"
+            break
+          elif [ $i -eq 3 ]; then
+            echo "❌ Build failed after 3 attempts"
+            echo "Checking build logs for debugging..."
+            docker buildx build \
+              --target test \
+              --build-arg NEXT_PUBLIC_API_HOST=http://localhost:3001 \
+              --build-arg NEXT_PUBLIC_GOOGLE_ANALYTICS=GA_TEST_ID \
+              --build-arg NEXT_PUBLIC_TRANSIFEX_TOKEN=test_token \
+              --build-arg NEXT_PUBLIC_TRANSIFEX_SECRET=test_secret \
+              --build-arg NEXT_PUBLIC_GOOGLE_API_KEY=test_api_key \
+              --build-arg CYPRESS_INSTALL_BINARY=0 \
+              --tag resilienceatlas-frontend:test \
+              --load \
+              ./frontend --progress=plain || true
+            exit 1
+          else
+            echo "⚠️ Build attempt $i failed, retrying in 30 seconds..."
+            sleep 30
+          fi
+        done
 
     - name: Move cache
       run: |
@@ -70,27 +146,58 @@ jobs:
         NEXT_PUBLIC_TRANSIFEX_SECRET=test_secret
         NEXT_PUBLIC_GOOGLE_API_KEY=test_api_key
         PORT=3000
+        CYPRESS_DOWNLOAD_PATH_TEMPLATE=https://download.cypress.io/desktop/\${version}?platform=\${platform}&arch=\${arch}
+        CYPRESS_INSTALL_BINARY=0
+        CYPRESS_CACHE_FOLDER=/tmp/cypress-cache
+        NPM_CONFIG_AUDIT=false
+        NPM_CONFIG_FUND=false
         EOF
 
     - name: Run ESLint
       run: |
+        echo "Running ESLint with enhanced error handling..."
         docker compose -f docker-compose.test.yml run --rm --no-deps frontend-test \
-          bash -c "chmod +x ./bin/test && ./bin/test lint"
+          bash -c "
+            echo 'Verifying frontend environment...'
+            node --version
+            npm --version
+            echo 'Starting ESLint...'
+            chmod +x ./bin/test && ./bin/test lint
+          " || {
+            echo "❌ ESLint failed, collecting debug information..."
+            echo "Frontend container logs:"
+            docker compose -f docker-compose.test.yml logs frontend-test --tail=100
+            exit 1
+          }
 
     - name: Run TypeScript check
       run: |
+        echo "Running TypeScript type checking..."
         docker compose -f docker-compose.test.yml run --rm --no-deps frontend-test \
-          bash -c "chmod +x ./bin/test && ./bin/test type-check"
+          bash -c "chmod +x ./bin/test && ./bin/test type-check" || {
+            echo "❌ TypeScript check failed"
+            exit 1
+          }
 
     - name: Run Prettier check
       run: |
+        echo "Running Prettier formatting check..."
         docker compose -f docker-compose.test.yml run --rm --no-deps frontend-test \
-          bash -c "chmod +x ./bin/test && ./bin/test prettier"
+          bash -c "chmod +x ./bin/test && ./bin/test prettier" || {
+            echo "❌ Prettier check failed"
+            exit 1
+          }
 
     - name: Build application
       run: |
+        echo "Building frontend application..."
         docker compose -f docker-compose.test.yml run --rm --no-deps frontend-test \
-          bash -c "chmod +x ./bin/test && ./bin/test build"
+          bash -c "chmod +x ./bin/test && ./bin/test build" || {
+            echo "❌ Build failed, collecting debug information..."
+            echo "Frontend container logs:"
+            docker compose -f docker-compose.test.yml logs frontend-test --tail=100
+            exit 1
+          }
 
     - name: Cleanup
       if: always()

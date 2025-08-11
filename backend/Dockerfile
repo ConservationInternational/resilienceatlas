@@ -1,6 +1,10 @@
 # Use the official Ruby image
 FROM ruby:3.4.4-bullseye AS base
 
+# Configure package manager for better network resilience
+RUN echo 'Acquire::Retries "3";' >> /etc/apt/apt.conf.d/80-retries && \
+    echo 'Acquire::http::Timeout "60";' >> /etc/apt/apt.conf.d/80-timeout
+
 # Install dependencies
 RUN apt-get update -qq && apt-get install -y \
   build-essential \
@@ -14,14 +18,23 @@ RUN apt-get update -qq && apt-get install -y \
   curl \
   && rm -rf /var/lib/apt/lists/*
 
+# Configure bundler for better network resilience
+RUN bundle config set timeout 30 && \
+    bundle config set retry 3
+
 # Set the working directory
 WORKDIR /app
 
 # Copy Gemfile and Gemfile.lock
 COPY Gemfile Gemfile.lock ./
 
-# Install Ruby dependencies
-RUN bundle install
+# Install Ruby dependencies with retry logic
+RUN for i in {1..3}; do \
+      echo "Bundle install attempt $i of 3" && \
+      bundle install && break || \
+      ([ $i -eq 3 ] && echo "❌ Failed to install gems after 3 attempts" && exit 1) || \
+      (echo "⚠️ Bundle install attempt $i failed, retrying in 10 seconds..." && sleep 10); \
+    done
 
 # Test stage
 FROM base AS test

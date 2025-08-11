@@ -70,11 +70,11 @@ services:
       redis-test:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3001/api/health"]
+      test: ["CMD-SHELL", "curl -f http://localhost:3001/api/health || exit 1"]
       interval: 30s
       timeout: 10s
-      retries: 3
-      start_period: 40s
+      retries: 5
+      start_period: 60s
     shm_size: 2gb
     security_opt:
       - seccomp:unconfined
@@ -91,6 +91,9 @@ services:
         bundle install &&
         bundle check || bundle install &&
         
+        echo '🔍 Verifying dependencies installation...' &&
+        bundle exec ruby -e 'puts \"Ruby: #{RUBY_VERSION}, Rails: #{Rails.version}\"' &&
+        
         echo '🖥️  Setting up virtual display...' &&
         Xvfb :99 -screen 0 1920x1080x24 -ac +extension GLX +render -noreset > /dev/null 2>&1 &
         export DISPLAY=:99
@@ -103,6 +106,9 @@ services:
         timeout 30 /app/chrome_wrapper.sh --version > /dev/null 2>&1 &&
         echo '✅ Chrome startup test successful' &&
         
+        echo '💾 Preparing database...' &&
+        RAILS_ENV=test bundle exec rails db:prepare > /dev/null 2>&1 || echo 'Database already exists' &&
+        
         echo '🚀 Starting Rails server...' &&
         bundle exec rails server -b 0.0.0.0 -p 3001
       "
@@ -113,6 +119,8 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
       target: test
+      args:
+        - CYPRESS_INSTALL_BINARY=0
     environment:
       - NODE_ENV=test
       - NEXT_PUBLIC_API_HOST=http://backend-test:3001
@@ -121,6 +129,11 @@ services:
       - NEXT_PUBLIC_TRANSIFEX_SECRET=test_secret
       - NEXT_PUBLIC_GOOGLE_API_KEY=test_api_key
       - PORT=3000
+      - CYPRESS_DOWNLOAD_PATH_TEMPLATE=https://download.cypress.io/desktop/$${version}?platform=$${platform}&arch=$${arch}
+      - CYPRESS_INSTALL_BINARY=0
+      - CYPRESS_CACHE_FOLDER=/tmp/cypress-cache
+      - NPM_CONFIG_AUDIT=false
+      - NPM_CONFIG_FUND=false
     ports:
       - "3000:3000"
     volumes:
@@ -133,23 +146,33 @@ services:
       backend-test:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      test: ["CMD-SHELL", "curl -f http://localhost:3000 || exit 1"]
       interval: 30s
       timeout: 10s
-      retries: 3
-      start_period: 60s
+      retries: 5
+      start_period: 90s
     command: >
       bash -c "
-        npm install &&
-        echo 'Building frontend application...' &&
+        set -e
+        echo '🔧 Installing dependencies...' &&
+        npm install --legacy-peer-deps &&
+        
+        echo '🔍 Verifying installation...' &&
+        node --version &&
+        npm --version &&
+        echo 'Node modules installed:' &&
+        ls -la node_modules/ | head -10 &&
+        
+        echo '🏗️ Building frontend application...' &&
         npm run build &&
-        echo 'Starting frontend server...' &&
+        
+        echo '✅ Build successful, starting frontend server...' &&
         npm start
       "
 
   # Cypress Chrome for E2E testing
   cypress-chrome:
-    image: cypress/included:13.6.2
+    image: cypress/included:13.17.0
     working_dir: /app
     environment:
       - NODE_ENV=test
@@ -172,7 +195,7 @@ services:
 
   # Cypress Firefox for E2E testing
   cypress-firefox:
-    image: cypress/included:13.6.2
+    image: cypress/included:13.17.0
     working_dir: /app
     environment:
       - NODE_ENV=test
@@ -192,6 +215,30 @@ services:
     entrypoint: ""
     profiles:
       - testing
+
+  # Integration tests service
+  integration-test:
+    image: node:22.11.0-alpine
+    working_dir: /app
+    environment:
+      - FRONTEND_URL=http://frontend-test:3000
+      - BACKEND_URL=http://backend-test:3001
+    volumes:
+      - ./integration-tests:/app
+    networks:
+      - test-network
+    depends_on:
+      frontend-test:
+        condition: service_healthy
+      backend-test:
+        condition: service_healthy
+    command: >
+      sh -c "
+        npm install &&
+        npm test
+      "
+    profiles:
+      - integration
 
 networks:
   test-network:

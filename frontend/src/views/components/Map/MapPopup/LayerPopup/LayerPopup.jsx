@@ -89,10 +89,12 @@ const LayerPopup = ({
 
       axios
         .get(replace(config.url, latlng), {})
-        .then(({ data }) => {
+        .then(({ data: responseData }) => {
           // For COGs column in interactionConfig should always be 'values[*]' or 'values.*'
           const data =
-            layer.type === 'cog' ? { values: data?.values } : data && data.rows && data.rows[0];
+            layer.type === 'cog'
+              ? { values: responseData?.values }
+              : responseData && responseData.rows && responseData.rows[0];
           dispatch({
             type: FETCH.SUCCESS,
             payload: {

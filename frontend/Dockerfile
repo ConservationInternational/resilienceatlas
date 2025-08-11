@@ -1,21 +1,67 @@
 # Base dependencies stage
-FROM node:18.15.0-bullseye AS base
+FROM node:22.11.0-bullseye AS base
 RUN mkdir -p ~/.ssh && touch ~/.ssh/known_hosts
-RUN ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
-RUN git config --global url.http://github.com/.insteadOf ssh://git@github.com/
+
+# Enhanced git configuration for SSH dependency handling and network resilience
+RUN git config --global url.https://github.com/.insteadOf ssh://git@github.com/ && \
+    git config --global url.https://github.com/.insteadOf git@github.com: && \
+    git config --global url.https://github.com/.insteadOf git+ssh://git@github.com/ && \
+    git config --global http.postBuffer 524288000 && \
+    git config --global http.timeout 30
+
+# Configure npm for better network resilience
+RUN npm config set registry https://registry.npmjs.org/ && \
+    npm config set fetch-timeout 600000 && \
+    npm config set fetch-retry-mintimeout 10000 && \
+    npm config set fetch-retry-maxtimeout 60000 && \
+    npm config set fetch-retries 5
+
+# Set Cypress environment variables for controlled downloads with both CDN domains
+ENV CYPRESS_DOWNLOAD_PATH_TEMPLATE="https://download.cypress.io/desktop/\${version}?platform=\${platform}&arch=\${arch}"
+ENV CYPRESS_CACHE_FOLDER="/tmp/cypress-cache"
+# Additional CDN configuration for Cypress binary downloads
+ENV CYPRESS_BINARY_VERSION="13.17.0"
+
 WORKDIR /app
-COPY package.json yarn.lock ./
+COPY package.json package-lock.json .npmrc ./
 
 # Install dependencies only when needed
 FROM base AS deps
-RUN yarn install --frozen-lockfile
+# Retry npm install up to 3 times for network resilience
+RUN for i in {1..3}; do \
+      echo "npm install attempt $i of 3" && \
+      timeout 300 npm ci --only=production --legacy-peer-deps --no-audit --no-fund && \
+      echo "✅ Production dependencies installed successfully" && \
+      break || \
+      ([ $i -eq 3 ] && echo "❌ Failed to install production dependencies after 3 attempts" && exit 1) || \
+      (echo "⚠️ npm install attempt $i failed, retrying in 10 seconds..." && sleep 10); \
+    done
 
 # Development/Test dependencies
 FROM base AS dev-deps
-RUN yarn install --frozen-lockfile
+# Set build arg for conditional Cypress installation
+ARG CYPRESS_INSTALL_BINARY=1
+ENV CYPRESS_INSTALL_BINARY=$CYPRESS_INSTALL_BINARY
+
+# Retry npm install up to 3 times for network resilience
+RUN for i in {1..3}; do \
+      echo "npm install attempt $i of 3" && \
+      if [ "$CYPRESS_INSTALL_BINARY" = "0" ]; then \
+        echo "Skipping Cypress binary installation" && \
+        timeout 300 npm ci --legacy-peer-deps --no-audit --no-fund --ignore-scripts && \
+        echo "✅ Dependencies installed successfully (without Cypress)" && \
+        break; \
+      else \
+        timeout 300 npm ci --legacy-peer-deps --no-audit --no-fund && \
+        echo "✅ All dependencies installed successfully" && \
+        break; \
+      fi || \
+      ([ $i -eq 3 ] && echo "❌ Failed to install dependencies after 3 attempts" && exit 1) || \
+      (echo "⚠️ npm install attempt $i failed, retrying in 10 seconds..." && sleep 10); \
+    done
 
 # Test stage
-FROM node:18.15.0-bullseye AS test
+FROM node:22.11.0-bullseye AS test
 WORKDIR /app
 
 # Install curl for health checks
@@ -23,7 +69,7 @@ RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
 
 # Copy dependencies
 COPY --from=dev-deps /app/node_modules ./node_modules
-COPY package.json yarn.lock ./
+COPY package.json package-lock.json .npmrc ./
 
 # Copy application source
 COPY . .
@@ -51,10 +97,10 @@ EXPOSE 3000
 ENV PORT=3000
 
 # Default command for test stage
-CMD ["yarn", "dev"]
+CMD ["npm", "run", "dev"]
 
 # Rebuild the source code only when needed
-FROM node:18.15.0-bullseye AS builder
+FROM node:22.11.0-bullseye AS builder
 WORKDIR /app
 
 # Set build arguments
@@ -79,10 +125,10 @@ COPY --from=deps /app/node_modules ./node_modules
 # Uncomment the following line in case you want to disable telemetry during the build.
 ENV NEXT_TELEMETRY_DISABLED=1
 
-RUN yarn build
+RUN npm run build
 
 # Production image, copy all the files and run next
-FROM node:18.15.0-bullseye AS production
+FROM node:22.11.0-bullseye AS production
 WORKDIR /app
 
 ENV NODE_ENV=production

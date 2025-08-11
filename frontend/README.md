@@ -4,8 +4,10 @@ _This version is based on the repository: [https://github.com/ConservationIntern
 
 The front-end application of the Resilience Atlas platform is built using the following resources:
 
-- [React](https://reactjs.org/) as a UI library
-- [Next.js](https://nextjs.org/) as a framework
+- [React](https://reactjs.org/) v18.3.1 as a UI library
+- [Next.js](https://nextjs.org/) v14.2.15 as a framework  
+- [Node.js](https://nodejs.org/) v22.11.0 as the runtime
+- [TypeScript](https://www.typescriptlang.org/) v5.6.3 for type safety
 - [Sass](https://sass-lang.com/) as a CSS language
 - [Foundation](https://get.foundation/) as a styles framework
 - [Redux](https://redux.js.org/) as a state manager
@@ -15,15 +17,15 @@ The front-end application of the Resilience Atlas platform is built using the fo
 
 In order to start modifying the app, please make sure to correctly configure your workstation:
 
-1. Make sure you you have [Node.js](https://nodejs.org/en/) installed
+1. Make sure you you have [Node.js](https://nodejs.org/en/) v22.11.0 or later installed
 2. (Optional) Install [NVM](https://github.com/nvm-sh/nvm) to manage your different Node.js versions
 3. (Optional) Use [Visual Studio Code](https://code.visualstudio.com/) as a text editor to benefit from automatic type checking
 4. Configure your text editor with the [Prettier](https://prettier.io/), [ESLint](https://eslint.org/) and [EditorConfig](https://editorconfig.org/) plugins
 5. (Optional) Configure your editor to “format [code] on save” with ESLint and Prettier
-6. Use the correct Node.js version for this app by running `nvm use`; if you didn't install NVM (step 2), then manually install the Node.js version described in `.nvmrc`
-7. Install the dependencies: `yarn`
+6. Use the correct Node.js version for this app by running `nvm use`; if you didn't install NVM (step 2), then manually install Node.js v22.11.0 as described in `.nvmrc`
+7. Install the dependencies: `npm install --legacy-peer-deps` or `yarn`
 8. Create a `.env` file at the root of the project by copying `.env.example` and giving a value for each of the variables (see next section for details)
-9. Run the server: `yarn dev`
+9. Run the server: `npm run dev` or `yarn dev`
 
 You can access a hot-reloaded version of the app on [http://localhost:3000](http://localhost:3000).
 

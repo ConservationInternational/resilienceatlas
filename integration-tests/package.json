@@ -1,0 +1,16 @@
+{
+  "name": "resilienceatlas-integration-tests",
+  "version": "1.0.0",
+  "description": "Integration tests for Resilience Atlas frontend and backend communication",
+  "main": "test-integration.js",
+  "scripts": {
+    "test": "node test-integration.js",
+    "test:docker": "FRONTEND_URL=http://frontend-test:3000 BACKEND_URL=http://backend-test:3001 node test-integration.js"
+  },
+  "dependencies": {
+    "axios": "^1.7.7"
+  },
+  "keywords": ["integration", "test", "api", "frontend", "backend"],
+  "author": "Conservation International",
+  "license": "MIT"
+}

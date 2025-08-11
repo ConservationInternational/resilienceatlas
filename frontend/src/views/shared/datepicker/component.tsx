@@ -2,16 +2,8 @@ import type { FC } from 'react';
 import { useMemo } from 'react';
 import ExternalDatePicker, { registerLocale } from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import {
-  es,
-  fr,
-  pt,
-  ru,
-  zhCN as zh,
-  eachYearOfInterval,
-  eachMonthOfInterval,
-  format,
-} from 'date-fns/locale';
+import { es, fr, pt, ru, zhCN as zh } from 'date-fns/locale';
+import { eachYearOfInterval, eachMonthOfInterval, format } from 'date-fns';
 import uniq from 'lodash/uniq';
 import { useRouter } from 'next/router';
 import { useT } from '@transifex/react';
