@@ -78,16 +78,17 @@ COPY . .
 # Make scripts executable including Chrome wrapper
 RUN chmod +x bin/test bin/rails bin/rake bin/setup bin/spring chrome_wrapper.sh
 
-# Create directories for logs, tmp, and uploads with proper permissions
-RUN mkdir -p log tmp/cache tmp/pids tmp/sockets tmp/storage public/uploads public/uploads/cache public/uploads/store
-
 # Create a proper temp directory for appuser (not world-writable) and fix permissions
 RUN mkdir -p /tmp/appuser-tmp /home/appuser/.cache /home/appuser/.config /home/appuser/.local/share/applications \
-  && chown -R appuser:appuser /app /tmp/appuser-tmp /home/appuser \
+  && chown -R appuser:appuser /app /tmp/appuser-tmp /home/appuser
+
+# Create directories for logs, tmp, and uploads with proper ownership
+RUN mkdir -p log tmp/cache tmp/pids tmp/sockets tmp/storage public/uploads public/uploads/cache public/uploads/store \
+  && chown -R appuser:appuser /app/log /app/tmp /app/public/uploads \
   && chmod -R 755 /app \
   && chmod 755 /tmp/appuser-tmp \
   && chmod -R 755 /home/appuser \
-  && chmod -R 777 /app/log /app/tmp /app/public/uploads
+  && chmod -R 775 /app/log /app/tmp /app/public/uploads
 
 # Switch to appuser for running the application
 USER appuser
