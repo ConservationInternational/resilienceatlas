@@ -187,7 +187,7 @@ jobs:
             bundle exec rails runner 'puts \"Rails #{Rails.version}, Ruby #{RUBY_VERSION}, Environment: #{Rails.env}\"'
             
             echo 'Starting RSpec tests...'
-            chmod +x ./bin/test && ./bin/test junit
+            ./bin/test junit
           " || {
             echo "❌ RSpec tests failed, collecting debug information..."
             echo "Backend container logs:"
@@ -200,17 +200,17 @@ jobs:
     - name: Run RuboCop linting
       run: |
         docker compose -f docker-compose.test.yml run --rm backend-test \
-          bash -c "chmod +x ./bin/test && ./bin/test lint"
+          bash -c "./bin/test lint"
 
     - name: Run Brakeman security analysis
       run: |
         docker compose -f docker-compose.test.yml run --rm backend-test \
-          bash -c "chmod +x ./bin/test && ./bin/test security"
+          bash -c "./bin/test security"
 
     - name: Run Bundle Audit
       run: |
         docker compose -f docker-compose.test.yml run --rm backend-test \
-          bash -c "chmod +x ./bin/test && ./bin/test audit"
+          bash -c "./bin/test audit"
 
     - name: Verify test results
       run: |

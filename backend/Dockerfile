@@ -90,7 +90,10 @@ RUN mkdir -p /tmp/appuser-tmp /home/appuser/.cache /home/appuser/.config /home/a
   && chmod -R 755 /app \
   && chmod 755 /tmp/appuser-tmp \
   && chmod -R 755 /home/appuser \
-  && chmod -R 775 /app/log /app/tmp /app/public/uploads
+  && chmod -R 775 /app/log /app/tmp /app/public/uploads \
+  && touch /app/log/test.log \
+  && chown appuser:appuser /app/log/test.log \
+  && chmod 664 /app/log/test.log
 
 # Switch to appuser for running the application
 USER appuser
