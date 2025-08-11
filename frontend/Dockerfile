@@ -1,10 +1,21 @@
 # Base dependencies stage
 FROM node:22.11.0-bullseye AS base
 RUN mkdir -p ~/.ssh && touch ~/.ssh/known_hosts
-# Configure git to use HTTPS instead of SSH for all git operations
+
+# Enhanced git configuration for SSH dependency handling and network resilience
 RUN git config --global url.https://github.com/.insteadOf ssh://git@github.com/ && \
     git config --global url.https://github.com/.insteadOf git@github.com: && \
-    git config --global url.https://github.com/.insteadOf git+ssh://git@github.com/
+    git config --global url.https://github.com/.insteadOf git+ssh://git@github.com/ && \
+    git config --global http.postBuffer 524288000 && \
+    git config --global http.timeout 30
+
+# Configure npm for better network resilience
+RUN npm config set registry https://registry.npmjs.org/ && \
+    npm config set fetch-timeout 600000 && \
+    npm config set fetch-retry-mintimeout 10000 && \
+    npm config set fetch-retry-maxtimeout 60000 && \
+    npm config set fetch-retries 5
+
 WORKDIR /app
 COPY package.json package-lock.json .npmrc ./
 

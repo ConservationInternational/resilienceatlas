@@ -31,6 +31,25 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
+    - name: Configure DNS for better connectivity
+      run: |
+        echo "nameserver 8.8.8.8" | sudo tee /etc/resolv.conf.backup > /dev/null
+        echo "nameserver 1.1.1.1" | sudo tee -a /etc/resolv.conf.backup > /dev/null  
+        sudo cp /etc/resolv.conf.backup /etc/resolv.conf
+        echo "🔧 DNS configuration updated"
+
+    - name: Check network connectivity
+      run: |
+        echo "🔍 Checking network connectivity..."
+        echo "Testing registry.npmjs.org:"
+        curl -I https://registry.npmjs.org/ || echo "❌ npm registry not reachable"
+        echo "Testing github.com:"
+        curl -I https://github.com/ || echo "❌ GitHub not reachable"
+        echo "Testing docker.io:"
+        curl -I https://registry-1.docker.io/ || echo "❌ Docker registry not reachable"
+        echo "Testing download.cypress.io:"
+        curl -I https://download.cypress.io/ || echo "❌ Cypress downloads not reachable"
+
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
       with:
@@ -140,23 +159,50 @@ jobs:
 
     - name: Setup and start backend
       run: |
-        # Create and setup database
+        # Ensure clean state
+        docker compose -f docker-compose.test.yml down -v
+        
+        # Create and setup database with better error handling
+        echo "Setting up test database..."
         docker compose -f docker-compose.test.yml run --rm backend-test \
           bash -c "
             # Use Rails built-in database preparation which handles existing schemas better
+            echo 'Preparing database...'
+            RAILS_ENV=test bundle exec rails db:environment:set RAILS_ENV=test || true &&
             RAILS_ENV=test bundle exec rails db:prepare &&
-            RAILS_ENV=test bundle exec rails db:seed
+            echo 'Database prepared successfully'
+            
+            # Only seed if tables are empty
+            if RAILS_ENV=test bundle exec rails runner 'puts Site.count' | grep -q '^0$'; then
+              echo 'Seeding database...'
+              RAILS_ENV=test bundle exec rails db:seed
+            else
+              echo 'Database already contains data, skipping seed'
+            fi
           "
         
         # Start backend service in background
         docker compose -f docker-compose.test.yml up -d backend-test
         
-        # Wait for backend to be ready with health check
+        # Wait for backend to be ready with enhanced health check
         echo "Waiting for backend to be ready..."
         timeout 180s bash -c '
-          until curl -f -s http://localhost:3001/api/health >/dev/null 2>&1; do
-            echo "Backend not ready yet, waiting..."
-            sleep 5
+          attempt=1
+          while [ $attempt -le 36 ]; do
+            echo "Health check attempt $attempt/36..."
+            if curl -f -s http://localhost:3001/api/health >/dev/null 2>&1; then
+              echo "✅ Backend health check passed"
+              break
+            elif [ $attempt -eq 36 ]; then
+              echo "❌ Backend failed to become healthy after 3 minutes"
+              echo "Backend logs:"
+              docker compose -f docker-compose.test.yml logs backend-test --tail=50
+              exit 1
+            else
+              echo "Backend not ready yet, waiting 5 seconds..."
+              sleep 5
+              attempt=$((attempt + 1))
+            fi
           done
         '
         
@@ -180,16 +226,32 @@ jobs:
         # Start frontend service
         docker compose -f docker-compose.test.yml up -d frontend-test
         
-        # Wait for frontend to be ready
+        # Wait for frontend to be ready with enhanced monitoring
         echo "Waiting for frontend to be ready..."
-        timeout 180s bash -c '
-          until curl -f -s http://localhost:3000 >/dev/null 2>&1; do
-            echo "Frontend not ready yet, waiting..."
-            sleep 5
+        timeout 300s bash -c '
+          attempt=1
+          while [ $attempt -le 60 ]; do
+            echo "Frontend check attempt $attempt/60..."
+            if curl -f -s -o /dev/null -w "%{http_code}" http://localhost:3000 | grep -q "200"; then
+              echo "✅ Frontend responding with 200 OK"
+              break
+            elif [ $attempt -eq 60 ]; then
+              echo "❌ Frontend failed to start after 5 minutes"
+              echo "Frontend logs:"
+              docker compose -f docker-compose.test.yml logs frontend-test --tail=50
+              echo "Frontend container status:"
+              docker compose -f docker-compose.test.yml ps frontend-test
+              exit 1
+            else
+              response=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3000 2>/dev/null || echo "000")
+              echo "Frontend not ready yet (HTTP $response), waiting 5 seconds..."
+              sleep 5
+              attempt=$((attempt + 1))
+            fi
           done
         '
         
-        echo "✅ Frontend service started"
+        echo "✅ Frontend service started and responding"
 
     - name: Verify full stack connectivity
       run: |
@@ -222,19 +284,38 @@ jobs:
 
     - name: Run end-to-end integration tests
       run: |
-        # Run Cypress integration tests
+        # Run Cypress integration tests with enhanced error handling
+        echo "Starting Cypress integration tests for ${{ matrix.browser }}..."
         docker compose -f docker-compose.test.yml run --rm \
           -e CYPRESS_baseUrl=http://frontend-test:3000 \
           -e CYPRESS_apiUrl=http://backend-test:3001 \
+          -e CYPRESS_video=true \
+          -e CYPRESS_screenshotOnRunFailure=true \
           cypress-${{ matrix.browser }} \
           bash -c "
+            echo 'Verifying Cypress environment...'
+            npx cypress version
+            
+            echo 'Verifying connectivity to test services...'
+            curl -f http://frontend-test:3000 || { echo 'Frontend not reachable'; exit 1; }
+            curl -f http://backend-test:3001/api/health || { echo 'Backend API not reachable'; exit 1; }
+            
+            echo 'Starting Cypress tests...'
             npx cypress run \
               --browser ${{ matrix.browser }} \
               --headless \
-              --config video=true,screenshotOnRunFailure=true \
+              --config video=true,screenshotOnRunFailure=true,defaultCommandTimeout=10000,requestTimeout=10000,responseTimeout=30000 \
               --reporter junit \
               --reporter-options mochaFile=cypress/results/integration-${{ matrix.browser }}-[hash].xml
-          "
+          " || {
+            echo "❌ Cypress tests failed for ${{ matrix.browser }}"
+            echo "Collecting debug information..."
+            echo "=== Frontend Logs ==="
+            docker compose -f docker-compose.test.yml logs frontend-test --tail=50
+            echo "=== Backend Logs ==="
+            docker compose -f docker-compose.test.yml logs backend-test --tail=50
+            exit 1
+          }
 
     - name: Run performance tests
       run: |

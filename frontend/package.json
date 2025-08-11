@@ -11,10 +11,10 @@
     "lint": "next lint",
     "prettier": "prettier --config .prettierrc --check --write \"./src/**/*.{tsx,jsx,ts,js}\"",
     "check-types": "tsc --noemit -p tsconfig.json",
-    "transifex:push-server-strings": "TOKEN=$(./node_modules/.bin/dotenv -e .env -c production -p NEXT_PUBLIC_TRANSIFEX_TOKEN) SECRET=$(./node_modules/.bin/dotenv -e .env -c production -p NEXT_PUBLIC_TRANSIFEX_SECRET) node ./server-side-translations/push-server-strings.js",
-    "transifex:push": "yarn run transifex:push-server-strings && txjs-cli push src/ --token=$(./node_modules/.bin/dotenv -e .env -c production -p NEXT_PUBLIC_TRANSIFEX_TOKEN) --secret=$(./node_modules/.bin/dotenv -e .env -c production -p NEXT_PUBLIC_TRANSIFEX_SECRET)",
-    "transifex:purge": "txjs-cli push src/ --token=$(./node_modules/.bin/dotenv -e .env -c production -p NEXT_PUBLIC_TRANSIFEX_TOKEN) --secret=$(./node_modules/.bin/dotenv -e .env -c production -p NEXT_PUBLIC_TRANSIFEX_SECRET) --purge",
-    "transifex:refresh": "txjs-cli invalidate --token=$(./node_modules/.bin/dotenv -e .env -c production -p NEXT_PUBLIC_TRANSIFEX_TOKEN) --secret=$(./node_modules/.bin/dotenv -e .env -c production -p NEXT_PUBLIC_TRANSIFEX_SECRET)"
+    "transifex:push-server-strings": "TOKEN=$(npx dotenv -e .env -c production -p NEXT_PUBLIC_TRANSIFEX_TOKEN) SECRET=$(npx dotenv -e .env -c production -p NEXT_PUBLIC_TRANSIFEX_SECRET) node ./server-side-translations/push-server-strings.js",
+    "transifex:push": "npm run transifex:push-server-strings && npx txjs-cli push src/ --token=$(npx dotenv -e .env -c production -p NEXT_PUBLIC_TRANSIFEX_TOKEN) --secret=$(npx dotenv -e .env -c production -p NEXT_PUBLIC_TRANSIFEX_SECRET)",
+    "transifex:purge": "npx txjs-cli push src/ --token=$(npx dotenv -e .env -c production -p NEXT_PUBLIC_TRANSIFEX_TOKEN) --secret=$(npx dotenv -e .env -c production -p NEXT_PUBLIC_TRANSIFEX_SECRET) --purge",
+    "transifex:refresh": "npx txjs-cli invalidate --token=$(npx dotenv -e .env -c production -p NEXT_PUBLIC_TRANSIFEX_TOKEN) --secret=$(npx dotenv -e .env -c production -p NEXT_PUBLIC_TRANSIFEX_SECRET)"
   },
   "dependencies": {
     "@carto/carto.js": "4.2.2",

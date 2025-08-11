@@ -116,23 +116,49 @@ jobs:
 
     - name: Run ESLint
       run: |
+        echo "Running ESLint with enhanced error handling..."
         docker compose -f docker-compose.test.yml run --rm --no-deps frontend-test \
-          bash -c "chmod +x ./bin/test && ./bin/test lint"
+          bash -c "
+            echo 'Verifying frontend environment...'
+            node --version
+            npm --version
+            echo 'Starting ESLint...'
+            chmod +x ./bin/test && ./bin/test lint
+          " || {
+            echo "❌ ESLint failed, collecting debug information..."
+            echo "Frontend container logs:"
+            docker compose -f docker-compose.test.yml logs frontend-test --tail=100
+            exit 1
+          }
 
     - name: Run TypeScript check
       run: |
+        echo "Running TypeScript type checking..."
         docker compose -f docker-compose.test.yml run --rm --no-deps frontend-test \
-          bash -c "chmod +x ./bin/test && ./bin/test type-check"
+          bash -c "chmod +x ./bin/test && ./bin/test type-check" || {
+            echo "❌ TypeScript check failed"
+            exit 1
+          }
 
     - name: Run Prettier check
       run: |
+        echo "Running Prettier formatting check..."
         docker compose -f docker-compose.test.yml run --rm --no-deps frontend-test \
-          bash -c "chmod +x ./bin/test && ./bin/test prettier"
+          bash -c "chmod +x ./bin/test && ./bin/test prettier" || {
+            echo "❌ Prettier check failed"
+            exit 1
+          }
 
     - name: Build application
       run: |
+        echo "Building frontend application..."
         docker compose -f docker-compose.test.yml run --rm --no-deps frontend-test \
-          bash -c "chmod +x ./bin/test && ./bin/test build"
+          bash -c "chmod +x ./bin/test && ./bin/test build" || {
+            echo "❌ Build failed, collecting debug information..."
+            echo "Frontend container logs:"
+            docker compose -f docker-compose.test.yml logs frontend-test --tail=100
+            exit 1
+          }
 
     - name: Cleanup
       if: always()

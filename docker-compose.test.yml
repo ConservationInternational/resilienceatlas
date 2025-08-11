@@ -70,11 +70,11 @@ services:
       redis-test:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3001/api/health"]
+      test: ["CMD-SHELL", "curl -f http://localhost:3001/api/health || exit 1"]
       interval: 30s
       timeout: 10s
-      retries: 3
-      start_period: 40s
+      retries: 5
+      start_period: 60s
     shm_size: 2gb
     security_opt:
       - seccomp:unconfined
@@ -91,6 +91,9 @@ services:
         bundle install &&
         bundle check || bundle install &&
         
+        echo '🔍 Verifying dependencies installation...' &&
+        bundle exec ruby -e 'puts \"Ruby: #{RUBY_VERSION}, Rails: #{Rails.version}\"' &&
+        
         echo '🖥️  Setting up virtual display...' &&
         Xvfb :99 -screen 0 1920x1080x24 -ac +extension GLX +render -noreset > /dev/null 2>&1 &
         export DISPLAY=:99
@@ -102,6 +105,9 @@ services:
         echo '🌐 Testing Chrome with wrapper...' &&
         timeout 30 /app/chrome_wrapper.sh --version > /dev/null 2>&1 &&
         echo '✅ Chrome startup test successful' &&
+        
+        echo '💾 Preparing database...' &&
+        RAILS_ENV=test bundle exec rails db:prepare > /dev/null 2>&1 || echo 'Database already exists' &&
         
         echo '🚀 Starting Rails server...' &&
         bundle exec rails server -b 0.0.0.0 -p 3001
@@ -133,17 +139,27 @@ services:
       backend-test:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      test: ["CMD-SHELL", "curl -f http://localhost:3000 || exit 1"]
       interval: 30s
       timeout: 10s
-      retries: 3
-      start_period: 60s
+      retries: 5
+      start_period: 90s
     command: >
       bash -c "
+        set -e
+        echo '🔧 Installing dependencies...' &&
         npm install --legacy-peer-deps &&
-        echo 'Building frontend application...' &&
+        
+        echo '🔍 Verifying installation...' &&
+        node --version &&
+        npm --version &&
+        echo 'Node modules installed:' &&
+        ls -la node_modules/ | head -10 &&
+        
+        echo '🏗️ Building frontend application...' &&
         npm run build &&
-        echo 'Starting frontend server...' &&
+        
+        echo '✅ Build successful, starting frontend server...' &&
         npm start
       "
 
