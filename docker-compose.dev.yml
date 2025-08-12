@@ -41,6 +41,7 @@ services:
         done &&
         PGPASSWORD=postgres psql -h db -U postgres -d cigrp -c 'CREATE EXTENSION IF NOT EXISTS postgis; CREATE EXTENSION IF NOT EXISTS postgis_topology;' || true &&
         bundle exec rails db:create db:migrate db:seed &&
+        rm -f tmp/pids/server.pid &&
         bundle exec rails server -b 0.0.0.0"
 
   frontend:
@@ -50,6 +51,8 @@ services:
       - "3000:3000"
     environment:
       - NODE_ENV=development
+      - CYPRESS_INSTALL_BINARY=0
+      - CYPRESS_RUN_BINARY=/dev/null
     env_file:
       - ./frontend/.env
     volumes:

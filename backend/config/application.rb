@@ -10,12 +10,34 @@ module ConservationInternational
   class Application < Rails::Application
     config.load_defaults 7.2
 
-    backend_url = URI.parse ENV.fetch("BACKEND_URL", "http://localhost:3000")
-    Rails.application.routes.default_url_options = {
-      host: backend_url.host,
-      port: backend_url.port,
-      protocol: backend_url.scheme
-    }
+    # Parse BACKEND_URL and handle both full URLs and service names
+    backend_url_env = ENV.fetch("BACKEND_URL", "http://localhost:3000")
+    begin
+      backend_url = URI.parse(backend_url_env)
+      # If parsing a service name without protocol, it becomes the path, not host
+      if backend_url.host.nil? && backend_url.path.present?
+        # This is likely a service name, set defaults for container environment
+        Rails.application.routes.default_url_options = {
+          host: backend_url_env,
+          port: 3000,
+          protocol: "http"
+        }
+      else
+        # This is a proper URL
+        Rails.application.routes.default_url_options = {
+          host: backend_url.host,
+          port: backend_url.port,
+          protocol: backend_url.scheme
+        }
+      end
+    rescue URI::InvalidURIError
+      # Fallback for invalid URIs - treat as service name
+      Rails.application.routes.default_url_options = {
+        host: backend_url_env,
+        port: 3000,
+        protocol: "http"
+      }
+    end
 
     # Set Time.zone default to the specified zone and make Active Record auto-convert to this zone.
     # Run "rake -D time" for a list of tasks for finding time zone names. Default is UTC.
