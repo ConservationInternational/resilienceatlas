@@ -37,7 +37,7 @@ module SitesFilters
   private
 
   def layers_params
-    params.permit(:site_scope, :site_scope_token)
+    params.permit(:site_scope, :site_scope_token, :locale)
   end
 
   def verify_site_scope_token(token, site_scope_id)
