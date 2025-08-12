@@ -52,7 +52,7 @@ services:
         bundle exec rails server -b 0.0.0.0"
 
   frontend:
-    image: node:18.15.0-bullseye
+    image: node:22.11.0-bullseye
     working_dir: /app
     ports:
       - "3000:3000"

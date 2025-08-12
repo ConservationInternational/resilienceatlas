@@ -29,23 +29,23 @@ const Controls: React.FC<ControlsProps> = ({
         'no-back-button': isBackHidden,
       })}
     >
-      <Link href={`/journeys/${id}/step/${Number(step) - 1}`}>
-        <a className={cx('btn-prev', { 'is-hidden': isBackHidden })}>
-          <T _str="back" />
-        </a>
+      <Link
+        href={`/journeys/${id}/step/${Number(step) - 1}`}
+        className={cx('btn-prev', { 'is-hidden': isBackHidden })}
+      >
+        <T _str="back" />
       </Link>
 
       {+step === slideslength ? (
-        <Link href={`/journeys/${isLastJourney ? journeyIds[0] : journeyIds[journeyIndex + 1]}`}>
-          <a className="btn-next-journey">
-            <T _str="Next journey" />
-          </a>
+        <Link
+          href={`/journeys/${isLastJourney ? journeyIds[0] : journeyIds[journeyIndex + 1]}`}
+          className="btn-next-journey"
+        >
+          <T _str="Next journey" />
         </Link>
       ) : (
-        <Link href={`/journeys/${id}/step/${+step + 1}`}>
-          <a className="btn-next">
-            <T _str="continue" />
-          </a>
+        <Link href={`/journeys/${id}/step/${+step + 1}`} className="btn-next">
+          <T _str="continue" />
         </Link>
       )}
     </div>

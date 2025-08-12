@@ -28,7 +28,7 @@ export interface MapViewProps {
     zoom_level: number;
   };
   page: string;
-  options: {
+  options?: {
     map: {
       zoom: number;
       center: {

@@ -57,16 +57,15 @@ const JourneySlider: React.FC<JourneySliderProps> = ({
           } = attributes;
           return (
             <li key={`slide_${id}`} className="m-slider__item">
-              <Link href={`/journeys/${id}`}>
-                <a
-                  className="journey-link-container"
-                  style={{ backgroundImage: `url(${original})` }}
-                >
-                  <div className="title">
-                    <h3>{title}</h3>
-                    <h2>{subtitle}</h2>
-                  </div>
-                </a>
+              <Link
+                href={`/journeys/${id}`}
+                className="journey-link-container"
+                style={{ backgroundImage: `url(${original})` }}
+              >
+                <div className="title">
+                  <h3>{title}</h3>
+                  <h2>{subtitle}</h2>
+                </div>
               </Link>
               <p className="credits">
                 <a href={creditsLink} target="_blank" rel="noopener noreferrer">

@@ -16,9 +16,7 @@ const CustomHead: React.FC<CustomHeadProps> = ({
   site: { name, color, header_color, logo_url },
 }) => (
   <Head>
-    <title>
-      {name} | {pageTitle}
-    </title>
+    <title>{`${name} | ${pageTitle}`}</title>
     <style type="text/css">
       {`
         :root {

@@ -116,7 +116,7 @@ const MapView = (props: MapViewProps) => {
       label={LABELS[labels]}
       basemap={BASEMAPS[basemap]}
       mapOptions={{
-        ...options.map,
+        ...(options?.map || {}),
         zoom: query.zoom || site.zoom_level || 5,
         center: getCenter(),
         scrollWheelZoom: !embed,

@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback } from 'react';
+import React, { useEffect, useCallback, useState } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import cx from 'classnames';
@@ -19,6 +19,11 @@ const Header = ({
   translations,
 }) => {
   const { pathname, locale } = useRouter();
+  const [hasMounted, setHasMounted] = useState(false);
+
+  useEffect(() => {
+    setHasMounted(true);
+  }, []);
 
   useEffect(() => {
     if (!menuItemsLoaded || menuItemsLoadedLocale !== locale) loadMenuItems(locale);
@@ -43,9 +48,7 @@ const Header = ({
         <ul className="brand-area">
           <li>
             <Link href="/">
-              <a>
-                <T _str="Resilience Atlas"></T>
-              </a>
+              <T _str="Resilience Atlas"></T>
             </Link>
           </li>
         </ul>
@@ -54,38 +57,30 @@ const Header = ({
         </ul>
         <ul className="nav-area -resilience">
           <li className="journey-link">
-            <Link href="/journeys">
-              <a className={cx(pathname.includes('/journeys') && 'is-current')}>
-                <T _str="Journeys" />
-              </a>
+            <Link href="/journeys" className={cx(pathname.includes('/journeys') && 'is-current')}>
+              <T _str="Journeys" />
             </Link>
           </li>
 
           <li>
-            <Link href="/map">
-              <a className={cx(pathname.includes('/map') && 'is-current')}>
-                <T _str="Map" />
-              </a>
+            <Link href="/map" className={cx(pathname.includes('/map') && 'is-current')}>
+              <T _str="Map" />
             </Link>
 
             <ul>{menuItems.sort(byPosition).map(renderMenuItem)}</ul>
           </li>
 
           <li>
-            <Link href="/about">
-              <a className={cx(pathname.includes('/about') && 'is-current')}>
-                <T _str="About" />
-              </a>
+            <Link href="/about" className={cx(pathname.includes('/about') && 'is-current')}>
+              <T _str="About" />
             </Link>
           </li>
 
-          {loggedIn ? (
+          {hasMounted && loggedIn ? (
             <>
               <li>
-                <Link href="/me">
-                  <a className={cx(pathname.includes('/me') && 'is-current')}>
-                    <T _str="Me" />
-                  </a>
+                <Link href="/me" className={cx(pathname.includes('/me') && 'is-current')}>
+                  <T _str="Me" />
                 </Link>
               </li>
 
@@ -95,25 +90,24 @@ const Header = ({
                 </button>
               </li>
             </>
-          ) : (
+          ) : hasMounted ? (
             <>
               <li>
-                <Link href="/login">
-                  <a className={cx(pathname.includes('/login') && 'is-current')}>
-                    <T _str="Login" />
-                  </a>
+                <Link href="/login" className={cx(pathname.includes('/login') && 'is-current')}>
+                  <T _str="Login" />
                 </Link>
               </li>
 
               <li>
-                <Link href="/register">
-                  <a className={cx(pathname.includes('/register') && 'is-current')}>
-                    <T _str="Register" />
-                  </a>
+                <Link
+                  href="/register"
+                  className={cx(pathname.includes('/register') && 'is-current')}
+                >
+                  <T _str="Register" />
                 </Link>
               </li>
             </>
-          )}
+          ) : null}
         </ul>
         <ul className="nav-area -vital-sign">
           <li>

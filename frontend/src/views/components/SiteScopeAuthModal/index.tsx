@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { reduxForm, Field } from 'redux-form';
 import { T } from '@transifex/react';
@@ -23,6 +23,11 @@ const SiteScopeAuthModal = ({ handleSubmit }) => {
   const currentSiteScope = useSelector(getCurrentSiteScope);
 
   const [localError, setLocalError] = useState(null);
+  const [hasMounted, setHasMounted] = useState(false);
+
+  useEffect(() => {
+    setHasMounted(true);
+  }, []);
 
   const onSubmit = async (values) => {
     setLocalError(null);
@@ -47,7 +52,8 @@ const SiteScopeAuthModal = ({ handleSubmit }) => {
     setLocalError(null);
   };
 
-  if (!showModal) return null;
+  // Prevent hydration mismatches by not rendering until client-side mount
+  if (!hasMounted || !showModal) return null;
 
   const displayError = localError || error;
 
