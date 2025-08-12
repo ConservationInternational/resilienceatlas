@@ -65,9 +65,7 @@ const MePage: NextPageWithLayout<MePageProps> = ({
               <EditProfileForm />
 
               <Link href="/profile-settings">
-                <a>
-                  <T _str="Manage account" />
-                </a>
+                <T _str="Manage account" />
               </Link>
             </>
           )}

@@ -134,7 +134,8 @@ const MapView = (props: MapViewProps) => {
           )
             return null;
           onLayerLoading(true);
-          return layer.on('load', onLayerLoaded);
+          layer.on('load', onLayerLoaded);
+          return undefined;
         },
         zoomend: (e, map) => {
           const mapZoom = map.getZoom();

@@ -196,7 +196,7 @@ The project includes Docker configuration for easy development and deployment. T
 
 3. **For development (includes database):**
    ```bash
-   docker-compose -f docker-compose.dev.yml up --build
+   docker compose -f docker-compose.dev.yml up --build
    ```
    
    This will start:
@@ -206,7 +206,7 @@ The project includes Docker configuration for easy development and deployment. T
 
 4. **For production:**
    ```bash
-   docker-compose up --build
+   docker compose up --build
    ```
    
    This will start:

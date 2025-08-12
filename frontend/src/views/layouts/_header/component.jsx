@@ -47,7 +47,15 @@ const Header = ({
       <nav className="l-header-nav">
         <ul className="brand-area">
           <li>
-            <Link href="/">
+            <Link
+              href="/"
+              style={{
+                display: 'block',
+                cursor: 'pointer',
+                textDecoration: 'none',
+                color: 'var(--theme-color, #333)',
+              }}
+            >
               <T _str="Resilience Atlas"></T>
             </Link>
           </li>
@@ -57,13 +65,37 @@ const Header = ({
         </ul>
         <ul className="nav-area -resilience">
           <li className="journey-link">
-            <Link href="/journeys" className={cx(pathname.includes('/journeys') && 'is-current')}>
+            <Link
+              href="/journeys"
+              className={cx(pathname.includes('/journeys') && 'is-current')}
+              style={{
+                display: 'block',
+                padding: '10px',
+                cursor: 'pointer',
+                textDecoration: 'none',
+                color: 'var(--theme-color, #333)',
+                fontSize: '14px',
+                textTransform: 'uppercase',
+              }}
+            >
               <T _str="Journeys" />
             </Link>
           </li>
 
           <li>
-            <Link href="/map" className={cx(pathname.includes('/map') && 'is-current')}>
+            <Link
+              href="/map"
+              className={cx(pathname.includes('/map') && 'is-current')}
+              style={{
+                display: 'block',
+                padding: '10px',
+                cursor: 'pointer',
+                textDecoration: 'none',
+                color: 'var(--theme-color, #333)',
+                fontSize: '14px',
+                textTransform: 'uppercase',
+              }}
+            >
               <T _str="Map" />
             </Link>
 
@@ -71,7 +103,19 @@ const Header = ({
           </li>
 
           <li>
-            <Link href="/about" className={cx(pathname.includes('/about') && 'is-current')}>
+            <Link
+              href="/about"
+              className={cx(pathname.includes('/about') && 'is-current')}
+              style={{
+                display: 'block',
+                padding: '10px',
+                cursor: 'pointer',
+                textDecoration: 'none',
+                color: 'var(--theme-color, #333)',
+                fontSize: '14px',
+                textTransform: 'uppercase',
+              }}
+            >
               <T _str="About" />
             </Link>
           </li>
@@ -79,7 +123,19 @@ const Header = ({
           {hasMounted && loggedIn ? (
             <>
               <li>
-                <Link href="/me" className={cx(pathname.includes('/me') && 'is-current')}>
+                <Link
+                  href="/me"
+                  className={cx(pathname.includes('/me') && 'is-current')}
+                  style={{
+                    display: 'block',
+                    padding: '10px',
+                    cursor: 'pointer',
+                    textDecoration: 'none',
+                    color: 'var(--theme-color, #333)',
+                    fontSize: '14px',
+                    textTransform: 'uppercase',
+                  }}
+                >
                   <T _str="Me" />
                 </Link>
               </li>
@@ -93,7 +149,19 @@ const Header = ({
           ) : hasMounted ? (
             <>
               <li>
-                <Link href="/login" className={cx(pathname.includes('/login') && 'is-current')}>
+                <Link
+                  href="/login"
+                  className={cx(pathname.includes('/login') && 'is-current')}
+                  style={{
+                    display: 'block',
+                    padding: '10px',
+                    cursor: 'pointer',
+                    textDecoration: 'none',
+                    color: 'var(--theme-color, #333)',
+                    fontSize: '14px',
+                    textTransform: 'uppercase',
+                  }}
+                >
                   <T _str="Login" />
                 </Link>
               </li>
@@ -102,6 +170,15 @@ const Header = ({
                 <Link
                   href="/register"
                   className={cx(pathname.includes('/register') && 'is-current')}
+                  style={{
+                    display: 'block',
+                    padding: '10px',
+                    cursor: 'pointer',
+                    textDecoration: 'none',
+                    color: 'var(--theme-color, #333)',
+                    fontSize: '14px',
+                    textTransform: 'uppercase',
+                  }}
                 >
                   <T _str="Register" />
                 </Link>

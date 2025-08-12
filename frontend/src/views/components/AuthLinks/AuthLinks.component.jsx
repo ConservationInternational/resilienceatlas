@@ -1,20 +1,16 @@
-import { Link } from 'next/router';
+import Link from 'next/link';
 import { T } from '@transifex/react';
 
 const AuthLinks = ({ router }) => (
   <>
     {!router.pathname.match('login') && (
       <Link href="/login">
-        <a>
-          <T _str="Log in" />
-        </a>
+        <T _str="Log in" />
       </Link>
     )}
     {!router.pathname.match('register') && (
       <Link href="/register">
-        <a>
-          <T _str="Sign up" />
-        </a>
+        <T _str="Sign up" />
       </Link>
     )}
   </>

@@ -24,9 +24,7 @@ const LoginPage: NextPageWithLayout = ({ translations, setTranslations }) => {
           <LoginForm />
 
           <Link href="/register">
-            <a>
-              <T _str="Sign up" />
-            </a>
+            <T _str="Sign up" />
           </Link>
         </div>
       </Row>

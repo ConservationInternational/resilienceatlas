@@ -24,7 +24,7 @@
 
   @extend %clearfix;
 
-  .is-journey-map & {
+  .is-journey-map.l-main--embed & {
     display: none;
   }
 
@@ -128,6 +128,15 @@
       float: left;
       height: rem($header-height);
       margin-left: rem($margin/2);
+
+      // Force Next.js Link components to display as clickable
+      > a {
+        cursor: pointer !important;
+        
+        &:hover {
+          cursor: pointer !important;
+        }
+      }
 
       &:hover > ul {
         display: block;
@@ -241,6 +250,7 @@
       font-size: rem(14px);
       text-transform: uppercase;
       transition: 0.2s ease-in;
+      cursor: pointer;
 
       &:hover {
         text-decoration: none;
@@ -255,6 +265,40 @@
       &.is-current:hover {
         background-color: var(--theme-color);
         color: $font-color-3;
+      }
+    }
+
+    // Ensure Next.js Link components have proper styling
+    a[href] {
+      cursor: pointer;
+      
+      &:hover {
+        cursor: pointer;
+      }
+    }
+
+    // Force styling for direct child links of nav items
+    > li > a {
+      display: block !important;
+      padding: rem(10px) !important;
+      color: var(--theme-color) !important;
+      border-radius: 3px !important;
+      font-size: rem(14px) !important;
+      text-transform: uppercase !important;
+      transition: 0.2s ease-in !important;
+      cursor: pointer !important;
+      text-decoration: none !important;
+
+      &:hover {
+        text-decoration: none !important;
+        cursor: pointer !important;
+        background-color: rgba($bg-color-2, 0.1) !important;
+      }
+
+      &.is-current,
+      &.is-current:hover {
+        background-color: var(--theme-color) !important;
+        color: $font-color-3 !important;
       }
     }
 

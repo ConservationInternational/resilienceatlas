@@ -17,18 +17,28 @@ export const DrawingManager = ({
   const layer = useRef(null);
 
   useEffect(() => {
-    // bind pm events
-    map.on('pm:drawstart', () => {
+    // Define event handlers
+    const handleDrawStart = () => {
       if (layer.current) {
         setGeojson(null);
       }
-    });
+    };
 
-    map.on('pm:create', (e) => {
+    const handleCreate = (e) => {
       layer.current = e.layer;
       setGeojson(e.layer.toGeoJSON());
       setDrawing(false);
-    });
+    };
+
+    // bind pm events
+    map.on('pm:drawstart', handleDrawStart);
+    map.on('pm:create', handleCreate);
+
+    // Cleanup function
+    return () => {
+      map.off('pm:drawstart', handleDrawStart);
+      map.off('pm:create', handleCreate);
+    };
   }, [map, setDrawing, setGeojson]);
 
   // drawing toggler
