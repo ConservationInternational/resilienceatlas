@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Provider as ReduxProvider } from 'react-redux';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
@@ -88,6 +88,7 @@ const ResilienceApp = ({ Component, ...rest }: AppPropsWithLayout) => {
   const { store: appStore } = wrapper.useWrappedStore(rest);
   const getLayout = Component.Layout ?? ((page) => page);
   const { locale, locales, asPath } = router;
+  const hasWarnedAboutTransifex = useRef(false);
   const [queryClient] = useState(
     () =>
       new QueryClient({
@@ -138,10 +139,11 @@ const ResilienceApp = ({ Component, ...rest }: AppPropsWithLayout) => {
       });
 
       tx.setCurrentLocale(locale);
-    } else if (process.env.NODE_ENV === 'development') {
-      // In development without token, just log a warning
+    } else if (process.env.NODE_ENV === 'development' && !hasWarnedAboutTransifex.current) {
+      // In development without token, just log a warning once
       // eslint-disable-next-line no-console
       console.warn('Transifex token not provided. Translation service disabled.');
+      hasWarnedAboutTransifex.current = true;
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router]);

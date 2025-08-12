@@ -36,7 +36,9 @@ const FullscreenLayout: React.FC<FullscreenLayoutProps> = ({
   // Currently data fetching in Layouts are not supporting getServerSideProps
   // https://nextjs.org/docs/basic-features/layouts#data-fetching
   // NOTE: consider move this to every page that needs it using getServerSideProps
-  useEffect(() => dispatch(loadSite(locale)), [dispatch, locale]);
+  useEffect(() => {
+    dispatch(loadSite(locale));
+  }, [dispatch, locale]);
 
   return (
     <div
