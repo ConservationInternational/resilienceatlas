@@ -157,8 +157,9 @@ jobs:
 
     - name: Setup test database
       run: |
-        # Ensure tmp directory exists for test results
+        # Ensure tmp directory exists for test results with correct permissions
         mkdir -p backend/tmp
+        chmod 777 backend/tmp  # Allow container to write test results back to host
         
         # Setup database with proper error handling
         echo "Setting up test database..."
