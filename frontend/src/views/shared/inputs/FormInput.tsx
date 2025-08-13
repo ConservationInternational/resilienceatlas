@@ -27,7 +27,7 @@ const FormInput: FC<P & WrappedFieldProps> = ({
     <div className={cx('field', { 'has-error': error })}>
       <label htmlFor={input.name}>{label}</label>
       <br />
-      <input {...input} {...rest} value={value} />
+      <input {...input} {...rest} value={value} id={input.name} />
       {Boolean(touched && error) && <div className="error-message">{errorMessage}</div>}
     </div>
   );

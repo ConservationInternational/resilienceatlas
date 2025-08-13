@@ -1,4 +1,5 @@
 import { useRouter } from 'next/router';
+import { useCallback, useRef } from 'react';
 
 /**
  * Get param fom URL
@@ -20,6 +21,7 @@ export const getRouterParam = (param: string, parser?: (a: string) => string): s
 
 export const useRouterParams = () => {
   const router = useRouter();
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const { pathname } = router;
   const params = { ...router.query };
@@ -30,29 +32,34 @@ export const useRouterParams = () => {
     return result;
   };
 
+  const debouncedReplace = useCallback(
+    (newParams: Record<string, any>) => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+
+      timeoutRef.current = setTimeout(() => {
+        router.replace(
+          {
+            pathname,
+            query: newParams,
+          },
+          undefined,
+          { shallow: true },
+        );
+      }, 100); // 100ms debounce
+    },
+    [router, pathname],
+  );
+
   const setParam = (param: string, value: string): void => {
     params[param] = value;
-    router.replace(
-      {
-        pathname,
-        query: params,
-      },
-      undefined,
-      { shallow: true },
-    );
+    debouncedReplace({ ...params });
   };
 
   const removeParam = (param) => {
     delete params[param];
-
-    router.replace(
-      {
-        pathname,
-        query: params,
-      },
-      undefined,
-      { shallow: true },
-    );
+    debouncedReplace({ ...params });
   };
 
   return { getParam, setParam, removeParam };

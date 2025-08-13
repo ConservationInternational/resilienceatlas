@@ -4,7 +4,7 @@
       "id": "1",
       "type": "site_scopes",
       "attributes": {
-        "name": "CIGRP",
+        "name": "Resilience Atlas",
         "color": "#ffdbdb",
         "subdomain": "voluptatem",
         "has_analysis": true,

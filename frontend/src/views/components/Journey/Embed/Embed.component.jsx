@@ -40,7 +40,7 @@ const Embed = (props) => {
     title,
     subtitle,
     currentStep,
-    countryName,
+    countryName = '',
     setActiveLayer,
     isLastStep,
   } = props;
@@ -168,10 +168,6 @@ const Embed = (props) => {
       </div>
     </div>
   );
-};
-
-Embed.defaultProps = {
-  countryName: '',
 };
 
 export default Embed;

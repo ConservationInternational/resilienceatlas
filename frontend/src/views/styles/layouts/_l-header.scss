@@ -245,25 +245,28 @@
     a, button, .nav-item {
       display: block;
       padding: rem(10px);
-      color: var(--theme-color);
       border-radius: 3px;
       font-size: rem(14px);
       text-transform: uppercase;
       transition: 0.2s ease-in;
       cursor: pointer;
 
+      &:not(.is-current) {
+        color: var(--theme-color);
+      }
+
       &:hover {
         text-decoration: none;
         cursor: pointer;
       }
 
-      &:not(.web-link):hover {
+      &:not(.web-link):hover:not(.is-current) {
         background-color: rgba($bg-color-2, 0.1);
       }
 
       &.is-current,
       &.is-current:hover {
-        background-color: var(--theme-color);
+        background-color: var(--theme-color, #0089CC);
         color: $font-color-3;
       }
     }
@@ -281,7 +284,6 @@
     > li > a {
       display: block !important;
       padding: rem(10px) !important;
-      color: var(--theme-color) !important;
       border-radius: 3px !important;
       font-size: rem(14px) !important;
       text-transform: uppercase !important;
@@ -289,7 +291,11 @@
       cursor: pointer !important;
       text-decoration: none !important;
 
-      &:hover {
+      &:not(.is-current) {
+        color: var(--theme-color, #333333) !important;
+      }
+
+      &:hover:not(.is-current) {
         text-decoration: none !important;
         cursor: pointer !important;
         background-color: rgba($bg-color-2, 0.1) !important;
@@ -297,9 +303,18 @@
 
       &.is-current,
       &.is-current:hover {
-        background-color: var(--theme-color) !important;
+        background-color: var(--theme-color, #0089CC) !important;
         color: $font-color-3 !important;
+        font-weight: 600 !important;
       }
+    }
+
+    // Ultra high specificity for current navigation links
+    .nav-area > li > a.is-current,
+    .nav-area.-resilience > li > a.is-current {
+      background-color: var(--theme-color, #0089CC) !important;
+      color: white !important;
+      font-weight: 600 !important;
     }
 
     button {
@@ -384,4 +399,22 @@
 .l-section-nav {
   background-color: rgba(#757575, 0.1);
   @extend %clearfix;
+}
+
+// Force white text for current navigation items with maximum specificity
+.nav-area.-resilience li a.nav-current-forced,
+.nav-area li a.nav-current-forced,
+a.nav-current-forced {
+  color: white !important;
+  background-color: #0089CC !important;
+  font-weight: 600 !important;
+}
+
+// Ensure hover state maintains the current styling
+.nav-area.-resilience li a.nav-current-forced:hover,
+.nav-area li a.nav-current-forced:hover,
+a.nav-current-forced:hover {
+  color: white !important;
+  background-color: #0089CC !important;
+  font-weight: 600 !important;
 }

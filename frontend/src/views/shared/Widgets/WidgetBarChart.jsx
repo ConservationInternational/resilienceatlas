@@ -224,7 +224,3 @@ export const WidgetBarChart = ({
     </div>
   );
 };
-
-WidgetBarChart.defaultProps = {
-  widgetName: '',
-};

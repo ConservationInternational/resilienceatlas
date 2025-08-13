@@ -43,8 +43,4 @@ CartoDBLayer.propTypes = {
   onCreate: PropTypes.func,
 };
 
-CartoDBLayer.defaultProps = {
-  onCreate: null,
-};
-
 export default CartoDBLayer;

@@ -153,7 +153,3 @@ export const WidgetCategoricalChart = ({
     </div>
   );
 };
-
-WidgetCategoricalChart.defaultProps = {
-  widgetName: '',
-};

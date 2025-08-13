@@ -18,7 +18,8 @@ const Header = ({
   menuItemsLoadedLocale,
   translations,
 }) => {
-  const { pathname, locale } = useRouter();
+  const router = useRouter();
+  const { pathname, locale } = router;
   const [hasMounted, setHasMounted] = useState(false);
 
   useEffect(() => {
@@ -53,7 +54,7 @@ const Header = ({
                 display: 'block',
                 cursor: 'pointer',
                 textDecoration: 'none',
-                color: 'var(--theme-color, #333)',
+                color: '#333333',
               }}
             >
               <T _str="Resilience Atlas"></T>
@@ -67,15 +68,17 @@ const Header = ({
           <li className="journey-link">
             <Link
               href="/journeys"
-              className={cx(pathname.includes('/journeys') && 'is-current')}
+              className={pathname.includes('/journeys') ? 'nav-current-forced' : ''}
               style={{
                 display: 'block',
                 padding: '10px',
                 cursor: 'pointer',
                 textDecoration: 'none',
-                color: 'var(--theme-color, #333)',
                 fontSize: '14px',
                 textTransform: 'uppercase',
+                borderRadius: '3px',
+                transition: '0.2s ease-in',
+                ...(!pathname.includes('/journeys') && { color: 'var(--theme-color, #333333)' }),
               }}
             >
               <T _str="Journeys" />
@@ -85,15 +88,17 @@ const Header = ({
           <li>
             <Link
               href="/map"
-              className={cx(pathname.includes('/map') && 'is-current')}
+              className={pathname.includes('/map') ? 'nav-current-forced' : ''}
               style={{
                 display: 'block',
                 padding: '10px',
                 cursor: 'pointer',
                 textDecoration: 'none',
-                color: 'var(--theme-color, #333)',
                 fontSize: '14px',
                 textTransform: 'uppercase',
+                borderRadius: '3px',
+                transition: '0.2s ease-in',
+                ...(!pathname.includes('/map') && { color: 'var(--theme-color, #333333)' }),
               }}
             >
               <T _str="Map" />
@@ -105,15 +110,17 @@ const Header = ({
           <li>
             <Link
               href="/about"
-              className={cx(pathname.includes('/about') && 'is-current')}
+              className={pathname.includes('/about') ? 'nav-current-forced' : ''}
               style={{
                 display: 'block',
                 padding: '10px',
                 cursor: 'pointer',
                 textDecoration: 'none',
-                color: 'var(--theme-color, #333)',
                 fontSize: '14px',
                 textTransform: 'uppercase',
+                borderRadius: '3px',
+                transition: '0.2s ease-in',
+                ...(!pathname.includes('/about') && { color: 'var(--theme-color, #333333)' }),
               }}
             >
               <T _str="About" />
@@ -125,15 +132,17 @@ const Header = ({
               <li>
                 <Link
                   href="/me"
-                  className={cx(pathname.includes('/me') && 'is-current')}
+                  className={pathname.includes('/me') ? 'nav-current-forced' : ''}
                   style={{
                     display: 'block',
                     padding: '10px',
                     cursor: 'pointer',
                     textDecoration: 'none',
-                    color: 'var(--theme-color, #333)',
                     fontSize: '14px',
                     textTransform: 'uppercase',
+                    borderRadius: '3px',
+                    transition: '0.2s ease-in',
+                    ...(!pathname.includes('/me') && { color: 'var(--theme-color, #333333)' }),
                   }}
                 >
                   <T _str="Me" />
@@ -151,15 +160,17 @@ const Header = ({
               <li>
                 <Link
                   href="/login"
-                  className={cx(pathname.includes('/login') && 'is-current')}
+                  className={pathname.includes('/login') ? 'nav-current-forced' : ''}
                   style={{
                     display: 'block',
                     padding: '10px',
                     cursor: 'pointer',
                     textDecoration: 'none',
-                    color: 'var(--theme-color, #333)',
                     fontSize: '14px',
                     textTransform: 'uppercase',
+                    borderRadius: '3px',
+                    transition: '0.2s ease-in',
+                    ...(!pathname.includes('/login') && { color: 'var(--theme-color, #333333)' }),
                   }}
                 >
                   <T _str="Login" />
@@ -169,15 +180,19 @@ const Header = ({
               <li>
                 <Link
                   href="/register"
-                  className={cx(pathname.includes('/register') && 'is-current')}
+                  className={pathname.includes('/register') ? 'nav-current-forced' : ''}
                   style={{
                     display: 'block',
                     padding: '10px',
                     cursor: 'pointer',
                     textDecoration: 'none',
-                    color: 'var(--theme-color, #333)',
                     fontSize: '14px',
                     textTransform: 'uppercase',
+                    borderRadius: '3px',
+                    transition: '0.2s ease-in',
+                    ...(!pathname.includes('/register') && {
+                      color: 'var(--theme-color, #333333)',
+                    }),
                   }}
                 >
                   <T _str="Register" />
