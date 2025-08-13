@@ -38,7 +38,7 @@ jobs:
       run: |
         # Generate content-based cache keys for better cache reuse
         echo "dockerfile-hash=$(sha256sum frontend/Dockerfile | cut -d' ' -f1)" >> $GITHUB_OUTPUT
-        echo "package-hash=$(sha256sum frontend/package.json frontend/package-lock.json | sha256sum | cut -d' ' -f1)" >> $GITHUB_OUTPUT
+        echo "package-hash=$(sha256sum frontend/package.json | cut -d' ' -f1)" >> $GITHUB_OUTPUT
         echo "node-version=$(cat frontend/.nvmrc 2>/dev/null || echo '22.11.0')" >> $GITHUB_OUTPUT
         echo "date=$(date +%Y%m%d)" >> $GITHUB_OUTPUT
 

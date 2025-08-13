@@ -26,14 +26,14 @@ ENV CYPRESS_CACHE_FOLDER="/tmp/cypress-cache"
 ENV CYPRESS_BINARY_VERSION="13.15.0"
 
 WORKDIR /app
-COPY package.json package-lock.json .npmrc ./
+COPY package.json .npmrc ./
 
 # Install dependencies only when needed
 FROM base AS deps
 # Retry npm install up to 3 times for network resilience using bash explicitly
 RUN bash -c 'for i in {1..3}; do \
       echo "npm install attempt $i of 3" && \
-      timeout 300 npm ci --only=production --legacy-peer-deps --no-audit --no-fund && \
+      timeout 300 npm install --only=production --legacy-peer-deps --no-audit --no-fund && \
       echo "✅ Production dependencies installed successfully" && \
       break || \
       ([ $i -eq 3 ] && echo "❌ Failed to install production dependencies after 3 attempts" && exit 1) || \
@@ -51,11 +51,11 @@ RUN bash -c 'for i in {1..3}; do \
       echo "npm install attempt $i of 3" && \
       if [ "$CYPRESS_INSTALL_BINARY" = "0" ]; then \
         echo "Skipping Cypress binary installation" && \
-        timeout 300 npm ci --legacy-peer-deps --no-audit --no-fund --ignore-scripts && \
+        timeout 300 npm install --legacy-peer-deps --no-audit --no-fund --ignore-scripts && \
         echo "✅ Dependencies installed successfully (without Cypress)" && \
         break; \
       else \
-        timeout 300 npm ci --legacy-peer-deps --no-audit --no-fund && \
+        timeout 300 npm install --legacy-peer-deps --no-audit --no-fund && \
         echo "✅ All dependencies installed successfully" && \
         break; \
       fi || \
@@ -75,7 +75,7 @@ RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
 
 # Copy dependencies
 COPY --from=dev-deps /app/node_modules ./node_modules
-COPY package.json package-lock.json .npmrc ./
+COPY package.json .npmrc ./
 
 # Verify node_modules was copied successfully
 RUN echo "🔍 Verifying node_modules in test stage..." \
