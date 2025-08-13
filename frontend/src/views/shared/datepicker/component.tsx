@@ -2,7 +2,9 @@ import type { FC } from 'react';
 import { useMemo } from 'react';
 import ExternalDatePicker, { registerLocale } from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
+// eslint-disable-next-line import/no-duplicates
 import { eachYearOfInterval, eachMonthOfInterval, format } from 'date-fns';
+// eslint-disable-next-line import/no-duplicates
 import { es, fr, pt, ru, zhCN as zh } from 'date-fns/locale';
 import uniq from 'lodash/uniq';
 import { useRouter } from 'next/router';

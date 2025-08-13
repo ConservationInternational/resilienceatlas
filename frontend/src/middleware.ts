@@ -11,6 +11,7 @@ export function middleware(request: NextRequest) {
 
   // Log for debugging in development
   if (process.env.NODE_ENV === 'development') {
+    // eslint-disable-next-line no-console
     console.log(`Middleware: host=${host}, pathname=${pathname}, subdomain=${subdomain}`);
   }
 

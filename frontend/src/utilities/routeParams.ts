@@ -33,6 +33,7 @@ export const useRouterParams = () => {
   };
 
   const debouncedReplace = useCallback(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (newParams: Record<string, any>) => {
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
