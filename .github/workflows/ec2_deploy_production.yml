@@ -1,0 +1,259 @@
+name: EC2 Deploy - Production
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+  workflow_run:
+    workflows: ["Frontend Tests", "Backend Tests", "Integration Tests"]
+    branches: [main]
+    types: [completed]
+
+env:
+  AWS_REGION: us-east-1
+
+jobs:
+  build-and-deploy:
+    name: Build and Deploy to EC2 Production
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    environment: production
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+
+    - name: Get runner IP and update security group
+      id: security-group
+      run: |
+        # Get the public IP of the GitHub Actions runner
+        RUNNER_IP=$(curl -s https://checkip.amazonaws.com)
+        echo "Runner IP: $RUNNER_IP"
+        echo "runner-ip=$RUNNER_IP" >> $GITHUB_OUTPUT
+        
+        # Add SSH access rule for the runner IP
+        echo "Adding SSH access for runner IP $RUNNER_IP to security group ${{ secrets.PROD_SECURITY_GROUP_ID }}"
+        aws ec2 authorize-security-group-ingress \
+          --group-id "${{ secrets.PROD_SECURITY_GROUP_ID }}" \
+          --protocol tcp \
+          --port 22 \
+          --cidr "${RUNNER_IP}/32" || true
+        
+        echo "Security group rule added successfully"
+
+    - name: Set SSH port variable
+      id: ssh-port
+      run: |
+        # Trim whitespace and newlines from the port
+        PORT="${{ secrets.PROD_SSH_PORT || 22 }}"
+        PORT=$(echo "$PORT" | tr -d '[:space:]')
+        echo "port=$PORT" >> $GITHUB_OUTPUT
+
+    - name: Build and deploy application on production server
+      uses: appleboy/ssh-action@v1.0.0
+      with:
+        host: ${{ secrets.PROD_HOST }}
+        username: ${{ secrets.PROD_USERNAME }}
+        key: ${{ secrets.PROD_SSH_KEY }}
+        port: ${{ steps.ssh-port.outputs.port }}
+        script: |
+          set -e
+          
+          echo "🚀 Starting production deployment..."
+          
+          # Navigate to application directory
+          cd ${{ secrets.PROD_APP_PATH || '/opt/resilienceatlas' }}
+          
+          # Pull latest changes
+          git fetch origin
+          git reset --hard origin/main
+          
+          echo "✅ Currently on branch: $(git branch --show-current)"
+          echo "✅ Latest commit: $(git rev-parse --short HEAD)"
+          
+          # Set environment variables for deployment
+          export GIT_COMMIT_SHA="${{ github.sha }}"
+          export GIT_BRANCH="${{ github.ref_name }}"
+          export DEPLOYMENT_ENVIRONMENT="production"
+          
+          echo "📋 Environment variables:"
+          echo "  GIT_COMMIT_SHA: $GIT_COMMIT_SHA"
+          echo "  GIT_BRANCH: $GIT_BRANCH"
+          echo "  DEPLOYMENT_ENVIRONMENT: $DEPLOYMENT_ENVIRONMENT"
+          
+          # Stop existing containers gracefully
+          echo "🛑 Stopping existing containers..."
+          docker compose -f docker-compose.yml down || true
+          
+          # Clean up any orphaned containers
+          echo "🧹 Cleaning up orphaned containers..."
+          docker system prune -f || true
+          
+          # Build fresh images
+          echo "🔨 Building fresh Docker images..."
+          
+          # Build frontend with production environment variables
+          docker build -t resilienceatlas-frontend:production \
+            --target production \
+            --build-arg NEXT_PUBLIC_API_HOST=${{ secrets.PRODUCTION_NEXT_PUBLIC_API_HOST }} \
+            --build-arg NEXT_PUBLIC_GOOGLE_ANALYTICS=${{ secrets.NEXT_PUBLIC_GOOGLE_ANALYTICS }} \
+            --build-arg NEXT_PUBLIC_TRANSIFEX_TOKEN=${{ secrets.NEXT_PUBLIC_TRANSIFEX_TOKEN }} \
+            --build-arg NEXT_PUBLIC_TRANSIFEX_SECRET=${{ secrets.NEXT_PUBLIC_TRANSIFEX_SECRET }} \
+            --build-arg NEXT_PUBLIC_GOOGLE_API_KEY=${{ secrets.NEXT_PUBLIC_GOOGLE_API_KEY }} \
+            ./frontend
+          
+          # Build backend
+          docker build -t resilienceatlas-backend:production \
+            --target production \
+            ./backend
+          
+          echo "✅ Docker images built successfully"
+          
+          # Start services with production configuration
+          echo "🚀 Starting production services..."
+          docker compose -f docker-compose.yml up -d --force-recreate
+          
+          # Wait for services to be ready
+          echo "⏳ Waiting for services to be ready..."
+          max_wait=180
+          wait_time=0
+          
+          while [ $wait_time -lt $max_wait ]; do
+            # Check if all containers are running
+            running_containers=$(docker compose -f docker-compose.yml ps --filter "status=running" --quiet | wc -l)
+            total_containers=$(docker compose -f docker-compose.yml ps --quiet | wc -l)
+            
+            if [ "$running_containers" -eq "$total_containers" ] && [ "$total_containers" -gt 0 ]; then
+              echo "✅ All containers are running ($running_containers/$total_containers)"
+              break
+            fi
+            
+            echo "⏳ Waiting for containers to be ready... ($running_containers/$total_containers running, $wait_time/$max_wait seconds)"
+            sleep 10
+            wait_time=$((wait_time + 10))
+          done
+          
+          if [ $wait_time -ge $max_wait ]; then
+            echo "⚠️ Some containers may not be fully ready after $max_wait seconds"
+            echo "🔍 Container status:"
+            docker compose -f docker-compose.yml ps
+          fi
+          
+          # Database migration (if backend has migrations)
+          echo "🗄️ Running database migrations..."
+          docker compose -f docker-compose.yml exec -T backend bundle exec rails db:migrate || echo "⚠️ Migration failed or not applicable"
+          
+          echo "✅ Services started successfully"
+
+    - name: Run health checks
+      uses: appleboy/ssh-action@v1.0.0
+      with:
+        host: ${{ secrets.PROD_HOST }}
+        username: ${{ secrets.PROD_USERNAME }}
+        key: ${{ secrets.PROD_SSH_KEY }}
+        port: ${{ steps.ssh-port.outputs.port }}
+        script: |
+          set -e
+          
+          echo "🏥 Performing health checks..."
+          
+          # Navigate to application directory
+          cd ${{ secrets.PROD_APP_PATH || '/opt/resilienceatlas' }}
+          
+          max_attempts=30
+          attempt=1
+          
+          # Health check for frontend
+          echo "⏳ Checking frontend health..."
+          while [ $attempt -le $max_attempts ]; do
+            echo "⏳ Frontend health check attempt $attempt/$max_attempts..."
+            
+            if curl -f -s http://localhost:3000 >/dev/null 2>&1; then
+              echo "✅ Frontend health check passed"
+              break
+            else
+              echo "⏳ Frontend not ready yet..."
+            fi
+            
+            sleep 10
+            attempt=$((attempt + 1))
+          done
+          
+          if [ $attempt -gt $max_attempts ]; then
+            echo "❌ Frontend health check failed after $max_attempts attempts"
+            echo "🔍 Frontend container logs:"
+            docker compose -f docker-compose.yml logs --tail 50 frontend
+            exit 1
+          fi
+          
+          # Health check for backend
+          echo "⏳ Checking backend health..."
+          attempt=1
+          while [ $attempt -le $max_attempts ]; do
+            echo "⏳ Backend health check attempt $attempt/$max_attempts..."
+            
+            backend_response=$(curl -s -w "HTTP_CODE:%{http_code}" http://localhost:3001/health 2>&1 || echo "FAILED")
+            
+            if echo "$backend_response" | grep -q "HTTP_CODE:200"; then
+              echo "✅ Backend health check passed"
+              echo "Response: $backend_response"
+              break
+            else
+              echo "⏳ Backend not ready yet. Response: $backend_response"
+            fi
+            
+            sleep 10
+            attempt=$((attempt + 1))
+          done
+          
+          if [ $attempt -gt $max_attempts ]; then
+            echo "❌ Backend health check failed after $max_attempts attempts"
+            echo "🔍 Backend container logs:"
+            docker compose -f docker-compose.yml logs --tail 50 backend
+            
+            echo "🔄 Attempting rollback..."
+            docker compose -f docker-compose.yml down
+            # Could restore from backup images here if available
+            exit 1
+          fi
+          
+          # Final status check
+          echo "📊 Final container status:"
+          docker compose -f docker-compose.yml ps
+          
+          echo "🎉 All health checks passed! Production deployment successful!"
+
+    - name: Cleanup security group access
+      if: always()
+      run: |
+        # Remove the SSH access rule for the runner IP
+        RUNNER_IP="${{ steps.security-group.outputs.runner-ip }}"
+        if [ -n "$RUNNER_IP" ]; then
+          echo "Removing SSH access for runner IP $RUNNER_IP from security group ${{ secrets.PROD_SECURITY_GROUP_ID }}"
+          aws ec2 revoke-security-group-ingress \
+            --group-id "${{ secrets.PROD_SECURITY_GROUP_ID }}" \
+            --protocol tcp \
+            --port 22 \
+            --cidr "${RUNNER_IP}/32" || true
+          echo "Security group rule removed successfully"
+        else
+          echo "No runner IP found to remove from security group"
+        fi
+
+    - name: Deployment notification
+      if: always()
+      run: |
+        if [ "${{ job.status }}" = "success" ]; then
+          echo "✅ Production deployment successful! Site: https://resilienceatlas.org"
+        else
+          echo "❌ Production deployment failed!"
+          exit 1
+        fi

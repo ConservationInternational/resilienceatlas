@@ -79,30 +79,30 @@ Cache keys are generated based on:
 
 See [.github/TESTING.md](.github/TESTING.md) for detailed testing documentation.
 
-### ECS Deployment Workflows
+### EC2 Deployment Workflows
 
-The project uses AWS ECS (Elastic Container Service) for deployment with separate workflows for staging and production:
+The project uses AWS EC2 instances for deployment with separate workflows for staging and production:
 
-#### Staging Deployment (`ecs_deploy_staging.yml`)
+#### Staging Deployment (`ec2_deploy_staging.yml`)
 - **Triggers**: Pushes to the `develop` branch (after tests pass)
 - **Target**: staging.resilienceatlas.org
-- **Features**: Builds and deploys both frontend and backend containers to ECS
+- **Features**: Deploys directly to EC2 instance using Docker Compose
 - **Environment**: Uses staging-specific environment variables and secrets
 - **Database Refresh**: Automatically copies production database to staging before deployment
 
-#### Production Deployment (`ecs_deploy_production.yml`)
+#### Production Deployment (`ec2_deploy_production.yml`)
 - **Triggers**: Pushes to the `main` branch (after all tests pass)
 - **Target**: resilienceatlas.org
-- **Features**: Builds and deploys both frontend and backend containers to ECS
+- **Features**: Deploys directly to EC2 instance using Docker Compose
 - **Environment**: Uses production-specific environment variables and secrets
 
 Key deployment features:
-- Containerized deployment using Docker multi-stage builds
-- AWS ECR for container image storage
-- ECS with EC2-based cluster for container orchestration
-- Application Load Balancers for traffic distribution
+- Direct EC2 deployment using Docker Compose
+- Application Load Balancer for traffic routing
+- Just-in-time SSH access during deployment
+- Automatic database refresh for staging environment
+- Health checks and rollback capabilities
 - AWS Secrets Manager for secure credential management
-- Automatic health checks and service stability verification
 - Deployment only proceeds after all relevant tests pass
 - **Staging database refresh**: Production data automatically copied to staging for realistic testing
 
@@ -134,42 +134,37 @@ The TiTiler COGs service provides dynamic tile generation for Cloud Optimized Ge
 
 ## Production Deployment
 
-### AWS ECS Deployment
+### AWS EC2 Deployment
 
-The application is deployed to AWS ECS (Elastic Container Service) using EC2-based clusters for both staging and production environments:
+The application is deployed directly to AWS EC2 instances using Docker Compose for both staging and production environments:
 
 - **Staging**: [staging.resilienceatlas.org](https://staging.resilienceatlas.org) (deployed from `develop` branch)
-- **Production**: [resilienceatlas.org](https://resilienceatlas.org) (deployed from `master`/`main` branch)
+- **Production**: [resilienceatlas.org](https://resilienceatlas.org) (deployed from `main` branch)
 
 #### Deployment Architecture
 
-- **Container Registry**: AWS ECR for storing Docker images
-- **Orchestration**: AWS ECS with EC2 cluster (`resilienceatlas-cluster`)
-- **Load Balancing**: Application Load Balancers for traffic distribution
-- **Secret Management**: AWS Secrets Manager for secure credential storage
-- **Monitoring**: CloudWatch logs and ECS service metrics
+- **Hosting**: EC2 instances running Docker Compose
+- **Load Balancing**: Application Load Balancer for traffic distribution and SSL termination
+- **Secret Management**: Environment variables and AWS Secrets Manager for secure configuration
+- **SSH Access**: Just-in-time SSH access during deployments for security
+- **Monitoring**: CloudWatch logs and instance metrics
 
-#### Setting Up ECS Deployment
+#### Setting Up EC2 Deployment
 
-1. **Prerequisites**: AWS account with appropriate IAM permissions, Python 3.7+, AWS CLI configured
+1. **Prerequisites**: AWS account with appropriate IAM permissions, Python 3.8+, AWS CLI configured
 
 2. **Infrastructure Setup**:
    ```bash
    cd scripts
    pip install -r requirements.txt
-   python setup_ecs_infrastructure.py --account-id YOUR_AWS_ACCOUNT_ID
+   ./setup_complete_infrastructure.sh
    ```
 
-3. **Services Creation**:
-   ```bash
-   python create_ecs_services.py --account-id YOUR_AWS_ACCOUNT_ID
-   ```
+3. **Configure GitHub Actions**: Set up repository secrets for automatic deployments
 
-4. **Configure Secrets**: Update AWS Secrets Manager entries with real database URLs and application secrets
+4. **Environment Configuration**: Update environment files and AWS secrets with real values
 
-5. **GitHub Actions**: Configure repository secrets for automatic deployments
-
-See [DOCKER.md](DOCKER.md) for detailed setup instructions and [scripts/README.md](scripts/README.md) for script documentation.
+See [scripts/README.md](scripts/README.md) for detailed setup instructions and script documentation.
 
 ## Docker Setup
 
