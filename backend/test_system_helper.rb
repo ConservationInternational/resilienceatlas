@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 # Simple test script to validate system_helper improvements
-require_relative 'spec/system_helper'
+require_relative "spec/system_helper"
 
 puts "Testing system helper configuration..."
 

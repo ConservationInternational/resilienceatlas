@@ -43,13 +43,13 @@ class AdminUser < ApplicationRecord
   # Ransack configuration - explicitly allowlist searchable attributes for security
   def self.ransackable_attributes(auth_object = nil)
     %w[
-      id email name nickname role created_at updated_at sign_in_count 
+      id email name nickname role created_at updated_at sign_in_count
       current_sign_in_at last_sign_in_at current_sign_in_ip last_sign_in_ip
       remember_created_at provider uid confirmation_token confirmed_at
       confirmation_sent_at unconfirmed_email
     ]
   end
-  
+
   def self.ransackable_associations(auth_object = nil)
     []
   end

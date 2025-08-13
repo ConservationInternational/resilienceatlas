@@ -30,11 +30,11 @@ ActiveAdmin.register Journey do
   end
 
   action_item :publish, only: :show, priority: 0, if: -> { !resource.published? } do
-    link_to "Publish Journey", publish_admin_journey_path(resource), data: { method: :put }
+    link_to "Publish Journey", publish_admin_journey_path(resource), data: {method: :put}
   end
 
   action_item :unpublish, only: :show, priority: 0, if: -> { resource.published? } do
-    link_to "Unpublish Journey", unpublish_admin_journey_path(resource), data: { method: :put }
+    link_to "Unpublish Journey", unpublish_admin_journey_path(resource), data: {method: :put}
   end
 
   index do

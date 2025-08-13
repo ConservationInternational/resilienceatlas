@@ -68,7 +68,7 @@ class SiteScope < ApplicationRecord
       has_gef_logo password_protected username created_at updated_at
     ]
   end
-  
+
   def self.ransackable_associations(auth_object = nil)
     %w[homepage layer_groups site_pages translations]
   end

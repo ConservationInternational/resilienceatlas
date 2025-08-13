@@ -67,7 +67,7 @@ RSpec.describe "Admin: Homepages", type: :system do
     it "allows to create new homepage" do
       # Wait for page to fully load
       wait_for_page_load
-      
+
       # base homepage
       safe_fill_in "homepage[translations_attributes][0][title]", with: "New title"
       safe_fill_in "homepage[translations_attributes][0][subtitle]", with: "New subtitle"
@@ -75,16 +75,16 @@ RSpec.describe "Admin: Homepages", type: :system do
       select site_scope.name, from: "homepage[site_scope_id]"
       safe_fill_in "homepage[credits_url]", with: "https://credits-url.com"
       attach_file "homepage[background_image]", Rails.root.join("spec/fixtures/files/picture.jpg")
-      
+
       # journeys
       check "homepage[show_journeys]"
       safe_fill_in "homepage[homepage_journey_attributes][position]", with: "0"
       safe_fill_in "homepage[homepage_journey_attributes][translations_attributes][0][title]", with: "New journey title"
-      
+
       # homepage sections - click to add and wait for it to appear
       safe_click "input[value='Add New Homepage section']"
       wait_for_element "input[name='homepage[homepage_sections_attributes][0][translations_attributes][0][title]']", timeout: 15
-      
+
       safe_fill_in "homepage[homepage_sections_attributes][0][translations_attributes][0][title]", with: "New section title"
       safe_fill_in "homepage[homepage_sections_attributes][0][translations_attributes][0][subtitle]", with: "New section subtitle"
       safe_fill_in "homepage[homepage_sections_attributes][0][translations_attributes][0][button_text]", with: "New section button text"
@@ -137,7 +137,7 @@ RSpec.describe "Admin: Homepages", type: :system do
     it "allows to update existing homepage" do
       # Wait for page to fully load
       wait_for_page_load
-      
+
       # base homepage
       safe_fill_in "homepage[translations_attributes][0][title]", with: "Updated title"
       safe_fill_in "homepage[translations_attributes][0][subtitle]", with: "Updated subtitle"
@@ -145,22 +145,22 @@ RSpec.describe "Admin: Homepages", type: :system do
       select site_scope.name, from: "homepage[site_scope_id]"
       safe_fill_in "homepage[credits_url]", with: "https://credits-url.com"
       attach_file "homepage[background_image]", Rails.root.join("spec/fixtures/files/picture.jpg")
-      
+
       # journeys
       check "homepage[show_journeys]"
       safe_fill_in "homepage[homepage_journey_attributes][position]", with: "0"
       safe_fill_in "homepage[homepage_journey_attributes][translations_attributes][0][title]", with: "Updated journey title"
-      
+
       # homepage sections - expand the collapsible section first
       fieldset = all("fieldset.has-many-toggle-collapse").last
       if fieldset
         fieldset.click
         sleep 0.5  # Give time for animation
       end
-      
+
       # Wait for the fields to be visible and enabled
       wait_for_element "input[name='homepage[homepage_sections_attributes][0][translations_attributes][0][title]']:not([disabled])", timeout: 15
-      
+
       safe_fill_in "homepage[homepage_sections_attributes][0][translations_attributes][0][title]", with: "Updated section title"
       safe_fill_in "homepage[homepage_sections_attributes][0][translations_attributes][0][subtitle]", with: "Updated section subtitle"
       safe_fill_in "homepage[homepage_sections_attributes][0][translations_attributes][0][button_text]", with: "Updated section button text"

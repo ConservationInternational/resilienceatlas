@@ -135,7 +135,7 @@ class Layer < ApplicationRecord
 
   validates_presence_of :slug, :layer_provider, :interaction_config
   validates :timeline, inclusion: {in: [true, false]}
-  
+
   # Ransack configuration - explicitly allowlist searchable attributes for security
   def self.ransackable_attributes(auth_object = nil)
     %w[
@@ -149,7 +149,7 @@ class Layer < ApplicationRecord
       info legend title data_units processing description analysis_text_template
     ]
   end
-  
+
   def self.ransackable_associations(auth_object = nil)
     %w[agrupations layer_groups site_scopes sources translations]
   end

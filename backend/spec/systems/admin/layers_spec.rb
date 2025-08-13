@@ -94,7 +94,7 @@ RSpec.describe "Admin: Layers", type: :system do
     it "allows to create new layer for cartodb layer provider" do
       # Wait for page to load
       wait_for_page_load
-      
+
       safe_fill_in "layer[slug]", with: "new-layer"
       safe_fill_in "layer[translations_attributes][0][name]", with: "New name"
       safe_fill_in "layer[translations_attributes][0][description]", with: "New description"
@@ -260,7 +260,7 @@ RSpec.describe "Admin: Layers", type: :system do
     it "allows to change layer to published" do
       # Wait for page to load
       wait_for_page_load
-      
+
       # Use the safer approach with method handling
       safe_click_method_link "Publish Layer", method: :put
 
@@ -279,7 +279,7 @@ RSpec.describe "Admin: Layers", type: :system do
     it "allows to change layer to published" do
       # Wait for page to load
       wait_for_page_load
-      
+
       # Use the safer approach with method handling
       safe_click_method_link "Unpublish Layer", method: :put
 

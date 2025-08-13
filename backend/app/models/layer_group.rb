@@ -44,7 +44,7 @@ class LayerGroup < ApplicationRecord
       icon_class site_scope_id name info
     ]
   end
-  
+
   def self.ransackable_associations(auth_object = nil)
     %w[agrupations layers super_group sub_groups site_scope translations]
   end

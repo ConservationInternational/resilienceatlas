@@ -60,7 +60,7 @@ class Homepage < ApplicationRecord
       created_at updated_at title subtitle credits
     ]
   end
-  
+
   def self.ransackable_associations(auth_object = nil)
     %w[site_scope homepage_journey homepage_sections translations background_image_attachment]
   end

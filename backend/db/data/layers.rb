@@ -1,10 +1,6 @@
 SiteScope.create!([
-  
-  
-  
+
   {id: 1, name: "Resilience Atlas", color: nil, subdomain: nil, has_analysis: false, latitude: nil, longitude: nil, header_theme: nil, zoom_level: 3, linkback_text: nil, linkback_url: nil, header_color: nil, logo_url: nil}
-
-
 
 ])
 
@@ -224,9 +220,7 @@ Layer.create!([
 ])
 
 Agrupation.create!([
-  
-  
-  
+
   {id: 107, layer_id: 107, layer_group_id: 9},
   {id: 108, layer_id: 108, layer_group_id: 24},
   {id: 109, layer_id: 109, layer_group_id: 9},
@@ -357,7 +351,5 @@ Agrupation.create!([
   {id: 104, layer_id: 105, layer_group_id: 28},
   {id: 105, layer_id: 106, layer_group_id: 28},
   {id: 177, layer_id: 184, layer_group_id: 48}
-
-
 
 ])
