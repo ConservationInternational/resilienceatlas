@@ -14,7 +14,49 @@ if [ ! -w "Gemfile.lock" ]; then
 fi
 
 # Ensure tmp directory exists and is writable
-mkdir -p tmp/cache tmp/pids tmp/sockets tmp/storage 2>/dev/null || true
+echo "🔧 Setting up tmp directories..."
+mkdir -p tmp tmp/cache tmp/pids tmp/sockets tmp/storage 2>/dev/null || true
+
+# Ensure the tmp directory is writable by the current user
+if [ ! -w "tmp" ] || [ ! -w "tmp/" ]; then
+  echo "⚠️  tmp directory not writable, attempting to fix permissions..."
+  if command -v sudo >/dev/null 2>&1; then
+    sudo chmod 775 tmp 2>/dev/null || echo "Could not fix tmp permissions"
+    sudo chown $(whoami):$(whoami) tmp 2>/dev/null || echo "Could not fix tmp ownership"
+  else
+    echo "sudo not available, trying to fix without sudo..."
+    chmod 775 tmp 2>/dev/null || echo "Could not fix tmp permissions without sudo"
+  fi
+fi
+
+# Test if we can actually write to the tmp directory
+echo "🔍 Testing tmp directory write permissions..."
+if ! echo "test" > tmp/write_test.tmp 2>/dev/null; then
+  echo "❌ Cannot write to tmp directory even after permission fixes"
+  echo "Current tmp directory permissions:"
+  ls -la tmp/ 2>/dev/null || echo "tmp directory does not exist or is not accessible"
+  echo "Current user: $(whoami)"
+  echo "Current user groups: $(groups)"
+  echo "Attempting to create with current user permissions..."
+  rm -f tmp/write_test.tmp 2>/dev/null || true
+  # Try to create it fresh with explicit ownership
+  mkdir -p tmp 2>/dev/null || true
+  touch tmp/write_test.tmp 2>/dev/null || echo "Still cannot create files in tmp"
+  
+  # If still cannot write, try a different approach
+  if [ ! -f tmp/write_test.tmp ]; then
+    echo "🔧 Attempting alternative tmp directory setup..."
+    if command -v sudo >/dev/null 2>&1; then
+      sudo mkdir -p tmp 2>/dev/null || true
+      sudo chown -R $(whoami):$(whoami) tmp 2>/dev/null || true
+      sudo chmod -R 775 tmp 2>/dev/null || true
+      echo "test" > tmp/write_test.tmp 2>/dev/null || echo "❌ Alternative setup also failed"
+    fi
+  fi
+else
+  rm -f tmp/write_test.tmp 2>/dev/null || true
+  echo "✅ tmp directory is writable"
+fi
 
 # Try bundle install, but don't fail if gems are already satisfied
 if ! bundle check >/dev/null 2>&1; then
@@ -138,10 +180,40 @@ case "${1:-all}" in
     ;;
   "junit")
     echo "🧪 Running RSpec tests with JUnit output..."
+    # Ensure rspec.xml can be created and is writable
+    touch tmp/rspec.xml 2>/dev/null || {
+      echo "⚠️  Cannot create tmp/rspec.xml, checking permissions..."
+      ls -la tmp/ 2>/dev/null || echo "tmp directory missing"
+      # Try to create it with explicit permissions
+      if [ -d tmp ]; then
+        rm -f tmp/rspec.xml 2>/dev/null || true
+        echo "test" > tmp/rspec.xml 2>/dev/null && rm -f tmp/rspec.xml || {
+          echo "❌ Still cannot write to tmp/rspec.xml"
+          echo "Attempting to fix directory permissions..."
+          chmod 755 tmp 2>/dev/null || echo "Cannot chmod tmp directory"
+          touch tmp/rspec.xml 2>/dev/null || echo "Still cannot create rspec.xml after chmod"
+        }
+      fi
+    }
     bundle exec rspec --format RspecJunitFormatter --out tmp/rspec.xml --format progress "${@:2}"
     ;;
   "junit-no-system")
     echo "🧪 Running RSpec tests (excluding system tests) with JUnit output..."
+    # Ensure rspec.xml can be created and is writable
+    touch tmp/rspec.xml 2>/dev/null || {
+      echo "⚠️  Cannot create tmp/rspec.xml, checking permissions..."
+      ls -la tmp/ 2>/dev/null || echo "tmp directory missing"
+      # Try to create it with explicit permissions
+      if [ -d tmp ]; then
+        rm -f tmp/rspec.xml 2>/dev/null || true
+        echo "test" > tmp/rspec.xml 2>/dev/null && rm -f tmp/rspec.xml || {
+          echo "❌ Still cannot write to tmp/rspec.xml"
+          echo "Attempting to fix directory permissions..."
+          chmod 755 tmp 2>/dev/null || echo "Cannot chmod tmp directory"
+          touch tmp/rspec.xml 2>/dev/null || echo "Still cannot create rspec.xml after chmod"
+        }
+      fi
+    }
     bundle exec rspec --exclude-pattern="spec/systems/**/*_spec.rb" --format RspecJunitFormatter --out tmp/rspec.xml --format progress "${@:2}"
     ;;
   "all")
