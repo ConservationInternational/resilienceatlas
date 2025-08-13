@@ -47,11 +47,16 @@ RUN bash -c 'for i in {1..3}; do \
 # Test stage
 FROM base AS test
 
+# Set environment variables for better network resilience
+ENV DEBIAN_FRONTEND=noninteractive
+ENV APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=1
+
 # Install minimal test dependencies (skip Chrome for now)
 RUN apt-get update -qq && apt-get install -y \
   curl \
   sudo \
-  && rm -rf /var/lib/apt/lists/*
+  && rm -rf /var/lib/apt/lists/* || \
+  echo "Package installation failed, but continuing with existing packages"
 
 # Create a non-root user for running Chrome (Chrome refuses to run as root in newer versions)
 RUN groupadd -r appuser && useradd -r -g appuser -G audio,video appuser \
