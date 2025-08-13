@@ -93,7 +93,9 @@ services:
         sudo chmod 664 /app/Gemfile.lock &&
         sudo chmod 755 /app/bin/* &&
         sudo chmod 755 /app/chrome_wrapper.sh &&
-        sudo chmod -R 755 /app/tmp /app/log &&
+        sudo chmod -R 775 /app/tmp /app/log &&
+        sudo mkdir -p /app/tmp/cache /app/tmp/pids /app/tmp/sockets &&
+        sudo chown -R appuser:appuser /app/tmp &&
         
         echo '📦 Installing dependencies...' &&
         bundle install &&
