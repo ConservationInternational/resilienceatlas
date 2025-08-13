@@ -15,16 +15,16 @@ module ConservationInternational
     begin
       backend_url = URI.parse(backend_url_env)
       # If parsing a service name without protocol, it becomes the path, not host
-      if backend_url.host.nil? && backend_url.path.present?
+      Rails.application.routes.default_url_options = if backend_url.host.nil? && backend_url.path.present?
         # This is likely a service name, set defaults for container environment
-        Rails.application.routes.default_url_options = {
+        {
           host: backend_url_env,
           port: 3000,
           protocol: "http"
         }
       else
         # This is a proper URL
-        Rails.application.routes.default_url_options = {
+        {
           host: backend_url.host,
           port: backend_url.port,
           protocol: backend_url.scheme

@@ -43,7 +43,7 @@ class User < ApplicationRecord
       current_sign_in_ip last_sign_in_ip remember_created_at
     ]
   end
-  
+
   def self.ransackable_associations(auth_object = nil)
     %w[identities user_downloads]
   end

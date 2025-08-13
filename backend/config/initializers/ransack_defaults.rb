@@ -28,7 +28,7 @@ module RansackableDefaults
 
     def ransackable_associations(auth_object = nil)
       if defined?(super)
-        super  
+        super
       else
         []
       end

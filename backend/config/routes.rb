@@ -18,7 +18,7 @@ Rails.application.routes.draw do
   namespace :api, defaults: {format: "json"} do
     # Health check endpoint
     get "health", to: "health#show"
-    
+
     namespace :admin do
       resources :layers do
         collection do

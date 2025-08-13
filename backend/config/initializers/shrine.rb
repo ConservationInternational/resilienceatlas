@@ -2,7 +2,7 @@ require "shrine"
 require "shrine/storage/file_system"
 
 # Ensure upload directories exist with proper error handling
-upload_root = Rails.env.test? ? "public" : "public"
+upload_root = "public"
 upload_cache_path = File.join(Rails.root, upload_root, "uploads", "cache")
 upload_store_path = File.join(Rails.root, upload_root, "uploads", "store")
 

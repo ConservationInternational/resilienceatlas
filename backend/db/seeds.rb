@@ -14,10 +14,10 @@ if resilience_atlas_site_scope && !Homepage.exists?(site_scope_id: resilience_at
       title: "Welcome to Resilience Atlas",
       position: 1
     )
-    
+
     # Path to the background image
     image_path = Rails.root.join("app", "assets", "images", "home", "bg-welcome.jpg")
-    
+
     # Create homepage with proper Active Storage attachment
     homepage = Homepage.new(
       site_scope_id: resilience_atlas_site_scope.id,
@@ -28,17 +28,17 @@ if resilience_atlas_site_scope && !Homepage.exists?(site_scope_id: resilience_at
       credits_url: "https://www.conservation.org",
       show_journeys: true
     )
-    
+
     # Save without validation first to get a persisted record
     homepage.save!(validate: false)
-    
+
     # Now attach the image to the persisted record
     homepage.background_image.attach(
       io: File.open(image_path),
-      filename: "bg-welcome.jpg", 
+      filename: "bg-welcome.jpg",
       content_type: "image/jpeg"
     )
-    
+
     # Validate the record now that the image is attached
     homepage.valid? # This will populate errors if validation fails
     if homepage.errors.any?
@@ -48,8 +48,8 @@ if resilience_atlas_site_scope && !Homepage.exists?(site_scope_id: resilience_at
     end
   rescue => e
     puts "Error creating homepage: #{e.message}"
-    puts "Image path attempted: #{Rails.root.join('app', 'assets', 'images', 'home', 'bg-welcome.jpg')}"
-    puts "Image exists: #{File.exist?(Rails.root.join('app', 'assets', 'images', 'home', 'bg-welcome.jpg'))}"
+    puts "Image path attempted: #{Rails.root.join("app", "assets", "images", "home", "bg-welcome.jpg")}"
+    puts "Image exists: #{File.exist?(Rails.root.join("app", "assets", "images", "home", "bg-welcome.jpg"))}"
     puts e.backtrace.first(5) if e.backtrace
   end
 end
@@ -57,25 +57,25 @@ end
 # Create about static page if it doesn't exist
 unless StaticPage::Base.exists?(slug: "about")
   puts "Creating about static page..."
-  
+
   # Path to an image for the about page
   about_image_path = Rails.root.join("app", "assets", "images", "about-hero.jpg")
-  
+
   about_page = StaticPage::Base.new(
     slug: "about",
     title: "About Resilience Atlas"
   )
-  
+
   # Save without validation first to get a persisted record
   about_page.save!(validate: false)
-  
+
   # Attach the image to the persisted record
   about_page.image.attach(
     io: File.open(about_image_path),
     filename: "about-hero.jpg",
     content_type: "image/jpeg"
   )
-  
+
   # Validate the record now that the image is attached
   about_page.valid? # This will populate errors if validation fails
   if about_page.errors.any?
@@ -88,14 +88,14 @@ unless StaticPage::Base.exists?(slug: "about")
       title: "About",
       position: 1
     )
-    
+
     # Create a paragraph for the section
     StaticPage::SectionParagraph.create!(
       section: section,
       text: "Welcome to the Resilience Atlas. This platform provides data and insights for building resilience to climate change and development challenges.",
       image_position: "right"
     )
-    
+
     puts "Created about static page successfully"
   end
 end
@@ -110,34 +110,34 @@ if Layer.count == 0
     existing_site_scope_ids = SiteScope.pluck(:id)
     existing_layer_group_ids = LayerGroup.pluck(:id)
     existing_agrupation_ids = Agrupation.pluck(:id)
-    
+
     puts "Existing site_scope IDs: #{existing_site_scope_ids}"
     puts "Existing layer_group IDs: #{existing_layer_group_ids}"
     puts "Existing agrupation IDs: #{existing_agrupation_ids}"
-    
+
     # Read the file content and modify it to skip existing records
     content = File.read(layers_file)
-    
+
     # Skip SiteScope creation if any exist
     if existing_site_scope_ids.any?
       puts "Skipping SiteScope creation - site_scopes already exist"
-      content = content.gsub(/SiteScope\.create!\(\[.*?\]\)/m, '# SiteScope creation skipped - already exists')
+      content = content.gsub(/SiteScope\.create!\(\[.*?\]\)/m, "# SiteScope creation skipped - already exists")
     end
-    
+
     # Skip LayerGroup creation if any exist
     if existing_layer_group_ids.any?
       puts "Skipping LayerGroup creation - layer_groups already exist"
-      content = content.gsub(/LayerGroup\.create!\(\[.*?\]\)/m, '# LayerGroup creation skipped - already exists')
+      content = content.gsub(/LayerGroup\.create!\(\[.*?\]\)/m, "# LayerGroup creation skipped - already exists")
     end
-    
-    # Skip Agrupation creation if any exist  
+
+    # Skip Agrupation creation if any exist
     if existing_agrupation_ids.any?
       puts "Skipping Agrupation creation - agrupations already exist"
-      content = content.gsub(/Agrupation\.create!\(\[.*?\]\)/m, '# Agrupation creation skipped - already exists')
+      content = content.gsub(/Agrupation\.create!\(\[.*?\]\)/m, "# Agrupation creation skipped - already exists")
     end
-    
+
     # Execute the modified content
-    eval(content)
+    eval(content, binding, __FILE__, __LINE__)
     puts "Layers imported successfully from layers.rb"
   else
     puts "Warning: layers.rb file not found at #{layers_file}"
@@ -155,39 +155,39 @@ if Journey.count == 0
     begin
       # Temporarily disable the at_least_one_step callback
       Journey.skip_callback(:save, :after, :at_least_one_step)
-      
+
       content = File.read(journeys_file)
-      
+
       # Extract and execute just the Journey.create! part first
       journey_section = content.match(/Journey\.create!\(\[(.*?)\]\)/m)
       if journey_section
-        eval("Journey.create!([#{journey_section[1]}])")
+        eval("Journey.create!([#{journey_section[1]}])", binding, __FILE__, __LINE__)
         puts "Journeys created: #{Journey.count}"
-        
+
         # Update sequence to prevent ID conflicts
         ActiveRecord::Base.connection.execute("SELECT setval('journeys_id_seq', (SELECT MAX(id) FROM journeys))")
-        
+
         # Extract and execute the JourneyStep.create! part
         journey_step_section = content.match(/JourneyStep\.create!\(\[(.*?)\]\)/m)
         if journey_step_section
-          eval("JourneyStep.create!([#{journey_step_section[1]}])")
+          eval("JourneyStep.create!([#{journey_step_section[1]}])", binding, __FILE__, __LINE__)
           puts "Journey steps created: #{JourneyStep.count}"
-          
+
           # Update journey step sequence as well
           ActiveRecord::Base.connection.execute("SELECT setval('journey_steps_id_seq', (SELECT MAX(id) FROM journey_steps))")
         end
       end
-      
+
       # Re-enable the callback
       Journey.set_callback(:save, :after, :at_least_one_step)
-      
+
       puts "Journeys imported successfully from journeys.rb (#{Journey.count} journeys, #{JourneyStep.count} journey steps)"
     rescue => e
       # Re-enable the callback even if there's an error
       Journey.set_callback(:save, :after, :at_least_one_step)
       puts "Journey import failed: #{e.message}"
       puts "Trying direct load method..."
-      
+
       # Fall back to direct load if the above fails
       load(journeys_file)
     end
@@ -201,7 +201,7 @@ end
 # Import map menu entries if none exist
 if MapMenuEntry.count == 0
   puts "No map menu entries found, creating navigation structure..."
-  
+
   gef = MapMenuEntry.create! label: "GEF-funded Projects", position: 1
   country = MapMenuEntry.create! label: "Country Atlases", position: 2
   vital = MapMenuEntry.create! label: "Vital Signs", position: 3
@@ -266,7 +266,7 @@ if MapMenuEntry.count == 0
   MapMenuEntry.create! label: "Intensification",
     link: "https://intensification.resilienceatlas.org/map",
     position: 2, parent: regions
-    
+
   puts "Map menu entries created: #{MapMenuEntry.count}"
 else
   puts "Map menu entries already exist (#{MapMenuEntry.count} entries)"

@@ -230,12 +230,12 @@ RSpec.describe "Admin: Journeys", type: :system do
     it "allows to change journey to published" do
       puts "[SYSTEM_TEST] Checking for publish button..."
       expect(page).to have_text("Publish Journey")
-      
+
       puts "[SYSTEM_TEST] Attempting to click publish button..."
       click_on "Publish Journey"
-      
+
       puts "[SYSTEM_TEST] Waiting for response..."
-      
+
       # Check if we got the success message or try fallback approach
       if page.has_text?("Journey was published!", wait: 3)
         puts "[SYSTEM_TEST] UI publish succeeded"
@@ -245,15 +245,15 @@ RSpec.describe "Admin: Journeys", type: :system do
         puts "[SYSTEM_TEST] UI publish failed, checking current page content..."
         puts "[SYSTEM_TEST] Current page: #{page.current_url}"
         puts "[SYSTEM_TEST] Page title: #{page.title}"
-        
+
         # Check if we're on an error page
         if page.has_text?("Routing Error") || page.has_text?("No route matches")
           puts "[SYSTEM_TEST] Routing error detected, trying to update directly via Ruby..."
-          
+
           # Try updating the model directly as fallback
           journey.update!(published: true)
           visit "/admin/journeys/#{journey.id}"
-          
+
           # Check if the journey was actually published
           journey.reload
           if journey.published?
@@ -282,12 +282,12 @@ RSpec.describe "Admin: Journeys", type: :system do
     it "allows to change journey to published" do
       puts "[SYSTEM_TEST] Checking for unpublish button..."
       expect(page).to have_text("Unpublish Journey")
-      
+
       puts "[SYSTEM_TEST] Attempting to click unpublish button..."
       click_on "Unpublish Journey"
-      
+
       puts "[SYSTEM_TEST] Waiting for response..."
-      
+
       # Check if we got the success message or try fallback approach
       if page.has_text?("Journey was marked as not published!", wait: 3)
         puts "[SYSTEM_TEST] UI unpublish succeeded"
@@ -297,15 +297,15 @@ RSpec.describe "Admin: Journeys", type: :system do
         puts "[SYSTEM_TEST] UI unpublish failed, checking current page content..."
         puts "[SYSTEM_TEST] Current page: #{page.current_url}"
         puts "[SYSTEM_TEST] Page title: #{page.title}"
-        
+
         # Check if we're on an error page
         if page.has_text?("Routing Error") || page.has_text?("No route matches")
           puts "[SYSTEM_TEST] Routing error detected, trying to update directly via Ruby..."
-          
+
           # Try updating the model directly as fallback
           journey.update!(published: false)
           visit "/admin/journeys/#{journey.id}"
-          
+
           # Check if the journey was actually unpublished
           journey.reload
           if !journey.published?

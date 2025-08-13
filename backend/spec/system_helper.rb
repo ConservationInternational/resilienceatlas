@@ -2,7 +2,7 @@ require "capybara/cuprite"
 require "rails_helper"
 
 # Set up proper temp directory for Ruby (not world-writable)
-ENV['TMPDIR'] = '/tmp/appuser-tmp' if File.directory?('/tmp/appuser-tmp')
+ENV["TMPDIR"] = "/tmp/appuser-tmp" if File.directory?("/tmp/appuser-tmp")
 
 # Increase default wait times for more stable tests
 Capybara.default_max_wait_time = 30  # Reduced from 60 for faster tests
@@ -50,7 +50,7 @@ Capybara.register_driver(:cuprite) do |app|
     # Optimize for speed
     ws_url_timeout: 120  # Reduced from 180
   }
-  
+
   Capybara::Cuprite::Driver.new(app, **options)
 end
 
@@ -90,12 +90,12 @@ RSpec.configure do |config|
 
   # Use shared browser session for better performance
   config.before(:suite) do
-    if RSpec.configuration.files_to_run.any? { |f| f.include?('systems/') || f.include?('system/') }
+    if RSpec.configuration.files_to_run.any? { |f| f.include?("systems/") || f.include?("system/") }
       puts "[SYSTEM_TEST] Starting shared browser session for test suite"
-      
+
       # Pre-warm the browser session to avoid startup delays
       begin
-        Capybara.current_session.visit('about:blank')
+        Capybara.current_session.visit("about:blank")
         puts "[SYSTEM_TEST] Shared browser session ready"
       rescue => e
         puts "[SYSTEM_TEST] Warning: Could not pre-warm browser session: #{e.message}"
@@ -108,13 +108,13 @@ RSpec.configure do |config|
     Capybara.current_driver = :cuprite
     Capybara.javascript_driver = :cuprite
     puts "[SYSTEM_TEST] Using driver: #{Capybara.current_driver}"
-    
+
     # Verify driver exists and is cuprite by checking current driver only
     unless Capybara.current_driver == :cuprite
       puts "[SYSTEM_TEST] Warning: Driver was not cuprite (#{Capybara.current_driver}), forcing cuprite"
       Capybara.current_driver = :cuprite
     end
-    
+
     # Only reset if we're using cuprite to avoid selenium cleanup errors
     if Capybara.current_driver == :cuprite
       begin
@@ -131,7 +131,7 @@ RSpec.configure do |config|
       end
     end
   end
-  
+
   # Clean up after each test but keep browser alive
   config.after(:each, type: :system) do
     # Only clean up if we're using cuprite
@@ -141,11 +141,19 @@ RSpec.configure do |config|
         if Capybara.current_session.driver.respond_to?(:browser)
           browser = Capybara.current_session.driver.browser
           if browser.respond_to?(:evaluate)
-            browser.evaluate('localStorage.clear()') rescue nil
-            browser.evaluate('sessionStorage.clear()') rescue nil
+            begin
+              browser.evaluate("localStorage.clear()")
+            rescue
+              nil
+            end
+            begin
+              browser.evaluate("sessionStorage.clear()")
+            rescue
+              nil
+            end
           end
         end
-        
+
         # Reset Capybara session state
         Capybara.current_session.reset!
       rescue => e

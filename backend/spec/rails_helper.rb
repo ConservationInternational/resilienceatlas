@@ -19,7 +19,7 @@ if defined?(Capybara)
       raise "Selenium driver (#{driver_name}) disabled! Use :cuprite instead."
     end
   end
-  
+
   # Also prevent any automatic selenium driver initialization
   Capybara.configure do |config|
     config.default_driver = :cuprite
