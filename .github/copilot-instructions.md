@@ -229,5 +229,5 @@ docker compose -f docker-compose.test.yml run --rm backend-test ./bin/test secur
 ### Deployment Notes
 - Staging: Deployed to staging.resilienceatlas.org from develop branch
 - Production: Deployed to resilienceatlas.org from main branch
-- AWS ECS deployment with containerized PostgreSQL for staging
+- AWS EC2 deployment with Docker Compose and containerized PostgreSQL for staging
 - Automatic database refresh from production to staging on deploy
