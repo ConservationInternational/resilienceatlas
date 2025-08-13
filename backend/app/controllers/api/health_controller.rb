@@ -1,5 +1,4 @@
 class Api::HealthController < ApplicationController
-  skip_before_action :authenticate_user!, if: :defined_authenticate_user?
   skip_before_action :verify_authenticity_token
 
   def show
@@ -35,11 +34,5 @@ class Api::HealthController < ApplicationController
     http_status = database_status.include?("unhealthy") ? 503 : 200
 
     render json: status, status: http_status
-  end
-
-  private
-
-  def defined_authenticate_user?
-    respond_to?(:authenticate_user!)
   end
 end
