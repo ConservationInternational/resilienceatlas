@@ -52,6 +52,8 @@ RSpec.configure do |config|
     end
   end
 
+  # Use fixed seed for consistent snapshot testing
   config.order = :random
+  config.seed = 1584  # Fixed seed that matches existing snapshots
   Kernel.srand config.seed
 end

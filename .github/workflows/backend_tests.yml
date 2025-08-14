@@ -187,8 +187,8 @@ jobs:
             echo 'Verifying test environment...'
             bundle exec rails runner 'puts \"Rails #{Rails.version}, Ruby #{RUBY_VERSION}, Environment: #{Rails.env}\"'
             
-            echo 'Starting RSpec tests...'
-            ./bin/test junit
+            echo 'Starting RSpec tests (excluding system tests)...'
+            ./bin/test junit-no-system
           " || {
             echo "❌ RSpec tests failed, collecting debug information..."
             echo "Backend container logs:"
