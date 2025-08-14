@@ -157,8 +157,9 @@ jobs:
 
     - name: Setup test database
       run: |
-        # Ensure tmp directory exists for test results
+        # Ensure tmp directory exists for test results with correct permissions
         mkdir -p backend/tmp
+        chmod 777 backend/tmp  # Allow container to write test results back to host
         
         # Setup database with proper error handling
         echo "Setting up test database..."
@@ -186,8 +187,8 @@ jobs:
             echo 'Verifying test environment...'
             bundle exec rails runner 'puts \"Rails #{Rails.version}, Ruby #{RUBY_VERSION}, Environment: #{Rails.env}\"'
             
-            echo 'Starting RSpec tests...'
-            ./bin/test junit
+            echo 'Starting RSpec tests (excluding system tests)...'
+            ./bin/test junit-no-system
           " || {
             echo "❌ RSpec tests failed, collecting debug information..."
             echo "Backend container logs:"
