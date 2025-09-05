@@ -51,10 +51,32 @@ FROM base AS test
 ENV DEBIAN_FRONTEND=noninteractive
 ENV APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=1
 
-# Install minimal test dependencies (skip Chrome for now)
+# Install test dependencies including Chrome for system tests
 RUN apt-get update -qq && apt-get install -y \
   curl \
   sudo \
+  wget \
+  gnupg \
+  xvfb \
+  fonts-liberation \
+  libasound2 \
+  libatk-bridge2.0-0 \
+  libatk1.0-0 \
+  libatspi2.0-0 \
+  libdrm2 \
+  libgtk-3-0 \
+  libnspr4 \
+  libnss3 \
+  libx11-xcb1 \
+  libxcomposite1 \
+  libxdamage1 \
+  libxrandr2 \
+  libxss1 \
+  libxtst6 \
+  && wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
+  && echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google-chrome.list \
+  && apt-get update -qq \
+  && apt-get install -y google-chrome-stable \
   && rm -rf /var/lib/apt/lists/* || \
   echo "Package installation failed, but continuing with existing packages"
 
