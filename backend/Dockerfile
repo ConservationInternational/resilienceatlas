@@ -27,8 +27,8 @@ RUN for i in {1..3}; do \
     done
 
 # Configure bundler for better network resilience
-RUN bundle config set timeout 30 && \
-    bundle config set retry 3
+RUN bundle config set timeout 60 && \
+    bundle config set retry 5
 
 # Set the working directory
 WORKDIR /app
@@ -86,8 +86,14 @@ RUN groupadd -r appuser && useradd -r -g appuser -G audio,video appuser \
   && chown -R appuser:appuser /home/appuser \
   && echo 'appuser ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
 
-# Install test gems
-RUN bundle install --with test development
+# Install test gems with retry logic for network resilience
+RUN bash -c 'for i in {1..3}; do \
+      echo "Test gems install attempt $i of 3" && \
+      bundle config set --local with "test development" && \
+      bundle install && break || \
+      ([ $i -eq 3 ] && echo "❌ Failed to install test gems after 3 attempts" && exit 1) || \
+      (echo "⚠️ Test gems install attempt $i failed, retrying in 10 seconds..." && sleep 10); \
+    done'
 
 # Copy the application code
 COPY . .

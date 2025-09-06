@@ -63,6 +63,9 @@ services:
       - bundle_cache:/usr/local/bundle
     networks:
       - test-network
+    dns:
+      - 8.8.8.8
+      - 1.1.1.1
     depends_on:
       db-test:
         condition: service_healthy
@@ -252,6 +255,13 @@ services:
 networks:
   test-network:
     driver: bridge
+    driver_opts:
+      com.docker.network.bridge.name: test-network
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+    # Add DNS configuration to help with connectivity
+    enable_ipv6: false
 
 volumes:
   postgres_test_data:
