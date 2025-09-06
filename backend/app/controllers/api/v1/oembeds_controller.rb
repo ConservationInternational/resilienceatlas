@@ -39,7 +39,7 @@ module Api
 
       def decode_url
         if params[:url] && params[:url] != ""
-          url = request.query_string.gsub("url=", "")
+          url = params[:url]
           unless url.include?("http://") || url.include?("https://")
             begin
               url = Base64.decode64(url).force_encoding("UTF-8")
