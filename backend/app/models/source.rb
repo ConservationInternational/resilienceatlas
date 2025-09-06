@@ -35,9 +35,24 @@ class Source < ApplicationRecord
     # Get the base attributes from ActiveRecord
     base_attrs = super
     
-    # Add translated attributes if they exist
-    if respond_to?(:translated_attributes) && translated_attributes.present?
-      base_attrs.merge!(translated_attributes)
+    # Add translated attributes if they exist and globalize is enabled
+    if defined?(Globalize) && respond_to?(:translated_attributes) && translated_attributes.present?
+      # Safely extract translated attributes
+      translated_attrs = {}
+      translation_fields = [:name, :description, :reference, :reference_short, :license]
+      
+      translation_fields.each do |field|
+        if respond_to?(field)
+          begin
+            translated_attrs[field.to_s] = send(field)
+          rescue => e
+            # Fallback to nil if translation causes an error
+            translated_attrs[field.to_s] = nil
+          end
+        end
+      end
+      
+      base_attrs.merge!(translated_attrs)
     end
     
     base_attrs

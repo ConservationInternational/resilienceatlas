@@ -56,20 +56,20 @@ module Api
       def validate(url)
         permitted_domains = %w[vitalsigns.org resilienceatlas.org localhost globalresiliencepartnership.org]
         begin
-          url = Addressable::URI.parse(url)
-          @url = url
+          parsed_url = Addressable::URI.parse(url)
+          @url = parsed_url
         rescue => _e
           render_error(400)
           return
         end
-        return render_error(422) if url&.host.blank?
+        return render_error(422) if @url&.host.blank?
 
-        domain = url.host.split(".")[-2, 2]
-        parsed_domain = domain.present? ? domain.join(".") : url.host
+        domain = @url.host.split(".")[-2, 2]
+        parsed_domain = domain.present? ? domain.join(".") : @url.host
         render_error(403) unless permitted_domains.include?(parsed_domain)
-        render_error(400) unless url.path.include?("/map")
+        render_error(400) unless @url.path.include?("/map")
         @domain = parsed_domain
-        @query = url.query || ""
+        @query = @url.query || ""
       end
 
       def render_error(status)
