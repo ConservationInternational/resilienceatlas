@@ -1,7 +1,7 @@
 {
   "data": [
     {
-      "id": "4",
+      "id": "16",
       "type": "indicators",
       "attributes": {
         "name": "voluptatem",
@@ -13,20 +13,18 @@
       },
       "relationships": {
         "models": {
-          "data": [
-
-          ]
+          "data": []
         },
         "category": {
           "data": {
-            "id": "4",
+            "id": "28",
             "type": "categories"
           }
         }
       }
     },
     {
-      "id": "5",
+      "id": "17",
       "type": "indicators",
       "attributes": {
         "name": "cum",
@@ -38,20 +36,18 @@
       },
       "relationships": {
         "models": {
-          "data": [
-
-          ]
+          "data": []
         },
         "category": {
           "data": {
-            "id": "5",
+            "id": "29",
             "type": "categories"
           }
         }
       }
     },
     {
-      "id": "6",
+      "id": "18",
       "type": "indicators",
       "attributes": {
         "name": "molestiae",
@@ -63,13 +59,11 @@
       },
       "relationships": {
         "models": {
-          "data": [
-
-          ]
+          "data": []
         },
         "category": {
           "data": {
-            "id": "6",
+            "id": "30",
             "type": "categories"
           }
         }
@@ -78,7 +72,7 @@
   ],
   "included": [
     {
-      "id": "4",
+      "id": "28",
       "type": "categories",
       "attributes": {
         "name": "voluptatem",
@@ -89,7 +83,7 @@
         "indicators": {
           "data": [
             {
-              "id": "4",
+              "id": "16",
               "type": "indicators"
             }
           ]
@@ -97,7 +91,7 @@
       }
     },
     {
-      "id": "5",
+      "id": "29",
       "type": "categories",
       "attributes": {
         "name": "cum",
@@ -108,7 +102,7 @@
         "indicators": {
           "data": [
             {
-              "id": "5",
+              "id": "17",
               "type": "indicators"
             }
           ]
@@ -116,7 +110,7 @@
       }
     },
     {
-      "id": "6",
+      "id": "30",
       "type": "categories",
       "attributes": {
         "name": "molestiae",
@@ -127,7 +121,7 @@
         "indicators": {
           "data": [
             {
-              "id": "6",
+              "id": "18",
               "type": "indicators"
             }
           ]

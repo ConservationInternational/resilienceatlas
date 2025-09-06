@@ -1,30 +1,30 @@
 {
   "data": [
     {
-      "id": "16",
+      "id": "59",
       "type": "journeys",
       "attributes": {
-        "title": "Enim repellat pariatur est.",
-        "subtitle": "Enim repellat pariatur est.",
-        "theme": "Enim repellat pariatur est.",
+        "title": "Voluptatem hic similique exercitationem.",
+        "subtitle": "Voluptatem hic similique exercitationem.",
+        "theme": "Voluptatem hic similique exercitationem.",
         "background_image": {
-          "small": "http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBPdz09IiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--1afd34ee54389c7d53d8ddd92be1cbfa93d59c67/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERJd01IZ3lNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--7be8b6f6018bc25ae287d258d8836839fa7642f1/picture.jpg",
-          "medium": "http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBPdz09IiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--1afd34ee54389c7d53d8ddd92be1cbfa93d59c67/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERnd01IZzRNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--697714719ccce7b35c5f9a02aeef5bd517f3d81f/picture.jpg",
-          "original": "http://localhost:3000/rails/active_storage/blobs/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBPdz09IiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--1afd34ee54389c7d53d8ddd92be1cbfa93d59c67/picture.jpg"
+          "small": "/test_blob_url_231",
+          "medium": "/test_blob_url_231",
+          "original": "/test_blob_url_231"
         },
-        "credits": "Enim repellat pariatur est.",
-        "credits_url": "http://kutch-spencer.com/moises",
+        "credits": "Voluptatem hic similique exercitationem.",
+        "credits_url": "http://kutch-spencer.example/moises",
         "published": true
       },
       "relationships": {
         "journey_steps": {
           "data": [
             {
-              "id": "37",
+              "id": "131",
               "type": "journey_steps"
             },
             {
-              "id": "38",
+              "id": "132",
               "type": "journey_steps"
             }
           ]
@@ -32,30 +32,30 @@
       }
     },
     {
-      "id": "17",
+      "id": "60",
       "type": "journeys",
       "attributes": {
-        "title": "Placeat commodi libero et.",
-        "subtitle": "Placeat commodi libero et.",
-        "theme": "Placeat commodi libero et.",
+        "title": "Cum veritatis sapiente exercitationem.",
+        "subtitle": "Cum veritatis sapiente exercitationem.",
+        "theme": "Cum veritatis sapiente exercitationem.",
         "background_image": {
-          "small": "http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBQZz09IiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--197bdb356e0fc990981560b7d507bffe4af8d16b/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERJd01IZ3lNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--7be8b6f6018bc25ae287d258d8836839fa7642f1/picture.jpg",
-          "medium": "http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBQZz09IiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--197bdb356e0fc990981560b7d507bffe4af8d16b/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERnd01IZzRNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--697714719ccce7b35c5f9a02aeef5bd517f3d81f/picture.jpg",
-          "original": "http://localhost:3000/rails/active_storage/blobs/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBQZz09IiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--197bdb356e0fc990981560b7d507bffe4af8d16b/picture.jpg"
+          "small": "/test_blob_url_234",
+          "medium": "/test_blob_url_234",
+          "original": "/test_blob_url_234"
         },
-        "credits": "Placeat commodi libero et.",
-        "credits_url": "http://bartoletti.com/jeremiah_cronin",
+        "credits": "Cum veritatis sapiente exercitationem.",
+        "credits_url": "http://bartoletti.example/jeremiah_cronin",
         "published": true
       },
       "relationships": {
         "journey_steps": {
           "data": [
             {
-              "id": "39",
+              "id": "133",
               "type": "journey_steps"
             },
             {
-              "id": "40",
+              "id": "134",
               "type": "journey_steps"
             }
           ]
@@ -63,30 +63,30 @@
       }
     },
     {
-      "id": "18",
+      "id": "61",
       "type": "journeys",
       "attributes": {
-        "title": "Et quaerat omnis veniam.",
-        "subtitle": "Et quaerat omnis veniam.",
-        "theme": "Et quaerat omnis veniam.",
+        "title": "Molestiae et provident facere.",
+        "subtitle": "Molestiae et provident facere.",
+        "theme": "Molestiae et provident facere.",
         "background_image": {
-          "small": "http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBRUT09IiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--878a0776c029d77530add71899afa56ae91a2e8f/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERJd01IZ3lNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--7be8b6f6018bc25ae287d258d8836839fa7642f1/picture.jpg",
-          "medium": "http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBRUT09IiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--878a0776c029d77530add71899afa56ae91a2e8f/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERnd01IZzRNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--697714719ccce7b35c5f9a02aeef5bd517f3d81f/picture.jpg",
-          "original": "http://localhost:3000/rails/active_storage/blobs/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBRUT09IiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--878a0776c029d77530add71899afa56ae91a2e8f/picture.jpg"
+          "small": "/test_blob_url_237",
+          "medium": "/test_blob_url_237",
+          "original": "/test_blob_url_237"
         },
-        "credits": "Et quaerat omnis veniam.",
-        "credits_url": "http://hane.com/jules",
+        "credits": "Molestiae et provident facere.",
+        "credits_url": "http://hane.example/jules",
         "published": true
       },
       "relationships": {
         "journey_steps": {
           "data": [
             {
-              "id": "41",
+              "id": "136",
               "type": "journey_steps"
             },
             {
-              "id": "42",
+              "id": "135",
               "type": "journey_steps"
             }
           ]
