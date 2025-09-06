@@ -19,44 +19,11 @@
 #
 
 class Source < ApplicationRecord
-  # Always include basic globalize support if available
-  # This ensures create_translation_table! is available for migrations
-  if defined?(Globalize)
-    translates :name, :description, touch: true, fallbacks_for_empty_translations: true
-  end
-
   has_and_belongs_to_many :layers
 
+  # Only translate the fields that actually exist in the translation table
   translates :reference, :reference_short, :license, touch: true, fallbacks_for_empty_translations: true
   active_admin_translates :reference, :reference_short, :license
-
-  # Override attributes method to handle Globalize translations properly
-  def attributes
-    # Get the base attributes from ActiveRecord
-    base_attrs = super
-    
-    # Add translated attributes if they exist and globalize is enabled
-    if defined?(Globalize) && respond_to?(:translated_attributes) && translated_attributes.present?
-      # Safely extract translated attributes
-      translated_attrs = {}
-      translation_fields = [:name, :description, :reference, :reference_short, :license]
-      
-      translation_fields.each do |field|
-        if respond_to?(field)
-          begin
-            translated_attrs[field.to_s] = send(field)
-          rescue => e
-            # Fallback to nil if translation causes an error
-            translated_attrs[field.to_s] = nil
-          end
-        end
-      end
-      
-      base_attrs.merge!(translated_attrs)
-    end
-    
-    base_attrs
-  end
 
   def self.ransackable_attributes(auth_object = nil)
     %w[id source_type reference reference_short url contact_name contact_email license last_updated version created_at updated_at spatial_resolution_units license_url]

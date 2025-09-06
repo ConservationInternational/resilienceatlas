@@ -62,12 +62,25 @@ module Api
           render_error(400)
           return
         end
-        return render_error(422) if @url&.host.blank?
+        
+        if @url&.host.blank?
+          render_error(422)
+          return  
+        end
 
         domain = @url.host.split(".")[-2, 2]
         parsed_domain = domain.present? ? domain.join(".") : @url.host
-        render_error(403) unless permitted_domains.include?(parsed_domain)
-        render_error(400) unless @url.path.include?("/map")
+        
+        unless permitted_domains.include?(parsed_domain)
+          render_error(403)
+          return
+        end
+        
+        unless @url.path.include?("/map")
+          render_error(400) 
+          return
+        end
+        
         @domain = parsed_domain
         @query = @url.query || ""
       end
