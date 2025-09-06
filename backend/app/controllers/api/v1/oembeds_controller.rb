@@ -13,7 +13,7 @@ module Api
         oembed.height = params[:maxheight].to_i if params[:maxheight]
         oembed.provider_name = @domain
         oembed.provider_url = "http://#{@domain}"
-        src_url = @url.to_s.gsub(@url.path.to_s, "").gsub(@url.query.to_s, "").delete("?")
+        src_url = @url.to_s.gsub(@url.path.to_s.force_encoding("UTF-8"), "").gsub(@url.query.to_s.force_encoding("UTF-8"), "").delete("?")
         oembed.html = %(<iframe frameborder="0" width="#{oembed.width}" height="#{oembed.height}" src="#{src_url.gsub("http://", "https://")}/embed/map?#{@query}"></iframe>)
         case @format
         when "xml"
@@ -42,7 +42,7 @@ module Api
           url = request.query_string.gsub("url=", "")
           unless url.include?("http://") || url.include?("https://")
             begin
-              url = Base64.decode64(url)
+              url = Base64.decode64(url).force_encoding("UTF-8")
             rescue => _e
               render_error(422)
             end

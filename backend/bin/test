@@ -17,6 +17,9 @@ fi
 echo "🔧 Setting up tmp directories..."
 mkdir -p tmp tmp/cache tmp/pids tmp/sockets tmp/storage 2>/dev/null || true
 
+# Ensure public directories exist and are writable  
+mkdir -p public/storage public/uploads downloads storage 2>/dev/null || true
+
 # Ensure the tmp directory is writable by the current user
 if [ ! -w "tmp" ] || [ ! -w "tmp/" ]; then
   echo "⚠️  tmp directory not writable, attempting to fix permissions..."
@@ -29,8 +32,21 @@ if [ ! -w "tmp" ] || [ ! -w "tmp/" ]; then
   fi
 fi
 
+# Check and fix other required directories
+for dir in public/storage public/uploads downloads storage; do
+  if [ -d "$dir" ] && [ ! -w "$dir" ]; then
+    echo "⚠️  $dir directory not writable, attempting to fix permissions..."
+    if command -v sudo >/dev/null 2>&1; then
+      sudo chmod 775 "$dir" 2>/dev/null || echo "Could not fix $dir permissions"
+      sudo chown $(whoami):$(whoami) "$dir" 2>/dev/null || echo "Could not fix $dir ownership"
+    else
+      chmod 775 "$dir" 2>/dev/null || echo "Could not fix $dir permissions without sudo"
+    fi
+  fi
+done
+
 # Test if we can actually write to the tmp directory
-echo "🔍 Testing tmp directory write permissions..."
+echo "🔍 Testing directory write permissions..."
 if ! echo "test" > tmp/write_test.tmp 2>/dev/null; then
   echo "❌ Cannot write to tmp directory even after permission fixes"
   echo "Current tmp directory permissions:"
@@ -57,6 +73,28 @@ else
   rm -f tmp/write_test.tmp 2>/dev/null || true
   echo "✅ tmp directory is writable"
 fi
+
+# Test other critical directories
+for dir in public/storage downloads; do
+  if [ -d "$dir" ]; then
+    if echo "test" > "$dir/write_test.tmp" 2>/dev/null; then
+      rm -f "$dir/write_test.tmp" 2>/dev/null || true
+      echo "✅ $dir directory is writable"
+    else
+      echo "❌ Cannot write to $dir directory"
+      echo "Current $dir directory permissions:"
+      ls -la "$dir"/ 2>/dev/null || echo "$dir directory does not exist or is not accessible"
+      # Try to fix permissions one more time
+      if command -v sudo >/dev/null 2>&1; then
+        echo "🔧 Attempting to fix $dir directory permissions..."
+        sudo mkdir -p "$dir" 2>/dev/null || true
+        sudo chown -R $(whoami):$(whoami) "$dir" 2>/dev/null || true
+        sudo chmod -R 775 "$dir" 2>/dev/null || true
+        echo "test" > "$dir/write_test.tmp" 2>/dev/null && rm -f "$dir/write_test.tmp" || echo "❌ $dir still not writable after fix attempt"
+      fi
+    fi
+  fi
+done
 
 # Try bundle install, but don't fail if gems are already satisfied
 if ! bundle check >/dev/null 2>&1; then
