@@ -39,6 +39,12 @@ Always reference these instructions first and fallback to search or bash command
 - **System tests**: `./bin/test system` - Browser tests with Chrome + Xvfb
 - **All tests**: `./bin/test all` - runs linting, security, audit, and RSpec tests
 
+#### Common Backend Test Issues (Fixed in #278)
+- **OEmbed Controller**: Fixed "undefined method 'host' for String" by adding proper exception handling
+- **File Upload Permissions**: Enhanced Docker container permission setup for photo uploads
+- **Globalize Translations**: Fixed Source model attributes method to handle translation objects properly
+- **Quick fix validation**: Run `./validate-278-fixes.sh` to verify these fixes are present
+
 ### Test Infrastructure
 - **CRITICAL**: `./validate-test-infrastructure.sh` - comprehensive test setup validation. NEVER CANCEL. Takes 10-15 minutes. Set timeout to 20+ minutes.
 - **Test environment**: `docker compose -f docker-compose.test.yml up --abort-on-container-exit` - full test suite

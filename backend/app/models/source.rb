@@ -19,14 +19,9 @@
 #
 
 class Source < ApplicationRecord
-  # Always include basic globalize support if available
-  # This ensures create_translation_table! is available for migrations
-  if defined?(Globalize)
-    translates :name, :description, touch: true, fallbacks_for_empty_translations: true
-  end
-
   has_and_belongs_to_many :layers
 
+  # Only translate the fields that actually exist in the translation table
   translates :reference, :reference_short, :license, touch: true, fallbacks_for_empty_translations: true
   active_admin_translates :reference, :reference_short, :license
 

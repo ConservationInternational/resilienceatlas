@@ -39,12 +39,18 @@ module Api
 
       def decode_url
         if params[:url] && params[:url] != ""
-          url = request.query_string.gsub("url=", "")
+          url = params[:url]
           unless url.include?("http://") || url.include?("https://")
             begin
               url = Base64.decode64(url).force_encoding("UTF-8")
             rescue => _e
               render_error(422)
+              return
+            end
+            # Check if decoded URL looks like a valid URL
+            unless url.include?("http://") || url.include?("https://")
+              render_error(422)
+              return
             end
           end
           validate(url)
@@ -56,19 +62,33 @@ module Api
       def validate(url)
         permitted_domains = %w[vitalsigns.org resilienceatlas.org localhost globalresiliencepartnership.org]
         begin
-          url = Addressable::URI.parse(url)
-          @url = url
+          parsed_url = Addressable::URI.parse(url)
+          @url = parsed_url
         rescue => _e
-          render_error(400)
+          render_error(422)
+          return
         end
-        return render_error(422) if url&.host.blank?
+        
+        if @url&.host.blank?
+          render_error(422)
+          return  
+        end
 
-        domain = url.host.split(".")[-2, 2]
-        parsed_domain = domain.present? ? domain.join(".") : url.host
-        render_error(403) unless permitted_domains.include?(parsed_domain)
-        render_error(400) unless url.path.include?("/map")
+        domain = @url.host.split(".")[-2, 2]
+        parsed_domain = domain.present? ? domain.join(".") : @url.host
+        
+        unless permitted_domains.include?(parsed_domain)
+          render_error(403)
+          return
+        end
+        
+        unless @url.path.include?("/map")
+          render_error(400) 
+          return
+        end
+        
         @domain = parsed_domain
-        @query = url.query || ""
+        @query = @url.query || ""
       end
 
       def render_error(status)
