@@ -256,8 +256,8 @@ jobs:
         # Health check
         curl -f http://localhost:3001/api/health
         
-        # Test API root
-        curl -f http://localhost:3001/api/v1/
+        # Test API v1 endpoints - check layers endpoint
+        curl -f http://localhost:3001/api/layers
         
         echo "✅ Backend API endpoints verified"
 
