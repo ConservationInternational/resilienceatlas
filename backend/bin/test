@@ -18,7 +18,27 @@ echo "🔧 Setting up tmp directories..."
 mkdir -p tmp tmp/cache tmp/pids tmp/sockets tmp/storage 2>/dev/null || true
 
 # Ensure public directories exist and are writable  
-mkdir -p public/storage public/uploads downloads storage 2>/dev/null || true
+mkdir -p public/storage public/uploads public/uploads/cache public/uploads/store downloads storage 2>/dev/null || true
+
+# Specifically fix upload directories for photos
+echo "🔧 Setting up upload directories..."
+for upload_dir in public/uploads public/uploads/cache public/uploads/store; do
+  if [ ! -d "$upload_dir" ]; then
+    echo "Creating upload directory: $upload_dir"
+    mkdir -p "$upload_dir" 2>/dev/null || true
+  fi
+  
+  # Ensure upload directories are writable by the current user
+  if [ -d "$upload_dir" ] && [ ! -w "$upload_dir" ]; then
+    echo "⚠️  $upload_dir directory not writable, attempting to fix permissions..."
+    if command -v sudo >/dev/null 2>&1; then
+      sudo chmod 775 "$upload_dir" 2>/dev/null || echo "Could not fix $upload_dir permissions"
+      sudo chown $(whoami):$(whoami) "$upload_dir" 2>/dev/null || echo "Could not fix $upload_dir ownership"
+    else
+      chmod 775 "$upload_dir" 2>/dev/null || echo "Could not fix $upload_dir permissions without sudo"
+    fi
+  fi
+done
 
 # Ensure the tmp directory is writable by the current user
 if [ ! -w "tmp" ] || [ ! -w "tmp/" ]; then
@@ -33,7 +53,7 @@ if [ ! -w "tmp" ] || [ ! -w "tmp/" ]; then
 fi
 
 # Check and fix other required directories
-for dir in public/storage public/uploads downloads storage; do
+for dir in public/storage public/uploads public/uploads/cache public/uploads/store downloads storage; do
   if [ -d "$dir" ] && [ ! -w "$dir" ]; then
     echo "⚠️  $dir directory not writable, attempting to fix permissions..."
     if command -v sudo >/dev/null 2>&1; then
@@ -75,7 +95,7 @@ else
 fi
 
 # Test other critical directories
-for dir in public/storage downloads; do
+for dir in public/storage public/uploads/cache downloads; do
   if [ -d "$dir" ]; then
     if echo "test" > "$dir/write_test.tmp" 2>/dev/null; then
       rm -f "$dir/write_test.tmp" 2>/dev/null || true

@@ -60,6 +60,7 @@ module Api
           @url = url
         rescue => _e
           render_error(400)
+          return
         end
         return render_error(422) if url&.host.blank?
 

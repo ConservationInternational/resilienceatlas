@@ -30,6 +30,19 @@ class Source < ApplicationRecord
   translates :reference, :reference_short, :license, touch: true, fallbacks_for_empty_translations: true
   active_admin_translates :reference, :reference_short, :license
 
+  # Override attributes method to handle Globalize translations properly
+  def attributes
+    # Get the base attributes from ActiveRecord
+    base_attrs = super
+    
+    # Add translated attributes if they exist
+    if respond_to?(:translated_attributes) && translated_attributes.present?
+      base_attrs.merge!(translated_attributes)
+    end
+    
+    base_attrs
+  end
+
   def self.ransackable_attributes(auth_object = nil)
     %w[id source_type reference reference_short url contact_name contact_email license last_updated version created_at updated_at spatial_resolution_units license_url]
   end
