@@ -5,25 +5,25 @@
     "attributes": {
       "name": "Resilience Atlas",
       "color": "#ffdbdb",
-      "subdomain": "voluptatem",
-      "has_analysis": true,
-      "latitude": -14.936039153536683,
-      "longitude": -29.872078307073366,
-      "header_theme": "Enim repellat pariatur est.",
-      "zoom_level": 38,
-      "linkback_text": "Enim repellat pariatur. Earum modi eos. Libero tempora exercitationem.",
-      "linkback_url": "http://kutch-spencer.com/moises",
-      "header_color": "#ffdbdb",
-      "logo_url": "http://kutch-spencer.com/moises",
-      "predictive_model": true,
-      "analysis_options": true,
-      "has_gef_logo": null
+      "subdomain": "kutch-spencer",
+      "has_analysis": false,
+      "latitude": 77.86032468095857,
+      "longitude": -133.8751987454316,
+      "header_theme": "ci-theme",
+      "zoom_level": 8,
+      "linkback_text": "Sed voluptatem dolor officia.",
+      "linkback_url": "http://wolf-corwin.test/wilson",
+      "header_color": "#e00b0b",
+      "logo_url": "http://rogahn-deckow.test/miguel",
+      "predictive_model": false,
+      "analysis_options": false,
+      "has_gef_logo": false
     },
     "relationships": {
       "site_pages": {
         "data": [
           {
-            "id": "9",
+            "id": "5",
             "type": "site_pages"
           }
         ]
@@ -32,7 +32,7 @@
   },
   "included": [
     {
-      "id": "9",
+      "id": "5",
       "type": "site_pages",
       "attributes": {
         "title": "voluptatem",

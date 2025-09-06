@@ -1,9 +1,3 @@
 {
-  "width": 960,
-  "height": 600,
-  "version": "1.0",
-  "type": "rich",
-  "provider_name": "resilienceatlas.org",
-  "provider_url": "http://resilienceatlas.org",
-  "html": "<iframe frameborder=\"0\" width=\"960\" height=\"600\" src=\"https://resilienceatlas.org/embed/map?test=test\"></iframe>"
+  "error": "Unprocesable Entity"
 }

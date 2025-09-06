@@ -1,31 +1,31 @@
 {
   "data": {
-    "id": "131",
+    "id": "10",
     "type": "static_page_bases",
     "attributes": {
-      "title": "Enim repellat pariatur est.",
+      "title": "Voluptatem hic similique exercitationem.",
       "slug": "StaticPage-1",
       "image": {
-        "small": "http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBa2dEIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--48af5b88ef4c3e765afddcd55841e19f0ecd4dcc/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERJd01IZ3lNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--7be8b6f6018bc25ae287d258d8836839fa7642f1/picture.jpg",
-        "medium": "http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBa2dEIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--48af5b88ef4c3e765afddcd55841e19f0ecd4dcc/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERnd01IZzRNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--697714719ccce7b35c5f9a02aeef5bd517f3d81f/picture.jpg",
-        "original": "http://localhost:3000/rails/active_storage/blobs/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBa2dEIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--48af5b88ef4c3e765afddcd55841e19f0ecd4dcc/picture.jpg"
+        "small": "/test_blob_url_94",
+        "medium": "/test_blob_url_94",
+        "original": "/test_blob_url_94"
       },
-      "image_credits": "Enim repellat pariatur est.",
-      "image_credits_url": "http://kutch-spencer.com/moises"
+      "image_credits": "Voluptatem hic similique exercitationem.",
+      "image_credits_url": "http://kutch-spencer.example/moises"
     },
     "relationships": {
       "sections": {
         "data": [
           {
-            "id": "242",
+            "id": "4",
             "type": "static_page_sections"
           },
           {
-            "id": "243",
+            "id": "5",
             "type": "static_page_sections"
           },
           {
-            "id": "244",
+            "id": "6",
             "type": "static_page_sections"
           }
         ]
@@ -34,10 +34,10 @@
   },
   "included": [
     {
-      "id": "242",
+      "id": "4",
       "type": "static_page_sections",
       "attributes": {
-        "title": "Enim repellat pariatur est.",
+        "title": "Voluptatem hic similique exercitationem.",
         "slug": "StaticPageSection-1",
         "title_size": 4,
         "section_type": "paragraph",
@@ -47,42 +47,38 @@
       "relationships": {
         "section_paragraph": {
           "data": {
-            "id": "92",
+            "id": "2",
             "type": "static_page_section_paragraphs"
           }
         },
         "section_items": {
-          "data": [
-
-          ]
+          "data": []
         },
         "section_references": {
-          "data": [
-
-          ]
+          "data": []
         }
       }
     },
     {
-      "id": "92",
+      "id": "2",
       "type": "static_page_section_paragraphs",
       "attributes": {
-        "text": "Enim repellat pariatur. Earum modi eos. Libero tempora exercitationem.",
+        "text": "Voluptatem hic similique. Nostrum iste dolorem. Sed voluptatem dolor.",
         "image": {
-          "small": "http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBa2tEIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--327ad2335142bf650ad79878dd5d772ac7ab3ad0/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERJd01IZ3lNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--7be8b6f6018bc25ae287d258d8836839fa7642f1/picture.jpg",
-          "medium": "http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBa2tEIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--327ad2335142bf650ad79878dd5d772ac7ab3ad0/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERnd01IZzRNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--697714719ccce7b35c5f9a02aeef5bd517f3d81f/picture.jpg",
-          "original": "http://localhost:3000/rails/active_storage/blobs/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBa2tEIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--327ad2335142bf650ad79878dd5d772ac7ab3ad0/picture.jpg"
+          "small": "/test_blob_url_95",
+          "medium": "/test_blob_url_95",
+          "original": "/test_blob_url_95"
         },
-        "image_credits": "Enim repellat pariatur est.",
-        "image_credits_url": "http://kutch-spencer.com/moises",
+        "image_credits": "Voluptatem hic similique exercitationem.",
+        "image_credits_url": "http://kutch-spencer.example/moises",
         "image_position": "right"
       }
     },
     {
-      "id": "243",
+      "id": "5",
       "type": "static_page_sections",
       "attributes": {
-        "title": "Placeat commodi libero et.",
+        "title": "Cum veritatis sapiente exercitationem.",
         "slug": "StaticPageSection-2",
         "title_size": 1,
         "section_type": "items",
@@ -96,37 +92,35 @@
         "section_items": {
           "data": [
             {
-              "id": "80",
+              "id": "2",
               "type": "static_page_section_items"
             }
           ]
         },
         "section_references": {
-          "data": [
-
-          ]
+          "data": []
         }
       }
     },
     {
-      "id": "80",
+      "id": "2",
       "type": "static_page_section_items",
       "attributes": {
-        "title": "Enim repellat pariatur est.",
-        "description": "Enim repellat pariatur. Earum modi eos. Libero tempora exercitationem.",
+        "title": "Voluptatem hic similique exercitationem.",
+        "description": "Voluptatem hic similique. Nostrum iste dolorem. Sed voluptatem dolor.",
         "image": {
-          "small": "http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBa29EIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--f1860fe7aa5060553f54a14e7176e53e552521e4/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERJd01IZ3lNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--7be8b6f6018bc25ae287d258d8836839fa7642f1/picture.jpg",
-          "medium": "http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBa29EIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--f1860fe7aa5060553f54a14e7176e53e552521e4/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERnd01IZzRNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--697714719ccce7b35c5f9a02aeef5bd517f3d81f/picture.jpg",
-          "original": "http://localhost:3000/rails/active_storage/blobs/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBa29EIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--f1860fe7aa5060553f54a14e7176e53e552521e4/picture.jpg"
+          "small": "/test_blob_url_96",
+          "medium": "/test_blob_url_96",
+          "original": "/test_blob_url_96"
         },
         "position": 1
       }
     },
     {
-      "id": "244",
+      "id": "6",
       "type": "static_page_sections",
       "attributes": {
-        "title": "Et quaerat omnis veniam.",
+        "title": "Molestiae et provident facere.",
         "slug": "StaticPageSection-3",
         "title_size": 3,
         "section_type": "references",
@@ -138,14 +132,12 @@
           "data": null
         },
         "section_items": {
-          "data": [
-
-          ]
+          "data": []
         },
         "section_references": {
           "data": [
             {
-              "id": "80",
+              "id": "2",
               "type": "static_page_section_references"
             }
           ]
@@ -153,11 +145,11 @@
       }
     },
     {
-      "id": "80",
+      "id": "2",
       "type": "static_page_section_references",
       "attributes": {
         "slug": "StaticPageReference-1",
-        "text": "Enim repellat pariatur. Earum modi eos. Libero tempora exercitationem.",
+        "text": "Voluptatem hic similique. Nostrum iste dolorem. Sed voluptatem dolor.",
         "position": 1
       }
     }
