@@ -201,7 +201,9 @@ class Layer < ApplicationRecord
       options["filename"]
     elsif options["download_path"].present? && URI(options["download_path"]).query.present?
       query_path = URI(options["download_path"]).query
-      filename = query_path.split("=")[1] if query_path.split("=")[0].include?("filename")
+      # Parse query parameters properly to extract filename
+      query_params = CGI.parse(query_path)
+      filename = query_params["filename"]&.first
       filename
     end
 

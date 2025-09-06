@@ -11,7 +11,7 @@ RSpec.describe "API Health Integration", type: :request do
 
   describe "API availability" do
     it "responds to basic API endpoints" do
-      get "/api/v1/"
+      get "/api/health"
       expect(response).to have_http_status(:success)
     end
   end

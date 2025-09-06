@@ -45,6 +45,12 @@ module Api
               url = Base64.decode64(url).force_encoding("UTF-8")
             rescue => _e
               render_error(422)
+              return
+            end
+            # Check if decoded URL looks like a valid URL
+            unless url.include?("http://") || url.include?("https://")
+              render_error(422)
+              return
             end
           end
           validate(url)
@@ -59,7 +65,7 @@ module Api
           parsed_url = Addressable::URI.parse(url)
           @url = parsed_url
         rescue => _e
-          render_error(400)
+          render_error(422)
           return
         end
         
