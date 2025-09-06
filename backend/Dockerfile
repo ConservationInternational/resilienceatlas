@@ -101,8 +101,10 @@ COPY . .
 # Make scripts executable including Chrome wrapper
 RUN chmod +x bin/test bin/rails bin/rake bin/setup bin/spring chrome_wrapper.sh
 
-# Create directories for logs, tmp, and uploads
-RUN mkdir -p log tmp/cache tmp/pids tmp/sockets tmp/storage public/uploads public/uploads/cache public/uploads/store
+# Create directories for logs, tmp, uploads, storage, and downloads
+RUN mkdir -p log tmp/cache tmp/pids tmp/sockets tmp/storage \
+  public/uploads public/uploads/cache public/uploads/store public/storage \
+  downloads storage
 
 # Create a proper temp directory for appuser and set all permissions
 RUN mkdir -p /tmp/appuser-tmp /home/appuser/.cache /home/appuser/.config /home/appuser/.local/share/applications \
@@ -110,7 +112,7 @@ RUN mkdir -p /tmp/appuser-tmp /home/appuser/.cache /home/appuser/.config /home/a
   && chmod -R 755 /app \
   && chmod 755 /tmp/appuser-tmp \
   && chmod -R 755 /home/appuser \
-  && chmod -R 775 /app/log /app/tmp /app/public/uploads \
+  && chmod -R 775 /app/log /app/tmp /app/public/uploads /app/public/storage /app/downloads /app/storage \
   && touch /app/log/test.log \
   && chown appuser:appuser /app/log/test.log \
   && chmod 664 /app/log/test.log \
@@ -132,8 +134,10 @@ FROM base AS production
 # Copy the application code
 COPY . .
 
-# Create directories for logs, tmp, and uploads
-RUN mkdir -p log tmp/cache tmp/pids tmp/sockets tmp/storage public/uploads public/uploads/cache public/uploads/store
+# Create directories for logs, tmp, uploads, storage, and downloads
+RUN mkdir -p log tmp/cache tmp/pids tmp/sockets tmp/storage \
+  public/uploads public/uploads/cache public/uploads/store public/storage \
+  downloads storage
 
 # Precompile assets for production (if needed)
 RUN bundle exec rake assets:precompile || true

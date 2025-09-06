@@ -97,8 +97,12 @@ services:
         sudo chmod 755 /app/bin/* &&
         sudo chmod 755 /app/chrome_wrapper.sh &&
         sudo chmod -R 775 /app/tmp /app/log &&
-        sudo mkdir -p /app/tmp/cache /app/tmp/pids /app/tmp/sockets &&
-        sudo chown -R appuser:appuser /app/tmp &&
+        
+        # Ensure all required directories exist with proper permissions
+        sudo mkdir -p /app/tmp/cache /app/tmp/pids /app/tmp/sockets /app/tmp/storage &&
+        sudo mkdir -p /app/public/storage /app/public/uploads /app/downloads /app/storage &&
+        sudo chown -R appuser:appuser /app/tmp /app/public/storage /app/public/uploads /app/downloads /app/storage &&
+        sudo chmod -R 775 /app/tmp /app/public/storage /app/public/uploads /app/downloads /app/storage &&
         
         echo '📦 Installing dependencies...' &&
         bundle install &&
