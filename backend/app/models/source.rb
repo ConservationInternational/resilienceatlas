@@ -32,4 +32,16 @@ class Source < ApplicationRecord
   def self.ransackable_associations(auth_object = nil)
     %w[layers translations]
   end
+
+  # Override attributes method to properly handle Globalize translations
+  # Fixes "undefined method 'name' for Translation" errors in tests
+  def attributes
+    attrs = super
+    if self.class.translates?
+      # Merge translated attributes with base attributes
+      translated_attrs = translated_attributes || {}
+      attrs.merge!(translated_attrs.stringify_keys) if translated_attrs.respond_to?(:stringify_keys)
+    end
+    attrs
+  end
 end
