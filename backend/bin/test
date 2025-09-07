@@ -20,6 +20,20 @@ mkdir -p tmp tmp/cache tmp/pids tmp/sockets tmp/storage 2>/dev/null || true
 # Ensure public directories exist and are writable  
 mkdir -p public/storage public/uploads public/uploads/cache public/uploads/store downloads storage 2>/dev/null || true
 
+# Fix ownership and permissions for volume-mounted directories (Docker issue)
+# When directories are volume-mounted, they retain host permissions which may not match container user
+echo "🔧 Ensuring proper ownership and permissions for upload directories..."
+if command -v sudo >/dev/null 2>&1; then
+  # In Docker containers, we have sudo and need to fix permissions
+  sudo chown -R $(whoami):$(whoami) public/storage public/uploads downloads storage 2>/dev/null || echo "Could not fix ownership"
+  sudo chmod -R 775 public/storage public/uploads downloads storage 2>/dev/null || echo "Could not fix permissions"
+  echo "✅ Directory ownership and permissions fixed"
+else
+  echo "⚠️ sudo not available, attempting permission fix without sudo..."
+  chown -R $(whoami):$(whoami) public/storage public/uploads downloads storage 2>/dev/null || echo "Cannot fix ownership without sudo"
+  chmod -R 775 public/storage public/uploads downloads storage 2>/dev/null || echo "Cannot fix permissions without sudo"
+fi
+
 # Specifically fix upload directories for photos
 echo "🔧 Setting up upload directories..."
 for upload_dir in public/uploads public/uploads/cache public/uploads/store; do
