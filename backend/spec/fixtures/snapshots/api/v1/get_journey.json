@@ -19,19 +19,19 @@
       "journey_steps": {
         "data": [
           {
-            "id": "64",
-            "type": "journey_steps"
-          },
-          {
             "id": "61",
             "type": "journey_steps"
           },
           {
-            "id": "70",
+            "id": "64",
             "type": "journey_steps"
           },
           {
             "id": "67",
+            "type": "journey_steps"
+          },
+          {
+            "id": "70",
             "type": "journey_steps"
           }
         ]
@@ -40,11 +40,28 @@
   },
   "included": [
     {
+      "id": "61",
+      "type": "journey_steps",
+      "attributes": {
+        "step_type": "landing",
+        "position": 1,
+        "title": "Molestiae et provident facere.",
+        "description": "Molestiae et provident facere.",
+        "credits": "Molestiae et provident facere.",
+        "credits_url": "http://hane.example/jules",
+        "background_image": {
+          "small": "/test_blob_url_130",
+          "medium": "/test_blob_url_130",
+          "original": "/test_blob_url_130"
+        }
+      }
+    },
+    {
       "id": "64",
       "type": "journey_steps",
       "attributes": {
         "step_type": "conclusion",
-        "position": 11,
+        "position": 2,
         "title": "Iste vel et eos.",
         "subtitle": "Iste vel et eos.",
         "content": {
@@ -67,19 +84,21 @@
       }
     },
     {
-      "id": "61",
+      "id": "67",
       "type": "journey_steps",
       "attributes": {
-        "step_type": "landing",
-        "position": 25,
-        "title": "Molestiae et provident facere.",
-        "description": "Molestiae et provident facere.",
-        "credits": "Molestiae et provident facere.",
-        "credits_url": "http://hane.example/jules",
+        "step_type": "chapter",
+        "position": 3,
+        "title": "Molestias quis sint repellat.",
+        "description": "Molestias quis sint repellat.",
+        "chapter_number": 3,
+        "credits": "Molestias quis sint repellat.",
+        "credits_url": "http://ritchie.example/jame",
+        "background_color": "#bf40bf",
         "background_image": {
-          "small": "/test_blob_url_130",
-          "medium": "/test_blob_url_130",
-          "original": "/test_blob_url_130"
+          "small": "/test_blob_url_138",
+          "medium": "/test_blob_url_138",
+          "original": "/test_blob_url_138"
         }
       }
     },
@@ -88,7 +107,7 @@
       "type": "journey_steps",
       "attributes": {
         "step_type": "embed",
-        "position": 76,
+        "position": 4,
         "title": "Corporis et perspiciatis voluptatibus.",
         "subtitle": "Corporis et perspiciatis voluptatibus.",
         "content": {
@@ -104,25 +123,6 @@
         "mask_sql": "Corporis et perspiciatis voluptatibus.",
         "map_url": "http://lind.test/alana",
         "embedded_map_url": "http://lind.test/alana"
-      }
-    },
-    {
-      "id": "67",
-      "type": "journey_steps",
-      "attributes": {
-        "step_type": "chapter",
-        "position": 93,
-        "title": "Molestias quis sint repellat.",
-        "description": "Molestias quis sint repellat.",
-        "chapter_number": 93,
-        "credits": "Molestias quis sint repellat.",
-        "credits_url": "http://ritchie.example/jame",
-        "background_color": "#bf40bf",
-        "background_image": {
-          "small": "/test_blob_url_138",
-          "medium": "/test_blob_url_138",
-          "original": "/test_blob_url_138"
-        }
       }
     }
   ]
