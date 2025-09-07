@@ -107,6 +107,7 @@ RUN mkdir -p log tmp/cache tmp/pids tmp/sockets tmp/storage \
   downloads storage
 
 # Create a proper temp directory for appuser and set all permissions
+# CRITICAL: Set ownership and permissions AFTER copying code to ensure correct ownership
 RUN mkdir -p /tmp/appuser-tmp /home/appuser/.cache /home/appuser/.config /home/appuser/.local/share/applications \
   && chown -R appuser:appuser /app /tmp/appuser-tmp /home/appuser \
   && chmod -R 755 /app \

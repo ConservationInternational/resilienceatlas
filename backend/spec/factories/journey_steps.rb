@@ -43,10 +43,7 @@ FactoryBot.define do
       Faker::Config.random = Random.new(n)
       Faker::Lorem.paragraph
     end
-    sequence(:chapter_number) do |n|
-      Faker::Config.random = Random.new(n)
-      Faker::Number.between from: 1, to: 100
-    end
+    sequence(:chapter_number) { |n| n }
     sequence(:credits) do |n|
       Faker::Config.random = Random.new(n)
       Faker::Lorem.sentence
@@ -71,10 +68,7 @@ FactoryBot.define do
       Faker::Config.random = Random.new(n)
       Faker::Internet.url
     end
-    sequence(:position) do |n|
-      Faker::Config.random = Random.new(n)
-      Faker::Number.between from: 1, to: 100
-    end
+    sequence(:position) { |n| n }
     sequence(:background_color) do |n|
       Faker::Config.random = Random.new(n)
       Faker::Color.hex_color
