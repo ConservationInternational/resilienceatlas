@@ -417,17 +417,15 @@ jobs:
               echo "Verifying Cypress environment..."
               npx cypress version
               
+              echo "Creating results directory..."
+              mkdir -p cypress/results
+              
               echo "Verifying connectivity to test services..."
               curl -f http://frontend-test:3000 || { echo "Frontend not reachable"; exit 1; }
               curl -f http://backend-test:3001/api/health || { echo "Backend API not reachable"; exit 1; }
               
               echo "Starting Cypress tests..."
-              npx cypress run \
-                --browser '${{ matrix.browser }}' \
-                --headless \
-                --config video=true,screenshotOnRunFailure=true,defaultCommandTimeout=10000,requestTimeout=10000,responseTimeout=30000 \
-                --reporter junit \
-                --reporter-options mochaFile=cypress/results/integration-'${{ matrix.browser }}'-[hash].xml
+              CYPRESS_baseUrl=http://frontend-test:3000 npx cypress run --browser '${{ matrix.browser }}' --headless --config-file cypress.docker.config.js --reporter junit --reporter-options mochaFile=cypress/results/integration-'${{ matrix.browser }}'-[hash].xml
             '; then
             echo "✅ Cypress tests completed successfully"
           else
