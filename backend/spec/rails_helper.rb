@@ -39,7 +39,7 @@ end
 RSpec.configure do |config|
   config.fixture_paths = ["#{::Rails.root}/spec/fixtures"]
   config.request_snapshots_dir = "spec/fixtures/snapshots"
-  config.request_snapshots_dynamic_attributes = %w[id uid layer_group_id layer_id auth_token image_data url image_url small medium original created_at updated_at]
+  config.request_snapshots_dynamic_attributes = %w[id uid layer_group_id layer_id auth_token image_data url image_url small medium original created_at updated_at record_id]
   config.request_snapshots_ignore_order = %w[data included timeline_steps]
 
   config.include RequestHelpers, type: :request
