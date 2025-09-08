@@ -139,7 +139,7 @@ unless Rails.env.test?
       end
 
       # Execute the modified content
-      eval(content, binding, __FILE__, __LINE__)
+      eval(content, binding, __FILE__, __LINE__) # rubocop:disable Security/Eval
       puts "Layers imported successfully from layers.rb"
     else
       puts "Warning: layers.rb file not found at #{layers_file}"
@@ -163,7 +163,7 @@ unless Rails.env.test?
         # Extract and execute just the Journey.create! part first
         journey_section = content.match(/Journey\.create!\(\[(.*?)\]\)/m)
         if journey_section
-          eval("Journey.create!([#{journey_section[1]}])", binding, __FILE__, __LINE__)
+          eval("Journey.create!([#{journey_section[1]}])", binding, __FILE__, __LINE__) # rubocop:disable Security/Eval
           puts "Journeys created: #{Journey.count}"
 
           # Update sequence to prevent ID conflicts
@@ -172,7 +172,7 @@ unless Rails.env.test?
           # Extract and execute the JourneyStep.create! part
           journey_step_section = content.match(/JourneyStep\.create!\(\[(.*?)\]\)/m)
           if journey_step_section
-            eval("JourneyStep.create!([#{journey_step_section[1]}])", binding, __FILE__, __LINE__)
+            eval("JourneyStep.create!([#{journey_step_section[1]}])", binding, __FILE__, __LINE__) # rubocop:disable Security/Eval
             puts "Journey steps created: #{JourneyStep.count}"
 
             # Update journey step sequence as well
