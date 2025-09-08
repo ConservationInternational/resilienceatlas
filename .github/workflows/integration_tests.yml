@@ -213,14 +213,19 @@ jobs:
             RAILS_ENV=test bundle exec rails db:prepare &&
             echo 'Database prepared successfully'
             
+            # Verify database schema is loaded
+            echo 'Verifying database schema...'
+            printf 'puts \"=== Database Schema Verification ===\"\nbegin\n  puts \"SiteScope table exists: #{ActiveRecord::Base.connection.table_exists?(\"site_scopes\")}\"\n  puts \"LayerGroup table exists: #{ActiveRecord::Base.connection.table_exists?(\"layer_groups\")}\"\n  puts \"Layer table exists: #{ActiveRecord::Base.connection.table_exists?(\"layers\")}\"\n  puts \"Agrupation table exists: #{ActiveRecord::Base.connection.table_exists?(\"agrupations\")}\"\n  \n  if ActiveRecord::Base.connection.table_exists?(\"site_scopes\")\n    columns = ActiveRecord::Base.connection.columns(\"site_scopes\").map(&:name)\n    puts \"SiteScope columns: #{columns.join(\", \")}\"\n  end\nrescue => e\n  puts \"❌ Schema verification failed: #{e.message}\"\nend' > /tmp/schema_check.rb
+            RAILS_ENV=test bundle exec rails runner /tmp/schema_check.rb
+            
             # Create minimal seed data for integration tests
             echo 'Creating minimal seed data for integration tests...'
             
             # Use printf to create Ruby files avoiding all escaping issues
-            printf 'SiteScope.find_or_create_by(id: 1, name: \"Integration Test Site\", subdomain: \"test\", header_theme: \"Resilience\", color: \"#0089CC\", password_protected: false)\nputs \"✅ SiteScope ready\"' > /tmp/seed.rb
+            printf 'puts \"Creating SiteScope...\"\nbegin\n  site_scope = SiteScope.find_or_initialize_by(id: 1)\n  if site_scope.persisted?\n    puts \"✅ SiteScope already exists\"\n  else\n    site_scope.assign_attributes(\n      name: \"Integration Test Site\",\n      subdomain: \"test\",\n      header_theme: \"Resilience\",\n      color: \"#0089CC\",\n      password_protected: false\n    )\n    if site_scope.save\n      puts \"✅ SiteScope created with ID: #{site_scope.id}\"\n    else\n      puts \"❌ SiteScope creation failed: #{site_scope.errors.full_messages.join(\", \")}\"\n      puts \"Trying with minimal attributes...\"\n      site_scope = SiteScope.create!(id: 1, name: \"Test Site\", subdomain: \"test\")\n      puts \"✅ Minimal SiteScope created with ID: #{site_scope.id}\"\n    end\n  end\nrescue => e\n  puts \"❌ SiteScope creation failed: #{e.message}\"\n  puts e.backtrace.first(3)\nend\nputs \"Total SiteScopes: #{SiteScope.count}\"' > /tmp/seed.rb
             RAILS_ENV=test bundle exec rails runner /tmp/seed.rb
             
-            printf 'LayerGroup.find_or_create_by(name: \"Test Group\", order: 1, icon_class: \"test-icon\", category: \"Analysis\", site_scope_id: 1)\nputs \"✅ LayerGroup ready\"' > /tmp/layer_group.rb  
+            printf 'puts \"Creating LayerGroup...\"\nbegin\n  layer_group = LayerGroup.find_or_create_by(name: \"Test Group\") do |lg|\n    lg.order = 1\n    lg.icon_class = \"test-icon\"\n    lg.category = \"Analysis\"\n    lg.site_scope_id = 1\n  end\n  puts \"✅ LayerGroup created/found with ID: #{layer_group.id}, name: #{layer_group.name}\"\nrescue => e\n  puts \"❌ LayerGroup creation failed: #{e.message}\"\n  puts e.backtrace.first(3)\nend\nputs \"Total LayerGroups: #{LayerGroup.count}\"' > /tmp/layer_group.rb  
             RAILS_ENV=test bundle exec rails runner /tmp/layer_group.rb
             
             printf 'puts \"Creating Layer...\"\nbegin\n  unless Layer.exists?\n    layer = Layer.create!(name: \"Test Layer\", layer_type: \"CartoDB\", slug: \"test-layer\", zoom_max: 10, zoom_min: 1, dashboard_order: 1, layer_provider: \"cartodb\", interaction_config: \"{}\")\n    puts \"Layer created with ID: #{layer.id}\"\n    if LayerGroup.exists?\n      agrupation = Agrupation.create!(layer: layer, layer_group: LayerGroup.first, active: true)\n      puts \"Agrupation created with ID: #{agrupation.id}\"\n    end\n    puts \"✅ Layer ready\"\n  else\n    puts \"✅ Layer already exists\"\n  end\nrescue => e\n  puts \"❌ Layer creation failed: #{e.message}\"\n  puts e.backtrace.first(3)\nend\nputs \"Total layers: #{Layer.count}\"\nputs \"Total layer groups: #{LayerGroup.count}\"\nputs \"Total agrupations: #{Agrupation.count}\"' > /tmp/layer.rb
@@ -228,7 +233,7 @@ jobs:
             
             # Verify the test data was created successfully
             echo 'Verifying test data...'
-            printf 'puts \"=== Test Data Verification ===\"\nputs \"SiteScopes: #{SiteScope.count}\"\nputs \"LayerGroups: #{LayerGroup.count}\"\nputs \"Layers: #{Layer.count}\"\nputs \"Agrupations: #{Agrupation.count}\"\nif Layer.exists?\n  layer = Layer.first\n  puts \"First layer: #{layer.name} (ID: #{layer.id})\"\n  puts \"Layer groups for layer: #{layer.layer_groups.count}\"\nend\nputs \"Layers for site_scope 1: #{Layer.fetch_all(site_scope: 1).count}\"' > /tmp/verify.rb
+            printf 'puts \"=== Test Data Verification ===\"\nputs \"SiteScopes: #{SiteScope.count}\"\nif SiteScope.exists?\n  site_scope = SiteScope.first\n  puts \"First SiteScope: #{site_scope.name} (ID: #{site_scope.id}, subdomain: #{site_scope.subdomain})\"\nelse\n  puts \"❌ No SiteScopes found!\"\nend\nputs \"LayerGroups: #{LayerGroup.count}\"\nif LayerGroup.exists?\n  layer_group = LayerGroup.first\n  puts \"First LayerGroup: #{layer_group.name} (ID: #{layer_group.id}, site_scope_id: #{layer_group.site_scope_id})\"\nelse\n  puts \"❌ No LayerGroups found!\"\nend\nputs \"Layers: #{Layer.count}\"\nputs \"Agrupations: #{Agrupation.count}\"\n\nif Layer.exists?\n  layer = Layer.first\n  puts \"First layer: #{layer.name} (ID: #{layer.id})\"\n  puts \"Layer groups for layer: #{layer.layer_groups.count}\"\nelse\n  puts \"❌ No Layers found!\"\nend\n\nputs \"\\n=== API Endpoint Testing ===\"\nbegin\n  layers_count = Layer.fetch_all(site_scope: 1).count\n  puts \"Layers for site_scope 1: #{layers_count}\"\nrescue => e\n  puts \"❌ Error fetching layers for site_scope 1: #{e.message}\"\nend' > /tmp/verify.rb
             RAILS_ENV=test bundle exec rails runner /tmp/verify.rb
           "
         
