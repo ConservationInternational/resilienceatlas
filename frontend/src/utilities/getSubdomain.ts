@@ -3,7 +3,11 @@ import { isDevelopment } from './environment';
 
 export const getSubdomainFromURL = (url: string): string => {
   // Site scope depends on the domain set in the API
-  const host = url.replace(/(^http(s?):\/\/)|(\.com)$/g, '');
+  let host = url.replace(/(^http(s?):\/\/)|(\.com)$/g, '');
+
+  // Remove port number if present (e.g., frontend-test:3000 -> frontend-test)
+  host = host.split(':')[0];
+
   const parts = host.split('.');
 
   // Handle different domain structures:
@@ -41,7 +45,15 @@ export const getSubdomainFromURL = (url: string): string => {
     // Happens when loading in Docker environments (test/dev)
     subdomain === 'frontend-test' ||
     subdomain === 'frontend-app' ||
-    subdomain === 'frontend-dev'
+    subdomain === 'frontend-dev' ||
+    subdomain === 'frontend' ||
+    // Docker service names in different environments
+    subdomain.startsWith('frontend-') ||
+    // Other common localhost variations
+    subdomain === '127' ||
+    subdomain.startsWith('192.168') ||
+    subdomain.startsWith('10.0') ||
+    subdomain.startsWith('172.')
   ) {
     return null;
   }
