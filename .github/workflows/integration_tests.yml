@@ -161,8 +161,6 @@ jobs:
             --target test \
             --build-arg NEXT_PUBLIC_API_HOST=http://backend-test:3001 \
             --build-arg NEXT_PUBLIC_GOOGLE_ANALYTICS=GA_INTEGRATION_TEST_ID \
-            --build-arg NEXT_PUBLIC_TRANSIFEX_TOKEN=integration_test_token \
-            --build-arg NEXT_PUBLIC_TRANSIFEX_SECRET=integration_test_secret \
             --build-arg NEXT_PUBLIC_GOOGLE_API_KEY=integration_test_api_key \
             --build-arg CYPRESS_INSTALL_BINARY=0 \
             --build-arg BUILDKIT_INLINE_CACHE=1 \
