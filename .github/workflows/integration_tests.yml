@@ -202,6 +202,11 @@ jobs:
         echo "Setting up test database..."
         docker compose -f docker-compose.test.yml run --rm backend-test \
           bash -c "
+            # Setup Rails environment and logging
+            echo 'Setting up Rails environment...'
+            mkdir -p /app/log && chmod 0755 /app/log
+            touch /app/log/test.log && chmod 0664 /app/log/test.log
+            
             # Use Rails built-in database preparation which handles existing schemas better
             echo 'Preparing database...'
             RAILS_ENV=test bundle exec rails db:environment:set RAILS_ENV=test || true &&
@@ -218,8 +223,13 @@ jobs:
             printf 'LayerGroup.find_or_create_by(name: \"Test Group\", order: 1, icon_class: \"test-icon\", category: \"Analysis\", site_scope_id: 1)\nputs \"✅ LayerGroup ready\"' > /tmp/layer_group.rb  
             RAILS_ENV=test bundle exec rails runner /tmp/layer_group.rb
             
-            printf 'unless Layer.exists?\n  layer = Layer.create!(name: \"Test Layer\", layer_type: \"CartoDB\", slug: \"test-layer\", zoom_max: 10, zoom_min: 1, dashboard_order: 1, layer_provider: \"cartodb\", interaction_config: \"{}\")\n  Agrupation.create!(layer: layer, layer_group: LayerGroup.first, active: true) if LayerGroup.exists?\n  puts \"✅ Layer ready\"\nend' > /tmp/layer.rb
+            printf 'puts \"Creating Layer...\"\nbegin\n  unless Layer.exists?\n    layer = Layer.create!(name: \"Test Layer\", layer_type: \"CartoDB\", slug: \"test-layer\", zoom_max: 10, zoom_min: 1, dashboard_order: 1, layer_provider: \"cartodb\", interaction_config: \"{}\")\n    puts \"Layer created with ID: #{layer.id}\"\n    if LayerGroup.exists?\n      agrupation = Agrupation.create!(layer: layer, layer_group: LayerGroup.first, active: true)\n      puts \"Agrupation created with ID: #{agrupation.id}\"\n    end\n    puts \"✅ Layer ready\"\n  else\n    puts \"✅ Layer already exists\"\n  end\nrescue => e\n  puts \"❌ Layer creation failed: #{e.message}\"\n  puts e.backtrace.first(3)\nend\nputs \"Total layers: #{Layer.count}\"\nputs \"Total layer groups: #{LayerGroup.count}\"\nputs \"Total agrupations: #{Agrupation.count}\"' > /tmp/layer.rb
             RAILS_ENV=test bundle exec rails runner /tmp/layer.rb
+            
+            # Verify the test data was created successfully
+            echo 'Verifying test data...'
+            printf 'puts \"=== Test Data Verification ===\"\nputs \"SiteScopes: #{SiteScope.count}\"\nputs \"LayerGroups: #{LayerGroup.count}\"\nputs \"Layers: #{Layer.count}\"\nputs \"Agrupations: #{Agrupation.count}\"\nif Layer.exists?\n  layer = Layer.first\n  puts \"First layer: #{layer.name} (ID: #{layer.id})\"\n  puts \"Layer groups for layer: #{layer.layer_groups.count}\"\nend\nputs \"Layers for site_scope 1: #{Layer.fetch_all(site_scope: 1).count}\"' > /tmp/verify.rb
+            RAILS_ENV=test bundle exec rails runner /tmp/verify.rb
           "
         
         # Start backend service in background
