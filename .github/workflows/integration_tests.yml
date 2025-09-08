@@ -386,21 +386,21 @@ jobs:
           
           # Create a basic test result file if tests failed to run
           docker compose -f docker-compose.test.yml run --rm backend-test \
-            bash -c "
+            bash -c '
               if [ ! -f tmp/integration-rspec.xml ]; then
-                echo 'Creating fallback test result file...'
-                cat > tmp/integration-rspec.xml << 'EOF'
-<?xml version=\"1.0\" encoding=\"UTF-8\"?>
-<testsuite name=\"Integration Tests\" tests=\"1\" failures=\"1\" errors=\"0\" time=\"0.1\">
-  <testcase classname=\"IntegrationTests\" name=\"API Endpoint Verification\" time=\"0.1\">
-    <failure message=\"Integration test setup failed\" type=\"SetupFailure\">
-      API integration tests could not run due to setup issues
-    </failure>
-  </testcase>
-</testsuite>
-EOF
+                echo "Creating fallback test result file..."
+                printf "%s\n" \
+                  "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" \
+                  "<testsuite name=\"Integration Tests\" tests=\"1\" failures=\"1\" errors=\"0\" time=\"0.1\">" \
+                  "  <testcase classname=\"IntegrationTests\" name=\"API Endpoint Verification\" time=\"0.1\">" \
+                  "    <failure message=\"Integration test setup failed\" type=\"SetupFailure\">" \
+                  "      API integration tests could not run due to setup issues" \
+                  "    </failure>" \
+                  "  </testcase>" \
+                  "</testsuite>" \
+                  > tmp/integration-rspec.xml
               fi
-            "
+            '
         fi
 
     - name: Run end-to-end integration tests
@@ -443,31 +443,31 @@ EOF
             echo "⚠️  Cypress tests had issues, creating fallback results..."
             
             # Create fallback test result file
-            cat > frontend/cypress/results/integration-${{ matrix.browser }}-fallback.xml << 'EOF'
-<?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="Cypress Integration Tests" tests="1" failures="1" errors="0" time="0.1">
-  <testcase classname="CypressTests" name="End-to-End Test Setup" time="0.1">
-    <failure message="Cypress test setup failed" type="SetupFailure">
-      Cypress integration tests could not run due to service availability issues
-    </failure>
-  </testcase>
-</testsuite>
-EOF
+            printf "%s\n" \
+              "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" \
+              "<testsuite name=\"Cypress Integration Tests\" tests=\"1\" failures=\"1\" errors=\"0\" time=\"0.1\">" \
+              "  <testcase classname=\"CypressTests\" name=\"End-to-End Test Setup\" time=\"0.1\">" \
+              "    <failure message=\"Cypress test setup failed\" type=\"SetupFailure\">" \
+              "      Cypress integration tests could not run due to service availability issues" \
+              "    </failure>" \
+              "  </testcase>" \
+              "</testsuite>" \
+              > frontend/cypress/results/integration-${{ matrix.browser }}-fallback.xml
           fi
         else
           echo "⚠️  Services not available, creating fallback test results..."
           
           # Create fallback test result file when services aren't available
-          cat > frontend/cypress/results/integration-${{ matrix.browser }}-fallback.xml << 'EOF'
-<?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="Cypress Integration Tests" tests="1" failures="1" errors="0" time="0.1">
-  <testcase classname="CypressTests" name="Service Availability Check" time="0.1">
-    <failure message="Required services not available" type="ServiceUnavailable">
-      Frontend or backend services were not available for testing
-    </failure>
-  </testcase>
-</testsuite>
-EOF
+          printf "%s\n" \
+            "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" \
+            "<testsuite name=\"Cypress Integration Tests\" tests=\"1\" failures=\"1\" errors=\"0\" time=\"0.1\">" \
+            "  <testcase classname=\"CypressTests\" name=\"Service Availability Check\" time=\"0.1\">" \
+            "    <failure message=\"Required services not available\" type=\"ServiceUnavailable\">" \
+            "      Frontend or backend services were not available for testing" \
+            "    </failure>" \
+            "  </testcase>" \
+            "</testsuite>" \
+            > frontend/cypress/results/integration-${{ matrix.browser }}-fallback.xml
           
           echo "Collecting debug information..."
           echo "=== Frontend Status ==="
