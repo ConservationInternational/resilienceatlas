@@ -130,15 +130,20 @@ const ResilienceApp = ({ Component, ...rest }: AppPropsWithLayout) => {
   useEffect(() => {
     // Only initialize Transifex if a token is provided and not empty
     if (NEXT_PUBLIC_TRANSIFEX_TOKEN && NEXT_PUBLIC_TRANSIFEX_TOKEN.trim() !== '') {
-      // Used for initial render
-      tx.init({
-        token: NEXT_PUBLIC_TRANSIFEX_TOKEN,
-        ...(process.env.NODE_ENV === 'development'
-          ? { missingPolicy: new PseudoTranslationPolicy() }
-          : {}),
-      });
+      try {
+        // Used for initial render
+        tx.init({
+          token: NEXT_PUBLIC_TRANSIFEX_TOKEN,
+          ...(process.env.NODE_ENV === 'development'
+            ? { missingPolicy: new PseudoTranslationPolicy() }
+            : {}),
+        });
 
-      tx.setCurrentLocale(locale);
+        tx.setCurrentLocale(locale);
+      } catch (error) {
+        // If Transifex fails on client, just log and continue
+        console.warn('Transifex client initialization failed:', error.message);
+      }
     } else if (process.env.NODE_ENV === 'development' && !hasWarnedAboutTransifex.current) {
       // In development without token, just log a warning once
       // eslint-disable-next-line no-console
