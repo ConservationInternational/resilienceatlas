@@ -211,12 +211,15 @@ jobs:
             # Create minimal seed data for integration tests
             echo 'Creating minimal seed data for integration tests...'
             
-            # Use a simple one-liner approach for seeding
-            RAILS_ENV=test bundle exec rails runner "SiteScope.find_or_create_by(id: 1) { |s| s.name = 'Integration Test Site'; s.subdomain = 'test'; s.header_theme = 'Resilience'; s.color = '#0089CC'; s.password_protected = false }; puts '✅ SiteScope ready'"
+            # Use printf to create Ruby files avoiding all escaping issues
+            printf 'SiteScope.find_or_create_by(id: 1, name: \"Integration Test Site\", subdomain: \"test\", header_theme: \"Resilience\", color: \"#0089CC\", password_protected: false)\nputs \"✅ SiteScope ready\"' > /tmp/seed.rb
+            RAILS_ENV=test bundle exec rails runner /tmp/seed.rb
             
-            RAILS_ENV=test bundle exec rails runner "LayerGroup.find_or_create_by(name: 'Test Group') { |lg| lg.order = 1; lg.icon_class = 'test-icon'; lg.category = 'Analysis'; lg.site_scope_id = 1 }; puts '✅ LayerGroup ready'"
+            printf 'LayerGroup.find_or_create_by(name: \"Test Group\", order: 1, icon_class: \"test-icon\", category: \"Analysis\", site_scope_id: 1)\nputs \"✅ LayerGroup ready\"' > /tmp/layer_group.rb  
+            RAILS_ENV=test bundle exec rails runner /tmp/layer_group.rb
             
-            RAILS_ENV=test bundle exec rails runner "unless Layer.exists?; layer = Layer.create!(name: 'Test Layer', layer_type: 'CartoDB', slug: 'test-layer', zoom_max: 10, zoom_min: 1, dashboard_order: 1, layer_provider: 'cartodb', interaction_config: '{\"type\": \"basic\"}'); Agrupation.create!(layer: layer, layer_group: LayerGroup.first, active: true) if LayerGroup.exists?; puts '✅ Layer ready'; end"
+            printf 'unless Layer.exists?\n  layer = Layer.create!(name: \"Test Layer\", layer_type: \"CartoDB\", slug: \"test-layer\", zoom_max: 10, zoom_min: 1, dashboard_order: 1, layer_provider: \"cartodb\", interaction_config: \"{}\")\n  Agrupation.create!(layer: layer, layer_group: LayerGroup.first, active: true) if LayerGroup.exists?\n  puts \"✅ Layer ready\"\nend' > /tmp/layer.rb
+            RAILS_ENV=test bundle exec rails runner /tmp/layer.rb
           "
         
         # Start backend service in background
