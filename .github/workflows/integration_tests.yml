@@ -301,19 +301,25 @@ jobs:
           attempt=1
           while [ $attempt -le 60 ]; do
             echo "Frontend check attempt $attempt/60..."
-            if curl -f -s -o /dev/null -w "%{http_code}" http://localhost:3000 | grep -q "200"; then
-              echo "✅ Frontend responding with 200 OK"
+            # Test both host and Docker network connectivity
+            host_response=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3000 2>/dev/null || echo "000")
+            docker_response=$(docker compose -f docker-compose.test.yml exec -T cypress-runner curl -s -o /dev/null -w "%{http_code}" http://frontend-test:3000 2>/dev/null || echo "000")
+            
+            echo "Host response: $host_response, Docker network response: $docker_response"
+            
+            if [ "$host_response" = "200" ] && [ "$docker_response" = "200" ]; then
+              echo "✅ Frontend responding with 200 OK on both host and Docker network"
               break
             elif [ $attempt -eq 60 ]; then
               echo "❌ Frontend failed to start after 5 minutes"
+              echo "Host response: $host_response, Docker network response: $docker_response"
               echo "Frontend logs:"
               docker compose -f docker-compose.test.yml logs frontend-test --tail=50
               echo "Frontend container status:"
               docker compose -f docker-compose.test.yml ps frontend-test
               exit 1
             else
-              response=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3000 2>/dev/null || echo "000")
-              echo "Frontend not ready yet (HTTP $response), waiting 5 seconds..."
+              echo "Frontend not ready yet (Host: $host_response, Docker: $docker_response), waiting 5 seconds..."
               sleep 5
               attempt=$((attempt + 1))
             fi
@@ -321,6 +327,28 @@ jobs:
         '
         
         echo "✅ Frontend service started and responding"
+
+    - name: Test specific frontend routes
+      if: always()
+      run: |
+        echo "Testing frontend routes that Cypress will access..."
+        
+        # Test main routes through Docker network (how Cypress will access them)
+        docker compose -f docker-compose.test.yml exec -T cypress-runner bash -c '
+          for route in "/" "/about" "/map"; do
+            echo "Testing route: $route"
+            response=$(curl -s -o /dev/null -w "%{http_code}" "http://frontend-test:3000$route" 2>/dev/null || echo "000")
+            if [ "$response" = "200" ]; then
+              echo "✅ Route $route responding with 200"
+            else
+              echo "❌ Route $route responding with $response"
+              echo "Frontend logs for debugging:"
+              docker compose -f docker-compose.test.yml logs frontend-test --tail=20
+            fi
+          done
+        '
+        
+        echo "✅ Frontend routes tested"
 
     - name: Verify full stack connectivity
       if: always()

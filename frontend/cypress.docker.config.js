@@ -10,8 +10,8 @@ module.exports = defineConfig({
   hosts: {},
   e2e: {
     specPattern: '**/*.cy.js',
-    // Use frontend-app service URL for Docker environment
-    baseUrl: 'http://frontend-app:3000',
+    // Use frontend-test service URL for Docker environment
+    baseUrl: 'http://frontend-test:3000',
     screenshotOnRunFailure: true,
     video: false,
     viewportWidth: 1280,

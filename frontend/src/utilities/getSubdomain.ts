@@ -37,7 +37,11 @@ export const getSubdomainFromURL = (url: string): string => {
     // Happens when loading https://app.resilienceatlas.org or https://app.staging.resilienceatlas.org
     subdomain === 'app' ||
     // Happens when loading http://localhost:3000 (for example)
-    subdomain.startsWith('localhost')
+    subdomain.startsWith('localhost') ||
+    // Happens when loading in Docker environments (test/dev)
+    subdomain === 'frontend-test' ||
+    subdomain === 'frontend-app' ||
+    subdomain === 'frontend-dev'
   ) {
     return null;
   }

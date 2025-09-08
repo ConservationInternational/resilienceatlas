@@ -9,8 +9,8 @@ export function middleware(request: NextRequest) {
   // Get subdomain from the current host
   const subdomain = getSubdomainFromURL(host);
 
-  // Log for debugging in development
-  if (process.env.NODE_ENV === 'development') {
+  // Log for debugging in development or test
+  if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test') {
     // eslint-disable-next-line no-console
     console.log(`Middleware: host=${host}, pathname=${pathname}, subdomain=${subdomain}`);
   }
