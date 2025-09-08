@@ -303,7 +303,7 @@ jobs:
             echo "Frontend check attempt $attempt/60..."
             # Test both host and Docker network connectivity
             host_response=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3000 2>/dev/null || echo "000")
-            docker_response=$(docker compose -f docker-compose.test.yml exec -T cypress-runner curl -s -o /dev/null -w "%{http_code}" http://frontend-test:3000 2>/dev/null || echo "000")
+            docker_response=$(docker run --rm --network resilienceatlas_test-network alpine/curl:latest curl -s -o /dev/null -w "%{http_code}" http://frontend-test:3000 2>/dev/null || echo "000")
             
             echo "Host response: $host_response, Docker network response: $docker_response"
             

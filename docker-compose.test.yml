@@ -183,7 +183,7 @@ services:
         npm run build &&
         
         echo '✅ Build successful, starting frontend server...' &&
-        npm start
+        npm start -- -H 0.0.0.0
       "
 
   # Cypress Chrome for E2E testing
