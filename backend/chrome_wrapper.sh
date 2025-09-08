@@ -34,6 +34,7 @@ if [ "$DISPLAY" = ":99" ]; then
 fi
 
 # Create secure temp directories for appuser
+
 TEMP_DIR="/tmp/appuser-tmp/chrome-$$"
 mkdir -p "$TEMP_DIR/chrome-data" "$TEMP_DIR/chrome-cache" "$TEMP_DIR/downloads"
 chmod 700 "$TEMP_DIR"  # More secure permissions

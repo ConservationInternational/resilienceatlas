@@ -410,7 +410,27 @@ jobs:
         
         # Check if services are available before running Cypress
         if curl -f -s http://localhost:3000 >/dev/null 2>&1 && curl -f -s http://localhost:3001/api/health >/dev/null 2>&1; then
-          echo "Services are available, running Cypress tests..."
+          echo "Services are available from host, verifying Docker network connectivity..."
+          
+          # Verify that services are accessible from within the Docker network
+          docker run --rm --network resilienceatlas_test-network alpine/curl:latest \
+            sh -c "
+              echo 'Testing frontend connectivity from Docker network...'
+              if curl -f -s http://frontend-test:3000 >/dev/null 2>&1; then
+                echo '✅ Frontend accessible at frontend-test:3000'
+              else
+                echo '❌ Frontend NOT accessible at frontend-test:3000'
+                exit 1
+              fi
+              
+              echo 'Testing backend API connectivity from Docker network...'
+              if curl -f -s http://backend-test:3001/api/health >/dev/null 2>&1; then
+                echo '✅ Backend API accessible at backend-test:3001'
+              else
+                echo '❌ Backend API NOT accessible at backend-test:3001'
+                exit 1
+              fi
+            " && echo "Docker network connectivity verified, running Cypress tests..."
           
           # Use the cypress image directly instead of the compose service with profiles
           if docker run --rm \
@@ -433,6 +453,14 @@ jobs:
               echo "Verifying connectivity to test services..."
               curl -f http://frontend-test:3000 || { echo "Frontend not reachable"; exit 1; }
               curl -f http://backend-test:3001/api/health || { echo "Backend API not reachable"; exit 1; }
+              
+              echo "Testing specific frontend routes..."
+              echo "Testing root route..."
+              curl -s -o /dev/null -w "Status: %{http_code}" http://frontend-test:3000/ || echo " - Root route failed"
+              echo ""
+              echo "Testing about route..."
+              curl -s -o /dev/null -w "Status: %{http_code}" http://frontend-test:3000/about || echo " - About route failed"
+              echo ""
               
               echo "Starting Cypress tests..."
               CYPRESS_baseUrl=http://frontend-test:3000 npx cypress run --browser '${{ matrix.browser }}' --headless --config-file cypress.docker.config.js --reporter junit --reporter-options mochaFile=cypress/results/integration-'${{ matrix.browser }}'-[hash].xml
