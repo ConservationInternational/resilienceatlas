@@ -104,8 +104,6 @@ jobs:
         NODE_ENV=test
         NEXT_PUBLIC_API_HOST=http://backend-test:3001
         NEXT_PUBLIC_GOOGLE_ANALYTICS=GA_INTEGRATION_TEST_ID
-        NEXT_PUBLIC_TRANSIFEX_TOKEN=integration_test_token
-        NEXT_PUBLIC_TRANSIFEX_SECRET=integration_test_secret
         NEXT_PUBLIC_GOOGLE_API_KEY=integration_test_api_key
         PORT=3000
         EOF
@@ -223,7 +221,7 @@ jobs:
                   subdomain: \"test\",
                   header_theme: \"Resilience\", 
                   color: \"#0089CC\",
-                  requires_authentication: false
+                  password_protected: false
                 )
                 puts \"✅ Created default SiteScope for integration tests\"
               else
