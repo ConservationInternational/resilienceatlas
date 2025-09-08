@@ -334,17 +334,29 @@ jobs:
         echo "Testing frontend routes that Cypress will access..."
         
         # Test main routes through Docker network (how Cypress will access them)
-        docker run --rm --network resilienceatlas_test-network alpine/curl:latest bash -c '
-          for route in "/" "/about" "/map"; do
-            echo "Testing route: $route"
-            response=$(curl -s -o /dev/null -w "%{http_code}" "http://frontend-test:3000$route" 2>/dev/null || echo "000")
-            if [ "$response" = "200" ]; then
-              echo "✅ Route $route responding with 200"
-            else
-              echo "❌ Route $route responding with $response"
-            fi
-          done
-        '
+        echo "Testing route: /"
+        response=$(docker run --rm --network resilienceatlas_test-network alpine/curl:latest curl -s -o /dev/null -w "%{http_code}" "http://frontend-test:3000/")
+        if [ "$response" = "200" ]; then
+          echo "✅ Route / responding with 200"
+        else
+          echo "❌ Route / responding with $response"
+        fi
+        
+        echo "Testing route: /about"
+        response=$(docker run --rm --network resilienceatlas_test-network alpine/curl:latest curl -s -o /dev/null -w "%{http_code}" "http://frontend-test:3000/about")
+        if [ "$response" = "200" ]; then
+          echo "✅ Route /about responding with 200"
+        else
+          echo "❌ Route /about responding with $response"
+        fi
+        
+        echo "Testing route: /map"
+        response=$(docker run --rm --network resilienceatlas_test-network alpine/curl:latest curl -s -o /dev/null -w "%{http_code}" "http://frontend-test:3000/map")
+        if [ "$response" = "200" ]; then
+          echo "✅ Route /map responding with 200"
+        else
+          echo "❌ Route /map responding with $response"
+        fi
         
         echo "✅ Frontend routes tested"
 
