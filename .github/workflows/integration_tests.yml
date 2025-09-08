@@ -210,48 +210,58 @@ jobs:
             
             # Create minimal seed data for integration tests
             echo 'Creating minimal seed data for integration tests...'
-            RAILS_ENV=test bundle exec rails runner '
+            RAILS_ENV=test bundle exec rails runner "
               # Create a default SiteScope for integration tests
               unless SiteScope.exists?(id: 1)
                 SiteScope.create!(
                   id: 1,
-                  name: \"Integration Test Site\", 
-                  subdomain: \"test\",
-                  header_theme: \"Resilience\", 
-                  color: \"#0089CC\",
+                  name: 'Integration Test Site', 
+                  subdomain: 'test',
+                  header_theme: 'Resilience', 
+                  color: '#0089CC',
                   password_protected: false
                 )
-                puts \"✅ Created default SiteScope for integration tests\"
+                puts '✅ Created default SiteScope for integration tests'
               else
-                puts \"✅ SiteScope already exists\"
+                puts '✅ SiteScope already exists'
               end
               
               # Create minimal layers and layer groups for testing
               unless LayerGroup.exists?
                 layer_group = LayerGroup.create!(
-                  name: \"Test Group\",
-                  position: 1,
-                  icon_class: \"test-icon\",
-                  category: \"Analysis\"
+                  name: 'Test Group',
+                  order: 1,
+                  icon_class: 'test-icon',
+                  category: 'Analysis',
+                  site_scope_id: 1
                 )
-                puts \"✅ Created test LayerGroup\"
+                puts '✅ Created test LayerGroup'
               end
               
               unless Layer.exists?
-                Layer.create!(
-                  name: \"Test Layer\",
-                  layer_type: \"CartoDB\",
-                  slug: \"test-layer\",
-                  zoommax: 10,
-                  zoommin: 1,
+                layer = Layer.create!(
+                  name: 'Test Layer',
+                  layer_type: 'CartoDB',
+                  slug: 'test-layer',
+                  zoom_max: 10,
+                  zoom_min: 1,
                   dashboard_order: 1,
-                  layer_group_id: LayerGroup.first.id
+                  layer_provider: 'cartodb',
+                  interaction_config: '{\"type\": \"basic\"}'
                 )
-                puts \"✅ Created test Layer\"
+                # Associate the layer with the layer group through agrupation
+                if LayerGroup.exists?
+                  Agrupation.create!(
+                    layer: layer,
+                    layer_group: LayerGroup.first,
+                    active: true
+                  )
+                end
+                puts '✅ Created test Layer'
               end
               
-              puts \"Integration test seed data complete\"
-            '
+              puts 'Integration test seed data complete'
+            "
           "
         
         # Start backend service in background
@@ -528,12 +538,12 @@ jobs:
         # Create test data via API
         docker compose -f docker-compose.test.yml run --rm backend-test \
           bash -c "
-            RAILS_ENV=test bundle exec rails runner '
+            RAILS_ENV=test bundle exec rails runner \"
               # Create test data and verify it can be retrieved
-              puts \"Creating test data...\"
+              puts 'Creating test data...'
               # Add specific test data creation here based on your models
-              puts \"Test data created successfully\"
-            '
+              puts 'Test data created successfully'
+            \"
           "
         
         echo "✅ Data consistency tests completed"
