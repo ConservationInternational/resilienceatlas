@@ -334,7 +334,7 @@ jobs:
         echo "Testing frontend routes that Cypress will access..."
         
         # Test main routes through Docker network (how Cypress will access them)
-        docker compose -f docker-compose.test.yml exec -T cypress-runner bash -c '
+        docker run --rm --network resilienceatlas_test-network alpine/curl:latest bash -c '
           for route in "/" "/about" "/map"; do
             echo "Testing route: $route"
             response=$(curl -s -o /dev/null -w "%{http_code}" "http://frontend-test:3000$route" 2>/dev/null || echo "000")
@@ -342,8 +342,6 @@ jobs:
               echo "✅ Route $route responding with 200"
             else
               echo "❌ Route $route responding with $response"
-              echo "Frontend logs for debugging:"
-              docker compose -f docker-compose.test.yml logs frontend-test --tail=20
             fi
           done
         '

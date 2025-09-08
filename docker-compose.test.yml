@@ -93,6 +93,7 @@ services:
         
         # Fix ownership and permissions for files that need to be writable
         sudo chown -R appuser:appuser /app &&
+        sudo chown -R appuser:appuser /usr/local/bundle &&
         sudo chmod 664 /app/Gemfile.lock &&
         sudo chmod 755 /app/bin/* &&
         sudo chmod 755 /app/chrome_wrapper.sh &&
@@ -109,6 +110,7 @@ services:
         bundle check || bundle install &&
         
         echo '🔍 Verifying dependencies installation...' &&
+        bundle exec rails runner 'puts Rails.version' &&
         bundle exec ruby -e 'puts \"Ruby: #{RUBY_VERSION}, Rails: #{Rails.version}\"' &&
         
         echo '🖥️  Setting up virtual display...' &&
