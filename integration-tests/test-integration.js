@@ -217,7 +217,21 @@ async function runIntegrationTests() {
   }
 }
 
-// Handle uncaught errors
+// Handle signals and uncaught errors
+process.on('SIGTERM', () => {
+  console.error('❌ Process terminated with SIGTERM');
+  addTestResult('Process Termination', false, 'Process was terminated before completion');
+  saveTestResults();
+  process.exit(1);
+});
+
+process.on('SIGINT', () => {
+  console.error('❌ Process interrupted with SIGINT');
+  addTestResult('Process Interruption', false, 'Process was interrupted before completion');
+  saveTestResults();
+  process.exit(1);
+});
+
 process.on('unhandledRejection', (reason, promise) => {
   console.error('❌ Unhandled Rejection at:', promise, 'reason:', reason);
   addTestResult('Unhandled Promise Rejection', false, `Unhandled rejection: ${reason}`);

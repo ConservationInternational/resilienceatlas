@@ -421,28 +421,24 @@ jobs:
         # Run the integration test using the dedicated service with the integration profile
         if docker compose -f docker-compose.test.yml --profile integration run --rm integration-test; then
           echo "✅ Integration connectivity tests passed"
-          # Create a success test result file
-          printf "%s\n" \
-            "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" \
-            "<testsuite name=\"Integration Connectivity Tests\" tests=\"1\" failures=\"0\" errors=\"0\" time=\"0.1\">" \
-            "  <testcase classname=\"ConnectivityTests\" name=\"Service Connectivity Check\" time=\"0.1\">" \
-            "  </testcase>" \
-            "</testsuite>" \
-            > integration-tests/results/connectivity-tests.xml
         else
           echo "⚠️  Integration connectivity tests had issues"
           
-          # Create a basic test result file for connectivity tests
-          printf "%s\n" \
-            "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" \
-            "<testsuite name=\"Integration Connectivity Tests\" tests=\"1\" failures=\"1\" errors=\"0\" time=\"0.1\">" \
-            "  <testcase classname=\"ConnectivityTests\" name=\"Service Connectivity Check\" time=\"0.1\">" \
-            "    <failure message=\"Service connectivity test failed\" type=\"ConnectivityFailure\">" \
-            "      Basic connectivity tests between frontend and backend failed" \
-            "    </failure>" \
-            "  </testcase>" \
-            "</testsuite>" \
-            > integration-tests/results/connectivity-tests.xml
+          # Create a basic test result file using Docker to avoid permission issues
+          echo "Creating fallback test result file using Docker..."
+          docker run --rm \
+            -v "$(pwd)/integration-tests/results:/app/results" \
+            node:22.11.0-alpine \
+            sh -c 'printf "%s\n" \
+              "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" \
+              "<testsuite name=\"Integration Connectivity Tests\" tests=\"1\" failures=\"1\" errors=\"0\" time=\"0.1\">" \
+              "  <testcase classname=\"ConnectivityTests\" name=\"Service Connectivity Check\" time=\"0.1\">" \
+              "    <failure message=\"Service connectivity test failed\" type=\"ConnectivityFailure\">" \
+              "      Basic connectivity tests between frontend and backend failed" \
+              "    </failure>" \
+              "  </testcase>" \
+              "</testsuite>" \
+              > /app/results/connectivity-tests.xml'
         fi
 
     - name: Run API integration tests
@@ -558,32 +554,38 @@ jobs:
           else
             echo "⚠️  Cypress tests had issues, creating fallback results..."
             
-            # Create fallback test result file on host filesystem
-            printf "%s\n" \
-              "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" \
-              "<testsuite name=\"Cypress Integration Tests\" tests=\"1\" failures=\"1\" errors=\"0\" time=\"0.1\">" \
-              "  <testcase classname=\"CypressTests\" name=\"End-to-End Test Setup\" time=\"0.1\">" \
-              "    <failure message=\"Cypress test setup failed\" type=\"SetupFailure\">" \
-              "      Cypress integration tests could not run due to service availability issues" \
-              "    </failure>" \
-              "  </testcase>" \
-              "</testsuite>" \
-              > frontend/cypress/results/integration-${{ matrix.browser }}-fallback.xml
+            # Create fallback test result file using Docker to avoid permission issues
+            docker run --rm \
+              -v "$(pwd)/frontend/cypress/results:/app/results" \
+              node:22.11.0-alpine \
+              sh -c 'printf "%s\n" \
+                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" \
+                "<testsuite name=\"Cypress Integration Tests\" tests=\"1\" failures=\"1\" errors=\"0\" time=\"0.1\">" \
+                "  <testcase classname=\"CypressTests\" name=\"End-to-End Test Setup\" time=\"0.1\">" \
+                "    <failure message=\"Cypress test setup failed\" type=\"SetupFailure\">" \
+                "      Cypress integration tests could not run due to service availability issues" \
+                "    </failure>" \
+                "  </testcase>" \
+                "</testsuite>" \
+                > /app/results/integration-${{ matrix.browser }}-fallback.xml'
           fi
         else
           echo "⚠️  Services not available, creating fallback test results..."
           
-          # Create fallback test result file when services aren't available
-          printf "%s\n" \
-            "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" \
-            "<testsuite name=\"Cypress Integration Tests\" tests=\"1\" failures=\"1\" errors=\"0\" time=\"0.1\">" \
-            "  <testcase classname=\"CypressTests\" name=\"Service Availability Check\" time=\"0.1\">" \
-            "    <failure message=\"Required services not available\" type=\"ServiceUnavailable\">" \
-            "      Frontend or backend services were not available for testing" \
-            "    </failure>" \
-            "  </testcase>" \
-            "</testsuite>" \
-            > frontend/cypress/results/integration-${{ matrix.browser }}-fallback.xml
+          # Create fallback test result file using Docker to avoid permission issues
+          docker run --rm \
+            -v "$(pwd)/frontend/cypress/results:/app/results" \
+            node:22.11.0-alpine \
+            sh -c 'printf "%s\n" \
+              "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" \
+              "<testsuite name=\"Cypress Integration Tests\" tests=\"1\" failures=\"1\" errors=\"0\" time=\"0.1\">" \
+              "  <testcase classname=\"CypressTests\" name=\"Service Availability Check\" time=\"0.1\">" \
+              "    <failure message=\"Required services not available\" type=\"ServiceUnavailable\">" \
+              "      Frontend or backend services were not available for testing" \
+              "    </failure>" \
+              "  </testcase>" \
+              "</testsuite>" \
+              > /app/results/integration-${{ matrix.browser }}-fallback.xml'
           
           echo "Collecting debug information..."
           echo "=== Frontend Status ==="
