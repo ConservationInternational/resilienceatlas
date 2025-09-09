@@ -61,6 +61,7 @@ services:
     volumes:
       - ./backend:/app
       - bundle_cache:/usr/local/bundle
+      - ./backend/tmp:/app/tmp  # Explicit mount for test results
     networks:
       - test-network
     dns:
@@ -158,6 +159,7 @@ services:
       - ./frontend:/app
       - node_modules_test:/app/node_modules
       - ./frontend/cypress:/app/cypress
+      - ./frontend/cypress/results:/app/cypress/results  # Explicit mount for Cypress test results
     networks:
       - test-network
     depends_on:
@@ -243,6 +245,7 @@ services:
       - BACKEND_URL=http://backend-test:3001
     volumes:
       - ./integration-tests:/app
+      - ./integration-tests/results:/app/results  # Explicit mount for integration test results
     networks:
       - test-network
     depends_on:
