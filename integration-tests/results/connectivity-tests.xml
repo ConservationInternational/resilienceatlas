@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="Integration Connectivity Tests" tests="2" failures="2" errors="0" time="116.302">
+  <testcase classname="IntegrationConnectivityTests" name="Backend API Availability" time="58.164">
+    <failure message="Service failed to become ready: getaddrinfo ENOTFOUND nonexistent" type="TestFailure">
+      Service failed to become ready: getaddrinfo ENOTFOUND nonexistent
+    </failure>
+  </testcase>
+  <testcase classname="IntegrationConnectivityTests" name="Frontend Availability" time="58.136">
+    <failure message="Service failed to become ready: getaddrinfo ENOTFOUND nonexistent" type="TestFailure">
+      Service failed to become ready: getaddrinfo ENOTFOUND nonexistent
+    </failure>
+  </testcase>
+</testsuite>
