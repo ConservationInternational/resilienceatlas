@@ -84,6 +84,16 @@ jobs:
 
     - name: Create test environment file
       run: |
+        # Ensure test result directories exist on host filesystem
+        mkdir -p backend/tmp
+        mkdir -p frontend/cypress/results
+        mkdir -p integration-tests/results
+        
+        # Set proper permissions for Docker containers to write
+        chmod 777 backend/tmp
+        chmod 777 frontend/cypress/results
+        chmod 777 integration-tests/results
+        
         cat > .env.test << EOF
         # Backend environment
         RAILS_ENV=test
