@@ -223,36 +223,13 @@ jobs:
             RAILS_ENV=test bundle exec rails db:prepare &&
             echo 'Database prepared successfully'
             
-            # Verify database schema is loaded
-            echo 'Verifying database schema...'
-            printf 'puts \"=== Database Schema Verification ===\"\nbegin\n  puts \"SiteScope table exists: #{ActiveRecord::Base.connection.table_exists?(\"site_scopes\")}\"\n  puts \"LayerGroup table exists: #{ActiveRecord::Base.connection.table_exists?(\"layer_groups\")}\"\n  puts \"Layer table exists: #{ActiveRecord::Base.connection.table_exists?(\"layers\")}\"\n  puts \"Agrupation table exists: #{ActiveRecord::Base.connection.table_exists?(\"agrupations\")}\"\n  \n  if ActiveRecord::Base.connection.table_exists?(\"site_scopes\")\n    columns = ActiveRecord::Base.connection.columns(\"site_scopes\").map(&:name)\n    puts \"SiteScope columns: #{columns.join(\", \")}\"\n  end\nrescue => e\n  puts \"❌ Schema verification failed: #{e.message}\"\nend' > /tmp/schema_check.rb
-            RAILS_ENV=test bundle exec rails runner /tmp/schema_check.rb
+            # Setup integration test data using factories
+            echo 'Creating integration test data using factories...'
+            RAILS_ENV=test bundle exec rails integration_test:setup_data
             
-            # Create minimal seed data for integration tests
-            echo 'Creating minimal seed data for integration tests...'
-            
-            # Use printf to create Ruby files avoiding all escaping issues
-            printf 'puts \"Creating SiteScope...\"\nbegin\n  site_scope = SiteScope.find_or_initialize_by(id: 1)\n  if site_scope.persisted?\n    puts \"✅ SiteScope already exists\"\n  else\n    site_scope.assign_attributes(\n      name: \"Integration Test Site\",\n      subdomain: \"test\",\n      header_theme: \"Resilience\",\n      color: \"#0089CC\",\n      password_protected: false\n    )\n    if site_scope.save\n      puts \"✅ SiteScope created with ID: #{site_scope.id}\"\n    else\n      puts \"❌ SiteScope creation failed: #{site_scope.errors.full_messages.join(\", \")}\"\n      puts \"Trying with minimal attributes...\"\n      site_scope = SiteScope.create!(id: 1, name: \"Test Site\", subdomain: \"test\")\n      puts \"✅ Minimal SiteScope created with ID: #{site_scope.id}\"\n    end\n  end\nrescue => e\n  puts \"❌ SiteScope creation failed: #{e.message}\"\n  puts e.backtrace.first(3)\nend\nputs \"Total SiteScopes: #{SiteScope.count}\"' > /tmp/seed.rb
-            RAILS_ENV=test bundle exec rails runner /tmp/seed.rb
-            
-            printf 'puts \"Creating LayerGroup...\"\nbegin\n  layer_group = LayerGroup.find_or_create_by(name: \"Test Group\") do |lg|\n    lg.order = 1\n    lg.icon_class = \"test-icon\"\n    lg.category = \"Analysis\"\n    lg.site_scope_id = 1\n  end\n  puts \"✅ LayerGroup created/found with ID: #{layer_group.id}, name: #{layer_group.name}\"\nrescue => e\n  puts \"❌ LayerGroup creation failed: #{e.message}\"\n  puts e.backtrace.first(3)\nend\nputs \"Total LayerGroups: #{LayerGroup.count}\"' > /tmp/layer_group.rb  
-            RAILS_ENV=test bundle exec rails runner /tmp/layer_group.rb
-            
-            printf 'puts \"Creating Layer...\"\nbegin\n  unless Layer.exists?\n    layer = Layer.create!(name: \"Test Layer\", layer_type: \"CartoDB\", slug: \"test-layer\", zoom_max: 10, zoom_min: 1, dashboard_order: 1, layer_provider: \"cartodb\", interaction_config: \"{}\")\n    puts \"Layer created with ID: #{layer.id}\"\n    if LayerGroup.exists?\n      agrupation = Agrupation.create!(layer: layer, layer_group: LayerGroup.first, active: true)\n      puts \"Agrupation created with ID: #{agrupation.id}\"\n    end\n    puts \"✅ Layer ready\"\n  else\n    puts \"✅ Layer already exists\"\n  end\nrescue => e\n  puts \"❌ Layer creation failed: #{e.message}\"\n  puts e.backtrace.first(3)\nend\nputs \"Total layers: #{Layer.count}\"\nputs \"Total layer groups: #{LayerGroup.count}\"\nputs \"Total agrupations: #{Agrupation.count}\"' > /tmp/layer.rb
-            RAILS_ENV=test bundle exec rails runner /tmp/layer.rb
-            
-            # Create Homepage for /api/homepage endpoint
-            printf 'puts \"Creating Homepage...\"\nbegin\n  homepage = Homepage.find_or_create_by(id: 1) do |h|\n    h.title = \"Integration Test Homepage\"\n    h.subtitle = \"Test subtitle for integration tests\"\n    h.summary = \"This is a test homepage for integration testing\"\n    h.site_scope_id = 1\n  end\n  puts \"✅ Homepage created/found with ID: #{homepage.id}, title: #{homepage.title}\"\nrescue => e\n  puts \"❌ Homepage creation failed: #{e.message}\"\n  puts e.backtrace.first(3)\nend\nputs \"Total Homepages: #{Homepage.count}\"' > /tmp/homepage.rb
-            RAILS_ENV=test bundle exec rails runner /tmp/homepage.rb
-            
-            # Create StaticPage for /api/static_pages/about endpoint  
-            printf 'puts \"Creating About StaticPage...\"\nbegin\n  static_page = StaticPage::Base.find_or_create_by(slug: \"about\") do |sp|\n    sp.title = \"About Integration Tests\"\n    sp.summary = \"About page for integration testing\"\n    sp.site_scope_id = 1\n  end\n  puts \"✅ StaticPage created/found with ID: #{static_page.id}, slug: #{static_page.slug}\"\n  \n  # Create a basic section for the about page\n  section = StaticPage::Section.find_or_create_by(static_page: static_page, slug: \"intro\") do |s|\n    s.title = \"Introduction\"\n    s.title_size = 2\n    s.position = 1\n  end\n  puts \"✅ StaticPage Section created with ID: #{section.id}\"\nrescue => e\n  puts \"❌ StaticPage creation failed: #{e.message}\"\n  puts e.backtrace.first(3)\nend\nputs \"Total StaticPages: #{StaticPage::Base.count}\"' > /tmp/static_page.rb
-            RAILS_ENV=test bundle exec rails runner /tmp/static_page.rb
-            
-            # Verify the test data was created successfully
+            # Verify the test data was created successfully  
             echo 'Verifying test data...'
-            printf 'puts \"=== Test Data Verification ===\"\nputs \"SiteScopes: #{SiteScope.count}\"\nif SiteScope.exists?\n  site_scope = SiteScope.first\n  puts \"First SiteScope: #{site_scope.name} (ID: #{site_scope.id}, subdomain: #{site_scope.subdomain})\"\nelse\n  puts \"❌ No SiteScopes found!\"\nend\nputs \"LayerGroups: #{LayerGroup.count}\"\nputs \"Layers: #{Layer.count}\"\nputs \"Agrupations: #{Agrupation.count}\"\nputs \"Homepages: #{Homepage.count}\"\nputs \"StaticPages: #{StaticPage::Base.count}\"\n\nif Homepage.exists?\n  homepage = Homepage.first\n  puts \"First Homepage: #{homepage.title} (ID: #{homepage.id})\"\nelse\n  puts \"❌ No Homepages found!\"\nend\n\nif StaticPage::Base.exists?\n  static_page = StaticPage::Base.first\n  puts \"First StaticPage: #{static_page.title} (ID: #{static_page.id}, slug: #{static_page.slug})\"\nelse\n  puts \"❌ No StaticPages found!\"\nend\n\nputs \"\\n=== API Endpoint Testing ===\"\nbegin\n  layers_count = Layer.fetch_all(site_scope: 1).count\n  puts \"Layers for site_scope 1: #{layers_count}\"\nrescue => e\n  puts \"❌ Error fetching layers for site_scope 1: #{e.message}\"\nend' > /tmp/verify.rb
-            RAILS_ENV=test bundle exec rails runner /tmp/verify.rb
+            RAILS_ENV=test bundle exec rails integration_test:verify_data
           "
         
         # Start backend service in background
