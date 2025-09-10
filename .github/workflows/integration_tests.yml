@@ -533,7 +533,7 @@ jobs:
               echo ""
               
               echo "Starting Cypress tests..."
-              CYPRESS_baseUrl=http://frontend-test:3000 npx cypress run --browser '${{ matrix.browser }}' --headless --config-file cypress.docker.config.js --reporter junit --reporter-options mochaFile=cypress/results/integration-'${{ matrix.browser }}'-[hash].xml
+              CYPRESS_baseUrl=http://frontend-test:3000 npx cypress run --browser '${{ matrix.browser }}' --headless --config-file cypress.docker.config.js --reporter junit --reporter-options mochaFile=cypress/results/integration-'${{ matrix.browser }}'-results.xml
             '; then
             echo "✅ Cypress tests completed successfully"
           else
