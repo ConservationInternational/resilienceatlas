@@ -151,7 +151,7 @@ namespace :integration_test do
     section_paragraph = FactoryBot.create(:static_page_section_paragraph,
       section: paragraph_section,
       text: "<p>This is test content for the paragraph section.</p>",
-      slug: "content-paragraph"
+      image_position: "left" # Set a specific position
     )
     puts "✅ Created StaticPage SectionParagraph with ID: #{section_paragraph.id}"
 
