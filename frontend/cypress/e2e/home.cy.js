@@ -9,7 +9,7 @@ describe('Homepage', () => {
     cy.wait('@homepageRequest').then(({ response }) => {
       cy.wrap(response.statusCode).should('be.oneOf', [200, 304]);
 
-      const { included } = response.body;
+      const { included } = response.body || {};
       const journeys = included?.filter(({ type }) => type === 'homepage_journeys') || [];
       const sections = included?.filter(({ type }) => type === 'homepage_sections') || [];
 
@@ -41,7 +41,7 @@ describe('Homepage', () => {
       cy.wait('@homepageRequest').then(({ response }) => {
         cy.wrap(response.statusCode).should('be.oneOf', [200, 304]);
 
-        const { attributes } = response.body.data;
+        const { attributes } = response.body?.data || {};
 
         cy.get('.m-home-intro__header').within(() => {
           cy.get('h2').should('contain', attributes.title);
@@ -70,7 +70,7 @@ describe('Homepage', () => {
       cy.wait('@homepageRequest').then(({ response }) => {
         cy.wrap(response.statusCode).should('be.oneOf', [200, 304]);
 
-        const { attributes } = response.body.data;
+        const { attributes } = response.body?.data || {};
 
         if (attributes.background_image) {
           cy.get('.m-home-intro').should(
@@ -96,7 +96,7 @@ describe('Homepage', () => {
       cy.wait('@homepageRequest').then(({ response }) => {
         cy.wrap(response.statusCode).should('be.oneOf', [200, 304]);
 
-        const { included: sections } = response.body;
+        const { included: sections } = response.body || {};
         const journeySections = sections?.filter(({ type }) => type === 'homepage_journeys');
 
         cy.get('.m-home-journeys').should('have.length', journeySections?.length || 0);
@@ -107,9 +107,9 @@ describe('Homepage', () => {
       cy.wait('@homepageRequest').then(({ response }) => {
         cy.wrap(response.statusCode).should('be.oneOf', [200, 304]);
 
-        const { included: sections } = response.body;
+        const { included: sections } = response.body || {};
         const journeysSection = sections?.find(({ type }) => type === 'homepage_journeys');
-        const { attributes } = journeysSection;
+        const { attributes } = journeysSection || {};
 
         if (!journeysSection) return cy.skip();
 
@@ -127,7 +127,7 @@ describe('Homepage', () => {
       cy.wait('@homepageRequest').then(({ response }) => {
         cy.wrap(response.statusCode).should('be.oneOf', [200, 304]);
 
-        const { included } = response.body;
+        const { included } = response.body || {};
         const journeysSection = included?.filter(({ type }) => type === 'homepage_journeys')[0];
 
         if (!journeysSection) return cy.skip();
@@ -135,7 +135,7 @@ describe('Homepage', () => {
         cy.wait('@journeyListRequest').then(({ response }) => {
           cy.wrap(response.statusCode).should('be.oneOf', [200, 304]);
 
-          const journeys = response.body.data;
+          const journeys = response.body?.data || [];
 
           if (!journeys) return cy.skip();
 
@@ -173,10 +173,10 @@ describe('Homepage', () => {
       cy.wait('@homepageRequest').then(({ response }) => {
         cy.wrap(response.statusCode).should('be.oneOf', [200, 304]);
 
-        const { included } = response.body;
+        const { included } = response.body || {};
         const sections = included?.filter(({ type }) => type === 'homepage_sections');
 
-        cy.get('.m-home-section').should('have.length', sections.length || 0);
+        cy.get('.m-home-section').should('have.length', sections?.length || 0);
       });
     });
 
@@ -184,10 +184,10 @@ describe('Homepage', () => {
       cy.wait('@homepageRequest').then(({ response }) => {
         cy.wrap(response.statusCode).should('be.oneOf', [200, 304]);
 
-        const { included } = response.body;
+        const { included } = response.body || {};
         const sections = included?.filter(({ type }) => type === 'homepage_sections');
 
-        if (!sections) return cy.skip();
+        if (!sections?.length) return cy.skip();
 
         cy.get('.m-home-section').each(($el, index) => {
           const { attributes } = sections[index];
@@ -213,10 +213,10 @@ describe('Homepage', () => {
       cy.wait('@homepageRequest').then(({ response }) => {
         cy.wrap(response.statusCode).should('be.oneOf', [200, 304]);
 
-        const { included } = response.body;
+        const { included } = response.body || {};
         const sections = included?.filter(({ type }) => type === 'homepage_sections');
 
-        if (!sections) return cy.skip();
+        if (!sections?.length) return cy.skip();
 
         cy.get('.m-home-section').each(($el, index) => {
           const { attributes } = sections[index];

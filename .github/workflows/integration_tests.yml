@@ -422,7 +422,8 @@ jobs:
         if docker compose -f docker-compose.test.yml --profile integration run --rm integration-test; then
           echo "✅ Integration connectivity tests passed"
         else
-          echo "⚠️  Integration connectivity tests had issues"
+          connectivity_exit_code=$?
+          echo "❌ Integration connectivity tests failed with exit code: $connectivity_exit_code"
           
           # Create a basic test result file using Docker to avoid permission issues
           echo "Creating fallback test result file using Docker..."
@@ -439,6 +440,9 @@ jobs:
               "  </testcase>" \
               "</testsuite>" \
               > /app/results/connectivity-tests.xml'
+          
+          # Exit with failure code to mark the step as failed
+          exit $connectivity_exit_code
         fi
 
     - name: Run API integration tests
@@ -456,7 +460,8 @@ jobs:
           bash -c 'RAILS_ENV=test bundle exec rspec spec/integration --format RspecJunitFormatter --out tmp/integration-rspec.xml --format progress'; then
           echo "✅ API integration tests passed"
         else
-          echo "⚠️  API integration tests had issues, but continuing..."
+          api_exit_code=$?
+          echo "❌ API integration tests failed with exit code: $api_exit_code"
           
           # Create a basic test result file if tests failed to run
           docker compose -f docker-compose.test.yml run --rm backend-test \
@@ -474,6 +479,9 @@ jobs:
                 "</testsuite>" \
                 > tmp/integration-rspec.xml
             fi'
+          
+          # Exit with failure code to mark the step as failed  
+          exit $api_exit_code
         fi
         
         # Verify test results file exists and copy to host if needed
@@ -552,9 +560,10 @@ jobs:
             '; then
             echo "✅ Cypress tests completed successfully"
           else
-            echo "⚠️  Cypress tests had issues, creating fallback results..."
+            cypress_exit_code=$?
+            echo "❌ Cypress tests failed with exit code: $cypress_exit_code"
             
-            # Create fallback test result file using Docker to avoid permission issues
+            # Still create test result file for reporting, but ensure we exit with failure
             docker run --rm \
               -v "$(pwd)/frontend/cypress/results:/app/results" \
               node:22.11.0-alpine \
@@ -568,6 +577,9 @@ jobs:
                 "  </testcase>" \
                 "</testsuite>" \
                 > /app/results/integration-${{ matrix.browser }}-fallback.xml'
+            
+            # Exit with failure code to mark the step as failed
+            exit $cypress_exit_code
           fi
         else
           echo "⚠️  Services not available, creating fallback test results..."
@@ -592,6 +604,9 @@ jobs:
           curl -s -o /dev/null -w "%{http_code}" http://localhost:3000 || echo "Frontend not responding"
           echo "=== Backend Status ==="  
           curl -s -o /dev/null -w "%{http_code}" http://localhost:3001/api/health || echo "Backend not responding"
+          
+          # Exit with failure since services are not available
+          exit 1
         fi
         
         # Verify test results were created

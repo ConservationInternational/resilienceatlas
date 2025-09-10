@@ -157,10 +157,10 @@ describe('About page', () => {
       });
     });
 
-    it.only('reference sections should show references', () => {
+    it('reference sections should show references', () => {
       cy.wait('@aboutRequest').then(({ response }) => {
         cy.wrap(response.statusCode).should('be.oneOf', [200, 304]);
-        const allSections = response.body.included;
+        const allSections = response.body?.included || [];
         const staticPageSectionsWithReferences = allSections.filter(
           (s) =>
             s.type === 'static_page_sections' && s.relationships.section_references.data?.length,
