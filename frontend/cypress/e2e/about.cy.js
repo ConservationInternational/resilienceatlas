@@ -11,11 +11,8 @@ describe('About page', () => {
     it('should display the correct content', () => {
       cy.wait('@aboutRequest').then(({ response }) => {
         cy.wrap(response.statusCode).should('be.oneOf', [200, 304]);
-        const { attributes } = response.body?.data || {};
-        
-        if (!attributes) return cy.skip();
-        
-        const { title, image, image_credits, image_credits_url } = attributes || {};
+        const { attributes } = response.body.data;
+        const { title, image, image_credits, image_credits_url } = attributes;
         cy.get('.l-hero').within(() => {
           cy.get('h1').should('contain', title);
         });
@@ -45,18 +42,16 @@ describe('About page', () => {
     it('should display the correct sections', () => {
       cy.wait('@aboutRequest').then(({ response }) => {
         cy.wrap(response.statusCode).should('be.oneOf', [200, 304]);
-        const allSections = response.body?.included || [];
-        const sectionsToBeDisplayed = allSections.filter((s) => s.attributes?.show_at_navigation);
-
-        if (sectionsToBeDisplayed.length === 0) return cy.skip();
+        const allSections = response.body.included;
+        const sectionsToBeDisplayed = allSections.filter((s) => s.attributes.show_at_navigation);
 
         cy.get('.m-section-nav').within(() => {
           cy.get('li').should('have.length', sectionsToBeDisplayed.length);
           cy.get('li').each(($el, index) => {
             cy.wrap($el).within(() => {
               cy.get('a')
-                .should('contain', sectionsToBeDisplayed[index].attributes?.title)
-                .should('have.attr', 'href', `#${sectionsToBeDisplayed[index].attributes?.slug}`);
+                .should('contain', sectionsToBeDisplayed[index].attributes.title)
+                .should('have.attr', 'href', `#${sectionsToBeDisplayed[index].attributes.slug}`);
             });
           });
         });
@@ -68,16 +63,14 @@ describe('About page', () => {
     it('should display the correct sections with title', () => {
       cy.wait('@aboutRequest').then(({ response }) => {
         cy.wrap(response.statusCode).should('be.oneOf', [200, 304]);
-        const allSections = response.body?.included || [];
+        const allSections = response.body.included;
         const staticPageSections = allSections.filter((s) => s.type === 'static_page_sections');
-        
-        if (staticPageSections.length === 0) return cy.skip();
         cy.get('.m-static-page').within(() => {
           cy.get('article').should('have.length', staticPageSections.length);
           cy.get('article').each(($el, index) => {
             cy.wrap($el).within(() => {
-              const titleTag = staticPageSections[index].attributes?.title_size === 2 ? 'h2' : 'h3';
-              cy.get(titleTag).should('contain', staticPageSections[index].attributes?.title);
+              const titleTag = staticPageSections[index].attributes.title_size === 2 ? 'h2' : 'h3';
+              cy.get(titleTag).should('contain', staticPageSections[index].attributes.title);
             });
           });
         });
@@ -87,22 +80,20 @@ describe('About page', () => {
     it('paragraph sections should show image and text in correct order', () => {
       cy.wait('@aboutRequest').then(({ response }) => {
         cy.wrap(response.statusCode).should('be.oneOf', [200, 304]);
-        const allSections = response.body?.included || [];
+        const allSections = response.body.included;
         const staticPageSectionsWithParagraph = allSections.filter(
-          (s) => s.type === 'static_page_sections' && s.relationships?.section_paragraph?.data,
+          (s) => s.type === 'static_page_sections' && s.relationships.section_paragraph.data,
         );
-        
-        if (staticPageSectionsWithParagraph.length === 0) return cy.skip();
         cy.get('.m-static-page').within(() => {
           staticPageSectionsWithParagraph.map((section) => {
-            cy.get(`article#${section.attributes?.slug}`).within(() => {
+            cy.get(`article#${section.attributes.slug}`).within(() => {
               const paragraphSection = allSections.find(
                 (s) =>
                   s.type === 'static_page_section_paragraphs' &&
-                  s.id === section.relationships?.section_paragraph?.data?.id,
+                  s.id === section.relationships.section_paragraph.data.id,
               );
               const { text, image, image_position, image_credits, image_credits_url } =
-                paragraphSection?.attributes || {};
+                paragraphSection.attributes;
               if (text) {
                 // We don't test content because of parsing
                 cy.get('.text-column').should('exist');
@@ -134,30 +125,28 @@ describe('About page', () => {
     it('item sections should show items', () => {
       cy.wait('@aboutRequest').then(({ response }) => {
         cy.wrap(response.statusCode).should('be.oneOf', [200, 304]);
-        const allSections = response.body?.included || [];
+        const allSections = response.body.included;
         const staticPageSectionsWithItems = allSections.filter(
-          (s) => s.type === 'static_page_sections' && s.relationships?.section_items?.data?.length,
+          (s) => s.type === 'static_page_sections' && s.relationships.section_items.data?.length,
         );
-        
-        if (staticPageSectionsWithItems.length === 0) return cy.skip();
         cy.get('.m-static-page').within(() => {
           staticPageSectionsWithItems.map((section) => {
-            cy.get(`article#${section.attributes?.slug}`).within(() => {
+            cy.get(`article#${section.attributes.slug}`).within(() => {
               // Find paragraph in allSections
-              const itemIds = section.relationships?.section_items?.data?.map((i) => i.id) || [];
+              const itemIds = section.relationships.section_items.data.map((i) => i.id);
               const items = allSections.filter(
                 (s) => s.type === 'static_page_section_items' && itemIds.includes(s.id),
               );
               cy.get('section').should('have.length', items.length);
               cy.get('section').each(($el, index) => {
-                const { attributes } = items[index] || {};
+                const { attributes } = items[index];
                 cy.wrap($el).within(() => {
-                  cy.get('h3').should('contain', attributes?.title);
-                  if (attributes?.description) {
+                  cy.get('h3').should('contain', attributes.title);
+                  if (attributes.description) {
                     // We don't test content because of parsing
                     cy.get('[data-test="item-description"]').should('exist');
                   }
-                  if (attributes?.image?.original) {
+                  if (attributes.image?.original) {
                     cy.get('img').should('have.attr', 'src', attributes.image?.original);
                   }
                 });
@@ -174,22 +163,20 @@ describe('About page', () => {
         const allSections = response.body?.included || [];
         const staticPageSectionsWithReferences = allSections.filter(
           (s) =>
-            s.type === 'static_page_sections' && s.relationships?.section_references?.data?.length,
+            s.type === 'static_page_sections' && s.relationships.section_references.data?.length,
         );
-        
-        if (staticPageSectionsWithReferences.length === 0) return cy.skip();
         cy.get('.m-static-page').within(() => {
           staticPageSectionsWithReferences.map((section) => {
-            cy.get(`article#${section.attributes?.slug}`).within(() => {
+            cy.get(`article#${section.attributes.slug}`).within(() => {
               // Find paragraph in allSections
-              const referenceIds = section.relationships?.section_references?.data?.map((i) => i.id) || [];
+              const referenceIds = section.relationships.section_references.data.map((i) => i.id);
               const references = allSections.filter(
                 (s) => s.type === 'static_page_section_references' && referenceIds.includes(s.id),
               );
               cy.get('p').should('have.length', references.length);
               references.map((reference) => {
-                const { attributes } = reference || {};
-                cy.get(`p#${attributes?.slug}`).should('not.be.empty');
+                const { attributes } = reference;
+                cy.get(`p#${attributes.slug}`).should('not.be.empty');
               });
             });
           });

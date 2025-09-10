@@ -33,7 +33,7 @@ namespace :integration_test do
     # Create main site scope for Resilience Atlas (ID: 1 as expected by frontend)
     site_scope = FactoryBot.create(:site_scope,
       id: 1,
-      name: "Integration Test Site",
+      name: "Resilience Atlas", # Match the spec expectation
       subdomain: "test",
       header_theme: "Resilience",
       color: "#0089CC",
@@ -41,7 +41,8 @@ namespace :integration_test do
     )
     puts "✅ Created SiteScope with ID: #{site_scope.id}"
 
-    # Create journeys with steps for the journey tests
+    # Create journeys with steps for the journey tests - following journeys_spec.rb pattern
+    journeys = []
     3.times do |i|
       journey = FactoryBot.create(:journey,
         title: "Test Journey #{i+1}",
@@ -52,23 +53,35 @@ namespace :integration_test do
       )
       puts "✅ Created Journey with ID: #{journey.id}"
 
-      # Create journey steps for the journey detail tests
-      ['landing', 'chapter', 'embed', 'conclusion'].each_with_index do |step_type, step_index|
-        step = FactoryBot.create(:journey_step,
+      # Create journey steps for the journey detail tests - following journeys_spec.rb pattern
+      step_types = [
+        {type: 'landing', position: 1},
+        {type: 'chapter', position: 2, chapter_number: 2},
+        {type: 'embed', position: 3},
+        {type: 'conclusion', position: 4}
+      ]
+      
+      step_types.each do |step_config|
+        step_attrs = {
           journey: journey,
-          step_type: step_type,
-          title: "#{step_type.capitalize} Step",
-          subtitle: "Step subtitle for #{step_type}",
-          description: "Description for #{step_type} step",
-          content: "<p>Content for #{step_type} step</p>",
-          position: step_index + 1,
+          step_type: step_config[:type],
+          title: "#{step_config[:type].capitalize} Step",
+          subtitle: "Step subtitle for #{step_config[:type]}",
+          description: "Description for #{step_config[:type]} step",
+          content: "<p>Content for #{step_config[:type]} step</p>",
+          position: step_config[:position],
           map_url: "/map"
-        )
-        puts "✅ Created JourneyStep #{step_type} with ID: #{step.id}"
+        }
+        step_attrs[:chapter_number] = step_config[:chapter_number] if step_config[:chapter_number]
+        
+        step = FactoryBot.create(:journey_step, step_attrs)
+        puts "✅ Created JourneyStep #{step_config[:type]} with ID: #{step.id}"
       end
+      
+      journeys << journey
     end
 
-    # Create homepage journey and homepage
+    # Create homepage journey and homepage - following homepages_spec.rb pattern
     homepage_journey = FactoryBot.create(:homepage_journey,
       title: "Integration Test Journey",
       position: 1
@@ -85,6 +98,24 @@ namespace :integration_test do
       show_journeys: true
     )
     puts "✅ Created Homepage with ID: #{homepage.id}"
+
+    # Create homepage sections - following homepages_spec.rb pattern
+    homepage_section = FactoryBot.create(:homepage_section,
+      homepage: homepage,
+      title: "Homepage Section",
+      subtitle: "Homepage section subtitle",
+      position: 1
+    )
+    puts "✅ Created HomepageSection with ID: #{homepage_section.id}"
+
+    # Create site pages for the site endpoint - following sites_spec.rb pattern
+    site_page = FactoryBot.create(:site_page,
+      site_scope: site_scope,
+      title: "Test Site Page",
+      body: "Test site page content",
+      priority: 1
+    )
+    puts "✅ Created SitePage with ID: #{site_page.id}"
 
     # Create layer group and layer for API endpoints
     layer_group = FactoryBot.create(:layer_group,
@@ -123,44 +154,33 @@ namespace :integration_test do
     )
     puts "✅ Created About StaticPage with ID: #{about_page.id}"
 
-    # Create a section for the about page
-    about_section = FactoryBot.create(:static_page_section,
-      static_page: about_page,
-      slug: "intro",
-      title: "Introduction",
-      title_size: 2,
-      position: 1,
-      show_at_navigation: true, # This is important for the navigation test
-      section_type: "references" # Set the section type to match what tests expect
-    )
-    puts "✅ Created About StaticPage Section with ID: #{about_section.id}"
-
-    # Create additional sections for more comprehensive testing
+    # Create sections with proper relationships following the spec pattern
+    # Create paragraph section with section_paragraph
     paragraph_section = FactoryBot.create(:static_page_section,
       static_page: about_page,
       slug: "content",
       title: "Content Section",
       title_size: 2,
-      position: 2,
+      position: 1,
       show_at_navigation: true,
       section_type: "paragraph"
     )
     puts "✅ Created Paragraph StaticPage Section with ID: #{paragraph_section.id}"
 
-    # Create section paragraph for the paragraph section
     section_paragraph = FactoryBot.create(:static_page_section_paragraph,
       section: paragraph_section,
       text: "<p>This is test content for the paragraph section.</p>",
-      image_position: "left" # Set a specific position
+      image_position: "left"
     )
     puts "✅ Created StaticPage SectionParagraph with ID: #{section_paragraph.id}"
 
+    # Create items section with section_items
     item_section = FactoryBot.create(:static_page_section,
       static_page: about_page,
       slug: "items",
       title: "Items Section", 
       title_size: 2,
-      position: 3,
+      position: 2,
       show_at_navigation: true,
       section_type: "items"
     )
@@ -178,10 +198,22 @@ namespace :integration_test do
       puts "✅ Created StaticPage SectionItem with ID: #{item.id}"
     end
 
-    # Create some section references for the about page tests
+    # Create references section with section_references
+    references_section = FactoryBot.create(:static_page_section,
+      static_page: about_page,
+      slug: "references",
+      title: "References Section",
+      title_size: 2,
+      position: 3,
+      show_at_navigation: true,
+      section_type: "references"
+    )
+    puts "✅ Created References StaticPage Section with ID: #{references_section.id}"
+
+    # Create section references for the references section
     3.times do |i|
       reference = FactoryBot.create(:static_page_section_reference,
-        section: about_section,
+        section: references_section,
         slug: "reference-#{i+1}",
         position: i + 1
       )
