@@ -10,11 +10,14 @@ namespace :integration_test do
     end
 
     puts "Setting up integration test data..."
+    
+    # Ensure models are loaded
+    Rails.application.eager_load!
 
     # Clear existing data to ensure clean state
     [
       StaticPage::SectionReference,
-      StaticPage::SectionItem, 
+      StaticPage::SectionItem,
       StaticPage::SectionParagraph,
       StaticPage::Section,
       StaticPage::Base,
@@ -31,15 +34,21 @@ namespace :integration_test do
     end
 
     # Create main site scope for Resilience Atlas (ID: 1 as expected by frontend)
-    site_scope = FactoryBot.create(:site_scope,
-      id: 1,
-      name: "Resilience Atlas", # Match the spec expectation
-      subdomain: "test",
-      header_theme: "Resilience",
-      color: "#0089CC",
-      password_protected: false
-    )
-    puts "✅ Created SiteScope with ID: #{site_scope.id}"
+    begin
+      site_scope = FactoryBot.create(:site_scope,
+        id: 1,
+        name: "Resilience Atlas", # Match the spec expectation
+        subdomain: "test",
+        header_theme: "Resilience",
+        color: "#0089CC",
+        password_protected: false
+      )
+      puts "✅ Created SiteScope with ID: #{site_scope.id}"
+    rescue => e
+      puts "❌ Failed to create SiteScope: #{e.message}"
+      puts "Error details: #{e.backtrace.first(5).join('\n')}"
+      raise e
+    end
 
     # Create journeys with steps for the journey tests - following journeys_spec.rb pattern
     journeys = []
@@ -82,22 +91,32 @@ namespace :integration_test do
     end
 
     # Create homepage journey and homepage - following homepages_spec.rb pattern
-    homepage_journey = FactoryBot.create(:homepage_journey,
-      title: "Integration Test Journey",
-      position: 1
-    )
-    puts "✅ Created HomepageJourney with ID: #{homepage_journey.id}"
+    begin
+      homepage_journey = FactoryBot.create(:homepage_journey,
+        title: "Integration Test Journey",
+        position: 1
+      )
+      puts "✅ Created HomepageJourney with ID: #{homepage_journey.id}"
+    rescue => e
+      puts "❌ Failed to create HomepageJourney: #{e.message}"
+      raise e
+    end
 
-    homepage = FactoryBot.create(:homepage,
-      site_scope: site_scope,
-      homepage_journey: homepage_journey,
-      title: "Integration Test Homepage",
-      subtitle: "Test subtitle for integration tests",
-      credits: "Conservation International",
-      credits_url: "https://www.conservation.org",
-      show_journeys: true
-    )
-    puts "✅ Created Homepage with ID: #{homepage.id}"
+    begin
+      homepage = FactoryBot.create(:homepage,
+        site_scope: site_scope,
+        homepage_journey: homepage_journey,
+        title: "Integration Test Homepage",
+        subtitle: "Test subtitle for integration tests",
+        credits: "Conservation International",
+        credits_url: "https://www.conservation.org",
+        show_journeys: true
+      )
+      puts "✅ Created Homepage with ID: #{homepage.id}"
+    rescue => e
+      puts "❌ Failed to create Homepage: #{e.message}"
+      raise e
+    end
 
     # Create homepage sections - following homepages_spec.rb pattern
     homepage_section = FactoryBot.create(:homepage_section,
@@ -118,41 +137,64 @@ namespace :integration_test do
     puts "✅ Created SitePage with ID: #{site_page.id}"
 
     # Create layer group and layer for API endpoints
-    layer_group = FactoryBot.create(:layer_group,
-      name: "Test Layer Group",
-      order: 1,
-      icon_class: "test-icon",
-      category: "Analysis",
-      site_scope: site_scope
-    )
-    puts "✅ Created LayerGroup with ID: #{layer_group.id}"
+    begin
+      layer_group = FactoryBot.create(:layer_group,
+        name: "Test Layer Group",
+        order: 1,
+        icon_class: "test-icon",
+        category: "Analysis",
+        site_scope: site_scope
+      )
+      puts "✅ Created LayerGroup with ID: #{layer_group.id}"
+    rescue => e
+      puts "❌ Failed to create LayerGroup: #{e.message}"
+      raise e
+    end
 
-    layer = FactoryBot.create(:layer,
-      name: "Test Layer",
-      layer_type: "CartoDB",
-      slug: "test-layer",
-      zoom_max: 10,
-      zoom_min: 1,
-      dashboard_order: 1,
-      layer_provider: "cartodb",
-      interaction_config: "{}"
-    )
-    puts "✅ Created Layer with ID: #{layer.id}"
+    begin
+      layer = FactoryBot.create(:layer,
+        name: "Test Layer",
+        layer_type: "CartoDB",
+        slug: "test-layer",
+        zoom_max: 10,
+        zoom_min: 1,
+        dashboard_order: 1,
+        layer_provider: "cartodb",
+        interaction_config: "{}"
+      )
+      puts "✅ Created Layer with ID: #{layer.id}"
+    rescue => e
+      puts "❌ Failed to create Layer: #{e.message}"
+      raise e
+    end
 
     # Create agrupation to link layer to layer group
-    agrupation = FactoryBot.create(:agrupation,
-      layer: layer,
-      layer_group: layer_group,
-      active: true
-    )
-    puts "✅ Created Agrupation with ID: #{agrupation.id}"
+    begin
+      agrupation = FactoryBot.create(:agrupation,
+        layer: layer,
+        layer_group: layer_group,
+        active: true
+      )
+      puts "✅ Created Agrupation with ID: #{agrupation.id}"
+    rescue => e
+      puts "❌ Failed to create Agrupation: #{e.message}"
+      raise e
+    end
 
     # Create About static page for /api/static_pages/about endpoint
-    about_page = FactoryBot.create(:static_page,
-      slug: "about",
-      title: "About Integration Tests"
-    )
-    puts "✅ Created About StaticPage with ID: #{about_page.id}"
+    begin
+      about_page = FactoryBot.create(:static_page,
+        slug: "about",
+        title: "About Integration Tests",
+        image_credits: "Test Credits",
+        image_credits_url: "https://example.com"
+      )
+      puts "✅ Created About StaticPage with ID: #{about_page.id}"
+    rescue => e
+      puts "❌ Failed to create About StaticPage: #{e.message}"
+      puts "Error details: #{e.backtrace.first(5).join('\n')}"
+      raise e
+    end
 
     # Create sections with proper relationships following the spec pattern
     # Create paragraph section with section_paragraph
@@ -242,6 +284,9 @@ namespace :integration_test do
   task verify_data: :environment do
     puts "🔍 Verifying integration test data..."
     
+    # Ensure models are loaded
+    Rails.application.eager_load!
+    
     # Check that expected data exists
     required_data = {
       'SiteScope with ID 1' => -> { SiteScope.find_by(id: 1) },
@@ -255,10 +300,37 @@ namespace :integration_test do
 
     all_good = true
     required_data.each do |name, check|
-      if check.call
-        puts "✅ #{name} exists"
-      else
-        puts "❌ #{name} missing"
+      begin
+        result = check.call
+        if result
+          puts "✅ #{name} exists"
+        else
+          puts "❌ #{name} missing"
+          all_good = false
+          
+          # Add debugging information for missing data
+          case name
+          when 'SiteScope with ID 1'
+            puts "  Debug: Total SiteScopes: #{SiteScope.count}"
+            puts "  Debug: SiteScope IDs: #{SiteScope.pluck(:id).inspect}"
+          when 'Homepage'
+            puts "  Debug: Total Homepages: #{Homepage.count}"
+          when 'About StaticPage'
+            puts "  Debug: Total StaticPages: #{StaticPage::Base.count}"
+            puts "  Debug: StaticPage slugs: #{StaticPage::Base.pluck(:slug).inspect}"
+          when 'LayerGroup'
+            puts "  Debug: Total LayerGroups: #{LayerGroup.count}"
+          when 'Layer'
+            puts "  Debug: Total Layers: #{Layer.count}"
+          when 'Published Journey'
+            puts "  Debug: Total Journeys: #{Journey.count}"
+            puts "  Debug: Published Journeys: #{Journey.where(published: true).count}"
+          when 'Journey Steps'
+            puts "  Debug: Total JourneySteps: #{JourneyStep.count}"
+          end
+        end
+      rescue => e
+        puts "❌ Error checking #{name}: #{e.message}"
         all_good = false
       end
     end
