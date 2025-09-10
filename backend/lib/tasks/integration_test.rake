@@ -18,6 +18,8 @@ namespace :integration_test do
       StaticPage::SectionParagraph,
       StaticPage::Section,
       StaticPage::Base,
+      JourneyStep,
+      Journey,
       Agrupation,
       Layer,
       LayerGroup,
@@ -38,6 +40,33 @@ namespace :integration_test do
       password_protected: false
     )
     puts "✅ Created SiteScope with ID: #{site_scope.id}"
+
+    # Create journeys with steps for the journey tests
+    3.times do |i|
+      journey = FactoryBot.create(:journey,
+        title: "Test Journey #{i+1}",
+        subtitle: "Test Journey Subtitle #{i+1}",
+        published: true, # Must be published to appear in API
+        credits: "Conservation International",
+        credits_url: "https://www.conservation.org"
+      )
+      puts "✅ Created Journey with ID: #{journey.id}"
+
+      # Create journey steps for the journey detail tests
+      ['landing', 'chapter', 'embed', 'conclusion'].each_with_index do |step_type, step_index|
+        step = FactoryBot.create(:journey_step,
+          journey: journey,
+          step_type: step_type,
+          title: "#{step_type.capitalize} Step",
+          subtitle: "Step subtitle for #{step_type}",
+          description: "Description for #{step_type} step",
+          content: "<p>Content for #{step_type} step</p>",
+          position: step_index + 1,
+          map_url: "/map"
+        )
+        puts "✅ Created JourneyStep #{step_type} with ID: #{step.id}"
+      end
+    end
 
     # Create homepage journey and homepage
     homepage_journey = FactoryBot.create(:homepage_journey,
@@ -100,9 +129,54 @@ namespace :integration_test do
       slug: "intro",
       title: "Introduction",
       title_size: 2,
-      position: 1
+      position: 1,
+      show_at_navigation: true, # This is important for the navigation test
+      section_type: "references" # Set the section type to match what tests expect
     )
     puts "✅ Created About StaticPage Section with ID: #{about_section.id}"
+
+    # Create additional sections for more comprehensive testing
+    paragraph_section = FactoryBot.create(:static_page_section,
+      static_page: about_page,
+      slug: "content",
+      title: "Content Section",
+      title_size: 2,
+      position: 2,
+      show_at_navigation: true,
+      section_type: "paragraph"
+    )
+    puts "✅ Created Paragraph StaticPage Section with ID: #{paragraph_section.id}"
+
+    # Create section paragraph for the paragraph section
+    section_paragraph = FactoryBot.create(:static_page_section_paragraph,
+      section: paragraph_section,
+      text: "<p>This is test content for the paragraph section.</p>",
+      slug: "content-paragraph"
+    )
+    puts "✅ Created StaticPage SectionParagraph with ID: #{section_paragraph.id}"
+
+    item_section = FactoryBot.create(:static_page_section,
+      static_page: about_page,
+      slug: "items",
+      title: "Items Section", 
+      title_size: 2,
+      position: 3,
+      show_at_navigation: true,
+      section_type: "items"
+    )
+    puts "✅ Created Items StaticPage Section with ID: #{item_section.id}"
+
+    # Create section items for the items section
+    3.times do |i|
+      item = FactoryBot.create(:static_page_section_item,
+        section: item_section,
+        slug: "item-#{i+1}",
+        title: "Test Item #{i+1}",
+        description: "<p>Description for test item #{i+1}</p>",
+        position: i + 1
+      )
+      puts "✅ Created StaticPage SectionItem with ID: #{item.id}"
+    end
 
     # Create some section references for the about page tests
     3.times do |i|
@@ -119,11 +193,15 @@ namespace :integration_test do
     puts "LayerGroups: #{LayerGroup.count}"
     puts "Layers: #{Layer.count}"
     puts "Agrupations: #{Agrupation.count}"
+    puts "Journeys: #{Journey.count}"
+    puts "JourneySteps: #{JourneyStep.count}"
     puts "Homepages: #{Homepage.count}"
     puts "HomepageJourneys: #{HomepageJourney.count}"
     puts "StaticPages: #{StaticPage::Base.count}"
     puts "StaticPage Sections: #{StaticPage::Section.count}"
     puts "StaticPage SectionReferences: #{StaticPage::SectionReference.count}"
+    puts "StaticPage SectionParagraphs: #{StaticPage::SectionParagraph.count}"
+    puts "StaticPage SectionItems: #{StaticPage::SectionItem.count}"
 
     puts "\n✅ Integration test data setup complete!"
   end
@@ -138,7 +216,9 @@ namespace :integration_test do
       'Homepage' => -> { Homepage.first },
       'About StaticPage' => -> { StaticPage::Base.find_by(slug: 'about') },
       'LayerGroup' => -> { LayerGroup.first },
-      'Layer' => -> { Layer.first }
+      'Layer' => -> { Layer.first },
+      'Published Journey' => -> { Journey.where(published: true).first },
+      'Journey Steps' => -> { JourneyStep.first }
     }
 
     all_good = true

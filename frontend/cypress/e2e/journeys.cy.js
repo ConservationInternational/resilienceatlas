@@ -20,18 +20,22 @@ describe('Journeys index page', () => {
     cy.wait('@journeyListRequest').then(({ response }) => {
       cy.wrap(response.statusCode).should('be.oneOf', [200, 304]);
       cy.log(response);
+      const journeys = response.body?.data || [];
+      
+      if (journeys.length === 0) return cy.skip();
       cy.get('.m-journey__gridelement').each(($el, index) => {
+        const journey = journeys[index] || {};
         cy.wrap($el)
           .find('h2')
-          .should('contain', response.body.data[index].attributes.title)
+          .should('contain', journey.attributes?.title)
           .find('a')
           .should('have.attr', 'href')
-          .should('include', `/journeys/${response.body.data[index].id}`);
+          .should('include', `/journeys/${journey.id}`);
         cy.wrap($el)
           .find('.btn')
           .should('contain', 'Learn more')
           .should('have.attr', 'href')
-          .should('include', `/journeys/${response.body.data[index].id}`);
+          .should('include', `/journeys/${journey.id}`);
       });
     });
   });

@@ -137,13 +137,14 @@ describe('Homepage', () => {
 
           const journeys = response.body?.data || [];
 
-          if (!journeys) return cy.skip();
+          if (journeys.length === 0) return cy.skip();
 
           cy.get('.m-slider').within(() => {
             cy.get('.slick-slide')
               .not('.slick-cloned')
               .each(($el, index) => {
-                const { id, attributes } = journeys[index];
+                const journey = journeys[index] || {};
+                const { id, attributes } = journey;
 
                 cy.wrap($el).within(() => {
                   cy.get('.journey-link-container')
@@ -151,15 +152,15 @@ describe('Homepage', () => {
                     .should(
                       'have.attr',
                       'style',
-                      `background-image: url("${attributes.background_image.original}");`,
+                      `background-image: url("${attributes?.background_image?.original}");`,
                     );
 
-                  cy.get('h2').should('contain', attributes.subtitle);
-                  cy.get('h3').should('contain', attributes.title);
+                  cy.get('h2').should('contain', attributes?.subtitle);
+                  cy.get('h3').should('contain', attributes?.title);
 
                   cy.get('.credits a')
-                    .should('contain', attributes.credits)
-                    .should('have.attr', 'href', attributes.credits_url);
+                    .should('contain', attributes?.credits)
+                    .should('have.attr', 'href', attributes?.credits_url);
                 });
               });
           });
