@@ -10,7 +10,6 @@ namespace :integration_test do
     end
 
     puts "Setting up integration test data..."
-    
     # Ensure models are loaded
     Rails.application.eager_load!
 
@@ -46,7 +45,7 @@ namespace :integration_test do
       puts "✅ Created SiteScope with ID: #{site_scope.id}"
     rescue => e
       puts "❌ Failed to create SiteScope: #{e.message}"
-      puts "Error details: #{e.backtrace.first(5).join('\n')}"
+      puts "Error details: #{e.backtrace.first(5).join("\n")}"
       raise e
     end
 
@@ -69,7 +68,7 @@ namespace :integration_test do
         {type: 'embed', position: 3},
         {type: 'conclusion', position: 4}
       ]
-      
+
       step_types.each do |step_config|
         step_attrs = {
           journey: journey,
@@ -82,11 +81,11 @@ namespace :integration_test do
           map_url: "/map"
         }
         step_attrs[:chapter_number] = step_config[:chapter_number] if step_config[:chapter_number]
-        
+
         step = FactoryBot.create(:journey_step, step_attrs)
         puts "✅ Created JourneyStep #{step_config[:type]} with ID: #{step.id}"
       end
-      
+
       journeys << journey
     end
 
@@ -192,7 +191,7 @@ namespace :integration_test do
       puts "✅ Created About StaticPage with ID: #{about_page.id}"
     rescue => e
       puts "❌ Failed to create About StaticPage: #{e.message}"
-      puts "Error details: #{e.backtrace.first(5).join('\n')}"
+      puts "Error details: #{e.backtrace.first(5).join("\n")}"
       raise e
     end
 
@@ -220,7 +219,7 @@ namespace :integration_test do
     item_section = FactoryBot.create(:static_page_section,
       static_page: about_page,
       slug: "items",
-      title: "Items Section", 
+      title: "Items Section",
       title_size: 2,
       position: 2,
       show_at_navigation: true,
@@ -283,10 +282,10 @@ namespace :integration_test do
   desc "Verify integration test data"
   task verify_data: :environment do
     puts "🔍 Verifying integration test data..."
-    
+
     # Ensure models are loaded
     Rails.application.eager_load!
-    
+
     # Check that expected data exists
     required_data = {
       'SiteScope with ID 1' => -> { SiteScope.find_by(id: 1) },
@@ -307,7 +306,7 @@ namespace :integration_test do
         else
           puts "❌ #{name} missing"
           all_good = false
-          
+
           # Add debugging information for missing data
           case name
           when 'SiteScope with ID 1'
