@@ -85,9 +85,9 @@ jobs:
     - name: Create test environment and directories
       run: |
         # Use shared script to setup test environment with integration settings
-        chmod +x scripts/setup_docker_environment.sh
-        ./scripts/setup_docker_environment.sh directories
-        ./scripts/setup_docker_environment.sh env resilienceatlas_integration_test integration
+        chmod +x backend/scripts/setup_docker_environment.sh
+        ./backend/scripts/setup_docker_environment.sh directories
+        ./backend/scripts/setup_docker_environment.sh env resilienceatlas_integration_test integration
         
         # Set proper permissions for Docker containers to write test results
         chmod 777 backend/tmp
@@ -175,8 +175,8 @@ jobs:
         docker compose -f docker-compose.test.yml down -v || true
         
         # Start Docker services using shared script
-        chmod +x scripts/setup_docker_environment.sh
-        ./scripts/setup_docker_environment.sh services
+        chmod +x backend/scripts/setup_docker_environment.sh
+        ./backend/scripts/setup_docker_environment.sh services
         
         # Setup backend environment and database with shared scripts
         echo "Setting up backend and test database..."

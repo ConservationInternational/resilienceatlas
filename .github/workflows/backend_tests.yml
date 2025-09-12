@@ -135,9 +135,9 @@ jobs:
 
     - name: Start test services
       run: |
-        # Use shared Docker environment setup script
-        chmod +x scripts/setup_docker_environment.sh
-        ./scripts/setup_docker_environment.sh all resilienceatlas_test
+        # Use shared Docker environment setup script from backend/scripts
+        chmod +x backend/scripts/setup_docker_environment.sh
+        ./backend/scripts/setup_docker_environment.sh all resilienceatlas_test
 
     - name: Setup test database
       run: |
@@ -146,12 +146,10 @@ jobs:
         docker compose -f docker-compose.test.yml run --rm backend-test \
           bash -c "
             # Setup backend environment first
-            chmod +x /app/scripts/setup_backend_environment.sh
-            cd /app && ./scripts/setup_backend_environment.sh
+            bash /app/scripts/setup_backend_environment.sh
             
             # Setup database
-            chmod +x /app/scripts/setup_database.sh
-            cd /app && ./scripts/setup_database.sh
+            bash /app/scripts/setup_database.sh
           " || {
             echo "❌ Database setup failed, checking logs..."
             docker compose -f docker-compose.test.yml logs db-test --tail=20
