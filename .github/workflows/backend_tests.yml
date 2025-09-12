@@ -135,44 +135,23 @@ jobs:
 
     - name: Start test services
       run: |
-        # Create test environment file
-        cat > .env.test << EOF
-        RAILS_ENV=test
-        DATABASE_URL=postgres://postgres:postgres@db-test:5432/resilienceatlas_test
-        DATABASE_HOST=db-test
-        DATABASE_PORT=5432
-        DATABASE_NAME=resilienceatlas_test
-        DATABASE_USER=postgres
-        DATABASE_PASSWORD=postgres
-        SECRET_KEY_BASE=test_secret_key_base_that_is_long_enough_for_rails_to_accept_it_properly
-        DEVISE_KEY=test_devise_key_that_is_also_long_enough_for_the_application_to_work
-        REDIS_URL=redis://redis-test:6379/0
-        EOF
-        
-        # Start test database and services
-        docker compose -f docker-compose.test.yml up -d db-test redis-test
-        
-        # Wait for database to be ready
-        timeout 60s bash -c 'until docker compose -f docker-compose.test.yml exec -T db-test pg_isready -U postgres; do sleep 2; done'
+        # Use shared Docker environment setup script
+        chmod +x scripts/setup_docker_environment.sh
+        ./scripts/setup_docker_environment.sh all resilienceatlas_test
 
     - name: Setup test database
       run: |
-        # Ensure tmp directory exists for test results with correct permissions
-        mkdir -p backend/tmp
-        chmod 777 backend/tmp  # Allow container to write test results back to host
-        
-        # Setup database with proper error handling
+        # Setup database using shared script with error handling
         echo "Setting up test database..."
         docker compose -f docker-compose.test.yml run --rm backend-test \
           bash -c "
-            echo 'Setting Rails environment...'
-            RAILS_ENV=test bundle exec rails db:environment:set RAILS_ENV=test || true
+            # Setup backend environment first
+            chmod +x /app/scripts/setup_backend_environment.sh
+            cd /app && ./scripts/setup_backend_environment.sh
             
-            echo 'Preparing test database...'
-            RAILS_ENV=test bundle exec rails db:prepare
-            
-            echo 'Verifying database setup...'
-            RAILS_ENV=test bundle exec rails runner 'puts \"Database ready with #{ActiveRecord::Base.connection.tables.count} tables\"'
+            # Setup database
+            chmod +x /app/scripts/setup_database.sh
+            cd /app && ./scripts/setup_database.sh
           " || {
             echo "❌ Database setup failed, checking logs..."
             docker compose -f docker-compose.test.yml logs db-test --tail=20

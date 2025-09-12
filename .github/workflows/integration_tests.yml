@@ -82,41 +82,17 @@ jobs:
           ${{ runner.os }}-frontend-buildx-${{ steps.cache-keys.outputs.frontend-dockerfile-hash }}-
           ${{ runner.os }}-buildx-
 
-    - name: Create test environment file
+    - name: Create test environment and directories
       run: |
-        # Ensure test result directories exist on host filesystem
-        mkdir -p backend/tmp
-        mkdir -p frontend/cypress/results
-        mkdir -p integration-tests/results
+        # Use shared script to setup test environment with integration settings
+        chmod +x scripts/setup_docker_environment.sh
+        ./scripts/setup_docker_environment.sh directories
+        ./scripts/setup_docker_environment.sh env resilienceatlas_integration_test integration
         
-        # Set proper permissions for Docker containers to write
+        # Set proper permissions for Docker containers to write test results
         chmod 777 backend/tmp
         chmod 777 frontend/cypress/results
         chmod 777 integration-tests/results
-        
-        cat > .env.test << EOF
-        # Backend environment
-        RAILS_ENV=test
-        DATABASE_URL=postgres://postgres:postgres@db-test:5432/resilienceatlas_test
-        DATABASE_HOST=db-test
-        DATABASE_PORT=5432
-        DATABASE_NAME=resilienceatlas_test
-        DATABASE_USER=postgres
-        DATABASE_PASSWORD=postgres
-        SECRET_KEY_BASE=integration_test_secret_key_base_that_is_long_enough_for_rails_to_accept_it_properly
-        DEVISE_KEY=integration_test_devise_key_that_is_also_long_enough_for_the_application_to_work
-        REDIS_URL=redis://redis-test:6379/1
-        BACKEND_URL=http://backend-test:3001
-        FRONTEND_URL=http://frontend-test:3000
-        CORS_ORIGINS=http://frontend-test:3000,http://localhost:3000
-        
-        # Frontend environment
-        NODE_ENV=test
-        NEXT_PUBLIC_API_HOST=http://backend-test:3001
-        NEXT_PUBLIC_GOOGLE_ANALYTICS=GA_INTEGRATION_TEST_ID
-        NEXT_PUBLIC_GOOGLE_API_KEY=integration_test_api_key
-        PORT=3000
-        EOF
 
     - name: Warm Docker cache with base images
       run: |
@@ -193,44 +169,29 @@ jobs:
         echo "Docker system info:"
         docker system df
 
-    - name: Start infrastructure services
+    - name: Setup integration test environment
       run: |
-        # Start database and Redis
-        docker compose -f docker-compose.test.yml up -d db-test redis-test
+        # Ensure completely clean state first
+        docker compose -f docker-compose.test.yml down -v || true
         
-        # Wait for database to be ready
-        timeout 60s bash -c 'until docker compose -f docker-compose.test.yml exec -T db-test pg_isready -U postgres; do sleep 2; done'
+        # Start Docker services using shared script
+        chmod +x scripts/setup_docker_environment.sh
+        ./scripts/setup_docker_environment.sh services
         
-        echo "✅ Infrastructure services started"
-
-    - name: Setup and start backend
-      run: |
-        # Ensure clean state
-        docker compose -f docker-compose.test.yml down -v
-        
-        # Create and setup database with better error handling
-        echo "Setting up test database..."
+        # Setup backend environment and database with shared scripts
+        echo "Setting up backend and test database..."
         docker compose -f docker-compose.test.yml run --rm backend-test \
           bash -c "
-            # Setup Rails environment and logging
-            echo 'Setting up Rails environment...'
-            mkdir -p /app/log && chmod 0755 /app/log
-            touch /app/log/test.log && chmod 0664 /app/log/test.log
+            # Setup backend environment using shared script
+            bash /app/scripts/setup_backend_environment.sh
             
-            # Use Rails built-in database preparation which handles existing schemas better
-            echo 'Preparing database...'
-            RAILS_ENV=test bundle exec rails db:environment:set RAILS_ENV=test || true &&
-            RAILS_ENV=test bundle exec rails db:prepare &&
-            echo 'Database prepared successfully'
-            
-            # Setup integration test data using factories
-            echo 'Creating integration test data using factories...'
-            RAILS_ENV=test bundle exec rails integration_test:setup_data
-            
-            # Verify the test data was created successfully  
-            echo 'Verifying test data...'
-            RAILS_ENV=test bundle exec rails integration_test:verify_data
-          "
+            # Setup database with integration test data using shared script
+            SETUP_INTEGRATION_DATA=true DATABASE_NAME=resilienceatlas_integration_test bash /app/scripts/setup_database.sh
+          " || {
+            echo "❌ Backend setup failed, checking logs..."
+            docker compose -f docker-compose.test.yml logs backend-test --tail=50
+            exit 1
+          }
         
         # Start backend service in background
         docker compose -f docker-compose.test.yml up -d backend-test

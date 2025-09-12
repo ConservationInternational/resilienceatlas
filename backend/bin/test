@@ -17,6 +17,10 @@ fi
 echo "🔧 Setting up tmp directories..."
 mkdir -p tmp tmp/cache tmp/pids tmp/sockets tmp/storage 2>/dev/null || true
 
+# Ensure log directory exists and is writable
+echo "🔧 Setting up log directory..."
+mkdir -p log 2>/dev/null || true
+
 # Ensure public directories exist and are writable  
 mkdir -p public/storage public/uploads public/uploads/cache public/uploads/store downloads storage 2>/dev/null || true
 
@@ -25,13 +29,28 @@ mkdir -p public/storage public/uploads public/uploads/cache public/uploads/store
 echo "🔧 Ensuring proper ownership and permissions for upload directories..."
 if command -v sudo >/dev/null 2>&1; then
   # In Docker containers, we have sudo and need to fix permissions
-  sudo chown -R $(whoami):$(whoami) public/storage public/uploads downloads storage 2>/dev/null || echo "Could not fix ownership"
-  sudo chmod -R 775 public/storage public/uploads downloads storage 2>/dev/null || echo "Could not fix permissions"
-  echo "✅ Directory ownership and permissions fixed"
+  ownership_fixed=true
+  permissions_fixed=true
+  
+  sudo chown -R $(whoami):$(whoami) public/storage public/uploads downloads storage log 2>/dev/null || {
+    echo "Could not fix ownership"
+    ownership_fixed=false
+  }
+  
+  sudo chmod -R 775 public/storage public/uploads downloads storage log 2>/dev/null || {
+    echo "Could not fix permissions"
+    permissions_fixed=false
+  }
+  
+  if [ "$ownership_fixed" = true ] && [ "$permissions_fixed" = true ]; then
+    echo "✅ Directory ownership and permissions fixed"
+  else
+    echo "⚠️  Some directory ownership and permissions could not be fixed, but continuing..."
+  fi
 else
   echo "⚠️ sudo not available, attempting permission fix without sudo..."
-  chown -R $(whoami):$(whoami) public/storage public/uploads downloads storage 2>/dev/null || echo "Cannot fix ownership without sudo"
-  chmod -R 775 public/storage public/uploads downloads storage 2>/dev/null || echo "Cannot fix permissions without sudo"
+  chown -R $(whoami):$(whoami) public/storage public/uploads downloads storage log 2>/dev/null || echo "Cannot fix ownership without sudo"
+  chmod -R 775 public/storage public/uploads downloads storage log 2>/dev/null || echo "Cannot fix permissions without sudo"
 fi
 
 # Specifically fix upload directories for photos
@@ -67,7 +86,7 @@ if [ ! -w "tmp" ] || [ ! -w "tmp/" ]; then
 fi
 
 # Check and fix other required directories
-for dir in public/storage public/uploads public/uploads/cache public/uploads/store downloads storage; do
+for dir in public/storage public/uploads public/uploads/cache public/uploads/store downloads storage log; do
   if [ -d "$dir" ] && [ ! -w "$dir" ]; then
     echo "⚠️  $dir directory not writable, attempting to fix permissions..."
     if command -v sudo >/dev/null 2>&1; then
@@ -109,7 +128,7 @@ else
 fi
 
 # Test other critical directories
-for dir in public/storage public/uploads/cache downloads; do
+for dir in public/storage public/uploads/cache downloads log; do
   if [ -d "$dir" ]; then
     if echo "test" > "$dir/write_test.tmp" 2>/dev/null; then
       rm -f "$dir/write_test.tmp" 2>/dev/null || true
@@ -129,6 +148,35 @@ for dir in public/storage public/uploads/cache downloads; do
     fi
   fi
 done
+
+# Ensure Rails log file exists and is writable
+echo "🔧 Setting up Rails test.log file..."
+if [ ! -f "log/test.log" ]; then
+  touch log/test.log 2>/dev/null || {
+    echo "⚠️  Cannot create log/test.log, attempting with sudo..."
+    if command -v sudo >/dev/null 2>&1; then
+      sudo touch log/test.log 2>/dev/null || true
+      sudo chown $(whoami):$(whoami) log/test.log 2>/dev/null || true
+    fi
+  }
+fi
+
+# Ensure log file is writable
+if [ -f "log/test.log" ] && [ ! -w "log/test.log" ]; then
+  echo "⚠️  log/test.log not writable, fixing permissions..."
+  if command -v sudo >/dev/null 2>&1; then
+    sudo chmod 664 log/test.log 2>/dev/null || echo "Could not fix log/test.log permissions"
+    sudo chown $(whoami):$(whoami) log/test.log 2>/dev/null || echo "Could not fix log/test.log ownership"
+  else
+    chmod 664 log/test.log 2>/dev/null || echo "Could not fix log/test.log permissions without sudo"
+  fi
+fi
+
+if [ -f "log/test.log" ] && [ -w "log/test.log" ]; then
+  echo "✅ Rails test.log file is writable"
+else
+  echo "⚠️  Rails test.log file may not be accessible, but continuing..."
+fi
 
 # Try bundle install, but don't fail if gems are already satisfied
 if ! bundle check >/dev/null 2>&1; then
