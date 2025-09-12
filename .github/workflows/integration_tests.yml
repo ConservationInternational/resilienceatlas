@@ -89,6 +89,10 @@ jobs:
         ./backend/scripts/setup_docker_environment.sh directories
         ./backend/scripts/setup_docker_environment.sh env resilienceatlas_integration_test integration
         
+        # Ensure all test result directories exist before setting permissions
+        mkdir -p frontend/cypress/results
+        mkdir -p integration-tests/results
+        
         # Set proper permissions for Docker containers to write test results
         chmod 777 backend/tmp
         chmod 777 frontend/cypress/results
