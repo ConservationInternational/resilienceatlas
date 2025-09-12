@@ -70,10 +70,24 @@ namespace :integration_test do
       ]
 
       step_types.each do |step_config|
+        # Create more specific titles for different step types to ensure they render properly
+        step_title = case step_config[:type]
+                     when 'landing'
+                       "Welcome to Journey #{journey.title}"
+                     when 'chapter'
+                       "Chapter #{step_config[:chapter_number]}: #{step_config[:type].capitalize} Content"
+                     when 'embed'
+                       "Interactive #{step_config[:type].capitalize} Experience"
+                     when 'conclusion'
+                       "Journey #{journey.title} Conclusion"
+                     else
+                       "#{step_config[:type].capitalize} Step"
+                     end
+
         step_attrs = {
           journey: journey,
           step_type: step_config[:type],
-          title: "#{step_config[:type].capitalize} Step",
+          title: step_title,
           subtitle: "Step subtitle for #{step_config[:type]}",
           description: "Description for #{step_config[:type]} step",
           content: "<p>Content for #{step_config[:type]} step</p>",
@@ -83,7 +97,7 @@ namespace :integration_test do
         step_attrs[:chapter_number] = step_config[:chapter_number] if step_config[:chapter_number]
 
         step = FactoryBot.create(:journey_step, step_attrs)
-        puts "✅ Created JourneyStep #{step_config[:type]} with ID: #{step.id}"
+        puts "✅ Created JourneyStep #{step_config[:type]} with ID: #{step.id}, title: '#{step.title}'"
       end
 
       journeys << journey

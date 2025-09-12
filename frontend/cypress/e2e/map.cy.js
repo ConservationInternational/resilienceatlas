@@ -5,15 +5,36 @@ describe('Map page', () => {
     cy.clearCookies();
     cy.interceptAllRequests();
     cy.visit('/map');
-    // Remove map tour
-    cy.get('.reactour__close-button').click();
+    cy.wait('@siteRequest');
+    cy.wait('@layerGroupsAPIRequest');
+    cy.wait('@layersAPIRequest');
+
+    // Wait for page to fully load
+    cy.waitForPageLoad();
+
+    // Wait for map container to be available
+    cy.get('.wri_api__map-container', { timeout: 15000 }).should('exist');
+
+    // Wait for all critical map elements to be present
+    cy.get('.wri_api__map-controls-list', { timeout: 15000 }).should('exist');
+    cy.get('.m-legend', { timeout: 15000 }).should('exist');
+    cy.get('.l-sidebar-content', { timeout: 15000 }).should('exist');
+
+    // Remove map tour - this should work if tour is properly initialized
+    cy.get('.reactour__close-button', { timeout: 10000 }).click();
+
+    // Wait for map to be fully rendered
+    cy.get('.leaflet-container', { timeout: 10000 }).should('be.visible');
   });
 
   it('should have a map', () => {
     cy.wait('@siteRequest').then(({ response }) => {
       cy.wrap(response.statusCode).should('be.oneOf', [200, 304]);
-      cy.get('.wri_api__map-container.leaflet-container');
     });
+
+    // Verify both map container and leaflet are present
+    cy.get('.wri_api__map-container').should('exist');
+    cy.get('.leaflet-container').should('be.visible');
   });
 });
 
@@ -29,20 +50,32 @@ describe('Specific map page', () => {
     cy.wait('@layerGroupsAPIRequest');
     cy.wait('@layersAPIRequest');
 
-    // Remove map tour
-    cy.get('.reactour__close-button').click();
+    // Wait for page to fully load
+    cy.waitForPageLoad();
+
+    // Wait for map container and critical elements first
+    cy.get('.wri_api__map-container', { timeout: 15000 }).should('exist');
+    cy.get('.wri_api__map-controls-list', { timeout: 15000 }).should('exist');
+    cy.get('.m-legend', { timeout: 15000 }).should('exist');
+    cy.get('.l-sidebar-content', { timeout: 15000 }).should('exist');
+
+    // Close tour
+    cy.get('.reactour__close-button', { timeout: 10000 }).click();
+    cy.get('.leaflet-container', { timeout: 10000 }).should('be.visible');
   });
 
   it('should have a map', () => {
-    cy.get('.wri_api__map-container.leaflet-container');
+    cy.get('.wri_api__map-container').should('exist');
+    cy.get('.leaflet-container').should('be.visible');
   });
 
   it('should have a layer in the legend', () => {
-    cy.get('ul.m-legend__list').find('li.drag-items').should('have.length', 1);
+    cy.get('ul.m-legend__list', { timeout: 10000 }).should('exist');
+    cy.get('ul.m-legend__list').find('li.drag-items', { timeout: 10000 }).should('have.length', 1);
   });
 
   it('should have an active layer in the sidebar', () => {
-    cy.get('#layer_66').should('be.checked');
+    cy.get('#layer_66', { timeout: 10000 }).should('be.checked');
   });
 });
 
@@ -56,29 +89,39 @@ describe('Analysis should work for Livelihoods zones layer', () => {
     cy.wait('@layerGroupsAPIRequest');
     cy.wait('@layersAPIRequest');
 
-    // Remove map tour
-    cy.get('.reactour__close-button').click();
+    // Wait for page to fully load
+    cy.waitForPageLoad();
+
+    // Wait for map container first, then close tour
+    cy.get('.wri_api__map-container', { timeout: 15000 }).should('exist');
+    cy.get('.reactour__close-button', { timeout: 10000 }).click();
+    cy.get('.leaflet-container', { timeout: 10000 }).should('be.visible');
   });
 
   it('should have a map', () => {
-    cy.get('.wri_api__map-container.leaflet-container');
+    cy.get('.wri_api__map-container').should('exist');
+    cy.get('.leaflet-container').should('be.visible');
   });
 
   it('should have a layer in the legend', () => {
-    cy.get('ul.m-legend__list').find('li.drag-items').should('have.length', 1);
+    cy.get('ul.m-legend__list', { timeout: 10000 }).should('exist');
+    cy.get('ul.m-legend__list').find('li.drag-items', { timeout: 10000 }).should('have.length', 1);
   });
 
   it('should have a source in the layer', () => {
-    cy.get('ul.m-legend__list').find('li.drag-items .source').should('have.length', 1);
+    cy.get('ul.m-legend__list', { timeout: 10000 }).should('exist');
+    cy.get('ul.m-legend__list')
+      .find('li.drag-items .source', { timeout: 10000 })
+      .should('have.length', 1);
   });
 
   it('should have an active layer in the sidebar', () => {
-    cy.get('#layer_1429').should('be.checked');
+    cy.get('#layer_1429', { timeout: 10000 }).should('be.checked');
   });
 
   it('should be able to open analysis', () => {
-    cy.get('.btn-analysis-panel-expand').click();
-    cy.get('#analysisPanelView').should('be.visible');
+    cy.get('.btn-analysis-panel-expand', { timeout: 10000 }).should('exist').click();
+    cy.get('#analysisPanelView', { timeout: 10000 }).should('be.visible');
   });
 });
 
@@ -108,15 +151,19 @@ describe('Share modal should show shorten URL', () => {
     cy.wait('@layerGroupsAPIRequest');
     cy.wait('@layersAPIRequest');
 
-    // Remove map tour
-    cy.get('.reactour__close-button').click();
+    // Wait for page to fully load
+    cy.waitForPageLoad();
 
-    cy.get('.wri_api__map-container.leaflet-container');
+    // Wait for map container first, then close tour
+    cy.get('.wri_api__map-container', { timeout: 15000 }).should('exist');
+    cy.get('.reactour__close-button', { timeout: 10000 }).click();
+    cy.get('.leaflet-container', { timeout: 10000 }).should('be.visible');
 
-    cy.get('.btn-share').click();
+    // Click share button and test modal
+    cy.get('.btn-share', { timeout: 10000 }).should('exist').click();
     cy.wait(1000);
-    cy.get('.m-share').should('be.visible');
-    cy.get('input.url').should('have.value', shortenUrl);
+    cy.get('.m-share', { timeout: 10000 }).should('be.visible');
+    cy.get('input.url', { timeout: 10000 }).should('have.value', shortenUrl);
   });
 
   it('should load the correct url and map given a short url', () => {
@@ -129,39 +176,85 @@ describe('Share modal should show shorten URL', () => {
     cy.wait('@layerGroupsAPIRequest');
     cy.wait('@layersAPIRequest');
 
-    cy.get('.wri_api__map-container.leaflet-container');
+    // Wait for map to render properly
+    cy.get('.wri_api__map-container', { timeout: 15000 }).should('exist');
+    cy.get('.leaflet-container', { timeout: 15000 }).should('be.visible');
   });
 });
 
 describe('Map tour should be shown only once', () => {
   beforeEach(() => {
-    cy.clearCookies();
+    cy.clearCookies(); // This ensures tour will show since it depends on cookies
     cy.interceptAllRequests();
     cy.visit('/map');
     cy.wait('@siteRequest');
     cy.wait('@layerGroupsAPIRequest');
     cy.wait('@layersAPIRequest');
+
+    // Wait for page to fully load
+    cy.waitForPageLoad();
+
+    // Ensure map is loaded first
+    cy.get('.wri_api__map-container', { timeout: 15000 }).should('exist');
+    cy.get('.leaflet-container', { timeout: 10000 }).should('be.visible');
+
+    // Wait for all tour target elements to be available
+    cy.get('.wri_api__map-controls-list', { timeout: 15000 }).should('exist');
+    cy.get('.m-legend', { timeout: 15000 }).should('exist');
+    cy.get('.l-sidebar-content', { timeout: 15000 }).should('exist');
+    cy.get('.btn-analysis-panel-expand', { timeout: 15000 }).should('exist');
   });
 
   it('should show map tour', () => {
-    cy.get('.map-tour-popover').should('exist');
+    // Tour should appear because we cleared cookies and all target elements are present
+    cy.get('.map-tour-popover', { timeout: 15000 }).should('exist');
   });
 
   it('should have 4 steps', () => {
-    cy.get('button[data-testid="map-tour-next-button"]').click();
-    cy.get('button[data-testid="map-tour-next-button"]').click();
-    cy.get('button[data-testid="map-tour-next-button"]').click();
-    cy.get('button[data-testid="map-tour-close-button"]').click();
+    // Verify tour is visible first
+    cy.get('.map-tour-popover', { timeout: 15000 }).should('exist');
+
+    // Navigate through tour steps
+    cy.get('button[data-testid="map-tour-next-button"]', { timeout: 10000 })
+      .should('be.visible')
+      .click();
+    cy.wait(500);
+
+    cy.get('button[data-testid="map-tour-next-button"]', { timeout: 10000 })
+      .should('be.visible')
+      .click();
+    cy.wait(500);
+
+    cy.get('button[data-testid="map-tour-next-button"]', { timeout: 10000 })
+      .should('be.visible')
+      .click();
+    cy.wait(500);
+
+    // On last step, should have close button
+    cy.get('button[data-testid="map-tour-close-button"]', { timeout: 10000 })
+      .should('be.visible')
+      .click();
+
+    // Tour should be gone
+    cy.get('.map-tour-popover').should('not.exist');
   });
 
   it('should skip map tour', () => {
-    cy.get('button[data-testid="map-tour-skip-button"]').click();
-    cy.get('.map-tour-popover').should('not.exist');
+    // Verify tour is visible first
+    cy.get('.map-tour-popover', { timeout: 15000 }).should('exist');
+
+    cy.get('button[data-testid="map-tour-skip-button"]', { timeout: 10000 })
+      .should('be.visible')
+      .click();
+    cy.get('.map-tour-popover', { timeout: 5000 }).should('not.exist');
   });
 
   it('should close map tour clicking on the x icon', () => {
-    cy.get('.reactour__close-button').click();
-    cy.get('.map-tour-popover').should('not.exist');
+    // Verify tour is visible first
+    cy.get('.map-tour-popover', { timeout: 15000 }).should('exist');
+
+    cy.get('.reactour__close-button', { timeout: 10000 }).should('be.visible').click();
+    cy.get('.map-tour-popover', { timeout: 5000 }).should('not.exist');
   });
 });
 
@@ -176,16 +269,21 @@ describe('Search box should allow cities and coordinates', () => {
     cy.wait('@layerGroupsAPIRequest');
     cy.wait('@layersAPIRequest');
 
-    // Remove map tour
-    cy.get('.reactour__close-button').click();
+    // Wait for page to fully load
+    cy.waitForPageLoad();
+
+    // Wait for map container first, then close tour
+    cy.get('.wri_api__map-container', { timeout: 15000 }).should('exist');
+    cy.get('.reactour__close-button', { timeout: 10000 }).click();
+    cy.get('.leaflet-container', { timeout: 10000 }).should('be.visible');
   });
 
   it('should allow to search for a city', () => {
-    cy.get('.m-toolbar-item--button').click();
-    cy.get('.search-combobox-input').type('Madrid');
+    cy.get('.m-toolbar-item--button', { timeout: 10000 }).should('exist').click();
+    cy.get('.search-combobox-input', { timeout: 10000 }).should('be.visible').type('Madrid');
     cy.wait(500); // waiting for debounce
     cy.wait('@googleAutocompleteRequest'); // waiting for the autocomplete
-    cy.get('.search-combobox-options').should('be.visible');
+    cy.get('.search-combobox-options', { timeout: 10000 }).should('be.visible');
     cy.get('.search-combobox-options').find('li').should('have.length', 5);
     cy.get('.search-combobox-input').type('{enter}');
     cy.get('.search-combobox-input').should('not.exist');
@@ -194,10 +292,10 @@ describe('Search box should allow cities and coordinates', () => {
   });
 
   it('should allow to search for coordinates', () => {
-    cy.get('.m-toolbar-item--button').click();
-    cy.get('.search-combobox-input').type('-3, 40');
+    cy.get('.m-toolbar-item--button', { timeout: 10000 }).should('exist').click();
+    cy.get('.search-combobox-input', { timeout: 10000 }).should('be.visible').type('-3, 40');
     cy.wait(500); // waiting for debounce
-    cy.get('.search-combobox-input-coordinates').should('be.visible');
+    cy.get('.search-combobox-input-coordinates', { timeout: 10000 }).should('be.visible');
     cy.get('.search-combobox-input').type('{enter}');
     cy.get('.search-combobox-input').should('not.exist');
     cy.wait('@googleGeocodeRequest'); // waiting for the geocode

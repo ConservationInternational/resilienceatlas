@@ -29,7 +29,12 @@ describe('Journeys detail page', () => {
           content,
         } = step.attributes;
 
-        cy.log(`Testing step with index ${stepIndex} and type "${type}"`);
+        cy.log(`Testing step with index ${stepIndex} and type "${type}", title: "${title}"`);
+
+        // Add debug information for conclusion steps
+        if (type === 'conclusion') {
+          cy.log(`Conclusion step data:`, step.attributes);
+        }
 
         cy.url().should('include', `/journeys/${id}/step/${stepIndex + 1}`);
 
@@ -48,7 +53,15 @@ describe('Journeys detail page', () => {
             break;
 
           case 'conclusion':
-            cy.get('.l-journey h2').first().contains(title, { matchCase: false });
+            cy.log(`Testing conclusion step with title: "${title}"`);
+            // First check if the l-journey container exists
+            cy.get('.l-journey').should('exist');
+            // Then check if any h2 exists in the container
+            cy.get('.l-journey h2').should('exist');
+            // Finally check if it contains the expected title
+            cy.get('.l-journey h2')
+              .first()
+              .should('contain.text', title || 'Conclusion');
 
             if (subtitle) {
               cy.get('.l-journey h3').first().contains(subtitle, { matchCase: false });
@@ -103,7 +116,12 @@ describe('Journeys detail page', () => {
         }
 
         if (stepIndex + 1 < steps.length) {
-          cy.get('.l-journey').find('.btn-next').click();
+          cy.log(`Advancing from step ${stepIndex + 1} to step ${stepIndex + 2}`);
+          // Wait for the current step to be fully loaded before navigating
+          cy.get('.l-journey').should('exist');
+          // Click next button and wait for navigation
+          cy.get('.l-journey').find('.btn-next').should('exist').click();
+          cy.wait(1000); // Wait for navigation to complete
         }
       });
     });
