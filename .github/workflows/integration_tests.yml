@@ -97,10 +97,10 @@ jobs:
         cat > .env.test << EOF
         # Backend environment
         RAILS_ENV=test
-        DATABASE_URL=postgres://postgres:postgres@db-test:5432/resilienceatlas_integration_test
+        DATABASE_URL=postgres://postgres:postgres@db-test:5432/resilienceatlas_test
         DATABASE_HOST=db-test
         DATABASE_PORT=5432
-        DATABASE_NAME=resilienceatlas_integration_test
+        DATABASE_NAME=resilienceatlas_test
         DATABASE_USER=postgres
         DATABASE_PASSWORD=postgres
         SECRET_KEY_BASE=integration_test_secret_key_base_that_is_long_enough_for_rails_to_accept_it_properly
