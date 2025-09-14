@@ -204,15 +204,21 @@ unless Rails.env.test?
                   filename: image_filename,
                   content_type: "image/jpeg"
                 )
-                puts "  Attached #{image_filename} to Journey #{journey_id} (#{journey.title})"
+                
+                # Validate the record now that the image is attached
+                if journey.valid?
+                  puts "  ✓ Attached #{image_filename} to Journey #{journey_id} (#{journey.title})"
+                else
+                  puts "  ⚠ Attached #{image_filename} to Journey #{journey_id} but validation failed: #{journey.errors.full_messages.join(', ')}"
+                end
               rescue => e
-                puts "  Error attaching image to Journey #{journey_id}: #{e.message}"
+                puts "  ✗ Error attaching image to Journey #{journey_id}: #{e.message}"
               end
             else
-              puts "  Warning: Image file not found: #{image_path}"
+              puts "  ⚠ Warning: Image file not found: #{image_path}"
             end
           else
-            puts "  Warning: Journey #{journey_id} not found"
+            puts "  ⚠ Warning: Journey #{journey_id} not found"
           end
         end
 
@@ -255,9 +261,14 @@ unless Rails.env.test?
                 filename: image_filename,
                 content_type: "image/jpeg"
               )
-              puts "  Attached #{image_filename} to existing Journey #{journey.id} (#{journey.title})"
+              
+              if journey.valid?
+                puts "  ✓ Attached #{image_filename} to existing Journey #{journey.id} (#{journey.title})"
+              else
+                puts "  ⚠ Attached #{image_filename} to existing Journey #{journey.id} but validation failed: #{journey.errors.full_messages.join(', ')}"
+              end
             rescue => e
-              puts "  Error attaching image to existing Journey #{journey.id}: #{e.message}"
+              puts "  ✗ Error attaching image to existing Journey #{journey.id}: #{e.message}"
             end
           end
         end
