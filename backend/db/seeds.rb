@@ -183,6 +183,45 @@ unless Rails.env.test?
         # Re-enable the callback
         Journey.set_callback(:save, :after, :at_least_one_step)
 
+        # Now attach background images to the journeys
+        puts "Attaching background images to journeys..."
+        journey_image_mapping = {
+          4 => "journey1bg0.jpg",  # Ethiopia Smallholder Maize
+          5 => "journey2bg0.jpg",  # Ethiopia Pastoral Livelihoods  
+          6 => "journey3bg0.jpg",  # India Cotton production
+          7 => "journey4bg0.jpg",  # Africa Coffee production
+          8 => "journey5bg0.jpg"   # Madagascar Ecosystem-based adaptation
+        }
+
+        journey_image_mapping.each do |journey_id, image_filename|
+          journey = Journey.find_by(id: journey_id)
+          if journey
+            image_path = Rails.root.join("app", "assets", "images", "journeys", image_filename)
+            if File.exist?(image_path)
+              begin
+                journey.background_image.attach(
+                  io: File.open(image_path),
+                  filename: image_filename,
+                  content_type: "image/jpeg"
+                )
+                
+                # Validate the record now that the image is attached
+                if journey.valid?
+                  puts "  ✓ Attached #{image_filename} to Journey #{journey_id} (#{journey.title})"
+                else
+                  puts "  ⚠ Attached #{image_filename} to Journey #{journey_id} but validation failed: #{journey.errors.full_messages.join(', ')}"
+                end
+              rescue => e
+                puts "  ✗ Error attaching image to Journey #{journey_id}: #{e.message}"
+              end
+            else
+              puts "  ⚠ Warning: Image file not found: #{image_path}"
+            end
+          else
+            puts "  ⚠ Warning: Journey #{journey_id} not found"
+          end
+        end
+
         puts "Journeys imported successfully from journeys.rb (#{Journey.count} journeys, #{JourneyStep.count} journey steps)"
       rescue => e
         # Re-enable the callback even if there's an error
@@ -198,6 +237,43 @@ unless Rails.env.test?
     end
   else
     puts "Journeys already exist (#{Journey.count} journeys, #{JourneyStep.count} journey steps)"
+    
+    # Check if journeys need background images attached
+    journeys_without_images = Journey.where.missing(:background_image_attachment)
+    if journeys_without_images.any?
+      puts "Found #{journeys_without_images.count} journeys without background images, attaching them..."
+      journey_image_mapping = {
+        4 => "journey1bg0.jpg",  # Ethiopia Smallholder Maize
+        5 => "journey2bg0.jpg",  # Ethiopia Pastoral Livelihoods  
+        6 => "journey3bg0.jpg",  # India Cotton production
+        7 => "journey4bg0.jpg",  # Africa Coffee production
+        8 => "journey5bg0.jpg"   # Madagascar Ecosystem-based adaptation
+      }
+
+      journeys_without_images.each do |journey|
+        image_filename = journey_image_mapping[journey.id]
+        if image_filename
+          image_path = Rails.root.join("app", "assets", "images", "journeys", image_filename)
+          if File.exist?(image_path)
+            begin
+              journey.background_image.attach(
+                io: File.open(image_path),
+                filename: image_filename,
+                content_type: "image/jpeg"
+              )
+              
+              if journey.valid?
+                puts "  ✓ Attached #{image_filename} to existing Journey #{journey.id} (#{journey.title})"
+              else
+                puts "  ⚠ Attached #{image_filename} to existing Journey #{journey.id} but validation failed: #{journey.errors.full_messages.join(', ')}"
+              end
+            rescue => e
+              puts "  ✗ Error attaching image to existing Journey #{journey.id}: #{e.message}"
+            end
+          end
+        end
+      end
+    end
   end
 
   # Import map menu entries if none exist

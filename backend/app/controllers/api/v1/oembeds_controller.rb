@@ -74,8 +74,15 @@ module Api
           return
         end
 
-        domain = @url.host.split(".")[-2, 2]
-        parsed_domain = domain.present? ? domain.join(".") : @url.host
+        # Safely handle domain parsing with proper nil checks
+        host = @url&.host
+        if host.nil?
+          render_error(422)
+          return
+        end
+
+        domain = host.split(".").last(2)
+        parsed_domain = domain.present? ? domain.join(".") : host
 
         unless permitted_domains.include?(parsed_domain)
           render_error(403)
