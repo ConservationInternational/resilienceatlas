@@ -81,7 +81,7 @@ module Api
           return
         end
 
-        domain = host.split(".")[-2, 2]
+        domain = host.split(".").last(2)
         parsed_domain = domain.present? ? domain.join(".") : host
 
         unless permitted_domains.include?(parsed_domain)
