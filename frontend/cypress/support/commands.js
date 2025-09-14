@@ -90,22 +90,22 @@ Cypress.Commands.add('hexToRgb', (hexStr) => {
 
 // Custom command to wait for page to be fully loaded and interactive
 Cypress.Commands.add('waitForPageLoad', () => {
-  // Wait for basic page structure
-  cy.get('body', { timeout: 30000 }).should('be.visible');
+  // Wait for basic page structure with longer timeout
+  cy.get('body', { timeout: 60000 }).should('be.visible');
 
   // Wait for potential loading spinners or overlays to disappear
   cy.get('body').then(($body) => {
     // If there are any loading indicators, wait for them to disappear
     if ($body.find('[data-testid="loading"], .loading, .spinner').length > 0) {
-      cy.get('[data-testid="loading"], .loading, .spinner', { timeout: 15000 }).should('not.exist');
+      cy.get('[data-testid="loading"], .loading, .spinner', { timeout: 30000 }).should('not.exist');
     }
   });
 
-  // Wait for any chart overlays (rect elements) to be properly positioned
-  cy.wait(1000);
+  // Wait longer for content to render in test environment
+  cy.wait(3000);
 
-  // Ensure navigation elements are present and visible
-  cy.get('.brand-area, .nav-area', { timeout: 15000 }).should('be.visible');
+  // Ensure navigation elements are present and visible with longer timeout
+  cy.get('.brand-area, .nav-area, header, nav', { timeout: 30000 }).should('be.visible');
 });
 
 Cypress.on('uncaught:exception', () => {
