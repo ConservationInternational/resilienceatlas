@@ -3,12 +3,10 @@ describe('Homepage', () => {
     cy.interceptAllRequests();
     cy.visit('/');
     cy.wait('@siteRequest');
-    // Add extra wait for page to stabilize in test environment
-    cy.waitForPageLoad();
   });
 
   it('should display sections in the correct order', () => {
-    cy.wait('@homepageRequest', { timeout: 30000 }).then(({ response }) => {
+    cy.wait('@homepageRequest').then(({ response }) => {
       cy.wrap(response.statusCode).should('be.oneOf', [200, 304]);
 
       const { included } = response.body || {};
@@ -28,19 +26,13 @@ describe('Homepage', () => {
         .sort((a, b) => a.section.position - b.section.position)
         .map(({ section }) => section.attributes.title);
 
-      // Use more lenient selectors for test environment
-      cy.get('[data-cy="homepage-section"], .homepage-section, .m-home-section', { timeout: 30000 })
-        .should('have.length.at.least', 0); // Allow for zero sections if data is missing
+      cy.get('[data-cy="homepage-section"]').should('have.length', orderedSectionTitles.length);
 
-      if (orderedSectionTitles.length > 0) {
-        cy.get('[data-cy="homepage-section"], .homepage-section, .m-home-section').should('have.length', orderedSectionTitles.length);
-
-        cy.get('[data-cy="homepage-section"], .homepage-section, .m-home-section').each(($el, index) => {
-          cy.wrap($el).within(() => {
-            cy.get('h2, h1, .title').should('contain', orderedSectionTitles[index]);
-          });
+      cy.get('[data-cy="homepage-section"]').each(($el, index) => {
+        cy.wrap($el).within(() => {
+          cy.get('h2').should('contain', orderedSectionTitles[index]);
         });
-      }
+      });
     });
   });
 
