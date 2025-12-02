@@ -72,17 +72,17 @@ namespace :integration_test do
       step_types.each do |step_config|
         # Create more specific titles for different step types to ensure they render properly
         step_title = case step_config[:type]
-                     when 'landing'
-                       "Welcome to Journey #{journey.title}"
-                     when 'chapter'
-                       "Chapter #{step_config[:chapter_number]}: #{step_config[:type].capitalize} Content"
-                     when 'embed'
-                       "Interactive #{step_config[:type].capitalize} Experience"
-                     when 'conclusion'
-                       "Journey #{journey.title} Conclusion"
-                     else
-                       "#{step_config[:type].capitalize} Step"
-                     end
+        when "landing"
+          "Welcome to Journey #{journey.title}"
+        when "chapter"
+          "Chapter #{step_config[:chapter_number]}: #{step_config[:type].capitalize} Content"
+        when "embed"
+          "Interactive #{step_config[:type].capitalize} Experience"
+        when "conclusion"
+          "Journey #{journey.title} Conclusion"
+        else
+          "#{step_config[:type].capitalize} Step"
+        end
 
         step_attrs = {
           journey: journey,

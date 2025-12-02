@@ -187,7 +187,7 @@ unless Rails.env.test?
         puts "Attaching background images to journeys..."
         journey_image_mapping = {
           4 => "journey1bg0.jpg",  # Ethiopia Smallholder Maize
-          5 => "journey2bg0.jpg",  # Ethiopia Pastoral Livelihoods  
+          5 => "journey2bg0.jpg",  # Ethiopia Pastoral Livelihoods
           6 => "journey3bg0.jpg",  # India Cotton production
           7 => "journey4bg0.jpg",  # Africa Coffee production
           8 => "journey5bg0.jpg"   # Madagascar Ecosystem-based adaptation
@@ -204,12 +204,12 @@ unless Rails.env.test?
                   filename: image_filename,
                   content_type: "image/jpeg"
                 )
-                
+
                 # Validate the record now that the image is attached
                 if journey.valid?
                   puts "  ✓ Attached #{image_filename} to Journey #{journey_id} (#{journey.title})"
                 else
-                  puts "  ⚠ Attached #{image_filename} to Journey #{journey_id} but validation failed: #{journey.errors.full_messages.join(', ')}"
+                  puts "  ⚠ Attached #{image_filename} to Journey #{journey_id} but validation failed: #{journey.errors.full_messages.join(", ")}"
                 end
               rescue => e
                 puts "  ✗ Error attaching image to Journey #{journey_id}: #{e.message}"
@@ -237,14 +237,14 @@ unless Rails.env.test?
     end
   else
     puts "Journeys already exist (#{Journey.count} journeys, #{JourneyStep.count} journey steps)"
-    
+
     # Check if journeys need background images attached
     journeys_without_images = Journey.where.missing(:background_image_attachment)
     if journeys_without_images.any?
       puts "Found #{journeys_without_images.count} journeys without background images, attaching them..."
       journey_image_mapping = {
         4 => "journey1bg0.jpg",  # Ethiopia Smallholder Maize
-        5 => "journey2bg0.jpg",  # Ethiopia Pastoral Livelihoods  
+        5 => "journey2bg0.jpg",  # Ethiopia Pastoral Livelihoods
         6 => "journey3bg0.jpg",  # India Cotton production
         7 => "journey4bg0.jpg",  # Africa Coffee production
         8 => "journey5bg0.jpg"   # Madagascar Ecosystem-based adaptation
@@ -261,11 +261,11 @@ unless Rails.env.test?
                 filename: image_filename,
                 content_type: "image/jpeg"
               )
-              
+
               if journey.valid?
                 puts "  ✓ Attached #{image_filename} to existing Journey #{journey.id} (#{journey.title})"
               else
-                puts "  ⚠ Attached #{image_filename} to existing Journey #{journey.id} but validation failed: #{journey.errors.full_messages.join(', ')}"
+                puts "  ⚠ Attached #{image_filename} to existing Journey #{journey.id} but validation failed: #{journey.errors.full_messages.join(", ")}"
               end
             rescue => e
               puts "  ✗ Error attaching image to existing Journey #{journey.id}: #{e.message}"
