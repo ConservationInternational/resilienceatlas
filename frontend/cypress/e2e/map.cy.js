@@ -6,10 +6,16 @@ describe('Map page', () => {
     cy.interceptAllRequests();
     cy.visit('/map');
 
-    // Wait for critical API calls that must complete before the page is usable
-    cy.wait('@siteRequest', { timeout: 20000 });
-    cy.wait('@layerGroupsAPIRequest', { timeout: 20000 });
-    cy.wait('@layersAPIRequest', { timeout: 20000 });
+    // Wait for critical API calls and verify they succeeded
+    cy.wait('@siteRequest', { timeout: 20000 }).then(({ response }) => {
+      cy.wrap(response.statusCode).should('be.oneOf', [200, 304]);
+    });
+    cy.wait('@layerGroupsAPIRequest', { timeout: 20000 }).then(({ response }) => {
+      cy.wrap(response.statusCode).should('be.oneOf', [200, 304]);
+    });
+    cy.wait('@layersAPIRequest', { timeout: 20000 }).then(({ response }) => {
+      cy.wrap(response.statusCode).should('be.oneOf', [200, 304]);
+    });
 
     // Wait for page to fully load - this checks for header elements
     cy.waitForPageLoad();
@@ -48,9 +54,15 @@ describe('Specific map page', () => {
     cy.visit(
       '/map?tab=layers&layers=%5B%7B"id"%3A66%2C"opacity"%3A1%2C"order"%3Anull%7D%5D&zoom=3&center=lat%3D21.94304553343818%26lng%3D-16.699218750000004',
     );
-    cy.wait('@siteRequest', { timeout: 20000 });
-    cy.wait('@layerGroupsAPIRequest', { timeout: 20000 });
-    cy.wait('@layersAPIRequest');
+    cy.wait('@siteRequest', { timeout: 20000 }).then(({ response }) => {
+      cy.wrap(response.statusCode).should('be.oneOf', [200, 304]);
+    });
+    cy.wait('@layerGroupsAPIRequest', { timeout: 20000 }).then(({ response }) => {
+      cy.wrap(response.statusCode).should('be.oneOf', [200, 304]);
+    });
+    cy.wait('@layersAPIRequest', { timeout: 20000 }).then(({ response }) => {
+      cy.wrap(response.statusCode).should('be.oneOf', [200, 304]);
+    });
 
     // Wait for page to fully load
     cy.waitForPageLoad();
@@ -87,9 +99,15 @@ describe('Analysis should work for Livelihoods zones layer', () => {
     cy.interceptAllRequests();
     // url with layer id 1429
     cy.visit('/map?tab=layers&layers=%5B%7B"id"%3A1429%2C"opacity"%3A1%2C"order"%3Anull%7D%5D');
-    cy.wait('@siteRequest', { timeout: 20000 });
-    cy.wait('@layerGroupsAPIRequest', { timeout: 20000 });
-    cy.wait('@layersAPIRequest', { timeout: 20000 });
+    cy.wait('@siteRequest', { timeout: 20000 }).then(({ response }) => {
+      cy.wrap(response.statusCode).should('be.oneOf', [200, 304]);
+    });
+    cy.wait('@layerGroupsAPIRequest', { timeout: 20000 }).then(({ response }) => {
+      cy.wrap(response.statusCode).should('be.oneOf', [200, 304]);
+    });
+    cy.wait('@layersAPIRequest', { timeout: 20000 }).then(({ response }) => {
+      cy.wrap(response.statusCode).should('be.oneOf', [200, 304]);
+    });
 
     // Wait for page to fully load
     cy.waitForPageLoad();
@@ -149,9 +167,15 @@ describe('Share modal should show shorten URL', () => {
       '/map?tab=&center=lat%3D14.214466896745083%26lng%3D28.242759704589844&layers=%5B%7B"id"%3A66%2C"opacity"%3A1%2C"order"%3Anull%7D%5D&zoom=4',
     );
 
-    cy.wait('@siteRequest', { timeout: 20000 });
-    cy.wait('@layerGroupsAPIRequest', { timeout: 20000 });
-    cy.wait('@layersAPIRequest', { timeout: 20000 });
+    cy.wait('@siteRequest', { timeout: 20000 }).then(({ response }) => {
+      cy.wrap(response.statusCode).should('be.oneOf', [200, 304]);
+    });
+    cy.wait('@layerGroupsAPIRequest', { timeout: 20000 }).then(({ response }) => {
+      cy.wrap(response.statusCode).should('be.oneOf', [200, 304]);
+    });
+    cy.wait('@layersAPIRequest', { timeout: 20000 }).then(({ response }) => {
+      cy.wrap(response.statusCode).should('be.oneOf', [200, 304]);
+    });
 
     // Wait for page to fully load
     cy.waitForPageLoad();
@@ -175,9 +199,18 @@ describe('Share modal should show shorten URL', () => {
     // waiting redirect
     cy.wait(1000);
 
-    cy.wait('@siteRequest', { timeout: 20000 });
-    cy.wait('@layerGroupsAPIRequest', { timeout: 20000 });
-    cy.wait('@layersAPIRequest', { timeout: 20000 });
+    cy.wait('@siteRequest', { timeout: 20000 }).then(({ response }) => {
+      cy.wrap(response.statusCode).should('be.oneOf', [200, 304]);
+    });
+    cy.wait('@layerGroupsAPIRequest', { timeout: 20000 }).then(({ response }) => {
+      cy.wrap(response.statusCode).should('be.oneOf', [200, 304]);
+    });
+    cy.wait('@layersAPIRequest', { timeout: 20000 }).then(({ response }) => {
+      cy.wrap(response.statusCode).should('be.oneOf', [200, 304]);
+    });
+
+    // Wait for page to fully load
+    cy.waitForPageLoad();
 
     // Wait for map to render properly
     cy.get('.wri_api__map-container', { timeout: 15000 }).should('exist');
@@ -190,9 +223,15 @@ describe('Map tour should be shown only once', () => {
     cy.clearCookies(); // This ensures tour will show since it depends on cookies
     cy.interceptAllRequests();
     cy.visit('/map');
-    cy.wait('@siteRequest', { timeout: 20000 });
-    cy.wait('@layerGroupsAPIRequest', { timeout: 20000 });
-    cy.wait('@layersAPIRequest', { timeout: 20000 });
+    cy.wait('@siteRequest', { timeout: 20000 }).then(({ response }) => {
+      cy.wrap(response.statusCode).should('be.oneOf', [200, 304]);
+    });
+    cy.wait('@layerGroupsAPIRequest', { timeout: 20000 }).then(({ response }) => {
+      cy.wrap(response.statusCode).should('be.oneOf', [200, 304]);
+    });
+    cy.wait('@layersAPIRequest', { timeout: 20000 }).then(({ response }) => {
+      cy.wrap(response.statusCode).should('be.oneOf', [200, 304]);
+    });
 
     // Wait for page to fully load
     cy.waitForPageLoad();
@@ -268,9 +307,15 @@ describe('Search box should allow cities and coordinates', () => {
 
     cy.visit('/map');
 
-    cy.wait('@siteRequest', { timeout: 20000 });
-    cy.wait('@layerGroupsAPIRequest', { timeout: 20000 });
-    cy.wait('@layersAPIRequest', { timeout: 20000 });
+    cy.wait('@siteRequest', { timeout: 20000 }).then(({ response }) => {
+      cy.wrap(response.statusCode).should('be.oneOf', [200, 304]);
+    });
+    cy.wait('@layerGroupsAPIRequest', { timeout: 20000 }).then(({ response }) => {
+      cy.wrap(response.statusCode).should('be.oneOf', [200, 304]);
+    });
+    cy.wait('@layersAPIRequest', { timeout: 20000 }).then(({ response }) => {
+      cy.wrap(response.statusCode).should('be.oneOf', [200, 304]);
+    });
 
     // Wait for page to fully load
     cy.waitForPageLoad();

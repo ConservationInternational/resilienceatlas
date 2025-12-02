@@ -12,12 +12,15 @@ describe('Journeys detail page', () => {
   });
 
   it('should correspond to the API response', () => {
-    cy.wait('@journeyDetailRequest').then(({ response }) => {
+    cy.wait('@journeyDetailRequest', { timeout: 20000 }).then(({ response }) => {
       cy.wrap(response.statusCode).should('be.oneOf', [200, 304]);
       const {
         included: steps,
         data: { id },
       } = response.body;
+
+      // Wait for the journey component to render - this div only appears when data is loaded
+      cy.get('.l-journey', { timeout: 15000 }).should('exist');
 
       steps.forEach((step, stepIndex) => {
         const {
@@ -38,6 +41,9 @@ describe('Journeys detail page', () => {
 
         // Wait for URL to match the expected step
         cy.url({ timeout: 10000 }).should('include', `/journeys/${id}/step/${stepIndex + 1}`);
+
+        // Verify journey container exists for all step types
+        cy.get('.l-journey', { timeout: 10000 }).should('be.visible');
 
         // Wait for the specific journey content type to load - not just a generic container
         // This ensures the React component has fully rendered with the correct step type

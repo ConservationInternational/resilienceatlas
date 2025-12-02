@@ -50,8 +50,9 @@ describe('URL Management', () => {
       followRedirect: false,
       failOnStatusCode: false,
     }).then((response) => {
-      // Should get redirected to 404 or return 404 directly
-      expect([404, 302]).to.include(response.status);
+      // Should get redirected to 404 (307 redirect) or return 404 directly
+      // NextResponse.redirect() returns 307 by default
+      expect([404, 302, 307]).to.include(response.status);
     });
   });
 

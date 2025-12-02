@@ -447,6 +447,11 @@ jobs:
         if curl -f -s http://localhost:3000 >/dev/null 2>&1 && curl -f -s http://localhost:3001/api/health >/dev/null 2>&1; then
           echo "Services are available from host, verifying Docker network connectivity..."
           
+          # Ensure results directory exists on host with proper permissions
+          echo "Creating results directory on host..."
+          mkdir -p frontend/cypress/results
+          chmod 777 frontend/cypress/results
+          
           # Verify that services are accessible from within the Docker network
           docker run --rm --network resilienceatlas_test-network alpine/curl:latest \
             sh -c "
@@ -498,29 +503,17 @@ jobs:
               echo ""
               
               echo "Starting Cypress tests..."
-              CYPRESS_baseUrl=http://frontend-test:3000 npx cypress run --browser '${{ matrix.browser }}' --headless --config-file cypress.docker.config.js --reporter junit --reporter-options mochaFile=cypress/results/integration-'${{ matrix.browser }}'-results.xml
+              CYPRESS_baseUrl=http://frontend-test:3000 npx cypress run \
+                --browser '${{ matrix.browser }}' \
+                --headless \
+                --config-file cypress.docker.config.js \
+                --reporter junit \
+                --reporter-options "mochaFile=cypress/results/integration-${{ matrix.browser }}-results.xml,toConsole=true"
             '; then
             echo "✅ Cypress tests completed successfully"
           else
             cypress_exit_code=$?
             echo "❌ Cypress tests failed with exit code: $cypress_exit_code"
-            
-            # Still create test result file for reporting, but ensure we exit with failure
-            docker run --rm \
-              -v "$(pwd)/frontend/cypress/results:/app/results" \
-              node:22.11.0-alpine \
-              sh -c 'printf "%s\n" \
-                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" \
-                "<testsuite name=\"Cypress Integration Tests\" tests=\"1\" failures=\"1\" errors=\"0\" time=\"0.1\">" \
-                "  <testcase classname=\"CypressTests\" name=\"End-to-End Test Setup\" time=\"0.1\">" \
-                "    <failure message=\"Cypress test setup failed\" type=\"SetupFailure\">" \
-                "      Cypress integration tests could not run due to service availability issues" \
-                "    </failure>" \
-                "  </testcase>" \
-                "</testsuite>" \
-                > /app/results/integration-${{ matrix.browser }}-fallback.xml'
-            
-            # Exit with failure code to mark the step as failed
             exit $cypress_exit_code
           fi
         else
@@ -540,6 +533,8 @@ jobs:
               "  </testcase>" \
               "</testsuite>" \
               > /app/results/integration-${{ matrix.browser }}-fallback.xml'
+        else
+          echo "❌ Services not available - cannot run tests"
           
           echo "Collecting debug information..."
           echo "=== Frontend Status ==="
@@ -550,11 +545,6 @@ jobs:
           # Exit with failure since services are not available
           exit 1
         fi
-        
-        # Verify test results were created
-        echo "Verifying test results files..."
-        ls -la frontend/cypress/results/ || echo "No test results directory found"
-
     - name: Run performance tests
       if: always()
       run: |
