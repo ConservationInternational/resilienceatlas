@@ -36,7 +36,16 @@ describe('Journeys detail page', () => {
           cy.log(`Conclusion step data:`, step.attributes);
         }
 
-        cy.url().should('include', `/journeys/${id}/step/${stepIndex + 1}`);
+        // Wait for URL to match the expected step
+        cy.url({ timeout: 10000 }).should('include', `/journeys/${id}/step/${stepIndex + 1}`);
+
+        // Wait for page content to load before checking DOM elements
+        // For landing pages, wait for .l-journey__intro; for others, wait for .l-journey
+        if (type === 'landing') {
+          cy.get('.l-journey__intro', { timeout: 10000 }).should('exist');
+        } else {
+          cy.get('.l-journey', { timeout: 10000 }).should('exist');
+        }
 
         const isRelativeUrl = (url) => url && url.startsWith('/');
         const embeddedUrl = isRelativeUrl(btnUrl)
@@ -54,11 +63,9 @@ describe('Journeys detail page', () => {
 
           case 'conclusion':
             cy.log(`Testing conclusion step with title: "${title}"`);
-            // First check if the l-journey container exists
-            cy.get('.l-journey').should('exist');
-            // Then check if any h2 exists in the container
+            // Check if h2 exists in the container
             cy.get('.l-journey h2').should('exist');
-            // Finally check if it contains the expected title
+            // Check if it contains the expected title
             cy.get('.l-journey h2')
               .first()
               .should('contain.text', title || 'Conclusion');
@@ -121,7 +128,12 @@ describe('Journeys detail page', () => {
           cy.get('.l-journey').should('exist');
           // Click next button and wait for navigation
           cy.get('.l-journey').find('.btn-next').should('exist').click();
-          cy.wait(1000); // Wait for navigation to complete
+
+          // Wait for URL to change to next step
+          cy.url({ timeout: 10000 }).should('include', `/journeys/${id}/step/${stepIndex + 2}`);
+
+          // Wait for next step content to load
+          cy.get('.l-journey', { timeout: 10000 }).should('exist');
         }
       });
     });
