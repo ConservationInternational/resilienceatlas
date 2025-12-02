@@ -1,7 +1,7 @@
 import { getRouterParam } from './routeParams';
 import { isDevelopment } from './environment';
 
-export const getSubdomainFromURL = (url: string): string => {
+export const getSubdomainFromURL = (url: string): string | null => {
   // Site scope depends on the domain set in the API
   let host = url.replace(/(^http(s?):\/\/)|(\.com)$/g, '');
 
@@ -60,7 +60,7 @@ export const getSubdomainFromURL = (url: string): string => {
   return subdomain;
 };
 
-export const getSubdomain = (): string => {
+export const getSubdomain = (): string | null => {
   // Only works on client side
   if (typeof window === 'undefined') return null;
 
@@ -74,6 +74,6 @@ export const getSubdomain = (): string => {
 };
 
 /**
- * @type {String} runs once on app init.
+ * @type {String | null} runs once on app init.
  */
-export const subdomain: string = getSubdomain();
+export const subdomain: string | null = getSubdomain();

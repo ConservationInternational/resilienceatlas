@@ -13,15 +13,24 @@ export function middleware(request: NextRequest) {
   let subdomain = getSubdomainFromURL(host);
 
   // In development/test, use site_scope parameter to simulate subdomain
-  if (siteScope && (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test')) {
+  // Note: In middleware, NODE_ENV might not always be reliable, so we also check for common test/dev hosts
+  const isDevOrTest =
+    process.env.NODE_ENV === 'development' ||
+    process.env.NODE_ENV === 'test' ||
+    !host ||
+    host.includes('localhost') ||
+    host.includes('frontend-test') ||
+    host.includes('frontend-dev');
+
+  if (siteScope && isDevOrTest) {
     subdomain = siteScope;
   }
 
   // Log for debugging in development or test
-  if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test') {
+  if (isDevOrTest) {
     // eslint-disable-next-line no-console
     console.log(
-      `Middleware: host=${host}, pathname=${pathname}, subdomain=${subdomain}, siteScope=${siteScope}`,
+      `Middleware: host=${host}, pathname=${pathname}, subdomain=${subdomain}, siteScope=${siteScope}, env=${process.env.NODE_ENV}`,
     );
   }
 
@@ -68,6 +77,7 @@ export const config = {
     '/journeys',
     '/journeys/:id/step/:path*',
     '/login',
+    '/map',
     '/me',
     '/profile-settings',
     '/register',
