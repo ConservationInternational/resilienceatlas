@@ -4,20 +4,34 @@ import type { NextRequest } from 'next/server';
 
 export function middleware(request: NextRequest) {
   const host = request.headers.get('host');
-  const { pathname } = request.nextUrl;
+  const { pathname, searchParams } = request.nextUrl;
 
-  // Get subdomain from the current host
-  const subdomain = getSubdomainFromURL(host);
+  // Check for site_scope parameter for development/testing
+  const siteScope = searchParams.get('site_scope');
+
+  // Get subdomain from the current host, or use site_scope for development/testing
+  let subdomain = getSubdomainFromURL(host);
+
+  // In development/test, use site_scope parameter to simulate subdomain
+  if (siteScope && (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test')) {
+    subdomain = siteScope;
+  }
 
   // Log for debugging in development or test
   if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test') {
     // eslint-disable-next-line no-console
-    console.log(`Middleware: host=${host}, pathname=${pathname}, subdomain=${subdomain}`);
+    console.log(
+      `Middleware: host=${host}, pathname=${pathname}, subdomain=${subdomain}, siteScope=${siteScope}`,
+    );
   }
 
   // If we have a subdomain and the path is /, redirect to the map
   if (subdomain && pathname === '/') {
     const mapUrl = new URL('/map', request.url);
+    // Preserve site_scope parameter in redirect for development/testing
+    if (siteScope) {
+      mapUrl.searchParams.set('site_scope', siteScope);
+    }
     return NextResponse.redirect(mapUrl);
   }
 
@@ -25,6 +39,10 @@ export function middleware(request: NextRequest) {
   if (subdomain && !isAllowedPath(pathname)) {
     // For subdomains, redirect non-allowed pages to 404
     const notFoundUrl = new URL('/404', request.url);
+    // Preserve site_scope parameter in redirect for development/testing
+    if (siteScope) {
+      notFoundUrl.searchParams.set('site_scope', siteScope);
+    }
     return NextResponse.redirect(notFoundUrl);
   }
 
