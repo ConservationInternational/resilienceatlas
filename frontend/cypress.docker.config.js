@@ -24,4 +24,9 @@ module.exports = defineConfig({
       '**/unit/unit.cy.js',
     ],
   },
+  reporter: 'junit',
+  reporterOptions: {
+    mochaFile: 'cypress/results/test-results-[hash].xml',
+    toConsole: true,
+  },
 });

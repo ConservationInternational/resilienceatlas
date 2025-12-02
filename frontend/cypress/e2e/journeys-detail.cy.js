@@ -39,12 +39,21 @@ describe('Journeys detail page', () => {
         // Wait for URL to match the expected step
         cy.url({ timeout: 10000 }).should('include', `/journeys/${id}/step/${stepIndex + 1}`);
 
-        // Wait for page content to load before checking DOM elements
-        // For landing pages, wait for .l-journey__intro; for others, wait for .l-journey
+        // Wait for the specific journey content type to load - not just a generic container
+        // This ensures the React component has fully rendered with the correct step type
         if (type === 'landing') {
-          cy.get('.l-journey__intro', { timeout: 10000 }).should('exist');
-        } else {
-          cy.get('.l-journey', { timeout: 10000 }).should('exist');
+          cy.get('.l-journey__intro', { timeout: 15000 }).should('be.visible');
+          cy.get('.l-journey__intro .intro > h1', { timeout: 10000 }).should('be.visible');
+        } else if (type === 'conclusion') {
+          cy.get('.l-journey', { timeout: 15000 }).should('be.visible');
+          cy.get('.m-journey--conclusion', { timeout: 10000 }).should('be.visible');
+          cy.get('.m-journey--conclusion h2', { timeout: 10000 }).should('exist');
+        } else if (type === 'chapter') {
+          cy.get('.l-journey', { timeout: 15000 }).should('be.visible');
+          cy.get('.chapter-intro', { timeout: 10000 }).should('be.visible');
+        } else if (type === 'embed') {
+          cy.get('.l-journey', { timeout: 15000 }).should('be.visible');
+          cy.get('.side-bar', { timeout: 10000 }).should('be.visible');
         }
 
         const isRelativeUrl = (url) => url && url.startsWith('/');

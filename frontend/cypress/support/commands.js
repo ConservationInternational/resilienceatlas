@@ -101,11 +101,10 @@ Cypress.Commands.add('waitForPageLoad', () => {
     }
   });
 
-  // Wait for any chart overlays (rect elements) to be properly positioned
-  cy.wait(1000);
-
-  // Ensure navigation elements are present and visible
-  cy.get('.brand-area, .nav-area', { timeout: 15000 }).should('be.visible');
+  // Ensure navigation elements are present and visible (they should be on all non-embed pages)
+  cy.get('.l-header--fullscreen', { timeout: 20000 }).should('exist');
+  cy.get('.brand-area', { timeout: 15000 }).should('be.visible');
+  cy.get('.nav-area', { timeout: 15000 }).should('be.visible');
 });
 
 Cypress.on('uncaught:exception', () => {
