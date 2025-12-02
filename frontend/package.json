@@ -67,7 +67,7 @@
     "sass": "^1.58.3",
     "slick-carousel": "^1.8.1",
     "use-debounce": "^9.0.4",
-    "vega": "5.33.0",
+    "vega": "6.2.0",
     "vega-lib": "4.4.0",
     "vizzuality-components": "^3.0.3",
     "yup": "^0.32.11"
