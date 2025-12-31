@@ -19,9 +19,14 @@ env:
 
 jobs:
   backend-tests:
-    name: Backend Tests
+    name: Backend Tests - ${{ matrix.suite }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        suite: [rspec, lint]
 
     steps:
     - name: Checkout code
@@ -124,22 +129,29 @@ jobs:
         rm -rf /tmp/.buildx-cache
         mv /tmp/.buildx-cache-new /tmp/.buildx-cache
 
+    - name: Cleanup Docker layers to free disk space
+      run: |
+        echo "🧹 Cleaning up Docker to free disk space..."
+        docker system prune -f
+        echo "📊 Disk space after cleanup:"
+        df -h
+
     - name: Report cache analytics
       run: |
         echo "📊 Cache analytics:"
         echo "Final cache size: $(du -sh /tmp/.buildx-cache 2>/dev/null || echo 'Unknown')"
-        echo "Cache directory contents:"
-        ls -la /tmp/.buildx-cache/ 2>/dev/null || echo "Cache directory not found"
         echo "Docker system info:"
         docker system df
 
     - name: Start test services
+      if: matrix.suite == 'rspec'
       run: |
         # Use shared Docker environment setup script from backend/scripts
         chmod +x backend/scripts/setup_docker_environment.sh
         ./backend/scripts/setup_docker_environment.sh all resilienceatlas_test
 
     - name: Setup test database
+      if: matrix.suite == 'rspec'
       run: |
         # Setup database using shared script with error handling
         echo "Setting up test database..."
@@ -157,6 +169,7 @@ jobs:
           }
 
     - name: Run RSpec tests
+      if: matrix.suite == 'rspec'
       run: |
         echo "Running RSpec tests with enhanced error handling..."
         docker compose -f docker-compose.test.yml run --rm backend-test \
@@ -169,28 +182,32 @@ jobs:
           " || {
             echo "❌ RSpec tests failed, collecting debug information..."
             echo "Backend container logs:"
-            docker compose -f docker-compose.test.yml logs backend-test --tail=100
+            docker compose -f docker-compose.test.yml logs backend-test --tail=50
             echo "Database container logs:"
-            docker compose -f docker-compose.test.yml logs db-test --tail=50
+            docker compose -f docker-compose.test.yml logs db-test --tail=20
             exit 1
           }
 
     - name: Run RuboCop linting
+      if: matrix.suite == 'lint'
       run: |
-        docker compose -f docker-compose.test.yml run --rm backend-test \
+        docker compose -f docker-compose.test.yml run --rm --no-deps backend-test \
           bash -c "./bin/test lint"
 
     - name: Run Brakeman security analysis
+      if: matrix.suite == 'lint'
       run: |
-        docker compose -f docker-compose.test.yml run --rm backend-test \
+        docker compose -f docker-compose.test.yml run --rm --no-deps backend-test \
           bash -c "./bin/test security"
 
     - name: Run Bundle Audit
+      if: matrix.suite == 'lint'
       run: |
-        docker compose -f docker-compose.test.yml run --rm backend-test \
+        docker compose -f docker-compose.test.yml run --rm --no-deps backend-test \
           bash -c "./bin/test audit"
 
     - name: Verify test results
+      if: matrix.suite == 'rspec'
       run: |
         if [ -f backend/tmp/rspec.xml ]; then
           echo "Test results file found at backend/tmp/rspec.xml"
@@ -204,14 +221,14 @@ jobs:
 
     - name: Publish test results
       uses: dorny/test-reporter@v1
-      if: success() || failure()
+      if: (success() || failure()) && matrix.suite == 'rspec'
       with:
         name: Backend RSpec Tests
         path: backend/tmp/rspec.xml
         reporter: java-junit
 
     - name: Upload coverage reports
-      if: always()
+      if: always() && matrix.suite == 'rspec'
       run: |
         if docker compose -f docker-compose.test.yml run --rm backend-test test -f coverage/coverage.json; then
           docker compose -f docker-compose.test.yml run --rm backend-test \

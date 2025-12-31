@@ -164,12 +164,17 @@ jobs:
         rm -rf /tmp/.buildx-cache
         mv /tmp/.buildx-cache-new /tmp/.buildx-cache
 
+    - name: Cleanup Docker layers to free disk space
+      run: |
+        echo "🧹 Cleaning up Docker to free disk space..."
+        docker system prune -af --volumes
+        echo "📊 Disk space after cleanup:"
+        df -h
+
     - name: Report cache analytics
       run: |
         echo "📊 Cache analytics:"
         echo "Final cache size: $(du -sh /tmp/.buildx-cache 2>/dev/null || echo 'Unknown')"
-        echo "Cache directory contents:"
-        ls -la /tmp/.buildx-cache/ 2>/dev/null || echo "Cache directory not found"
         echo "Docker system info:"
         docker system df
 
@@ -399,7 +404,7 @@ jobs:
         # Run integration tests with simplified command formatting
         echo "Starting RSpec integration tests..."
         if docker compose -f docker-compose.test.yml run --rm backend-test \
-          bash -c 'RAILS_ENV=test bundle exec rspec spec/integration --format RspecJunitFormatter --out tmp/integration-rspec.xml --format progress'; then
+          bash -c 'RAILS_ENV=test bundle exec rspec spec/integration --format RspecJunitFormatter --out tmp/integration-rspec.xml --format documentation 2>&1 | head -n 50'; then
           echo "✅ API integration tests passed"
         else
           api_exit_code=$?
@@ -479,8 +484,8 @@ jobs:
             -w /app \
             -e CYPRESS_baseUrl=http://frontend-test:3000 \
             -e CYPRESS_apiUrl=http://backend-test:3001 \
-            -e CYPRESS_video=true \
-            -e CYPRESS_screenshotOnRunFailure=true \
+            -e CYPRESS_video=false \
+            -e CYPRESS_screenshotOnRunFailure=false \
             -e NODE_ENV=test \
             cypress/included:13.15.0 \
             bash -c '
@@ -634,11 +639,11 @@ jobs:
       if: failure()
       run: |
         echo "=== Backend Logs ==="
-        docker compose -f docker-compose.test.yml logs backend-test --tail=100
+        docker compose -f docker-compose.test.yml logs backend-test --tail=20
         echo "=== Frontend Logs ==="
-        docker compose -f docker-compose.test.yml logs frontend-test --tail=100
+        docker compose -f docker-compose.test.yml logs frontend-test --tail=20
         echo "=== Database Logs ==="
-        docker compose -f docker-compose.test.yml logs db-test --tail=50
+        docker compose -f docker-compose.test.yml logs db-test --tail=20
 
     - name: Publish test results
       uses: dorny/test-reporter@v1
@@ -659,11 +664,11 @@ jobs:
       with:
         name: integration-test-artifacts-${{ matrix.browser }}
         path: |
-          frontend/cypress/videos
           frontend/cypress/screenshots
-          backend/tmp/
-          integration-tests/results/
-        retention-days: 7
+          backend/tmp/*.xml
+          integration-tests/results/*.xml
+        retention-days: 3
+        if-no-files-found: warn
 
     - name: Cleanup
       if: always()
