@@ -31,6 +31,32 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
+    - name: Free up disk space
+      run: |
+        echo "📊 Disk space before cleanup:"
+        df -h
+        echo ""
+        echo "🧹 Removing unnecessary software to free disk space..."
+        
+        # Remove large packages that aren't needed for this workflow
+        sudo rm -rf /usr/share/dotnet
+        sudo rm -rf /usr/local/lib/android
+        sudo rm -rf /opt/ghc
+        sudo rm -rf /opt/hostedtoolcache/CodeQL
+        sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+        
+        # Clean apt cache
+        sudo apt-get clean
+        
+        # Remove Docker images we don't need
+        docker system prune -af --volumes
+        
+        echo ""
+        echo "📊 Disk space after cleanup:"
+        df -h
+        echo ""
+        echo "✅ Freed up disk space successfully"
+
     - name: Configure DNS for better connectivity
       run: |
         echo "nameserver 8.8.8.8" | sudo tee /etc/resolv.conf.backup > /dev/null
@@ -98,18 +124,12 @@ jobs:
         chmod 777 frontend/cypress/results
         chmod 777 integration-tests/results
 
-    - name: Warm Docker cache with base images
+    - name: Check Docker cache status
       run: |
-        # Pre-pull base images to warm the cache
-        echo "🔥 Warming cache with base images..."
-        docker pull ruby:3.4.4-bullseye || echo "Could not pre-pull Ruby base image"
-        docker pull node:22.11.0-bullseye || echo "Could not pre-pull Node base image" 
-        docker pull postgis/postgis:15-3.3 || echo "Could not pre-pull PostGIS image"
-        docker pull cypress/included:13.15.0 || echo "Could not pre-pull Cypress image"
-        
-        # Show current cache status
         echo "📊 Current cache status:"
         du -sh /tmp/.buildx-cache 2>/dev/null || echo "No existing cache found"
+        echo "📊 Available disk space:"
+        df -h
 
     - name: Build services with coordinated caching (docker bake)
       run: |
