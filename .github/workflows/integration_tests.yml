@@ -500,6 +500,7 @@ jobs:
           # Use the cypress image directly instead of the compose service with profiles
           if docker run --rm \
             --network resilienceatlas_test-network \
+            --ipc=host \
             -v "$(pwd)/frontend:/app" \
             -w /app \
             -e CYPRESS_baseUrl=http://frontend-test:3000 \
@@ -529,7 +530,7 @@ jobs:
               
               echo "Starting Cypress tests..."
               CYPRESS_baseUrl=http://frontend-test:3000 cypress run \
-                --browser '${{ matrix.browser }}' \
+                --browser ${{ matrix.browser }} \
                 --headless \
                 --config-file cypress.docker.config.js \
                 --reporter junit \
