@@ -510,7 +510,7 @@ jobs:
             cypress/included:13.15.0 \
             bash -c '
               echo "Verifying Cypress environment..."
-              npx cypress version
+              cypress version
               
               echo "Creating results directory..."
               mkdir -p cypress/results
@@ -528,7 +528,7 @@ jobs:
               echo ""
               
               echo "Starting Cypress tests..."
-              CYPRESS_baseUrl=http://frontend-test:3000 npx cypress run \
+              CYPRESS_baseUrl=http://frontend-test:3000 cypress run \
                 --browser '${{ matrix.browser }}' \
                 --headless \
                 --config-file cypress.docker.config.js \
