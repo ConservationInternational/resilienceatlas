@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 
 type CustomHeadProps = {
   pageTitle?: string;
-  site: {
+  site?: {
     name: string;
     color: string;
     header_color: string;
@@ -11,23 +11,25 @@ type CustomHeadProps = {
   };
 };
 
-const CustomHead: React.FC<CustomHeadProps> = ({
-  pageTitle,
-  site: { name, color, header_color, logo_url },
-}) => (
-  <Head>
-    <title>{`${name} | ${pageTitle}`}</title>
-    <style type="text/css">
-      {`
-        :root {
-          --theme-color: ${color};
-          --logo-url: url(${logo_url});
-          --header-color: ${header_color};
-        };
-      `}
-    </style>
-  </Head>
-);
+const CustomHead: React.FC<CustomHeadProps> = ({ pageTitle, site }) => {
+  // Safely destructure site with default values to prevent errors during SSR/hydration
+  const { name = '', color = '', header_color = '', logo_url = '' } = site || {};
+
+  return (
+    <Head>
+      <title>{`${name} | ${pageTitle}`}</title>
+      <style type="text/css">
+        {`
+          :root {
+            --theme-color: ${color};
+            --logo-url: url(${logo_url});
+            --header-color: ${header_color};
+          };
+        `}
+      </style>
+    </Head>
+  );
+};
 
 const mapStateToProps = ({ site }) => ({ site });
 

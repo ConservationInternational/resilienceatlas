@@ -58,7 +58,7 @@ export const useGetCenter = ({
   site,
   query,
 }: {
-  site: {
+  site?: {
     latitude: number;
     longitude: number;
   };
@@ -83,10 +83,11 @@ export const useGetCenter = ({
       return center;
     }
 
-    if (site.latitude) {
+    // Safely access site properties with optional chaining
+    if (site?.latitude) {
       return { lat: site.latitude, lng: site.longitude };
     }
 
     return DEFAULT_CENTER;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [site.latitude, query.center]);
+  }, [site?.latitude, query.center]);

@@ -12,7 +12,7 @@ const Header = ({
   loadMenuItems,
   logout,
   loggedIn,
-  site: { linkback_text, linkback_url },
+  site,
   menuItems,
   menuItemsLoaded,
   menuItemsLoadedLocale,
@@ -21,6 +21,9 @@ const Header = ({
   const router = useRouter();
   const { pathname, locale } = router;
   const [hasMounted, setHasMounted] = useState(false);
+
+  // Safely destructure site with default values to prevent errors during SSR/hydration
+  const { linkback_text = '', linkback_url = '' } = site || {};
 
   useEffect(() => {
     setHasMounted(true);
