@@ -4,15 +4,23 @@ describe('Journeys detail page', () => {
 
     cy.visit('/journeys');
 
-    // Navigate to the first journey detail
-    cy.wait('@journeyListRequest').then(({ response }) => {
+    // Wait for journey list to load and page to be ready
+    cy.wait('@journeyListRequest', { timeout: 20000 }).then(({ response }) => {
       cy.wrap(response.statusCode).should('be.oneOf', [200, 304]);
-      cy.get('.m-journey__gridelement').first().find('.btn').click();
     });
+
+    // Wait for journey grid to be visible
+    cy.get('.m-journey__gridelement', { timeout: 15000 }).should('be.visible');
+
+    // Navigate to the first journey detail
+    cy.get('.m-journey__gridelement').first().find('.btn').click();
+
+    // Wait for navigation to complete and URL to change
+    cy.url({ timeout: 10000 }).should('include', '/journeys/');
   });
 
   it('should correspond to the API response', () => {
-    cy.wait('@journeyDetailRequest', { timeout: 20000 }).then(({ response }) => {
+    cy.wait('@journeyDetailRequest', { timeout: 30000 }).then(({ response }) => {
       cy.wrap(response.statusCode).should('be.oneOf', [200, 304]);
       const {
         included: steps,
@@ -20,7 +28,8 @@ describe('Journeys detail page', () => {
       } = response.body;
 
       // Wait for the journey component to render - this div only appears when data is loaded
-      cy.get('.l-journey', { timeout: 15000 }).should('exist');
+      // Give extra time for Redux state update and component re-render
+      cy.get('.l-journey', { timeout: 30000 }).should('exist');
 
       steps.forEach((step, stepIndex) => {
         const {

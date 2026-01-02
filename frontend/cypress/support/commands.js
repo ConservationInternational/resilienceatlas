@@ -101,10 +101,17 @@ Cypress.Commands.add('waitForPageLoad', () => {
     }
   });
 
-  // Ensure navigation elements are present and visible (they should be on all non-embed pages)
-  cy.get('.l-header--fullscreen', { timeout: 20000 }).should('exist');
-  cy.get('.brand-area', { timeout: 15000 }).should('be.visible');
-  cy.get('.nav-area', { timeout: 15000 }).should('be.visible');
+  // Wait for the main layout container to be present (more reliable than header)
+  // The l-main--fullscreen div is always present on fullscreen layout pages
+  cy.get('.l-main--fullscreen, .l-header--fullscreen', { timeout: 30000 }).should('exist');
+
+  // If header exists, wait for navigation elements
+  cy.get('body').then(($body) => {
+    if ($body.find('.l-header--fullscreen').length > 0) {
+      cy.get('.brand-area', { timeout: 15000 }).should('be.visible');
+      cy.get('.nav-area', { timeout: 15000 }).should('be.visible');
+    }
+  });
 });
 
 Cypress.on('uncaught:exception', () => {

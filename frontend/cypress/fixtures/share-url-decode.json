@@ -1,8 +1,10 @@
 {
-  "id": "1",
-  "type": "shorten_urls",
-  "attributes": {
-    "uid": "cb69ec73745eb70c4a5d",
-    "body": "http://localhost:3000/map?tab=&center=lat%3D14.214466896745083%26lng%3D28.242759704589844&layers=%5B%7B%22id%22%3A66%2C%22opacity%22%3A1%2C%22order%22%3Anull%7D%5D&zoom=4"
+  "data": {
+    "id": "1",
+    "type": "shorten_urls",
+    "attributes": {
+      "uid": "cb69ec73745eb70c4a5d",
+      "body": "/map?tab=&center=lat%3D14.214466896745083%26lng%3D28.242759704589844&layers=%5B%7B%22id%22%3A66%2C%22opacity%22%3A1%2C%22order%22%3Anull%7D%5D&zoom=4"
+    }
   }
 }
