@@ -145,7 +145,6 @@ namespace :integration_test do
       priority: 1)
     puts "✅ Created SitePage with ID: #{site_page.id}"
 
-    # Create layer group and layer for API endpoints
     begin
       layer_group = FactoryBot.create(:layer_group,
         name: "Test Layer Group",
@@ -159,31 +158,63 @@ namespace :integration_test do
       raise e
     end
 
+    # Create two specific layers with IDs that match the Cypress tests:
+    # - Layer 66 is used in map.cy.js line 92 and line 167
+    # - Layer 1429 is used in map.cy.js line 139 for "Livelihoods zones layer"
     begin
-      layer = FactoryBot.create(:layer,
-        name: "Test Layer",
+      layer_66 = FactoryBot.create(:layer,
+        id: 66,
+        name: "Test Layer 66",
         layer_type: "CartoDB",
-        slug: "test-layer",
+        slug: "test-layer-66",
         zoom_max: 10,
         zoom_min: 1,
         dashboard_order: 1,
         layer_provider: "cartodb",
         interaction_config: "{}")
-      puts "✅ Created Layer with ID: #{layer.id}"
+      puts "✅ Created Layer with ID: #{layer_66.id}"
     rescue => e
-      puts "❌ Failed to create Layer: #{e.message}"
+      puts "❌ Failed to create Layer 66: #{e.message}"
       raise e
     end
 
-    # Create agrupation to link layer to layer group
     begin
-      agrupation = FactoryBot.create(:agrupation,
-        layer: layer,
+      layer_1429 = FactoryBot.create(:layer,
+        id: 1429,
+        name: "Livelihoods zones layer",
+        layer_type: "CartoDB",
+        slug: "livelihoods-zones-layer",
+        zoom_max: 10,
+        zoom_min: 1,
+        dashboard_order: 2,
+        layer_provider: "cartodb",
+        interaction_config: "{}")
+      puts "✅ Created Layer with ID: #{layer_1429.id}"
+    rescue => e
+      puts "❌ Failed to create Layer 1429: #{e.message}"
+      raise e
+    end
+
+    # Create agrupations to link both layers to layer group
+    begin
+      agrupation_66 = FactoryBot.create(:agrupation,
+        layer: layer_66,
         layer_group: layer_group,
         active: true)
-      puts "✅ Created Agrupation with ID: #{agrupation.id}"
+      puts "✅ Created Agrupation for Layer 66 with ID: #{agrupation_66.id}"
     rescue => e
-      puts "❌ Failed to create Agrupation: #{e.message}"
+      puts "❌ Failed to create Agrupation for Layer 66: #{e.message}"
+      raise e
+    end
+
+    begin
+      agrupation_1429 = FactoryBot.create(:agrupation,
+        layer: layer_1429,
+        layer_group: layer_group,
+        active: true)
+      puts "✅ Created Agrupation for Layer 1429 with ID: #{agrupation_1429.id}"
+    rescue => e
+      puts "❌ Failed to create Agrupation for Layer 1429: #{e.message}"
       raise e
     end
 
