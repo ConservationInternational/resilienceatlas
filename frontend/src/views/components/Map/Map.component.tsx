@@ -117,7 +117,7 @@ const MapView = (props: MapViewProps) => {
       basemap={BASEMAPS[basemap]}
       mapOptions={{
         ...(options?.map || {}),
-        zoom: query.zoom || site.zoom_level || 5,
+        zoom: query.zoom || site?.zoom_level || 5,
         center: getCenter(),
         scrollWheelZoom: !embed,
         drawControl: true,
@@ -140,7 +140,7 @@ const MapView = (props: MapViewProps) => {
         zoomend: (e, map) => {
           const mapZoom = map.getZoom();
 
-          if (mapZoom !== (+site.zoom_level || 5)) {
+          if (mapZoom !== (+site?.zoom_level || 5)) {
             setParam('zoom', map.getZoom());
           } else {
             // clear param if it's default

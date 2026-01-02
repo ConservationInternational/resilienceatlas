@@ -60,13 +60,30 @@ export const getSubdomainFromURL = (url: string): string | null => {
   return subdomain;
 };
 
+/**
+ * Check if we're in a test environment where site_scope override should be allowed
+ */
+const isTestEnvironment = (): boolean => {
+  if (typeof window === 'undefined') return false;
+
+  const hostname = window.location.hostname;
+  // Allow site_scope override in Docker test environments
+  return (
+    hostname === 'frontend-test' ||
+    hostname.startsWith('frontend-test') ||
+    hostname === 'localhost' ||
+    hostname === '127.0.0.1'
+  );
+};
+
 export const getSubdomain = (): string | null => {
   // Only works on client side
   if (typeof window === 'undefined') return null;
 
-  // Pass site_scope param in the URL to simulate a subdomain, only for development purposes
+  // Pass site_scope param in the URL to simulate a subdomain
+  // Allowed in development mode OR in test environments (Docker)
   const siteScope = getRouterParam('site_scope');
-  if (siteScope && isDevelopment()) return siteScope;
+  if (siteScope && (isDevelopment() || isTestEnvironment())) return siteScope;
 
   // Site scope depends on the domain set in the API
   const subdomain = getSubdomainFromURL(window.location.hostname);

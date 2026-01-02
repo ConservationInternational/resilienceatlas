@@ -77,7 +77,7 @@ const Sidebar = ({
       })}
     >
       <div className="l-sidebar-content">
-        {site.has_analysis && <AnalysisPanel toggle={toggleAnalysis} />}
+        {site?.has_analysis && <AnalysisPanel toggle={toggleAnalysis} />}
 
         <div className="m-sidebar" id="sidebarView">
           <Tabs
@@ -103,7 +103,7 @@ const Sidebar = ({
               <LayersList />
             </Tabs.Pane>
 
-            {site.predictive_model && (
+            {site?.predictive_model && (
               <Tabs.Pane
                 id="modelContent"
                 className="m-model-content content"
@@ -158,7 +158,7 @@ const Sidebar = ({
           onClick={toggleOpen}
           aria-label={translations && translations['Toggle sidebar']}
         />
-        {hasMounted && site.has_analysis && (
+        {hasMounted && site?.has_analysis && (
           <button
             className="btn-analysis-panel-expand"
             type="button"
