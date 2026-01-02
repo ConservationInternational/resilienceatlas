@@ -101,9 +101,17 @@ Cypress.Commands.add('waitForPageLoad', () => {
     }
   });
 
-  // Wait for the main layout container to be present (more reliable than header)
-  // The l-main--fullscreen div is always present on fullscreen layout pages
-  cy.get('.l-main--fullscreen, .l-header--fullscreen', { timeout: 30000 }).should('exist');
+  // Wait for React to render content in the #root container
+  // This is more reliable than checking for specific layout classes
+  cy.get('#root', { timeout: 30000 }).should('exist').and('not.be.empty');
+
+  // Wait for any layout container to be present (covers both MainLayout and FullscreenLayout)
+  // MainLayout uses l-main-fullscreen (no double hyphen)
+  // FullscreenLayout uses l-main--fullscreen (double hyphen)
+  // Header in both layouts uses l-header--fullscreen
+  cy.get('.l-main--fullscreen, .l-main-fullscreen, .l-header--fullscreen, header', {
+    timeout: 30000,
+  }).should('exist');
 
   // If header exists, wait for navigation elements
   cy.get('body').then(($body) => {

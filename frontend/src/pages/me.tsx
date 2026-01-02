@@ -85,7 +85,14 @@ const mapDispatchToProps = {
   loadUserData,
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(MePage);
+// Create the connected component and preserve the Layout property
+const ConnectedMePage = connect(mapStateToProps, mapDispatchToProps)(MePage);
+
+// Preserve the Layout property on the final exported component
+// This is critical for the Next.js layout pattern in _app.tsx
+ConnectedMePage.Layout = MePage.Layout;
+
+export default ConnectedMePage;
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   const { translations } = await getServerSideTranslations(context);

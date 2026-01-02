@@ -15,5 +15,13 @@ export const withTranslations = (Component) => {
   const mapDispatchToProps = {
     setTranslations,
   };
-  return connect(null, mapDispatchToProps)(Component);
+  const ConnectedComponent = connect(null, mapDispatchToProps)(Component);
+
+  // Preserve the Layout property for Next.js page layouts
+  // This is critical for the layout pattern used in _app.tsx
+  if (Component.Layout) {
+    ConnectedComponent.Layout = Component.Layout;
+  }
+
+  return ConnectedComponent;
 };

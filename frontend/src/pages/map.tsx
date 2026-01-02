@@ -77,10 +77,20 @@ MapPage.Layout = (page, translations) => (
   <FullscreenLayout pageTitle={translations['Map']}>{page}</FullscreenLayout>
 );
 
-export default connect(
+// Apply withTranslations first, which preserves the Layout property
+const TranslatedMapPage = withTranslations(MapPage);
+
+// Create the connected component and preserve the Layout property
+const ConnectedMapPage = connect(
   (state: RootState) => ({ isSidebarOpen: state.ui.sidebar }),
   null,
-)(withTranslations(MapPage));
+)(TranslatedMapPage);
+
+// Preserve the Layout property on the final exported component
+// This is critical for the Next.js layout pattern in _app.tsx
+ConnectedMapPage.Layout = MapPage.Layout;
+
+export default ConnectedMapPage;
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   const { translations } = await getServerSideTranslations(context);
