@@ -75,8 +75,8 @@ FactoryBot.define do
       Faker::Lorem.word
     end
     sequence(:legend) do |n|
-      Faker::Config.random = Random.new(n)
-      Faker::Lorem.sentence
+      # Legend must be valid JSON or null - frontend parses this with JSON.parse()
+      nil
     end
     sequence(:layer_provider) do |n|
       ["cartodb", "cog", "gee", "xyz tileset"].sample random: Random.new(n)
@@ -114,8 +114,8 @@ FactoryBot.define do
       Faker::Number.between from: 1, to: 100
     end
     sequence(:interaction_config) do |n|
-      Faker::Config.random = Random.new(n)
-      Faker::Lorem.sentence
+      # Interaction config must be valid JSON - frontend parses this with JSON.parse()
+      "{}"
     end
     sequence(:download) do |n|
       Faker::Config.random = Random.new(n)

@@ -159,7 +159,7 @@ const MapView = (props: MapViewProps) => {
       {(map) => (
         <>
           {tab === TABS.LAYERS &&
-            activeLayers.map((l, index) => (
+            activeLayers?.map((l, index) => (
               <LayerManager map={map} plugin={PluginLeaflet} ref={layerManagerRef} key={l.id}>
                 <Layer
                   {...omit(l, 'interactivity')}
