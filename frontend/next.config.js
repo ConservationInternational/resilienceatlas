@@ -64,6 +64,7 @@ const nextConfig = {
   },
   publicRuntimeConfig: {
     TxNativePublicToken: NEXT_PUBLIC_TRANSIFEX_TOKEN,
+    apiHost: NEXT_PUBLIC_API_HOST || 'http://localhost:3001',
   },
 };
 

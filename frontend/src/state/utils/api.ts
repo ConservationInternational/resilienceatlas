@@ -2,19 +2,48 @@ import type { AxiosRequestConfig, Method } from 'axios';
 import axios from 'axios';
 import type { ThunkDispatch } from 'redux-thunk';
 import type { schema } from 'normalizr';
+import getConfig from 'next/config';
 
 import { merge } from 'utilities/helpers';
 import { subdomain } from 'utilities/getSubdomain';
 
-export const PORT = process.env.NEXT_PUBLIC_API_HOST;
+// Use runtime config for API host to support Docker networking
+// Falls back to env var for SSR or build-time, then to localhost
+const getRuntimeApiHost = (): string => {
+  try {
+    if (typeof window !== 'undefined') {
+      const config = getConfig();
+      if (config?.publicRuntimeConfig?.apiHost) {
+        return config.publicRuntimeConfig.apiHost;
+      }
+    }
+  } catch (e) {
+    // getConfig() may fail during SSR or in certain contexts
+  }
+  return process.env.NEXT_PUBLIC_API_HOST || 'http://localhost:3001';
+};
 
-const defaultConfig = {
-  baseURL: `${PORT}/api`,
+// Memoize the API host to avoid repeated calls
+let cachedApiHost: string | null = null;
+const getApiHost = (): string => {
+  if (cachedApiHost === null) {
+    cachedApiHost = getRuntimeApiHost();
+  }
+  return cachedApiHost;
+};
+
+export const PORT = process.env.NEXT_PUBLIC_API_HOST || 'http://localhost:3001';
+
+// Create axios instance with dynamic base URL
+const createDefaultConfig = () => ({
+  baseURL: `${getApiHost()}/api`,
   headers: {
     Accept: 'application/json, text/javascript, */*; q=0.01',
     'Content-Type': 'application/json',
   },
-};
+});
+
+const defaultConfig = createDefaultConfig();
 
 let axiosInstance = axios.create(defaultConfig);
 
