@@ -19,7 +19,7 @@ create_env_file() {
         cat > .env.test << EOF
 # Backend environment
 RAILS_ENV=test
-DATABASE_URL=postgres://postgres:postgres@db-test:5432/$db_name
+DATABASE_URL=postgis://postgres:postgres@db-test:5432/$db_name
 DATABASE_HOST=db-test
 DATABASE_PORT=5432
 DATABASE_NAME=$db_name
@@ -43,7 +43,7 @@ EOF
         # Backend-only tests
         cat > .env.test << EOF
 RAILS_ENV=test
-DATABASE_URL=postgres://postgres:postgres@db-test:5432/$db_name
+DATABASE_URL=postgis://postgres:postgres@db-test:5432/$db_name
 DATABASE_HOST=db-test
 DATABASE_PORT=5432
 DATABASE_NAME=$db_name
@@ -63,7 +63,20 @@ start_services() {
     docker compose -f docker-compose.test.yml up -d db-test redis-test
     
     echo "Waiting for database to be ready..."
-    timeout 60s bash -c 'until docker compose -f docker-compose.test.yml exec -T db-test pg_isready -U postgres; do sleep 2; done'
+    # Wait for database to be ready with proper timeout handling
+    for i in {1..30}; do
+        if docker compose -f docker-compose.test.yml exec -T db-test pg_isready -U postgres > /dev/null 2>&1; then
+            echo "✅ Database is ready"
+            break
+        fi
+        if [ $i -eq 30 ]; then
+            echo "❌ Database failed to become ready after 60 seconds"
+            docker compose -f docker-compose.test.yml logs db-test
+            exit 1
+        fi
+        echo "Waiting for database... ($i/30)"
+        sleep 2
+    done
     
     echo "✅ Infrastructure services started"
 }

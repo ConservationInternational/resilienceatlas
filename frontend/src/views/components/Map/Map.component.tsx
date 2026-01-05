@@ -117,9 +117,7 @@ const MapView = (props: MapViewProps) => {
 
   // Ensure basemap has required options property for vizzuality-components
   const basemapConfig = BASEMAPS[basemap];
-  const safeBasemap = basemapConfig
-    ? { url: basemapConfig.url, options: {} }
-    : undefined;
+  const safeBasemap = basemapConfig ? { url: basemapConfig.url, options: {} } : undefined;
 
   return (
     <Maps
