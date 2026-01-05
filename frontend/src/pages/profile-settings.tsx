@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/router';
-import { Row } from 'react-foundation';
+import { Row } from 'views/components/Grid';
 import { connect } from 'react-redux';
 import { setTranslations } from 'state/modules/translations';
 import { isAuthenticated } from 'utilities/authenticated';

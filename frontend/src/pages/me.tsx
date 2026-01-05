@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import Link from 'next/link';
-import { Row } from 'react-foundation';
+import { Row } from 'views/components/Grid';
 import { useRouter } from 'next/router';
 import { connect } from 'react-redux';
 import { T } from '@transifex/react';

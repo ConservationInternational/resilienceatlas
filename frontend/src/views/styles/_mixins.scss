@@ -251,3 +251,57 @@
 @function darken-variable($variable, $opacity) {
   @return unquote('linear-gradient(to top,rgba(0, 0, 0,'+ $opacity +'),rgba(0, 0, 0,' + $opacity + '))' + $variable);
 }
+
+// Switch component mixins (replacement for foundation-sites)
+$switch-background: #e6e6e6 !default;
+$switch-background-active: #1779ba !default; // Default blue, can be overridden
+$switch-height: 2rem !default;
+$switch-height-tiny: 1.5rem !default;
+$switch-height-small: 1.75rem !default;
+$switch-height-large: 2.5rem !default;
+$switch-radius: 0.9375rem !default;
+$switch-margin: 0.25rem !default;
+$switch-paddle-background: #fefefe !default;
+$switch-paddle-offset: 0.25rem !default;
+$switch-paddle-radius: 0.75rem !default;
+$switch-paddle-transition: all 0.25s ease-out !default;
+$switch-opacity-disabled: 0.5 !default;
+
+@mixin switch-container {
+  position: relative;
+  outline: none;
+}
+
+@mixin switch-input {
+  position: absolute;
+  margin-bottom: 0;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  cursor: pointer;
+}
+
+@mixin switch-paddle {
+  position: relative;
+  display: block;
+  width: $switch-height * 2;
+  height: $switch-height;
+  border-radius: $switch-radius;
+  background: $switch-background;
+  transition: $switch-paddle-transition;
+  cursor: pointer;
+
+  &::after {
+    position: absolute;
+    top: $switch-paddle-offset;
+    left: $switch-paddle-offset;
+    display: block;
+    width: $switch-height - ($switch-paddle-offset * 2);
+    height: $switch-height - ($switch-paddle-offset * 2);
+    content: '';
+    background: $switch-paddle-background;
+    border-radius: $switch-paddle-radius;
+    transition: $switch-paddle-transition;
+  }
+}

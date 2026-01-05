@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Row } from 'react-foundation';
+import { Row } from 'views/components/Grid';
 
 import LoginForm from 'views/components/LoginForm';
 import MainLayout from 'views/layouts/main';

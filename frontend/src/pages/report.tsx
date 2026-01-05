@@ -1,4 +1,4 @@
-import { Row, Column } from 'react-foundation';
+import { Row, Column } from 'views/components/Grid';
 
 import ReportLayout from 'views/layouts/report';
 import MapView from 'views/components/Map';

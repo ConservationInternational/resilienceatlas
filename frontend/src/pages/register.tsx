@@ -1,4 +1,4 @@
-import { Row } from 'react-foundation';
+import { Row } from 'views/components/Grid';
 
 import SignupForm from 'views/components/SignupForm';
 import MainLayout from 'views/layouts/main';

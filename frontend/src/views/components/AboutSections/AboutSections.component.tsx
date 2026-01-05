@@ -3,7 +3,7 @@ import type { About } from 'types/about';
 import { useRouter } from 'next/router';
 import Intro from './Intro';
 import Nav from './Nav';
-import { Row, Column } from 'react-foundation';
+import { Row, Column } from 'views/components/Grid';
 import { translations } from 'state/modules';
 import CustomHtmlRenderer from 'views/components/CustomHtmlRenderer';
 

@@ -1,11 +1,8 @@
 @import 'mixins';
 @import 'variables';
 
-// Importing dependencies and helpers
-@import 'foundation-sites/scss/foundation';
-
-// Grid
-@include foundation-grid;
+// Modern CSS Grid System (replaces foundation-sites)
+@import 'grid';
 
 // Importing project settings
 @import 'base';

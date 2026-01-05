@@ -1,0 +1,270 @@
+// Modern CSS Grid System
+// A lightweight replacement for foundation-sites grid
+// Uses flexbox for the 12-column grid system
+
+// Breakpoints
+$breakpoint-small: 0;
+$breakpoint-medium: 640px;
+$breakpoint-large: 1024px;
+$breakpoint-xlarge: 1200px;
+
+// Grid settings
+$grid-columns: 12;
+$grid-gutter: 1.875rem; // 30px - matches foundation default
+$grid-max-width: 62.5rem; // 1000px
+
+// Row - flex container
+.row {
+  display: flex;
+  flex-flow: row wrap;
+  max-width: $grid-max-width;
+  margin-left: auto;
+  margin-right: auto;
+
+  // Nested rows
+  .row {
+    margin-left: calc($grid-gutter / -2);
+    margin-right: calc($grid-gutter / -2);
+    max-width: none;
+  }
+
+  // Collapse gutters
+  &.collapse {
+    > .column {
+      padding-left: 0;
+      padding-right: 0;
+    }
+  }
+
+  // Expanded row (full width)
+  &.expanded {
+    max-width: none;
+  }
+
+  // Alignment modifiers
+  &.align-center {
+    justify-content: center;
+  }
+
+  &.align-right {
+    justify-content: flex-end;
+  }
+
+  &.align-justify {
+    justify-content: space-between;
+  }
+
+  &.align-spaced {
+    justify-content: space-around;
+  }
+
+  &.align-middle {
+    align-items: center;
+  }
+
+  &.align-bottom {
+    align-items: flex-end;
+  }
+
+  &.align-stretch {
+    align-items: stretch;
+  }
+}
+
+// Column base styles
+.column {
+  flex: 1 1 0px;
+  padding-left: calc($grid-gutter / 2);
+  padding-right: calc($grid-gutter / 2);
+  min-width: 0; // Prevent overflow issues
+}
+
+// Generate column width classes
+@mixin grid-columns($prefix: '') {
+  @for $i from 1 through $grid-columns {
+    .#{$prefix}#{$i} {
+      flex: 0 0 percentage(calc($i / $grid-columns));
+      max-width: percentage(calc($i / $grid-columns));
+    }
+  }
+
+  // Offset classes
+  @for $i from 0 through ($grid-columns - 1) {
+    .#{$prefix}offset-#{$i} {
+      margin-left: percentage(calc($i / $grid-columns));
+    }
+  }
+
+  // Push/Pull (source ordering)
+  @for $i from 0 through ($grid-columns - 1) {
+    .#{$prefix}push-#{$i} {
+      position: relative;
+      left: percentage(calc($i / $grid-columns));
+    }
+
+    .#{$prefix}pull-#{$i} {
+      position: relative;
+      left: percentage(calc($i / $grid-columns)) * -1;
+    }
+  }
+
+  // Order classes
+  @for $i from 1 through 6 {
+    .#{$prefix}order-#{$i} {
+      order: $i;
+    }
+  }
+
+  // Auto width column
+  .#{$prefix}shrink {
+    flex: 0 0 auto;
+    max-width: 100%;
+  }
+
+  // Full width column
+  .#{$prefix}auto {
+    flex: 1 1 0px;
+    max-width: 100%;
+  }
+}
+
+// Small (mobile first - default)
+@include grid-columns('small-');
+
+// Medium breakpoint
+@media screen and (min-width: $breakpoint-medium) {
+  @include grid-columns('medium-');
+}
+
+// Large breakpoint
+@media screen and (min-width: $breakpoint-large) {
+  @include grid-columns('large-');
+}
+
+// XLarge breakpoint
+@media screen and (min-width: $breakpoint-xlarge) {
+  @include grid-columns('xlarge-');
+}
+
+// Visibility helpers
+.hide {
+  display: none !important;
+}
+
+.show-for-small-only {
+  @media screen and (min-width: $breakpoint-medium) {
+    display: none !important;
+  }
+}
+
+.show-for-medium {
+  display: none !important;
+  @media screen and (min-width: $breakpoint-medium) {
+    display: block !important;
+  }
+}
+
+.show-for-medium-only {
+  display: none !important;
+  @media screen and (min-width: $breakpoint-medium) and (max-width: $breakpoint-large - 1) {
+    display: block !important;
+  }
+}
+
+.show-for-large {
+  display: none !important;
+  @media screen and (min-width: $breakpoint-large) {
+    display: block !important;
+  }
+}
+
+.hide-for-small-only {
+  display: none !important;
+  @media screen and (min-width: $breakpoint-medium) {
+    display: block !important;
+  }
+}
+
+.hide-for-medium {
+  @media screen and (min-width: $breakpoint-medium) {
+    display: none !important;
+  }
+}
+
+.hide-for-large {
+  @media screen and (min-width: $breakpoint-large) {
+    display: none !important;
+  }
+}
+
+// Text alignment utilities
+.text-left {
+  text-align: left;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.text-justify {
+  text-align: justify;
+}
+
+@media screen and (min-width: $breakpoint-medium) {
+  .medium-text-left {
+    text-align: left;
+  }
+
+  .medium-text-right {
+    text-align: right;
+  }
+
+  .medium-text-center {
+    text-align: center;
+  }
+}
+
+@media screen and (min-width: $breakpoint-large) {
+  .large-text-left {
+    text-align: left;
+  }
+
+  .large-text-right {
+    text-align: right;
+  }
+
+  .large-text-center {
+    text-align: center;
+  }
+}
+
+// Float classes (for legacy compatibility)
+.float-left {
+  float: left;
+}
+
+.float-right {
+  float: right;
+}
+
+.float-center {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.clearfix {
+  &::before,
+  &::after {
+    content: ' ';
+    display: table;
+  }
+
+  &::after {
+    clear: both;
+  }
+}

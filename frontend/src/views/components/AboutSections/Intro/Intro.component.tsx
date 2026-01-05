@@ -1,4 +1,4 @@
-import { Row, Column } from 'react-foundation';
+import { Row, Column } from 'views/components/Grid';
 import type { Image } from 'types/about';
 
 type IntroProps = {
