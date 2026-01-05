@@ -183,11 +183,11 @@ services:
         echo 'Node modules installed:' &&
         ls -la node_modules/ | head -10 &&
         
-        echo '🏗️ Building frontend application...' &&
-        npm run build &&
+        echo '🏗️ Building frontend application in production mode...' &&
+        NODE_ENV=production npm run build &&
         
         echo '✅ Build successful, starting frontend server...' &&
-        npm start -- -H 0.0.0.0
+        NODE_ENV=production npm start -- -H 0.0.0.0
       "
 
   # Cypress Chrome for E2E testing

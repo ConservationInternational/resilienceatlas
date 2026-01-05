@@ -20,24 +20,41 @@ type Place = google.maps.places.AutocompletePrediction & {
   latLngString?: string;
 };
 
-const googleAPILoader = new Loader({
-  apiKey: process.env.NEXT_PUBLIC_GOOGLE_API_KEY,
-  version: 'weekly',
-});
+// Only initialize Google Maps if we have a valid API key
+const googleApiKey = process.env.NEXT_PUBLIC_GOOGLE_API_KEY;
+const hasValidApiKey = googleApiKey && googleApiKey.length > 0 && googleApiKey !== 'test_api_key';
+
+let googleAPILoader: Loader | null = null;
+if (hasValidApiKey) {
+  googleAPILoader = new Loader({
+    apiKey: googleApiKey,
+    version: 'weekly',
+  });
+}
 
 let autocompleteService: google.maps.places.AutocompleteService = null;
 let geocoderService: google.maps.Geocoder = null;
+let googleMapsLoadFailed = false;
 
-googleAPILoader.load().then(async () => {
-  const { AutocompleteService } = (await google.maps.importLibrary(
-    'places',
-  )) as google.maps.PlacesLibrary;
-  const { Geocoder } = (await google.maps.importLibrary(
-    'geocoding',
-  )) as google.maps.GeocodingLibrary;
-  autocompleteService = new AutocompleteService();
-  geocoderService = new Geocoder();
-});
+// Only load if we have a valid API key
+if (googleAPILoader) {
+  googleAPILoader
+    .load()
+    .then(async () => {
+      const { AutocompleteService } = (await google.maps.importLibrary(
+        'places',
+      )) as google.maps.PlacesLibrary;
+      const { Geocoder } = (await google.maps.importLibrary(
+        'geocoding',
+      )) as google.maps.GeocodingLibrary;
+      autocompleteService = new AutocompleteService();
+      geocoderService = new Geocoder();
+    })
+    .catch((error) => {
+      console.warn('Google Maps API failed to load:', error.message);
+      googleMapsLoadFailed = true;
+    });
+}
 
 const COORDINATES_REGEX =
   /^(?<longitude>-?\d{1,}(\.\d{1,})?)(\s{1,}|\s{0,},\s{0,})(?<latitude>-?\d{1,}(\.\d{1,})?)$/;
@@ -67,6 +84,9 @@ const SearchArea: React.FC<SearchAreaProps> = ({ fitBounds, onAfterChange }) => 
   const { data, isLoading } = useQuery<google.maps.places.AutocompleteResponse>(
     ['places', searchTerm],
     () => {
+      if (!autocompleteService) {
+        return Promise.resolve({ predictions: [] });
+      }
       const request = autocompleteService.getPlacePredictions({
         input: searchTerm,
         language: currentLocale, // Default to English
@@ -74,12 +94,14 @@ const SearchArea: React.FC<SearchAreaProps> = ({ fitBounds, onAfterChange }) => 
       return request;
     },
     {
-      // Only fetch if the search term is not empty, is not a number, and is not coordinates
+      // Only fetch if the search term is not empty, is not a number, is not coordinates, and Google Maps is available
       enabled:
         !!searchTerm &&
         searchTerm.length > 0 &&
         !isCoordinates(searchTerm) &&
-        !isNumber(searchTerm),
+        !isNumber(searchTerm) &&
+        hasValidApiKey &&
+        !googleMapsLoadFailed,
       refetchOnMount: false,
       refetchOnWindowFocus: false,
       refetchOnReconnect: false,
@@ -98,6 +120,12 @@ const SearchArea: React.FC<SearchAreaProps> = ({ fitBounds, onAfterChange }) => 
   const handleChange = useCallback(
     async (place: Place) => {
       setSelectedPlace(place);
+
+      // Skip geocoding if service is not available
+      if (!geocoderService) {
+        console.warn('Geocoder service not available');
+        return;
+      }
 
       // Requesting geometry given coordinates
       if (isCoordinates(place?.latLngString)) {

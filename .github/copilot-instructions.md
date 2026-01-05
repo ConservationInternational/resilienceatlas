@@ -191,6 +191,101 @@ docker compose -f docker-compose.test.yml run --rm backend-test ./bin/test lint
 docker compose -f docker-compose.test.yml run --rm backend-test ./bin/test security
 ```
 
+## Running Tests Locally
+
+### Frontend Unit Tests and Linting
+```bash
+cd frontend
+
+# Run all checks (lint, type-check, prettier, build)
+./bin/test all
+
+# Individual checks
+./bin/test lint        # ESLint - ~13 seconds
+./bin/test type-check  # TypeScript - ~6 seconds
+./bin/test prettier    # Code formatting - ~3 seconds
+./bin/test build       # Next.js build - ~54 seconds
+```
+
+### Backend Tests (Requires Docker)
+```bash
+# Start the test environment (includes db-test, redis-test, backend-test, frontend-test)
+docker compose -f docker-compose.test.yml up -d
+
+# Wait for all containers to be healthy (check with `docker compose -f docker-compose.test.yml ps`)
+
+# Run backend linting and tests
+docker compose -f docker-compose.test.yml run --rm backend-test ./bin/test lint      # StandardRB
+docker compose -f docker-compose.test.yml run --rm backend-test ./bin/test security  # Brakeman
+docker compose -f docker-compose.test.yml run --rm backend-test ./bin/test audit     # Bundle Audit
+docker compose -f docker-compose.test.yml run --rm backend-test ./bin/test rspec     # RSpec tests
+
+# Run all backend tests
+docker compose -f docker-compose.test.yml run --rm backend-test ./bin/test all
+```
+
+### Integration Tests (Cypress - Requires Docker)
+
+Integration tests use Cypress running against a full Docker test environment with frontend, backend, and database.
+
+**1. Start the test environment:**
+```bash
+docker compose -f docker-compose.test.yml up -d
+
+# Wait for all 4 containers to be healthy:
+# - db-test (port 5433)
+# - redis-test (port 6380)
+# - backend-test (port 3001)
+# - frontend-test (port 3000)
+docker compose -f docker-compose.test.yml ps  # All should show (healthy)
+```
+
+**2. Run Cypress tests using the Cypress Docker image:**
+```bash
+# Run all integration tests
+docker run --rm \
+  --network resilienceatlas_test-network \
+  -w /app \
+  -v "$(pwd)/frontend:/app" \
+  -e CYPRESS_baseUrl=http://frontend-test:3000 \
+  -e CYPRESS_defaultCommandTimeout=30000 \
+  -e CYPRESS_pageLoadTimeout=60000 \
+  cypress/included:13.15.0 run --browser chrome
+
+# Run a specific test file
+docker run --rm \
+  --network resilienceatlas_test-network \
+  -w /app \
+  -v "$(pwd)/frontend:/app" \
+  -e CYPRESS_baseUrl=http://frontend-test:3000 \
+  -e CYPRESS_defaultCommandTimeout=30000 \
+  cypress/included:13.15.0 run --browser chrome --spec "cypress/e2e/home.cy.js"
+```
+
+**3. Alternative: Run tests from host machine with local Cypress:**
+```bash
+cd frontend
+npm install  # if not already done
+npx cypress open  # Opens Cypress GUI, configure baseUrl to http://localhost:3000
+
+# Or headless:
+npx cypress run --config baseUrl=http://localhost:3000
+```
+
+### Test Architecture Notes
+
+- **Frontend tests** use UI-based assertions (wait for elements) rather than XHR request interception
+- **The Map component** is loaded with `ssr: false` (client-side only), requiring extra wait time
+- **API data** is fetched client-side via Redux after page hydration, not during SSR
+- **Intercepts** (`cy.intercept`) capture browser XHR requests, not server-side calls
+
+### Debugging Integration Test Failures
+
+1. **Screenshot location**: After test failure, check `frontend/cypress/screenshots/`
+2. **View container logs**: `docker logs resilienceatlas-frontend-test-1`
+3. **Check API connectivity**: `docker exec resilienceatlas-frontend-test-1 curl http://backend-test:3001/api/site`
+4. **Interactive debugging**: Run Cypress with `--headed` flag or use Cypress GUI
+
 ## Architecture Overview
 
 ### Repository Layout
