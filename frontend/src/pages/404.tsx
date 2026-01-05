@@ -1,6 +1,7 @@
 import React from 'react';
-import { NextPage } from 'next';
+import type { NextPage } from 'next';
 import Head from 'next/head';
+import Link from 'next/link';
 
 const Custom404: NextPage = () => {
   return (
@@ -25,9 +26,9 @@ const Custom404: NextPage = () => {
           404 - This page could not be found
         </h1>
         <p style={{ fontSize: '1.1rem', color: '#666', marginBottom: '2rem' }}>
-          The page you were looking for doesn't exist.
+          The page you were looking for doesn&apos;t exist.
         </p>
-        <a
+        <Link
           href="/"
           style={{
             padding: '10px 20px',
@@ -37,15 +38,9 @@ const Custom404: NextPage = () => {
             borderRadius: '5px',
             fontSize: '1rem',
           }}
-          onMouseOver={(e) => {
-            e.currentTarget.style.backgroundColor = '#0056b3';
-          }}
-          onMouseOut={(e) => {
-            e.currentTarget.style.backgroundColor = '#0070f3';
-          }}
         >
           Go back home
-        </a>
+        </Link>
       </div>
     </>
   );
