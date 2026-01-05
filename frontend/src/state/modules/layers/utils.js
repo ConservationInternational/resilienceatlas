@@ -22,7 +22,7 @@ export const parseDates = (layer, defaultURLDate) => {
   const defaultDate = defaultURLDate ? new Date(defaultURLDate) : timeline.defaultDate;
 
   const getDateParams = () => {
-    const selectedDate = !!date ? new Date(date) : defaultDate;
+    const selectedDate = date ? new Date(date) : defaultDate;
     return {
       day: selectedDate.getDate(),
       month: String(selectedDate.getMonth() + 1).padStart(2, '0'), // Months need to have 2 digits

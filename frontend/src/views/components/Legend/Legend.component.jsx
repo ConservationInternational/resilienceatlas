@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 import cx from 'classnames';
-import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import Loader from 'views/shared/Loader';
 import InfoWindow from 'views/components/InfoWindow';
 import { T } from '@transifex/react';

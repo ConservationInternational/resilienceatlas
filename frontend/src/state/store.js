@@ -1,13 +1,22 @@
-import { legacy_createStore as createStore, applyMiddleware, combineReducers } from 'redux';
+import {
+  legacy_createStore as createStore,
+  applyMiddleware,
+  combineReducers,
+  compose,
+} from 'redux';
 import { HYDRATE, createWrapper } from 'next-redux-wrapper';
-import thunkMiddleware from 'redux-thunk';
-import { composeWithDevTools } from 'redux-devtools-extension/developmentOnly';
+import { thunk } from 'redux-thunk';
 import * as reducers from './modules';
 import normalizerMiddleware from './middleware/normalizerMiddleware';
 import siteScopeAuthMiddleware from './middleware/siteScopeAuthMiddleware';
 import siteLoadMiddleware from './middleware/siteLoadMiddleware';
 
-const composeEnhancer = composeWithDevTools({});
+// Use Redux DevTools extension if available (development only)
+const composeEnhancer =
+  typeof window !== 'undefined' && window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__
+    ? window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__({})
+    : compose;
+
 const combinedReducer = combineReducers(reducers);
 
 const reducer = (state, action) => {
@@ -26,12 +35,7 @@ const initStore = () =>
   createStore(
     reducer,
     composeEnhancer(
-      applyMiddleware(
-        thunkMiddleware,
-        normalizerMiddleware,
-        siteScopeAuthMiddleware,
-        siteLoadMiddleware,
-      ),
+      applyMiddleware(thunk, normalizerMiddleware, siteScopeAuthMiddleware, siteLoadMiddleware),
     ),
   );
 

@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from 'react';
 import { Provider as ReduxProvider } from 'react-redux';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
-import { QueryClient, QueryClientProvider, Hydrate } from '@tanstack/react-query';
+import { QueryClient, QueryClientProvider, HydrationBoundary } from '@tanstack/react-query';
 import { tx, PseudoTranslationPolicy } from '@transifex/native';
 import { TourProvider } from '@reactour/tour';
 import { CookiesProvider, useCookies } from 'react-cookie';
@@ -240,10 +240,10 @@ const ResilienceApp = ({ Component, ...rest }: AppPropsWithLayout) => {
         <QueryClientProvider client={queryClient}>
           <CookiesProvider>
             <TourProvider {...REACT_TOUR_OPTIONS}>
-              <Hydrate state={rest.pageProps.dehydratedState}>
+              <HydrationBoundary state={rest.pageProps.dehydratedState}>
                 {getLayout(<Component {...rest.pageProps} />, rest.pageProps?.translations)}
                 <SiteScopeAuthModal />
-              </Hydrate>
+              </HydrationBoundary>
             </TourProvider>
           </CookiesProvider>
         </QueryClientProvider>

@@ -17,7 +17,7 @@ const CustomHtmlRenderer = ({
         const { attribs, children } = domNode;
         return (
           <a href={attribs.href} target="_blank" rel="noopener noreferrer">
-            {domToReact(children)}
+            {domToReact(children as Parameters<typeof domToReact>[0])}
           </a>
         );
       }

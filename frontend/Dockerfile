@@ -1,5 +1,5 @@
 # Base dependencies stage
-FROM node:22.11.0-bullseye AS base
+FROM node:24.0.0-bullseye AS base
 
 # Enable BuildKit inline cache
 ARG BUILDKIT_INLINE_CACHE=1
@@ -22,52 +22,29 @@ RUN npm config set registry https://registry.npmjs.org/ && \
 
 # Set Cypress environment variables for controlled downloads 
 ENV CYPRESS_CACHE_FOLDER="/tmp/cypress-cache"
-# Use a stable Cypress version
-ENV CYPRESS_BINARY_VERSION="13.15.0"
 
 WORKDIR /app
 COPY package.json .npmrc ./
 
 # Install dependencies only when needed
 FROM base AS deps
-# Retry npm install up to 3 times for network resilience using bash explicitly
-RUN bash -c 'for i in {1..3}; do \
-      echo "npm install attempt $i of 3" && \
-      timeout 300 npm install --only=production --legacy-peer-deps --no-audit --no-fund && \
-      echo "✅ Production dependencies installed successfully" && \
-      break || \
-      ([ $i -eq 3 ] && echo "❌ Failed to install production dependencies after 3 attempts" && exit 1) || \
-      (echo "⚠️ npm install attempt $i failed, retrying in 10 seconds..." && sleep 10); \
-    done'
+# Install production dependencies
+RUN npm install --only=production --legacy-peer-deps --no-audit --no-fund \
+  && echo "✅ Production dependencies installed successfully"
 
 # Development/Test dependencies
 FROM base AS dev-deps
-# Set build arg for conditional Cypress installation
-ARG CYPRESS_INSTALL_BINARY=1
-ENV CYPRESS_INSTALL_BINARY=$CYPRESS_INSTALL_BINARY
+# Skip Cypress binary download during npm install - it will be downloaded on first use
+ENV CYPRESS_INSTALL_BINARY=0
 
-# Retry npm install up to 3 times for network resilience using bash explicitly
-RUN bash -c 'for i in {1..3}; do \
-      echo "npm install attempt $i of 3" && \
-      if [ "$CYPRESS_INSTALL_BINARY" = "0" ]; then \
-        echo "Skipping Cypress binary installation" && \
-        timeout 300 npm install --legacy-peer-deps --no-audit --no-fund --ignore-scripts && \
-        echo "✅ Dependencies installed successfully (without Cypress)" && \
-        break; \
-      else \
-        timeout 300 npm install --legacy-peer-deps --no-audit --no-fund && \
-        echo "✅ All dependencies installed successfully" && \
-        break; \
-      fi || \
-      ([ $i -eq 3 ] && echo "❌ Failed to install dependencies after 3 attempts" && exit 1) || \
-      (echo "⚠️ npm install attempt $i failed, retrying in 10 seconds..." && sleep 10); \
-    done' \
+# Install all dependencies
+RUN npm install --legacy-peer-deps --no-audit --no-fund \
   && echo "🔍 Verifying node_modules exists..." \
   && ls -la /app/node_modules/ | head -5 \
   && echo "✅ node_modules verified"
 
 # Test stage
-FROM node:22.11.0-bullseye AS test
+FROM node:24.0.0-bullseye AS test
 WORKDIR /app
 
 # Install curl for health checks
@@ -81,6 +58,11 @@ COPY package.json .npmrc ./
 RUN echo "🔍 Verifying node_modules in test stage..." \
   && ls -la /app/node_modules/ | head -5 \
   && echo "✅ node_modules verified in test stage"
+
+# Install Cypress binary (was skipped during npm install for faster build)
+ENV CYPRESS_CACHE_FOLDER="/tmp/cypress-cache"
+RUN npx cypress install \
+  && echo "✅ Cypress binary installed"
 
 # Copy application source
 COPY . .
@@ -111,7 +93,7 @@ ENV PORT=3000
 CMD ["npm", "run", "dev"]
 
 # Rebuild the source code only when needed
-FROM node:22.11.0-bullseye AS builder
+FROM node:24.0.0-bullseye AS builder
 WORKDIR /app
 
 # Set build arguments
@@ -139,7 +121,7 @@ ENV NEXT_TELEMETRY_DISABLED=1
 RUN npm run build
 
 # Production image, copy all the files and run next
-FROM node:22.11.0-bullseye AS production
+FROM node:24.0.0-bullseye AS production
 WORKDIR /app
 
 ENV NODE_ENV=production

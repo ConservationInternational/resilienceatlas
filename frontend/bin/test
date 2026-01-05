@@ -20,19 +20,19 @@ case "${1:-all}" in
     ;;
   "lint"|"linting")
     echo "🔍 Running ESLint..."
-    npm run lint "${@:2}"
+    npm run lint
     ;;
   "type-check"|"types"|"tsc")
     echo "🏷️ Running TypeScript type checking..."
-    npm run check-types "${@:2}"
+    npm run check-types
     ;;
   "build")
     echo "🏗️ Building application..."
-    npm run build "${@:2}"
+    npm run build
     ;;
   "prettier"|"format")
     echo "💅 Running Prettier..."
-    npm run prettier "${@:2}"
+    npm run prettier
     ;;
   "all")
     echo "🚀 Running all frontend checks..."

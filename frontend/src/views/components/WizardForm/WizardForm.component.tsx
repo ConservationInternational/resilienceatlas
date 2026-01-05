@@ -73,7 +73,7 @@ const WizardForm: React.FC<{
     isFirstPage,
     isLastPage,
     errorMessage,
-  });
+  } as React.Attributes & Record<string, unknown>);
 
   const Outro = outroComponent as React.ElementType;
   const displayOutro = formSubmitted && outroComponent;

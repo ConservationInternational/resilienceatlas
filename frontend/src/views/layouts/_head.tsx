@@ -2,7 +2,7 @@ import Head from 'next/head';
 import { connect } from 'react-redux';
 
 type CustomHeadProps = {
-  pageTitle?: string;
+  pageTitle?: React.ReactNode;
   site?: {
     name: string;
     color: string;

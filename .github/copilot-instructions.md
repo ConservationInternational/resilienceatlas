@@ -5,7 +5,7 @@ Always reference these instructions first and fallback to search or bash command
 ## Working Effectively
 
 ### Environment Setup
-- **CRITICAL**: Use Docker for all development - local Node.js (20.19.4) and Ruby (3.2.3) versions do not match requirements (Node.js 22.11.0, Ruby 3.4.4)
+- **CRITICAL**: Use Docker for all development - local Node.js and Ruby versions may not match requirements (Node.js 24.0.0, Ruby 3.4.4)
 - Environment files setup:
   ```bash
   cp .env.example .env
@@ -20,7 +20,7 @@ Always reference these instructions first and fallback to search or bash command
 - **Ports**: Frontend http://localhost:3000, Backend http://localhost:3001, Database localhost:5432
 - **NEVER CANCEL**: Initial Docker builds take 5-15 minutes depending on network conditions. Set timeout to 25+ minutes.
 
-### Frontend Development (Next.js 14.2.15 + React 18.3.1 + TypeScript)
+### Frontend Development (Next.js 16.0.0 + React 19.0.0 + TypeScript)
 - **Dependencies**: `cd frontend && npm install --legacy-peer-deps` - takes 5+ minutes. NEVER CANCEL. Set timeout to 10+ minutes.
 - **Linting**: `./bin/test lint` - takes ~13 seconds, may show TypeScript `any` type warnings (normal)
 - **Type check**: `./bin/test type-check` - takes ~6 seconds
@@ -108,7 +108,7 @@ Full validation should be done for major changes:
 ## Critical Dependencies
 
 ### Required Software Versions
-- **Node.js**: 22.11.0 (specified in frontend/.nvmrc and Dockerfile)
+- **Node.js**: 24.0.0 (specified in frontend/.nvmrc and Dockerfile)
 - **Ruby**: 3.4.4 (specified in backend/.ruby-version and Gemfile)
 - **PostgreSQL**: 15 with PostGIS 3.3 (from docker images)
 - **Docker**: Required for all development and testing

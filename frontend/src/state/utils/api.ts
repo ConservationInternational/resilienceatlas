@@ -2,24 +2,13 @@ import type { AxiosRequestConfig, Method } from 'axios';
 import axios from 'axios';
 import type { ThunkDispatch } from 'redux-thunk';
 import type { schema } from 'normalizr';
-import getConfig from 'next/config';
 
 import { merge } from 'utilities/helpers';
 import { subdomain } from 'utilities/getSubdomain';
 
-// Use runtime config for API host to support Docker networking
-// Falls back to env var for SSR or build-time, then to localhost
+// Use environment variable for API host
+// In Next.js 16+, getConfig is removed - use env vars directly
 const getRuntimeApiHost = (): string => {
-  try {
-    if (typeof window !== 'undefined') {
-      const config = getConfig();
-      if (config?.publicRuntimeConfig?.apiHost) {
-        return config.publicRuntimeConfig.apiHost;
-      }
-    }
-  } catch (e) {
-    // getConfig() may fail during SSR or in certain contexts
-  }
   return process.env.NEXT_PUBLIC_API_HOST || 'http://localhost:3001';
 };
 

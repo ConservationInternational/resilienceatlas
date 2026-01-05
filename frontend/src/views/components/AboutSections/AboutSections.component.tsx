@@ -1,4 +1,3 @@
-/* eslint-disable @next/next/no-img-element */
 import React, { useEffect, useMemo } from 'react';
 import type { About } from 'types/about';
 import { useRouter } from 'next/router';

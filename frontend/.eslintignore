@@ -1,5 +1,0 @@
-build
-.next
-node_modules
-public
-**/node_modules/@types/leaflet/index.d.ts

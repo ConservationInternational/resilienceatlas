@@ -1,5 +1,6 @@
 import 'leaflet';
-import 'leaflet.pm';
+import '@geoman-io/leaflet-geoman-free';
+import '@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css';
 import 'leaflet-active-area';
 // UTFGrid library requires corslite, only included in the minimized version
 import 'leaflet-utfgrid/L.UTFGrid-min';
@@ -130,7 +131,7 @@ const MapView = (props: MapViewProps) => {
             // to avoid displaying loading state with labels
             layer?._url?.startsWith('https://api.mapbox.com/styles/v1/cigrp') ||
             // to avoid displaying loading state when the user interacts with the map (click on a layer)
-            layer.hasOwnProperty('_content')
+            Object.prototype.hasOwnProperty.call(layer, '_content')
           )
             return null;
           onLayerLoading(true);

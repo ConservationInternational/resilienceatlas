@@ -1,4 +1,3 @@
-/* eslint-disable @next/next/no-img-element */
 import AboutSections from 'views/components/AboutSections';
 import MainLayout from 'views/layouts/main';
 import { getServerSideTranslations } from 'i18n';

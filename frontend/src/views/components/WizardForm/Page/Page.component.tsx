@@ -10,7 +10,7 @@ import Rating from 'views/components/WizardForm/FieldTypes/Rating';
 
 import ErrorMessage from 'views/components/WizardForm/ErrorMessage';
 
-import { FeedbackFieldTypes } from 'types/wizard-form.d';
+import { FeedbackFieldTypes } from 'types/wizard-form';
 
 const Page: React.FC<{
   title: string;

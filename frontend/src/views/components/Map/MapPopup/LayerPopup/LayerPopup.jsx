@@ -1,4 +1,3 @@
-/* eslint-disable @next/next/no-img-element */
 import React, { useReducer, useCallback, useEffect } from 'react';
 import axios from 'axios';
 import moment from 'moment';

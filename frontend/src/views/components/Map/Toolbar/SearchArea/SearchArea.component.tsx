@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Combobox } from '@headlessui/react';
+import { Combobox, ComboboxInput, ComboboxOption, ComboboxOptions } from '@headlessui/react';
 import { useDebounce } from 'use-debounce';
 import cx from 'classnames';
 import bboxPolygon from '@turf/bbox-polygon';
@@ -81,9 +81,9 @@ const SearchArea: React.FC<SearchAreaProps> = ({ fitBounds, onAfterChange }) => 
 
   const currentLocale = locale && locale !== '' ? locale : 'en';
 
-  const { data, isLoading } = useQuery<google.maps.places.AutocompleteResponse>(
-    ['places', searchTerm],
-    () => {
+  const { data, isLoading } = useQuery<google.maps.places.AutocompleteResponse>({
+    queryKey: ['places', searchTerm],
+    queryFn: () => {
       if (!autocompleteService) {
         return Promise.resolve({ predictions: [] });
       }
@@ -93,20 +93,18 @@ const SearchArea: React.FC<SearchAreaProps> = ({ fitBounds, onAfterChange }) => 
       });
       return request;
     },
-    {
-      // Only fetch if the search term is not empty, is not a number, is not coordinates, and Google Maps is available
-      enabled:
-        !!searchTerm &&
-        searchTerm.length > 0 &&
-        !isCoordinates(searchTerm) &&
-        !isNumber(searchTerm) &&
-        hasValidApiKey &&
-        !googleMapsLoadFailed,
-      refetchOnMount: false,
-      refetchOnWindowFocus: false,
-      refetchOnReconnect: false,
-    },
-  );
+    // Only fetch if the search term is not empty, is not a number, is not coordinates, and Google Maps is available
+    enabled:
+      !!searchTerm &&
+      searchTerm.length > 0 &&
+      !isCoordinates(searchTerm) &&
+      !isNumber(searchTerm) &&
+      hasValidApiKey &&
+      !googleMapsLoadFailed,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+  });
 
   const { predictions: places } = data || {};
 
@@ -149,25 +147,25 @@ const SearchArea: React.FC<SearchAreaProps> = ({ fitBounds, onAfterChange }) => 
 
   return (
     <div className="m-search-map">
-      <Combobox value={selectedPlace} by="place_id" onChange={handleChange} nullable>
-        <Combobox.Input
+      <Combobox value={selectedPlace} by="place_id" onChange={handleChange}>
+        <ComboboxInput
           onChange={handleInputChange}
           displayValue={(place: Place) => place?.description || place?.latLngString}
           className="search-combobox-input"
           placeholder={t('Search by country, city, town, coordinates')}
         />
         <div className="search-combobox-options">
-          <Combobox.Options>
+          <ComboboxOptions>
             {places?.map((place) => (
-              <Combobox.Option key={place.place_id} value={place} as={React.Fragment}>
-                {({ active }) => (
-                  <li className={cx({ 'is-active': active })}>
+              <ComboboxOption key={place.place_id} value={place} as={React.Fragment}>
+                {({ focus }) => (
+                  <li className={cx({ 'is-active': focus })}>
                     <span className="option-label">
                       <HighlightedText text={place.description} highlight={query} />
                     </span>
                   </li>
                 )}
-              </Combobox.Option>
+              </ComboboxOption>
             ))}
             {places?.length === 0 && !isLoading && (
               <div className="search-combobox-message">
@@ -180,9 +178,8 @@ const SearchArea: React.FC<SearchAreaProps> = ({ fitBounds, onAfterChange }) => 
               </div>
             )}
             {!places && isCoordinates(searchTerm) && (
-              <Combobox.Option
+              <ComboboxOption
                 value={{ place_id: null, description: null, latLngString: searchTerm }}
-                defaultChecked
               >
                 <div className="search-combobox-input-coordinates">
                   <T
@@ -195,7 +192,7 @@ const SearchArea: React.FC<SearchAreaProps> = ({ fitBounds, onAfterChange }) => 
                     _comment="Enter to navigate coordinates"
                   />
                 </div>
-              </Combobox.Option>
+              </ComboboxOption>
             )}
             {isNumber(searchTerm) && (
               <div className="search-combobox-message">
@@ -221,7 +218,7 @@ const SearchArea: React.FC<SearchAreaProps> = ({ fitBounds, onAfterChange }) => 
                 </p>
               </div>
             )}
-          </Combobox.Options>
+          </ComboboxOptions>
         </div>
       </Combobox>
     </div>

@@ -132,7 +132,7 @@ export const Datepicker: FC<DatepickerProps> = ({
             {resolution !== 'year' && (
               <select
                 value={format(date, 'yyyy')}
-                onChange={({ target: { value } }) => changeYear(value)}
+                onChange={({ target: { value } }) => changeYear(parseInt(value, 10))}
                 aria-label={t('Year')}
               >
                 {years.map((option) => (

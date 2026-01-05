@@ -1,4 +1,3 @@
-/* eslint-disable @next/next/no-img-element */
 import React, { useCallback, useMemo } from 'react';
 import localesJson from 'locales.config.json';
 import cx from 'classnames';

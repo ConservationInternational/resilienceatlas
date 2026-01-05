@@ -1,4 +1,3 @@
-import { compose } from 'redux';
 import { connect } from 'react-redux';
 import { withRouter } from 'next/router';
 import dynamic from 'next/dynamic';
@@ -60,4 +59,8 @@ const mapDispatchToProps = {
   setOpacity,
 };
 
-export default compose(withRouter, connect(makeMapStateToProps, mapDispatchToProps))(MapViewNoSSR);
+// Using explicit any to avoid deep type instantiation issues with compose + connect + withRouter
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const connected = connect(makeMapStateToProps, mapDispatchToProps)(MapViewNoSSR as any);
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export default withRouter(connected as any);

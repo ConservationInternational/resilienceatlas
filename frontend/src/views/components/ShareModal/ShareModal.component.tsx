@@ -31,9 +31,9 @@ const ShareModal: React.FC<ShareModalProps> = ({ isOpen, setIsOpen }) => {
   const embedUrl = url.replace('map', 'embed/map');
 
   // Generating shorten URL
-  const { data: shortenUrlData } = useQuery<SharedURLPayload>(
-    ['url-shortener', url],
-    () =>
+  const { data: shortenUrlData } = useQuery<SharedURLPayload>({
+    queryKey: ['url-shortener', url],
+    queryFn: () =>
       axios({
         method: 'POST',
         url: `${process.env.NEXT_PUBLIC_API_HOST}/api/share`,
@@ -41,13 +41,13 @@ const ShareModal: React.FC<ShareModalProps> = ({ isOpen, setIsOpen }) => {
           body: url,
         },
       }).then((res) => res.data),
-    { enabled: isOpen },
-  );
+    enabled: isOpen,
+  });
 
   // Generating shorten URL for embed
-  const { data: shortenEmbedUrlData } = useQuery<SharedURLPayload>(
-    ['url-shortener-embed', embedUrl],
-    () =>
+  const { data: shortenEmbedUrlData } = useQuery<SharedURLPayload>({
+    queryKey: ['url-shortener-embed', embedUrl],
+    queryFn: () =>
       axios({
         method: 'POST',
         url: `${process.env.NEXT_PUBLIC_API_HOST}/api/share`,
@@ -55,8 +55,8 @@ const ShareModal: React.FC<ShareModalProps> = ({ isOpen, setIsOpen }) => {
           body: embedUrl,
         },
       }).then((res) => res.data),
-    { enabled: isOpen },
-  );
+    enabled: isOpen,
+  });
 
   const switchTab = useCallback(
     (e: React.MouseEvent<HTMLButtonElement>) => {

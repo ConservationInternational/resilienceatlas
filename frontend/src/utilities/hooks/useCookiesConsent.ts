@@ -99,7 +99,7 @@ export const useCookiesConsent = (): CookiesConsent => {
   // On mount, we check if the user has already consented to the use of cookies
   useEffect(() => {
     const settings = getSettingsFromLocalStorage();
-    if (!!settings) {
+    if (settings) {
       updateSyncedState(settings);
     }
   }, [updateSyncedState]);

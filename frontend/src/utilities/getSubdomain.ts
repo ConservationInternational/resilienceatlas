@@ -1,4 +1,4 @@
-import { getRouterParam } from './routeParams';
+import { getRouterParam } from './urlParams';
 import { isDevelopment } from './environment';
 
 export const getSubdomainFromURL = (url: string): string | null => {

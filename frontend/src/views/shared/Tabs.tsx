@@ -31,6 +31,7 @@ type TabsProps = React.FC<
 
 type TabProps = React.ReactNode & {
   props: {
+    name: string;
     title: string;
     disabled: boolean;
   };
@@ -84,7 +85,13 @@ const Tabs: TabsProps = ({
             onTabSwitch({ tab: defaultTab });
             return null;
           }
-          return React.cloneElement(Tab as React.ReactElement, { key, activeTab });
+          return React.cloneElement(
+            Tab as React.ReactElement,
+            {
+              key,
+              activeTab,
+            } as React.Attributes & { key: string; activeTab: string },
+          );
         }
 
         return null;

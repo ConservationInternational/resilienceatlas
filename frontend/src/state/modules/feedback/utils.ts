@@ -1,7 +1,7 @@
 import * as Yup from 'yup';
 import flatten from 'lodash/flatten';
 import uniqBy from 'lodash/uniqBy';
-import { FeedbackFieldTypes } from 'types/wizard-form.d';
+import { FeedbackFieldTypes } from 'types/wizard-form';
 import { getIntro, getToolUse, getMap, getWebsite } from 'constants/feedback-questions';
 
 // VALIDATION

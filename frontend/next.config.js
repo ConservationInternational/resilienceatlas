@@ -14,11 +14,8 @@ const nextConfig = {
   poweredByHeader: false,
   // Enable trailing slash for better subdomain handling
   trailingSlash: false,
-  eslint: {
-    // Warning: This allows production builds to successfully complete even if
-    // your project has ESLint errors.
-    ignoreDuringBuilds: true,
-  },
+  // Note: ESLint is now configured via eslint.config.mjs (ESLint 9 flat config)
+  // The 'eslint' option was removed in Next.js 16. Use `npm run lint` directly.
   typescript: {
     // !! WARN !!
     // Dangerously allow production builds to successfully complete even if
@@ -26,6 +23,8 @@ const nextConfig = {
     // !! WARN !!
     ignoreBuildErrors: true,
   },
+  // Next.js 16+ uses experimental.serverActions instead of serverExternalPackages
+  serverExternalPackages: [],
   async headers() {
     return [
       {
@@ -62,7 +61,8 @@ const nextConfig = {
     locales: locales.map(({ locale }) => locale),
     defaultLocale: locales.find((locale) => locale.default).locale,
   },
-  publicRuntimeConfig: {
+  // Note: publicRuntimeConfig is deprecated in Next.js 16+, use environment variables directly
+  env: {
     TxNativePublicToken: NEXT_PUBLIC_TRANSIFEX_TOKEN,
     apiHost: NEXT_PUBLIC_API_HOST || 'http://localhost:3001',
   },

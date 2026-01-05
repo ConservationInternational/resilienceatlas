@@ -1,4 +1,4 @@
-import { FeedbackFieldTypes } from 'types/wizard-form.d';
+import { FeedbackFieldTypes } from 'types/wizard-form';
 import { t } from '@transifex/native';
 
 const getLocationsList = () => [
