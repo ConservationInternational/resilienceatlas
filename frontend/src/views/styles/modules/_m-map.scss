@@ -125,11 +125,11 @@
     transition: background-color linear 0.16s;
 
     &:hover {
-      background-color: darken($bg-color-1, 5%);
+      background-color: darken-color($bg-color-1, 5%);
     }
 
     &.wri_api__-disabled {
-      background-color: darken($bg-color-1, 5%);
+      background-color: darken-color($bg-color-1, 5%);
 
       svg {
         opacity: 0.2;

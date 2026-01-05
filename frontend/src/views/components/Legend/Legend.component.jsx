@@ -52,7 +52,7 @@ const Legend = ({
                     const layerVisible = opacity > 0;
 
                     return (
-                      <Draggable key={id} draggableId={id} index={index}>
+                      <Draggable key={id} draggableId={String(id)} index={index}>
                         {({ draggableProps, dragHandleProps, innerRef: dragRef }) => (
                           <li
                             className={cx('drag-items', {

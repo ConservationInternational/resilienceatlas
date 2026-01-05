@@ -1,3 +1,6 @@
+// Modern Sass modules - must be @use'd before any @import
+@use 'sass-modules' as *;
+
 @import 'mixins';
 @import 'variables';
 

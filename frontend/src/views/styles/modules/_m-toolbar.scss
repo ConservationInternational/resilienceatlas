@@ -13,7 +13,7 @@
     border-bottom: 1px solid rgba(151, 151, 151, 0.3);
 
     &:not(.search):hover {
-      background-color: darken($bg-color-1, 5%);
+      background-color: darken-color($bg-color-1, 5%);
     }
 
     &:last-child {

@@ -83,15 +83,15 @@ $grid-max-width: 62.5rem; // 1000px
 @mixin grid-columns($prefix: '') {
   @for $i from 1 through $grid-columns {
     .#{$prefix}#{$i} {
-      flex: 0 0 percentage(calc($i / $grid-columns));
-      max-width: percentage(calc($i / $grid-columns));
+      flex: 0 0 grid-percentage($i, $grid-columns);
+      max-width: grid-percentage($i, $grid-columns);
     }
   }
 
   // Offset classes
   @for $i from 0 through ($grid-columns - 1) {
     .#{$prefix}offset-#{$i} {
-      margin-left: percentage(calc($i / $grid-columns));
+      margin-left: grid-percentage($i, $grid-columns);
     }
   }
 
@@ -99,12 +99,12 @@ $grid-max-width: 62.5rem; // 1000px
   @for $i from 0 through ($grid-columns - 1) {
     .#{$prefix}push-#{$i} {
       position: relative;
-      left: percentage(calc($i / $grid-columns));
+      left: grid-percentage($i, $grid-columns);
     }
 
     .#{$prefix}pull-#{$i} {
       position: relative;
-      left: percentage(calc($i / $grid-columns)) * -1;
+      left: grid-percentage($i, $grid-columns) * -1;
     }
   }
 
@@ -166,7 +166,7 @@ $grid-max-width: 62.5rem; // 1000px
 
 .show-for-medium-only {
   display: none !important;
-  @media screen and (min-width: $breakpoint-medium) and (max-width: $breakpoint-large - 1) {
+  @media screen and (min-width: $breakpoint-medium) and (max-width: calc($breakpoint-large - 1px)) {
     display: block !important;
   }
 }

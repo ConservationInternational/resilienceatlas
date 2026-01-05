@@ -111,11 +111,21 @@ const MapView = (props: MapViewProps) => {
 
   const MAX_LAYER_Z_INDEX = 1000;
 
+  // Handle empty label URL for "none" option - vizzuality-components can't handle empty URLs
+  const labelConfig = LABELS[labels];
+  const safeLabel = labelConfig?.url ? labelConfig : undefined;
+
+  // Ensure basemap has required options property for vizzuality-components
+  const basemapConfig = BASEMAPS[basemap];
+  const safeBasemap = basemapConfig
+    ? { url: basemapConfig.url, options: {} }
+    : undefined;
+
   return (
     <Maps
       customClass="m-map"
-      label={LABELS[labels]}
-      basemap={BASEMAPS[basemap]}
+      label={safeLabel}
+      basemap={safeBasemap}
       mapOptions={{
         ...(options?.map || {}),
         zoom: query.zoom || site?.zoom_level || 5,

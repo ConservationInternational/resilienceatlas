@@ -1,0 +1,22 @@
+// Modern Sass module imports
+// These replace deprecated global built-in functions
+@use "sass:math";
+@use "sass:color";
+
+// Helper function to replace deprecated percentage()
+// Usage: grid-percentage($i, $columns) instead of percentage(calc($i / $columns))
+@function grid-percentage($value, $total) {
+  @return math.percentage(math.div($value, $total));
+}
+
+// Helper function to replace deprecated darken()
+// Usage: darken-color($color, $amount) instead of darken($color, $amount)
+@function darken-color($color, $amount) {
+  @return color.adjust($color, $lightness: -$amount);
+}
+
+// Helper function to replace deprecated lighten()
+// Usage: lighten-color($color, $amount) instead of lighten($color, $amount)
+@function lighten-color($color, $amount) {
+  @return color.adjust($color, $lightness: $amount);
+}

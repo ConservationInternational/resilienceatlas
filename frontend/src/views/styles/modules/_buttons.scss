@@ -17,7 +17,7 @@
     color: var(--theme-color, $font-color-2);
 
     &:hover {
-      background: darken($bg-color-1, 5%);
+      background: darken-color($bg-color-1, 5%);
     }
 
     &.-inverted-color {
@@ -40,7 +40,7 @@
     background: $font-color-2;
 
     &:hover {
-      background: darken($bg-color-2, 5%);
+      background: darken-color($bg-color-2, 5%);
     }
 
   }
@@ -63,7 +63,7 @@
     background: $bg-color-1;
 
     &:hover {
-      background: darken($bg-color-2, 5%);
+      background: darken-color($bg-color-2, 5%);
     }
 
     &.btn-next &:after {

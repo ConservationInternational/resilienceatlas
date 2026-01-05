@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { getSubdomainFromURL } from 'utilities/getSubdomain';
 import type { NextRequest } from 'next/server';
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const host = request.headers.get('host');
   const { pathname, searchParams } = request.nextUrl;
 
@@ -13,7 +13,7 @@ export function middleware(request: NextRequest) {
   let subdomain = getSubdomainFromURL(host);
 
   // In development/test, use site_scope parameter to simulate subdomain
-  // Note: In middleware, NODE_ENV might not always be reliable, so we also check for common test/dev hosts
+  // Note: In proxy, NODE_ENV might not always be reliable, so we also check for common test/dev hosts
   const isDevOrTest =
     process.env.NODE_ENV === 'development' ||
     process.env.NODE_ENV === 'test' ||
@@ -30,7 +30,7 @@ export function middleware(request: NextRequest) {
   if (isDevOrTest) {
     // eslint-disable-next-line no-console
     console.log(
-      `Middleware: host=${host}, pathname=${pathname}, subdomain=${subdomain}, siteScope=${siteScope}, env=${process.env.NODE_ENV}`,
+      `Proxy: host=${host}, pathname=${pathname}, subdomain=${subdomain}, siteScope=${siteScope}, env=${process.env.NODE_ENV}`,
     );
   }
 
