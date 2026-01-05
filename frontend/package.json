@@ -25,7 +25,7 @@
     "@transifex/native": "^7.1.5",
     "@transifex/react": "^7.1.5",
     "@turf/bbox-polygon": "^7.1.0",
-    "axios": "^1.7.9",
+    "axios": "^1.12.0",
     "classnames": "^2.5.1",
     "date-fns": "^4.1.0",
     "dotenv": "^16.4.7",
@@ -43,7 +43,7 @@
     "normalize.css": "^8.0.1",
     "normalizr": "^3.6.2",
     "numeral": "^2.0.6",
-    "qs": "^6.13.1",
+    "qs": "^6.14.1",
     "react": "19.2.0",
     "react-dom": "19.2.0",
     "react-cookie": "^7.2.2",
@@ -66,7 +66,7 @@
     "sass": "^1.83.0",
     "slick-carousel": "^1.8.1",
     "use-debounce": "^10.0.4",
-    "vega": "^5.33.0",
+    "vega": "^6.2.0",
     "vega-lib": "^4.4.0",
     "vizzuality-components": "^3.0.3",
     "yup": "^1.5.0"
@@ -97,6 +97,14 @@
     "typescript": "5.7.2"
   },
   "overrides": {
+    "js-yaml": "3.14.2",
+    "axios": "^1.12.0",
+    "follow-redirects": "^1.15.9",
+    "d3-color": "^3.1.0",
+    "jquery": "^3.7.1",
+    "postcss": "^8.5.0",
+    "qs": "^6.14.1",
+    "vega-expression": "^5.2.1",
     "minimist": "1.2.8",
     "mustache": "4.2.0",
     "node-fetch": "2.7.0",
@@ -110,7 +118,14 @@
     },
     "resilience-layer-manager": {
       "react": "19.2.0",
-      "react-dom": "19.2.0"
+      "react-dom": "19.2.0",
+      "axios": "^1.12.0"
+    },
+    "layer-manager": {
+      "axios": "^1.12.0"
+    },
+    "vizzuality-components": {
+      "axios": "^1.12.0"
     },
     "react-datepicker": {
       "react": "19.2.0",
