@@ -123,7 +123,7 @@ const LayerPopup = ({
           value={layer.id}
           onChange={(e) => onChangeInteractiveLayer(e.target.value)}
         >
-          {layers.map((o) => (
+          {(layers || []).map((o) => (
             <option key={o.id} value={o.id}>
               {o.name}
             </option>
@@ -135,7 +135,7 @@ const LayerPopup = ({
         {(interaction.data || interactionState.data) && (
           <table className="popup-table">
             <tbody>
-              {output.map((outputItem) => {
+              {(output || []).map((outputItem) => {
                 const { column } = outputItem;
                 const columnArray = column.split('.');
                 const value =

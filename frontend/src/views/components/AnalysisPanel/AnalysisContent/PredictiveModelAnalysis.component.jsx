@@ -11,7 +11,7 @@ export const PredictiveModelAnalysis = ({
   const analysisQuery = useMemo(() => {
     if (!model) return null;
 
-    const indicatorsColumn = model.indicators
+    const indicatorsColumn = (model.indicators || [])
       .filter((indicator) => indicator.value !== null && indicator.value !== undefined)
       .map(
         (ind) => `

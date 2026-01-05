@@ -107,7 +107,7 @@ const Header = ({
               <T _str="Map" />
             </Link>
 
-            <ul>{menuItems.sort(byPosition).map(renderMenuItem)}</ul>
+            <ul>{(menuItems || []).sort(byPosition).map(renderMenuItem)}</ul>
           </li>
 
           <li>

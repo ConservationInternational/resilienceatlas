@@ -39,7 +39,7 @@ const Legend = ({
                 <Loader loading={loading} />
 
                 <ul {...droppableProps} ref={innerRef} className="m-legend__list">
-                  {activeLayers.filter(Boolean).map((layer, index) => {
+                  {(activeLayers || []).filter(Boolean).map((layer, index) => {
                     const { id, name, notAvailableByZoom, legend, info, timeline } = layer;
 
                     const defaultParams = defaultEmbedURLLayerParams?.find(

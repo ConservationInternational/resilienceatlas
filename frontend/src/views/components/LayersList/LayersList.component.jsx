@@ -34,7 +34,7 @@ let Subgroup = ({
 
     {active && layers && (
       <ul className={cx('m-layers-list-panel', { 'is-active': !!active })}>
-        {layers.map((layer) => (
+        {(layers || []).map((layer) => (
           <Layer
             key={layer.id}
             subgroupName={name}
@@ -69,11 +69,11 @@ let Category = ({ toggleActive, id, name, active, layers, subcategory, groupName
           'is-active': !!active,
         })}
       >
-        {layers.map((layer) => (
+        {(layers || []).map((layer) => (
           <Layer key={layer.id} categoryName={name} groupName={groupName} {...layer} />
         ))}
 
-        {subcategory.map((subcat) => (
+        {(subcategory || []).map((subcat) => (
           <Subcategory key={subcat.id} {...subcat} categoryName={name} groupName={groupName} />
         ))}
       </ul>
@@ -104,7 +104,7 @@ let Subcategory = ({
 
     {active && layers && (
       <ul className={cx('m-layers-list-panel', { 'is-active': !!active })}>
-        {layers.map((layer) => (
+        {(layers || []).map((layer) => (
           <Layer
             key={layer.id}
             {...layer}
@@ -114,7 +114,7 @@ let Subcategory = ({
             subcategoryName={name}
           />
         ))}
-        {subgroup.map((s_group) => (
+        {(subgroup || []).map((s_group) => (
           <Subgroup
             key={s_group.id}
             {...s_group}
@@ -140,11 +140,11 @@ let Group = ({ toggleActive, id, slug, name, active, layers, categories }) => (
     </div>
     {active && layers && (
       <ul className={cx('m-layers-list-panel', { 'is-active': !!active })}>
-        {layers.map(({ dashboard_order, ...layer }) => (
+        {(layers || []).map(({ dashboard_order, ...layer }) => (
           <Layer key={layer.id} {...layer} withDashboardOrder groupName={name} />
         ))}
 
-        {categories.map((cat) => (
+        {(categories || []).map((cat) => (
           <Category key={cat.id} {...cat} groupName={name} />
         ))}
       </ul>
@@ -158,7 +158,7 @@ const LayersList = ({ groups, loading }) => (
   <>
     <Loader loading={loading} />
     <ul>
-      {groups.map((group) => (
+      {(groups || []).map((group) => (
         <Group key={group.id} {...group} />
       ))}
 

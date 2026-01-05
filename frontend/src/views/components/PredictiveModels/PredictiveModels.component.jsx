@@ -38,7 +38,7 @@ const PredictiveModels = ({
         qs.stringify(
           {
             name: selectedModel,
-            values: model.indicators.map((ind) => ind.indexableValue),
+            values: (model.indicators || []).map((ind) => ind.indexableValue),
           },
           {
             arrayFormat: 'comma',
@@ -51,12 +51,13 @@ const PredictiveModels = ({
 
   const hasChanged = useMemo(
     () =>
-      model && model.indicators.some((ind, index) => ind.indexableValue !== indicatorsState[index]),
+      model &&
+      (model.indicators || []).some((ind, index) => ind.indexableValue !== indicatorsState[index]),
     [model, indicatorsState],
   );
 
   const notDefault = useMemo(
-    () => model && model.indicators.some((ind) => +ind.indexableValue !== 4),
+    () => model && (model.indicators || []).some((ind) => +ind.indexableValue !== 4),
     [model],
   );
 
@@ -75,7 +76,7 @@ const PredictiveModels = ({
           <option disabled value="default">
             {(translations && translations['Select a model']) || 'Select a model'}
           </option>
-          {models.map(({ id, name }) => (
+          {(models || []).map(({ id, name }) => (
             <option key={id} value={id}>
               {name}
             </option>
@@ -85,11 +86,11 @@ const PredictiveModels = ({
 
       {!!model && (
         <ul className="indicators-list">
-          {model.categories.map(({ name, indicators }) => (
+          {(model.categories || []).map(({ name, indicators }) => (
             <Fragment key={name}>
               <li className="category">{name}</li>
 
-              {indicators.map((indicator) => (
+              {(indicators || []).map((indicator) => (
                 <Indicator
                   key={indicator.name}
                   index={model.indicators.findIndex((ind) => ind.id === indicator.id)}

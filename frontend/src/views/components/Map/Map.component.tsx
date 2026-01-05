@@ -86,7 +86,7 @@ const MapView = (props: MapViewProps) => {
 
   // Update URL with active layers
   useEffect(() => {
-    const hash = activeLayers.map((activeLayer) =>
+    const hash = (activeLayers || []).map((activeLayer) =>
       pick(activeLayer, ['id', ...URL_PERSISTED_KEYS]),
     );
     if (layersLoaded) {
@@ -172,8 +172,8 @@ const MapView = (props: MapViewProps) => {
                     !!l.interactionConfig.length && {
                       interactivity:
                         l.provider === 'carto' || l.provider === 'cartodb' || l.provider === 'cog'
-                          ? JSON.parse(l.interactionConfig)
-                              .output.map((o) => o.column)
+                          ? (JSON.parse(l.interactionConfig)?.output || [])
+                              .map((o) => o.column)
                               .join(',')
                           : true,
                       events: {
