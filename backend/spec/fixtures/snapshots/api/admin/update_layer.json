@@ -4,7 +4,7 @@
   "data": {
     "name": "cum",
     "info": null,
-    "legend": "Voluptatem hic similique exercitationem.",
+    "legend": null,
     "title": null,
     "data_units": "voluptatem",
     "processing": "voluptatem",
@@ -44,7 +44,7 @@
     "analysis_type": "text",
     "layer_config": "41",
     "analysis_body": "Cum veritatis sapiente exercitationem.",
-    "interaction_config": "Cum veritatis sapiente exercitationem.",
+    "interaction_config": "{}",
     "id": 168,
     "created_at": "2025-09-06T13:17:27.739+02:00",
     "updated_at": "2025-09-06T13:17:27.784+02:00",
