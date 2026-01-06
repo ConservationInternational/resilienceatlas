@@ -40,11 +40,7 @@ export default class InfoWindow extends Component {
   };
 
   render() {
-    const {
-      open,
-      name,
-      data,
-    } = this.state;
+    const { open, name, data } = this.state;
 
     if (!open) return null;
 

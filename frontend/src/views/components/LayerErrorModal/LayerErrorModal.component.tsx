@@ -12,9 +12,9 @@ export type LayerError = {
   errorDescription?: string;
   provider?: string;
   url?: string | null;
-  error: Error & { 
-    response?: { 
-      status?: number; 
+  error: Error & {
+    response?: {
+      status?: number;
       statusText?: string;
       data?: unknown;
     };
@@ -54,7 +54,7 @@ const LayerErrorModal: React.FC<LayerErrorModalProps> = ({ errors, onClose, onDi
   const getErrorSummary = (err: LayerError): string => {
     // Provide a user-friendly summary based on error type and status
     const status = err.error.response?.status;
-    
+
     if (status === 404) {
       return 'The layer data could not be found. It may have been removed or the URL may be incorrect.';
     }
@@ -132,9 +132,9 @@ const LayerErrorModal: React.FC<LayerErrorModalProps> = ({ errors, onClose, onDi
         }
         // For any other data, show as JSON if it has content we haven't already displayed
         const knownKeys = ['error', 'message', 'errors', 'detail', 'hint'];
-        const otherKeys = Object.keys(apiData).filter(k => !knownKeys.includes(k));
+        const otherKeys = Object.keys(apiData).filter((k) => !knownKeys.includes(k));
         if (otherKeys.length > 0) {
-          const otherData = Object.fromEntries(otherKeys.map(k => [k, apiData[k]]));
+          const otherData = Object.fromEntries(otherKeys.map((k) => [k, apiData[k]]));
           try {
             const jsonStr = JSON.stringify(otherData, null, 2);
             if (jsonStr !== '{}') {

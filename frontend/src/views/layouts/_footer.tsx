@@ -27,8 +27,7 @@ const Footer: React.FC = () => (
         </a>
       </p>
       <p className="copyright">
-        &copy; {new Date().getFullYear()}{' '}
-        <T _str="Conservation International" />
+        &copy; {new Date().getFullYear()} <T _str="Conservation International" />
       </p>
     </nav>
   </footer>
