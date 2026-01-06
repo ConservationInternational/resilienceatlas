@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import cx from 'classnames';
 import { usePrevious } from './usePrevious';
 import { useRouterParams } from 'utilities/routeParams';
@@ -16,10 +16,12 @@ export const useToggle = (initial = false): [boolean, () => void] => {
 export const useInput = (name, initialValue) => {
   const [value, setValue] = useState(initialValue);
   const onChange = (e) => setValue(e.target.value);
+  // onInput is needed for range sliders to update in real-time while dragging
+  const onInput = (e) => setValue(e.target.value);
 
   useEffect(() => setValue(initialValue), [initialValue]);
 
-  const input = { name, value, onChange, setValue };
+  const input = { name, value, onChange, onInput, setValue };
 
   Object.defineProperty(input, 'setValue', { enumerable: false });
 
@@ -57,12 +59,16 @@ export const useUpdaterInput = (name, initialValue, updater) => {
 };
 
 export const useDebounce = (effect, delay, deps) => {
-  useEffect(() => {
-    const timeout = setTimeout(effect, delay);
+  // Store the effect in a ref so we always call the latest version
+  // without needing it in the dependency array
+  const effectRef = useRef(effect);
+  effectRef.current = effect;
 
+  useEffect(() => {
+    const timeout = setTimeout(() => effectRef.current(), delay);
     return () => clearTimeout(timeout);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [effect, delay, ...deps]);
+  }, [delay, ...deps]);
 };
 
 export const useRouterValue = (
