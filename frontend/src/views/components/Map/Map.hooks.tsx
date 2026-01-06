@@ -80,7 +80,8 @@ export const useGetCenter = ({
   };
 }) =>
   useCallback(() => {
-    const DEFAULT_CENTER = { lat: 3.86, lng: 47.28 };
+    // World-centered default view (centered on Atlantic to show all continents)
+    const DEFAULT_CENTER = { lat: 20, lng: 0 };
     if (query.center) {
       const decodeCenter = decodeURIComponent(query.center as string);
       if (decodeCenter && decodeCenter[0] === '{') {

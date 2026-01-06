@@ -36,7 +36,7 @@ if (typeof window !== 'undefined') {
 import '@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css';
 
 import { useRouterParams } from 'utilities';
-import React, { useCallback, useEffect, useContext, useMemo } from 'react';
+import React, { useCallback, useEffect, useContext, useMemo, useState } from 'react';
 import qs from 'qs';
 import omit from 'lodash/omit';
 import pick from 'lodash/pick';
@@ -53,6 +53,7 @@ import Toolbar from './Toolbar';
 import DrawingManager from './DrawingManager';
 import MapOffset from './MapOffset';
 import MapPopup from './MapPopup';
+import LayerErrorModal, { type LayerError } from 'views/components/LayerErrorModal';
 
 const MapView = (props: MapViewProps) => {
   const {
@@ -127,6 +128,27 @@ const MapView = (props: MapViewProps) => {
 
   const getCenter = useGetCenter({ site, query });
 
+  // Layer error handling
+  const [layerErrors, setLayerErrors] = useState<LayerError[]>([]);
+
+  const onLayerError = useCallback((error: LayerError) => {
+    setLayerErrors((prev) => {
+      // Avoid duplicate errors for the same layer
+      if (prev.some((e) => e.layerId === error.layerId)) {
+        return prev;
+      }
+      return [...prev, error];
+    });
+  }, []);
+
+  const handleCloseErrorModal = useCallback(() => {
+    setLayerErrors([]);
+  }, []);
+
+  const handleDismissError = useCallback((layerId: string | number) => {
+    setLayerErrors((prev) => prev.filter((e) => e.layerId !== layerId));
+  }, []);
+
   const onLayerLoading = useCallback(
     (_isAnyLayerLoading: boolean) => {
       onLoadingLayers?.(_isAnyLayerLoading);
@@ -158,7 +180,7 @@ const MapView = (props: MapViewProps) => {
       basemap={safeBasemap}
       mapOptions={{
         ...(options?.map || {}),
-        zoom: Number(query.zoom) || site?.zoom_level || 5,
+        zoom: Number(query.zoom) || site?.zoom_level || 2,
         center: getCenter(),
         scrollWheelZoom: !embed,
         drawControl: true,
@@ -183,7 +205,7 @@ const MapView = (props: MapViewProps) => {
         zoomend: (e, map) => {
           const mapZoom = map.getZoom();
 
-          if (mapZoom !== (+site?.zoom_level || 5)) {
+          if (mapZoom !== (+site?.zoom_level || 2)) {
             setParam('zoom', String(map.getZoom()));
           } else {
             // clear param if it's default
@@ -207,6 +229,7 @@ const MapView = (props: MapViewProps) => {
               plugin={PluginLeaflet}
               ref={layerManagerRef}
               onLayerLoading={onLayerLoading}
+              onLayerError={onLayerError}
             >
               {activeLayers.map((l, index) => (
                 <Layer
@@ -246,7 +269,13 @@ const MapView = (props: MapViewProps) => {
           )}
 
           {tab === TABS.MODELS && model_layer && (
-            <LayerManager map={map} plugin={PluginLeaflet} ref={layerManagerRef} key="model_layer">
+            <LayerManager
+              map={map}
+              plugin={PluginLeaflet}
+              ref={layerManagerRef}
+              key="model_layer"
+              onLayerError={onLayerError}
+            >
               <Layer key="model_layer" {...model_layer} />
             </LayerManager>
           )}
@@ -263,6 +292,12 @@ const MapView = (props: MapViewProps) => {
               <Toolbar />
             </MapControls>
           )}
+
+          <LayerErrorModal
+            errors={layerErrors}
+            onClose={handleCloseErrorModal}
+            onDismissError={handleDismissError}
+          />
         </>
       )}
     </LeafletMap>

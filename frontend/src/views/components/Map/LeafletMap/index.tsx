@@ -70,8 +70,9 @@ const LeafletMap = forwardRef<LeafletMapRef, LeafletMapProps>(
     useEffect(() => {
       if (!containerRef.current || mapRef.current) return;
 
-      const defaultCenter: L.LatLngExpression = [0, 0];
-      const defaultZoom = 5;
+      // World-centered default view
+      const defaultCenter: L.LatLngExpression = [20, 0];
+      const defaultZoom = 2;
 
       const map = L.map(containerRef.current, {
         center: mapOptions.center || defaultCenter,
@@ -176,26 +177,14 @@ const LeafletMap = forwardRef<LeafletMapRef, LeafletMapProps>(
       };
     }, [events]);
 
-    // Update map options when they change
+    // Update min/max zoom options when they change
+    // Note: center/zoom are only applied on initial mount (in the map initialization effect above)
+    // After that, the map is fully user-controlled. Programmatic navigation (like search)
+    // uses map.fitBounds() directly via the DrawingManager, not through props.
     useEffect(() => {
       if (!mapRef.current) return;
 
       const map = mapRef.current;
-
-      if (mapOptions.center) {
-        const currentCenter = map.getCenter();
-        const newCenter = L.latLng(mapOptions.center);
-        if (
-          Math.abs(currentCenter.lat - newCenter.lat) > 0.0001 ||
-          Math.abs(currentCenter.lng - newCenter.lng) > 0.0001
-        ) {
-          map.setView(newCenter, mapOptions.zoom || map.getZoom(), { animate: false });
-        }
-      }
-
-      if (mapOptions.zoom && map.getZoom() !== mapOptions.zoom) {
-        map.setZoom(mapOptions.zoom);
-      }
 
       if (mapOptions.minZoom) {
         map.setMinZoom(mapOptions.minZoom);
@@ -204,7 +193,7 @@ const LeafletMap = forwardRef<LeafletMapRef, LeafletMapProps>(
       if (mapOptions.maxZoom) {
         map.setMaxZoom(mapOptions.maxZoom);
       }
-    }, [mapOptions.center, mapOptions.zoom, mapOptions.minZoom, mapOptions.maxZoom]);
+    }, [mapOptions.minZoom, mapOptions.maxZoom]);
 
     return (
       <div className={`c-leaflet-map ${customClass}`} style={{ width: '100%', height: '100%' }}>
