@@ -13,27 +13,22 @@ const Footer: React.FC = () => (
         </a>
       </p>
       <p className="privacy">
+        <a
+          href="https://www.conservation.org/policies/terms-of-use"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <T _str="Terms of Use" />
+        </a>
+      </p>
+      <p className="privacy">
         <a href="mailto:resilience@conservation.org">
           <T _str="Contact us" />
         </a>
       </p>
       <p className="copyright">
-        &copy; <T _str="2015 Conservation International" />
-      </p>
-      <p className="credits">
-        <T
-          _str="A website designed by {vizzuality}"
-          vizzuality={
-            <a
-              href="http://www.vizzuality.com/"
-              className="vizz-logo"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              vizzuality
-            </a>
-          }
-        />
+        &copy; {new Date().getFullYear()}{' '}
+        <T _str="Conservation International" />
       </p>
     </nav>
   </footer>
