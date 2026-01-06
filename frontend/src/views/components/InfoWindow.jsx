@@ -43,10 +43,12 @@ export default class InfoWindow extends Component {
     const {
       open,
       name,
-      data: { description, source, link, links },
+      data,
     } = this.state;
 
     if (!open) return null;
+
+    const { description, source, link, links } = data || {};
 
     return ReactDOM.createPortal(
       <div className="m-modal-window">

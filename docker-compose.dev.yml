@@ -26,7 +26,7 @@ services:
       - ./backend/.env
     volumes:
       - ./backend:/app
-      - bundle_cache:/usr/local/bundle
+      - backend_bundle_cache:/usr/local/bundle
     networks:
       - app-network
     depends_on:
@@ -53,11 +53,13 @@ services:
       - NODE_ENV=development
       - CYPRESS_INSTALL_BINARY=0
       - CYPRESS_RUN_BINARY=/dev/null
+      - WATCHPACK_POLLING=true
+      - CHOKIDAR_USEPOLLING=true
     env_file:
       - ./frontend/.env
     volumes:
       - ./frontend:/app
-      - node_modules:/app/node_modules
+      - frontend_node_modules:/app/node_modules
     networks:
       - app-network
     depends_on:
@@ -66,8 +68,8 @@ services:
     command: >
       bash -c "
         git config --global url.https://github.com/.insteadOf ssh://git@github.com/ &&
-        yarn install &&
-        yarn dev"
+        npm install --legacy-peer-deps &&
+        npm run dev"
 
 networks:
   app-network:
@@ -75,5 +77,5 @@ networks:
 
 volumes:
   postgres_data:
-  bundle_cache:
-  node_modules:
+  backend_bundle_cache:
+  frontend_node_modules:

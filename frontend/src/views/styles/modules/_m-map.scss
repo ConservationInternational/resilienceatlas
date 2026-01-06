@@ -1,9 +1,14 @@
+@use '../sass-modules' as *;
+@use '../mixins' as *;
+@use '../variables' as *;
+
 .m-map {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
+  z-index: 0;
 }
 
 .leaflet-container {
@@ -148,6 +153,71 @@
       border-bottom: 1px solid rgba(151, 151, 151, 0.3);
     }
   }
+}
+
+// Native Leaflet Map controls (replacing vizzuality-components)
+.c-map-controls {
+  position: absolute;
+  top: rem(16px);
+  right: rem(16px);
+  z-index: 999;
+
+  // Nested controls should have spacing
+  > * + * {
+    margin-top: rem(4px);
+  }
+}
+
+.c-zoom-control {
+  display: flex;
+  flex-direction: column;
+  background-color: #fff;
+  border: 1px solid rgba(202, 204, 208, 0.85);
+  border-radius: 3px;
+  overflow: hidden;
+
+  .zoom-control-btn {
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 30px;
+    height: 30px;
+    border: none;
+    background-color: $bg-color-1;
+    color: $font-color-1;
+    transition: background-color linear 0.16s;
+    outline: none;
+    padding: 0;
+
+    &:hover {
+      background-color: darken-color($bg-color-1, 5%);
+    }
+
+    &:first-of-type {
+      border-bottom: 1px solid rgba(151, 151, 151, 0.3);
+    }
+
+    &:disabled {
+      background-color: darken-color($bg-color-1, 5%);
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .icon {
+      width: 14px;
+      height: 14px;
+      fill: $font-color-1;
+      flex-shrink: 0;
+    }
+  }
+}
+
+// Leaflet map wrapper
+.c-leaflet-map {
+  position: relative;
+  width: 100%;
+  height: 100%;
 }
 
 .wri_api__c-icon {

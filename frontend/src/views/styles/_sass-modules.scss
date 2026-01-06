@@ -1,22 +1,87 @@
-// Modern Sass module imports
-// These replace deprecated global built-in functions
+// ============================================================================
+// Modern Sass Module System
+// ============================================================================
+// This file provides modern Sass module imports and helper functions.
+// It replaces deprecated global built-in functions with their module equivalents.
+//
+// USAGE:
+// In files that need these functions, add at the top:
+//   @use '../sass-modules' as *;
+// Or for namespaced access:
+//   @use '../sass-modules' as sass;
+// ============================================================================
+
 @use "sass:math";
 @use "sass:color";
+@use "sass:list";
+@use "sass:string";
 
-// Helper function to replace deprecated percentage()
-// Usage: grid-percentage($i, $columns) instead of percentage(calc($i / $columns))
+// ============================================================================
+// Math Functions
+// ============================================================================
+
+/// Divide two numbers (replaces deprecated / operator for division)
+/// @param {Number} $a - Dividend
+/// @param {Number} $b - Divisor
+/// @return {Number} The result of $a / $b
+@function div($a, $b) {
+  @return math.div($a, $b);
+}
+
+/// Calculate percentage (replaces deprecated percentage() function)
+/// @param {Number} $value - The value to convert
+/// @param {Number} $total - The total to calculate against
+/// @return {Percentage} The percentage value
 @function grid-percentage($value, $total) {
   @return math.percentage(math.div($value, $total));
 }
 
-// Helper function to replace deprecated darken()
-// Usage: darken-color($color, $amount) instead of darken($color, $amount)
+// ============================================================================
+// List Functions
+// ============================================================================
+
+/// Get length of a list (replaces deprecated length() function)
+/// @param {List} $list-arg - The list to measure
+/// @return {Number} The length of the list
+@function len($list-arg) {
+  @return list.length($list-arg);
+}
+
+/// Get nth item from a list (replaces deprecated nth() function)
+/// @param {List} $list-arg - The list to access
+/// @param {Number} $n - The index (1-based)
+/// @return {*} The item at index $n
+@function get-nth($list-arg, $n) {
+  @return list.nth($list-arg, $n);
+}
+
+// ============================================================================
+// String Functions
+// ============================================================================
+
+/// Unquote a string (replaces deprecated unquote() function)
+/// @param {String} $string - The string to unquote
+/// @return {String} The unquoted string
+@function unquote-str($string) {
+  @return string.unquote($string);
+}
+
+// ============================================================================
+// Color Functions
+// ============================================================================
+
+/// Darken a color (replaces deprecated darken() function)
+/// @param {Color} $color - The color to darken
+/// @param {Percentage} $amount - Amount to darken (e.g., 5%)
+/// @return {Color} The darkened color
 @function darken-color($color, $amount) {
   @return color.adjust($color, $lightness: -$amount);
 }
 
-// Helper function to replace deprecated lighten()
-// Usage: lighten-color($color, $amount) instead of lighten($color, $amount)
+/// Lighten a color (replaces deprecated lighten() function)
+/// @param {Color} $color - The color to lighten
+/// @param {Percentage} $amount - Amount to lighten (e.g., 5%)
+/// @return {Color} The lightened color
 @function lighten-color($color, $amount) {
   @return color.adjust($color, $lightness: $amount);
 }

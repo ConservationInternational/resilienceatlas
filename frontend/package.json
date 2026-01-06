@@ -51,6 +51,7 @@
     "react-dom": "19.2.0",
     "react-dropzone": "^14.3.5",
     "react-iframe": "^1.8.5",
+    "react-leaflet": "^5.0.0",
     "react-modal": "^3.16.3",
     "react-redux": "^9.2.0",
     "react-router": "^7.1.1",
@@ -60,20 +61,19 @@
     "redux-form": "^8.3.10",
     "redux-thunk": "^3.1.0",
     "reselect": "^5.1.1",
-    "resilience-layer-manager": "github:ConservationInternational/resilienceatlas-layermanager#1.0.4",
+    "resilience-layer-manager": "github:ConservationInternational/resilienceatlas-layermanager#2.0.1",
     "sass": "^1.83.0",
     "slick-carousel": "^1.8.1",
     "use-debounce": "^10.0.4",
     "vega": "^6.2.0",
     "vega-lib": "^4.4.0",
-    "vizzuality-components": "^3.0.3",
     "yup": "^1.5.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",
     "@transifex/cli": "^7.1.5",
     "@types/google.maps": "^3.58.1",
-    "@types/leaflet": "1.9.14",
+    "@types/leaflet": "^1.9.14",
     "@types/node": "22.10.2",
     "@types/react": "^19.0.2",
     "@types/react-dom": "^19.0.2",
@@ -95,9 +95,13 @@
     "typescript": "5.7.2"
   },
   "overrides": {
+    "@transifex/cli": {
+      "@oclif/core": "^2.16.0"
+    },
     "js-yaml": "3.14.2",
     "axios": "^1.12.0",
     "follow-redirects": "^1.15.9",
+    "corslite": "npm:@mapbox/corslite@0.0.7",
     "d3-color": "^3.1.0",
     "jquery": "^3.7.1",
     "postcss": "^8.5.0",
@@ -109,7 +113,6 @@
     "underscore": "1.13.7",
     "glob": "^10.4.5",
     "inflight": "npm:@aspect-build/inflight@^1.0.0",
-    "core-js": "^3.40.0",
     "redux-form": {
       "react": "19.2.0",
       "react-redux": "^9.2.0"
@@ -120,9 +123,6 @@
       "axios": "^1.12.0"
     },
     "layer-manager": {
-      "axios": "^1.12.0"
-    },
-    "vizzuality-components": {
       "axios": "^1.12.0"
     },
     "react-datepicker": {

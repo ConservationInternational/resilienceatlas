@@ -69,6 +69,15 @@ Rails.application.configure do
 
   config.log_level = :debug
 
+  # Allow Docker container hostnames for development
+  # This is needed when the frontend container calls the backend via Docker network
+  config.hosts << "backend"
+  config.hosts << "backend:3000"
+  config.hosts << "localhost"
+  config.hosts << "localhost:3000"
+  config.hosts << "localhost:3001"
+  config.hosts << "127.0.0.1"
+
   if ENV["RAILS_LOG_TO_STDOUT"].present?
     logger = ActiveSupport::Logger.new($stdout)
     logger.formatter = config.log_formatter

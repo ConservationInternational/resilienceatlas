@@ -1,3 +1,19 @@
+// ============================================================================
+// Mixins and Placeholder Selectors
+// ============================================================================
+// This file provides reusable mixins and placeholder selectors.
+// Uses modern Sass module system.
+// ============================================================================
+
+@use 'sass-modules' as *;
+
+// Default rem base - can be overridden in _variables.scss
+$rem-base: 16px !default;
+
+// ============================================================================
+// Placeholder Selectors
+// ============================================================================
+
 // Clean lists
 %clean-lists {
   list-style: none;
@@ -56,6 +72,17 @@
   //   border: 0;
   //   outline: 0;
   // }
+}
+
+// Visually hidden but accessible to screen readers
+%visually-hidden {
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  height: 1px;
+  overflow: hidden;
+  position: absolute;
+  white-space: nowrap;
+  width: 1px;
 }
 
 %clearfix {
@@ -139,7 +166,7 @@
     position: absolute;
     top: 50%;
     left: 50%;
-    margin: (-$size/2) 0 (-$size/2);
+    margin: div(-$size, 2) 0 div(-$size, 2);
     transition: all 0.75s ease 0s;
     border-radius: 100%;
     border-top: $border-width solid $color;
@@ -236,7 +263,7 @@
 
 // A helper to transform PX to REM unit
 @function rem($px, $base: $rem-base) {
-  @return ($px / $base) * 1rem;
+  @return div($px, $base) * 1rem;
 }
 
 @mixin ellipsis($max-width) {
@@ -249,7 +276,7 @@
 
 // A helper to darken a css variable color
 @function darken-variable($variable, $opacity) {
-  @return unquote('linear-gradient(to top,rgba(0, 0, 0,'+ $opacity +'),rgba(0, 0, 0,' + $opacity + '))' + $variable);
+  @return unquote-str('linear-gradient(to top,rgba(0, 0, 0,' + $opacity + '),rgba(0, 0, 0,' + $opacity + '))' + $variable);
 }
 
 // Switch component mixins (replacement for foundation-sites)

@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from 'react';
-import { MapPopup as VizzMapPopup } from 'vizzuality-components';
+import { LeafletMapPopup } from '../LeafletMap/exports';
 import LayerPopup from './LayerPopup';
 
 const MapPopup = ({
@@ -19,7 +19,7 @@ const MapPopup = ({
   }, [layersInteraction.length]);
 
   return (
-    <VizzMapPopup
+    <LeafletMapPopup
       map={map}
       latlng={layerGroupsInteractionLatLng}
       data={{
@@ -36,7 +36,7 @@ const MapPopup = ({
           setMapLayerGroupsInteractionSelected(selected);
         }}
       />
-    </VizzMapPopup>
+    </LeafletMapPopup>
   );
 };
 

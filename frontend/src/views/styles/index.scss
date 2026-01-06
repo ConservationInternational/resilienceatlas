@@ -1,43 +1,87 @@
-// Modern Sass modules - must be @use'd before any @import
-@use 'sass-modules' as *;
+// ============================================================================
+// Resilience Atlas - Main Stylesheet
+// ============================================================================
+// This is the main entry point for all styles.
+// Uses the modern Sass @use/@forward module system.
+// ============================================================================
 
-@import 'mixins';
-@import 'variables';
+// Load shared modules (sass-modules, mixins, variables)
+// This makes all functions, mixins, and variables available
+@use 'sass-modules' as *;
+@use 'mixins' as *;
+@use 'variables' as *;
 
 // Modern CSS Grid System (replaces foundation-sites)
-@import 'grid';
+@use 'grid';
 
-// Importing project settings
-@import 'base';
-@import 'icons';
+// Base styles and icons
+@use 'base';
+@use 'icons';
 
-// Importing layouts and modules
-@import 'layouts/l-header', 'layouts/l-footer', 'layouts/l-main',
-  'layouts/l-content', 'layouts/l-journey-intro', 'layouts/l-journey-index',
-  'layouts/l-sidebar', 'layouts/l-journey';
+// Layouts
+@use 'layouts/l-header';
+@use 'layouts/l-footer';
+@use 'layouts/l-main';
+@use 'layouts/l-content';
+@use 'layouts/l-journey-intro';
+@use 'layouts/l-journey-index';
+@use 'layouts/l-sidebar';
+@use 'layouts/l-journey';
 
-@import 'modules/_buttons', 'modules/_foundation-tabs',
-  'modules/_m-analysis-content', 'modules/_m-analysis-model',
-  'modules/_m-analysis-selectors', 'modules/_m-analysis',
-  'modules/_m-basemap-selectors', 'modules/_m-charts',
-  'modules/_m-content-manager', 'modules/_m-controls',
-  'modules/_m-disclaimer', 'modules/_m-forms',
-  'modules/_m-home-intro', 'modules/_m-home-journeys', 'modules/_m-home-section',
-  'modules/_m-infowindow', 'modules/_m-journey-chapter',
-  'modules/_m-journey-conclusion', 'modules/_m-journey-embed',
-  'modules/_m-journey-grid', 'modules/_m-journey-intro',
-  'modules/_m-journey-landing', 'modules/_m-journey-pagination',
-  'modules/_m-journey-text', 'modules/_m-journey', 'modules/_m-layers-list',
-  'modules/_m-legend', 'modules/_m-loader', 'modules/_m-map',
-  'modules/_m-predictive-models', 'modules/_m-report-page',
-  'modules/_m-search-analysis', 'modules/_m-search-map', 'modules/_m-search',
-  'modules/_m-section-nav', 'modules/_m-share', 'modules/_m-sidebar',
-  'modules/_m-slider', 'modules/_m-static-page', 'modules/_m-toolbar',
-  'modules/_m-widget', 'modules/_m-widgets-list',
-  'modules/_modal', 'modules/m-user-form', 'modules/c-map-popup',
-  'modules/m-logo-attribution', 'modules/m-privacy-banner', 'modules/m-map-tour',
-  'modules/m-highlighted-text', 'modules/m-labels-selectors', 'modules/_m-map-loading-screen', 'modules/m-wizard-form',
-  'modules/m-datepicker';
+// Modules
+@use 'modules/buttons';
+@use 'modules/foundation-tabs';
+@use 'modules/m-analysis-content';
+@use 'modules/m-analysis-model';
+@use 'modules/m-analysis-selectors';
+@use 'modules/m-analysis';
+@use 'modules/m-basemap-selectors';
+@use 'modules/m-charts';
+@use 'modules/m-content-manager';
+@use 'modules/m-controls';
+@use 'modules/m-disclaimer';
+@use 'modules/m-forms';
+@use 'modules/m-home-intro';
+@use 'modules/m-home-journeys';
+@use 'modules/m-home-section';
+@use 'modules/m-infowindow';
+@use 'modules/m-journey-chapter';
+@use 'modules/m-journey-conclusion';
+@use 'modules/m-journey-embed';
+@use 'modules/m-journey-grid';
+@use 'modules/m-journey-intro';
+@use 'modules/m-journey-landing';
+@use 'modules/m-journey-pagination';
+@use 'modules/m-journey-text';
+@use 'modules/m-journey';
+@use 'modules/m-layers-list';
+@use 'modules/m-legend';
+@use 'modules/m-loader';
+@use 'modules/m-map';
+@use 'modules/m-predictive-models';
+@use 'modules/m-report-page';
+@use 'modules/m-search-analysis';
+@use 'modules/m-search-map';
+@use 'modules/m-search';
+@use 'modules/m-section-nav';
+@use 'modules/m-share';
+@use 'modules/m-sidebar';
+@use 'modules/m-slider';
+@use 'modules/m-static-page';
+@use 'modules/m-toolbar';
+@use 'modules/m-widget';
+@use 'modules/m-widgets-list';
+@use 'modules/modal';
+@use 'modules/m-user-form';
+@use 'modules/c-map-popup';
+@use 'modules/m-logo-attribution';
+@use 'modules/m-privacy-banner';
+@use 'modules/m-map-tour';
+@use 'modules/m-highlighted-text';
+@use 'modules/m-labels-selectors';
+@use 'modules/m-map-loading-screen';
+@use 'modules/m-wizard-form';
+@use 'modules/m-datepicker';
 
 // Global states
-@import 'state';
+@use 'state';

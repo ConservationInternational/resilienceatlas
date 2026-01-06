@@ -1,3 +1,7 @@
+@use '../sass-modules' as *;
+@use '../mixins' as *;
+@use '../variables' as *;
+
 .m-report-page {
   > .row {
     // We want the page to fit in a A4 page

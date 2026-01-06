@@ -1,18 +1,47 @@
-import 'leaflet';
-import '@geoman-io/leaflet-geoman-free';
+// Import leaflet and make it globally available BEFORE importing plugins
+import L from 'leaflet';
+
+// These will be dynamically imported on client-side only
+let LayerManager: typeof import('resilience-layer-manager/dist/components').LayerManager;
+let Layer: typeof import('resilience-layer-manager/dist/components').Layer;
+let PluginLeaflet: typeof import('resilience-layer-manager/dist/layer-manager').PluginLeaflet;
+
+// Make L globally available for plugins that expect it (like leaflet-geoman)
+// This must happen before importing plugins, so we use a side-effect approach
+if (typeof window !== 'undefined') {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (window as any).L = L;
+
+  // Now import plugins that depend on window.L
+  // Using require() to ensure they run after the window.L assignment above
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  require('@geoman-io/leaflet-geoman-free');
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  require('leaflet-active-area');
+  // UTFGrid library requires corslite, only included in the minimized version
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  require('leaflet-utfgrid/L.UTFGrid-min');
+
+  // Import layer-manager components that also require window.L
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const components = require('resilience-layer-manager/dist/components');
+  LayerManager = components.LayerManager;
+  Layer = components.Layer;
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const lm = require('resilience-layer-manager/dist/layer-manager');
+  PluginLeaflet = lm.PluginLeaflet;
+}
+
+// CSS imports must be static for bundler to process them
 import '@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css';
-import 'leaflet-active-area';
-// UTFGrid library requires corslite, only included in the minimized version
-import 'leaflet-utfgrid/L.UTFGrid-min';
+
 import { useRouterParams } from 'utilities';
-import React, { useCallback, useEffect, useContext } from 'react';
+import React, { useCallback, useEffect, useContext, useMemo } from 'react';
 import qs from 'qs';
 import omit from 'lodash/omit';
 import pick from 'lodash/pick';
 import type { MapViewProps } from './types';
-import { Map as Maps, MapControls, ZoomControl } from 'vizzuality-components';
-import { LayerManager, Layer } from 'resilience-layer-manager/dist/components';
-import { PluginLeaflet } from 'resilience-layer-manager/dist/layer-manager';
+import { LeafletMap, MapControls, ZoomControl } from './LeafletMap/exports';
 import { TABS } from 'views/components/Sidebar';
 import { useLoadLayers, useGetCenter } from './Map.hooks';
 import { BASEMAPS, LABELS } from 'views/utils';
@@ -111,24 +140,25 @@ const MapView = (props: MapViewProps) => {
 
   const MAX_LAYER_Z_INDEX = 1000;
 
-  // Handle empty label URL for "none" option - vizzuality-components can't handle empty URLs
-  const labelConfig = LABELS[labels];
-  const safeLabel = labelConfig?.url ? labelConfig : undefined;
+  // Memoize label and basemap configs to prevent infinite re-renders
+  const safeLabel = useMemo(() => {
+    const labelConfig = LABELS[labels];
+    return labelConfig?.url ? { url: labelConfig.url, options: {} } : undefined;
+  }, [labels]);
 
-  // Ensure basemap has required options property for vizzuality-components
-  const basemapConfig = BASEMAPS[basemap];
-  const safeBasemap = basemapConfig
-    ? { url: basemapConfig.url, options: {} }
-    : undefined;
+  const safeBasemap = useMemo(() => {
+    const basemapConfig = BASEMAPS[basemap];
+    return basemapConfig ? { url: basemapConfig.url, options: {} } : undefined;
+  }, [basemap]);
 
   return (
-    <Maps
+    <LeafletMap
       customClass="m-map"
       label={safeLabel}
       basemap={safeBasemap}
       mapOptions={{
         ...(options?.map || {}),
-        zoom: query.zoom || site?.zoom_level || 5,
+        zoom: Number(query.zoom) || site?.zoom_level || 5,
         center: getCenter(),
         scrollWheelZoom: !embed,
         drawControl: true,
@@ -136,23 +166,25 @@ const MapView = (props: MapViewProps) => {
         maxZoom: 13,
       }}
       events={{
-        layeradd: ({ layer }) => {
+        layeradd: (e) => {
+          const layer = (e as L.LayerEvent).layer as L.TileLayer;
           if (
             // to avoid displaying loading state with labels
-            layer?._url?.startsWith('https://api.mapbox.com/styles/v1/cigrp') ||
+            (layer as { _url?: string })?._url?.startsWith(
+              'https://api.mapbox.com/styles/v1/cigrp',
+            ) ||
             // to avoid displaying loading state when the user interacts with the map (click on a layer)
             Object.prototype.hasOwnProperty.call(layer, '_content')
           )
-            return null;
+            return;
           onLayerLoading(true);
           layer.on('load', onLayerLoaded);
-          return undefined;
         },
         zoomend: (e, map) => {
           const mapZoom = map.getZoom();
 
           if (mapZoom !== (+site?.zoom_level || 5)) {
-            setParam('zoom', map.getZoom());
+            setParam('zoom', String(map.getZoom()));
           } else {
             // clear param if it's default
             setParam('zoom', null);
@@ -169,9 +201,14 @@ const MapView = (props: MapViewProps) => {
     >
       {(map) => (
         <>
-          {tab === TABS.LAYERS &&
-            activeLayers?.map((l, index) => (
-              <LayerManager map={map} plugin={PluginLeaflet} ref={layerManagerRef} key={l.id}>
+          {tab === TABS.LAYERS && activeLayers && activeLayers.length > 0 && (
+            <LayerManager
+              map={map}
+              plugin={PluginLeaflet}
+              ref={layerManagerRef}
+              onLayerLoading={onLayerLoading}
+            >
+              {activeLayers.map((l, index) => (
                 <Layer
                   {...omit(l, 'interactivity')}
                   slug={l.slug || l.id}
@@ -203,9 +240,10 @@ const MapView = (props: MapViewProps) => {
                   decodeParams={
                     l.decodeParams ? { ...l.decodeParams, chartLimit: l.chartLimit || 100 } : null
                   }
-                ></Layer>
-              </LayerManager>
-            ))}
+                />
+              ))}
+            </LayerManager>
+          )}
 
           {tab === TABS.MODELS && model_layer && (
             <LayerManager map={map} plugin={PluginLeaflet} ref={layerManagerRef} key="model_layer">
@@ -227,7 +265,7 @@ const MapView = (props: MapViewProps) => {
           )}
         </>
       )}
-    </Maps>
+    </LeafletMap>
   );
 };
 

@@ -14,6 +14,8 @@ const nextConfig = {
   poweredByHeader: false,
   // Enable trailing slash for better subdomain handling
   trailingSlash: false,
+  // Disable static indicator to prevent HMR errors with isrManifest messages
+  devIndicators: false,
   // Note: ESLint is now configured via eslint.config.mjs (ESLint 9 flat config)
   // The 'eslint' option was removed in Next.js 16. Use `npm run lint` directly.
   typescript: {

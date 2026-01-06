@@ -1,4 +1,4 @@
-import { useReducer, useEffect, useRef } from 'react';
+import { useReducer, useEffect } from 'react';
 import axios from 'axios';
 import createReducer from '../../state/utils/createReducer';
 import { createApiAction } from '../../state/utils/api';
@@ -41,30 +41,38 @@ const fetchReducer = createReducer(initialState)({
  * @returns {array} [data, loading, lodaed, error]
  */
 export const useAxios = (config, deps, parseData) => {
-  const source = useRef(axios.CancelToken.source());
   const [state, dispatch] = useReducer(fetchReducer, initialState);
 
   useEffect(() => {
-    const currentSource = source.current;
+    const abortController = new AbortController();
     dispatch({ type: FETCH.REQUEST });
 
-    axios(config)
+    axios({ ...config, signal: abortController.signal })
       .then(({ data }) =>
         dispatch({
           type: FETCH.SUCCESS,
           data: parseData ? parseData(data) : data,
         }),
       )
-      // eslint-disable-next-line no-console
-      .catch((error) => console.warn(error) || dispatch({ type: FETCH.FAIL, error }));
+      .catch((error) => {
+        // Silently ignore canceled requests
+        if (
+          axios.isCancel(error) ||
+          error.code === 'ERR_CANCELED' ||
+          error.name === 'CanceledError'
+        ) {
+          return;
+        }
+        // eslint-disable-next-line no-console
+        console.warn(error);
+        dispatch({ type: FETCH.FAIL, error });
+      });
 
     return () => {
-      if (state.loading && currentSource) {
-        currentSource.cancel('Operation canceled because tagret component was unmounted.');
-      }
+      abortController.abort();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [config, parseData, state.loading, ...deps]);
+  }, [config, parseData, ...deps]);
 
   return [state.data, state.loading, state.loaded, state.error];
 };

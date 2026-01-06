@@ -1,3 +1,7 @@
+@use '../sass-modules' as *;
+@use '../mixins' as *;
+@use '../variables' as *;
+
 .m-wizard-form {
   background-color: $bg-color-5;
   padding: 20px 0;
@@ -39,7 +43,7 @@
   }
 
   input[type="radio"] {
-    @extend .is-visually-hidden;
+    @extend %visually-hidden;
 
     & + label {
       display: inline-flex;
@@ -77,7 +81,7 @@
   }
 
   input[type="checkbox"] {
-    @extend .is-visually-hidden;
+    @extend %visually-hidden;
 
     & + label {
       display: inline-flex;

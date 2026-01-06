@@ -1,5 +1,10 @@
+@use '../sass-modules' as *;
+@use '../mixins' as *;
+@use '../variables' as *;
+@use 'm-search' as search;
+
 .m-search-analysis {
-  @extend %search;
+  @include search.search-base;
 
   width: 100%;
   overflow: hidden;

@@ -230,8 +230,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_07_02_120000) do
   create_table "indicators", force: :cascade do |t|
     t.string "slug", null: false
     t.string "version"
-    t.datetime "created_at", precision: nil, default: "2026-01-05 19:39:09", null: false
-    t.datetime "updated_at", precision: nil, default: "2026-01-05 19:39:09", null: false
+    t.datetime "created_at", precision: nil, default: "2026-01-06 13:55:09", null: false
+    t.datetime "updated_at", precision: nil, default: "2026-01-06 13:55:09", null: false
     t.integer "category_id"
     t.integer "position"
     t.string "column_name"
@@ -424,8 +424,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_07_02_120000) do
   end
 
   create_table "models", force: :cascade do |t|
-    t.datetime "created_at", precision: nil, default: "2026-01-05 19:39:09", null: false
-    t.datetime "updated_at", precision: nil, default: "2026-01-05 19:39:09", null: false
+    t.datetime "created_at", precision: nil, default: "2026-01-06 13:55:09", null: false
+    t.datetime "updated_at", precision: nil, default: "2026-01-06 13:55:09", null: false
     t.text "query_analysis"
     t.string "table_name"
   end

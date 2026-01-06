@@ -1,3 +1,7 @@
+@use '../sass-modules' as *;
+@use '../mixins' as *;
+@use '../variables' as *;
+
 .m-analysis-model {
   padding: 0 30px;
   font-weight: 400;

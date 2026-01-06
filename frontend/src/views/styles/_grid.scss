@@ -1,6 +1,11 @@
+// ============================================================================
 // Modern CSS Grid System
+// ============================================================================
 // A lightweight replacement for foundation-sites grid
 // Uses flexbox for the 12-column grid system
+// ============================================================================
+
+@use 'sass-modules' as *;
 
 // Breakpoints
 $breakpoint-small: 0;

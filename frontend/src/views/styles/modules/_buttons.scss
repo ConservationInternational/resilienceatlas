@@ -1,3 +1,7 @@
+@use '../sass-modules' as *;
+@use '../mixins' as *;
+@use '../variables' as *;
+
 .btn {
   @extend %clean-button-or-input;
   display: inline-block;

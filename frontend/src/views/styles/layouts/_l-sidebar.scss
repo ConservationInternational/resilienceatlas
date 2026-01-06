@@ -1,3 +1,7 @@
+@use '../sass-modules' as *;
+@use '../mixins' as *;
+@use '../variables' as *;
+
 .l-sidebar,
 .l-sidebar--default {
   width: rem($sidebar-width);

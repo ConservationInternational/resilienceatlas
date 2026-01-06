@@ -103,6 +103,11 @@ export const makeRequest = (method: Method, url: string, options: AxiosRequestCo
     url,
     headers,
   }).catch((error) => {
+    // Silently ignore canceled requests (e.g., from navigation or component unmount)
+    if (axios.isCancel(error) || error.code === 'ERR_CANCELED') {
+      return Promise.reject({ canceled: true, error: 'Request canceled' });
+    }
+
     // Check if this is a site scope authentication error
     if (
       error.response?.status === 401 &&
@@ -178,6 +183,11 @@ export default function api(apiAction: ApiAction, cb: Callback, meta: ApiMeta) {
         });
       })
       .catch((error) => {
+        // Silently ignore canceled requests
+        if (error.canceled) {
+          return;
+        }
+
         if (error.error) {
           dispatch({
             type: apiAction.FAIL,

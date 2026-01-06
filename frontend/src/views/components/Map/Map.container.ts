@@ -1,6 +1,5 @@
 import { connect } from 'react-redux';
 import { withRouter } from 'next/router';
-import dynamic from 'next/dynamic';
 import type { RootState } from 'state/types';
 
 import {
@@ -18,7 +17,8 @@ import {
   setMapLayerGroupsInteractionLatLng,
 } from 'state/modules/map';
 
-const MapViewNoSSR = dynamic(() => import('./Map.component'), { ssr: false });
+// Import the component directly - SSR is disabled at the index.js level
+import MapView from './Map.component';
 
 const makeMapStateToProps = () => {
   const groupedLayers = getGrouped();
@@ -61,6 +61,6 @@ const mapDispatchToProps = {
 
 // Using explicit any to avoid deep type instantiation issues with compose + connect + withRouter
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const connected = connect(makeMapStateToProps, mapDispatchToProps)(MapViewNoSSR as any);
+const connected = connect(makeMapStateToProps, mapDispatchToProps)(MapView as any);
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default withRouter(connected as any);

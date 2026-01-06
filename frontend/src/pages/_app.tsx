@@ -23,6 +23,44 @@ import type { AppProps } from 'next/app';
 import type { DehydratedState } from '@tanstack/react-query';
 import type { ProviderProps as MapTourProviderProps } from '@reactour/tour';
 
+// Fix Next.js 16 HMR ISR manifest error in development
+// This is a known issue where the HMR handler (hot-reloader-pages.ts) tries to access
+// window.next.router.components before the router is fully initialized.
+// The handleStaticIndicator function crashes with "Cannot read properties of undefined"
+// when isrManifest HMR messages arrive before the router has set up its components.
+if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
+  // Ensure window.next.router.components exists before HMR messages arrive
+  // Note: window.next.router is defined with only a getter in Next.js 16,
+  // so we can only add properties to it, not replace it entirely
+  const ensureRouterComponents = () => {
+    try {
+      const nextObj = (window as any).next;
+      if (nextObj && nextObj.router && typeof nextObj.router.components === 'undefined') {
+        nextObj.router.components = {};
+      }
+    } catch {
+      // Silently ignore if we can't patch - the router may not be ready yet
+    }
+  };
+
+  // Apply immediately if possible
+  ensureRouterComponents();
+
+  // Also ensure it's set up when the HMR WebSocket connects (which happens early)
+  // by periodically checking until the real router takes over
+  const interval = setInterval(() => {
+    ensureRouterComponents();
+    // Stop checking once the real router is initialized with actual components
+    const nextObj = (window as any).next;
+    if (nextObj?.router?.components && Object.keys(nextObj.router.components).length > 0) {
+      clearInterval(interval);
+    }
+  }, 10);
+
+  // Clean up after 5 seconds regardless (router should be initialized by then)
+  setTimeout(() => clearInterval(interval), 5000);
+}
+
 // Third-party styles
 import 'normalize.css/normalize.css';
 import 'slick-carousel/slick/slick.css';

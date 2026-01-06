@@ -43,6 +43,46 @@ RUN npm install --legacy-peer-deps --no-audit --no-fund \
   && ls -la /app/node_modules/ | head -5 \
   && echo "✅ node_modules verified"
 
+# Development stage - for docker compose watch
+FROM node:24.0.0-bullseye AS development
+WORKDIR /app
+
+# Install curl for health checks
+RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
+
+# Enhanced git configuration for SSH dependency handling and network resilience
+RUN git config --global url.https://github.com/.insteadOf ssh://git@github.com/ && \
+    git config --global url.https://github.com/.insteadOf git@github.com: && \
+    git config --global url.https://github.com/.insteadOf git+ssh://git@github.com/ && \
+    git config --global http.postBuffer 524288000 && \
+    git config --global http.timeout 30
+
+# Configure npm for better network resilience
+RUN npm config set registry https://registry.npmjs.org/ && \
+    npm config set fetch-timeout 600000 && \
+    npm config set fetch-retry-mintimeout 10000 && \
+    npm config set fetch-retry-maxtimeout 60000 && \
+    npm config set fetch-retries 5
+
+# Copy dependencies from dev-deps stage
+COPY --from=dev-deps /app/node_modules ./node_modules
+COPY package.json .npmrc ./
+
+# Set environment variables for development
+ENV NODE_ENV=development
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV CYPRESS_INSTALL_BINARY=0
+ENV CYPRESS_RUN_BINARY=/dev/null
+
+# Copy application source
+COPY . .
+
+EXPOSE 3000
+ENV PORT=3000
+
+# Default command for development
+CMD ["npm", "run", "dev"]
+
 # Test stage
 FROM node:24.0.0-bullseye AS test
 WORKDIR /app
