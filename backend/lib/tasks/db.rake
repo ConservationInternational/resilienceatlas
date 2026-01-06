@@ -28,6 +28,7 @@ namespace :db do
 
     # Drop database if it exists
     begin
+      Rake::Task["db:drop"].reenable
       Rake::Task["db:drop"].invoke
       puts "✓ Dropped existing test database"
     rescue => e
@@ -35,22 +36,20 @@ namespace :db do
     end
 
     # Create database
+    Rake::Task["db:create"].reenable
     Rake::Task["db:create"].invoke
     puts "✓ Created test database"
 
-    # Load schema with error handling
+    # Run migrations instead of schema:load to avoid PostGIS topology conflict
+    # The postgis_topology extension creates the "topology" schema automatically,
+    # but schema.rb also has create_schema "topology" which causes a conflict
     begin
-      Rake::Task["db:schema:load"].invoke
-      puts "✓ Loaded database schema"
+      Rake::Task["db:migrate"].reenable
+      Rake::Task["db:migrate"].invoke
+      puts "✓ Ran database migrations"
     rescue ActiveRecord::StatementInvalid => e
       if e.message.include?("already exists")
-        puts "⚠ Schema elements already exist, continuing..."
-        # Try to run migrations instead
-        begin
-          Rake::Task["db:migrate"].invoke
-        rescue
-          nil
-        end
+        puts "⚠ Some schema elements already exist, but migrations completed"
       else
         raise e
       end
@@ -63,8 +62,8 @@ namespace :db do
 
   def with_config
     yield Rails.application.class.parent_name.underscore,
-    ActiveRecord::Base.connection_config[:host],
-    ActiveRecord::Base.connection_config[:database],
-    ActiveRecord::Base.connection_config[:username]
+      ActiveRecord::Base.connection_db_config.configuration_hash[:host],
+      ActiveRecord::Base.connection_db_config.configuration_hash[:database],
+      ActiveRecord::Base.connection_db_config.configuration_hash[:username]
   end
 end
