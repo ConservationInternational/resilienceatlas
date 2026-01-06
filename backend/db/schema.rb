@@ -11,7 +11,9 @@
 # It's strongly recommended that you check this file into your version control system.
 
 ActiveRecord::Schema[7.2].define(version: 2025_07_02_120000) do
-  create_schema "topology"
+  # Note: The "topology" schema is created automatically by the postgis_topology extension.
+  # Do not use create_schema "topology" here as it conflicts with the extension.
+  # The extension handles creating the schema if needed.
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"

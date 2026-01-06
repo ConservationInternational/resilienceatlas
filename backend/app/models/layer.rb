@@ -125,12 +125,18 @@ class Layer < ApplicationRecord
   end
 
   # Only define enums if the table and columns exist to avoid migration issues
-  if table_exists? && column_names.include?("timeline_period")
-    enum :timeline_period, {yearly: "yearly", monthly: "monthly", daily: "daily"}, default: :yearly, prefix: true
-  end
+  # Wrapped in begin/rescue to handle cases where database is being created
+  begin
+    if table_exists? && column_names.include?("timeline_period")
+      enum :timeline_period, {yearly: "yearly", monthly: "monthly", daily: "daily"}, default: :yearly, prefix: true
+    end
 
-  if table_exists? && column_names.include?("analysis_type")
-    enum :analysis_type, {histogram: "histogram", categorical: "categorical", text: "text"}, default: :histogram, prefix: true
+    if table_exists? && column_names.include?("analysis_type")
+      enum :analysis_type, {histogram: "histogram", categorical: "categorical", text: "text"}, default: :histogram, prefix: true
+    end
+  rescue ActiveRecord::NoDatabaseError, ActiveRecord::ConnectionNotEstablished, ActiveRecord::StatementInvalid, PG::ConnectionBad => e
+    # Database not available yet - skip enum setup for now
+    Rails.logger&.info "Skipping Layer enums setup - database not ready: #{e.message}"
   end
 
   validates_presence_of :slug, :layer_provider, :interaction_config

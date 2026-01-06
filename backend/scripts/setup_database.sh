@@ -18,22 +18,8 @@ echo "Setup integration data: $SETUP_DATA"
 echo "Setting Rails environment..."
 RAILS_ENV=test bundle exec rails db:environment:set RAILS_ENV=test || true
 
-# Try db:prepare first, but if it fails due to schema conflicts, use drop/create/migrate
 echo "Preparing test database..."
-if ! RAILS_ENV=test bundle exec rails db:prepare 2>&1; then
-    echo "⚠️  db:prepare failed, attempting drop/create/migrate approach..."
-    
-    # Drop database if it exists (ignore errors if it doesn't)
-    RAILS_ENV=test bundle exec rails db:drop 2>/dev/null || true
-    
-    # Create database
-    echo "Creating database..."
-    RAILS_ENV=test bundle exec rails db:create
-    
-    # Run migrations instead of schema:load to avoid topology schema conflict
-    echo "Running migrations..."
-    RAILS_ENV=test bundle exec rails db:migrate
-fi
+RAILS_ENV=test bundle exec rails db:prepare
 
 echo "Verifying database setup..."
 table_count=$(RAILS_ENV=test bundle exec rails runner 'puts ActiveRecord::Base.connection.tables.count')
