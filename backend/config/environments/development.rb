@@ -86,4 +86,10 @@ Rails.application.configure do
   end
   config.active_storage.service = :local
   config.factory_bot.definition_file_paths = ["spec/factories"]
+
+  # Allow web-console from Docker networks
+  # This fixes "Cannot render console from 172.x.x.x" errors when running in Docker
+  if defined?(WebConsole)
+    config.web_console.permissions = ["172.16.0.0/12", "192.168.0.0/16", "10.0.0.0/8"]
+  end
 end
