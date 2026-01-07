@@ -86,6 +86,8 @@ RSpec.describe LayerGroup, type: :model do
     end
 
     it "can have multiple child groups" do
+      # Ensure child_group is created (it's lazy-loaded via let)
+      child_group
       child2 = create(:layer_group, name: "Child Group 2", super_group: parent_group, site_scope: site_scope)
       expect(parent_group.sub_groups.count).to eq(2)
       expect(parent_group.sub_groups).to include(child_group, child2)
