@@ -41,11 +41,11 @@ class Category < ApplicationRecord
 
   # Ransack configuration - explicitly allowlist searchable attributes for security
   def self.ransackable_attributes(auth_object = nil)
-    ["created_at", "id", "id_value", "slug", "updated_at", "name", "description"]
+    %w[id slug name description created_at updated_at]
   end
 
   def self.ransackable_associations(auth_object = nil)
-    ["indicators", "translations"]
+    %w[indicators translations]
   end
 
   def self.fetch_all(options = {})

@@ -144,6 +144,8 @@ services:
     environment:
       - NODE_ENV=test
       - NEXT_PUBLIC_API_HOST=http://backend-test:3001
+      # Internal API host for server-side rendering (Docker network)
+      - INTERNAL_API_HOST=http://backend-test:3001
       - NEXT_PUBLIC_GOOGLE_ANALYTICS=GA_TEST_ID
       - NEXT_PUBLIC_TRANSIFEX_TOKEN=test_token
       - NEXT_PUBLIC_TRANSIFEX_SECRET=test_secret

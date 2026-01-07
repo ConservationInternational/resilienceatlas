@@ -51,11 +51,11 @@ class Journey < ApplicationRecord
   scope :only_published, -> { where published: true }
 
   def self.ransackable_attributes(auth_object = nil)
-    %w[id slug theme background_image_file_name published created_at updated_at]
+    %w[id title subtitle theme credits credits_url published created_at updated_at]
   end
 
   def self.ransackable_associations(auth_object = nil)
-    %w[journey_steps site_scopes translations]
+    %w[journey_steps site_scopes translations background_image_attachment background_image_blob]
   end
 
   private

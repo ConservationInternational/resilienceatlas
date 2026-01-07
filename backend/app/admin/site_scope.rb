@@ -27,11 +27,9 @@ ActiveAdmin.register SiteScope do
   form do |f|
     f.semantic_errors
 
-    f.inputs "Translated fields" do
-      f.translated_inputs switch_locale: false do |ff|
-        ff.input :name
-        ff.input :linkback_text
-      end
+    f.translated_inputs "Translated fields", switch_locale: false do |ff|
+      ff.input :name
+      ff.input :linkback_text
     end
 
     f.inputs "Site scope fields" do
@@ -68,22 +66,11 @@ ActiveAdmin.register SiteScope do
     selectable_column
 
     column :name
+    column :subdomain
     column :color
     column :header_theme
-    column :header_color
-    column :logo_url
-    column :subdomain
     column :has_analysis
-    column :linkback_text
-    column :linkback_url
-    column :predictive_model
-    column :analysis_options
-    column :has_gef_logo
     column :password_protected
-    column :username
-    column :latitude
-    column :longitude
-    column :zoom_level
 
     actions defaults: true do |site_scope|
       link_to "Duplicate", duplicate_admin_site_scope_path(site_scope)

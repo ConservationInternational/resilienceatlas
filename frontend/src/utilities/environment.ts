@@ -67,8 +67,14 @@ export const getBaseDomain = (): string => {
 
 /**
  * Get the API base URL for the current environment
+ * Uses INTERNAL_API_HOST for server-side rendering in Docker
  */
 export const getApiBaseUrl = (): string => {
+  // On the server, use internal API host if available (for Docker networking)
+  if (typeof window === 'undefined' && process.env.INTERNAL_API_HOST) {
+    return process.env.INTERNAL_API_HOST;
+  }
+  // On the client (browser), use the public API host
   return process.env.NEXT_PUBLIC_API_HOST || 'http://localhost:3001';
 };
 

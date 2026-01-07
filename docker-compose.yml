@@ -38,6 +38,8 @@ services:
     environment:
       - NODE_ENV=production
       - NEXT_PUBLIC_API_HOST=${PRODUCTION_NEXT_PUBLIC_API_HOST}
+      # Internal API host for server-side rendering (Docker network)
+      - INTERNAL_API_HOST=http://backend:3000
       - NEXT_PUBLIC_GOOGLE_ANALYTICS=${NEXT_PUBLIC_GOOGLE_ANALYTICS}
       - NEXT_PUBLIC_TRANSIFEX_TOKEN=${NEXT_PUBLIC_TRANSIFEX_TOKEN}
       - NEXT_PUBLIC_TRANSIFEX_SECRET=${NEXT_PUBLIC_TRANSIFEX_SECRET}

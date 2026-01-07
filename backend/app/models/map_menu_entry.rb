@@ -42,7 +42,7 @@ class MapMenuEntry < ApplicationRecord
   validates_presence_of :position
 
   def self.ransackable_attributes(auth_object = nil)
-    %w[id position slug ancestry created_at updated_at]
+    %w[id label link position ancestry created_at updated_at]
   end
 
   def self.ransackable_associations(auth_object = nil)

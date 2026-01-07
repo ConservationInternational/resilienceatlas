@@ -8,7 +8,13 @@ import { subdomain } from 'utilities/getSubdomain';
 
 // Use environment variable for API host
 // In Next.js 16+, getConfig is removed - use env vars directly
+// For server-side rendering in Docker, use INTERNAL_API_HOST to reach the backend container
 const getRuntimeApiHost = (): string => {
+  // On the server, use internal API host if available (for Docker networking)
+  if (typeof window === 'undefined' && process.env.INTERNAL_API_HOST) {
+    return process.env.INTERNAL_API_HOST;
+  }
+  // On the client (browser), use the public API host
   return process.env.NEXT_PUBLIC_API_HOST || 'http://localhost:3001';
 };
 

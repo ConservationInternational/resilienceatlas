@@ -14,7 +14,7 @@ class Agrupation < ApplicationRecord
   validates_uniqueness_of :layer, scope: :layer_group
 
   def self.ransackable_attributes(auth_object = nil)
-    %w[id layer_id layer_group_id active created_at updated_at]
+    %w[id layer_id layer_group_id active]
   end
 
   def self.ransackable_associations(auth_object = nil)

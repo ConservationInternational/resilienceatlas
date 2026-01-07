@@ -11,10 +11,6 @@
 # It's strongly recommended that you check this file into your version control system.
 
 ActiveRecord::Schema[7.2].define(version: 2025_07_02_120000) do
-  # Note: The "topology" schema is created automatically by the postgis_topology extension.
-  # Do not use create_schema "topology" here as it conflicts with the extension.
-  # The extension handles creating the schema if needed.
-
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "postgis"
@@ -232,8 +228,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_07_02_120000) do
   create_table "indicators", force: :cascade do |t|
     t.string "slug", null: false
     t.string "version"
-    t.datetime "created_at", precision: nil, default: "2026-01-06 18:12:25", null: false
-    t.datetime "updated_at", precision: nil, default: "2026-01-06 18:12:25", null: false
+    t.datetime "created_at", precision: nil, default: -> { "CURRENT_TIMESTAMP" }, null: false
+    t.datetime "updated_at", precision: nil, default: -> { "CURRENT_TIMESTAMP" }, null: false
     t.integer "category_id"
     t.integer "position"
     t.string "column_name"
@@ -426,8 +422,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_07_02_120000) do
   end
 
   create_table "models", force: :cascade do |t|
-    t.datetime "created_at", precision: nil, default: "2026-01-06 18:12:25", null: false
-    t.datetime "updated_at", precision: nil, default: "2026-01-06 18:12:25", null: false
+    t.datetime "created_at", precision: nil, default: -> { "CURRENT_TIMESTAMP" }, null: false
+    t.datetime "updated_at", precision: nil, default: -> { "CURRENT_TIMESTAMP" }, null: false
     t.text "query_analysis"
     t.string "table_name"
   end

@@ -55,6 +55,8 @@ services:
       - CYPRESS_RUN_BINARY=/dev/null
       - WATCHPACK_POLLING=true
       - CHOKIDAR_USEPOLLING=true
+      # Internal API host for server-side rendering (Docker network)
+      - INTERNAL_API_HOST=http://backend:3000
     env_file:
       - ./frontend/.env
     volumes:

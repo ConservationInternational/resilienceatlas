@@ -1,7 +1,7 @@
 # Only create seed data in development/production, not in test environment
 unless Rails.env.test?
-  unless AdminUser.exists?(email: "admin@cigrm.com")
-    AdminUser.create!(email: "admin@cigrm.com", password: "c1grm.pass", password_confirmation: "c1grm.pass")
+  unless AdminUser.exists?(email: "admin@example.com")
+    AdminUser.create!(email: "admin@example.com", password: "password", password_confirmation: "password")
   end
   if SiteScope.all.size == 0
     SiteScope.create!(name: "Resilience Atlas", id: 1, header_theme: "Resilience", color: "#0089CC")

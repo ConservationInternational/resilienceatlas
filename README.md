@@ -44,6 +44,15 @@
    - Backend API on http://localhost:3001
    - Frontend application on http://localhost:3000
 
+3. **Admin Panel Access**
+   
+   The admin panel is available at http://localhost:3001/admin with the following default credentials:
+   
+   | Field | Value |
+   |-------|-------|
+   | Email | `admin@example.com` |
+   | Password | `password` |
+
 ## Running Tests
 
 ### Backend Tests
