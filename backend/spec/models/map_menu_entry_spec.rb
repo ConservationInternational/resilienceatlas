@@ -20,7 +20,8 @@ RSpec.describe MapMenuEntry, type: :model do
 
   it "should not be valid without position" do
     subject.position = nil
-    expect(subject).to have(1).errors_on(:position)
+    expect(subject).not_to be_valid
+    expect(subject.errors[:position]).to include("can't be blank")
   end
 
   it "should not be valid without label" do

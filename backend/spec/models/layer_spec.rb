@@ -65,17 +65,20 @@ RSpec.describe Layer, type: :model do
 
   it "should not be valid without slug" do
     subject.slug = nil
-    expect(subject).to have(1).errors_on(:slug)
+    expect(subject).not_to be_valid
+    expect(subject.errors[:slug]).to include("can't be blank")
   end
 
   it "should not be valid without layer_provider" do
     subject.layer_provider = nil
-    expect(subject).to have(1).errors_on(:layer_provider)
+    expect(subject).not_to be_valid
+    expect(subject.errors[:layer_provider]).to include("can't be blank")
   end
 
   it "should not be valid without interaction_config" do
     subject.interaction_config = nil
-    expect(subject).to have(1).errors_on(:interaction_config)
+    expect(subject).not_to be_valid
+    expect(subject.errors[:interaction_config]).to include("can't be blank")
   end
 
   it "should not be valid without name" do
@@ -90,55 +93,60 @@ RSpec.describe Layer, type: :model do
     it "should not be valid when analysis type is histogram for cartodb provider" do
       subject.layer_provider = "cartodb"
       subject.analysis_type = "histogram"
-      expect(subject).to have(1).errors_on(:analysis_type)
+      expect(subject).not_to be_valid
+      expect(subject.errors[:analysis_type]).to include("analysis type has to be text for cartodb provider")
     end
 
     it "should not be valid when analysis type is categorical for cartodb provider" do
       subject.layer_provider = "cartodb"
       subject.analysis_type = "categorical"
-      expect(subject).to have(1).errors_on(:analysis_type)
+      expect(subject).not_to be_valid
+      expect(subject.errors[:analysis_type]).to include("analysis type has to be text for cartodb provider")
     end
 
     it "should be valid when analysis type is text for cartodb provider" do
       subject.layer_provider = "cartodb"
       subject.analysis_type = "text"
-      expect(subject).not_to have(1).errors_on(:analysis_type)
+      expect(subject).to be_valid
     end
 
     it "should not be valid when analysis type is text for cog provider" do
       subject.layer_provider = "cog"
       subject.analysis_type = "text"
-      expect(subject).to have(1).errors_on(:analysis_type)
+      expect(subject).not_to be_valid
+      expect(subject.errors[:analysis_type]).to include("analysis type has to be histogram or categorical for cog provider")
     end
 
-    it "should be valid when analysis type is text for cog provider" do
+    it "should be valid when analysis type is histogram for cog provider" do
       subject.layer_provider = "cog"
       subject.analysis_type = "histogram"
-      expect(subject).not_to have(1).errors_on(:analysis_type)
+      expect(subject).to be_valid
     end
 
     it "should be valid when analysis type is categorical for cog provider" do
       subject.layer_provider = "cog"
       subject.analysis_type = "categorical"
-      expect(subject).not_to have(1).errors_on(:analysis_type)
+      expect(subject).to be_valid
     end
 
     it "should not be valid when analysis type is text for raster provider" do
       subject.layer_provider = "raster"
       subject.analysis_type = "text"
-      expect(subject).to have(1).errors_on(:analysis_type)
+      expect(subject).not_to be_valid
+      expect(subject.errors[:analysis_type]).to include("analysis type has to be histogram")
     end
 
-    it "should not be valid when analysis type is histogram for raster provider" do
+    it "should not be valid when analysis type is categorical for raster provider" do
       subject.layer_provider = "raster"
       subject.analysis_type = "categorical"
-      expect(subject).to have(1).errors_on(:analysis_type)
+      expect(subject).not_to be_valid
+      expect(subject.errors[:analysis_type]).to include("analysis type has to be histogram")
     end
 
     it "should be valid when analysis type is histogram for raster provider" do
       subject.layer_provider = "raster"
       subject.analysis_type = "histogram"
-      expect(subject).not_to have(1).errors_on(:analysis_type)
+      expect(subject).to be_valid
     end
   end
 
@@ -148,7 +156,8 @@ RSpec.describe Layer, type: :model do
     it "should not be valid without timeline_start_date when timeline_steps are empty" do
       subject.timeline_steps = []
       subject.timeline_start_date = nil
-      expect(subject).to have(1).errors_on(:timeline_start_date)
+      expect(subject).not_to be_valid
+      expect(subject.errors[:timeline_start_date]).to include("required unless Steps defined")
     end
   end
 
@@ -157,7 +166,8 @@ RSpec.describe Layer, type: :model do
 
     it "should not be valid without layer_config" do
       subject.layer_config = nil
-      expect(subject).to have(1).errors_on(:layer_config)
+      expect(subject).not_to be_valid
+      expect(subject.errors[:layer_config]).to include("can't be blank")
     end
   end
 

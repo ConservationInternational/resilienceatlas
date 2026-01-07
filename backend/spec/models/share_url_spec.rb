@@ -18,7 +18,8 @@ RSpec.describe ShareUrl, type: :model do
 
   it "should not be valid without body" do
     subject.body = nil
-    expect(subject).to have(1).errors_on(:body)
+    expect(subject).not_to be_valid
+    expect(subject.errors[:body]).to include("can't be blank")
   end
 
   describe "uid generation" do

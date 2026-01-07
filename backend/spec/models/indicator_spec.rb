@@ -23,7 +23,8 @@ RSpec.describe Indicator, type: :model do
 
   it "should not be valid without slug" do
     subject.slug = nil
-    expect(subject).to have(1).errors_on(:slug)
+    expect(subject).not_to be_valid
+    expect(subject.errors[:slug]).to include("can't be blank")
   end
 
   it "should not be valid without name" do

@@ -71,30 +71,16 @@ This PR significantly increases test coverage for the Resilience Atlas applicati
 
 ## Frontend Tests Added
 
-### New Cypress E2E Tests (4 new files)
+### New Cypress E2E Tests (3 new files)
 
-1. **`frontend/cypress/e2e/layer-manager.cy.js`** (270+ lines)
-   - **Date Parameter Replacement**: Timeline controls, date parameter handling
-   - **Layer Configuration**: API loading, multiple layer types (cartodb, raster, cog), opacity changes
-   - **Layer Popup Interactions**: Map interactions, data formatting with replace()
-   - **Layer Loading States**: Loading indicators, error handling
-   - **Plugin Integration**: PluginLeaflet, Geoman drawing tools, UTFGrid
-   - **Layer State Persistence**: URL parameter persistence, state restoration
-
-2. **`frontend/cypress/e2e/unit/layer-utils.cy.js`** (180+ lines)
-   - **parseDates Function**: Date parameter replacement in URLs, cartocss, SQL, interactionConfig, analysisBody
-   - **Timeline Handling**: Default dates, custom dates, month padding
-   - **Cartodb Layers**: Multi-sublayer date replacement
-   - **URL Persisted Keys**: Validation of persisted parameter list
-
-3. **`frontend/cypress/e2e/analysis-panel.cy.js`** (260+ lines)
+1. **`frontend/cypress/e2e/analysis-panel.cy.js`** (260+ lines)
    - **Analysis Panel Display**: Button visibility, panel opening
    - **Drawing Manager**: Polygon/rectangle drawing, geoman integration, state persistence
    - **Results Display**: Histogram, categorical, text results
    - **Layer Type Support**: COG raster, regular raster, cartodb vector analysis
    - **Chart Limits**: Setting and persisting chart limits
 
-4. **`frontend/cypress/e2e/predictive-models.cy.js`** (280+ lines)
+2. **`frontend/cypress/e2e/predictive-models.cy.js`** (280+ lines)
    - **Models Display**: Tab navigation, models list
    - **Categories**: API fetching, organization by category
    - **Indicators**: API fetching, display, selection controls
@@ -137,14 +123,14 @@ This PR significantly increases test coverage for the Resilience Atlas applicati
 - **Total New Backend Tests**: ~70 test cases
 
 ### Frontend
-- **New E2E Test Files**: 4 files
+- **New E2E Test Files**: 2 files
 - **Total New Frontend Tests**: ~80 test cases
-- **Lines of Test Code**: ~1,000 lines
+- **Lines of Test Code**: ~550 lines
 
 ### Overall
-- **Total New Test Files**: 10
+- **Total New Test Files**: 9
 - **Total New Test Cases**: ~150
-- **Total Lines Added**: ~1,750 lines
+- **Total Lines Added**: ~1,320 lines
 
 ## Coverage Improvements
 
@@ -158,7 +144,6 @@ This PR significantly increases test coverage for the Resilience Atlas applicati
 7. Layer download configurations
 8. Analysis panel workflows
 9. Predictive models workflows
-10. Layer utilities (parseDates)
 
 ### Enhanced Coverage
 1. Layer model (timeline, analysis, download functionality)
@@ -208,8 +193,8 @@ docker compose -f docker-compose.test.yml run --rm backend-test bundle exec rspe
 cd frontend && npx cypress run
 
 # Specific test files
-cd frontend && npx cypress run --spec "cypress/e2e/layer-manager.cy.js"
 cd frontend && npx cypress run --spec "cypress/e2e/analysis-panel.cy.js"
+cd frontend && npx cypress run --spec "cypress/e2e/predictive-models.cy.js"
 ```
 
 ## Future Considerations
