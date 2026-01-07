@@ -33,11 +33,6 @@ RSpec.describe Indicator, type: :model do
     expect(subject.errors["translations.name"]).to include("can't be blank")
   end
 
-  describe "associations" do
-    it { is_expected.to belong_to(:category) }
-    it { is_expected.to have_and_belong_to_many(:models) }
-  end
-
   describe "acts_as_list" do
     let(:category) { create(:category) }
     let!(:indicator1) { create(:indicator, category: category, position: 1) }

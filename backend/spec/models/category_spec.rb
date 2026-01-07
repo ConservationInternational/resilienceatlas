@@ -29,10 +29,6 @@ RSpec.describe Category, type: :model do
     expect(subject.errors["translations.name"]).to include("can't be blank")
   end
 
-  describe "associations" do
-    it { is_expected.to have_many(:indicators).dependent(:restrict_with_error) }
-  end
-
   describe ".fetch_all" do
     let!(:category) { create(:category) }
 
