@@ -65,17 +65,20 @@ RSpec.describe Layer, type: :model do
 
   it "should not be valid without slug" do
     subject.slug = nil
-    expect(subject).to have(1).errors_on(:slug)
+    expect(subject).not_to be_valid
+    expect(subject.errors[:slug]).to include("can't be blank")
   end
 
   it "should not be valid without layer_provider" do
     subject.layer_provider = nil
-    expect(subject).to have(1).errors_on(:layer_provider)
+    expect(subject).not_to be_valid
+    expect(subject.errors[:layer_provider]).to include("can't be blank")
   end
 
   it "should not be valid without interaction_config" do
     subject.interaction_config = nil
-    expect(subject).to have(1).errors_on(:interaction_config)
+    expect(subject).not_to be_valid
+    expect(subject.errors[:interaction_config]).to include("can't be blank")
   end
 
   it "should not be valid without name" do
@@ -90,55 +93,60 @@ RSpec.describe Layer, type: :model do
     it "should not be valid when analysis type is histogram for cartodb provider" do
       subject.layer_provider = "cartodb"
       subject.analysis_type = "histogram"
-      expect(subject).to have(1).errors_on(:analysis_type)
+      expect(subject).not_to be_valid
+      expect(subject.errors[:analysis_type]).to include("analysis type has to be text for cartodb provider")
     end
 
     it "should not be valid when analysis type is categorical for cartodb provider" do
       subject.layer_provider = "cartodb"
       subject.analysis_type = "categorical"
-      expect(subject).to have(1).errors_on(:analysis_type)
+      expect(subject).not_to be_valid
+      expect(subject.errors[:analysis_type]).to include("analysis type has to be text for cartodb provider")
     end
 
     it "should be valid when analysis type is text for cartodb provider" do
       subject.layer_provider = "cartodb"
       subject.analysis_type = "text"
-      expect(subject).not_to have(1).errors_on(:analysis_type)
+      expect(subject).to be_valid
     end
 
     it "should not be valid when analysis type is text for cog provider" do
       subject.layer_provider = "cog"
       subject.analysis_type = "text"
-      expect(subject).to have(1).errors_on(:analysis_type)
+      expect(subject).not_to be_valid
+      expect(subject.errors[:analysis_type]).to include("analysis type has to be histogram or categorical for cog provider")
     end
 
-    it "should be valid when analysis type is text for cog provider" do
+    it "should be valid when analysis type is histogram for cog provider" do
       subject.layer_provider = "cog"
       subject.analysis_type = "histogram"
-      expect(subject).not_to have(1).errors_on(:analysis_type)
+      expect(subject).to be_valid
     end
 
     it "should be valid when analysis type is categorical for cog provider" do
       subject.layer_provider = "cog"
       subject.analysis_type = "categorical"
-      expect(subject).not_to have(1).errors_on(:analysis_type)
+      expect(subject).to be_valid
     end
 
     it "should not be valid when analysis type is text for raster provider" do
       subject.layer_provider = "raster"
       subject.analysis_type = "text"
-      expect(subject).to have(1).errors_on(:analysis_type)
+      expect(subject).not_to be_valid
+      expect(subject.errors[:analysis_type]).to include("analysis type has to be histogram")
     end
 
-    it "should not be valid when analysis type is histogram for raster provider" do
+    it "should not be valid when analysis type is categorical for raster provider" do
       subject.layer_provider = "raster"
       subject.analysis_type = "categorical"
-      expect(subject).to have(1).errors_on(:analysis_type)
+      expect(subject).not_to be_valid
+      expect(subject.errors[:analysis_type]).to include("analysis type has to be histogram")
     end
 
     it "should be valid when analysis type is histogram for raster provider" do
       subject.layer_provider = "raster"
       subject.analysis_type = "histogram"
-      expect(subject).not_to have(1).errors_on(:analysis_type)
+      expect(subject).to be_valid
     end
   end
 
@@ -148,7 +156,8 @@ RSpec.describe Layer, type: :model do
     it "should not be valid without timeline_start_date when timeline_steps are empty" do
       subject.timeline_steps = []
       subject.timeline_start_date = nil
-      expect(subject).to have(1).errors_on(:timeline_start_date)
+      expect(subject).not_to be_valid
+      expect(subject.errors[:timeline_start_date]).to include("required unless Steps defined")
     end
   end
 
@@ -157,7 +166,8 @@ RSpec.describe Layer, type: :model do
 
     it "should not be valid without layer_config" do
       subject.layer_config = nil
-      expect(subject).to have(1).errors_on(:layer_config)
+      expect(subject).not_to be_valid
+      expect(subject.errors[:layer_config]).to include("can't be blank")
     end
   end
 
@@ -182,6 +192,118 @@ RSpec.describe Layer, type: :model do
 
     it "updates name of cloned layer" do
       expect(cloned_layer.name).to include("#{layer.name} _copy_ ")
+    end
+  end
+
+  describe "layer_config" do
+    context "with timeline configuration" do
+      let(:layer) do
+        create(:layer,
+          timeline: true,
+          timeline_start_date: Date.new(2020, 1, 1),
+          timeline_end_date: Date.new(2023, 12, 31),
+          layer_config: '{"type": "raster", "url": "https://example.com/{year}/{month}/{day}"}')
+      end
+
+      it "stores layer_config as text" do
+        expect(layer.layer_config).to be_a(String)
+        expect(layer.layer_config).to include("year")
+        expect(layer.layer_config).to include("month")
+      end
+
+      it "preserves timeline parameters" do
+        expect(layer.timeline_start_date).to eq(Date.new(2020, 1, 1))
+        expect(layer.timeline_end_date).to eq(Date.new(2023, 12, 31))
+      end
+    end
+
+    context "with cartodb configuration" do
+      let(:layer) do
+        create(:layer,
+          layer_provider: "cartodb",
+          layer_config: '{"type": "cartodb", "sql": "SELECT * FROM table"}')
+      end
+
+      it "stores cartodb layer_config" do
+        expect(layer.layer_config).to include("cartodb")
+        expect(layer.layer_config).to include("SELECT")
+      end
+    end
+
+    context "with cog configuration" do
+      let(:layer) do
+        create(:layer,
+          layer_provider: "cog",
+          analysis_suitable: true,
+          analysis_type: "histogram",
+          layer_config: '{"type": "cog", "url": "https://example.com/data.tif"}')
+      end
+
+      it "stores cog layer_config" do
+        expect(layer.layer_config).to include("cog")
+        expect(layer.layer_config).to include(".tif")
+      end
+
+      it "supports histogram analysis" do
+        expect(layer.analysis_suitable).to be true
+        expect(layer.analysis_type).to eq("histogram")
+      end
+    end
+  end
+
+  describe "interaction_config" do
+    let(:layer) do
+      create(:layer,
+        interaction_config: '{"output": [{"column": "name", "property": "Name"}]}')
+    end
+
+    it "stores interaction configuration as text" do
+      expect(layer.interaction_config).to be_a(String)
+      expect(layer.interaction_config).to include("output")
+    end
+
+    it "can be parsed as JSON" do
+      config = JSON.parse(layer.interaction_config)
+      expect(config).to have_key("output")
+      expect(config["output"]).to be_an(Array)
+    end
+  end
+
+  describe "associations" do
+    let(:layer) { create(:layer) }
+    let(:layer_group) { create(:layer_group) }
+    let(:source) { create(:source) }
+
+    it "can be associated with layer_groups" do
+      layer.layer_groups << layer_group
+      expect(layer.layer_groups).to include(layer_group)
+    end
+
+    it "can be associated with sources" do
+      layer.sources << source
+      expect(layer.sources).to include(source)
+    end
+  end
+
+  describe "download functionality" do
+    context "when download is enabled" do
+      let(:layer) { create(:layer, download: true, dataset_shortname: "test_dataset") }
+
+      it "allows downloads" do
+        expect(layer.download).to be true
+      end
+
+      it "has dataset information" do
+        expect(layer.dataset_shortname).to eq("test_dataset")
+      end
+    end
+
+    context "when download is disabled" do
+      let(:layer) { create(:layer, download: false) }
+
+      it "does not allow downloads" do
+        expect(layer.download).to be false
+      end
     end
   end
 end
