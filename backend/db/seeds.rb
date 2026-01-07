@@ -7,6 +7,22 @@ unless Rails.env.test?
     SiteScope.create!(name: "Resilience Atlas", id: 1, header_theme: "Resilience", color: "#0089CC")
   end
 
+  # Create password-protected site scope for testing
+  unless SiteScope.exists?(id: 2)
+    protected_scope = SiteScope.new(
+      id: 2,
+      name: "Protected scope",
+      subdomain: "protected",
+      header_theme: "ci-theme",
+      color: "#0089CC",
+      password_protected: true,
+      username: "user"
+    )
+    protected_scope.password = "password"
+    protected_scope.save!
+    puts "Created password-protected site scope (username: user, password: password)"
+  end
+
   # Create homepage for Resilience Atlas site scope if it doesn't exist
   resilience_atlas_site_scope = SiteScope.find_by(id: 1)
   if resilience_atlas_site_scope && !Homepage.exists?(site_scope_id: resilience_atlas_site_scope.id)
@@ -349,4 +365,14 @@ unless Rails.env.test?
   else
     puts "Map menu entries already exist (#{MapMenuEntry.count} entries)"
   end
+
+  # Reset PostgreSQL sequences for tables that were seeded with explicit IDs
+  # This prevents "duplicate key value violates unique constraint" errors
+  puts "Resetting PostgreSQL sequences..."
+  %w[site_scopes].each do |table_name|
+    ActiveRecord::Base.connection.execute(
+      "SELECT setval('#{table_name}_id_seq', COALESCE((SELECT MAX(id) FROM #{table_name}), 1))"
+    )
+  end
+  puts "PostgreSQL sequences reset successfully"
 end

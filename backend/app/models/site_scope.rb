@@ -21,27 +21,31 @@
 #  password_protected :boolean        default(FALSE), not null
 #  username         :string
 #  encrypted_password :string
+#  encrypted_viewable_password :text
 #
 
 class SiteScope < ApplicationRecord
-  # Always include basic globalize support if available
-  # This ensures create_translation_table! is available for migrations
-  if defined?(Globalize)
-    translates :name, :linkback_text, touch: true, fallbacks_for_empty_translations: true
-  end
-
   require "bcrypt"
 
   has_one :homepage, dependent: :destroy
   has_many :layer_groups
   has_many :site_pages
 
-  # Translation setup - only initialize if database is ready and not during migration
-  # This prevents errors during migrations when tables don't exist yet
+  # Encryptor for viewable password storage
+  def self.password_encryptor
+    key = Rails.application.secret_key_base[0..31] # Use first 32 bytes for AES-256
+    ActiveSupport::MessageEncryptor.new(key)
+  end
+
+  # Translation setup with Globalize
+  if defined?(Globalize)
+    translates :name, :linkback_text, touch: true, fallbacks_for_empty_translations: true
+  end
+
+  # ActiveAdmin translation support - only initialize if database is ready and not during migration
   if !defined?(Rails::Generators) && !(Rails.env.test? && ENV["RAILS_MIGRATE"])
     begin
       if ActiveRecord::Base.connection&.table_exists?(:site_scopes)
-        translates :name, :linkback_text, touch: true, fallbacks_for_empty_translations: true
         active_admin_translates :name, :linkback_text
 
         # Only add translation validations if the translation_class is defined
@@ -57,8 +61,10 @@ class SiteScope < ApplicationRecord
 
   # Password protection validations
   validates :username, presence: true, if: :password_protected?
-  validates :password, presence: true, if: -> { password_protected? && password.present? }
-  validates :password, length: {minimum: 6}, if: -> { password_protected? && password.present? }
+  # Password is required when creating a new password-protected site scope
+  # or when explicitly changing the password on an existing one
+  validates :password, presence: true, if: -> { password_protected? && new_record? && encrypted_password.blank? }
+  validates :password, length: {minimum: 6}, if: -> { password.present? }
 
   # Ransack configuration - explicitly allowlist searchable attributes for security
   def self.ransackable_attributes(auth_object = nil)
@@ -84,7 +90,7 @@ class SiteScope < ApplicationRecord
 
   def clone!
     new_site_scope = SiteScope.new
-    new_site_scope.assign_attributes attributes.except("id", "encrypted_password")
+    new_site_scope.assign_attributes attributes.except("id", "encrypted_password", "encrypted_viewable_password")
     translations.each { |t| new_site_scope.translations.build t.attributes.except("id") }
     new_site_scope.name = "#{name} _copy_ #{DateTime.now}"
     new_site_scope.password_protected = false # Reset password protection for cloned site
@@ -108,11 +114,23 @@ class SiteScope < ApplicationRecord
     password_protected? && username.present? && encrypted_password.present?
   end
 
+  # Retrieve the viewable (decrypted) password for admin display
+  def viewable_password
+    return nil unless encrypted_viewable_password.present?
+
+    self.class.password_encryptor.decrypt_and_verify(encrypted_viewable_password)
+  rescue ActiveSupport::MessageVerifier::InvalidSignature, ActiveSupport::MessageEncryptor::InvalidMessage
+    nil
+  end
+
   private
 
   def encrypt_password
     if password.present?
+      # Store bcrypt hash for authentication
       self.encrypted_password = BCrypt::Password.create(password)
+      # Store encrypted version for admin viewing
+      self.encrypted_viewable_password = self.class.password_encryptor.encrypt_and_sign(password)
     end
   end
 end

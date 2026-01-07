@@ -146,6 +146,27 @@ RSpec.describe SiteScope, type: :model do
 
         expect(cloned.password_protected).to be false
         expect(cloned.encrypted_password).to be_nil
+        expect(cloned.encrypted_viewable_password).to be_nil
+      end
+    end
+
+    describe "#viewable_password" do
+      it "returns nil when no password is set" do
+        expect(site_scope.viewable_password).to be_nil
+      end
+
+      it "returns the decrypted password when set" do
+        protected_site_scope.password_protected = true
+        protected_site_scope.username = "testuser"
+        protected_site_scope.password = "password123"
+        protected_site_scope.save!
+
+        expect(protected_site_scope.viewable_password).to eq("password123")
+      end
+
+      it "returns nil for corrupted encrypted data" do
+        site_scope.update_column(:encrypted_viewable_password, "corrupted_data")
+        expect(site_scope.viewable_password).to be_nil
       end
     end
   end

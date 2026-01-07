@@ -52,7 +52,6 @@ gem "ostruct", "~> 0.6"
 
 # Translations
 gem "globalize", "~> 7.0"
-gem "activeadmin-globalize", github: "ConservationInternational/activeadmin-globalize", branch: "main"
 
 # Ordering and Tree structure for menus
 gem "active_admin-sortable_tree", "~> 2.1"

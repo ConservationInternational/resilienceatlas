@@ -148,6 +148,7 @@ ActiveAdmin.setup do |config|
   #
   config.localize_format = :long
   config.register_javascript "https://maps.googleapis.com/maps/api/js?key=#{ENV["GOOGLE_MAPS_API_KEY"]}" if ENV["GOOGLE_MAPS_API_KEY"].present?
+  config.register_javascript "active_admin/globalize_translations.js"
   # == Setting a Favicon
   #
   # config.favicon = 'favicon.ico'

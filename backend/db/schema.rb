@@ -10,7 +10,9 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_07_02_120000) do
+ActiveRecord::Schema[7.2].define(version: 2026_01_07_120000) do
+  create_schema "topology"
+
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "postgis"
@@ -495,6 +497,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_07_02_120000) do
     t.boolean "password_protected", default: false, null: false
     t.string "username"
     t.string "encrypted_password"
+    t.text "encrypted_viewable_password"
     t.index ["password_protected"], name: "index_site_scopes_on_password_protected"
   end
 
