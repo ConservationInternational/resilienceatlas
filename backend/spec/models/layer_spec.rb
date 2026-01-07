@@ -184,4 +184,116 @@ RSpec.describe Layer, type: :model do
       expect(cloned_layer.name).to include("#{layer.name} _copy_ ")
     end
   end
+
+  describe "layer_config" do
+    context "with timeline configuration" do
+      let(:layer) do
+        create(:layer,
+          timeline: true,
+          timeline_start_date: Date.new(2020, 1, 1),
+          timeline_end_date: Date.new(2023, 12, 31),
+          layer_config: '{"type": "raster", "url": "https://example.com/{year}/{month}/{day}"}')
+      end
+
+      it "stores layer_config as text" do
+        expect(layer.layer_config).to be_a(String)
+        expect(layer.layer_config).to include("year")
+        expect(layer.layer_config).to include("month")
+      end
+
+      it "preserves timeline parameters" do
+        expect(layer.timeline_start_date).to eq(Date.new(2020, 1, 1))
+        expect(layer.timeline_end_date).to eq(Date.new(2023, 12, 31))
+      end
+    end
+
+    context "with cartodb configuration" do
+      let(:layer) do
+        create(:layer,
+          layer_provider: "cartodb",
+          layer_config: '{"type": "cartodb", "sql": "SELECT * FROM table"}')
+      end
+
+      it "stores cartodb layer_config" do
+        expect(layer.layer_config).to include("cartodb")
+        expect(layer.layer_config).to include("SELECT")
+      end
+    end
+
+    context "with cog configuration" do
+      let(:layer) do
+        create(:layer,
+          layer_provider: "cog",
+          analysis_suitable: true,
+          analysis_type: "histogram",
+          layer_config: '{"type": "cog", "url": "https://example.com/data.tif"}')
+      end
+
+      it "stores cog layer_config" do
+        expect(layer.layer_config).to include("cog")
+        expect(layer.layer_config).to include(".tif")
+      end
+
+      it "supports histogram analysis" do
+        expect(layer.analysis_suitable).to be true
+        expect(layer.analysis_type).to eq("histogram")
+      end
+    end
+  end
+
+  describe "interaction_config" do
+    let(:layer) do
+      create(:layer,
+        interaction_config: '{"output": [{"column": "name", "property": "Name"}]}')
+    end
+
+    it "stores interaction configuration as text" do
+      expect(layer.interaction_config).to be_a(String)
+      expect(layer.interaction_config).to include("output")
+    end
+
+    it "can be parsed as JSON" do
+      config = JSON.parse(layer.interaction_config)
+      expect(config).to have_key("output")
+      expect(config["output"]).to be_an(Array)
+    end
+  end
+
+  describe "associations" do
+    let(:layer) { create(:layer) }
+    let(:layer_group) { create(:layer_group) }
+    let(:source) { create(:source) }
+
+    it "can be associated with layer_groups" do
+      layer.layer_groups << layer_group
+      expect(layer.layer_groups).to include(layer_group)
+    end
+
+    it "can be associated with sources" do
+      layer.sources << source
+      expect(layer.sources).to include(source)
+    end
+  end
+
+  describe "download functionality" do
+    context "when download is enabled" do
+      let(:layer) { create(:layer, download: true, dataset_shortname: "test_dataset") }
+
+      it "allows downloads" do
+        expect(layer.download).to be true
+      end
+
+      it "has dataset information" do
+        expect(layer.dataset_shortname).to eq("test_dataset")
+      end
+    end
+
+    context "when download is disabled" do
+      let(:layer) { create(:layer, download: false) }
+
+      it "does not allow downloads" do
+        expect(layer.download).to be false
+      end
+    end
+  end
 end
