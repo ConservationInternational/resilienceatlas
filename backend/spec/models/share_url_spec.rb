@@ -38,10 +38,10 @@ RSpec.describe ShareUrl, type: :model do
     it "regenerates uid if collision occurs" do
       # Create a share_url with a specific uid
       existing = ShareUrl.create(body: "existing")
-      
+
       # Mock SecureRandom to return the existing uid first, then a new one
       allow(SecureRandom).to receive(:hex).with(10).and_return(existing.uid, "newuniqueid123")
-      
+
       new_share_url = ShareUrl.create(body: "new body")
       expect(new_share_url.uid).to eq("newuniqueid123")
       expect(new_share_url.uid).not_to eq(existing.uid)

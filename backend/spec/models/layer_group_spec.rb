@@ -77,15 +77,16 @@ RSpec.describe LayerGroup, type: :model do
   end
 
   describe "hierarchy" do
-    let(:parent_group) { create(:layer_group, name: "Parent Group") }
-    let(:child_group) { create(:layer_group, name: "Child Group", super_group: parent_group) }
+    let(:site_scope) { create(:site_scope) }
+    let(:parent_group) { create(:layer_group, name: "Parent Group", site_scope: site_scope) }
+    let(:child_group) { create(:layer_group, name: "Child Group", super_group: parent_group, site_scope: site_scope) }
 
     it "supports parent-child relationships via super_group" do
       expect(child_group.super_group).to eq(parent_group)
     end
 
     it "can have multiple child groups" do
-      child2 = create(:layer_group, name: "Child Group 2", super_group: parent_group)
+      child2 = create(:layer_group, name: "Child Group 2", super_group: parent_group, site_scope: site_scope)
       expect(parent_group.layer_groups.count).to eq(2)
       expect(parent_group.layer_groups).to include(child_group, child2)
     end
@@ -149,7 +150,8 @@ RSpec.describe LayerGroup, type: :model do
   end
 
   describe ".fetch_all" do
-    let!(:layer_group) { create(:layer_group) }
+    let(:site_scope) { create(:site_scope, id: 1) }
+    let!(:layer_group) { create(:layer_group, site_scope: site_scope) }
 
     it "returns all layer groups with translations" do
       groups = LayerGroup.fetch_all

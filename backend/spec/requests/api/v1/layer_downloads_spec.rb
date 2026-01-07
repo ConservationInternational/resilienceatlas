@@ -4,7 +4,7 @@ RSpec.describe "Layer Downloads", type: :request do
   let(:default_site_scope) { create :site_scope, id: 1, name: "Resilience Atlas" }
   let(:layer_group) { create :layer_group, site_scope: default_site_scope }
   let(:source) { create :source }
-  
+
   describe "GET /api/layers/:id/downloads with various configurations" do
     context "with a basic layer that has metadata" do
       let(:layer) do
