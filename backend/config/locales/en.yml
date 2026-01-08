@@ -1,0 +1,30 @@
+en:
+  activerecord:
+    models:
+      static_page_base:
+        one: Static Page
+        other: Static Pages
+      static_page/base:
+        one: Static Page
+        other: Static Pages
+  active_admin:
+    globalize:
+      translations: "Translations"
+      language:
+        en: "English"
+        es: "Spanish"
+        fr: "French"
+        de: "German"
+        it: "Italian"
+        pt: "Portuguese"
+        pt-BR: "Portuguese (Brazil)"
+        pt-PT: "Portuguese (Portugal)"
+        nl: "Dutch"
+        ru: "Russian"
+        zh: "Chinese"
+        ja: "Japanese"
+        ko: "Korean"
+        ar: "Arabic"
+        he: "Hebrew"
+        tr: "Turkish"
+        hu: "Hungarian"

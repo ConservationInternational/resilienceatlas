@@ -1,0 +1,89 @@
+services:
+  database:
+    image: postgis/postgis:15-3.3
+    container_name: resilienceatlas-staging-db
+    environment:
+      - POSTGRES_DB=resilienceatlas_staging
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=${STAGING_DB_PASSWORD}
+    volumes:
+      - staging_postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - staging-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: production
+    container_name: resilienceatlas-staging-backend
+    ports:
+      - "3001:3000"
+    environment:
+      - RAILS_ENV=staging
+      - DATABASE_URL=postgresql://postgres:${STAGING_DB_PASSWORD}@database:5432/resilienceatlas_staging
+      - SECRET_KEY_BASE=${STAGING_SECRET_KEY_BASE}
+      - DEVISE_KEY=${STAGING_DEVISE_KEY}
+      - RESILIENCE_API_KEY=${RESILIENCE_API_KEY}
+      - BACKEND_URL=${STAGING_BACKEND_URL}
+      - FRONTEND_URL=${STAGING_FRONTEND_URL}
+      - SPARKPOST_API_KEY=${SPARKPOST_API_KEY}
+    env_file:
+      - .env.staging
+    networks:
+      - staging-network
+    restart: unless-stopped
+    depends_on:
+      database:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      target: production
+    container_name: resilienceatlas-staging-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_API_HOST=${STAGING_NEXT_PUBLIC_API_HOST}
+      # Internal API host for server-side rendering (Docker network)
+      - INTERNAL_API_HOST=http://backend:3000
+      - NEXT_PUBLIC_GOOGLE_ANALYTICS=${NEXT_PUBLIC_GOOGLE_ANALYTICS}
+      - NEXT_PUBLIC_TRANSIFEX_TOKEN=${NEXT_PUBLIC_TRANSIFEX_TOKEN}
+      - NEXT_PUBLIC_TRANSIFEX_SECRET=${NEXT_PUBLIC_TRANSIFEX_SECRET}
+      - NEXT_PUBLIC_GOOGLE_API_KEY=${NEXT_PUBLIC_GOOGLE_API_KEY}
+    env_file:
+      - .env.staging
+    networks:
+      - staging-network
+    restart: unless-stopped
+    depends_on:
+      - backend
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  staging_postgres_data:
+    driver: local
+
+networks:
+  staging-network:
+    driver: bridge

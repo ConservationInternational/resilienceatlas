@@ -1,0 +1,94 @@
+@use '../sass-modules' as *;
+@use '../mixins' as *;
+@use '../variables' as *;
+
+%grid-emulation {
+  position: relative;
+  padding-left: 0.9375rem;
+  padding-right: 0.9375rem;
+  width: 66.66667%;
+  margin: 0 auto;
+}
+
+.m-content-manager {
+  .row.center,
+  .grid.center {
+    text-align: center;
+  }
+
+  h2 {
+    @extend %grid-emulation;
+     margin-top: 0;
+     font-size: rem(64px);
+     font-family: $font-face-2;
+     font-weight: 400;
+     text-transform: uppercase;
+     line-height: .9em;
+     margin-bottom: rem(20px);
+     text-align: center;
+  }
+
+  p {
+    @extend %grid-emulation;
+    margin: 1em auto;
+    text-align: left;
+    font-size: 16px;
+    font-weight: 400;
+    letter-spacing: 1px;
+    line-height: 1.4em;
+
+    + h2 {
+     margin-top: rem(20px);
+    }
+  }
+
+  a {
+    color: $bg-color-2;
+  }
+
+  ol,
+  ul {
+    @extend %grid-emulation;
+
+    p {
+      width: 100%;
+    }
+  }
+
+  ol, ol li {
+    list-style-type: decimal;
+  }
+
+  ul, ul li {
+    list-style-type: disc;
+  }
+
+  li {
+    padding-left: 30px;
+    margin-left: 50px;
+  }
+
+  img {
+    max-width: 100%;
+    text-align: center;
+  }
+
+  figure {
+    margin: 40px 0;
+    text-align: center;
+
+    + h2 {
+     margin-top: rem(20px);
+    }
+  }
+
+  figcaption {
+    margin-top: 10px;
+    font-size: 12px;
+
+    a {
+      color: $font-color-1;
+      font-size: 12px;
+    }
+  }
+}

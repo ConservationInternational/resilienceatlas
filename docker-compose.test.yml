@@ -1,0 +1,282 @@
+services:
+  # Test Database
+  db-test:
+    image: postgis/postgis:15-3.3
+    environment:
+      - POSTGRES_DB=resilienceatlas_test
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_test_data:/var/lib/postgresql/data
+    networks:
+      - test-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis for test environment
+  redis-test:
+    image: redis:7-alpine
+    ports:
+      - "6380:6379"
+    networks:
+      - test-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Backend test service
+  backend-test:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: test
+    environment:
+      - RAILS_ENV=test
+      - DATABASE_URL=postgis://postgres:postgres@db-test:5432/resilienceatlas_test
+      - DATABASE_HOST=db-test
+      - DATABASE_PORT=5432
+      - DATABASE_NAME=resilienceatlas_test
+      - DATABASE_USER=postgres
+      - DATABASE_PASSWORD=postgres
+      - SECRET_KEY_BASE=test_secret_key_base_that_is_long_enough_for_rails_to_accept_it_properly
+      - DEVISE_KEY=test_devise_key_that_is_also_long_enough_for_the_application_to_work
+      - REDIS_URL=redis://redis-test:6379/0
+      - BACKEND_URL=http://backend-test:3001
+      - FRONTEND_URL=http://frontend-test:3000
+      - CORS_ORIGINS=http://frontend-test:3000,http://localhost:3000
+      - RAILS_FORCE_SSL=false
+      - HEADLESS=true
+      - DISPLAY=:99
+      - SKIP_SYSTEM_TESTS=${SKIP_SYSTEM_TESTS:-false}
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./backend:/app
+      - bundle_cache:/usr/local/bundle
+      - ./backend/tmp:/app/tmp  # Explicit mount for test results
+    networks:
+      - test-network
+    dns:
+      - 8.8.8.8
+      - 1.1.1.1
+    depends_on:
+      db-test:
+        condition: service_healthy
+      redis-test:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:3001/api/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    shm_size: 2gb
+    security_opt:
+      - seccomp:unconfined
+    cap_add:
+      - SYS_ADMIN
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    command: >
+      bash -c "
+        set -e
+        echo '🔧 Fixing permissions after volume mount...' &&
+        
+        # Fix ownership and permissions for files that need to be writable
+        sudo chown -R appuser:appuser /app &&
+        sudo chown -R appuser:appuser /usr/local/bundle &&
+        sudo chmod 664 /app/Gemfile.lock &&
+        sudo chmod 755 /app/bin/* &&
+        sudo chmod 755 /app/chrome_wrapper.sh &&
+        sudo chmod -R 775 /app/tmp /app/log &&
+        
+        # Ensure all required directories exist with proper permissions
+        sudo mkdir -p /app/tmp/cache /app/tmp/pids /app/tmp/sockets /app/tmp/storage &&
+        sudo mkdir -p /app/public/storage /app/public/uploads /app/public/uploads/cache /app/public/uploads/store /app/downloads /app/storage &&
+        sudo chown -R appuser:appuser /app/tmp /app/public/storage /app/public/uploads /app/downloads /app/storage &&
+        sudo chmod -R 775 /app/tmp /app/public/storage /app/public/uploads /app/downloads /app/storage &&
+        
+        echo '📦 Installing dependencies...' &&
+        bundle install &&
+        bundle check || bundle install &&
+        
+        echo '🔍 Verifying dependencies installation...' &&
+        bundle exec rails runner 'puts Rails.version' &&
+        bundle exec ruby -e 'puts \"Ruby: #{RUBY_VERSION}, Rails: #{Rails.version}\"' &&
+        
+        echo '🖥️  Setting up virtual display...' &&
+        Xvfb :99 -screen 0 1920x1080x24 -ac +extension GLX +render -noreset > /dev/null 2>&1 &
+        export DISPLAY=:99
+        sleep 5 &&
+        
+        echo '🔍 Verifying display setup...' &&
+        ps aux | grep Xvfb | grep -v grep || echo 'Warning: Xvfb not found' &&
+        
+        echo '🌐 Testing Chrome with wrapper...' &&
+        timeout 30 /app/chrome_wrapper.sh --version > /dev/null 2>&1 &&
+        echo '✅ Chrome startup test successful' &&
+        
+        echo '💾 Preparing database...' &&
+        RAILS_ENV=test bundle exec rails db:prepare > /dev/null 2>&1 || echo 'Database already exists' &&
+        
+        echo '🚀 Starting Rails server...' &&
+        bundle exec rails server -b 0.0.0.0 -p 3001
+      "
+
+  # Frontend test service
+  frontend-test:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      target: test
+      args:
+        - CYPRESS_INSTALL_BINARY=0
+    environment:
+      - NODE_ENV=test
+      - NEXT_PUBLIC_API_HOST=http://backend-test:3001
+      # Internal API host for server-side rendering (Docker network)
+      - INTERNAL_API_HOST=http://backend-test:3001
+      - NEXT_PUBLIC_GOOGLE_ANALYTICS=GA_TEST_ID
+      - NEXT_PUBLIC_TRANSIFEX_TOKEN=test_token
+      - NEXT_PUBLIC_TRANSIFEX_SECRET=test_secret
+      - NEXT_PUBLIC_GOOGLE_API_KEY=test_api_key
+      - PORT=3000
+      - CYPRESS_INSTALL_BINARY=0
+      - CYPRESS_CACHE_FOLDER=/tmp/cypress-cache
+      - NPM_CONFIG_AUDIT=false
+      - NPM_CONFIG_FUND=false
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - node_modules_test:/app/node_modules
+      - ./frontend/cypress:/app/cypress
+      - ./frontend/cypress/results:/app/cypress/results  # Explicit mount for Cypress test results
+    networks:
+      - test-network
+    depends_on:
+      backend-test:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:3000 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 90s
+    command: >
+      bash -c "
+        set -e
+        echo '🔧 Installing dependencies...' &&
+        npm install --legacy-peer-deps --no-audit --no-fund &&
+        
+        echo '🔍 Verifying installation...' &&
+        node --version &&
+        npm --version &&
+        echo 'Node modules installed:' &&
+        ls -la node_modules/ | head -10 &&
+        
+        echo '🏗️ Building frontend application in production mode...' &&
+        NODE_ENV=production npm run build &&
+        
+        echo '✅ Build successful, starting frontend server...' &&
+        NODE_ENV=production npm start -- -H 0.0.0.0
+      "
+
+  # Cypress Chrome for E2E testing
+  cypress-chrome:
+    image: cypress/included:13.15.0
+    working_dir: /app
+    environment:
+      - NODE_ENV=test
+      - CYPRESS_baseUrl=http://frontend-test:3000
+      - CYPRESS_apiUrl=http://backend-test:3001
+      - CYPRESS_video=true
+      - CYPRESS_screenshotOnRunFailure=true
+    volumes:
+      - ./frontend:/app
+      - cypress_cache:/root/.cache/Cypress
+      - ./frontend/cypress:/app/cypress
+    networks:
+      - test-network
+    depends_on:
+      frontend-test:
+        condition: service_healthy
+    entrypoint: ""
+    profiles:
+      - testing
+
+  # Cypress Firefox for E2E testing
+  cypress-firefox:
+    image: cypress/included:13.15.0
+    working_dir: /app
+    environment:
+      - NODE_ENV=test
+      - CYPRESS_baseUrl=http://frontend-test:3000
+      - CYPRESS_apiUrl=http://backend-test:3001
+      - CYPRESS_video=true
+      - CYPRESS_screenshotOnRunFailure=true
+    volumes:
+      - ./frontend:/app
+      - cypress_cache:/root/.cache/Cypress
+      - ./frontend/cypress:/app/cypress
+    networks:
+      - test-network
+    depends_on:
+      frontend-test:
+        condition: service_healthy
+    entrypoint: ""
+    profiles:
+      - testing
+
+  # Integration tests service
+  integration-test:
+    image: node:22.11.0-alpine
+    working_dir: /app
+    environment:
+      - FRONTEND_URL=http://frontend-test:3000
+      - BACKEND_URL=http://backend-test:3001
+    volumes:
+      - ./integration-tests:/app
+      - ./integration-tests/results:/app/results  # Explicit mount for integration test results
+    networks:
+      - test-network
+    depends_on:
+      frontend-test:
+        condition: service_healthy
+      backend-test:
+        condition: service_healthy
+    command: >
+      sh -c "
+        npm install &&
+        npm test
+      "
+    profiles:
+      - integration
+
+networks:
+  test-network:
+    driver: bridge
+    driver_opts:
+      com.docker.network.bridge.name: test-network
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+    # Add DNS configuration to help with connectivity
+    enable_ipv6: false
+
+volumes:
+  postgres_test_data:
+  bundle_cache:
+  node_modules_test:
+  frontend_node_modules:
+  cypress_cache:

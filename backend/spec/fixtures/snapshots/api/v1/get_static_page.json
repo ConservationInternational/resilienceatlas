@@ -1,0 +1,157 @@
+{
+  "data": {
+    "id": "10",
+    "type": "static_page_bases",
+    "attributes": {
+      "title": "Voluptatem hic similique exercitationem.",
+      "slug": "StaticPage-1",
+      "image": {
+        "small": "/test_blob_url_94",
+        "medium": "/test_blob_url_94",
+        "original": "/test_blob_url_94"
+      },
+      "image_credits": "Voluptatem hic similique exercitationem.",
+      "image_credits_url": "http://kutch-spencer.example/moises"
+    },
+    "relationships": {
+      "sections": {
+        "data": [
+          {
+            "id": "4",
+            "type": "static_page_sections"
+          },
+          {
+            "id": "5",
+            "type": "static_page_sections"
+          },
+          {
+            "id": "6",
+            "type": "static_page_sections"
+          }
+        ]
+      }
+    }
+  },
+  "included": [
+    {
+      "id": "4",
+      "type": "static_page_sections",
+      "attributes": {
+        "title": "Voluptatem hic similique exercitationem.",
+        "slug": "StaticPageSection-1",
+        "title_size": 4,
+        "section_type": "paragraph",
+        "show_at_navigation": true,
+        "position": 1
+      },
+      "relationships": {
+        "section_paragraph": {
+          "data": {
+            "id": "2",
+            "type": "static_page_section_paragraphs"
+          }
+        },
+        "section_items": {
+          "data": []
+        },
+        "section_references": {
+          "data": []
+        }
+      }
+    },
+    {
+      "id": "2",
+      "type": "static_page_section_paragraphs",
+      "attributes": {
+        "text": "Voluptatem hic similique. Nostrum iste dolorem. Sed voluptatem dolor.",
+        "image": {
+          "small": "/test_blob_url_95",
+          "medium": "/test_blob_url_95",
+          "original": "/test_blob_url_95"
+        },
+        "image_credits": "Voluptatem hic similique exercitationem.",
+        "image_credits_url": "http://kutch-spencer.example/moises",
+        "image_position": "right"
+      }
+    },
+    {
+      "id": "5",
+      "type": "static_page_sections",
+      "attributes": {
+        "title": "Cum veritatis sapiente exercitationem.",
+        "slug": "StaticPageSection-2",
+        "title_size": 1,
+        "section_type": "items",
+        "show_at_navigation": true,
+        "position": 1
+      },
+      "relationships": {
+        "section_paragraph": {
+          "data": null
+        },
+        "section_items": {
+          "data": [
+            {
+              "id": "2",
+              "type": "static_page_section_items"
+            }
+          ]
+        },
+        "section_references": {
+          "data": []
+        }
+      }
+    },
+    {
+      "id": "2",
+      "type": "static_page_section_items",
+      "attributes": {
+        "title": "Voluptatem hic similique exercitationem.",
+        "description": "Voluptatem hic similique. Nostrum iste dolorem. Sed voluptatem dolor.",
+        "image": {
+          "small": "/test_blob_url_96",
+          "medium": "/test_blob_url_96",
+          "original": "/test_blob_url_96"
+        },
+        "position": 1
+      }
+    },
+    {
+      "id": "6",
+      "type": "static_page_sections",
+      "attributes": {
+        "title": "Molestiae et provident facere.",
+        "slug": "StaticPageSection-3",
+        "title_size": 3,
+        "section_type": "references",
+        "show_at_navigation": false,
+        "position": 1
+      },
+      "relationships": {
+        "section_paragraph": {
+          "data": null
+        },
+        "section_items": {
+          "data": []
+        },
+        "section_references": {
+          "data": [
+            {
+              "id": "2",
+              "type": "static_page_section_references"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "2",
+      "type": "static_page_section_references",
+      "attributes": {
+        "slug": "StaticPageReference-1",
+        "text": "Voluptatem hic similique. Nostrum iste dolorem. Sed voluptatem dolor.",
+        "position": 1
+      }
+    }
+  ]
+}

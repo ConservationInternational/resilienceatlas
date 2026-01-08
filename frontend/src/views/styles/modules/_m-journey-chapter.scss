@@ -1,0 +1,74 @@
+@use '../sass-modules' as *;
+@use '../mixins' as *;
+@use '../variables' as *;
+@use 'm-journey' as journey;
+
+.m-journey--chapter {
+  @include journey.journey-base;
+  background-size: contain !important;
+
+  .wrapper {
+    @extend %center;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  h1 {
+    text-transform: uppercase;
+    font-size: rem(56px);
+    font-family: $font-face-2;
+    font-weight: 400;
+    margin: 0;
+    line-height: .8em;
+    color: rgb(0, 137, 204);
+  }
+
+  p {
+    font-weight: 400;
+    line-height: 1.2em;
+    margin-bottom: 2em;
+    margin-top: 0;
+  }
+
+  .chapter-number-container {
+    position: absolute;
+    bottom: 0;
+    height: 100%;
+    overflow: hidden;
+
+    .chapter-number {
+      font-family: $font-face-3;
+      height: 100%;
+      display: flex;
+      align-items: flex-end;
+      font-size: 70vw;
+      padding-bottom: 15vw;
+      margin-left: -20%;
+
+      background-blend-mode: normal, multiply, color, normal;
+      background-position: left bottom;
+
+      -webkit-text-fill-color: transparent;
+      color: transparent;
+
+      // As we are setting the background image on the style, we need these importants
+      background-clip: text !important;
+      background-size: cover !important;
+      -webkit-background-clip: text !important;
+    }
+  }
+
+  .chapter-intro {
+    float: right;
+    width: 30%;
+    min-width: rem(300px);
+    margin: 0 rem(45px);
+  }
+
+  @media screen and (max-width: 768px) {
+    h1 {
+      font-size: rem(50px);
+    }
+  }
+}

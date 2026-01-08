@@ -1,0 +1,63 @@
+{
+  "data": {
+    "id": "14",
+    "type": "homepages",
+    "attributes": {
+      "title": "Voluptatem hic similique exercitationem.",
+      "subtitle": "Voluptatem hic similique exercitationem.",
+      "background_image": {
+        "small": "/test_blob_url_106",
+        "medium": "/test_blob_url_106",
+        "original": "/test_blob_url_106"
+      },
+      "credits": "Voluptatem hic similique exercitationem.",
+      "credits_url": "http://kutch-spencer.example/moises"
+    },
+    "relationships": {
+      "homepage_journey": {
+        "data": {
+          "id": "14",
+          "type": "homepage_journeys"
+        }
+      },
+      "homepage_sections": {
+        "data": [
+          {
+            "id": "5",
+            "type": "homepage_sections"
+          }
+        ]
+      }
+    }
+  },
+  "included": [
+    {
+      "id": "14",
+      "type": "homepage_journeys",
+      "attributes": {
+        "title": "Voluptatem hic similique exercitationem.",
+        "position": 0
+      }
+    },
+    {
+      "id": "5",
+      "type": "homepage_sections",
+      "attributes": {
+        "title": "Voluptatem hic similique exercitationem.",
+        "subtitle": "Voluptatem hic similique exercitationem.",
+        "button_text": "Voluptatem hic similique exercitationem.",
+        "button_url": "http://kutch-spencer.example/moises",
+        "image_position": "right",
+        "image_credits": "Voluptatem hic similique exercitationem.",
+        "image_credits_url": "http://kutch-spencer.example/moises",
+        "background_color": "#ffdbdb",
+        "position": 1,
+        "image": {
+          "small": "/test_blob_url_107",
+          "medium": "/test_blob_url_107",
+          "original": "/test_blob_url_107"
+        }
+      }
+    }
+  ]
+}

@@ -1,52 +1,96 @@
-# Resilience Atlas web app
+# Resilience Atlas
 
-This is the web app powering 
-[resilienceatlas.org](http://www.resilienceatlas.org)
+[![Backend Tests](https://github.com/ConservationInternational/resilienceatlas/actions/workflows/backend_tests.yml/badge.svg)](https://github.com/ConservationInternational/resilienceatlas/actions/workflows/backend_tests.yml)
+[![Frontend Tests](https://github.com/ConservationInternational/resilienceatlas/actions/workflows/frontend_tests.yml/badge.svg)](https://github.com/ConservationInternational/resilienceatlas/actions/workflows/frontend_tests.yml)
+[![Integration Tests](https://github.com/ConservationInternational/resilienceatlas/actions/workflows/integration_tests.yml/badge.svg)](https://github.com/ConservationInternational/resilienceatlas/actions/workflows/integration_tests.yml)
 
-## Installation
+## Architecture
 
-Requirements:
+| Directory | Description | Documentation | Tech Stack |
+|-----------|-------------|---------------|------------|
+| frontend | Frontend application | [frontend/README.md](frontend/README.md) | React 18.3.1, Next.js 14.2.15, Node.js 22.11.0 |
+| backend | Ruby on Rails backend (API + backoffice) | [backend/README.md](backend/README.md) | Ruby 3.4.4, Rails 7.2.x |
+| cloud_functions | AWS Lambda functions | [cloud_functions/README.md](cloud_functions/README.md) | AWS Lambda |
+| infrastructure | Terraform for TiTiler COG tiler | [infrastructure/README.md](infrastructure/README.md) | Terraform, AWS |
+| data | Data processing scripts | [data/README.md](data/README.md) | Various tools |
 
-* NodeJs 0.10+ [How to install](https://nodejs.org/download/)
-* Ruby 2.2.0 [How to install](https://gorails.com/setup/osx/10.10-yosemite)
-* PostgreSQL
+## Environments
 
-Install global dependencies:
+- **Production**: [resilienceatlas.org](https://resilienceatlas.org) (deployed from `main` branch)
+- **Staging**: [staging.resilienceatlas.org](https://staging.resilienceatlas.org) (deployed from `staging` branch)
 
-    gem install bundler
-    npm install -g grunt-cli bower
+## Quick Start
 
-Install project dependencies:
+### Prerequisites
 
-    bundle install
-    npm install
+- [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/install/)
 
-## Usage
+### Development Setup
 
-Before running the application, you need to configure it by copying `.env.sample` to `.evn` and setting the appropriate values where needed.
+1. **Set up environment variables**
+   ```bash
+   cp .env.example .env
+   cp frontend/.env.example frontend/.env
+   cp backend/.env.sample backend/.env
+   ```
 
-To start the application, run:
+2. **Start the development environment**
+   ```bash
+   docker compose -f docker-compose.dev.yml up --build
+   ```
+   
+   This starts:
+   - PostgreSQL database on port 5432
+   - Backend API on http://localhost:3001
+   - Frontend application on http://localhost:3000
 
+3. **Admin Panel Access**
+   
+   The admin panel is available at http://localhost:3001/admin with the following default credentials:
+   
+   | Field | Value |
+   |-------|-------|
+   | Email | `admin@example.com` |
+   | Password | `password` |
+
+## Running Tests
+
+### Backend Tests
+```bash
+# Run all backend tests
+docker compose -f docker-compose.test.yml run --rm backend-test ./bin/test
+
+# Individual commands
+docker compose -f docker-compose.test.yml run --rm backend-test ./bin/test rspec    # Unit tests
+docker compose -f docker-compose.test.yml run --rm backend-test ./bin/test lint     # RuboCop
+docker compose -f docker-compose.test.yml run --rm backend-test ./bin/test security # Brakeman
+docker compose -f docker-compose.test.yml run --rm backend-test ./bin/test system   # Browser tests
 ```
-bundle exec rails server
+
+### Frontend Tests
+```bash
+# Run all frontend checks
+docker compose -f docker-compose.test.yml run --rm --no-deps frontend-test ./bin/test
+
+# Individual commands
+docker compose -f docker-compose.test.yml run --rm --no-deps frontend-test ./bin/test lint
+docker compose -f docker-compose.test.yml run --rm --no-deps frontend-test ./bin/test type-check
+docker compose -f docker-compose.test.yml run --rm --no-deps frontend-test ./bin/test build
 ```
 
-## Deployment
-
-In `config/deploy` you will find a sample file. Copy `production.rb.sample` to `production.rb` and change it accordingly. Deploy using:
- 
-```
-bundle exec cap production deploy
+### Integration Tests
+```bash
+docker compose -f docker-compose.test.yml up --abort-on-container-exit
 ```
 
-## Deploy advice
-As we remove bower to manage front dependencies, now it's necesary to change it at Heroku. Apparently, only owner can do it. So for the moment we need a fake bower.json file in order the deploy to work. Please, don't remove it before Heroku is fixed. 
-(Clara, 17/08/2015)
+## Documentation
 
-## Contributing
+- [Testing Documentation](.github/TESTING.md)
+- [TiTiler COGs Service](.github/TITILER_COGS.md)
+- [Scripts Documentation](scripts/README.md)
+- [Frontend README](frontend/README.md)
+- [Backend README](backend/README.md)
 
-1. Fork it!
-2. Create your feature branch: `git checkout -b my-new-feature`
-3. Commit your changes: `git commit -am 'Add some feature'`
-4. Push to the branch: `git push origin my-new-feature`
-5. Submit a pull request :D
+## License
+
+See [LICENSE](LICENSE) for details.

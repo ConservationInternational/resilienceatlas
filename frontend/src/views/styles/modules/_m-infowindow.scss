@@ -1,0 +1,122 @@
+@use '../sass-modules' as *;
+@use '../mixins' as *;
+@use '../variables' as *;
+
+.m-modal-window {
+  display: flex;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: 0;
+
+  h1,
+  h2 {
+    font-weight: 400;
+    font-size: 36px;
+    margin-top: 0;
+    line-height: 0.9em;
+  }
+
+  h4 {
+    font-weight: 500;
+    font-size: 18px;
+    margin-bottom: 0;
+
+    &:first-of-type {
+      margin-top: 0;
+    }
+  }
+
+  p {
+    font-weight: 400;
+    font-size: 18px;
+    margin-top: 0;
+
+    > a {
+      text-decoration: underline;
+    }
+  }
+
+  a {
+    font-weight: 400;
+    color: $font-color-1;
+  }
+
+  .source {
+    font-size: 14px;
+    font-weight: 400;
+    font-style: italic;
+
+    p {
+      font-style: italic;
+      font-size: 14px;
+    }
+
+    > a {
+      text-decoration: underline;
+    }
+  }
+
+  .link {
+    display: block;
+  }
+
+  label {
+    font-size: 14px;
+    font-weight: 400;
+  }
+}
+
+.modal-background {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 10;
+
+  background: rgba($color: #000000, $alpha: 0.5);
+}
+
+.modal-wrapper {
+  box-sizing: border-box;
+  position: relative;
+  display: flex;
+  margin: auto;
+  z-index: 14;
+  //optional, min size.
+  width: 600px;
+  height: 400px;
+  max-width: 90%;
+  background-color: $bg-color-1;
+  box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.2);
+}
+
+.modal-container {
+  width: 100%;
+  padding-right: 10px; //Margen para el scroll de windows
+  padding: rem(50px);
+  overflow-y: scroll;
+  @extend %clear-scroll-bars;
+  background-color: #fff;
+}
+
+.btn-close,
+.btn-close-modal {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 1;
+  border: 0;
+  background: transparent;
+
+  cursor: pointer;
+  font-weight: bold;
+  color: $font-color-1;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 0.5em;
+}
+
+//TODO responsive

@@ -1,0 +1,75 @@
+#!/bin/bash
+set -e
+
+# Only install dependencies if not in Docker (node_modules should already exist in Docker)
+if [ ! -d "node_modules" ]; then
+  echo "🔧 Installing dependencies..."
+  npm install --legacy-peer-deps
+else
+  echo "📦 Dependencies already installed"
+fi
+
+case "${1:-all}" in
+  "cypress"|"e2e"|"tests")
+    echo "🧪 Running Cypress e2e tests..."
+    npm run test -- "${@:2}"
+    ;;
+  "cypress:headless")
+    echo "🧪 Running Cypress e2e tests (headless)..."
+    npm run test
+    ;;
+  "lint"|"linting")
+    echo "🔍 Running ESLint..."
+    npm run lint
+    ;;
+  "type-check"|"types"|"tsc")
+    echo "🏷️ Running TypeScript type checking..."
+    npm run check-types
+    ;;
+  "build")
+    echo "🏗️ Building application..."
+    npm run build
+    ;;
+  "prettier"|"format")
+    echo "💅 Running Prettier..."
+    npm run prettier
+    ;;
+  "all")
+    echo "🚀 Running all frontend checks..."
+    echo "🔍 Running ESLint..."
+    npm run lint
+    echo "🏷️ Running TypeScript check..."
+    npm run check-types
+    echo "💅 Running Prettier check..."
+    npm run prettier
+    echo "🏗️ Building application..."
+    npm run build
+    echo "✅ All frontend checks completed!"
+    ;;
+  "help"|"--help"|"-h")
+    echo "Frontend Test Runner"
+    echo ""
+    echo "Usage: ./bin/test [command] [options]"
+    echo ""
+    echo "Commands:"
+    echo "  cypress, e2e, tests  Run Cypress e2e tests"
+    echo "  lint, linting        Run ESLint"
+    echo "  type-check, types    Run TypeScript type checking"
+    echo "  build                Build the application"
+    echo "  prettier, format     Run Prettier formatting check"
+    echo "  all                  Run all checks (default)"
+    echo "  help                 Show this help message"
+    echo ""
+    echo "Examples:"
+    echo "  ./bin/test                           # Run all checks"
+    echo "  ./bin/test cypress                   # Run e2e tests"
+    echo "  ./bin/test lint                      # Run linting only"
+    echo "  ./bin/test types                     # Run type checking only"
+    echo "  ./bin/test build                     # Build application only"
+    ;;
+  *)
+    echo "❌ Unknown command: $1"
+    echo "Run './bin/test help' for usage information"
+    exit 1
+    ;;
+esac

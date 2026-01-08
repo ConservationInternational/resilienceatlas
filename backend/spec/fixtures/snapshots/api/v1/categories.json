@@ -1,0 +1,49 @@
+{
+  "data": [
+    {
+      "id": "34",
+      "type": "categories",
+      "attributes": {
+        "name": "voluptatem",
+        "slug": "Category-1",
+        "description": "Description for category 1. This is a consistent test description."
+      },
+      "relationships": {
+        "indicators": {
+          "data": []
+        }
+      }
+    },
+    {
+      "id": "35",
+      "type": "categories",
+      "attributes": {
+        "name": "cum",
+        "slug": "Category-2",
+        "description": "Description for category 2. This is a consistent test description."
+      },
+      "relationships": {
+        "indicators": {
+          "data": []
+        }
+      }
+    },
+    {
+      "id": "36",
+      "type": "categories",
+      "attributes": {
+        "name": "molestiae",
+        "slug": "Category-3",
+        "description": "Description for category 3. This is a consistent test description."
+      },
+      "relationships": {
+        "indicators": {
+          "data": []
+        }
+      }
+    }
+  ],
+  "meta": {
+    "total_categories": 3
+  }
+}

@@ -1,0 +1,267 @@
+import React, { useState, useCallback, useEffect, useMemo } from 'react';
+import qs from 'qs';
+import cx from 'classnames';
+import { useDropzone } from 'react-dropzone';
+import { T } from '@transifex/react';
+
+import Tabs from 'views/shared/Tabs';
+import { useDownloadableReport } from 'utilities/hooks/downloadableReport';
+import { useSearch } from 'utilities';
+import { TABS } from '../Sidebar';
+
+import { LayerAnalysis, PredictiveModelAnalysis } from './AnalysisContent';
+import { getServerSideTranslations } from 'i18n';
+
+const ACCEPTED_EXTENSIONS = ['.json', '.geojson'];
+
+export const AnalysisPanel = ({
+  // actions
+  loadCountries,
+  setDrawing,
+  setGeojson,
+  setISO,
+  toggle,
+  // data
+  countriesLoaded,
+  drawing,
+  router,
+  countries,
+  geojson,
+  iso,
+  translations,
+}) => {
+  const sidebarTab = useMemo(
+    () => qs.parse(router.query, { ignoreQueryPrefix: true }).tab,
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [location],
+  );
+  useEffect(() => {
+    if (!countriesLoaded) loadCountries();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const [tab, setTab] = useState(geojson && !iso ? 'shape' : 'region');
+  const switchTab = useCallback(
+    (e) => {
+      const newTab = e.target.dataset.tab;
+
+      if (tab !== newTab) {
+        setTab(newTab);
+        setGeojson(null);
+      }
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [tab],
+  );
+
+  const toggleDrawing = useCallback(() => {
+    setDrawing(!drawing);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [drawing]);
+
+  const resetAnalytics = useCallback(() => {
+    setGeojson(null);
+    setISO(null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const onDrop = useCallback(([file]) => {
+    const regex = new RegExp(`((${ACCEPTED_EXTENSIONS.join('|')}))$`);
+
+    if (!regex.test(file.name)) {
+      window.alert('Only .json and .geojson files are accepted. Please select a different file.');
+      return;
+    }
+
+    const reader = new FileReader();
+
+    reader.onload = (e) => {
+      try {
+        const json = JSON.parse(e.target.result);
+
+        // Simple check to validate the format of the file
+        const types = [
+          'Feature',
+          'FeatureCollection',
+          'Point',
+          'MultiPoint',
+          'LineString',
+          'MultiLineString',
+          'Polygon',
+          'MultiPolygon',
+          'GeometryCollection',
+        ];
+        if (!json.type || !types.includes(json.type)) {
+          throw new Error('The file doesn\'t have a top-level "type" property correctly defined.');
+        }
+
+        setGeojson(json);
+      } catch (err) {
+        // eslint-disable-next-line no-console
+        console.error(err);
+        window.alert("The file can't be read. Make sure it's the GeoJSON is valid.");
+      }
+    };
+
+    reader.readAsText(file);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
+  const { searchInput, result, noResults } = useSearch('search', countries, {
+    valueKey: 'name',
+    onSelect: ({ iso }) => setISO(iso),
+  });
+  const downloadableReport = useDownloadableReport();
+
+  <T _str={'Contract analysis panel'} />;
+
+  return (
+    <div className="m-sidebar analysis-panel" id="analysisPanelView">
+      <div className="title">
+        <button
+          className="btn-analysis-panel-contract"
+          type="button"
+          onClick={toggle}
+          aria-label={translations && translations['Contract analysis panel']}
+        />
+        <T _str="Analysis" />
+      </div>
+      <div className="content">
+        <div id="analysisSelectorsView" className="m-analysis-selectors">
+          <div className="m-analysis-model">
+            <div className="tabs js-tabs">
+              <button
+                type="button"
+                className={cx({ '-active': tab === 'region' })}
+                data-tab="region"
+                onClick={switchTab}
+              >
+                <T _str="Country or region" />
+              </button>
+              <button
+                type="button"
+                className={cx({ '-active': tab === 'shape' })}
+                data-tab="shape"
+                onClick={switchTab}
+              >
+                <T _str="Draw or upload shape" />
+              </button>
+            </div>
+
+            {!(geojson || iso) ? (
+              <Tabs activeTab={tab} renderActiveOnly>
+                <Tabs.Pane name="region">
+                  <p>
+                    <T _str="Select a country or region from the list below." />
+                  </p>
+                  <div className="m-search-analysis">
+                    <svg className="icon-search">
+                      <use xmlnsXlink="http://www.w3.org/1999/xlink" xlinkHref="#icon-search" />
+                    </svg>
+                    <input
+                      className="searchAnalysis"
+                      placeholder={translations && translations['Type country']}
+                      type="search"
+                      {...searchInput}
+                    />
+                    <div className="analysisSearchContent search-box visible">
+                      <div className="search-content searching">
+                        <div className="search-suggestions">
+                          <ul>
+                            {(result || []).map((item, key) => {
+                              const { label, name, iso, selected, optionProps } = item;
+
+                              const isSelected = selected % (result || []).length === key;
+
+                              return (
+                                <li
+                                  key={iso}
+                                  className={cx('search-area', {
+                                    selected: isSelected,
+                                  })}
+                                  title={name}
+                                  {...optionProps}
+                                >
+                                  <span className="name">{label}</span>
+                                </li>
+                              );
+                            })}
+                          </ul>
+                        </div>
+                      </div>
+                      {noResults && (
+                        <div>
+                          <T _str="No results" />
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </Tabs.Pane>
+                <Tabs.Pane name="shape">
+                  <p>
+                    <T _str="Draw on the map the area you want to analyze or pick a file." />
+                  </p>
+                  <div className="buttons">
+                    <button
+                      type="button"
+                      className="btn -primary js-toggle-draw"
+                      onClick={toggleDrawing}
+                    >
+                      {drawing ? <T _str="Cancel" /> : <T _str="Start drawing" />}
+                    </button>
+                    <br />
+                    or
+                    <br />
+                    <button
+                      {...getRootProps()}
+                      type="button"
+                      className={cx('btn -dotted', { '-active': isDragActive })}
+                    >
+                      {isDragActive ? (
+                        <T _str="Drop here" />
+                      ) : (
+                        <T _str="Click here to select a GeoJSON file or drag and drop the file here" />
+                      )}
+                    </button>
+                    <input {...getInputProps()} hidden accept=".json,.geojson" />
+                  </div>
+                </Tabs.Pane>
+              </Tabs>
+            ) : (
+              <>
+                {sidebarTab === TABS.MODELS ? <PredictiveModelAnalysis /> : <LayerAnalysis />}
+                <div className="buttons">
+                  <a className="btn -primary" {...downloadableReport}>
+                    <T _str="Download PDF report" />
+                  </a>
+                  <button type="button" className="btn -secondary" onClick={resetAnalytics}>
+                    <T _str="Reset the analysis" />
+                  </button>
+                  <br />
+                  <a
+                    className="btn -primary"
+                    href="https://www.resilienceatlas.org/shinny-app"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    <T _str="Go to Shinny App" />
+                  </a>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+        <div id="analysisView" className="m-analysis" />
+      </div>
+    </div>
+  );
+};
+
+export async function getServerSideProps(context) {
+  const { translations } = await getServerSideTranslations(context);
+  return {
+    props: {
+      translations,
+    },
+  };
+}

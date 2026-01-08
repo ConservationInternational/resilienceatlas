@@ -1,0 +1,24 @@
+@use '../sass-modules' as *;
+@use '../mixins' as *;
+@use '../variables' as *;
+
+.m-labels-selectors {
+  > li {
+    > .label-option {
+      display: flex;
+      color: $gray;
+      font-weight: 400;
+      padding-left: rem(25px);
+      margin-top: rem(10px);
+
+      > label {
+        margin-top: rem(1px);
+      }
+
+      > span {
+        margin-left: rem(10px);
+        line-height: 1;
+      }
+    }
+  }
+}

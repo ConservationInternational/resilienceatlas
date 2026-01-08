@@ -1,0 +1,18 @@
+{
+  "name": "histogram",
+  "version": "0.0.1",
+  "private": true,
+  "license": "MIT",
+  "author": "Vizzuality <info@vizzuality.com>",
+  "engines": {
+    "node": ">=18"
+  },
+  "cloud-repo-tools": {
+    "requiresKeyFile": true,
+    "requiresProjectId": true
+  },
+  "dependencies": {
+    "@google-cloud/functions-framework": "^3.2.0",
+    "@google/earthengine": "^0.1.354"
+  }
+}

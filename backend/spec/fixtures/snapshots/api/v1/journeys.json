@@ -1,0 +1,100 @@
+{
+  "data": [
+    {
+      "id": "59",
+      "type": "journeys",
+      "attributes": {
+        "title": "Voluptatem hic similique exercitationem.",
+        "subtitle": "Voluptatem hic similique exercitationem.",
+        "theme": "Voluptatem hic similique exercitationem.",
+        "background_image": {
+          "small": "/test_blob_url_231",
+          "medium": "/test_blob_url_231",
+          "original": "/test_blob_url_231"
+        },
+        "credits": "Voluptatem hic similique exercitationem.",
+        "credits_url": "http://kutch-spencer.example/moises",
+        "published": true
+      },
+      "relationships": {
+        "journey_steps": {
+          "data": [
+            {
+              "id": "131",
+              "type": "journey_steps"
+            },
+            {
+              "id": "132",
+              "type": "journey_steps"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "60",
+      "type": "journeys",
+      "attributes": {
+        "title": "Cum veritatis sapiente exercitationem.",
+        "subtitle": "Cum veritatis sapiente exercitationem.",
+        "theme": "Cum veritatis sapiente exercitationem.",
+        "background_image": {
+          "small": "/test_blob_url_234",
+          "medium": "/test_blob_url_234",
+          "original": "/test_blob_url_234"
+        },
+        "credits": "Cum veritatis sapiente exercitationem.",
+        "credits_url": "http://bartoletti.example/jeremiah_cronin",
+        "published": true
+      },
+      "relationships": {
+        "journey_steps": {
+          "data": [
+            {
+              "id": "133",
+              "type": "journey_steps"
+            },
+            {
+              "id": "134",
+              "type": "journey_steps"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "61",
+      "type": "journeys",
+      "attributes": {
+        "title": "Molestiae et provident facere.",
+        "subtitle": "Molestiae et provident facere.",
+        "theme": "Molestiae et provident facere.",
+        "background_image": {
+          "small": "/test_blob_url_237",
+          "medium": "/test_blob_url_237",
+          "original": "/test_blob_url_237"
+        },
+        "credits": "Molestiae et provident facere.",
+        "credits_url": "http://hane.example/jules",
+        "published": true
+      },
+      "relationships": {
+        "journey_steps": {
+          "data": [
+            {
+              "id": "136",
+              "type": "journey_steps"
+            },
+            {
+              "id": "135",
+              "type": "journey_steps"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "meta": {
+    "total": 3
+  }
+}

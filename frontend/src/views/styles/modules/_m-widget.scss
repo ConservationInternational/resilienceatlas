@@ -1,0 +1,173 @@
+@use '../sass-modules' as *;
+@use '../mixins' as *;
+@use '../variables' as *;
+
+.m-widget {
+  width: 100%;
+  min-height: rem(150px);
+  float: left;
+  margin-bottom: 25px;
+  position: relative;
+
+  &.is-loading {
+    &:after {
+      left: calc(50% - calc(30px / 3));
+      margin: calc(-30px / 2) 0 0 calc(-30px / 2);
+    }
+  }
+
+  .name {
+    text-transform: uppercase;
+    font-size: rem(14px);
+    font-weight: 700;
+    letter-spacing: 0.7px;
+    margin-left: 16px;
+    margin-bottom: 8px;
+  }
+
+  .row {
+    margin: 16px 13px 0 13px;
+  }
+
+  svg {
+    width: 100%;
+  }
+
+  &.number {
+    width: 100%;
+    float: left;
+
+    &.loaded {
+      min-height: auto;
+    }
+
+    .row {
+      padding-left: 2px;
+    }
+
+    .value {
+      font-size: 41px;
+      color: $font-color-2;
+      font-weight: 700;
+      letter-spacing: 1.46px;
+    }
+
+    .label {
+      font-size: 14px;
+      font-weight: 400;
+      color: $gray-70;
+      margin-top: 5px;
+      margin-bottom: 10px;
+    }
+
+    .widget-number {
+      float: left;
+    }
+  }
+
+  &.text-list {
+    .list {
+      width: 95%;
+      margin-left: rem(16px);
+      margin-top: rem(12px);
+    }
+
+    .list-heading {
+      text-align: left;
+      padding-bottom: rem(5px);
+      font-size: rem(14px);
+      text-transform: capitalize;
+    }
+
+    .list-row {
+      padding: rem(8px) 0 rem(8px) 0;
+      font-size: rem(14px);
+      font-weight: 400;
+      color: $gray-70;
+      margin-top: rem(5px);
+      margin-bottom: rem(10px);
+    }
+  }
+
+  .categories {
+    font-size: rem(11px);
+  }
+
+  .categorical-labels {
+    font-size: rem(11px);
+  }
+
+  .categorical-x-axis-label {
+    font-size: rem(11px);
+    fill: $gray-medium;
+  }
+
+  .yAxisLabel {
+    font-size: rem(13px);
+    transform: translateX(80px);
+    text-anchor: end;
+    fill: $gray-medium;
+  }
+
+  .xAxisLabel {
+    font-size: rem(13px);
+    fill: $gray-medium;
+  }
+
+  .widget-no-data {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: rem(118px);
+  }
+
+  .meta-short {
+    width: 100%;
+    float: left;
+    font-size: 13px;
+    font-weight: 400;
+    color: $gray-70;
+    margin-top: 5px;
+    margin-bottom: 10px;
+    margin-left: 16px;
+    position: relative;
+    padding-top: 2px;
+  }
+
+  .with-ellipsis {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  .btn-analysis {
+    @extend %clean-button-or-input;
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    margin-left: 4px;
+    padding: 0;
+    vertical-align: middle;
+  }
+
+  .widget-bar-chart {
+    height: 220px;
+  }
+
+  .widget-text-chart {
+    margin: 12px 0 23px;
+    padding: 0 16px;
+    font-size: rem(20px);
+  }
+
+  &__stats {
+    font-size: rem(13px);
+    color: $gray-70;
+
+    .stats-item {
+      &__label {
+        font-weight: 500;
+      }
+    }
+  }
+}

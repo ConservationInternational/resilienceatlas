@@ -1,0 +1,42 @@
+@use '../sass-modules' as *;
+@use '../mixins' as *;
+@use '../variables' as *;
+
+.m-home-journeys {
+  position: relative;
+  background-color: $font-color-4;
+
+  &__title {
+    position: relative;
+    height: 150px;
+
+    @media screen and (max-width: 800px) {
+      line-height: 4rem;
+      height: 220px;
+      margin-bottom: rem(-40px);
+    }
+
+    h2 {
+      @extend %center;
+      width: 100%;
+      margin: 0;
+      padding-top: 10px;
+
+      font-family: $font-face-2;
+      font-size: rem(64px);
+      text-align: center;
+      text-transform: uppercase;
+      color: $font-color-3;
+    }
+  }
+
+  &__bottom {
+    height: 150px;
+    position: relative;
+
+    .btn {
+      @extend %center;
+      text-align: center;
+    }
+  }
+}

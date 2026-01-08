@@ -1,0 +1,36 @@
+import { createReducer } from '../../utils';
+import { LOAD } from './actions';
+
+const initialState = {
+  byId: {
+    /* [siteId]: { site } */
+  },
+  all: [
+    /* siteId */
+  ],
+  loading: false,
+  loaded: false,
+  loadedLocale: null,
+  error: null,
+};
+
+export default createReducer(initialState)({
+  [LOAD.REQUEST]: (state) => ({
+    ...state,
+    loading: true,
+    error: null,
+  }),
+
+  [LOAD.SUCCESS]: (state, { payload }) => ({
+    ...state,
+    byId: payload.entities.map_menu_entries,
+    all: payload.result,
+    loaded: true,
+    loading: false,
+  }),
+
+  [LOAD.FAIL]: (state, { error }) => ({
+    ...initialState,
+    error,
+  }),
+});

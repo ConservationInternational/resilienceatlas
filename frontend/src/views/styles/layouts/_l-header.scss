@@ -1,0 +1,424 @@
+@use '../sass-modules' as *;
+@use '../mixins' as *;
+@use '../variables' as *;
+
+.l-header,
+.l-header--fullscreen {
+  display: none;
+  position: relative;
+  z-index: 5;
+  height: rem($header-height);
+  box-shadow: 0 0 2px 0 rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease;
+  transform: translatey(-100%);
+
+  .is-not-bare & {
+    display: block;
+    transform: translatey(0);
+  }
+}
+
+.l-header-nav {
+  max-width: rem($content-width);
+  margin: 0 auto;
+  padding: 0 rem($content-margin);
+  position: relative;
+  z-index: 2;
+  background-color: rgba($bg-color-1, 0.7);
+
+  @extend %clearfix;
+
+  .is-journey-map.l-main--embed & {
+    display: none;
+  }
+
+  .is-indicators &,
+  .is-atlas &,
+  .is-vs-theme & {
+    background-color: rgba(#222222, 0.7);
+  }
+
+  .is-ci-theme & {
+    background-color: rgba($bg-color-1, 0.7);
+  }
+
+  .l-main--embed & {
+    padding-left: rem(20px);
+
+    &:before {
+      display: none;
+    }
+  }
+
+  > ul {
+    @extend %clean-lists;
+    opacity: 1;
+  }
+
+  .brand-area {
+    float: left;
+    padding: rem(5px) 0;
+    opacity: 1;
+
+    a {
+      position: relative;
+      display: block;
+      width: rem(200px);
+      height: rem($header-height - 20px);
+      padding: rem(5px) 0;
+      // background-image: image-url("logo-ci.png");
+      background-repeat: no-repeat;
+      background-position: left center;
+      background-size: contain;
+      text-indent: -99999px;
+
+      // TODO: Remove this?
+      // .is-indicators &,
+      // .is-atlas &,
+      // .is-vs-theme & {
+      //   // background-image: image-url("logo-vs.png");
+      // }
+
+      // .is-ci-theme & {
+      //   // background-image: image-url("logo-ci.png");
+      // }
+
+      &:hover {
+        text-decoration: none;
+      }
+    }
+  }
+
+  .nav-area {
+    float: right;
+    // margin-right: -rem($margin);
+
+    &.-resilience {
+      .is-indicators &,
+      .is-atlas & {
+        display: none;
+      }
+    }
+
+    &.-vital-sign {
+      display: none;
+
+      .is-indicators &,
+      .is-atlas & {
+        display: block;
+
+        a {
+          color: $white;
+
+          &:hover {
+            background-color: rgba($white, 0.1);
+          }
+        }
+      }
+    }
+
+    .item-separator {
+      height: 20px;
+      border-left: 1px solid $gray-medium;
+      margin-right: rem(20px);
+    }
+
+    > li {
+      position: relative;
+      display: flex;
+      display: -ms-box;
+      justify-content: center;
+      align-items: center;
+      float: left;
+      height: rem($header-height);
+      margin-left: rem(div($margin, 2));
+
+      // Force Next.js Link components to display as clickable
+      > a {
+        cursor: pointer !important;
+        
+        &:hover {
+          cursor: pointer !important;
+        }
+      }
+
+      &:hover > ul {
+        display: block;
+      }
+
+      &.language-switcher {
+        margin-left: 0;
+        max-width: 180px;
+
+        ul {
+          max-width: 150px;
+        }
+
+        .nav-item {
+          padding-left: 10px;
+        }
+
+        .language-item {
+          padding: 0;
+        }
+
+        .language-button {
+          padding: 10px 30px 10px 10px;
+          width: 100%;
+          text-align: left;
+        }
+      }
+
+      > ul {
+        display: none;
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        width: 200px;
+        padding: 0;
+        transform: translate(-50%, 100%);
+        font-size: rem(14px);
+        background: $white;
+
+        > li {
+          display: block;
+          position: relative;
+          padding: 10px 30px 10px 10px;
+          cursor: pointer;
+
+          &:not(.-childless):after {
+            display: block;
+            position: absolute;
+            top: 50%;
+            right: 10px;
+            transform: translateY(-50%);
+            color: $theme-color-default;
+            font-size: 0.75rem;
+            content: '▶';
+          }
+
+          &:hover {
+            background: $white-medium;
+
+            &:after {
+              color: $blue;
+            }
+
+            > ul {
+              display: block;
+            }
+          }
+
+          > ul {
+            display: none;
+            position: absolute;
+            left: 100%;
+            top: 0;
+            width: 200px;
+            padding: 0;
+            background: $white;
+
+            li {
+              padding: 10px;
+              list-style: none;
+
+              &:hover {
+                background: $white-medium;
+              }
+
+              a {
+                padding: 0;
+                text-transform: none;
+              }
+            }
+          }
+
+          &.is-link {
+            &:after {
+              display: none;
+            }
+
+            > a {
+              padding: 0;
+            }
+          }
+        }
+      }
+    }
+
+    a, button, .nav-item {
+      display: block;
+      padding: rem(10px);
+      border-radius: 3px;
+      font-size: rem(14px);
+      text-transform: uppercase;
+      transition: 0.2s ease-in;
+      cursor: pointer;
+
+      &:not(.is-current) {
+        color: var(--theme-color);
+      }
+
+      &:hover {
+        text-decoration: none;
+        cursor: pointer;
+      }
+
+      &:not(.web-link):hover:not(.is-current) {
+        background-color: rgba($bg-color-2, 0.1);
+      }
+
+      &.is-current,
+      &.is-current:hover {
+        background-color: var(--theme-color, #0089CC);
+        color: $font-color-3;
+      }
+    }
+
+    // Ensure Next.js Link components have proper styling
+    a[href] {
+      cursor: pointer;
+      
+      &:hover {
+        cursor: pointer;
+      }
+    }
+
+    // Force styling for direct child links of nav items
+    > li > a {
+      display: block !important;
+      padding: rem(10px) !important;
+      border-radius: 3px !important;
+      font-size: rem(14px) !important;
+      text-transform: uppercase !important;
+      transition: 0.2s ease-in !important;
+      cursor: pointer !important;
+      text-decoration: none !important;
+
+      &:not(.is-current) {
+        color: var(--theme-color, #333333) !important;
+      }
+
+      &:hover:not(.is-current) {
+        text-decoration: none !important;
+        cursor: pointer !important;
+        background-color: rgba($bg-color-2, 0.1) !important;
+      }
+
+      &.is-current,
+      &.is-current:hover {
+        background-color: var(--theme-color, #0089CC) !important;
+        color: $font-color-3 !important;
+        font-weight: 600 !important;
+      }
+    }
+
+    // Ultra high specificity for current navigation links
+    .nav-area > li > a.is-current,
+    .nav-area.-resilience > li > a.is-current {
+      background-color: var(--theme-color, #0089CC) !important;
+      color: white !important;
+      font-weight: 600 !important;
+    }
+
+    button {
+      background: none;
+      border: none;
+      font-weight: 500;
+    }
+
+    .l-main--embed & {
+      a {
+        text-transform: none;
+      }
+    }
+  }
+
+  .web-link {
+    float: right;
+    color: $font-color-2;
+  }
+
+  .l-header--fullscreen & {
+    max-width: none;
+
+    .row {
+      max-width: none;
+    }
+  }
+
+  .l-main--embed & {
+    background-color: transparent;
+
+    .nav-area {
+      float: none;
+
+      li {
+        margin: 0;
+        height: auto;
+      }
+
+      a {
+        padding: rem(10px) 0;
+      }
+    }
+
+    .brand-area {
+      float: none;
+      padding: 0;
+    }
+  }
+}
+
+.l-hero {
+  position: relative;
+  margin-top: -65px;
+  width: 100%;
+  height: rem(310px);
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+  display: flex;
+  align-items: center;
+  @extend %clearfix;
+
+  h1 {
+    color: $font-color-3;
+    font-size: rem(48px);
+    margin-top: 80px;
+  }
+
+  .credits {
+    position: absolute;
+    bottom: 10px;
+    right: 20px;
+    margin: 0;
+
+    a {
+      color: $font-color-3;
+    }
+  }
+}
+
+.l-section-nav {
+  background-color: rgba(#757575, 0.1);
+  @extend %clearfix;
+}
+
+// Force white text for current navigation items with maximum specificity
+.nav-area.-resilience li a.nav-current-forced,
+.nav-area li a.nav-current-forced,
+a.nav-current-forced {
+  color: white !important;
+  background-color: #0089CC !important;
+  font-weight: 600 !important;
+}
+
+// Ensure hover state maintains the current styling
+.nav-area.-resilience li a.nav-current-forced:hover,
+.nav-area li a.nav-current-forced:hover,
+a.nav-current-forced:hover {
+  color: white !important;
+  background-color: #0089CC !important;
+  font-weight: 600 !important;
+}

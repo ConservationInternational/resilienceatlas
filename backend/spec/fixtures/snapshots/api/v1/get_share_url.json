@@ -1,0 +1,10 @@
+{
+  "data": {
+    "id": "11",
+    "type": "share_urls",
+    "attributes": {
+      "uid": "12345",
+      "body": "body test"
+    }
+  }
+}

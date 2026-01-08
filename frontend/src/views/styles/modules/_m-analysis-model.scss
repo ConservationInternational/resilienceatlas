@@ -1,0 +1,132 @@
+@use '../sass-modules' as *;
+@use '../mixins' as *;
+@use '../variables' as *;
+
+.m-analysis-model {
+  padding: 0 30px;
+  font-weight: 400;
+  font-size: rem(15px);
+
+  .tabs {
+    display: flex;
+    justify-content: space-between;
+    align-items: stretch;
+    margin-bottom: 30px !important;
+
+    button {
+      height: 35px;
+      padding: 2px 20px;
+      color: $font-color-4;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      line-height: 35px;
+      border: 0;
+      background: transparent;
+      outline: none;
+
+      &:hover,
+      &:active,
+      &.-active {
+        color: $white;
+        background: $gray-70;
+        border-radius: 3px;
+      }
+    }
+  }
+
+  .buttons {
+    margin-top: 50px;
+    text-align: center;
+
+    .btn {
+      margin: 15px 0;
+      background: $font-color-2;
+
+      &:hover {
+        background: darken-color($bg-color-2, 5%);
+      }
+
+      &.-primary {
+        color: $white;
+        background: $blue;
+
+        &:hover {
+          background: darken-color($blue, 5%);
+        }
+      }
+
+      &.-secondary {
+        color: $blue;
+        border: 1px solid $blue;
+        background: transparent;
+
+        &:hover {
+          background: rgba($blue, 0.1);
+        }
+      }
+
+      &.-dotted {
+        width: 100%;
+        max-width: 250px;
+        min-height: 100px;
+        padding-top: 20px;
+        padding-bottom: 20px;
+        border: 2px dotted $font-color-4;
+        border-radius: 5px;
+
+        &.-active {
+          border-color: $blue;
+          color: $blue;
+        }
+      }
+    }
+  }
+
+  .m-search-analysis {
+    ul {
+      margin: 0;
+      padding: rem(7px) 0 rem(7px) 0;
+      list-style: none;
+
+      li {
+        font-weight: 400;
+        font-size: rem(14px);
+        line-height: rem(14px);
+        padding: rem(10px) rem(10px) rem(8px) rem(33px);
+        letter-spacing: rem(0.5px);
+        cursor: pointer;
+        position: relative;
+
+        &:before {
+          content: '';
+          width: rem(9px);
+          height: rem(9px);
+          background: $white;
+          border-radius: rem(9px);
+          border: 1px solid #c0c0c0;
+          position: absolute;
+          top: rem(11px);
+          left: rem(16px);
+          transition: 0.2s $easeInOutSine;
+        }
+
+        &.selected {
+          &:before {
+            border-color: $gray-7;
+            background: $gray-7;
+          }
+        }
+      }
+    }
+
+    input {
+      padding-left: 20px;
+    }
+
+    .icon-search {
+      left: 0;
+    }
+  }
+}

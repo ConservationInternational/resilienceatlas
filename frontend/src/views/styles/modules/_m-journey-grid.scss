@@ -1,0 +1,91 @@
+@use '../sass-modules' as *;
+@use '../mixins' as *;
+@use '../variables' as *;
+
+$backgrounds-thumb: 'thumb-big-0', 'thumb-big-1', 'thumb-big-2', 'thumb-big-3',
+  'thumb-big-4', 'thumb-big-5';
+
+.m-journey__grid {
+  @extend %clean-lists;
+
+  width: 1060px;
+  margin: 0 auto;
+
+  // -webkit-box-shadow: 14px 24px 56px 4px rgba(0,0,0,0.2);
+  //    -moz-box-shadow: 14px 24px 56px 4px rgba(0,0,0,0.2);
+  //         box-shadow: 14px 24px 56px 4px rgba(0,0,0,0.2);
+
+  .m-journey__gridelement {
+    display: flex;
+
+    .text {
+      display: inline-block;
+      width: rem(530px);
+      height: rem(370px);
+      background-color: $bg-color-6;
+      padding: rem(50px);
+      position: relative;
+
+      .btn-secondary {
+        position: absolute;
+        bottom: 50px;
+        left: 50px;
+      }
+    }
+
+    .pic {
+      display: inline-block;
+      width: rem(530px);
+      height: rem(370px);
+
+      background-size: cover !important;
+      background-position: center;
+      // background image: set depending on parent class
+    }
+
+    &:nth-child(even) {
+      .text {
+        order: 2;
+      }
+      .pic {
+        order: 1;
+      }
+    }
+
+    @for $i from 1 through len($backgrounds-thumb) {
+      &.#{get-nth($backgrounds-thumb, $i)} > .pic {
+        background-image: url('/images/journeys/#{get-nth($backgrounds-thumb, $i)}.jpg');
+      }
+    }
+
+    h2 {
+      font-family: $font-face-2;
+      font-weight: 400;
+      line-height: 1;
+      letter-spacing: -0.4px;
+      text-transform: uppercase;
+      font-size: rem(50px);
+
+      margin: 0;
+
+      a {
+        color: $font-color-4;
+        &:hover {
+          text-decoration: none;
+        }
+      }
+    }
+
+    p {
+      width: 375px;
+      color: $font-color-4;
+      opacity: 0.8;
+
+      font-family: $font-face-1;
+      font-size: rem(20px);
+      font-weight: 400;
+      line-height: 20px;
+      letter-spacing: 0.3px;
+    }
+  }
+}

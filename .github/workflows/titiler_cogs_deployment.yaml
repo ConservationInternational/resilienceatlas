@@ -1,0 +1,100 @@
+name: TiTiler COGS deployment
+
+on:
+  push:
+    paths:
+      - "cloud_functions/titiler_cogs/**"
+      - ".github/workflows/titiler_cogs*"
+  workflow_dispatch:
+    inputs:
+      deploy_main:
+        description: 'Deploy to the production stack'
+        required: false
+        default: 'false'
+        type: boolean
+      branch:
+        description: 'Branch to deploy'
+        required: false
+        type: string
+jobs:
+  build-and-deploy-feature-branch:
+    if: github.ref != 'refs/heads/main' && !inputs.deploy_main
+    name: Deploy develop/feature branch stack to AWS
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout the code
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ inputs.branch || github.ref }}
+
+      - name: Signing in to AWS
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.PIPELINE_USER_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.PIPELINE_USER_SECRET_ACCESS_KEY }}
+          aws-region: ${{ vars.REGION }}
+          role-to-assume: ${{ secrets.PIPELINE_EXECUTION_ROLE }}
+          role-session-name: feature-deployment
+          role-duration-seconds: 3600
+          role-skip-session-tagging: true
+          mask-aws-account-id: false
+
+      - name: Install AWS SAM CLI
+        uses: aws-actions/setup-sam@v2
+        with:
+          use-installer: true
+
+      - name: Build SAM template
+        run: sam build --template ${{ vars.SAM_TEMPLATE }} --use-container
+
+      - name: Deploy to feature stack in the testing account
+        shell: bash
+        run: |
+          sam deploy --stack-name $(echo ${GITHUB_REF##*/} | tr -cd '[a-zA-Z0-9-]') \
+            --parameter-overrides FQDN=$(echo ${GITHUB_REF##*/} | tr -cd '[a-zA-Z0-9-]').${{ vars.FQDN }} ZoneId=${{ secrets.ROUTE53_ZONE_ID }} \
+            --capabilities CAPABILITY_IAM \
+            --region ${{ vars.REGION }} \
+            --s3-bucket ${{ secrets.ARTIFACTS_BUCKET }} \
+            --image-repository ${{ secrets.IMAGE_REPOSITORY }} \
+            --no-fail-on-empty-changeset \
+            --role-arn ${{ secrets.CLOUDFORMATION_EXECUTION_ROLE }}
+
+  build-and-deploy-production:
+    name: Deploy the production stack to AWS
+    if: github.ref == 'refs/heads/main' || inputs.deploy_main
+
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout the code
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ inputs.branch || github.ref }}
+
+      - name: Signing in to AWS
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.PIPELINE_USER_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.PIPELINE_USER_SECRET_ACCESS_KEY }}
+          aws-region: ${{ vars.REGION }}
+          role-to-assume: ${{ secrets.PIPELINE_EXECUTION_ROLE }}
+          role-session-name: prod-building
+          role-duration-seconds: 3600
+          role-skip-session-tagging: true
+
+      - uses: aws-actions/setup-sam@v2
+        with:
+          use-installer: true
+
+      - name: Build resources
+        run: sam build --template ${{ vars.SAM_TEMPLATE }} --use-container
+
+      - name: Deploy to production account
+        run: |
+          sam deploy --stack-name ${{ vars.STACK_NAME }} \
+            --parameter-overrides FQDN=${{ vars.FQDN }} ZoneId=${{ secrets.ROUTE53_ZONE_ID }} \
+            --capabilities CAPABILITY_IAM \
+            --region ${{ vars.REGION }} \
+            --s3-bucket ${{ secrets.ARTIFACTS_BUCKET }} \
+            --image-repository ${{ secrets.IMAGE_REPOSITORY }} \
+            --no-fail-on-empty-changeset \
+            --role-arn ${{ secrets.CLOUDFORMATION_EXECUTION_ROLE }}

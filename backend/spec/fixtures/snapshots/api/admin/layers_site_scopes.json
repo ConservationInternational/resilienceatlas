@@ -1,0 +1,50 @@
+{
+  "success": true,
+  "message": "List of all Site Scopes",
+  "data": [
+    {
+      "name": "AAA",
+      "linkback_text": "Sed voluptatem dolor officia.",
+      "id": 105,
+      "color": "#ffdbdb",
+      "subdomain": "kutch-spencer",
+      "has_analysis": false,
+      "latitude": 77.86032468095857,
+      "longitude": -133.8751987454316,
+      "header_theme": "ci-theme",
+      "zoom_level": 8,
+      "linkback_url": "http://wolf-corwin.test/wilson",
+      "header_color": "#e00b0b",
+      "logo_url": "http://rogahn-deckow.test/miguel",
+      "predictive_model": false,
+      "analysis_options": false,
+      "has_gef_logo": false,
+      "password_protected": false,
+      "username": null,
+      "encrypted_password": null,
+      "encrypted_viewable_password": null
+    },
+    {
+      "name": "BBB",
+      "linkback_text": "Corporis nihil doloremque nam.",
+      "id": 106,
+      "color": "#eaf1ea",
+      "subdomain": "bartoletti",
+      "has_analysis": false,
+      "latitude": 77.6773558478001,
+      "longitude": 161.18302015003604,
+      "header_theme": "ci-theme",
+      "zoom_level": 9,
+      "linkback_url": "http://douglas-cronin.test/leopoldo",
+      "header_color": "#f7bbbb",
+      "logo_url": "http://schoen.test/fredericka",
+      "predictive_model": false,
+      "analysis_options": false,
+      "has_gef_logo": false,
+      "password_protected": false,
+      "username": null,
+      "encrypted_password": null,
+      "encrypted_viewable_password": null
+    }
+  ]
+}

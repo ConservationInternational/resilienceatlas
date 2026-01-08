@@ -1,0 +1,231 @@
+{
+  "data": [
+    {
+      "id": "205",
+      "type": "layers",
+      "attributes": {
+        "name": "voluptatem",
+        "description": "Voluptatem hic similique exercitationem.",
+        "slug": "Layer-1",
+        "layer_type": null,
+        "zindex": 38,
+        "opacity": 38.0,
+        "active": null,
+        "order": 38,
+        "dashboard_order": 38,
+        "color": null,
+        "info": null,
+        "interactivity": null,
+        "css": "Voluptatem hic similique exercitationem.",
+        "query": "Voluptatem hic similique exercitationem.",
+        "layer_config": "38",
+        "layer_provider": "cog",
+        "published": true,
+        "locate_layer": false,
+        "icon_class": null,
+        "legend": null,
+        "zoom_max": 38,
+        "zoom_min": 38,
+        "download": false,
+        "dataset_shortname": null,
+        "dataset_source_url": null,
+        "analysis_suitable": true,
+        "analysis_query": "Voluptatem hic similique exercitationem.",
+        "analysis_body": "Voluptatem hic similique exercitationem.",
+        "analysis_type": "histogram",
+        "analysis_text_template": "Voluptatem hic similique exercitationem.",
+        "interaction_config": "{}",
+        "timeline": true,
+        "timeline_steps": [
+          "2020-08-23",
+          "2022-06-25",
+          "2022-11-27"
+        ],
+        "timeline_start_date": "2022-11-27",
+        "timeline_end_date": "2022-11-27",
+        "timeline_default_date": "2022-11-27",
+        "timeline_period": "monthly"
+      },
+      "relationships": {
+        "layer_group": {
+          "data": {
+            "id": "101",
+            "type": "layer_groups"
+          }
+        },
+        "sources": {
+          "data": [
+            {
+              "id": "35",
+              "type": "sources"
+            }
+          ]
+        },
+        "agrupation": {
+          "data": {
+            "id": 73,
+            "layer_id": 205,
+            "layer_group_id": 101,
+            "active": false
+          }
+        }
+      }
+    },
+    {
+      "id": "206",
+      "type": "layers",
+      "attributes": {
+        "name": "cum",
+        "description": "Cum veritatis sapiente exercitationem.",
+        "slug": "Layer-2",
+        "layer_type": null,
+        "zindex": 41,
+        "opacity": 41.0,
+        "active": null,
+        "order": 41,
+        "dashboard_order": 41,
+        "color": null,
+        "info": null,
+        "interactivity": null,
+        "css": "Cum veritatis sapiente exercitationem.",
+        "query": "Cum veritatis sapiente exercitationem.",
+        "layer_config": "41",
+        "layer_provider": "cartodb",
+        "published": true,
+        "locate_layer": false,
+        "icon_class": null,
+        "legend": null,
+        "zoom_max": 41,
+        "zoom_min": 41,
+        "download": false,
+        "dataset_shortname": null,
+        "dataset_source_url": null,
+        "analysis_suitable": true,
+        "analysis_query": "Cum veritatis sapiente exercitationem.",
+        "analysis_body": "Cum veritatis sapiente exercitationem.",
+        "analysis_type": "text",
+        "analysis_text_template": "Cum veritatis sapiente exercitationem.",
+        "interaction_config": "{}",
+        "timeline": true,
+        "timeline_steps": [
+          "2020-10-26",
+          "2021-05-08",
+          "2021-06-11"
+        ],
+        "timeline_start_date": "2021-06-11",
+        "timeline_end_date": "2021-06-11",
+        "timeline_default_date": "2021-06-11",
+        "timeline_period": "yearly"
+      },
+      "relationships": {
+        "layer_group": {
+          "data": {
+            "id": "101",
+            "type": "layer_groups"
+          }
+        },
+        "sources": {
+          "data": [
+            {
+              "id": "35",
+              "type": "sources"
+            }
+          ]
+        },
+        "agrupation": {
+          "data": {
+            "id": 74,
+            "layer_id": 206,
+            "layer_group_id": 101,
+            "active": false
+          }
+        }
+      }
+    },
+    {
+      "id": "207",
+      "type": "layers",
+      "attributes": {
+        "name": "molestiae",
+        "description": "Molestiae et provident facere.",
+        "slug": "Layer-3",
+        "layer_type": null,
+        "zindex": 25,
+        "opacity": 25.0,
+        "active": null,
+        "order": 25,
+        "dashboard_order": 25,
+        "color": null,
+        "info": null,
+        "interactivity": null,
+        "css": "Molestiae et provident facere.",
+        "query": "Molestiae et provident facere.",
+        "layer_config": "25",
+        "layer_provider": "gee",
+        "published": true,
+        "locate_layer": false,
+        "icon_class": null,
+        "legend": null,
+        "zoom_max": 25,
+        "zoom_min": 25,
+        "download": false,
+        "dataset_shortname": null,
+        "dataset_source_url": null,
+        "analysis_suitable": false,
+        "analysis_query": "Molestiae et provident facere.",
+        "analysis_body": "Molestiae et provident facere.",
+        "analysis_type": "categorical",
+        "analysis_text_template": "Molestiae et provident facere.",
+        "interaction_config": "{}",
+        "timeline": false,
+        "timeline_steps": [
+          "2020-09-13",
+          "2022-08-10",
+          "2022-08-27"
+        ],
+        "timeline_start_date": "2022-08-10",
+        "timeline_end_date": "2022-08-10",
+        "timeline_default_date": "2022-08-10",
+        "timeline_period": "daily"
+      },
+      "relationships": {
+        "layer_group": {
+          "data": {
+            "id": "101",
+            "type": "layer_groups"
+          }
+        },
+        "sources": {
+          "data": [
+            {
+              "id": "35",
+              "type": "sources"
+            }
+          ]
+        },
+        "agrupation": {
+          "data": {
+            "id": 75,
+            "layer_id": 207,
+            "layer_group_id": 101,
+            "active": false
+          }
+        }
+      }
+    }
+  ],
+  "included": [
+    {
+      "id": "35",
+      "type": "sources",
+      "attributes": {
+        "reference": "voluptatem",
+        "reference_short": "voluptatem",
+        "url": "http://kutch-spencer.example/moises"
+      }
+    }
+  ],
+  "meta": {
+    "total_layers": 3
+  }
+}

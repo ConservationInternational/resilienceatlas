@@ -1,0 +1,49 @@
+@use '../sass-modules' as *;
+@use '../mixins' as *;
+@use '../variables' as *;
+
+.m-privacy-banner {
+  margin: 0 auto;
+  padding: rem($content-margin);
+
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  z-index: 1000;
+  width: 100%;
+  max-width: 430px;
+  animation: slide-up 0.5s ease-in;
+  overflow: hidden;
+  background-color: rgba($black, 0.76);
+  outline: none;
+  justify-content: space-between;
+
+  .disclaimer {
+    margin: 0 0 28px 0;
+    font-size: rem(12px);
+    line-height: rem(16px);
+    font-weight: 700;
+    color: $white;
+
+    .link {
+      text-decoration: underline;
+      color: $white;
+    }
+  }
+
+  .buttons {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 5px;
+  }
+}
+
+@keyframes slide-up {
+  0%  {
+    transform: translateY(100%);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}

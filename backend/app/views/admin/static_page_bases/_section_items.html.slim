@@ -1,0 +1,15 @@
+- f.has_many :section_items, heading: false, sortable: :position, sortable_start: 1 do |ff|
+  = ff.semantic_errors
+  = ff.inputs (ff.object.new_record? ? "New Section Item" : ff.object.title.to_s), class: "inputs has-many-toggle-collapse" do
+    div class="has-many-section section-hidden use-simple-trix-toolbar"
+      = ff.inputs "Translated fields" do
+        - ff.translated_inputs switch_locale: false do |fff|
+          - fff.input :id, as: :hidden
+          - fff.input :locale, as: :hidden
+          - fff.input :title
+          = fff.inputs "Description" do
+            = fff.rich_text_area :description
+      = ff.inputs "Common fields" do
+        == render "admin/shared/image_with_thumbnail", blob: :image, f: ff, inside_has_many_block: true
+      - unless ff.object.new_record?
+        - ff.input :_destroy, as: :boolean, wrapper_html: { class: "has_many_delete" }, label: I18n.t("active_admin.has_many_delete")

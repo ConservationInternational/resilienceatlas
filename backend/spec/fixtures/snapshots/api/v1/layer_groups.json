@@ -1,0 +1,70 @@
+{
+  "data": [
+    {
+      "id": "77",
+      "type": "layer_groups",
+      "attributes": {
+        "name": "voluptatem",
+        "slug": "LayerGroup-1",
+        "category": "voluptatem",
+        "active": true,
+        "order": 38,
+        "info": "Voluptatem hic similique. Nostrum iste dolorem. Sed voluptatem dolor.",
+        "layer_group_type": "voluptatem",
+        "super_group_id": null,
+        "super_group_name": null,
+        "icon_class": "voluptatem"
+      },
+      "relationships": {
+        "super_group": {
+          "data": null
+        }
+      }
+    },
+    {
+      "id": "78",
+      "type": "layer_groups",
+      "attributes": {
+        "name": "cum",
+        "slug": "LayerGroup-2",
+        "category": "cum",
+        "active": true,
+        "order": 41,
+        "info": "Cum veritatis sapiente. Nostrum sunt dolor. Nulla corporis nihil.",
+        "layer_group_type": "cum",
+        "super_group_id": null,
+        "super_group_name": null,
+        "icon_class": "cum"
+      },
+      "relationships": {
+        "super_group": {
+          "data": null
+        }
+      }
+    },
+    {
+      "id": "79",
+      "type": "layer_groups",
+      "attributes": {
+        "name": "molestiae",
+        "slug": "LayerGroup-3",
+        "category": "molestiae",
+        "active": false,
+        "order": 25,
+        "info": "Molestiae et provident. Quod consequatur alias. Dicta mollitia qui.",
+        "layer_group_type": "molestiae",
+        "super_group_id": null,
+        "super_group_name": null,
+        "icon_class": "molestiae"
+      },
+      "relationships": {
+        "super_group": {
+          "data": null
+        }
+      }
+    }
+  ],
+  "meta": {
+    "total_layer_groups": 3
+  }
+}

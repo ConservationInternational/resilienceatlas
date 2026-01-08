@@ -1,0 +1,217 @@
+{
+	"variables": [],
+	"info": {
+		"name": "resilienceatlas",
+		"_postman_id": "61a1d98c-915d-2c1a-33eb-e28a35531175",
+		"description": "",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "layers",
+			"request": {
+				"url": "{{host}}/api/layers",
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "layers downloads",
+			"request": {
+				"url": {
+					"raw": "{{host}}/api/layers/:id/downloads",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"api",
+						"layers",
+						":id",
+						"downloads"
+					],
+					"query": [],
+					"variable": [
+						{
+							"key": "id",
+							"value": "108"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "layers groups",
+			"request": {
+				"url": "{{host}}/api/layer-groups",
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "share",
+			"request": {
+				"url": {
+					"raw": "{{host}}/api/share/:uid",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"api",
+						"share",
+						":uid"
+					],
+					"query": [],
+					"variable": [
+						{
+							"key": "uid",
+							"value": null
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "sites",
+			"request": {
+				"url": "{{host}}/api/sites",
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "models",
+			"request": {
+				"url": "{{host}}/api/models",
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "indecators",
+			"request": {
+				"url": "{{host}}/api/categories",
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "categories",
+			"request": {
+				"url": "{{host}}/api/indicators",
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "journeys",
+			"request": {
+				"url": "{{host}}/api/journeys",
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "journey",
+			"request": {
+				"url": {
+					"raw": "{{host}}/api/journeys/:id",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"api",
+						"journeys",
+						":id"
+					],
+					"query": [],
+					"variable": [
+						{
+							"key": "id",
+							"value": "1"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "menu enteries",
+			"request": {
+				"url": "{{host}}/api/menu-entries",
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"description": ""
+			},
+			"response": []
+		}
+	]
+}

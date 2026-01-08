@@ -1,0 +1,51 @@
+@use '../sass-modules' as *;
+@use '../mixins' as *;
+@use '../variables' as *;
+
+.m-journey__intro {
+	padding: 40px;
+	.journey-title {
+		color: $white;
+		max-width: rem(600px);
+		margin: auto;
+		text-align: center;
+
+		.main-title {
+			text-transform: uppercase;
+			font-size: rem(144px);
+			font-family: $font-face-2;
+			font-weight: 400;
+			margin: 0;
+			line-height: 0.4em;
+			text-shadow: 0 1px 1px rgba(0,0,0,0.3);
+		}
+		.secondary-title {
+			font-size: rem(26px);
+			font-weight: 300;
+			line-height: 1.2em;
+			text-shadow: 0 1px 1px black;
+		}
+	}
+	.slides-nav {
+		display: flex;
+		justify-content: space-between;
+		margin: 0;
+		list-style: none;
+	}
+	ul {
+		padding: 0;	
+	}
+  .brand-area {
+		a {
+			position: relative;
+			display: block;
+			width: rem(200px);
+			height: rem(45px);
+			padding: rem(5px) 0;
+			background-repeat: no-repeat;
+			background-position: left center;
+			background-size: contain;
+			text-indent: -99999px;
+		}
+	}
+}

@@ -1,0 +1,10 @@
+@use '../sass-modules' as *;
+@use '../mixins' as *;
+@use '../variables' as *;
+
+.l-journey__intro {
+  background-image: url('/images/journeys/journey1bg0.jpg');
+  background-repeat: no-repeat;
+  background-position: center;  
+  background-size: cover !important;
+}

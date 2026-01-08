@@ -1,0 +1,62 @@
+@use '../sass-modules' as *;
+@use '../mixins' as *;
+@use '../variables' as *;
+
+.l-footer {
+  background-color: $bg-color-2;
+  font-weight: 400;
+  font-size: rem(14px);
+}
+
+.l-footer-nav {
+  @extend %clearfix;
+  max-width: rem($content-width);
+  margin: 0 auto;
+  padding: 0 rem($content-margin);
+  color: $font-color-3;
+
+  ul {
+    @extend %clean-lists;
+  }
+
+  .privacy {
+    display: inline-block;
+    float: left;
+    margin-right: 20px;
+
+    a {
+      color: $font-color-3;
+    }
+  }
+
+  .credits {
+    display: inline-block;
+    float: right;
+
+    a {
+      font-size: 16px;
+      color: transparent;
+      background-image: url('/images/vizz.svg');
+      background-repeat: no-repeat;
+      background-size: 100%;
+      background-position: bottom;
+    }
+  }
+
+  .copyright {
+    display: block;
+    margin: 0 auto;
+    text-align: center;
+    width: rem(350px);
+    position: absolute;
+    padding-top: rem(14px);
+    left: 0;
+    right: 0;
+
+    @media screen and (max-width: 700px) {
+      width: rem(250px);
+      float: right;
+      position: relative;
+    }
+  }
+}

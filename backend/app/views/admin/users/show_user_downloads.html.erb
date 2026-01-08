@@ -1,0 +1,26 @@
+<% if @user_downloads.present? %>
+	<table>
+		<thead>	
+			<th>SubDomain</th>
+			<th>Layer</th>
+			<th>Downloaded At</th>
+		</thead>	
+	<% @user_downloads.each do |user_download| %>
+		<tr>
+			<td>
+				<%= user_download.subdomain%>
+			</td>
+			
+			<td>
+				<%= link_to user_download.layer.name, user_download.layer&.name if user_download.layer.present? %>
+			</td>
+
+			<td>
+				<%= user_download.created_at.to_date %>
+			</td>
+		</tr>
+	<% end %>
+	</table>
+<% else %>
+	No Downloads history found
+<% end %>	

@@ -1,0 +1,230 @@
+name: CodeDeploy - Staging
+
+on:
+  push:
+    branches:
+      - staging
+  workflow_dispatch:
+    inputs:
+      sync_database:
+        description: 'Sync production database to staging'
+        required: false
+        default: 'true'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
+
+env:
+  AWS_REGION: us-east-1
+  APPLICATION_NAME: resilienceatlas
+  DEPLOYMENT_GROUP: resilienceatlas-staging
+
+concurrency:
+  group: staging-deployment
+  cancel-in-progress: false
+
+# Required for OIDC authentication with AWS
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy:
+    name: Deploy to Staging via CodeDeploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    environment: staging
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Configure AWS credentials via OIDC
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        role-to-assume: ${{ secrets.AWS_OIDC_ROLE_ARN }}
+        role-session-name: GitHubActionsStagingDeploy
+        aws-region: ${{ env.AWS_REGION }}
+
+    - name: Get deployment info
+      id: deployment-info
+      run: |
+        echo "commit-sha=${{ github.sha }}" >> $GITHUB_OUTPUT
+        echo "short-sha=$(echo ${{ github.sha }} | cut -c1-7)" >> $GITHUB_OUTPUT
+        echo "timestamp=$(date +%Y%m%d-%H%M%S)" >> $GITHUB_OUTPUT
+        echo "s3-bucket=${{ secrets.DEPLOYMENT_S3_BUCKET }}" >> $GITHUB_OUTPUT
+
+    - name: Verify S3 bucket exists
+      run: |
+        BUCKET_NAME="${{ steps.deployment-info.outputs.s3-bucket }}"
+        if ! aws s3api head-bucket --bucket "$BUCKET_NAME" 2>/dev/null; then
+          echo "❌ S3 bucket does not exist: $BUCKET_NAME"
+          echo "Please run scripts/setup_s3_bucket.py to create it first."
+          exit 1
+        fi
+        echo "✅ S3 bucket exists: $BUCKET_NAME"
+
+    - name: Create environment file for deployment
+      run: |
+        cat > .env.staging << 'EOF'
+        RAILS_ENV=staging
+        NODE_ENV=production
+        STAGING_DB_PASSWORD=${{ secrets.STAGING_DB_PASSWORD }}
+        STAGING_SECRET_KEY_BASE=${{ secrets.STAGING_SECRET_KEY_BASE }}
+        STAGING_DEVISE_KEY=${{ secrets.STAGING_DEVISE_KEY }}
+        STAGING_BACKEND_URL=https://staging.resilienceatlas.org
+        STAGING_FRONTEND_URL=https://staging.resilienceatlas.org
+        NEXT_PUBLIC_API_HOST=https://staging.resilienceatlas.org
+        NEXT_PUBLIC_GOOGLE_ANALYTICS=${{ secrets.NEXT_PUBLIC_GOOGLE_ANALYTICS }}
+        NEXT_PUBLIC_TRANSIFEX_TOKEN=${{ secrets.NEXT_PUBLIC_TRANSIFEX_TOKEN }}
+        NEXT_PUBLIC_TRANSIFEX_SECRET=${{ secrets.NEXT_PUBLIC_TRANSIFEX_SECRET }}
+        NEXT_PUBLIC_GOOGLE_API_KEY=${{ secrets.NEXT_PUBLIC_GOOGLE_API_KEY }}
+        RESILIENCE_API_KEY=${{ secrets.RESILIENCE_API_KEY }}
+        SPARKPOST_API_KEY=${{ secrets.SPARKPOST_API_KEY }}
+        PRODUCTION_DATABASE_URL=${{ secrets.PRODUCTION_DATABASE_URL }}
+        SYNC_PRODUCTION_DB=${{ github.event.inputs.sync_database || 'true' }}
+        ROLLBAR_ACCESS_TOKEN=${{ secrets.ROLLBAR_ACCESS_TOKEN }}
+        NEXT_PUBLIC_ROLLBAR_CLIENT_TOKEN=${{ secrets.NEXT_PUBLIC_ROLLBAR_CLIENT_TOKEN }}
+        GIT_REVISION=${{ github.sha }}
+        EOF
+
+    - name: Update appspec.yml for staging
+      run: |
+        # Modify appspec.yml to use staging-specific destination
+        # This prevents race conditions when staging and production deploy simultaneously
+        sed -i 's|destination: /opt/resilienceatlas|destination: /opt/resilienceatlas-staging|g' appspec.yml
+        sed -i 's|object: /opt/resilienceatlas|object: /opt/resilienceatlas-staging|g' appspec.yml
+        echo "Updated appspec.yml destination to /opt/resilienceatlas-staging"
+        cat appspec.yml
+
+    - name: Create deployment package
+      run: |
+        # Create a deployment archive
+        REVISION_FILE="staging-${{ steps.deployment-info.outputs.timestamp }}-${{ steps.deployment-info.outputs.short-sha }}.zip"
+        echo "revision-file=$REVISION_FILE" >> $GITHUB_OUTPUT
+        
+        # Exclude files not needed for deployment
+        zip -r "$REVISION_FILE" . \
+          -x ".git/*" \
+          -x "node_modules/*" \
+          -x "*.log" \
+          -x ".env.example" \
+          -x ".env.test" \
+          -x "frontend/node_modules/*" \
+          -x "frontend/.next/*" \
+          -x "backend/tmp/*" \
+          -x "backend/log/*" \
+          -x "data/*" \
+          -x "integration-tests/*" \
+          -x "*.md" \
+          -x "LICENSE"
+        
+        echo "Created deployment package: $REVISION_FILE ($(du -h $REVISION_FILE | cut -f1))"
+      id: package
+
+    - name: Upload deployment package to S3
+      run: |
+        BUCKET="${{ steps.deployment-info.outputs.s3-bucket }}"
+        KEY="staging/${{ steps.package.outputs.revision-file }}"
+        
+        aws s3 cp "${{ steps.package.outputs.revision-file }}" "s3://$BUCKET/$KEY"
+        
+        echo "s3-key=$KEY" >> $GITHUB_OUTPUT
+        echo "Uploaded to s3://$BUCKET/$KEY"
+      id: upload
+
+    - name: Create CodeDeploy deployment
+      id: deploy
+      run: |
+        BUCKET="${{ steps.deployment-info.outputs.s3-bucket }}"
+        KEY="${{ steps.upload.outputs.s3-key }}"
+        
+        DEPLOYMENT_ID=$(aws deploy create-deployment \
+          --application-name ${{ env.APPLICATION_NAME }} \
+          --deployment-group-name ${{ env.DEPLOYMENT_GROUP }} \
+          --s3-location bucket=$BUCKET,key=$KEY,bundleType=zip \
+          --deployment-config-name CodeDeployDefault.OneAtATime \
+          --description "Staging deployment: ${{ github.sha }} from ${{ github.ref_name }}" \
+          --file-exists-behavior OVERWRITE \
+          --query 'deploymentId' \
+          --output text)
+        
+        echo "deployment-id=$DEPLOYMENT_ID" >> $GITHUB_OUTPUT
+        echo "🚀 Created deployment: $DEPLOYMENT_ID"
+
+    - name: Wait for deployment to complete
+      run: |
+        DEPLOYMENT_ID="${{ steps.deploy.outputs.deployment-id }}"
+        echo "⏳ Waiting for deployment $DEPLOYMENT_ID to complete..."
+        
+        # Wait for deployment (max 30 minutes)
+        aws deploy wait deployment-successful \
+          --deployment-id "$DEPLOYMENT_ID" \
+          --cli-read-timeout 1800 || {
+            # Get deployment info if failed
+            STATUS=$(aws deploy get-deployment --deployment-id "$DEPLOYMENT_ID" \
+              --query 'deploymentInfo.status' --output text)
+            
+            echo "❌ Deployment failed with status: $STATUS"
+            
+            # Get deployment events for debugging
+            echo "📋 Deployment events:"
+            aws deploy list-deployment-targets --deployment-id "$DEPLOYMENT_ID" \
+              --query 'targetIds' --output text | while read TARGET_ID; do
+              echo "Target: $TARGET_ID"
+              aws deploy get-deployment-target \
+                --deployment-id "$DEPLOYMENT_ID" \
+                --target-id "$TARGET_ID" \
+                --query 'deploymentTarget.instanceTarget.lifecycleEvents[*].{Event:lifecycleEventName,Status:status,Message:diagnostics.message}' \
+                --output table
+            done
+            
+            exit 1
+          }
+        
+        echo "✅ Deployment completed successfully!"
+
+    - name: Verify deployment
+      run: |
+        echo "🔍 Verifying deployment..."
+        
+        # Get deployment status
+        DEPLOYMENT_ID="${{ steps.deploy.outputs.deployment-id }}"
+        aws deploy get-deployment \
+          --deployment-id "$DEPLOYMENT_ID" \
+          --query 'deploymentInfo.{Status:status,CreateTime:createTime,CompleteTime:completeTime}' \
+          --output table
+
+    - name: Deployment notification
+      if: always()
+      run: |
+        if [ "${{ job.status }}" = "success" ]; then
+          echo "✅ Staging deployment successful!"
+          echo "🌐 Site: https://staging.resilienceatlas.org"
+          echo "📦 Commit: ${{ github.sha }}"
+          echo "🚀 Deployment ID: ${{ steps.deploy.outputs.deployment-id }}"
+        else
+          echo "❌ Staging deployment failed!"
+          echo "📦 Commit: ${{ github.sha }}"
+          echo "🚀 Deployment ID: ${{ steps.deploy.outputs.deployment-id }}"
+          exit 1
+        fi
+
+    - name: Notify Rollbar of deployment
+      if: success()
+      run: |
+        # Notify Rollbar of successful deployment (if token is configured)
+        if [ -n "${{ secrets.ROLLBAR_ACCESS_TOKEN }}" ]; then
+          curl -s https://api.rollbar.com/api/1/deploy \
+            -F access_token=${{ secrets.ROLLBAR_ACCESS_TOKEN }} \
+            -F environment=staging \
+            -F revision=${{ github.sha }} \
+            -F rollbar_username="${{ github.actor }}" \
+            -F local_username="${{ github.actor }}" \
+            -F comment="Staging deployment via GitHub Actions - ${{ github.ref_name }}" \
+            -F status=succeeded
+          echo "📊 Rollbar deployment notification sent"
+        else
+          echo "⚠️ ROLLBAR_ACCESS_TOKEN not configured, skipping deployment notification"
+        fi

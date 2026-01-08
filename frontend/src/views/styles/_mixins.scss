@@ -1,0 +1,334 @@
+// ============================================================================
+// Mixins and Placeholder Selectors
+// ============================================================================
+// This file provides reusable mixins and placeholder selectors.
+// Uses modern Sass module system.
+// ============================================================================
+
+@use 'sass-modules' as *;
+
+// Default rem base - can be overridden in _variables.scss
+$rem-base: 16px !default;
+
+// ============================================================================
+// Placeholder Selectors
+// ============================================================================
+
+// Clean lists
+%clean-lists {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+%center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+%centerx {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+%centery {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+%clear-scroll-bars {
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  // overflow: -moz-scrollbars-none;
+  -ms-overflow-style: none;
+}
+
+%clean-button-or-input {
+  appearance: none;
+  box-shadow: none;
+  background: none;
+  border: 0;
+  text-decoration: none;
+  outline: none;
+
+  &:hover {
+    appearance: none;
+    -webkit-user-select: none;
+  }
+
+  //To avoid number input spin buttons
+  &::-webkit-outer-spin-button,
+  &::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+  }
+
+  // &:focus {
+  //   border: 0;
+  //   outline: 0;
+  // }
+}
+
+// Visually hidden but accessible to screen readers
+%visually-hidden {
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  height: 1px;
+  overflow: hidden;
+  position: absolute;
+  white-space: nowrap;
+  width: 1px;
+}
+
+%clearfix {
+  &:before,
+  &:after {
+    display: table;
+    content: '';
+  }
+
+  &:after {
+    clear: both;
+  }
+}
+
+//Fonts includer
+@mixin font-face($font-name, $font-file, $weight, $style: 'normal') {
+  @font-face {
+    font-family: $font-name;
+    src: url('/fonts/#{$font-file}.eot');
+    src: url('/fonts/#{$font-file}.eot?#iefix') format('embedded-opentype'),
+      // url("/fonts/#{$font-file}.woff2") format("woff2"),
+        url('/fonts/#{$font-file}.woff') format('woff'),
+      url('/fonts/#{$font-file}.ttf') format('truetype'),
+      url('/fonts/#{$font-file}.svg') format('svg');
+    font-weight: $weight;
+    font-style: $style;
+  }
+}
+
+@mixin equi-triangle($triangle-size, $triangle-color, $triangle-direction) {
+  content: '';
+  display: block;
+  width: 0;
+  height: 0;
+  border: inset $triangle-size;
+  @if ($triangle-direction == top) {
+    border-color: $triangle-color transparent transparent transparent;
+    border-top-style: solid;
+  }
+  @if ($triangle-direction == bottom) {
+    border-color: transparent transparent $triangle-color transparent;
+    border-bottom-style: solid;
+  }
+  @if ($triangle-direction == left) {
+    border-color: transparent transparent transparent $triangle-color;
+    border-left-style: solid;
+  }
+  @if ($triangle-direction == right) {
+    border-color: transparent $triangle-color transparent transparent;
+    border-right-style: solid;
+  }
+}
+
+@mixin arrow($width, $color, $border-width, $deg) {
+  width: $width;
+  height: $width;
+  border-top: $border-width solid $color;
+  border-left: $border-width solid $color;
+  transform: rotate($deg);
+  pointer-events: none;
+}
+
+//Loader
+@mixin spinner($size, $border-width, $color) {
+  &:before {
+    content: '';
+    z-index: 1;
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    opacity: 0.6;
+  }
+
+  &:after {
+    z-index: 2;
+    content: '';
+    height: $size;
+    width: $size;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin: div(-$size, 2) 0 div(-$size, 2);
+    transition: all 0.75s ease 0s;
+    border-radius: 100%;
+    border-top: $border-width solid $color;
+    border-right: $border-width solid #eee;
+    border-bottom: $border-width solid #eee;
+    border-left: $border-width solid #eee;
+    animation: standard 0.75s infinite linear;
+    -webkit-animation: standard 0.75s infinite linear;
+    transform-origin: center;
+  }
+}
+
+@-webkit-keyframes standard {
+  from {
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+
+  to {
+    -webkit-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes standard {
+  from {
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+
+  to {
+    -webkit-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes point-to {
+  0% {
+    transform: translateY(0px) rotate(-135deg);
+  }
+  50% {
+    transform: translateY(10px) rotate(-135deg);
+  }
+}
+
+@keyframes jump {
+  0% {
+    transform: translateY(0px) rotate(-135deg);
+  }
+  10% {
+    transform: translateY(-10px) rotate(-135deg);
+  }
+  20% {
+    transform: translateY(0px) rotate(-135deg);
+  }
+  32% {
+    transform: translateY(-4px) rotate(-135deg);
+  }
+  44% {
+    transform: translateY(0px) rotate(-135deg);
+  }
+  57% {
+    transform: translateY(-2px) rotate(-135deg);
+  }
+  65% {
+    transform: translateY(0px) rotate(-135deg);
+  }
+  72% {
+    transform: translateY(-1px) rotate(-135deg);
+  }
+  78% {
+    transform: translateY(0px) rotate(-135deg);
+  }
+  100% {
+    transform: translateY(0px) rotate(-135deg);
+  }
+}
+
+//Forms mixins
+@mixin placeholder() {
+  &::-webkit-input-placeholder {
+    @content;
+  }
+  &:-moz-placeholder {
+    @content;
+  }
+  &::-moz-placeholder {
+    @content;
+  }
+  &:-ms-input-placeholder {
+    @content;
+  }
+}
+
+// A helper to transform PX to REM unit
+@function rem($px, $base: $rem-base) {
+  @return div($px, $base) * 1rem;
+}
+
+@mixin ellipsis($max-width) {
+  display: inline-block;
+  max-width: $max-width;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// A helper to darken a css variable color
+@function darken-variable($variable, $opacity) {
+  @return unquote-str('linear-gradient(to top,rgba(0, 0, 0,' + $opacity + '),rgba(0, 0, 0,' + $opacity + '))' + $variable);
+}
+
+// Switch component mixins (replacement for foundation-sites)
+$switch-background: #e6e6e6 !default;
+$switch-background-active: #1779ba !default; // Default blue, can be overridden
+$switch-height: 2rem !default;
+$switch-height-tiny: 1.5rem !default;
+$switch-height-small: 1.75rem !default;
+$switch-height-large: 2.5rem !default;
+$switch-radius: 0.9375rem !default;
+$switch-margin: 0.25rem !default;
+$switch-paddle-background: #fefefe !default;
+$switch-paddle-offset: 0.25rem !default;
+$switch-paddle-radius: 0.75rem !default;
+$switch-paddle-transition: all 0.25s ease-out !default;
+$switch-opacity-disabled: 0.5 !default;
+
+@mixin switch-container {
+  position: relative;
+  outline: none;
+}
+
+@mixin switch-input {
+  position: absolute;
+  margin-bottom: 0;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  cursor: pointer;
+}
+
+@mixin switch-paddle {
+  position: relative;
+  display: block;
+  width: $switch-height * 2;
+  height: $switch-height;
+  border-radius: $switch-radius;
+  background: $switch-background;
+  transition: $switch-paddle-transition;
+  cursor: pointer;
+
+  &::after {
+    position: absolute;
+    top: $switch-paddle-offset;
+    left: $switch-paddle-offset;
+    display: block;
+    width: $switch-height - ($switch-paddle-offset * 2);
+    height: $switch-height - ($switch-paddle-offset * 2);
+    content: '';
+    background: $switch-paddle-background;
+    border-radius: $switch-paddle-radius;
+    transition: $switch-paddle-transition;
+  }
+}

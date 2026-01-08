@@ -1,0 +1,271 @@
+# == Schema Information
+#
+# Table name: layers
+#
+#  id                        :bigint           not null, primary key
+#  layer_group_id            :integer
+#  slug                      :string           not null
+#  layer_type                :string
+#  zindex                    :integer
+#  active                    :boolean
+#  order                     :integer
+#  color                     :string
+#  layer_provider            :string
+#  css                       :text
+#  interactivity             :text
+#  opacity                   :float
+#  query                     :text
+#  created_at                :datetime         not null
+#  updated_at                :datetime         not null
+#  locate_layer              :boolean          default(FALSE)
+#  icon_class                :string
+#  published                 :boolean          default(TRUE)
+#  zoom_max                  :integer          default(100)
+#  zoom_min                  :integer          default(0)
+#  dashboard_order           :integer
+#  download                  :boolean          default(FALSE)
+#  dataset_shortname         :string
+#  dataset_source_url        :text
+#  start_date                :datetime
+#  end_date                  :datetime
+#  spatial_resolution        :string
+#  spatial_resolution_units  :string
+#  temporal_resolution       :string
+#  temporal_resolution_units :string
+#  update_frequency          :string
+#  version                   :string
+#  analysis_suitable         :boolean          default(FALSE)
+#  analysis_query            :text
+#  layer_config              :text
+#  analysis_body             :text
+#  interaction_config        :text
+#  timeline                  :boolean          default(FALSE)
+#  timeline_steps            :date             default([]), is an Array
+#  timeline_start_date       :date
+#  timeline_end_date         :date
+#  timeline_default_date     :date
+#  timeline_period           :string
+#  analysis_type             :string
+#  name                      :string
+#  info                      :text
+#  legend                    :text
+#  title                     :string
+#  data_units                :string
+#  processing                :string
+#  description               :text
+#  analysis_text_template    :text
+#
+
+require "zip"
+require "open-uri"
+
+class Layer < ApplicationRecord
+  WHITELIST_ATTRIBUTES = %i[
+    name
+    layer_group_id
+    slug
+    layer_type
+    zindex
+    active
+    order
+    color
+    layer_provider
+    css
+    interactivity
+    opacity
+    query
+    created_at
+    updated_at
+    locate_layer
+    icon_class
+    published
+    zoom_max
+    zoom_min
+    dashboard_order
+    download
+    dataset_shortname
+    dataset_source_url
+    start_date
+    end_date
+    spatial_resolution
+    spatial_resolution_units
+    temporal_resolution
+    temporal_resolution_units
+    update_frequency
+    version
+    analysis_suitable
+    analysis_query
+    analysis_type
+    layer_config
+    analysis_body
+    interaction_config
+  ].freeze
+
+  has_and_belongs_to_many :sources
+
+  has_many :agrupations, dependent: :destroy
+  has_many :layer_groups, through: :agrupations, dependent: :destroy
+  has_many :site_scopes, through: :layer_groups
+
+  accepts_nested_attributes_for :agrupations, allow_destroy: true
+  accepts_nested_attributes_for :sources, allow_destroy: true
+
+  # Translation setup - protected against migration errors
+  begin
+    translates :name, :info, :legend, :title, :data_units, :processing, :description, :analysis_text_template, touch: true, fallbacks_for_empty_translations: true
+    active_admin_translates :name, :info, :legend, :title, :data_units, :processing, :description, :analysis_text_template
+
+    # Only add translation validations if the translation_class is defined
+    if respond_to?(:translation_class) && translation_class
+      translation_class.validates_presence_of :name, if: -> { locale.to_s == I18n.default_locale.to_s }
+    end
+  rescue ActiveRecord::NoDatabaseError, ActiveRecord::ConnectionNotEstablished, ActiveRecord::StatementInvalid => e
+    # Database not available yet - skip translation setup for now
+    Rails.logger&.info "Skipping Layer translations setup - database not ready: #{e.message}"
+  end
+
+  # Only define enums if the table and columns exist to avoid migration issues
+  # Wrapped in begin/rescue to handle cases where database is being created
+  begin
+    if table_exists? && column_names.include?("timeline_period")
+      enum :timeline_period, {yearly: "yearly", monthly: "monthly", daily: "daily"}, default: :yearly, prefix: true
+    end
+
+    if table_exists? && column_names.include?("analysis_type")
+      enum :analysis_type, {histogram: "histogram", categorical: "categorical", text: "text"}, default: :histogram, prefix: true
+    end
+  rescue ActiveRecord::NoDatabaseError, ActiveRecord::ConnectionNotEstablished, ActiveRecord::StatementInvalid, PG::ConnectionBad => e
+    # Database not available yet - skip enum setup for now
+    Rails.logger&.info "Skipping Layer enums setup - database not ready: #{e.message}"
+  end
+
+  validates_presence_of :slug, :layer_provider, :interaction_config
+  validates :timeline, inclusion: {in: [true, false]}
+
+  # Ransack configuration - explicitly allowlist searchable attributes for security
+  def self.ransackable_attributes(auth_object = nil)
+    %w[
+      active analysis_body analysis_query analysis_suitable analysis_type color created_at css
+      dashboard_order dataset_shortname dataset_source_url download end_date icon_class id
+      id_value interaction_config interactivity layer_config layer_group_id layer_provider
+      layer_type locate_layer opacity order published query slug spatial_resolution
+      spatial_resolution_units start_date temporal_resolution temporal_resolution_units
+      timeline timeline_default_date timeline_end_date timeline_period timeline_start_date
+      timeline_steps update_frequency updated_at version zindex zoom_max zoom_min name
+      info legend title data_units processing description analysis_text_template
+    ]
+  end
+
+  def self.ransackable_associations(auth_object = nil)
+    %w[agrupations layer_groups site_scopes sources translations]
+  end
+
+  with_options if: -> { analysis_suitable } do
+    validates_presence_of :analysis_type
+    validates_inclusion_of :analysis_type, in: %w[text], message: "analysis type has to be text for cartodb provider", if: -> { layer_provider.to_s == "cartodb" && analysis_suitable }
+    validates_inclusion_of :analysis_type, in: %w[histogram categorical], message: "analysis type has to be histogram or categorical for cog provider", if: -> { layer_provider.to_s == "cog" && analysis_suitable }
+    validates_inclusion_of :analysis_type, in: %w[histogram], message: "analysis type has to be histogram", if: -> { !layer_provider.to_s.in?(%w[cartodb cog]) && analysis_suitable }
+  end
+  with_options if: -> { timeline } do
+    validates_presence_of :timeline_period, :timeline_default_date
+    validates_presence_of :timeline_start_date, message: "required unless Steps defined", if: -> { timeline_steps.blank? && timeline }
+  end
+  with_options if: -> { layer_provider == "cog" } do
+    validates_presence_of :layer_config
+  end
+
+  scope :site, ->(site) { left_joins(layer_groups: :super_group).where(layer_groups: {site_scope_id: site}) }
+
+  def self.fetch_all(options = {})
+    site_scope = if options[:site_scope]
+      options[:site_scope].to_i
+    else
+      1
+    end
+    layers = Layer.with_translations
+    layers.site(site_scope)
+  end
+
+  def clone!
+    new_layer = Layer.new
+    new_layer.assign_attributes attributes.except("id")
+    translations.each { |t| new_layer.translations.build t.attributes.except("id") }
+    new_layer.name = "#{name} _copy_ #{DateTime.now}"
+    new_layer.save!
+    new_layer
+  end
+
+  def zip_attachments(options, domain, site_name = nil, subdomain = nil)
+    site_name = site_name.present? ? site_name : "Conservation International"
+
+    download_path = options["download_path"] if options["download_path"].present?
+    download_query = options["q"] if options["q"].present?
+    download_format = options["with_format"] if options["with_format"].present?
+    file_format = options["file_format"] if options["file_format"].present?
+
+    file_name = if options["filename"].present?
+      options["filename"]
+    elsif options["download_path"].present? && URI(options["download_path"]).query.present?
+      query_path = URI(options["download_path"]).query
+      # Parse query parameters properly to extract filename
+      query_params = CGI.parse(query_path)
+      filename = query_params["filename"]&.first
+      filename
+    end
+
+    layer_url = download_path.to_s if download_path
+    layer_url += "&q=#{download_query}" if download_query
+    layer_url += "&format=#{file_format}" if download_format
+
+    zipfile = zipfile_name(subdomain)
+
+    return false if !download?
+    return zipfile if File.exist?(zipfile) && date_valid?(subdomain)
+
+    layer_file = URI.parse(layer_url.to_s).open if layer_url
+
+    ::Zip::OutputStream.open(zipfile) do |zip|
+      if layer_file
+        layer_name = file_name || "#{name.parameterize}-extra"
+        zip.put_next_entry("#{layer_name}.#{file_format}")
+        zip.write IO.read(layer_file.path)
+      end
+
+      layer_attr = {}
+      layer_attr["layer"] = attributes
+      layer_attr["sources"] = sources.map { |s| s.attributes } if sources.any?
+
+      pdf_file = PdfFile.new(layer_attr, pdf_file_path, domain, site_name)
+      pdf_file.generate_pdf_file
+
+      zip.put_next_entry(pdf_file_name.to_s)
+      zip.write IO.read(pdf_file_path)
+      File.delete(pdf_file_path)
+    end
+
+    zipfile
+  end
+
+  private
+
+  def date_valid?(subdomain)
+    file_date = File.basename(zipfile_name(subdomain), ".zip").split("-date-").last
+    self_date = updated_at.to_date.to_s.parameterize
+    source_date = sources.map { |s| s.updated_at.to_date.to_s.parameterize }.compact.flatten.max if sources.any?
+    objects_date = [self_date, source_date].compact.max
+
+    true if file_date >= objects_date
+  end
+
+  def zipfile_name(subdomain)
+    "#{Rails.root}/downloads/#{name.parameterize}-date-#{DateTime.now.to_date.to_s.parameterize}-#{subdomain}.zip"
+  end
+
+  def pdf_file_path
+    "#{Rails.root}/downloads/#{pdf_file_name}"
+  end
+
+  def pdf_file_name
+    "#{name.parameterize}.pdf"
+  end
+end

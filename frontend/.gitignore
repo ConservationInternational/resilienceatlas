@@ -1,0 +1,50 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+/.pnp
+.pnp.js
+
+# package manager lock files
+package-lock.json
+yarn.lock
+
+# testing
+/coverage
+
+# framework
+/.next
+/build
+/out
+/next-env.d.ts
+
+# misc
+.DS_Store
+.vscode
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+.rbenv*
+
+# gcloud
+/gcloud
+
+# cypress
+/cypress/screenshots
+/cypress/videos
+/cypress/downloads
+cypress.*.json
+
+# typescript
+*.tsbuildinfo
+*.tsconfig.tsbuildinfo
+
+# capistrano
+/log/*

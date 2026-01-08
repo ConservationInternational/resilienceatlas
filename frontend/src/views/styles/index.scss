@@ -1,0 +1,87 @@
+// ============================================================================
+// Resilience Atlas - Main Stylesheet
+// ============================================================================
+// This is the main entry point for all styles.
+// Uses the modern Sass @use/@forward module system.
+// ============================================================================
+
+// Load shared modules (sass-modules, mixins, variables)
+// This makes all functions, mixins, and variables available
+@use 'sass-modules' as *;
+@use 'mixins' as *;
+@use 'variables' as *;
+
+// Modern CSS Grid System (replaces foundation-sites)
+@use 'grid';
+
+// Base styles and icons
+@use 'base';
+@use 'icons';
+
+// Layouts
+@use 'layouts/l-header';
+@use 'layouts/l-footer';
+@use 'layouts/l-main';
+@use 'layouts/l-content';
+@use 'layouts/l-journey-intro';
+@use 'layouts/l-journey-index';
+@use 'layouts/l-sidebar';
+@use 'layouts/l-journey';
+
+// Modules
+@use 'modules/buttons';
+@use 'modules/foundation-tabs';
+@use 'modules/m-analysis-content';
+@use 'modules/m-analysis-model';
+@use 'modules/m-analysis-selectors';
+@use 'modules/m-analysis';
+@use 'modules/m-basemap-selectors';
+@use 'modules/m-charts';
+@use 'modules/m-content-manager';
+@use 'modules/m-controls';
+@use 'modules/m-disclaimer';
+@use 'modules/m-forms';
+@use 'modules/m-home-intro';
+@use 'modules/m-home-journeys';
+@use 'modules/m-home-section';
+@use 'modules/m-infowindow';
+@use 'modules/m-journey-chapter';
+@use 'modules/m-journey-conclusion';
+@use 'modules/m-journey-embed';
+@use 'modules/m-journey-grid';
+@use 'modules/m-journey-intro';
+@use 'modules/m-journey-landing';
+@use 'modules/m-journey-pagination';
+@use 'modules/m-journey-text';
+@use 'modules/m-journey';
+@use 'modules/m-layers-list';
+@use 'modules/m-legend';
+@use 'modules/m-loader';
+@use 'modules/m-map';
+@use 'modules/m-predictive-models';
+@use 'modules/m-report-page';
+@use 'modules/m-search-analysis';
+@use 'modules/m-search-map';
+@use 'modules/m-search';
+@use 'modules/m-section-nav';
+@use 'modules/m-share';
+@use 'modules/m-sidebar';
+@use 'modules/m-slider';
+@use 'modules/m-static-page';
+@use 'modules/m-toolbar';
+@use 'modules/m-widget';
+@use 'modules/m-widgets-list';
+@use 'modules/modal';
+@use 'modules/m-user-form';
+@use 'modules/c-map-popup';
+@use 'modules/m-logo-attribution';
+@use 'modules/m-privacy-banner';
+@use 'modules/m-map-tour';
+@use 'modules/m-highlighted-text';
+@use 'modules/m-labels-selectors';
+@use 'modules/m-map-loading-screen';
+@use 'modules/m-wizard-form';
+@use 'modules/m-datepicker';
+
+// Global states
+@use 'state';

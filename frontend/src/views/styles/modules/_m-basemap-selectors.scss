@@ -1,0 +1,49 @@
+@use '../sass-modules' as *;
+@use '../mixins' as *;
+@use '../variables' as *;
+
+.m-basemap-selectors {
+  align-content: center;
+  justify-content: space-between;
+  padding: rem(10px) rem(0px) !important;
+
+  li {
+    flex-basis: 25%;
+  }
+
+  button {
+    width: 100%;
+    @extend %clean-button-or-input;
+
+    &.is-active span {
+      color: $font-color-2;
+    }
+  }
+
+  span {
+    display: flex;
+    flex-direction: column-reverse;
+    height: 90px;
+    width: 72px;
+    background-position: top center;
+    background-repeat: no-repeat;
+    background-size: 58px;
+    color: $gray;
+
+    &.icon-satellite {
+      background-image: url('/images/satellite_map.jpg');
+    }
+
+    &.icon-topographic {
+      background-image: url('/images/topographic_map.jpg');
+    }
+
+    &.icon-dark {
+      background-image: url('/images/dark_map.jpg');
+    }
+
+    &.icon-default {
+      background-image: url('/images/default_map.jpg');
+    }
+  }
+}

@@ -1,0 +1,62 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: production
+    container_name: resilienceatlas-prod-backend
+    ports:
+      - "4001:3000"
+    environment:
+      - RAILS_ENV=production
+      - DATABASE_URL=${PRODUCTION_DATABASE_URL}
+      - SECRET_KEY_BASE=${PRODUCTION_SECRET_KEY_BASE}
+      - DEVISE_KEY=${PRODUCTION_DEVISE_KEY}
+      - RESILIENCE_API_KEY=${RESILIENCE_API_KEY}
+      - BACKEND_URL=${PRODUCTION_BACKEND_URL}
+      - FRONTEND_URL=${PRODUCTION_FRONTEND_URL}
+      - SPARKPOST_API_KEY=${SPARKPOST_API_KEY}
+    env_file:
+      - .env.production
+    networks:
+      - prod-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      target: production
+    container_name: resilienceatlas-prod-frontend
+    ports:
+      - "4000:3000"
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_API_HOST=${PRODUCTION_NEXT_PUBLIC_API_HOST}
+      # Internal API host for server-side rendering (Docker network)
+      - INTERNAL_API_HOST=http://backend:3000
+      - NEXT_PUBLIC_GOOGLE_ANALYTICS=${NEXT_PUBLIC_GOOGLE_ANALYTICS}
+      - NEXT_PUBLIC_TRANSIFEX_TOKEN=${NEXT_PUBLIC_TRANSIFEX_TOKEN}
+      - NEXT_PUBLIC_TRANSIFEX_SECRET=${NEXT_PUBLIC_TRANSIFEX_SECRET}
+      - NEXT_PUBLIC_GOOGLE_API_KEY=${NEXT_PUBLIC_GOOGLE_API_KEY}
+    env_file:
+      - .env.production
+    networks:
+      - prod-network
+    restart: unless-stopped
+    depends_on:
+      - backend
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+networks:
+  prod-network:
+    driver: bridge

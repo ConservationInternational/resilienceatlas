@@ -1,0 +1,46 @@
+@use '../sass-modules' as *;
+@use '../mixins' as *;
+@use '../variables' as *;
+
+.map-tour-popover {
+  font-weight: normal;
+
+  .reactour__close-button {
+    background-color: transparent;
+  }
+
+  .map-tour-badge {
+    font-weight: 600;
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .map-tour-navigation {
+    display: flex;
+    margin-top: 0.5rem;
+
+    button {
+      margin-right: 5px;
+      padding: 5px 8px 3px 8px;
+
+      text-transform: uppercase;
+      color: white;
+      font-size: 10px;
+      font-weight: 500;
+
+      border: 1px solid var(--theme-color, $bg-color-2);
+      border-radius: 20px;
+
+      background-color: var(--theme-color, $bg-color-2);
+
+      &.skip-button {
+        background-color: transparent;
+        color: var(--theme-color, $bg-color-2);
+      }
+    }
+  }
+}
+
+.map-tour-mask {
+  z-index: 999 !important;
+}

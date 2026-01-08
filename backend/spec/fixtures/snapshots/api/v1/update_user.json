@@ -1,0 +1,11 @@
+{
+  "first_name": "Jan",
+  "last_name": "Kowalski",
+  "email": "jankowalski@example.com",
+  "id": 31,
+  "created_at": "2025-09-06T13:17:32.701+02:00",
+  "updated_at": "2025-09-06T13:17:32.709+02:00",
+  "phone": "001-101-1001",
+  "organization": "voluptatem",
+  "organization_role": "voluptatem"
+}

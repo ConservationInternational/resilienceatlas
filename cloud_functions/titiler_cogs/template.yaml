@@ -1,0 +1,98 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: 'SAM Template for titiler-cogs using python v3.9'
+
+Parameters:
+  FQDN:
+    Type: String
+    Description: Fully qualified domain name (www.example.com) to use for the Lambda function.
+  ZoneId:
+    Type: String
+    Description: AWS Hosted Zone ID in the format "Z111111QQQQQQQ".
+  DisableCOG:
+    Type: String
+    Default: 'false'
+    AllowedValues:
+      - 'true'
+      - 'false'
+  DisableMosaic:
+    Type: String
+    Default: 'true'
+    AllowedValues:
+      - 'true'
+      - 'false'
+  DisableSTAC:
+    Type: String
+    Default: 'true'
+    AllowedValues:
+      - 'true'
+      - 'false'
+
+Resources:
+  TitilerCogsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      PackageType: Image
+      Architectures:
+        - x86_64
+      Description: 'Titiler: Dynamic tiler'
+      MemorySize: 1024
+      Timeout: 10
+      Events:
+        API:
+          Type: Api
+          Properties:
+            Path: /{proxy+}
+            Method: ANY
+            RestApiId: !Ref RestApiGateway
+      Environment:
+        Variables:
+          CPL_VSIL_CURL_ALLOWED_EXTENSIONS: .tif,.TIF,.tiff
+          GDAL_CACHEMAX: 200
+          GDAL_DISABLE_READDIR_ON_OPEN: EMPTY_DIR
+          GDAL_HTTP_MERGE_CONSECUTIVE_RANGES: true
+          GDAL_HTTP_MULTIPLEX: true
+          GDAL_HTTP_VERSION: 2
+          VSI_CACHE: true
+          VSI_CACHE_SIZE: 536870912
+          CPL_VSIL_CURL_CACHE_SIZE: 200000000
+          GDAL_INGESTED_BYTES_AT_OPEN: 32768
+          TITILER_API_DISABLE_COG:
+            Ref: DisableCOG
+          TITILER_API_DISABLE_STAC:
+            Ref: DisableSTAC
+          TITILER_API_DISABLE_MOSAIC:
+            Ref: DisableMosaic
+      ImageUri: titilercogsfunction:python3.9-v1
+    Metadata:
+      Dockerfile: Dockerfile
+      DockerContext: ./titiler_cogs
+      DockerTag: python3.9-v1
+
+  RestApiGateway: # Creates an HTTP API endpoint under the custom domain
+    Type: AWS::Serverless::Api
+    Properties:
+      BinaryMediaTypes:
+        - "*/*"
+      CacheClusterEnabled: true
+      CacheClusterSize: "1.6"
+      StageName: Prod
+      Domain:
+        DomainName: !Ref FQDN
+        CertificateArn: !Ref GenerateCertificate
+        Route53:
+          HostedZoneId: !Ref ZoneId
+
+  GenerateCertificate: # Creates a valid certificate for the HTTP API endpoint under the custom domain
+    Type: AWS::CertificateManager::Certificate
+    Properties:
+      DomainName: !Ref FQDN
+      ValidationMethod: DNS
+      DomainValidationOptions:
+        - DomainName: !Ref FQDN
+          HostedZoneId: !Ref ZoneId
+
+Outputs:
+  TitilerCogsApi:
+    Description: "API Gateway endpoint URL"
+    Value: !Sub "https://${FQDN}/" # Updated to the FQDN

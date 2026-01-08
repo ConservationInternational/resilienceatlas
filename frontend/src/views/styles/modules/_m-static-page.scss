@@ -1,0 +1,124 @@
+@use '../sass-modules' as *;
+@use '../mixins' as *;
+@use '../variables' as *;
+
+.m-static-page {
+
+  font-weight: 400;
+
+  h2 {
+     margin-top: 0;
+     font-size: rem(64px);
+     font-family: $font-face-2;
+     text-transform: uppercase;
+     line-height: .9em;
+     margin-bottom: rem(20px);
+  }
+
+  h3 {
+    margin: 0;
+  }
+
+  section {
+    overflow: hidden;
+    margin-bottom: 30px;
+
+    div {
+      margin-top: 0;
+    }
+  }
+
+  article {
+    padding-top: 20px;
+    margin-bottom: 80px;
+  }
+
+  a {
+    color: $bg-color-2;
+  }
+
+  div {
+    font-size: 16px;
+    letter-spacing: 1px;
+    line-height: 1.4em;
+  }
+
+  .paragraph {
+    div:last-child {
+      margin-bottom: 16px;
+    }
+  }
+
+  div:first-child {
+    margin-top: 0;
+  }
+
+  ul, li {
+    list-style-type: decimal;
+  }
+
+  .data-source {
+    list-style-type: bullet;
+
+    li {
+      width: 50%;
+      float: left;
+      list-style-type: disc;
+      margin-bottom: 20px;
+
+      &:nth-child(2n + 1) {
+        padding-right: 1%;
+        clear: both;
+      }
+    }
+
+    p {
+      margin: 0;
+    }
+  }
+
+  .item-image {
+    width: 20%;
+    margin-right: 2%;
+    float: left;
+  }
+
+  .item-content {
+    width: 77%;
+    float: left;
+  }
+
+  .italic {
+    font-style: italic;
+  }
+
+  .is-bold {
+    font-weight: 700;
+  }
+
+  .references {
+    h3 {
+      font-size: rem(18px);
+      font-weight: 700;
+    }
+    div {
+      font-size: rem(14px);
+    }
+  }
+
+  figure {
+    margin: 0;
+
+    img {
+      padding-bottom: rem(10px);
+    }
+
+  }
+
+  .credits {
+    a {
+      display: block;
+      margin-bottom: 16px;
+    }
+  }
+}

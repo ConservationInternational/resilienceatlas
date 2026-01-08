@@ -1,0 +1,135 @@
+{
+  "data": [
+    {
+      "id": "16",
+      "type": "indicators",
+      "attributes": {
+        "name": "voluptatem",
+        "slug": "Category-1",
+        "version": "voluptatem",
+        "position": 38,
+        "column_name": "voluptatem",
+        "operation": "voluptatem"
+      },
+      "relationships": {
+        "models": {
+          "data": []
+        },
+        "category": {
+          "data": {
+            "id": "28",
+            "type": "categories"
+          }
+        }
+      }
+    },
+    {
+      "id": "17",
+      "type": "indicators",
+      "attributes": {
+        "name": "cum",
+        "slug": "Category-2",
+        "version": "cum",
+        "position": 41,
+        "column_name": "cum",
+        "operation": "cum"
+      },
+      "relationships": {
+        "models": {
+          "data": []
+        },
+        "category": {
+          "data": {
+            "id": "29",
+            "type": "categories"
+          }
+        }
+      }
+    },
+    {
+      "id": "18",
+      "type": "indicators",
+      "attributes": {
+        "name": "molestiae",
+        "slug": "Category-3",
+        "version": "molestiae",
+        "position": 25,
+        "column_name": "molestiae",
+        "operation": "molestiae"
+      },
+      "relationships": {
+        "models": {
+          "data": []
+        },
+        "category": {
+          "data": {
+            "id": "30",
+            "type": "categories"
+          }
+        }
+      }
+    }
+  ],
+  "included": [
+    {
+      "id": "28",
+      "type": "categories",
+      "attributes": {
+        "name": "voluptatem",
+        "slug": "Category-1",
+        "description": "Description for category 1. This is a consistent test description."
+      },
+      "relationships": {
+        "indicators": {
+          "data": [
+            {
+              "id": "16",
+              "type": "indicators"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "29",
+      "type": "categories",
+      "attributes": {
+        "name": "cum",
+        "slug": "Category-2",
+        "description": "Description for category 2. This is a consistent test description."
+      },
+      "relationships": {
+        "indicators": {
+          "data": [
+            {
+              "id": "17",
+              "type": "indicators"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "30",
+      "type": "categories",
+      "attributes": {
+        "name": "molestiae",
+        "slug": "Category-3",
+        "description": "Description for category 3. This is a consistent test description."
+      },
+      "relationships": {
+        "indicators": {
+          "data": [
+            {
+              "id": "18",
+              "type": "indicators"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "meta": {
+    "total_indicators": 3
+  }
+}

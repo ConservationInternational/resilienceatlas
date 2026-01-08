@@ -1,0 +1,27 @@
+// ============================================================================
+// State Styles
+// ============================================================================
+// Global state classes
+// ============================================================================
+
+@use 'sass-modules' as *;
+@use 'mixins' as *;
+@use 'variables' as *;
+
+.is-hidden {
+  display: none !important;
+}
+
+.is-visually-hidden {
+  @extend %visually-hidden;
+}
+
+.is-stretch {
+  display: flex;
+  display: -ms-box;
+  align-items: stretch;
+}
+
+.is-loading {
+  @include spinner(30px, 5px, $blue);
+}

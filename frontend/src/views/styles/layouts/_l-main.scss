@@ -1,0 +1,39 @@
+@use '../sass-modules' as *;
+@use '../mixins' as *;
+@use '../variables' as *;
+
+.l-main,
+.l-main--default {
+  position: relative;
+}
+
+.l-main--fullscreen {
+  position: absolute;
+  width: 100%;
+  top: 0;
+  bottom: 0;
+
+  .is-journeys-page & {
+    // background-color: $font-color-4;
+  }
+
+  .is-not-bare & {
+    top: rem($header-height);
+  }
+}
+
+.l-main--embed {
+  position: absolute;
+  width: 100%;
+  top: 0;
+  bottom: 0;
+
+  .l-content--fullscreen {
+    left: 0;
+  }
+
+  .l-sidebar--fullscreen {
+    top: auto;
+    bottom: 0;
+  }
+}

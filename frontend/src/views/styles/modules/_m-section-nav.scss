@@ -1,0 +1,27 @@
+@use '../sass-modules' as *;
+@use '../mixins' as *;
+@use '../variables' as *;
+
+.m-section-nav {
+  width: 90%;
+  margin: 20px auto;
+  padding: 0;
+
+  ul, li {
+    @extend %clean-lists;
+    padding: 0;
+  }
+
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+
+  a {
+    font-size: 14px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #555;
+    margin-right: 10px;
+  }
+}

@@ -1,0 +1,21 @@
+default: &default
+  adapter: postgis
+  encoding: unicode
+  pool: 5
+  timeout: 5000
+  url: <%= ENV["DATABASE_URL"] %>
+  port: <%= ENV["DATABASE_PORT"] %>
+  username: <%= ENV["DATABASE_USER"] %>
+  password: <%= ENV["DATABASE_PASSWORD"] %>
+
+development:
+  <<: *default
+  database: cigrp
+
+test:
+  <<: *default
+  database: resilienceatlas_test
+
+production:
+  <<: *default
+  database: cigrp

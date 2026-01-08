@@ -1,0 +1,109 @@
+@use '../sass-modules' as *;
+@use '../mixins' as *;
+@use '../variables' as *;
+
+.m-search-map {
+  position: relative;
+  background-color: $bg-color-1;
+
+  .search-combobox-input {
+    margin-top: 0;
+    padding: rem(4px) rem(10px);
+    border: none;
+    height: rem(30px);
+    font-size: rem(14px);
+    background-color: $white;
+    width: 100%;
+
+    @include placeholder() {
+      font-size: rem(14px);
+      color: $gray-medium;
+    }
+  }
+
+  .search-combobox-options {
+    position: absolute;
+    width: 100%;
+    margin-top: 1px;
+    max-height: rem(208px);
+    overflow-y: scroll;
+    background-color: $white;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3);
+    z-index: 10;
+
+    @extend %clear-scroll-bars;
+
+    ul {
+      padding: 0;
+      margin: 0;
+      box-shadow: none;
+    }
+
+    li {
+      padding: rem(5px) rem(10px);
+
+      &.is-active {
+        background: $gray-light;
+      }
+    }
+
+    .option-label {
+      font-size: rem(14px);
+      line-height: 1;
+
+      .m-highlighted-text--selected {
+        font-weight: bold;
+        text-decoration: none;
+        color: black;
+      }
+    }
+  }
+
+  .search-combobox-message {
+    padding: rem(10px);
+    font-size: rem(12px);
+    font-weight: normal;
+    color: $gray-medium;
+
+    p {
+      margin: 0.5rem 0;
+
+      &.--highlighted {
+        color: black;
+      }
+    }
+
+    ul {
+      margin: 0.5rem 0;
+      padding-left: 10px;
+    }
+
+    li {
+      margin: 0;
+      padding: 0;
+
+      &.--highlighted {
+        color: black;
+      }
+    }
+  }
+
+  .search-combobox-input-coordinates {
+    padding: rem(10px) 0;
+
+    font-size: rem(12px);
+    font-weight: normal;
+    color: $gray-medium;
+
+    > span {
+      border-radius: rem(14px);
+      padding: rem(6px) rem(10px);
+
+      color: $white;
+      font-weight: 500;
+      text-transform: uppercase;
+
+      background-color: var(--theme-color, $bg-color-2);
+    }
+  }
+}

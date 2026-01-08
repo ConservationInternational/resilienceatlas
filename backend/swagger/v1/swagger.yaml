@@ -1,0 +1,2185 @@
+---
+openapi: 3.0.1
+info:
+  title: API V1
+  version: v1
+paths:
+  "/api/admin/layers":
+    get:
+      summary: List of layers
+      tags:
+      - Layer
+      security:
+      - tokenAuth: []
+      parameters:
+      - name: page
+        in: query
+        description: 'Page number. Default: 1'
+        required: false
+        schema:
+          type: integer
+      - name: per_page
+        in: query
+        description: 'Per page items. Default: 30'
+        required: false
+        schema:
+          type: integer
+      responses:
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                success: false
+                message: Invalid API Credentials
+        '200':
+          description: success
+          content:
+            application/json:
+              example:
+                success: true
+                message: List of all Layers
+                data:
+                - name: molestiae
+                  info:
+                  legend: Et quaerat omnis veniam.
+                  title:
+                  data_units: molestiae
+                  processing: molestiae
+                  description: Et quaerat omnis veniam.
+                  id: 273
+                  layer_group_id:
+                  slug: Layer-3
+                  layer_type:
+                  zindex: 25
+                  active:
+                  order: 25
+                  color:
+                  layer_provider: gee
+                  css: Et quaerat omnis veniam.
+                  interactivity:
+                  opacity: 25.0
+                  query: Et quaerat omnis veniam.
+                  created_at: '2023-04-21T11:51:47.753+02:00'
+                  updated_at: '2023-04-21T11:51:47.755+02:00'
+                  locate_layer: false
+                  icon_class:
+                  published: true
+                  zoom_max: 25
+                  zoom_min: 25
+                  dashboard_order: 25
+                  download: false
+                  dataset_shortname:
+                  dataset_source_url:
+                  start_date:
+                  end_date:
+                  spatial_resolution:
+                  spatial_resolution_units:
+                  temporal_resolution:
+                  temporal_resolution_units:
+                  update_frequency:
+                  version:
+                  analysis_suitable: false
+                  analysis_query: Et quaerat omnis veniam.
+                  layer_config: '25'
+                  analysis_body: Et quaerat omnis veniam.
+                  interaction_config: Et quaerat omnis veniam.
+                - name: cum
+                  info:
+                  legend: Placeat commodi libero et.
+                  title:
+                  data_units: cum
+                  processing: cum
+                  description: Placeat commodi libero et.
+                  id: 272
+                  layer_group_id:
+                  slug: Layer-2
+                  layer_type:
+                  zindex: 41
+                  active:
+                  order: 41
+                  color:
+                  layer_provider: cartodb
+                  css: Placeat commodi libero et.
+                  interactivity:
+                  opacity: 41.0
+                  query: Placeat commodi libero et.
+                  created_at: '2023-04-21T11:51:47.750+02:00'
+                  updated_at: '2023-04-21T11:51:47.752+02:00'
+                  locate_layer: false
+                  icon_class:
+                  published: true
+                  zoom_max: 41
+                  zoom_min: 41
+                  dashboard_order: 41
+                  download: true
+                  dataset_shortname:
+                  dataset_source_url:
+                  start_date:
+                  end_date:
+                  spatial_resolution:
+                  spatial_resolution_units:
+                  temporal_resolution:
+                  temporal_resolution_units:
+                  update_frequency:
+                  version:
+                  analysis_suitable: true
+                  analysis_query: Placeat commodi libero et.
+                  layer_config: '41'
+                  analysis_body: Placeat commodi libero et.
+                  interaction_config: Placeat commodi libero et.
+                - name: voluptatem
+                  info:
+                  legend: Enim repellat pariatur est.
+                  title:
+                  data_units: voluptatem
+                  processing: voluptatem
+                  description: Enim repellat pariatur est.
+                  id: 271
+                  layer_group_id:
+                  slug: Layer-1
+                  layer_type:
+                  zindex: 38
+                  active:
+                  order: 38
+                  color:
+                  layer_provider: cog
+                  css: Enim repellat pariatur est.
+                  interactivity:
+                  opacity: 38.0
+                  query: Enim repellat pariatur est.
+                  created_at: '2023-04-21T11:51:47.746+02:00'
+                  updated_at: '2023-04-21T11:51:47.748+02:00'
+                  locate_layer: false
+                  icon_class:
+                  published: true
+                  zoom_max: 38
+                  zoom_min: 38
+                  dashboard_order: 38
+                  download: true
+                  dataset_shortname:
+                  dataset_source_url:
+                  start_date:
+                  end_date:
+                  spatial_resolution:
+                  spatial_resolution_units:
+                  temporal_resolution:
+                  temporal_resolution_units:
+                  update_frequency:
+                  version:
+                  analysis_suitable: true
+                  analysis_query: Enim repellat pariatur est.
+                  layer_config: '38'
+                  analysis_body: Enim repellat pariatur est.
+                  interaction_config: Enim repellat pariatur est.
+                meta_attributes:
+                  current_page: 1
+                  next_page:
+                  prev_page:
+                  total_pages: 1
+                  total_count: 3
+    post:
+      summary: Create new layer
+      tags:
+      - Layer
+      security:
+      - tokenAuth: []
+      parameters: []
+      responses:
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                success: false
+                message: Invalid API Credentials
+        '200':
+          description: success
+          content:
+            application/json:
+              example:
+                success: true
+                message: Layer Created Successfully
+                data:
+                  name: voluptatem
+                  info:
+                  legend:
+                  title:
+                  data_units:
+                  processing:
+                  description:
+                  id: 275
+                  layer_group_id:
+                  slug: Layer-1
+                  layer_type:
+                  zindex: 38
+                  active:
+                  order: 38
+                  color:
+                  layer_provider: cog
+                  css: Enim repellat pariatur est.
+                  interactivity:
+                  opacity: 38.0
+                  query: Enim repellat pariatur est.
+                  created_at: '2023-04-21T11:51:47.776+02:00'
+                  updated_at: '2023-04-21T11:51:47.779+02:00'
+                  locate_layer: false
+                  icon_class:
+                  published: true
+                  zoom_max: 38
+                  zoom_min: 38
+                  dashboard_order: 38
+                  download: true
+                  dataset_shortname:
+                  dataset_source_url:
+                  start_date:
+                  end_date:
+                  spatial_resolution:
+                  spatial_resolution_units:
+                  temporal_resolution:
+                  temporal_resolution_units:
+                  update_frequency:
+                  version:
+                  analysis_suitable: true
+                  analysis_query: Enim repellat pariatur est.
+                  layer_config: '38'
+                  analysis_body: Enim repellat pariatur est.
+                  interaction_config: Enim repellat pariatur est.
+        '422':
+          description: Validation errors
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                layer:
+                  type: object
+  "/api/admin/layers/{id}":
+    get:
+      summary: Show detail of layer
+      tags:
+      - Layer
+      security:
+      - tokenAuth: []
+      parameters:
+      - name: id
+        in: path
+        description: Layer ID
+        required: true
+        schema:
+          type: integer
+      responses:
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                success: false
+                message: Invalid API Credentials
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              example:
+                success: false
+                message: Couldn't find Layer with 'id'=not-found
+        '200':
+          description: success
+          content:
+            application/json:
+              example:
+                success: true
+                message: Layer Details
+                data:
+                  name: voluptatem
+                  info:
+                  legend: Enim repellat pariatur est.
+                  title:
+                  data_units: voluptatem
+                  processing: voluptatem
+                  description: Enim repellat pariatur est.
+                  id: 283
+                  layer_group_id:
+                  slug: Layer-1
+                  layer_type:
+                  zindex: 38
+                  active:
+                  order: 38
+                  color:
+                  layer_provider: cog
+                  css: Enim repellat pariatur est.
+                  interactivity:
+                  opacity: 38.0
+                  query: Enim repellat pariatur est.
+                  created_at: '2023-04-21T11:51:47.846+02:00'
+                  updated_at: '2023-04-21T11:51:47.848+02:00'
+                  locate_layer: false
+                  icon_class:
+                  published: true
+                  zoom_max: 38
+                  zoom_min: 38
+                  dashboard_order: 38
+                  download: true
+                  dataset_shortname:
+                  dataset_source_url:
+                  start_date:
+                  end_date:
+                  spatial_resolution:
+                  spatial_resolution_units:
+                  temporal_resolution:
+                  temporal_resolution_units:
+                  update_frequency:
+                  version:
+                  analysis_suitable: true
+                  analysis_query: Enim repellat pariatur est.
+                  layer_config: '38'
+                  analysis_body: Enim repellat pariatur est.
+                  interaction_config: Enim repellat pariatur est.
+    delete:
+      summary: Delete appropriate layer
+      tags:
+      - Layer
+      security:
+      - tokenAuth: []
+      parameters:
+      - name: id
+        in: path
+        description: Layer ID
+        required: true
+        schema:
+          type: integer
+      responses:
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                success: false
+                message: Invalid API Credentials
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              example:
+                success: false
+                message: Couldn't find Layer with 'id'=not-found
+        '200':
+          description: success
+          content:
+            application/json:
+              example:
+                success: true
+                message: Layer Deleted Successfully
+                data:
+                  name:
+                  info:
+                  legend:
+                  title:
+                  data_units:
+                  processing:
+                  description:
+                  id: 287
+                  layer_group_id:
+                  slug: Layer-1
+                  layer_type:
+                  zindex: 38
+                  active:
+                  order: 38
+                  color:
+                  layer_provider: cog
+                  css: Enim repellat pariatur est.
+                  interactivity:
+                  opacity: 38.0
+                  query: Enim repellat pariatur est.
+                  created_at: '2023-04-21T11:51:47.902+02:00'
+                  updated_at: '2023-04-21T11:51:47.910+02:00'
+                  locate_layer: false
+                  icon_class:
+                  published: true
+                  zoom_max: 38
+                  zoom_min: 38
+                  dashboard_order: 38
+                  download: true
+                  dataset_shortname:
+                  dataset_source_url:
+                  start_date:
+                  end_date:
+                  spatial_resolution:
+                  spatial_resolution_units:
+                  temporal_resolution:
+                  temporal_resolution_units:
+                  update_frequency:
+                  version:
+                  analysis_suitable: true
+                  analysis_query: Enim repellat pariatur est.
+                  layer_config: '38'
+                  analysis_body: Enim repellat pariatur est.
+                  interaction_config: Enim repellat pariatur est.
+  "/api/admin/layers/site_scopes":
+    get:
+      summary: Get list of all site scopes
+      tags:
+      - Layer
+      security:
+      - tokenAuth: []
+      parameters:
+      - name: keyword
+        in: query
+        description: Search by keyword
+        required: false
+        schema:
+          type: string
+      responses:
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                success: false
+                message: Invalid API Credentials
+        '200':
+          description: success
+          content:
+            application/json:
+              example:
+                success: true
+                message: List of all Site Scopes
+                data:
+                - name: AAA
+                  linkback_text: Enim repellat pariatur. Earum modi eos. Libero tempora
+                    exercitationem.
+                  id: 151
+                  color: "#ffdbdb"
+                  subdomain: voluptatem
+                  has_analysis: true
+                  latitude: -14.936039153536683
+                  longitude: -29.872078307073366
+                  header_theme: Enim repellat pariatur est.
+                  zoom_level: 38
+                  linkback_url: http://kutch-spencer.com/moises
+                  header_color: "#ffdbdb"
+                  logo_url: http://kutch-spencer.com/moises
+                  predictive_model: true
+                  analysis_options: true
+                  has_gef_logo:
+                - name: BBB
+                  linkback_text: Placeat commodi libero. Quo recusandae repellat.
+                    Sunt commodi tempore.
+                  id: 152
+                  color: "#eaf1ea"
+                  subdomain: cum
+                  has_analysis: true
+                  latitude: -11.520917614439327
+                  longitude: -23.041835228878654
+                  header_theme: Placeat commodi libero et.
+                  zoom_level: 41
+                  linkback_url: http://bartoletti.com/jeremiah_cronin
+                  header_color: "#eaf1ea"
+                  logo_url: http://bartoletti.com/jeremiah_cronin
+                  predictive_model: true
+                  analysis_options: true
+                  has_gef_logo:
+  "/users/authenticate":
+    post:
+      summary: Authenticate user (obtain token)
+      tags:
+      - User
+      parameters: []
+      responses:
+        '200':
+          description: success
+          content:
+            application/json:
+              example:
+                auth_token: eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjo3OCwiZXhwIjoxNjgyMTU3MTA4fQ.6rTd4amD4utsjikidUr405mTG9iI5KK-3qvyrgIVMFM
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                error:
+                  user_authentication: invalid credentials
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+              required:
+              - email
+              - password
+  "/api/categories":
+    get:
+      summary: Get list of categories
+      tags:
+      - Category
+      parameters:
+      - name: locale
+        in: query
+        description: 'Used language. Default: en'
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: success
+          content:
+            application/json:
+              example:
+                data:
+                - id: '94'
+                  type: categories
+                  attributes:
+                    name: voluptatem
+                    slug: Category-1
+                    description: Enim repellat pariatur. Earum modi eos. Libero tempora
+                      exercitationem.
+                  relationships:
+                    indicators:
+                      data: []
+                - id: '95'
+                  type: categories
+                  attributes:
+                    name: cum
+                    slug: Category-2
+                    description: Placeat commodi libero. Quo recusandae repellat.
+                      Sunt commodi tempore.
+                  relationships:
+                    indicators:
+                      data: []
+                - id: '96'
+                  type: categories
+                  attributes:
+                    name: molestiae
+                    slug: Category-3
+                    description: Et quaerat omnis. Harum voluptas atque. Quo nesciunt
+                      voluptas.
+                  relationships:
+                    indicators:
+                      data: []
+                meta:
+                  total_categories: 3
+  "/api/feedbacks":
+    post:
+      summary: Save new feedback
+      tags:
+      - Feedback
+      parameters: []
+      responses:
+        '200':
+          description: success
+          content:
+            application/json:
+              example:
+                data:
+                  id: '36'
+                  type: feedbacks
+                  attributes:
+                    language: en
+                    created_at: '2023-04-21T11:51:48.248+02:00'
+                    updated_at: '2023-04-21T11:51:48.248+02:00'
+                  relationships:
+                    feedback_fields:
+                      data:
+                      - id: '106'
+                        type: feedback_fields
+                      - id: '107'
+                        type: feedback_fields
+                      - id: '108'
+                        type: feedback_fields
+                      - id: '109'
+                        type: feedback_fields
+                      - id: '110'
+                        type: feedback_fields
+                      - id: '111'
+                        type: feedback_fields
+                      - id: '112'
+                        type: feedback_fields
+                included:
+                - id: '106'
+                  type: feedback_fields
+                  attributes:
+                    feedback_field_type: single_choice
+                    question: What is your favorite color?
+                    answer:
+                      slug: red
+                      value: Red
+                    created_at: '2023-04-21T11:51:48.250+02:00'
+                    updated_at: '2023-04-21T11:51:48.250+02:00'
+                  relationships:
+                    feedback:
+                      data:
+                        id: '36'
+                        type: feedbacks
+                    parent:
+                      data:
+                    children:
+                      data: []
+                - id: '107'
+                  type: feedback_fields
+                  attributes:
+                    feedback_field_type: multiple_choice
+                    question: What are your the least favorite color?
+                    answer:
+                      slug:
+                      - green
+                      - yellow
+                      value:
+                      - Green
+                      - Yellow
+                    created_at: '2023-04-21T11:51:48.251+02:00'
+                    updated_at: '2023-04-21T11:51:48.251+02:00'
+                  relationships:
+                    feedback:
+                      data:
+                        id: '36'
+                        type: feedbacks
+                    parent:
+                      data:
+                    children:
+                      data: []
+                - id: '108'
+                  type: feedback_fields
+                  attributes:
+                    feedback_field_type: boolean_choice
+                    question: Do you like blue?
+                    answer:
+                      slug: 'true'
+                      value: true
+                    created_at: '2023-04-21T11:51:48.251+02:00'
+                    updated_at: '2023-04-21T11:51:48.251+02:00'
+                  relationships:
+                    feedback:
+                      data:
+                        id: '36'
+                        type: feedbacks
+                    parent:
+                      data:
+                    children:
+                      data: []
+                - id: '109'
+                  type: feedback_fields
+                  attributes:
+                    feedback_field_type: free_answer
+                    question: Why you don't like yellow?
+                    answer:
+                      slug: i-don-t-know
+                      value: I don't know
+                    created_at: '2023-04-21T11:51:48.252+02:00'
+                    updated_at: '2023-04-21T11:51:48.252+02:00'
+                  relationships:
+                    feedback:
+                      data:
+                        id: '36'
+                        type: feedbacks
+                    parent:
+                      data:
+                    children:
+                      data: []
+                - id: '110'
+                  type: feedback_fields
+                  attributes:
+                    feedback_field_type: rating
+                    question: Color preferences
+                    answer:
+                    created_at: '2023-04-21T11:51:48.253+02:00'
+                    updated_at: '2023-04-21T11:51:48.253+02:00'
+                  relationships:
+                    feedback:
+                      data:
+                        id: '36'
+                        type: feedbacks
+                    parent:
+                      data:
+                    children:
+                      data:
+                      - id: '111'
+                        type: feedback_fields
+                      - id: '112'
+                        type: feedback_fields
+                - id: '111'
+                  type: feedback_fields
+                  attributes:
+                    feedback_field_type: single_choice
+                    question: Red
+                    answer:
+                      slug: '3'
+                      value: 3
+                    created_at: '2023-04-21T11:51:48.254+02:00'
+                    updated_at: '2023-04-21T11:51:48.254+02:00'
+                  relationships:
+                    feedback:
+                      data:
+                        id: '36'
+                        type: feedbacks
+                    parent:
+                      data:
+                        id: '110'
+                        type: feedback_fields
+                    children:
+                      data: []
+                - id: '112'
+                  type: feedback_fields
+                  attributes:
+                    feedback_field_type: single_choice
+                    question: Blue
+                    answer:
+                      slug: '5'
+                      value: 5
+                    created_at: '2023-04-21T11:51:48.255+02:00'
+                    updated_at: '2023-04-21T11:51:48.255+02:00'
+                  relationships:
+                    feedback:
+                      data:
+                        id: '36'
+                        type: feedbacks
+                    parent:
+                      data:
+                        id: '110'
+                        type: feedback_fields
+                    children:
+                      data: []
+        '422':
+          description: unprocessable_entity
+          content:
+            application/json:
+              example:
+                errors:
+                  language:
+                  - can't be blank
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                feedback:
+                  type: object
+                  properties:
+                    language:
+                      type: string
+                    feedback_fields_attributes:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          feedback_field_type:
+                            type: string
+                          question:
+                            type: string
+                            nullable: true
+                          answer:
+                            type: object
+                            nullable: true
+                          children_attributes:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                feedback_field_type:
+                                  type: string
+                                question:
+                                  type: string
+                                  nullable: true
+                                answer:
+                                  type: object
+                                  nullable: true
+                              required:
+                              - feedback_field_type
+                        required:
+                        - feedback_field_type
+                  required:
+                  - language
+              required:
+              - feedback
+  "/api/homepage":
+    get:
+      summary: Get homepage for appropriate site scope
+      tags:
+      - Homepage
+      parameters:
+      - name: site_scope
+        in: query
+        description: Site scope subdomain. Fallbacks to default site scope.
+        required: false
+        schema:
+          type: string
+      - name: locale
+        in: query
+        description: 'Used language. Default: en'
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: success
+          content:
+            application/json:
+              example:
+                data:
+                  id: '37'
+                  type: homepages
+                  attributes:
+                    title: Enim repellat pariatur est.
+                    subtitle: Enim repellat pariatur est.
+                    background_image:
+                      small: http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBc0VHIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--53f3420081956102ee478ece45c7f08474271fc2/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERJd01IZ3lNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--7be8b6f6018bc25ae287d258d8836839fa7642f1/picture.jpg
+                      medium: http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBc0VHIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--53f3420081956102ee478ece45c7f08474271fc2/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERnd01IZzRNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--697714719ccce7b35c5f9a02aeef5bd517f3d81f/picture.jpg
+                      original: http://localhost:3000/rails/active_storage/blobs/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBc0VHIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--53f3420081956102ee478ece45c7f08474271fc2/picture.jpg
+                    credits: Enim repellat pariatur est.
+                    credits_url: http://kutch-spencer.com/moises
+                  relationships:
+                    homepage_journey:
+                      data:
+                        id: '37'
+                        type: homepage_journeys
+                    homepage_sections:
+                      data:
+                      - id: '27'
+                        type: homepage_sections
+                included:
+                - id: '37'
+                  type: homepage_journeys
+                  attributes:
+                    title: Enim repellat pariatur est.
+                    position: 0
+                - id: '27'
+                  type: homepage_sections
+                  attributes:
+                    title: Enim repellat pariatur est.
+                    subtitle: Enim repellat pariatur est.
+                    button_text: Enim repellat pariatur est.
+                    button_url: http://kutch-spencer.com/moises
+                    image_position: right
+                    image_credits: Enim repellat pariatur est.
+                    image_credits_url: http://kutch-spencer.com/moises
+                    background_color: "#ffdbdb"
+                    position: 1
+                    image:
+                      small: http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBc0lHIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--3c0f2df3f55581f4367c392d28a91f30b3e7f0ee/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERJd01IZ3lNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--7be8b6f6018bc25ae287d258d8836839fa7642f1/picture.jpg
+                      medium: http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBc0lHIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--3c0f2df3f55581f4367c392d28a91f30b3e7f0ee/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERnd01IZzRNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--697714719ccce7b35c5f9a02aeef5bd517f3d81f/picture.jpg
+                      original: http://localhost:3000/rails/active_storage/blobs/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBc0lHIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--3c0f2df3f55581f4367c392d28a91f30b3e7f0ee/picture.jpg
+        '404':
+          description: Site scope does not have homepage
+          content:
+            application/json:
+              example:
+                errors:
+                - status: '404'
+                  title: Record not found
+  "/api/indicators":
+    get:
+      summary: Get list of indicators
+      tags:
+      - Indicator
+      parameters:
+      - name: locale
+        in: query
+        description: 'Used language. Default: en'
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: success
+          content:
+            application/json:
+              example:
+                data:
+                - id: '48'
+                  type: indicators
+                  attributes:
+                    name: voluptatem
+                    slug: Category-1
+                    version: voluptatem
+                    position: 38
+                    column_name: voluptatem
+                    operation: voluptatem
+                  relationships:
+                    models:
+                      data: []
+                    category:
+                      data:
+                        id: '100'
+                        type: categories
+                - id: '49'
+                  type: indicators
+                  attributes:
+                    name: cum
+                    slug: Category-2
+                    version: cum
+                    position: 41
+                    column_name: cum
+                    operation: cum
+                  relationships:
+                    models:
+                      data: []
+                    category:
+                      data:
+                        id: '101'
+                        type: categories
+                - id: '50'
+                  type: indicators
+                  attributes:
+                    name: molestiae
+                    slug: Category-3
+                    version: molestiae
+                    position: 25
+                    column_name: molestiae
+                    operation: molestiae
+                  relationships:
+                    models:
+                      data: []
+                    category:
+                      data:
+                        id: '102'
+                        type: categories
+                included:
+                - id: '100'
+                  type: categories
+                  attributes:
+                    name: voluptatem
+                    slug: Category-1
+                    description: Enim repellat pariatur. Earum modi eos. Libero tempora
+                      exercitationem.
+                  relationships:
+                    indicators:
+                      data:
+                      - id: '48'
+                        type: indicators
+                - id: '101'
+                  type: categories
+                  attributes:
+                    name: cum
+                    slug: Category-2
+                    description: Placeat commodi libero. Quo recusandae repellat.
+                      Sunt commodi tempore.
+                  relationships:
+                    indicators:
+                      data:
+                      - id: '49'
+                        type: indicators
+                - id: '102'
+                  type: categories
+                  attributes:
+                    name: molestiae
+                    slug: Category-3
+                    description: Et quaerat omnis. Harum voluptas atque. Quo nesciunt
+                      voluptas.
+                  relationships:
+                    indicators:
+                      data:
+                      - id: '50'
+                        type: indicators
+                meta:
+                  total_indicators: 3
+  "/api/journeys":
+    get:
+      summary: Get list of journeys
+      tags:
+      - Journey
+      parameters:
+      - name: locale
+        in: query
+        description: 'Used language. Default: en'
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: success
+          content:
+            application/json:
+              example:
+                data:
+                - id: '310'
+                  type: journeys
+                  attributes:
+                    title: Enim repellat pariatur est.
+                    subtitle: Enim repellat pariatur est.
+                    theme: Enim repellat pariatur est.
+                    background_image:
+                      small: http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBdEFHIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--ba18c141e24704961df996606afa4ef3917bccbf/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERJd01IZ3lNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--7be8b6f6018bc25ae287d258d8836839fa7642f1/picture.jpg
+                      medium: http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBdEFHIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--ba18c141e24704961df996606afa4ef3917bccbf/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERnd01IZzRNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--697714719ccce7b35c5f9a02aeef5bd517f3d81f/picture.jpg
+                      original: http://localhost:3000/rails/active_storage/blobs/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBdEFHIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--ba18c141e24704961df996606afa4ef3917bccbf/picture.jpg
+                    credits: Enim repellat pariatur est.
+                    credits_url: http://kutch-spencer.com/moises
+                    published: true
+                  relationships:
+                    journey_steps:
+                      data:
+                      - id: '711'
+                        type: journey_steps
+                      - id: '712'
+                        type: journey_steps
+                - id: '311'
+                  type: journeys
+                  attributes:
+                    title: Placeat commodi libero et.
+                    subtitle: Placeat commodi libero et.
+                    theme: Placeat commodi libero et.
+                    background_image:
+                      small: http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBdE1HIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--33d85501ba32590f9b49fffe2cd99d6dece6c1ab/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERJd01IZ3lNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--7be8b6f6018bc25ae287d258d8836839fa7642f1/picture.jpg
+                      medium: http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBdE1HIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--33d85501ba32590f9b49fffe2cd99d6dece6c1ab/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERnd01IZzRNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--697714719ccce7b35c5f9a02aeef5bd517f3d81f/picture.jpg
+                      original: http://localhost:3000/rails/active_storage/blobs/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBdE1HIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--33d85501ba32590f9b49fffe2cd99d6dece6c1ab/picture.jpg
+                    credits: Placeat commodi libero et.
+                    credits_url: http://bartoletti.com/jeremiah_cronin
+                    published: true
+                  relationships:
+                    journey_steps:
+                      data:
+                      - id: '713'
+                        type: journey_steps
+                      - id: '714'
+                        type: journey_steps
+                - id: '312'
+                  type: journeys
+                  attributes:
+                    title: Et quaerat omnis veniam.
+                    subtitle: Et quaerat omnis veniam.
+                    theme: Et quaerat omnis veniam.
+                    background_image:
+                      small: http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBdFlHIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--88f4d4d148f3b8ea4e4a2f64442a7429edacb155/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERJd01IZ3lNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--7be8b6f6018bc25ae287d258d8836839fa7642f1/picture.jpg
+                      medium: http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBdFlHIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--88f4d4d148f3b8ea4e4a2f64442a7429edacb155/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERnd01IZzRNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--697714719ccce7b35c5f9a02aeef5bd517f3d81f/picture.jpg
+                      original: http://localhost:3000/rails/active_storage/blobs/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBdFlHIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--88f4d4d148f3b8ea4e4a2f64442a7429edacb155/picture.jpg
+                    credits: Et quaerat omnis veniam.
+                    credits_url: http://hane.com/jules
+                    published: true
+                  relationships:
+                    journey_steps:
+                      data:
+                      - id: '716'
+                        type: journey_steps
+                      - id: '715'
+                        type: journey_steps
+                meta:
+                  total: 3
+  "/api/journeys/{id}":
+    get:
+      summary: Get appropriate journey
+      tags:
+      - Journey
+      parameters:
+      - name: id
+        in: path
+        description: Journey ID
+        required: true
+        schema:
+          type: integer
+      - name: locale
+        in: query
+        description: 'Used language. Default: en'
+        required: false
+        schema:
+          type: string
+      responses:
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              example:
+                errors:
+                - status: '404'
+                  title: Record not found
+        '200':
+          description: success
+          content:
+            application/json:
+              example:
+                data:
+                  id: '331'
+                  type: journeys
+                  attributes:
+                    title: Autem et et ex.
+                    subtitle: Autem et et ex.
+                    theme: Autem et et ex.
+                    background_image:
+                      small: http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBaFVIIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--efa4fb079c2ab6fbe7177fc6336a126ed5517894/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERJd01IZ3lNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--7be8b6f6018bc25ae287d258d8836839fa7642f1/picture.jpg
+                      medium: http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBaFVIIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--efa4fb079c2ab6fbe7177fc6336a126ed5517894/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERnd01IZzRNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--697714719ccce7b35c5f9a02aeef5bd517f3d81f/picture.jpg
+                      original: http://localhost:3000/rails/active_storage/blobs/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBaFVIIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--efa4fb079c2ab6fbe7177fc6336a126ed5517894/picture.jpg
+                    credits: Autem et et ex.
+                    credits_url: http://jacobson.biz/everett
+                    published: true
+                  relationships:
+                    journey_steps:
+                      data:
+                      - id: '754'
+                        type: journey_steps
+                      - id: '751'
+                        type: journey_steps
+                      - id: '760'
+                        type: journey_steps
+                      - id: '757'
+                        type: journey_steps
+                included:
+                - id: '754'
+                  type: journey_steps
+                  attributes:
+                    step_type: conclusion
+                    position: 11
+                    title: Porro soluta beatae sint.
+                    subtitle: Porro soluta beatae sint.
+                    content: Porro soluta beatae. Quia ratione facilis. Eligendi sapiente
+                      voluptatem.
+                    credits: Porro soluta beatae sint.
+                    credits_url: http://keebler.info/daine
+                    background_color: "#c2e0e0"
+                    background_image:
+                      small: http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBZ3dIIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--3fec68e6d8c9179e5a500faacce51f9756763846/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERJd01IZ3lNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--7be8b6f6018bc25ae287d258d8836839fa7642f1/picture.jpg
+                      medium: http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBZ3dIIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--3fec68e6d8c9179e5a500faacce51f9756763846/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERnd01IZzRNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--697714719ccce7b35c5f9a02aeef5bd517f3d81f/picture.jpg
+                      original: http://localhost:3000/rails/active_storage/blobs/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBZ3dIIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--3fec68e6d8c9179e5a500faacce51f9756763846/picture.jpg
+                - id: '751'
+                  type: journey_steps
+                  attributes:
+                    step_type: landing
+                    position: 25
+                    title: Et quaerat omnis veniam.
+                    description: Et quaerat omnis veniam.
+                    credits: Et quaerat omnis veniam.
+                    credits_url: http://hane.com/jules
+                    background_image:
+                      small: http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBZ2dIIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--f7fcd33fc0f149a988b16788191145b1ad9f9e31/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERJd01IZ3lNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--7be8b6f6018bc25ae287d258d8836839fa7642f1/picture.jpg
+                      medium: http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBZ2dIIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--f7fcd33fc0f149a988b16788191145b1ad9f9e31/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERnd01IZzRNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--697714719ccce7b35c5f9a02aeef5bd517f3d81f/picture.jpg
+                      original: http://localhost:3000/rails/active_storage/blobs/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBZ2dIIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--f7fcd33fc0f149a988b16788191145b1ad9f9e31/picture.jpg
+                - id: '760'
+                  type: journey_steps
+                  attributes:
+                    step_type: embed
+                    position: 76
+                    title: Eum consequuntur adipisci non.
+                    subtitle: Eum consequuntur adipisci non.
+                    content: Eum consequuntur adipisci. Facere iure beatae. In odio
+                      reiciendis.
+                    source: Eum consequuntur adipisci non.
+                    mask_sql: Eum consequuntur adipisci non.
+                    map_url: http://lind.name/alana
+                    embedded_map_url: http://lind.name/alana
+                - id: '757'
+                  type: journey_steps
+                  attributes:
+                    step_type: chapter
+                    position: 93
+                    title: Impedit animi eveniet numquam.
+                    description: Impedit animi eveniet numquam.
+                    chapter_number: 93
+                    credits: Impedit animi eveniet numquam.
+                    credits_url: http://ritchie.com/jame
+                    background_color: "#bf40bf"
+                    background_image:
+                      small: http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBaEFIIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--0905b071b9b1b8c867d1a4a0a87bd8c676795e9d/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERJd01IZ3lNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--7be8b6f6018bc25ae287d258d8836839fa7642f1/picture.jpg
+                      medium: http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBaEFIIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--0905b071b9b1b8c867d1a4a0a87bd8c676795e9d/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERnd01IZzRNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--697714719ccce7b35c5f9a02aeef5bd517f3d81f/picture.jpg
+                      original: http://localhost:3000/rails/active_storage/blobs/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBaEFIIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--0905b071b9b1b8c867d1a4a0a87bd8c676795e9d/picture.jpg
+  "/api/layer-groups":
+    get:
+      summary: Get list of layer groups
+      tags:
+      - LayerGroup
+      parameters:
+      - name: site_scope
+        in: query
+        description: Site scope to list layers for
+        required: false
+        schema:
+          type: string
+      - name: locale
+        in: query
+        description: 'Used language. Default: en'
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: success
+          content:
+            application/json:
+              example:
+                data:
+                - id: '165'
+                  type: layer_groups
+                  attributes:
+                    name: voluptatem
+                    slug: LayerGroup-1
+                    category: voluptatem
+                    active: true
+                    order: 38
+                    info: Enim repellat pariatur. Earum modi eos. Libero tempora exercitationem.
+                    layer_group_type: voluptatem
+                    super_group_id:
+                    super_group_name:
+                    icon_class: voluptatem
+                  relationships:
+                    super_group:
+                      data:
+                - id: '166'
+                  type: layer_groups
+                  attributes:
+                    name: cum
+                    slug: LayerGroup-2
+                    category: cum
+                    active: true
+                    order: 41
+                    info: Placeat commodi libero. Quo recusandae repellat. Sunt commodi
+                      tempore.
+                    layer_group_type: cum
+                    super_group_id:
+                    super_group_name:
+                    icon_class: cum
+                  relationships:
+                    super_group:
+                      data:
+                - id: '167'
+                  type: layer_groups
+                  attributes:
+                    name: molestiae
+                    slug: LayerGroup-3
+                    category: molestiae
+                    active: false
+                    order: 25
+                    info: Et quaerat omnis. Harum voluptas atque. Quo nesciunt voluptas.
+                    layer_group_type: molestiae
+                    super_group_id:
+                    super_group_name:
+                    icon_class: molestiae
+                  relationships:
+                    super_group:
+                      data:
+                meta:
+                  total_layer_groups: 3
+  "/api/layers":
+    get:
+      summary: Get list of layers
+      tags:
+      - Layer
+      parameters:
+      - name: site_scope
+        in: query
+        description: Site scope to list layers for
+        required: false
+        schema:
+          type: string
+      - name: locale
+        in: query
+        description: 'Used language. Default: en'
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: success
+          content:
+            application/json:
+              example:
+                data:
+                - id: '293'
+                  type: layers
+                  attributes:
+                    name: molestiae
+                    description: Et quaerat omnis veniam.
+                    slug: Layer-3
+                    layer_type:
+                    zindex: 25
+                    opacity: 25.0
+                    active:
+                    order: 25
+                    dashboard_order: 25
+                    color:
+                    info:
+                    interactivity:
+                    css: Et quaerat omnis veniam.
+                    query: Et quaerat omnis veniam.
+                    layer_config: '25'
+                    layer_provider: gee
+                    published: true
+                    locate_layer: false
+                    icon_class:
+                    legend: Et quaerat omnis veniam.
+                    zoom_max: 25
+                    zoom_min: 25
+                    download: false
+                    dataset_shortname:
+                    dataset_source_url:
+                    analysis_suitable: false
+                    analysis_query: Et quaerat omnis veniam.
+                    analysis_body: Et quaerat omnis veniam.
+                    interaction_config: Et quaerat omnis veniam.
+                  relationships:
+                    layer_group:
+                      data:
+                        id: '174'
+                        type: layer_groups
+                    sources:
+                      data: []
+                    agrupation:
+                      data:
+                        id: 112
+                        layer_id: 293
+                        layer_group_id: 174
+                        active: false
+                - id: '292'
+                  type: layers
+                  attributes:
+                    name: cum
+                    description: Placeat commodi libero et.
+                    slug: Layer-2
+                    layer_type:
+                    zindex: 41
+                    opacity: 41.0
+                    active:
+                    order: 41
+                    dashboard_order: 41
+                    color:
+                    info:
+                    interactivity:
+                    css: Placeat commodi libero et.
+                    query: Placeat commodi libero et.
+                    layer_config: '41'
+                    layer_provider: cartodb
+                    published: true
+                    locate_layer: false
+                    icon_class:
+                    legend: Placeat commodi libero et.
+                    zoom_max: 41
+                    zoom_min: 41
+                    download: false
+                    dataset_shortname:
+                    dataset_source_url:
+                    analysis_suitable: true
+                    analysis_query: Placeat commodi libero et.
+                    analysis_body: Placeat commodi libero et.
+                    interaction_config: Placeat commodi libero et.
+                  relationships:
+                    layer_group:
+                      data:
+                        id: '174'
+                        type: layer_groups
+                    sources:
+                      data: []
+                    agrupation:
+                      data:
+                        id: 111
+                        layer_id: 292
+                        layer_group_id: 174
+                        active: false
+                - id: '291'
+                  type: layers
+                  attributes:
+                    name: voluptatem
+                    description: Enim repellat pariatur est.
+                    slug: Layer-1
+                    layer_type:
+                    zindex: 38
+                    opacity: 38.0
+                    active:
+                    order: 38
+                    dashboard_order: 38
+                    color:
+                    info:
+                    interactivity:
+                    css: Enim repellat pariatur est.
+                    query: Enim repellat pariatur est.
+                    layer_config: '38'
+                    layer_provider: cog
+                    published: true
+                    locate_layer: false
+                    icon_class:
+                    legend: Enim repellat pariatur est.
+                    zoom_max: 38
+                    zoom_min: 38
+                    download: false
+                    dataset_shortname:
+                    dataset_source_url:
+                    analysis_suitable: true
+                    analysis_query: Enim repellat pariatur est.
+                    analysis_body: Enim repellat pariatur est.
+                    interaction_config: Enim repellat pariatur est.
+                  relationships:
+                    layer_group:
+                      data:
+                        id: '174'
+                        type: layer_groups
+                    sources:
+                      data: []
+                    agrupation:
+                      data:
+                        id: 110
+                        layer_id: 291
+                        layer_group_id: 174
+                        active: false
+                meta:
+                  total_layers: 3
+  "/api/layers/{id}/downloads":
+    get:
+      summary: Download layer file
+      tags:
+      - Layer
+      parameters:
+      - name: id
+        in: path
+        description: Layer ID
+        required: true
+        schema:
+          type: integer
+      - name: download_path
+        in: query
+        description: Url to the file download
+        required: false
+        schema:
+          type: string
+      - name: file_format
+        in: query
+        description: File format (pdf, kml, jpg, txt, etc..)
+        required: false
+        schema:
+          type: string
+      - name: with_format
+        in: query
+        description: If format is part of download_path
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: success
+  "/api/menu-entries":
+    get:
+      summary: Get list of map menu entries
+      tags:
+      - MapMenuEntry
+      parameters:
+      - name: locale
+        in: query
+        description: 'Used language. Default: en'
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: success
+          content:
+            application/json:
+              example:
+                data:
+                - id: '48'
+                  type: map_menu_entries
+                  attributes:
+                    label: Otha Kemmer
+                    link: http://kutch-spencer.com/moises
+                    position: 38
+                    ancestry:
+                - id: '49'
+                  type: map_menu_entries
+                  attributes:
+                    label: Msgr. Genaro Cronin
+                    link: http://bartoletti.com/jeremiah_cronin
+                    position: 41
+                    ancestry:
+                - id: '50'
+                  type: map_menu_entries
+                  attributes:
+                    label: Raymon Wisoky
+                    link: http://hane.com/jules
+                    position: 25
+                    ancestry:
+  "/api/models":
+    get:
+      summary: Get list of models
+      tags:
+      - Model
+      parameters:
+      - name: site_scope
+        in: query
+        description: Site scope to list layers for
+        required: false
+        schema:
+          type: integer
+      - name: locale
+        in: query
+        description: 'Used language. Default: en'
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: success
+          content:
+            application/json:
+              example:
+                data:
+                - id: '79'
+                  type: models
+                  attributes:
+                    name: voluptatem
+                    description: Enim repellat pariatur. Earum modi eos. Libero tempora
+                      exercitationem.
+                    source: Enim repellat pariatur est.
+                    query_analysis: Enim repellat pariatur est.
+                    table_name: voluptatem
+                  relationships:
+                    site_scopes:
+                      data:
+                      - id: '1'
+                        type: site_scopes
+                    indicators:
+                      data: []
+                - id: '80'
+                  type: models
+                  attributes:
+                    name: cum
+                    description: Placeat commodi libero. Quo recusandae repellat.
+                      Sunt commodi tempore.
+                    source: Placeat commodi libero et.
+                    query_analysis: Placeat commodi libero et.
+                    table_name: cum
+                  relationships:
+                    site_scopes:
+                      data:
+                      - id: '1'
+                        type: site_scopes
+                    indicators:
+                      data: []
+                - id: '81'
+                  type: models
+                  attributes:
+                    name: molestiae
+                    description: Et quaerat omnis. Harum voluptas atque. Quo nesciunt
+                      voluptas.
+                    source: Et quaerat omnis veniam.
+                    query_analysis: Et quaerat omnis veniam.
+                    table_name: molestiae
+                  relationships:
+                    site_scopes:
+                      data:
+                      - id: '1'
+                        type: site_scopes
+                    indicators:
+                      data: []
+                - id: '82'
+                  type: models
+                  attributes:
+                    name: quos
+                    description: Dolores fugiat nesciunt. Ut laborum dolores. Sit
+                      neque eos.
+                    source: Dolores fugiat nesciunt accusantium.
+                    query_analysis: Dolores fugiat nesciunt accusantium.
+                    table_name: quos
+                  relationships:
+                    site_scopes:
+                      data:
+                      - id: '2'
+                        type: site_scopes
+                    indicators:
+                      data: []
+                included:
+                - id: '1'
+                  type: site_scopes
+                  attributes:
+                    name: Resilience Atlas
+                    color: "#ffdbdb"
+                    subdomain: voluptatem
+                    has_analysis: true
+                    latitude: -14.936039153536683
+                    longitude: -29.872078307073366
+                    header_theme: Enim repellat pariatur est.
+                    zoom_level: 38
+                    linkback_text: Enim repellat pariatur. Earum modi eos. Libero
+                      tempora exercitationem.
+                    linkback_url: http://kutch-spencer.com/moises
+                    header_color: "#ffdbdb"
+                    logo_url: http://kutch-spencer.com/moises
+                    predictive_model: true
+                    analysis_options: true
+                    has_gef_logo:
+                  relationships:
+                    site_pages:
+                      data: []
+                - id: '2'
+                  type: site_scopes
+                  attributes:
+                    name: Otha Kemmer
+                    color: "#eaf1ea"
+                    subdomain: cum
+                    has_analysis: true
+                    latitude: -11.520917614439327
+                    longitude: -23.041835228878654
+                    header_theme: Placeat commodi libero et.
+                    zoom_level: 41
+                    linkback_text: Placeat commodi libero. Quo recusandae repellat.
+                      Sunt commodi tempore.
+                    linkback_url: http://bartoletti.com/jeremiah_cronin
+                    header_color: "#eaf1ea"
+                    logo_url: http://bartoletti.com/jeremiah_cronin
+                    predictive_model: true
+                    analysis_options: true
+                    has_gef_logo:
+                  relationships:
+                    site_pages:
+                      data: []
+                meta:
+                  total_models: 4
+  "/services/oembed":
+    get:
+      summary: Get appropriate iframe
+      tags:
+      - Oembed
+      parameters:
+      - name: url
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: format
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: maxwidth
+        in: query
+        required: false
+        schema:
+          type: integer
+      - name: maxheight
+        in: query
+        required: false
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: success
+          content:
+            application/json:
+              example:
+                width: 960
+                height: 600
+                version: '1.0'
+                type: rich
+                provider_name: resilienceatlas.org
+                provider_url: http://resilienceatlas.org
+                html: <iframe frameborder="0" width="960" height="600" src="https://resilienceatlas.org/embed/map?test=test"></iframe>
+        '400':
+          description: Domain does not include map path
+        '403':
+          description: Domain is not permitted
+        '404':
+          description: Domain information is missing
+        '422':
+          description: Domain is not url or base64 string
+  "/api/photos":
+    post:
+      summary: Save new image
+      tags:
+      - Photo
+      security:
+      - cookie_auth: []
+      parameters: []
+      responses:
+        '201':
+          description: success
+          content:
+            application/json:
+              example:
+                id: 12
+                image_data: '{"id":"2bf824e6c3dec68efdab9bdcc6369cd5.jpg","storage":"store","metadata":{"filename":"picture.jpg","size":32326,"mime_type":null}}'
+                created_at: '2023-04-21T11:51:58.179+02:00'
+                updated_at: '2023-04-21T11:51:58.181+02:00'
+                url: "/uploads/store/2bf824e6c3dec68efdab9bdcc6369cd5.jpg"
+                image_url: "/uploads/store/2bf824e6c3dec68efdab9bdcc6369cd5.jpg"
+        '401':
+          description: Authentication failed
+          content:
+            application/json:
+              example:
+                error: You need to sign in or sign up before continuing.
+  "/users/register":
+    post:
+      summary: Register new user
+      tags:
+      - User
+      parameters: []
+      responses:
+        '200':
+          description: success
+          content:
+            application/json:
+              example:
+                status: created
+        '422':
+          description: Validation errors
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user:
+                  type: object
+                  properties:
+                    email:
+                      type: string
+                    password:
+                      type: string
+                    password_confirmation:
+                      type: string
+                      nullable: true
+                    first_name:
+                      type: string
+                      nullable: true
+                    last_name:
+                      type: string
+                      nullable: true
+                    organization:
+                      type: string
+                      nullable: true
+                    organization_role:
+                      type: string
+                      nullable: true
+                  required:
+                  - email
+                  - password
+                required:
+                - user
+  "/api/share/{uid}":
+    get:
+      summary: Get detail of shared url
+      tags:
+      - ShareUrl
+      parameters:
+      - name: uid
+        in: path
+        description: An unique url identifier
+        required: true
+        schema:
+          type: string
+      responses:
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              example:
+                errors:
+                - status: '404'
+                  title: Record not found
+        '200':
+          description: success
+          content:
+            application/json:
+              example:
+                data:
+                  id: '22'
+                  type: share_urls
+                  attributes:
+                    uid: '12345'
+                    body: body test
+  "/api/share":
+    post:
+      summary: Create new shared url
+      tags:
+      - ShareUrl
+      parameters:
+      - name: body
+        in: query
+        description: Body of shared url
+        schema:
+          type: string
+      responses:
+        '200':
+          description: success
+          content:
+            application/json:
+              example:
+                uid: a8da6f81149ca26b6311
+  "/api/sites":
+    get:
+      summary: Get list of all site scopes
+      tags:
+      - SiteScope
+      parameters:
+      - name: locale
+        in: query
+        description: 'Used language. Default: en'
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: success
+          content:
+            application/json:
+              example:
+                data:
+                - id: '1'
+                  type: site_scopes
+                  attributes:
+                    name: Resilience Atlas
+                    color: "#ffdbdb"
+                    subdomain: voluptatem
+                    has_analysis: true
+                    latitude: -14.936039153536683
+                    longitude: -29.872078307073366
+                    header_theme: Enim repellat pariatur est.
+                    zoom_level: 38
+                    linkback_text: Enim repellat pariatur. Earum modi eos. Libero
+                      tempora exercitationem.
+                    linkback_url: http://kutch-spencer.com/moises
+                    header_color: "#ffdbdb"
+                    logo_url: http://kutch-spencer.com/moises
+                    predictive_model: true
+                    analysis_options: true
+                    has_gef_logo:
+                  relationships:
+                    site_pages:
+                      data: []
+                - id: '2'
+                  type: site_scopes
+                  attributes:
+                    name: Otha Kemmer
+                    color: "#eaf1ea"
+                    subdomain: cum
+                    has_analysis: true
+                    latitude: -11.520917614439327
+                    longitude: -23.041835228878654
+                    header_theme: Placeat commodi libero et.
+                    zoom_level: 41
+                    linkback_text: Placeat commodi libero. Quo recusandae repellat.
+                      Sunt commodi tempore.
+                    linkback_url: http://bartoletti.com/jeremiah_cronin
+                    header_color: "#eaf1ea"
+                    logo_url: http://bartoletti.com/jeremiah_cronin
+                    predictive_model: true
+                    analysis_options: true
+                    has_gef_logo:
+                  relationships:
+                    site_pages:
+                      data: []
+  "/api/site":
+    get:
+      summary: Get appropriate site scope
+      tags:
+      - SiteScope
+      parameters:
+      - name: site_scope
+        in: query
+        description: Site scope subdomain
+        required: false
+        schema:
+          type: string
+      - name: locale
+        in: query
+        description: 'Used language. Default: en'
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: success
+          content:
+            application/json:
+              example:
+                data:
+                  id: '1'
+                  type: site_scopes
+                  attributes:
+                    name: Resilience Atlas
+                    color: "#ffdbdb"
+                    subdomain: voluptatem
+                    has_analysis: true
+                    latitude: -14.936039153536683
+                    longitude: -29.872078307073366
+                    header_theme: Enim repellat pariatur est.
+                    zoom_level: 38
+                    linkback_text: Enim repellat pariatur. Earum modi eos. Libero
+                      tempora exercitationem.
+                    linkback_url: http://kutch-spencer.com/moises
+                    header_color: "#ffdbdb"
+                    logo_url: http://kutch-spencer.com/moises
+                    predictive_model: true
+                    analysis_options: true
+                    has_gef_logo:
+                  relationships:
+                    site_pages:
+                      data:
+                      - id: '26'
+                        type: site_pages
+                included:
+                - id: '26'
+                  type: site_pages
+                  attributes:
+                    title: voluptatem
+                    priority: 38
+                    url: "/contents/SitePage-1"
+  "/api/static_pages/{slug}":
+    get:
+      summary: Get static page with appropriate slug
+      tags:
+      - StaticPage
+      parameters:
+      - name: slug
+        in: path
+        description: Slug of static page
+        required: true
+        schema:
+          type: string
+      - name: locale
+        in: query
+        description: 'Used language. Default: en'
+        required: false
+        schema:
+          type: string
+      responses:
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              example:
+                errors:
+                - status: '404'
+                  title: Record not found
+        '200':
+          description: success
+          content:
+            application/json:
+              example:
+                data:
+                  id: '157'
+                  type: static_page_bases
+                  attributes:
+                    title: Enim repellat pariatur est.
+                    slug: StaticPage-1
+                    image:
+                      small: http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBbUFIIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--1138344decfb9c9a078e3f0ec5c83be8d8e1a4f7/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERJd01IZ3lNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--7be8b6f6018bc25ae287d258d8836839fa7642f1/picture.jpg
+                      medium: http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBbUFIIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--1138344decfb9c9a078e3f0ec5c83be8d8e1a4f7/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERnd01IZzRNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--697714719ccce7b35c5f9a02aeef5bd517f3d81f/picture.jpg
+                      original: http://localhost:3000/rails/active_storage/blobs/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBbUFIIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--1138344decfb9c9a078e3f0ec5c83be8d8e1a4f7/picture.jpg
+                    image_credits: Enim repellat pariatur est.
+                    image_credits_url: http://kutch-spencer.com/moises
+                  relationships:
+                    sections:
+                      data:
+                      - id: '305'
+                        type: static_page_sections
+                      - id: '306'
+                        type: static_page_sections
+                      - id: '307'
+                        type: static_page_sections
+                included:
+                - id: '305'
+                  type: static_page_sections
+                  attributes:
+                    title: Enim repellat pariatur est.
+                    slug: StaticPageSection-1
+                    title_size: 4
+                    section_type: paragraph
+                    show_at_navigation: true
+                    position: 1
+                  relationships:
+                    section_paragraph:
+                      data:
+                        id: '117'
+                        type: static_page_section_paragraphs
+                    section_items:
+                      data: []
+                    section_references:
+                      data: []
+                - id: '117'
+                  type: static_page_section_paragraphs
+                  attributes:
+                    text: Enim repellat pariatur. Earum modi eos. Libero tempora exercitationem.
+                    image:
+                      small: http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBbUVIIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--e4a8623ed6622b77c6fc128f51adbe3fdd03a755/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERJd01IZ3lNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--7be8b6f6018bc25ae287d258d8836839fa7642f1/picture.jpg
+                      medium: http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBbUVIIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--e4a8623ed6622b77c6fc128f51adbe3fdd03a755/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERnd01IZzRNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--697714719ccce7b35c5f9a02aeef5bd517f3d81f/picture.jpg
+                      original: http://localhost:3000/rails/active_storage/blobs/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBbUVIIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--e4a8623ed6622b77c6fc128f51adbe3fdd03a755/picture.jpg
+                    image_credits: Enim repellat pariatur est.
+                    image_credits_url: http://kutch-spencer.com/moises
+                    image_position: right
+                - id: '306'
+                  type: static_page_sections
+                  attributes:
+                    title: Placeat commodi libero et.
+                    slug: StaticPageSection-2
+                    title_size: 1
+                    section_type: items
+                    show_at_navigation: true
+                    position: 1
+                  relationships:
+                    section_paragraph:
+                      data:
+                    section_items:
+                      data:
+                      - id: '101'
+                        type: static_page_section_items
+                    section_references:
+                      data: []
+                - id: '101'
+                  type: static_page_section_items
+                  attributes:
+                    title: Enim repellat pariatur est.
+                    description: Enim repellat pariatur. Earum modi eos. Libero tempora
+                      exercitationem.
+                    image:
+                      small: http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBbUlIIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--70123238e02e405d86871ba07b573ede1c891e6f/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERJd01IZ3lNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--7be8b6f6018bc25ae287d258d8836839fa7642f1/picture.jpg
+                      medium: http://localhost:3000/rails/active_storage/representations/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBbUlIIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--70123238e02e405d86871ba07b573ede1c891e6f/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2QzNKbGMybDZaVWtpRERnd01IZzRNREFHT3daVSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--697714719ccce7b35c5f9a02aeef5bd517f3d81f/picture.jpg
+                      original: http://localhost:3000/rails/active_storage/blobs/redirect/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBbUlIIiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--70123238e02e405d86871ba07b573ede1c891e6f/picture.jpg
+                    position: 1
+                - id: '307'
+                  type: static_page_sections
+                  attributes:
+                    title: Et quaerat omnis veniam.
+                    slug: StaticPageSection-3
+                    title_size: 3
+                    section_type: references
+                    show_at_navigation: false
+                    position: 1
+                  relationships:
+                    section_paragraph:
+                      data:
+                    section_items:
+                      data: []
+                    section_references:
+                      data:
+                      - id: '101'
+                        type: static_page_section_references
+                - id: '101'
+                  type: static_page_section_references
+                  attributes:
+                    slug: StaticPageReference-1
+                    text: Enim repellat pariatur. Earum modi eos. Libero tempora exercitationem.
+                    position: 1
+  "/users/me":
+    get:
+      summary: Obtains information about current user
+      tags:
+      - User
+      security:
+      - bearerAuth: []
+      responses:
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                errors:
+                - status: '401'
+                  title: Unauthorized
+        '200':
+          description: success
+          content:
+            application/json:
+              example:
+                id: 83
+                email: person-1@example.com
+                created_at: '2023-04-21T11:51:58.672+02:00'
+                updated_at: '2023-04-21T11:51:58.672+02:00'
+                first_name: Dawna
+                last_name: Block
+                phone: "(995) 001-7692 x452"
+                organization: voluptatem
+                organization_role: voluptatem
+    patch:
+      summary: Update current user
+      tags:
+      - User
+      security:
+      - bearerAuth: []
+      parameters: []
+      responses:
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                errors:
+                - status: '401'
+                  title: Unauthorized
+        '200':
+          description: success
+          content:
+            application/json:
+              example:
+                first_name: Jan
+                last_name: Kowalski
+                email: jankowalski@example.com
+                id: 85
+                created_at: '2023-04-21T11:51:58.703+02:00'
+                updated_at: '2023-04-21T11:51:58.712+02:00'
+                phone: "(995) 001-7692 x452"
+                organization: voluptatem
+                organization_role: voluptatem
+        '422':
+          description: Validation errors
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user:
+                  type: object
+                  properties:
+                    email:
+                      type: string
+                    password:
+                      type: string
+                    password_confirmation:
+                      type: string
+                      nullable: true
+                    first_name:
+                      type: string
+                      nullable: true
+                    last_name:
+                      type: string
+                      nullable: true
+                    organization:
+                      type: string
+                      nullable: true
+                    organization_role:
+                      type: string
+                      nullable: true
+                  required:
+                  - email
+                  - password
+                required:
+                - user
+components:
+  securitySchemes:
+    cookie_auth:
+      type: apiKey
+      name: _backend_session
+      in: cookie
+    tokenAuth:
+      type: http
+      scheme: bearer
+      name: Authorization
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      name: Authorization
+  schemas:
+    errors:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              status:
+                type: string
+              title:
+                type: string
+            required:
+            - status
+            - title
+      required:
+      - errors
+servers:
+- url: ''
+- url: "{scheme}://{host}"
+  variables:
+    scheme:
+      default: http
+    host:
+      default: localhost:3000
