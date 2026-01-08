@@ -1,7 +1,6 @@
 services:
   database:
     image: postgis/postgis:15-3.3
-    platform: linux/amd64  # PostGIS image may not have ARM build, emulate on Graviton
     container_name: resilienceatlas-staging-db
     environment:
       - POSTGRES_DB=resilienceatlas_staging
