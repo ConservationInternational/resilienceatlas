@@ -56,9 +56,6 @@ Rollbar.configure do |config|
 
   # Additional configuration for production
   if Rails.env.production? || Rails.env.staging?
-    # Capture uncaught exceptions in controllers
-    config.capture_uncaught_exceptions = true
-
     # Report SQL queries in error context (without values for security)
     config.collect_user_ip = true
 
