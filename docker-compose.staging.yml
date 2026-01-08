@@ -1,6 +1,6 @@
 services:
   database:
-    image: postgis/postgis:15-3.3
+    image: postgis/postgis:16-3.4
     container_name: resilienceatlas-staging-db
     environment:
       - POSTGRES_DB=resilienceatlas_staging
