@@ -169,6 +169,8 @@ Located in `scripts/codedeploy/`:
 
 ### Required Secrets (Using OIDC - Recommended)
 
+All environment configuration is managed through GitHub Secrets. During deployment, the GitHub Actions workflow generates `.env.staging` or `.env.production` files from these secrets, which are then included in the deployment package. **No manual server configuration is required.**
+
 ```bash
 # AWS OIDC Authentication (no access keys needed!)
 AWS_OIDC_ROLE_ARN          # IAM role ARN from setup_github_oidc.py
@@ -176,13 +178,13 @@ DEPLOYMENT_S3_BUCKET       # S3 bucket name from setup_s3_bucket.py
 
 # Staging Environment
 STAGING_DB_PASSWORD        # Postgres password for staging container
-STAGING_SECRET_KEY_BASE    # Rails secret key (128 chars)
-STAGING_DEVISE_KEY         # Devise authentication key
+STAGING_SECRET_KEY_BASE    # Rails secret key (128 chars) - generate with: rails secret
+STAGING_DEVISE_KEY         # Devise authentication key - generate with: rails secret
 
 # Production Environment  
 PRODUCTION_DATABASE_URL    # postgresql://user:pass@host:port/db
-PRODUCTION_SECRET_KEY_BASE # Rails secret key (128 chars)
-PRODUCTION_DEVISE_KEY      # Devise authentication key
+PRODUCTION_SECRET_KEY_BASE # Rails secret key (128 chars) - generate with: rails secret
+PRODUCTION_DEVISE_KEY      # Devise authentication key - generate with: rails secret
 
 # Application Configuration
 NEXT_PUBLIC_GOOGLE_ANALYTICS  # Google Analytics ID
@@ -191,7 +193,25 @@ NEXT_PUBLIC_TRANSIFEX_SECRET  # Transifex secret
 NEXT_PUBLIC_GOOGLE_API_KEY    # Google Maps API key
 RESILIENCE_API_KEY            # Resilience API key
 SPARKPOST_API_KEY             # SparkPost email service key
+
+# Error Tracking (optional)
+ROLLBAR_ACCESS_TOKEN             # Rollbar server-side token
+NEXT_PUBLIC_ROLLBAR_CLIENT_TOKEN # Rollbar client-side token
 ```
+
+### How Environment Variables Work
+
+1. **GitHub Secrets** → Stored securely in GitHub repository settings
+2. **GitHub Actions** → Generates `.env.{environment}` file with secrets during deployment
+3. **Deployment Package** → Env file is included in the zip archive
+4. **CodeDeploy** → Extracts package to server, env file is automatically available
+5. **Docker Compose** → Loads environment variables when starting containers
+
+This approach ensures:
+- ✅ No secrets stored on the server
+- ✅ No manual server configuration needed
+- ✅ Secrets are rotated by updating GitHub Secrets and redeploying
+- ✅ Full audit trail in GitHub Actions logs (secrets are masked)
 
 ## Deployment Flow
 
