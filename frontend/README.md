@@ -47,8 +47,8 @@ Below is a description of each of the keys.
 
 Every time we update the environment variables, we need to update them in the following places:
 
-- For the GitHub Actions scripts, the environment variables are stored in the repository as GitHub secrets. In order to update them, you need to be an administrator of the repository. The environment variables are used in the workflows: `.github/workflows/frontend_tests.yml`, `.github/workflows/ec2_deploy_staging.yml`, and `.github/workflows/ec2_deploy_production.yml`.
-- For the EC2 deployment environments, the environment variables are configured in environment files and AWS Secrets Manager. See [scripts/README.md](../scripts/README.md) for details.
+- For the GitHub Actions scripts, the environment variables are stored in the repository as GitHub secrets. In order to update them, you need to be an administrator of the repository. The environment variables are used in the workflows: `.github/workflows/frontend_tests.yml`, `.github/workflows/codedeploy_staging.yml`, and `.github/workflows/codedeploy_production.yml`.
+- For the EC2 deployment environments, the environment variables are configured via GitHub Secrets and passed to Docker containers during deployment. See [scripts/README.md](../scripts/README.md) for details.
 - For the local environment, the environment variables are stored in the `.env.local` file.
 - Update the environment variables in the `README.md` file.
 - Finally, you have to update the environment variables in the `.env.example` file.

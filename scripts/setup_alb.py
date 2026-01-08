@@ -118,12 +118,18 @@ def create_security_group(ec2_client, vpc_id, group_name):
         return None
 
 def create_target_groups(elbv2_client, vpc_id):
-    """Create target groups for staging and production."""
+    """Create target groups for staging and production.
+    
+    SINGLE-INSTANCE MODE:
+    - Staging uses port 3000
+    - Production uses port 4000
+    Both target groups point to the same EC2 instance.
+    """
     target_groups = {}
     
     environments = [
         {'name': 'staging', 'port': 3000},
-        {'name': 'production', 'port': 3000}
+        {'name': 'production', 'port': 4000}
     ]
     
     for env in environments:
@@ -135,7 +141,7 @@ def create_target_groups(elbv2_client, vpc_id):
                 Protocol='HTTP',
                 Port=env['port'],
                 VpcId=vpc_id,
-                HealthCheckPath='/health',
+                HealthCheckPath='/',
                 HealthCheckProtocol='HTTP',
                 HealthCheckPort='traffic-port',
                 HealthCheckIntervalSeconds=30,

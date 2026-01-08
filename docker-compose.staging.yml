@@ -7,11 +7,11 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=${STAGING_DB_PASSWORD}
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - staging_postgres_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
     networks:
-      - app-network
+      - staging-network
     restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
@@ -39,7 +39,7 @@ services:
     env_file:
       - .env.staging
     networks:
-      - app-network
+      - staging-network
     restart: unless-stopped
     depends_on:
       database:
@@ -70,7 +70,7 @@ services:
     env_file:
       - .env.staging
     networks:
-      - app-network
+      - staging-network
     restart: unless-stopped
     depends_on:
       - backend
@@ -81,9 +81,9 @@ services:
       retries: 3
 
 volumes:
-  postgres_data:
+  staging_postgres_data:
     driver: local
 
 networks:
-  app-network:
+  staging-network:
     driver: bridge

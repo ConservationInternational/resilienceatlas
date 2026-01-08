@@ -4,6 +4,11 @@
 # ============================================================================
 # This script contains shared functions and configuration used by all
 # CodeDeploy lifecycle hook scripts.
+#
+# SINGLE-INSTANCE SUPPORT:
+# Both staging and production can run on the same EC2 instance:
+#   - Staging:    /opt/resilienceatlas-staging    (ports 3000, 3001, 5432)
+#   - Production: /opt/resilienceatlas-production (ports 4000, 4001)
 # ============================================================================
 
 # Colors for output
@@ -57,23 +62,9 @@ detect_environment() {
     if [ -f "/opt/resilienceatlas-staging/.env.staging" ]; then
         echo "staging"
         return
-    elif [ -f "/opt/resilienceatlas/.env.production" ]; then
+    elif [ -f "/opt/resilienceatlas-production/.env.production" ]; then
         echo "production"
         return
-    fi
-    
-    # Check EC2 instance tags
-    if command -v aws &> /dev/null; then
-        INSTANCE_ID=$(curl -s http://169.254.169.254/latest/meta-data/instance-id 2>/dev/null || true)
-        if [ -n "$INSTANCE_ID" ]; then
-            ENV_TAG=$(aws ec2 describe-tags \
-                --filters "Name=resource-id,Values=$INSTANCE_ID" "Name=key,Values=Environment" \
-                --query 'Tags[0].Value' --output text 2>/dev/null || true)
-            if [ -n "$ENV_TAG" ] && [ "$ENV_TAG" != "None" ]; then
-                echo "$ENV_TAG" | tr '[:upper:]' '[:lower:]'
-                return
-            fi
-        fi
     fi
     
     # Default to staging for safety
@@ -82,13 +73,10 @@ detect_environment() {
 }
 
 # Get application directory based on environment
+# Each environment has its own directory to support single-instance deployments
 get_app_directory() {
     local environment="$1"
-    if [ "$environment" = "production" ]; then
-        echo "/opt/resilienceatlas"
-    else
-        echo "/opt/resilienceatlas"
-    fi
+    echo "/opt/resilienceatlas-${environment}"
 }
 
 # Get docker-compose file based on environment
@@ -98,6 +86,33 @@ get_compose_file() {
         echo "docker-compose.staging.yml"
     else
         echo "docker-compose.yml"
+    fi
+}
+
+# Get docker project name based on environment
+# This ensures containers don't conflict when both run on same instance
+get_project_name() {
+    local environment="$1"
+    echo "resilienceatlas-${environment}"
+}
+
+# Get frontend port based on environment
+get_frontend_port() {
+    local environment="$1"
+    if [ "$environment" = "production" ]; then
+        echo "4000"
+    else
+        echo "3000"
+    fi
+}
+
+# Get backend port based on environment
+get_backend_port() {
+    local environment="$1"
+    if [ "$environment" = "production" ]; then
+        echo "4001"
+    else
+        echo "3001"
     fi
 }
 
@@ -115,13 +130,14 @@ get_env_file() {
 # Wait for database to be ready
 wait_for_database() {
     local compose_file="$1"
+    local project_name="$2"
     local max_wait=60
     local wait_time=0
     
     log_info "Waiting for database to be ready..."
     
     while [ $wait_time -lt $max_wait ]; do
-        if docker compose -f "$compose_file" exec -T database pg_isready -U postgres >/dev/null 2>&1; then
+        if docker compose -p "$project_name" -f "$compose_file" exec -T database pg_isready -U postgres >/dev/null 2>&1; then
             log_success "Database is ready"
             return 0
         fi
@@ -137,4 +153,5 @@ wait_for_database() {
 # Export the functions for use in other scripts
 export -f log_info log_success log_warning log_error
 export -f detect_environment get_app_directory get_compose_file get_env_file
+export -f get_project_name get_frontend_port get_backend_port
 export -f wait_for_database

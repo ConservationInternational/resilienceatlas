@@ -5,7 +5,7 @@ This directory contains scripts and configuration for deploying ResilienceAtlas 
 ## Overview
 
 The deployment architecture uses:
-- **EC2 instances** for hosting the application (staging and production)
+- **Single EC2 Instance** for hosting both staging and production (cost-effective)
 - **AWS CodeDeploy** for automated deployments from GitHub
 - **Application Load Balancer** for routing traffic based on domain names
 - **Docker Compose** for container orchestration
@@ -13,36 +13,37 @@ The deployment architecture uses:
 - **S3** for storing deployment packages
 - **Route53** for DNS management
 
-## Architecture
+## Single-Instance Architecture
+
+Both staging and production run on the **same EC2 instance** with isolated:
+- **Directories**: `/opt/resilienceatlas-staging`, `/opt/resilienceatlas-production`
+- **Ports**: Staging (3000/3001/5432), Production (4000/4001)
+- **Docker Networks**: Separate networks per environment
+- **Container Names**: Prefixed with environment name
 
 ```
 GitHub Repository
     │
-    ▼
-GitHub Actions
-    │
-    ▼
-S3 Deployment Bucket
-    │
-    ▼
-AWS CodeDeploy
-    │
-    ├─ Staging Deployment Group
+    ├─ Push to 'staging' branch
     │       │
     │       ▼
-    │   Staging EC2 Instance
-    │       ├─ CodeDeploy Agent
+    │   GitHub Actions → S3 → CodeDeploy (staging group)
+    │       │
+    │       ▼
+    │   EC2 Instance: /opt/resilienceatlas-staging
     │       ├─ Frontend Container (port 3000)
     │       ├─ Backend Container (port 3001)
     │       └─ Database Container (port 5432)
     │
-    └─ Production Deployment Group
+    └─ Push to 'master' branch
             │
             ▼
-        Production EC2 Instance
-            ├─ CodeDeploy Agent
-            ├─ Frontend Container (port 3000)
-            └─ Backend Container (port 3001)
+        GitHub Actions → S3 → CodeDeploy (production group)
+            │
+            ▼
+        EC2 Instance: /opt/resilienceatlas-production
+            ├─ Frontend Container (port 4000)
+            └─ Backend Container (port 4001)
             (Production uses external PostgreSQL)
 ```
 
@@ -52,7 +53,7 @@ AWS CodeDeploy
 
 1. **AWS CLI** configured with appropriate credentials
 2. **Python 3.8+** with pip
-3. **EC2 instances** already running (staging and production)
+3. **EC2 instance** already running (single instance for both environments)
 4. **External PostgreSQL** for production database
 
 ### Complete Infrastructure Setup
@@ -81,14 +82,14 @@ AWS CodeDeploy
    python3 setup_alb.py <vpc-id>
    ```
 
-3. **On each EC2 instance, install the CodeDeploy agent:**
+3. **On the EC2 instance, install the CodeDeploy agent:**
    ```bash
    sudo bash scripts/install-codedeploy-agent.sh
    ```
 
-4. **Tag your EC2 instances:**
-   - Staging instance: `Environment=staging`, `Project=ResilienceAtlas`
-   - Production instance: `Environment=production`, `Project=ResilienceAtlas`
+4. **Tag your EC2 instance:**
+   - Required tag: `Project=ResilienceAtlas`
+   - (No Environment tag needed - both environments run on same instance)
 
 5. **Configure GitHub Actions secrets** (see below)
 

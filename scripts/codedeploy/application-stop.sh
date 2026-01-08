@@ -4,6 +4,9 @@
 # ============================================================================
 # This script is executed when CodeDeploy begins a new deployment.
 # It gracefully stops any running application containers.
+#
+# SINGLE-INSTANCE SUPPORT: Only stops containers for THIS environment,
+# leaving the other environment running.
 # ============================================================================
 
 set -e
@@ -18,8 +21,9 @@ log_info "ApplicationStop hook started"
 ENVIRONMENT=$(detect_environment)
 log_info "Detected environment: $ENVIRONMENT"
 
-# Set application directory
+# Set application directory (environment-specific)
 APP_DIR=$(get_app_directory "$ENVIRONMENT")
+PROJECT_NAME=$(get_project_name "$ENVIRONMENT")
 
 # Check if application directory exists
 if [ ! -d "$APP_DIR" ]; then
@@ -40,17 +44,18 @@ if [ ! -f "$COMPOSE_FILE" ]; then
     exit 0
 fi
 
-# Stop existing containers gracefully
-log_info "Stopping existing containers..."
+# Stop existing containers gracefully using project name
+# This ensures we only stop THIS environment's containers
+log_info "Stopping existing containers for project: $PROJECT_NAME"
 
 # For staging, keep the database running to preserve data during deployment
 if [ "$ENVIRONMENT" = "staging" ]; then
     log_info "Staging environment: Stopping frontend and backend only (preserving database)"
-    docker compose -f "$COMPOSE_FILE" stop frontend backend 2>/dev/null || true
-    docker compose -f "$COMPOSE_FILE" rm -f frontend backend 2>/dev/null || true
+    docker compose -p "$PROJECT_NAME" -f "$COMPOSE_FILE" stop frontend backend 2>/dev/null || true
+    docker compose -p "$PROJECT_NAME" -f "$COMPOSE_FILE" rm -f frontend backend 2>/dev/null || true
 else
     log_info "Production environment: Stopping all application containers"
-    docker compose -f "$COMPOSE_FILE" down 2>/dev/null || true
+    docker compose -p "$PROJECT_NAME" -f "$COMPOSE_FILE" down 2>/dev/null || true
 fi
 
 # Wait for containers to stop

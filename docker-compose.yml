@@ -6,7 +6,7 @@ services:
       target: production
     container_name: resilienceatlas-prod-backend
     ports:
-      - "3001:3000"
+      - "4001:3000"
     environment:
       - RAILS_ENV=production
       - DATABASE_URL=${PRODUCTION_DATABASE_URL}
@@ -19,7 +19,7 @@ services:
     env_file:
       - .env.production
     networks:
-      - app-network
+      - prod-network
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
@@ -34,7 +34,7 @@ services:
       target: production
     container_name: resilienceatlas-prod-frontend
     ports:
-      - "3000:3000"
+      - "4000:3000"
     environment:
       - NODE_ENV=production
       - NEXT_PUBLIC_API_HOST=${PRODUCTION_NEXT_PUBLIC_API_HOST}
@@ -47,7 +47,7 @@ services:
     env_file:
       - .env.production
     networks:
-      - app-network
+      - prod-network
     restart: unless-stopped
     depends_on:
       - backend
@@ -58,5 +58,5 @@ services:
       retries: 3
 
 networks:
-  app-network:
+  prod-network:
     driver: bridge

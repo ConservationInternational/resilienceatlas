@@ -208,14 +208,14 @@ def main():
     print("\n📋 Creating deployment configurations...")
     create_deployment_config(clients['codedeploy'], 'ResilienceAtlas-SingleInstance', 0)
     
+    # SINGLE-INSTANCE SUPPORT:
+    # Both deployment groups target the same EC2 instance via Project tag.
+    # The instance can run both staging and production simultaneously.
+    # CodeDeploy determines which environment to deploy based on deployment group name.
+    
     # Create staging deployment group
     print("\n📋 Creating staging deployment group...")
     staging_tag_filters = [
-        {
-            'Key': 'Environment',
-            'Value': 'staging',
-            'Type': 'KEY_AND_VALUE'
-        },
         {
             'Key': 'Project',
             'Value': 'ResilienceAtlas',
@@ -235,11 +235,6 @@ def main():
     # Create production deployment group
     print("\n📋 Creating production deployment group...")
     production_tag_filters = [
-        {
-            'Key': 'Environment',
-            'Value': 'production',
-            'Type': 'KEY_AND_VALUE'
-        },
         {
             'Key': 'Project',
             'Value': 'ResilienceAtlas',
@@ -276,7 +271,8 @@ def main():
         },
         'deployment_configs': {
             'single_instance': 'ResilienceAtlas-SingleInstance'
-        }
+        },
+        'single_instance_mode': True
     }
     
     print("\n📋 Saving configuration...")
@@ -292,14 +288,18 @@ def main():
     print("  - resilienceatlas-staging (for staging environment)")
     print("  - resilienceatlas-production (for production environment)")
     
+    print("\n📋 Single-Instance Mode:")
+    print("  Both staging and production can run on the SAME EC2 instance!")
+    print("  - Staging:    ports 3000 (frontend), 3001 (backend), 5432 (db)")
+    print("  - Production: ports 4000 (frontend), 4001 (backend)")
+    print("  - Separate directories: /opt/resilienceatlas-staging, /opt/resilienceatlas-production")
+    
     print("\n📋 Next Steps:")
-    print("1. Tag your EC2 instances with the appropriate tags:")
-    print("   - Staging: Environment=staging, Project=ResilienceAtlas")
-    print("   - Production: Environment=production, Project=ResilienceAtlas")
-    print("2. Install CodeDeploy agent on EC2 instances:")
+    print("1. Tag your EC2 instance with: Project=ResilienceAtlas")
+    print("2. Install CodeDeploy agent on EC2 instance:")
     print("   Run: sudo bash scripts/install-codedeploy-agent.sh")
     print("3. Configure GitHub Actions secrets for CodeDeploy")
-    print("4. Update GitHub workflows to use CodeDeploy")
+    print("4. Push to 'staging' branch for staging, 'master' for production")
 
 
 if __name__ == "__main__":

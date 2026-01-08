@@ -16,8 +16,8 @@
 
 ## Environments
 
-- **Production**: [resilienceatlas.org](https://resilienceatlas.org) (deployed from `main` branch)
-- **Staging**: [staging.resilienceatlas.org](https://staging.resilienceatlas.org) (deployed from `develop` branch)
+- **Production**: [resilienceatlas.org](https://resilienceatlas.org) (deployed from `master` branch)
+- **Staging**: [staging.resilienceatlas.org](https://staging.resilienceatlas.org) (deployed from `staging` branch)
 
 ## Quick Start
 

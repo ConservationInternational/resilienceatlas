@@ -4,11 +4,18 @@
 # ============================================================================
 # This script is executed after files are copied to the deployment location.
 # It sets up the environment, builds Docker images, and configures the database.
+#
+# SINGLE-INSTANCE SUPPORT:
+# The GitHub workflow modifies appspec.yml before creating the deployment package
+# to set environment-specific destinations:
+#   - Staging:    /opt/resilienceatlas-staging
+#   - Production: /opt/resilienceatlas-production
+# This prevents race conditions when both environments deploy simultaneously.
 # ============================================================================
 
 set -e
 
-# Source common functions and configuration
+# Source common functions from our deployment directory
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "${SCRIPT_DIR}/common.sh"
 
@@ -18,11 +25,14 @@ log_info "AfterInstall hook started"
 ENVIRONMENT=$(detect_environment)
 log_info "Detected environment: $ENVIRONMENT"
 
-# Set application directory (CodeDeploy copies files to /opt/resilienceatlas)
+# Set application directory and project name
+# CodeDeploy has already copied files to the environment-specific directory
 APP_DIR=$(get_app_directory "$ENVIRONMENT")
-cd "$APP_DIR"
+PROJECT_NAME=$(get_project_name "$ENVIRONMENT")
 
+cd "$APP_DIR"
 log_info "Working directory: $APP_DIR"
+log_info "Docker project name: $PROJECT_NAME"
 
 # Get the appropriate docker-compose file
 COMPOSE_FILE=$(get_compose_file "$ENVIRONMENT")
@@ -44,12 +54,12 @@ fi
 export RAILS_ENV="$ENVIRONMENT"
 export NODE_ENV="production"
 
-# Build Docker images
+# Build Docker images with environment-specific tags
 log_info "Building Docker images..."
 
 # Build frontend with environment variables
 log_info "Building frontend image..."
-docker build -t "resilienceatlas-frontend:$ENVIRONMENT" \
+docker build -t "${PROJECT_NAME}-frontend:latest" \
     --target production \
     --build-arg NEXT_PUBLIC_API_HOST="${NEXT_PUBLIC_API_HOST:-}" \
     --build-arg NEXT_PUBLIC_GOOGLE_ANALYTICS="${NEXT_PUBLIC_GOOGLE_ANALYTICS:-}" \
@@ -60,7 +70,7 @@ docker build -t "resilienceatlas-frontend:$ENVIRONMENT" \
 
 # Build backend
 log_info "Building backend image..."
-docker build -t "resilienceatlas-backend:$ENVIRONMENT" \
+docker build -t "${PROJECT_NAME}-backend:latest" \
     --target production \
     ./backend
 
@@ -70,13 +80,13 @@ log_success "Docker images built successfully"
 if [ "$ENVIRONMENT" = "staging" ]; then
     log_info "Running staging-specific setup..."
     
-    # Start database container first
+    # Start database container first using project name
     log_info "Starting staging database container..."
-    docker compose -f "$COMPOSE_FILE" up -d database
+    docker compose -p "$PROJECT_NAME" -f "$COMPOSE_FILE" up -d database
     
     # Wait for database to be ready
     log_info "Waiting for database to be ready..."
-    wait_for_database "$COMPOSE_FILE"
+    wait_for_database "$COMPOSE_FILE" "$PROJECT_NAME"
     
     # Sync production database to staging (if configured)
     if [ -n "$PRODUCTION_DATABASE_URL" ] && [ -n "$SYNC_PRODUCTION_DB" ] && [ "$SYNC_PRODUCTION_DB" = "true" ]; then

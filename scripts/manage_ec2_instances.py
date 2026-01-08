@@ -8,7 +8,9 @@ registration/deregistration from target groups, health checks, and maintenance.
 Uses EC2 tags for discovery - no configuration files needed.
 Required tags on EC2 instances:
   - Project: ResilienceAtlas
-  - Environment: staging or production
+
+SINGLE-INSTANCE MODE: Both staging and production can run on the same instance.
+The script discovers the instance by Project tag only.
 """
 
 import boto3
@@ -33,13 +35,12 @@ def create_clients():
         sys.exit(1)
 
 
-def find_instance_by_tags(ec2_client, environment):
-    """Find EC2 instance by Project and Environment tags."""
+def find_instance_by_tags(ec2_client):
+    """Find EC2 instance by Project tag (single-instance mode)."""
     try:
         response = ec2_client.describe_instances(
             Filters=[
                 {'Name': 'tag:Project', 'Values': [PROJECT_TAG]},
-                {'Name': 'tag:Environment', 'Values': [environment]},
                 {'Name': 'instance-state-name', 'Values': ['running', 'stopped', 'pending', 'stopping']}
             ]
         )
@@ -50,7 +51,7 @@ def find_instance_by_tags(ec2_client, environment):
                 instances.append(instance)
         
         if not instances:
-            print(f"❌ No instance found with tags Project={PROJECT_TAG}, Environment={environment}")
+            print(f"❌ No instance found with tag Project={PROJECT_TAG}")
             sys.exit(1)
         
         if len(instances) > 1:
@@ -85,9 +86,14 @@ def find_target_group_by_name(elbv2_client, environment):
 
 def get_instance_and_target_group(clients, environment):
     """Get instance ID and target group ARN for an environment."""
-    instance_id = find_instance_by_tags(clients['ec2'], environment)
+    instance_id = find_instance_by_tags(clients['ec2'])
     target_group_arn = find_target_group_by_name(clients['elbv2'], environment)
     return instance_id, target_group_arn
+
+
+def get_frontend_port(environment):
+    """Get frontend port for environment."""
+    return 4000 if environment == 'production' else 3000
 
 def get_instance_status(ec2_client, instance_id):
     """Get the current status of an EC2 instance."""
@@ -105,12 +111,13 @@ def get_instance_status(ec2_client, instance_id):
         print(f"❌ Error getting instance status: {e}")
         return None
 
-def get_target_health(elbv2_client, target_group_arn, instance_id):
+
+def get_target_health(elbv2_client, target_group_arn, instance_id, port):
     """Get the health status of an instance in a target group."""
     try:
         response = elbv2_client.describe_target_health(
             TargetGroupArn=target_group_arn,
-            Targets=[{'Id': instance_id, 'Port': 3000}]
+            Targets=[{'Id': instance_id, 'Port': port}]
         )
         
         if response['TargetHealthDescriptions']:
@@ -126,39 +133,42 @@ def get_target_health(elbv2_client, target_group_arn, instance_id):
         print(f"❌ Error getting target health: {e}")
         return None
 
-def register_instance(elbv2_client, target_group_arn, instance_id):
+
+def register_instance(elbv2_client, target_group_arn, instance_id, port):
     """Register an instance with a target group."""
     try:
         elbv2_client.register_targets(
             TargetGroupArn=target_group_arn,
-            Targets=[{'Id': instance_id, 'Port': 3000}]
+            Targets=[{'Id': instance_id, 'Port': port}]
         )
-        print(f"✅ Registered instance {instance_id} with target group")
+        print(f"✅ Registered instance {instance_id}:{port} with target group")
         return True
     except ClientError as e:
         print(f"❌ Error registering instance: {e}")
         return False
 
-def deregister_instance(elbv2_client, target_group_arn, instance_id):
+
+def deregister_instance(elbv2_client, target_group_arn, instance_id, port):
     """Deregister an instance from a target group."""
     try:
         elbv2_client.deregister_targets(
             TargetGroupArn=target_group_arn,
-            Targets=[{'Id': instance_id, 'Port': 3000}]
+            Targets=[{'Id': instance_id, 'Port': port}]
         )
-        print(f"✅ Deregistered instance {instance_id} from target group")
+        print(f"✅ Deregistered instance {instance_id}:{port} from target group")
         return True
     except ClientError as e:
         print(f"❌ Error deregistering instance: {e}")
         return False
 
-def wait_for_health_status(elbv2_client, target_group_arn, instance_id, desired_state, timeout=300):
+
+def wait_for_health_status(elbv2_client, target_group_arn, instance_id, port, desired_state, timeout=300):
     """Wait for an instance to reach a desired health state."""
     print(f"⏳ Waiting for instance to reach '{desired_state}' state...")
     
     start_time = time.time()
     while time.time() - start_time < timeout:
-        health = get_target_health(elbv2_client, target_group_arn, instance_id)
+        health = get_target_health(elbv2_client, target_group_arn, instance_id, port)
         
         if health and health['state'] == desired_state:
             print(f"✅ Instance reached '{desired_state}' state")
@@ -169,6 +179,7 @@ def wait_for_health_status(elbv2_client, target_group_arn, instance_id, desired_
     
     print(f"❌ Timeout waiting for '{desired_state}' state")
     return False
+
 
 def start_instance(ec2_client, instance_id):
     """Start an EC2 instance."""
@@ -206,8 +217,10 @@ def status_command(environment):
     
     clients = create_clients()
     instance_id, target_group_arn = get_instance_and_target_group(clients, environment)
+    port = get_frontend_port(environment)
     
     print(f"   Instance ID: {instance_id}")
+    print(f"   Environment Port: {port}")
     
     # Get instance status
     instance_status = get_instance_status(clients['ec2'], instance_id)
@@ -217,11 +230,12 @@ def status_command(environment):
         print(f"   Private IP: {instance_status['private_ip']}")
     
     # Get target health
-    target_health = get_target_health(clients['elbv2'], target_group_arn, instance_id)
+    target_health = get_target_health(clients['elbv2'], target_group_arn, instance_id, port)
     if target_health:
         print(f"   Target Health: {target_health['state']}")
         if target_health['reason']:
             print(f"   Health Reason: {target_health['reason']}")
+
 
 def register_command(environment):
     """Register instance with target group."""
@@ -229,9 +243,10 @@ def register_command(environment):
     
     clients = create_clients()
     instance_id, target_group_arn = get_instance_and_target_group(clients, environment)
+    port = get_frontend_port(environment)
     
-    if register_instance(clients['elbv2'], target_group_arn, instance_id):
-        wait_for_health_status(clients['elbv2'], target_group_arn, instance_id, 'healthy')
+    if register_instance(clients['elbv2'], target_group_arn, instance_id, port):
+        wait_for_health_status(clients['elbv2'], target_group_arn, instance_id, port, 'healthy')
 
 
 def deregister_command(environment):
@@ -240,46 +255,50 @@ def deregister_command(environment):
     
     clients = create_clients()
     instance_id, target_group_arn = get_instance_and_target_group(clients, environment)
+    port = get_frontend_port(environment)
     
-    if deregister_instance(clients['elbv2'], target_group_arn, instance_id):
-        wait_for_health_status(clients['elbv2'], target_group_arn, instance_id, 'unused')
+    if deregister_instance(clients['elbv2'], target_group_arn, instance_id, port):
+        wait_for_health_status(clients['elbv2'], target_group_arn, instance_id, port, 'unused')
 
 
 def start_command(environment):
-    """Start an instance."""
-    print(f"🚀 Starting {environment} instance...")
+    """Start the instance (affects both environments in single-instance mode)."""
+    print(f"🚀 Starting instance (single-instance mode - affects both environments)...")
     
     clients = create_clients()
-    instance_id = find_instance_by_tags(clients['ec2'], environment)
+    instance_id = find_instance_by_tags(clients['ec2'])
     start_instance(clients['ec2'], instance_id)
 
 
 def stop_command(environment):
-    """Stop an instance."""
-    print(f"🛑 Stopping {environment} instance...")
+    """Stop the instance (affects both environments in single-instance mode)."""
+    print(f"🛑 Stopping instance (single-instance mode - affects both environments)...")
+    print(f"⚠️  WARNING: This will stop BOTH staging and production!")
     
     clients = create_clients()
-    instance_id = find_instance_by_tags(clients['ec2'], environment)
+    instance_id = find_instance_by_tags(clients['ec2'])
     stop_instance(clients['ec2'], instance_id)
 
 def maintenance_mode(environment, enable=True):
-    """Enable or disable maintenance mode."""
+    """Enable or disable maintenance mode for a specific environment."""
     action = "Enabling" if enable else "Disabling"
     print(f"🔧 {action} maintenance mode for {environment}...")
     
     clients = create_clients()
     instance_id, target_group_arn = get_instance_and_target_group(clients, environment)
+    port = get_frontend_port(environment)
     
     if enable:
         # Deregister from target group
-        deregister_instance(clients['elbv2'], target_group_arn, instance_id)
-        wait_for_health_status(clients['elbv2'], target_group_arn, instance_id, 'unused')
-        print("✅ Maintenance mode enabled - instance removed from load balancer")
+        deregister_instance(clients['elbv2'], target_group_arn, instance_id, port)
+        wait_for_health_status(clients['elbv2'], target_group_arn, instance_id, port, 'unused')
+        print(f"✅ Maintenance mode enabled for {environment} - removed from load balancer")
     else:
         # Register with target group
-        register_instance(clients['elbv2'], target_group_arn, instance_id)
-        wait_for_health_status(clients['elbv2'], target_group_arn, instance_id, 'healthy')
-        print("✅ Maintenance mode disabled - instance added to load balancer")
+        register_instance(clients['elbv2'], target_group_arn, instance_id, port)
+        wait_for_health_status(clients['elbv2'], target_group_arn, instance_id, port, 'healthy')
+        print(f"✅ Maintenance mode disabled for {environment} - added to load balancer")
+
 
 def main():
     """Main function."""
@@ -292,14 +311,15 @@ def main():
         print("  status          - Show instance and target group status")
         print("  register        - Register instance with target group")
         print("  deregister      - Remove instance from target group")
-        print("  start           - Start the EC2 instance")
-        print("  stop            - Stop the EC2 instance")
+        print("  start           - Start the EC2 instance (affects both envs)")
+        print("  stop            - Stop the EC2 instance (affects both envs)")
         print("  maintenance-on  - Enable maintenance mode (remove from ALB)")
         print("  maintenance-off - Disable maintenance mode (add to ALB)")
         print()
-        print("Note: Instances are discovered by EC2 tags:")
-        print("  - Project: ResilienceAtlas")
-        print("  - Environment: staging or production")
+        print("SINGLE-INSTANCE MODE: Both staging and production run on same instance.")
+        print("  - Instance is discovered by tag: Project=ResilienceAtlas")
+        print("  - Staging uses ports 3000/3001, Production uses ports 4000/4001")
+        print("  - start/stop commands affect BOTH environments")
         print()
         print("Target groups are discovered by name: resilienceatlas-<environment>")
         sys.exit(1)
@@ -328,6 +348,7 @@ def main():
     else:
         print(f"❌ Unknown command: {command}")
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

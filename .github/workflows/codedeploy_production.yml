@@ -78,6 +78,15 @@ jobs:
         GIT_REVISION=${{ github.sha }}
         EOF
 
+    - name: Update appspec.yml for production
+      run: |
+        # Modify appspec.yml to use production-specific destination
+        # This prevents race conditions when staging and production deploy simultaneously
+        sed -i 's|destination: /opt/resilienceatlas|destination: /opt/resilienceatlas-production|g' appspec.yml
+        sed -i 's|object: /opt/resilienceatlas|object: /opt/resilienceatlas-production|g' appspec.yml
+        echo "Updated appspec.yml destination to /opt/resilienceatlas-production"
+        cat appspec.yml
+
     - name: Create deployment package
       run: |
         # Create a deployment archive

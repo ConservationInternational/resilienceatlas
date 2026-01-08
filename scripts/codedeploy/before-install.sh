@@ -4,6 +4,12 @@
 # ============================================================================
 # This script is executed after ApplicationStop and before files are copied.
 # It prepares the environment, installs dependencies, and cleans up old files.
+#
+# SINGLE-INSTANCE SUPPORT:
+# The GitHub workflow modifies appspec.yml to deploy directly to:
+#   - /opt/resilienceatlas-staging (for staging)
+#   - /opt/resilienceatlas-production (for production)
+# This prevents race conditions between simultaneous deployments.
 # ============================================================================
 
 set -e
@@ -18,8 +24,9 @@ log_info "BeforeInstall hook started"
 ENVIRONMENT=$(detect_environment)
 log_info "Detected environment: $ENVIRONMENT"
 
-# Set application directory
+# Environment-specific application directory
 APP_DIR=$(get_app_directory "$ENVIRONMENT")
+log_info "Application directory: $APP_DIR"
 
 # Create application directory if it doesn't exist
 if [ ! -d "$APP_DIR" ]; then
@@ -69,11 +76,11 @@ log_info "Cleaning up old Docker images..."
 docker image prune -a --filter "until=168h" -f 2>/dev/null || true
 
 # Backup current deployment (for rollback purposes)
-if [ -d "$APP_DIR" ] && [ -f "$APP_DIR/docker-compose.yml" ]; then
-    BACKUP_DIR="/opt/resilienceatlas-backups"
+if [ -d "$APP_DIR" ] && [ -f "$APP_DIR/docker-compose.yml" -o -f "$APP_DIR/docker-compose.staging.yml" ]; then
+    BACKUP_DIR="/opt/resilienceatlas-backups/${ENVIRONMENT}"
     BACKUP_NAME="backup-$(date +%Y%m%d-%H%M%S)"
     
-    log_info "Creating deployment backup: $BACKUP_NAME"
+    log_info "Creating deployment backup for $ENVIRONMENT: $BACKUP_NAME"
     mkdir -p "$BACKUP_DIR"
     
     # Save current commit SHA for rollback reference
@@ -82,7 +89,7 @@ if [ -d "$APP_DIR" ] && [ -f "$APP_DIR/docker-compose.yml" ]; then
         git rev-parse HEAD > "$BACKUP_DIR/$BACKUP_NAME.sha" 2>/dev/null || true
     fi
     
-    # Keep only last 5 backups
+    # Keep only last 5 backups per environment
     cd "$BACKUP_DIR"
     ls -t *.sha 2>/dev/null | tail -n +6 | xargs -r rm -f
 fi
@@ -91,7 +98,7 @@ fi
 log_info "Creating required directories..."
 mkdir -p "$APP_DIR/logs"
 mkdir -p "$APP_DIR/tmp"
-mkdir -p /var/log/resilienceatlas
+mkdir -p "/var/log/resilienceatlas-${ENVIRONMENT}"
 
 # Set permissions
 chown -R ubuntu:ubuntu "$APP_DIR"
