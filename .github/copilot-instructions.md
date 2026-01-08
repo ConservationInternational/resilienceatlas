@@ -332,3 +332,40 @@ npx cypress run --config baseUrl=http://localhost:3000
 - Production: Deployed to resilienceatlas.org from main branch
 - AWS EC2 deployment with Docker Compose and containerized PostgreSQL for staging
 - Automatic database refresh from production to staging on deploy
+- **Rollbar deployment tracking**: Automatically notifies Rollbar of deployments when `ROLLBAR_ACCESS_TOKEN` is configured
+
+## Error Tracking (Rollbar)
+
+### Overview
+Rollbar is integrated for error tracking and monitoring across both frontend and backend:
+- **Frontend**: React Error Boundary with `RollbarProvider` in `_app.tsx`
+- **Backend**: Rails exception handling via `rollbar` gem in `config/initializers/rollbar.rb`
+- **Deployments**: Automatic deployment tracking in GitHub Actions workflows
+
+### Configuration
+Required GitHub Secrets for production/staging:
+- `ROLLBAR_ACCESS_TOKEN` - Server-side access token (post_server_item)
+- `NEXT_PUBLIC_ROLLBAR_CLIENT_TOKEN` - Client-side access token (post_client_item)
+
+### Usage in Frontend
+```tsx
+import { useRollbar, reportError, reportCritical } from 'utilities/rollbar';
+
+// In React components
+const { logError, logWarning, logInfo, logCritical } = useRollbar();
+logError(new Error('Something went wrong'), { extra: 'context' });
+
+// Outside React components
+reportError('API call failed', { endpoint: '/api/data' });
+reportCritical(new Error('Critical failure'), { severity: 'high' });
+```
+
+### Usage in Backend
+```ruby
+# Automatic exception capture is enabled
+# Manual logging:
+Rollbar.error(exception, custom_data: 'value')
+Rollbar.warning('Warning message')
+Rollbar.info('Informational message')
+Rollbar.critical('Critical issue', { context: 'data' })
+```

@@ -15,6 +15,7 @@ import TOUR_STEPS from 'constants/tour-steps';
 
 import { Badge, Navigation } from 'views/components/MapTour';
 import SiteScopeAuthModal from 'views/components/SiteScopeAuthModal';
+import { RollbarProvider } from 'utilities/rollbar';
 
 import type { Translations } from 'types/transifex';
 import type { ReactElement, ReactNode } from 'react';
@@ -274,18 +275,20 @@ const ResilienceApp = ({ Component, ...rest }: AppPropsWithLayout) => {
           href={`${process.env.NEXT_PUBLIC_FRONTEND_URL}${asPath}`}
         />
       </Head>
-      <ReduxProvider store={appStore} key="redux-provider">
-        <QueryClientProvider client={queryClient}>
-          <CookiesProvider>
-            <TourProvider {...REACT_TOUR_OPTIONS}>
-              <HydrationBoundary state={rest.pageProps.dehydratedState}>
-                {getLayout(<Component {...rest.pageProps} />, rest.pageProps?.translations)}
-                <SiteScopeAuthModal />
-              </HydrationBoundary>
-            </TourProvider>
-          </CookiesProvider>
-        </QueryClientProvider>
-      </ReduxProvider>
+      <RollbarProvider>
+        <ReduxProvider store={appStore} key="redux-provider">
+          <QueryClientProvider client={queryClient}>
+            <CookiesProvider>
+              <TourProvider {...REACT_TOUR_OPTIONS}>
+                <HydrationBoundary state={rest.pageProps.dehydratedState}>
+                  {getLayout(<Component {...rest.pageProps} />, rest.pageProps?.translations)}
+                  <SiteScopeAuthModal />
+                </HydrationBoundary>
+              </TourProvider>
+            </CookiesProvider>
+          </QueryClientProvider>
+        </ReduxProvider>
+      </RollbarProvider>
     </>
   );
 };

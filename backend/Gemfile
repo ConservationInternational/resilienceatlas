@@ -39,6 +39,9 @@ gem "addressable", "~> 2.8"
 
 gem "rack-cors", "~> 2.0"
 
+# Error tracking and monitoring
+gem "rollbar", "~> 3.6"
+
 # Utilities
 gem "seed_dump", "~> 3.3"
 gem "active_admin_theme", "~> 1.1"
