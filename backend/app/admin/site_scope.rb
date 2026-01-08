@@ -60,7 +60,7 @@ ActiveAdmin.register SiteScope do
     end
 
     f.inputs "Password Protection" do
-      f.input :password_protected, label: "Enable password protection"
+      f.input :password_protected, as: :boolean, label: "Enable password protection"
       f.input :username, label: "Username (required if password protected)",
         hint: "Username for accessing this site scope"
 
