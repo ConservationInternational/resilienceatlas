@@ -15,12 +15,13 @@ source "${SCRIPT_DIR}/common.sh"
 
 log_info "Starting production database sync to staging..."
 
-# Set application directory
-APP_DIR="/opt/resilienceatlas"
+# Set application directory - use staging-specific path
+APP_DIR="/opt/resilienceatlas-staging"
 cd "$APP_DIR"
 
 # Compose file for staging
 COMPOSE_FILE="docker-compose.staging.yml"
+PROJECT_NAME="resilienceatlas-staging"
 
 # Load environment variables
 if [ -f "$APP_DIR/.env.staging" ]; then
@@ -110,10 +111,10 @@ fi
 
 # Ensure staging database container is running
 log_info "Ensuring staging database container is running..."
-docker compose -f "$COMPOSE_FILE" up -d database
+docker compose -p "$PROJECT_NAME" -f "$COMPOSE_FILE" up -d database
 
 # Wait for database to be ready
-wait_for_database "$COMPOSE_FILE"
+wait_for_database "$COMPOSE_FILE" "$PROJECT_NAME"
 
 # Get staging database credentials
 STAGING_DB_NAME="resilienceatlas_staging"
@@ -121,22 +122,22 @@ STAGING_DB_USER="postgres"
 
 # Drop and recreate staging database
 log_info "Recreating staging database..."
-docker compose -f "$COMPOSE_FILE" exec -T database psql -U "$STAGING_DB_USER" -c "
+docker compose -p "$PROJECT_NAME" -f "$COMPOSE_FILE" exec -T database psql -U "$STAGING_DB_USER" -c "
     SELECT pg_terminate_backend(pid) FROM pg_stat_activity 
     WHERE datname = '$STAGING_DB_NAME' AND pid <> pg_backend_pid();
 " 2>/dev/null || true
 
-docker compose -f "$COMPOSE_FILE" exec -T database psql -U "$STAGING_DB_USER" -c "
+docker compose -p "$PROJECT_NAME" -f "$COMPOSE_FILE" exec -T database psql -U "$STAGING_DB_USER" -c "
     DROP DATABASE IF EXISTS $STAGING_DB_NAME;
 " 2>/dev/null || true
 
-docker compose -f "$COMPOSE_FILE" exec -T database psql -U "$STAGING_DB_USER" -c "
+docker compose -p "$PROJECT_NAME" -f "$COMPOSE_FILE" exec -T database psql -U "$STAGING_DB_USER" -c "
     CREATE DATABASE $STAGING_DB_NAME;
 " 2>/dev/null
 
 # Enable PostGIS extensions
 log_info "Enabling PostGIS extensions..."
-docker compose -f "$COMPOSE_FILE" exec -T database psql -U "$STAGING_DB_USER" -d "$STAGING_DB_NAME" -c "
+docker compose -p "$PROJECT_NAME" -f "$COMPOSE_FILE" exec -T database psql -U "$STAGING_DB_USER" -d "$STAGING_DB_NAME" -c "
     CREATE EXTENSION IF NOT EXISTS postgis;
     CREATE EXTENSION IF NOT EXISTS postgis_topology;
     CREATE EXTENSION IF NOT EXISTS fuzzystrmatch;
@@ -145,7 +146,7 @@ docker compose -f "$COMPOSE_FILE" exec -T database psql -U "$STAGING_DB_USER" -d
 
 # Restore production data to staging database
 log_info "Restoring production data to staging database..."
-cat "$DUMP_FILE" | docker compose -f "$COMPOSE_FILE" exec -T database psql -U "$STAGING_DB_USER" -d "$STAGING_DB_NAME" 2>"$DUMP_DIR/restore.log" || {
+cat "$DUMP_FILE" | docker compose -p "$PROJECT_NAME" -f "$COMPOSE_FILE" exec -T database psql -U "$STAGING_DB_USER" -d "$STAGING_DB_NAME" 2>"$DUMP_DIR/restore.log" || {
     log_warning "Some errors occurred during restore (this may be normal for extension-related errors)"
     # Show only critical errors, not extension-related warnings
     grep -i "error" "$DUMP_DIR/restore.log" | grep -v "already exists" | grep -v "extension" | head -20 || true
@@ -153,7 +154,7 @@ cat "$DUMP_FILE" | docker compose -f "$COMPOSE_FILE" exec -T database psql -U "$
 
 # Verify the restore
 log_info "Verifying staging database..."
-TABLE_COUNT=$(docker compose -f "$COMPOSE_FILE" exec -T database psql -U "$STAGING_DB_USER" -d "$STAGING_DB_NAME" -t -c "
+TABLE_COUNT=$(docker compose -p "$PROJECT_NAME" -f "$COMPOSE_FILE" exec -T database psql -U "$STAGING_DB_USER" -d "$STAGING_DB_NAME" -t -c "
     SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = 'public';
 ")
 
@@ -162,7 +163,7 @@ log_success "Staging database now contains approximately $TABLE_COUNT tables"
 # Anonymize sensitive data (optional - only if ANONYMIZE_STAGING_DATA is set)
 if [ "$ANONYMIZE_STAGING_DATA" = "true" ]; then
     log_info "Anonymizing sensitive data in staging database..."
-    docker compose -f "$COMPOSE_FILE" exec -T database psql -U "$STAGING_DB_USER" -d "$STAGING_DB_NAME" -c "
+    docker compose -p "$PROJECT_NAME" -f "$COMPOSE_FILE" exec -T database psql -U "$STAGING_DB_USER" -d "$STAGING_DB_NAME" -c "
         -- Anonymize user emails
         UPDATE users SET email = 'user' || id || '@staging.resilienceatlas.org'
         WHERE email NOT LIKE '%@staging.resilienceatlas.org';
