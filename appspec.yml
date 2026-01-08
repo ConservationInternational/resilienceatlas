@@ -1,3 +1,16 @@
+# ============================================================================
+# AWS CodeDeploy AppSpec - Docker Swarm Mode (Zero-Downtime Deployments)
+# ============================================================================
+# This appspec uses Docker Swarm for deployments with:
+#   - Rolling updates (new containers start before old ones stop)
+#   - Health-check aware deployments
+#   - Automatic rollback on failure
+#   - Zero downtime during updates
+#
+# The destination is modified by GitHub Actions workflow based on environment:
+#   - Staging:    /opt/resilienceatlas-staging
+#   - Production: /opt/resilienceatlas-production
+# ============================================================================
 version: 0.0
 os: linux
 
@@ -19,11 +32,6 @@ permissions:
       - directory
 
 hooks:
-  ApplicationStop:
-    - location: scripts/codedeploy/application-stop.sh
-      timeout: 300
-      runas: root
-
   BeforeInstall:
     - location: scripts/codedeploy/before-install.sh
       timeout: 600
@@ -31,15 +39,15 @@ hooks:
 
   AfterInstall:
     - location: scripts/codedeploy/after-install.sh
-      timeout: 1200
+      timeout: 1800
       runas: root
 
   ApplicationStart:
     - location: scripts/codedeploy/application-start.sh
-      timeout: 900
+      timeout: 600
       runas: root
 
   ValidateService:
     - location: scripts/codedeploy/validate-service.sh
       timeout: 300
-      runas: ubuntu
+      runas: root

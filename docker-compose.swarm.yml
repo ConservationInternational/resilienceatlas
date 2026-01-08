@@ -1,0 +1,120 @@
+# ============================================================================
+# Docker Swarm Production Stack
+# ============================================================================
+# This file is designed for Docker Swarm mode deployment with:
+#   - Rolling updates with zero downtime
+#   - Health-check aware deployments
+#   - Automatic rollback on failure
+#   - Resource limits and reservations
+#
+# Usage:
+#   docker swarm init  # (once, on first deployment)
+#   docker stack deploy -c docker-compose.swarm.yml resilienceatlas-production
+#
+# For staging, use docker-compose.swarm.staging.yml instead.
+# ============================================================================
+
+version: '3.8'
+
+services:
+  backend:
+    image: resilienceatlas-production-backend:${TAG:-latest}
+    ports:
+      - target: 3001
+        published: 3001
+        protocol: tcp
+        mode: ingress
+    environment:
+      - RAILS_ENV=production
+      - DATABASE_URL=${PRODUCTION_DATABASE_URL}
+      - SECRET_KEY_BASE=${PRODUCTION_SECRET_KEY_BASE}
+      - DEVISE_KEY=${PRODUCTION_DEVISE_KEY}
+      - RESILIENCE_API_KEY=${RESILIENCE_API_KEY}
+      - BACKEND_URL=${PRODUCTION_BACKEND_URL}
+      - FRONTEND_URL=${PRODUCTION_FRONTEND_URL}
+      - SPARKPOST_API_KEY=${SPARKPOST_API_KEY}
+      - ROLLBAR_ACCESS_TOKEN=${ROLLBAR_ACCESS_TOKEN}
+      - ROLLBAR_ENV=production
+    networks:
+      - prod-network
+    deploy:
+      mode: replicated
+      replicas: 2
+      update_config:
+        parallelism: 1
+        delay: 30s
+        failure_action: rollback
+        monitor: 60s
+        order: start-first
+      rollback_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+      resources:
+        limits:
+          memory: 1024M
+        reservations:
+          memory: 512M
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
+      interval: 15s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  frontend:
+    image: resilienceatlas-production-frontend:${TAG:-latest}
+    ports:
+      - target: 3000
+        published: 3000
+        protocol: tcp
+        mode: ingress
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_API_HOST=${PRODUCTION_NEXT_PUBLIC_API_HOST}
+      - INTERNAL_API_HOST=http://backend:3001
+      - NEXT_PUBLIC_GOOGLE_ANALYTICS=${NEXT_PUBLIC_GOOGLE_ANALYTICS}
+      - NEXT_PUBLIC_TRANSIFEX_TOKEN=${NEXT_PUBLIC_TRANSIFEX_TOKEN}
+      - NEXT_PUBLIC_TRANSIFEX_SECRET=${NEXT_PUBLIC_TRANSIFEX_SECRET}
+      - NEXT_PUBLIC_GOOGLE_API_KEY=${NEXT_PUBLIC_GOOGLE_API_KEY}
+      - NEXT_PUBLIC_ROLLBAR_CLIENT_TOKEN=${NEXT_PUBLIC_ROLLBAR_CLIENT_TOKEN}
+      - ROLLBAR_ENV=production
+    networks:
+      - prod-network
+    deploy:
+      mode: replicated
+      replicas: 2
+      update_config:
+        parallelism: 1
+        delay: 30s
+        failure_action: rollback
+        monitor: 60s
+        order: start-first
+      rollback_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 256M
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 15s
+      timeout: 10s
+      retries: 3
+      start_period: 45s
+
+networks:
+  prod-network:
+    driver: overlay
+    attachable: true
