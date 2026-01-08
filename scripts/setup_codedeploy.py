@@ -309,7 +309,7 @@ def main(profile=None):
     
     print("\n📋 Single-Instance Mode:")
     print("  Both staging and production can run on the SAME EC2 instance!")
-    print("  - Staging:    ports 3000 (frontend), 3001 (backend), 5432 (db)")
+    print("  - Staging:    ports 3000 (frontend), 3001 (backend), 5433 (db)")
     print("  - Production: ports 4000 (frontend), 4001 (backend)")
     print("  - Separate directories: /opt/resilienceatlas-staging, /opt/resilienceatlas-production")
     

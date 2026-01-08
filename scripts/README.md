@@ -17,7 +17,7 @@ The deployment architecture uses:
 
 Both staging and production run on the **same EC2 instance** with isolated:
 - **Directories**: `/opt/resilienceatlas-staging`, `/opt/resilienceatlas-production`
-- **Ports**: Staging (3000/3001/5432), Production (4000/4001)
+- **Ports**: Staging (3000/3001/5433), Production (4000/4001)
 - **Docker Networks**: Separate networks per environment
 - **Container Names**: Prefixed with environment name
 

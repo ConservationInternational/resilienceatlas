@@ -7,7 +7,7 @@
 #
 # SINGLE-INSTANCE SUPPORT:
 # Both staging and production can run on the same EC2 instance:
-#   - Staging:    /opt/resilienceatlas-staging    (ports 3000, 3001, 5432)
+#   - Staging:    /opt/resilienceatlas-staging    (ports 3000, 3001, 5433)
 #   - Production: /opt/resilienceatlas-production (ports 4000, 4001)
 # ============================================================================
 

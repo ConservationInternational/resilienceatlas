@@ -1,6 +1,7 @@
 services:
   database:
     image: postgis/postgis:15-3.3
+    platform: linux/amd64  # PostGIS image may not have ARM build, emulate on Graviton
     container_name: resilienceatlas-staging-db
     environment:
       - POSTGRES_DB=resilienceatlas_staging
@@ -9,7 +10,7 @@ services:
     volumes:
       - staging_postgres_data:/var/lib/postgresql/data
     ports:
-      - "5432:5432"
+      - "5433:5432"  # External port 5433 to avoid conflict with production
     networks:
       - staging-network
     restart: unless-stopped
