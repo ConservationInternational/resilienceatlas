@@ -111,10 +111,7 @@ RSpec.describe SiteScope, type: :model do
 
     describe "#authenticate_with_password" do
       let(:protected_site) do
-        site = create(:site_scope, password_protected: true, username: "testuser")
-        site.password = "password123"
-        site.save!
-        site
+        create(:site_scope, password_protected: true, username: "testuser", password: "password123")
       end
 
       it "returns true for valid credentials" do
@@ -138,9 +135,7 @@ RSpec.describe SiteScope, type: :model do
       let(:cloneable_site_scope) { create(:site_scope) }
 
       it "resets password protection for cloned site" do
-        cloneable_site_scope.update!(password_protected: true, username: "testuser")
-        cloneable_site_scope.password = "password123"
-        cloneable_site_scope.save!
+        cloneable_site_scope.update!(password_protected: true, username: "testuser", password: "password123")
 
         cloned = cloneable_site_scope.clone!
 

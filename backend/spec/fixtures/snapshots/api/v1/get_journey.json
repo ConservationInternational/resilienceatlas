@@ -64,15 +64,7 @@
         "position": 2,
         "title": "Iste vel et eos.",
         "subtitle": "Iste vel et eos.",
-        "content": {
-          "id": 70,
-          "name": "content",
-          "body": "Iste vel et. At molestiae dignissimos. Voluptatem et voluptas.",
-          "record_type": "JourneyStep",
-          "record_id": 64,
-          "created_at": "2025-09-06T13:17:33.898+02:00",
-          "updated_at": "2025-09-06T13:17:33.898+02:00"
-        },
+        "content": "<div class=\"trix-content\">\n  Iste vel et. At molestiae dignissimos. Voluptatem et voluptas.\n</div>\n",
         "credits": "Iste vel et eos.",
         "credits_url": "http://keebler.example/daine",
         "background_color": "#c2e0e0",
@@ -110,15 +102,7 @@
         "position": 4,
         "title": "Corporis et perspiciatis voluptatibus.",
         "subtitle": "Corporis et perspiciatis voluptatibus.",
-        "content": {
-          "id": 76,
-          "name": "content",
-          "body": "Corporis et perspiciatis. Ut cupiditate perferendis. Repellendus nemo quo.",
-          "record_type": "JourneyStep",
-          "record_id": 70,
-          "created_at": "2025-09-06T13:17:33.985+02:00",
-          "updated_at": "2025-09-06T13:17:33.985+02:00"
-        },
+        "content": "<div class=\"trix-content\">\n  Corporis et perspiciatis. Ut cupiditate perferendis. Repellendus nemo quo.\n</div>\n",
         "source": "Corporis et perspiciatis voluptatibus.",
         "mask_sql": "Corporis et perspiciatis voluptatibus.",
         "map_url": "http://lind.test/alana",

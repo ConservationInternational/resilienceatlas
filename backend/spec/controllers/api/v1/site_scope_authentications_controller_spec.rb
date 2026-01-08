@@ -3,10 +3,7 @@ require "rails_helper"
 RSpec.describe Api::V1::SiteScopeAuthenticationsController, type: :controller do
   let(:site_scope) { create(:site_scope, subdomain: "test-site") }
   let(:protected_site) do
-    site = create(:site_scope, subdomain: "protected-site", password_protected: true, username: "testuser")
-    site.password = "password123"
-    site.save!
-    site
+    create(:site_scope, subdomain: "protected-site", password_protected: true, username: "testuser", password: "password123")
   end
 
   describe "POST #authenticate" do
