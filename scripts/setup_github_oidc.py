@@ -292,11 +292,6 @@ def main(profile=None):
     print("  - Can't be leaked since they're never stored")
     print("  - Audit trail in CloudTrail tied to GitHub workflow runs")
 
-    print("\n⚠️ Important: Remove old secrets after verifying OIDC works:")
-    print("  - AWS_ACCESS_KEY_ID (can be deleted)")
-    print("  - AWS_SECRET_ACCESS_KEY (can be deleted)")
-    print("  - AWS_ACCOUNT_ID (can be deleted if only used for S3 bucket name)")
-
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Set up GitHub OIDC provider for AWS')

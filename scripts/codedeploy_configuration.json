@@ -1,0 +1,34 @@
+{
+  "application": {
+    "name": "resilienceatlas"
+  },
+  "service_role": {
+    "arn": "arn:aws:iam::211441814460:role/CodeDeployServiceRole"
+  },
+  "deployment_groups": {
+    "staging": {
+      "name": "resilienceatlas-staging",
+      "tag_filters": [
+        {
+          "Key": "Project",
+          "Value": "ResilienceAtlas",
+          "Type": "KEY_AND_VALUE"
+        }
+      ]
+    },
+    "production": {
+      "name": "resilienceatlas-production",
+      "tag_filters": [
+        {
+          "Key": "Project",
+          "Value": "ResilienceAtlas",
+          "Type": "KEY_AND_VALUE"
+        }
+      ]
+    }
+  },
+  "deployment_configs": {
+    "single_instance": "ResilienceAtlas-SingleInstance"
+  },
+  "single_instance_mode": true
+}

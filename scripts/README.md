@@ -124,8 +124,7 @@ If no profile is specified, the default credentials are used.
 
 | Script | Description |
 |--------|-------------|
-| `setup_github_oidc.py` | **RECOMMENDED** Creates GitHub OIDC provider and IAM role for secure authentication |
-| `setup_iam_deployment.py` | Creates IAM users, groups, and policies for deployment |
+| `setup_github_oidc.py` | Creates GitHub OIDC provider and IAM role for secure authentication |
 | `setup_ec2_instance_role.py` | Creates IAM role for EC2 instances with CodeDeploy access |
 | `setup_s3_bucket.py` | Creates S3 bucket for deployment packages |
 | `setup_codedeploy.py` | Creates CodeDeploy application and deployment groups |
@@ -192,17 +191,6 @@ NEXT_PUBLIC_TRANSIFEX_SECRET  # Transifex secret
 NEXT_PUBLIC_GOOGLE_API_KEY    # Google Maps API key
 RESILIENCE_API_KEY            # Resilience API key
 SPARKPOST_API_KEY             # SparkPost email service key
-```
-
-### Legacy Secrets (Using Access Keys - Deprecated)
-
-If not using OIDC, these are still supported but not recommended:
-
-```bash
-# AWS Configuration (DEPRECATED - use OIDC instead)
-AWS_ACCESS_KEY_ID          # CI user access key
-AWS_SECRET_ACCESS_KEY      # CI user secret key
-AWS_ACCOUNT_ID             # Your AWS account ID
 ```
 
 ## Deployment Flow
