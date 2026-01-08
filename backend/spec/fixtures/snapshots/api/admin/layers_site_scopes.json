@@ -21,7 +21,8 @@
       "has_gef_logo": false,
       "password_protected": false,
       "username": null,
-      "encrypted_password": null
+      "encrypted_password": null,
+      "encrypted_viewable_password": null
     },
     {
       "name": "BBB",
@@ -42,7 +43,8 @@
       "has_gef_logo": false,
       "password_protected": false,
       "username": null,
-      "encrypted_password": null
+      "encrypted_password": null,
+      "encrypted_viewable_password": null
     }
   ]
 }

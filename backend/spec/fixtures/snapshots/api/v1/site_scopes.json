@@ -18,7 +18,8 @@
         "logo_url": "http://rogahn-deckow.test/miguel",
         "predictive_model": false,
         "analysis_options": false,
-        "has_gef_logo": false
+        "has_gef_logo": false,
+        "password_protected": false
       },
       "relationships": {
         "site_pages": {
@@ -44,7 +45,8 @@
         "logo_url": "http://schoen.test/fredericka",
         "predictive_model": false,
         "analysis_options": false,
-        "has_gef_logo": false
+        "has_gef_logo": false,
+        "password_protected": false
       },
       "relationships": {
         "site_pages": {

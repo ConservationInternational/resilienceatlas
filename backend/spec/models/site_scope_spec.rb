@@ -156,12 +156,12 @@ RSpec.describe SiteScope, type: :model do
       end
 
       it "returns the decrypted password when set" do
-        protected_site_scope.password_protected = true
-        protected_site_scope.username = "testuser"
-        protected_site_scope.password = "password123"
-        protected_site_scope.save!
+        site_scope.password_protected = true
+        site_scope.username = "testuser"
+        site_scope.password = "password123"
+        site_scope.save!
 
-        expect(protected_site_scope.viewable_password).to eq("password123")
+        expect(site_scope.viewable_password).to eq("password123")
       end
 
       it "returns nil for corrupted encrypted data" do
