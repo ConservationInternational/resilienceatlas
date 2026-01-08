@@ -158,7 +158,7 @@ granted to this role, see the `base` Terraform project source code.
 
 As part of this infrastructure, GitHub Actions are used to detect changes to the TiTiler configuration, and
 automatically build and deploy them to AWS, on a per-branch basis. There is also a workflow in place to clean up said
-per-branch deployments once the corresponding branch has been deleted from Github (except for the `master` branch).
+per-branch deployments once the corresponding branch has been deleted from Github (except for the `main` branch).
 
 These Github Actions will rely on several Github secrets and variables set by the Terraform `base` project, which
 include AWS access credentials and other sensitive information.

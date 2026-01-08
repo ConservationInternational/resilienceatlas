@@ -20,7 +20,7 @@ The service is deployed behind API Gateway and provides endpoints for:
 ### TiTiler COGs Deployment (`titiler_cogs_deployment.yaml`)
 
 - **Feature Branch Deployment**: Automatically deploys feature branches to isolated AWS stacks for testing
-- **Production Deployment**: Deploys master branch to production stack
+- **Production Deployment**: Deploys main branch to production stack
 - **Manual Deployment**: Supports workflow dispatch for manual deployments
 - **Triggers**: Runs on pushes to `cloud_functions/titiler_cogs/` directory
 

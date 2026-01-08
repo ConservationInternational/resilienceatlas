@@ -299,7 +299,7 @@ def main():
     print("2. Install CodeDeploy agent on EC2 instance:")
     print("   Run: sudo bash scripts/install-codedeploy-agent.sh")
     print("3. Configure GitHub Actions secrets for CodeDeploy")
-    print("4. Push to 'staging' branch for staging, 'master' for production")
+    print("4. Push to 'staging' branch for staging, 'main' for production")
 
 
 if __name__ == "__main__":

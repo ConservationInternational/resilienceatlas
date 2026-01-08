@@ -319,7 +319,7 @@ npx cypress run --config baseUrl=http://localhost:3000
 - **Backend Tests** (`backend_tests.yml`): RSpec, StandardRB, Brakeman, Bundle Audit - 30 minute timeout
 - **Frontend Tests** (`frontend_tests.yml`): ESLint, TypeScript, Prettier, Build verification - 45 minute timeout  
 - **Integration Tests** (`integration_tests.yml`): Full-stack testing
-- **Deployment**: AWS CodeDeploy for staging (`staging` branch) and production (`master` branch)
+- **Deployment**: AWS CodeDeploy for staging (`staging` branch) and production (`main` branch)
 
 ### Before Committing
 - Always run `cd frontend && ./bin/test all` for frontend changes
@@ -329,7 +329,7 @@ npx cypress run --config baseUrl=http://localhost:3000
 
 ### Deployment Notes
 - Staging: Deployed to staging.resilienceatlas.org from `staging` branch
-- Production: Deployed to resilienceatlas.org from `master` branch
+- Production: Deployed to resilienceatlas.org from `main` branch
 - AWS EC2 deployment via CodeDeploy with Docker Compose
 - Single EC2 instance hosts both environments (different ports and directories)
 - Automatic database refresh from production to staging on deploy (optional)

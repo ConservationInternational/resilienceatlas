@@ -35,7 +35,7 @@ GitHub Repository
     │       ├─ Backend Container (port 3001)
     │       └─ Database Container (port 5432)
     │
-    └─ Push to 'master' branch
+    └─ Push to 'main' branch
             │
             ▼
         GitHub Actions → S3 → CodeDeploy (production group)
@@ -136,7 +136,7 @@ Located in `scripts/codedeploy/`:
 - Accessible at `https://staging.resilienceatlas.org`
 
 ### Production Deployment (`codedeploy_production.yml`)
-- Triggered on pushes to `master` branch
+- Triggered on pushes to `main` branch
 - Deploys via CodeDeploy to production instance
 - Uses external PostgreSQL database
 - Accessible at `https://resilienceatlas.org`
@@ -199,7 +199,7 @@ AWS_ACCOUNT_ID             # Your AWS account ID
 
 ### Production Deployment
 
-1. **Push to `master`** triggers GitHub Actions workflow
+1. **Push to `main`** triggers GitHub Actions workflow
 2. **Create deployment package** (zip archive of repository)
 3. **Upload to S3** in production folder
 4. **Create CodeDeploy deployment**
