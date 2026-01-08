@@ -1,4 +1,7 @@
 Rails.application.routes.draw do
+  # Health check endpoint at root level for ALB
+  get "health", to: "api/health#show"
+
   mount Rswag::Ui::Engine => "/api-docs"
   mount Rswag::Api::Engine => "/api-docs"
 
