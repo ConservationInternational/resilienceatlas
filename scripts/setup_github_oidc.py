@@ -13,6 +13,7 @@ Benefits of OIDC over Access Keys:
 """
 
 import boto3
+import argparse
 import json
 import sys
 from botocore.exceptions import ClientError
@@ -24,12 +25,13 @@ GITHUB_OIDC_URL = "https://token.actions.githubusercontent.com"
 GITHUB_OIDC_THUMBPRINT = "6938fd4d98bab03faadb97b34396831e3780aea1"
 
 
-def create_clients():
+def create_clients(profile=None):
     """Create and return AWS service clients."""
     try:
+        session = boto3.Session(profile_name=profile) if profile else boto3.Session()
         return {
-            'iam': boto3.client('iam'),
-            'sts': boto3.client('sts')
+            'iam': session.client('iam'),
+            'sts': session.client('sts')
         }
     except Exception as e:
         print(f"❌ Error creating AWS clients: {e}")
@@ -223,7 +225,7 @@ def create_iam_role(iam_client, role_name, trust_policy, permissions_policy):
             return None
 
 
-def main():
+def main(profile=None):
     """Main function to set up GitHub OIDC."""
     print("🚀 Setting up GitHub OIDC for ResilienceAtlas...")
     print("=" * 60)
@@ -234,7 +236,7 @@ def main():
     role_name = "GitHubActionsResilienceAtlasRole"
 
     # Create AWS clients
-    clients = create_clients()
+    clients = create_clients(profile)
 
     # Get account ID
     account_id = get_account_id(clients['sts'])
@@ -297,4 +299,7 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(description='Set up GitHub OIDC provider for AWS')
+    parser.add_argument('--profile', '-p', help='AWS profile name from ~/.aws/credentials')
+    args = parser.parse_args()
+    main(profile=args.profile)

@@ -7,17 +7,28 @@ for deploying ResilienceAtlas to EC2 instances.
 """
 
 import boto3
+import argparse
 import json
 import sys
 from botocore.exceptions import ClientError
 
-def create_iam_client():
-    """Create and return an IAM client."""
+
+def create_clients(profile=None):
+    """Create and return AWS clients."""
     try:
-        return boto3.client('iam')
+        session = boto3.Session(profile_name=profile) if profile else boto3.Session()
+        return {
+            'iam': session.client('iam'),
+            'sts': session.client('sts')
+        }
     except Exception as e:
-        print(f"❌ Error creating IAM client: {e}")
+        print(f"❌ Error creating AWS clients: {e}")
         sys.exit(1)
+
+
+def get_account_id(sts_client):
+    """Get the current AWS account ID."""
+    return sts_client.get_caller_identity()['Account']
 
 def create_deployment_policy():
     """Create the deployment policy document."""
@@ -122,7 +133,7 @@ def create_deployment_policy():
         ]
     }
 
-def create_policy(iam_client, policy_name, policy_document):
+def create_policy(iam_client, sts_client, policy_name, policy_document):
     """Create an IAM policy."""
     try:
         response = iam_client.create_policy(
@@ -135,7 +146,7 @@ def create_policy(iam_client, policy_name, policy_document):
     except ClientError as e:
         if e.response['Error']['Code'] == 'EntityAlreadyExists':
             # Policy already exists, get its ARN
-            account_id = boto3.client('sts').get_caller_identity()['Account']
+            account_id = get_account_id(sts_client)
             policy_arn = f"arn:aws:iam::{account_id}:policy/{policy_name}"
             print(f"⚠️ Policy already exists: {policy_name}")
             return policy_arn
@@ -216,11 +227,13 @@ def create_access_key(iam_client, username):
         print(f"❌ Error creating access key: {e}")
         return None
 
-def main():
+def main(profile=None):
     """Main function to set up IAM resources."""
     print("🚀 Setting up IAM resources for ResilienceAtlas EC2 deployment...")
     
-    iam_client = create_iam_client()
+    clients = create_clients(profile)
+    iam_client = clients['iam']
+    sts_client = clients['sts']
     
     # Configuration
     policy_name = "ResilienceAtlasDeploymentPolicy"
@@ -231,7 +244,7 @@ def main():
     # Create policy
     print("\n📋 Creating deployment policy...")
     policy_document = create_deployment_policy()
-    policy_arn = create_policy(iam_client, policy_name, policy_document)
+    policy_arn = create_policy(iam_client, sts_client, policy_name, policy_document)
     
     if not policy_arn:
         print("❌ Failed to create policy. Exiting.")
@@ -299,4 +312,7 @@ def main():
     print("- Monitor CloudTrail logs for API usage")
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(description='Set up IAM deployment resources for ResilienceAtlas')
+    parser.add_argument('--profile', '-p', help='AWS profile name from ~/.aws/credentials')
+    args = parser.parse_args()
+    main(profile=args.profile)

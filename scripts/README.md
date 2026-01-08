@@ -56,6 +56,31 @@ GitHub Repository
 3. **EC2 instance** already running (single instance for both environments)
 4. **External PostgreSQL** for production database
 
+### AWS Profile Support
+
+All scripts support the `--profile` (or `-p`) option to use a named profile from `~/.aws/credentials`:
+
+```bash
+# Use a specific AWS profile
+python3 setup_codedeploy.py --profile resilienceatlas
+
+# Or use the short form
+python3 setup_s3_bucket.py -p resilienceatlas
+```
+
+Example `~/.aws/credentials` file:
+```ini
+[default]
+aws_access_key_id = AKIA...
+aws_secret_access_key = ...
+
+[resilienceatlas]
+aws_access_key_id = AKIA...
+aws_secret_access_key = ...
+```
+
+If no profile is specified, the default credentials are used.
+
 ### Complete Infrastructure Setup
 
 1. **Install dependencies:**

@@ -14,6 +14,7 @@ The script discovers the instance by Project tag only.
 """
 
 import boto3
+import argparse
 import sys
 import time
 from botocore.exceptions import ClientError
@@ -22,13 +23,18 @@ from botocore.exceptions import ClientError
 PROJECT_TAG = 'ResilienceAtlas'
 TARGET_GROUP_NAME_PREFIX = 'resilienceatlas'
 
+# Global session for profile support
+_session = None
 
-def create_clients():
+
+def create_clients(profile=None):
     """Create and return AWS service clients."""
+    global _session
     try:
+        _session = boto3.Session(profile_name=profile) if profile else boto3.Session()
         return {
-            'ec2': boto3.client('ec2'),
-            'elbv2': boto3.client('elbv2')
+            'ec2': _session.client('ec2'),
+            'elbv2': _session.client('elbv2')
         }
     except Exception as e:
         print(f"❌ Error creating AWS clients: {e}")
@@ -215,7 +221,7 @@ def status_command(environment):
     """Show status of environment."""
     print(f"📊 Status for {environment} environment:")
     
-    clients = create_clients()
+    global clients
     instance_id, target_group_arn = get_instance_and_target_group(clients, environment)
     port = get_frontend_port(environment)
     
@@ -241,7 +247,7 @@ def register_command(environment):
     """Register instance with target group."""
     print(f"🎯 Registering {environment} instance with target group...")
     
-    clients = create_clients()
+    global clients
     instance_id, target_group_arn = get_instance_and_target_group(clients, environment)
     port = get_frontend_port(environment)
     
@@ -253,7 +259,7 @@ def deregister_command(environment):
     """Deregister instance from target group."""
     print(f"🎯 Deregistering {environment} instance from target group...")
     
-    clients = create_clients()
+    global clients
     instance_id, target_group_arn = get_instance_and_target_group(clients, environment)
     port = get_frontend_port(environment)
     
@@ -265,7 +271,7 @@ def start_command(environment):
     """Start the instance (affects both environments in single-instance mode)."""
     print(f"🚀 Starting instance (single-instance mode - affects both environments)...")
     
-    clients = create_clients()
+    global clients
     instance_id = find_instance_by_tags(clients['ec2'])
     start_instance(clients['ec2'], instance_id)
 
@@ -275,7 +281,7 @@ def stop_command(environment):
     print(f"🛑 Stopping instance (single-instance mode - affects both environments)...")
     print(f"⚠️  WARNING: This will stop BOTH staging and production!")
     
-    clients = create_clients()
+    global clients
     instance_id = find_instance_by_tags(clients['ec2'])
     stop_instance(clients['ec2'], instance_id)
 
@@ -284,7 +290,7 @@ def maintenance_mode(environment, enable=True):
     action = "Enabling" if enable else "Disabling"
     print(f"🔧 {action} maintenance mode for {environment}...")
     
-    clients = create_clients()
+    global clients
     instance_id, target_group_arn = get_instance_and_target_group(clients, environment)
     port = get_frontend_port(environment)
     
@@ -302,52 +308,53 @@ def maintenance_mode(environment, enable=True):
 
 def main():
     """Main function."""
-    if len(sys.argv) < 3:
-        print("Usage: python3 manage_ec2_instances.py <environment> <command>")
-        print()
-        print("Environments: staging, production")
-        print()
-        print("Commands:")
-        print("  status          - Show instance and target group status")
-        print("  register        - Register instance with target group")
-        print("  deregister      - Remove instance from target group")
-        print("  start           - Start the EC2 instance (affects both envs)")
-        print("  stop            - Stop the EC2 instance (affects both envs)")
-        print("  maintenance-on  - Enable maintenance mode (remove from ALB)")
-        print("  maintenance-off - Disable maintenance mode (add to ALB)")
-        print()
-        print("SINGLE-INSTANCE MODE: Both staging and production run on same instance.")
-        print("  - Instance is discovered by tag: Project=ResilienceAtlas")
-        print("  - Staging uses ports 3000/3001, Production uses ports 4000/4001")
-        print("  - start/stop commands affect BOTH environments")
-        print()
-        print("Target groups are discovered by name: resilienceatlas-<environment>")
-        sys.exit(1)
+    parser = argparse.ArgumentParser(
+        description='Manage EC2 instances for ResilienceAtlas',
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Environments: staging, production
+
+Commands:
+  status          - Show instance and target group status
+  register        - Register instance with target group
+  deregister      - Remove instance from target group
+  start           - Start the EC2 instance (affects both envs)
+  stop            - Stop the EC2 instance (affects both envs)
+  maintenance-on  - Enable maintenance mode (remove from ALB)
+  maintenance-off - Disable maintenance mode (add to ALB)
+
+SINGLE-INSTANCE MODE: Both staging and production run on same instance.
+  - Instance is discovered by tag: Project=ResilienceAtlas
+  - Staging uses ports 3000/3001, Production uses ports 4000/4001
+  - start/stop commands affect BOTH environments
+
+Target groups are discovered by name: resilienceatlas-<environment>
+"""
+    )
+    parser.add_argument('environment', choices=['staging', 'production'], help='Target environment')
+    parser.add_argument('command', choices=['status', 'register', 'deregister', 'start', 'stop', 'maintenance-on', 'maintenance-off'], help='Command to run')
+    parser.add_argument('--profile', '-p', help='AWS profile name from ~/.aws/credentials')
     
-    environment = sys.argv[1]
-    command = sys.argv[2]
+    args = parser.parse_args()
     
-    if environment not in ['staging', 'production']:
-        print("❌ Environment must be 'staging' or 'production'")
-        sys.exit(1)
+    # Initialize clients with profile
+    global clients
+    clients = create_clients(args.profile)
     
-    if command == 'status':
-        status_command(environment)
-    elif command == 'register':
-        register_command(environment)
-    elif command == 'deregister':
-        deregister_command(environment)
-    elif command == 'start':
-        start_command(environment)
-    elif command == 'stop':
-        stop_command(environment)
-    elif command == 'maintenance-on':
-        maintenance_mode(environment, enable=True)
-    elif command == 'maintenance-off':
-        maintenance_mode(environment, enable=False)
-    else:
-        print(f"❌ Unknown command: {command}")
-        sys.exit(1)
+    if args.command == 'status':
+        status_command(args.environment)
+    elif args.command == 'register':
+        register_command(args.environment)
+    elif args.command == 'deregister':
+        deregister_command(args.environment)
+    elif args.command == 'start':
+        start_command(args.environment)
+    elif args.command == 'stop':
+        stop_command(args.environment)
+    elif args.command == 'maintenance-on':
+        maintenance_mode(args.environment, enable=True)
+    elif args.command == 'maintenance-off':
+        maintenance_mode(args.environment, enable=False)
 
 
 if __name__ == "__main__":

@@ -7,16 +7,19 @@ deployment packages for CodeDeploy.
 """
 
 import boto3
+import argparse
 import json
 import sys
 from botocore.exceptions import ClientError
 
-def create_clients():
+
+def create_clients(profile=None):
     """Create and return AWS service clients."""
     try:
+        session = boto3.Session(profile_name=profile) if profile else boto3.Session()
         return {
-            's3': boto3.client('s3'),
-            'sts': boto3.client('sts')
+            's3': session.client('s3'),
+            'sts': session.client('sts')
         }
     except Exception as e:
         print(f"❌ Error creating AWS clients: {e}")
@@ -32,9 +35,9 @@ def get_account_id(sts_client):
         sys.exit(1)
 
 
-def get_region():
+def get_region(profile=None):
     """Get the current AWS region."""
-    session = boto3.session.Session()
+    session = boto3.Session(profile_name=profile) if profile else boto3.Session()
     return session.region_name or 'us-east-1'
 
 
@@ -171,17 +174,17 @@ def add_bucket_tags(s3_client, bucket_name):
         return False
 
 
-def main():
+def main(profile=None):
     """Main function to set up S3 deployment bucket."""
     print("🚀 Setting up S3 Deployment Bucket for ResilienceAtlas...")
     print("=" * 60)
     
     # Create AWS clients
-    clients = create_clients()
+    clients = create_clients(profile)
     
     # Get account ID and region
     account_id = get_account_id(clients['sts'])
-    region = get_region()
+    region = get_region(profile)
     
     print(f"📋 AWS Account ID: {account_id}")
     print(f"📋 AWS Region: {region}")
@@ -226,4 +229,7 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(description='Set up S3 bucket for CodeDeploy packages')
+    parser.add_argument('--profile', '-p', help='AWS profile name from ~/.aws/credentials')
+    args = parser.parse_args()
+    main(profile=args.profile)

@@ -12,19 +12,22 @@ It creates:
 """
 
 import boto3
+import argparse
 import json
 import sys
 import time
 from botocore.exceptions import ClientError
 
-def create_clients():
+
+def create_clients(profile=None):
     """Create and return AWS service clients."""
     try:
+        session = boto3.Session(profile_name=profile) if profile else boto3.Session()
         return {
-            'codedeploy': boto3.client('codedeploy'),
-            'iam': boto3.client('iam'),
-            'ec2': boto3.client('ec2'),
-            'sts': boto3.client('sts')
+            'codedeploy': session.client('codedeploy'),
+            'iam': session.client('iam'),
+            'ec2': session.client('ec2'),
+            'sts': session.client('sts')
         }
     except Exception as e:
         print(f"❌ Error creating AWS clients: {e}")
@@ -176,13 +179,13 @@ def save_configuration(config):
     print("✅ Configuration saved to codedeploy_configuration.json")
 
 
-def main():
+def main(profile=None):
     """Main function to set up CodeDeploy resources."""
     print("🚀 Setting up AWS CodeDeploy for ResilienceAtlas...")
     print("=" * 60)
     
     # Create AWS clients
-    clients = create_clients()
+    clients = create_clients(profile)
     
     # Get account ID
     account_id = get_account_id(clients['sts'])
@@ -303,4 +306,7 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(description='Set up AWS CodeDeploy for ResilienceAtlas')
+    parser.add_argument('--profile', '-p', help='AWS profile name from ~/.aws/credentials')
+    args = parser.parse_args()
+    main(profile=args.profile)

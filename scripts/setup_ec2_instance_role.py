@@ -7,17 +7,20 @@ to communicate with CodeDeploy and access required AWS services.
 """
 
 import boto3
+import argparse
 import json
 import sys
 import time
 from botocore.exceptions import ClientError
 
-def create_clients():
+
+def create_clients(profile=None):
     """Create and return AWS service clients."""
     try:
+        session = boto3.Session(profile_name=profile) if profile else boto3.Session()
         return {
-            'iam': boto3.client('iam'),
-            'sts': boto3.client('sts')
+            'iam': session.client('iam'),
+            'sts': session.client('sts')
         }
     except Exception as e:
         print(f"❌ Error creating AWS clients: {e}")
@@ -223,13 +226,13 @@ def create_instance_profile(iam_client, profile_name, role_name):
     return True
 
 
-def main():
+def main(profile=None):
     """Main function to set up EC2 instance role."""
     print("🚀 Setting up EC2 Instance Role for ResilienceAtlas...")
     print("=" * 60)
     
     # Create AWS clients
-    clients = create_clients()
+    clients = create_clients(profile)
     
     # Get account ID
     account_id = get_account_id(clients['sts'])
@@ -293,4 +296,7 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(description='Set up EC2 instance role for CodeDeploy')
+    parser.add_argument('--profile', '-p', help='AWS profile name from ~/.aws/credentials')
+    args = parser.parse_args()
+    main(profile=args.profile)

@@ -7,18 +7,21 @@ to staging or production based on the domain name.
 """
 
 import boto3
+import argparse
 import json
 import sys
 import time
 from botocore.exceptions import ClientError
 
-def create_clients():
+
+def create_clients(profile=None):
     """Create and return AWS service clients."""
     try:
+        session = boto3.Session(profile_name=profile) if profile else boto3.Session()
         return {
-            'elbv2': boto3.client('elbv2'),
-            'ec2': boto3.client('ec2'),
-            'route53': boto3.client('route53')
+            'elbv2': session.client('elbv2'),
+            'ec2': session.client('ec2'),
+            'route53': session.client('route53')
         }
     except Exception as e:
         print(f"❌ Error creating AWS clients: {e}")
@@ -315,14 +318,11 @@ def generate_https_listener_config(target_groups):
     
     return config
 
-def main():
+def main(profile=None, vpc_id=None):
     """Main function to set up Application Load Balancer."""
     print("🚀 Setting up Application Load Balancer for ResilienceAtlas...")
     
-    # Get command line arguments
-    vpc_id = sys.argv[1] if len(sys.argv) > 1 else None
-    
-    clients = create_clients()
+    clients = create_clients(profile)
     
     # Get VPC and subnets
     print("\n🌐 Getting VPC and subnet information...")
@@ -400,4 +400,8 @@ def main():
     print("Use the AWS CLI or Console to create HTTPS listener with the configuration in alb_configuration.json")
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(description='Set up Application Load Balancer for ResilienceAtlas')
+    parser.add_argument('--profile', '-p', help='AWS profile name from ~/.aws/credentials')
+    parser.add_argument('--vpc-id', help='VPC ID (uses default VPC if not specified)')
+    args = parser.parse_args()
+    main(profile=args.profile, vpc_id=args.vpc_id)
