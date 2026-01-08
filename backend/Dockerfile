@@ -86,10 +86,15 @@ RUN groupadd -r appuser && useradd -r -g appuser -G audio,video appuser \
   && chown -R appuser:appuser /home/appuser \
   && echo 'appuser ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
 
+# Configure bundler globally (not --local) so config persists when /app is volume-mounted
+# This is critical because docker-compose.test.yml mounts ./backend:/app which overrides
+# any local .bundle/config created in the image. Global config is stored in /usr/local/bundle/config
+RUN bundle config set frozen true && \
+    bundle config set with "test development"
+
 # Install test gems with retry logic for network resilience
 RUN bash -c 'for i in {1..3}; do \
       echo "Test gems install attempt $i of 3" && \
-      bundle config set --local with "test development" && \
       bundle install && break || \
       ([ $i -eq 3 ] && echo "❌ Failed to install test gems after 3 attempts" && exit 1) || \
       (echo "⚠️ Test gems install attempt $i failed, retrying in 10 seconds..." && sleep 10); \
