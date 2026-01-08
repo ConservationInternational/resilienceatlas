@@ -37,13 +37,31 @@ if [ "$EUID" -ne 0 ]; then
     exit 1
 fi
 
-# Detect the AWS region
+# Detect the AWS region using IMDSv2 (more secure and reliable)
 log_info "Detecting AWS region..."
-REGION=$(curl -s http://169.254.169.254/latest/meta-data/placement/region 2>/dev/null || echo "")
 
-if [ -z "$REGION" ]; then
+# First, get IMDSv2 token
+TOKEN=$(curl -s -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 60" 2>/dev/null || echo "")
+
+if [ -n "$TOKEN" ]; then
+    # Use IMDSv2
+    REGION=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" http://169.254.169.254/latest/meta-data/placement/region 2>/dev/null || echo "")
+else
+    # Fallback to IMDSv1
+    REGION=$(curl -s http://169.254.169.254/latest/meta-data/placement/region 2>/dev/null || echo "")
+fi
+
+# Validate region format
+if [ -z "$REGION" ] || [[ ! "$REGION" =~ ^[a-z]{2}-[a-z]+-[0-9]+$ ]]; then
     log_warning "Could not detect region from metadata service"
+    log_warning "This can happen if IMDSv2 is required but not configured, or if running outside EC2"
     read -p "Enter AWS region (e.g., us-east-1): " REGION
+    
+    # Validate user input
+    if [[ ! "$REGION" =~ ^[a-z]{2}-[a-z]+-[0-9]+$ ]]; then
+        log_error "Invalid region format. Expected format: us-east-1, eu-west-2, etc."
+        exit 1
+    fi
 fi
 
 log_info "Using AWS region: $REGION"
@@ -59,7 +77,15 @@ apt-get install -y ruby-full wget
 # Download the CodeDeploy agent installer
 log_info "Downloading CodeDeploy agent..."
 cd /tmp
-wget "https://aws-codedeploy-${REGION}.s3.${REGION}.amazonaws.com/latest/install" -O install
+
+CODEDEPLOY_URL="https://aws-codedeploy-${REGION}.s3.${REGION}.amazonaws.com/latest/install"
+log_info "Download URL: $CODEDEPLOY_URL"
+
+if ! wget "$CODEDEPLOY_URL" -O install; then
+    log_error "Failed to download CodeDeploy agent installer"
+    log_error "Please verify the region '$REGION' is correct and has CodeDeploy available"
+    exit 1
+fi
 
 # Make the installer executable
 chmod +x install
