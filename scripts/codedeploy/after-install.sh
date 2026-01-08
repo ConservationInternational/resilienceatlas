@@ -120,6 +120,8 @@ if [ "$ENVIRONMENT" = "staging" ]; then
     # Sync production database to staging (if configured)
     if [ -n "$PRODUCTION_DATABASE_URL" ] && [ -n "$SYNC_PRODUCTION_DB" ] && [ "$SYNC_PRODUCTION_DB" = "true" ]; then
         log_info "Syncing production database to staging..."
+        # Ensure sync script is executable (may not have execute bit from git/zip)
+        chmod +x "${SCRIPT_DIR}/sync-database.sh"
         "${SCRIPT_DIR}/sync-database.sh" || {
             log_warning "Database sync failed, continuing with existing data"
         }
