@@ -442,6 +442,7 @@ GEM
     rgeo-geojson (2.2.0)
       multi_json (~> 1.15)
       rgeo (>= 1.0.0)
+    rollbar (3.7.0)
     rouge (4.5.2)
     rspec (3.13.1)
       rspec-core (~> 3.13.0)
@@ -655,6 +656,7 @@ DEPENDENCIES
   ransack (~> 4.3)
   rgeo (~> 3.0)
   rgeo-geojson (~> 2.1)
+  rollbar (~> 3.6)
   rspec-collection_matchers (~> 1.2)
   rspec-rails (~> 7.1)
   rspec-request_snapshot!
