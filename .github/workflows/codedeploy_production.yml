@@ -97,6 +97,9 @@ jobs:
         GIT_REVISION=${{ github.sha }}
         EOF
         
+        # Remove leading whitespace from each line (heredoc indentation issue)
+        sed -i 's/^        //' .env.production
+        
         echo "✅ Created .env.production with $(wc -l < .env.production) lines"
 
     - name: Update appspec.yml for production

@@ -115,6 +115,9 @@ jobs:
         GIT_REVISION=${{ github.sha }}
         EOF
         
+        # Remove leading whitespace from each line (heredoc indentation issue)
+        sed -i 's/^        //' .env.staging
+        
         echo "✅ Created .env.staging with $(wc -l < .env.staging) lines"
 
     - name: Update appspec.yml for staging
