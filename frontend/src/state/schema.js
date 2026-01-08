@@ -83,14 +83,21 @@ export const layer = new schema.Entity(
           },
           account: 'cdb',
         },
+        // XYZ tileset layers - url can be at root level or nested in body
         'xyz tileset': {
           type: 'tileLayer',
           body: {
-            url: layerConfig?.body?.url,
+            ...(layerConfig?.body || {}),
+            url: layerConfig?.body?.url || layerConfig?.url,
           },
         },
+        // GEE layers - ensure body property exists
         gee: {
           ...layerConfig,
+          type: layerConfig?.type || 'tileLayer',
+          body: {
+            ...(layerConfig?.body || {}),
+          },
           decodeFunction: birds,
           canvas: true,
         },
@@ -98,12 +105,14 @@ export const layer = new schema.Entity(
         // COG layer_config can have url at root level or nested in body
         cog: (() => {
           const cogUrl = layerConfig?.body?.url || layerConfig?.url;
-          const parsedUrl = cogUrl && replace(cogUrl, {
-            ...layerConfig.params,
-            colormap: layerConfig.params?.colormap
-              ? encodeURIComponent(JSON.stringify(layerConfig.params.colormap))
-              : null,
-          });
+          const parsedUrl =
+            cogUrl &&
+            replace(cogUrl, {
+              ...layerConfig.params,
+              colormap: layerConfig.params?.colormap
+                ? encodeURIComponent(JSON.stringify(layerConfig.params.colormap))
+                : null,
+            });
           return {
             ...layerConfig,
             parse: false,
