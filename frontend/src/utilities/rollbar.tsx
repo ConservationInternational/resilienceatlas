@@ -193,11 +193,7 @@ export const RollbarProvider = ({ children }: RollbarProviderProps) => {
     rollbarRef.current = getRollbar();
 
     // Log if Rollbar is disabled (only once, in development)
-    if (
-      !rollbarRef.current &&
-      process.env.NODE_ENV === 'development' &&
-      !hasWarnedRef.current
-    ) {
+    if (!rollbarRef.current && process.env.NODE_ENV === 'development' && !hasWarnedRef.current) {
       console.info(
         'Rollbar is disabled. Set NEXT_PUBLIC_ROLLBAR_CLIENT_TOKEN to enable error tracking.',
       );

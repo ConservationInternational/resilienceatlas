@@ -16,6 +16,11 @@ infrastructure/!state/vars/terraform.tfvars
 .aws-sam
 cloud_functions/titiler_cogs/.aws-sam
 
+# Python virtual environments
+.venv/
+__pycache__/
+*.pyc
+
 # Docker build cache (test directories)
 .buildx-cache*
 
