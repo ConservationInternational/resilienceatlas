@@ -6,8 +6,8 @@
 # It performs health checks on all services.
 #
 # SINGLE-INSTANCE SUPPORT: Uses environment-specific ports for health checks.
-#   Staging:    Frontend=3000, Backend=3001
-#   Production: Frontend=4000, Backend=4001
+#   Production: Frontend=3000, Backend=3001
+#   Staging:    Frontend=4000, Backend=4001
 # ============================================================================
 
 set -e

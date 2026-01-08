@@ -7,8 +7,8 @@
 #
 # SINGLE-INSTANCE SUPPORT:
 # Both staging and production can run on the same EC2 instance:
-#   - Staging:    /opt/resilienceatlas-staging    (ports 3000, 3001, 5433)
-#   - Production: /opt/resilienceatlas-production (ports 4000, 4001)
+#   - Production: /opt/resilienceatlas-production (ports 3000, 3001)
+#   - Staging:    /opt/resilienceatlas-staging    (ports 4000, 4001, 5433)
 # ============================================================================
 
 # Colors for output
@@ -100,9 +100,9 @@ get_project_name() {
 get_frontend_port() {
     local environment="$1"
     if [ "$environment" = "production" ]; then
-        echo "4000"
-    else
         echo "3000"
+    else
+        echo "4000"
     fi
 }
 
@@ -110,9 +110,9 @@ get_frontend_port() {
 get_backend_port() {
     local environment="$1"
     if [ "$environment" = "production" ]; then
-        echo "4001"
-    else
         echo "3001"
+    else
+        echo "4001"
     fi
 }
 
