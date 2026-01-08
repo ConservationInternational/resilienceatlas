@@ -67,13 +67,39 @@ if [ "$ENVIRONMENT" = "staging" ]; then
     fi
 fi
 
-# Clean up old Docker resources (but preserve volumes for database)
-log_info "Cleaning up old Docker resources..."
-docker system prune -f 2>/dev/null || true
+# ============================================================================
+# Docker Cleanup Strategy (Preserves Build Cache for Faster Builds)
+# ============================================================================
+# We want to:
+#   - Keep build cache (speeds up subsequent builds significantly)
+#   - Keep recent images (for rollback and layer sharing)
+#   - Remove only stopped containers and dangling images
+#   - Periodically clean old images to prevent disk bloat
+# ============================================================================
 
-# Clean up old images (keep recent ones to allow rollback)
-log_info "Cleaning up old Docker images..."
-docker image prune -a --filter "until=168h" -f 2>/dev/null || true
+log_info "Cleaning up Docker resources (preserving build cache)..."
+
+# Remove stopped containers only (not build cache)
+docker container prune -f 2>/dev/null || true
+
+# Remove dangling images only (untagged, not used as cache)
+docker image prune -f 2>/dev/null || true
+
+# Remove images older than 14 days (keep recent for rollback + cache layers)
+# Note: This only removes final images, not intermediate build cache layers
+log_info "Cleaning up old Docker images (older than 14 days)..."
+docker image prune -a --filter "until=336h" -f 2>/dev/null || true
+
+# Clean up build cache older than 30 days (keep recent cache for fast builds)
+log_info "Cleaning up old Docker build cache (older than 30 days)..."
+docker builder prune --filter "until=720h" -f 2>/dev/null || true
+
+# Check disk usage and warn if low
+DISK_USAGE=$(df /var/lib/docker 2>/dev/null | tail -1 | awk '{print $5}' | tr -d '%')
+if [ -n "$DISK_USAGE" ] && [ "$DISK_USAGE" -gt 85 ]; then
+    log_warning "Docker disk usage is at ${DISK_USAGE}%. Consider manual cleanup."
+    log_info "Run 'docker system prune -a' to free more space (will clear all cache)"
+fi
 
 # Backup current deployment (for rollback purposes)
 if [ -d "$APP_DIR" ] && [ -f "$APP_DIR/docker-compose.yml" -o -f "$APP_DIR/docker-compose.staging.yml" ]; then

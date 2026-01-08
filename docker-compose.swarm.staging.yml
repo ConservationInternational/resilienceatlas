@@ -144,11 +144,11 @@ services:
         reservations:
           memory: 256M
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      test: ["CMD-SHELL", "curl -f http://localhost:3000 || wget -q -O /dev/null http://localhost:3000"]
       interval: 15s
       timeout: 10s
       retries: 3
-      start_period: 45s
+      start_period: 60s
 
 volumes:
   staging_postgres_data:

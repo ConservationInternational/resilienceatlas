@@ -87,17 +87,27 @@ else
 fi
 
 # ============================================================================
-# Build Docker Images
+# Build Docker Images (with BuildKit for optimal caching)
+# ============================================================================
+# BuildKit provides:
+#   - Parallel layer building
+#   - Better cache management
+#   - Inline cache metadata for faster subsequent builds
 # ============================================================================
 DEPLOY_TAG=$(date +%Y%m%d-%H%M%S)
 export TAG="$DEPLOY_TAG"
-log_info "Building Docker images with tag: $DEPLOY_TAG"
+export DOCKER_BUILDKIT=1
+export COMPOSE_DOCKER_CLI_BUILD=1
 
-# Build frontend with environment variables
+log_info "Building Docker images with tag: $DEPLOY_TAG (BuildKit enabled)"
+
+# Build frontend with environment variables and cache optimization
 log_info "Building frontend image..."
 docker build -t "${STACK_NAME}-frontend:${DEPLOY_TAG}" \
     -t "${STACK_NAME}-frontend:latest" \
     --target production \
+    --build-arg BUILDKIT_INLINE_CACHE=1 \
+    --cache-from "${STACK_NAME}-frontend:latest" \
     --build-arg NEXT_PUBLIC_API_HOST="${NEXT_PUBLIC_API_HOST:-}" \
     --build-arg NEXT_PUBLIC_GOOGLE_ANALYTICS="${NEXT_PUBLIC_GOOGLE_ANALYTICS:-}" \
     --build-arg NEXT_PUBLIC_TRANSIFEX_TOKEN="${NEXT_PUBLIC_TRANSIFEX_TOKEN:-}" \
@@ -106,11 +116,13 @@ docker build -t "${STACK_NAME}-frontend:${DEPLOY_TAG}" \
     --build-arg NEXT_PUBLIC_ROLLBAR_CLIENT_TOKEN="${NEXT_PUBLIC_ROLLBAR_CLIENT_TOKEN:-}" \
     ./frontend
 
-# Build backend
+# Build backend with cache optimization
 log_info "Building backend image..."
 docker build -t "${STACK_NAME}-backend:${DEPLOY_TAG}" \
     -t "${STACK_NAME}-backend:latest" \
     --target production \
+    --build-arg BUILDKIT_INLINE_CACHE=1 \
+    --cache-from "${STACK_NAME}-backend:latest" \
     ./backend
 
 log_success "Docker images built successfully"
