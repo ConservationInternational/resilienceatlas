@@ -27,6 +27,14 @@ APP_DIR=$(get_app_directory "$ENVIRONMENT")
 PROJECT_NAME=$(get_project_name "$ENVIRONMENT")
 cd "$APP_DIR"
 
+# Load environment variables to avoid docker compose warnings
+ENV_FILE=$(get_env_file "$ENVIRONMENT")
+if [ -f "$ENV_FILE" ]; then
+    set -a
+    source "$ENV_FILE"
+    set +a
+fi
+
 # Get the appropriate docker-compose file and ports
 COMPOSE_FILE=$(get_compose_file "$ENVIRONMENT")
 FRONTEND_PORT=$(get_frontend_port "$ENVIRONMENT")
