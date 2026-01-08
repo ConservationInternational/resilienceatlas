@@ -10,7 +10,7 @@
       "name": "resilienceatlas-staging",
       "tag_filters": [
         {
-          "Key": "Project",
+          "Key": "CodeDeploy",
           "Value": "ResilienceAtlas",
           "Type": "KEY_AND_VALUE"
         }
@@ -20,7 +20,7 @@
       "name": "resilienceatlas-production",
       "tag_filters": [
         {
-          "Key": "Project",
+          "Key": "CodeDeploy",
           "Value": "ResilienceAtlas",
           "Type": "KEY_AND_VALUE"
         }

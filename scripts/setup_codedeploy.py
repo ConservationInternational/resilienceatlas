@@ -115,25 +115,29 @@ def create_codedeploy_application(codedeploy_client, app_name):
 
 def create_deployment_group(codedeploy_client, app_name, group_name, service_role_arn, 
                            ec2_tag_filters, environment):
-    """Create a CodeDeploy deployment group."""
+    """Create or update a CodeDeploy deployment group."""
+    deployment_group_config = {
+        'applicationName': app_name,
+        'deploymentGroupName': group_name,
+        'deploymentConfigName': 'CodeDeployDefault.OneAtATime',
+        'serviceRoleArn': service_role_arn,
+        'ec2TagFilters': ec2_tag_filters,
+        'deploymentStyle': {
+            'deploymentType': 'IN_PLACE',
+            'deploymentOption': 'WITHOUT_TRAFFIC_CONTROL'
+        },
+        'autoRollbackConfiguration': {
+            'enabled': True,
+            'events': [
+                'DEPLOYMENT_FAILURE',
+                'DEPLOYMENT_STOP_ON_ALARM'
+            ]
+        }
+    }
+    
     try:
         codedeploy_client.create_deployment_group(
-            applicationName=app_name,
-            deploymentGroupName=group_name,
-            deploymentConfigName='CodeDeployDefault.OneAtATime',
-            serviceRoleArn=service_role_arn,
-            ec2TagFilters=ec2_tag_filters,
-            deploymentStyle={
-                'deploymentType': 'IN_PLACE',
-                'deploymentOption': 'WITHOUT_TRAFFIC_CONTROL'
-            },
-            autoRollbackConfiguration={
-                'enabled': True,
-                'events': [
-                    'DEPLOYMENT_FAILURE',
-                    'DEPLOYMENT_STOP_ON_ALARM'
-                ]
-            },
+            **deployment_group_config,
             tags=[
                 {'Key': 'Project', 'Value': 'ResilienceAtlas'},
                 {'Key': 'Environment', 'Value': environment}
@@ -144,7 +148,18 @@ def create_deployment_group(codedeploy_client, app_name, group_name, service_rol
     except ClientError as e:
         if e.response['Error']['Code'] == 'DeploymentGroupAlreadyExistsException':
             print(f"⚠️ Deployment group already exists: {group_name}")
-            return True
+            print(f"   Updating deployment group with new tag filters...")
+            try:
+                # Update the existing deployment group with new tag filters
+                update_config = {k: v for k, v in deployment_group_config.items() 
+                                if k != 'deploymentGroupName'}
+                update_config['currentDeploymentGroupName'] = group_name
+                codedeploy_client.update_deployment_group(**update_config)
+                print(f"✅ Updated deployment group: {group_name}")
+                return True
+            except ClientError as update_error:
+                print(f"❌ Error updating deployment group: {update_error}")
+                return False
         else:
             print(f"❌ Error creating deployment group: {e}")
             return False
@@ -212,7 +227,8 @@ def main(profile=None):
     create_deployment_config(clients['codedeploy'], 'ResilienceAtlas-SingleInstance', 0)
     
     # SINGLE-INSTANCE SUPPORT:
-    # Both deployment groups target the same EC2 instance via Project tag.
+    # Both deployment groups target the same EC2 instance via CodeDeploy tag.
+    # This is separate from the Project tag so only specific instances receive deployments.
     # The instance can run both staging and production simultaneously.
     # CodeDeploy determines which environment to deploy based on deployment group name.
     
@@ -220,7 +236,7 @@ def main(profile=None):
     print("\n📋 Creating staging deployment group...")
     staging_tag_filters = [
         {
-            'Key': 'Project',
+            'Key': 'CodeDeploy',
             'Value': 'ResilienceAtlas',
             'Type': 'KEY_AND_VALUE'
         }
@@ -239,7 +255,7 @@ def main(profile=None):
     print("\n📋 Creating production deployment group...")
     production_tag_filters = [
         {
-            'Key': 'Project',
+            'Key': 'CodeDeploy',
             'Value': 'ResilienceAtlas',
             'Type': 'KEY_AND_VALUE'
         }

@@ -112,9 +112,10 @@ If no profile is specified, the default credentials are used.
    sudo bash scripts/install-codedeploy-agent.sh
    ```
 
-4. **Tag your EC2 instance:**
-   - Required tag: `Project=ResilienceAtlas`
-   - (No Environment tag needed - both environments run on same instance)
+4. **Tag your EC2 instance for deployments:**
+   - Required tag: `CodeDeploy=ResilienceAtlas`
+   - This tag identifies which instance(s) receive CodeDeploy deployments
+   - Other instances can have `Project=ResilienceAtlas` without receiving deployments
 
 5. **Configure GitHub Actions secrets** (see below)
 
