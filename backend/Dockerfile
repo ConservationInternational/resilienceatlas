@@ -51,7 +51,9 @@ FROM base AS test
 ENV DEBIAN_FRONTEND=noninteractive
 ENV APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=1
 
-# Install test dependencies including Chrome for system tests
+# Detect architecture and install appropriate browser for system tests
+# Chrome is only available for amd64, so we use Chromium for arm64
+ARG TARGETARCH
 RUN apt-get update -qq && apt-get install -y \
   curl \
   sudo \
@@ -73,12 +75,24 @@ RUN apt-get update -qq && apt-get install -y \
   libxrandr2 \
   libxss1 \
   libxtst6 \
-  && wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
-  && echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google-chrome.list \
-  && apt-get update -qq \
-  && apt-get install -y google-chrome-stable \
+  && if [ "$(dpkg --print-architecture)" = "amd64" ]; then \
+       echo "Installing Google Chrome for amd64..." \
+       && wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
+       && echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google-chrome.list \
+       && apt-get update -qq \
+       && apt-get install -y google-chrome-stable; \
+     else \
+       echo "Installing Chromium for $(dpkg --print-architecture)..." \
+       && apt-get install -y chromium; \
+     fi \
   && rm -rf /var/lib/apt/lists/* || \
   echo "Package installation failed, but continuing with existing packages"
+
+# Set environment variable to indicate which browser is installed
+ENV CHROME_BIN=/usr/bin/google-chrome
+RUN if [ -f /usr/bin/chromium ]; then \
+      echo "export CHROME_BIN=/usr/bin/chromium" >> /etc/environment; \
+    fi
 
 # Create a non-root user for running Chrome (Chrome refuses to run as root in newer versions)
 RUN groupadd -r appuser && useradd -r -g appuser -G audio,video appuser \

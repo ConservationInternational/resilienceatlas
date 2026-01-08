@@ -7,9 +7,19 @@ if [ "$(id -u)" -eq 0 ]; then
     exit 1
 fi
 
-# Verify Chrome installation
-if ! command -v google-chrome &> /dev/null; then
-    echo "ERROR: google-chrome not found in PATH"
+# Detect which browser is available (Chrome or Chromium for ARM64)
+CHROME_CMD=""
+if command -v google-chrome &> /dev/null; then
+    CHROME_CMD="google-chrome"
+    echo "Using Google Chrome"
+elif command -v chromium &> /dev/null; then
+    CHROME_CMD="chromium"
+    echo "Using Chromium (ARM64 compatible)"
+elif command -v chromium-browser &> /dev/null; then
+    CHROME_CMD="chromium-browser"
+    echo "Using Chromium Browser (ARM64 compatible)"
+else
+    echo "ERROR: No Chrome or Chromium browser found in PATH"
     exit 1
 fi
 
@@ -82,19 +92,19 @@ mkdir -p /tmp/chrome-logs
 chmod 755 /tmp/chrome-logs
 
 # Log the Chrome command for debugging
-echo "Chrome command: google-chrome ${CHROME_ARGS[*]} $*" > "$CHROME_LOG_FILE"
+echo "Chrome command: $CHROME_CMD ${CHROME_ARGS[*]} $*" > "$CHROME_LOG_FILE"
 echo "Environment: DISPLAY=$DISPLAY, USER=$(whoami), UID=$(id -u)" >> "$CHROME_LOG_FILE"
 
 # Test Chrome version before running
-echo "Testing Chrome version..."
-if timeout 10 google-chrome --version >> "$CHROME_LOG_FILE" 2>&1; then
-    echo "✅ Chrome version test successful"
+echo "Testing browser version..."
+if timeout 10 $CHROME_CMD --version >> "$CHROME_LOG_FILE" 2>&1; then
+    echo "✅ Browser version test successful"
 else
-    echo "❌ Chrome version test failed"
+    echo "❌ Browser version test failed"
     cat "$CHROME_LOG_FILE"
     exit 1
 fi
 
 # Run Chrome with error handling
-echo "Starting Chrome with arguments: ${CHROME_ARGS[*]} $*"
-exec google-chrome "${CHROME_ARGS[@]}" "$@" 2>&1 | tee -a "$CHROME_LOG_FILE"
+echo "Starting browser with arguments: ${CHROME_ARGS[*]} $*"
+exec $CHROME_CMD "${CHROME_ARGS[@]}" "$@" 2>&1 | tee -a "$CHROME_LOG_FILE"
