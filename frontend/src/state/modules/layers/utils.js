@@ -32,6 +32,18 @@ export const parseDates = (layer, defaultURLDate) => {
 
   const replaceDates = (str) => replace(str, getDateParams());
   const { layerConfig } = layer;
+
+  // Guard against undefined layerConfig
+  if (!layerConfig) {
+    return {
+      ...layer,
+      analysisBody: layer.analysisBody && replaceDates(layer.analysisBody),
+      interactionConfig: layer.interactionConfig && replaceDates(layer.interactionConfig),
+      cartocss: layer.cartocss && replaceDates(layer.cartocss),
+      sql: layer.sql && replaceDates(layer.cartocss),
+    };
+  }
+
   return {
     ...layer,
     analysisBody: layer.analysisBody && replaceDates(layer.analysisBody),
@@ -41,7 +53,7 @@ export const parseDates = (layer, defaultURLDate) => {
     layerConfig: {
       ...layerConfig,
       body: {
-        ...layerConfig.body,
+        ...(layerConfig.body || {}),
         url: layerConfig?.body?.url && replaceDates(layerConfig.body.url),
         layers:
           layer.type === 'cartodb' &&
