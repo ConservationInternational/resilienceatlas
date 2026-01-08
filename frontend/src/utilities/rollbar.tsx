@@ -35,7 +35,7 @@ const getRollbarConfig = (): Rollbar.Configuration => ({
     'api_key',
   ],
   // Transform payload before sending (remove sensitive info from URLs)
-  transform: (payload: Record<string, unknown>) => {
+  transform: (payload: Record<string, unknown>): void => {
     // Remove sensitive query params from URLs
     const sensitiveParams = ['token', 'key', 'secret', 'password', 'auth'];
     if (
@@ -55,7 +55,7 @@ const getRollbarConfig = (): Rollbar.Configuration => ({
         // Ignore URL parsing errors
       }
     }
-    return payload;
+    // Payload is mutated in-place, no return value needed
   },
 });
 
