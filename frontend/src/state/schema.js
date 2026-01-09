@@ -14,6 +14,7 @@ const provider = {
   'xyz tileset': 'leaflet',
   cog: 'leaflet',
   gee: 'leaflet',
+  leaflet: 'leaflet',
 };
 
 export const site_scope = new schema.Entity(
@@ -123,6 +124,15 @@ export const layer = new schema.Entity(
             },
           };
         })(),
+        // Generic leaflet layers - use layer_config directly from the backend
+        leaflet: {
+          ...layerConfig,
+          type: layerConfig?.type || 'tileLayer',
+          body: {
+            ...(layerConfig?.body || {}),
+            url: layerConfig?.body?.url || layerConfig?.url,
+          },
+        },
       };
 
       return {
