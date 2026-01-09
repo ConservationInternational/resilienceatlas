@@ -44,7 +44,7 @@ hooks:
 
   ApplicationStart:
     - location: scripts/codedeploy/application-start.sh
-      timeout: 600
+      timeout: 900
       runas: root
 
   ValidateService:
