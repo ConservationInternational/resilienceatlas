@@ -111,6 +111,11 @@ jobs:
         PRODUCTION_DATABASE_URL=${{ secrets.PRODUCTION_DATABASE_URL }}
         SYNC_PRODUCTION_DB=${{ github.event.inputs.sync_database || 'true' }}
         
+        # Storage file sync configuration (for syncing images from production)
+        # Set PRODUCTION_BACKEND_HOST to the production server IP/hostname to enable file sync
+        # PRODUCTION_BACKEND_HOST=${{ secrets.PRODUCTION_BACKEND_HOST }}
+        # SYNC_STORAGE_FILES=true
+        
         # Deployment info
         GIT_REVISION=${{ github.sha }}
         EOF

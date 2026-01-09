@@ -170,5 +170,40 @@ chown -R ubuntu:ubuntu "$APP_DIR"
 chmod +x "$APP_DIR/scripts/"*.sh 2>/dev/null || true
 chmod +x "$APP_DIR/scripts/codedeploy/"*.sh 2>/dev/null || true
 
+# ============================================================================
+# Ensure Storage Directories and Volumes Exist
+# ============================================================================
+# ActiveStorage needs persistent directories for uploaded images.
+# These directories will be mounted as Docker volumes in the containers.
+# ============================================================================
+log_info "Ensuring storage directories exist for ActiveStorage..."
+
+# Create storage directories if they don't exist on the host
+# These may be needed for initial volume creation or legacy setups
+STORAGE_BASE="/var/lib/docker/volumes"
+if [ "$ENVIRONMENT" = "staging" ]; then
+    STACK_PREFIX="resilienceatlas-staging_staging"
+else
+    STACK_PREFIX="resilienceatlas-production_production"
+fi
+
+# Ensure the volumes exist (Docker will create them, but let's make sure permissions are correct)
+for volume_suffix in "backend_storage" "backend_public_storage"; do
+    VOLUME_NAME="${STACK_PREFIX}_${volume_suffix}"
+    VOLUME_PATH="${STORAGE_BASE}/${VOLUME_NAME}/_data"
+    
+    # Create volume directory if it doesn't exist (Docker may not have created it yet)
+    if [ ! -d "$VOLUME_PATH" ]; then
+        log_info "Creating volume directory: $VOLUME_PATH"
+        mkdir -p "$VOLUME_PATH" 2>/dev/null || true
+    fi
+    
+    # Set permissions (containers run as non-root user)
+    if [ -d "$VOLUME_PATH" ]; then
+        chmod 775 "$VOLUME_PATH" 2>/dev/null || true
+        log_success "Storage volume ready: $VOLUME_NAME"
+    fi
+done
+
 log_success "AfterInstall hook (Swarm mode) completed successfully"
 exit 0

@@ -27,6 +27,9 @@ services:
     container_name: resilienceatlas-staging-backend
     ports:
       - "4001:3001"
+    volumes:
+      - staging_backend_storage:/app/storage
+      - staging_backend_public_storage:/app/public/storage
     environment:
       - RAILS_ENV=staging
       - DATABASE_URL=postgresql://postgres:${DATABASE_PASSWORD}@database:5432/resilienceatlas_staging
@@ -86,6 +89,10 @@ services:
 
 volumes:
   staging_postgres_data:
+    driver: local
+  staging_backend_storage:
+    driver: local
+  staging_backend_public_storage:
     driver: local
 
 networks:

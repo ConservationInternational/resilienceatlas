@@ -6,5 +6,6 @@ default_ignores: false
 
 ignore:
   - 'db/schema.rb'
+  - 'db/data/layers.rb'  # Auto-generated seed data
   - 'bin/**/*'
   - 'vendor/**/*'

@@ -123,39 +123,9 @@ unless Rails.env.test?
     puts "No layers found, importing from layers.rb..."
     layers_file = Rails.root.join("db", "data", "layers.rb")
     if File.exist?(layers_file)
-      # Import layers directly - layers.rb should have all required fields
-      # But skip creating records that already exist
-      existing_site_scope_ids = SiteScope.pluck(:id)
-      existing_layer_group_ids = LayerGroup.pluck(:id)
-      existing_agrupation_ids = Agrupation.pluck(:id)
-
-      puts "Existing site_scope IDs: #{existing_site_scope_ids}"
-      puts "Existing layer_group IDs: #{existing_layer_group_ids}"
-      puts "Existing agrupation IDs: #{existing_agrupation_ids}"
-
-      # Read the file content and modify it to skip existing records
-      content = File.read(layers_file)
-
-      # Skip SiteScope creation if any exist
-      if existing_site_scope_ids.any?
-        puts "Skipping SiteScope creation - site_scopes already exist"
-        content = content.gsub(/SiteScope\.create!\(\[.*?\]\)/m, "# SiteScope creation skipped - already exists")
-      end
-
-      # Skip LayerGroup creation if any exist
-      if existing_layer_group_ids.any?
-        puts "Skipping LayerGroup creation - layer_groups already exist"
-        content = content.gsub(/LayerGroup\.create!\(\[.*?\]\)/m, "# LayerGroup creation skipped - already exists")
-      end
-
-      # Skip Agrupation creation if any exist
-      if existing_agrupation_ids.any?
-        puts "Skipping Agrupation creation - agrupations already exist"
-        content = content.gsub(/Agrupation\.create!\(\[.*?\]\)/m, "# Agrupation creation skipped - already exists")
-      end
-
-      # Execute the modified content
-      eval(content, binding, __FILE__, __LINE__) # rubocop:disable Security/Eval
+      # layers.rb uses find_or_create_by! which is idempotent
+      # It will create records if they don't exist, or find them if they do
+      load layers_file
       puts "Layers imported successfully from layers.rb"
     else
       puts "Warning: layers.rb file not found at #{layers_file}"

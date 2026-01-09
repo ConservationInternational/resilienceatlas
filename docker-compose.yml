@@ -9,6 +9,9 @@ services:
       - "host.docker.internal:host-gateway"
     ports:
       - "3001:3001"
+    volumes:
+      - production_backend_storage:/app/storage
+      - production_backend_public_storage:/app/public/storage
     environment:
       - RAILS_ENV=production
       - DATABASE_URL=${PRODUCTION_DATABASE_URL}
@@ -58,6 +61,12 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
+
+volumes:
+  production_backend_storage:
+    driver: local
+  production_backend_public_storage:
+    driver: local
 
 networks:
   prod-network:

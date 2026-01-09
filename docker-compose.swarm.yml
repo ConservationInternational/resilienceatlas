@@ -24,6 +24,9 @@ services:
         published: 3001
         protocol: tcp
         mode: ingress
+    volumes:
+      - production_backend_storage:/app/storage
+      - production_backend_public_storage:/app/public/storage
     environment:
       - RAILS_ENV=production
       - DATABASE_URL=${PRODUCTION_DATABASE_URL}
@@ -113,6 +116,12 @@ services:
       timeout: 10s
       retries: 3
       start_period: 60s
+
+volumes:
+  production_backend_storage:
+    driver: local
+  production_backend_public_storage:
+    driver: local
 
 networks:
   prod-network:
