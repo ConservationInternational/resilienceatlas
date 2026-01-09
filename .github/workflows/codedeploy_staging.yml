@@ -186,9 +186,26 @@ jobs:
               --auto-rollback-enabled
           done
           
-          # Wait for deployments to stop
-          echo "⏳ Waiting for deployments to stop..."
-          sleep 15
+          # Poll until all deployments reach a terminal state
+          echo "⏳ Waiting for deployments to fully stop..."
+          for DEPLOYMENT_ID in $ACTIVE_DEPLOYMENTS; do
+            while true; do
+              STATUS=$(aws deploy get-deployment \
+                --deployment-id "$DEPLOYMENT_ID" \
+                --query 'deploymentInfo.status' \
+                --output text)
+              
+              echo "  $DEPLOYMENT_ID: $STATUS"
+              
+              # Terminal states - deployment is no longer blocking
+              if [[ "$STATUS" == "Stopped" || "$STATUS" == "Failed" || "$STATUS" == "Succeeded" ]]; then
+                break
+              fi
+              
+              sleep 5
+            done
+          done
+          echo "✅ All previous deployments stopped"
         else
           echo "✅ No active deployments found"
         fi
