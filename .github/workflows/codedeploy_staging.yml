@@ -165,6 +165,33 @@ jobs:
         echo "Uploaded to s3://$BUCKET/$KEY"
       id: upload
 
+    - name: Stop any in-progress deployments
+      run: |
+        echo "🔍 Checking for in-progress deployments..."
+        
+        # Get list of in-progress deployments
+        ACTIVE_DEPLOYMENTS=$(aws deploy list-deployments \
+          --application-name ${{ env.APPLICATION_NAME }} \
+          --deployment-group-name ${{ env.DEPLOYMENT_GROUP }} \
+          --include-only-statuses "InProgress" "Queued" "Created" \
+          --query 'deployments' \
+          --output text 2>/dev/null || echo "")
+        
+        if [ -n "$ACTIVE_DEPLOYMENTS" ] && [ "$ACTIVE_DEPLOYMENTS" != "None" ]; then
+          for DEPLOYMENT_ID in $ACTIVE_DEPLOYMENTS; do
+            echo "⏹️ Stopping deployment: $DEPLOYMENT_ID"
+            aws deploy stop-deployment \
+              --deployment-id "$DEPLOYMENT_ID" \
+              --auto-rollback-enabled 2>/dev/null || true
+          done
+          
+          # Wait a moment for deployments to stop
+          echo "⏳ Waiting for deployments to stop..."
+          sleep 10
+        else
+          echo "✅ No active deployments found"
+        fi
+
     - name: Create CodeDeploy deployment
       id: deploy
       run: |
