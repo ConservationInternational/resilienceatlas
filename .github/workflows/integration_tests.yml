@@ -92,7 +92,7 @@ jobs:
         echo "frontend-dockerfile-hash=$(sha256sum frontend/Dockerfile | cut -d' ' -f1)" >> $GITHUB_OUTPUT
         echo "gemfile-hash=$(sha256sum backend/Gemfile backend/Gemfile.lock | sha256sum | cut -d' ' -f1)" >> $GITHUB_OUTPUT
         echo "package-hash=$(sha256sum frontend/package.json frontend/package-lock.json | sha256sum | cut -d' ' -f1)" >> $GITHUB_OUTPUT
-        echo "ruby-version=$(cat backend/.ruby-version 2>/dev/null || echo '3.4.4')" >> $GITHUB_OUTPUT
+        echo "ruby-version=$(cat backend/.ruby-version 2>/dev/null || echo '3.4.8')" >> $GITHUB_OUTPUT
         echo "node-version=$(cat frontend/.nvmrc 2>/dev/null || echo '22.11.0')" >> $GITHUB_OUTPUT
         echo "date=$(date +%Y%m%d)" >> $GITHUB_OUTPUT
 

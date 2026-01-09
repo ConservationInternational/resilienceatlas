@@ -9,7 +9,7 @@
 | Directory | Description | Documentation | Tech Stack |
 |-----------|-------------|---------------|------------|
 | frontend | Frontend application | [frontend/README.md](frontend/README.md) | React 18.3.1, Next.js 14.2.15, Node.js 22.11.0 |
-| backend | Ruby on Rails backend (API + backoffice) | [backend/README.md](backend/README.md) | Ruby 3.4.4, Rails 7.2.x |
+| backend | Ruby on Rails backend (API + backoffice) | [backend/README.md](backend/README.md) | Ruby 3.4.8, Rails 7.2.x |
 | cloud_functions | AWS Lambda functions | [cloud_functions/README.md](cloud_functions/README.md) | AWS Lambda |
 | infrastructure | Terraform for TiTiler COG tiler | [infrastructure/README.md](infrastructure/README.md) | Terraform, AWS |
 | data | Data processing scripts | [data/README.md](data/README.md) | Various tools |
@@ -62,7 +62,7 @@ For faster development iteration, you can run only the database in Docker while 
    docker compose -f docker-compose.dev.yml up -d db
    ```
 
-2. **Start the backend** (requires Ruby 3.4.4)
+2. **Start the backend** (requires Ruby 3.4.8)
    ```bash
    cd backend
    bundle install
