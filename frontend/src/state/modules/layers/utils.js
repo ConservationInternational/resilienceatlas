@@ -1,5 +1,5 @@
 import { normalize } from 'normalizr';
-import { replace } from 'resilience-layer-manager';
+import { replace } from 'lib/layer-manager';
 
 import { getRouterParam } from 'utilities';
 

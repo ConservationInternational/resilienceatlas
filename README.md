@@ -53,6 +53,34 @@
    | Email | `admin@example.com` |
    | Password | `password` |
 
+### Hybrid Development (Database in Docker, Apps Local)
+
+For faster development iteration, you can run only the database in Docker while running the frontend and backend locally:
+
+1. **Start only the database**
+   ```bash
+   docker compose -f docker-compose.dev.yml up -d db
+   ```
+
+2. **Start the backend** (requires Ruby 3.4.4)
+   ```bash
+   cd backend
+   bundle install
+   bin/rails db:setup    # First time only
+   bin/rails server -p 3001
+   ```
+
+3. **Start the frontend** (requires Node.js 24.0.0)
+   ```bash
+   cd frontend
+   npm install --legacy-peer-deps
+   npm run dev
+   ```
+
+The frontend will be available at http://localhost:3000 and the backend at http://localhost:3001.
+
+> **Note**: This approach requires having the correct Ruby and Node.js versions installed locally. Use the full Docker setup if you don't have these versions available.
+
 ## Running Tests
 
 ### Backend Tests

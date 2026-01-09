@@ -1,5 +1,5 @@
 import { schema } from 'normalizr';
-import { replace } from 'resilience-layer-manager';
+import { replace } from 'lib/layer-manager';
 import { generateDownloadUrl } from 'utilities/generateDownloadUrl';
 import { birds } from './utils/decoders';
 

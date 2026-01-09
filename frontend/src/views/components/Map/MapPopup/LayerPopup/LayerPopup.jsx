@@ -3,7 +3,7 @@ import axios from 'axios';
 import moment from 'moment';
 import numeral from 'numeral';
 import get from 'lodash/get';
-import { replace } from 'resilience-layer-manager';
+import { replace } from 'lib/layer-manager';
 import { T } from '@transifex/react';
 
 import createReducer from 'state/utils/createReducer';

@@ -2,9 +2,9 @@
 import L from 'leaflet';
 
 // These will be dynamically imported on client-side only
-let LayerManager: typeof import('resilience-layer-manager/dist/components').LayerManager;
-let Layer: typeof import('resilience-layer-manager/dist/components').Layer;
-let PluginLeaflet: typeof import('resilience-layer-manager/dist/layer-manager').PluginLeaflet;
+let LayerManager: typeof import('lib/layer-manager/components').LayerManager;
+let Layer: typeof import('lib/layer-manager/components').Layer;
+let PluginLeaflet: typeof import('lib/layer-manager/plugins/plugin-leaflet').default;
 
 // Make L globally available for plugins that expect it (like leaflet-geoman)
 // This must happen before importing plugins, so we use a side-effect approach
@@ -24,12 +24,12 @@ if (typeof window !== 'undefined') {
 
   // Import layer-manager components that also require window.L
   // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const components = require('resilience-layer-manager/dist/components');
+  const components = require('lib/layer-manager/components');
   LayerManager = components.LayerManager;
   Layer = components.Layer;
   // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const lm = require('resilience-layer-manager/dist/layer-manager');
-  PluginLeaflet = lm.PluginLeaflet;
+  const lm = require('lib/layer-manager/plugins/plugin-leaflet');
+  PluginLeaflet = lm.default;
 }
 
 // CSS imports must be static for bundler to process them
