@@ -169,12 +169,12 @@ jobs:
       run: |
         echo "🔍 Checking for in-progress deployments..."
         
-        # Get list of in-progress deployments
+        # Get list of active deployments (including Stopping state)
         # Don't suppress errors - we need to know if this fails
         ACTIVE_DEPLOYMENTS=$(aws deploy list-deployments \
           --application-name ${{ env.APPLICATION_NAME }} \
           --deployment-group-name ${{ env.DEPLOYMENT_GROUP }} \
-          --include-only-statuses "InProgress" "Queued" "Created" \
+          --include-only-statuses "InProgress" "Queued" "Created" "Stopping" \
           --query 'deployments' \
           --output text)
         
@@ -183,13 +183,15 @@ jobs:
             echo "⏹️ Stopping deployment: $DEPLOYMENT_ID"
             aws deploy stop-deployment \
               --deployment-id "$DEPLOYMENT_ID" \
-              --auto-rollback-enabled
+              --auto-rollback-enabled || echo "  (already stopping or stopped)"
           done
           
           # Poll until all deployments reach a terminal state
           echo "⏳ Waiting for deployments to fully stop..."
           for DEPLOYMENT_ID in $ACTIVE_DEPLOYMENTS; do
-            while true; do
+            WAIT_COUNT=0
+            MAX_WAIT=60  # 60 iterations × 5 seconds = 5 minutes max
+            while [ $WAIT_COUNT -lt $MAX_WAIT ]; do
               STATUS=$(aws deploy get-deployment \
                 --deployment-id "$DEPLOYMENT_ID" \
                 --query 'deploymentInfo.status' \
@@ -203,7 +205,12 @@ jobs:
               fi
               
               sleep 5
+              WAIT_COUNT=$((WAIT_COUNT + 1))
             done
+            
+            if [ $WAIT_COUNT -ge $MAX_WAIT ]; then
+              echo "⚠️ Timed out waiting for $DEPLOYMENT_ID to stop"
+            fi
           done
           echo "✅ All previous deployments stopped"
         else
