@@ -169,12 +169,12 @@ jobs:
       run: |
         echo "🔍 Checking for in-progress deployments..."
         
-        # Get list of active deployments (including Stopping state)
-        # Don't suppress errors - we need to know if this fails
+        # Get list of active deployments
+        # Valid statuses: Created, Queued, InProgress, Baking, Succeeded, Failed, Stopped, Ready
         ACTIVE_DEPLOYMENTS=$(aws deploy list-deployments \
           --application-name ${{ env.APPLICATION_NAME }} \
           --deployment-group-name ${{ env.DEPLOYMENT_GROUP }} \
-          --include-only-statuses "InProgress" "Queued" "Created" "Stopping" \
+          --include-only-statuses "InProgress" "Queued" "Created" \
           --query 'deployments' \
           --output text)
         
