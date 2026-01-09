@@ -5,6 +5,8 @@ services:
       dockerfile: Dockerfile
       target: production
     container_name: resilienceatlas-prod-backend
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     ports:
       - "3001:3001"
     environment:
