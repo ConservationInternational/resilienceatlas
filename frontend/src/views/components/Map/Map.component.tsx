@@ -1,17 +1,47 @@
-import 'leaflet';
-import 'leaflet.pm';
-import 'leaflet-active-area';
-// UTFGrid library requires corslite, only included in the minimized version
-import 'leaflet-utfgrid/L.UTFGrid-min';
+// Import leaflet and make it globally available BEFORE importing plugins
+import L from 'leaflet';
+
+// These will be dynamically imported on client-side only
+let LayerManager: typeof import('resilience-layer-manager/dist/components').LayerManager;
+let Layer: typeof import('resilience-layer-manager/dist/components').Layer;
+let PluginLeaflet: typeof import('resilience-layer-manager/dist/layer-manager').PluginLeaflet;
+
+// Make L globally available for plugins that expect it (like leaflet-geoman)
+// This must happen before importing plugins, so we use a side-effect approach
+if (typeof window !== 'undefined') {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (window as any).L = L;
+
+  // Now import plugins that depend on window.L
+  // Using require() to ensure they run after the window.L assignment above
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  require('@geoman-io/leaflet-geoman-free');
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  require('leaflet-active-area');
+  // UTFGrid library requires corslite, only included in the minimized version
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  require('leaflet-utfgrid/L.UTFGrid-min');
+
+  // Import layer-manager components that also require window.L
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const components = require('resilience-layer-manager/dist/components');
+  LayerManager = components.LayerManager;
+  Layer = components.Layer;
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const lm = require('resilience-layer-manager/dist/layer-manager');
+  PluginLeaflet = lm.PluginLeaflet;
+}
+
+// CSS imports must be static for bundler to process them
+import '@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css';
+
 import { useRouterParams } from 'utilities';
-import React, { useCallback, useEffect, useContext } from 'react';
+import React, { useCallback, useEffect, useContext, useMemo, useState } from 'react';
 import qs from 'qs';
 import omit from 'lodash/omit';
 import pick from 'lodash/pick';
 import type { MapViewProps } from './types';
-import { Map as Maps, MapControls, ZoomControl } from 'vizzuality-components';
-import { LayerManager, Layer } from 'resilience-layer-manager/dist/components';
-import { PluginLeaflet } from 'resilience-layer-manager/dist/layer-manager';
+import { LeafletMap, MapControls, ZoomControl } from './LeafletMap/exports';
 import { TABS } from 'views/components/Sidebar';
 import { useLoadLayers, useGetCenter } from './Map.hooks';
 import { BASEMAPS, LABELS } from 'views/utils';
@@ -23,6 +53,7 @@ import Toolbar from './Toolbar';
 import DrawingManager from './DrawingManager';
 import MapOffset from './MapOffset';
 import MapPopup from './MapPopup';
+import LayerErrorModal, { type LayerError } from 'views/components/LayerErrorModal';
 
 const MapView = (props: MapViewProps) => {
   const {
@@ -86,7 +117,7 @@ const MapView = (props: MapViewProps) => {
 
   // Update URL with active layers
   useEffect(() => {
-    const hash = activeLayers.map((activeLayer) =>
+    const hash = (activeLayers || []).map((activeLayer) =>
       pick(activeLayer, ['id', ...URL_PERSISTED_KEYS]),
     );
     if (layersLoaded) {
@@ -96,6 +127,27 @@ const MapView = (props: MapViewProps) => {
   }, [activeLayers]);
 
   const getCenter = useGetCenter({ site, query });
+
+  // Layer error handling
+  const [layerErrors, setLayerErrors] = useState<LayerError[]>([]);
+
+  const onLayerError = useCallback((error: LayerError) => {
+    setLayerErrors((prev) => {
+      // Avoid duplicate errors for the same layer
+      if (prev.some((e) => e.layerId === error.layerId)) {
+        return prev;
+      }
+      return [...prev, error];
+    });
+  }, []);
+
+  const handleCloseErrorModal = useCallback(() => {
+    setLayerErrors([]);
+  }, []);
+
+  const handleDismissError = useCallback((layerId: string | number) => {
+    setLayerErrors((prev) => prev.filter((e) => e.layerId !== layerId));
+  }, []);
 
   const onLayerLoading = useCallback(
     (_isAnyLayerLoading: boolean) => {
@@ -110,14 +162,25 @@ const MapView = (props: MapViewProps) => {
 
   const MAX_LAYER_Z_INDEX = 1000;
 
+  // Memoize label and basemap configs to prevent infinite re-renders
+  const safeLabel = useMemo(() => {
+    const labelConfig = LABELS[labels];
+    return labelConfig?.url ? { url: labelConfig.url, options: {} } : undefined;
+  }, [labels]);
+
+  const safeBasemap = useMemo(() => {
+    const basemapConfig = BASEMAPS[basemap];
+    return basemapConfig ? { url: basemapConfig.url, options: {} } : undefined;
+  }, [basemap]);
+
   return (
-    <Maps
+    <LeafletMap
       customClass="m-map"
-      label={LABELS[labels]}
-      basemap={BASEMAPS[basemap]}
+      label={safeLabel}
+      basemap={safeBasemap}
       mapOptions={{
-        ...options.map,
-        zoom: query.zoom || site.zoom_level || 5,
+        ...(options?.map || {}),
+        zoom: Number(query.zoom) || site?.zoom_level || 2,
         center: getCenter(),
         scrollWheelZoom: !embed,
         drawControl: true,
@@ -125,22 +188,25 @@ const MapView = (props: MapViewProps) => {
         maxZoom: 13,
       }}
       events={{
-        layeradd: ({ layer }) => {
+        layeradd: (e) => {
+          const layer = (e as L.LayerEvent).layer as L.TileLayer;
           if (
             // to avoid displaying loading state with labels
-            layer?._url?.startsWith('https://api.mapbox.com/styles/v1/cigrp') ||
+            (layer as { _url?: string })?._url?.startsWith(
+              'https://api.mapbox.com/styles/v1/cigrp',
+            ) ||
             // to avoid displaying loading state when the user interacts with the map (click on a layer)
-            layer.hasOwnProperty('_content')
+            Object.prototype.hasOwnProperty.call(layer, '_content')
           )
-            return null;
+            return;
           onLayerLoading(true);
-          return layer.on('load', onLayerLoaded);
+          layer.on('load', onLayerLoaded);
         },
         zoomend: (e, map) => {
           const mapZoom = map.getZoom();
 
-          if (mapZoom !== (+site.zoom_level || 5)) {
-            setParam('zoom', map.getZoom());
+          if (mapZoom !== (+site?.zoom_level || 2)) {
+            setParam('zoom', String(map.getZoom()));
           } else {
             // clear param if it's default
             setParam('zoom', null);
@@ -157,9 +223,15 @@ const MapView = (props: MapViewProps) => {
     >
       {(map) => (
         <>
-          {tab === TABS.LAYERS &&
-            activeLayers.map((l, index) => (
-              <LayerManager map={map} plugin={PluginLeaflet} ref={layerManagerRef} key={l.id}>
+          {tab === TABS.LAYERS && activeLayers && activeLayers.length > 0 && (
+            <LayerManager
+              map={map}
+              plugin={PluginLeaflet}
+              ref={layerManagerRef}
+              onLayerLoading={onLayerLoading}
+              onLayerError={onLayerError}
+            >
+              {activeLayers.map((l, index) => (
                 <Layer
                   {...omit(l, 'interactivity')}
                   slug={l.slug || l.id}
@@ -171,8 +243,8 @@ const MapView = (props: MapViewProps) => {
                     !!l.interactionConfig.length && {
                       interactivity:
                         l.provider === 'carto' || l.provider === 'cartodb' || l.provider === 'cog'
-                          ? JSON.parse(l.interactionConfig)
-                              .output.map((o) => o.column)
+                          ? (JSON.parse(l.interactionConfig)?.output || [])
+                              .map((o) => o.column)
                               .join(',')
                           : true,
                       events: {
@@ -191,12 +263,19 @@ const MapView = (props: MapViewProps) => {
                   decodeParams={
                     l.decodeParams ? { ...l.decodeParams, chartLimit: l.chartLimit || 100 } : null
                   }
-                ></Layer>
-              </LayerManager>
-            ))}
+                />
+              ))}
+            </LayerManager>
+          )}
 
           {tab === TABS.MODELS && model_layer && (
-            <LayerManager map={map} plugin={PluginLeaflet} ref={layerManagerRef} key="model_layer">
+            <LayerManager
+              map={map}
+              plugin={PluginLeaflet}
+              ref={layerManagerRef}
+              key="model_layer"
+              onLayerError={onLayerError}
+            >
               <Layer key="model_layer" {...model_layer} />
             </LayerManager>
           )}
@@ -213,9 +292,15 @@ const MapView = (props: MapViewProps) => {
               <Toolbar />
             </MapControls>
           )}
+
+          <LayerErrorModal
+            errors={layerErrors}
+            onClose={handleCloseErrorModal}
+            onDismissError={handleDismissError}
+          />
         </>
       )}
-    </Maps>
+    </LeafletMap>
   );
 };
 

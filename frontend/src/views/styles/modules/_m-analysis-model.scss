@@ -1,3 +1,7 @@
+@use '../sass-modules' as *;
+@use '../mixins' as *;
+@use '../variables' as *;
+
 .m-analysis-model {
   padding: 0 30px;
   font-weight: 400;
@@ -41,7 +45,7 @@
       background: $font-color-2;
 
       &:hover {
-        background: darken($bg-color-2, 5%);
+        background: darken-color($bg-color-2, 5%);
       }
 
       &.-primary {
@@ -49,7 +53,7 @@
         background: $blue;
 
         &:hover {
-          background: darken($blue, 5%);
+          background: darken-color($blue, 5%);
         }
       }
 

@@ -114,7 +114,7 @@ class Layer < ApplicationRecord
   begin
     translates :name, :info, :legend, :title, :data_units, :processing, :description, :analysis_text_template, touch: true, fallbacks_for_empty_translations: true
     active_admin_translates :name, :info, :legend, :title, :data_units, :processing, :description, :analysis_text_template
-    
+
     # Only add translation validations if the translation_class is defined
     if respond_to?(:translation_class) && translation_class
       translation_class.validates_presence_of :name, if: -> { locale.to_s == I18n.default_locale.to_s }
@@ -125,16 +125,41 @@ class Layer < ApplicationRecord
   end
 
   # Only define enums if the table and columns exist to avoid migration issues
-  if table_exists? && column_names.include?('timeline_period')
-    enum :timeline_period, {yearly: "yearly", monthly: "monthly", daily: "daily"}, default: :yearly, prefix: true
-  end
-  
-  if table_exists? && column_names.include?('analysis_type')
-    enum :analysis_type, {histogram: "histogram", categorical: "categorical", text: "text"}, default: :histogram, prefix: true
+  # Wrapped in begin/rescue to handle cases where database is being created
+  begin
+    if table_exists? && column_names.include?("timeline_period")
+      enum :timeline_period, {yearly: "yearly", monthly: "monthly", daily: "daily"}, default: :yearly, prefix: true
+    end
+
+    if table_exists? && column_names.include?("analysis_type")
+      enum :analysis_type, {histogram: "histogram", categorical: "categorical", text: "text"}, default: :histogram, prefix: true
+    end
+  rescue ActiveRecord::NoDatabaseError, ActiveRecord::ConnectionNotEstablished, ActiveRecord::StatementInvalid, PG::ConnectionBad => e
+    # Database not available yet - skip enum setup for now
+    Rails.logger&.info "Skipping Layer enums setup - database not ready: #{e.message}"
   end
 
   validates_presence_of :slug, :layer_provider, :interaction_config
   validates :timeline, inclusion: {in: [true, false]}
+
+  # Ransack configuration - explicitly allowlist searchable attributes for security
+  def self.ransackable_attributes(auth_object = nil)
+    %w[
+      active analysis_body analysis_query analysis_suitable analysis_type color created_at css
+      dashboard_order dataset_shortname dataset_source_url download end_date icon_class id
+      id_value interaction_config interactivity layer_config layer_group_id layer_provider
+      layer_type locate_layer opacity order published query slug spatial_resolution
+      spatial_resolution_units start_date temporal_resolution temporal_resolution_units
+      timeline timeline_default_date timeline_end_date timeline_period timeline_start_date
+      timeline_steps update_frequency updated_at version zindex zoom_max zoom_min name
+      info legend title data_units processing description analysis_text_template
+    ]
+  end
+
+  def self.ransackable_associations(auth_object = nil)
+    %w[agrupations layer_groups site_scopes sources translations]
+  end
+
   with_options if: -> { analysis_suitable } do
     validates_presence_of :analysis_type
     validates_inclusion_of :analysis_type, in: %w[text], message: "analysis type has to be text for cartodb provider", if: -> { layer_provider.to_s == "cartodb" && analysis_suitable }
@@ -182,7 +207,9 @@ class Layer < ApplicationRecord
       options["filename"]
     elsif options["download_path"].present? && URI(options["download_path"]).query.present?
       query_path = URI(options["download_path"]).query
-      filename = query_path.split("=")[1] if query_path.split("=")[0].include?("filename")
+      # Parse query parameters properly to extract filename
+      query_params = CGI.parse(query_path)
+      filename = query_params["filename"]&.first
       filename
     end
 
@@ -227,7 +254,7 @@ class Layer < ApplicationRecord
     source_date = sources.map { |s| s.updated_at.to_date.to_s.parameterize }.compact.flatten.max if sources.any?
     objects_date = [self_date, source_date].compact.max
 
-    return true if file_date >= objects_date
+    true if file_date >= objects_date
   end
 
   def zipfile_name(subdomain)

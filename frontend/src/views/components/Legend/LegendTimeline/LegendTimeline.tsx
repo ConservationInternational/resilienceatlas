@@ -2,7 +2,7 @@ import { connect } from 'react-redux';
 import { setDate } from 'state/modules/layers';
 import LegendTimelineComponent from './LegendTimeline.component';
 import type { Timeline } from 'types/layer';
-import format from 'date-fns/format';
+import { format } from 'date-fns';
 
 const mapDispatchToProps = {
   setDate,

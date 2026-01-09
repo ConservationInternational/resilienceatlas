@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 import cx from 'classnames';
-import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import Loader from 'views/shared/Loader';
 import InfoWindow from 'views/components/InfoWindow';
 import { T } from '@transifex/react';
@@ -39,7 +39,7 @@ const Legend = ({
                 <Loader loading={loading} />
 
                 <ul {...droppableProps} ref={innerRef} className="m-legend__list">
-                  {activeLayers.filter(Boolean).map((layer, index) => {
+                  {(activeLayers || []).filter(Boolean).map((layer, index) => {
                     const { id, name, notAvailableByZoom, legend, info, timeline } = layer;
 
                     const defaultParams = defaultEmbedURLLayerParams?.find(
@@ -52,7 +52,7 @@ const Legend = ({
                     const layerVisible = opacity > 0;
 
                     return (
-                      <Draggable key={id} draggableId={id} index={index}>
+                      <Draggable key={id} draggableId={String(id)} index={index}>
                         {({ draggableProps, dragHandleProps, innerRef: dragRef }) => (
                           <li
                             className={cx('drag-items', {

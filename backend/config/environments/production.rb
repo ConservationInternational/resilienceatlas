@@ -83,6 +83,14 @@ Rails.application.configure do
   config.action_mailer.default_url_options = {host: URI.parse(ENV.fetch("BACKEND_URL")).host}
   config.action_mailer.delivery_method = :sparkpost
 
+  # Set default URL options for controllers (needed for Active Storage URLs)
+  backend_uri = URI.parse(ENV.fetch("BACKEND_URL"))
+  Rails.application.routes.default_url_options = {
+    host: backend_uri.host,
+    port: backend_uri.port,
+    protocol: backend_uri.scheme
+  }
+
   # Store uploaded files on the local file system (see config/storage.yml for options).
   config.active_storage.service = :local
 end

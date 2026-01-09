@@ -26,12 +26,12 @@ class Indicator < ApplicationRecord
 
   # Translation setup - only initialize if database is ready and not during migration
   # This prevents errors during migrations when tables don't exist yet
-  unless defined?(Rails::Generators) || Rails.env.test? && ENV['RAILS_MIGRATE']
+  if !defined?(Rails::Generators) && !(Rails.env.test? && ENV["RAILS_MIGRATE"])
     begin
-      if ActiveRecord::Base.connection && ActiveRecord::Base.connection.table_exists?(:indicators)
+      if ActiveRecord::Base.connection&.table_exists?(:indicators)
         translates :name, touch: true, fallbacks_for_empty_translations: true
         active_admin_translates :name
-        
+
         # Only add translation validations if the translation_class is defined
         if respond_to?(:translation_class) && translation_class
           translation_class.validates_presence_of :name, if: -> { locale.to_s == I18n.default_locale.to_s }
@@ -46,6 +46,15 @@ class Indicator < ApplicationRecord
   validates_presence_of :slug
 
   acts_as_list scope: :category
+
+  # Ransack configuration - explicitly allowlist searchable attributes for security
+  def self.ransackable_attributes(auth_object = nil)
+    ["category_id", "column_name", "created_at", "id", "operation", "position", "slug", "updated_at", "version", "name"]
+  end
+
+  def self.ransackable_associations(auth_object = nil)
+    ["category", "models", "translations"]
+  end
 
   def self.fetch_all(options = {})
     Indicator.with_translations

@@ -1,4 +1,4 @@
-import type { AxiosRequestConfig } from 'axios';
+import type { AxiosRequestConfig, Method } from 'axios';
 import axios from 'axios';
 import type { ThunkDispatch } from 'redux-thunk';
 import type { schema } from 'normalizr';
@@ -6,15 +6,39 @@ import type { schema } from 'normalizr';
 import { merge } from 'utilities/helpers';
 import { subdomain } from 'utilities/getSubdomain';
 
-export const PORT = process.env.NEXT_PUBLIC_API_HOST;
+// Use environment variable for API host
+// In Next.js 16+, getConfig is removed - use env vars directly
+// For server-side rendering in Docker, use INTERNAL_API_HOST to reach the backend container
+const getRuntimeApiHost = (): string => {
+  // On the server, use internal API host if available (for Docker networking)
+  if (typeof window === 'undefined' && process.env.INTERNAL_API_HOST) {
+    return process.env.INTERNAL_API_HOST;
+  }
+  // On the client (browser), use the public API host
+  return process.env.NEXT_PUBLIC_API_HOST || 'http://localhost:3001';
+};
 
-const defaultConfig = {
-  baseURL: `${PORT}/api`,
+// Memoize the API host to avoid repeated calls
+let cachedApiHost: string | null = null;
+const getApiHost = (): string => {
+  if (cachedApiHost === null) {
+    cachedApiHost = getRuntimeApiHost();
+  }
+  return cachedApiHost;
+};
+
+export const PORT = process.env.NEXT_PUBLIC_API_HOST || 'http://localhost:3001';
+
+// Create axios instance with dynamic base URL
+const createDefaultConfig = () => ({
+  baseURL: `${getApiHost()}/api`,
   headers: {
     Accept: 'application/json, text/javascript, */*; q=0.01',
     'Content-Type': 'application/json',
   },
-};
+});
+
+const defaultConfig = createDefaultConfig();
 
 let axiosInstance = axios.create(defaultConfig);
 
@@ -46,8 +70,30 @@ export const createApiAction = (name = ''): ApiAction => {
   };
 };
 
-export const makeRequest = (method: string, url: string, options: AxiosRequestConfig = {}) => {
-  const headers = { ...axiosInstance.defaults.headers, ...options.headers };
+export const makeRequest = (method: Method, url: string, options: AxiosRequestConfig = {}) => {
+  // Create headers object carefully to avoid type issues with new axios version
+  const headers: Record<string, string | number | boolean> = {};
+
+  // Safely merge headers from axios defaults and options
+  const commonHeaders = axiosInstance.defaults.headers.common || {};
+  const optionHeaders = options.headers || {};
+
+  // Convert axios headers to simple key-value pairs, handling arrays
+  Object.entries(commonHeaders).forEach(([key, value]) => {
+    if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
+      headers[key] = value;
+    } else if (Array.isArray(value)) {
+      headers[key] = value.join(', ');
+    }
+  });
+
+  Object.entries(optionHeaders).forEach(([key, value]) => {
+    if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
+      headers[key] = value;
+    } else if (Array.isArray(value)) {
+      headers[key] = value.join(', ');
+    }
+  });
 
   // Add site scope token if available and this is a site-specific request
   const siteScope = options.params?.site_scope || subdomain;
@@ -63,6 +109,11 @@ export const makeRequest = (method: string, url: string, options: AxiosRequestCo
     url,
     headers,
   }).catch((error) => {
+    // Silently ignore canceled requests (e.g., from navigation or component unmount)
+    if (axios.isCancel(error) || error.code === 'ERR_CANCELED') {
+      return Promise.reject({ canceled: true, error: 'Request canceled' });
+    }
+
     // Check if this is a site scope authentication error
     if (
       error.response?.status === 401 &&
@@ -84,6 +135,7 @@ export const makeRequest = (method: string, url: string, options: AxiosRequestCo
   });
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Handler = (url: string, config: AxiosRequestConfig) => Promise<any>;
 type Handlers = {
   get: Handler;
@@ -102,8 +154,10 @@ export const requestHandlers: Handlers = { get, post, put, patch, del };
 
 type Callback = (
   requestHandlers: Handlers,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   dispatch: ThunkDispatch<unknown, unknown, any>,
   getState: () => unknown,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ) => Promise<any>;
 
 type ApiMeta = {
@@ -135,6 +189,11 @@ export default function api(apiAction: ApiAction, cb: Callback, meta: ApiMeta) {
         });
       })
       .catch((error) => {
+        // Silently ignore canceled requests
+        if (error.canceled) {
+          return;
+        }
+
         if (error.error) {
           dispatch({
             type: apiAction.FAIL,

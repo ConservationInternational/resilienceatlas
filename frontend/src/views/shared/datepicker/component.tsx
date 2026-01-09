@@ -2,14 +2,10 @@ import type { FC } from 'react';
 import { useMemo } from 'react';
 import ExternalDatePicker, { registerLocale } from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import es from 'date-fns/locale/es';
-import fr from 'date-fns/locale/fr';
-import pt from 'date-fns/locale/pt';
-import ru from 'date-fns/locale/ru';
-import zh from 'date-fns/locale/zh-CN';
-import eachYearOfInterval from 'date-fns/eachYearOfInterval';
-import eachMonthOfInterval from 'date-fns/eachMonthOfInterval';
-import format from 'date-fns/format';
+// eslint-disable-next-line import/no-duplicates
+import { eachYearOfInterval, eachMonthOfInterval, format } from 'date-fns';
+// eslint-disable-next-line import/no-duplicates
+import { es, fr, pt, ru, zhCN as zh } from 'date-fns/locale';
 import uniq from 'lodash/uniq';
 import { useRouter } from 'next/router';
 import { useT } from '@transifex/react';
@@ -125,7 +121,7 @@ export const Datepicker: FC<DatepickerProps> = ({
                 onChange={({ target: { value } }) => changeMonth(months.indexOf(value))}
                 aria-label={t('Month')}
               >
-                {months.map((option) => (
+                {months.map((option: string) => (
                   <option key={option} value={option}>
                     {option}
                   </option>
@@ -136,7 +132,7 @@ export const Datepicker: FC<DatepickerProps> = ({
             {resolution !== 'year' && (
               <select
                 value={format(date, 'yyyy')}
-                onChange={({ target: { value } }) => changeYear(value)}
+                onChange={({ target: { value } }) => changeYear(parseInt(value, 10))}
                 aria-label={t('Year')}
               >
                 {years.map((option) => (

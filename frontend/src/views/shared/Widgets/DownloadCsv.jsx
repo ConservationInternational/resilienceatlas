@@ -4,8 +4,8 @@ import { T } from '@transifex/react';
 
 const DownloadCsv = ({ name, data }) => {
   const csvContent = useMemo(() => {
-    const columns = Object.keys(data.fields).join(',');
-    const rows = data.rows.map((item) => Object.values(item).join(',')).join('\n');
+    const columns = Object.keys(data?.fields || {}).join(',');
+    const rows = (data?.rows || []).map((item) => Object.values(item).join(',')).join('\n');
 
     return `${columns}\n${rows}`;
   }, [data]);

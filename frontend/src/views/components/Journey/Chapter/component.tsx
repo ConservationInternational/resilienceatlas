@@ -21,14 +21,7 @@ const Chapter: React.FC<JourneyAttributes> = ({
         style={{
           background:
             !backgroundImage?.original &&
-            `
-              linear-gradient(0deg, ${hexToRGB(backgroundColor, 0.6)},${hexToRGB(
-              backgroundColor,
-              0.6,
-            )}), linear-gradient(0deg, ${backgroundColor}, ${backgroundColor}), linear-gradient(0deg, #000, #000), url(${
-              backgroundImage?.original
-            })
-            `,
+            `linear-gradient(0deg, ${hexToRGB(backgroundColor, 0.6)},${hexToRGB(backgroundColor, 0.6)}), linear-gradient(0deg, ${backgroundColor}, ${backgroundColor}), linear-gradient(0deg, #000, #000), url(${backgroundImage?.original})`,
         }}
       >
         {chapterNumber}

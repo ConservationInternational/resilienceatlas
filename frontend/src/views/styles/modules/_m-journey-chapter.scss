@@ -1,5 +1,10 @@
+@use '../sass-modules' as *;
+@use '../mixins' as *;
+@use '../variables' as *;
+@use 'm-journey' as journey;
+
 .m-journey--chapter {
-  @extend %journey !optional;
+  @include journey.journey-base;
   background-size: contain !important;
 
   .wrapper {

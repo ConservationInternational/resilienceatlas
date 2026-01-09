@@ -1,15 +1,19 @@
+// ============================================================================
+// State Styles
+// ============================================================================
+// Global state classes
+// ============================================================================
+
+@use 'sass-modules' as *;
+@use 'mixins' as *;
+@use 'variables' as *;
+
 .is-hidden {
   display: none !important;
 }
 
 .is-visually-hidden {
-  clip: rect(0 0 0 0);
-  clip-path: inset(50%);
-  height: 1px;
-  overflow: hidden;
-  position: absolute;
-  white-space: nowrap;
-  width: 1px;
+  @extend %visually-hidden;
 }
 
 .is-stretch {

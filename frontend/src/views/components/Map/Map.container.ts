@@ -1,7 +1,6 @@
-import { compose } from 'redux';
 import { connect } from 'react-redux';
 import { withRouter } from 'next/router';
-import dynamic from 'next/dynamic';
+import type { RootState } from 'state/types';
 
 import {
   load as loadLayers,
@@ -18,7 +17,8 @@ import {
   setMapLayerGroupsInteractionLatLng,
 } from 'state/modules/map';
 
-const MapViewNoSSR = dynamic(() => import('./Map.component'), { ssr: false });
+// Import the component directly - SSR is disabled at the index.js level
+import MapView from './Map.component';
 
 const makeMapStateToProps = () => {
   const groupedLayers = getGrouped();
@@ -26,7 +26,7 @@ const makeMapStateToProps = () => {
   const getModelLayer = makeModelLayer();
   const getActives = makeActives();
 
-  const mapStateToProps = (state) => ({
+  const mapStateToProps = (state: RootState) => ({
     tab: state.ui.tab,
     site: state.site,
     layers: state.layers,
@@ -35,10 +35,15 @@ const makeMapStateToProps = () => {
     basemap: state.map.basemap,
     labels: state.map.labels,
     layer_groups: state.layer_groups,
-    activeLayers: getActives(state),
-    model_layer: getModelLayer(state),
-    defaultActiveGroups: defaultActives(state),
-    grouped: groupedLayers(state),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    activeLayers: getActives(state as any),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    model_layer: getModelLayer(state as any),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    defaultActiveGroups: defaultActives(state as any),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    grouped: groupedLayers(state as any),
   });
 
   return mapStateToProps;
@@ -54,4 +59,8 @@ const mapDispatchToProps = {
   setOpacity,
 };
 
-export default compose(withRouter, connect(makeMapStateToProps, mapDispatchToProps))(MapViewNoSSR);
+// Using explicit any to avoid deep type instantiation issues with compose + connect + withRouter
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const connected = connect(makeMapStateToProps, mapDispatchToProps)(MapView as any);
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export default withRouter(connected as any);

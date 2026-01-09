@@ -21,7 +21,7 @@ class HomepageJourney < ApplicationRecord
   begin
     translates :title, touch: true, fallbacks_for_empty_translations: true
     active_admin_translates :title
-    
+
     # Only add translation validations if the translation_class is defined
     if respond_to?(:translation_class) && translation_class
       translation_class.validates_presence_of :title, if: -> { locale.to_s == I18n.default_locale.to_s }

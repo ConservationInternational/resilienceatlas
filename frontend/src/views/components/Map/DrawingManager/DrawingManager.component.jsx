@@ -17,19 +17,29 @@ export const DrawingManager = ({
   const layer = useRef(null);
 
   useEffect(() => {
-    // bind pm events
-    map.on('pm:drawstart', () => {
+    // Define event handlers
+    const handleDrawStart = () => {
       if (layer.current) {
         setGeojson(null);
       }
-    });
+    };
 
-    map.on('pm:create', (e) => {
+    const handleCreate = (e) => {
       layer.current = e.layer;
       setGeojson(e.layer.toGeoJSON());
       setDrawing(false);
-    });
-  }, []);
+    };
+
+    // bind pm events
+    map.on('pm:drawstart', handleDrawStart);
+    map.on('pm:create', handleCreate);
+
+    // Cleanup function
+    return () => {
+      map.off('pm:drawstart', handleDrawStart);
+      map.off('pm:create', handleCreate);
+    };
+  }, [map, setDrawing, setGeojson]);
 
   // drawing toggler
   useEffect(() => {
@@ -38,7 +48,7 @@ export const DrawingManager = ({
     } else {
       map.pm.disableDraw('Polygon');
     }
-  }, [drawing]);
+  }, [drawing, map.pm]);
 
   // clear drawing if deleted from redux
   useEffect(() => {
@@ -64,7 +74,7 @@ export const DrawingManager = ({
     } else {
       removeParam('geojson');
     }
-  }, [geojson]);
+  }, [geojson, map, setParam, removeParam]);
 
   useEffect(() => {
     if (bounds) {
@@ -77,7 +87,7 @@ export const DrawingManager = ({
       setParam('zoom', map.getZoom());
       setParam('center', qs.stringify(mapBounds.getCenter()));
     }
-  }, [bounds]);
+  }, [bounds, map, setParam]);
 
   useEffect(() => {
     if (layer.current) {
@@ -104,7 +114,7 @@ export const DrawingManager = ({
     } else {
       removeParam('iso');
     }
-  }, [iso]);
+  }, [iso, countries, map, setParam, removeParam]);
 
   return null;
 };

@@ -17,10 +17,8 @@ const Journeys: React.FC<JourneysProps> = ({ title }) => {
       <JourneySlider />
 
       <div className="m-home-journeys__bottom">
-        <Link href="/journeys">
-          <a className="btn btn-primary">
-            <T _str="More journeys" />
-          </a>
+        <Link href="/journeys" className="btn btn-primary">
+          <T _str="More journeys" />
         </Link>
       </div>
     </div>

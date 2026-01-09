@@ -48,7 +48,7 @@ export const useSearch = (
         .filter(Boolean);
     }
     return [];
-  }, [searchInput.value, selectedIndex]);
+  }, [searchInput.value, selectedIndex, data, onSelect, valueKey]);
 
   useEffect(() => {
     const $el: Element = document.querySelector('.selected');
@@ -95,14 +95,14 @@ export const useSearch = (
           break;
       }
     },
-    [selectedIndex, result.length],
+    [selectedIndex, onSelect, result, searchInput],
   );
 
   useEffect(() => {
     if (selectedIndex > result.length) {
       setSelectedIndex(result.length);
     }
-  }, [result.length]);
+  }, [result.length, selectedIndex]);
 
   return {
     searchInput: { ...searchInput, onKeyDown, autoComplete: 'off' },

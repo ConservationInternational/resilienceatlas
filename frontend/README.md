@@ -4,8 +4,10 @@ _This version is based on the repository: [https://github.com/ConservationIntern
 
 The front-end application of the Resilience Atlas platform is built using the following resources:
 
-- [React](https://reactjs.org/) as a UI library
-- [Next.js](https://nextjs.org/) as a framework
+- [React](https://reactjs.org/) v18.3.1 as a UI library
+- [Next.js](https://nextjs.org/) v14.2.15 as a framework  
+- [Node.js](https://nodejs.org/) v22.11.0 as the runtime
+- [TypeScript](https://www.typescriptlang.org/) v5.6.3 for type safety
 - [Sass](https://sass-lang.com/) as a CSS language
 - [Foundation](https://get.foundation/) as a styles framework
 - [Redux](https://redux.js.org/) as a state manager
@@ -15,15 +17,15 @@ The front-end application of the Resilience Atlas platform is built using the fo
 
 In order to start modifying the app, please make sure to correctly configure your workstation:
 
-1. Make sure you you have [Node.js](https://nodejs.org/en/) installed
+1. Make sure you you have [Node.js](https://nodejs.org/en/) v22.11.0 or later installed
 2. (Optional) Install [NVM](https://github.com/nvm-sh/nvm) to manage your different Node.js versions
 3. (Optional) Use [Visual Studio Code](https://code.visualstudio.com/) as a text editor to benefit from automatic type checking
 4. Configure your text editor with the [Prettier](https://prettier.io/), [ESLint](https://eslint.org/) and [EditorConfig](https://editorconfig.org/) plugins
 5. (Optional) Configure your editor to “format [code] on save” with ESLint and Prettier
-6. Use the correct Node.js version for this app by running `nvm use`; if you didn't install NVM (step 2), then manually install the Node.js version described in `.nvmrc`
-7. Install the dependencies: `yarn`
+6. Use the correct Node.js version for this app by running `nvm use`; if you didn't install NVM (step 2), then manually install Node.js v22.11.0 as described in `.nvmrc`
+7. Install the dependencies: `npm install --legacy-peer-deps` or `yarn`
 8. Create a `.env` file at the root of the project by copying `.env.example` and giving a value for each of the variables (see next section for details)
-9. Run the server: `yarn dev`
+9. Run the server: `npm run dev` or `yarn dev`
 
 You can access a hot-reloaded version of the app on [http://localhost:3000](http://localhost:3000).
 
@@ -45,8 +47,8 @@ Below is a description of each of the keys.
 
 Every time we update the environment variables, we need to update them in the following places:
 
-- For the GitHub Actions scripts, the environment variables are stored in the repository as GitHub secrets. In order to update them, you need to be an administrator of the repository. The environment variables are used in the workflows: `.github/workflows/frontend_tests.yml`, `.github/workflows/ecs_deploy_staging.yml`, and `.github/workflows/ecs_deploy_production.yml`.
-- For the ECS deployment environments, the environment variables are configured in the task definitions and AWS Secrets Manager. See `.github/SECRETS.md` for details.
+- For the GitHub Actions scripts, the environment variables are stored in the repository as GitHub secrets. In order to update them, you need to be an administrator of the repository. The environment variables are used in the workflows: `.github/workflows/frontend_tests.yml`, `.github/workflows/codedeploy_staging.yml`, and `.github/workflows/codedeploy_production.yml`.
+- For the EC2 deployment environments, the environment variables are configured via GitHub Secrets and passed to Docker containers during deployment. See [scripts/README.md](../scripts/README.md) for details.
 - For the local environment, the environment variables are stored in the `.env.local` file.
 - Update the environment variables in the `README.md` file.
 - Finally, you have to update the environment variables in the `.env.example` file.
@@ -152,7 +154,7 @@ It is recommended to mention the Jira task ID either in commits or the branch na
 
 ## Deployment
 
-Deployment is now fully automated using GitHub Actions and AWS ECS. The application is automatically deployed when:
+Deployment is now fully automated using GitHub Actions and AWS EC2. The application is automatically deployed when:
 
 - **Staging**: Push to `develop` branch (after tests pass)
 - **Production**: Push to `main` branch (after tests pass)
@@ -161,11 +163,11 @@ Deployment is now fully automated using GitHub Actions and AWS ECS. The applicat
 
 - **Staging**: staging.resilienceatlas.org
 - **Production**: resilienceatlas.org
-- **Infrastructure**: AWS ECS with EC2 cluster
-- **Container Registry**: AWS ECR
+- **Infrastructure**: AWS EC2 instances with Docker Compose
+- **Load Balancing**: Application Load Balancer
 - **Database**: 
   - Staging: Containerized PostgreSQL with production data copy
-  - Production: AWS RDS PostgreSQL
+  - Production: External PostgreSQL database
 
 ### Manual Deployment
 
@@ -173,13 +175,13 @@ If you need to trigger a deployment manually:
 
 1. Go to GitHub Actions in the repository
 2. Select the appropriate workflow:
-   - "ECS Deploy - Staging" for staging
-   - "ECS Deploy - Production" for production
+   - "EC2 Deploy - Staging" for staging
+   - "EC2 Deploy - Production" for production
 3. Click "Run workflow" and select the branch
 
 For more details, see:
-- `.github/SECRETS.md` - Required secrets configuration
-- `DOCKER.md` - Docker and deployment guide
+- [scripts/README.md](../scripts/README.md) - Setup and deployment guide
+- `DOCKER.md` - Docker and development guide
 
 ## Contribution rules
 

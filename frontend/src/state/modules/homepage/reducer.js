@@ -1,6 +1,6 @@
 import { createReducer } from '../../utils';
 import { LOAD } from './actions';
-import { SectionTypes } from 'types/homepage.d';
+import { SectionTypes } from 'types/homepage';
 
 const initialState = {
   homepage: {

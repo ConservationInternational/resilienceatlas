@@ -1,3 +1,13 @@
+// ============================================================================
+// Base Styles
+// ============================================================================
+// Global base styles for the application
+// ============================================================================
+
+@use 'sass-modules' as *;
+@use 'mixins' as *;
+@use 'variables' as *;
+
 // Must be 100% for off canvas to work
 html,
 body,
@@ -43,9 +53,21 @@ body {
 // Links
 a {
   text-decoration: none;
+  cursor: pointer; // Force cursor pointer for all links
 
   &:hover {
     text-decoration: underline;
+    cursor: pointer;
+  }
+}
+
+// Force Next.js Link components to be clickable
+.l-header-nav a,
+.l-header-nav a[href] {
+  cursor: pointer !important;
+  
+  &:hover {
+    cursor: pointer !important;
   }
 }
 

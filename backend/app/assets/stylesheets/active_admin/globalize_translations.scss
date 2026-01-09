@@ -1,0 +1,156 @@
+// Active Admin Globalize Translations Styles
+// Custom replacement for activeadmin-globalize gem
+
+.activeadmin-translations {
+  margin-bottom: 20px;
+
+  // Hide all locale fieldsets by default - JavaScript will show the active one
+  > fieldset.locale {
+    display: none;
+    
+    &.active {
+      display: block; // Show the active/default locale
+    }
+  }
+
+  > ul.available-locales,
+  > ul.locale-selector {
+    position: relative;
+    top: 4px;
+    padding: 0 10px;
+    margin-bottom: 0;
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 3px;
+
+    > li {
+      display: inline-block;
+
+      > a {
+        display: inline-block;
+        color: #666;
+        text-decoration: none;
+        font-size: 14px;
+        padding: 8px 15px;
+        border-top-left-radius: 4px;
+        border-top-right-radius: 4px;
+        background: #e8e8e8;
+        transition: background-color 0.2s;
+        cursor: pointer;
+
+        &:hover {
+          background: #ddd;
+        }
+
+        &.active,
+        &.default.active {
+          background: #f4f4f4;
+          box-shadow: inset 0 4px 4px #ddd;
+        }
+
+        &.error {
+          color: #932419;
+        }
+      }
+    }
+
+    > li.translation-tab > a {
+      // Same styles for translation-tab variant
+    }
+  }
+
+  > fieldset.inputs.locale {
+    margin-top: 0;
+    border-top-left-radius: 0;
+    
+    ol {
+      padding-left: 0;
+      width: 100%;
+    }
+  }
+}
+
+// Inline translation selectors (for show pages)
+span.inline-locale-selector {
+  margin-right: 10px;
+
+  > .ui-translation-trigger {
+    opacity: 0.4;
+    cursor: pointer;
+    text-decoration: none;
+    margin-right: 5px;
+
+    &.empty {
+      filter: grayscale(100%);
+    }
+
+    &.active {
+      opacity: 1;
+    }
+
+    &:hover {
+      opacity: 0.8;
+    }
+  }
+}
+
+// Translation field spans/divs
+.field-translation {
+  &.hidden {
+    display: none;
+  }
+}
+
+span.field-translation {
+  &.empty {
+    color: #999;
+    font-style: italic;
+  }
+}
+
+div.field-translation {
+  padding: 10px;
+  min-height: 40px;
+  background: #f9f9f9;
+  border-radius: 4px;
+}
+
+// Flag icons
+.flag {
+  display: inline-block;
+  width: 16px;
+  height: 11px;
+  background-image: url('active_admin/flags.png');
+  background-repeat: no-repeat;
+
+  &.flag-en { background-position: -48px -22px; }
+  &.flag-es { background-position: -32px 0; }
+  &.flag-fr { background-position: 0 -11px; }
+  &.flag-de { background-position: -16px 0; }
+  &.flag-it { background-position: 0 -22px; }
+  &.flag-pt { background-position: -16px -22px; }
+  &.flag-pt-BR { background-position: -16px -22px; }
+  &.flag-pt-PT { background-position: -16px -22px; }
+  &.flag-nl { background-position: -48px 0; }
+  &.flag-ru { background-position: -16px -11px; }
+  &.flag-zh { background-position: -32px -11px; }
+  &.flag-ja { background-position: -48px -11px; }
+  &.flag-ko { background-position: 0 0; }
+  &.flag-ar { background-position: 0 -33px; }
+  &.flag-he { background-position: 0 -33px; }
+  &.flag-tr { background-position: -32px -22px; }
+  &.flag-hu { background-position: -32px -11px; }
+}
+
+// Status tags for translation status in index tables
+.status_tag {
+  display: inline-block;
+  padding: 2px 6px;
+  margin: 1px;
+  font-size: 11px;
+  border-radius: 3px;
+  background: #5E6469;
+  color: white;
+  text-transform: uppercase;
+}

@@ -10,8 +10,9 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_07_02_120000) do
-  create_schema "topology"
+ActiveRecord::Schema[7.2].define(version: 2026_01_07_120000) do
+  # Create topology schema if it doesn't exist (PostGIS may create it during extension installation)
+  execute "CREATE SCHEMA IF NOT EXISTS topology"
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -230,8 +231,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_07_02_120000) do
   create_table "indicators", force: :cascade do |t|
     t.string "slug", null: false
     t.string "version"
-    t.datetime "created_at", precision: nil, default: "2025-07-06 17:50:21", null: false
-    t.datetime "updated_at", precision: nil, default: "2025-07-06 17:50:21", null: false
+    t.datetime "created_at", precision: nil, default: -> { "CURRENT_TIMESTAMP" }, null: false
+    t.datetime "updated_at", precision: nil, default: -> { "CURRENT_TIMESTAMP" }, null: false
     t.integer "category_id"
     t.integer "position"
     t.string "column_name"
@@ -424,8 +425,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_07_02_120000) do
   end
 
   create_table "models", force: :cascade do |t|
-    t.datetime "created_at", precision: nil, default: "2025-07-06 17:50:21", null: false
-    t.datetime "updated_at", precision: nil, default: "2025-07-06 17:50:21", null: false
+    t.datetime "created_at", precision: nil, default: -> { "CURRENT_TIMESTAMP" }, null: false
+    t.datetime "updated_at", precision: nil, default: -> { "CURRENT_TIMESTAMP" }, null: false
     t.text "query_analysis"
     t.string "table_name"
   end
@@ -497,6 +498,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_07_02_120000) do
     t.boolean "password_protected", default: false, null: false
     t.string "username"
     t.string "encrypted_password"
+    t.text "encrypted_viewable_password"
     t.index ["password_protected"], name: "index_site_scopes_on_password_protected"
   end
 

@@ -1,3 +1,7 @@
+@use '../sass-modules' as *;
+@use '../mixins' as *;
+@use '../variables' as *;
+
 $backgrounds-thumb: 'thumb-0', 'thumb-1', 'thumb-2', 'thumb-3', 'thumb-4',
   'thumb-5';
 
@@ -49,9 +53,9 @@ $backgrounds-thumb: 'thumb-0', 'thumb-1', 'thumb-2', 'thumb-3', 'thumb-4',
     background-size: cover !important;
     background-position: center;
 
-    @for $i from 1 through length($backgrounds-thumb) {
-      &.#{nth($backgrounds-thumb, $i)} {
-        background-image: url('/images/home/#{nth($backgrounds-thumb, $i)}.jpg');
+    @for $i from 1 through len($backgrounds-thumb) {
+      &.#{get-nth($backgrounds-thumb, $i)} {
+        background-image: url('/images/home/#{get-nth($backgrounds-thumb, $i)}.jpg');
       }
     }
 

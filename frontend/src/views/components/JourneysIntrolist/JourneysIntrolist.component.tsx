@@ -41,29 +41,24 @@ const JourneysIntrolist: React.FC<JourneysIntrolistProps> = ({
               <div className="text">
                 <span className="title">
                   <h2>
-                    <Link href={`/journeys/${id}`}>
-                      <a>{title}</a>
-                    </Link>
+                    <Link href={`/journeys/${id}`}>{title}</Link>
                   </h2>
                 </span>
                 <span className="description">
                   <p>{theme}</p>
                 </span>
-                <Link href={`/journeys/${id}`}>
-                  <a className="btn btn-secondary theme-bg-color">
-                    <T _str="Learn more" />
-                  </a>
+                <Link href={`/journeys/${id}`} className="btn btn-secondary theme-bg-color">
+                  <T _str="Learn more" />
                 </Link>
               </div>
-              <Link href={`/journeys/${id}`}>
-                <a
-                  className="pic"
-                  style={{
-                    backgroundImage: `url(${image})`,
-                  }}
-                >
-                  <span className="background" />
-                </a>
+              <Link
+                href={`/journeys/${id}`}
+                className="pic"
+                style={{
+                  backgroundImage: `url(${image})`,
+                }}
+              >
+                <span className="background" />
               </Link>
             </li>
           );

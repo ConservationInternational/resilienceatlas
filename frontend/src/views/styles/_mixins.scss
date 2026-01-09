@@ -1,3 +1,19 @@
+// ============================================================================
+// Mixins and Placeholder Selectors
+// ============================================================================
+// This file provides reusable mixins and placeholder selectors.
+// Uses modern Sass module system.
+// ============================================================================
+
+@use 'sass-modules' as *;
+
+// Default rem base - can be overridden in _variables.scss
+$rem-base: 16px !default;
+
+// ============================================================================
+// Placeholder Selectors
+// ============================================================================
+
 // Clean lists
 %clean-lists {
   list-style: none;
@@ -56,6 +72,17 @@
   //   border: 0;
   //   outline: 0;
   // }
+}
+
+// Visually hidden but accessible to screen readers
+%visually-hidden {
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  height: 1px;
+  overflow: hidden;
+  position: absolute;
+  white-space: nowrap;
+  width: 1px;
 }
 
 %clearfix {
@@ -139,7 +166,7 @@
     position: absolute;
     top: 50%;
     left: 50%;
-    margin: (-$size/2) 0 (-$size/2);
+    margin: div(-$size, 2) 0 div(-$size, 2);
     transition: all 0.75s ease 0s;
     border-radius: 100%;
     border-top: $border-width solid $color;
@@ -236,7 +263,7 @@
 
 // A helper to transform PX to REM unit
 @function rem($px, $base: $rem-base) {
-  @return ($px / $base) * 1rem;
+  @return div($px, $base) * 1rem;
 }
 
 @mixin ellipsis($max-width) {
@@ -249,5 +276,59 @@
 
 // A helper to darken a css variable color
 @function darken-variable($variable, $opacity) {
-  @return unquote('linear-gradient(to top,rgba(0, 0, 0,'+ $opacity +'),rgba(0, 0, 0,' + $opacity + '))' + $variable);
+  @return unquote-str('linear-gradient(to top,rgba(0, 0, 0,' + $opacity + '),rgba(0, 0, 0,' + $opacity + '))' + $variable);
+}
+
+// Switch component mixins (replacement for foundation-sites)
+$switch-background: #e6e6e6 !default;
+$switch-background-active: #1779ba !default; // Default blue, can be overridden
+$switch-height: 2rem !default;
+$switch-height-tiny: 1.5rem !default;
+$switch-height-small: 1.75rem !default;
+$switch-height-large: 2.5rem !default;
+$switch-radius: 0.9375rem !default;
+$switch-margin: 0.25rem !default;
+$switch-paddle-background: #fefefe !default;
+$switch-paddle-offset: 0.25rem !default;
+$switch-paddle-radius: 0.75rem !default;
+$switch-paddle-transition: all 0.25s ease-out !default;
+$switch-opacity-disabled: 0.5 !default;
+
+@mixin switch-container {
+  position: relative;
+  outline: none;
+}
+
+@mixin switch-input {
+  position: absolute;
+  margin-bottom: 0;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  cursor: pointer;
+}
+
+@mixin switch-paddle {
+  position: relative;
+  display: block;
+  width: $switch-height * 2;
+  height: $switch-height;
+  border-radius: $switch-radius;
+  background: $switch-background;
+  transition: $switch-paddle-transition;
+  cursor: pointer;
+
+  &::after {
+    position: absolute;
+    top: $switch-paddle-offset;
+    left: $switch-paddle-offset;
+    display: block;
+    width: $switch-height - ($switch-paddle-offset * 2);
+    height: $switch-height - ($switch-paddle-offset * 2);
+    content: '';
+    background: $switch-paddle-background;
+    border-radius: $switch-paddle-radius;
+    transition: $switch-paddle-transition;
+  }
 }

@@ -30,13 +30,16 @@ const FullscreenLayout: React.FC<FullscreenLayoutProps> = ({
   children,
   dispatch,
 }) => {
-  const { subdomain, header_theme } = site;
+  // Provide default values to prevent errors when site is undefined during SSR
+  const { subdomain = '', header_theme = '' } = site || {};
   const router = useRouter();
   const { locale } = router;
   // Currently data fetching in Layouts are not supporting getServerSideProps
   // https://nextjs.org/docs/basic-features/layouts#data-fetching
   // NOTE: consider move this to every page that needs it using getServerSideProps
-  useEffect(() => dispatch(loadSite(locale)), [dispatch, locale]);
+  useEffect(() => {
+    dispatch(loadSite(locale));
+  }, [dispatch, locale]);
 
   return (
     <div

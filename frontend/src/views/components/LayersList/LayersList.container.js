@@ -6,9 +6,13 @@ import LayerList from './LayersList.component';
 const mapStateToProps = (state) => {
   const groupedLayers = getGrouped();
 
+  const layersLoaded = state.layers.loaded;
+  const layerGroupsLoaded = state.layer_groups.loaded;
+  const groups = layersLoaded && layerGroupsLoaded ? groupedLayers(state) : [];
+
   return {
-    groups: state.layers.loaded && state.layer_groups.loaded ? groupedLayers(state) : [],
-    loaded: state.layers.loaded && state.layer_groups.loaded,
+    groups,
+    loaded: layersLoaded && layerGroupsLoaded,
     loading: state.layers.loading || state.layer_groups.loading,
   };
 };

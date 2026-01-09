@@ -101,9 +101,9 @@ export default createReducer(initialState)({
 
     if (actives.has(id)) {
       actives.delete(id);
-      sorted_actives = new Set(actives.toJSON());
+      sorted_actives = new Set([...actives]);
     } else {
-      const actives_list = actives.toJSON();
+      const actives_list = [...actives];
       actives_list.unshift(id);
       sorted_actives = new Set(actives_list);
     }

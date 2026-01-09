@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback } from 'react';
+import React, { useEffect, useCallback, useState } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import cx from 'classnames';
@@ -12,13 +12,22 @@ const Header = ({
   loadMenuItems,
   logout,
   loggedIn,
-  site: { linkback_text, linkback_url },
+  site,
   menuItems,
   menuItemsLoaded,
   menuItemsLoadedLocale,
   translations,
 }) => {
-  const { pathname, locale } = useRouter();
+  const router = useRouter();
+  const { pathname, locale } = router;
+  const [hasMounted, setHasMounted] = useState(false);
+
+  // Safely destructure site with default values to prevent errors during SSR/hydration
+  const { linkback_text = '', linkback_url = '' } = site || {};
+
+  useEffect(() => {
+    setHasMounted(true);
+  }, []);
 
   useEffect(() => {
     if (!menuItemsLoaded || menuItemsLoadedLocale !== locale) loadMenuItems(locale);
@@ -42,10 +51,16 @@ const Header = ({
       <nav className="l-header-nav">
         <ul className="brand-area">
           <li>
-            <Link href="/">
-              <a>
-                <T _str="Resilience Atlas"></T>
-              </a>
+            <Link
+              href="/"
+              style={{
+                display: 'block',
+                cursor: 'pointer',
+                textDecoration: 'none',
+                color: '#333333',
+              }}
+            >
+              <T _str="Resilience Atlas"></T>
             </Link>
           </li>
         </ul>
@@ -54,38 +69,86 @@ const Header = ({
         </ul>
         <ul className="nav-area -resilience">
           <li className="journey-link">
-            <Link href="/journeys">
-              <a className={cx(pathname.includes('/journeys') && 'is-current')}>
-                <T _str="Journeys" />
-              </a>
+            <Link
+              href="/journeys"
+              className={pathname.includes('/journeys') ? 'nav-current-forced' : ''}
+              style={{
+                display: 'block',
+                padding: '10px',
+                cursor: 'pointer',
+                textDecoration: 'none',
+                fontSize: '14px',
+                textTransform: 'uppercase',
+                borderRadius: '3px',
+                transition: '0.2s ease-in',
+                ...(!pathname.includes('/journeys') && { color: 'var(--theme-color, #333333)' }),
+              }}
+            >
+              <T _str="Journeys" />
             </Link>
           </li>
 
           <li>
-            <Link href="/map">
-              <a className={cx(pathname.includes('/map') && 'is-current')}>
-                <T _str="Map" />
-              </a>
+            <Link
+              href="/map"
+              className={pathname.includes('/map') ? 'nav-current-forced' : ''}
+              style={{
+                display: 'block',
+                padding: '10px',
+                cursor: 'pointer',
+                textDecoration: 'none',
+                fontSize: '14px',
+                textTransform: 'uppercase',
+                borderRadius: '3px',
+                transition: '0.2s ease-in',
+                ...(!pathname.includes('/map') && { color: 'var(--theme-color, #333333)' }),
+              }}
+            >
+              <T _str="Map" />
             </Link>
 
-            <ul>{menuItems.sort(byPosition).map(renderMenuItem)}</ul>
+            <ul>{(menuItems || []).sort(byPosition).map(renderMenuItem)}</ul>
           </li>
 
           <li>
-            <Link href="/about">
-              <a className={cx(pathname.includes('/about') && 'is-current')}>
-                <T _str="About" />
-              </a>
+            <Link
+              href="/about"
+              className={pathname.includes('/about') ? 'nav-current-forced' : ''}
+              style={{
+                display: 'block',
+                padding: '10px',
+                cursor: 'pointer',
+                textDecoration: 'none',
+                fontSize: '14px',
+                textTransform: 'uppercase',
+                borderRadius: '3px',
+                transition: '0.2s ease-in',
+                ...(!pathname.includes('/about') && { color: 'var(--theme-color, #333333)' }),
+              }}
+            >
+              <T _str="About" />
             </Link>
           </li>
 
-          {loggedIn ? (
+          {hasMounted && loggedIn ? (
             <>
               <li>
-                <Link href="/me">
-                  <a className={cx(pathname.includes('/me') && 'is-current')}>
-                    <T _str="Me" />
-                  </a>
+                <Link
+                  href="/me"
+                  className={pathname.includes('/me') ? 'nav-current-forced' : ''}
+                  style={{
+                    display: 'block',
+                    padding: '10px',
+                    cursor: 'pointer',
+                    textDecoration: 'none',
+                    fontSize: '14px',
+                    textTransform: 'uppercase',
+                    borderRadius: '3px',
+                    transition: '0.2s ease-in',
+                    ...(!pathname.includes('/me') && { color: 'var(--theme-color, #333333)' }),
+                  }}
+                >
+                  <T _str="Me" />
                 </Link>
               </li>
 
@@ -95,25 +158,51 @@ const Header = ({
                 </button>
               </li>
             </>
-          ) : (
+          ) : hasMounted ? (
             <>
               <li>
-                <Link href="/login">
-                  <a className={cx(pathname.includes('/login') && 'is-current')}>
-                    <T _str="Login" />
-                  </a>
+                <Link
+                  href="/login"
+                  className={pathname.includes('/login') ? 'nav-current-forced' : ''}
+                  style={{
+                    display: 'block',
+                    padding: '10px',
+                    cursor: 'pointer',
+                    textDecoration: 'none',
+                    fontSize: '14px',
+                    textTransform: 'uppercase',
+                    borderRadius: '3px',
+                    transition: '0.2s ease-in',
+                    ...(!pathname.includes('/login') && { color: 'var(--theme-color, #333333)' }),
+                  }}
+                >
+                  <T _str="Login" />
                 </Link>
               </li>
 
               <li>
-                <Link href="/register">
-                  <a className={cx(pathname.includes('/register') && 'is-current')}>
-                    <T _str="Register" />
-                  </a>
+                <Link
+                  href="/register"
+                  className={pathname.includes('/register') ? 'nav-current-forced' : ''}
+                  style={{
+                    display: 'block',
+                    padding: '10px',
+                    cursor: 'pointer',
+                    textDecoration: 'none',
+                    fontSize: '14px',
+                    textTransform: 'uppercase',
+                    borderRadius: '3px',
+                    transition: '0.2s ease-in',
+                    ...(!pathname.includes('/register') && {
+                      color: 'var(--theme-color, #333333)',
+                    }),
+                  }}
+                >
+                  <T _str="Register" />
                 </Link>
               </li>
             </>
-          )}
+          ) : null}
         </ul>
         <ul className="nav-area -vital-sign">
           <li>

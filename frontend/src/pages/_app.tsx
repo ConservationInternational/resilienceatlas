@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Provider as ReduxProvider } from 'react-redux';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
-import { QueryClient, QueryClientProvider, Hydrate } from '@tanstack/react-query';
+import { QueryClient, QueryClientProvider, HydrationBoundary } from '@tanstack/react-query';
 import { tx, PseudoTranslationPolicy } from '@transifex/native';
 import { TourProvider } from '@reactour/tour';
 import { CookiesProvider, useCookies } from 'react-cookie';
@@ -15,6 +15,7 @@ import TOUR_STEPS from 'constants/tour-steps';
 
 import { Badge, Navigation } from 'views/components/MapTour';
 import SiteScopeAuthModal from 'views/components/SiteScopeAuthModal';
+import { RollbarProvider } from 'utilities/rollbar';
 
 import type { Translations } from 'types/transifex';
 import type { ReactElement, ReactNode } from 'react';
@@ -22,6 +23,44 @@ import type { NextPage } from 'next';
 import type { AppProps } from 'next/app';
 import type { DehydratedState } from '@tanstack/react-query';
 import type { ProviderProps as MapTourProviderProps } from '@reactour/tour';
+
+// Fix Next.js 16 HMR ISR manifest error in development
+// This is a known issue where the HMR handler (hot-reloader-pages.ts) tries to access
+// window.next.router.components before the router is fully initialized.
+// The handleStaticIndicator function crashes with "Cannot read properties of undefined"
+// when isrManifest HMR messages arrive before the router has set up its components.
+if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
+  // Ensure window.next.router.components exists before HMR messages arrive
+  // Note: window.next.router is defined with only a getter in Next.js 16,
+  // so we can only add properties to it, not replace it entirely
+  const ensureRouterComponents = () => {
+    try {
+      const nextObj = (window as any).next;
+      if (nextObj && nextObj.router && typeof nextObj.router.components === 'undefined') {
+        nextObj.router.components = {};
+      }
+    } catch {
+      // Silently ignore if we can't patch - the router may not be ready yet
+    }
+  };
+
+  // Apply immediately if possible
+  ensureRouterComponents();
+
+  // Also ensure it's set up when the HMR WebSocket connects (which happens early)
+  // by periodically checking until the real router takes over
+  const interval = setInterval(() => {
+    ensureRouterComponents();
+    // Stop checking once the real router is initialized with actual components
+    const nextObj = (window as any).next;
+    if (nextObj?.router?.components && Object.keys(nextObj.router.components).length > 0) {
+      clearInterval(interval);
+    }
+  }, 10);
+
+  // Clean up after 5 seconds regardless (router should be initialized by then)
+  setTimeout(() => clearInterval(interval), 5000);
+}
 
 // Third-party styles
 import 'normalize.css/normalize.css';
@@ -64,6 +103,7 @@ export type ResilienceAppProps = {
     translations: Translations;
   };
   dispatch?: (action: unknown) => void;
+  isSidebarOpen?: boolean;
 };
 
 export type JourneyPageProps = ResilienceAppProps & {
@@ -87,6 +127,7 @@ const ResilienceApp = ({ Component, ...rest }: AppPropsWithLayout) => {
   const { store: appStore } = wrapper.useWrappedStore(rest);
   const getLayout = Component.Layout ?? ((page) => page);
   const { locale, locales, asPath } = router;
+  const hasWarnedAboutTransifex = useRef(false);
   const [queryClient] = useState(
     () =>
       new QueryClient({
@@ -128,18 +169,25 @@ const ResilienceApp = ({ Component, ...rest }: AppPropsWithLayout) => {
   useEffect(() => {
     // Only initialize Transifex if a token is provided and not empty
     if (NEXT_PUBLIC_TRANSIFEX_TOKEN && NEXT_PUBLIC_TRANSIFEX_TOKEN.trim() !== '') {
-      // Used for initial render
-      tx.init({
-        token: NEXT_PUBLIC_TRANSIFEX_TOKEN,
-        ...(process.env.NODE_ENV === 'development'
-          ? { missingPolicy: new PseudoTranslationPolicy() }
-          : {}),
-      });
+      try {
+        // Used for initial render
+        tx.init({
+          token: NEXT_PUBLIC_TRANSIFEX_TOKEN,
+          ...(process.env.NODE_ENV === 'development'
+            ? { missingPolicy: new PseudoTranslationPolicy() }
+            : {}),
+        });
 
-      tx.setCurrentLocale(locale);
-    } else if (process.env.NODE_ENV === 'development') {
-      // In development without token, just log a warning
+        tx.setCurrentLocale(locale);
+      } catch (error) {
+        // If Transifex fails on client, just log and continue
+        console.warn('Transifex client initialization failed:', error.message);
+      }
+    } else if (process.env.NODE_ENV === 'development' && !hasWarnedAboutTransifex.current) {
+      // In development without token, just log a warning once
+      // eslint-disable-next-line no-console
       console.warn('Transifex token not provided. Translation service disabled.');
+      hasWarnedAboutTransifex.current = true;
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router]);
@@ -227,18 +275,20 @@ const ResilienceApp = ({ Component, ...rest }: AppPropsWithLayout) => {
           href={`${process.env.NEXT_PUBLIC_FRONTEND_URL}${asPath}`}
         />
       </Head>
-      <ReduxProvider store={appStore}>
-        <QueryClientProvider client={queryClient}>
-          <CookiesProvider>
-            <TourProvider {...REACT_TOUR_OPTIONS}>
-              <Hydrate state={rest.pageProps.dehydratedState}>
-                {getLayout(<Component {...rest.pageProps} />, rest.pageProps?.translations)}
-                <SiteScopeAuthModal />
-              </Hydrate>
-            </TourProvider>
-          </CookiesProvider>
-        </QueryClientProvider>
-      </ReduxProvider>
+      <RollbarProvider>
+        <ReduxProvider store={appStore} key="redux-provider">
+          <QueryClientProvider client={queryClient}>
+            <CookiesProvider>
+              <TourProvider {...REACT_TOUR_OPTIONS}>
+                <HydrationBoundary state={rest.pageProps.dehydratedState}>
+                  {getLayout(<Component {...rest.pageProps} />, rest.pageProps?.translations)}
+                  <SiteScopeAuthModal />
+                </HydrationBoundary>
+              </TourProvider>
+            </CookiesProvider>
+          </QueryClientProvider>
+        </ReduxProvider>
+      </RollbarProvider>
     </>
   );
 };

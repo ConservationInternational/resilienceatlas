@@ -16,4 +16,9 @@ module.exports = defineConfig({
     viewportWidth: 1280,
     viewportHeight: 920,
   },
+  reporter: 'junit',
+  reporterOptions: {
+    mochaFile: 'cypress/results/test-results-[hash].xml',
+    toConsole: true,
+  },
 });

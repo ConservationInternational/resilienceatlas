@@ -17,15 +17,15 @@ class Category < ApplicationRecord
     translates :name, :description, touch: true, fallbacks_for_empty_translations: true
   end
 
-  has_many :indicators
+  has_many :indicators, dependent: :restrict_with_error
 
   # Translation setup - only add extra features if database is ready and not during migration
   # This prevents errors during migrations when tables don't exist yet
-  unless defined?(Rails::Generators) || Rails.env.test? && ENV['RAILS_MIGRATE']
+  if !defined?(Rails::Generators) && !(Rails.env.test? && ENV["RAILS_MIGRATE"])
     begin
-      if defined?(Globalize) && ActiveRecord::Base.connection && ActiveRecord::Base.connection.table_exists?(:category_translations)
+      if defined?(Globalize) && ActiveRecord::Base.connection&.table_exists?(:category_translations)
         active_admin_translates :name, :description
-        
+
         # Only add translation validations if the translation_class is defined
         if respond_to?(:translation_class) && translation_class
           translation_class.validates_presence_of :name, if: -> { locale.to_s == I18n.default_locale.to_s }
@@ -38,6 +38,15 @@ class Category < ApplicationRecord
   end
 
   validates_presence_of :slug
+
+  # Ransack configuration - explicitly allowlist searchable attributes for security
+  def self.ransackable_attributes(auth_object = nil)
+    %w[id slug name description created_at updated_at]
+  end
+
+  def self.ransackable_associations(auth_object = nil)
+    %w[indicators translations]
+  end
 
   def self.fetch_all(options = {})
     Category.with_translations

@@ -1,3 +1,8 @@
+@use '../sass-modules' as *;
+@use '../mixins' as *;
+@use '../variables' as *;
+@use 'm-journey' as journey;
+
 %m-journey-embed {
   display: flex;
   .embebed-map {
@@ -171,7 +176,7 @@
 }
 
 .m-journey--embed--light {
-  @extend %journey !optional;
+  @include journey.journey-base;
   @extend %m-journey-embed;
 
   h2 {

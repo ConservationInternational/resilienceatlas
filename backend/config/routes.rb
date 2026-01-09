@@ -1,4 +1,7 @@
 Rails.application.routes.draw do
+  # Health check endpoint at root level for ALB
+  get "health", to: "api/health#show"
+
   mount Rswag::Ui::Engine => "/api-docs"
   mount Rswag::Api::Engine => "/api-docs"
 
@@ -16,6 +19,9 @@ Rails.application.routes.draw do
 
   # API routes
   namespace :api, defaults: {format: "json"} do
+    # Health check endpoint
+    get "health", to: "health#show"
+
     namespace :admin do
       resources :layers do
         collection do
@@ -38,11 +44,11 @@ Rails.application.routes.draw do
       get "/journeys/:id", to: "journeys#show"
       get "/menu-entries", to: "menu_entries#index"
       get "/homepage", to: "homepages#show"
-      
+
       # Site scope authentication endpoints
       post "/site-scope/authenticate", to: "site_scope_authentications#authenticate"
       get "/site-scope/check-access", to: "site_scope_authentications#check_access"
-      
+
       resources :photos, only: :create
       resources :feedbacks, only: :create
       resources :static_pages, only: :show

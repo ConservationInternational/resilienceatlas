@@ -7,7 +7,7 @@ on:
       - ".github/workflows/titiler_cogs*"
   workflow_dispatch:
     inputs:
-      deploy_master:
+      deploy_main:
         description: 'Deploy to the production stack'
         required: false
         default: 'false'
@@ -18,7 +18,7 @@ on:
         type: string
 jobs:
   build-and-deploy-feature-branch:
-    if: github.ref != 'refs/heads/master' && !inputs.deploy_master
+    if: github.ref != 'refs/heads/main' && !inputs.deploy_main
     name: Deploy develop/feature branch stack to AWS
     runs-on: ubuntu-22.04
     steps:
@@ -61,7 +61,7 @@ jobs:
 
   build-and-deploy-production:
     name: Deploy the production stack to AWS
-    if: github.ref == 'refs/heads/master' || inputs.deploy_master
+    if: github.ref == 'refs/heads/main' || inputs.deploy_main
 
     runs-on: ubuntu-22.04
     steps:

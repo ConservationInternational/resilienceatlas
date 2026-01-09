@@ -41,8 +41,8 @@ const Section: React.FC<SectionProps> = ({
           <h2>{title}</h2>
           {subtitle && <p>{subtitle}</p>}
           {button_text && button_url && (
-            <Link href={button_url}>
-              <a className="btn btn-primary theme-color">{button_text}</a>
+            <Link href={button_url} className="btn btn-primary theme-color">
+              {button_text}
             </Link>
           )}
         </div>

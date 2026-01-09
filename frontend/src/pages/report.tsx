@@ -1,4 +1,4 @@
-import { Row, Column } from 'react-foundation';
+import { Row, Column } from 'views/components/Grid';
 
 import ReportLayout from 'views/layouts/report';
 import MapView from 'views/components/Map';
@@ -22,21 +22,12 @@ const ReportPage: NextPageWithLayout = ({ translations, setTranslations }) => {
             <h2>
               <T _str="Analysis report" />
             </h2>
-            <MapView
-              page="report"
-              options={{
-                map: {
-                  minZoom: 2,
-                  maxZoom: 25,
-                  zoomControl: false,
-                },
-              }}
-            />
+            <MapView />
             <Loader />
 
             <Legend />
 
-            <LayerAnalysis responsiveCharts width={670} />
+            <LayerAnalysis responsiveCharts />
 
             <a href="http://resilienceatlas.org/" className="logo">
               <span />

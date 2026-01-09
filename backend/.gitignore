@@ -32,8 +32,9 @@
 !/public/storage/.keep
 
 .env
-.env.development
-.env.test
+.env.*
+.env-*
+!.env.sample
 
 *.dump
 

@@ -39,6 +39,9 @@ gem "addressable", "~> 2.8"
 
 gem "rack-cors", "~> 2.0"
 
+# Error tracking and monitoring
+gem "rollbar", "~> 3.6"
+
 # Utilities
 gem "seed_dump", "~> 3.3"
 gem "active_admin_theme", "~> 1.1"
@@ -48,10 +51,10 @@ gem "prawn", "~> 2.5"
 gem "prawn-table", "~> 0.2"
 gem "standard", "~> 1.45"
 gem "json-schema", "~> 5.1"
+gem "ostruct", "~> 0.6"
 
 # Translations
 gem "globalize", "~> 7.0"
-gem "activeadmin-globalize", github: "ConservationInternational/activeadmin-globalize", branch: "main"
 
 # Ordering and Tree structure for menus
 gem "active_admin-sortable_tree", "~> 2.1"
@@ -92,4 +95,5 @@ group :test do
   gem "rspec-request_snapshot", github: "tsubik/rspec-request_snapshot", branch: "fix/ignore-order"
   gem "rswag-specs", "~> 2.15"
   gem "webmock", "~> 3.24"
+  gem "rspec_junit_formatter", "~> 0.6"
 end

@@ -1,0 +1,268 @@
+name: Backend Tests
+
+on:
+  push:
+    paths:
+      - 'backend/**'
+      - '.github/workflows/backend_tests.yml'
+      - 'docker-compose.test.yml'
+  pull_request:
+    paths:
+      - 'backend/**'
+      - '.github/workflows/backend_tests.yml'
+      - 'docker-compose.test.yml'
+  workflow_dispatch:
+
+env:
+  DOCKER_BUILDKIT: 1
+  COMPOSE_DOCKER_CLI_BUILD: 1
+
+jobs:
+  backend-tests:
+    name: Backend Tests - ${{ matrix.suite }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        suite: [rspec, lint]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Free up disk space
+      run: |
+        echo "📊 Disk space before cleanup:"
+        df -h
+        echo ""
+        echo "🧹 Removing unnecessary software to free disk space..."
+        
+        # Remove large packages that aren't needed for this workflow
+        sudo rm -rf /usr/share/dotnet
+        sudo rm -rf /usr/local/lib/android
+        sudo rm -rf /opt/ghc
+        sudo rm -rf /opt/hostedtoolcache/CodeQL
+        sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+        
+        # Clean apt cache
+        sudo apt-get clean
+        
+        # Remove Docker images we don't need
+        docker system prune -af --volumes
+        
+        echo ""
+        echo "📊 Disk space after cleanup:"
+        df -h
+        echo ""
+        echo "✅ Freed up disk space successfully"
+
+    - name: Configure DNS for better connectivity
+      run: |
+        echo "nameserver 8.8.8.8" | sudo tee /etc/resolv.conf.backup > /dev/null
+        echo "nameserver 1.1.1.1" | sudo tee -a /etc/resolv.conf.backup > /dev/null  
+        sudo cp /etc/resolv.conf.backup /etc/resolv.conf
+        echo "🔧 DNS configuration updated"
+
+    - name: Check network connectivity
+      run: |
+        echo "🔍 Checking network connectivity..."
+        echo "Testing registry.npmjs.org:"
+        curl -I https://registry.npmjs.org/ || echo "❌ npm registry not reachable"
+        echo "Testing github.com:"
+        curl -I https://github.com/ || echo "❌ GitHub not reachable"
+        echo "Testing docker.io:"
+        curl -I https://registry-1.docker.io/ || echo "❌ Docker registry not reachable"
+        echo "Testing rubygems.org:"
+        curl -I https://rubygems.org/ || echo "❌ RubyGems not reachable"
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+      with:
+        driver-opts: image=moby/buildkit:buildx-stable-1
+        buildkitd-flags: --allow-insecure-entitlement security.insecure
+
+    - name: Generate cache keys
+      id: cache-keys
+      run: |
+        # Generate content-based cache keys for better cache reuse
+        echo "dockerfile-hash=$(sha256sum backend/Dockerfile | cut -d' ' -f1)" >> $GITHUB_OUTPUT
+        echo "gemfile-hash=$(sha256sum backend/Gemfile backend/Gemfile.lock | sha256sum | cut -d' ' -f1)" >> $GITHUB_OUTPUT
+        echo "ruby-version=$(cat backend/.ruby-version 2>/dev/null || echo '3.4.4')" >> $GITHUB_OUTPUT
+        echo "date=$(date +%Y%m%d)" >> $GITHUB_OUTPUT
+
+    - name: Cache Docker buildx layers
+      uses: actions/cache@v4
+      with:
+        path: /tmp/.buildx-cache
+        key: ${{ runner.os }}-backend-buildx-${{ steps.cache-keys.outputs.dockerfile-hash }}-${{ steps.cache-keys.outputs.gemfile-hash }}
+        restore-keys: |
+          ${{ runner.os }}-backend-buildx-${{ steps.cache-keys.outputs.dockerfile-hash }}-
+          ${{ runner.os }}-backend-buildx-
+          ${{ runner.os }}-buildx-
+
+    - name: Cache Ruby dependencies
+      uses: actions/cache@v4
+      with:
+        path: |
+          /tmp/.bundle-cache
+          backend/vendor/bundle
+        key: ${{ runner.os }}-ruby-${{ steps.cache-keys.outputs.ruby-version }}-${{ steps.cache-keys.outputs.gemfile-hash }}
+        restore-keys: |
+          ${{ runner.os }}-ruby-${{ steps.cache-keys.outputs.ruby-version }}-
+          ${{ runner.os }}-ruby-
+
+    - name: Warm Docker cache with base images
+      run: |
+        # Pre-pull base images to warm the cache
+        echo "🔥 Warming cache with base images..."
+        docker pull ruby:3.4.4-bullseye || echo "Could not pre-pull Ruby base image"
+        docker pull postgis/postgis:15-3.3 || echo "Could not pre-pull PostGIS image"
+        
+        # Show current cache status
+        echo "📊 Current cache status:"
+        du -sh /tmp/.buildx-cache 2>/dev/null || echo "No existing cache found"
+
+    - name: Build backend test image with enhanced caching
+      run: |
+        # Retry Docker build up to 3 times in case of network issues
+        for i in {1..3}; do
+          echo "Build attempt $i of 3"
+          if docker buildx build \
+            --cache-from=type=local,src=/tmp/.buildx-cache \
+            --cache-from=type=gha \
+            --cache-to=type=local,dest=/tmp/.buildx-cache-new,mode=max \
+            --cache-to=type=gha,mode=max \
+            --target test \
+            --tag resilienceatlas-backend:test \
+            --load \
+            --build-arg BUILDKIT_INLINE_CACHE=1 \
+            ./backend; then
+            echo "✅ Build successful on attempt $i"
+            break
+          elif [ $i -eq 3 ]; then
+            echo "❌ Build failed after 3 attempts"
+            exit 1
+          else
+            echo "⚠️ Build attempt $i failed, retrying in 30 seconds..."
+            sleep 30
+          fi
+        done
+
+    - name: Move cache
+      run: |
+        rm -rf /tmp/.buildx-cache
+        mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+
+    - name: Cleanup Docker layers to free disk space
+      run: |
+        echo "🧹 Cleaning up Docker to free disk space..."
+        docker system prune -f
+        echo "📊 Disk space after cleanup:"
+        df -h
+
+    - name: Report cache analytics
+      run: |
+        echo "📊 Cache analytics:"
+        echo "Final cache size: $(du -sh /tmp/.buildx-cache 2>/dev/null || echo 'Unknown')"
+        echo "Docker system info:"
+        docker system df
+
+    - name: Start test services
+      if: matrix.suite == 'rspec'
+      run: |
+        # Use shared Docker environment setup script from backend/scripts
+        chmod +x backend/scripts/setup_docker_environment.sh
+        ./backend/scripts/setup_docker_environment.sh all resilienceatlas_test
+
+    - name: Setup test database
+      if: matrix.suite == 'rspec'
+      run: |
+        # Setup database using shared script with error handling
+        echo "Setting up test database..."
+        docker compose -f docker-compose.test.yml run --rm backend-test \
+          bash -c "
+            # Setup backend environment first
+            bash /app/scripts/setup_backend_environment.sh
+            
+            # Setup database
+            bash /app/scripts/setup_database.sh
+          " || {
+            echo "❌ Database setup failed, checking logs..."
+            docker compose -f docker-compose.test.yml logs db-test --tail=20
+            exit 1
+          }
+
+    - name: Run RSpec tests
+      if: matrix.suite == 'rspec'
+      run: |
+        echo "Running RSpec tests with enhanced error handling..."
+        docker compose -f docker-compose.test.yml run --rm backend-test \
+          bash -c "
+            echo 'Verifying test environment...'
+            bundle exec rails runner 'puts \"Rails #{Rails.version}, Ruby #{RUBY_VERSION}, Environment: #{Rails.env}\"'
+            
+            echo 'Starting RSpec tests (excluding system tests)...'
+            ./bin/test junit-no-system
+          " || {
+            echo "❌ RSpec tests failed, collecting debug information..."
+            echo "Backend container logs:"
+            docker compose -f docker-compose.test.yml logs backend-test --tail=50
+            echo "Database container logs:"
+            docker compose -f docker-compose.test.yml logs db-test --tail=20
+            exit 1
+          }
+
+    - name: Run RuboCop linting
+      if: matrix.suite == 'lint'
+      run: |
+        docker compose -f docker-compose.test.yml run --rm --no-deps backend-test \
+          bash -c "./bin/test lint"
+
+    - name: Run Brakeman security analysis
+      if: matrix.suite == 'lint'
+      run: |
+        docker compose -f docker-compose.test.yml run --rm --no-deps backend-test \
+          bash -c "./bin/test security"
+
+    - name: Run Bundle Audit
+      if: matrix.suite == 'lint'
+      run: |
+        docker compose -f docker-compose.test.yml run --rm --no-deps backend-test \
+          bash -c "./bin/test audit"
+
+    - name: Verify test results
+      if: matrix.suite == 'rspec'
+      run: |
+        if [ -f backend/tmp/rspec.xml ]; then
+          echo "Test results file found at backend/tmp/rspec.xml"
+          ls -la backend/tmp/
+        else
+          echo "Test results file not found at backend/tmp/rspec.xml"
+          echo "Contents of backend/tmp directory:"
+          ls -la backend/tmp/ || echo "backend/tmp directory does not exist"
+          exit 1
+        fi
+
+    - name: Publish test results
+      uses: dorny/test-reporter@v1
+      if: (success() || failure()) && matrix.suite == 'rspec'
+      with:
+        name: Backend RSpec Tests
+        path: backend/tmp/rspec.xml
+        reporter: java-junit
+
+    - name: Upload coverage reports
+      if: always() && matrix.suite == 'rspec'
+      run: |
+        if docker compose -f docker-compose.test.yml run --rm backend-test test -f coverage/coverage.json; then
+          docker compose -f docker-compose.test.yml run --rm backend-test \
+            bash -c "cat coverage/coverage.json"
+        fi
+
+    - name: Cleanup
+      if: always()
+      run: |
+        docker compose -f docker-compose.test.yml down -v
+        docker system prune -f

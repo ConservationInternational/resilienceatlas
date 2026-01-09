@@ -13,4 +13,12 @@ class Feedback < ApplicationRecord
   validates_presence_of :language
 
   accepts_nested_attributes_for :feedback_fields, allow_destroy: true
+
+  def self.ransackable_attributes(auth_object = nil)
+    %w[id language created_at updated_at]
+  end
+
+  def self.ransackable_associations(auth_object = nil)
+    %w[feedback_fields]
+  end
 end

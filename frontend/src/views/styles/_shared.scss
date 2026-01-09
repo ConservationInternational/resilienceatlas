@@ -1,0 +1,21 @@
+// ============================================================================
+// Shared SCSS Module
+// ============================================================================
+// This file provides all shared dependencies for SCSS files.
+// It uses @forward to re-export everything needed by layouts and modules.
+//
+// USAGE:
+// In any SCSS file that needs variables, mixins, or functions:
+//   @use '../shared' as *;
+// ============================================================================
+
+// Forward sass-modules (provides: div, len, get-nth, unquote-str, darken-color, 
+// lighten-color, grid-percentage)
+@forward 'sass-modules';
+
+// Forward mixins (provides: placeholders like %clean-lists, %center, %clearfix,
+// and mixins like font-face, rem(), darken-variable(), spinner, etc.)
+@forward 'mixins';
+
+// Forward variables (provides: all color, typography, layout variables)
+@forward 'variables';

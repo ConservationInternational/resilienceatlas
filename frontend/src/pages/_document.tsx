@@ -1,5 +1,6 @@
 import Document, { Html, Head, Main, NextScript } from 'next/document';
 import type { DocumentContext, DocumentInitialProps } from 'next/document';
+import type { ReactElement } from 'react';
 import localesJson from 'locales.config.json';
 
 type Locale = {
@@ -13,7 +14,7 @@ class MyDocument extends Document {
     const initialProps = await Document.getInitialProps(ctx);
     return { ...initialProps };
   }
-  render(): JSX.Element {
+  render(): ReactElement {
     const defaultLocale = localesJson.locales.find((l: Locale) => l.default).locale;
     return (
       <Html lang={defaultLocale}>

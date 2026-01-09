@@ -168,10 +168,10 @@ export const AnalysisPanel = ({
                       <div className="search-content searching">
                         <div className="search-suggestions">
                           <ul>
-                            {result.map((item, key) => {
+                            {(result || []).map((item, key) => {
                               const { label, name, iso, selected, optionProps } = item;
 
-                              const isSelected = selected % result.length === key;
+                              const isSelected = selected % (result || []).length === key;
 
                               return (
                                 <li

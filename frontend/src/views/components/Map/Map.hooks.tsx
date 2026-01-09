@@ -1,4 +1,4 @@
-import { useEffect, useCallback } from 'react';
+import { useEffect, useCallback, useRef } from 'react';
 import qs from 'qs';
 
 export const useLoadLayers = ({
@@ -24,33 +24,46 @@ export const useLoadLayers = ({
   layerGroupsLoaded: boolean;
   layerGroupsLoadedLocale: string;
 }) => {
-  const subdomainIsDifferentThanLoaded =
-    layersLoadedSubdomain !== subdomain && (layersLoadedSubdomain || subdomain);
-  const layerGroupsSubdomainIsDifferentThanLoaded =
-    layerGroupsLoadedSubdomain !== subdomain && (layerGroupsLoadedSubdomain || subdomain);
+  // Track which locale/subdomain we've already loaded for
+  const loadedLayersForRef = useRef<string | null>(null);
+  const loadedLayerGroupsForRef = useRef<string | null>(null);
 
   useEffect(() => {
-    if (!layersLoaded || layersLoadedLocale !== locale || subdomainIsDifferentThanLoaded) {
+    const layersKey = `${locale}-${subdomain}`;
+    const layerGroupsKey = `${locale}-${subdomain}`;
+
+    // Only load layers if we haven't loaded for this locale/subdomain combination
+    // or if the loaded data is for a different locale/subdomain
+    const needsLayersLoad =
+      !layersLoaded ||
+      layersLoadedLocale !== locale ||
+      (layersLoadedSubdomain !== subdomain && (layersLoadedSubdomain || subdomain));
+
+    const needsLayerGroupsLoad =
+      !layerGroupsLoaded ||
+      layerGroupsLoadedLocale !== locale ||
+      (layerGroupsLoadedSubdomain !== subdomain && (layerGroupsLoadedSubdomain || subdomain));
+
+    if (needsLayersLoad && loadedLayersForRef.current !== layersKey) {
+      loadedLayersForRef.current = layersKey;
       loadLayers(locale);
     }
 
-    if (
-      !layerGroupsLoaded ||
-      layerGroupsLoadedLocale !== locale ||
-      layerGroupsSubdomainIsDifferentThanLoaded
-    ) {
+    if (needsLayerGroupsLoad && loadedLayerGroupsForRef.current !== layerGroupsKey) {
+      loadedLayerGroupsForRef.current = layerGroupsKey;
       loadLayerGroups(locale);
     }
   }, [
     layerGroupsLoaded,
     layerGroupsLoadedLocale,
-    layerGroupsSubdomainIsDifferentThanLoaded,
+    layerGroupsLoadedSubdomain,
     layersLoaded,
     layersLoadedLocale,
+    layersLoadedSubdomain,
     loadLayerGroups,
     loadLayers,
     locale,
-    subdomainIsDifferentThanLoaded,
+    subdomain,
   ]);
 };
 
@@ -58,7 +71,7 @@ export const useGetCenter = ({
   site,
   query,
 }: {
-  site: {
+  site?: {
     latitude: number;
     longitude: number;
   };
@@ -67,7 +80,8 @@ export const useGetCenter = ({
   };
 }) =>
   useCallback(() => {
-    const DEFAULT_CENTER = { lat: 3.86, lng: 47.28 };
+    // World-centered default view (centered on Atlantic to show all continents)
+    const DEFAULT_CENTER = { lat: 20, lng: 0 };
     if (query.center) {
       const decodeCenter = decodeURIComponent(query.center as string);
       if (decodeCenter && decodeCenter[0] === '{') {
@@ -83,10 +97,11 @@ export const useGetCenter = ({
       return center;
     }
 
-    if (site.latitude) {
+    // Safely access site properties with optional chaining
+    if (site?.latitude) {
       return { lat: site.latitude, lng: site.longitude };
     }
 
     return DEFAULT_CENTER;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [site.latitude, query.center]);
+  }, [site?.latitude, query.center]);

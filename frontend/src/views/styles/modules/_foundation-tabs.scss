@@ -1,3 +1,7 @@
+@use '../sass-modules' as *;
+@use '../mixins' as *;
+@use '../variables' as *;
+
 meta.foundation-version {
   font-family: "/5.5.3/"; }
 

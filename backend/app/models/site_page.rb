@@ -25,12 +25,12 @@ class SitePage < ApplicationRecord
 
   # Translation setup - only initialize if database is ready and not during migration
   # This prevents errors during migrations when tables don't exist yet
-  unless defined?(Rails::Generators) || Rails.env.test? && ENV['RAILS_MIGRATE']
+  if !defined?(Rails::Generators) && !(Rails.env.test? && ENV["RAILS_MIGRATE"])
     begin
-      if ActiveRecord::Base.connection && ActiveRecord::Base.connection.table_exists?(:site_pages)
+      if ActiveRecord::Base.connection&.table_exists?(:site_pages)
         translates :title, :body, touch: true, fallbacks_for_empty_translations: true
         active_admin_translates :title, :body
-        
+
         # Only add translation validations if the translation_class is defined
         if respond_to?(:translation_class) && translation_class
           translation_class.validates_presence_of :title, if: -> { locale.to_s == I18n.default_locale.to_s }
@@ -43,4 +43,12 @@ class SitePage < ApplicationRecord
   end
 
   validates_presence_of :site_scope, :slug
+
+  def self.ransackable_attributes(auth_object = nil)
+    %w[id title body priority site_scope_id created_at updated_at slug]
+  end
+
+  def self.ransackable_associations(auth_object = nil)
+    %w[site_scope translations]
+  end
 end

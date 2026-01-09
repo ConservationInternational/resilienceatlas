@@ -15,4 +15,33 @@ infrastructure/!state/vars/terraform.tfvars
 
 .aws-sam
 cloud_functions/titiler_cogs/.aws-sam
+
+# Python virtual environments
+.venv/
+__pycache__/
+*.pyc
+
+# Docker build cache (test directories)
+.buildx-cache*
+
+# Test result files (auto-generated during CI)
+backend/tmp/integration-rspec.xml
+frontend/cypress/results/*.xml
+integration-tests/results/*.xml
+cypress/videos/
+cypress/screenshots/
+/tmp/.buildx-cache*
+
+# Actual environment files (only examples should be committed)
 .env
+.env.*
+!.env.*.example
+
+# Generated configuration files
+*_config.json
+alb_configuration.json
+staging_instance_config.json
+production_instance_config.json
+
+# GitHub token files
+github_token.txt

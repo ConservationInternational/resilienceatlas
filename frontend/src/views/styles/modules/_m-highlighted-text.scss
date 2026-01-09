@@ -1,3 +1,7 @@
+@use '../sass-modules' as *;
+@use '../mixins' as *;
+@use '../variables' as *;
+
 .m-highlighted-text {
   font-weight: inherit;
   color: inherit;

@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import type { ThunkDispatch } from 'redux-thunk';
+import type { UnknownAction } from 'redux';
 import { reduxForm, Field } from 'redux-form';
 import { T } from '@transifex/react';
 
@@ -15,14 +17,22 @@ import {
 
 import styles from './site-scope-auth-modal.module.scss';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type AppDispatch = ThunkDispatch<unknown, unknown, UnknownAction>;
+
 const SiteScopeAuthModal = ({ handleSubmit }) => {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const error = useSelector(getSiteScopeAuthError);
   const loading = useSelector(isSiteScopeAuthLoading);
   const showModal = useSelector(shouldShowSiteScopeAuthModal);
   const currentSiteScope = useSelector(getCurrentSiteScope);
 
   const [localError, setLocalError] = useState(null);
+  const [hasMounted, setHasMounted] = useState(false);
+
+  useEffect(() => {
+    setHasMounted(true);
+  }, []);
 
   const onSubmit = async (values) => {
     setLocalError(null);
@@ -47,7 +57,8 @@ const SiteScopeAuthModal = ({ handleSubmit }) => {
     setLocalError(null);
   };
 
-  if (!showModal) return null;
+  // Prevent hydration mismatches by not rendering until client-side mount
+  if (!hasMounted || !showModal) return null;
 
   const displayError = localError || error;
 

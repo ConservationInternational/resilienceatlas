@@ -65,10 +65,16 @@ const Journey: FC<JourneyProps> = ({
 
   const journeyIds = journeysById && Object.keys(journeysById).map((id) => +id);
   const stepIndex = Number(step) - 1;
-  const { steps } = journey;
+  const { steps } = journey || {};
 
-  if (!journeyLoaded || !journey || !steps[stepIndex]) return null;
+  // Defensive checks for journey and step data
+  if (!journeyLoaded || !journey || !steps || !Array.isArray(steps)) return null;
+
+  // Check if step index is valid
+  if (stepIndex < 0 || stepIndex >= steps.length) return null;
+
   const stepInfo = steps[stepIndex];
+  if (!stepInfo) return null;
 
   const { attributes } = stepInfo;
   const { step_type: stepType } = attributes;

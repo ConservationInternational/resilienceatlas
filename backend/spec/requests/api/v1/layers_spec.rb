@@ -9,7 +9,7 @@ RSpec.describe "API V1 Layer", type: :request do
       parameter name: :site_scope, in: :query, type: :string, description: "Site scope to list layers for", required: false
       parameter name: :locale, in: :query, type: :string, description: "Used language. Default: en", required: false
 
-      let(:default_site_scope) { create :site_scope, id: 1, name: "CIGRP" }
+      let(:default_site_scope) { create :site_scope, id: 1, name: "Resilience Atlas" }
       let(:layer_group) { create :layer_group, site_scope: default_site_scope }
       let(:source) { create :source }
       let!(:layers) { create_list :layer, 3, download: false, layer_groups: [layer_group], sources: [source] }
@@ -35,7 +35,7 @@ RSpec.describe "API V1 Layer", type: :request do
       parameter name: :file_format, in: :query, type: :string, description: "File format (pdf, kml, jpg, txt, etc..)", required: false
       parameter name: :with_format, in: :query, type: :string, description: "If format is part of download_path", required: false
 
-      let(:default_site_scope) { create :site_scope, id: 1, name: "CIGRP" }
+      let(:default_site_scope) { create :site_scope, id: 1, name: "Resilience Atlas" }
       let(:layer_group) { create :layer_group, site_scope: default_site_scope }
       let(:source) { create :source }
       let(:layer) { create :layer, download: true, layer_groups: [layer_group], sources: [source] }

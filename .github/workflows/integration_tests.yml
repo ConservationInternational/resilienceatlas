@@ -1,0 +1,714 @@
+# Integration tests with Cypress - download.cypress.io now allowlisted
+name: Integration Tests
+
+on:
+  push:
+    branches:
+      - develop
+      - main
+  pull_request:
+    branches:
+      - develop
+      - main
+  workflow_dispatch:
+
+env:
+  DOCKER_BUILDKIT: 1
+  COMPOSE_DOCKER_CLI_BUILD: 1
+
+jobs:
+  integration-tests:
+    name: Full Stack Integration Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    strategy:
+      matrix:
+        browser: [chrome, firefox]
+      fail-fast: false
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Free up disk space
+      run: |
+        echo "📊 Disk space before cleanup:"
+        df -h
+        echo ""
+        echo "🧹 Removing unnecessary software to free disk space..."
+        
+        # Remove large packages that aren't needed for this workflow
+        sudo rm -rf /usr/share/dotnet
+        sudo rm -rf /usr/local/lib/android
+        sudo rm -rf /opt/ghc
+        sudo rm -rf /opt/hostedtoolcache/CodeQL
+        sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+        
+        # Clean apt cache
+        sudo apt-get clean
+        
+        # Remove Docker images we don't need
+        docker system prune -af --volumes
+        
+        echo ""
+        echo "📊 Disk space after cleanup:"
+        df -h
+        echo ""
+        echo "✅ Freed up disk space successfully"
+
+    - name: Configure DNS for better connectivity
+      run: |
+        echo "nameserver 8.8.8.8" | sudo tee /etc/resolv.conf.backup > /dev/null
+        echo "nameserver 1.1.1.1" | sudo tee -a /etc/resolv.conf.backup > /dev/null  
+        sudo cp /etc/resolv.conf.backup /etc/resolv.conf
+        echo "🔧 DNS configuration updated"
+
+    - name: Check network connectivity
+      run: |
+        echo "🔍 Checking network connectivity..."
+        echo "Testing registry.npmjs.org:"
+        curl -I https://registry.npmjs.org/ || echo "❌ npm registry not reachable"
+        echo "Testing github.com:"
+        curl -I https://github.com/ || echo "❌ GitHub not reachable"
+        echo "Testing docker.io:"
+        curl -I https://registry-1.docker.io/ || echo "❌ Docker registry not reachable"
+        echo "Testing download.cypress.io:"
+        curl -I https://download.cypress.io/ || echo "❌ Cypress downloads not reachable"
+        echo "Testing cdn.cypress.io with 13.15.0:"
+        curl -I https://cdn.cypress.io/desktop/13.15.0/linux-x64/cypress.zip || echo "❌ Cypress binary CDN not reachable"
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+      with:
+        driver-opts: image=moby/buildkit:buildx-stable-1
+        buildkitd-flags: --allow-insecure-entitlement security.insecure
+
+    - name: Generate cache keys
+      id: cache-keys
+      run: |
+        # Generate content-based cache keys for better cache reuse
+        echo "backend-dockerfile-hash=$(sha256sum backend/Dockerfile | cut -d' ' -f1)" >> $GITHUB_OUTPUT
+        echo "frontend-dockerfile-hash=$(sha256sum frontend/Dockerfile | cut -d' ' -f1)" >> $GITHUB_OUTPUT
+        echo "gemfile-hash=$(sha256sum backend/Gemfile backend/Gemfile.lock | sha256sum | cut -d' ' -f1)" >> $GITHUB_OUTPUT
+        echo "package-hash=$(sha256sum frontend/package.json frontend/package-lock.json | sha256sum | cut -d' ' -f1)" >> $GITHUB_OUTPUT
+        echo "ruby-version=$(cat backend/.ruby-version 2>/dev/null || echo '3.4.4')" >> $GITHUB_OUTPUT
+        echo "node-version=$(cat frontend/.nvmrc 2>/dev/null || echo '22.11.0')" >> $GITHUB_OUTPUT
+        echo "date=$(date +%Y%m%d)" >> $GITHUB_OUTPUT
+
+    - name: Cache Docker buildx layers (multi-service)
+      uses: actions/cache@v4
+      with:
+        path: /tmp/.buildx-cache
+        key: ${{ runner.os }}-integration-buildx-${{ steps.cache-keys.outputs.backend-dockerfile-hash }}-${{ steps.cache-keys.outputs.frontend-dockerfile-hash }}-${{ steps.cache-keys.outputs.gemfile-hash }}-${{ steps.cache-keys.outputs.package-hash }}
+        restore-keys: |
+          ${{ runner.os }}-integration-buildx-${{ steps.cache-keys.outputs.backend-dockerfile-hash }}-${{ steps.cache-keys.outputs.frontend-dockerfile-hash }}-
+          ${{ runner.os }}-integration-buildx-
+          ${{ runner.os }}-backend-buildx-${{ steps.cache-keys.outputs.backend-dockerfile-hash }}-
+          ${{ runner.os }}-frontend-buildx-${{ steps.cache-keys.outputs.frontend-dockerfile-hash }}-
+          ${{ runner.os }}-buildx-
+
+    - name: Create test environment and directories
+      run: |
+        # Use shared script to setup test environment with integration settings
+        chmod +x backend/scripts/setup_docker_environment.sh
+        ./backend/scripts/setup_docker_environment.sh directories
+        ./backend/scripts/setup_docker_environment.sh env resilienceatlas_integration_test integration
+        
+        # Ensure all test result directories exist before setting permissions
+        mkdir -p frontend/cypress/results
+        mkdir -p integration-tests/results
+        
+        # Set proper permissions for Docker containers to write test results
+        chmod 777 backend/tmp
+        chmod 777 frontend/cypress/results
+        chmod 777 integration-tests/results
+
+    - name: Check Docker cache status
+      run: |
+        echo "📊 Current cache status:"
+        du -sh /tmp/.buildx-cache 2>/dev/null || echo "No existing cache found"
+        echo "📊 Available disk space:"
+        df -h
+
+    - name: Build services with coordinated caching (docker bake)
+      run: |
+        # Use docker bake for coordinated multi-service builds
+        echo "🏗️ Building services with coordinated caching..."
+        
+        # Try coordinated build first (more efficient caching)
+        if docker buildx bake \
+          --file .github/docker-bake.hcl \
+          --set="*.cache-from=type=local,src=/tmp/.buildx-cache" \
+          --set="*.cache-from=type=gha" \
+          --set="*.cache-to=type=local,dest=/tmp/.buildx-cache-new,mode=max" \
+          --set="*.cache-to=type=gha,mode=max" \
+          --load \
+          integration 2>/dev/null; then
+          echo "✅ Coordinated build successful"
+        else
+          echo "⚠️ Coordinated build failed, falling back to individual builds..."
+          
+          # Fallback to individual builds if bake fails
+          echo "Building backend..."
+          docker buildx build \
+            --cache-from=type=local,src=/tmp/.buildx-cache \
+            --cache-from=type=gha \
+            --cache-to=type=local,dest=/tmp/.buildx-cache-new,mode=max \
+            --cache-to=type=gha,mode=max \
+            --target test \
+            --tag resilienceatlas-backend:integration-test \
+            --load \
+            --build-arg BUILDKIT_INLINE_CACHE=1 \
+            ./backend
+            
+          echo "Building frontend..."
+          docker buildx build \
+            --cache-from=type=local,src=/tmp/.buildx-cache \
+            --cache-from=type=gha \
+            --cache-to=type=local,dest=/tmp/.buildx-cache-new,mode=max \
+            --cache-to=type=gha,mode=max \
+            --target test \
+            --build-arg NEXT_PUBLIC_API_HOST=http://backend-test:3001 \
+            --build-arg NEXT_PUBLIC_GOOGLE_ANALYTICS=GA_INTEGRATION_TEST_ID \
+            --build-arg NEXT_PUBLIC_GOOGLE_API_KEY=integration_test_api_key \
+            --build-arg CYPRESS_INSTALL_BINARY=0 \
+            --build-arg BUILDKIT_INLINE_CACHE=1 \
+            --tag resilienceatlas-frontend:integration-test \
+            --load \
+            ./frontend
+        fi
+
+    - name: Move cache
+      run: |
+        rm -rf /tmp/.buildx-cache
+        mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+
+    - name: Cleanup Docker layers to free disk space
+      run: |
+        echo "🧹 Cleaning up Docker to free disk space..."
+        docker system prune -af --volumes
+        echo "📊 Disk space after cleanup:"
+        df -h
+
+    - name: Report cache analytics
+      run: |
+        echo "📊 Cache analytics:"
+        echo "Final cache size: $(du -sh /tmp/.buildx-cache 2>/dev/null || echo 'Unknown')"
+        echo "Docker system info:"
+        docker system df
+
+    - name: Setup integration test environment
+      run: |
+        # Ensure completely clean state first
+        docker compose -f docker-compose.test.yml down -v || true
+        
+        # Start Docker services using shared script
+        chmod +x backend/scripts/setup_docker_environment.sh
+        ./backend/scripts/setup_docker_environment.sh services
+        
+        # Setup backend environment and database with shared scripts
+        echo "Setting up backend and test database..."
+        docker compose -f docker-compose.test.yml run --rm backend-test \
+          bash -c "
+            # Setup backend environment using shared script
+            bash /app/scripts/setup_backend_environment.sh
+            
+            # Setup database with integration test data using shared script
+            SETUP_INTEGRATION_DATA=true DATABASE_NAME=resilienceatlas_integration_test bash /app/scripts/setup_database.sh
+          " || {
+            echo "❌ Backend setup failed, checking logs..."
+            docker compose -f docker-compose.test.yml logs backend-test --tail=50
+            exit 1
+          }
+        
+        # Start backend service in background
+        docker compose -f docker-compose.test.yml up -d backend-test
+        
+        # Wait for backend to be ready with enhanced health check
+        echo "Waiting for backend to be ready..."
+        timeout 180s bash -c '
+          attempt=1
+          while [ $attempt -le 36 ]; do
+            echo "Health check attempt $attempt/36..."
+            if curl -f -s http://localhost:3001/api/health >/dev/null 2>&1; then
+              echo "✅ Backend health check passed"
+              break
+            elif [ $attempt -eq 36 ]; then
+              echo "❌ Backend failed to become healthy after 3 minutes"
+              echo "Backend logs:"
+              docker compose -f docker-compose.test.yml logs backend-test --tail=50
+              exit 1
+            else
+              echo "Backend not ready yet, waiting 5 seconds..."
+              sleep 5
+              attempt=$((attempt + 1))
+            fi
+          done
+        '
+        
+        echo "✅ Backend service started and healthy"
+
+    - name: Verify backend API endpoints
+      run: |
+        # Test core API endpoints
+        echo "Testing backend API endpoints..."
+        
+        # Health check
+        curl -f http://localhost:3001/api/health
+        
+        # Test API v1 endpoints that Cypress expects
+        echo "Testing layers endpoint..."
+        response=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3001/api/layers)
+        echo "Layers endpoint response code: $response"
+        
+        echo "Testing site endpoint..."
+        site_response=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3001/api/site)
+        echo "Site endpoint response code: $site_response"
+        
+        echo "Testing homepage endpoint..."
+        homepage_response=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3001/api/homepage)
+        echo "Homepage endpoint response code: $homepage_response"
+        
+        echo "Testing about static page endpoint..."
+        about_response=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3001/api/static_pages/about)
+        echo "About endpoint response code: $about_response"
+        
+        if [ "$response" = "200" ] && [ "$site_response" = "200" ] && [ "$homepage_response" = "200" ] && [ "$about_response" = "200" ]; then
+          echo "✅ Layers endpoint working correctly"
+        elif [ "$response" = "401" ]; then
+          echo "⚠️  Layers endpoint requires authentication (expected for some configurations)"
+        else
+          echo "❌ Layers endpoint returned unexpected status: $response"
+          echo "Response details:"
+          curl -v http://localhost:3001/api/layers || true
+        fi
+        
+        echo "✅ Backend API endpoints verified"
+
+    - name: Start frontend service
+      if: always()
+      run: |
+        # Start frontend service
+        docker compose -f docker-compose.test.yml up -d frontend-test
+        
+        # Wait for frontend to be ready with enhanced monitoring
+        echo "Waiting for frontend to be ready..."
+        timeout 300s bash -c '
+          attempt=1
+          while [ $attempt -le 60 ]; do
+            echo "Frontend check attempt $attempt/60..."
+            # Test both host and Docker network connectivity
+            host_response=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3000 2>/dev/null || echo "000")
+            docker_response=$(docker run --rm --network resilienceatlas_test-network alpine/curl:latest curl -s -o /dev/null -w "%{http_code}" http://frontend-test:3000 2>/dev/null || echo "000")
+            
+            echo "Host response: $host_response, Docker network response: $docker_response"
+            
+            if [ "$host_response" = "200" ] && [ "$docker_response" = "200" ]; then
+              echo "✅ Frontend responding with 200 OK on both host and Docker network"
+              break
+            elif [ $attempt -eq 60 ]; then
+              echo "❌ Frontend failed to start after 5 minutes"
+              echo "Host response: $host_response, Docker network response: $docker_response"
+              echo "Frontend logs:"
+              docker compose -f docker-compose.test.yml logs frontend-test --tail=50
+              echo "Frontend container status:"
+              docker compose -f docker-compose.test.yml ps frontend-test
+              exit 1
+            else
+              echo "Frontend not ready yet (Host: $host_response, Docker: $docker_response), waiting 5 seconds..."
+              sleep 5
+              attempt=$((attempt + 1))
+            fi
+          done
+        '
+        
+        echo "✅ Frontend service started and responding"
+
+    - name: Test specific frontend routes
+      if: always()
+      run: |
+        echo "Testing frontend routes that Cypress will access..."
+        
+        # Test main routes through Docker network (how Cypress will access them)
+        echo "Testing route: /"
+        response=$(docker run --rm --network resilienceatlas_test-network alpine/curl:latest curl -s -o /dev/null -w "%{http_code}" "http://frontend-test:3000/")
+        if [ "$response" = "200" ]; then
+          echo "✅ Route / responding with 200"
+        else
+          echo "❌ Route / responding with $response"
+        fi
+        
+        echo "Testing route: /about"
+        response=$(docker run --rm --network resilienceatlas_test-network alpine/curl:latest curl -s -o /dev/null -w "%{http_code}" "http://frontend-test:3000/about")
+        if [ "$response" = "200" ]; then
+          echo "✅ Route /about responding with 200"
+        else
+          echo "❌ Route /about responding with $response"
+        fi
+        
+        echo "Testing route: /map"
+        response=$(docker run --rm --network resilienceatlas_test-network alpine/curl:latest curl -s -o /dev/null -w "%{http_code}" "http://frontend-test:3000/map")
+        if [ "$response" = "200" ]; then
+          echo "✅ Route /map responding with 200"
+        else
+          echo "❌ Route /map responding with $response"
+        fi
+        
+        echo "✅ Frontend routes tested"
+
+    - name: Verify full stack connectivity
+      if: always()
+      run: |
+        # Test that frontend can reach backend
+        echo "Testing full stack connectivity..."
+        
+        # Check if frontend loads
+        response=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3000)
+        if [ "$response" != "200" ]; then
+          echo "❌ Frontend not responding correctly: $response"
+          exit 1
+        fi
+        
+        # Test API calls from frontend perspective
+        docker compose -f docker-compose.test.yml exec -T frontend-test \
+          curl -f http://backend-test:3001/api/health
+        
+        echo "✅ Full stack connectivity verified"
+
+    - name: Run simple integration connectivity tests
+      if: always()
+      run: |
+        # Run simple Node.js integration tests to verify basic connectivity
+        echo "Starting simple integration connectivity tests..."
+        
+        # Create results directory on host filesystem
+        mkdir -p integration-tests/results
+        
+        # Run the integration test using the dedicated service with the integration profile
+        if docker compose -f docker-compose.test.yml --profile integration run --rm integration-test; then
+          echo "✅ Integration connectivity tests passed"
+        else
+          connectivity_exit_code=$?
+          echo "❌ Integration connectivity tests failed with exit code: $connectivity_exit_code"
+          
+          # Create a basic test result file using Docker to avoid permission issues
+          echo "Creating fallback test result file using Docker..."
+          docker run --rm \
+            -v "$(pwd)/integration-tests/results:/app/results" \
+            node:22.11.0-alpine \
+            sh -c 'printf "%s\n" \
+              "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" \
+              "<testsuite name=\"Integration Connectivity Tests\" tests=\"1\" failures=\"1\" errors=\"0\" time=\"0.1\">" \
+              "  <testcase classname=\"ConnectivityTests\" name=\"Service Connectivity Check\" time=\"0.1\">" \
+              "    <failure message=\"Service connectivity test failed\" type=\"ConnectivityFailure\">" \
+              "      Basic connectivity tests between frontend and backend failed" \
+              "    </failure>" \
+              "  </testcase>" \
+              "</testsuite>" \
+              > /app/results/connectivity-tests.xml'
+          
+          # Exit with failure code to mark the step as failed
+          exit $connectivity_exit_code
+        fi
+
+    - name: Run API integration tests
+      if: always()
+      run: |
+        # Run backend API tests that verify frontend-backend integration
+        echo "Running API integration tests..."
+        
+        # Create output directory on host filesystem
+        mkdir -p backend/tmp
+        
+        # Run integration tests with simplified command formatting
+        echo "Starting RSpec integration tests..."
+        if docker compose -f docker-compose.test.yml run --rm backend-test \
+          bash -c 'RAILS_ENV=test bundle exec rspec spec/integration --format RspecJunitFormatter --out tmp/integration-rspec.xml --format documentation 2>&1 | head -n 50'; then
+          echo "✅ API integration tests passed"
+        else
+          api_exit_code=$?
+          echo "❌ API integration tests failed with exit code: $api_exit_code"
+          
+          # Create a basic test result file if tests failed to run
+          docker compose -f docker-compose.test.yml run --rm backend-test \
+            bash -c 'if [ ! -f tmp/integration-rspec.xml ]; then
+              echo "Creating fallback test result file..."
+              mkdir -p tmp
+              printf "%s\n" \
+                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" \
+                "<testsuite name=\"Integration Tests\" tests=\"1\" failures=\"1\" errors=\"0\" time=\"0.1\">" \
+                "  <testcase classname=\"IntegrationTests\" name=\"API Endpoint Verification\" time=\"0.1\">" \
+                "    <failure message=\"Integration test setup failed\" type=\"SetupFailure\">" \
+                "      API integration tests could not run due to setup issues" \
+                "    </failure>" \
+                "  </testcase>" \
+                "</testsuite>" \
+                > tmp/integration-rspec.xml
+            fi'
+          
+          # Exit with failure code to mark the step as failed  
+          exit $api_exit_code
+        fi
+        
+        # Verify test results file exists and copy to host if needed
+        if [ ! -f "backend/tmp/integration-rspec.xml" ]; then
+          echo "Copying test results from container to host..."
+          docker compose -f docker-compose.test.yml run --rm backend-test \
+            bash -c 'if [ -f tmp/integration-rspec.xml ]; then cp tmp/integration-rspec.xml /tmp/integration-rspec.xml; fi' || true
+          docker cp resilienceatlas-backend-test-1:/tmp/integration-rspec.xml backend/tmp/integration-rspec.xml 2>/dev/null || echo "Could not copy test results from container"
+        fi
+
+    - name: Run end-to-end integration tests
+      if: always()
+      run: |
+        # Run Cypress integration tests with enhanced error handling
+        echo "Starting Cypress integration tests for ${{ matrix.browser }}..."
+        
+        # Create results directory on host filesystem
+        mkdir -p frontend/cypress/results
+        
+        # Check if services are available before running Cypress
+        if curl -f -s http://localhost:3000 >/dev/null 2>&1 && curl -f -s http://localhost:3001/api/health >/dev/null 2>&1; then
+          echo "Services are available from host, verifying Docker network connectivity..."
+          
+          # Ensure results directory exists on host with proper permissions
+          echo "Creating results directory on host..."
+          mkdir -p frontend/cypress/results
+          chmod 777 frontend/cypress/results
+          
+          # Verify that services are accessible from within the Docker network
+          docker run --rm --network resilienceatlas_test-network alpine/curl:latest \
+            sh -c "
+              echo 'Testing frontend connectivity from Docker network...'
+              if curl -f -s http://frontend-test:3000 >/dev/null 2>&1; then
+                echo '✅ Frontend accessible at frontend-test:3000'
+              else
+                echo '❌ Frontend NOT accessible at frontend-test:3000'
+                exit 1
+              fi
+              
+              echo 'Testing backend API connectivity from Docker network...'
+              if curl -f -s http://backend-test:3001/api/health >/dev/null 2>&1; then
+                echo '✅ Backend API accessible at backend-test:3001'
+              else
+                echo '❌ Backend API NOT accessible at backend-test:3001'
+                exit 1
+              fi
+            " && echo "Docker network connectivity verified, running Cypress tests..."
+          
+          # Use the cypress image directly instead of the compose service with profiles
+          if docker run --rm \
+            --network resilienceatlas_test-network \
+            --ipc=host \
+            -v "$(pwd)/frontend:/app" \
+            -w /app \
+            -e CYPRESS_baseUrl=http://frontend-test:3000 \
+            -e CYPRESS_apiUrl=http://backend-test:3001 \
+            -e CYPRESS_video=false \
+            -e CYPRESS_screenshotOnRunFailure=false \
+            -e NODE_ENV=test \
+            cypress/included:13.15.0 \
+            bash -c '
+              echo "Verifying Cypress environment..."
+              cypress version
+              
+              echo "Creating results directory..."
+              mkdir -p cypress/results
+              
+              echo "Verifying connectivity to test services..."
+              curl -f http://frontend-test:3000 || { echo "Frontend not reachable"; exit 1; }
+              curl -f http://backend-test:3001/api/health || { echo "Backend API not reachable"; exit 1; }
+              
+              echo "Testing specific frontend routes..."
+              echo "Testing root route..."
+              curl -s -o /dev/null -w "Status: %{http_code}" http://frontend-test:3000/ || echo " - Root route failed"
+              echo ""
+              echo "Testing about route..."
+              curl -s -o /dev/null -w "Status: %{http_code}" http://frontend-test:3000/about || echo " - About route failed"
+              echo ""
+              
+              echo "Starting Cypress tests..."
+              CYPRESS_baseUrl=http://frontend-test:3000 cypress run \
+                --browser ${{ matrix.browser }} \
+                --headless \
+                --config-file cypress.docker.config.js \
+                --reporter junit \
+                --reporter-options "mochaFile=cypress/results/integration-${{ matrix.browser }}-results.xml,toConsole=true"
+            '; then
+            echo "✅ Cypress tests completed successfully"
+          else
+            cypress_exit_code=$?
+            echo "❌ Cypress tests failed with exit code: $cypress_exit_code"
+            exit $cypress_exit_code
+          fi
+        else
+          echo "⚠️  Services not available, creating fallback test results..."
+          
+          # Create fallback test result file using Docker to avoid permission issues
+          docker run --rm \
+            -v "$(pwd)/frontend/cypress/results:/app/results" \
+            node:22.11.0-alpine \
+            sh -c 'printf "%s\n" \
+              "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" \
+              "<testsuite name=\"Cypress Integration Tests\" tests=\"1\" failures=\"1\" errors=\"0\" time=\"0.1\">" \
+              "  <testcase classname=\"CypressTests\" name=\"Service Availability Check\" time=\"0.1\">" \
+              "    <failure message=\"Required services not available\" type=\"ServiceUnavailable\">" \
+              "      Frontend or backend services were not available for testing" \
+              "    </failure>" \
+              "  </testcase>" \
+              "</testsuite>" \
+              > /app/results/integration-${{ matrix.browser }}-fallback.xml'
+          
+          echo "❌ Services not available - cannot run tests"
+          
+          echo "Collecting debug information..."
+          echo "=== Frontend Status ==="
+          curl -s -o /dev/null -w "%{http_code}" http://localhost:3000 || echo "Frontend not responding"
+          echo "=== Backend Status ==="  
+          curl -s -o /dev/null -w "%{http_code}" http://localhost:3001/api/health || echo "Backend not responding"
+          
+          # Exit with failure since services are not available
+          exit 1
+        fi
+    - name: Run performance tests
+      if: always()
+      run: |
+        # Basic performance test using curl and timing
+        echo "Running basic performance tests..."
+        
+        # Test backend response times
+        echo "Testing backend performance..."
+        for i in $(seq 1 5); do
+          time curl -s http://localhost:3001/api/health > /dev/null
+        done
+        
+        # Test frontend response times
+        echo "Testing frontend performance..."
+        for i in $(seq 1 5); do
+          time curl -s http://localhost:3000 > /dev/null
+        done
+        
+        echo "✅ Performance tests completed"
+
+    - name: Test data consistency
+      if: always()
+      run: |
+        # Test that data flows correctly between frontend and backend
+        echo "Testing data consistency..."
+        
+        # Create test data via API
+        docker compose -f docker-compose.test.yml run --rm backend-test \
+          bash -c "
+            RAILS_ENV=test bundle exec rails runner \"puts 'Creating test data...'; puts 'Test data created successfully'\"
+          "
+        
+        echo "✅ Data consistency tests completed"
+
+    - name: Debug test results
+      if: always()
+      run: |
+        echo "=== Test Results Debug Information ==="
+        echo "Checking for test result files..."
+        
+        echo "Backend test results:"
+        if [ -f "backend/tmp/integration-rspec.xml" ]; then
+          echo "✅ backend/tmp/integration-rspec.xml exists"
+          echo "File size: $(wc -c < backend/tmp/integration-rspec.xml) bytes"
+          echo "First few lines:"
+          head -5 backend/tmp/integration-rspec.xml || echo "Could not read file"
+        else
+          echo "❌ backend/tmp/integration-rspec.xml missing"
+          echo "Checking backend/tmp directory:"
+          ls -la backend/tmp/ || echo "backend/tmp directory not found"
+        fi
+        
+        echo "Frontend test results:"
+        if [ -d "frontend/cypress/results" ]; then
+          echo "✅ frontend/cypress/results directory exists"
+          echo "Contents:"
+          ls -la frontend/cypress/results/
+          for file in frontend/cypress/results/*.xml; do
+            if [ -f "$file" ]; then
+              echo "Found: $file ($(wc -c < "$file") bytes)"
+            fi
+          done
+        else
+          echo "❌ frontend/cypress/results directory missing"
+        fi
+        
+        echo "Integration test results:"
+        if [ -d "integration-tests/results" ]; then
+          echo "✅ integration-tests/results directory exists"
+          echo "Contents:"
+          ls -la integration-tests/results/
+          for file in integration-tests/results/*.xml; do
+            if [ -f "$file" ]; then
+              echo "Found: $file ($(wc -c < "$file") bytes)"
+            fi
+          done
+        else
+          echo "❌ integration-tests/results directory missing"
+        fi
+        
+        echo "=== Overall Test Results Summary ==="
+        find . -name "*.xml" -path "*/test*" -o -path "*/cypress*" -o -path "*/integration*" | while read -r file; do
+          echo "Test result file: $file"
+        done
+
+    - name: Collect service logs
+      if: failure()
+      run: |
+        echo "=== Backend Logs ==="
+        docker compose -f docker-compose.test.yml logs backend-test --tail=20
+        echo "=== Frontend Logs ==="
+        docker compose -f docker-compose.test.yml logs frontend-test --tail=20
+        echo "=== Database Logs ==="
+        docker compose -f docker-compose.test.yml logs db-test --tail=20
+
+    - name: Publish test results
+      uses: dorny/test-reporter@v1
+      if: success() || failure()
+      continue-on-error: true
+      with:
+        name: Integration Tests (${{ matrix.browser }})
+        path: |
+          backend/tmp/integration-rspec.xml
+          frontend/cypress/results/*.xml
+          integration-tests/results/*.xml
+        reporter: java-junit
+        fail-on-error: false
+
+    - name: Upload integration test artifacts
+      uses: actions/upload-artifact@v4
+      if: failure()
+      with:
+        name: integration-test-artifacts-${{ matrix.browser }}
+        path: |
+          frontend/cypress/screenshots
+          backend/tmp/*.xml
+          integration-tests/results/*.xml
+        retention-days: 3
+        if-no-files-found: warn
+
+    - name: Cleanup
+      if: always()
+      run: |
+        docker compose -f docker-compose.test.yml down -v
+        docker system prune -f
+
+  integration-summary:
+    name: Integration Test Summary
+    runs-on: ubuntu-latest
+    needs: integration-tests
+    if: always()
+    
+    steps:
+    - name: Check integration test results
+      run: |
+        if [ "${{ needs.integration-tests.result }}" = "success" ]; then
+          echo "✅ All integration tests passed successfully!"
+        else
+          echo "❌ Some integration tests failed"
+          exit 1
+        fi

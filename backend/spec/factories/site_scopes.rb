@@ -37,7 +37,7 @@ FactoryBot.define do
     password_protected { false }
     latitude { Faker::Address.latitude }
     longitude { Faker::Address.longitude }
-    header_theme { ['ci-theme', 'vs-theme'].sample }
+    header_theme { ["ci-theme", "vs-theme"].sample }
     zoom_level { rand(1..10) }
     linkback_text { Faker::Lorem.sentence }
     linkback_url { Faker::Internet.url }
@@ -49,8 +49,8 @@ FactoryBot.define do
 
     trait :password_protected do
       password_protected { true }
-      username { 'testuser' }
-      password { 'password123' }
+      username { "testuser" }
+      password { "password123" }
     end
   end
 end

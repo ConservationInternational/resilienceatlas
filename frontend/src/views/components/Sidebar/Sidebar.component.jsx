@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import cx from 'classnames';
 import { useRouter } from 'next/router';
 import { T } from '@transifex/react';
@@ -34,6 +34,11 @@ const Sidebar = ({
 }) => {
   const router = useRouter();
   const { setParam } = useRouterParams();
+  const [hasMounted, setHasMounted] = useState(false);
+
+  useEffect(() => {
+    setHasMounted(true);
+  }, []);
 
   useEffect(() => {
     if (router.isReady && tab) {
@@ -72,7 +77,7 @@ const Sidebar = ({
       })}
     >
       <div className="l-sidebar-content">
-        {site.has_analysis && <AnalysisPanel toggle={toggleAnalysis} />}
+        {site?.has_analysis && <AnalysisPanel toggle={toggleAnalysis} />}
 
         <div className="m-sidebar" id="sidebarView">
           <Tabs
@@ -98,7 +103,7 @@ const Sidebar = ({
               <LayersList />
             </Tabs.Pane>
 
-            {site.predictive_model && (
+            {site?.predictive_model && (
               <Tabs.Pane
                 id="modelContent"
                 className="m-model-content content"
@@ -153,7 +158,7 @@ const Sidebar = ({
           onClick={toggleOpen}
           aria-label={translations && translations['Toggle sidebar']}
         />
-        {site.has_analysis && (
+        {hasMounted && site?.has_analysis && (
           <button
             className="btn-analysis-panel-expand"
             type="button"
@@ -164,7 +169,7 @@ const Sidebar = ({
           </button>
         )}
         <LogoAttribution />
-        {displayFeedbackButton && (
+        {hasMounted && displayFeedbackButton && (
           <button className="btn-map-feedback" type="button" onClick={handleFeedbackBtnClick}>
             <T _str="Feedback" />
           </button>

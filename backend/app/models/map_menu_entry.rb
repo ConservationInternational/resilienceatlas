@@ -22,12 +22,12 @@ class MapMenuEntry < ApplicationRecord
 
   # Translation setup - only initialize if database is ready and not during migration
   # This prevents errors during migrations when tables don't exist yet
-  unless defined?(Rails::Generators) || Rails.env.test? && ENV['RAILS_MIGRATE']
+  if !defined?(Rails::Generators) && !(Rails.env.test? && ENV["RAILS_MIGRATE"])
     begin
-      if ActiveRecord::Base.connection && ActiveRecord::Base.connection.table_exists?(:map_menu_entries)
+      if ActiveRecord::Base.connection&.table_exists?(:map_menu_entries)
         translates :label, touch: true, fallbacks_for_empty_translations: true
         active_admin_translates :label
-        
+
         # Only add translation validations if the translation_class is defined
         if respond_to?(:translation_class) && translation_class
           translation_class.validates_presence_of :label, if: -> { locale.to_s == I18n.default_locale.to_s }
@@ -40,4 +40,12 @@ class MapMenuEntry < ApplicationRecord
   end
 
   validates_presence_of :position
+
+  def self.ransackable_attributes(auth_object = nil)
+    %w[id label link position ancestry created_at updated_at]
+  end
+
+  def self.ransackable_associations(auth_object = nil)
+    %w[translations]
+  end
 end

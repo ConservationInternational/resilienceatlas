@@ -3,6 +3,8 @@
 pin "application"
 pin "active_admin"
 
+pin "@rails/ujs", to: "https://ga.jspm.io/npm:@rails/ujs@7.0.4/lib/assets/compiled/rails-ujs.js"
+
 pin "@rails/actiontext", to: "actiontext.js"
 
 pin "jquery", to: "https://ga.jspm.io/npm:jquery@3.6.3/dist/jquery.js"

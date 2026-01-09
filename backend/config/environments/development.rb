@@ -42,7 +42,41 @@ Rails.application.configure do
   config.action_mailer.default_url_options = {host: "localhost", port: 3000}
   config.action_mailer.delivery_method = :letter_opener
 
+  # Set default URL options for controllers (needed for Active Storage URLs)
+  # Use environment variable for backend URL, defaulting to localhost for development
+  backend_uri = URI.parse(ENV.fetch("BACKEND_URL", "http://localhost:3001"))
+  Rails.application.routes.default_url_options = {
+    host: backend_uri.host,
+    port: backend_uri.port,
+    protocol: backend_uri.scheme
+  }
+
+  # Set Action Controller URL options for Active Storage
+  config.action_controller.default_url_options = {
+    host: backend_uri.host,
+    port: backend_uri.port,
+    protocol: backend_uri.scheme
+  }
+
+  # Ensure Active Storage URLs use the same host/port
+  config.after_initialize do
+    Rails.application.routes.default_url_options = {
+      host: backend_uri.host,
+      port: backend_uri.port,
+      protocol: backend_uri.scheme
+    }
+  end
+
   config.log_level = :debug
+
+  # Allow Docker container hostnames for development
+  # This is needed when the frontend container calls the backend via Docker network
+  config.hosts << "backend"
+  config.hosts << "backend:3000"
+  config.hosts << "localhost"
+  config.hosts << "localhost:3000"
+  config.hosts << "localhost:3001"
+  config.hosts << "127.0.0.1"
 
   if ENV["RAILS_LOG_TO_STDOUT"].present?
     logger = ActiveSupport::Logger.new($stdout)
@@ -52,4 +86,10 @@ Rails.application.configure do
   end
   config.active_storage.service = :local
   config.factory_bot.definition_file_paths = ["spec/factories"]
+
+  # Allow web-console from Docker networks
+  # This fixes "Cannot render console from 172.x.x.x" errors when running in Docker
+  if defined?(WebConsole)
+    config.web_console.permissions = ["172.16.0.0/12", "192.168.0.0/16", "10.0.0.0/8"]
+  end
 end

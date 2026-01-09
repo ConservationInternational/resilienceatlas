@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import Link from 'next/link';
-import { Row } from 'react-foundation';
+import { Row } from 'views/components/Grid';
 import { useRouter } from 'next/router';
 import { connect } from 'react-redux';
 import { T } from '@transifex/react';
@@ -65,9 +65,7 @@ const MePage: NextPageWithLayout<MePageProps> = ({
               <EditProfileForm />
 
               <Link href="/profile-settings">
-                <a>
-                  <T _str="Manage account" />
-                </a>
+                <T _str="Manage account" />
               </Link>
             </>
           )}
@@ -87,7 +85,14 @@ const mapDispatchToProps = {
   loadUserData,
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(MePage);
+// Create the connected component and preserve the Layout property
+const ConnectedMePage = connect(mapStateToProps, mapDispatchToProps)(MePage);
+
+// Preserve the Layout property on the final exported component
+// This is critical for the Next.js layout pattern in _app.tsx
+ConnectedMePage.Layout = MePage.Layout;
+
+export default ConnectedMePage;
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   const { translations } = await getServerSideTranslations(context);

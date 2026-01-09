@@ -1,25 +1,14 @@
+'use client';
+
 import { useRouter } from 'next/router';
+import { useCallback, useRef } from 'react';
 
-/**
- * Get param fom URL
- * @param  {string} param name of query param you want to set
- * @param  {Function} parser function, that receives value as argument
- *
- * @returns  {string}
- *
- * NOTE: Only works on client side
- */
-export const getRouterParam = (param: string, parser?: (a: string) => string): string => {
-  if (typeof window === 'undefined') return '';
-
-  const params = new URLSearchParams(window.location.search.slice(1));
-  const result = params.get(param);
-  if (parser && typeof parser === 'function') return parser(result);
-  return result;
-};
+// Re-export getRouterParam for backward compatibility
+export { getRouterParam } from './urlParams';
 
 export const useRouterParams = () => {
   const router = useRouter();
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const { pathname } = router;
   const params = { ...router.query };
@@ -30,29 +19,35 @@ export const useRouterParams = () => {
     return result;
   };
 
+  const debouncedReplace = useCallback(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (newParams: Record<string, any>) => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+
+      timeoutRef.current = setTimeout(() => {
+        router.replace(
+          {
+            pathname,
+            query: newParams,
+          },
+          undefined,
+          { shallow: true },
+        );
+      }, 100); // 100ms debounce
+    },
+    [router, pathname],
+  );
+
   const setParam = (param: string, value: string): void => {
     params[param] = value;
-    router.replace(
-      {
-        pathname,
-        query: params,
-      },
-      undefined,
-      { shallow: true },
-    );
+    debouncedReplace({ ...params });
   };
 
   const removeParam = (param) => {
     delete params[param];
-
-    router.replace(
-      {
-        pathname,
-        query: params,
-      },
-      undefined,
-      { shallow: true },
-    );
+    debouncedReplace({ ...params });
   };
 
   return { getParam, setParam, removeParam };

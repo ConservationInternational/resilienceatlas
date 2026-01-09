@@ -22,7 +22,6 @@ class ApplicationController < ActionController::Base
   def check_subdomain
     return unless request.get?
     if !request.subdomain.downcase.match("www") &&
-        !request.subdomain.downcase.match("staging-cigrp") &&
         !request.subdomain.downcase.match("staging") &&
         !request.subdomain.blank? &&
         !request.fullpath.match("/map") &&

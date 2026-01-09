@@ -35,4 +35,9 @@ class JourneyStepSerializer < ActiveModel::Serializer
   def background_image
     image_links_for object.background_image
   end
+
+  # Convert ActionText::RichText to HTML string for API responses
+  def content
+    object.content.to_s
+  end
 end

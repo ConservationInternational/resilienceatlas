@@ -4,7 +4,7 @@ import { useCallback } from 'react';
 import { useCookiesConsent } from 'utilities/hooks/useCookiesConsent';
 import { T } from '@transifex/react';
 
-const NoticeContent: FC = ({}) => {
+const NoticeContent: FC = () => {
   const { updateConsent } = useCookiesConsent();
   const onAcceptCookies = useCallback(() => updateConsent(true, +new Date()), [updateConsent]);
   const onRefuseCookies = useCallback(() => updateConsent(false, +new Date()), [updateConsent]);

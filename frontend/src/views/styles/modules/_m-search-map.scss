@@ -1,3 +1,7 @@
+@use '../sass-modules' as *;
+@use '../mixins' as *;
+@use '../variables' as *;
+
 .m-search-map {
   position: relative;
   background-color: $bg-color-1;

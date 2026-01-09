@@ -12,16 +12,18 @@ export const LayerAnalysis = ({
   iso,
   countries,
 }) => {
-  if (activeLayers.length && !loaded)
+  const layers = activeLayers || [];
+
+  if (layers.length && !loaded)
     return (
       <center>
         <T _str="Waiting until layers loaded..." />
       </center>
     );
 
-  const analyzable = activeLayers.filter((l) => l.analysisSuitable);
+  const analyzable = layers.filter((l) => l.analysisSuitable);
 
-  if (!activeLayers.length) {
+  if (!layers.length) {
     return (
       <center>
         <T _str="Please toggle some layers on to analyze them." />

@@ -15,7 +15,7 @@
   <% ActiveAdmin.application.javascripts.each do |path| %>
     <% if path == "active_admin.js" %>
       <%= javascript_importmap_tags "active_admin" %>
-    <% elsif path&.match?(URI::DEFAULT_PARSER.make_regexp) %>
+    <% elsif path.is_a?(String) && path&.match?(URI::DEFAULT_PARSER.make_regexp) %>
       <%= javascript_include_tag path %>
     <% end %>
     <%# if ActiveAdmin.application.use_webpacker %>

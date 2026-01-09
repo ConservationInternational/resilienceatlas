@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Combobox } from '@headlessui/react';
+import { Combobox, ComboboxInput, ComboboxOption, ComboboxOptions } from '@headlessui/react';
 import { useDebounce } from 'use-debounce';
 import cx from 'classnames';
 import bboxPolygon from '@turf/bbox-polygon';
@@ -20,24 +20,41 @@ type Place = google.maps.places.AutocompletePrediction & {
   latLngString?: string;
 };
 
-const googleAPILoader = new Loader({
-  apiKey: process.env.NEXT_PUBLIC_GOOGLE_API_KEY,
-  version: 'weekly',
-});
+// Only initialize Google Maps if we have a valid API key
+const googleApiKey = process.env.NEXT_PUBLIC_GOOGLE_API_KEY;
+const hasValidApiKey = googleApiKey && googleApiKey.length > 0 && googleApiKey !== 'test_api_key';
+
+let googleAPILoader: Loader | null = null;
+if (hasValidApiKey) {
+  googleAPILoader = new Loader({
+    apiKey: googleApiKey,
+    version: 'weekly',
+  });
+}
 
 let autocompleteService: google.maps.places.AutocompleteService = null;
 let geocoderService: google.maps.Geocoder = null;
+let googleMapsLoadFailed = false;
 
-googleAPILoader.load().then(async () => {
-  const { AutocompleteService } = (await google.maps.importLibrary(
-    'places',
-  )) as google.maps.PlacesLibrary;
-  const { Geocoder } = (await google.maps.importLibrary(
-    'geocoding',
-  )) as google.maps.GeocodingLibrary;
-  autocompleteService = new AutocompleteService();
-  geocoderService = new Geocoder();
-});
+// Only load if we have a valid API key
+if (googleAPILoader) {
+  googleAPILoader
+    .load()
+    .then(async () => {
+      const { AutocompleteService } = (await google.maps.importLibrary(
+        'places',
+      )) as google.maps.PlacesLibrary;
+      const { Geocoder } = (await google.maps.importLibrary(
+        'geocoding',
+      )) as google.maps.GeocodingLibrary;
+      autocompleteService = new AutocompleteService();
+      geocoderService = new Geocoder();
+    })
+    .catch((error) => {
+      console.warn('Google Maps API failed to load:', error.message);
+      googleMapsLoadFailed = true;
+    });
+}
 
 const COORDINATES_REGEX =
   /^(?<longitude>-?\d{1,}(\.\d{1,})?)(\s{1,}|\s{0,},\s{0,})(?<latitude>-?\d{1,}(\.\d{1,})?)$/;
@@ -64,27 +81,30 @@ const SearchArea: React.FC<SearchAreaProps> = ({ fitBounds, onAfterChange }) => 
 
   const currentLocale = locale && locale !== '' ? locale : 'en';
 
-  const { data, isLoading } = useQuery<google.maps.places.AutocompleteResponse>(
-    ['places', searchTerm],
-    () => {
+  const { data, isLoading } = useQuery<google.maps.places.AutocompleteResponse>({
+    queryKey: ['places', searchTerm],
+    queryFn: () => {
+      if (!autocompleteService) {
+        return Promise.resolve({ predictions: [] });
+      }
       const request = autocompleteService.getPlacePredictions({
         input: searchTerm,
         language: currentLocale, // Default to English
       });
       return request;
     },
-    {
-      // Only fetch if the search term is not empty, is not a number, and is not coordinates
-      enabled:
-        !!searchTerm &&
-        searchTerm.length > 0 &&
-        !isCoordinates(searchTerm) &&
-        !isNumber(searchTerm),
-      refetchOnMount: false,
-      refetchOnWindowFocus: false,
-      refetchOnReconnect: false,
-    },
-  );
+    // Only fetch if the search term is not empty, is not a number, is not coordinates, and Google Maps is available
+    enabled:
+      !!searchTerm &&
+      searchTerm.length > 0 &&
+      !isCoordinates(searchTerm) &&
+      !isNumber(searchTerm) &&
+      hasValidApiKey &&
+      !googleMapsLoadFailed,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+  });
 
   const { predictions: places } = data || {};
 
@@ -98,6 +118,12 @@ const SearchArea: React.FC<SearchAreaProps> = ({ fitBounds, onAfterChange }) => 
   const handleChange = useCallback(
     async (place: Place) => {
       setSelectedPlace(place);
+
+      // Skip geocoding if service is not available
+      if (!geocoderService) {
+        console.warn('Geocoder service not available');
+        return;
+      }
 
       // Requesting geometry given coordinates
       if (isCoordinates(place?.latLngString)) {
@@ -121,25 +147,25 @@ const SearchArea: React.FC<SearchAreaProps> = ({ fitBounds, onAfterChange }) => 
 
   return (
     <div className="m-search-map">
-      <Combobox value={selectedPlace} by="place_id" onChange={handleChange} nullable>
-        <Combobox.Input
+      <Combobox value={selectedPlace} by="place_id" onChange={handleChange}>
+        <ComboboxInput
           onChange={handleInputChange}
           displayValue={(place: Place) => place?.description || place?.latLngString}
           className="search-combobox-input"
           placeholder={t('Search by country, city, town, coordinates')}
         />
         <div className="search-combobox-options">
-          <Combobox.Options>
+          <ComboboxOptions>
             {places?.map((place) => (
-              <Combobox.Option key={place.place_id} value={place} as={React.Fragment}>
-                {({ active }) => (
-                  <li className={cx({ 'is-active': active })}>
+              <ComboboxOption key={place.place_id} value={place} as={React.Fragment}>
+                {({ focus }) => (
+                  <li className={cx({ 'is-active': focus })}>
                     <span className="option-label">
                       <HighlightedText text={place.description} highlight={query} />
                     </span>
                   </li>
                 )}
-              </Combobox.Option>
+              </ComboboxOption>
             ))}
             {places?.length === 0 && !isLoading && (
               <div className="search-combobox-message">
@@ -152,9 +178,8 @@ const SearchArea: React.FC<SearchAreaProps> = ({ fitBounds, onAfterChange }) => 
               </div>
             )}
             {!places && isCoordinates(searchTerm) && (
-              <Combobox.Option
+              <ComboboxOption
                 value={{ place_id: null, description: null, latLngString: searchTerm }}
-                defaultChecked
               >
                 <div className="search-combobox-input-coordinates">
                   <T
@@ -167,7 +192,7 @@ const SearchArea: React.FC<SearchAreaProps> = ({ fitBounds, onAfterChange }) => 
                     _comment="Enter to navigate coordinates"
                   />
                 </div>
-              </Combobox.Option>
+              </ComboboxOption>
             )}
             {isNumber(searchTerm) && (
               <div className="search-combobox-message">
@@ -193,7 +218,7 @@ const SearchArea: React.FC<SearchAreaProps> = ({ fitBounds, onAfterChange }) => 
                 </p>
               </div>
             )}
-          </Combobox.Options>
+          </ComboboxOptions>
         </div>
       </Combobox>
     </div>

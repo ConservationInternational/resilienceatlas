@@ -83,33 +83,46 @@ export const layer = new schema.Entity(
           },
           account: 'cdb',
         },
+        // XYZ tileset layers - url can be at root level or nested in body
         'xyz tileset': {
           type: 'tileLayer',
           body: {
-            url: layerConfig?.body?.url,
+            ...(layerConfig?.body || {}),
+            url: layerConfig?.body?.url || layerConfig?.url,
           },
         },
+        // GEE layers - ensure body property exists
         gee: {
           ...layerConfig,
+          type: layerConfig?.type || 'tileLayer',
+          body: {
+            ...(layerConfig?.body || {}),
+          },
           decodeFunction: birds,
           canvas: true,
         },
         // We need to manually parse the COG layer parameters because the layer manager doesn't support the object on colormap
-        cog: {
-          ...layerConfig,
-          parse: false,
-          body: {
-            ...layerConfig.body,
-            url:
-              layerConfig?.body?.url &&
-              replace(layerConfig?.body?.url, {
-                ...layerConfig.params,
-                colormap: layerConfig.params?.colormap
-                  ? encodeURIComponent(JSON.stringify(layerConfig.params.colormap))
-                  : null,
-              }),
-          },
-        },
+        // COG layer_config can have url at root level or nested in body
+        cog: (() => {
+          const cogUrl = layerConfig?.body?.url || layerConfig?.url;
+          const parsedUrl =
+            cogUrl &&
+            replace(cogUrl, {
+              ...layerConfig.params,
+              colormap: layerConfig.params?.colormap
+                ? encodeURIComponent(JSON.stringify(layerConfig.params.colormap))
+                : null,
+            });
+          return {
+            ...layerConfig,
+            parse: false,
+            type: layerConfig?.type || 'tileLayer',
+            body: {
+              ...(layerConfig?.body || {}),
+              url: parsedUrl,
+            },
+          };
+        })(),
       };
 
       return {

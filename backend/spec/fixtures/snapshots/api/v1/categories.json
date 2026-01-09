@@ -1,7 +1,7 @@
 {
   "data": [
     {
-      "id": "4",
+      "id": "34",
       "type": "categories",
       "attributes": {
         "name": "voluptatem",
@@ -10,14 +10,12 @@
       },
       "relationships": {
         "indicators": {
-          "data": [
-
-          ]
+          "data": []
         }
       }
     },
     {
-      "id": "5",
+      "id": "35",
       "type": "categories",
       "attributes": {
         "name": "cum",
@@ -26,14 +24,12 @@
       },
       "relationships": {
         "indicators": {
-          "data": [
-
-          ]
+          "data": []
         }
       }
     },
     {
-      "id": "6",
+      "id": "36",
       "type": "categories",
       "attributes": {
         "name": "molestiae",
@@ -42,9 +38,7 @@
       },
       "relationships": {
         "indicators": {
-          "data": [
-
-          ]
+          "data": []
         }
       }
     }

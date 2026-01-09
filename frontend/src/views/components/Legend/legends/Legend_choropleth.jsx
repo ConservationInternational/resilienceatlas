@@ -6,7 +6,7 @@ const LegendChoropleth = ({ units, bucket, min, mid, max }) => (
     <div className="m-legend__choropleth">
       {min ? (
         <>
-          {bucket.map((b, i) => (
+          {(bucket || []).map((b, i) => (
             <div key={i} className="item" style={{ backgroundColor: b }} />
           ))}
           <div className="numbers">
@@ -16,7 +16,7 @@ const LegendChoropleth = ({ units, bucket, min, mid, max }) => (
           </div>
         </>
       ) : (
-        bucket.map((b, i) => (
+        (bucket || []).map((b, i) => (
           <div key={i} className="wrapper-item">
             <span className="min-val">{b['min-value']}</span>
             <span className="max-val">{b['max-value']}</span>

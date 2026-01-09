@@ -1,3 +1,7 @@
+@use '../sass-modules' as *;
+@use '../mixins' as *;
+@use '../variables' as *;
+
 .m-predictive-models {
   padding: 0 15px;
 
@@ -111,14 +115,14 @@
       margin-bottom: 10px;
 
       &:hover {
-        background: darken($bg-color-2, 5%);
+        background: darken-color($bg-color-2, 5%);
       }
 
       &.-primary {
         background: $blue;
 
         &:hover {
-          background: darken($blue, 5%);
+          background: darken-color($blue, 5%);
         }
       }
 

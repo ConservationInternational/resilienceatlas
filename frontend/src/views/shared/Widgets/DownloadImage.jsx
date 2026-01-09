@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { geoJSON } from 'leaflet';
+import L from 'leaflet';
 import { useAxios } from 'utilities';
 import { T } from '@transifex/react';
 
@@ -12,7 +12,7 @@ const DownloadImage = ({ analysisBody, geojson }) => {
       url: 'https://downloadimage.tt.resilienceatlas.org',
       data: {
         assetId,
-        geometry: geoJSON(geojson).toGeoJSON(),
+        geometry: L.geoJSON(geojson).toGeoJSON(),
       },
     };
   }, [analysisBody, geojson]);

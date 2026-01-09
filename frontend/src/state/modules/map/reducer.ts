@@ -4,8 +4,37 @@ import { createReducer } from '../../utils';
 import * as t from './actions';
 import type { MAP_LABELS } from 'views/components/LayersList/Basemaps/constants';
 
+interface Bounds {
+  _northEast: { lat: number; lng: number };
+  _southWest: { lat: number; lng: number };
+}
+
+interface LayerInteraction {
+  id: string;
+  [key: string]: unknown;
+}
+
+interface LatLng {
+  lat: number;
+  lng: number;
+}
+
+interface GeoJSONFeature {
+  type: string;
+  geometry: unknown;
+  properties?: Record<string, unknown>;
+}
+
 export interface MapState {
   labels: (typeof MAP_LABELS)[number];
+  drawing: boolean;
+  bounds: Bounds | null;
+  iso: string | null;
+  basemap: string;
+  layerGroupsInteraction: Record<string, LayerInteraction>;
+  layerGroupsInteractionSelected: LayerInteraction | null;
+  layerGroupsInteractionLatLng: LatLng | null;
+  geojson?: GeoJSONFeature | null;
 }
 
 const initialState: MapState = {
@@ -14,7 +43,7 @@ const initialState: MapState = {
   bounds: null,
   iso: getRouterParam('iso'),
   basemap: getRouterParam('basemap') || (subdomain === 'atlas' ? 'satellite' : 'defaultmap'),
-  labels: getRouterParam('labels') || 'none',
+  labels: (getRouterParam('labels') as (typeof MAP_LABELS)[number]) || 'none',
   layerGroupsInteraction: {},
   layerGroupsInteractionSelected: null,
   layerGroupsInteractionLatLng: null,

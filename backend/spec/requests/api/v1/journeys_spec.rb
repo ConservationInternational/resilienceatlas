@@ -33,10 +33,10 @@ RSpec.describe "API V1 Journeys", type: :request do
       parameter name: :id, in: :path, type: :integer, description: "Journey ID"
       parameter name: :locale, in: :query, type: :string, description: "Used language. Default: en", required: false
 
-      let(:journey_step_landing) { create :journey_step, step_type: :landing }
-      let(:journey_step_conclusion) { create :journey_step, step_type: :conclusion }
-      let(:journey_step_chapter) { create :journey_step, step_type: :chapter }
-      let(:journey_step_embed) { create :journey_step, step_type: :embed }
+      let(:journey_step_landing) { create :journey_step, step_type: :landing, position: 1 }
+      let(:journey_step_conclusion) { create :journey_step, step_type: :conclusion, position: 2 }
+      let(:journey_step_chapter) { create :journey_step, step_type: :chapter, position: 3, chapter_number: 3 }
+      let(:journey_step_embed) { create :journey_step, step_type: :embed, position: 4 }
       let!(:journey) do
         create :journey, journey_steps: [journey_step_landing, journey_step_conclusion, journey_step_chapter, journey_step_embed]
       end

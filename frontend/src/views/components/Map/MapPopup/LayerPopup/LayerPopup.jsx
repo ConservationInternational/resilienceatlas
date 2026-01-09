@@ -1,4 +1,3 @@
-/* eslint-disable @next/next/no-img-element */
 import React, { useReducer, useCallback, useEffect } from 'react';
 import axios from 'axios';
 import moment from 'moment';
@@ -89,10 +88,12 @@ const LayerPopup = ({
 
       axios
         .get(replace(config.url, latlng), {})
-        .then(({ data }) => {
+        .then(({ data: responseData }) => {
           // For COGs column in interactionConfig should always be 'values[*]' or 'values.*'
           const data =
-            layer.type === 'cog' ? { values: data?.values } : data && data.rows && data.rows[0];
+            layer.type === 'cog'
+              ? { values: responseData?.values }
+              : responseData && responseData.rows && responseData.rows[0];
           dispatch({
             type: FETCH.SUCCESS,
             payload: {
@@ -121,7 +122,7 @@ const LayerPopup = ({
           value={layer.id}
           onChange={(e) => onChangeInteractiveLayer(e.target.value)}
         >
-          {layers.map((o) => (
+          {(layers || []).map((o) => (
             <option key={o.id} value={o.id}>
               {o.name}
             </option>
@@ -133,7 +134,7 @@ const LayerPopup = ({
         {(interaction.data || interactionState.data) && (
           <table className="popup-table">
             <tbody>
-              {output.map((outputItem) => {
+              {(output || []).map((outputItem) => {
                 const { column } = outputItem;
                 const columnArray = column.split('.');
                 const value =

@@ -1,3 +1,7 @@
+@use '../sass-modules' as *;
+@use '../mixins' as *;
+@use '../variables' as *;
+
 $backgrounds: 'journey1ch1', 'journey1ch2', 'journey1ch3', 'journey2ch1',
   'journey2ch2', 'journey2ch3', 'journey3ch1', 'journey3ch2', 'journey3ch3',
   'journey1bg0', 'journey1bg1', 'journey1bg2', 'journey2bg0', 'journey2bg1',
@@ -5,7 +9,8 @@ $backgrounds: 'journey1ch1', 'journey1ch2', 'journey1ch3', 'journey2ch1',
   'journey4bg1', 'journey4bg10', 'journey5bg0', 'journey5bg1', 'journey5bg2',
   'journey5ch1', 'journey5ch3';
 
-%journey {
+// Mixin for journey base styles - can be used by other modules
+@mixin journey-base {
   position: absolute;
   top: 0;
   bottom: 0;
@@ -19,9 +24,9 @@ $backgrounds: 'journey1ch1', 'journey1ch2', 'journey1ch3', 'journey2ch1',
   background-size: cover;
   background-position: left bottom;
 
-  @for $i from 1 through length($backgrounds) {
-    &.#{nth($backgrounds, $i)} {
-      background-image: url('/images/journeys/#{nth($backgrounds, $i)}.jpg');
+  @for $i from 1 through len($backgrounds) {
+    &.#{get-nth($backgrounds, $i)} {
+      background-image: url('/images/journeys/#{get-nth($backgrounds, $i)}.jpg');
     }
   }
 
@@ -49,4 +54,9 @@ $backgrounds: 'journey1ch1', 'journey1ch2', 'journey1ch3', 'journey2ch1',
     right: 0;
     background-color: rgba(0, 0, 0, 0.1);
   }
+}
+
+// Placeholder that uses the mixin (for internal use)
+%journey {
+  @include journey-base;
 }

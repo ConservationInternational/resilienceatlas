@@ -1,4 +1,4 @@
-import type { GeoJSON } from 'leaflet';
+import type { GeoJSON } from 'geojson';
 
 export interface TextChartProps {
   /** Slug of the layer */

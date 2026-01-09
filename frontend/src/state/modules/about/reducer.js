@@ -1,6 +1,6 @@
 import { createReducer } from '../../utils';
 import { LOAD } from './actions';
-import { SectionTypes } from 'types/about.d';
+import { SectionTypes } from 'types/about';
 
 const initialState = {
   data: {

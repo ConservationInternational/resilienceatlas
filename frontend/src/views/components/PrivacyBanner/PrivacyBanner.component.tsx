@@ -5,7 +5,7 @@ import { useCookiesConsent } from 'utilities/hooks/useCookiesConsent';
 
 import NoticeContent from './NoticeContent';
 
-export const PrivacyNotice: FC = ({}) => {
+export const PrivacyNotice: FC = () => {
   const [mounted, setMounted] = useState(false);
 
   const { consentDate } = useCookiesConsent();

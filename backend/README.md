@@ -8,6 +8,7 @@ This is the web app powering
 Requirements:
 
 * Ruby 3.4.4
+* Rails 7.2.x
 * PostgreSQL
 
 Install global dependencies:

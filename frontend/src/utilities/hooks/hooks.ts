@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import cx from 'classnames';
 import { usePrevious } from './usePrevious';
 import { useRouterParams } from 'utilities/routeParams';
@@ -16,10 +16,12 @@ export const useToggle = (initial = false): [boolean, () => void] => {
 export const useInput = (name, initialValue) => {
   const [value, setValue] = useState(initialValue);
   const onChange = (e) => setValue(e.target.value);
+  // onInput is needed for range sliders to update in real-time while dragging
+  const onInput = (e) => setValue(e.target.value);
 
   useEffect(() => setValue(initialValue), [initialValue]);
 
-  const input = { name, value, onChange, setValue };
+  const input = { name, value, onChange, onInput, setValue };
 
   Object.defineProperty(input, 'setValue', { enumerable: false });
 
@@ -39,14 +41,14 @@ export const useUpdaterInput = (name, initialValue, updater) => {
   // call update handler only if value changed
   const update = useCallback(() => {
     if (value !== initialValue) updater(value);
-  }, [value, initialValue]);
+  }, [value, initialValue, updater]);
 
   // adding a update handlers
   const onKeyPress = useCallback(
     (e) => (e.keyCode === 13 || e.charCode === 13) && update(),
-    [value],
+    [update],
   );
-  const onBlur = useCallback(() => update(), [value]);
+  const onBlur = useCallback(() => update(), [update]);
 
   // update current value if initial has been changed
   useEffect(() => {
@@ -57,15 +59,21 @@ export const useUpdaterInput = (name, initialValue, updater) => {
 };
 
 export const useDebounce = (effect, delay, deps) => {
-  useEffect(() => {
-    const timeout = setTimeout(effect, delay);
+  // Store the effect in a ref so we always call the latest version
+  // without needing it in the dependency array
+  const effectRef = useRef(effect);
+  effectRef.current = effect;
 
+  useEffect(() => {
+    const timeout = setTimeout(() => effectRef.current(), delay);
     return () => clearTimeout(timeout);
-  }, deps);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [delay, ...deps]);
 };
 
 export const useRouterValue = (
   name: string,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   value: any,
   { onlyOnChange = false }: { onlyOnChange?: boolean } = {},
 ) => {
@@ -76,7 +84,7 @@ export const useRouterValue = (
     if (!onlyOnChange || prevValue !== value) {
       setParam(name, value);
     }
-  }, [value]);
+  }, [value, onlyOnChange, prevValue, name, setParam]);
 };
 
 export const useTogglerButton = (current, setter, { activeClassName = 'is-active' } = {}) => {

@@ -1,3 +1,7 @@
+@use '../sass-modules' as *;
+@use '../mixins' as *;
+@use '../variables' as *;
+
 .m-user-form {
   padding: 40px 25px;
   margin: 50px auto;
