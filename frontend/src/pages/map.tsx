@@ -14,6 +14,7 @@ import MapView from 'views/components/Map';
 import MapLoadingScreen from 'views/components/Map/loading-screen';
 
 import { LayerManagerProvider } from 'views/contexts/layerManagerCtx';
+import { useCookiesConsent } from 'utilities/hooks/useCookiesConsent';
 
 import { withTranslations, useSetServerSideTranslations } from 'utilities/hooks/transifex';
 import type { NextPageWithLayout } from './_app';
@@ -25,6 +26,8 @@ const MapPage: NextPageWithLayout = ({ translations, setTranslations, isSidebarO
   const { mapTour } = cookies;
   const { isOpen, setIsOpen } = useTour();
   const [anyLayerLoading, setAnyLayerLoading] = useState(false);
+  const [mapControlsReady, setMapControlsReady] = useState(false);
+  const { consentDate } = useCookiesConsent();
 
   // TODO: migrate this, how it works?
   // const { location: { state } } = props;
@@ -35,14 +38,47 @@ const MapPage: NextPageWithLayout = ({ translations, setTranslations, isSidebarO
   // }, []);
   useSetServerSideTranslations({ setTranslations, translations });
 
+  // Wait for map controls to be rendered before allowing tour to start
+  useEffect(() => {
+    const checkMapControls = () => {
+      const mapControls = document.querySelector('.c-map-controls');
+      if (mapControls) {
+        setMapControlsReady(true);
+        return true;
+      }
+      return false;
+    };
+
+    // Check immediately
+    if (checkMapControls()) return;
+
+    // Poll for map controls to appear (they're loaded dynamically)
+    const interval = setInterval(() => {
+      if (checkMapControls()) {
+        clearInterval(interval);
+      }
+    }, 100);
+
+    // Cleanup after 10 seconds max
+    const timeout = setTimeout(() => {
+      clearInterval(interval);
+    }, 10000);
+
+    return () => {
+      clearInterval(interval);
+      clearTimeout(timeout);
+    };
+  }, []);
+
   useEffect(() => {
     // Showing the map tour only once,
     // to show it again remove cookies from the browser
-    if (!mapTour && !isOpen) {
+    // Wait for: 1) cookie consent to be handled, 2) map controls to be ready
+    if (!mapTour && !isOpen && consentDate && mapControlsReady) {
       setCookie('mapTour', 'enabled');
       setIsOpen(true);
     }
-  }, [isOpen, mapTour, setCookie, setIsOpen]);
+  }, [isOpen, mapTour, setCookie, setIsOpen, consentDate, mapControlsReady]);
 
   // ? 350px is the width of the left sidebar
   const sidebarSize = useMemo(() => (isSidebarOpen ? 350 : 25), [isSidebarOpen]);

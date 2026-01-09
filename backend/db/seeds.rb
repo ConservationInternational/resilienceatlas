@@ -194,6 +194,26 @@ unless Rails.env.test?
             # Update journey step sequence as well
             ActiveRecord::Base.connection.execute("SELECT setval('journey_steps_id_seq', (SELECT MAX(id) FROM journey_steps))")
           end
+
+          # Extract and execute the ActiveStorage::Blob.create! part
+          blob_section = content.match(/ActiveStorage::Blob\.create!\(\[(.*?)\]\)/m)
+          if blob_section
+            eval("ActiveStorage::Blob.create!([#{blob_section[1]}])", binding, __FILE__, __LINE__) # rubocop:disable Security/Eval
+            puts "Active Storage blobs created: #{ActiveStorage::Blob.count}"
+
+            # Update blob sequence as well
+            ActiveRecord::Base.connection.execute("SELECT setval('active_storage_blobs_id_seq', (SELECT MAX(id) FROM active_storage_blobs))")
+          end
+
+          # Extract and execute the ActiveStorage::Attachment.create! part
+          attachment_section = content.match(/ActiveStorage::Attachment\.create!\(\[(.*?)\]\)/m)
+          if attachment_section
+            eval("ActiveStorage::Attachment.create!([#{attachment_section[1]}])", binding, __FILE__, __LINE__) # rubocop:disable Security/Eval
+            puts "Active Storage attachments created: #{ActiveStorage::Attachment.count}"
+
+            # Update attachment sequence as well
+            ActiveRecord::Base.connection.execute("SELECT setval('active_storage_attachments_id_seq', (SELECT MAX(id) FROM active_storage_attachments))")
+          end
         end
 
         # Re-enable the callback
@@ -287,6 +307,78 @@ unless Rails.env.test?
               puts "  ✗ Error attaching image to existing Journey #{journey.id}: #{e.message}"
             end
           end
+        end
+      end
+    end
+
+    # Check if journey steps need background images attached
+    journey_steps_without_images = JourneyStep.where(step_type: %w[landing conclusion chapter]).where.missing(:background_image_attachment)
+    if journey_steps_without_images.any?
+      puts "Found #{journey_steps_without_images.count} journey steps without background images, loading from journeys.rb..."
+      journeys_file = Rails.root.join("db", "data", "journeys.rb")
+      if File.exist?(journeys_file)
+        content = File.read(journeys_file)
+
+        # Check if there are missing blobs and create them
+        blob_section = content.match(/ActiveStorage::Blob\.create!\(\[(.*?)\]\)\s*\nActiveStorage::Attachment/m)
+        if blob_section
+          begin
+            # Count blobs before
+            blobs_before = ActiveStorage::Blob.count
+
+            # Create missing blobs using the extracted data
+            blob_array_str = blob_section[1]
+            # Use a safer eval approach - wrap in a lambda to evaluate
+            blobs_data = eval("[#{blob_array_str}]", binding, __FILE__, __LINE__) # rubocop:disable Security/Eval
+            blobs_data.each do |blob_attrs|
+              unless ActiveStorage::Blob.exists?(id: blob_attrs[:id])
+                ActiveStorage::Blob.create!(blob_attrs)
+              end
+            end
+
+            ActiveRecord::Base.connection.execute("SELECT setval('active_storage_blobs_id_seq', (SELECT COALESCE(MAX(id), 1) FROM active_storage_blobs))")
+            blobs_created = ActiveStorage::Blob.count - blobs_before
+            puts "  Created #{blobs_created} Active Storage blobs (#{ActiveStorage::Blob.count} total)"
+          rescue => e
+            puts "  ⚠ Error creating blobs: #{e.message}"
+          end
+        end
+
+        # Check if there are missing attachments and create them
+        attachment_section = content.match(/ActiveStorage::Attachment\.create!\(\[(.*?)\]\)/m)
+        if attachment_section
+          begin
+            # Count attachments before
+            attachments_before = ActiveStorage::Attachment.count
+
+            # Create missing attachments
+            attachment_array_str = attachment_section[1]
+            attachments_data = eval("[#{attachment_array_str}]", binding, __FILE__, __LINE__) # rubocop:disable Security/Eval
+            attachments_data.each do |attachment_attrs|
+              record_type = attachment_attrs[:record_type]
+              record_id = attachment_attrs[:record_id]
+              name = attachment_attrs[:name]
+              # Only create if not already exists and the blob exists
+              if ActiveStorage::Blob.exists?(id: attachment_attrs[:blob_id]) &&
+                  !ActiveStorage::Attachment.exists?(record_type: record_type, record_id: record_id, name: name)
+                ActiveStorage::Attachment.create!(attachment_attrs)
+              end
+            end
+
+            ActiveRecord::Base.connection.execute("SELECT setval('active_storage_attachments_id_seq', (SELECT COALESCE(MAX(id), 1) FROM active_storage_attachments))")
+            attachments_created = ActiveStorage::Attachment.count - attachments_before
+            puts "  Created #{attachments_created} Active Storage attachments (#{ActiveStorage::Attachment.count} total)"
+          rescue => e
+            puts "  ⚠ Error creating attachments: #{e.message}"
+          end
+        end
+
+        # Re-check and report
+        remaining_without_images = JourneyStep.where(step_type: %w[landing conclusion chapter]).where.missing(:background_image_attachment).count
+        if remaining_without_images == 0
+          puts "  ✓ All journey steps now have background images"
+        else
+          puts "  ⚠ #{remaining_without_images} journey steps still without background images"
         end
       end
     end

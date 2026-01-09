@@ -1,8 +1,10 @@
 import { replace } from '../../utils/query';
 
-const { L } = typeof window !== 'undefined' ? window : {};
+// Get L dynamically at runtime, not at module load time
+const getL = () => (typeof window !== 'undefined' ? window.L : undefined);
 
 const LeafletLayer = (layerModel) => {
+  const L = getL();
   if (!L) throw new Error('Leaflet must be defined.');
 
   const { layerConfig, params, sqlParams } = layerModel;

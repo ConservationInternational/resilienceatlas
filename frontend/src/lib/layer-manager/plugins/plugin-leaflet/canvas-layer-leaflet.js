@@ -1,11 +1,14 @@
 /* global XMLHttpRequest */
 import { replace } from '../../utils/query';
 
-const { L } = typeof window !== 'undefined' ? window : {};
+// Get L dynamically at runtime, not at module load time
+const getL = () => (typeof window !== 'undefined' ? window.L : undefined);
 
-const CanvasLayer =
-  L &&
-  L.GridLayer.extend({
+// Factory function that creates CanvasLayer when L is available
+const getCanvasLayer = () => {
+  const L = getL();
+  if (!L) return null;
+  return L.GridLayer.extend({
     tiles: {},
     createTile({ x, y, z }, done) {
       const { params } = this.options;
@@ -174,5 +177,8 @@ const CanvasLayer =
       }
     },
   });
+};
 
-export default CanvasLayer;
+// For backwards compatibility and runtime access
+export { getCanvasLayer };
+export default getCanvasLayer;

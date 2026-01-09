@@ -58,7 +58,7 @@ const JourneySlider: React.FC<JourneySliderProps> = ({
           return (
             <li key={`slide_${id}`} className="m-slider__item">
               <Link
-                href={`/journeys/${id}`}
+                href={`/journeys/${id}/step/1`}
                 className="journey-link-container"
                 style={{ backgroundImage: `url(${original})` }}
               >

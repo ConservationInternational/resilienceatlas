@@ -276,7 +276,7 @@ describe('Map tour - Client-side Tests', () => {
     // The tour requires both map controls and analysis button to be present
     // These are client-side components that may not load in all environments
     cy.get('body').then(($body) => {
-      const hasMapControls = $body.find('.wri_api__map-controls-list').length > 0;
+      const hasMapControls = $body.find('.c-map-controls').length > 0;
       const hasAnalysisButton = $body.find('.btn-analysis-panel-expand').length > 0;
 
       if (hasMapControls && hasAnalysisButton) {

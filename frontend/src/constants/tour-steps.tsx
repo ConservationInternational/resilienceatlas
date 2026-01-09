@@ -6,7 +6,7 @@ const SPACE = 35 + PADDING;
 
 const TOUR_STEPS: StepType[] = [
   {
-    selector: '.wri_api__map-controls-list',
+    selector: '.c-map-controls',
     content: () => (
       <T _str="Use the basic map tools to zoom in and out, find a location, and share what you see." />
     ),

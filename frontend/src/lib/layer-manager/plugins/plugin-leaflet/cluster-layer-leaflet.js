@@ -1,8 +1,11 @@
 import { fetchCluster } from '../../services/cluster-service';
 
-const { L, $: jQuery } = typeof window !== 'undefined' ? window : {};
+// Get L and jQuery dynamically at runtime, not at module load time
+const getL = () => (typeof window !== 'undefined' ? window.L : undefined);
+const getJQuery = () => (typeof window !== 'undefined' ? window.$ : undefined);
 
 const ClusterLayer = (layerModel) => {
+  const L = getL();
   if (!L) throw new Error('Leaflet must be defined.');
 
   const {
@@ -20,11 +23,13 @@ const ClusterLayer = (layerModel) => {
         const visibility = sublayers.map(() => true);
 
         const addCursor = (layer) => {
-          jQuery(layer.getContainer()).css('cursor', 'pointer');
+          const jQuery = getJQuery();
+          if (jQuery) jQuery(layer.getContainer()).css('cursor', 'pointer');
         };
 
         const removeCursor = (layer) => {
-          jQuery(layer.getContainer()).css('cursor', 'default');
+          const jQuery = getJQuery();
+          if (jQuery) jQuery(layer.getContainer()).css('cursor', 'default');
         };
 
         const sublayerOptions = {

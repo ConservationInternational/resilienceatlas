@@ -1,8 +1,11 @@
-const { L } = typeof window !== 'undefined' ? window : {};
+// Get L dynamically at runtime, not at module load time
+const getL = () => (typeof window !== 'undefined' ? window.L : undefined);
 
-const UTFGridLayer =
-  L &&
-  L.GridLayer.extend({
+// Factory function that creates UTFGridLayer when L is available
+const getUTFGridLayer = () => {
+  const L = getL();
+  if (!L) return null;
+  return L.GridLayer.extend({
     tiles: {},
     cache: {},
     mouseOn: null,
@@ -64,8 +67,12 @@ const UTFGridLayer =
       }
     },
     objectForEvent(e) {
+      const L = getL();
       return L.extend({ latlng: e.latlng, data: null }, e);
     },
   });
+};
 
-export default UTFGridLayer;
+// For backwards compatibility and runtime access
+export { getUTFGridLayer };
+export default getUTFGridLayer;
