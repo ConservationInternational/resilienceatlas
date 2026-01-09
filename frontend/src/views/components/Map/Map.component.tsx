@@ -132,6 +132,15 @@ const MapView = (props: MapViewProps) => {
   const [layerErrors, setLayerErrors] = useState<LayerError[]>([]);
 
   const onLayerError = useCallback((error: LayerError) => {
+    // Skip bounds errors - they are non-critical since the layer can still render
+    // without bounds data. Bounds are only used for "zoom to fit" functionality.
+    if (error.errorType === 'bounds') {
+      console.warn(
+        `Layer bounds failed to load for ${error.layerName}, but layer will still render.`,
+      );
+      return;
+    }
+
     setLayerErrors((prev) => {
       // Avoid duplicate errors for the same layer
       if (prev.some((e) => e.layerId === error.layerId)) {
