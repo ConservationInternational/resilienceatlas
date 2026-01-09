@@ -39,7 +39,7 @@ Rails.application.configure do
 
   # Use a higher log level in staging to reduce noise but still capture issues
   config.log_level = :info
-  
+
   # Use default logging formatter so that PID and timestamp are not suppressed.
   config.log_formatter = ::Logger::Formatter.new
 
