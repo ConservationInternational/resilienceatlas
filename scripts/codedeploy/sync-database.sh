@@ -182,52 +182,79 @@ rm -rf "$DUMP_DIR"
 # ============================================================================
 # ActiveStorage stores files in the backend container's storage directory.
 # We need to sync these files from production to staging for images to work.
+#
+# PRODUCTION_BACKEND_HOST can be:
+#   - "localhost" or "local" - copy directly between Docker volumes (same server)
+#   - A remote hostname/IP - use rsync over SSH
 # ============================================================================
 
-# Check if production backend is accessible for file sync
+# Check if storage file sync is enabled
 PRODUCTION_BACKEND_HOST="${PRODUCTION_BACKEND_HOST:-}"
 PRODUCTION_STORAGE_PATH="${PRODUCTION_STORAGE_PATH:-/opt/resilienceatlas-production}"
 
-if [ -n "$PRODUCTION_BACKEND_HOST" ] && [ "$SYNC_STORAGE_FILES" = "true" ]; then
+if [ "$SYNC_STORAGE_FILES" = "true" ]; then
     log_info "Syncing ActiveStorage files from production..."
     
-    # Get the staging backend container
-    STAGING_BACKEND=$(docker compose -p "$PROJECT_NAME" -f "$COMPOSE_FILE" ps -q backend 2>/dev/null | head -1)
+    # Docker volume paths
+    STORAGE_BASE="/var/lib/docker/volumes"
+    STAGING_STORAGE_VOLUME="resilienceatlas-staging_staging_backend_storage"
+    STAGING_PUBLIC_STORAGE_VOLUME="resilienceatlas-staging_staging_backend_public_storage"
+    PROD_STORAGE_VOLUME="resilienceatlas-production_production_backend_storage"
+    PROD_PUBLIC_STORAGE_VOLUME="resilienceatlas-production_production_backend_public_storage"
     
-    if [ -n "$STAGING_BACKEND" ]; then
-        # Get the staging storage volume path
-        STAGING_STORAGE_VOLUME="resilienceatlas-staging_staging_backend_storage"
-        STAGING_PUBLIC_STORAGE_VOLUME="resilienceatlas-staging_staging_backend_public_storage"
+    # Check if this is a local (same server) or remote sync
+    if [ "$PRODUCTION_BACKEND_HOST" = "localhost" ] || [ "$PRODUCTION_BACKEND_HOST" = "local" ] || [ -z "$PRODUCTION_BACKEND_HOST" ]; then
+        log_info "Using local volume copy (production and staging on same server)..."
         
-        # Use rsync to sync storage files if ssh access is available
+        # Check if production volumes exist
+        if [ -d "${STORAGE_BASE}/${PROD_STORAGE_VOLUME}/_data" ]; then
+            log_info "Copying private storage files..."
+            rsync -a --delete \
+                "${STORAGE_BASE}/${PROD_STORAGE_VOLUME}/_data/" \
+                "${STORAGE_BASE}/${STAGING_STORAGE_VOLUME}/_data/" 2>/dev/null && \
+                log_success "Private storage synced" || \
+                log_warning "Could not sync private storage files"
+        else
+            log_warning "Production storage volume not found: ${PROD_STORAGE_VOLUME}"
+        fi
+        
+        if [ -d "${STORAGE_BASE}/${PROD_PUBLIC_STORAGE_VOLUME}/_data" ]; then
+            log_info "Copying public storage files..."
+            rsync -a --delete \
+                "${STORAGE_BASE}/${PROD_PUBLIC_STORAGE_VOLUME}/_data/" \
+                "${STORAGE_BASE}/${STAGING_PUBLIC_STORAGE_VOLUME}/_data/" 2>/dev/null && \
+                log_success "Public storage synced" || \
+                log_warning "Could not sync public storage files"
+        else
+            log_warning "Production public storage volume not found: ${PROD_PUBLIC_STORAGE_VOLUME}"
+        fi
+        
+    else
+        log_info "Using remote rsync from ${PRODUCTION_BACKEND_HOST}..."
+        
         if command -v rsync &> /dev/null; then
-            log_info "Using rsync to sync storage files..."
-            
-            # Sync private storage
+            # Sync private storage from remote
             rsync -avz --delete \
-                "${PRODUCTION_BACKEND_HOST}:${PRODUCTION_STORAGE_PATH}/storage/" \
-                "/var/lib/docker/volumes/${STAGING_STORAGE_VOLUME}/_data/" 2>/dev/null || {
-                log_warning "Could not sync private storage files (rsync may not have access)"
-            }
+                "${PRODUCTION_BACKEND_HOST}:${STORAGE_BASE}/${PROD_STORAGE_VOLUME}/_data/" \
+                "${STORAGE_BASE}/${STAGING_STORAGE_VOLUME}/_data/" 2>/dev/null && \
+                log_success "Private storage synced from remote" || \
+                log_warning "Could not sync private storage files (check SSH access)"
             
-            # Sync public storage
+            # Sync public storage from remote
             rsync -avz --delete \
-                "${PRODUCTION_BACKEND_HOST}:${PRODUCTION_STORAGE_PATH}/public/storage/" \
-                "/var/lib/docker/volumes/${STAGING_PUBLIC_STORAGE_VOLUME}/_data/" 2>/dev/null || {
-                log_warning "Could not sync public storage files (rsync may not have access)"
-            }
-            
-            log_success "Storage files synced from production"
+                "${PRODUCTION_BACKEND_HOST}:${STORAGE_BASE}/${PROD_PUBLIC_STORAGE_VOLUME}/_data/" \
+                "${STORAGE_BASE}/${STAGING_PUBLIC_STORAGE_VOLUME}/_data/" 2>/dev/null && \
+                log_success "Public storage synced from remote" || \
+                log_warning "Could not sync public storage files (check SSH access)"
         else
             log_warning "rsync not available, storage files not synced"
-            log_info "Install rsync and set PRODUCTION_BACKEND_HOST to enable storage sync"
         fi
-    else
-        log_warning "Staging backend container not found, skipping storage file sync"
     fi
-elif [ -z "$PRODUCTION_BACKEND_HOST" ]; then
-    log_info "PRODUCTION_BACKEND_HOST not set, skipping storage file sync"
-    log_info "Set PRODUCTION_BACKEND_HOST and SYNC_STORAGE_FILES=true to sync images"
+    
+    log_success "Storage file sync completed"
+else
+    log_info "Storage file sync disabled (SYNC_STORAGE_FILES != true)"
+fi
 else
     log_info "Storage file sync disabled (SYNC_STORAGE_FILES != true)"
 fi
