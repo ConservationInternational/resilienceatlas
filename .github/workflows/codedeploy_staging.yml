@@ -22,7 +22,7 @@ env:
 
 concurrency:
   group: staging-deployment
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 # Required for OIDC authentication with AWS
 permissions:
@@ -170,24 +170,25 @@ jobs:
         echo "🔍 Checking for in-progress deployments..."
         
         # Get list of in-progress deployments
+        # Don't suppress errors - we need to know if this fails
         ACTIVE_DEPLOYMENTS=$(aws deploy list-deployments \
           --application-name ${{ env.APPLICATION_NAME }} \
           --deployment-group-name ${{ env.DEPLOYMENT_GROUP }} \
           --include-only-statuses "InProgress" "Queued" "Created" \
           --query 'deployments' \
-          --output text 2>/dev/null || echo "")
+          --output text)
         
         if [ -n "$ACTIVE_DEPLOYMENTS" ] && [ "$ACTIVE_DEPLOYMENTS" != "None" ]; then
           for DEPLOYMENT_ID in $ACTIVE_DEPLOYMENTS; do
             echo "⏹️ Stopping deployment: $DEPLOYMENT_ID"
             aws deploy stop-deployment \
               --deployment-id "$DEPLOYMENT_ID" \
-              --auto-rollback-enabled 2>/dev/null || true
+              --auto-rollback-enabled
           done
           
-          # Wait a moment for deployments to stop
+          # Wait for deployments to stop
           echo "⏳ Waiting for deployments to stop..."
-          sleep 10
+          sleep 15
         else
           echo "✅ No active deployments found"
         fi

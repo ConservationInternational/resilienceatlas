@@ -342,6 +342,16 @@ Rollbar is integrated for error tracking and monitoring across both frontend and
 - **Frontend**: React Error Boundary with `RollbarProvider` in `_app.tsx`
 - **Backend**: Rails exception handling via `rollbar` gem in `config/initializers/rollbar.rb`
 - **Deployments**: Automatic deployment tracking in GitHub Actions workflows
+- **Rate Limiting**: Built-in rate limiting prevents spam during outages (e.g., database down)
+
+### Rate Limiting
+Both frontend and backend implement rate limiting to prevent Rollbar spam:
+- **Window**: 1 minute sliding window
+- **Limit**: Maximum 5 of the same error type per window
+- **Behavior**: Subsequent duplicate errors are suppressed locally, with suppression count included in the next sent error
+- **Cleanup**: Old tracking entries are cleaned up every 5 minutes
+
+This prevents scenarios like a database outage from generating thousands of identical error reports.
 
 ### Configuration
 Required GitHub Secrets for production/staging:
@@ -350,7 +360,7 @@ Required GitHub Secrets for production/staging:
 
 ### Usage in Frontend
 ```tsx
-import { useRollbar, reportError, reportCritical } from 'utilities/rollbar';
+import { useRollbar, reportError, reportCritical, getRateLimiterStats } from 'utilities/rollbar';
 
 // In React components
 const { logError, logWarning, logInfo, logCritical } = useRollbar();
@@ -359,14 +369,27 @@ logError(new Error('Something went wrong'), { extra: 'context' });
 // Outside React components
 reportError('API call failed', { endpoint: '/api/data' });
 reportCritical(new Error('Critical failure'), { severity: 'high' });
+
+// Check rate limiter stats (for debugging)
+const stats = getRateLimiterStats();
+console.log(`Tracked: ${stats.trackedErrors}, Suppressed: ${stats.totalSuppressed}`);
 ```
 
 ### Usage in Backend
 ```ruby
-# Automatic exception capture is enabled
-# Manual logging:
+# Automatic exception capture is enabled with rate limiting
+# Rate limiting is applied automatically via before_process hook
+
+# Manual logging (also rate limited):
 Rollbar.error(exception, custom_data: 'value')
 Rollbar.warning('Warning message')
 Rollbar.info('Informational message')
 Rollbar.critical('Critical issue', { context: 'data' })
+
+# Check rate limiter stats (for debugging):
+stats = RollbarRateLimiter.stats
+Rails.logger.info "Rollbar rate limiter: #{stats[:tracked_errors]} tracked, #{stats[:total_suppressed]} suppressed"
+
+# Use rate-limited wrapper explicitly (optional, automatic rate limiting is preferred):
+RollbarWithRateLimiting.error_with_rate_limit(exception, { extra: 'data' })
 ```
