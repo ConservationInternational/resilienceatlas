@@ -73,9 +73,11 @@ services:
       - ROLLBAR_ENV=staging
     networks:
       - staging-network
+    depends_on:
+      - database
     deploy:
       mode: replicated
-      replicas: 2
+      replicas: 1
       update_config:
         parallelism: 1
         delay: 30s
@@ -121,9 +123,11 @@ services:
       - ROLLBAR_ENV=staging
     networks:
       - staging-network
+    depends_on:
+      - backend
     deploy:
       mode: replicated
-      replicas: 2
+      replicas: 1
       update_config:
         parallelism: 1
         delay: 30s

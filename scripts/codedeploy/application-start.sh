@@ -61,55 +61,58 @@ export TAG="$DEPLOY_TAG"
 # ============================================================================
 # Deploy/Update Stack
 # ============================================================================
+# Always use docker stack deploy which is idempotent:
+#   - For new deployments: creates all services
+#   - For existing stacks: updates changed services and starts missing ones
+# This ensures the database service starts even on updates.
+# ============================================================================
 
-# Check if stack already exists
+# Check if stack already exists (for logging purposes)
 EXISTING_SERVICES=$(docker stack services "$STACK_NAME" 2>/dev/null | wc -l || echo "0")
 
 if [ "$EXISTING_SERVICES" -gt 1 ]; then
-    log_info "Updating existing stack with rolling updates..."
-    
-    # For database (staging only), we don't do rolling updates
-    if [ "$ENVIRONMENT" = "staging" ]; then
-        # Check if database service exists
-        if docker service ls --filter "name=${STACK_NAME}_database" --format "{{.Name}}" | grep -q database; then
-            log_info "Database service exists, will be updated if needed"
-        fi
-    fi
-    
-    # Update backend service with rolling update
-    log_info "Updating backend service..."
-    if docker service update \
-        --image "${STACK_NAME}-backend:${DEPLOY_TAG}" \
-        --update-parallelism 1 \
-        --update-delay 30s \
-        --update-order start-first \
-        --update-failure-action rollback \
-        --with-registry-auth \
-        "${STACK_NAME}_backend" 2>/dev/null; then
-        log_success "Backend service updated"
-    else
-        log_warning "Backend service update command returned non-zero, checking status..."
-    fi
-    
-    # Update frontend service with rolling update
-    log_info "Updating frontend service..."
-    if docker service update \
-        --image "${STACK_NAME}-frontend:${DEPLOY_TAG}" \
-        --update-parallelism 1 \
-        --update-delay 30s \
-        --update-order start-first \
-        --update-failure-action rollback \
-        --with-registry-auth \
-        "${STACK_NAME}_frontend" 2>/dev/null; then
-        log_success "Frontend service updated"
-    else
-        log_warning "Frontend service update command returned non-zero, checking status..."
-    fi
-    
+    log_info "Updating existing stack '$STACK_NAME'..."
 else
-    log_info "Deploying new stack..."
-    docker stack deploy -c "$COMPOSE_FILE" "$STACK_NAME"
-    log_success "Stack deployed"
+    log_info "Deploying new stack '$STACK_NAME'..."
+fi
+
+# Deploy/update the stack - this is idempotent and handles both new and update cases
+# It will:
+#   - Start any services that aren't running (including database)
+#   - Update services that have changed images or configuration
+#   - Apply rolling update settings from the compose file
+log_info "Running docker stack deploy with compose file: $COMPOSE_FILE"
+docker stack deploy -c "$COMPOSE_FILE" "$STACK_NAME" --with-registry-auth
+
+log_success "Stack deploy command completed"
+
+# For staging, verify database is running
+if [ "$ENVIRONMENT" = "staging" ]; then
+    log_info "Verifying database service is running..."
+    DB_STATUS=$(docker service ls --filter "name=${STACK_NAME}_database" --format "{{.Replicas}}" 2>/dev/null || echo "0/0")
+    log_info "Database service status: $DB_STATUS"
+    
+    # Wait for database to be ready before continuing
+    MAX_DB_WAIT=60
+    DB_WAIT=0
+    while [ $DB_WAIT -lt $MAX_DB_WAIT ]; do
+        DB_REPLICAS=$(docker service ls --filter "name=${STACK_NAME}_database" --format "{{.Replicas}}" 2>/dev/null || echo "0/0")
+        DB_CURRENT=$(echo "$DB_REPLICAS" | cut -d'/' -f1)
+        DB_DESIRED=$(echo "$DB_REPLICAS" | cut -d'/' -f2)
+        
+        if [ "$DB_CURRENT" = "$DB_DESIRED" ] && [ "$DB_DESIRED" != "0" ]; then
+            log_success "Database service is running: $DB_REPLICAS"
+            break
+        fi
+        
+        log_info "Waiting for database... ($DB_REPLICAS, ${DB_WAIT}s/${MAX_DB_WAIT}s)"
+        sleep 5
+        DB_WAIT=$((DB_WAIT + 5))
+    done
+    
+    if [ $DB_WAIT -ge $MAX_DB_WAIT ]; then
+        log_warning "Database may not be fully ready after ${MAX_DB_WAIT}s"
+    fi
 fi
 
 # ============================================================================

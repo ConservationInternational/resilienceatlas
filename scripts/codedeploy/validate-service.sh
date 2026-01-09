@@ -1,9 +1,9 @@
 #!/bin/bash
 # ============================================================================
-# ValidateService Hook - Validate application is running correctly
+# ValidateService Hook (Swarm Mode) - Validate application is running correctly
 # ============================================================================
 # This script is executed after ApplicationStart to validate the deployment.
-# It performs health checks on all services.
+# It performs health checks on all services using Docker Swarm commands.
 #
 # SINGLE-INSTANCE SUPPORT: Uses environment-specific ports for health checks.
 #   Production: Frontend=3000, Backend=3001
@@ -16,18 +16,18 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "${SCRIPT_DIR}/common.sh"
 
-log_info "ValidateService hook started"
+log_info "ValidateService hook (Swarm mode) started"
 
 # Detect environment
 ENVIRONMENT=$(detect_environment)
 log_info "Detected environment: $ENVIRONMENT"
 
-# Set application directory and project name
+# Set application directory and stack name
 APP_DIR=$(get_app_directory "$ENVIRONMENT")
-PROJECT_NAME=$(get_project_name "$ENVIRONMENT")
+STACK_NAME="resilienceatlas-${ENVIRONMENT}"
 cd "$APP_DIR"
 
-# Load environment variables to avoid docker compose warnings
+# Load environment variables
 ENV_FILE=$(get_env_file "$ENVIRONMENT")
 if [ -f "$ENV_FILE" ]; then
     set -a
@@ -35,20 +35,34 @@ if [ -f "$ENV_FILE" ]; then
     set +a
 fi
 
-# Get the appropriate docker-compose file and ports
-COMPOSE_FILE=$(get_compose_file "$ENVIRONMENT")
+# Get the appropriate ports
 FRONTEND_PORT=$(get_frontend_port "$ENVIRONMENT")
 BACKEND_PORT=$(get_backend_port "$ENVIRONMENT")
 
+log_info "Stack name: $STACK_NAME"
 log_info "Using ports - Frontend: $FRONTEND_PORT, Backend: $BACKEND_PORT"
+
+# ============================================================================
+# Verify Swarm Services are Running
+# ============================================================================
+log_info "Verifying Swarm services..."
+
+# Check service status
+log_info "Current stack services:"
+docker stack services "$STACK_NAME" 2>/dev/null || {
+    log_error "Failed to get stack services. Stack may not be deployed."
+    exit 1
+}
 
 # Health check configuration
 MAX_ATTEMPTS=30
-ATTEMPT=1
 WAIT_TIME=10
 
-# Health check for frontend
+# ============================================================================
+# Frontend Health Check
+# ============================================================================
 log_info "Performing frontend health check..."
+ATTEMPT=1
 while [ $ATTEMPT -le $MAX_ATTEMPTS ]; do
     log_info "Frontend health check attempt $ATTEMPT/$MAX_ATTEMPTS..."
     
@@ -65,12 +79,16 @@ done
 
 if [ $ATTEMPT -gt $MAX_ATTEMPTS ]; then
     log_error "Frontend health check failed after $MAX_ATTEMPTS attempts"
-    log_info "Frontend container logs:"
-    docker compose -p "$PROJECT_NAME" -f "$COMPOSE_FILE" logs --tail 50 frontend || true
+    log_info "Frontend service status:"
+    docker service ps "${STACK_NAME}_frontend" --no-trunc 2>/dev/null || true
+    log_info "Frontend service logs:"
+    docker service logs "${STACK_NAME}_frontend" --tail 50 2>/dev/null || true
     exit 1
 fi
 
-# Health check for backend
+# ============================================================================
+# Backend Health Check
+# ============================================================================
 log_info "Performing backend health check..."
 ATTEMPT=1
 while [ $ATTEMPT -le $MAX_ATTEMPTS ]; do
@@ -91,37 +109,57 @@ done
 
 if [ $ATTEMPT -gt $MAX_ATTEMPTS ]; then
     log_error "Backend health check failed after $MAX_ATTEMPTS attempts"
-    log_info "Backend container logs:"
-    docker compose -p "$PROJECT_NAME" -f "$COMPOSE_FILE" logs --tail 50 backend || true
+    log_info "Backend service status:"
+    docker service ps "${STACK_NAME}_backend" --no-trunc 2>/dev/null || true
+    log_info "Backend service logs:"
+    docker service logs "${STACK_NAME}_backend" --tail 50 2>/dev/null || true
     exit 1
 fi
 
-# Database health check (staging only - production uses external DB)
+# ============================================================================
+# Database Health Check (Staging Only)
+# ============================================================================
 if [ "$ENVIRONMENT" = "staging" ]; then
     log_info "Performing database health check..."
     ATTEMPT=1
     while [ $ATTEMPT -le 10 ]; do
-        if docker compose -p "$PROJECT_NAME" -f "$COMPOSE_FILE" exec -T database pg_isready -U postgres >/dev/null 2>&1; then
-            log_success "Database health check passed"
-            break
-        else
-            log_info "Database not ready yet..."
+        # Check database service is running
+        DB_STATUS=$(docker service ls --filter "name=${STACK_NAME}_database" --format "{{.Replicas}}" 2>/dev/null || echo "0/0")
+        DB_CURRENT=$(echo "$DB_STATUS" | cut -d'/' -f1)
+        DB_DESIRED=$(echo "$DB_STATUS" | cut -d'/' -f2)
+        
+        if [ "$DB_CURRENT" = "$DB_DESIRED" ] && [ "$DB_DESIRED" != "0" ]; then
+            # Find a database container and check pg_isready
+            DB_CONTAINER=$(docker ps --filter "name=${STACK_NAME}_database" --format "{{.ID}}" | head -1)
+            if [ -n "$DB_CONTAINER" ]; then
+                if docker exec "$DB_CONTAINER" pg_isready -U postgres >/dev/null 2>&1; then
+                    log_success "Database health check passed"
+                    break
+                fi
+            fi
         fi
         
+        log_info "Database not ready yet (status: $DB_STATUS)..."
         sleep 5
         ATTEMPT=$((ATTEMPT + 1))
     done
     
     if [ $ATTEMPT -gt 10 ]; then
         log_warning "Database health check failed, but continuing (may affect application functionality)"
+        log_info "Database service status:"
+        docker service ps "${STACK_NAME}_database" --no-trunc 2>/dev/null || true
     fi
 fi
 
-# Show final status
-log_info "Final container status:"
-docker compose -p "$PROJECT_NAME" -f "$COMPOSE_FILE" ps
+# ============================================================================
+# Final Status
+# ============================================================================
+log_info "Final stack status:"
+docker stack services "$STACK_NAME"
 
-# Calculate and log deployment info
+log_info "Stack tasks:"
+docker stack ps "$STACK_NAME" --format "table {{.Name}}\t{{.Node}}\t{{.CurrentState}}\t{{.Error}}" 2>/dev/null | head -20
+
 log_success "Deployment validation completed successfully!"
 log_success "Environment: $ENVIRONMENT"
 log_success "Frontend port: $FRONTEND_PORT, Backend port: $BACKEND_PORT"
