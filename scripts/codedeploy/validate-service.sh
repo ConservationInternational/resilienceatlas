@@ -54,9 +54,10 @@ docker stack services "$STACK_NAME" 2>/dev/null || {
     exit 1
 }
 
-# Health check configuration
-MAX_ATTEMPTS=30
-WAIT_TIME=10
+# Health check configuration - reduced for faster deployment
+# Swarm continues orchestrating even after this script exits
+MAX_ATTEMPTS=12
+WAIT_TIME=5
 
 # ============================================================================
 # Frontend Health Check
@@ -81,8 +82,8 @@ if [ $ATTEMPT -gt $MAX_ATTEMPTS ]; then
     log_error "Frontend health check failed after $MAX_ATTEMPTS attempts"
     log_info "Frontend service status:"
     docker service ps "${STACK_NAME}_frontend" --no-trunc 2>/dev/null || true
-    log_info "Frontend service logs:"
-    docker service logs "${STACK_NAME}_frontend" --tail 50 2>/dev/null || true
+    log_info "Frontend service logs (last 30 lines):"
+    docker service logs "${STACK_NAME}_frontend" --tail 30 2>/dev/null || true
     exit 1
 fi
 
@@ -111,8 +112,8 @@ if [ $ATTEMPT -gt $MAX_ATTEMPTS ]; then
     log_error "Backend health check failed after $MAX_ATTEMPTS attempts"
     log_info "Backend service status:"
     docker service ps "${STACK_NAME}_backend" --no-trunc 2>/dev/null || true
-    log_info "Backend service logs:"
-    docker service logs "${STACK_NAME}_backend" --tail 50 2>/dev/null || true
+    log_info "Backend service logs (last 30 lines):"
+    docker service logs "${STACK_NAME}_backend" --tail 30 2>/dev/null || true
     exit 1
 fi
 
