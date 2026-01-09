@@ -58,8 +58,10 @@ export const fetchTile = (layerModel) => {
 export const fetchBounds = (layerModel) => {
   const { layerConfig, params, sqlParams, type } = layerModel;
   let { sql } = layerModel;
+  const isRaster = type === 'raster';
 
-  if (type === 'raster') {
+  if (isRaster) {
+    // For raster layers, extract geometry from the raster envelope
     sql = `SELECT ST_Union(ST_Transform(ST_Envelope(the_raster_webmercator), 4326)) as the_geom FROM (${sql}) as t`;
   }
 
@@ -68,13 +70,17 @@ export const fetchBounds = (layerModel) => {
       ? layerConfig
       : JSON.parse(replace(JSON.stringify(layerConfig), params, sqlParams));
 
-  // Use COALESCE to handle both the_geom and the_geom_webmercator columns
-  // Transform the_geom_webmercator (SRID 3857) to WGS84 (SRID 4326) for bounds calculation
+  // For raster layers, we already have the_geom from the wrapper query above
+  // For vector layers, use COALESCE to handle both the_geom and the_geom_webmercator columns
+  const geomExpr = isRaster
+    ? 'the_geom'
+    : 'COALESCE(the_geom, ST_Transform(the_geom_webmercator, 4326))';
+
   const s = `
-    SELECT ST_XMin(ST_Extent(COALESCE(the_geom, ST_Transform(the_geom_webmercator, 4326)))) as minx,
-    ST_YMin(ST_Extent(COALESCE(the_geom, ST_Transform(the_geom_webmercator, 4326)))) as miny,
-    ST_XMax(ST_Extent(COALESCE(the_geom, ST_Transform(the_geom_webmercator, 4326)))) as maxx,
-    ST_YMax(ST_Extent(COALESCE(the_geom, ST_Transform(the_geom_webmercator, 4326)))) as maxy
+    SELECT ST_XMin(ST_Extent(${geomExpr})) as minx,
+    ST_YMin(ST_Extent(${geomExpr})) as miny,
+    ST_XMax(ST_Extent(${geomExpr})) as maxx,
+    ST_YMax(ST_Extent(${geomExpr})) as maxy
     from (${sql}) as subq
   `;
 
