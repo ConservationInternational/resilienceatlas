@@ -61,6 +61,11 @@ BACKEND_PORT=$(get_backend_port "$ENVIRONMENT")
 log_info "Stack name: $STACK_NAME"
 log_info "Using ports - Frontend: $FRONTEND_PORT, Backend: $BACKEND_PORT"
 
+# Verify connectivity before starting health checks
+log_info "Testing port connectivity..."
+log_info "netstat output for ports $FRONTEND_PORT and $BACKEND_PORT:"
+netstat -tlnp 2>/dev/null | grep -E ":($FRONTEND_PORT|$BACKEND_PORT)" || log_warning "No listeners found on expected ports"
+
 # ============================================================================
 # Verify Swarm Services are Running
 # ============================================================================
@@ -82,15 +87,20 @@ WAIT_TIME=5
 # Frontend Health Check
 # ============================================================================
 log_info "Performing frontend health check..."
+log_info "Frontend URL: http://localhost:${FRONTEND_PORT}"
 ATTEMPT=1
 while [ $ATTEMPT -le $MAX_ATTEMPTS ]; do
     log_info "Frontend health check attempt $ATTEMPT/$MAX_ATTEMPTS..."
     
-    if curl -f -s --max-time 10 --connect-timeout 5 "http://localhost:${FRONTEND_PORT}" >/dev/null 2>&1; then
+    # Capture curl output for debugging
+    CURL_OUTPUT=$(curl -f -s --max-time 10 --connect-timeout 5 -w "\nHTTP_CODE:%{http_code}" "http://localhost:${FRONTEND_PORT}" 2>&1)
+    CURL_EXIT=$?
+    
+    if [ $CURL_EXIT -eq 0 ]; then
         log_success "Frontend health check passed"
         break
     else
-        log_info "Frontend not ready yet..."
+        log_info "Frontend not ready yet (curl exit: $CURL_EXIT, response: $(echo "$CURL_OUTPUT" | tail -1))"
     fi
     
     sleep $WAIT_TIME
