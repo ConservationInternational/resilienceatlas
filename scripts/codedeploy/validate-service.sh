@@ -93,7 +93,8 @@ while [ $ATTEMPT -le $MAX_ATTEMPTS ]; do
     log_info "Frontend health check attempt $ATTEMPT/$MAX_ATTEMPTS..."
     
     # Capture curl output for debugging
-    CURL_OUTPUT=$(curl -f -s --max-time 10 --connect-timeout 5 -w "\nHTTP_CODE:%{http_code}" "http://localhost:${FRONTEND_PORT}" 2>&1)
+    # Force IPv4 (-4) because Swarm ingress routing mesh may not handle IPv6 correctly
+    CURL_OUTPUT=$(curl -4 -f -s --max-time 10 --connect-timeout 5 -w "\nHTTP_CODE:%{http_code}" "http://localhost:${FRONTEND_PORT}" 2>&1)
     CURL_EXIT=$?
     
     if [ $CURL_EXIT -eq 0 ]; then
@@ -124,7 +125,8 @@ ATTEMPT=1
 while [ $ATTEMPT -le $MAX_ATTEMPTS ]; do
     log_info "Backend health check attempt $ATTEMPT/$MAX_ATTEMPTS..."
     
-    RESPONSE=$(curl -s --max-time 10 --connect-timeout 5 -w "HTTP_CODE:%{http_code}" "http://localhost:${BACKEND_PORT}/health" 2>&1 || echo "FAILED")
+    # Force IPv4 (-4) because Swarm ingress routing mesh may not handle IPv6 correctly
+    RESPONSE=$(curl -4 -s --max-time 10 --connect-timeout 5 -w "HTTP_CODE:%{http_code}" "http://localhost:${BACKEND_PORT}/health" 2>&1 || echo "FAILED")
     
     if echo "$RESPONSE" | grep -q "HTTP_CODE:200"; then
         log_success "Backend health check passed"
