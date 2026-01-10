@@ -24,7 +24,7 @@ RUN npm config set registry https://registry.npmjs.org/ && \
 ENV CYPRESS_CACHE_FOLDER="/tmp/cypress-cache"
 
 WORKDIR /app
-COPY package.json .npmrc ./
+COPY package.json package-lock.json .npmrc ./
 
 # Install dependencies only when needed
 FROM base AS deps
