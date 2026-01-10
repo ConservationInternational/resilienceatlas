@@ -101,7 +101,7 @@ module RollbarWithRateLimiting
 
       suppressed = RollbarRateLimiter.suppressed_count(message_or_exception)
       extra_with_suppressed = extra.merge(
-        (suppressed > 0 ? {previously_suppressed: suppressed} : {})
+        (suppressed > 0) ? {previously_suppressed: suppressed} : {}
       )
 
       Rollbar.public_send(level, message_or_exception, extra_with_suppressed)
