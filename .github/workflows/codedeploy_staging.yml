@@ -104,8 +104,8 @@ jobs:
         
         docker buildx build \
           --platform linux/arm64 \
-          --cache-from=type=gha,scope=${{ matrix.service }}-staging \
-          --cache-to=type=gha,mode=max,scope=${{ matrix.service }}-staging \
+          --cache-from=type=gha,scope=${{ matrix.service }}-staging-arm64 \
+          --cache-to=type=gha,mode=max,scope=${{ matrix.service }}-staging-arm64 \
           --target production \
           $BUILD_ARGS \
           --tag $ECR_REGISTRY/${{ steps.ecr-repo.outputs.repo-name }}:$IMAGE_TAG \
