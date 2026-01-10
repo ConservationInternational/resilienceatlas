@@ -21,11 +21,113 @@ permissions:
   contents: read
 
 jobs:
+  build-images:
+    name: Build ${{ matrix.service }} image
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: production
+    
+    strategy:
+      matrix:
+        service: [backend, frontend]
+    
+    outputs:
+      backend-image: ${{ steps.set-output.outputs.backend-image }}
+      frontend-image: ${{ steps.set-output.outputs.frontend-image }}
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Configure AWS credentials via OIDC
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        role-to-assume: ${{ secrets.AWS_OIDC_ROLE_ARN }}
+        role-session-name: GitHubActionsProductionBuild-${{ matrix.service }}
+        aws-region: ${{ env.AWS_REGION }}
+
+    - name: Get deployment info
+      id: deployment-info
+      run: |
+        echo "short-sha=$(echo ${{ github.sha }} | cut -c1-7)" >> $GITHUB_OUTPUT
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+      with:
+        driver-opts: image=moby/buildkit:buildx-stable-1
+
+    - name: Log in to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v2
+
+    - name: Set ECR repository name
+      id: ecr-repo
+      run: |
+        echo "repo-name=resilienceatlas/${{ matrix.service }}" >> $GITHUB_OUTPUT
+
+    - name: Create ECR repository if it doesn't exist
+      run: |
+        REPO="${{ steps.ecr-repo.outputs.repo-name }}"
+        if ! aws ecr describe-repositories --repository-names "$REPO" 2>/dev/null; then
+          echo "Creating ECR repository: $REPO"
+          aws ecr create-repository \
+            --repository-name "$REPO" \
+            --image-scanning-configuration scanOnPush=true \
+            --image-tag-mutability MUTABLE
+        else
+          echo "ECR repository exists: $REPO"
+        fi
+
+    - name: Build and push ${{ matrix.service }} image to ECR
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        IMAGE_TAG: production-${{ steps.deployment-info.outputs.short-sha }}
+      run: |
+        # Set build args for frontend
+        BUILD_ARGS=""
+        EXTRA_TAGS=""
+        if [ "${{ matrix.service }}" = "frontend" ]; then
+          BUILD_ARGS="--build-arg NEXT_PUBLIC_API_HOST=https://resilienceatlas.org \
+            --build-arg NEXT_PUBLIC_GOOGLE_ANALYTICS=${{ secrets.NEXT_PUBLIC_GOOGLE_ANALYTICS }} \
+            --build-arg NEXT_PUBLIC_TRANSIFEX_TOKEN=${{ secrets.NEXT_PUBLIC_TRANSIFEX_TOKEN }} \
+            --build-arg NEXT_PUBLIC_TRANSIFEX_SECRET=${{ secrets.NEXT_PUBLIC_TRANSIFEX_SECRET }} \
+            --build-arg NEXT_PUBLIC_GOOGLE_API_KEY=${{ secrets.NEXT_PUBLIC_GOOGLE_API_KEY }}"
+        fi
+        
+        # Add extra 'latest' tag for production
+        EXTRA_TAGS="--tag $ECR_REGISTRY/${{ steps.ecr-repo.outputs.repo-name }}:latest"
+        
+        docker buildx build \
+          --cache-from=type=gha,scope=${{ matrix.service }}-production \
+          --cache-to=type=gha,mode=max,scope=${{ matrix.service }}-production \
+          --target production \
+          $BUILD_ARGS \
+          --tag $ECR_REGISTRY/${{ steps.ecr-repo.outputs.repo-name }}:$IMAGE_TAG \
+          --tag $ECR_REGISTRY/${{ steps.ecr-repo.outputs.repo-name }}:production-latest \
+          $EXTRA_TAGS \
+          --push \
+          ./${{ matrix.service }}
+        
+        IMAGE_REF="$ECR_REGISTRY/${{ steps.ecr-repo.outputs.repo-name }}:$IMAGE_TAG"
+        echo "${{ matrix.service }}-image=$IMAGE_REF" >> $GITHUB_OUTPUT
+        echo "✅ ${{ matrix.service }} image pushed to ECR: $IMAGE_REF"
+      id: build-push
+    
+    - name: Set output for job
+      id: set-output
+      run: |
+        if [ "${{ matrix.service }}" = "backend" ]; then
+          echo "backend-image=${{ steps.build-push.outputs.backend-image }}" >> $GITHUB_OUTPUT
+        elif [ "${{ matrix.service }}" = "frontend" ]; then
+          echo "frontend-image=${{ steps.build-push.outputs.frontend-image }}" >> $GITHUB_OUTPUT
+        fi
+
   deploy:
     name: Deploy to Production via CodeDeploy
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 20
     environment: production
+    needs: build-images
 
     steps:
     - name: Checkout code
@@ -56,84 +158,24 @@ jobs:
         fi
         echo "✅ S3 bucket exists: $BUCKET_NAME"
 
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
-      with:
-        driver-opts: image=moby/buildkit:buildx-stable-1
-
     - name: Log in to Amazon ECR
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v2
 
-    - name: Set ECR repository names
-      id: ecr-repos
+    - name: Get built image references
+      id: images
       run: |
-        echo "backend-repo=resilienceatlas/backend" >> $GITHUB_OUTPUT
-        echo "frontend-repo=resilienceatlas/frontend" >> $GITHUB_OUTPUT
-
-    - name: Create ECR repositories if they don't exist
-      run: |
-        REPOS=("${{ steps.ecr-repos.outputs.backend-repo }}" "${{ steps.ecr-repos.outputs.frontend-repo }}")
-        for REPO in "${REPOS[@]}"; do
-          if ! aws ecr describe-repositories --repository-names "$REPO" 2>/dev/null; then
-            echo "Creating ECR repository: $REPO"
-            aws ecr create-repository \
-              --repository-name "$REPO" \
-              --image-scanning-configuration scanOnPush=true \
-              --image-tag-mutability MUTABLE
-          else
-            echo "ECR repository exists: $REPO"
-          fi
-        done
-
-    - name: Build and push backend image to ECR
-      env:
-        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        IMAGE_TAG: production-${{ steps.deployment-info.outputs.short-sha }}
-      run: |
-        docker buildx build \
-          --cache-from=type=gha,scope=backend-production \
-          --cache-to=type=gha,mode=max,scope=backend-production \
-          --target production \
-          --tag $ECR_REGISTRY/${{ steps.ecr-repos.outputs.backend-repo }}:$IMAGE_TAG \
-          --tag $ECR_REGISTRY/${{ steps.ecr-repos.outputs.backend-repo }}:production-latest \
-          --tag $ECR_REGISTRY/${{ steps.ecr-repos.outputs.backend-repo }}:latest \
-          --push \
-          ./backend
-        
-        echo "backend-image=$ECR_REGISTRY/${{ steps.ecr-repos.outputs.backend-repo }}:$IMAGE_TAG" >> $GITHUB_OUTPUT
-        echo "✅ Backend image pushed to ECR"
-      id: backend-image
-
-    - name: Build and push frontend image to ECR
-      env:
-        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        IMAGE_TAG: production-${{ steps.deployment-info.outputs.short-sha }}
-      run: |
-        docker buildx build \
-          --cache-from=type=gha,scope=frontend-production \
-          --cache-to=type=gha,mode=max,scope=frontend-production \
-          --target production \
-          --build-arg NEXT_PUBLIC_API_HOST=https://resilienceatlas.org \
-          --build-arg NEXT_PUBLIC_GOOGLE_ANALYTICS=${{ secrets.NEXT_PUBLIC_GOOGLE_ANALYTICS }} \
-          --build-arg NEXT_PUBLIC_TRANSIFEX_TOKEN=${{ secrets.NEXT_PUBLIC_TRANSIFEX_TOKEN }} \
-          --build-arg NEXT_PUBLIC_TRANSIFEX_SECRET=${{ secrets.NEXT_PUBLIC_TRANSIFEX_SECRET }} \
-          --build-arg NEXT_PUBLIC_GOOGLE_API_KEY=${{ secrets.NEXT_PUBLIC_GOOGLE_API_KEY }} \
-          --tag $ECR_REGISTRY/${{ steps.ecr-repos.outputs.frontend-repo }}:$IMAGE_TAG \
-          --tag $ECR_REGISTRY/${{ steps.ecr-repos.outputs.frontend-repo }}:production-latest \
-          --tag $ECR_REGISTRY/${{ steps.ecr-repos.outputs.frontend-repo }}:latest \
-          --push \
-          ./frontend
-        
-        echo "frontend-image=$ECR_REGISTRY/${{ steps.ecr-repos.outputs.frontend-repo }}:$IMAGE_TAG" >> $GITHUB_OUTPUT
-        echo "✅ Frontend image pushed to ECR"
-      id: frontend-image
+        # Images were built in parallel by the build-images job
+        echo "backend-image=${{ needs.build-images.outputs.backend-image }}" >> $GITHUB_OUTPUT
+        echo "frontend-image=${{ needs.build-images.outputs.frontend-image }}" >> $GITHUB_OUTPUT
+        echo "✅ Backend image: ${{ needs.build-images.outputs.backend-image }}"
+        echo "✅ Frontend image: ${{ needs.build-images.outputs.frontend-image }}"
 
     - name: Create environment file for deployment
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        BACKEND_IMAGE: ${{ steps.backend-image.outputs.backend-image }}
-        FRONTEND_IMAGE: ${{ steps.frontend-image.outputs.frontend-image }}
+        BACKEND_IMAGE: ${{ steps.images.outputs.backend-image }}
+        FRONTEND_IMAGE: ${{ steps.images.outputs.frontend-image }}
       run: |
         # Generate .env.production with secrets from GitHub
         # This file is included in the deployment package and copied to the server
