@@ -2,11 +2,6 @@ name: TiTiler COGS cleanup
 
 on:
   delete:
-    branches-ignore:
-      - 'main'
-    paths:
-      - "cloud_functions/titiler_cogs/**"
-      - ".github/workflows/titiler_cogs*"
   workflow_dispatch:
 
 jobs:

@@ -10,7 +10,7 @@ on:
       deploy_main:
         description: 'Deploy to the production stack'
         required: false
-        default: 'false'
+        default: false
         type: boolean
       branch:
         description: 'Branch to deploy'

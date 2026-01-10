@@ -31,7 +31,7 @@ jobs:
     - name: Setup Ruby
       uses: ruby/setup-ruby@v1
       with:
-        ruby-version-file: 'backend/.ruby-version'
+        ruby-version: '3.4.8'
         bundler-cache: true
         working-directory: backend
     
