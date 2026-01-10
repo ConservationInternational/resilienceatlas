@@ -18,7 +18,7 @@ version: '3.8'
 
 services:
   backend:
-    image: resilienceatlas-production-backend:${TAG:-latest}
+    image: ${BACKEND_IMAGE:-resilienceatlas-production-backend:${TAG:-latest}}
     ports:
       - target: 3001
         published: 3001
@@ -70,7 +70,7 @@ services:
       start_period: 60s
 
   frontend:
-    image: resilienceatlas-production-frontend:${TAG:-latest}
+    image: ${FRONTEND_IMAGE:-resilienceatlas-production-frontend:${TAG:-latest}}
     ports:
       - target: 3000
         published: 3000

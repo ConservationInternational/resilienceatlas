@@ -36,8 +36,9 @@ WORKDIR /app
 # Copy Gemfile and Gemfile.lock
 COPY Gemfile Gemfile.lock ./
 
-# Install Ruby dependencies with retry logic using bash explicitly
-RUN bash -c 'for i in {1..3}; do \
+# Install Ruby dependencies with retry logic and cache mount for faster builds
+RUN --mount=type=cache,target=/usr/local/bundle \
+    bash -c 'for i in {1..3}; do \
       echo "Bundle install attempt $i of 3" && \
       bundle install && break || \
       ([ $i -eq 3 ] && echo "❌ Failed to install gems after 3 attempts" && exit 1) || \
@@ -106,8 +107,9 @@ RUN groupadd -r appuser && useradd -r -g appuser -G audio,video appuser \
 RUN bundle config set frozen true && \
     bundle config set with "test development"
 
-# Install test gems with retry logic for network resilience
-RUN bash -c 'for i in {1..3}; do \
+# Install test gems with retry logic for network resilience and cache mount
+RUN --mount=type=cache,target=/usr/local/bundle \
+    bash -c 'for i in {1..3}; do \
       echo "Test gems install attempt $i of 3" && \
       bundle install && break || \
       ([ $i -eq 3 ] && echo "❌ Failed to install test gems after 3 attempts" && exit 1) || \

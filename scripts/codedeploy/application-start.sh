@@ -48,6 +48,40 @@ if [ -f "$ENV_FILE" ]; then
     set +a
 fi
 
+# ============================================================================
+# Pull Pre-built Images from ECR
+# ============================================================================
+if [ -n "$ECR_REGISTRY" ] && [ -n "$BACKEND_IMAGE" ] && [ -n "$FRONTEND_IMAGE" ]; then
+    log_info "ECR images configured - pulling pre-built images..."
+    log_info "Backend image: $BACKEND_IMAGE"
+    log_info "Frontend image: $FRONTEND_IMAGE"
+    
+    # Login to ECR
+    log_info "Logging in to ECR registry: $ECR_REGISTRY"
+    aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin "$ECR_REGISTRY"
+    
+    # Pull images in parallel for faster deployment
+    log_info "Pulling images from ECR..."
+    docker pull "$BACKEND_IMAGE" &
+    BACKEND_PID=$!
+    docker pull "$FRONTEND_IMAGE" &
+    FRONTEND_PID=$!
+    
+    # Wait for both pulls to complete
+    if wait $BACKEND_PID && wait $FRONTEND_PID; then
+        log_success "Successfully pulled images from ECR"
+        
+        # Tag images for use in docker-compose (if needed)
+        docker tag "$BACKEND_IMAGE" "resilienceatlas-backend:${ENVIRONMENT}"
+        docker tag "$FRONTEND_IMAGE" "resilienceatlas-frontend:${ENVIRONMENT}"
+    else
+        log_error "Failed to pull images from ECR"
+        exit 1
+    fi
+else
+    log_info "ECR images not configured - will use locally built images"
+fi
+
 # Get the deployment tag from AfterInstall hook
 if [ -f "$APP_DIR/.deploy_tag" ]; then
     DEPLOY_TAG=$(cat "$APP_DIR/.deploy_tag")

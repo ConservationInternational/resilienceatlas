@@ -7,9 +7,10 @@ This directory contains scripts and configuration for deploying ResilienceAtlas 
 The deployment architecture uses:
 - **Single EC2 Instance** for hosting both staging and production (cost-effective)
 - **AWS CodeDeploy** for automated deployments from GitHub
+- **Amazon ECR** for pre-built Docker images (fast deployments)
 - **Application Load Balancer** for routing traffic based on domain names
 - **Docker Compose** for container orchestration
-- **GitHub Actions** for CI/CD pipeline
+- **GitHub Actions** for CI/CD pipeline with optimized builds
 - **S3** for storing deployment packages
 - **Route53** for DNS management
 
@@ -94,16 +95,22 @@ If no profile is specified, the default credentials are used.
    # Step 1: Create GitHub OIDC provider and IAM role (RECOMMENDED)
    python3 setup_github_oidc.py
    
-   # Step 2: Create EC2 instance role for CodeDeploy
+   # Step 2: Create EC2 instance role for CodeDeploy and ECR access
    python3 setup_ec2_instance_role.py
    
    # Step 3: Create S3 bucket for deployments
    python3 setup_s3_bucket.py
    
-   # Step 4: Create CodeDeploy application and deployment groups
+   # Step 4: Setup ECR permissions for GitHub Actions and EC2
+   python3 setup_ecr_permissions.py
+   
+   # Step 5: Create ECR repositories for Docker images
+   python3 setup_ecr_repositories.py --region us-east-1
+   
+   # Step 6: Create CodeDeploy application and deployment groups
    python3 setup_codedeploy.py
    
-   # Step 5: Set up Application Load Balancer (optional, if not using existing)
+   # Step 7: Set up Application Load Balancer (optional, if not using existing)
    python3 setup_alb.py <vpc-id>
    ```
 
@@ -126,8 +133,10 @@ If no profile is specified, the default credentials are used.
 | Script | Description |
 |--------|-------------|
 | `setup_github_oidc.py` | Creates GitHub OIDC provider and IAM role for secure authentication |
-| `setup_ec2_instance_role.py` | Creates IAM role for EC2 instances with CodeDeploy access |
+| `setup_ec2_instance_role.py` | Creates IAM role for EC2 instances with CodeDeploy and ECR access |
 | `setup_s3_bucket.py` | Creates S3 bucket for deployment packages |
+| `setup_ecr_permissions.py` | Adds ECR permissions to GitHub Actions OIDC and EC2 instance roles |
+| `setup_ecr_repositories.py` | Creates ECR repositories with lifecycle policies for Docker images |
 | `setup_codedeploy.py` | Creates CodeDeploy application and deployment groups |
 | `setup_alb.py` | Creates Application Load Balancer and target groups |
 | `install-codedeploy-agent.sh` | Installs CodeDeploy agent on EC2 instances |
@@ -177,6 +186,11 @@ All environment configuration is managed through GitHub Secrets. During deployme
 AWS_OIDC_ROLE_ARN          # IAM role ARN from setup_github_oidc.py
 DEPLOYMENT_S3_BUCKET       # S3 bucket name from setup_s3_bucket.py
 
+# ECR Configuration (automatically set by workflows)
+ECR_REGISTRY               # Set by workflows, no manual config needed
+BACKEND_IMAGE              # Set by workflows, no manual config needed
+FRONTEND_IMAGE             # Set by workflows, no manual config needed
+
 # Staging Environment
 STAGING_DB_PASSWORD        # Postgres password for staging container
 STAGING_SECRET_KEY_BASE    # Rails secret key (128 chars) - generate with: rails secret
@@ -216,16 +230,31 @@ This approach ensures:
 
 ## Deployment Flow
 
+### Optimized Deployment with ECR Pre-built Images
+
+The deployment process has been optimized to use pre-built Docker images stored in Amazon ECR:
+
+1. **GitHub Actions CI/CD Pipeline:**
+   - Builds Docker images for backend and frontend
+   - Pushes images to Amazon ECR with tags (commit SHA + environment)
+   - Creates deployment package with configuration
+
+2. **Fast Deployment to EC2:**
+   - EC2 instance pulls pre-built images from ECR (1-2 minutes)
+   - No local Docker builds required (saves 15-25 minutes)
+   - Images are cached for even faster subsequent pulls
+
 ### Staging Deployment
 
 1. **Push to `staging`** triggers GitHub Actions workflow
-2. **Create deployment package** (zip archive of repository)
-3. **Upload to S3** in staging folder
-4. **Create CodeDeploy deployment**
-5. **CodeDeploy agent** on staging instance:
+2. **Build and push Docker images to ECR** (cached layers speed up rebuilds)
+3. **Create deployment package** (configuration and scripts only)
+4. **Upload to S3** in staging folder
+5. **Create CodeDeploy deployment**
+6. **CodeDeploy agent** on staging instance:
    - Stops existing frontend/backend containers
    - Downloads deployment package from S3
-   - Builds new Docker images
+   - **Pulls pre-built images from ECR** (fast!)
    - Syncs production database (if enabled)
    - Starts new containers
    - Runs database migrations
@@ -234,13 +263,14 @@ This approach ensures:
 ### Production Deployment
 
 1. **Push to `main`** triggers GitHub Actions workflow
-2. **Create deployment package** (zip archive of repository)
-3. **Upload to S3** in production folder
-4. **Create CodeDeploy deployment**
-5. **CodeDeploy agent** on production instance:
+2. **Build and push Docker images to ECR** (cached layers speed up rebuilds)
+3. **Create deployment package** (configuration and scripts only)
+4. **Upload to S3** in production folder
+5. **Create CodeDeploy deployment**
+6. **CodeDeploy agent** on production instance:
    - Stops existing containers
    - Downloads deployment package from S3
-   - Builds new Docker images
+   - **Pulls pre-built images from ECR** (fast!)
    - Starts new containers
    - Runs database migrations
    - Performs health checks
@@ -364,41 +394,3 @@ curl -f http://localhost:3001/health
 # Database (staging only)
 docker compose -f docker-compose.staging.yml exec database pg_isready -U postgres
 ```
-
-### Common Issues
-
-1. **Deployment fails at ApplicationStop**
-   - Check if Docker is running: `sudo systemctl status docker`
-   - Check container status: `docker ps -a`
-
-2. **Deployment fails at AfterInstall (build)**
-   - Check disk space: `df -h`
-   - Check Docker build logs in script output
-   - Ensure all required build arguments are available
-
-3. **Deployment fails at ValidateService**
-   - Check container logs for startup errors
-   - Verify database connectivity
-   - Check environment variables are set correctly
-
-4. **Database sync fails**
-   - Verify `PRODUCTION_DATABASE_URL` is correct
-   - Check network connectivity to production database
-   - Ensure PostgreSQL client is installed
-
-## Security Considerations
-
-- **S3 bucket** is private with encryption enabled
-- **IAM policies** follow principle of least privilege
-- **Security groups** restrict access to necessary ports only
-- **Secrets** are stored in GitHub Secrets, not in code
-- **Database credentials** are never logged
-- **SSL/TLS** for all external traffic via ALB
-
-## Cost Optimization
-
-- **S3 lifecycle rules** automatically clean up old deployment packages
-- **Staging**: 30-day retention for deployment packages
-- **Production**: 90-day retention for deployment packages
-- Consider using **Spot Instances** for staging
-- Use **Reserved Instances** for production to reduce costs

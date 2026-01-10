@@ -28,8 +28,9 @@ COPY package.json .npmrc ./
 
 # Install dependencies only when needed
 FROM base AS deps
-# Install production dependencies
-RUN npm install --only=production --legacy-peer-deps --no-audit --no-fund \
+# Install production dependencies with npm cache mount for faster builds
+RUN --mount=type=cache,target=/root/.npm \
+    npm ci --only=production --legacy-peer-deps --no-audit --no-fund \
   && echo "✅ Production dependencies installed successfully"
 
 # Development/Test dependencies
@@ -37,8 +38,9 @@ FROM base AS dev-deps
 # Skip Cypress binary download during npm install - it will be downloaded on first use
 ENV CYPRESS_INSTALL_BINARY=0
 
-# Install all dependencies
-RUN npm install --legacy-peer-deps --no-audit --no-fund \
+# Install all dependencies with npm cache mount for faster builds
+RUN --mount=type=cache,target=/root/.npm \
+    npm ci --legacy-peer-deps --no-audit --no-fund \
   && echo "🔍 Verifying node_modules exists..." \
   && ls -la /app/node_modules/ | head -5 \
   && echo "✅ node_modules verified"
@@ -101,7 +103,8 @@ RUN echo "🔍 Verifying node_modules in test stage..." \
 
 # Install Cypress binary (was skipped during npm install for faster build)
 ENV CYPRESS_CACHE_FOLDER="/tmp/cypress-cache"
-RUN npx cypress install \
+RUN --mount=type=cache,target=/tmp/cypress-cache \
+    npx cypress install \
   && echo "✅ Cypress binary installed"
 
 # Copy application source

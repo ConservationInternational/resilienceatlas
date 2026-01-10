@@ -18,15 +18,52 @@ env:
   COMPOSE_DOCKER_CLI_BUILD: 1
 
 jobs:
-  frontend-tests:
-    name: Frontend Tests - ${{ matrix.suite }}
+  # Fast lint/type-check jobs without Docker - runs directly with Node.js
+  frontend-quick-checks:
+    name: Frontend Quick Checks - ${{ matrix.suite }}
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 10
     
     strategy:
       fail-fast: false
       matrix:
-        suite: [build, lint]
+        suite: [lint, type-check, prettier]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version-file: 'frontend/.nvmrc'
+        cache: 'npm'
+        cache-dependency-path: 'frontend/package-lock.json'
+    
+    - name: Install dependencies
+      working-directory: frontend
+      run: npm ci --legacy-peer-deps --no-audit --no-fund
+    
+    - name: Run ESLint
+      if: matrix.suite == 'lint'
+      working-directory: frontend
+      run: ./bin/test lint
+    
+    - name: Run TypeScript check
+      if: matrix.suite == 'type-check'
+      working-directory: frontend
+      run: ./bin/test type-check
+    
+    - name: Run Prettier check
+      if: matrix.suite == 'prettier'
+      working-directory: frontend
+      run: ./bin/test prettier
+
+  # Build test with Docker for full integration
+  frontend-build:
+    name: Frontend Build Test
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
 
     steps:
     - name: Checkout code
@@ -219,58 +256,13 @@ jobs:
         echo "Docker system info:"
         docker system df
 
-    - name: Run ESLint
-      if: matrix.suite == 'lint'
-      run: |
-        echo "Running ESLint with enhanced error handling..."
-        docker compose -f docker-compose.test.yml run --rm --no-deps frontend-test \
-          bash -c "
-            echo 'Verifying frontend environment...'
-            node --version
-            npm --version
-            echo 'Starting ESLint...'
-            chmod +x ./bin/test && ./bin/test lint
-          " || {
-            echo "❌ ESLint failed, collecting debug information..."
-            echo "Frontend container logs:"
-            docker compose -f docker-compose.test.yml logs frontend-test --tail=50
-            exit 1
-          }
-
-    - name: Run TypeScript check
-      if: matrix.suite == 'lint'
-      run: |
-        echo "Running TypeScript type checking..."
-        docker compose -f docker-compose.test.yml run --rm --no-deps frontend-test \
-          bash -c "chmod +x ./bin/test && ./bin/test type-check" || {
-            echo "❌ TypeScript check failed"
-            exit 1
-          }
-
-    - name: Run Prettier check
-      if: matrix.suite == 'lint'
-      run: |
-        echo "Running Prettier formatting check..."
-        docker compose -f docker-compose.test.yml run --rm --no-deps frontend-test \
-          bash -c "chmod +x ./bin/test && ./bin/test prettier" || {
-            echo "❌ Prettier check failed"
-            exit 1
-          }
-
     - name: Build application
-      if: matrix.suite == 'build'
-      run: |
-        echo "Building frontend application..."
-        docker compose -f docker-compose.test.yml run --rm --no-deps frontend-test \
-          bash -c "chmod +x ./bin/test && ./bin/test build" || {
-            echo "❌ Build failed, collecting debug information..."
-            echo "Frontend container logs:"
-            docker compose -f docker-compose.test.yml logs frontend-test --tail=50
-            exit 1
-          }
+      working-directory: frontend
+      run: ./bin/test build
 
     - name: Cleanup
       if: always()
       run: |
         docker compose -f docker-compose.test.yml down -v
         docker system prune -f
+

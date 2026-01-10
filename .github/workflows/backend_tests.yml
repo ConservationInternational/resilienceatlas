@@ -18,15 +18,45 @@ env:
   COMPOSE_DOCKER_CLI_BUILD: 1
 
 jobs:
-  backend-tests:
-    name: Backend Tests - ${{ matrix.suite }}
+  # Fast lint jobs without Docker - runs directly with Ruby
+  backend-lint:
+    name: Backend Lint Checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version-file: 'backend/.ruby-version'
+        bundler-cache: true
+        working-directory: backend
+    
+    - name: Install system dependencies
+      run: |
+        sudo apt-get update -qq
+        sudo apt-get install -y libpq-dev libgeos-dev libproj-dev libgdal-dev
+    
+    - name: Run RuboCop linting
+      working-directory: backend
+      run: ./bin/test lint
+    
+    - name: Run Brakeman security analysis
+      working-directory: backend
+      run: ./bin/test security
+    
+    - name: Run Bundle Audit
+      working-directory: backend
+      run: ./bin/test audit
+
+  # RSpec tests with full Docker environment
+  backend-rspec:
+    name: Backend RSpec Tests
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    
-    strategy:
-      fail-fast: false
-      matrix:
-        suite: [rspec, lint]
 
     steps:
     - name: Checkout code
@@ -170,14 +200,12 @@ jobs:
         docker system df
 
     - name: Start test services
-      if: matrix.suite == 'rspec'
       run: |
         # Use shared Docker environment setup script from backend/scripts
         chmod +x backend/scripts/setup_docker_environment.sh
         ./backend/scripts/setup_docker_environment.sh all resilienceatlas_test
 
     - name: Setup test database
-      if: matrix.suite == 'rspec'
       run: |
         # Setup database using shared script with error handling
         echo "Setting up test database..."
@@ -195,7 +223,6 @@ jobs:
           }
 
     - name: Run RSpec tests
-      if: matrix.suite == 'rspec'
       run: |
         echo "Running RSpec tests with enhanced error handling..."
         docker compose -f docker-compose.test.yml run --rm backend-test \
@@ -214,26 +241,7 @@ jobs:
             exit 1
           }
 
-    - name: Run RuboCop linting
-      if: matrix.suite == 'lint'
-      run: |
-        docker compose -f docker-compose.test.yml run --rm --no-deps backend-test \
-          bash -c "./bin/test lint"
-
-    - name: Run Brakeman security analysis
-      if: matrix.suite == 'lint'
-      run: |
-        docker compose -f docker-compose.test.yml run --rm --no-deps backend-test \
-          bash -c "./bin/test security"
-
-    - name: Run Bundle Audit
-      if: matrix.suite == 'lint'
-      run: |
-        docker compose -f docker-compose.test.yml run --rm --no-deps backend-test \
-          bash -c "./bin/test audit"
-
     - name: Verify test results
-      if: matrix.suite == 'rspec'
       run: |
         if [ -f backend/tmp/rspec.xml ]; then
           echo "Test results file found at backend/tmp/rspec.xml"
@@ -247,14 +255,14 @@ jobs:
 
     - name: Publish test results
       uses: dorny/test-reporter@v1
-      if: (success() || failure()) && matrix.suite == 'rspec'
+      if: success() || failure()
       with:
         name: Backend RSpec Tests
         path: backend/tmp/rspec.xml
         reporter: java-junit
 
     - name: Upload coverage reports
-      if: always() && matrix.suite == 'rspec'
+      if: always()
       run: |
         if docker compose -f docker-compose.test.yml run --rm backend-test test -f coverage/coverage.json; then
           docker compose -f docker-compose.test.yml run --rm backend-test \
