@@ -24,7 +24,7 @@ module RollbarRateLimiter
 
       if entry.nil?
         # First occurrence
-        @error_counts[key] = { count: 1, first_seen: now, last_seen: now, suppressed: 0 }
+        @error_counts[key] = {count: 1, first_seen: now, last_seen: now, suppressed: 0}
         return false
       end
 
@@ -42,7 +42,7 @@ module RollbarRateLimiter
       end
 
       # Window expired, reset
-      @error_counts[key] = { count: 1, first_seen: now, last_seen: now, suppressed: 0 }
+      @error_counts[key] = {count: 1, first_seen: now, last_seen: now, suppressed: 0}
       false
     end
 
@@ -101,7 +101,7 @@ module RollbarWithRateLimiting
 
       suppressed = RollbarRateLimiter.suppressed_count(message_or_exception)
       extra_with_suppressed = extra.merge(
-        suppressed > 0 ? { previously_suppressed: suppressed } : {}
+        (suppressed > 0 ? {previously_suppressed: suppressed} : {})
       )
 
       Rollbar.public_send(level, message_or_exception, extra_with_suppressed)
