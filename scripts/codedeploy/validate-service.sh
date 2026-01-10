@@ -10,29 +10,48 @@
 #   Staging:    Frontend=4000, Backend=4001
 # ============================================================================
 
-set -e
+# NOTE: We intentionally do NOT use "set -e" here because:
+# 1. We want to control error handling explicitly
+# 2. We want to log useful debugging information before exiting
+# 3. set -e can cause silent failures that are hard to debug
 
 # Source common functions and configuration
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "${SCRIPT_DIR}/common.sh"
+if ! source "${SCRIPT_DIR}/common.sh"; then
+    echo "[ERROR] Failed to source common.sh from ${SCRIPT_DIR}"
+    exit 1
+fi
 
 log_info "ValidateService hook (Swarm mode) started"
 
 # Detect environment
 ENVIRONMENT=$(detect_environment)
+if [ -z "$ENVIRONMENT" ]; then
+    log_error "Failed to detect environment"
+    exit 1
+fi
 log_info "Detected environment: $ENVIRONMENT"
 
 # Set application directory and stack name
 APP_DIR=$(get_app_directory "$ENVIRONMENT")
 STACK_NAME="resilienceatlas-${ENVIRONMENT}"
-cd "$APP_DIR"
+if ! cd "$APP_DIR"; then
+    log_error "Failed to change to directory: $APP_DIR"
+    exit 1
+fi
 
 # Load environment variables
 ENV_FILE=$(get_env_file "$ENVIRONMENT")
 if [ -f "$ENV_FILE" ]; then
+    log_info "Loading environment file: $ENV_FILE"
     set -a
-    source "$ENV_FILE"
+    # shellcheck disable=SC1090
+    if ! source "$ENV_FILE"; then
+        log_warning "Failed to source environment file (continuing anyway)"
+    fi
     set +a
+else
+    log_warning "Environment file not found: $ENV_FILE (continuing anyway)"
 fi
 
 # Get the appropriate ports

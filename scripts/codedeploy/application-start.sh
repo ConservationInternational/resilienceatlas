@@ -78,6 +78,32 @@ log_info "Current stack status:"
 docker stack services "$STACK_NAME" 2>/dev/null || true
 
 # ============================================================================
+# Sync Production Database to Staging (if configured)
+# ============================================================================
+if [ "$ENVIRONMENT" = "staging" ] && [ -n "$PRODUCTION_DATABASE_URL" ] && [ "${SYNC_PRODUCTION_DB:-false}" = "true" ]; then
+    log_info "Database sync configured - syncing production database to staging..."
+    
+    # Run sync-database.sh script
+    if [ -f "${SCRIPT_DIR}/sync-database.sh" ]; then
+        # Set up environment for sync script
+        export STACK_NAME
+        export APP_DIR
+        
+        if "${SCRIPT_DIR}/sync-database.sh"; then
+            log_success "Database sync completed successfully"
+        else
+            log_warning "Database sync failed (non-fatal, continuing deployment)"
+        fi
+    else
+        log_warning "sync-database.sh not found at ${SCRIPT_DIR}/sync-database.sh"
+    fi
+else
+    if [ "$ENVIRONMENT" = "staging" ]; then
+        log_info "Database sync skipped (SYNC_PRODUCTION_DB is not set to 'true' or PRODUCTION_DATABASE_URL is not set)"
+    fi
+fi
+
+# ============================================================================
 # Run Database Migrations (with timeout)
 # ============================================================================
 log_info "Attempting database migrations..."
