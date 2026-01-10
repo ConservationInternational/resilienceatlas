@@ -67,7 +67,7 @@ ATTEMPT=1
 while [ $ATTEMPT -le $MAX_ATTEMPTS ]; do
     log_info "Frontend health check attempt $ATTEMPT/$MAX_ATTEMPTS..."
     
-    if curl -f -s "http://localhost:${FRONTEND_PORT}" >/dev/null 2>&1; then
+    if curl -f -s --max-time 10 --connect-timeout 5 "http://localhost:${FRONTEND_PORT}" >/dev/null 2>&1; then
         log_success "Frontend health check passed"
         break
     else
@@ -95,7 +95,7 @@ ATTEMPT=1
 while [ $ATTEMPT -le $MAX_ATTEMPTS ]; do
     log_info "Backend health check attempt $ATTEMPT/$MAX_ATTEMPTS..."
     
-    RESPONSE=$(curl -s -w "HTTP_CODE:%{http_code}" "http://localhost:${BACKEND_PORT}/health" 2>&1 || echo "FAILED")
+    RESPONSE=$(curl -s --max-time 10 --connect-timeout 5 -w "HTTP_CODE:%{http_code}" "http://localhost:${BACKEND_PORT}/health" 2>&1 || echo "FAILED")
     
     if echo "$RESPONSE" | grep -q "HTTP_CODE:200"; then
         log_success "Backend health check passed"
