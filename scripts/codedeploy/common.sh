@@ -127,7 +127,7 @@ get_env_file() {
     fi
 }
 
-# Wait for database to be ready
+# Wait for database to be ready (Docker Compose mode)
 wait_for_database() {
     local compose_file="$1"
     local project_name="$2"
@@ -150,8 +150,43 @@ wait_for_database() {
     return 1
 }
 
+# Wait for database to be ready (Docker Swarm mode)
+# Uses the Swarm service container instead of docker compose
+wait_for_database_swarm() {
+    local stack_name="$1"
+    local max_wait=120
+    local wait_time=0
+    
+    log_info "Waiting for Swarm database service to be ready..."
+    
+    while [ $wait_time -lt $max_wait ]; do
+        # Find the database container from the swarm stack
+        local db_container
+        db_container=$(docker ps --filter "name=${stack_name}_database" --format "{{.ID}}" 2>/dev/null | head -1)
+        
+        if [ -n "$db_container" ]; then
+            if docker exec "$db_container" pg_isready -U postgres >/dev/null 2>&1; then
+                log_success "Database is ready (container: $db_container)"
+                return 0
+            fi
+        fi
+        
+        sleep 3
+        wait_time=$((wait_time + 3))
+    done
+    
+    log_error "Database did not become ready within $max_wait seconds"
+    return 1
+}
+
+# Get database container ID from Swarm stack
+get_swarm_db_container() {
+    local stack_name="$1"
+    docker ps --filter "name=${stack_name}_database" --format "{{.ID}}" 2>/dev/null | head -1
+}
+
 # Export the functions for use in other scripts
 export -f log_info log_success log_warning log_error
 export -f detect_environment get_app_directory get_compose_file get_env_file
 export -f get_project_name get_frontend_port get_backend_port
-export -f wait_for_database
+export -f wait_for_database wait_for_database_swarm get_swarm_db_container
