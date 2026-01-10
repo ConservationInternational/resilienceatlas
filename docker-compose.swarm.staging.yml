@@ -54,7 +54,7 @@ services:
       start_period: 30s
 
   backend:
-    image: ${BACKEND_IMAGE:-resilienceatlas-staging-backend:${TAG:-latest}}
+    image: ${BACKEND_IMAGE}
     ports:
       - target: 3001
         published: 4001
@@ -108,7 +108,7 @@ services:
       start_period: 60s
 
   frontend:
-    image: ${FRONTEND_IMAGE:-resilienceatlas-staging-frontend:${TAG:-latest}}
+    image: ${FRONTEND_IMAGE}
     ports:
       - target: 3000
         published: 4000
