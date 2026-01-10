@@ -1,4 +1,3 @@
-import type { FormStateMap } from 'redux-form';
 import type { MapState } from './modules/map/reducer';
 
 export interface UIState {
@@ -24,7 +23,6 @@ export interface LayersState {
 }
 
 export interface RootState {
-  form: FormStateMap;
   ui: UIState;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   site: any;

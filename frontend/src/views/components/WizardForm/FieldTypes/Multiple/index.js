@@ -1,1 +1,1 @@
-export { default } from './Multiple.container';
+export { default } from './Multiple';

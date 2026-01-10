@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import type { ThunkDispatch } from 'redux-thunk';
 import type { UnknownAction } from 'redux';
-import { reduxForm, Field } from 'redux-form';
+import { useForm } from 'react-hook-form';
 import { T } from '@transifex/react';
 
 import {
@@ -20,21 +20,28 @@ import styles from './site-scope-auth-modal.module.scss';
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type AppDispatch = ThunkDispatch<unknown, unknown, UnknownAction>;
 
-const SiteScopeAuthModal = ({ handleSubmit }) => {
+interface SiteScopeAuthFormData {
+  username: string;
+  password: string;
+}
+
+const SiteScopeAuthModal = () => {
   const dispatch = useDispatch<AppDispatch>();
   const error = useSelector(getSiteScopeAuthError);
   const loading = useSelector(isSiteScopeAuthLoading);
   const showModal = useSelector(shouldShowSiteScopeAuthModal);
   const currentSiteScope = useSelector(getCurrentSiteScope);
 
-  const [localError, setLocalError] = useState(null);
+  const [localError, setLocalError] = useState<string | null>(null);
   const [hasMounted, setHasMounted] = useState(false);
+
+  const { register, handleSubmit, reset } = useForm<SiteScopeAuthFormData>();
 
   useEffect(() => {
     setHasMounted(true);
   }, []);
 
-  const onSubmit = async (values) => {
+  const onSubmit = async (values: SiteScopeAuthFormData) => {
     setLocalError(null);
 
     if (!values.username || !values.password) {
@@ -44,10 +51,11 @@ const SiteScopeAuthModal = ({ handleSubmit }) => {
 
     try {
       await dispatch(authenticateWithSiteScope(currentSiteScope, values.username, values.password));
+      reset();
       // Modal will be closed automatically by the action
     } catch (err) {
       // Error is handled by the reducer
-      setLocalError(err.message);
+      setLocalError((err as Error).message);
     }
   };
 
@@ -55,6 +63,7 @@ const SiteScopeAuthModal = ({ handleSubmit }) => {
     dispatch(hideAuthModal());
     dispatch(clearAuthError());
     setLocalError(null);
+    reset();
   };
 
   // Prevent hydration mismatches by not rendering until client-side mount
@@ -89,10 +98,10 @@ const SiteScopeAuthModal = ({ handleSubmit }) => {
               <label htmlFor="username">
                 <T _str="Username" />
               </label>
-              <Field
-                name="username"
-                component="input"
+              <input
+                {...register('username')}
                 type="text"
+                id="username"
                 className={styles['form-control']}
                 disabled={loading}
                 required
@@ -103,10 +112,10 @@ const SiteScopeAuthModal = ({ handleSubmit }) => {
               <label htmlFor="password">
                 <T _str="Password" />
               </label>
-              <Field
-                name="password"
-                component="input"
+              <input
+                {...register('password')}
                 type="password"
+                id="password"
                 className={styles['form-control']}
                 disabled={loading}
                 required
@@ -141,7 +150,4 @@ const SiteScopeAuthModal = ({ handleSubmit }) => {
   );
 };
 
-export default reduxForm({
-  form: 'siteScopeAuth',
-  destroyOnUnmount: true,
-})(SiteScopeAuthModal);
+export default SiteScopeAuthModal;

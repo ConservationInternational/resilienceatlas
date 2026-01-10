@@ -1,1 +1,1 @@
-export { default } from './Page.container';
+export { default } from './Page';

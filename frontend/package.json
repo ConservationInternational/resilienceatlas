@@ -22,6 +22,7 @@
     "@googlemaps/js-api-loader": "^1.16.8",
     "@headlessui/react": "^2.2.0",
     "@hello-pangea/dnd": "^18.0.1",
+    "@hookform/resolvers": "^5.2.2",
     "@reactour/tour": "^3.7.0",
     "@rollbar/react": "^0.12.0-beta",
     "@tanstack/react-query": "^5.62.0",
@@ -51,6 +52,7 @@
     "react-datepicker": "^7.5.0",
     "react-dom": "19.2.0",
     "react-dropzone": "^14.3.5",
+    "react-hook-form": "^7.70.0",
     "react-iframe": "^1.8.5",
     "react-leaflet": "^5.0.0",
     "react-modal": "^3.16.3",
@@ -59,7 +61,6 @@
     "react-slick": "0.30.3",
     "recharts": "^2.15.0",
     "redux": "^5.0.1",
-    "redux-form": "^8.3.10",
     "redux-thunk": "^3.1.0",
     "reselect": "^5.1.1",
     "rollbar": "^2.26.4",
@@ -114,12 +115,6 @@
     "underscore": "1.13.7",
     "glob": "^10.4.5",
     "inflight": "npm:@aspect-build/inflight@^1.0.0",
-    "redux-form": {
-      "react": "19.2.0",
-      "react-dom": "19.2.0",
-      "react-redux": "^9.2.0",
-      "redux": "^5.0.1"
-    },
     "resilience-layer-manager": {
       "react": "19.2.0",
       "react-dom": "19.2.0",
