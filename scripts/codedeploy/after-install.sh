@@ -87,45 +87,63 @@ else
 fi
 
 # ============================================================================
-# Build Docker Images (with BuildKit for optimal caching)
+# Pull Docker Images from ECR
 # ============================================================================
-# BuildKit provides:
-#   - Parallel layer building
-#   - Better cache management
-#   - Inline cache metadata for faster subsequent builds
+# Images are pre-built in CI/CD and pushed to Amazon ECR.
+# This deployment script pulls those images and tags them for Swarm.
 # ============================================================================
 DEPLOY_TAG=$(date +%Y%m%d-%H%M%S)
 export TAG="$DEPLOY_TAG"
-export DOCKER_BUILDKIT=1
-export COMPOSE_DOCKER_CLI_BUILD=1
 
-log_info "Building Docker images with tag: $DEPLOY_TAG (BuildKit enabled)"
+# Verify ECR configuration
+if [ -z "$ECR_REGISTRY" ] || [ -z "$BACKEND_IMAGE" ] || [ -z "$FRONTEND_IMAGE" ]; then
+    log_error "ECR images not configured!"
+    log_error "Required environment variables: ECR_REGISTRY, BACKEND_IMAGE, FRONTEND_IMAGE"
+    log_error "ECR_REGISTRY=$ECR_REGISTRY"
+    log_error "BACKEND_IMAGE=$BACKEND_IMAGE"
+    log_error "FRONTEND_IMAGE=$FRONTEND_IMAGE"
+    exit 1
+fi
 
-# Build frontend with environment variables and cache optimization
-log_info "Building frontend image..."
-docker build -t "${STACK_NAME}-frontend:${DEPLOY_TAG}" \
-    -t "${STACK_NAME}-frontend:latest" \
-    --target production \
-    --build-arg BUILDKIT_INLINE_CACHE=1 \
-    --cache-from "${STACK_NAME}-frontend:latest" \
-    --build-arg NEXT_PUBLIC_API_HOST="${NEXT_PUBLIC_API_HOST:-}" \
-    --build-arg NEXT_PUBLIC_GOOGLE_ANALYTICS="${NEXT_PUBLIC_GOOGLE_ANALYTICS:-}" \
-    --build-arg NEXT_PUBLIC_TRANSIFEX_TOKEN="${NEXT_PUBLIC_TRANSIFEX_TOKEN:-}" \
-    --build-arg NEXT_PUBLIC_TRANSIFEX_SECRET="${NEXT_PUBLIC_TRANSIFEX_SECRET:-}" \
-    --build-arg NEXT_PUBLIC_GOOGLE_API_KEY="${NEXT_PUBLIC_GOOGLE_API_KEY:-}" \
-    --build-arg NEXT_PUBLIC_ROLLBAR_CLIENT_TOKEN="${NEXT_PUBLIC_ROLLBAR_CLIENT_TOKEN:-}" \
-    ./frontend
+log_info "Pulling pre-built images from ECR"
+log_info "Backend: $BACKEND_IMAGE"
+log_info "Frontend: $FRONTEND_IMAGE"
 
-# Build backend with cache optimization
-log_info "Building backend image..."
-docker build -t "${STACK_NAME}-backend:${DEPLOY_TAG}" \
-    -t "${STACK_NAME}-backend:latest" \
-    --target production \
-    --build-arg BUILDKIT_INLINE_CACHE=1 \
-    --cache-from "${STACK_NAME}-backend:latest" \
-    ./backend
+# Log in to ECR
+log_info "Logging in to Amazon ECR..."
+aws ecr get-login-password --region "${AWS_REGION:-us-east-1}" | \
+    docker login --username AWS --password-stdin "$ECR_REGISTRY" || {
+    log_error "Failed to log in to ECR"
+    exit 1
+}
+log_success "Logged in to ECR"
 
-log_success "Docker images built successfully"
+# Pull images in parallel for speed
+log_info "Pulling images in parallel..."
+docker pull "$BACKEND_IMAGE" &
+BACKEND_PULL_PID=$!
+docker pull "$FRONTEND_IMAGE" &
+FRONTEND_PULL_PID=$!
+
+# Wait for both pulls to complete
+wait $BACKEND_PULL_PID || {
+    log_error "Failed to pull backend image from ECR: $BACKEND_IMAGE"
+    exit 1
+}
+wait $FRONTEND_PULL_PID || {
+    log_error "Failed to pull frontend image from ECR: $FRONTEND_IMAGE"
+    exit 1
+}
+
+log_success "ECR images pulled successfully"
+
+# Tag images for local use by Docker Swarm
+docker tag "$BACKEND_IMAGE" "${STACK_NAME}-backend:${DEPLOY_TAG}"
+docker tag "$BACKEND_IMAGE" "${STACK_NAME}-backend:latest"
+docker tag "$FRONTEND_IMAGE" "${STACK_NAME}-frontend:${DEPLOY_TAG}"
+docker tag "$FRONTEND_IMAGE" "${STACK_NAME}-frontend:latest"
+
+log_success "Images tagged for Swarm deployment"
 
 # Save the tag for ApplicationStart hook
 echo "$DEPLOY_TAG" > "$APP_DIR/.deploy_tag"
