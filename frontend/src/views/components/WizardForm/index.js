@@ -1,1 +1,1 @@
-export { default } from './WizardForm.container';
+export { default } from './WizardForm';

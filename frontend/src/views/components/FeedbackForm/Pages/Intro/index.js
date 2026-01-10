@@ -1,1 +1,1 @@
-export { default } from './Intro.container';
+export { default } from './Intro';

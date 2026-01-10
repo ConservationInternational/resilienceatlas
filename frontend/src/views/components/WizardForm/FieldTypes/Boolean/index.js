@@ -1,1 +1,1 @@
-export { default } from './Boolean.container';
+export { default } from './Boolean';

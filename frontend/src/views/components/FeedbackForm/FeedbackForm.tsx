@@ -1,26 +1,31 @@
 import React, { useState } from 'react';
-import { connect } from 'react-redux';
-import { reset } from 'redux-form';
 import { useRouter } from 'next/router';
 import { T } from '@transifex/react';
 
-import WizardForm from 'views/components/WizardForm/WizardForm.component';
+import WizardForm from 'views/components/WizardForm';
 import Intro from './Pages/Intro';
 import ToolUse from './Pages/ToolUse';
 import Map from './Pages/Map';
 import Website from './Pages/Website';
 import Outro from './Outro/Outro';
 
-import { processFeedbackForm, submitFeedback } from 'state/modules/feedback';
+import {
+  processFeedbackForm,
+  submitFeedback,
+  IntroSchema,
+  ToolUseSchema,
+  MapSchema,
+  WebsiteSchema,
+} from 'state/modules/feedback';
 
-const FeedbackForm = ({ resetForm }) => {
+const FeedbackForm = () => {
   const [submitted, setSubmitted] = useState(false);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
   const { locale } = useRouter();
   const { query } = useRouter();
   const { returnPath, returnText } = query;
 
-  const handleSubmit = (values) => {
+  const handleSubmit = (values: Record<string, unknown>) => {
     setError(null);
 
     const feedbackData = processFeedbackForm(values, locale);
@@ -28,10 +33,12 @@ const FeedbackForm = ({ resetForm }) => {
     submitFeedback(feedbackData)
       .then(() => {
         setSubmitted(true);
-        resetForm();
       })
       .catch(() => setError('There was an error submitting your form.'));
   };
+
+  // Validation schemas for each page
+  const validationSchemas = [IntroSchema, ToolUseSchema, MapSchema, WebsiteSchema];
 
   return (
     <WizardForm
@@ -45,7 +52,8 @@ const FeedbackForm = ({ resetForm }) => {
       outroComponent={Outro}
       backBtnPath={Array.isArray(returnPath) ? returnPath.join() : returnPath}
       backBtnText={Array.isArray(returnText) ? returnText.join() : returnText}
-      errorMessage={error}
+      errorMessage={error ?? undefined}
+      validationSchemas={validationSchemas}
     >
       <Intro />
       <ToolUse />
@@ -55,10 +63,4 @@ const FeedbackForm = ({ resetForm }) => {
   );
 };
 
-const mapDispatchToProps = (dispatch) => {
-  return {
-    resetForm: () => dispatch(reset('Feedback')),
-  };
-};
-
-export default connect(null, mapDispatchToProps)(FeedbackForm);
+export default FeedbackForm;

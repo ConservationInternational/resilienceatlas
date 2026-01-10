@@ -1,10 +1,21 @@
-import { SubmissionError } from 'redux-form';
-
 import { AUTH_TOKEN } from 'utilities/constants';
 
 import { PORT, get, post, patch } from '../../utils/api';
 import type { ILoginForm, ISignupForm, IEditProfileForm } from './utils';
 import { getUserToken } from './selectors';
+
+// Custom error class for form submission errors
+export class FormSubmissionError extends Error {
+  errors: Record<string, string>;
+  _error?: Record<string, string>;
+
+  constructor(errors: Record<string, string>) {
+    super('Form submission error');
+    this.name = 'FormSubmissionError';
+    this.errors = errors;
+    this._error = errors;
+  }
+}
 
 const URL_LOGIN = '/users/authenticate';
 const URL_SIGNUP = '/users/register';
@@ -42,7 +53,7 @@ export const signin = ({ email, password }: ILoginForm) =>
     .then((response) => response.data)
     .then((data) => {
       if (data.error || !data.auth_token) {
-        throw new SubmissionError({ _error: data.error });
+        throw new FormSubmissionError({ _error: data.error });
       }
 
       return data.auth_token;
@@ -53,7 +64,7 @@ export const signup = (values: ISignupForm) =>
     .then((response) => response.data)
     .then((data) => {
       if (data.status !== 'created') {
-        throw new SubmissionError(data);
+        throw new FormSubmissionError(data);
       }
 
       return data;
@@ -69,16 +80,16 @@ export const loadUserData = () => (dispatch, getState) =>
     .then((response) => response.data)
     .then((data) => dispatch(userDataLoaded(data)));
 
-export const editProfile = (values: IEditProfileForm, _, props) =>
+export const editProfile = (values: IEditProfileForm, authToken: string) =>
   patch(URL_USER_DATA, {
     data: { user: values },
     baseURL: PORT,
     headers: {
-      Authorization: `Bearer ${props.user.auth_token}`,
+      Authorization: `Bearer ${authToken}`,
     },
   }).catch((response) => {
     if (response.data?.errors) {
-      throw new SubmissionError(
+      throw new FormSubmissionError(
         Object.entries(response.data?.errors as Record<string, string[]>).reduce(
           (res, tuple) => ({
             ...res,
@@ -88,7 +99,7 @@ export const editProfile = (values: IEditProfileForm, _, props) =>
         ),
       );
     } else {
-      throw new SubmissionError({ _error: 'Unable to edit the profile' });
+      throw new FormSubmissionError({ _error: 'Unable to edit the profile' });
     }
   });
 

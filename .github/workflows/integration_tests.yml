@@ -6,10 +6,12 @@ on:
     branches:
       - develop
       - main
+      - staging
   pull_request:
     branches:
       - develop
       - main
+      - staging
   workflow_dispatch:
 
 env:
