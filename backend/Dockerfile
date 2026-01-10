@@ -6,9 +6,11 @@ ARG BUILDKIT_INLINE_CACHE=1
 
 # Configure package manager for better network resilience
 RUN echo 'Acquire::Retries "3";' >> /etc/apt/apt.conf.d/80-retries && \
-    echo 'Acquire::http::Timeout "60";' >> /etc/apt/apt.conf.d/80-timeout
+    echo 'Acquire::http::Timeout "120";' >> /etc/apt/apt.conf.d/80-timeout && \
+    echo 'Acquire::https::Timeout "120";' >> /etc/apt/apt.conf.d/80-timeout
 
 # Install dependencies with retry logic
+# Note: libgdal-dev can be slow on ARM64 due to compilation
 RUN for i in {1..3}; do \
       echo "Package installation attempt $i of 3" && \
       apt-get update -qq && apt-get install -y \
@@ -23,11 +25,11 @@ RUN for i in {1..3}; do \
         curl \
       && rm -rf /var/lib/apt/lists/* && break || \
       ([ $i -eq 3 ] && echo "❌ Failed to install packages after 3 attempts" && exit 1) || \
-      (echo "⚠️ Package installation attempt $i failed, retrying in 10 seconds..." && sleep 10); \
+      (echo "⚠️ Package installation attempt $i failed, retrying in 30 seconds..." && sleep 30); \
     done
 
 # Configure bundler for better network resilience
-RUN bundle config set timeout 60 && \
+RUN bundle config set timeout 120 && \
     bundle config set retry 5
 
 # Set the working directory
@@ -36,9 +38,10 @@ WORKDIR /app
 # Copy Gemfile and Gemfile.lock
 COPY Gemfile Gemfile.lock ./
 
-# Install Ruby dependencies with retry logic and cache mount for faster builds
-RUN --mount=type=cache,target=/usr/local/bundle \
-    bash -c 'for i in {1..3}; do \
+# Install Ruby dependencies with retry logic
+# Note: Cache mounts are not used here because they don't persist to the production stage
+# The gems must be installed directly into /usr/local/bundle for production builds
+RUN bash -c 'for i in {1..3}; do \
       echo "Bundle install attempt $i of 3" && \
       bundle install && break || \
       ([ $i -eq 3 ] && echo "❌ Failed to install gems after 3 attempts" && exit 1) || \
