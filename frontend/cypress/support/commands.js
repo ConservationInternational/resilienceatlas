@@ -122,6 +122,44 @@ Cypress.Commands.add('interceptAllRequests', () => {
       },
     },
   ).as('cartodbBoundsRequest');
+
+  // Mock CartoDB tile image requests - return empty 1x1 transparent PNG
+  // These are the actual tile images that Leaflet tries to load
+  cy.intercept(
+    {
+      method: 'GET',
+      url: 'https://cdn.resilienceatlas.org/ra/api/v1/map/*/*.png',
+    },
+    {
+      statusCode: 200,
+      headers: {
+        'content-type': 'image/png',
+      },
+      // Return a minimal 1x1 transparent PNG (base64 encoded)
+      body: 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==',
+      encoding: 'base64',
+    },
+  ).as('cartodbTileImage');
+
+  // Mock CartoDB UTF Grid requests - return empty grid data
+  // These provide interactivity data for layers
+  cy.intercept(
+    {
+      method: 'GET',
+      url: 'https://cdn.resilienceatlas.org/ra/api/v1/map/*/*.grid.json',
+    },
+    {
+      statusCode: 200,
+      headers: {
+        'content-type': 'application/json',
+      },
+      body: {
+        grid: ['                                '],
+        keys: [],
+        data: {},
+      },
+    },
+  ).as('cartodbGridRequest');
 });
 
 // Converts a hex color (eg: #FFFFFF) to an rgb string (eg: rgb(255, 255, 255)
