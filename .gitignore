@@ -106,7 +106,6 @@ venv.bak/
 !.env.sample
 !.env.*.example
 *.env
-prod.env
 
 # Spyder/Rope
 .spyderproject
@@ -169,9 +168,6 @@ yarn-error.log*
 # TypeScript
 *.tsbuildinfo
 *.tsconfig.tsbuildinfo
-
-# Capistrano
-/log/*
 
 #####################################################################
 # Test Results
