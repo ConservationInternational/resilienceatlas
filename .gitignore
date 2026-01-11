@@ -1,11 +1,16 @@
 #####################################################################
 # Resilience Atlas Project .gitignore
 #
-# This file contains project-specific ignore patterns.
-# For user-specific patterns (IDE, OS, editor files), please set up
-# a global gitignore: git config --global core.excludesfile ~/.gitignore_global
-# See .gitignore_global.example for recommended user-specific patterns.
+# This file contains project-specific ignore patterns and common
+# IDE/OS patterns for developer convenience.
 #####################################################################
+
+#####################################################################
+# Common IDE and OS Files (for convenience)
+#####################################################################
+.DS_Store
+.idea
+.vscode
 
 #####################################################################
 # Dependencies
