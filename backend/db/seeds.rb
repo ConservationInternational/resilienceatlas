@@ -137,6 +137,36 @@ unless Rails.env.test?
   # Import journeys from journeys.rb if no journeys exist
   if Journey.count == 0
     puts "No journeys found, importing from journeys.rb..."
+    
+    # First, extract journey images from the zip archive if it exists
+    # This ensures the Active Storage files are in place before we create blob records
+    zip_path = Rails.root.join("db", "data", "journey_images.zip")
+    if File.exist?(zip_path)
+      puts "Extracting journey images from archive..."
+      begin
+        system("bundle exec rake storage:extract_journey_images") || 
+          puts("Note: Could not run rake task, will try inline extraction")
+      rescue => e
+        puts "Rake task failed: #{e.message}, trying inline extraction..."
+        require "zip"
+        destination = Rails.root.join("public", "storage")
+        FileUtils.mkdir_p(destination)
+        Zip::File.open(zip_path) do |zip_file|
+          zip_file.each do |entry|
+            next if entry.name.start_with?("__MACOSX") || entry.name.include?("._")
+            target_path = File.join(destination, entry.name)
+            if entry.directory?
+              FileUtils.mkdir_p(target_path)
+            else
+              FileUtils.mkdir_p(File.dirname(target_path))
+              entry.extract(target_path) { true } unless File.exist?(target_path)
+            end
+          end
+        end
+        puts "Inline extraction complete"
+      end
+    end
+    
     journeys_file = Rails.root.join("db", "data", "journeys.rb")
     if File.exist?(journeys_file)
       # Import journeys with custom handling for the at_least_one_step validation

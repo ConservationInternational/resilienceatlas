@@ -1,0 +1,63 @@
+#!/bin/bash
+# Docker entrypoint script for the Rails backend
+# This script initializes storage directories and runs migrations before starting the server
+
+set -e
+
+echo "=== Starting Docker Entrypoint ==="
+
+# Function to initialize storage from seed files
+initialize_storage() {
+  local SEED_DIR="/app/storage_seed"
+  local PUBLIC_STORAGE="/app/public/storage"
+  local PRIVATE_STORAGE="/app/storage"
+
+  # Ensure storage directories exist with correct permissions
+  mkdir -p "$PUBLIC_STORAGE" "$PRIVATE_STORAGE"
+  
+  # Initialize public storage if seed files exist and destination is empty or missing files
+  if [ -d "$SEED_DIR" ] && [ "$(ls -A $SEED_DIR 2>/dev/null)" ]; then
+    echo "Checking public storage initialization from seed directory..."
+    
+    # Count files in seed directory (excluding .keep files)
+    SEED_FILE_COUNT=$(find "$SEED_DIR" -type f ! -name ".keep" 2>/dev/null | wc -l)
+    
+    # Count files in public storage (excluding .keep files)
+    PUBLIC_FILE_COUNT=$(find "$PUBLIC_STORAGE" -type f ! -name ".keep" 2>/dev/null | wc -l)
+    
+    echo "Seed files: $SEED_FILE_COUNT, Public storage files: $PUBLIC_FILE_COUNT"
+    
+    # If public storage has significantly fewer files, copy seed files
+    if [ "$PUBLIC_FILE_COUNT" -lt "$SEED_FILE_COUNT" ]; then
+      echo "Initializing public storage from seed files..."
+      cp -rn "$SEED_DIR/"* "$PUBLIC_STORAGE/" 2>/dev/null || true
+      echo "Storage initialization from seed directory complete."
+    else
+      echo "Public storage already contains files, skipping seed copy."
+    fi
+  fi
+  
+  # Also try to extract from journey_images.zip using Rails rake task
+  # This handles the case where the zip file exists but wasn't extracted
+  if [ -f "/app/db/data/journey_images.zip" ]; then
+    echo "Checking if journey images need extraction..."
+    # Run the rake task to extract journey images (it will skip if already extracted)
+    bundle exec rake storage:extract_journey_images 2>/dev/null || echo "Journey image extraction skipped or completed"
+  fi
+
+  chmod -R 755 "$PUBLIC_STORAGE" "$PRIVATE_STORAGE" 2>/dev/null || true
+}
+
+# Run storage initialization
+initialize_storage
+
+# Run database migrations if this is the web process
+if [ "$1" = "bundle" ] && [ "$2" = "exec" ]; then
+  echo "Running database migrations..."
+  bundle exec rails db:migrate 2>/dev/null || echo "Migration skipped or already up to date"
+fi
+
+echo "=== Entrypoint Complete, Starting Application ==="
+
+# Execute the main command
+exec "$@"

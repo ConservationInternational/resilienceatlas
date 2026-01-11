@@ -92,5 +92,7 @@ Rails.application.configure do
   }
 
   # Store uploaded files on the local file system (see config/storage.yml for options).
-  config.active_storage.service = :local
+  # Using local_public to serve files directly from public/storage without Rails controller,
+  # which is required for the seeded image assets to work correctly.
+  config.active_storage.service = :local_public
 end

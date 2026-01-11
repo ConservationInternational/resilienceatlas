@@ -84,7 +84,9 @@ Rails.application.configure do
     logger.level = config.log_level
     config.logger = ActiveSupport::TaggedLogging.new(logger)
   end
-  config.active_storage.service = :local
+  # Using local_public to serve files directly from public/storage without Rails controller,
+  # which matches the seeded image assets configuration (service_name: "local_public").
+  config.active_storage.service = :local_public
   config.factory_bot.definition_file_paths = ["spec/factories"]
 
   # Allow web-console from Docker networks
