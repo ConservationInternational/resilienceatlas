@@ -21,6 +21,13 @@ $header-height: 65px;
 $sidebar-width: 350px;
 $sidebar-analysis-width: 490px;
 
+/* Mobile responsive breakpoints and sizes */
+$breakpoint-mobile: 767px;
+$breakpoint-tablet-min: 768px;
+$breakpoint-tablet-max: 1023px;
+$mobile-touch-target-size: 40px;
+$mobile-sidebar-toggle-size: 48px;
+
 /*
   Fonts and typography
  */

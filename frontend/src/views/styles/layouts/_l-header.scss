@@ -422,3 +422,200 @@ a.nav-current-forced:hover {
   background-color: #0089CC !important;
   font-weight: 600 !important;
 }
+
+// Hide mobile menu toggle on desktop
+.mobile-menu-toggle {
+  display: none;
+}
+
+// Mobile navigation styles
+@media screen and (max-width: $breakpoint-mobile) {
+  .l-header,
+  .l-header--fullscreen {
+    height: rem(60px); // Slightly taller for mobile
+  }
+
+  .l-header-nav {
+    padding: 0 rem(10px);
+    
+    .brand-area {
+      float: left;
+      padding: rem(10px) 0;
+      width: calc(100% - 60px); // Leave space for hamburger button
+      
+      a {
+        width: rem(160px);
+        height: rem(40px);
+        font-size: rem(16px);
+      }
+    }
+
+    // Hamburger menu button
+    .mobile-menu-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: absolute;
+      top: rem(10px);
+      right: rem(10px);
+      width: rem(40px);
+      height: rem(40px);
+      background: none;
+      border: none;
+      cursor: pointer;
+      z-index: 1001;
+      padding: 0;
+
+      // Hamburger icon
+      span {
+        display: block;
+        width: rem(24px);
+        height: rem(2px);
+        background-color: var(--theme-color, #333333);
+        position: relative;
+        transition: all 0.3s ease;
+
+        &:before,
+        &:after {
+          content: '';
+          display: block;
+          width: rem(24px);
+          height: rem(2px);
+          background-color: var(--theme-color, #333333);
+          position: absolute;
+          transition: all 0.3s ease;
+        }
+
+        &:before {
+          top: rem(-8px);
+        }
+
+        &:after {
+          top: rem(8px);
+        }
+      }
+
+      // Transform to X when menu is open
+      &.is-open {
+        span {
+          background-color: transparent;
+
+          &:before {
+            top: 0;
+            transform: rotate(45deg);
+          }
+
+          &:after {
+            top: 0;
+            transform: rotate(-45deg);
+          }
+        }
+      }
+    }
+
+    // Mobile navigation menu
+    .nav-area {
+      display: none;
+      position: fixed;
+      top: rem(60px);
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: $bg-color-1;
+      z-index: 1000;
+      overflow-y: auto;
+      padding: rem(20px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+
+      &.is-open {
+        display: block;
+      }
+
+      &.-resilience {
+        // Single column layout for mobile
+        > li {
+          float: none;
+          height: auto;
+          margin-left: 0;
+          margin-bottom: rem(5px);
+          display: block;
+
+          > a {
+            display: block !important;
+            padding: rem(15px) rem(10px) !important;
+            border-bottom: 1px solid rgba($gray-medium, 0.2);
+          }
+
+          // Nested menus
+          > ul {
+            display: none;
+            position: static;
+            transform: none;
+            width: 100%;
+            margin-top: rem(5px);
+            margin-bottom: rem(10px);
+            box-shadow: none;
+
+            > li {
+              border-bottom: 1px solid rgba($gray-medium, 0.1);
+              
+              &:hover {
+                background-color: $bg-color-3;
+              }
+            }
+          }
+
+          &:hover > ul {
+            display: none; // Don't auto-show on hover on mobile
+          }
+        }
+
+        .language-switcher {
+          margin-top: rem(10px);
+          padding-top: rem(10px);
+          border-top: 1px solid rgba($gray-medium, 0.3);
+        }
+      }
+
+      // Keep language switcher always visible
+      &:not(.-resilience) {
+        display: block;
+        position: absolute;
+        top: rem(10px);
+        right: rem(60px);
+        bottom: auto;
+        background: transparent;
+        box-shadow: none;
+        padding: 0;
+        width: auto;
+        z-index: 1001;
+
+        .language-switcher {
+          height: rem(40px);
+          margin: 0;
+
+          ul {
+            right: 0;
+            left: auto;
+          }
+        }
+      }
+    }
+  }
+}
+
+// Tablet adjustments
+@media screen and (min-width: $breakpoint-tablet-min) and (max-width: $breakpoint-tablet-max) {
+  .l-header-nav {
+    .nav-area.-resilience {
+      > li {
+        margin-left: rem(8px);
+        
+        a {
+          padding: rem(8px) !important;
+          font-size: rem(13px) !important;
+        }
+      }
+    }
+  }
+}

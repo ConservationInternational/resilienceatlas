@@ -67,6 +67,23 @@ const Sidebar = ({
     );
   };
 
+  // Close sidebar when clicking backdrop on mobile
+  const handleBackdropClick = useCallback(
+    (e) => {
+      // Mobile breakpoint constant matching SCSS $breakpoint-mobile
+      const MOBILE_BREAKPOINT = 767;
+
+      // Only handle backdrop clicks on mobile
+      if (window.innerWidth <= MOBILE_BREAKPOINT && opened) {
+        // Check if click is on the backdrop (outside the sidebar content)
+        if (e.target.classList.contains('l-sidebar--fullscreen')) {
+          toggleOpen();
+        }
+      }
+    },
+    [opened, toggleOpen],
+  );
+
   const displayFeedbackButton = !subdomain;
 
   return (
@@ -75,8 +92,9 @@ const Sidebar = ({
         'is-collapsed': !opened,
         analyzing: analysisOpened,
       })}
+      onClick={handleBackdropClick}
     >
-      <div className="l-sidebar-content">
+      <div className="l-sidebar-content" onClick={(e) => e.stopPropagation()}>
         {site?.has_analysis && <AnalysisPanel toggle={toggleAnalysis} />}
 
         <div className="m-sidebar" id="sidebarView">

@@ -49,6 +49,27 @@
         transform: rotate(135deg);
       }
     }
+
+    // Mobile: Larger touch target and visible when collapsed
+    @media screen and (max-width: $breakpoint-mobile) {
+      width: rem($mobile-sidebar-toggle-size);
+      height: rem($mobile-sidebar-toggle-size);
+      background-color: $bg-color-1;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+      border-radius: 0 4px 4px 0;
+
+      .is-collapsed & {
+        // When collapsed, position button on the left edge of screen
+        position: fixed;
+        left: 0;
+        right: auto;
+        top: 10px;
+      }
+
+      &:after {
+        @include arrow(10px, $gray-70, 2px, -45deg);
+      }
+    }
   }
 
   .btn-analysis-panel-contract {
@@ -251,6 +272,61 @@
     background-position: left center;
     background-size: contain;
     text-indent: -99999px;
+  }
+
+  // Mobile responsive styles
+  @media screen and (max-width: $breakpoint-mobile) {
+    // Full width sidebar on mobile when expanded
+    width: 100%;
+    max-width: 100vw;
+    z-index: 1000; // Higher z-index to appear above map
+
+    &.is-collapsed {
+      // Collapse completely off-screen on mobile
+      transform: translateX(-100%);
+    }
+
+    // Add backdrop overlay when sidebar is open on mobile
+    // The backdrop captures clicks on the parent element (l-sidebar--fullscreen)
+    // to close the sidebar, while clicks on sidebar content are stopped via stopPropagation
+    &:not(.is-collapsed)::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: -1; // Behind sidebar content but above map
+      pointer-events: none; // Don't block clicks on the pseudo-element itself
+    }
+
+    .analysis-panel {
+      // Hide analysis panel on mobile or make it overlay
+      display: none;
+    }
+
+    .btn-analysis-panel-expand {
+      // Position analysis button differently on mobile
+      left: 10px;
+      top: auto;
+      bottom: 60px;
+    }
+
+    .btn-map-feedback {
+      // Position feedback button differently on mobile
+      left: 10px;
+    }
+  }
+
+  // Tablet responsive styles
+  @media screen and (min-width: $breakpoint-tablet-min) and (max-width: $breakpoint-tablet-max) {
+    // Slightly narrower sidebar on tablets
+    width: rem(300px);
+
+    .analysis-panel {
+      width: 400px;
+    }
   }
 }
 

@@ -171,8 +171,10 @@ backend/tmp/
 # Frontend (Next.js)
 #####################################################################
 /.next
+/frontend/.next
 /out
 /next-env.d.ts
+/frontend/next-env.d.ts
 /gcloud
 # Frontend directory paths
 frontend/.next/

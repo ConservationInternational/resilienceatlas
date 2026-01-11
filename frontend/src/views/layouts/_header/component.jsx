@@ -21,6 +21,7 @@ const Header = ({
   const router = useRouter();
   const { pathname, locale } = router;
   const [hasMounted, setHasMounted] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Safely destructure site with default values to prevent errors during SSR/hydration
   const { linkback_text = '', linkback_url = '' } = site || {};
@@ -32,6 +33,16 @@ const Header = ({
   useEffect(() => {
     if (!menuItemsLoaded || menuItemsLoadedLocale !== locale) loadMenuItems(locale);
   }, [loadMenuItems, menuItemsLoaded, menuItemsLoadedLocale, locale]);
+
+  // Close mobile menu when route changes
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [pathname]);
+
+  // Toggle mobile menu
+  const toggleMobileMenu = useCallback(() => {
+    setMobileMenuOpen((prev) => !prev);
+  }, []);
 
   const renderMenuItem = useCallback(
     ({ id, label, link, children }) => (
@@ -64,10 +75,22 @@ const Header = ({
             </Link>
           </li>
         </ul>
+
+        {/* Mobile menu toggle button */}
+        <button
+          className={cx('mobile-menu-toggle', { 'is-open': mobileMenuOpen })}
+          onClick={toggleMobileMenu}
+          aria-label={mobileMenuOpen ? translations['Close menu'] : translations['Open menu']}
+          type="button"
+        >
+          <span />
+        </button>
+
         <ul className="nav-area">
           <LanguageSwitcher translations={translations} />
         </ul>
-        <ul className="nav-area -resilience">
+
+        <ul className={cx('nav-area', '-resilience', { 'is-open': mobileMenuOpen })}>
           <li className="journey-link">
             <Link
               href="/journeys"
@@ -203,7 +226,13 @@ const Header = ({
               </li>
             </>
           ) : null}
+
+          {/* Language switcher in mobile menu */}
+          <li className="language-switcher">
+            <LanguageSwitcher translations={translations} />
+          </li>
         </ul>
+
         <ul className="nav-area -vital-sign">
           <li>
             <a
