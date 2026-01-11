@@ -73,6 +73,55 @@ Cypress.Commands.add('interceptAllRequests', () => {
     },
     disableRequestCache,
   ).as('googleGeocodeRequest');
+
+  // Mock CartoDB API calls to avoid external dependencies and improve test reliability
+  // CartoDB tile API - returns layergroup ID and CDN URL for tile fetching
+  cy.intercept(
+    {
+      method: 'GET',
+      url: 'https://*-cdn.resilienceatlas.org/user/ra/api/v1/map*',
+    },
+    {
+      statusCode: 200,
+      body: {
+        layergroupid: 'mock-layergroup-id-12345',
+        cdn_url: {
+          http: 'cdn.resilienceatlas.org',
+          https: 'cdn.resilienceatlas.org',
+        },
+        last_updated: '2024-01-01T00:00:00.000Z',
+      },
+    },
+  ).as('cartodbTileRequest');
+
+  // CartoDB SQL API - returns bounds data for layer extent
+  cy.intercept(
+    {
+      method: 'GET',
+      url: 'https://*-cdn.resilienceatlas.org/user/ra/api/v2/sql*',
+    },
+    {
+      statusCode: 200,
+      body: {
+        rows: [
+          {
+            minx: -180,
+            miny: -90,
+            maxx: 180,
+            maxy: 90,
+          },
+        ],
+        time: 0.001,
+        fields: {
+          minx: { type: 'number' },
+          miny: { type: 'number' },
+          maxx: { type: 'number' },
+          maxy: { type: 'number' },
+        },
+        total_rows: 1,
+      },
+    },
+  ).as('cartodbBoundsRequest');
 });
 
 // Converts a hex color (eg: #FFFFFF) to an rgb string (eg: rgb(255, 255, 255)
