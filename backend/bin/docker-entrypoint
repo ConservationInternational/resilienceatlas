@@ -59,6 +59,10 @@ initialize_storage
 if [ "$1" = "bundle" ] && [ "$2" = "exec" ]; then
   echo "Running database migrations..."
   bundle exec rails db:migrate 2>/dev/null || echo "Migration skipped or already up to date"
+  
+  # Fix existing blobs that have missing files (requires database access)
+  echo "Fixing any existing blobs with missing files..."
+  bundle exec rake storage:fix_existing_blobs 2>/dev/null || echo "Blob fix skipped or completed"
 fi
 
 echo "=== Entrypoint Complete, Starting Application ==="
