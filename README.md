@@ -27,14 +27,24 @@
 
 ### Development Setup
 
-1. **Set up environment variables**
+1. **Set up global gitignore (recommended)**
+   
+   For a better development experience, set up a global gitignore for user-specific files (IDE settings, OS files, etc.):
+   ```bash
+   cp .gitignore_global.example ~/.gitignore_global
+   git config --global core.excludesfile ~/.gitignore_global
+   ```
+   
+   This keeps personal preferences out of the project's .gitignore. See [GitHub's documentation](https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files#configuring-ignored-files-for-all-repositories-on-your-computer) for more details.
+
+2. **Set up environment variables**
    ```bash
    cp .env.example .env
    cp frontend/.env.example frontend/.env
    cp backend/.env.sample backend/.env
    ```
 
-2. **Start the development environment**
+3. **Start the development environment**
    ```bash
    docker compose -f docker-compose.dev.yml up --build
    ```
@@ -44,7 +54,7 @@
    - Backend API on http://localhost:3001
    - Frontend application on http://localhost:3000
 
-3. **Admin Panel Access**
+4. **Admin Panel Access**
    
    The admin panel is available at http://localhost:3001/admin with the following default credentials:
    
