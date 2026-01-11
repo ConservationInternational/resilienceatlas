@@ -98,6 +98,7 @@ export TAG="$DEPLOY_TAG"
 # Docker Swarm does not support 'host.docker.internal' with 'host-gateway'.
 # For containers to connect to PostgreSQL on the host, we need to use the
 # actual host IP or Docker's bridge gateway (172.17.0.1).
+# We must update the .env file on disk since docker stack deploy reads from it.
 # ============================================================================
 if [ "$ENVIRONMENT" = "production" ]; then
     # Get the Docker bridge gateway IP (typically 172.17.0.1)
@@ -105,13 +106,18 @@ if [ "$ENVIRONMENT" = "production" ]; then
     export DOCKER_HOST_IP
     log_info "Docker host gateway IP: $DOCKER_HOST_IP"
     
-    # If DATABASE_URL uses host.docker.internal, replace it with the actual IP
-    if [ -n "$PRODUCTION_DATABASE_URL" ]; then
-        if echo "$PRODUCTION_DATABASE_URL" | grep -q "host.docker.internal"; then
-            PRODUCTION_DATABASE_URL=$(echo "$PRODUCTION_DATABASE_URL" | sed "s/host.docker.internal/$DOCKER_HOST_IP/g")
-            export PRODUCTION_DATABASE_URL
-            log_info "Updated DATABASE_URL to use host IP instead of host.docker.internal"
-        fi
+    # Update the .env.production file on disk to replace host.docker.internal
+    # This is necessary because docker stack deploy reads env vars from the file
+    ENV_FILE="$APP_DIR/.env.production"
+    if [ -f "$ENV_FILE" ] && grep -q "host.docker.internal" "$ENV_FILE"; then
+        log_info "Updating $ENV_FILE to replace host.docker.internal with $DOCKER_HOST_IP"
+        sed -i "s/host\.docker\.internal/$DOCKER_HOST_IP/g" "$ENV_FILE"
+        log_success "Updated .env.production file with Docker host IP"
+        
+        # Reload environment variables after modification
+        set -a
+        source "$ENV_FILE"
+        set +a
     fi
 fi
 
