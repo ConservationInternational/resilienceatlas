@@ -165,11 +165,26 @@ RUN mkdir -p log tmp/cache tmp/pids tmp/sockets tmp/storage \
   public/uploads public/uploads/cache public/uploads/store public/storage \
   downloads storage
 
+# Copy seed storage files to a separate directory
+# These will be copied to the volume-mounted public/storage at startup
+# if the volume is empty (first deployment or after volume reset)
+RUN if [ -d "public/storage" ] && [ "$(ls -A public/storage 2>/dev/null)" ]; then \
+      echo "Copying seed storage files..." && \
+      mkdir -p storage_seed && \
+      cp -r public/storage/* storage_seed/ 2>/dev/null || true; \
+    fi
+
+# Make scripts executable including the docker entrypoint
+RUN chmod +x bin/docker-entrypoint bin/rails bin/rake bin/setup 2>/dev/null || true
+
 # Precompile assets for production (if needed)
 RUN bundle exec rake assets:precompile || true
 
 # Expose port 3001
 EXPOSE 3001
+
+# Use the entrypoint script to initialize storage before starting
+ENTRYPOINT ["/app/bin/docker-entrypoint"]
 
 # Default command
 CMD ["bundle", "exec", "rails", "server", "-b", "0.0.0.0", "-p", "3001"]
