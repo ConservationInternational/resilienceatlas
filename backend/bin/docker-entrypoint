@@ -45,6 +45,10 @@ initialize_storage() {
     bundle exec rake storage:extract_journey_images 2>/dev/null || echo "Journey image extraction skipped or completed"
   fi
 
+  # Setup homepage images from assets directory with fixed blob keys
+  echo "Setting up homepage images..."
+  bundle exec rake storage:setup_homepage_images 2>/dev/null || echo "Homepage image setup skipped or completed"
+
   chmod -R 755 "$PUBLIC_STORAGE" "$PRIVATE_STORAGE" 2>/dev/null || true
 }
 
