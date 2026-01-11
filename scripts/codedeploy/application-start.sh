@@ -93,6 +93,29 @@ fi
 export TAG="$DEPLOY_TAG"
 
 # ============================================================================
+# Resolve Host IP for Database Connection
+# ============================================================================
+# Docker Swarm does not support 'host.docker.internal' with 'host-gateway'.
+# For containers to connect to PostgreSQL on the host, we need to use the
+# actual host IP or Docker's bridge gateway (172.17.0.1).
+# ============================================================================
+if [ "$ENVIRONMENT" = "production" ]; then
+    # Get the Docker bridge gateway IP (typically 172.17.0.1)
+    DOCKER_HOST_IP=$(docker network inspect bridge --format '{{(index .IPAM.Config 0).Gateway}}' 2>/dev/null || echo "172.17.0.1")
+    export DOCKER_HOST_IP
+    log_info "Docker host gateway IP: $DOCKER_HOST_IP"
+    
+    # If DATABASE_URL uses host.docker.internal, replace it with the actual IP
+    if [ -n "$PRODUCTION_DATABASE_URL" ]; then
+        if echo "$PRODUCTION_DATABASE_URL" | grep -q "host.docker.internal"; then
+            PRODUCTION_DATABASE_URL=$(echo "$PRODUCTION_DATABASE_URL" | sed "s/host.docker.internal/$DOCKER_HOST_IP/g")
+            export PRODUCTION_DATABASE_URL
+            log_info "Updated DATABASE_URL to use host IP instead of host.docker.internal"
+        fi
+    fi
+fi
+
+# ============================================================================
 # Deploy/Update Stack
 # ============================================================================
 # Docker stack deploy is idempotent and non-blocking - it submits the desired
