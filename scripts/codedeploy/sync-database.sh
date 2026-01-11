@@ -273,9 +273,6 @@ if [ "$SYNC_STORAGE_FILES" = "true" ]; then
 else
     log_info "Storage file sync disabled (SYNC_STORAGE_FILES != true)"
 fi
-else
-    log_info "Storage file sync disabled (SYNC_STORAGE_FILES != true)"
-fi
 
 log_success "Database sync completed successfully!"
 log_success "Staging database has been refreshed with production data"
