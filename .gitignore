@@ -1,47 +1,233 @@
+#####################################################################
+# Resilience Atlas Project .gitignore
+#
+# This file contains project-specific ignore patterns and common
+# IDE/OS patterns for developer convenience.
+#####################################################################
+
+#####################################################################
+# Common IDE and OS Files (for convenience)
+#####################################################################
 .DS_Store
 .idea
 .vscode
-node_modules
 
-infrastructure/base/.terraform
-infrastructure/base/vars/*
-infrastructure/!base/vars/terraform.tfvars
+#####################################################################
+# Dependencies
+#####################################################################
+# Node.js dependencies (matches in any directory)
+node_modules/
+**/node_modules/
+/.pnp
+.pnp.js
+/.bundle
+/vendor
+package-lock.json
+yarn.lock
 
-infrastructure/state/.terraform
-infrastructure/state/vars/*
-infrastructure/state/terraform.tfstate
-infrastructure/state/terraform.tfstate.backup
-infrastructure/!state/vars/terraform.tfvars
-
-.aws-sam
-cloud_functions/titiler_cogs/.aws-sam
-
-# Python virtual environments
-.venv/
+#####################################################################
+# Python
+#####################################################################
+# Byte-compiled / optimized / DLL files
 __pycache__/
+*.py[cod]
+*$py.class
 *.pyc
 
-# Docker build cache (test directories)
-.buildx-cache*
+# C extensions
+*.so
 
-# Test result files (auto-generated during CI)
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.cache
+.pytest_cache/
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+
+# Translations
+*.mo
+*.pot
+
+# Flask/Scrapy/Sphinx
+instance/
+.webassets-cache
+.scrapy
+docs/_build/
+
+# PyBuilder
+target/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# pyenv
+.python-version
+
+# Celery
+celerybeat-schedule.*
+
+# SageMath
+*.sage.py
+
+# Environments
+.env
+.env.*
+.env-*
+!.env.sample
+!.env.*.example
+*.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Spyder/Rope
+.spyderproject
+.spyproject
+.ropeproject
+
+# mkdocs
+/site
+
+# mypy
+.mypy_cache/
+
+#####################################################################
+# Backend (Rails)
+#####################################################################
+# Database
+/db/*.sqlite3
+/db/*.sqlite3-journal
+*.db
+*.rdb
+*.dump
+
+# Logs and temp files
+/log/*
+!/log/.keep
+*.log
+/tmp
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Uploads and generated files
+/public/assets
+/public/files/*
+!/public/files/.keep
+/public/uploads/*
+/downloads/*
+!/downloads/.keep
+/public/ckeditor_assets/*
+!/public/ckeditor_assets/.keep
+/public/storage/*
+!/public/storage/.keep
+/public/packs
+/public/packs-test
+
+# Yarn
+.yarn-integrity
+
+#####################################################################
+# Frontend (Next.js)
+#####################################################################
+/.next
+/out
+/next-env.d.ts
+/gcloud
+
+# Testing
+/coverage
+
+# TypeScript
+*.tsbuildinfo
+*.tsconfig.tsbuildinfo
+
+#####################################################################
+# Test Results
+#####################################################################
 backend/tmp/integration-rspec.xml
 frontend/cypress/results/*.xml
 integration-tests/results/*.xml
 cypress/videos/
 cypress/screenshots/
+/cypress/downloads
+cypress.*.json
+
+#####################################################################
+# Infrastructure (Terraform)
+#####################################################################
+infrastructure/base/.terraform
+infrastructure/base/vars/*
+!infrastructure/base/vars/terraform.tfvars
+
+infrastructure/state/.terraform
+infrastructure/state/vars/*
+infrastructure/state/terraform.tfstate
+infrastructure/state/terraform.tfstate.backup
+!infrastructure/state/vars/terraform.tfvars
+
+#####################################################################
+# AWS / Cloud Functions
+#####################################################################
+.aws-sam
+cloud_functions/**/.aws-sam
+*privatekey.json
+
+#####################################################################
+# Docker
+#####################################################################
+.buildx-cache*
 /tmp/.buildx-cache*
 
-# Actual environment files (only examples should be committed)
-.env
-.env.*
-!.env.*.example
-
-# Generated configuration files
+#####################################################################
+# Generated Configuration Files
+#####################################################################
 *_config.json
 alb_configuration.json
 staging_instance_config.json
 production_instance_config.json
 
-# GitHub token files
+#####################################################################
+# Security / Secrets
+#####################################################################
 github_token.txt
+
+#####################################################################
+# Data Directory
+#####################################################################
+# Exclude data from source control by default (can override with git add -f)
+data/data/
