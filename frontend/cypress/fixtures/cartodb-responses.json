@@ -1,0 +1,34 @@
+{
+  "tileResponse": {
+    "layergroupid": "mock-layergroup-id-12345",
+    "cdn_url": {
+      "http": "cdn.resilienceatlas.org",
+      "https": "cdn.resilienceatlas.org"
+    },
+    "last_updated": "2024-01-01T00:00:00.000Z"
+  },
+  "boundsResponse": {
+    "rows": [
+      {
+        "minx": -180,
+        "miny": -90,
+        "maxx": 180,
+        "maxy": 90
+      }
+    ],
+    "time": 0.001,
+    "fields": {
+      "minx": { "type": "number" },
+      "miny": { "type": "number" },
+      "maxx": { "type": "number" },
+      "maxy": { "type": "number" }
+    },
+    "total_rows": 1
+  },
+  "emptyBoundsResponse": {
+    "rows": [],
+    "time": 0.001,
+    "fields": {},
+    "total_rows": 0
+  }
+}
