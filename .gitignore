@@ -10,7 +10,9 @@
 #####################################################################
 # Dependencies
 #####################################################################
+# Node.js dependencies (matches in any directory)
 node_modules/
+**/node_modules/
 /.pnp
 .pnp.js
 /.bundle
@@ -95,17 +97,17 @@ celerybeat-schedule.*
 
 # Environments
 .env
+.env.*
+.env-*
+!.env.sample
+!.env.*.example
+*.env
 .venv
 env/
 venv/
 ENV/
 env.bak/
 venv.bak/
-.env.*
-.env-*
-!.env.sample
-!.env.*.example
-*.env
 
 # Spyder/Rope
 .spyderproject
