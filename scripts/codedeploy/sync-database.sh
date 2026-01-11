@@ -47,6 +47,13 @@ PROD_DB_NAME=$(echo "$PRODUCTION_DATABASE_URL" | sed -n 's/.*\/\([^?]*\).*/\1/p'
 # Set default port if not specified
 PROD_DB_PORT=${PROD_DB_PORT:-5432}
 
+# Translate host.docker.internal to localhost for host-based scripts
+# (host.docker.internal is used in Docker containers, but this script runs on the host)
+if [ "$PROD_DB_HOST" = "host.docker.internal" ]; then
+    log_info "Translating host.docker.internal to localhost for host-based access"
+    PROD_DB_HOST="localhost"
+fi
+
 log_info "Production database: $PROD_DB_HOST:$PROD_DB_PORT/$PROD_DB_NAME"
 
 # Test connection to production database
