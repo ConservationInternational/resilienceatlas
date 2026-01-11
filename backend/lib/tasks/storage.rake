@@ -50,6 +50,39 @@ namespace :storage do
     puts "Extraction complete: #{extracted_count} files extracted, #{skipped_count} files skipped (already present)"
   end
 
+  desc "Copy homepage/static page seed images to public/storage with fixed keys"
+  task setup_homepage_images: :environment do
+    require_relative "../../db/data/homepage_images"
+
+    puts "Setting up homepage seed images..."
+
+    # Load the homepage images configuration
+    HOMEPAGE_IMAGE_SOURCES.each do |key, source_relative_path|
+      source_path = Rails.root.join(source_relative_path)
+
+      unless File.exist?(source_path)
+        puts "Warning: Source image not found: #{source_path}"
+        next
+      end
+
+      # Determine the storage path using Active Storage's key-based directory structure
+      # First 2 characters of key, then next 2 characters, then the full key as filename
+      storage_dir = Rails.root.join("public", "storage", key[0, 2], key[2, 2])
+      storage_path = File.join(storage_dir, key)
+
+      if File.exist?(storage_path)
+        puts "Image already exists: #{key}"
+        next
+      end
+
+      FileUtils.mkdir_p(storage_dir)
+      FileUtils.cp(source_path, storage_path)
+      puts "Copied #{source_relative_path} -> #{storage_path}"
+    end
+
+    puts "Homepage seed images setup complete"
+  end
+
   desc "Initialize storage with seed data (called during deployment)"
   task initialize: :environment do
     puts "Initializing storage directories..."
@@ -70,5 +103,8 @@ namespace :storage do
 
     # Extract journey images if the archive exists
     Rake::Task["storage:extract_journey_images"].invoke
+
+    # Setup homepage images from app/assets
+    Rake::Task["storage:setup_homepage_images"].invoke
   end
 end

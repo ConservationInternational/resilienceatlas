@@ -1,3 +1,6 @@
+# Load homepage images configuration
+require_relative "data/homepage_images"
+
 # Only create seed data in development/production, not in test environment
 unless Rails.env.test?
   unless AdminUser.exists?(email: "admin@example.com")
@@ -23,6 +26,31 @@ unless Rails.env.test?
     puts "Created password-protected site scope (username: user, password: password)"
   end
 
+  # Setup homepage seed images (copies files to public/storage with fixed keys)
+  puts "Setting up homepage seed images..."
+  begin
+    # Copy all homepage images to Active Storage locations with fixed keys
+    HOMEPAGE_IMAGE_SOURCES.each do |key, source_relative_path|
+      source_path = Rails.root.join(source_relative_path)
+      next unless File.exist?(source_path)
+
+      # Determine the storage path using Active Storage's key-based directory structure
+      storage_dir = Rails.root.join("public", "storage", key[0, 2], key[2, 2])
+      storage_path = File.join(storage_dir, key)
+
+      unless File.exist?(storage_path)
+        FileUtils.mkdir_p(storage_dir)
+        FileUtils.cp(source_path, storage_path)
+        puts "Copied #{source_relative_path} -> #{storage_path}"
+      end
+    end
+  rescue => e
+    puts "Warning: Could not setup homepage images: #{e.message}"
+  end
+
+  # Create homepage seed blobs with fixed keys
+  create_homepage_seed_blobs!
+
   # Create homepage for Resilience Atlas site scope if it doesn't exist
   resilience_atlas_site_scope = SiteScope.find_by(id: 1)
   if resilience_atlas_site_scope && !Homepage.exists?(site_scope_id: resilience_atlas_site_scope.id)
@@ -33,10 +61,7 @@ unless Rails.env.test?
         position: 1
       )
 
-      # Path to the background image
-      image_path = Rails.root.join("app", "assets", "images", "home", "bg-welcome.jpg")
-
-      # Create homepage with proper Active Storage attachment
+      # Create homepage
       homepage = Homepage.new(
         site_scope_id: resilience_atlas_site_scope.id,
         homepage_journey_id: homepage_journey.id,
@@ -50,12 +75,14 @@ unless Rails.env.test?
       # Save without validation first to get a persisted record
       homepage.save!(validate: false)
 
-      # Now attach the image to the persisted record
-      homepage.background_image.attach(
-        io: File.open(image_path),
-        filename: "bg-welcome.jpg",
-        content_type: "image/jpeg"
-      )
+      # Attach the background image using the fixed blob key
+      blob = ActiveStorage::Blob.find_by(key: "seedhomebgwelcome0001")
+      if blob
+        homepage.background_image.attach(blob)
+        puts "Attached background image to homepage using fixed blob key"
+      else
+        puts "Warning: Could not find homepage background image blob"
+      end
 
       # Validate the record now that the image is attached
       homepage.valid? # This will populate errors if validation fails
@@ -66,8 +93,6 @@ unless Rails.env.test?
       end
     rescue => e
       puts "Error creating homepage: #{e.message}"
-      puts "Image path attempted: #{Rails.root.join("app", "assets", "images", "home", "bg-welcome.jpg")}"
-      puts "Image exists: #{File.exist?(Rails.root.join("app", "assets", "images", "home", "bg-welcome.jpg"))}"
       puts e.backtrace.first(5) if e.backtrace
     end
   end
@@ -75,9 +100,6 @@ unless Rails.env.test?
   # Create about static page if it doesn't exist
   unless StaticPage::Base.exists?(slug: "about")
     puts "Creating about static page..."
-
-    # Path to an image for the about page
-    about_image_path = Rails.root.join("app", "assets", "images", "about-hero.jpg")
 
     about_page = StaticPage::Base.new(
       slug: "about",
@@ -87,12 +109,14 @@ unless Rails.env.test?
     # Save without validation first to get a persisted record
     about_page.save!(validate: false)
 
-    # Attach the image to the persisted record
-    about_page.image.attach(
-      io: File.open(about_image_path),
-      filename: "about-hero.jpg",
-      content_type: "image/jpeg"
-    )
+    # Attach the image using the fixed blob key
+    blob = ActiveStorage::Blob.find_by(key: "seedabouthero000011")
+    if blob
+      about_page.image.attach(blob)
+      puts "Attached about hero image using fixed blob key"
+    else
+      puts "Warning: Could not find about hero image blob"
+    end
 
     # Validate the record now that the image is attached
     about_page.valid? # This will populate errors if validation fails
@@ -137,14 +161,14 @@ unless Rails.env.test?
   # Import journeys from journeys.rb if no journeys exist
   if Journey.count == 0
     puts "No journeys found, importing from journeys.rb..."
-    
+
     # First, extract journey images from the zip archive if it exists
     # This ensures the Active Storage files are in place before we create blob records
     zip_path = Rails.root.join("db", "data", "journey_images.zip")
     if File.exist?(zip_path)
       puts "Extracting journey images from archive..."
       begin
-        system("bundle exec rake storage:extract_journey_images") || 
+        system("bundle exec rake storage:extract_journey_images") ||
           puts("Note: Could not run rake task, will try inline extraction")
       rescue => e
         puts "Rake task failed: #{e.message}, trying inline extraction..."
@@ -166,7 +190,7 @@ unless Rails.env.test?
         puts "Inline extraction complete"
       end
     end
-    
+
     journeys_file = Rails.root.join("db", "data", "journeys.rb")
     if File.exist?(journeys_file)
       # Import journeys with custom handling for the at_least_one_step validation
