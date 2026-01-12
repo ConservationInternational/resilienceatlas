@@ -57,6 +57,18 @@
       background-color: $bg-color-1;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
       border-radius: 0 4px 4px 0;
+      
+      // Add a visible icon/indicator
+      &:before {
+        content: '☰';  // Hamburger icon
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 20px;
+        color: $gray-70;
+        display: none;  // Hide by default, show when collapsed
+      }
 
       .is-collapsed & {
         // When collapsed, position button on the left edge of screen
@@ -64,6 +76,15 @@
         left: 0;
         right: auto;
         top: 10px;
+        z-index: 1001; // Above other elements
+        
+        &:before {
+          display: block;  // Show hamburger icon when collapsed
+        }
+        
+        &:after {
+          display: none;  // Hide arrow when collapsed
+        }
       }
 
       &:after {
