@@ -80,7 +80,11 @@ const Header = ({
         <button
           className={cx('mobile-menu-toggle', { 'is-open': mobileMenuOpen })}
           onClick={toggleMobileMenu}
-          aria-label={mobileMenuOpen ? translations['Close menu'] : translations['Open menu']}
+          aria-label={
+            mobileMenuOpen
+              ? translations?.['Close menu'] || 'Close menu'
+              : translations?.['Open menu'] || 'Open menu'
+          }
           type="button"
         >
           <span />
