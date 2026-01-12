@@ -578,7 +578,7 @@ a.nav-current-forced:hover {
       }
 
       // Keep language switcher always visible
-      &:not(.-resilience) {
+      &:not(.-resilience):not(.-vital-sign) {
         display: block;
         position: absolute;
         top: rem(10px);
@@ -599,6 +599,11 @@ a.nav-current-forced:hover {
             left: auto;
           }
         }
+      }
+      
+      // Hide vital signs link on mobile
+      &.-vital-sign {
+        display: none;
       }
     }
   }
