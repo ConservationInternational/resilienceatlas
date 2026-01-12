@@ -58,16 +58,20 @@
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
       border-radius: 0 4px 4px 0;
       
-      // Add a visible icon/indicator
+      // Create hamburger icon with CSS bars
       &:before {
-        content: '☰';  // Hamburger icon
+        content: '';
         position: absolute;
         left: 50%;
         top: 50%;
         transform: translate(-50%, -50%);
-        font-size: 20px;
-        color: $gray-70;
+        width: rem(20px);
+        height: rem(2px);
+        background-color: $gray-70;
         display: none;  // Hide by default, show when collapsed
+        box-shadow: 
+          0 rem(-6px) 0 $gray-70,
+          0 rem(6px) 0 $gray-70;
       }
 
       .is-collapsed & {
@@ -75,7 +79,7 @@
         position: fixed;
         left: 0;
         right: auto;
-        top: 10px;
+        top: rem(70px);  // Position below header
         z-index: 1001; // Above other elements
         
         &:before {
@@ -87,8 +91,13 @@
         }
       }
 
+      // Hide arrow by default on mobile, show when expanded
       &:after {
         @include arrow(10px, $gray-70, 2px, -45deg);
+        
+        .is-collapsed & {
+          display: none;
+        }
       }
     }
   }
