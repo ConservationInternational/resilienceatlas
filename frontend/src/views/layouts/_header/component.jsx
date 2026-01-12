@@ -232,9 +232,7 @@ const Header = ({
           ) : null}
 
           {/* Language switcher in mobile menu */}
-          <li className="language-switcher">
-            <LanguageSwitcher translations={translations} />
-          </li>
+          <LanguageSwitcher translations={translations} />
         </ul>
 
         <ul className="nav-area -vital-sign">
