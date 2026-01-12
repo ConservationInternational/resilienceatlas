@@ -157,6 +157,12 @@ yarn-error.log*
 !/public/storage/.keep
 /public/packs
 /public/packs-test
+# Backend public storage and uploads
+backend/public/storage/*
+!backend/public/storage/.keep
+backend/public/uploads/*
+!backend/public/uploads/.keep
+backend/tmp/
 
 # Yarn
 .yarn-integrity
@@ -168,6 +174,11 @@ yarn-error.log*
 /out
 /next-env.d.ts
 /gcloud
+# Frontend directory paths
+frontend/.next/
+frontend/out/
+frontend/next-env.d.ts
+frontend/node_modules/
 
 # Testing
 /coverage
