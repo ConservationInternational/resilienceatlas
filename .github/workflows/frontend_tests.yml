@@ -42,7 +42,7 @@ jobs:
     
     - name: Install dependencies
       working-directory: frontend
-      run: npm ci --legacy-peer-deps --no-audit --no-fund
+      run: npm ci --no-audit --no-fund
     
     - name: Run ESLint
       if: matrix.suite == 'lint'
@@ -78,7 +78,7 @@ jobs:
     
     - name: Install dependencies
       working-directory: frontend
-      run: npm ci --legacy-peer-deps --no-audit --no-fund
+      run: npm ci --no-audit --no-fund
     
     - name: Build application
       working-directory: frontend

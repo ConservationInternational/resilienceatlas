@@ -175,8 +175,8 @@ steps:
       npm config set fetch-retry-maxtimeout 60000
       npm config set fetch-retries 5
       
-      # Install with legacy peer deps flag for compatibility
-      npm install --legacy-peer-deps --no-audit --no-fund
+      # Install frontend dependencies
+      npm install --no-audit --no-fund
       
       echo "✅ Frontend dependencies installed locally"
       echo "Local development ready for: npm run dev, npm run build, npm run lint"

@@ -73,7 +73,7 @@ For faster development iteration, you can run only the database in Docker while 
 3. **Start the frontend** (requires Node.js 24.0.0)
    ```bash
    cd frontend
-   npm install --legacy-peer-deps
+   npm install
    npm run dev
    ```
 

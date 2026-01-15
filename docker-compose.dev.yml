@@ -70,7 +70,7 @@ services:
     command: >
       bash -c "
         git config --global url.https://github.com/.insteadOf ssh://git@github.com/ &&
-        npm install --legacy-peer-deps &&
+        npm install &&
         npm run dev"
 
 networks:
