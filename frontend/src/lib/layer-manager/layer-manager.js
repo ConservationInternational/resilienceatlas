@@ -365,7 +365,9 @@ class LayerManager {
         delete this.pendingRequests[promiseHash];
         // Mark bounds request as failed to prevent infinite retries
         this.failedLayers[promiseHash] = { error, timestamp: Date.now() };
-        console.error(`Error loading bounds for layer ${layerModel.id}:`, error);
+        // Use console.warn instead of console.error since bounds errors are non-critical
+        // The layer will still render without bounds data (bounds are only used for "zoom to fit")
+        console.warn(`Bounds request failed for layer ${layerModel.id} (${layerModel.name || 'unnamed'}), but layer will still render.`);
 
         // Call error callback if provided (bounds errors are less critical, include context)
         if (this.onLayerError) {

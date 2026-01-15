@@ -46,7 +46,7 @@ gem "rollbar", "~> 3.6"
 gem "seed_dump", "~> 3.3"
 gem "active_admin_theme", "~> 1.1"
 gem "sparkpost_rails", github: "sportstech/sparkpost_rails" # Rails 7 support
-gem "rubyzip", "~> 2.4"
+gem "rubyzip", "~> 3.0"
 gem "prawn", "~> 2.5"
 gem "prawn-table", "~> 0.2"
 gem "standard", "~> 1.45"
@@ -57,7 +57,6 @@ gem "ostruct", "~> 0.6"
 gem "globalize", "~> 7.0"
 
 # Ordering and Tree structure for menus
-gem "active_admin-sortable_tree", "~> 2.1"
 gem "ancestry", "~> 4.3"
 gem "acts_as_list", "~> 1.2"
 gem "factory_bot_rails", "~> 6.4"

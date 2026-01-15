@@ -1,11 +1,19 @@
 ActiveAdmin.register MapMenuEntry do
   includes :translations
-  sortable tree: true
+  config.sort_order = "position_asc"
   permit_params :link, :ancestry, :position,
     translations_attributes: [:id, :locale, :label, :_destroy]
 
-  index as: :sortable do
-    label :label
+  index do
+    selectable_column
+    column :position
+    column :label do |entry|
+      # Indent based on ancestry depth to show hierarchy
+      indent = "&nbsp;&nbsp;&nbsp;&nbsp;" * entry.depth
+      (indent + entry.label).html_safe
+    end
+    column :link
+    column :ancestry
     actions
   end
 

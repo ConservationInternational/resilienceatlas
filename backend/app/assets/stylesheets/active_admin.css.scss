@@ -13,8 +13,8 @@
 @import "active_admin/base";
 @import "trix";
 @import "wigu/active_admin_theme";
-// @import "activeadmin-sortable";
-@import "active_admin/sortable";
+// @import "activeadmin-sortable"; // Removed - gem deprecated
+// @import "active_admin/sortable"; // Removed - gem deprecated
 @import 'activeadmin_addons/all';
 @import "admin/has_many_collapsable";
 

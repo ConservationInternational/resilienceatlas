@@ -85,11 +85,12 @@ export const layer = new schema.Entity(
           account: 'cdb',
         },
         // XYZ tileset layers - url can be at root level or nested in body
+        // If no url in layer_config, fallback to query field
         'xyz tileset': {
           type: 'tileLayer',
           body: {
             ...(layerConfig?.body || {}),
-            url: layerConfig?.body?.url || layerConfig?.url,
+            url: layerConfig?.body?.url || layerConfig?.url || l.attributes.query,
           },
         },
         // GEE layers - ensure body property exists
