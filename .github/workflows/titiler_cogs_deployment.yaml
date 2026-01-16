@@ -47,14 +47,14 @@ jobs:
           BRANCH_NAME=$(echo ${GITHUB_REF##*/} | tr -cd '[a-zA-Z0-9-]')
           echo "stack_name=${BRANCH_NAME}" >> $GITHUB_OUTPUT
           echo "fqdn=${BRANCH_NAME}.${{ env.TITILER_DOMAIN }}" >> $GITHUB_OUTPUT
-          echo "image_repo=${{ secrets.ECR_REGISTRY }}/titiler-cogs" >> $GITHUB_OUTPUT
+          echo "image_repo=${{ secrets.TITILER_ECR_REGISTRY }}/titiler-cogs" >> $GITHUB_OUTPUT
           echo "artifacts_bucket=${{ secrets.SAM_ARTIFACTS_BUCKET }}" >> $GITHUB_OUTPUT
 
       - name: Configure AWS credentials via OIDC
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
-          aws-region: ${{ vars.AWS_REGION }}
+          role-to-assume: ${{ secrets.AWS_OIDC_ROLE_ARN }}
+          aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Install AWS SAM CLI
         uses: aws-actions/setup-sam@v2
@@ -69,7 +69,7 @@ jobs:
           sam deploy --stack-name ${{ steps.config.outputs.stack_name }} \
             --parameter-overrides FQDN=${{ steps.config.outputs.fqdn }} ZoneId=${{ secrets.ROUTE53_ZONE_ID }} \
             --capabilities CAPABILITY_IAM \
-            --region ${{ vars.AWS_REGION }} \
+            --region ${{ secrets.AWS_REGION }} \
             --s3-bucket ${{ steps.config.outputs.artifacts_bucket }} \
             --image-repository ${{ steps.config.outputs.image_repo }} \
             --no-fail-on-empty-changeset
@@ -92,14 +92,14 @@ jobs:
         run: |
           echo "stack_name=titiler-cogs-production" >> $GITHUB_OUTPUT
           echo "fqdn=${{ env.TITILER_DOMAIN }}" >> $GITHUB_OUTPUT
-          echo "image_repo=${{ secrets.ECR_REGISTRY }}/titiler-cogs" >> $GITHUB_OUTPUT
+          echo "image_repo=${{ secrets.TITILER_ECR_REGISTRY }}/titiler-cogs" >> $GITHUB_OUTPUT
           echo "artifacts_bucket=${{ secrets.SAM_ARTIFACTS_BUCKET }}" >> $GITHUB_OUTPUT
 
       - name: Configure AWS credentials via OIDC
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
-          aws-region: ${{ vars.AWS_REGION }}
+          role-to-assume: ${{ secrets.AWS_OIDC_ROLE_ARN }}
+          aws-region: ${{ secrets.AWS_REGION }}
 
       - uses: aws-actions/setup-sam@v2
         with:
@@ -113,7 +113,7 @@ jobs:
           sam deploy --stack-name ${{ steps.config.outputs.stack_name }} \
             --parameter-overrides FQDN=${{ steps.config.outputs.fqdn }} ZoneId=${{ secrets.ROUTE53_ZONE_ID }} \
             --capabilities CAPABILITY_IAM \
-            --region ${{ vars.AWS_REGION }} \
+            --region ${{ secrets.AWS_REGION }} \
             --s3-bucket ${{ steps.config.outputs.artifacts_bucket }} \
             --image-repository ${{ steps.config.outputs.image_repo }} \
             --no-fail-on-empty-changeset
