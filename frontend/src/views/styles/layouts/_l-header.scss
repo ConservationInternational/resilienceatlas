@@ -726,19 +726,56 @@ a.nav-current-forced:hover {
       padding: 0;
       background-color: rgba($gray-medium, 0.05);
       
-      li {
+      > li {
         display: block;
         
-        a, span {
+        > a, > span {
           display: block;
           padding: rem(12px) rem(20px);
           color: #333333;
           text-decoration: none;
           font-size: rem(14px);
           border-bottom: 1px solid rgba($gray-medium, 0.1);
+          cursor: pointer;
           
           &:hover {
             background-color: rgba($gray-medium, 0.1);
+          }
+          
+          .mobile-expand-indicator {
+            float: right;
+            font-size: rem(10px);
+            color: $gray-medium;
+          }
+        }
+        
+        &.is-expanded > a,
+        &.is-expanded > span {
+          background-color: rgba($gray-medium, 0.1);
+          font-weight: 500;
+        }
+      }
+    }
+    
+    .mobile-submenu-nested {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      background-color: rgba($gray-medium, 0.1);
+      
+      li {
+        display: block;
+        
+        a, span {
+          display: block;
+          padding: rem(10px) rem(30px);
+          color: #555555;
+          text-decoration: none;
+          font-size: rem(13px);
+          border-bottom: 1px solid rgba($gray-medium, 0.1);
+          
+          &:hover {
+            background-color: rgba($gray-medium, 0.15);
           }
         }
       }
