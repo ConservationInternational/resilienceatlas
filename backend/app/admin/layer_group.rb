@@ -36,13 +36,13 @@ ActiveAdmin.register LayerGroup do
       f.input :layer_group_type, as: :select, collection: %w[group category subcategory subgroup]
       f.input :super_group,
         as: :select,
-        collection: proc {
+        collection: begin
           site_scope_id = f.object.site_scope_id || 1
           LayerGroup.with_translations
             .where(site_scope_id: site_scope_id)
             .sort_by(&:name)
             .map { |lg| ["#{lg.name} - #{lg.id}", lg.id] }
-        },
+        end,
         input_html: {"data-site-scope-groups": LayerGroup.with_translations.group_by(&:site_scope_id).transform_values { |groups|
           groups.sort_by(&:name).map { |lg| {id: lg.id, name: "#{lg.name} - #{lg.id}"} }
         }.to_json}
