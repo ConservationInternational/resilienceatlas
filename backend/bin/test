@@ -32,12 +32,12 @@ if command -v sudo >/dev/null 2>&1; then
   ownership_fixed=true
   permissions_fixed=true
   
-  sudo chown -R $(whoami):$(whoami) public/storage public/uploads downloads storage log 2>/dev/null || {
+  sudo chown -R $(whoami):$(whoami) public/storage public/uploads downloads storage log tmp/storage tmp/cache 2>/dev/null || {
     echo "Could not fix ownership"
     ownership_fixed=false
   }
   
-  sudo chmod -R 775 public/storage public/uploads downloads storage log 2>/dev/null || {
+  sudo chmod -R 775 public/storage public/uploads downloads storage log tmp/storage tmp/cache 2>/dev/null || {
     echo "Could not fix permissions"
     permissions_fixed=false
   }
@@ -49,8 +49,8 @@ if command -v sudo >/dev/null 2>&1; then
   fi
 else
   echo "⚠️ sudo not available, attempting permission fix without sudo..."
-  chown -R $(whoami):$(whoami) public/storage public/uploads downloads storage log 2>/dev/null || echo "Cannot fix ownership without sudo"
-  chmod -R 775 public/storage public/uploads downloads storage log 2>/dev/null || echo "Cannot fix permissions without sudo"
+  chown -R $(whoami):$(whoami) public/storage public/uploads downloads storage log tmp/storage tmp/cache 2>/dev/null || echo "Cannot fix ownership without sudo"
+  chmod -R 775 public/storage public/uploads downloads storage log tmp/storage tmp/cache 2>/dev/null || echo "Cannot fix permissions without sudo"
 fi
 
 # Specifically fix upload directories for photos
@@ -86,7 +86,7 @@ if [ ! -w "tmp" ] || [ ! -w "tmp/" ]; then
 fi
 
 # Check and fix other required directories
-for dir in public/storage public/uploads public/uploads/cache public/uploads/store downloads storage log; do
+for dir in public/storage public/uploads public/uploads/cache public/uploads/store downloads storage log tmp/storage tmp/cache; do
   if [ -d "$dir" ] && [ ! -w "$dir" ]; then
     echo "⚠️  $dir directory not writable, attempting to fix permissions..."
     if command -v sudo >/dev/null 2>&1; then
@@ -128,7 +128,7 @@ else
 fi
 
 # Test other critical directories
-for dir in public/storage public/uploads/cache downloads log; do
+for dir in public/storage public/uploads/cache downloads log tmp/storage; do
   if [ -d "$dir" ]; then
     if echo "test" > "$dir/write_test.tmp" 2>/dev/null; then
       rm -f "$dir/write_test.tmp" 2>/dev/null || true
