@@ -1,7 +1,9 @@
 FROM public.ecr.aws/lambda/python:3.11
 
 COPY requirements.txt ./
-RUN python3.11 -m pip install -r requirements.txt -t .
+
+# Use binary wheels only for numpy to avoid compilation issues
+RUN python3.11 -m pip install --only-binary=numpy -r requirements.txt -t .
 
 COPY app.py ./
 
