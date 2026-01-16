@@ -96,7 +96,7 @@ ActiveAdmin.register LayerGroup do
           });
         </script>
       JAVASCRIPT
-      
+
       f.template.content_tag(:div, script_tag.html_safe)
     end
   end
