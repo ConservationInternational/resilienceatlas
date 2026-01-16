@@ -3,8 +3,6 @@ ActiveAdmin.register Indicator do
   config.sort_order = "position_asc"
   config.paginate = false
 
-  sortable
-
   permit_params :slug, :version, :position, :column_name, :operation, :category_id, model_ids: [],
     translations_attributes: [:id, :locale, :name, :_destroy]
 
@@ -18,10 +16,13 @@ ActiveAdmin.register Indicator do
   filter :created_at
   filter :updated_at
 
-  index as: :sortable do
-    label :label do |indicator|
-      "#{indicator.name} - #{indicator.category&.name}"
-    end
+  index do
+    selectable_column
+    column :position, sortable: :position
+    column :name
+    column :category
+    column :slug
+    column :version
     actions
   end
 

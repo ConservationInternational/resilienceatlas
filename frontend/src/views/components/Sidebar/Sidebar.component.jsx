@@ -67,6 +67,23 @@ const Sidebar = ({
     );
   };
 
+  // Close sidebar when clicking backdrop on mobile
+  const handleBackdropClick = useCallback(
+    (e) => {
+      // Mobile breakpoint constant matching SCSS $breakpoint-mobile
+      const MOBILE_BREAKPOINT = 767;
+
+      // Only handle backdrop clicks on mobile
+      if (window.innerWidth <= MOBILE_BREAKPOINT && opened) {
+        // Check if click is on the backdrop (outside the sidebar content)
+        if (e.target.classList.contains('l-sidebar--fullscreen')) {
+          toggleOpen();
+        }
+      }
+    },
+    [opened, toggleOpen],
+  );
+
   const displayFeedbackButton = !subdomain;
 
   return (
@@ -75,8 +92,17 @@ const Sidebar = ({
         'is-collapsed': !opened,
         analyzing: analysisOpened,
       })}
+      onClick={handleBackdropClick}
     >
-      <div className="l-sidebar-content">
+      {/* Mobile toggle button - outside l-sidebar-content so it's always visible */}
+      <button
+        className={cx('btn-sidebar-toggle', { 'is-collapsed': !opened })}
+        type="button"
+        onClick={toggleOpen}
+        aria-label={translations && translations['Toggle sidebar']}
+      />
+      
+      <div className="l-sidebar-content" onClick={(e) => e.stopPropagation()}>
         {site?.has_analysis && <AnalysisPanel toggle={toggleAnalysis} />}
 
         <div className="m-sidebar" id="sidebarView">
@@ -152,12 +178,7 @@ const Sidebar = ({
             </p>
           </div>
         </div>
-        <button
-          className="btn-sidebar-toggle"
-          type="button"
-          onClick={toggleOpen}
-          aria-label={translations && translations['Toggle sidebar']}
-        />
+
         {hasMounted && site?.has_analysis && (
           <button
             className="btn-analysis-panel-expand"

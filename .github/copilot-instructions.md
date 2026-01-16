@@ -21,7 +21,7 @@ Always reference these instructions first and fallback to search or bash command
 - **NEVER CANCEL**: Initial Docker builds take 5-15 minutes depending on network conditions. Set timeout to 25+ minutes.
 
 ### Frontend Development (Next.js 16.0.0 + React 19.0.0 + TypeScript)
-- **Dependencies**: `cd frontend && npm install --legacy-peer-deps` - takes 5+ minutes. NEVER CANCEL. Set timeout to 10+ minutes.
+- **Dependencies**: `cd frontend && npm install` - takes 5+ minutes. NEVER CANCEL. Set timeout to 10+ minutes.
 - **Linting**: `./bin/test lint` - takes ~13 seconds, may show TypeScript `any` type warnings (normal)
 - **Type check**: `./bin/test type-check` - takes ~6 seconds
 - **Prettier**: `./bin/test prettier` - takes ~3 seconds  
@@ -93,7 +93,7 @@ The Dockerfiles include retry logic, but network configuration may be needed in 
 ### Quick Development Validation
 For rapid development without full Docker builds:
 1. **Environment setup**: Verify env files exist and have proper values
-2. **Frontend dependencies**: `cd frontend && npm install --legacy-peer-deps` (5+ minutes)
+2. **Frontend dependencies**: `cd frontend && npm install` (5+ minutes)
 3. **Frontend build**: `cd frontend && ./bin/test build` (~1 minute)
 4. **Frontend linting**: `cd frontend && ./bin/test lint` (~13 seconds)
 5. **Database**: `docker compose -f docker-compose.dev.yml up -d db` (30 seconds to ready)
@@ -114,7 +114,7 @@ Full validation should be done for major changes:
 - **Docker**: Required for all development and testing
 
 ### Package Manager Commands
-- **Frontend**: `npm install --legacy-peer-deps` (legacy flag required for dependency compatibility)
+- **Frontend**: `npm install` (package.json overrides resolve all peer dependency conflicts)
 - **Backend**: `bundle install` (with retry logic for network resilience)
 - **Docker**: Use buildx for enhanced build features
 
@@ -132,7 +132,7 @@ Full validation should be done for major changes:
 - **DNS resolution errors**: Configure DNS as shown in Network Configuration section
 - **Network timeouts**: Builds include retry logic, wait for completion - NEVER CANCEL
 - **Chrome installation failures**: System tests require Chrome + Xvfb in Docker - full build can take 20+ minutes
-- **Dependency conflicts**: Use `--legacy-peer-deps` for npm, check Ruby/Node versions
+- **Dependency conflicts**: Check Ruby/Node versions, verify package.json overrides are correctly configured
 - **Package installation errors**: System dependencies may require multiple attempts, builds will retry automatically
 
 ### Runtime Issues  
@@ -163,7 +163,7 @@ cp backend/.env.sample backend/.env
 ### 2. Quick Validation (5-10 minutes)
 ```bash
 # Install frontend dependencies - NEVER CANCEL, takes 5+ minutes
-cd frontend && npm install --legacy-peer-deps
+cd frontend && npm install
 
 # Test frontend builds and checks - takes ~1 minute total
 ./bin/test type-check && ./bin/test prettier && ./bin/test build

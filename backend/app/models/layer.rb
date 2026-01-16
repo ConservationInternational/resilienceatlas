@@ -224,7 +224,7 @@ class Layer < ApplicationRecord
 
     layer_file = URI.parse(layer_url.to_s).open if layer_url
 
-    ::Zip::OutputStream.open(zipfile) do |zip|
+    ::Zip::OutputStream.open(file_name: zipfile) do |zip|
       if layer_file
         layer_name = file_name || "#{name.parameterize}-extra"
         zip.put_next_entry("#{layer_name}.#{file_format}")

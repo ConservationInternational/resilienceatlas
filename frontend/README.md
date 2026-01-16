@@ -23,7 +23,7 @@ In order to start modifying the app, please make sure to correctly configure you
 4. Configure your text editor with the [Prettier](https://prettier.io/), [ESLint](https://eslint.org/) and [EditorConfig](https://editorconfig.org/) plugins
 5. (Optional) Configure your editor to “format [code] on save” with ESLint and Prettier
 6. Use the correct Node.js version for this app by running `nvm use`; if you didn't install NVM (step 2), then manually install Node.js v22.11.0 as described in `.nvmrc`
-7. Install the dependencies: `npm install --legacy-peer-deps` or `yarn`
+7. Install the dependencies: `npm install` or `yarn`
 8. Create a `.env` file at the root of the project by copying `.env.example` and giving a value for each of the variables (see next section for details)
 9. Run the server: `npm run dev` or `yarn dev`
 

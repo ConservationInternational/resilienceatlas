@@ -225,3 +225,50 @@
   height: 20px;
   flex-shrink: 0;
 }
+
+// Mobile responsive styles for map controls
+@media screen and (max-width: $breakpoint-mobile) {
+  .leaflet-control-zoom {
+    top: rem(80px);
+    right: rem(10px);
+  }
+
+  .leaflet-bar a {
+    width: rem($mobile-touch-target-size);
+    height: rem($mobile-touch-target-size);
+
+    &:hover {
+      width: rem($mobile-touch-target-size);
+      height: rem($mobile-touch-target-size);
+    }
+  }
+
+  .c-map-controls {
+    top: rem(70px);
+    right: rem(10px);
+  }
+
+  .c-zoom-control {
+    .zoom-control-btn {
+      width: rem($mobile-touch-target-size);
+      height: rem($mobile-touch-target-size);
+
+      .icon {
+        width: 18px;
+        height: 18px;
+      }
+    }
+  }
+
+  .wri_api__c-map-controls {
+    top: rem(70px);
+    right: rem(10px);
+  }
+
+  .wri_api__map-controls-list-item {
+    button {
+      width: rem($mobile-touch-target-size);
+      height: rem($mobile-touch-target-size);
+    }
+  }
+}

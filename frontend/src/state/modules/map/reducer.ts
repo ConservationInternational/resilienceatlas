@@ -37,13 +37,16 @@ export interface MapState {
   geojson?: GeoJSONFeature | null;
 }
 
+// Use consistent defaults for initial state to prevent hydration mismatch.
+// The actual URL params and subdomain-based values are synced after hydration
+// via the useRouterValue hooks in the Basemaps component.
 const initialState: MapState = {
   drawing: false,
   // geojson: getRouterParam('geojson', JSON.parse),
   bounds: null,
-  iso: getRouterParam('iso'),
-  basemap: getRouterParam('basemap') || (subdomain === 'atlas' ? 'satellite' : 'defaultmap'),
-  labels: (getRouterParam('labels') as (typeof MAP_LABELS)[number]) || 'none',
+  iso: null,
+  basemap: 'defaultmap',
+  labels: 'none',
   layerGroupsInteraction: {},
   layerGroupsInteractionSelected: null,
   layerGroupsInteractionLatLng: null,

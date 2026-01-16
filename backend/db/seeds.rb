@@ -183,7 +183,7 @@ unless Rails.env.test?
               FileUtils.mkdir_p(target_path)
             else
               FileUtils.mkdir_p(File.dirname(target_path))
-              entry.extract(target_path) { true } unless File.exist?(target_path)
+              entry.extract(dest_path: target_path, overwrite: true) unless File.exist?(target_path)
             end
           end
         end

@@ -30,7 +30,7 @@ COPY package.json package-lock.json .npmrc ./
 FROM base AS deps
 # Install production dependencies with npm cache mount for faster builds
 RUN --mount=type=cache,target=/root/.npm \
-    npm ci --only=production --legacy-peer-deps --no-audit --no-fund \
+    npm ci --only=production --no-audit --no-fund \
   && echo "✅ Production dependencies installed successfully"
 
 # Development/Test dependencies
@@ -40,7 +40,7 @@ ENV CYPRESS_INSTALL_BINARY=0
 
 # Install all dependencies with npm cache mount for faster builds
 RUN --mount=type=cache,target=/root/.npm \
-    npm ci --legacy-peer-deps --no-audit --no-fund \
+    npm ci --no-audit --no-fund \
   && echo "🔍 Verifying node_modules exists..." \
   && ls -la /app/node_modules/ | head -5 \
   && echo "✅ node_modules verified"

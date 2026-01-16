@@ -466,3 +466,81 @@ li[data-id='38'] .item span {
     min-width: 80px;
   }
 }
+
+// Mobile responsive styles for legend
+@media screen and (max-width: $breakpoint-mobile) {
+  .m-legend {
+    // Adjust positioning and width for mobile
+    width: 100%;
+    max-width: 100vw;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: rem(10px);
+    box-shadow: 0 -2px 8px 0 rgba(0, 0, 0, 0.15);
+
+    .wrapper {
+      max-height: rem(200px); // Reduced height on mobile
+    }
+
+    .m-legend__header {
+      .title {
+        font-size: 12px;
+      }
+    }
+
+    .m-legend__list {
+      .drag-items {
+        padding: rem(8px);
+
+        header {
+          display: flex;
+          flex-wrap: nowrap;
+          align-items: center;
+          gap: 8px;
+
+          .draggable-icon {
+            position: static;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 24px;
+            min-height: 36px;
+            padding: 4px 8px;
+
+            svg {
+              width: 8px;
+              height: 24px;
+            }
+          }
+
+          h3 {
+            font-size: 13px;
+            flex: 1;
+            min-width: 0;
+            padding: 0;
+            margin: 0;
+          }
+
+          .actions {
+            flex-shrink: 0;
+            margin-left: auto;
+          }
+        }
+      }
+    }
+
+    .source-container {
+      margin: 8px 0 0 8px;
+      font-size: 11px;
+    }
+  }
+}
+
+// Tablet responsive styles
+@media screen and (min-width: $breakpoint-tablet-min) and (max-width: $breakpoint-tablet-max) {
+  .m-legend {
+    width: rem(300px);
+  }
+}

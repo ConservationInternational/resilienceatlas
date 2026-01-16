@@ -70,5 +70,27 @@
     .is-bare & {
       bottom: 140px;
     }
+
+    // Mobile: Optimize scrolling area
+    @media screen and (max-width: $breakpoint-mobile) {
+      top: 49px;
+      bottom: 60px; // More space for mobile safari bottom bar
+      width: 100%;
+    }
+  }
+
+  // Mobile: Adjust tabs for better touch targets
+  @media screen and (max-width: $breakpoint-mobile) {
+    .tabs {
+      padding-top: 12px;
+      padding-left: 12px;
+    }
+
+    .tab-title {
+      a {
+        padding: 12px 24px; // Larger touch target
+        font-size: 14px; // Slightly larger text
+      }
+    }
   }
 }
