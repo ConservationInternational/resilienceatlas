@@ -178,7 +178,7 @@ class PluginLeaflet {
       mapLayer.eachLayer((l) => {
         if (l.reDraw) l.reDraw({ decodeParams, decodeFunction, params, sqlParams });
       });
-    } else {
+    } else if (mapLayer.reDraw) {
       mapLayer.reDraw({ decodeParams, decodeFunction, params, sqlParams });
     }
 
