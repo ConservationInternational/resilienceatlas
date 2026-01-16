@@ -16,28 +16,45 @@ on:
         description: 'Branch to deploy'
         required: false
         type: string
+
+env:
+  # Base values - environment suffix added dynamically
+  TITILER_DOMAIN: titiler.resilienceatlas.org
+  SAM_TEMPLATE: cloud_functions/titiler_cogs/template.yaml
+
+# Required for OIDC authentication with AWS
+permissions:
+  id-token: write
+  contents: read
+
 jobs:
   build-and-deploy-feature-branch:
     if: github.ref != 'refs/heads/main' && !inputs.deploy_main
     name: Deploy develop/feature branch stack to AWS
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
+    environment: staging
+    env:
+      ENVIRONMENT: staging
     steps:
       - name: Checkout the code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           ref: ${{ inputs.branch || github.ref }}
 
-      - name: Signing in to AWS
-        uses: aws-actions/configure-aws-credentials@v2
+      - name: Set environment-specific variables
+        id: config
+        run: |
+          BRANCH_NAME=$(echo ${GITHUB_REF##*/} | tr -cd '[a-zA-Z0-9-]')
+          echo "stack_name=${BRANCH_NAME}" >> $GITHUB_OUTPUT
+          echo "fqdn=${BRANCH_NAME}.${{ env.TITILER_DOMAIN }}" >> $GITHUB_OUTPUT
+          echo "image_repo=${{ secrets.ECR_REGISTRY }}/titiler-cogs" >> $GITHUB_OUTPUT
+          echo "artifacts_bucket=${{ secrets.SAM_ARTIFACTS_BUCKET }}" >> $GITHUB_OUTPUT
+
+      - name: Configure AWS credentials via OIDC
+        uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets.PIPELINE_USER_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.PIPELINE_USER_SECRET_ACCESS_KEY }}
-          aws-region: ${{ vars.REGION }}
-          role-to-assume: ${{ secrets.PIPELINE_EXECUTION_ROLE }}
-          role-session-name: feature-deployment
-          role-duration-seconds: 3600
-          role-skip-session-tagging: true
-          mask-aws-account-id: false
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
 
       - name: Install AWS SAM CLI
         uses: aws-actions/setup-sam@v2
@@ -45,56 +62,58 @@ jobs:
           use-installer: true
 
       - name: Build SAM template
-        run: sam build --template ${{ vars.SAM_TEMPLATE }} --use-container
+        run: sam build --template ${{ env.SAM_TEMPLATE }} --use-container
 
-      - name: Deploy to feature stack in the testing account
-        shell: bash
+      - name: Deploy to feature stack
         run: |
-          sam deploy --stack-name $(echo ${GITHUB_REF##*/} | tr -cd '[a-zA-Z0-9-]') \
-            --parameter-overrides FQDN=$(echo ${GITHUB_REF##*/} | tr -cd '[a-zA-Z0-9-]').${{ vars.FQDN }} ZoneId=${{ secrets.ROUTE53_ZONE_ID }} \
+          sam deploy --stack-name ${{ steps.config.outputs.stack_name }} \
+            --parameter-overrides FQDN=${{ steps.config.outputs.fqdn }} ZoneId=${{ secrets.ROUTE53_ZONE_ID }} \
             --capabilities CAPABILITY_IAM \
-            --region ${{ vars.REGION }} \
-            --s3-bucket ${{ secrets.ARTIFACTS_BUCKET }} \
-            --image-repository ${{ secrets.IMAGE_REPOSITORY }} \
-            --no-fail-on-empty-changeset \
-            --role-arn ${{ secrets.CLOUDFORMATION_EXECUTION_ROLE }}
+            --region ${{ vars.AWS_REGION }} \
+            --s3-bucket ${{ steps.config.outputs.artifacts_bucket }} \
+            --image-repository ${{ steps.config.outputs.image_repo }} \
+            --no-fail-on-empty-changeset
 
   build-and-deploy-production:
     name: Deploy the production stack to AWS
     if: github.ref == 'refs/heads/main' || inputs.deploy_main
-
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
+    environment: production
+    env:
+      ENVIRONMENT: production
     steps:
       - name: Checkout the code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           ref: ${{ inputs.branch || github.ref }}
 
-      - name: Signing in to AWS
-        uses: aws-actions/configure-aws-credentials@v2
+      - name: Set environment-specific variables
+        id: config
+        run: |
+          echo "stack_name=titiler-cogs-production" >> $GITHUB_OUTPUT
+          echo "fqdn=${{ env.TITILER_DOMAIN }}" >> $GITHUB_OUTPUT
+          echo "image_repo=${{ secrets.ECR_REGISTRY }}/titiler-cogs" >> $GITHUB_OUTPUT
+          echo "artifacts_bucket=${{ secrets.SAM_ARTIFACTS_BUCKET }}" >> $GITHUB_OUTPUT
+
+      - name: Configure AWS credentials via OIDC
+        uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets.PIPELINE_USER_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.PIPELINE_USER_SECRET_ACCESS_KEY }}
-          aws-region: ${{ vars.REGION }}
-          role-to-assume: ${{ secrets.PIPELINE_EXECUTION_ROLE }}
-          role-session-name: prod-building
-          role-duration-seconds: 3600
-          role-skip-session-tagging: true
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
 
       - uses: aws-actions/setup-sam@v2
         with:
           use-installer: true
 
       - name: Build resources
-        run: sam build --template ${{ vars.SAM_TEMPLATE }} --use-container
+        run: sam build --template ${{ env.SAM_TEMPLATE }} --use-container
 
-      - name: Deploy to production account
+      - name: Deploy to production
         run: |
-          sam deploy --stack-name ${{ vars.STACK_NAME }} \
-            --parameter-overrides FQDN=${{ vars.FQDN }} ZoneId=${{ secrets.ROUTE53_ZONE_ID }} \
+          sam deploy --stack-name ${{ steps.config.outputs.stack_name }} \
+            --parameter-overrides FQDN=${{ steps.config.outputs.fqdn }} ZoneId=${{ secrets.ROUTE53_ZONE_ID }} \
             --capabilities CAPABILITY_IAM \
-            --region ${{ vars.REGION }} \
-            --s3-bucket ${{ secrets.ARTIFACTS_BUCKET }} \
-            --image-repository ${{ secrets.IMAGE_REPOSITORY }} \
-            --no-fail-on-empty-changeset \
-            --role-arn ${{ secrets.CLOUDFORMATION_EXECUTION_ROLE }}
+            --region ${{ vars.AWS_REGION }} \
+            --s3-bucket ${{ steps.config.outputs.artifacts_bucket }} \
+            --image-repository ${{ steps.config.outputs.image_repo }} \
+            --no-fail-on-empty-changeset

@@ -1,4 +1,48 @@
-# lambda-python3.9
+# TiTiler COGs - Dynamic Tile Server
+
+## What is TiTiler?
+
+[TiTiler](https://developmentseed.org/titiler/) is a dynamic tile server for Cloud Optimized GeoTIFFs (COGs). It renders map tiles on-the-fly from raster data stored in S3, eliminating the need to pre-generate tile pyramids.
+
+**Current Version:** TiTiler 1.1.0 on Python 3.11
+
+### Purpose in Resilience Atlas
+
+TiTiler powers the raster layer visualization in Resilience Atlas, enabling:
+
+- **Dynamic tile rendering**: Generates map tiles from COG files in real-time as users pan and zoom
+- **Efficient data access**: COGs support HTTP range requests, so only the needed portions of large raster files are read
+- **Flexible visualization**: Apply rescaling, color mapping, and band combinations without regenerating data
+- **Cost-effective scaling**: AWS Lambda automatically scales to handle traffic spikes
+
+### API Endpoints
+
+Once deployed, TiTiler provides these endpoints:
+
+| Endpoint | Description |
+|----------|-------------|
+| `/cog/tiles/{z}/{x}/{y}` | Get map tiles for a COG |
+| `/cog/info` | Get metadata about a COG |
+| `/cog/statistics` | Get statistics for a COG |
+| `/cog/preview` | Generate a preview image |
+| `/cog/point/{lon}/{lat}` | Query a point value |
+
+**Example tile request:**
+```
+GET /cog/tiles/10/512/384.png?url=s3://bucket/layer.tif&rescale=0,100&colormap_name=viridis
+```
+
+### Architecture
+
+```
+Frontend → API Gateway → Lambda (TiTiler) → S3 (COG files)
+```
+
+The service is deployed as an AWS Lambda function behind API Gateway, providing serverless scaling and pay-per-request pricing.
+
+---
+
+## Project Structure
 
 This project contains source code and supporting files for a serverless application that you can deploy with the SAM CLI. It includes the following files and folders.
 

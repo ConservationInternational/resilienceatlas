@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: 'SAM Template for titiler-cogs using python v3.9'
+Description: 'SAM Template for titiler-cogs using Python 3.11'
 
 Parameters:
   FQDN:
@@ -63,11 +63,11 @@ Resources:
             Ref: DisableSTAC
           TITILER_API_DISABLE_MOSAIC:
             Ref: DisableMosaic
-      ImageUri: titilercogsfunction:python3.9-v1
+      ImageUri: titilercogsfunction:python3.11-v1
     Metadata:
       Dockerfile: Dockerfile
       DockerContext: ./titiler_cogs
-      DockerTag: python3.9-v1
+      DockerTag: python3.11-v1
 
   RestApiGateway: # Creates an HTTP API endpoint under the custom domain
     Type: AWS::Serverless::Api
