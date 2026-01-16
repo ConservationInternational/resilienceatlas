@@ -277,7 +277,7 @@
     &:not(.is-collapsed)::before {
       content: '';
       position: fixed;
-      top: 0;
+      top: 60px; // Start below the header so header remains fully visible
       left: 0;
       right: 0;
       bottom: 0;

@@ -66,36 +66,37 @@ const Header = ({
     ({ id, label, link, children }) => {
       const hasChildren = !!(children && children.length);
       const isExpanded = expandedMenuItems[id];
-
+      
       return (
-        <li
-          key={id}
-          className={cx({
+        <li 
+          key={id} 
+          className={cx({ 
             'is-link': link,
             'is-expanded': isExpanded,
           })}
           data-menu-id={id}
         >
           {link ? (
-            <a href={link} onClick={(e) => toggleMenuItemExpansion(e, hasChildren)}>
+            <a 
+              href={link}
+              onClick={(e) => toggleMenuItemExpansion(e, hasChildren)}
+            >
               {label}
-              {hasChildren && (
-                <span className="mobile-expand-indicator">{isExpanded ? ' ▲' : ' ▼'}</span>
-              )}
+              {hasChildren && <span className="mobile-expand-indicator">{isExpanded ? ' ▲' : ' ▼'}</span>}
             </a>
           ) : (
-            <span
+            <span 
               onClick={(e) => toggleMenuItemExpansion(e, hasChildren)}
               style={{ cursor: hasChildren ? 'pointer' : 'default' }}
             >
               {label}
-              {hasChildren && (
-                <span className="mobile-expand-indicator">{isExpanded ? ' ▲' : ' ▼'}</span>
-              )}
+              {hasChildren && <span className="mobile-expand-indicator">{isExpanded ? ' ▲' : ' ▼'}</span>}
             </span>
           )}
 
-          {hasChildren && <ul>{children.sort(byPosition).map(renderMenuItem)}</ul>}
+          {hasChildren && (
+            <ul>{children.sort(byPosition).map(renderMenuItem)}</ul>
+          )}
         </li>
       );
     },
@@ -104,308 +105,297 @@ const Header = ({
 
   return (
     <>
-      <header className="l-header--fullscreen">
-        <nav className="l-header-nav">
-          <ul className="brand-area">
-            <li>
-              <Link
-                href="/"
-                style={{
-                  display: 'block',
-                  cursor: 'pointer',
-                  textDecoration: 'none',
-                  color: '#333333',
-                }}
-              >
-                <T _str="Resilience Atlas"></T>
-              </Link>
-            </li>
-          </ul>
-
-          {/* Mobile menu toggle button */}
-          <button
-            className={cx('mobile-menu-toggle', { 'is-open': mobileMenuOpen })}
-            onClick={toggleMobileMenu}
-            aria-label={
-              mobileMenuOpen
-                ? translations?.['Close menu'] || 'Close menu'
-                : translations?.['Open menu'] || 'Open menu'
-            }
-            type="button"
-          >
-            <span />
-          </button>
-
-          <ul className="nav-area">
-            <LanguageSwitcher translations={translations} />
-          </ul>
-
-          {/* Desktop navigation - hidden on mobile */}
-          <ul className="nav-area -resilience desktop-only">
-            <li className="journey-link">
-              <Link
-                href="/journeys"
-                className={pathname.includes('/journeys') ? 'nav-current-forced' : ''}
-                style={{
-                  display: 'block',
-                  padding: '10px',
-                  cursor: 'pointer',
-                  textDecoration: 'none',
-                  fontSize: '14px',
-                  textTransform: 'uppercase',
-                  borderRadius: '3px',
-                  transition: '0.2s ease-in',
-                  ...(!pathname.includes('/journeys') && { color: 'var(--theme-color, #333333)' }),
-                }}
-              >
-                <T _str="Journeys" />
-              </Link>
-            </li>
-
-            <li
-              className={cx({ 'is-expanded': expandedMenuItems['map-menu'] })}
-              data-menu-id="map-menu"
+    <header className="l-header--fullscreen">
+      <nav className="l-header-nav">
+        <ul className="brand-area">
+          <li>
+            <Link
+              href="/"
+              style={{
+                display: 'block',
+                cursor: 'pointer',
+                textDecoration: 'none',
+                color: '#333333',
+              }}
             >
-              <Link
-                href="/map"
-                className={pathname.includes('/map') ? 'nav-current-forced' : ''}
-                style={{
-                  display: 'block',
-                  padding: '10px',
-                  cursor: 'pointer',
-                  textDecoration: 'none',
-                  fontSize: '14px',
-                  textTransform: 'uppercase',
-                  borderRadius: '3px',
-                  transition: '0.2s ease-in',
-                  ...(!pathname.includes('/map') && { color: 'var(--theme-color, #333333)' }),
-                }}
-              >
-                <T _str="Map" />
-              </Link>
+              <T _str="Resilience Atlas"></T>
+            </Link>
+          </li>
+        </ul>
 
-              <ul>{(menuItems || []).sort(byPosition).map(renderMenuItem)}</ul>
-            </li>
+        {/* Mobile menu toggle button */}
+        <button
+          className={cx('mobile-menu-toggle', { 'is-open': mobileMenuOpen })}
+          onClick={toggleMobileMenu}
+          aria-label={
+            mobileMenuOpen
+              ? translations?.['Close menu'] || 'Close menu'
+              : translations?.['Open menu'] || 'Open menu'
+          }
+          type="button"
+        >
+          <span />
+        </button>
 
-            <li>
-              <Link
-                href="/about"
-                className={pathname.includes('/about') ? 'nav-current-forced' : ''}
-                style={{
-                  display: 'block',
-                  padding: '10px',
-                  cursor: 'pointer',
-                  textDecoration: 'none',
-                  fontSize: '14px',
-                  textTransform: 'uppercase',
-                  borderRadius: '3px',
-                  transition: '0.2s ease-in',
-                  ...(!pathname.includes('/about') && { color: 'var(--theme-color, #333333)' }),
-                }}
-              >
-                <T _str="About" />
-              </Link>
-            </li>
+        <ul className="nav-area">
+          <LanguageSwitcher translations={translations} />
+        </ul>
 
-            {hasMounted && loggedIn ? (
-              <>
-                <li>
-                  <Link
-                    href="/me"
-                    className={pathname.includes('/me') ? 'nav-current-forced' : ''}
-                    style={{
-                      display: 'block',
-                      padding: '10px',
-                      cursor: 'pointer',
-                      textDecoration: 'none',
-                      fontSize: '14px',
-                      textTransform: 'uppercase',
-                      borderRadius: '3px',
-                      transition: '0.2s ease-in',
-                      ...(!pathname.includes('/me') && { color: 'var(--theme-color, #333333)' }),
-                    }}
-                  >
-                    <T _str="Me" />
-                  </Link>
-                </li>
+        {/* Desktop navigation - hidden on mobile */}
+        <ul className="nav-area -resilience desktop-only">
+          <li className="journey-link">
+            <Link
+              href="/journeys"
+              className={pathname.includes('/journeys') ? 'nav-current-forced' : ''}
+              style={{
+                display: 'block',
+                padding: '10px',
+                cursor: 'pointer',
+                textDecoration: 'none',
+                fontSize: '14px',
+                textTransform: 'uppercase',
+                borderRadius: '3px',
+                transition: '0.2s ease-in',
+                ...(!pathname.includes('/journeys') && { color: 'var(--theme-color, #333333)' }),
+              }}
+            >
+              <T _str="Journeys" />
+            </Link>
+          </li>
 
-                <li>
-                  <button type="button" onClick={logout}>
-                    <T _str="Logout" />
-                  </button>
-                </li>
-              </>
-            ) : hasMounted ? (
-              <>
-                <li>
-                  <Link
-                    href="/login"
-                    className={pathname.includes('/login') ? 'nav-current-forced' : ''}
-                    style={{
-                      display: 'block',
-                      padding: '10px',
-                      cursor: 'pointer',
-                      textDecoration: 'none',
-                      fontSize: '14px',
-                      textTransform: 'uppercase',
-                      borderRadius: '3px',
-                      transition: '0.2s ease-in',
-                      ...(!pathname.includes('/login') && { color: 'var(--theme-color, #333333)' }),
-                    }}
-                  >
-                    <T _str="Login" />
-                  </Link>
-                </li>
+          <li 
+            className={cx({ 'is-expanded': expandedMenuItems['map-menu'] })}
+            data-menu-id="map-menu"
+          >
+            <Link
+              href="/map"
+              className={pathname.includes('/map') ? 'nav-current-forced' : ''}
+              style={{
+                display: 'block',
+                padding: '10px',
+                cursor: 'pointer',
+                textDecoration: 'none',
+                fontSize: '14px',
+                textTransform: 'uppercase',
+                borderRadius: '3px',
+                transition: '0.2s ease-in',
+                ...(!pathname.includes('/map') && { color: 'var(--theme-color, #333333)' }),
+              }}
+            >
+              <T _str="Map" />
+            </Link>
 
-                <li>
-                  <Link
-                    href="/register"
-                    className={pathname.includes('/register') ? 'nav-current-forced' : ''}
-                    style={{
-                      display: 'block',
-                      padding: '10px',
-                      cursor: 'pointer',
-                      textDecoration: 'none',
-                      fontSize: '14px',
-                      textTransform: 'uppercase',
-                      borderRadius: '3px',
-                      transition: '0.2s ease-in',
-                      ...(!pathname.includes('/register') && {
-                        color: 'var(--theme-color, #333333)',
-                      }),
-                    }}
-                  >
-                    <T _str="Register" />
-                  </Link>
-                </li>
-              </>
-            ) : null}
+            <ul>{(menuItems || []).sort(byPosition).map(renderMenuItem)}</ul>
+          </li>
 
-            <LanguageSwitcher translations={translations} />
-          </ul>
+          <li>
+            <Link
+              href="/about"
+              className={pathname.includes('/about') ? 'nav-current-forced' : ''}
+              style={{
+                display: 'block',
+                padding: '10px',
+                cursor: 'pointer',
+                textDecoration: 'none',
+                fontSize: '14px',
+                textTransform: 'uppercase',
+                borderRadius: '3px',
+                transition: '0.2s ease-in',
+                ...(!pathname.includes('/about') && { color: 'var(--theme-color, #333333)' }),
+              }}
+            >
+              <T _str="About" />
+            </Link>
+          </li>
 
-          <ul className="nav-area -vital-sign">
-            <li>
-              <a
-                href={linkback_url || 'http://vitalsigns.org/'}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="theme-color link-back"
-              >
-                {linkback_text || <T _str="Go back to vital signs" />}
-              </a>
-            </li>
-          </ul>
-        </nav>
-        <ul className="m-journey__paginationlist" />
-      </header>
-
-      {/* Mobile menu rendered via portal to escape header's stacking context */}
-      {portalContainer &&
-        mobileMenuOpen &&
-        createPortal(
-          <div className="mobile-menu-overlay" onClick={toggleMobileMenu}>
-            <ul className="mobile-menu-panel" onClick={(e) => e.stopPropagation()}>
-              <li className="journey-link">
+          {hasMounted && loggedIn ? (
+            <>
+              <li>
                 <Link
-                  href="/journeys"
-                  className={pathname.includes('/journeys') ? 'nav-current-forced' : ''}
-                  onClick={toggleMobileMenu}
-                >
-                  <T _str="Journeys" />
-                </Link>
-              </li>
-
-              <li
-                className={cx({ 'is-expanded': expandedMenuItems['map-menu'] })}
-                data-menu-id="map-menu"
-              >
-                <Link
-                  href="/map"
-                  onClick={(e) => {
-                    if (menuItems?.length > 0) {
-                      e.preventDefault();
-                      setExpandedMenuItems((prev) => ({
-                        ...prev,
-                        ['map-menu']: !prev['map-menu'],
-                      }));
-                    } else {
-                      toggleMobileMenu();
-                    }
+                  href="/me"
+                  className={pathname.includes('/me') ? 'nav-current-forced' : ''}
+                  style={{
+                    display: 'block',
+                    padding: '10px',
+                    cursor: 'pointer',
+                    textDecoration: 'none',
+                    fontSize: '14px',
+                    textTransform: 'uppercase',
+                    borderRadius: '3px',
+                    transition: '0.2s ease-in',
+                    ...(!pathname.includes('/me') && { color: 'var(--theme-color, #333333)' }),
                   }}
                 >
-                  <T _str="Map" />
-                  {menuItems?.length > 0 && (
-                    <span className="mobile-expand-indicator">
-                      {expandedMenuItems['map-menu'] ? ' ▲' : ' ▼'}
-                    </span>
-                  )}
+                  <T _str="Me" />
                 </Link>
-
-                {expandedMenuItems['map-menu'] && (
-                  <ul className="mobile-submenu">
-                    {(menuItems || []).sort(byPosition).map((item) => (
-                      <li key={item.id}>
-                        {item.link ? (
-                          <a href={item.link} onClick={toggleMobileMenu}>
-                            {item.label}
-                          </a>
-                        ) : (
-                          <span>{item.label}</span>
-                        )}
-                      </li>
-                    ))}
-                  </ul>
-                )}
               </li>
 
               <li>
-                <Link href="/about" onClick={toggleMobileMenu}>
-                  <T _str="About" />
+                <button type="button" onClick={logout}>
+                  <T _str="Logout" />
+                </button>
+              </li>
+            </>
+          ) : hasMounted ? (
+            <>
+              <li>
+                <Link
+                  href="/login"
+                  className={pathname.includes('/login') ? 'nav-current-forced' : ''}
+                  style={{
+                    display: 'block',
+                    padding: '10px',
+                    cursor: 'pointer',
+                    textDecoration: 'none',
+                    fontSize: '14px',
+                    textTransform: 'uppercase',
+                    borderRadius: '3px',
+                    transition: '0.2s ease-in',
+                    ...(!pathname.includes('/login') && { color: 'var(--theme-color, #333333)' }),
+                  }}
+                >
+                  <T _str="Login" />
                 </Link>
               </li>
 
-              {hasMounted && loggedIn ? (
-                <>
-                  <li>
-                    <Link href="/me" onClick={toggleMobileMenu}>
-                      <T _str="Me" />
-                    </Link>
-                  </li>
-                  <li>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        logout();
-                        toggleMobileMenu();
-                      }}
-                    >
-                      <T _str="Logout" />
-                    </button>
-                  </li>
-                </>
-              ) : hasMounted ? (
-                <>
-                  <li>
-                    <Link href="/login" onClick={toggleMobileMenu}>
-                      <T _str="Login" />
-                    </Link>
-                  </li>
-                  <li>
-                    <Link href="/register" onClick={toggleMobileMenu}>
-                      <T _str="Register" />
-                    </Link>
-                  </li>
-                </>
-              ) : null}
-
-              <li className="mobile-menu-language">
-                <LanguageSwitcher translations={translations} />
+              <li>
+                <Link
+                  href="/register"
+                  className={pathname.includes('/register') ? 'nav-current-forced' : ''}
+                  style={{
+                    display: 'block',
+                    padding: '10px',
+                    cursor: 'pointer',
+                    textDecoration: 'none',
+                    fontSize: '14px',
+                    textTransform: 'uppercase',
+                    borderRadius: '3px',
+                    transition: '0.2s ease-in',
+                    ...(!pathname.includes('/register') && {
+                      color: 'var(--theme-color, #333333)',
+                    }),
+                  }}
+                >
+                  <T _str="Register" />
+                </Link>
               </li>
-            </ul>
-          </div>,
-          portalContainer,
-        )}
+            </>
+          ) : null}
+
+          <LanguageSwitcher translations={translations} />
+        </ul>
+
+        <ul className="nav-area -vital-sign">
+          <li>
+            <a
+              href={linkback_url || 'http://vitalsigns.org/'}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="theme-color link-back"
+            >
+              {linkback_text || <T _str="Go back to vital signs" />}
+            </a>
+          </li>
+        </ul>
+      </nav>
+      <ul className="m-journey__paginationlist" />
+    </header>
+
+    {/* Mobile menu rendered via portal to escape header's stacking context */}
+    {portalContainer && mobileMenuOpen && createPortal(
+      <div className="mobile-menu-overlay" onClick={toggleMobileMenu}>
+        <ul 
+          className="mobile-menu-panel"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <li className="journey-link">
+            <Link
+              href="/journeys"
+              className={pathname.includes('/journeys') ? 'nav-current-forced' : ''}
+              onClick={toggleMobileMenu}
+            >
+              <T _str="Journeys" />
+            </Link>
+          </li>
+
+          <li 
+            className={cx({ 'is-expanded': expandedMenuItems['map-menu'] })}
+            data-menu-id="map-menu"
+          >
+            <Link
+              href="/map"
+              onClick={(e) => {
+                if (menuItems?.length > 0) {
+                  e.preventDefault();
+                  setExpandedMenuItems((prev) => ({
+                    ...prev,
+                    ['map-menu']: !prev['map-menu'],
+                  }));
+                } else {
+                  toggleMobileMenu();
+                }
+              }}
+            >
+              <T _str="Map" />
+              {menuItems?.length > 0 && (
+                <span className="mobile-expand-indicator">
+                  {expandedMenuItems['map-menu'] ? ' ▲' : ' ▼'}
+                </span>
+              )}
+            </Link>
+
+            {expandedMenuItems['map-menu'] && (
+              <ul className="mobile-submenu">
+                {(menuItems || []).sort(byPosition).map((item) => (
+                  <li key={item.id}>
+                    {item.link ? (
+                      <a href={item.link} onClick={toggleMobileMenu}>{item.label}</a>
+                    ) : (
+                      <span>{item.label}</span>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </li>
+
+          <li>
+            <Link href="/about" onClick={toggleMobileMenu}>
+              <T _str="About" />
+            </Link>
+          </li>
+
+          {hasMounted && loggedIn ? (
+            <>
+              <li>
+                <Link href="/me" onClick={toggleMobileMenu}>
+                  <T _str="Me" />
+                </Link>
+              </li>
+              <li>
+                <button type="button" onClick={() => { logout(); toggleMobileMenu(); }}>
+                  <T _str="Logout" />
+                </button>
+              </li>
+            </>
+          ) : hasMounted ? (
+            <>
+              <li>
+                <Link href="/login" onClick={toggleMobileMenu}>
+                  <T _str="Login" />
+                </Link>
+              </li>
+              <li>
+                <Link href="/register" onClick={toggleMobileMenu}>
+                  <T _str="Register" />
+                </Link>
+              </li>
+            </>
+          ) : null}
+        </ul>
+      </div>,
+      portalContainer
+    )}
     </>
   );
 };

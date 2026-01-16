@@ -1,8 +1,15 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import cx from 'classnames';
 import { T, useLocale } from '@transifex/react';
 
-import { useRouterValue, useToggle, useTogglerButton, clickable } from 'utilities';
+import {
+  useRouterValue,
+  useToggle,
+  useTogglerButton,
+  clickable,
+  getRouterParam,
+} from 'utilities';
+import { subdomain } from 'utilities/getSubdomain';
 import { getMapLabelOptions } from 'views/components/LayersList/Basemaps/constants';
 import type { BASEMAP_LABELS, MAP_LABELS } from 'views/components/LayersList/Basemaps/constants';
 
@@ -15,6 +22,26 @@ type BasemapsProps = {
 
 const Basemaps = ({ basemap, labels, setBasemap, setLabels }: BasemapsProps) => {
   const [opened, toggleOpened] = useToggle(false);
+
+  // Sync basemap and labels from URL params after hydration to prevent hydration mismatch
+  useEffect(() => {
+    const urlBasemap = getRouterParam('basemap');
+    const urlLabels = getRouterParam('labels') as (typeof MAP_LABELS)[number];
+
+    // Determine the correct basemap based on URL or subdomain
+    const correctBasemap =
+      urlBasemap || (subdomain === 'atlas' ? 'satellite' : 'defaultmap');
+    const correctLabels = urlLabels || 'none';
+
+    // Only update if different from current state
+    if (correctBasemap !== basemap) {
+      setBasemap(correctBasemap as (typeof BASEMAP_LABELS)[number]);
+    }
+    if (correctLabels !== labels) {
+      setLabels(correctLabels);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Run only once after mount
 
   useRouterValue('basemap', basemap, { onlyOnChange: true });
   useRouterValue('labels', labels, { onlyOnChange: true });
