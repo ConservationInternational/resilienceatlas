@@ -20,88 +20,6 @@
   z-index: 5;
   box-shadow: 0 1px 4px 2px rgba(0,0,0,.1);
 
-  .btn-sidebar-toggle {
-    position: absolute;
-    top: 0;
-    right: 0;
-    width: rem(25px);
-    height: rem(48px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: none;
-    border: 0;
-    z-index: 2;
-    outline: none;
-
-    &:focus, &:active {
-      &:after {
-        @include arrow(8px, $blue, 2px, -45deg);
-      }
-    }
-
-    &:after {
-      content: '';
-      @include arrow(8px, $gray-70, 2px, -45deg);
-      transition: .25s ease-in-out;
-
-      .is-collapsed & {
-        transform: rotate(135deg);
-      }
-    }
-
-    // Mobile: Larger touch target and visible when collapsed
-    @media screen and (max-width: $breakpoint-mobile) {
-      width: rem($mobile-sidebar-toggle-size);
-      height: rem($mobile-sidebar-toggle-size);
-      background-color: $bg-color-1;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-      border-radius: 0 4px 4px 0;
-      
-      // Create hamburger icon with CSS bars
-      &:before {
-        content: '';
-        position: absolute;
-        left: 50%;
-        top: 50%;
-        transform: translate(-50%, -50%);
-        width: rem(20px);
-        height: rem(2px);
-        background-color: $gray-70;
-        display: none;  // Hide by default, show when collapsed
-        box-shadow: 
-          0 rem(-6px) 0 $gray-70,
-          0 rem(6px) 0 $gray-70;
-      }
-
-      .is-collapsed & {
-        // When collapsed, position button on the left edge of screen
-        position: fixed;
-        left: 0;
-        right: auto;
-        top: rem(70px);  // Position below header
-        z-index: 1001; // Above other elements
-        
-        &:before {
-          display: block;  // Show hamburger icon when collapsed
-        }
-        
-        &:after {
-          display: none;  // Hide arrow when collapsed
-        }
-      }
-
-      // Hide arrow by default on mobile, show when expanded
-      &:after {
-        @include arrow(10px, $gray-70, 2px, -45deg);
-        
-        .is-collapsed & {
-          display: none;
-        }
-      }
-    }
-  }
-
   .btn-analysis-panel-contract {
     position: absolute;
     top: 0;
@@ -181,6 +99,43 @@
   background-color: $bg-color-1;
   z-index: 1;
   transition: .25s ease-in-out;
+
+  // Sidebar toggle button - positioned relative to l-sidebar--fullscreen
+  .btn-sidebar-toggle {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: rem(25px);
+    height: rem(48px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: 0;
+    z-index: 6; // Above l-sidebar-content (z-index: 5)
+    outline: none;
+
+    &:focus, &:active {
+      &:after {
+        @include arrow(8px, $blue, 2px, -45deg);
+      }
+    }
+
+    &:after {
+      content: '';
+      @include arrow(8px, $gray-70, 2px, -45deg);
+      transition: .25s ease-in-out;
+
+      .is-collapsed & {
+        transform: rotate(135deg);
+      }
+    }
+
+    // Mobile: Hide this button, use MobileSidebarToggle component instead
+    @media screen and (max-width: $breakpoint-mobile) {
+      display: none;
+    }
+  }
 
   // .is-not-bare & {
   //   top: rem($header-height);

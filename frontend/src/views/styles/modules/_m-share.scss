@@ -162,4 +162,87 @@
       padding-bottom: rem(5px);
     }
   }
+
+  // Mobile responsive styles
+  @media screen and (max-width: $breakpoint-mobile) {
+    .modal-wrapper {
+      width: 95%;
+      max-width: 95%;
+      height: auto;
+      max-height: 90vh;
+      
+      .modal-container {
+        padding: rem(30px) rem(20px);
+        
+        .modal-content {
+          .share-nav {
+            height: auto;
+            min-height: rem(100px);
+            margin-bottom: rem(10px);
+            
+            h2 {
+              font-size: rem(28px);
+              margin-bottom: rem(10px);
+            }
+          }
+          
+          .link-box {
+            flex-direction: column;
+            
+            .url {
+              flex: 1 1 auto;
+              width: 100%;
+              font-size: 11px;
+              padding: rem(12px) rem(8px);
+              border-bottom-width: 0;
+            }
+            
+            .btn-copy {
+              flex: 1 1 auto;
+              width: 100%;
+              padding: rem(12px);
+              border-left-width: 1px;
+              font-size: 12px;
+            }
+          }
+          
+          .social-links {
+            margin-top: rem(25px);
+            margin-bottom: rem(15px);
+            
+            .btn-social {
+              margin-right: rem(16px);
+            }
+          }
+        }
+      }
+    }
+    
+    .tabs {
+      position: relative;
+      display: flex;
+      flex-wrap: wrap;
+      padding-left: 0;
+      gap: rem(5px);
+      
+      .tab-title {
+        flex: 1 1 auto;
+        margin-right: 0;
+        text-align: center;
+        min-width: rem(80px);
+        
+        a, button {
+          display: block;
+          width: 100%;
+          padding: rem(10px) rem(8px);
+          font-size: rem(12px);
+        }
+      }
+    }
+    
+    .tabs-content {
+      width: 100%;
+      clear: both;
+    }
+  }
 }

@@ -94,6 +94,14 @@ const Sidebar = ({
       })}
       onClick={handleBackdropClick}
     >
+      {/* Mobile toggle button - outside l-sidebar-content so it's always visible */}
+      <button
+        className={cx('btn-sidebar-toggle', { 'is-collapsed': !opened })}
+        type="button"
+        onClick={toggleOpen}
+        aria-label={translations && translations['Toggle sidebar']}
+      />
+      
       <div className="l-sidebar-content" onClick={(e) => e.stopPropagation()}>
         {site?.has_analysis && <AnalysisPanel toggle={toggleAnalysis} />}
 
@@ -170,12 +178,7 @@ const Sidebar = ({
             </p>
           </div>
         </div>
-        <button
-          className="btn-sidebar-toggle"
-          type="button"
-          onClick={toggleOpen}
-          aria-label={translations && translations['Toggle sidebar']}
-        />
+
         {hasMounted && site?.has_analysis && (
           <button
             className="btn-analysis-panel-expand"

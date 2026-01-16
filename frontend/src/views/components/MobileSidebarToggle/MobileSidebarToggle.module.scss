@@ -1,0 +1,56 @@
+@use '../../styles/variables' as *;
+
+// Mobile sidebar toggle - only visible on mobile devices
+// Lives outside the sidebar container so it stays visible when sidebar is collapsed
+
+.mobileToggle {
+  // Hidden on desktop
+  display: none;
+  
+  @media screen and (max-width: $breakpoint-mobile) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    top: 70px; // Below header
+    left: 0;
+    width: 48px;
+    height: 48px;
+    background-color: #ffffff;
+    border: none;
+    border-radius: 0 4px 4px 0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    z-index: 1001; // Above sidebar and map
+    cursor: pointer;
+    transition: left 0.25s ease-in-out;
+    
+    &:not(.isCollapsed) {
+      // When sidebar is open, move button to right side
+      left: calc(100vw - 48px);
+    }
+    
+    &:hover {
+      background-color: #f5f5f5;
+    }
+    
+    &:focus {
+      outline: 2px solid #0089CC;
+      outline-offset: 2px;
+    }
+  }
+}
+
+.arrow {
+  display: block;
+  width: 10px;
+  height: 10px;
+  border-right: 2px solid #555555;
+  border-bottom: 2px solid #555555;
+  transform: rotate(-45deg);
+  transition: transform 0.25s ease-in-out;
+  
+  .isCollapsed & {
+    // Point right when collapsed (to indicate opening)
+    transform: rotate(135deg);
+  }
+}

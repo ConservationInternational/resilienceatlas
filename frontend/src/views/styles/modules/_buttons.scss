@@ -263,3 +263,51 @@
     pointer-events: none;
   }
 }
+
+// Mobile responsive styles for legend action buttons
+// Apple recommends 44px minimum touch targets for mobile usability
+@media screen and (max-width: $breakpoint-mobile) {
+  .m-legend,
+  .side-bar {
+    .actions {
+      display: flex;
+      gap: 4px;
+    }
+
+    .btn-action,
+    .btn-info,
+    .btn-visibility,
+    .btn-remove {
+      // Increase touch target to 36px minimum (close to recommended 44px)
+      min-width: 36px;
+      min-height: 36px;
+      padding: 8px;
+      margin-left: 2px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      background-color: rgba(0, 0, 0, 0.05);
+      transition: background-color 0.2s ease;
+
+      &:hover,
+      &:active {
+        background-color: rgba(0, 0, 0, 0.1);
+      }
+
+      svg,
+      .icon {
+        width: 18px;
+        height: 18px;
+      }
+    }
+
+    .btn-visibility {
+      svg,
+      .icon {
+        width: 22px;
+        height: 22px;
+      }
+    }
+  }
+}
