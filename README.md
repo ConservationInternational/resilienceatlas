@@ -8,7 +8,7 @@
 
 | Directory | Description | Documentation | Tech Stack |
 |-----------|-------------|---------------|------------|
-| frontend | Frontend application | [frontend/README.md](frontend/README.md) | React 18.3.1, Next.js 14.2.15, Node.js 22.11.0 |
+| frontend | Frontend application | [frontend/README.md](frontend/README.md) | React 19.2.0, Next.js 16.1.1, Node.js 24.0.0 |
 | backend | Ruby on Rails backend (API + backoffice) | [backend/README.md](backend/README.md) | Ruby 3.4.8, Rails 7.2.x |
 | cloud_functions | AWS Lambda functions | [cloud_functions/README.md](cloud_functions/README.md) | AWS Lambda |
 | infrastructure | Terraform for TiTiler COG tiler | [infrastructure/README.md](infrastructure/README.md) | Terraform, AWS |
@@ -90,7 +90,7 @@ docker compose -f docker-compose.test.yml run --rm backend-test ./bin/test
 
 # Individual commands
 docker compose -f docker-compose.test.yml run --rm backend-test ./bin/test rspec    # Unit tests
-docker compose -f docker-compose.test.yml run --rm backend-test ./bin/test lint     # RuboCop
+docker compose -f docker-compose.test.yml run --rm backend-test ./bin/test lint     # StandardRB
 docker compose -f docker-compose.test.yml run --rm backend-test ./bin/test security # Brakeman
 docker compose -f docker-compose.test.yml run --rm backend-test ./bin/test system   # Browser tests
 ```

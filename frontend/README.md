@@ -4,10 +4,10 @@ _This version is based on the repository: [https://github.com/ConservationIntern
 
 The front-end application of the Resilience Atlas platform is built using the following resources:
 
-- [React](https://reactjs.org/) v18.3.1 as a UI library
-- [Next.js](https://nextjs.org/) v14.2.15 as a framework  
-- [Node.js](https://nodejs.org/) v22.11.0 as the runtime
-- [TypeScript](https://www.typescriptlang.org/) v5.6.3 for type safety
+- [React](https://reactjs.org/) v19.2.0 as a UI library
+- [Next.js](https://nextjs.org/) v16.1.1 as a framework  
+- [Node.js](https://nodejs.org/) v24.0.0 as the runtime
+- [TypeScript](https://www.typescriptlang.org/) v5 for type safety
 - [Sass](https://sass-lang.com/) as a CSS language
 - [Foundation](https://get.foundation/) as a styles framework
 - [Redux](https://redux.js.org/) as a state manager
@@ -17,12 +17,12 @@ The front-end application of the Resilience Atlas platform is built using the fo
 
 In order to start modifying the app, please make sure to correctly configure your workstation:
 
-1. Make sure you you have [Node.js](https://nodejs.org/en/) v22.11.0 or later installed
+1. Make sure you have [Node.js](https://nodejs.org/en/) v24.0.0 installed (see `.nvmrc`)
 2. (Optional) Install [NVM](https://github.com/nvm-sh/nvm) to manage your different Node.js versions
 3. (Optional) Use [Visual Studio Code](https://code.visualstudio.com/) as a text editor to benefit from automatic type checking
 4. Configure your text editor with the [Prettier](https://prettier.io/), [ESLint](https://eslint.org/) and [EditorConfig](https://editorconfig.org/) plugins
-5. (Optional) Configure your editor to “format [code] on save” with ESLint and Prettier
-6. Use the correct Node.js version for this app by running `nvm use`; if you didn't install NVM (step 2), then manually install Node.js v22.11.0 as described in `.nvmrc`
+5. (Optional) Configure your editor to "format [code] on save" with ESLint and Prettier
+6. Use the correct Node.js version for this app by running `nvm use`; if you didn't install NVM (step 2), then manually install Node.js v24.0.0
 7. Install the dependencies: `npm install` or `yarn`
 8. Create a `.env` file at the root of the project by copying `.env.example` and giving a value for each of the variables (see next section for details)
 9. Run the server: `npm run dev` or `yarn dev`
@@ -65,11 +65,9 @@ Transifex is initialized on the App.jsx file. A [PseudoTranslationPolicy](https:
 
 There are three different scripts that use the transifex cli:
 
-- `yarn transifex:push` Pushes the strings that are used in the code to transifex.
-- `yarn transifex:push:prod` Pushes the strings that are used in the code to transifex using the production env. This runs on the production deploy
-- `yarn transifex:refresh` Refreshes the strings translated on transifex to show them on develop. It can take a couple minutes to show the changes.
-- `yarn transifex:purge` This command purges the strings on transifex so we only have the ones present on the code. The strings no used anymore will be deleted.
-- `yarn transifex:purge:prod` This command purges the strings on transifex so we only have the ones present on the code. The strings no used anymore will be deleted. This uses the production env.
+- `npm run transifex:push` Pushes the strings that are used in the code to transifex.
+- `npm run transifex:refresh` Refreshes the strings translated on transifex to show them on develop. It can take a couple minutes to show the changes.
+- `npm run transifex:purge` This command purges the strings on transifex so we only have the ones present on the code. The strings no used anymore will be deleted.
 
 If the purge is not working correctly try to use it directly from terminal:
 
@@ -91,7 +89,7 @@ In some components we need to render items inside `placeholder`, `alt`, `meta` t
 
 - To be able to use the translations on the Layouts we also pass them directly to them on the `_app.tsx` file.
 
-- As this strings won't be automatically recognised by transifex when we push, there is a json file inside server-side-translations folder: `server-side-translation-content.json` In this file we should add every string that needs to be translated server-side. Then the `push-server-strings.js` file is run with the `yarn transifex:push` on `package.json`.
+- As this strings won't be automatically recognised by transifex when we push, there is a json file inside server-side-translations folder: `server-side-translation-content.json` In this file we should add every string that needs to be translated server-side. Then the `push-server-strings.js` file is run with the `npm run transifex:push` on `package.json`.
 
 [More info](https://developers.transifex.com/docs/nextjs#use-getserversideprops-to-load-translations)
 
@@ -144,30 +142,24 @@ These subdomains are configured on the backend as site_scope and we can emulate 
 
 ## CI/CD
 
-When a pull request (PR) is created, a GitHub action runs the tests (`yarn test`).
+When a pull request (PR) is created, GitHub Actions run linting, type-checking, and build verification.
 
-When the PR is merged or commits are directly pushed to the `develop` branch (not recommended), the tests are also run and the application is deployed to the staging environment: https://staging.resilienceatlas.org/.
+When commits are pushed to the `staging` branch, the application is deployed to the staging environment: https://staging.resilienceatlas.org/.
 
-When a PR is merged to the `main` branch, the same process is also executed and the application is deployed to the production environment: https://www.resilienceatlas.org/.
-
-It is recommended to mention the Jira task ID either in commits or the branch names so that the deployment information can be directly available in Jira.
+When commits are pushed to the `main` branch, the application is deployed to the production environment: https://www.resilienceatlas.org/.
 
 ## Deployment
 
-Deployment is now fully automated using GitHub Actions and AWS EC2. The application is automatically deployed when:
+Deployment is automated using GitHub Actions and AWS CodeDeploy:
 
-- **Staging**: Push to `develop` branch (after tests pass)
-- **Production**: Push to `main` branch (after tests pass)
+- **Staging**: Push to `staging` branch → staging.resilienceatlas.org
+- **Production**: Push to `main` branch → resilienceatlas.org
 
-### Deployment Architecture
+### Architecture
 
-- **Staging**: staging.resilienceatlas.org
-- **Production**: resilienceatlas.org
-- **Infrastructure**: AWS EC2 instances with Docker Compose
-- **Load Balancing**: Application Load Balancer
-- **Database**: 
-  - Staging: Containerized PostgreSQL with production data copy
-  - Production: External PostgreSQL database
+- **Infrastructure**: AWS EC2 with Docker Compose
+- **Database**: PostgreSQL with PostGIS
+- **Deployment**: AWS CodeDeploy via GitHub Actions
 
 ### Manual Deployment
 
@@ -185,7 +177,7 @@ For more details, see:
 
 ## Contribution rules
 
-Please, **create a PR** for any improvement or feature you want to add. Use the `develop` branch for this.
+Please, **create a PR** for any improvement or feature you want to add. Target the `main` branch for production changes or `staging` for testing.
 
 ## Vulnerability mitigation
 

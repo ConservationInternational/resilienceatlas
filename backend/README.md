@@ -1,196 +1,81 @@
-# Resilience Atlas web app
+# Resilience Atlas Backend
 
-This is the web app powering 
-[resilienceatlas.org](http://www.resilienceatlas.org)
+Ruby on Rails backend powering [resilienceatlas.org](https://www.resilienceatlas.org) - provides the REST API and admin backoffice.
 
-## Installation
+## Requirements
 
-Requirements:
+- Ruby 3.4.8
+- Rails 7.2.x
+- PostgreSQL 15 with PostGIS
+- Docker (recommended)
 
-* Ruby 3.4.8
-* Rails 7.2.x
-* PostgreSQL
+## Quick Start (Docker - Recommended)
 
-Install global dependencies:
-
-    gem install bundler
-
-Install project dependencies:
-
-    bundle install
-
-## Usage
-
-Before running the application, you need to configure it by copying `.env.sample` to `.env` and setting the appropriate values where needed.
-
-### Create database schema
-
-`bin/rails db:create db:migrate db:seed` to setup the database
-
-### Run the server
-
-`bundle exec rails server` and access the project on `http://localhost:3000`
-
-See the generated api docs (described below) for available API endpoints. The backoffice is accessed at `/admin`.
-
-### Run the tests
-
-`bundle exec rspec`
-
-## Testing with Docker
-
-The project includes a comprehensive Docker test setup that allows you to run both backend and frontend tests in isolated environments.
-
-### Prerequisites
-
-- Docker and Docker Compose installed
-- All environment files set up (see setup instructions below)
-
-### Test Environment Setup
-
-Before running tests, ensure your environment files are configured:
-
-**For Unix/Linux/macOS:**
 ```bash
-./docker.sh setup
+# From repository root
+cp backend/.env.sample backend/.env
+
+# Start database and backend
+docker compose -f docker-compose.dev.yml up -d db backend
 ```
 
-**For Windows:**
-```cmd
-docker.bat setup
-```
+Backend available at http://localhost:3001, admin at http://localhost:3001/admin
 
-This will create `.env` files from the example templates if they don't already exist.
+**Default admin credentials:** `admin@example.com` / `password`
 
-### Running All Tests
+## Local Development (Without Docker)
 
-To run both backend and frontend tests together:
-
-**For Unix/Linux/macOS:**
 ```bash
-./docker.sh test
+cp .env.sample .env
+gem install bundler
+bundle install
+bin/rails db:create db:migrate db:seed
+bin/rails server -p 3001
 ```
 
-**For Windows:**
-```cmd
-docker.bat test
-```
+## Running Tests
 
-**Using Docker Compose directly:**
 ```bash
-docker-compose -f docker-compose.test.yml up --abort-on-container-exit
+# Using Docker (recommended)
+docker compose -f docker-compose.test.yml run --rm backend-test ./bin/test all
+
+# Individual test commands
+docker compose -f docker-compose.test.yml run --rm backend-test ./bin/test rspec    # Unit tests
+docker compose -f docker-compose.test.yml run --rm backend-test ./bin/test lint     # StandardRB
+docker compose -f docker-compose.test.yml run --rm backend-test ./bin/test security # Brakeman
+docker compose -f docker-compose.test.yml run --rm backend-test ./bin/test audit    # Bundle Audit
+
+# Local (requires PostgreSQL)
+bundle exec rspec
 ```
-
-### Running Backend Tests Only
-
-To run only the Ruby/Rails backend tests (RSpec):
-
-**For Unix/Linux/macOS:**
-```bash
-./docker.sh test-backend
-```
-
-**For Windows:**
-```cmd
-docker.bat test-backend
-```
-
-**Using Docker Compose directly:**
-```bash
-docker-compose -f docker-compose.test.yml run --rm backend-test
-```
-
-The backend test setup:
-- Creates a PostgreSQL test database with PostGIS extensions
-- Runs database migrations and seeding
-- Executes RSpec tests (excluding slow system tests)
-- Uses isolated test environment with `RAILS_ENV=test`
-
-### Running Frontend Tests Only
-
-To run only the frontend tests (Cypress):
-
-**For Unix/Linux/macOS:**
-```bash
-./docker.sh test-frontend
-```
-
-**For Windows:**
-```cmd
-docker.bat test-frontend
-```
-
-**Using Docker Compose directly:**
-```bash
-docker-compose -f docker-compose.test.yml run --rm frontend-test
-```
-
-The frontend test setup:
-- Builds and starts the frontend application
-- Waits for backend API to be available
-- Runs Cypress end-to-end tests
-- Uses Docker-specific Cypress configuration
-
-### Test Environment Details
-
-The test environment (`docker-compose.test.yml`) includes:
-
-- **Database (`db-test`)**: PostgreSQL 15 with PostGIS extensions on port 5433
-- **Backend (`backend-test`)**: Rails application in test mode on port 3001
-- **Frontend (`frontend-app`)**: Next.js application for testing on port 3000
-- **Frontend Tests (`frontend-test`)**: Cypress test runner
-
-### Cleaning Up Test Environment
-
-To stop and clean up test containers and volumes:
-
-**For Unix/Linux/macOS:**
-```bash
-./docker.sh clean
-```
-
-**For Windows:**
-```cmd
-docker.bat clean
-```
-
-### Run rswag to generate API documentation
-
-`SWAGGER_DRY_RUN=0 rake rswag:specs:swaggerize`
-
-Documentation can be found at `/api-docs`.
-
-### Replace snapshot files
-
-On the first run, the `match_snapshot` matcher will always return success and it will store a snapshot file. On the next runs, it will compare the response with the file content.
-
-If you need to replace snapshots, run the specs with:
-
-`REPLACE_SNAPSHOTS=true bundle exec rspec`
-
-If you only need to add, remove or replace data without replacing the whole snapshot:
-
-`CONSERVATIVE_UPDATE_SNAPSHOTS=true bundle exec rspec`
-
-### Run linters
-
-`bin/rails standard`
-
-To fix linter issues
-
-`bin/rails standard:fix`
 
 ## Deployment
 
-In `config/deploy` you will find a sample file. Copy `production.rb.sample` to `production.rb` and change it accordingly. Deploy using:
- 
-```
-bundle exec cap production deploy
+Deployment is automated via GitHub Actions and AWS CodeDeploy:
+
+- **Staging**: Push to `staging` branch → staging.resilienceatlas.org
+- **Production**: Push to `main` branch → resilienceatlas.org
+
+See [scripts/README.md](../scripts/README.md) for deployment details.
+
+## Linting
+
+```bash
+# Run linter
+bin/rails standard
+
+# Auto-fix issues
+bin/rails standard:fix
 ```
 
 ## API Documentation
 
-The Resilience Atlas backend provides a comprehensive REST API for data access, user management, and content delivery. The API follows RESTful conventions and returns JSON responses.
+Interactive API docs available at `/api-docs` when server is running.
+
+```bash
+# Generate/update API documentation
+SWAGGER_DRY_RUN=0 rake rswag:specs:swaggerize
+```
 
 ### Base URL and Versioning
 
