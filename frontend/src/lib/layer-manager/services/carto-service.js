@@ -73,9 +73,7 @@ export const fetchBounds = (layerModel) => {
   // For raster layers, we already have the_geom from the wrapper query above
   // For vector/CartoDB layers, use the_geom_webmercator since that's what CartoDB uses
   // and what's typically selected in user queries. We transform it to get WGS84 bounds.
-  const geomExpr = isRaster
-    ? 'the_geom'
-    : 'ST_Transform(the_geom_webmercator, 4326)';
+  const geomExpr = isRaster ? 'the_geom' : 'ST_Transform(the_geom_webmercator, 4326)';
 
   const s = `
     SELECT ST_XMin(ST_Extent(${geomExpr})) as minx,

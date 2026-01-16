@@ -1,5 +1,5 @@
 # Use the official Ruby image
-FROM ruby:3.4-bookworm AS base
+FROM ruby:3.4.8-bookworm AS base
 
 # Enable BuildKit inline cache
 ARG BUILDKIT_INLINE_CACHE=1

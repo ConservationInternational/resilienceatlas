@@ -87,7 +87,7 @@ const MapPage: NextPageWithLayout = ({ translations, setTranslations, isSidebarO
   return (
     <LayerManagerProvider>
       {/* Mobile sidebar toggle - outside sidebar to stay visible when collapsed */}
-      <MobileSidebarToggle isSidebarOpen={isSidebarOpen} />
+      <MobileSidebarToggle />
       <Sidebar />
       <div className="l-content--fullscreen">
         {anyLayerLoading && (

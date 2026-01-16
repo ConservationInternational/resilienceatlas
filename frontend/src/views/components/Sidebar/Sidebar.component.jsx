@@ -101,7 +101,7 @@ const Sidebar = ({
         onClick={toggleOpen}
         aria-label={translations && translations['Toggle sidebar']}
       />
-      
+
       <div className="l-sidebar-content" onClick={(e) => e.stopPropagation()}>
         {site?.has_analysis && <AnalysisPanel toggle={toggleAnalysis} />}
 
