@@ -167,7 +167,6 @@ Resources:
             HeaderBehavior: whitelist
             Headers:
               - Accept
-              - Accept-Encoding
           QueryStringsConfig:
             QueryStringBehavior: all  # All query params are part of cache key
           EnableAcceptEncodingGzip: true
@@ -186,7 +185,6 @@ Resources:
           HeaderBehavior: whitelist
           Headers:
             - Accept
-            - Accept-Encoding
             - Origin
             - Referer
         QueryStringsConfig:
