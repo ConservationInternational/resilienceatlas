@@ -62,7 +62,7 @@ jobs:
           use-installer: true
 
       - name: Build SAM template
-        run: sam build --template ${{ env.SAM_TEMPLATE }} --use-container
+        run: sam build --template ${{ env.SAM_TEMPLATE }}
 
       - name: Deploy to feature stack
         run: |
@@ -106,7 +106,7 @@ jobs:
           use-installer: true
 
       - name: Build resources
-        run: sam build --template ${{ env.SAM_TEMPLATE }} --use-container
+        run: sam build --template ${{ env.SAM_TEMPLATE }}
 
       - name: Deploy to production
         run: |
