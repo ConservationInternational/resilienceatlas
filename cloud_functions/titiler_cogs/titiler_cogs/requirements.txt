@@ -1,6 +1,5 @@
 # TiTiler dependencies for AWS Lambda
-# Pin numpy to 2.1.x - last version with manylinux2014 wheels (compatible with Amazon Linux 2 glibc 2.26)
-numpy>=2.0,<2.2
-requests==2.32.4
-mangum==0.19.0
+# Using official AWS Lambda Python 3.14 image (Amazon Linux 2023)
+requests>=2.32.0
+mangum>=0.19.0
 titiler.application==1.1.0
