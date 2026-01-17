@@ -139,7 +139,7 @@ export const getGrouped = () => {
             return {
               ...c,
               active: isActive(c),
-              layers: layers.map(parseLayer),
+              layers: layers.sort(byDashboardOrder).map(parseLayer),
               subcategory: subcategories.map((sc) => {
                 const layers = published.filter((l) => l.group === sc.id);
 

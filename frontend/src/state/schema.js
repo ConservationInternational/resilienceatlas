@@ -12,7 +12,7 @@ const provider = {
   cartodb: 'carto',
   raster: 'carto',
   'xyz tileset': 'leaflet',
-  cog: 'leaflet',
+  cog: 'cog',
   gee: 'leaflet',
   leaflet: 'leaflet',
 };

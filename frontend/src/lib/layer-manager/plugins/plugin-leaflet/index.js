@@ -1,4 +1,5 @@
 import cartoLayer from './carto-layer-leaflet';
+import cogLayer from './cog-layer-leaflet';
 import esriLayer from './esri-layer-leaflet';
 import geeLayer from './gee-layer-leaflet';
 import locaLayer from './loca-layer-leaflet';
@@ -17,6 +18,8 @@ class PluginLeaflet {
     cartodb: cartoLayer,
     carto: cartoLayer,
     raster: cartoLayer,
+    // COG (Cloud Optimized GeoTIFF via TiTiler)
+    cog: cogLayer,
     // ESRI
     arcgis: esriLayer,
     featureservice: esriLayer,

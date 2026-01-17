@@ -491,4 +491,8 @@ unless Rails.env.test?
     )
   end
   puts "PostgreSQL sequences reset successfully"
+
+  # Load Trends.Earth site scope seeds
+  puts "Loading Trends.Earth seeds..."
+  load Rails.root.join("db/data/trendsearth/seed.rb")
 end
