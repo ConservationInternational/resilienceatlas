@@ -70,7 +70,10 @@ jobs:
       - name: Deploy to feature stack
         run: |
           sam deploy --stack-name ${{ steps.config.outputs.stack_name }} \
-            --parameter-overrides FQDN=${{ steps.config.outputs.fqdn }} ZoneId=${{ secrets.ROUTE_53_ZONE_ID }} \
+            --parameter-overrides \
+              FQDN=${{ steps.config.outputs.fqdn }} \
+              ZoneId=${{ secrets.ROUTE_53_ZONE_ID }} \
+              AllowedBuckets=${{ vars.TITILER_ALLOWED_BUCKETS }} \
             --capabilities CAPABILITY_IAM \
             --region ${{ secrets.AWS_REGION }} \
             --s3-bucket ${{ steps.config.outputs.artifacts_bucket }} \
@@ -118,7 +121,10 @@ jobs:
       - name: Deploy to production
         run: |
           sam deploy --stack-name ${{ steps.config.outputs.stack_name }} \
-            --parameter-overrides FQDN=${{ steps.config.outputs.fqdn }} ZoneId=${{ secrets.ROUTE_53_ZONE_ID }} \
+            --parameter-overrides \
+              FQDN=${{ steps.config.outputs.fqdn }} \
+              ZoneId=${{ secrets.ROUTE_53_ZONE_ID }} \
+              AllowedBuckets=${{ vars.TITILER_ALLOWED_BUCKETS }} \
             --capabilities CAPABILITY_IAM \
             --region ${{ secrets.AWS_REGION }} \
             --s3-bucket ${{ steps.config.outputs.artifacts_bucket }} \

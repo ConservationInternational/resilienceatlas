@@ -6,6 +6,15 @@
 
 **Current Version:** TiTiler 1.1.0 on Python 3.11
 
+### Adding a New Bucket
+
+TiTiler only serves tiles from whitelisted S3 or GCS buckets. To add a new bucket:
+
+1. Go to **GitHub → Settings → Secrets and variables → Actions → Variables**
+2. Edit `TITILER_ALLOWED_BUCKETS`
+3. Add your bucket URI (comma-separated): `s3://existing-bucket,s3://new-bucket,gs://gcs-bucket`
+4. Redeploy TiTiler
+
 ### Purpose in Resilience Atlas
 
 TiTiler powers the raster layer visualization in Resilience Atlas, enabling:

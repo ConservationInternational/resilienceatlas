@@ -31,6 +31,9 @@ Parameters:
     Type: Number
     Default: 86400
     Description: Default cache TTL in seconds (default 24 hours)
+  AllowedBuckets:
+    Type: String
+    Description: Comma-separated list of allowed bucket URIs with provider prefix (e.g., 's3://my-bucket,gs://my-gcs-bucket'). Required - set via TITILER_ALLOWED_BUCKETS GitHub variable.
 
 Resources:
   TitilerCogsFunction:
@@ -67,6 +70,8 @@ Resources:
             Ref: DisableSTAC
           TITILER_API_DISABLE_MOSAIC:
             Ref: DisableMosaic
+          ALLOWED_BUCKETS:
+            Ref: AllowedBuckets
       ImageUri: titilercogsfunction:python3.14-v1
     Metadata:
       Dockerfile: Dockerfile
