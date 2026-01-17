@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: 'SAM Template for titiler-cogs using Python 3.14 (Amazon Linux 2023)'
+Description: 'SAM Template for titiler-cogs using Python 3.14 (Amazon Linux 2023) with CloudFront CDN'
 
 Parameters:
   FQDN:
@@ -27,6 +27,10 @@ Parameters:
     AllowedValues:
       - 'true'
       - 'false'
+  CacheTTL:
+    Type: Number
+    Default: 86400
+    Description: Default cache TTL in seconds (default 24 hours)
 
 Resources:
   TitilerCogsFunction:
@@ -69,21 +73,110 @@ Resources:
       DockerContext: ./titiler_cogs
       DockerTag: python3.14-v1
 
-  RestApiGateway: # Creates an HTTP API endpoint under the custom domain
+  RestApiGateway:
     Type: AWS::Serverless::Api
     Properties:
       BinaryMediaTypes:
         - "*/*"
-      CacheClusterEnabled: true
-      CacheClusterSize: "1.6"
+      # Disable API Gateway caching - CloudFront will handle caching
+      CacheClusterEnabled: false
       StageName: Prod
-      Domain:
-        DomainName: !Ref FQDN
-        CertificateArn: !Ref GenerateCertificate
-        Route53:
-          HostedZoneId: !Ref ZoneId
 
-  GenerateCertificate: # Creates a valid certificate for the HTTP API endpoint under the custom domain
+  # CloudFront Distribution for global edge caching
+  CloudFrontDistribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Enabled: true
+        Comment: !Sub "TiTiler CDN for ${FQDN}"
+        Aliases:
+          - !Ref FQDN
+        HttpVersion: http2and3
+        PriceClass: PriceClass_100  # Use only North America and Europe edge locations (cheaper)
+        ViewerCertificate:
+          AcmCertificateArn: !Ref CloudFrontCertificate
+          SslSupportMethod: sni-only
+          MinimumProtocolVersion: TLSv1.2_2021
+        Origins:
+          - Id: ApiGatewayOrigin
+            DomainName: !Sub "${RestApiGateway}.execute-api.${AWS::Region}.amazonaws.com"
+            OriginPath: /Prod
+            CustomOriginConfig:
+              HTTPSPort: 443
+              OriginProtocolPolicy: https-only
+              OriginSSLProtocols:
+                - TLSv1.2
+        DefaultCacheBehavior:
+          TargetOriginId: ApiGatewayOrigin
+          ViewerProtocolPolicy: redirect-to-https
+          AllowedMethods:
+            - GET
+            - HEAD
+            - OPTIONS
+          CachedMethods:
+            - GET
+            - HEAD
+          Compress: true
+          CachePolicyId: !Ref TileCachePolicy
+          OriginRequestPolicyId: !Ref TileOriginRequestPolicy
+        CacheBehaviors:
+          # Health check - no caching
+          - PathPattern: /healthz
+            TargetOriginId: ApiGatewayOrigin
+            ViewerProtocolPolicy: redirect-to-https
+            AllowedMethods:
+              - GET
+              - HEAD
+            CachedMethods:
+              - GET
+              - HEAD
+            CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad  # CachingDisabled managed policy
+            OriginRequestPolicyId: !Ref TileOriginRequestPolicy
+
+  # Custom cache policy for tiles - long TTL
+  TileCachePolicy:
+    Type: AWS::CloudFront::CachePolicy
+    Properties:
+      CachePolicyConfig:
+        Name: !Sub "${AWS::StackName}-TileCachePolicy"
+        Comment: "Cache policy for TiTiler tiles"
+        DefaultTTL: !Ref CacheTTL
+        MaxTTL: 604800  # 7 days max
+        MinTTL: 1
+        ParametersInCacheKeyAndForwardedToOrigin:
+          CookiesConfig:
+            CookieBehavior: none
+          HeadersConfig:
+            HeaderBehavior: whitelist
+            Headers:
+              - Accept
+              - Accept-Encoding
+          QueryStringsConfig:
+            QueryStringBehavior: all  # All query params are part of cache key
+          EnableAcceptEncodingGzip: true
+          EnableAcceptEncodingBrotli: true
+
+  # Origin request policy - forward necessary headers
+  TileOriginRequestPolicy:
+    Type: AWS::CloudFront::OriginRequestPolicy
+    Properties:
+      OriginRequestPolicyConfig:
+        Name: !Sub "${AWS::StackName}-TileOriginRequestPolicy"
+        Comment: "Origin request policy for TiTiler"
+        CookiesConfig:
+          CookieBehavior: none
+        HeadersConfig:
+          HeaderBehavior: whitelist
+          Headers:
+            - Accept
+            - Accept-Encoding
+            - Origin
+            - Referer
+        QueryStringsConfig:
+          QueryStringBehavior: all
+
+  # Certificate for CloudFront (must be in us-east-1)
+  CloudFrontCertificate:
     Type: AWS::CertificateManager::Certificate
     Properties:
       DomainName: !Ref FQDN
@@ -92,7 +185,24 @@ Resources:
         - DomainName: !Ref FQDN
           HostedZoneId: !Ref ZoneId
 
+  # Route53 record pointing to CloudFront
+  DnsRecord:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      HostedZoneId: !Ref ZoneId
+      Name: !Ref FQDN
+      Type: A
+      AliasTarget:
+        DNSName: !GetAtt CloudFrontDistribution.DomainName
+        HostedZoneId: Z2FDTNDATAQYW2  # CloudFront hosted zone ID (always this value)
+
 Outputs:
   TitilerCogsApi:
-    Description: "API Gateway endpoint URL"
-    Value: !Sub "https://${FQDN}/" # Updated to the FQDN
+    Description: "API Gateway endpoint URL (internal)"
+    Value: !Sub "https://${RestApiGateway}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
+  CloudFrontUrl:
+    Description: "CloudFront CDN URL"
+    Value: !Sub "https://${FQDN}/"
+  CloudFrontDistributionId:
+    Description: "CloudFront Distribution ID (for cache invalidation)"
+    Value: !Ref CloudFrontDistribution
