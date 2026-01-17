@@ -43,14 +43,10 @@ jobs:
 
       - name: Set environment-specific variables
         id: config
-        env:
-          ECR_REGISTRY: ${{ secrets.TITILER_ECR_REGISTRY }}
         run: |
           BRANCH_NAME=$(echo ${GITHUB_REF##*/} | tr -cd '[a-zA-Z0-9-]')
           echo "stack_name=${BRANCH_NAME}" >> $GITHUB_OUTPUT
           echo "fqdn=${BRANCH_NAME}.${{ env.TITILER_DOMAIN }}" >> $GITHUB_OUTPUT
-          # Append branch name to base ECR registry for branch-specific images
-          echo "image_repo=${ECR_REGISTRY}-${BRANCH_NAME}" >> $GITHUB_OUTPUT
           echo "artifacts_bucket=${{ secrets.SAM_ARTIFACTS_BUCKET }}" >> $GITHUB_OUTPUT
 
       - name: Configure AWS credentials via OIDC
@@ -77,7 +73,6 @@ jobs:
             --capabilities CAPABILITY_IAM \
             --region ${{ secrets.AWS_REGION }} \
             --s3-bucket ${{ steps.config.outputs.artifacts_bucket }} \
-            --image-repository ${{ steps.config.outputs.image_repo }} \
             --resolve-image-repos \
             --no-fail-on-empty-changeset
 
@@ -96,13 +91,9 @@ jobs:
 
       - name: Set environment-specific variables
         id: config
-        env:
-          ECR_REGISTRY: ${{ secrets.TITILER_ECR_REGISTRY }}
         run: |
           echo "stack_name=titiler-cogs-production" >> $GITHUB_OUTPUT
           echo "fqdn=${{ env.TITILER_DOMAIN }}" >> $GITHUB_OUTPUT
-          # Use production suffix for production images
-          echo "image_repo=${ECR_REGISTRY}-production" >> $GITHUB_OUTPUT
           echo "artifacts_bucket=${{ secrets.SAM_ARTIFACTS_BUCKET }}" >> $GITHUB_OUTPUT
 
       - name: Configure AWS credentials via OIDC
@@ -128,6 +119,5 @@ jobs:
             --capabilities CAPABILITY_IAM \
             --region ${{ secrets.AWS_REGION }} \
             --s3-bucket ${{ steps.config.outputs.artifacts_bucket }} \
-            --image-repository ${{ steps.config.outputs.image_repo }} \
             --resolve-image-repos \
             --no-fail-on-empty-changeset
