@@ -1,0 +1,681 @@
+#!/bin/bash
+#
+# CartoDB Raster Export Script
+#
+# Extracts all rasters from an old CartoDB PostgreSQL/PostGIS database
+# and uploads them to S3. Designed for Ubuntu 12.04 with GDAL 1.11.
+#
+# Requirements:
+#   - PostgreSQL client (psql)
+#   - GDAL 1.11+ (gdal_translate, gdalinfo)
+#   - AWS CLI (aws) or s3cmd
+#
+# Usage:
+#   ./export_rasters_bash.sh list      # List all rasters to CSV
+#   ./export_rasters_bash.sh export    # Export and upload to S3
+#   ./export_rasters_bash.sh status    # Show export status
+#
+
+set -uo pipefail
+
+# Configuration - set these via environment variables or edit here
+DB_HOST="${DB_HOST:-localhost}"
+DB_PORT="${DB_PORT:-5432}"
+DB_NAME="${DB_NAME:-cartodb}"
+DB_USER="${DB_USER:-postgres}"
+DB_PASSWORD="${DB_PASSWORD:-}"
+
+S3_BUCKET="${S3_BUCKET:-}"
+S3_PREFIX="${S3_PREFIX:-cartodb-rasters/}"
+AWS_REGION="${AWS_DEFAULT_REGION:-us-east-1}"
+
+# Output directories
+OUTPUT_DIR="${OUTPUT_DIR:-./raster_exports}"
+CSV_FILE="${OUTPUT_DIR}/rasters.csv"
+STATUS_FILE="${OUTPUT_DIR}/exported_rasters.txt"
+FAILED_FILE="${OUTPUT_DIR}/failed_rasters.txt"
+LOG_FILE="${OUTPUT_DIR}/export.log"
+
+# Create output directory
+mkdir -p "${OUTPUT_DIR}"
+
+# Touch status files
+touch "${STATUS_FILE}" "${FAILED_FILE}"
+
+# Logging function
+log() {
+    local level="$1"
+    shift
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] [${level}] $*" | tee -a "${LOG_FILE}"
+}
+
+info() { log "INFO" "$@"; }
+warn() { log "WARN" "$@"; }
+error() { log "ERROR" "$@"; }
+
+# Database connection string for psql
+export PGPASSWORD="${DB_PASSWORD}"
+PSQL_CMD="psql -h ${DB_HOST} -p ${DB_PORT} -U ${DB_USER} -d ${DB_NAME} -t -A"
+
+# Check prerequisites
+check_prereqs() {
+    local missing=()
+    
+    command -v psql >/dev/null 2>&1 || missing+=("psql")
+    command -v gdal_translate >/dev/null 2>&1 || missing+=("gdal_translate")
+    
+    # Check for aws or s3cmd
+    if [[ -n "${S3_BUCKET}" ]]; then
+        if ! command -v aws >/dev/null 2>&1 && ! command -v s3cmd >/dev/null 2>&1; then
+            missing+=("aws or s3cmd")
+        fi
+    fi
+    
+    if [[ ${#missing[@]} -gt 0 ]]; then
+        error "Missing required commands: ${missing[*]}"
+        exit 1
+    fi
+    
+    # Show GDAL version
+    local gdal_version
+    gdal_version=$(gdal_translate --version 2>&1 | head -1)
+    info "Using ${gdal_version}"
+    
+    # Test database connection
+    if ! ${PSQL_CMD} -c "SELECT 1" >/dev/null 2>&1; then
+        error "Cannot connect to database ${DB_NAME} at ${DB_HOST}:${DB_PORT}"
+        exit 1
+    fi
+    
+    info "Prerequisites check passed"
+}
+
+# List all rasters in the database
+list_rasters() {
+    info "Discovering rasters in database..."
+    
+    # Query raster_columns view
+    local query="
+    SELECT 
+        r_table_schema,
+        r_table_name,
+        r_raster_column,
+        srid,
+        num_bands,
+        scale_x,
+        scale_y,
+        blocksize_x,
+        blocksize_y
+    FROM raster_columns
+    ORDER BY r_table_schema, r_table_name;
+    "
+    
+    # Write header
+    echo "schema,table,column,srid,num_bands,scale_x,scale_y,blocksize_x,blocksize_y,num_tiles" > "${CSV_FILE}"
+    
+    local count=0
+    
+    # Get raster list
+    ${PSQL_CMD} -F'|' -c "${query}" | while IFS='|' read -r schema table column srid bands scale_x scale_y block_x block_y; do
+        # Skip empty lines
+        [[ -z "${schema}" ]] && continue
+        
+        # Count tiles
+        local count_query="SELECT COUNT(*) FROM \"${schema}\".\"${table}\""
+        local num_tiles
+        num_tiles=$(${PSQL_CMD} -c "${count_query}" 2>/dev/null | tr -d ' ' || echo "0")
+        
+        echo "${schema},${table},${column},${srid},${bands},${scale_x},${scale_y},${block_x},${block_y},${num_tiles}" >> "${CSV_FILE}"
+        count=$((count + 1))
+    done
+    
+    count=$(tail -n +2 "${CSV_FILE}" | wc -l | tr -d ' ')
+    info "Found ${count} rasters, list written to ${CSV_FILE}"
+}
+
+# Check if raster already exported (in status file or S3)
+is_exported() {
+    local raster_id="$1"
+    local s3_key="$2"
+    
+    # Check local status file
+    if grep -qF "${raster_id}" "${STATUS_FILE}" 2>/dev/null; then
+        return 0
+    fi
+    
+    # Check S3 if bucket configured
+    if [[ -n "${S3_BUCKET}" ]]; then
+        if command -v aws >/dev/null 2>&1; then
+            if aws s3 ls "s3://${S3_BUCKET}/${s3_key}" >/dev/null 2>&1; then
+                echo "${raster_id}" >> "${STATUS_FILE}"
+                return 0
+            fi
+        elif command -v s3cmd >/dev/null 2>&1; then
+            if s3cmd ls "s3://${S3_BUCKET}/${s3_key}" >/dev/null 2>&1; then
+                echo "${raster_id}" >> "${STATUS_FILE}"
+                return 0
+            fi
+        fi
+    fi
+    
+    return 1
+}
+
+# Export a single raster using GDAL
+# GDAL 1.11 compatible connection string format
+export_raster_gdal() {
+    local schema="$1"
+    local table="$2"
+    local column="$3"
+    local output_file="$4"
+    
+    # GDAL 1.11 PostGIS Raster connection string
+    # Must be quoted, spaces between parameters
+    # mode=2 merges tiles into single raster
+    local gdal_conn="PG:host=${DB_HOST} port=${DB_PORT} dbname='${DB_NAME}' user='${DB_USER}' password='${DB_PASSWORD}' schema='${schema}' table='${table}' column='${column}' mode=2"
+    
+    info "Trying GDAL export for ${schema}.${table}.${column}..."
+    
+    # Run gdal_translate with GDAL 1.11 compatible options
+    # - COMPRESS=LZW is safe and widely supported
+    # - TILED=YES creates tiled GeoTIFF
+    # - BIGTIFF=IF_SAFER handles large files automatically
+    if gdal_translate \
+        -of GTiff \
+        -co "COMPRESS=LZW" \
+        -co "TILED=YES" \
+        -co "BIGTIFF=IF_SAFER" \
+        "${gdal_conn}" \
+        "${output_file}" 2>&1 | tee -a "${LOG_FILE}"; then
+        
+        # Check output file exists and has size > 0
+        if [[ -f "${output_file}" && -s "${output_file}" ]]; then
+            return 0
+        fi
+    fi
+    
+    return 1
+}
+
+# Alternative: Export using SQL ST_AsTIFF (fallback if GDAL fails)
+export_raster_sql() {
+    local schema="$1"
+    local table="$2"
+    local column="$3"
+    local output_file="$4"
+    
+    info "Trying SQL export for ${schema}.${table}.${column}..."
+    
+    # For single-tile rasters, export directly
+    # For tiled rasters, union first then export
+    local query="
+    COPY (
+        SELECT encode(
+            ST_AsTIFF(
+                ST_Union(\"${column}\"),
+                'LZW'
+            ),
+            'hex'
+        )
+        FROM \"${schema}\".\"${table}\"
+    ) TO STDOUT;
+    "
+    
+    # Export hex-encoded TIFF, then decode
+    local hex_output
+    hex_output=$(${PSQL_CMD} -c "${query}" 2>/dev/null)
+    
+    if [[ -n "${hex_output}" ]]; then
+        # Decode hex to binary
+        # Use xxd if available, otherwise use printf
+        if command -v xxd >/dev/null 2>&1; then
+            echo "${hex_output}" | xxd -r -p > "${output_file}"
+        else
+            # Fallback: use printf (slower but more portable)
+            local i=0
+            local len=${#hex_output}
+            > "${output_file}"  # Truncate file
+            while [[ $i -lt $len ]]; do
+                printf "\\x${hex_output:$i:2}" >> "${output_file}"
+                i=$((i + 2))
+            done
+        fi
+        
+        if [[ -f "${output_file}" && -s "${output_file}" ]]; then
+            return 0
+        fi
+    fi
+    
+    return 1
+}
+
+# Export individual tiles for very large rasters
+export_raster_tiles() {
+    local schema="$1"
+    local table="$2"
+    local column="$3"
+    local output_dir="$4"
+    
+    info "Exporting ${schema}.${table}.${column} as individual tiles..."
+    
+    local tiles_dir="${output_dir}/${schema}_${table}_${column}_tiles"
+    mkdir -p "${tiles_dir}"
+    
+    # Get all tile IDs
+    local query="SELECT COALESCE(rid, row_number() OVER ()) as tile_id FROM \"${schema}\".\"${table}\" ORDER BY 1"
+    
+    ${PSQL_CMD} -c "${query}" | while read -r tile_id; do
+        [[ -z "${tile_id}" ]] && continue
+        tile_id=$(echo "${tile_id}" | tr -d ' ')
+        
+        local tile_file="${tiles_dir}/tile_$(printf '%06d' ${tile_id}).tif"
+        
+        # Skip if already exported
+        [[ -f "${tile_file}" ]] && continue
+        
+        # Export single tile
+        local tile_query="
+        COPY (
+            SELECT encode(ST_AsTIFF(\"${column}\", 'LZW'), 'hex')
+            FROM \"${schema}\".\"${table}\"
+            WHERE COALESCE(rid, ctid::text::bigint) = ${tile_id}
+            LIMIT 1
+        ) TO STDOUT;
+        "
+        
+        local hex_output
+        hex_output=$(${PSQL_CMD} -c "${tile_query}" 2>/dev/null)
+        
+        if [[ -n "${hex_output}" ]] && command -v xxd >/dev/null 2>&1; then
+            echo "${hex_output}" | xxd -r -p > "${tile_file}"
+        fi
+    done
+    
+    # Check if we got any tiles
+    local tile_count
+    tile_count=$(find "${tiles_dir}" -name "*.tif" 2>/dev/null | wc -l | tr -d ' ')
+    
+    if [[ ${tile_count} -gt 0 ]]; then
+        info "Exported ${tile_count} tiles to ${tiles_dir}"
+        return 0
+    fi
+    
+    return 1
+}
+
+# Upload file to S3
+upload_to_s3() {
+    local local_file="$1"
+    local s3_key="$2"
+    
+    if [[ -z "${S3_BUCKET}" ]]; then
+        warn "S3_BUCKET not set, skipping upload"
+        return 0
+    fi
+    
+    local file_size
+    file_size=$(stat -c%s "${local_file}" 2>/dev/null || stat -f%z "${local_file}" 2>/dev/null || echo "unknown")
+    
+    info "Uploading $(basename ${local_file}) (${file_size} bytes) to s3://${S3_BUCKET}/${s3_key}"
+    
+    if command -v aws >/dev/null 2>&1; then
+        # Use AWS CLI
+        aws s3 cp "${local_file}" "s3://${S3_BUCKET}/${s3_key}" \
+            --region "${AWS_REGION}" \
+            --content-type "image/tiff" \
+            2>&1 | tee -a "${LOG_FILE}" || return 1
+    elif command -v s3cmd >/dev/null 2>&1; then
+        # Use s3cmd (more likely on old Ubuntu)
+        s3cmd put "${local_file}" "s3://${S3_BUCKET}/${s3_key}" \
+            --mime-type="image/tiff" \
+            2>&1 | tee -a "${LOG_FILE}" || return 1
+    else
+        error "No S3 upload tool available"
+        return 1
+    fi
+    
+    return 0
+}
+
+# Upload a directory of tiles to S3
+upload_tiles_to_s3() {
+    local tiles_dir="$1"
+    local s3_prefix="$2"
+    
+    if [[ -z "${S3_BUCKET}" ]]; then
+        warn "S3_BUCKET not set, skipping upload"
+        return 0
+    fi
+    
+    info "Uploading tiles directory to s3://${S3_BUCKET}/${s3_prefix}"
+    
+    if command -v aws >/dev/null 2>&1; then
+        aws s3 sync "${tiles_dir}" "s3://${S3_BUCKET}/${s3_prefix}" \
+            --region "${AWS_REGION}" \
+            --content-type "image/tiff" \
+            2>&1 | tee -a "${LOG_FILE}" || return 1
+    elif command -v s3cmd >/dev/null 2>&1; then
+        s3cmd sync "${tiles_dir}/" "s3://${S3_BUCKET}/${s3_prefix}" \
+            --mime-type="image/tiff" \
+            2>&1 | tee -a "${LOG_FILE}" || return 1
+    else
+        error "No S3 upload tool available"
+        return 1
+    fi
+    
+    return 0
+}
+
+# Export all rasters
+export_rasters() {
+    if [[ ! -f "${CSV_FILE}" ]]; then
+        warn "Raster list not found, running discovery first..."
+        list_rasters
+    fi
+    
+    info "Starting raster export..."
+    
+    local total=0
+    local exported=0
+    local skipped=0
+    local failed=0
+    
+    # Count total
+    local total_count
+    total_count=$(tail -n +2 "${CSV_FILE}" | wc -l | tr -d ' ')
+    
+    # Process each raster
+    tail -n +2 "${CSV_FILE}" | while IFS=',' read -r schema table column srid bands scale_x scale_y block_x block_y num_tiles; do
+        [[ -z "${schema}" ]] && continue
+        
+        total=$((total + 1))
+        local raster_id="${schema}.${table}.${column}"
+        local filename="${schema}_${table}_${column}.tif"
+        local output_file="${OUTPUT_DIR}/${filename}"
+        local s3_key="${S3_PREFIX}${schema}/${table}/${column}.tif"
+        
+        echo ""
+        info "[${total}/${total_count}] Processing ${raster_id} (${num_tiles} tiles)..."
+        
+        # Check if already exported
+        if is_exported "${raster_id}" "${s3_key}"; then
+            info "Skipping ${raster_id} - already exported"
+            skipped=$((skipped + 1))
+            continue
+        fi
+        
+        local export_success=false
+        
+        # Try GDAL first (most efficient)
+        if export_raster_gdal "${schema}" "${table}" "${column}" "${output_file}"; then
+            info "GDAL export successful"
+            export_success=true
+        else
+            warn "GDAL export failed, trying SQL method..."
+            
+            # Try SQL export
+            if export_raster_sql "${schema}" "${table}" "${column}" "${output_file}"; then
+                info "SQL export successful"
+                export_success=true
+            else
+                # For large rasters, try tile export
+                if [[ ${num_tiles} -gt 10 ]]; then
+                    warn "SQL export failed, trying tile export..."
+                    if export_raster_tiles "${schema}" "${table}" "${column}" "${OUTPUT_DIR}"; then
+                        # Upload tiles directory
+                        local tiles_dir="${OUTPUT_DIR}/${schema}_${table}_${column}_tiles"
+                        local tiles_s3_prefix="${S3_PREFIX}${schema}/${table}/${column}_tiles/"
+                        
+                        if upload_tiles_to_s3 "${tiles_dir}" "${tiles_s3_prefix}"; then
+                            echo "${raster_id}" >> "${STATUS_FILE}"
+                            exported=$((exported + 1))
+                            continue
+                        fi
+                    fi
+                fi
+            fi
+        fi
+        
+        if [[ "${export_success}" == "true" ]]; then
+            # Upload to S3
+            if upload_to_s3 "${output_file}" "${s3_key}"; then
+                echo "${raster_id}" >> "${STATUS_FILE}"
+                exported=$((exported + 1))
+                info "Successfully exported and uploaded ${raster_id}"
+                
+                # Optionally remove local file after upload
+                # rm -f "${output_file}"
+            else
+                error "S3 upload failed for ${raster_id}"
+                echo "${raster_id}|upload_failed" >> "${FAILED_FILE}"
+                failed=$((failed + 1))
+            fi
+        else
+            error "All export methods failed for ${raster_id}"
+            echo "${raster_id}|export_failed" >> "${FAILED_FILE}"
+            failed=$((failed + 1))
+        fi
+    done
+    
+    echo ""
+    info "=========================================="
+    info "Export complete!"
+    info "  Total processed: ${total_count}"
+    info "  Check ${STATUS_FILE} for exported rasters"
+    info "  Check ${FAILED_FILE} for failures"
+    info "=========================================="
+}
+
+# Show export status
+show_status() {
+    echo ""
+    echo "=== Export Status ==="
+    echo ""
+    
+    if [[ -f "${CSV_FILE}" ]]; then
+        local total
+        total=$(tail -n +2 "${CSV_FILE}" | wc -l | tr -d ' ')
+        echo "Total rasters discovered: ${total}"
+    else
+        echo "Raster list not created yet. Run: $0 list"
+    fi
+    
+    if [[ -f "${STATUS_FILE}" ]]; then
+        local exported
+        exported=$(wc -l < "${STATUS_FILE}" | tr -d ' ')
+        echo "Successfully exported: ${exported}"
+    else
+        echo "Successfully exported: 0"
+    fi
+    
+    if [[ -f "${FAILED_FILE}" && -s "${FAILED_FILE}" ]]; then
+        local failed
+        failed=$(wc -l < "${FAILED_FILE}" | tr -d ' ')
+        echo "Failed exports: ${failed}"
+        echo ""
+        echo "Failed rasters:"
+        cat "${FAILED_FILE}"
+    else
+        echo "Failed exports: 0"
+    fi
+    
+    echo ""
+}
+
+# Retry failed exports
+retry_failed() {
+    if [[ ! -f "${FAILED_FILE}" || ! -s "${FAILED_FILE}" ]]; then
+        info "No failed exports to retry"
+        return 0
+    fi
+    
+    info "Retrying failed exports..."
+    
+    # Move failed file to temp
+    local temp_failed="${FAILED_FILE}.retry"
+    mv "${FAILED_FILE}" "${temp_failed}"
+    touch "${FAILED_FILE}"
+    
+    while IFS='|' read -r raster_id reason; do
+        [[ -z "${raster_id}" ]] && continue
+        
+        # Parse raster_id
+        local schema table column
+        schema=$(echo "${raster_id}" | cut -d. -f1)
+        table=$(echo "${raster_id}" | cut -d. -f2)
+        column=$(echo "${raster_id}" | cut -d. -f3)
+        
+        local filename="${schema}_${table}_${column}.tif"
+        local output_file="${OUTPUT_DIR}/${filename}"
+        local s3_key="${S3_PREFIX}${schema}/${table}/${column}.tif"
+        
+        info "Retrying ${raster_id}..."
+        
+        # Remove from status if present (force re-export)
+        sed -i "/${raster_id}/d" "${STATUS_FILE}" 2>/dev/null || true
+        
+        local export_success=false
+        
+        if export_raster_gdal "${schema}" "${table}" "${column}" "${output_file}"; then
+            export_success=true
+        elif export_raster_sql "${schema}" "${table}" "${column}" "${output_file}"; then
+            export_success=true
+        fi
+        
+        if [[ "${export_success}" == "true" ]]; then
+            if upload_to_s3 "${output_file}" "${s3_key}"; then
+                echo "${raster_id}" >> "${STATUS_FILE}"
+                info "Retry successful for ${raster_id}"
+            else
+                echo "${raster_id}|upload_failed" >> "${FAILED_FILE}"
+            fi
+        else
+            echo "${raster_id}|export_failed" >> "${FAILED_FILE}"
+        fi
+    done < "${temp_failed}"
+    
+    rm -f "${temp_failed}"
+    
+    show_status
+}
+
+# Test GDAL PostGIS raster driver
+test_gdal() {
+    info "Testing GDAL PostGIS Raster driver..."
+    
+    # Check if driver is available
+    if ! gdalinfo --formats 2>/dev/null | grep -qi "PostGIS Raster"; then
+        error "GDAL PostGIS Raster driver not found!"
+        error "You may need to rebuild GDAL with PostgreSQL support"
+        return 1
+    fi
+    
+    info "PostGIS Raster driver is available"
+    
+    # Try to list rasters via GDAL
+    local gdal_conn="PG:host=${DB_HOST} port=${DB_PORT} dbname='${DB_NAME}' user='${DB_USER}' password='${DB_PASSWORD}'"
+    
+    info "Testing connection to database..."
+    if gdalinfo "${gdal_conn}" 2>&1 | head -20; then
+        info "GDAL can connect to database"
+        return 0
+    else
+        warn "GDAL connection test had issues, but may still work for individual tables"
+        return 0
+    fi
+}
+
+# Main
+main() {
+    local command="${1:-help}"
+    
+    case "${command}" in
+        list)
+            check_prereqs
+            list_rasters
+            ;;
+        export)
+            check_prereqs
+            export_rasters
+            ;;
+        status)
+            show_status
+            ;;
+        retry)
+            check_prereqs
+            retry_failed
+            ;;
+        test)
+            check_prereqs
+            test_gdal
+            ;;
+        help|--help|-h)
+            cat <<EOF
+CartoDB Raster Export Script
+
+Exports PostGIS rasters to GeoTIFF and uploads to S3.
+Compatible with GDAL 1.11+ on Ubuntu 12.04.
+
+Usage: $0 <command>
+
+Commands:
+    list     Discover all rasters and write to CSV
+    export   Export rasters and upload to S3
+    status   Show export status
+    retry    Retry failed exports
+    test     Test GDAL PostGIS Raster driver
+
+Environment variables:
+    DB_HOST       Database host (default: localhost)
+    DB_PORT       Database port (default: 5432)
+    DB_NAME       Database name (default: cartodb)
+    DB_USER       Database user (default: postgres)
+    DB_PASSWORD   Database password
+
+    S3_BUCKET     S3 bucket name (required for upload)
+    S3_PREFIX     S3 key prefix (default: cartodb-rasters/)
+    AWS_DEFAULT_REGION  AWS region (default: us-east-1)
+
+    OUTPUT_DIR    Local output directory (default: ./raster_exports)
+
+Examples:
+    # Set up environment
+    export DB_HOST=localhost DB_NAME=cartodb_user_db
+    export DB_USER=postgres DB_PASSWORD=secret
+    export S3_BUCKET=my-bucket S3_PREFIX=rasters/
+
+    # Test GDAL driver
+    $0 test
+
+    # List all rasters to CSV
+    $0 list
+
+    # Export and upload to S3
+    $0 export
+
+    # Check progress
+    $0 status
+
+    # Retry any failed exports
+    $0 retry
+
+Export Methods (tried in order):
+    1. GDAL gdal_translate - Most efficient, uses PostGIS Raster driver
+    2. SQL ST_AsTIFF - Direct PostgreSQL export via psql
+    3. Tile export - For large rasters, exports individual tiles
+
+Notes:
+    - Export progress is saved, so you can stop and resume
+    - Rasters already in S3 are skipped (unless you remove from status file)
+    - Large rasters (>10 tiles) will try tile export if other methods fail
+EOF
+            ;;
+        *)
+            error "Unknown command: ${command}"
+            echo "Run '$0 help' for usage"
+            exit 1
+            ;;
+    esac
+}
+
+main "$@"
