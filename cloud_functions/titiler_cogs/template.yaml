@@ -70,7 +70,7 @@ Resources:
             Ref: DisableSTAC
           TITILER_API_DISABLE_MOSAIC:
             Ref: DisableMosaic
-          ALLOWED_BUCKETS:
+          TITILER_ALLOWED_BUCKETS:
             Ref: AllowedBuckets
       ImageUri: titilercogsfunction:python3.14-v1
     Metadata:
