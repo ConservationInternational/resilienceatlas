@@ -5,8 +5,8 @@ WORKDIR ${LAMBDA_TASK_ROOT}
 
 COPY requirements.txt ./
 
-# Install dependencies - rasterio wheels from lambgeo are compatible with this image
-RUN python -m pip install --no-cache-dir -r requirements.txt -t .
+# Install dependencies - force binary wheels only (no source compilation)
+RUN python -m pip install --no-cache-dir --only-binary=:all: -r requirements.txt -t .
 
 COPY app.py ./
 
