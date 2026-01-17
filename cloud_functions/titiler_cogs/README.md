@@ -4,7 +4,7 @@
 
 [TiTiler](https://developmentseed.org/titiler/) is a dynamic tile server for Cloud Optimized GeoTIFFs (COGs). It renders map tiles on-the-fly from raster data stored in S3, eliminating the need to pre-generate tile pyramids.
 
-**Current Version:** TiTiler 1.1.0 on Python 3.11
+**Current Version:** TiTiler 1.1.0 on Python 3.14
 
 ### Adding a New Bucket
 
@@ -30,24 +30,55 @@ Once deployed, TiTiler provides these endpoints:
 
 | Endpoint | Description |
 |----------|-------------|
-| `/cog/tiles/{z}/{x}/{y}` | Get map tiles for a COG |
-| `/cog/info` | Get metadata about a COG |
-| `/cog/statistics` | Get statistics for a COG |
-| `/cog/preview` | Generate a preview image |
-| `/cog/point/{lon}/{lat}` | Query a point value |
+| `/tiles/WebMercatorQuad/{z}/{x}/{y}` | Get map tiles for a COG |
+| `/info` | Get metadata about a COG |
+| `/statistics` | Get statistics for a COG |
+| `/preview` | Generate a preview image |
+| `/point/{lon}/{lat}` | Query a point value |
+| `/healthz` | Health check endpoint |
+| `/docs` | Interactive API documentation |
 
 **Example tile request:**
 ```
-GET /cog/tiles/10/512/384.png?url=s3://bucket/layer.tif&rescale=0,100&colormap_name=viridis
+GET /tiles/WebMercatorQuad/10/512/384?url=https://storage.googleapis.com/bucket/layer.tif&bidx=1&colormap={"1":[255,0,0,255]}
+```
+
+**Example with URL encoding (for browsers):**
+```
+GET /tiles/WebMercatorQuad/10/512/384?url=https%3A%2F%2Fstorage.googleapis.com%2Fbucket%2Flayer.tif&bidx=1&colormap=%7B%221%22%3A%5B255%2C0%2C0%2C255%5D%7D
 ```
 
 ### Architecture
 
 ```
-Frontend → API Gateway → Lambda (TiTiler) → S3 (COG files)
+Frontend → CloudFront CDN → API Gateway → Lambda (TiTiler) → S3/GCS (COG files)
 ```
 
-The service is deployed as an AWS Lambda function behind API Gateway, providing serverless scaling and pay-per-request pricing.
+The service is deployed as an AWS Lambda function behind API Gateway with CloudFront CDN for global edge caching (24-hour default TTL).
+
+### Configuring COG Layers in Backend Admin
+
+When creating a COG layer in the Resilience Atlas admin panel, set the `layer_config` JSON with the tile URL template. The frontend substitutes `{z}`, `{x}`, `{y}` and `{{colormap}}` parameters at runtime.
+
+**Example `layer_config` for a COG layer:**
+```json
+{
+  "type": "tileLayer",
+  "body": {
+    "url": "https://staging.titiler.resilienceatlas.org/tiles/WebMercatorQuad/{z}/{x}/{y}?url=https://storage.googleapis.com/trendsearth-public/data/layer.tif&bidx=1&colormap={{colormap}}"
+  },
+  "params": {
+    "colormap": {"1": [255, 0, 0, 255], "2": [0, 255, 0, 255]}
+  }
+}
+```
+
+**Key fields:**
+- `body.url`: The TiTiler tile URL template with `{z}/{x}/{y}` placeholders
+- `params.colormap`: Color mapping for raster values (optional)
+- `bidx`: Band index parameter (1-based, e.g., `bidx=1` for first band)
+
+**Important:** Use the new TiTiler 1.1.0 endpoint format `/tiles/WebMercatorQuad/{z}/{x}/{y}` - the old `/cog/tiles/{z}/{x}/{y}` format is no longer supported.
 
 ---
 

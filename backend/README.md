@@ -341,6 +341,41 @@ curl -X GET "http://localhost:3000/api/layers?site_scope=protected-site" \
 }
 ```
 
+#### Layer Providers
+
+The `layer_provider` field determines how the layer is rendered:
+
+| Provider | Description | Example Use Case |
+|----------|-------------|------------------|
+| `cartodb` | CartoDB/CARTO vector tiles | Vector overlays, administrative boundaries |
+| `gee` | Google Earth Engine | Satellite imagery, global datasets |
+| `cog` | Cloud Optimized GeoTIFF via TiTiler | Raster analysis layers from S3/GCS |
+| `xyz tileset` | Generic XYZ tile service | Pre-rendered tile caches |
+
+#### COG Layer Configuration
+
+For `cog` layers, the `layer_config` JSON must include the TiTiler tile URL template:
+
+```json
+{
+  "type": "tileLayer",
+  "body": {
+    "url": "https://titiler.resilienceatlas.org/tiles/WebMercatorQuad/{z}/{x}/{y}?url=https://storage.googleapis.com/bucket/layer.tif&bidx=1&colormap={{colormap}}"
+  },
+  "params": {
+    "colormap": {"1": [255, 0, 0, 255], "2": [0, 255, 0, 255]}
+  }
+}
+```
+
+**TiTiler URL Parameters:**
+- `url`: URL to the COG file (must be from whitelisted bucket)
+- `bidx`: Band index (1-based)
+- `colormap`: JSON color mapping (use `{{colormap}}` placeholder for frontend substitution)
+- `rescale`: Optional rescaling (e.g., `0,100`)
+
+See [TiTiler README](../cloud_functions/titiler_cogs/README.md) for full API documentation.
+
 #### Journey Object
 ```json
 {
