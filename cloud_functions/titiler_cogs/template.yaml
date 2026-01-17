@@ -34,6 +34,14 @@ Parameters:
   AllowedBuckets:
     Type: String
     Description: Comma-separated list of allowed bucket URIs with provider prefix (e.g., 's3://my-bucket,gs://my-gcs-bucket'). Required - set via TITILER_ALLOWED_BUCKETS GitHub variable.
+  RollbarAccessToken:
+    Type: String
+    Default: ''
+    Description: Rollbar access token for error tracking. Optional - set via ROLLBAR_ACCESS_TOKEN GitHub secret.
+  RollbarEnvironment:
+    Type: String
+    Default: 'production'
+    Description: Rollbar environment name (e.g., 'production', 'staging').
 
 Resources:
   TitilerCogsFunction:
@@ -72,6 +80,10 @@ Resources:
             Ref: DisableMosaic
           TITILER_ALLOWED_BUCKETS:
             Ref: AllowedBuckets
+          ROLLBAR_ACCESS_TOKEN:
+            Ref: RollbarAccessToken
+          ROLLBAR_ENVIRONMENT:
+            Ref: RollbarEnvironment
       ImageUri: titilercogsfunction:python3.14-v1
     Metadata:
       Dockerfile: Dockerfile

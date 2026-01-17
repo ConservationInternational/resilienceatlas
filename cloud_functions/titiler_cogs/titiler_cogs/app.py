@@ -7,12 +7,42 @@ from titiler.core.factory import TilerFactory
 from titiler.core.errors import DEFAULT_STATUS_CODES, add_exception_handlers
 from titiler.core.middleware import CacheControlMiddleware
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi import FastAPI, HTTPException, Query, Request
+from fastapi import FastAPI, HTTPException, Query, Request, Response
 from starlette.middleware.base import BaseHTTPMiddleware
+import rollbar
+from rollbar.contrib.fastapi import ReporterMiddleware as RollbarMiddleware
 
 logging.getLogger("mangum.lifespan").setLevel(logging.ERROR)
 logging.getLogger("mangum.http").setLevel(logging.ERROR)
 logging.getLogger("rio-tiler").setLevel(logging.ERROR)
+
+# Initialize Rollbar for error tracking
+# Distinguishes TiTiler errors from frontend/backend via 'component' tag
+_rollbar_token = os.environ.get("ROLLBAR_ACCESS_TOKEN", "")
+_rollbar_environment = os.environ.get("ROLLBAR_ENVIRONMENT", "development")
+
+if _rollbar_token:
+    rollbar.init(
+        access_token=_rollbar_token,
+        environment=_rollbar_environment,
+        code_version=os.environ.get("AWS_LAMBDA_FUNCTION_VERSION", "unknown"),
+        handler="async",
+        # Include custom payload data matching frontend/backend pattern for consistency
+        payload_handler=lambda payload: {
+            **payload,
+            "data": {
+                **payload.get("data", {}),
+                "context": "titiler",
+                "custom": {
+                    **payload.get("data", {}).get("custom", {}),
+                    "application": "ResilienceAtlas TiTiler",
+                },
+            },
+        },
+    )
+    logging.info("Rollbar initialized for TiTiler")
+else:
+    logging.warning("ROLLBAR_ACCESS_TOKEN not set, error tracking disabled")
 
 # Whitelisted cloud storage buckets (AWS S3 and Google Cloud Storage)
 # Format: comma-separated URIs with scheme prefix, e.g. "s3://bucket1,gs://bucket2"
@@ -197,6 +227,10 @@ cog = TilerFactory()
 app = FastAPI(title="Resilience COG tiler", description="Cloud Optimized GeoTIFF")
 
 app.include_router(cog.router, tags=["Cloud Optimized GeoTIFF"])
+
+# Add Rollbar middleware for error tracking (must be first to catch all errors)
+if _rollbar_token:
+    app.add_middleware(RollbarMiddleware)
 
 # Add bucket whitelist middleware (must be added before other middlewares)
 # Supports both AWS S3 and Google Cloud Storage buckets

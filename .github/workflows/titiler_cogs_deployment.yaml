@@ -70,6 +70,8 @@ jobs:
               FQDN=${{ steps.config.outputs.fqdn }} \
               ZoneId=${{ secrets.ROUTE_53_ZONE_ID }} \
               AllowedBuckets=${{ vars.TITILER_ALLOWED_BUCKETS }} \
+              RollbarAccessToken=${{ secrets.ROLLBAR_ACCESS_TOKEN }} \
+              RollbarEnvironment=staging \
             --capabilities CAPABILITY_IAM \
             --region ${{ secrets.AWS_REGION }} \
             --s3-bucket ${{ steps.config.outputs.artifacts_bucket }} \
@@ -116,6 +118,8 @@ jobs:
               FQDN=${{ steps.config.outputs.fqdn }} \
               ZoneId=${{ secrets.ROUTE_53_ZONE_ID }} \
               AllowedBuckets=${{ vars.TITILER_ALLOWED_BUCKETS }} \
+              RollbarAccessToken=${{ secrets.ROLLBAR_ACCESS_TOKEN }} \
+              RollbarEnvironment=production \
             --capabilities CAPABILITY_IAM \
             --region ${{ secrets.AWS_REGION }} \
             --s3-bucket ${{ steps.config.outputs.artifacts_bucket }} \

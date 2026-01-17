@@ -194,6 +194,7 @@ Rollbar.configure do |config|
     # Add custom data to all error reports
     config.custom_data_method = lambda { |message, exception, request|
       {
+        context: "backend",
         application: "ResilienceAtlas Backend",
         host: ENV.fetch("BACKEND_URL", nil),
         timestamp: Time.current.iso8601
