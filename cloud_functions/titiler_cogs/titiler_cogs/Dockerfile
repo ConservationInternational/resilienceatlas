@@ -35,4 +35,6 @@ WORKDIR /asset
 # Verify the build works
 RUN python -c "from handler import handler; print('TiTiler Lambda build successful')"
 
-CMD ["echo", "hello world"]
+# Set the handler for AWS Lambda
+# The entrypoint from the base image expects: handler.handler
+CMD ["handler.handler"]
