@@ -4,7 +4,8 @@ describe('Journeys index page', () => {
   });
 
   it('should have show the language switcher and show 6 languages', () => {
-    cy.get('.language-switcher').should('exist');
-    cy.get('.language-switcher').find('li').should('have.length', 6);
+    // Use .first() to scope to the desktop language switcher (there's also one in mobile menu)
+    cy.get('.language-switcher').first().should('exist');
+    cy.get('.language-switcher').first().find('li').should('have.length', 6);
   });
 });

@@ -1,5 +1,5 @@
 # Use lambgeo GDAL image which includes pre-built GDAL and compatible rasterio wheels
-FROM ghcr.io/lambgeo/lambda-gdal:3.9-python3.11
+FROM ghcr.io/lambgeo/lambda-gdal:3.8-python3.11
 
 WORKDIR ${LAMBDA_TASK_ROOT}
 
