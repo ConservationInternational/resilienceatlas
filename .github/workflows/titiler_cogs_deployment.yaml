@@ -47,7 +47,7 @@ jobs:
           BRANCH_NAME=$(echo ${GITHUB_REF##*/} | tr -cd '[a-zA-Z0-9-]')
           echo "stack_name=${BRANCH_NAME}" >> $GITHUB_OUTPUT
           echo "fqdn=${BRANCH_NAME}.${{ env.TITILER_DOMAIN }}" >> $GITHUB_OUTPUT
-          echo "image_repo=${{ secrets.TITILER_ECR_REGISTRY }}/titiler-cogs" >> $GITHUB_OUTPUT
+          echo "image_repo=${{ secrets.TITILER_ECR_REGISTRY }}" >> $GITHUB_OUTPUT
           echo "artifacts_bucket=${{ secrets.SAM_ARTIFACTS_BUCKET }}" >> $GITHUB_OUTPUT
 
       - name: Configure AWS credentials via OIDC
@@ -92,7 +92,7 @@ jobs:
         run: |
           echo "stack_name=titiler-cogs-production" >> $GITHUB_OUTPUT
           echo "fqdn=${{ env.TITILER_DOMAIN }}" >> $GITHUB_OUTPUT
-          echo "image_repo=${{ secrets.TITILER_ECR_REGISTRY }}/titiler-cogs" >> $GITHUB_OUTPUT
+          echo "image_repo=${{ secrets.TITILER_ECR_REGISTRY }}" >> $GITHUB_OUTPUT
           echo "artifacts_bucket=${{ secrets.SAM_ARTIFACTS_BUCKET }}" >> $GITHUB_OUTPUT
 
       - name: Configure AWS credentials via OIDC
