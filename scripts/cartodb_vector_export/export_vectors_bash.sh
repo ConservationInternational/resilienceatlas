@@ -9,7 +9,7 @@
 # Requirements:
 #   - PostgreSQL client (psql)
 #   - GDAL/OGR 1.11+ (ogr2ogr, ogrinfo)
-#   - AWS CLI (aws) or s3cmd
+#   - AWS CLI (aws)
 #
 # Usage:
 #   ./export_vectors_bash.sh list      # List all vector tables to CSV
@@ -29,6 +29,9 @@ DB_PASSWORD="${DB_PASSWORD:-}"
 S3_BUCKET="${S3_BUCKET:-}"
 S3_PREFIX="${S3_PREFIX:-cartodb-vectors/}"
 AWS_REGION="${AWS_DEFAULT_REGION:-us-east-1}"
+
+# Cleanup settings - delete local files after successful S3 upload to save disk space
+CLEANUP_LOCAL="${CLEANUP_LOCAL:-true}"
 
 # Export format: geojson, shapefile, or gpkg (GeoPackage)
 # geojson is most portable and recommended for GDAL 1.11
@@ -91,10 +94,10 @@ check_prereqs() {
     command -v psql >/dev/null 2>&1 || missing+=("psql")
     command -v ogr2ogr >/dev/null 2>&1 || missing+=("ogr2ogr")
     
-    # Check for aws or s3cmd
+    # Check for aws cli
     if [[ -n "${S3_BUCKET}" ]]; then
-        if ! command -v aws >/dev/null 2>&1 && ! command -v s3cmd >/dev/null 2>&1; then
-            missing+=("aws or s3cmd")
+        if ! command -v aws >/dev/null 2>&1; then
+            missing+=("aws")
         fi
     fi
     
@@ -194,16 +197,9 @@ is_exported() {
     
     # Check S3 if bucket configured
     if [[ -n "${S3_BUCKET}" ]]; then
-        if command -v aws >/dev/null 2>&1; then
-            if aws s3 ls "s3://${S3_BUCKET}/${s3_key}" >/dev/null 2>&1; then
-                echo "${vector_id}" >> "${STATUS_FILE}"
-                return 0
-            fi
-        elif command -v s3cmd >/dev/null 2>&1; then
-            if s3cmd ls "s3://${S3_BUCKET}/${s3_key}" >/dev/null 2>&1; then
-                echo "${vector_id}" >> "${STATUS_FILE}"
-                return 0
-            fi
+        if aws s3 ls "s3://${S3_BUCKET}/${s3_key}" >/dev/null 2>&1; then
+            echo "${vector_id}" >> "${STATUS_FILE}"
+            return 0
         fi
     fi
     
@@ -217,6 +213,7 @@ export_vector_ogr() {
     local table="$2"
     local geom_col="$3"
     local output_file="$4"
+    local srid="${5:-0}"
     
     local driver
     driver=$(get_driver)
@@ -228,7 +225,7 @@ export_vector_ogr() {
     # SQL to select from the table with proper schema
     local sql="SELECT * FROM \"${schema}\".\"${table}\""
     
-    info "Trying OGR export for ${schema}.${table}..."
+    info "Trying OGR export for ${schema}.${table} (SRID: ${srid})..."
     
     # Remove existing output file/directory
     rm -rf "${output_file}" "${output_file%.shp}.dbf" "${output_file%.shp}.shx" "${output_file%.shp}.prj" 2>/dev/null
@@ -237,9 +234,15 @@ export_vector_ogr() {
     # -f: output format
     # -sql: SQL query to execute
     # -lco: layer creation options
-    # -overwrite: overwrite existing
+    # -a_srs: assign spatial reference if SRID known
     local ogr_opts=()
     ogr_opts+=("-f" "${driver}")
+    
+    # Set spatial reference if SRID is valid (> 0)
+    if [[ "${srid}" =~ ^[0-9]+$ && "${srid}" -gt 0 ]]; then
+        ogr_opts+=("-a_srs" "EPSG:${srid}")
+        info "Setting spatial reference to EPSG:${srid}"
+    fi
     
     # Format-specific options
     case "${EXPORT_FORMAT}" in
@@ -401,17 +404,24 @@ export_vector_chunked() {
     local geom_col="$3"
     local output_dir="$4"
     local row_count="$5"
+    local srid="${6:-0}"
     
     local chunk_size=10000
     local chunks_dir="${output_dir}/${schema}_${table}_chunks"
     mkdir -p "${chunks_dir}"
     
-    info "Exporting ${schema}.${table} in chunks (${row_count} rows)..."
+    info "Exporting ${schema}.${table} in chunks (${row_count} rows, SRID: ${srid})..."
     
     local offset=0
     local chunk_num=0
     local ext
     ext=$(get_extension)
+    
+    # Build SRS options
+    local srs_opts=""
+    if [[ "${srid}" =~ ^[0-9]+$ && "${srid}" -gt 0 ]]; then
+        srs_opts="-a_srs EPSG:${srid}"
+    fi
     
     while [[ ${offset} -lt ${row_count} ]]; do
         chunk_num=$((chunk_num + 1))
@@ -430,7 +440,7 @@ export_vector_chunked() {
         local ogr_conn="PG:host=${DB_HOST} port=${DB_PORT} dbname='${DB_NAME}' user='${DB_USER}' password='${DB_PASSWORD}'"
         local sql="SELECT * FROM \"${schema}\".\"${table}\" ORDER BY ctid LIMIT ${chunk_size} OFFSET ${offset}"
         
-        ogr2ogr -f "${driver}" "${chunk_file}" "${ogr_conn}" -sql "${sql}" 2>&1 | tee -a "${LOG_FILE}" || true
+        ogr2ogr -f "${driver}" ${srs_opts} "${chunk_file}" "${ogr_conn}" -sql "${sql}" 2>&1 | tee -a "${LOG_FILE}" || true
         
         offset=$((offset + chunk_size))
     done
@@ -470,19 +480,10 @@ upload_to_s3() {
     
     info "Uploading $(basename ${local_file}) (${file_size} bytes) to s3://${S3_BUCKET}/${s3_key}"
     
-    if command -v aws >/dev/null 2>&1; then
-        aws s3 cp "${local_file}" "s3://${S3_BUCKET}/${s3_key}" \
-            --region "${AWS_REGION}" \
-            --content-type "${content_type}" \
-            2>&1 | tee -a "${LOG_FILE}" || return 1
-    elif command -v s3cmd >/dev/null 2>&1; then
-        s3cmd put "${local_file}" "s3://${S3_BUCKET}/${s3_key}" \
-            --mime-type="${content_type}" \
-            2>&1 | tee -a "${LOG_FILE}" || return 1
-    else
-        error "No S3 upload tool available"
-        return 1
-    fi
+    aws s3 cp "${local_file}" "s3://${S3_BUCKET}/${s3_key}" \
+        --region "${AWS_REGION}" \
+        --content-type "${content_type}" \
+        2>&1 | tee -a "${LOG_FILE}" || return 1
     
     return 0
 }
@@ -526,19 +527,44 @@ upload_chunks_to_s3() {
     
     info "Uploading chunks directory to s3://${S3_BUCKET}/${s3_prefix}"
     
-    if command -v aws >/dev/null 2>&1; then
-        aws s3 sync "${chunks_dir}" "s3://${S3_BUCKET}/${s3_prefix}" \
-            --region "${AWS_REGION}" \
-            2>&1 | tee -a "${LOG_FILE}" || return 1
-    elif command -v s3cmd >/dev/null 2>&1; then
-        s3cmd sync "${chunks_dir}/" "s3://${S3_BUCKET}/${s3_prefix}" \
-            2>&1 | tee -a "${LOG_FILE}" || return 1
-    else
-        error "No S3 upload tool available"
-        return 1
-    fi
+    aws s3 sync "${chunks_dir}" "s3://${S3_BUCKET}/${s3_prefix}" \
+        --region "${AWS_REGION}" \
+        2>&1 | tee -a "${LOG_FILE}" || return 1
     
     return 0
+}
+
+# Cleanup local files after successful upload
+cleanup_local_file() {
+    local file_or_dir="$1"
+    
+    if [[ "${CLEANUP_LOCAL}" != "true" ]]; then
+        return 0
+    fi
+    
+    if [[ -f "${file_or_dir}" ]]; then
+        info "Cleaning up local file: ${file_or_dir}"
+        rm -f "${file_or_dir}"
+    elif [[ -d "${file_or_dir}" ]]; then
+        info "Cleaning up local directory: ${file_or_dir}"
+        rm -rf "${file_or_dir}"
+    fi
+}
+
+# Cleanup shapefile components
+cleanup_shapefile() {
+    local shp_file="$1"
+    
+    if [[ "${CLEANUP_LOCAL}" != "true" ]]; then
+        return 0
+    fi
+    
+    local base_name="${shp_file%.shp}"
+    info "Cleaning up shapefile: ${base_name}.*"
+    
+    for ext in shp shx dbf prj cpg sbn sbx; do
+        rm -f "${base_name}.${ext}"
+    done
 }
 
 # Export all vectors
@@ -570,10 +596,11 @@ export_vectors() {
         local vector_id="${schema}.${table}"
         local filename="${schema}_${table}.${ext}"
         local output_file="${OUTPUT_DIR}/${filename}"
-        local s3_key="${S3_PREFIX}${schema}/${table}.${ext}"
+        # Use flat S3 path: prefix/schema_table.ext
+        local s3_key="${S3_PREFIX}${schema}_${table}.${ext}"
         
         echo ""
-        info "[${total}/${total_count}] Processing ${vector_id} (${row_count} rows, ${geom_type})..."
+        info "[${total}/${total_count}] Processing ${vector_id} (${row_count} rows, ${geom_type}, SRID: ${srid})..."
         
         # Check if already exported
         if is_exported "${vector_id}" "${s3_key}"; then
@@ -587,20 +614,22 @@ export_vectors() {
         # For very large tables, use chunked export
         if [[ ${row_count} -gt 100000 ]]; then
             warn "Large table (${row_count} rows), using chunked export..."
-            if export_vector_chunked "${schema}" "${table}" "${geom_col}" "${OUTPUT_DIR}" "${row_count}"; then
+            if export_vector_chunked "${schema}" "${table}" "${geom_col}" "${OUTPUT_DIR}" "${row_count}" "${srid}"; then
                 local chunks_dir="${OUTPUT_DIR}/${schema}_${table}_chunks"
-                local chunks_s3_prefix="${S3_PREFIX}${schema}/${table}_chunks/"
+                local chunks_s3_prefix="${S3_PREFIX}${schema}_${table}_chunks/"
                 
                 if upload_chunks_to_s3 "${chunks_dir}" "${chunks_s3_prefix}"; then
                     echo "${vector_id}" >> "${STATUS_FILE}"
                     exported=$((exported + 1))
+                    # Cleanup chunks directory after successful upload
+                    cleanup_local_file "${chunks_dir}"
                     continue
                 fi
             fi
         fi
         
-        # Try OGR export first (most efficient)
-        if export_vector_ogr "${schema}" "${table}" "${geom_col}" "${output_file}"; then
+        # Try OGR export first (most efficient) - pass SRID
+        if export_vector_ogr "${schema}" "${table}" "${geom_col}" "${output_file}" "${srid}"; then
             info "OGR export successful"
             export_success=true
         else
@@ -621,7 +650,7 @@ export_vectors() {
                     export_success=true
                     # Update output file to CSV
                     output_file="${output_file%.${ext}}.csv"
-                    s3_key="${S3_PREFIX}${schema}/${table}.csv"
+                    s3_key="${S3_PREFIX}${schema}_${table}.csv"
                 fi
             fi
         fi
@@ -630,11 +659,13 @@ export_vectors() {
             # Upload to S3
             if [[ "${EXPORT_FORMAT}" == "shapefile" || "${EXPORT_FORMAT}" == "shp" ]]; then
                 # Shapefile needs special handling (multiple files)
-                local shp_s3_prefix="${S3_PREFIX}${schema}/${table}/"
+                local shp_s3_prefix="${S3_PREFIX}${schema}_${table}/"
                 if upload_shapefile_to_s3 "${output_file}" "${shp_s3_prefix}"; then
                     echo "${vector_id}" >> "${STATUS_FILE}"
                     exported=$((exported + 1))
                     info "Successfully exported and uploaded ${vector_id}"
+                    # Cleanup shapefile components
+                    cleanup_shapefile "${output_file}"
                 else
                     error "S3 upload failed for ${vector_id}"
                     echo "${vector_id}|upload_failed" >> "${FAILED_FILE}"
@@ -645,6 +676,8 @@ export_vectors() {
                     echo "${vector_id}" >> "${STATUS_FILE}"
                     exported=$((exported + 1))
                     info "Successfully exported and uploaded ${vector_id}"
+                    # Cleanup local file
+                    cleanup_local_file "${output_file}"
                 else
                     error "S3 upload failed for ${vector_id}"
                     echo "${vector_id}|upload_failed" >> "${FAILED_FILE}"
@@ -734,9 +767,12 @@ retry_failed() {
         schema=$(echo "${vector_id}" | cut -d. -f1)
         table=$(echo "${vector_id}" | cut -d. -f2)
         
-        # Get geometry column from CSV
-        local geom_col
-        geom_col=$(grep "^${schema},${table}," "${CSV_FILE}" | cut -d',' -f3)
+        # Get geometry column and SRID from CSV
+        local csv_line
+        csv_line=$(grep "^${schema},${table}," "${CSV_FILE}" | head -1)
+        local geom_col srid
+        geom_col=$(echo "${csv_line}" | cut -d',' -f3)
+        srid=$(echo "${csv_line}" | cut -d',' -f5)
         
         if [[ -z "${geom_col}" ]]; then
             warn "Could not find geometry column for ${vector_id}, skipping"
@@ -746,16 +782,16 @@ retry_failed() {
         
         local filename="${schema}_${table}.${ext}"
         local output_file="${OUTPUT_DIR}/${filename}"
-        local s3_key="${S3_PREFIX}${schema}/${table}.${ext}"
+        local s3_key="${S3_PREFIX}${schema}_${table}.${ext}"
         
-        info "Retrying ${vector_id}..."
+        info "Retrying ${vector_id} (SRID: ${srid})..."
         
         # Remove from status if present (force re-export)
         sed -i "/${vector_id}/d" "${STATUS_FILE}" 2>/dev/null || true
         
         local export_success=false
         
-        if export_vector_ogr "${schema}" "${table}" "${geom_col}" "${output_file}"; then
+        if export_vector_ogr "${schema}" "${table}" "${geom_col}" "${output_file}" "${srid}"; then
             export_success=true
         elif [[ "${EXPORT_FORMAT}" == "geojson" ]]; then
             if export_vector_sql_geojson "${schema}" "${table}" "${geom_col}" "${output_file}"; then
@@ -767,6 +803,7 @@ retry_failed() {
             if upload_to_s3 "${output_file}" "${s3_key}"; then
                 echo "${vector_id}" >> "${STATUS_FILE}"
                 info "Retry successful for ${vector_id}"
+                cleanup_local_file "${output_file}"
             else
                 echo "${vector_id}|upload_failed" >> "${FAILED_FILE}"
             fi
@@ -828,15 +865,18 @@ export_single() {
     schema=$(echo "${table_spec}" | cut -d. -f1)
     table=$(echo "${table_spec}" | cut -d. -f2)
     
-    # Get geometry column
+    # Get geometry column and SRID
     local geom_query="
-    SELECT f_geometry_column 
+    SELECT f_geometry_column, srid
     FROM geometry_columns 
     WHERE f_table_schema = '${schema}' AND f_table_name = '${table}'
     LIMIT 1
     "
-    local geom_col
-    geom_col=$(${PSQL_CMD} -c "${geom_query}" | tr -d ' ')
+    local result
+    result=$(${PSQL_CMD} -F'|' -c "${geom_query}")
+    local geom_col srid
+    geom_col=$(echo "${result}" | cut -d'|' -f1 | tr -d ' ')
+    srid=$(echo "${result}" | cut -d'|' -f2 | tr -d ' ')
     
     if [[ -z "${geom_col}" ]]; then
         error "Could not find geometry column for ${table_spec}"
@@ -847,9 +887,9 @@ export_single() {
     ext=$(get_extension)
     local output_file="${OUTPUT_DIR}/${schema}_${table}.${ext}"
     
-    info "Exporting ${table_spec} (geometry column: ${geom_col})..."
+    info "Exporting ${table_spec} (geometry column: ${geom_col}, SRID: ${srid})..."
     
-    if export_vector_ogr "${schema}" "${table}" "${geom_col}" "${output_file}"; then
+    if export_vector_ogr "${schema}" "${table}" "${geom_col}" "${output_file}" "${srid}"; then
         info "Export successful: ${output_file}"
     else
         warn "OGR export failed, trying SQL method..."
@@ -920,6 +960,7 @@ Environment variables:
 
     EXPORT_FORMAT Export format: geojson, shapefile, gpkg (default: geojson)
     OUTPUT_DIR    Local output directory (default: ./vector_exports)
+    CLEANUP_LOCAL Delete local files after S3 upload (default: true)
 
 Examples:
     # Set up environment

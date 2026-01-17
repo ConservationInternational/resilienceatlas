@@ -8,7 +8,7 @@
 # Requirements:
 #   - PostgreSQL client (psql)
 #   - GDAL 1.11+ (gdal_translate, gdalinfo)
-#   - AWS CLI (aws) or s3cmd
+#   - AWS CLI (aws)
 #
 # Usage:
 #   ./export_rasters_bash.sh list      # List all rasters to CSV
@@ -28,6 +28,9 @@ DB_PASSWORD="${DB_PASSWORD:-}"
 S3_BUCKET="${S3_BUCKET:-}"
 S3_PREFIX="${S3_PREFIX:-cartodb-rasters/}"
 AWS_REGION="${AWS_DEFAULT_REGION:-us-east-1}"
+
+# Cleanup settings - delete local files after successful S3 upload to save disk space
+CLEANUP_LOCAL="${CLEANUP_LOCAL:-true}"
 
 # Output directories
 OUTPUT_DIR="${OUTPUT_DIR:-./raster_exports}"
@@ -64,10 +67,10 @@ check_prereqs() {
     command -v psql >/dev/null 2>&1 || missing+=("psql")
     command -v gdal_translate >/dev/null 2>&1 || missing+=("gdal_translate")
     
-    # Check for aws or s3cmd
+    # Check for aws cli
     if [[ -n "${S3_BUCKET}" ]]; then
-        if ! command -v aws >/dev/null 2>&1 && ! command -v s3cmd >/dev/null 2>&1; then
-            missing+=("aws or s3cmd")
+        if ! command -v aws >/dev/null 2>&1; then
+            missing+=("aws")
         fi
     fi
     
@@ -145,16 +148,9 @@ is_exported() {
     
     # Check S3 if bucket configured
     if [[ -n "${S3_BUCKET}" ]]; then
-        if command -v aws >/dev/null 2>&1; then
-            if aws s3 ls "s3://${S3_BUCKET}/${s3_key}" >/dev/null 2>&1; then
-                echo "${raster_id}" >> "${STATUS_FILE}"
-                return 0
-            fi
-        elif command -v s3cmd >/dev/null 2>&1; then
-            if s3cmd ls "s3://${S3_BUCKET}/${s3_key}" >/dev/null 2>&1; then
-                echo "${raster_id}" >> "${STATUS_FILE}"
-                return 0
-            fi
+        if aws s3 ls "s3://${S3_BUCKET}/${s3_key}" >/dev/null 2>&1; then
+            echo "${raster_id}" >> "${STATUS_FILE}"
+            return 0
         fi
     fi
     
@@ -168,6 +164,7 @@ export_raster_gdal() {
     local table="$2"
     local column="$3"
     local output_file="$4"
+    local srid="${5:-0}"
     
     # GDAL 1.11 PostGIS Raster connection string
     # Must be quoted, spaces between parameters
@@ -176,15 +173,25 @@ export_raster_gdal() {
     
     info "Trying GDAL export for ${schema}.${table}.${column}..."
     
-    # Run gdal_translate with GDAL 1.11 compatible options
+    # Build gdal_translate command with GDAL 1.11 compatible options
     # - COMPRESS=LZW is safe and widely supported
     # - TILED=YES creates tiled GeoTIFF
     # - BIGTIFF=IF_SAFER handles large files automatically
+    # - a_srs sets the spatial reference if SRID is known
+    local gdal_opts=()
+    gdal_opts+=("-of" "GTiff")
+    gdal_opts+=("-co" "COMPRESS=LZW")
+    gdal_opts+=("-co" "TILED=YES")
+    gdal_opts+=("-co" "BIGTIFF=IF_SAFER")
+    
+    # Set spatial reference if SRID is valid (> 0)
+    if [[ "${srid}" =~ ^[0-9]+$ && "${srid}" -gt 0 ]]; then
+        gdal_opts+=("-a_srs" "EPSG:${srid}")
+        info "Setting spatial reference to EPSG:${srid}"
+    fi
+    
     if gdal_translate \
-        -of GTiff \
-        -co "COMPRESS=LZW" \
-        -co "TILED=YES" \
-        -co "BIGTIFF=IF_SAFER" \
+        "${gdal_opts[@]}" \
         "${gdal_conn}" \
         "${output_file}" 2>&1 | tee -a "${LOG_FILE}"; then
         
@@ -203,23 +210,41 @@ export_raster_sql() {
     local table="$2"
     local column="$3"
     local output_file="$4"
+    local srid="${5:-0}"
     
     info "Trying SQL export for ${schema}.${table}.${column}..."
     
     # For single-tile rasters, export directly
     # For tiled rasters, union first then export
-    local query="
-    COPY (
-        SELECT encode(
-            ST_AsTIFF(
-                ST_Union(\"${column}\"),
-                'LZW'
-            ),
-            'hex'
-        )
-        FROM \"${schema}\".\"${table}\"
-    ) TO STDOUT;
-    "
+    # Use ST_SetSRID to ensure SRID is embedded in the output
+    local query
+    if [[ "${srid}" =~ ^[0-9]+$ && "${srid}" -gt 0 ]]; then
+        query="
+        COPY (
+            SELECT encode(
+                ST_AsTIFF(
+                    ST_SetSRID(ST_Union(\"${column}\"), ${srid}),
+                    'LZW'
+                ),
+                'hex'
+            )
+            FROM \"${schema}\".\"${table}\"
+        ) TO STDOUT;
+        "
+    else
+        query="
+        COPY (
+            SELECT encode(
+                ST_AsTIFF(
+                    ST_Union(\"${column}\"),
+                    'LZW'
+                ),
+                'hex'
+            )
+            FROM \"${schema}\".\"${table}\"
+        ) TO STDOUT;
+        "
+    fi
     
     # Export hex-encoded TIFF, then decode
     local hex_output
@@ -241,7 +266,21 @@ export_raster_sql() {
             done
         fi
         
+        # Assign SRS using gdal_edit or gdal_translate if SRID known and gdal available
         if [[ -f "${output_file}" && -s "${output_file}" ]]; then
+            if [[ "${srid}" =~ ^[0-9]+$ && "${srid}" -gt 0 ]]; then
+                # Try gdal_edit.py first (in-place), fall back to gdal_translate
+                if command -v gdal_edit.py >/dev/null 2>&1; then
+                    gdal_edit.py -a_srs "EPSG:${srid}" "${output_file}" 2>/dev/null || true
+                elif command -v gdal_translate >/dev/null 2>&1; then
+                    local temp_file="${output_file}.tmp"
+                    if gdal_translate -a_srs "EPSG:${srid}" "${output_file}" "${temp_file}" 2>/dev/null; then
+                        mv "${temp_file}" "${output_file}"
+                    else
+                        rm -f "${temp_file}"
+                    fi
+                fi
+            fi
             return 0
         fi
     fi
@@ -255,10 +294,11 @@ export_raster_tiles() {
     local table="$2"
     local column="$3"
     local output_dir="$4"
+    local srid="${5:-0}"
     
     info "Exporting ${schema}.${table}.${column} as individual tiles..."
     
-    local tiles_dir="${output_dir}/${schema}_${table}_${column}_tiles"
+    local tiles_dir="${output_dir}/${schema}_${table}_tiles"
     mkdir -p "${tiles_dir}"
     
     # Get all tile IDs
@@ -273,15 +313,27 @@ export_raster_tiles() {
         # Skip if already exported
         [[ -f "${tile_file}" ]] && continue
         
-        # Export single tile
-        local tile_query="
-        COPY (
-            SELECT encode(ST_AsTIFF(\"${column}\", 'LZW'), 'hex')
-            FROM \"${schema}\".\"${table}\"
-            WHERE COALESCE(rid, ctid::text::bigint) = ${tile_id}
-            LIMIT 1
-        ) TO STDOUT;
-        "
+        # Export single tile with SRID if available
+        local tile_query
+        if [[ "${srid}" =~ ^[0-9]+$ && "${srid}" -gt 0 ]]; then
+            tile_query="
+            COPY (
+                SELECT encode(ST_AsTIFF(ST_SetSRID(\"${column}\", ${srid}), 'LZW'), 'hex')
+                FROM \"${schema}\".\"${table}\"
+                WHERE COALESCE(rid, ctid::text::bigint) = ${tile_id}
+                LIMIT 1
+            ) TO STDOUT;
+            "
+        else
+            tile_query="
+            COPY (
+                SELECT encode(ST_AsTIFF(\"${column}\", 'LZW'), 'hex')
+                FROM \"${schema}\".\"${table}\"
+                WHERE COALESCE(rid, ctid::text::bigint) = ${tile_id}
+                LIMIT 1
+            ) TO STDOUT;
+            "
+        fi
         
         local hex_output
         hex_output=$(${PSQL_CMD} -c "${tile_query}" 2>/dev/null)
@@ -318,21 +370,10 @@ upload_to_s3() {
     
     info "Uploading $(basename ${local_file}) (${file_size} bytes) to s3://${S3_BUCKET}/${s3_key}"
     
-    if command -v aws >/dev/null 2>&1; then
-        # Use AWS CLI
-        aws s3 cp "${local_file}" "s3://${S3_BUCKET}/${s3_key}" \
-            --region "${AWS_REGION}" \
-            --content-type "image/tiff" \
-            2>&1 | tee -a "${LOG_FILE}" || return 1
-    elif command -v s3cmd >/dev/null 2>&1; then
-        # Use s3cmd (more likely on old Ubuntu)
-        s3cmd put "${local_file}" "s3://${S3_BUCKET}/${s3_key}" \
-            --mime-type="image/tiff" \
-            2>&1 | tee -a "${LOG_FILE}" || return 1
-    else
-        error "No S3 upload tool available"
-        return 1
-    fi
+    aws s3 cp "${local_file}" "s3://${S3_BUCKET}/${s3_key}" \
+        --region "${AWS_REGION}" \
+        --content-type "image/tiff" \
+        2>&1 | tee -a "${LOG_FILE}" || return 1
     
     return 0
 }
@@ -349,21 +390,29 @@ upload_tiles_to_s3() {
     
     info "Uploading tiles directory to s3://${S3_BUCKET}/${s3_prefix}"
     
-    if command -v aws >/dev/null 2>&1; then
-        aws s3 sync "${tiles_dir}" "s3://${S3_BUCKET}/${s3_prefix}" \
-            --region "${AWS_REGION}" \
-            --content-type "image/tiff" \
-            2>&1 | tee -a "${LOG_FILE}" || return 1
-    elif command -v s3cmd >/dev/null 2>&1; then
-        s3cmd sync "${tiles_dir}/" "s3://${S3_BUCKET}/${s3_prefix}" \
-            --mime-type="image/tiff" \
-            2>&1 | tee -a "${LOG_FILE}" || return 1
-    else
-        error "No S3 upload tool available"
-        return 1
-    fi
+    aws s3 sync "${tiles_dir}" "s3://${S3_BUCKET}/${s3_prefix}" \
+        --region "${AWS_REGION}" \
+        --content-type "image/tiff" \
+        2>&1 | tee -a "${LOG_FILE}" || return 1
     
     return 0
+}
+
+# Cleanup local files after successful upload
+cleanup_local_file() {
+    local file_or_dir="$1"
+    
+    if [[ "${CLEANUP_LOCAL}" != "true" ]]; then
+        return 0
+    fi
+    
+    if [[ -f "${file_or_dir}" ]]; then
+        info "Cleaning up local file: ${file_or_dir}"
+        rm -f "${file_or_dir}"
+    elif [[ -d "${file_or_dir}" ]]; then
+        info "Cleaning up local directory: ${file_or_dir}"
+        rm -rf "${file_or_dir}"
+    fi
 }
 
 # Export all rasters
@@ -389,13 +438,14 @@ export_rasters() {
         [[ -z "${schema}" ]] && continue
         
         total=$((total + 1))
-        local raster_id="${schema}.${table}.${column}"
-        local filename="${schema}_${table}_${column}.tif"
+        local raster_id="${schema}.${table}"
+        local filename="${schema}_${table}.tif"
         local output_file="${OUTPUT_DIR}/${filename}"
-        local s3_key="${S3_PREFIX}${schema}/${table}/${column}.tif"
+        # Use flat S3 path: prefix/schema_table.tif
+        local s3_key="${S3_PREFIX}${schema}_${table}.tif"
         
         echo ""
-        info "[${total}/${total_count}] Processing ${raster_id} (${num_tiles} tiles)..."
+        info "[${total}/${total_count}] Processing ${raster_id} (${num_tiles} tiles, SRID: ${srid})..."
         
         # Check if already exported
         if is_exported "${raster_id}" "${s3_key}"; then
@@ -406,29 +456,31 @@ export_rasters() {
         
         local export_success=false
         
-        # Try GDAL first (most efficient)
-        if export_raster_gdal "${schema}" "${table}" "${column}" "${output_file}"; then
+        # Try GDAL first (most efficient) - pass SRID for SRS assignment
+        if export_raster_gdal "${schema}" "${table}" "${column}" "${output_file}" "${srid}"; then
             info "GDAL export successful"
             export_success=true
         else
             warn "GDAL export failed, trying SQL method..."
             
-            # Try SQL export
-            if export_raster_sql "${schema}" "${table}" "${column}" "${output_file}"; then
+            # Try SQL export with SRID
+            if export_raster_sql "${schema}" "${table}" "${column}" "${output_file}" "${srid}"; then
                 info "SQL export successful"
                 export_success=true
             else
                 # For large rasters, try tile export
                 if [[ ${num_tiles} -gt 10 ]]; then
                     warn "SQL export failed, trying tile export..."
-                    if export_raster_tiles "${schema}" "${table}" "${column}" "${OUTPUT_DIR}"; then
+                    if export_raster_tiles "${schema}" "${table}" "${column}" "${OUTPUT_DIR}" "${srid}"; then
                         # Upload tiles directory
-                        local tiles_dir="${OUTPUT_DIR}/${schema}_${table}_${column}_tiles"
-                        local tiles_s3_prefix="${S3_PREFIX}${schema}/${table}/${column}_tiles/"
+                        local tiles_dir="${OUTPUT_DIR}/${schema}_${table}_tiles"
+                        local tiles_s3_prefix="${S3_PREFIX}${schema}_${table}_tiles/"
                         
                         if upload_tiles_to_s3 "${tiles_dir}" "${tiles_s3_prefix}"; then
                             echo "${raster_id}" >> "${STATUS_FILE}"
                             exported=$((exported + 1))
+                            # Cleanup tiles directory after successful upload
+                            cleanup_local_file "${tiles_dir}"
                             continue
                         fi
                     fi
@@ -443,8 +495,8 @@ export_rasters() {
                 exported=$((exported + 1))
                 info "Successfully exported and uploaded ${raster_id}"
                 
-                # Optionally remove local file after upload
-                # rm -f "${output_file}"
+                # Cleanup local file after successful upload
+                cleanup_local_file "${output_file}"
             else
                 error "S3 upload failed for ${raster_id}"
                 echo "${raster_id}|upload_failed" >> "${FAILED_FILE}"
@@ -519,15 +571,26 @@ retry_failed() {
     while IFS='|' read -r raster_id reason; do
         [[ -z "${raster_id}" ]] && continue
         
-        # Parse raster_id
-        local schema table column
+        # Parse raster_id (schema.table format)
+        local schema table column srid
         schema=$(echo "${raster_id}" | cut -d. -f1)
         table=$(echo "${raster_id}" | cut -d. -f2)
-        column=$(echo "${raster_id}" | cut -d. -f3)
         
-        local filename="${schema}_${table}_${column}.tif"
+        # Get column and srid from CSV
+        local csv_line
+        csv_line=$(grep "^${schema},${table}," "${CSV_FILE}" | head -1)
+        column=$(echo "${csv_line}" | cut -d',' -f3)
+        srid=$(echo "${csv_line}" | cut -d',' -f4)
+        
+        if [[ -z "${column}" ]]; then
+            warn "Could not find raster column for ${raster_id}, skipping"
+            echo "${raster_id}|no_column" >> "${FAILED_FILE}"
+            continue
+        fi
+        
+        local filename="${schema}_${table}.tif"
         local output_file="${OUTPUT_DIR}/${filename}"
-        local s3_key="${S3_PREFIX}${schema}/${table}/${column}.tif"
+        local s3_key="${S3_PREFIX}${schema}_${table}.tif"
         
         info "Retrying ${raster_id}..."
         
@@ -536,9 +599,9 @@ retry_failed() {
         
         local export_success=false
         
-        if export_raster_gdal "${schema}" "${table}" "${column}" "${output_file}"; then
+        if export_raster_gdal "${schema}" "${table}" "${column}" "${output_file}" "${srid}"; then
             export_success=true
-        elif export_raster_sql "${schema}" "${table}" "${column}" "${output_file}"; then
+        elif export_raster_sql "${schema}" "${table}" "${column}" "${output_file}" "${srid}"; then
             export_success=true
         fi
         
@@ -546,6 +609,7 @@ retry_failed() {
             if upload_to_s3 "${output_file}" "${s3_key}"; then
                 echo "${raster_id}" >> "${STATUS_FILE}"
                 info "Retry successful for ${raster_id}"
+                cleanup_local_file "${output_file}"
             else
                 echo "${raster_id}|upload_failed" >> "${FAILED_FILE}"
             fi
@@ -637,6 +701,7 @@ Environment variables:
     AWS_DEFAULT_REGION  AWS region (default: us-east-1)
 
     OUTPUT_DIR    Local output directory (default: ./raster_exports)
+    CLEANUP_LOCAL Delete local files after S3 upload (default: true)
 
 Examples:
     # Set up environment

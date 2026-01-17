@@ -18,13 +18,8 @@ On the CartoDB server (Ubuntu 12.04):
    sudo apt-get install gdal-bin
    ```
 
-3. **AWS CLI or s3cmd** for S3 uploads:
+3. **AWS CLI** for S3 uploads:
    ```bash
-   # Option 1: s3cmd (easier on old Ubuntu)
-   sudo apt-get install s3cmd
-   s3cmd --configure
-   
-   # Option 2: AWS CLI (may need pip)
    pip install awscli
    aws configure
    ```
@@ -98,11 +93,29 @@ chmod +x export_rasters_bash.sh
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `OUTPUT_DIR` | ./raster_exports | Local export directory |
+| `CLEANUP_LOCAL` | true | Delete local files after S3 upload to save disk space |
 
 ## Output Structure
 
+### Local (temporary, deleted after upload by default)
 ```
 raster_exports/
+├── rasters.csv              # List of all rasters
+├── exported_rasters.txt     # Successfully exported rasters
+├── failed_rasters.txt       # Failed exports
+├── export.log               # Detailed log
+└── schema_table.tif         # Temporary local file (deleted after upload)
+```
+
+### S3
+```
+s3://your-bucket/cartodb-rasters/
+├── schema_table.tif         # Exported rasters (flat structure)
+├── schema_other_table.tif
+└── schema_table_tiles/      # For large rasters exported as tiles
+    ├── tile_000001.tif
+    └── tile_000002.tif
+```
 ├── rasters.csv              # List of all discovered rasters
 ├── exported_rasters.txt     # Successfully exported raster IDs
 ├── failed_rasters.txt       # Failed exports with reason

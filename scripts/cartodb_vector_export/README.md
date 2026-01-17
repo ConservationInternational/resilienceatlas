@@ -18,13 +18,8 @@ On the CartoDB server (Ubuntu 12.04):
    sudo apt-get install gdal-bin
    ```
 
-3. **AWS CLI or s3cmd** for S3 uploads:
+3. **AWS CLI** for S3 uploads:
    ```bash
-   # Option 1: s3cmd (easier on old Ubuntu)
-   sudo apt-get install s3cmd
-   s3cmd --configure
-   
-   # Option 2: AWS CLI (may need pip)
    pip install awscli
    aws configure
    ```
@@ -95,6 +90,7 @@ chmod +x export_vectors_bash.sh
 |----------|---------|-------------|
 | `EXPORT_FORMAT` | geojson | Output format: `geojson`, `shapefile`, `gpkg` |
 | `OUTPUT_DIR` | ./vector_exports | Local export directory |
+| `CLEANUP_LOCAL` | true | Delete local files after S3 upload to save disk space |
 
 ## Export Formats
 
