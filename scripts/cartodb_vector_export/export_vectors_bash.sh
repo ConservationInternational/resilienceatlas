@@ -133,70 +133,79 @@ list_vectors() {
     info "Discovering vector tables in database..."
     
     # Query geometry_columns view for vector metadata
-    # Also check for geography columns
+    # Include row count and size in a single efficient query
     local query="
+    WITH geom_tables AS (
+        SELECT 
+            f_table_schema as schema,
+            f_table_name as tbl,
+            f_geometry_column as geom_col,
+            coord_dimension,
+            srid,
+            type
+        FROM geometry_columns
+        WHERE f_table_schema NOT IN ('pg_catalog', 'information_schema', 'topology')
+        UNION ALL
+        SELECT 
+            f_table_schema,
+            f_table_name,
+            f_geography_column,
+            coord_dimension,
+            srid,
+            type
+        FROM geography_columns
+        WHERE f_table_schema NOT IN ('pg_catalog', 'information_schema', 'topology')
+    ),
+    table_stats AS (
+        SELECT 
+            schemaname as schema,
+            relname as tbl,
+            n_live_tup as row_count
+        FROM pg_stat_user_tables
+    )
     SELECT 
-        f_table_schema,
-        f_table_name,
-        f_geometry_column,
-        coord_dimension,
-        srid,
-        type
-    FROM geometry_columns
-    WHERE f_table_schema NOT IN ('pg_catalog', 'information_schema', 'topology')
-    UNION ALL
-    SELECT 
-        f_table_schema,
-        f_table_name,
-        f_geography_column,
-        coord_dimension,
-        srid,
-        type
-    FROM geography_columns
-    WHERE f_table_schema NOT IN ('pg_catalog', 'information_schema', 'topology')
-    ORDER BY 1, 2, 3;
+        g.schema,
+        g.tbl,
+        g.geom_col,
+        g.coord_dimension,
+        g.srid,
+        g.type,
+        COALESCE(s.row_count, 0) as row_count,
+        COALESCE(pg_total_relation_size('\"' || g.schema || '\".\"' || g.tbl || '\"'), 0) as size_bytes
+    FROM geom_tables g
+    LEFT JOIN table_stats s ON g.schema = s.schema AND g.tbl = s.tbl
+    ORDER BY g.schema, g.tbl, g.geom_col;
     "
     
     # Write header
     echo "schema,table,geometry_column,coord_dimension,srid,geometry_type,row_count,size_bytes" > "${CSV_FILE}"
     
-    local count=0
-    
-    # Get vector list
-    ${PSQL_CMD} -F'|' -c "${query}" | while IFS='|' read -r schema table geom_col coord_dim srid geom_type; do
+    # Get all data in one query
+    ${PSQL_CMD} -F'|' -c "${query}" | while IFS='|' read -r schema table geom_col coord_dim srid geom_type row_count size_bytes; do
         # Skip empty lines
         [[ -z "${schema}" ]] && continue
-        
-        # Get row count
-        local count_query="SELECT COUNT(*) FROM \"${schema}\".\"${table}\""
-        local row_count
-        row_count=$(${PSQL_CMD} -c "${count_query}" 2>/dev/null | tr -d ' ' || echo "0")
-        
-        # Get table size
-        local size_query="SELECT pg_total_relation_size('\"${schema}\".\"${table}\"')"
-        local size_bytes
-        size_bytes=$(${PSQL_CMD} -c "${size_query}" 2>/dev/null | tr -d ' ' || echo "0")
-        
         echo "${schema},${table},${geom_col},${coord_dim},${srid},${geom_type},${row_count},${size_bytes}" >> "${CSV_FILE}"
-        count=$((count + 1))
     done
     
+    local count
     count=$(tail -n +2 "${CSV_FILE}" | wc -l | tr -d ' ')
     info "Found ${count} vector tables, list written to ${CSV_FILE}"
 }
 
 # Check if vector already exported (in status file or S3)
+# Optimized: only check S3 if not in local status file
 is_exported() {
     local vector_id="$1"
     local s3_key="$2"
     
-    # Check local status file
+    # Check local status file first (fast)
     if grep -qF "${vector_id}" "${STATUS_FILE}" 2>/dev/null; then
         return 0
     fi
     
-    # Check S3 if bucket configured
-    if [[ -n "${S3_BUCKET}" ]]; then
+    # Only check S3 if bucket configured AND we haven't checked recently
+    # Skip S3 check if SKIP_S3_CHECK is set (for faster runs)
+    if [[ -n "${S3_BUCKET}" && "${SKIP_S3_CHECK:-false}" != "true" ]]; then
         if aws s3 ls "s3://${S3_BUCKET}/${s3_key}" >/dev/null 2>&1; then
             echo "${vector_id}" >> "${STATUS_FILE}"
             return 0
@@ -235,8 +244,12 @@ export_vector_ogr() {
     # -sql: SQL query to execute
     # -lco: layer creation options
     # -a_srs: assign spatial reference if SRID known
+    # -gt: group N features per transaction (performance)
     local ogr_opts=()
     ogr_opts+=("-f" "${driver}")
+    
+    # Performance: increase transaction group size (default is 20000)
+    ogr_opts+=("-gt" "65536")
     
     # Set spatial reference if SRID is valid (> 0)
     if [[ "${srid}" =~ ^[0-9]+$ && "${srid}" -gt 0 ]]; then
@@ -333,7 +346,7 @@ export_vector_sql_wkt() {
 }
 
 # Alternative: Export as GeoJSON using SQL ST_AsGeoJSON
-# Uses row_to_json to automatically include ALL attributes
+# Optimized: uses json_agg directly without slow correlated subqueries
 export_vector_sql_geojson() {
     local schema="$1"
     local table="$2"
@@ -342,7 +355,7 @@ export_vector_sql_geojson() {
     
     info "Trying SQL/GeoJSON export for ${schema}.${table}..."
     
-    # Get all non-geometry column names for the properties subquery
+    # Get all non-geometry column names to build properties
     local cols_query="
     SELECT string_agg('\"' || column_name || '\"', ', ' ORDER BY ordinal_position)
     FROM information_schema.columns
@@ -356,11 +369,11 @@ export_vector_sql_geojson() {
     non_geom_cols=$(${PSQL_CMD} -c "${cols_query}" | tr -d '\n' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
     
     # Build GeoJSON FeatureCollection using SQL
-    # Use a subquery to build properties object from all non-geometry columns
+    # Optimized: builds properties inline without correlated subquery
     local geojson_query
     if [[ -n "${non_geom_cols}" ]]; then
-        # Use row_to_json on a row constructed from non-geometry columns
-        # This preserves ALL attributes automatically
+        # Build properties by selecting non-geom columns into a subselect with row_to_json
+        # This is much faster than correlated subquery with ctid
         geojson_query="
         SELECT json_build_object(
             'type', 'FeatureCollection',
@@ -368,17 +381,11 @@ export_vector_sql_geojson() {
                 json_build_object(
                     'type', 'Feature',
                     'geometry', ST_AsGeoJSON(\"${geom_col}\")::json,
-                    'properties', (
-                        SELECT row_to_json(props) FROM (
-                            SELECT ${non_geom_cols}
-                            FROM \"${schema}\".\"${table}\" t2
-                            WHERE t2.ctid = t1.ctid
-                        ) props
-                    )
+                    'properties', (SELECT row_to_json(t) FROM (SELECT ${non_geom_cols}) t)
                 )
             ), '[]'::json)
         )::text
-        FROM \"${schema}\".\"${table}\" t1
+        FROM \"${schema}\".\"${table}\"
         WHERE \"${geom_col}\" IS NOT NULL
         "
     else

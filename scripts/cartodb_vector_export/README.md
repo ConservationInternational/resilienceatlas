@@ -91,6 +91,7 @@ chmod +x export_vectors_bash.sh
 | `EXPORT_FORMAT` | geojson | Output format: `geojson`, `shapefile`, `gpkg` |
 | `OUTPUT_DIR` | ./vector_exports | Local export directory |
 | `CLEANUP_LOCAL` | true | Delete local files after S3 upload to save disk space |
+| `SKIP_S3_CHECK` | false | Skip checking S3 for existing files (faster, trust status file) |
 
 ## Export Formats
 
