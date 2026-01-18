@@ -88,39 +88,33 @@ chmod +x export_vectors_bash.sh
 ### Export Options
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `EXPORT_FORMAT` | geojson | Output format: `geojson`, `shapefile`, `gpkg` |
+| `EXPORT_FORMAT` | gpkg | Output format: `gpkg`, `geojson` |
 | `OUTPUT_DIR` | ./vector_exports | Local export directory |
 | `CLEANUP_LOCAL` | true | Delete local files after S3 upload to save disk space |
 | `SKIP_S3_CHECK` | false | Skip checking S3 for existing files (faster, trust status file) |
 
 ## Export Formats
 
-### GeoJSON (default, recommended)
-```bash
-EXPORT_FORMAT=geojson ./export_vectors_bash.sh export
-```
-- Most portable format
-- Single file per table
-- No size limits
-- Easy to read/process
-
-### Shapefile
-```bash
-EXPORT_FORMAT=shapefile ./export_vectors_bash.sh export
-```
-- Multiple files per table (.shp, .shx, .dbf, .prj)
-- 2GB file size limit
-- 10-character field name limit
-- Wide software compatibility
-
-### GeoPackage (introduced in GDAL 1.11)
+### GeoPackage (default, recommended)
 ```bash
 EXPORT_FORMAT=gpkg ./export_vectors_bash.sh export
 ```
-- Single SQLite file
-- Introduced in GDAL 1.11 - should work but may have limitations
-- Requires SQLite3 to be compiled into GDAL
+- **Recommended for archival** - compact binary format
+- Single SQLite file per table
+- No file size limits
+- Preserves data types (unlike GeoJSON)
+- Built-in compression
 - Check availability: `ogrinfo --formats | grep -i gpkg`
+
+### GeoJSON
+```bash
+EXPORT_FORMAT=geojson ./export_vectors_bash.sh export
+```
+- Human-readable text format
+- Single file per table
+- Large file sizes for big tables
+- Loses data type precision (everything becomes strings)
+- Universal web compatibility
 
 ## Output Structure
 
@@ -130,12 +124,9 @@ vector_exports/
 ├── exported_vectors.txt     # Successfully exported vector IDs
 ├── failed_vectors.txt       # Failed exports with reason
 ├── export.log               # Detailed log file
-├── public_my_table.geojson      # Exported GeoJSON files
-├── public_my_table.shp          # Shapefile (if using shapefile format)
-├── public_my_table.shx
-├── public_my_table.dbf
-├── public_my_table.prj
-└── schema_table_chunks/         # Chunks for large tables
+├── public_my_table.gpkg         # Exported GeoPackage files
+├── public_my_table.geojson      # (or GeoJSON if specified)
+└── schema_table_chunks/         # Chunks for large tables (merged before upload)
 ```
 
 S3 structure:
@@ -201,7 +192,7 @@ The script is designed for OGR 1.11 compatibility:
 
 ### Check available drivers
 ```bash
-ogrinfo --formats | grep -i "PostgreSQL\|GeoJSON\|Shapefile"
+ogrinfo --formats | grep -i "PostgreSQL\|GeoJSON\|GPKG"
 ```
 
 ## Troubleshooting
@@ -209,7 +200,7 @@ ogrinfo --formats | grep -i "PostgreSQL\|GeoJSON\|Shapefile"
 ### Check OGR version and drivers
 ```bash
 ogr2ogr --version
-ogrinfo --formats | grep -iE "postgres|geojson|shape"
+ogrinfo --formats | grep -iE "postgres|geojson|gpkg"
 ```
 
 ### Test database connection

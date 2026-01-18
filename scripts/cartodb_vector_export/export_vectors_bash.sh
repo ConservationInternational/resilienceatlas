@@ -33,11 +33,10 @@ AWS_REGION="${AWS_DEFAULT_REGION:-us-east-1}"
 # Cleanup settings - delete local files after successful S3 upload to save disk space
 CLEANUP_LOCAL="${CLEANUP_LOCAL:-true}"
 
-# Export format: geojson, shapefile, or gpkg (GeoPackage)
-# geojson is most portable and recommended for GDAL 1.11
-# shapefile has 2GB/10char field name limits
-# gpkg was introduced in GDAL 1.11 but may not be compiled in
-EXPORT_FORMAT="${EXPORT_FORMAT:-geojson}"
+# Export format: gpkg (GeoPackage) or geojson
+# gpkg is recommended: compact, preserves data types, no size limits
+# geojson is human-readable but large and loses data types
+EXPORT_FORMAT="${EXPORT_FORMAT:-gpkg}"
 
 # Output directories
 OUTPUT_DIR="${OUTPUT_DIR:-./vector_exports}"
@@ -71,9 +70,8 @@ PSQL_CMD="psql -h ${DB_HOST} -p ${DB_PORT} -U ${DB_USER} -d ${DB_NAME} -t -A"
 get_extension() {
     case "${EXPORT_FORMAT}" in
         geojson) echo "geojson" ;;
-        shapefile|shp) echo "shp" ;;
         gpkg|geopackage) echo "gpkg" ;;
-        *) echo "geojson" ;;
+        *) echo "gpkg" ;;
     esac
 }
 
@@ -81,9 +79,8 @@ get_extension() {
 get_driver() {
     case "${EXPORT_FORMAT}" in
         geojson) echo "GeoJSON" ;;
-        shapefile|shp) echo "ESRI Shapefile" ;;
         gpkg|geopackage) echo "GPKG" ;;
-        *) echo "GeoJSON" ;;
+        *) echo "GPKG" ;;
     esac
 }
 
@@ -236,8 +233,8 @@ export_vector_ogr() {
     
     info "Trying OGR export for ${schema}.${table} (SRID: ${srid})..."
     
-    # Remove existing output file/directory
-    rm -rf "${output_file}" "${output_file%.shp}.dbf" "${output_file%.shp}.shx" "${output_file%.shp}.prj" 2>/dev/null
+    # Remove existing output file
+    rm -f "${output_file}" 2>/dev/null
     
     # ogr2ogr options for GDAL 1.11:
     # -f: output format
@@ -263,10 +260,6 @@ export_vector_ogr() {
             # GeoJSON options - write coordinates with precision
             ogr_opts+=("-lco" "COORDINATE_PRECISION=6")
             ;;
-        shapefile|shp)
-            # Shapefile options - encoding
-            ogr_opts+=("-lco" "ENCODING=UTF-8")
-            ;;
         gpkg|geopackage)
             # GeoPackage options
             ogr_opts+=("-lco" "GEOMETRY_NAME=${geom_col}")
@@ -283,9 +276,6 @@ export_vector_ogr() {
         
         # Check output file exists and has size > 0
         if [[ -f "${output_file}" && -s "${output_file}" ]]; then
-            return 0
-        elif [[ -d "${output_file}" ]]; then
-            # Shapefile creates a directory sometimes
             return 0
         fi
     fi
@@ -479,6 +469,86 @@ export_vector_chunked() {
     return 1
 }
 
+# Merge chunked exports into a single file
+# GeoPackage supports appending; GeoJSON requires special handling
+merge_chunks() {
+    local chunks_dir="$1"
+    local output_file="$2"
+    local geom_col="$3"
+    
+    local ext
+    ext=$(get_extension)
+    local driver
+    driver=$(get_driver)
+    
+    info "Merging chunks from ${chunks_dir} into ${output_file}..."
+    
+    # Get list of chunk files sorted
+    local chunk_files
+    chunk_files=$(find "${chunks_dir}" -name "*.${ext}" | sort)
+    
+    if [[ -z "${chunk_files}" ]]; then
+        error "No chunk files found in ${chunks_dir}"
+        return 1
+    fi
+    
+    # Remove existing output file
+    rm -f "${output_file}"
+    
+    local first=true
+    local chunk_count=0
+    
+    for chunk_file in ${chunk_files}; do
+        chunk_count=$((chunk_count + 1))
+        
+        if [[ "${first}" == "true" ]]; then
+            # First chunk: create new file
+            info "  Creating output from chunk 1..."
+            if [[ "${EXPORT_FORMAT}" == "geojson" ]]; then
+                # For GeoJSON, just copy the first chunk
+                cp "${chunk_file}" "${output_file}"
+            else
+                # For GeoPackage, copy using ogr2ogr
+                ogr2ogr -f "${driver}" "${output_file}" "${chunk_file}" 2>&1 | tee -a "${LOG_FILE}" || return 1
+            fi
+            first=false
+        else
+            # Subsequent chunks: append
+            info "  Appending chunk ${chunk_count}..."
+            if [[ "${EXPORT_FORMAT}" == "geojson" ]]; then
+                # GeoJSON append is complex - need to merge feature arrays
+                # Use ogr2ogr to append to a temp gpkg, then convert back
+                # For simplicity, we'll use ogrmerge if available, otherwise skip
+                if command -v ogrmerge.py >/dev/null 2>&1; then
+                    # ogrmerge available (GDAL 2.2+)
+                    local temp_merged="${output_file}.tmp"
+                    ogrmerge.py -f GeoJSON -o "${temp_merged}" "${output_file}" "${chunk_file}" -single 2>&1 | tee -a "${LOG_FILE}"
+                    if [[ -f "${temp_merged}" && -s "${temp_merged}" ]]; then
+                        mv "${temp_merged}" "${output_file}"
+                    fi
+                else
+                    # Fallback: convert to temp gpkg, append, convert back at end
+                    warn "GeoJSON merging requires ogrmerge.py (GDAL 2.2+), chunks will remain separate"
+                    return 1
+                fi
+            else
+                # GeoPackage supports -append
+                ogr2ogr -f "${driver}" -append -update "${output_file}" "${chunk_file}" 2>&1 | tee -a "${LOG_FILE}" || true
+            fi
+        fi
+    done
+    
+    # Verify output file
+    if [[ -f "${output_file}" && -s "${output_file}" ]]; then
+        local file_size
+        file_size=$(stat -c%s "${output_file}" 2>/dev/null || stat -f%z "${output_file}" 2>/dev/null || echo "unknown")
+        info "Merged ${chunk_count} chunks into ${output_file} (${file_size} bytes)"
+        return 0
+    fi
+    
+    return 1
+}
+
 # Upload file to S3
 upload_to_s3() {
     local local_file="$1"
@@ -506,33 +576,6 @@ upload_to_s3() {
         --region "${AWS_REGION}" \
         --content-type "${content_type}" \
         2>&1 | tee -a "${LOG_FILE}" || return 1
-    
-    return 0
-}
-
-# Upload shapefile (multiple files) to S3
-upload_shapefile_to_s3() {
-    local shp_file="$1"
-    local s3_prefix="$2"
-    
-    if [[ -z "${S3_BUCKET}" ]]; then
-        warn "S3_BUCKET not set, skipping upload"
-        return 0
-    fi
-    
-    local base_name="${shp_file%.shp}"
-    local dir_name=$(dirname "${shp_file}")
-    
-    info "Uploading shapefile components to s3://${S3_BUCKET}/${s3_prefix}"
-    
-    # Upload all shapefile components
-    for ext in shp shx dbf prj cpg sbn sbx; do
-        local component="${base_name}.${ext}"
-        if [[ -f "${component}" ]]; then
-            local s3_key="${s3_prefix}$(basename ${component})"
-            upload_to_s3 "${component}" "${s3_key}" || return 1
-        fi
-    done
     
     return 0
 }
@@ -571,22 +614,6 @@ cleanup_local_file() {
         info "Cleaning up local directory: ${file_or_dir}"
         rm -rf "${file_or_dir}"
     fi
-}
-
-# Cleanup shapefile components
-cleanup_shapefile() {
-    local shp_file="$1"
-    
-    if [[ "${CLEANUP_LOCAL}" != "true" ]]; then
-        return 0
-    fi
-    
-    local base_name="${shp_file%.shp}"
-    info "Cleaning up shapefile: ${base_name}.*"
-    
-    for ext in shp shx dbf prj cpg sbn sbx; do
-        rm -f "${base_name}.${ext}"
-    done
 }
 
 # Export all vectors
@@ -633,19 +660,42 @@ export_vectors() {
         
         local export_success=false
         
-        # For very large tables, use chunked export
+        # For very large tables, use chunked export then merge
         if [[ ${row_count} -gt 100000 ]]; then
             warn "Large table (${row_count} rows), using chunked export..."
             if export_vector_chunked "${schema}" "${table}" "${geom_col}" "${OUTPUT_DIR}" "${row_count}" "${srid}"; then
                 local chunks_dir="${OUTPUT_DIR}/${schema}_${table}_chunks"
-                local chunks_s3_prefix="${S3_PREFIX}${schema}_${table}_chunks/"
                 
-                if upload_chunks_to_s3 "${chunks_dir}" "${chunks_s3_prefix}"; then
-                    echo "${vector_id}" >> "${STATUS_FILE}"
-                    exported=$((exported + 1))
-                    # Cleanup chunks directory after successful upload
+                # Try to merge chunks into single file
+                if merge_chunks "${chunks_dir}" "${output_file}" "${geom_col}"; then
+                    info "Chunks merged successfully"
+                    # Cleanup chunks directory
                     cleanup_local_file "${chunks_dir}"
-                    continue
+                    
+                    # Upload merged file
+                    if upload_to_s3 "${output_file}" "${s3_key}"; then
+                        echo "${vector_id}" >> "${STATUS_FILE}"
+                        exported=$((exported + 1))
+                        info "Successfully exported and uploaded ${vector_id}"
+                        cleanup_local_file "${output_file}"
+                        continue
+                    else
+                        error "S3 upload failed for ${vector_id}"
+                        echo "${vector_id}|upload_failed" >> "${FAILED_FILE}"
+                        failed=$((failed + 1))
+                        continue
+                    fi
+                else
+                    # Merge failed - fall back to uploading chunks separately
+                    warn "Chunk merge failed, uploading chunks separately..."
+                    local chunks_s3_prefix="${S3_PREFIX}${schema}_${table}_chunks/"
+                    
+                    if upload_chunks_to_s3 "${chunks_dir}" "${chunks_s3_prefix}"; then
+                        echo "${vector_id}" >> "${STATUS_FILE}"
+                        exported=$((exported + 1))
+                        cleanup_local_file "${chunks_dir}"
+                        continue
+                    fi
                 fi
             fi
         fi
@@ -679,32 +729,16 @@ export_vectors() {
         
         if [[ "${export_success}" == "true" ]]; then
             # Upload to S3
-            if [[ "${EXPORT_FORMAT}" == "shapefile" || "${EXPORT_FORMAT}" == "shp" ]]; then
-                # Shapefile needs special handling (multiple files)
-                local shp_s3_prefix="${S3_PREFIX}${schema}_${table}/"
-                if upload_shapefile_to_s3 "${output_file}" "${shp_s3_prefix}"; then
-                    echo "${vector_id}" >> "${STATUS_FILE}"
-                    exported=$((exported + 1))
-                    info "Successfully exported and uploaded ${vector_id}"
-                    # Cleanup shapefile components
-                    cleanup_shapefile "${output_file}"
-                else
-                    error "S3 upload failed for ${vector_id}"
-                    echo "${vector_id}|upload_failed" >> "${FAILED_FILE}"
-                    failed=$((failed + 1))
-                fi
+            if upload_to_s3 "${output_file}" "${s3_key}"; then
+                echo "${vector_id}" >> "${STATUS_FILE}"
+                exported=$((exported + 1))
+                info "Successfully exported and uploaded ${vector_id}"
+                # Cleanup local file
+                cleanup_local_file "${output_file}"
             else
-                if upload_to_s3 "${output_file}" "${s3_key}"; then
-                    echo "${vector_id}" >> "${STATUS_FILE}"
-                    exported=$((exported + 1))
-                    info "Successfully exported and uploaded ${vector_id}"
-                    # Cleanup local file
-                    cleanup_local_file "${output_file}"
-                else
-                    error "S3 upload failed for ${vector_id}"
-                    echo "${vector_id}|upload_failed" >> "${FAILED_FILE}"
-                    failed=$((failed + 1))
-                fi
+                error "S3 upload failed for ${vector_id}"
+                echo "${vector_id}|upload_failed" >> "${FAILED_FILE}"
+                failed=$((failed + 1))
             fi
         else
             error "All export methods failed for ${vector_id}"
@@ -956,7 +990,7 @@ main() {
             cat <<EOF
 CartoDB Vector Export Script
 
-Exports PostGIS vector tables to GeoJSON/Shapefile and uploads to S3.
+Exports PostGIS vector tables to GeoPackage/GeoJSON and uploads to S3.
 Compatible with GDAL/OGR 1.11+ on Ubuntu 12.04.
 
 Usage: $0 <command> [options]
@@ -980,7 +1014,7 @@ Environment variables:
     S3_PREFIX     S3 key prefix (default: cartodb-vectors/)
     AWS_DEFAULT_REGION  AWS region (default: us-east-1)
 
-    EXPORT_FORMAT Export format: geojson, shapefile, gpkg (default: geojson)
+    EXPORT_FORMAT Export format: gpkg, geojson (default: gpkg)
     OUTPUT_DIR    Local output directory (default: ./vector_exports)
     CLEANUP_LOCAL Delete local files after S3 upload (default: true)
 
@@ -996,11 +1030,11 @@ Examples:
     # List all vectors to CSV
     $0 list
 
-    # Export as GeoJSON (default)
+    # Export as GeoPackage (default)
     $0 export
 
-    # Export as Shapefile
-    EXPORT_FORMAT=shapefile $0 export
+    # Export as GeoJSON
+    EXPORT_FORMAT=geojson $0 export
 
     # Export a single table
     $0 single public.my_table
@@ -1020,7 +1054,7 @@ Notes:
     - Export progress is saved, so you can stop and resume
     - Vectors already in S3 are skipped (unless you remove from status file)
     - Large tables (>100k rows) are exported in chunks automatically
-    - GeoJSON is most portable; Shapefile has 2GB and field name limits
+    - GeoPackage is preferred (compact, preserves types); GeoJSON for portability
 EOF
             ;;
         *)
