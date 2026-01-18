@@ -418,7 +418,7 @@ export_vector_chunked() {
     local row_count="$5"
     local srid="${6:-0}"
     
-    local chunk_size=10000
+    local chunk_size=100000
     local chunks_dir="${output_dir}/${schema}_${table}_chunks"
     mkdir -p "${chunks_dir}"
     
