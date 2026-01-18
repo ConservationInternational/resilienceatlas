@@ -94,6 +94,7 @@ chmod +x export_rasters_bash.sh
 |----------|---------|-------------|
 | `OUTPUT_DIR` | ./raster_exports | Local export directory |
 | `CLEANUP_LOCAL` | true | Delete local files after S3 upload to save disk space |
+| `SKIP_S3_CHECK` | false | Skip checking S3 for existing files (faster, trust status file) |
 
 ## Output Structure
 

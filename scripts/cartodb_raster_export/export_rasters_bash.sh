@@ -97,57 +97,73 @@ check_prereqs() {
 list_rasters() {
     info "Discovering rasters in database..."
     
-    # Query raster_columns view
+    # Query raster_columns view with tile counts in a single efficient query
     local query="
+    WITH raster_info AS (
+        SELECT 
+            r_table_schema,
+            r_table_name,
+            r_raster_column,
+            srid,
+            num_bands,
+            scale_x,
+            scale_y,
+            blocksize_x,
+            blocksize_y
+        FROM raster_columns
+    ),
+    table_counts AS (
+        SELECT 
+            schemaname as schema,
+            relname as tbl,
+            n_live_tup as row_count
+        FROM pg_stat_user_tables
+    )
     SELECT 
-        r_table_schema,
-        r_table_name,
-        r_raster_column,
-        srid,
-        num_bands,
-        scale_x,
-        scale_y,
-        blocksize_x,
-        blocksize_y
-    FROM raster_columns
-    ORDER BY r_table_schema, r_table_name;
+        r.r_table_schema,
+        r.r_table_name,
+        r.r_raster_column,
+        r.srid,
+        r.num_bands,
+        r.scale_x,
+        r.scale_y,
+        r.blocksize_x,
+        r.blocksize_y,
+        COALESCE(c.row_count, 0) as num_tiles
+    FROM raster_info r
+    LEFT JOIN table_counts c ON r.r_table_schema = c.schema AND r.r_table_name = c.tbl
+    ORDER BY r.r_table_schema, r.r_table_name;
     "
     
     # Write header
     echo "schema,table,column,srid,num_bands,scale_x,scale_y,blocksize_x,blocksize_y,num_tiles" > "${CSV_FILE}"
     
-    local count=0
-    
-    # Get raster list
-    ${PSQL_CMD} -F'|' -c "${query}" | while IFS='|' read -r schema table column srid bands scale_x scale_y block_x block_y; do
+    # Get all data in one query
+    ${PSQL_CMD} -F'|' -c "${query}" | while IFS='|' read -r schema table column srid bands scale_x scale_y block_x block_y num_tiles; do
         # Skip empty lines
         [[ -z "${schema}" ]] && continue
-        
-        # Count tiles
-        local count_query="SELECT COUNT(*) FROM \"${schema}\".\"${table}\""
-        local num_tiles
-        num_tiles=$(${PSQL_CMD} -c "${count_query}" 2>/dev/null | tr -d ' ' || echo "0")
-        
         echo "${schema},${table},${column},${srid},${bands},${scale_x},${scale_y},${block_x},${block_y},${num_tiles}" >> "${CSV_FILE}"
-        count=$((count + 1))
     done
     
+    local count
     count=$(tail -n +2 "${CSV_FILE}" | wc -l | tr -d ' ')
     info "Found ${count} rasters, list written to ${CSV_FILE}"
 }
 
 # Check if raster already exported (in status file or S3)
+# Optimized: only check S3 if not in local status file
 is_exported() {
     local raster_id="$1"
     local s3_key="$2"
     
-    # Check local status file
+    # Check local status file first (fast)
     if grep -qF "${raster_id}" "${STATUS_FILE}" 2>/dev/null; then
         return 0
     fi
     
-    # Check S3 if bucket configured
-    if [[ -n "${S3_BUCKET}" ]]; then
+    # Only check S3 if bucket configured AND SKIP_S3_CHECK is not set
+    # Set SKIP_S3_CHECK=true for faster runs when you trust the status file
+    if [[ -n "${S3_BUCKET}" && "${SKIP_S3_CHECK:-false}" != "true" ]]; then
         if aws s3 ls "s3://${S3_BUCKET}/${s3_key}" >/dev/null 2>&1; then
             echo "${raster_id}" >> "${STATUS_FILE}"
             return 0
