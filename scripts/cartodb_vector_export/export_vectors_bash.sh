@@ -281,6 +281,7 @@ export_vector_ogr() {
 }
 
 # Alternative: Export using SQL COPY to CSV + geometry as WKT
+# Retains ALL attributes in CSV format
 export_vector_sql_wkt() {
     local schema="$1"
     local table="$2"
@@ -289,35 +290,42 @@ export_vector_sql_wkt() {
     
     info "Trying SQL/WKT export for ${schema}.${table}..."
     
-    # Get all columns except geometry, then add geometry as WKT
+    # Get all column names, converting geometry to WKT
+    # This preserves ALL attributes
     local columns_query="
     SELECT string_agg(
         CASE 
-            WHEN column_name = '${geom_col}' THEN 'ST_AsText(\"${geom_col}\") as ${geom_col}_wkt'
+            WHEN column_name = '${geom_col}' THEN 'ST_AsText(\"${geom_col}\") as \"${geom_col}_wkt\"'
+            WHEN data_type IN ('geometry', 'geography') THEN 'ST_AsText(\"' || column_name || '\") as \"' || column_name || '_wkt\"'
+            WHEN data_type = 'raster' THEN NULL
             ELSE '\"' || column_name || '\"'
         END, ', '
+        ORDER BY ordinal_position
     )
     FROM information_schema.columns
     WHERE table_schema = '${schema}' AND table_name = '${table}'
+      AND data_type != 'raster'
     "
     
     local columns
-    columns=$(${PSQL_CMD} -c "${columns_query}" | tr -d ' ')
+    columns=$(${PSQL_CMD} -c "${columns_query}" | tr -d '\n' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
     
     if [[ -z "${columns}" ]]; then
         error "Could not get columns for ${schema}.${table}"
         return 1
     fi
     
-    # Export as CSV with WKT geometry
+    # Remove any trailing/leading commas or empty entries
+    columns=$(echo "${columns}" | sed 's/, *,/,/g; s/^, *//; s/, *$//')
+    
+    # Export as CSV with WKT geometry - includes ALL attributes
     local csv_output="${output_file%.geojson}.csv"
     local export_query="COPY (SELECT ${columns} FROM \"${schema}\".\"${table}\") TO STDOUT WITH CSV HEADER"
     
     ${PSQL_CMD} -c "${export_query}" > "${csv_output}" 2>/dev/null
     
     if [[ -f "${csv_output}" && -s "${csv_output}" ]]; then
-        info "Exported to CSV with WKT: ${csv_output}"
-        # Note: This is a fallback, the GeoJSON conversion would need additional processing
+        info "Exported to CSV with WKT (all attributes preserved): ${csv_output}"
         return 0
     fi
     
@@ -325,6 +333,7 @@ export_vector_sql_wkt() {
 }
 
 # Alternative: Export as GeoJSON using SQL ST_AsGeoJSON
+# Uses row_to_json to automatically include ALL attributes
 export_vector_sql_geojson() {
     local schema="$1"
     local table="$2"
@@ -333,25 +342,25 @@ export_vector_sql_geojson() {
     
     info "Trying SQL/GeoJSON export for ${schema}.${table}..."
     
-    # Get non-geometry columns for properties
-    local props_query="
-    SELECT string_agg(
-        '\"' || column_name || '\", \"' || column_name || '\"',
-        ', '
-    )
+    # Get all non-geometry column names for the properties subquery
+    local cols_query="
+    SELECT string_agg('\"' || column_name || '\"', ', ' ORDER BY ordinal_position)
     FROM information_schema.columns
     WHERE table_schema = '${schema}' 
       AND table_name = '${table}'
       AND column_name != '${geom_col}'
-      AND data_type NOT IN ('geometry', 'geography')
+      AND data_type NOT IN ('geometry', 'geography', 'raster')
     "
     
-    local props_cols
-    props_cols=$(${PSQL_CMD} -c "${props_query}" | tr -d '\n' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+    local non_geom_cols
+    non_geom_cols=$(${PSQL_CMD} -c "${cols_query}" | tr -d '\n' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
     
     # Build GeoJSON FeatureCollection using SQL
+    # Use a subquery to build properties object from all non-geometry columns
     local geojson_query
-    if [[ -n "${props_cols}" ]]; then
+    if [[ -n "${non_geom_cols}" ]]; then
+        # Use row_to_json on a row constructed from non-geometry columns
+        # This preserves ALL attributes automatically
         geojson_query="
         SELECT json_build_object(
             'type', 'FeatureCollection',
@@ -359,11 +368,17 @@ export_vector_sql_geojson() {
                 json_build_object(
                     'type', 'Feature',
                     'geometry', ST_AsGeoJSON(\"${geom_col}\")::json,
-                    'properties', json_build_object(${props_cols})
+                    'properties', (
+                        SELECT row_to_json(props) FROM (
+                            SELECT ${non_geom_cols}
+                            FROM \"${schema}\".\"${table}\" t2
+                            WHERE t2.ctid = t1.ctid
+                        ) props
+                    )
                 )
             ), '[]'::json)
         )::text
-        FROM \"${schema}\".\"${table}\"
+        FROM \"${schema}\".\"${table}\" t1
         WHERE \"${geom_col}\" IS NOT NULL
         "
     else
