@@ -247,3 +247,24 @@ github_token.txt
 #####################################################################
 # Exclude data from source control by default (can override with git add -f)
 data/data/
+
+#####################################################################
+# CartoDB Export Scripts
+#####################################################################
+# Raster export output
+scripts/cartodb_raster_export/*.tif
+scripts/cartodb_raster_export/*.csv
+scripts/cartodb_raster_export/*.log
+
+# Vector export output
+scripts/cartodb_vector_export/*.gpkg
+scripts/cartodb_vector_export/*.csv
+scripts/cartodb_vector_export/*.log
+
+# Table export output
+scripts/cartodb_table_export/*.csv
+scripts/cartodb_table_export/*.csv.gz
+scripts/cartodb_table_export/*.log
+
+# COG conversion status files
+scripts/cartodb_cog_conversion/cog_status/
