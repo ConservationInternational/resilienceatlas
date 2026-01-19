@@ -4,6 +4,16 @@ on:
   push:
     branches:
       - staging
+    paths:
+      - 'backend/**'
+      - 'frontend/**'
+      - 'docker-compose.yml'
+      - 'docker-compose.staging.yml'
+      - 'docker-compose.swarm.yml'
+      - 'docker-compose.swarm.staging.yml'
+      - 'appspec.yml'
+      - 'scripts/codedeploy/**'
+      - '.github/workflows/codedeploy_staging.yml'
   workflow_dispatch:
     inputs:
       sync_database:
