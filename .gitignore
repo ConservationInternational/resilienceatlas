@@ -45,8 +45,11 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
-lib64/
+# Note: Use specific paths to avoid ignoring frontend/src/lib/
+/lib/
+/lib64/
+/data/lib/
+/cloud_functions/**/lib/
 parts/
 sdist/
 var/
