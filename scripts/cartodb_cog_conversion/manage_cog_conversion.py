@@ -503,7 +503,10 @@ def ensure_compute_environment(config: Config) -> str:
             {"Name": "group-name", "Values": ["default"]}
         ]
     )
-    security_group_ids = [sgs["SecurityGroups"][0]["SecurityGroupId"]]
+    if not sgs["SecurityGroups"]:
+        error("No default security group found in VPC.", config)
+        sys.exit(1)
+    security_group_ids = [sgs["SecurityGroups"][0]["GroupId"]]
     
     compute_resources = {
         "type": "SPOT" if config.use_spot else "EC2",
