@@ -5,9 +5,9 @@ Converts raw GeoTIFFs from S3 to Cloud-Optimized GeoTIFFs (COGs) using AWS Lambd
 ## Overview
 
 This tool:
-1. Lists all raw TIFFs in an S3 prefix (e.g., `cartodb-rasters/`)
+1. Lists all raw TIFFs in an S3 prefix (e.g., `cartodb_exports/rasters/`)
 2. Optionally filters by filename regex pattern
-3. Checks which have already been converted to COGs (in `cartodb-cogs/`)
+3. Checks which have already been converted to COGs (in `cartodb_exports/cogs/`)
 4. Invokes AWS Lambda to convert only the pending ones
 5. Tracks progress and can resume interrupted conversions
 6. Supports dry-run mode to preview what would be converted
@@ -18,19 +18,20 @@ This tool:
 ┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
 │  Management     │────▶│  AWS Lambda     │────▶│  S3 Bucket      │
 │  Script         │     │  (GDAL 3.9)     │     │                 │
-│                 │     │                 │     │  cartodb-rasters/
-│  - list         │     │  - Download     │     │  └── *.tif      │
-│  - status       │     │  - Convert COG  │     │                 │
-│  - convert      │     │  - Upload       │     │  cartodb-cogs/  │
-│  - deploy       │     │                 │     │  └── *_cog.tif  │
+│  (Python/boto3) │     │                 │     │  cartodb_exports/
+│                 │     │  - Download     │     │  └── rasters/   │
+│  - list         │     │  - Convert COG  │     │      └── *.tif  │
+│  - status       │     │  - Upload       │     │                 │
+│  - convert      │     │                 │     │  └── cogs/      │
+│  - deploy       │     │                 │     │      └── *_cog.tif
 └─────────────────┘     └─────────────────┘     └─────────────────┘
 ```
 
 ## Prerequisites
 
+- Python 3 with boto3 (`apt install python3-boto3` or `pip install boto3`)
 - AWS CLI configured with appropriate permissions
 - Docker (for building Lambda image)
-- `jq` for JSON processing
 
 ### Required AWS Permissions
 
@@ -94,22 +95,22 @@ This tool:
 
 ```bash
 # 1. Set environment variables
-export S3_BUCKET=my-cartodb-exports
-export SOURCE_PREFIX=cartodb-rasters/
-export COG_PREFIX=cartodb-cogs/
+export S3_BUCKET=resilienceatlas
+export SOURCE_PREFIX=cartodb_exports/rasters/
+export COG_PREFIX=cartodb_exports/cogs/
 export AWS_REGION=us-east-1
 
 # Optional: Use a specific AWS credentials profile
-export AWS_PROFILE=my-profile
+export AWS_PROFILE=resilienceatlas
 
-# 2. Deploy Lambda function (first time only)
-./manage_cog_conversion.sh deploy
+# 2. Check current status
+python3 manage_cog_conversion.py status
 
-# 3. Check current status
-./manage_cog_conversion.sh status
+# 3. Deploy Lambda function (first time only)
+python3 manage_cog_conversion.py deploy
 
 # 4. Convert all pending TIFFs
-./manage_cog_conversion.sh convert
+python3 manage_cog_conversion.py convert
 ```
 
 ## Commands
@@ -119,7 +120,7 @@ export AWS_PROFILE=my-profile
 Lists all GeoTIFF files in the source S3 prefix.
 
 ```bash
-./manage_cog_conversion.sh list
+S3_BUCKET=resilienceatlas python3 manage_cog_conversion.py list
 ```
 
 Output saved to: `cog_status/raw_tiffs.txt`
@@ -129,20 +130,25 @@ Output saved to: `cog_status/raw_tiffs.txt`
 Shows how many TIFFs are raw, converted, and pending.
 
 ```bash
-./manage_cog_conversion.sh status
+S3_BUCKET=resilienceatlas python3 manage_cog_conversion.py status
 ```
 
 Example output:
 ```
-==========================================
-  COG Conversion Summary
-==========================================
-  Raw TIFFs:        150
-  Existing COGs:    120
-  Newly converted:  0
-  Failed:           5
-  Pending:          25
-==========================================
+============================================================
+COG Conversion Status
+============================================================
+Source:      s3://resilienceatlas/cartodb_exports/rasters/
+Destination: s3://resilienceatlas/cartodb_exports/cogs/
+------------------------------------------------------------
+Total raw TIFFs:          2321
+Existing COGs:               0
+Already converted:           0
+Pending conversion:       2321
+Progress:                 0.0%
+============================================================
+
+Pending data size: 47.50 GB
 ```
 
 ### `convert` - Convert Pending TIFFs
@@ -150,7 +156,7 @@ Example output:
 Converts all TIFFs that don't have corresponding COGs.
 
 ```bash
-./manage_cog_conversion.sh convert
+S3_BUCKET=resilienceatlas python3 manage_cog_conversion.py convert
 ```
 
 Options via environment variables:
@@ -166,12 +172,12 @@ Options via environment variables:
 Preview what would be converted without making any changes:
 
 ```bash
-DRY_RUN=true ./manage_cog_conversion.sh convert
+S3_BUCKET=resilienceatlas DRY_RUN=true python3 manage_cog_conversion.py convert
 ```
 
 Combine with filename filter to preview a subset:
 ```bash
-DRY_RUN=true FILENAME_FILTER="^public_" ./manage_cog_conversion.sh convert
+S3_BUCKET=resilienceatlas DRY_RUN=true FILENAME_FILTER="^public_" python3 manage_cog_conversion.py convert
 ```
 
 ### Filename Filtering
@@ -180,13 +186,13 @@ Process only files matching a regex pattern:
 
 ```bash
 # Only files starting with "public_"
-FILENAME_FILTER="^public_" ./manage_cog_conversion.sh convert
+S3_BUCKET=resilienceatlas FILENAME_FILTER="^public_" python3 manage_cog_conversion.py convert
 
 # Files containing "africa" or "asia"
-FILENAME_FILTER="africa|asia" ./manage_cog_conversion.sh convert
+S3_BUCKET=resilienceatlas FILENAME_FILTER="africa|asia" python3 manage_cog_conversion.py convert
 
 # Files with year 2024 in name
-FILENAME_FILTER=".*_2024.*" ./manage_cog_conversion.sh convert
+S3_BUCKET=resilienceatlas FILENAME_FILTER=".*_2024.*" python3 manage_cog_conversion.py convert
 ```
 
 ### `convert-one` - Convert Single TIFF
@@ -194,7 +200,7 @@ FILENAME_FILTER=".*_2024.*" ./manage_cog_conversion.sh convert
 Convert a specific TIFF file.
 
 ```bash
-./manage_cog_conversion.sh convert-one cartodb-rasters/public_my_raster.tif
+S3_BUCKET=resilienceatlas python3 manage_cog_conversion.py convert-one cartodb_exports/rasters/my_raster.tif
 ```
 
 ### `deploy` - Deploy Lambda Function
@@ -202,7 +208,7 @@ Convert a specific TIFF file.
 Builds and deploys the GDAL Lambda function to AWS.
 
 ```bash
-./manage_cog_conversion.sh deploy
+S3_BUCKET=resilienceatlas python3 manage_cog_conversion.py deploy
 ```
 
 This:
@@ -219,8 +225,8 @@ This:
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `S3_BUCKET` | (required) | S3 bucket name |
-| `SOURCE_PREFIX` | `cartodb-rasters/` | S3 prefix for raw TIFFs |
-| `COG_PREFIX` | `cartodb-cogs/` | S3 prefix for COGs |
+| `SOURCE_PREFIX` | `cartodb_exports/rasters/` | S3 prefix for raw TIFFs |
+| `COG_PREFIX` | `cartodb_exports/cogs/` | S3 prefix for COGs |
 | `AWS_REGION` | `us-east-1` | AWS region |
 | `AWS_PROFILE` | (default profile) | AWS credentials profile name |
 
@@ -253,7 +259,7 @@ This:
 
 ```bash
 # Use ZSTD for best compression (recommended with GDAL 3.9)
-COMPRESSION=ZSTD ./manage_cog_conversion.sh convert
+S3_BUCKET=resilienceatlas COMPRESSION=ZSTD python3 manage_cog_conversion.py convert
 ```
 
 ## Output Structure
@@ -273,13 +279,14 @@ cog_status/
 ### S3 Structure
 
 ```
-s3://my-bucket/
-├── cartodb-rasters/           # Source raw TIFFs
-│   ├── public_raster1.tif
-│   └── public_raster2.tif
-└── cartodb-cogs/              # Converted COGs
-    ├── public_raster1_cog.tif
-    └── public_raster2_cog.tif
+s3://resilienceatlas/
+├── cartodb_exports/
+│   ├── rasters/               # Source raw TIFFs
+│   │   ├── raster1.tif
+│   │   └── raster2.tif
+│   └── cogs/                  # Converted COGs
+│       ├── raster1_cog.tif
+│       └── raster2_cog.tif
 ```
 
 ## What is a COG?
@@ -349,7 +356,7 @@ aws lambda get-function --function-name cog-converter
 aws logs tail /aws/lambda/cog-converter --follow
 
 # Test Lambda directly
-./manage_cog_conversion.sh convert-one cartodb-rasters/test.tif
+S3_BUCKET=resilienceatlas python3 manage_cog_conversion.py convert-one cartodb_exports/rasters/test.tif
 ```
 
 ### S3 Permission Errors
@@ -364,7 +371,7 @@ aws iam get-role-policy --role-name cog-converter-role --policy-name S3Access
 Once COGs are in S3, they can be served directly via TiTiler:
 
 ```
-GET /cog/tiles/{z}/{x}/{y}?url=s3://my-bucket/cartodb-cogs/raster_cog.tif
+GET /cog/tiles/{z}/{x}/{y}?url=s3://resilienceatlas/cartodb_exports/cogs/raster_cog.tif
 ```
 
 No additional processing needed - COGs are ready for streaming.
