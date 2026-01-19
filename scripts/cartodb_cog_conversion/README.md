@@ -100,28 +100,28 @@ Spot instances provide 60-90% cost savings.
 
 ## Quick Start
 
-```bash
+```powershell
 # 1. Set environment variables
-export S3_BUCKET=resilienceatlas
-export SOURCE_PREFIX=cartodb_exports/rasters/
-export COG_PREFIX=cartodb_exports/cogs/
-export AWS_REGION=us-east-1
-export AWS_PROFILE=resilienceatlas  # Optional
+$env:S3_BUCKET = "resilienceatlas"
+$env:SOURCE_PREFIX = "cartodb_exports/rasters/"
+$env:COG_PREFIX = "cartodb_exports/cogs/"
+$env:AWS_REGION = "us-east-1"
+$env:AWS_PROFILE = "resilienceatlas"  # Optional
 
 # 2. Set up AWS Batch infrastructure (first time only)
-python3 manage_cog_conversion.py setup
+python manage_cog_conversion.py setup
 
 # 3. Build and deploy the Docker image
-python3 manage_cog_conversion.py deploy
+python manage_cog_conversion.py deploy
 
 # 4. Check current status
-python3 manage_cog_conversion.py status
+python manage_cog_conversion.py status
 
 # 5. Submit batch jobs for all pending TIFFs
-python3 manage_cog_conversion.py convert
+python manage_cog_conversion.py convert
 
 # 6. Monitor job progress
-python3 manage_cog_conversion.py jobs
+python manage_cog_conversion.py jobs
 ```
 
 ## Commands
@@ -134,16 +134,16 @@ Creates all necessary AWS resources:
 - Batch compute environment (with spot instances by default)
 - Batch job queue
 
-```bash
-S3_BUCKET=resilienceatlas python3 manage_cog_conversion.py setup
+```powershell
+$env:S3_BUCKET = "resilienceatlas"; python manage_cog_conversion.py setup
 ```
 
 ### `deploy` - Deploy Container Image
 
 Builds and pushes the GDAL Docker image, then creates/updates the job definition.
 
-```bash
-S3_BUCKET=resilienceatlas python3 manage_cog_conversion.py deploy
+```powershell
+$env:S3_BUCKET = "resilienceatlas"; python manage_cog_conversion.py deploy
 ```
 
 This:
@@ -155,8 +155,8 @@ This:
 
 Lists all GeoTIFF files in the source S3 prefix.
 
-```bash
-S3_BUCKET=resilienceatlas python3 manage_cog_conversion.py list
+```powershell
+$env:S3_BUCKET = "resilienceatlas"; python manage_cog_conversion.py list
 ```
 
 Output saved to: `cog_status/raw_tiffs.txt`
@@ -165,8 +165,8 @@ Output saved to: `cog_status/raw_tiffs.txt`
 
 Shows how many TIFFs are raw, converted, and pending.
 
-```bash
-S3_BUCKET=resilienceatlas python3 manage_cog_conversion.py status
+```powershell
+$env:S3_BUCKET = "resilienceatlas"; python manage_cog_conversion.py status
 ```
 
 Example output:
@@ -192,8 +192,8 @@ Estimated jobs: 47 (at 50 files/job)
 
 Submits AWS Batch jobs for all pending TIFFs.
 
-```bash
-S3_BUCKET=resilienceatlas python3 manage_cog_conversion.py convert
+```powershell
+$env:S3_BUCKET = "resilienceatlas"; python manage_cog_conversion.py convert
 ```
 
 Options via environment variables:
@@ -211,8 +211,8 @@ Options via environment variables:
 
 Shows the status of submitted Batch jobs.
 
-```bash
-S3_BUCKET=resilienceatlas python3 manage_cog_conversion.py jobs
+```powershell
+$env:S3_BUCKET = "resilienceatlas"; python manage_cog_conversion.py jobs
 ```
 
 Example output:
@@ -243,45 +243,54 @@ AWS Batch with spot instances may terminate jobs at any time. The system handles
 3. **Continue on failure**: If one file fails, the job continues with remaining files
 4. **Re-run convert**: Simply run `convert` again to resubmit jobs for remaining files
 
-```bash
+```powershell
 # First run - submits 47 jobs for 2321 files
-S3_BUCKET=resilienceatlas python3 manage_cog_conversion.py convert
+$env:S3_BUCKET = "resilienceatlas"; python manage_cog_conversion.py convert
 
 # Spot interruption occurs, 10 jobs failed
 
 # Check status - shows 1500 converted, 821 pending
-S3_BUCKET=resilienceatlas python3 manage_cog_conversion.py status
+$env:S3_BUCKET = "resilienceatlas"; python manage_cog_conversion.py status
 
 # Re-run - submits only 17 jobs for remaining 821 files
-S3_BUCKET=resilienceatlas python3 manage_cog_conversion.py convert
+$env:S3_BUCKET = "resilienceatlas"; python manage_cog_conversion.py convert
 ```
 
 ## Dry-Run Mode
 
 Preview what would be submitted without making any changes:
 
-```bash
-S3_BUCKET=resilienceatlas DRY_RUN=true python3 manage_cog_conversion.py convert
+```powershell
+$env:S3_BUCKET = "resilienceatlas"
+$env:DRY_RUN = "true"
+python manage_cog_conversion.py convert
 ```
 
 Combine with filename filter:
-```bash
-S3_BUCKET=resilienceatlas DRY_RUN=true FILENAME_FILTER="^public_" python3 manage_cog_conversion.py convert
+```powershell
+$env:S3_BUCKET = "resilienceatlas"
+$env:DRY_RUN = "true"
+$env:FILENAME_FILTER = "^public_"
+python manage_cog_conversion.py convert
 ```
 
 ## Filename Filtering
 
 Process only files matching a regex pattern:
 
-```bash
+```powershell
 # Only files starting with "public_"
-S3_BUCKET=resilienceatlas FILENAME_FILTER="^public_" python3 manage_cog_conversion.py convert
+$env:S3_BUCKET = "resilienceatlas"
+$env:FILENAME_FILTER = "^public_"
+python manage_cog_conversion.py convert
 
 # Files containing "africa" or "asia"
-S3_BUCKET=resilienceatlas FILENAME_FILTER="africa|asia" python3 manage_cog_conversion.py convert
+$env:FILENAME_FILTER = "africa|asia"
+python manage_cog_conversion.py convert
 
 # Files with year 2024 in name
-S3_BUCKET=resilienceatlas FILENAME_FILTER=".*_2024.*" python3 manage_cog_conversion.py convert
+$env:FILENAME_FILTER = ".*_2024.*"
+python manage_cog_conversion.py convert
 ```
 
 ## Configuration
@@ -327,9 +336,11 @@ S3_BUCKET=resilienceatlas FILENAME_FILTER=".*_2024.*" python3 manage_cog_convers
 | `DEFLATE` | Better | Slower | Smaller files, archival |
 | `ZSTD` | Best | Fast | Best compression with GDAL 3.9 |
 
-```bash
+```powershell
 # Use ZSTD for best compression (recommended with GDAL 3.9)
-S3_BUCKET=resilienceatlas COMPRESSION=ZSTD python3 manage_cog_conversion.py convert
+$env:S3_BUCKET = "resilienceatlas"
+$env:COMPRESSION = "ZSTD"
+python manage_cog_conversion.py convert
 ```
 
 ## Output Structure
@@ -409,9 +420,9 @@ Compare to Lambda (~$100+ for same workload).
 
 ### View Batch Job Logs
 
-```bash
+```powershell
 # Get job ID from jobs command output
-S3_BUCKET=resilienceatlas python3 manage_cog_conversion.py jobs
+$env:S3_BUCKET = "resilienceatlas"; python manage_cog_conversion.py jobs
 
 # View CloudWatch logs
 aws logs tail /aws/batch/job --follow
@@ -419,7 +430,7 @@ aws logs tail /aws/batch/job --follow
 
 ### Compute Environment Issues
 
-```bash
+```powershell
 # Check compute environment status
 aws batch describe-compute-environments --compute-environments cog-converter-env
 
@@ -429,7 +440,7 @@ aws batch describe-job-queues --job-queues cog-converter-queue
 
 ### ECR Login Issues
 
-```bash
+```powershell
 # Manual ECR login
 aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ACCOUNT.dkr.ecr.us-east-1.amazonaws.com
 ```
@@ -445,7 +456,7 @@ Spot interruptions are normal. The system handles them:
 ### S3 Permission Errors
 
 Ensure job role has access to bucket:
-```bash
+```powershell
 aws iam get-role-policy --role-name cog-converter-job-role --policy-name S3Access
 ```
 
