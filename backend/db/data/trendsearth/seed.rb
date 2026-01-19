@@ -263,11 +263,11 @@ module TrendsEarthSeeder
           site_scope_id: site_scope.id
         )
         group.assign_attributes(
-          super_group_id: nil,
-          active: true,
+          :super_group_id => nil,
+          :active => true,
           "order" => config[:order],
-          name: config[:name],
-          info: config[:info]
+          :name => config[:name],
+          :info => config[:info]
         )
         group.save!
         groups[slug] = group
@@ -287,12 +287,12 @@ module TrendsEarthSeeder
           site_scope_id: site_scope.id
         )
         subgroup.assign_attributes(
-          super_group_id: groups["sdg-indicator-15-3-1"].id,
-          layer_group_type: "subcategory",
-          active: true,
+          :super_group_id => groups["sdg-indicator-15-3-1"].id,
+          :layer_group_type => "subcategory",
+          :active => true,
           "order" => config[:order],
-          name: config[:name],
-          info: config[:info]
+          :name => config[:name],
+          :info => config[:info]
         )
         subgroup.save!
         groups[slug] = subgroup
@@ -312,12 +312,12 @@ module TrendsEarthSeeder
           site_scope_id: site_scope.id
         )
         subgroup.assign_attributes(
-          super_group_id: groups["land-productivity"].id,
-          layer_group_type: "subcategory",
-          active: true,
+          :super_group_id => groups["land-productivity"].id,
+          :layer_group_type => "subcategory",
+          :active => true,
           "order" => config[:order],
-          name: config[:name],
-          info: config[:info]
+          :name => config[:name],
+          :info => config[:info]
         )
         subgroup.save!
         groups[slug] = subgroup
@@ -714,28 +714,28 @@ module TrendsEarthSeeder
 
       layer = Layer.find_or_initialize_by(slug: slug)
       layer.assign_attributes(
-        layer_group_id: group.id,
-        layer_type: "raster",
-        zindex: 100,
-        active: active,
+        :layer_group_id => group.id,
+        :layer_type => "raster",
+        :zindex => 100,
+        :active => active,
         "order" => order,
-        dashboard_order: order,  # Match order for frontend sorting
-        color: color,
-        layer_provider: "cog",
-        opacity: 1.0,
-        published: true,
-        zoom_max: 18,
-        zoom_min: 0,
-        download: true,
-        analysis_suitable: true,
-        analysis_type: analysis_type,
-        layer_config: layer_config.to_json,
-        interaction_config: "{}",
+        :dashboard_order => order,  # Match order for frontend sorting
+        :color => color,
+        :layer_provider => "cog",
+        :opacity => 1.0,
+        :published => true,
+        :zoom_max => 18,
+        :zoom_min => 0,
+        :download => true,
+        :analysis_suitable => true,
+        :analysis_type => analysis_type,
+        :layer_config => layer_config.to_json,
+        :interaction_config => "{}",
         # Globalize translated attributes
-        name: name,
-        info: info,
-        legend: legend.to_json,
-        description: description
+        :name => name,
+        :info => info,
+        :legend => legend.to_json,
+        :description => description
       )
       layer.save!
 
