@@ -1,6 +1,6 @@
 # COG Conversion - Cloud-Optimized GeoTIFF Converter
 
-Converts raw GeoTIFFs from S3 to Cloud-Optimized GeoTIFFs (COGs) using AWS Lambda with GDAL 3.9.
+Converts raw GeoTIFFs from S3 to Cloud-Optimized GeoTIFFs (COGs) using AWS Batch with GDAL 3.9.
 
 ## Overview
 
@@ -8,30 +8,47 @@ This tool:
 1. Lists all raw TIFFs in an S3 prefix (e.g., `cartodb_exports/rasters/`)
 2. Optionally filters by filename regex pattern
 3. Checks which have already been converted to COGs (in `cartodb_exports/cogs/`)
-4. Invokes AWS Lambda to convert only the pending ones
-5. Tracks progress and can resume interrupted conversions
+4. Submits AWS Batch jobs to convert only the pending ones
+5. Tracks progress and can resume interrupted conversions (spot instance friendly)
 6. Supports dry-run mode to preview what would be converted
 
 ## Architecture
 
 ```
 ┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
-│  Management     │────▶│  AWS Lambda     │────▶│  S3 Bucket      │
+│  Management     │────▶│  AWS Batch      │────▶│  S3 Bucket      │
 │  Script         │     │  (GDAL 3.9)     │     │                 │
 │  (Python/boto3) │     │                 │     │  cartodb_exports/
-│                 │     │  - Download     │     │  └── rasters/   │
-│  - list         │     │  - Convert COG  │     │      └── *.tif  │
-│  - status       │     │  - Upload       │     │                 │
-│  - convert      │     │                 │     │  └── cogs/      │
-│  - deploy       │     │                 │     │      └── *_cog.tif
-└─────────────────┘     └─────────────────┘     └─────────────────┘
+│                 │     │  - Spot/EC2     │     │  └── rasters/   │
+│  - setup        │     │  - Resume OK    │     │      └── *.tif  │
+│  - deploy       │     │  - No timeout   │     │                 │
+│  - status       │     │  - Manifest jobs│     │  └── cogs/      │
+│  - convert      │     │                 │     │      └── *_cog.tif
+│  - jobs         │     └─────────────────┘     └─────────────────┘
+└─────────────────┘
+
+Each Batch job processes ~50 TIFFs from a manifest file.
+Jobs skip already-converted files (resume support).
+Spot instances provide 60-90% cost savings.
 ```
+
+## Why AWS Batch Instead of Lambda?
+
+| Feature | Lambda | AWS Batch |
+|---------|--------|-----------|
+| Max timeout | 15 minutes | Unlimited |
+| Max memory | 10 GB | 500+ GB |
+| Max storage | 10 GB /tmp | EBS volumes |
+| Cost for 2000 files | ~$100+ | ~$5-10 (spot) |
+| Container size | Matters (startup) | Doesn't matter |
+| Resume on interrupt | Complex | Built-in |
+| Spot instance support | No | Yes (60-90% savings) |
 
 ## Prerequisites
 
-- Python 3 with boto3 (`apt install python3-boto3` or `pip install boto3`)
+- Python 3 with boto3 (`pip install boto3`)
 - AWS CLI configured with appropriate permissions
-- Docker (for building Lambda image)
+- Docker (for building container image)
 
 ### Required AWS Permissions
 
@@ -55,24 +72,12 @@ This tool:
         {
             "Effect": "Allow",
             "Action": [
-                "lambda:CreateFunction",
-                "lambda:UpdateFunctionCode",
-                "lambda:UpdateFunctionConfiguration",
-                "lambda:InvokeFunction",
-                "lambda:GetFunction"
-            ],
-            "Resource": "*"
-        },
-        {
-            "Effect": "Allow",
-            "Action": [
-                "ecr:CreateRepository",
-                "ecr:GetAuthorizationToken",
-                "ecr:BatchCheckLayerAvailability",
-                "ecr:PutImage",
-                "ecr:InitiateLayerUpload",
-                "ecr:UploadLayerPart",
-                "ecr:CompleteLayerUpload"
+                "batch:*",
+                "ecr:*",
+                "ecs:*",
+                "ec2:DescribeVpcs",
+                "ec2:DescribeSubnets",
+                "ec2:DescribeSecurityGroups"
             ],
             "Resource": "*"
         },
@@ -83,7 +88,9 @@ This tool:
                 "iam:AttachRolePolicy",
                 "iam:PutRolePolicy",
                 "iam:GetRole",
-                "iam:PassRole"
+                "iam:PassRole",
+                "iam:CreateInstanceProfile",
+                "iam:AddRoleToInstanceProfile"
             ],
             "Resource": "*"
         }
@@ -99,21 +106,50 @@ export S3_BUCKET=resilienceatlas
 export SOURCE_PREFIX=cartodb_exports/rasters/
 export COG_PREFIX=cartodb_exports/cogs/
 export AWS_REGION=us-east-1
+export AWS_PROFILE=resilienceatlas  # Optional
 
-# Optional: Use a specific AWS credentials profile
-export AWS_PROFILE=resilienceatlas
+# 2. Set up AWS Batch infrastructure (first time only)
+python3 manage_cog_conversion.py setup
 
-# 2. Check current status
-python3 manage_cog_conversion.py status
-
-# 3. Deploy Lambda function (first time only)
+# 3. Build and deploy the Docker image
 python3 manage_cog_conversion.py deploy
 
-# 4. Convert all pending TIFFs
+# 4. Check current status
+python3 manage_cog_conversion.py status
+
+# 5. Submit batch jobs for all pending TIFFs
 python3 manage_cog_conversion.py convert
+
+# 6. Monitor job progress
+python3 manage_cog_conversion.py jobs
 ```
 
 ## Commands
+
+### `setup` - Set Up AWS Batch Infrastructure
+
+Creates all necessary AWS resources:
+- ECR repository for Docker image
+- IAM roles (Batch service, ECS instance, job execution)
+- Batch compute environment (with spot instances by default)
+- Batch job queue
+
+```bash
+S3_BUCKET=resilienceatlas python3 manage_cog_conversion.py setup
+```
+
+### `deploy` - Deploy Container Image
+
+Builds and pushes the GDAL Docker image, then creates/updates the job definition.
+
+```bash
+S3_BUCKET=resilienceatlas python3 manage_cog_conversion.py deploy
+```
+
+This:
+1. Builds Docker image with GDAL 3.9
+2. Pushes to ECR
+3. Creates/updates Batch job definition
 
 ### `list` - List Raw TIFFs
 
@@ -149,38 +185,91 @@ Progress:                 0.0%
 ============================================================
 
 Pending data size: 47.50 GB
+Estimated jobs: 47 (at 50 files/job)
 ```
 
-### `convert` - Convert Pending TIFFs
+### `convert` - Submit Batch Jobs
 
-Converts all TIFFs that don't have corresponding COGs.
+Submits AWS Batch jobs for all pending TIFFs.
 
 ```bash
 S3_BUCKET=resilienceatlas python3 manage_cog_conversion.py convert
 ```
 
 Options via environment variables:
-- `BATCH_SIZE=10` - TIFFs per Lambda invocation
-- `PARALLEL_INVOCATIONS=5` - Concurrent Lambda calls
+- `FILES_PER_JOB=50` - TIFFs per Batch job
+- `MAX_VCPUS=16` - Maximum concurrent vCPUs
+- `JOB_VCPUS=2` - vCPUs per job
+- `JOB_MEMORY=4096` - Memory (MB) per job
+- `USE_SPOT=true` - Use spot instances (60-90% cheaper)
 - `COMPRESSION=LZW` - COG compression (LZW, DEFLATE, ZSTD)
 - `OVERWRITE=false` - Skip existing COGs
 - `FILENAME_FILTER` - Regex to filter which files to process
-- `DRY_RUN=true` - Preview what would be converted without executing
+- `DRY_RUN=true` - Preview what would be submitted
 
-### Dry-Run Mode
+### `jobs` - Monitor Job Status
 
-Preview what would be converted without making any changes:
+Shows the status of submitted Batch jobs.
+
+```bash
+S3_BUCKET=resilienceatlas python3 manage_cog_conversion.py jobs
+```
+
+Example output:
+```
+================================================================================
+Batch Job Status
+================================================================================
+Total jobs: 47
+  SUCCEEDED: 35
+  RUNNING: 8
+  RUNNABLE: 4
+--------------------------------------------------------------------------------
+Job Name                                      Files    Status
+--------------------------------------------------------------------------------
+cog-converter-20240115120000-1                50       SUCCEEDED
+cog-converter-20240115120000-2                50       SUCCEEDED
+cog-converter-20240115120000-3                50       RUNNING
+...
+================================================================================
+```
+
+## Resume Support
+
+AWS Batch with spot instances may terminate jobs at any time. The system handles this gracefully:
+
+1. **Manifest-based jobs**: Each job receives a manifest of files to process
+2. **Skip existing**: Before converting, each file checks if COG already exists
+3. **Continue on failure**: If one file fails, the job continues with remaining files
+4. **Re-run convert**: Simply run `convert` again to resubmit jobs for remaining files
+
+```bash
+# First run - submits 47 jobs for 2321 files
+S3_BUCKET=resilienceatlas python3 manage_cog_conversion.py convert
+
+# Spot interruption occurs, 10 jobs failed
+
+# Check status - shows 1500 converted, 821 pending
+S3_BUCKET=resilienceatlas python3 manage_cog_conversion.py status
+
+# Re-run - submits only 17 jobs for remaining 821 files
+S3_BUCKET=resilienceatlas python3 manage_cog_conversion.py convert
+```
+
+## Dry-Run Mode
+
+Preview what would be submitted without making any changes:
 
 ```bash
 S3_BUCKET=resilienceatlas DRY_RUN=true python3 manage_cog_conversion.py convert
 ```
 
-Combine with filename filter to preview a subset:
+Combine with filename filter:
 ```bash
 S3_BUCKET=resilienceatlas DRY_RUN=true FILENAME_FILTER="^public_" python3 manage_cog_conversion.py convert
 ```
 
-### Filename Filtering
+## Filename Filtering
 
 Process only files matching a regex pattern:
 
@@ -195,29 +284,6 @@ S3_BUCKET=resilienceatlas FILENAME_FILTER="africa|asia" python3 manage_cog_conve
 S3_BUCKET=resilienceatlas FILENAME_FILTER=".*_2024.*" python3 manage_cog_conversion.py convert
 ```
 
-### `convert-one` - Convert Single TIFF
-
-Convert a specific TIFF file.
-
-```bash
-S3_BUCKET=resilienceatlas python3 manage_cog_conversion.py convert-one cartodb_exports/rasters/my_raster.tif
-```
-
-### `deploy` - Deploy Lambda Function
-
-Builds and deploys the GDAL Lambda function to AWS.
-
-```bash
-S3_BUCKET=resilienceatlas python3 manage_cog_conversion.py deploy
-```
-
-This:
-1. Creates ECR repository for Docker image
-2. Builds GDAL Docker image
-3. Pushes to ECR
-4. Creates/updates Lambda function
-5. Sets up IAM role with S3 permissions
-
 ## Configuration
 
 ### Environment Variables
@@ -230,20 +296,24 @@ This:
 | `AWS_REGION` | `us-east-1` | AWS region |
 | `AWS_PROFILE` | (default profile) | AWS credentials profile name |
 
-### Lambda Configuration
+### Batch Configuration
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `LAMBDA_FUNCTION_NAME` | `cog-converter` | Lambda function name |
-| `LAMBDA_MEMORY` | `3008` | Memory in MB (affects CPU) |
-| `LAMBDA_TIMEOUT` | `900` | Timeout in seconds (max 15 min) |
+| `COMPUTE_ENV_NAME` | `cog-converter-env` | Batch compute environment name |
+| `JOB_QUEUE_NAME` | `cog-converter-queue` | Batch job queue name |
+| `JOB_DEFINITION_NAME` | `cog-converter-job` | Batch job definition name |
+| `ECR_REPO_NAME` | `cog-converter` | ECR repository name |
 
 ### Processing Options
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `BATCH_SIZE` | `10` | TIFFs per Lambda invocation |
-| `PARALLEL_INVOCATIONS` | `5` | Concurrent Lambda calls |
+| `FILES_PER_JOB` | `50` | TIFFs per Batch job |
+| `MAX_VCPUS` | `16` | Max concurrent vCPUs in compute env |
+| `JOB_VCPUS` | `2` | vCPUs allocated per job |
+| `JOB_MEMORY` | `4096` | Memory (MB) per job |
+| `USE_SPOT` | `true` | Use spot instances |
 | `COMPRESSION` | `LZW` | COG compression algorithm |
 | `OVERWRITE` | `false` | Overwrite existing COGs |
 | `FILENAME_FILTER` | (none) | Regex to filter filenames |
@@ -271,8 +341,7 @@ cog_status/
 ├── raw_tiffs.txt              # All raw TIFFs: key<TAB>size
 ├── existing_cogs.txt          # COGs already in destination
 ├── pending_conversions.txt    # TIFFs awaiting conversion
-├── completed_conversions.txt  # Successfully converted
-├── failed_conversions.txt     # Failed: key<TAB>error
+├── submitted_jobs.json        # Submitted Batch job info
 └── cog_conversion.log         # Detailed log
 ```
 
@@ -284,9 +353,11 @@ s3://resilienceatlas/
 │   ├── rasters/               # Source raw TIFFs
 │   │   ├── raster1.tif
 │   │   └── raster2.tif
-│   └── cogs/                  # Converted COGs
-│       ├── raster1_cog.tif
-│       └── raster2_cog.tif
+│   ├── cogs/                  # Converted COGs
+│   │   ├── raster1_cog.tif
+│   │   └── raster2_cog.tif
+│   └── cogs/manifests/        # Job manifests
+│       └── cog-converter-*.json
 ```
 
 ## What is a COG?
@@ -301,69 +372,81 @@ Benefits:
 - No need to download entire file
 - Works with TiTiler, QGIS, and other modern GIS tools
 
-## Lambda Function Details
+## Docker Image Details
 
-### Docker Image
-
-Uses GDAL 3.9 from the official OSGEO image, combined with AWS Lambda Python 3.12 runtime:
+Uses GDAL 3.9 from the official OSGEO image:
 
 ```dockerfile
-FROM ghcr.io/osgeo/gdal:ubuntu-small-3.9.3 AS gdal-base
-FROM public.ecr.aws/lambda/python:3.12
+FROM ghcr.io/osgeo/gdal:ubuntu-small-3.9.3
 
-# Copy GDAL binaries and libraries from osgeo image
-COPY --from=gdal-base /usr/bin/gdal* /usr/local/bin/
-COPY --from=gdal-base /usr/lib/x86_64-linux-gnu/libgdal* /usr/lib/x86_64-linux-gnu/
-# ... additional libraries
+RUN pip3 install --no-cache-dir --break-system-packages boto3
+
+COPY batch_handler.py /app/
+ENTRYPOINT [ "python3", "/app/batch_handler.py" ]
 ```
 
 This provides:
 - Native COG driver with all options (ZSTD, multithreading)
 - BIGTIFF support for files >4GB
 - NUM_THREADS=ALL_CPUS for parallel compression
+- No container size concerns (unlike Lambda)
 
-### Memory and Performance
+## Cost Estimate
 
-| TIFF Size | Recommended Memory | Timeout |
-|-----------|-------------------|---------|
-| < 100 MB  | 1024 MB           | 5 min   |
-| 100-500 MB| 2048 MB           | 10 min  |
-| 500 MB+   | 3008+ MB          | 15 min  |
+With spot instances (default):
+- Compute: ~$0.01-0.02 per vCPU-hour
+- 2000 TIFFs at 50/job = 40 jobs
+- 5 minutes average per job, 2 vCPUs
+- Total: ~$5-10
 
-Lambda CPU scales with memory allocation.
+With on-demand instances:
+- 3-4x spot pricing
+- Total: ~$15-30
 
-### Cost Estimate
-
-At 3008 MB memory, 5-minute execution:
-- Per invocation: ~$0.015
-- 1000 TIFFs: ~$15
+Compare to Lambda (~$100+ for same workload).
 
 ## Troubleshooting
 
-### Lambda Timeout
-
-For very large TIFFs (>1 GB), you may need to:
-1. Increase Lambda memory: `LAMBDA_MEMORY=10240`
-2. Consider using EC2 or ECS for batch processing
-
-### Deployment Errors
+### View Batch Job Logs
 
 ```bash
-# Check Lambda status
-aws lambda get-function --function-name cog-converter
+# Get job ID from jobs command output
+S3_BUCKET=resilienceatlas python3 manage_cog_conversion.py jobs
 
-# View Lambda logs
-aws logs tail /aws/lambda/cog-converter --follow
-
-# Test Lambda directly
-S3_BUCKET=resilienceatlas python3 manage_cog_conversion.py convert-one cartodb_exports/rasters/test.tif
+# View CloudWatch logs
+aws logs tail /aws/batch/job --follow
 ```
+
+### Compute Environment Issues
+
+```bash
+# Check compute environment status
+aws batch describe-compute-environments --compute-environments cog-converter-env
+
+# Check job queue
+aws batch describe-job-queues --job-queues cog-converter-queue
+```
+
+### ECR Login Issues
+
+```bash
+# Manual ECR login
+aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ACCOUNT.dkr.ecr.us-east-1.amazonaws.com
+```
+
+### Spot Instance Terminations
+
+Spot interruptions are normal. The system handles them:
+1. Job is terminated by AWS
+2. Job enters FAILED state with "Spot instance termination" reason
+3. Run `status` to see how many files are pending
+4. Run `convert` to resubmit jobs for remaining files
 
 ### S3 Permission Errors
 
-Ensure Lambda role has access to both source and destination prefixes:
+Ensure job role has access to bucket:
 ```bash
-aws iam get-role-policy --role-name cog-converter-role --policy-name S3Access
+aws iam get-role-policy --role-name cog-converter-job-role --policy-name S3Access
 ```
 
 ## Integration with TiTiler
@@ -380,5 +463,5 @@ No additional processing needed - COGs are ready for streaming.
 
 - [COG Specification](https://www.cogeo.org/)
 - [GDAL COG Driver](https://gdal.org/drivers/raster/cog.html)
+- [AWS Batch Documentation](https://docs.aws.amazon.com/batch/)
 - [TiTiler](https://developmentseed.org/titiler/)
-- [rio-cogeo](https://cogeotiff.github.io/rio-cogeo/)
