@@ -1,12 +1,9 @@
 import axios, { CancelToken } from 'axios';
 import { get } from '../lib/request';
+import { getTitilerBaseUrl } from '../../../utilities/environment';
 
 // Symbol to indicate a canceled request
 export const CANCELED = Symbol('CANCELED');
-
-// Default TiTiler URL - can be overridden via environment variable
-const TITILER_BASE_URL =
-  process.env.NEXT_PUBLIC_TITILER_URL || 'https://titiler.resilienceatlas.org';
 
 /**
  * Extract the TiTiler base URL and COG URL from the layer's config
@@ -20,7 +17,7 @@ const parseCogLayerUrls = (layerModel) => {
   // New format: source URL is stored directly in body.source
   if (layerConfig?.body?.source) {
     return {
-      titilerBaseUrl: TITILER_BASE_URL,
+      titilerBaseUrl: getTitilerBaseUrl(),
       cogUrl: layerConfig.body.source,
     };
   }

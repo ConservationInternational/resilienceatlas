@@ -1,12 +1,9 @@
 import { fetchCogBounds, CANCELED } from '../../services/cog-service';
 import { replace } from '../../utils/query';
+import { getTitilerBaseUrl } from '../../../../utilities/environment';
 
 // Get L dynamically at runtime, not at module load time
 const getL = () => (typeof window !== 'undefined' ? window.L : undefined);
-
-// Default TiTiler URL - can be overridden via environment variable
-const TITILER_BASE_URL =
-  process.env.NEXT_PUBLIC_TITILER_URL || 'https://titiler.resilienceatlas.org';
 
 /**
  * Build the TiTiler tile URL from layer config
@@ -29,11 +26,14 @@ const buildTitilerUrl = (layerConfig) => {
     return null;
   }
 
+  // Get the TiTiler base URL for the current environment
+  const titilerBaseUrl = getTitilerBaseUrl();
+
   // Encode the COG source URL
   const encodedSource = encodeURIComponent(source);
 
   // Build the tile URL
-  let tileUrl = `${TITILER_BASE_URL}/tiles/WebMercatorQuad/{z}/{x}/{y}?url=${encodedSource}`;
+  let tileUrl = `${titilerBaseUrl}/tiles/WebMercatorQuad/{z}/{x}/{y}?url=${encodedSource}`;
 
   // Add colormap if present
   if (colormap && Object.keys(colormap).length > 0) {
