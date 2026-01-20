@@ -43,7 +43,7 @@ module Api
         rescue Net::OpenTimeout, Net::ReadTimeout => e
           Rails.logger.error "[TitilerController] Timeout fetching COG info: #{e.message}"
           render json: {error: "Request to TiTiler timed out"}, status: :gateway_timeout
-        rescue StandardError => e
+        rescue => e
           Rails.logger.error "[TitilerController] Error fetching COG info: #{e.message}"
           render json: {error: "Failed to fetch COG info from TiTiler"}, status: :internal_server_error
         end
