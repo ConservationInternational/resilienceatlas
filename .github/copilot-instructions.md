@@ -135,6 +135,35 @@ Full validation should be done for major changes:
 - **Dependency conflicts**: Check Ruby/Node versions, verify package.json overrides are correctly configured
 - **Package installation errors**: System dependencies may require multiple attempts, builds will retry automatically
 
+### Deployment Failures
+- **"No space left on device"**: EC2 disk full - the before-install.sh script now has automatic cleanup, but for manual cleanup:
+  ```bash
+  # Check disk usage
+  df -h
+  docker system df
+  
+  # Aggressive cleanup (safe - images are on ECR)
+  docker system prune -a --volumes -f
+  
+  # Clean containerd ingest (failed pulls)
+  sudo rm -rf /var/lib/containerd/io.containerd.content.v1.content/ingest/*
+  ```
+- **Database connection refused (172.17.0.1)**: PostgreSQL not listening on Docker bridge. Fix:
+  ```bash
+  # Edit PostgreSQL config
+  sudo sed -i "s/^listen_addresses.*/listen_addresses = '*'/" /etc/postgresql/16/main/postgresql.conf
+  
+  # Allow Docker network connections
+  echo "host all all 172.17.0.0/16 md5" | sudo tee -a /etc/postgresql/16/main/pg_hba.conf
+  
+  # Restart PostgreSQL
+  sudo systemctl restart postgresql@16-main
+  ```
+- **CodeDeploy validation failures**: Check deployment logs via AWS CLI:
+  ```bash
+  aws deploy get-deployment-target --deployment-id <id> --target-id <instance-id> --profile resilienceatlas
+  ```
+
 ### Runtime Issues  
 - **Frontend 500 errors**: Usually invalid Transifex credentials (normal in dev), or missing backend connection
 - **Backend connection errors**: Ensure PostgreSQL container is running and healthy
