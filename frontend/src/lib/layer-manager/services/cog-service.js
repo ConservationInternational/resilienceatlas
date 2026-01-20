@@ -1,6 +1,6 @@
 import axios, { CancelToken } from 'axios';
 import { get } from '../lib/request';
-import { getTitilerBaseUrl } from '../../../utilities/environment';
+import { getTitilerBaseUrl, getApiBaseUrl } from '../../../utilities/environment';
 
 // Symbol to indicate a canceled request
 export const CANCELED = Symbol('CANCELED');
@@ -75,9 +75,10 @@ export const fetchCogBounds = (layerModel) => {
 
   const { titilerBaseUrl, cogUrl } = urls;
 
-  // Use the Next.js API proxy to avoid CORS issues when calling TiTiler directly
+  // Use the backend API proxy to avoid CORS issues when calling TiTiler directly
   // The proxy forwards the request to TiTiler's /info endpoint
-  const infoUrl = `/api/titiler/info?titilerUrl=${encodeURIComponent(titilerBaseUrl)}&cogUrl=${encodeURIComponent(cogUrl)}`;
+  const apiBaseUrl = getApiBaseUrl();
+  const infoUrl = `${apiBaseUrl}/api/titiler/info?titilerUrl=${encodeURIComponent(titilerBaseUrl)}&cogUrl=${encodeURIComponent(cogUrl)}`;
 
   // Cancel any existing bounds request for this layer
   const { cogBoundsRequest } = layerModel;

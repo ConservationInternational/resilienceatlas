@@ -3,35 +3,46 @@ name: TiTiler COGS cleanup
 on:
   delete:
   workflow_dispatch:
+    inputs:
+      branch_name:
+        description: 'Branch name to delete stack for (without refs/heads/ prefix)'
+        required: false
+        type: string
+
+# Required for OIDC authentication with AWS
+permissions:
+  id-token: write
+  contents: read
 
 jobs:
   delete-feature:
     name: Delete feature branch stack from AWS
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
+    environment: staging
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout the code
+        uses: actions/checkout@v4
 
-      - name: Signing in to AWS
-        uses: aws-actions/configure-aws-credentials@v2
+      - name: Configure AWS credentials via OIDC
+        uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets.PIPELINE_USER_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.PIPELINE_USER_SECRET_ACCESS_KEY }}
-          aws-region: ${{ vars.REGION }}
-          role-to-assume: ${{ secrets.PIPELINE_EXECUTION_ROLE }}
-          role-session-name: testing-packaging
-          role-duration-seconds: 3600
-          role-skip-session-tagging: true
+          role-to-assume: ${{ secrets.AWS_OIDC_ROLE_ARN }}
+          aws-region: ${{ secrets.AWS_REGION }}
 
-      - uses: aws-actions/setup-sam@v2
+      - name: Install AWS SAM CLI
+        uses: aws-actions/setup-sam@v2
         with:
           use-installer: true
 
       - name: Delete feature branch stack
         env:
-          FEATURE_BRANCH_NAME: ${{ github.event.ref }}
+          FEATURE_BRANCH_NAME: ${{ inputs.branch_name || github.event.ref }}
         run: |
+          STACK_NAME="titiler-cogs-$(echo ${FEATURE_BRANCH_NAME##*/} | tr -cd '[a-zA-Z0-9-]')"
+          echo "Deleting stack: ${STACK_NAME}"
           sam delete \
-            --stack-name $(echo ${FEATURE_BRANCH_NAME##*/} | tr -cd '[a-zA-Z0-9-]') \
-            --region ${{ vars.REGION }} \
+            --stack-name "${STACK_NAME}" \
+            --region ${{ secrets.AWS_REGION }} \
             --no-prompts
+
 
