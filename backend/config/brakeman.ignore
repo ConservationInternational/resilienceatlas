@@ -3,6 +3,29 @@
     {
       "warning_type": "File Access",
       "warning_code": 16,
+      "fingerprint": "c5f359c6b0f1e5abb6ed353e3ff5af30f4eed6bebedc53e78e3e5e7aba2f0aa9",
+      "check_name": "FileAccess",
+      "message": "Parameter value used in file name",
+      "file": "app/controllers/api/v1/titiler_controller.rb",
+      "line": 33,
+      "link": "https://brakemanscanner.org/docs/warning_types/file_access/",
+      "code": "Net::HTTP.new(URI.parse(\"#{params[:titilerUrl]}/info?url=#{CGI.escape(params[:cogUrl])}\").host, URI.parse(\"#{params[:titilerUrl]}/info?url=#{CGI.escape(params[:cogUrl])}\").port)",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "Api::V1::TitilerController",
+        "method": "info"
+      },
+      "user_input": "params[:titilerUrl]",
+      "confidence": "Weak",
+      "cwe_id": [
+        22
+      ],
+      "note": "False positive: titilerUrl is validated by valid_titiler_url? which restricts to known TiTiler domains before use in Net::HTTP.new"
+    },
+    {
+      "warning_type": "File Access",
+      "warning_code": 16,
       "fingerprint": "299eb4d7e8ff4ba1903499747d9d15389e7f17187b02c5550c44eae04ef27d30",
       "check_name": "FileAccess",
       "message": "Model attribute used in file name",
