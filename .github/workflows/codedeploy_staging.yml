@@ -109,7 +109,8 @@ jobs:
             --build-arg NEXT_PUBLIC_GOOGLE_ANALYTICS=${{ secrets.NEXT_PUBLIC_GOOGLE_ANALYTICS }} \
             --build-arg NEXT_PUBLIC_TRANSIFEX_TOKEN=${{ secrets.NEXT_PUBLIC_TRANSIFEX_TOKEN }} \
             --build-arg NEXT_PUBLIC_TRANSIFEX_SECRET=${{ secrets.NEXT_PUBLIC_TRANSIFEX_SECRET }} \
-            --build-arg NEXT_PUBLIC_GOOGLE_API_KEY=${{ secrets.NEXT_PUBLIC_GOOGLE_API_KEY }}"
+            --build-arg NEXT_PUBLIC_GOOGLE_API_KEY=${{ secrets.NEXT_PUBLIC_GOOGLE_API_KEY }} \
+            --build-arg NEXT_PUBLIC_ROLLBAR_CLIENT_TOKEN=${{ secrets.NEXT_PUBLIC_ROLLBAR_CLIENT_TOKEN }}"
         fi
         
         docker buildx build \
