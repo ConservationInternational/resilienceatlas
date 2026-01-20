@@ -19,17 +19,17 @@ module Api
           return render json: {error: "Missing required parameters: titilerUrl and cogUrl"}, status: :bad_request
         end
 
-        # Validate URLs to prevent SSRF attacks
-        unless valid_titiler_url?(titiler_url)
+        # Parse and validate the titiler URL to prevent SSRF attacks
+        validated_uri = validated_titiler_uri(titiler_url)
+        unless validated_uri
           return render json: {error: "Invalid titilerUrl"}, status: :bad_request
         end
 
         begin
-          # Build the TiTiler info URL
-          info_url = "#{titiler_url}/info?url=#{CGI.escape(cog_url)}"
+          # Build the TiTiler info URL using the validated base URI
+          uri = URI.parse("#{validated_uri}/info?url=#{CGI.escape(cog_url)}")
 
           # Make the request to TiTiler
-          uri = URI.parse(info_url)
           http = Net::HTTP.new(uri.host, uri.port)
           http.use_ssl = uri.scheme == "https"
           http.open_timeout = 10
@@ -51,14 +51,15 @@ module Api
 
       private
 
-      # Validate that the titiler URL is an allowed TiTiler instance
+      # Validate that the titiler URL is an allowed TiTiler instance and return the validated URI
       # This prevents SSRF attacks by ensuring we only proxy to known TiTiler servers
-      def valid_titiler_url?(url)
-        return false if url.blank?
+      # Returns the validated URI string or nil if invalid
+      def validated_titiler_uri(url)
+        return nil if url.blank?
 
         begin
           uri = URI.parse(url)
-          return false unless uri.is_a?(URI::HTTP) || uri.is_a?(URI::HTTPS)
+          return nil unless uri.is_a?(URI::HTTP) || uri.is_a?(URI::HTTPS)
 
           # Allow known TiTiler domains
           allowed_patterns = [
@@ -67,9 +68,12 @@ module Api
             /\Alocalhost(:\d+)?\z/  # Development
           ]
 
-          allowed_patterns.any? { |pattern| uri.host.match?(pattern) }
+          return nil unless allowed_patterns.any? { |pattern| uri.host.match?(pattern) }
+
+          # Return sanitized URI (scheme + host + port only)
+          "#{uri.scheme}://#{uri.host}#{uri.port == uri.default_port ? "" : ":#{uri.port}"}"
         rescue URI::InvalidURIError
-          false
+          nil
         end
       end
     end

@@ -3,29 +3,6 @@
     {
       "warning_type": "File Access",
       "warning_code": 16,
-      "fingerprint": "c5f359c6b0f1e5abb6ed353e3ff5af30f4eed6bebedc53e78e3e5e7aba2f0aa9",
-      "check_name": "FileAccess",
-      "message": "Parameter value used in file name",
-      "file": "app/controllers/api/v1/titiler_controller.rb",
-      "line": 33,
-      "link": "https://brakemanscanner.org/docs/warning_types/file_access/",
-      "code": "Net::HTTP.new(URI.parse(\"#{params[:titilerUrl]}/info?url=#{CGI.escape(params[:cogUrl])}\").host, URI.parse(\"#{params[:titilerUrl]}/info?url=#{CGI.escape(params[:cogUrl])}\").port)",
-      "render_path": null,
-      "location": {
-        "type": "method",
-        "class": "Api::V1::TitilerController",
-        "method": "info"
-      },
-      "user_input": "params[:titilerUrl]",
-      "confidence": "Weak",
-      "cwe_id": [
-        22
-      ],
-      "note": "False positive: titilerUrl is validated by valid_titiler_url? which restricts to known TiTiler domains before use in Net::HTTP.new"
-    },
-    {
-      "warning_type": "File Access",
-      "warning_code": 16,
       "fingerprint": "299eb4d7e8ff4ba1903499747d9d15389e7f17187b02c5550c44eae04ef27d30",
       "check_name": "FileAccess",
       "message": "Model attribute used in file name",
@@ -70,59 +47,6 @@
       "note": ""
     },
     {
-      "warning_type": "Cross-Site Scripting",
-      "warning_code": 2,
-      "fingerprint": "77c32e5ff79cb3416a7b06e23261553f996ecebad8da1680430699f26d8ce9ac",
-      "check_name": "CrossSiteScripting",
-      "message": "Unescaped model attribute",
-      "file": "app/views/contents/show.html.slim",
-      "line": 9,
-      "link": "https://brakemanscanner.org/docs/warning_types/cross_site_scripting",
-      "code": "sanitize(SitePage.find_by(:slug => params[:slug]).body.html_safe)",
-      "render_path": [
-        {
-          "type": "controller",
-          "class": "ContentsController",
-          "method": "show",
-          "line": 4,
-          "file": "app/controllers/contents_controller.rb",
-          "rendered": {
-            "name": "contents/show",
-            "file": "app/views/contents/show.html.slim"
-          }
-        }
-      ],
-      "location": {
-        "type": "template",
-        "template": "contents/show"
-      },
-      "user_input": "SitePage.find_by(:slug => params[:slug]).body",
-      "confidence": "Weak",
-      "cwe_id": [
-        79
-      ],
-      "note": ""
-    },
-    {
-      "warning_type": "Cross-Site Scripting",
-      "warning_code": 124,
-      "fingerprint": "b2b8818e646bf1c277a27eae9a0e98766968d4d38e3b2e1e59b0fe1fa37218dc",
-      "check_name": "SanitizeConfigCve",
-      "message": "rails-html-sanitizer 1.4.2 is vulnerable to cross-site scripting when `select` and `style` tags are allowed (CVE-2022-32209). Upgrade to 1.4.3 or newer",
-      "file": "Gemfile.lock",
-      "line": 427,
-      "link": "https://groups.google.com/g/rubyonrails-security/c/ce9PhUANQ6s/m/S0fJfnkmBAAJ",
-      "code": null,
-      "render_path": null,
-      "location": null,
-      "user_input": null,
-      "confidence": "Weak",
-      "cwe_id": [
-        79
-      ],
-      "note": ""
-    },
-    {
       "warning_type": "HTTP Verb Confusion",
       "warning_code": 118,
       "fingerprint": "e71b06f6a3aafc777d8b304d83847884d17d320092f74a4c3df47d787aa9535c",
@@ -146,6 +70,6 @@
       "note": ""
     }
   ],
-  "updated": "2023-02-27 09:44:01 +0100",
-  "brakeman_version": "5.4.1"
+  "updated": "2026-01-20 22:00:00 +0000",
+  "brakeman_version": "6.2.2"
 }
