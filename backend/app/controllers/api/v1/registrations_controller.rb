@@ -6,7 +6,9 @@ module Api
         if user.save
           render json: {status: "created"}, status: 200
         else
-          render json: user.errors.to_json, status: :unprocessable_entity
+          # Format errors as { field: "message" } for frontend compatibility
+          formatted_errors = user.errors.messages.transform_values { |messages| messages.first }
+          render json: {errors: formatted_errors}, status: :unprocessable_entity
         end
       end
 
