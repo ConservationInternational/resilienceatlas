@@ -204,6 +204,7 @@ Options via environment variables:
 - `USE_SPOT=true` - Use spot instances (60-90% cheaper)
 - `COMPRESSION=LZW` - COG compression (LZW, DEFLATE, ZSTD)
 - `OVERWRITE=false` - Skip existing COGs
+- `RASTER_TYPE=both` - Filter by type: `public`, `cdb_importer`, or `both`
 - `FILENAME_FILTER` - Regex to filter which files to process
 - `DRY_RUN=true` - Preview what would be submitted
 
@@ -266,25 +267,50 @@ $env:DRY_RUN = "true"
 python manage_cog_conversion.py convert
 ```
 
-Combine with filename filter:
+Combine with raster type filter:
 ```powershell
 $env:S3_BUCKET = "resilienceatlas"
 $env:DRY_RUN = "true"
-$env:FILENAME_FILTER = "^public_"
+$env:RASTER_TYPE = "public"
 python manage_cog_conversion.py convert
 ```
 
-## Filename Filtering
+## Raster Type Filtering
 
-Process only files matching a regex pattern:
+Source rasters from CartoDB have two naming conventions:
+- `public_*` - Tables from the public schema
+- `cdb_importer_*` - Tables from CartoDB's importer schema
+
+You can process specific types:
 
 ```powershell
-# Only files starting with "public_"
+# Only public schema rasters
 $env:S3_BUCKET = "resilienceatlas"
-$env:FILENAME_FILTER = "^public_"
+$env:RASTER_TYPE = "public"
 python manage_cog_conversion.py convert
 
+# Only cdb_importer rasters
+$env:RASTER_TYPE = "cdb_importer"
+python manage_cog_conversion.py convert
+
+# Both types (default)
+$env:RASTER_TYPE = "both"
+python manage_cog_conversion.py convert
+```
+
+**Note**: The `public_` and `cdb_importer_` prefixes are automatically stripped from output filenames:
+- `public_rainfall_data.tif` → `rainfall_data.tif`
+- `cdb_importer_12345_population.tif` → `12345_population.tif`
+
+**Important**: `SOURCE_PREFIX` and `COG_PREFIX` must be different to prevent overwriting source files.
+
+## Additional Filename Filtering
+
+For more specific filtering, use a regex pattern:
+
+```powershell
 # Files containing "africa" or "asia"
+$env:S3_BUCKET = "resilienceatlas"
 $env:FILENAME_FILTER = "africa|asia"
 python manage_cog_conversion.py convert
 
@@ -325,8 +351,36 @@ python manage_cog_conversion.py convert
 | `USE_SPOT` | `true` | Use spot instances |
 | `COMPRESSION` | `LZW` | COG compression algorithm |
 | `OVERWRITE` | `false` | Overwrite existing COGs |
+| `RASTER_TYPE` | `both` | Filter by type: `public`, `cdb_importer`, or `both` |
 | `FILENAME_FILTER` | (none) | Regex to filter filenames |
 | `DRY_RUN` | `false` | Preview mode, no execution |
+
+## CRS (Coordinate Reference System) Handling
+
+The pipeline requires valid CRS metadata on source files:
+
+1. **Raster Export** - Source SRID from PostgreSQL is written to exported TIFFs using `EPSG:{srid}`
+2. **COG Conversion** - Source CRS is read and preserved in the output COG
+3. **Validation** - **Conversion fails if source file has no CRS defined**
+4. **Verification** - Conversion fails if output CRS doesn't match source CRS
+
+### Missing CRS
+
+If source TIFFs are missing CRS metadata, the conversion will fail with an error. Fix the source raster export to include proper SRID before converting to COG.
+
+To check if a file has CRS:
+
+```powershell
+gdalinfo source.tif | Select-String "Coordinate System"
+```
+
+If the CRS is missing and you know what it should be, assign it with:
+
+```powershell
+gdal_edit.py -a_srs EPSG:4326 source.tif
+```
+
+**Note**: `gdal_edit.py -a_srs` assigns the CRS without reprojecting. If you need to reproject data, use `gdalwarp` instead.
 
 ## COG Compression Options
 

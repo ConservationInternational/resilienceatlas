@@ -66,6 +66,8 @@ class Config:
         self.compression = os.environ.get("COMPRESSION", "LZW")
         self.overwrite = os.environ.get("OVERWRITE", "false").lower() == "true"
         self.filename_filter = os.environ.get("FILENAME_FILTER", "")
+        # RASTER_TYPE: "public", "cdb_importer", or "both" (default)
+        self.raster_type = os.environ.get("RASTER_TYPE", "both").lower()
         self.dry_run = os.environ.get("DRY_RUN", "false").lower() == "true"
         self.use_spot = os.environ.get("USE_SPOT", "true").lower() == "true"
         
@@ -89,6 +91,16 @@ class Config:
         if not self.s3_bucket:
             print("ERROR: S3_BUCKET environment variable not set")
             print("Usage: S3_BUCKET=your-bucket python manage_cog_conversion.py <command>")
+            sys.exit(1)
+        
+        # Ensure source and destination prefixes are different
+        source = self.source_prefix.rstrip("/")
+        dest = self.cog_prefix.rstrip("/")
+        if source == dest:
+            print("ERROR: SOURCE_PREFIX and COG_PREFIX must be different")
+            print(f"  SOURCE_PREFIX: {self.source_prefix}")
+            print(f"  COG_PREFIX: {self.cog_prefix}")
+            print("This check prevents accidentally overwriting source files.")
             sys.exit(1)
 
 
@@ -187,18 +199,31 @@ def list_raw_tiffs(config: Config) -> list[tuple[str, int]]:
         info(f"Applying filename filter: {config.filename_filter}", config)
         filter_regex = re.compile(config.filename_filter)
     
+    # Raster type filter
+    if config.raster_type != "both":
+        info(f"Filtering by raster type: {config.raster_type}", config)
+    
     for page in page_iterator:
         for obj in page.get("Contents", []):
             key = obj["Key"]
             size = obj["Size"]
+            filename = os.path.basename(key)
             
             # Check if it's a TIFF
             if not key.lower().endswith((".tif", ".tiff")):
                 continue
             
+            # Apply raster type filter
+            if config.raster_type == "public":
+                if not filename.startswith("public_"):
+                    continue
+            elif config.raster_type == "cdb_importer":
+                if not filename.startswith("cdb_importer_"):
+                    continue
+            # "both" accepts all files
+            
             # Apply filename filter
             if filter_regex:
-                filename = os.path.basename(key)
                 if not filter_regex.search(filename):
                     continue
             
@@ -597,6 +622,14 @@ def ensure_job_definition(config: Config, image_uri: str) -> str:
     
     job_role_arn = ensure_batch_job_role(config)
     
+    # Build environment variables for job
+    env_vars = [
+        {"name": "S3_BUCKET", "value": config.s3_bucket},
+        {"name": "COG_PREFIX", "value": config.cog_prefix},
+        {"name": "COMPRESSION", "value": config.compression},
+        {"name": "OVERWRITE", "value": str(config.overwrite).lower()},
+    ]
+    
     response = batch.register_job_definition(
         jobDefinitionName=config.job_definition_name,
         type="container",
@@ -606,12 +639,7 @@ def ensure_job_definition(config: Config, image_uri: str) -> str:
             "memory": config.job_memory,
             "jobRoleArn": job_role_arn,
             "executionRoleArn": job_role_arn,
-            "environment": [
-                {"name": "S3_BUCKET", "value": config.s3_bucket},
-                {"name": "COG_PREFIX", "value": config.cog_prefix},
-                {"name": "COMPRESSION", "value": config.compression},
-                {"name": "OVERWRITE", "value": str(config.overwrite).lower()},
-            ],
+            "environment": env_vars,
         },
         retryStrategy={"attempts": 2},
         timeout={"attemptDurationSeconds": 7200},  # 2 hours max per job

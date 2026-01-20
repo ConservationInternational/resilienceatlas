@@ -204,6 +204,8 @@ export_raster_gdal() {
     if [[ "${srid}" =~ ^[0-9]+$ && "${srid}" -gt 0 ]]; then
         gdal_opts+=("-a_srs" "EPSG:${srid}")
         info "Setting spatial reference to EPSG:${srid}"
+    else
+        warn "No valid SRID for ${schema}.${table} (srid=${srid}) - output will have no CRS"
     fi
     
     if gdal_translate \
@@ -235,6 +237,7 @@ export_raster_sql() {
     # Use ST_SetSRID to ensure SRID is embedded in the output
     local query
     if [[ "${srid}" =~ ^[0-9]+$ && "${srid}" -gt 0 ]]; then
+        info "Using SRID ${srid} for SQL export"
         query="
         COPY (
             SELECT encode(
@@ -248,6 +251,7 @@ export_raster_sql() {
         ) TO STDOUT;
         "
     else
+        warn "No valid SRID for ${schema}.${table} (srid=${srid}) - output will have no CRS"
         query="
         COPY (
             SELECT encode(
