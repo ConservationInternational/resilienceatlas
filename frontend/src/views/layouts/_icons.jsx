@@ -169,6 +169,16 @@ const Icons = () => (
           <path d="M17,15 L19,15 L19,7 C19,5.9 18.1,5 17,5 L9,5 L9,7 L17,7 L17,15 Z M7,17 L7,1 L5,1 L5,5 L1,5 L1,7 L5,7 L5,17 C5,18.1 5.9,19 7,19 L17,19 L17,23 L19,23 L19,19 L23,19 L23,17 L7,17 Z" />
         </symbol>
 
+        <symbol id="icon-compare" viewBox="0 0 24 24">
+          <title>compare layers</title>
+          <path d="M10 3H4C2.9 3 2 3.9 2 5V19C2 20.1 2.9 21 4 21H10V23H12V1H10V3ZM10 19H4V5H10V19Z" />
+          <path d="M22 5C22 3.9 21.1 3 20 3H14V5H20V19H14V21H20C21.1 21 22 20.1 22 19V5Z" />
+          <path d="M18 9H14V11H18V9Z" />
+          <path d="M18 13H14V15H18V13Z" />
+          <path d="M8 9H6V11H8V9Z" />
+          <path d="M8 13H6V15H8V13Z" />
+        </symbol>
+
         <symbol id="icon-arrow-right" viewBox="0 0 6 11">
           <title>arrow</title>
           <path d="M0.469727 10.0302L4.99988 5.5L0.469727 0.969849" fill="none" />

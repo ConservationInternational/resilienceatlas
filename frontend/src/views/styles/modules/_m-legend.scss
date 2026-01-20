@@ -131,6 +131,17 @@ $side-bar-width: 360px;
         }
       }
 
+      // Compare mode highlighting
+      &.is-compare-left {
+        border-left: 3px solid #3b82f6;
+        background-color: rgba(59, 130, 246, 0.05);
+      }
+
+      &.is-compare-right {
+        border-left: 3px solid #10b981;
+        background-color: rgba(16, 185, 129, 0.05);
+      }
+
       &.ui-sortable-placeholder {
         padding: 0;
         visibility: visible !important;

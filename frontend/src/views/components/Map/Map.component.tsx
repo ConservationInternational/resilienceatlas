@@ -54,6 +54,7 @@ import DrawingManager from './DrawingManager';
 import MapOffset from './MapOffset';
 import MapPopup from './MapPopup';
 import LayerErrorModal, { type LayerError } from 'views/components/LayerErrorModal';
+import CompareControl from './CompareControl';
 
 const MapView = (props: MapViewProps) => {
   const {
@@ -88,6 +89,9 @@ const MapView = (props: MapViewProps) => {
     embed,
     drawing,
     onLoadingLayers,
+    // Compare mode - simplified props
+    compareEnabled,
+    compareURLState,
   } = props;
 
   const { query, locale } = router;
@@ -125,6 +129,16 @@ const MapView = (props: MapViewProps) => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeLayers]);
+
+  // Update URL with compare state - uses selector-computed state to avoid duplication
+  useEffect(() => {
+    if (compareURLState) {
+      setParam('compare', JSON.stringify(compareURLState));
+    } else {
+      setParam('compare', null);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [compareURLState]);
 
   const getCenter = useGetCenter({ site, query });
 
@@ -182,9 +196,18 @@ const MapView = (props: MapViewProps) => {
     return basemapConfig ? { url: basemapConfig.url, options: {} } : undefined;
   }, [basemap]);
 
+  // Build map container classes
+  const mapClasses = useMemo(() => {
+    const classes = ['m-map'];
+    if (compareEnabled) {
+      classes.push('compare-mode');
+    }
+    return classes.join(' ');
+  }, [compareEnabled]);
+
   return (
     <LeafletMap
-      customClass="m-map"
+      customClass={mapClasses}
       label={safeLabel}
       basemap={safeBasemap}
       mapOptions={{
@@ -301,6 +324,9 @@ const MapView = (props: MapViewProps) => {
               <Toolbar />
             </MapControls>
           )}
+
+          {/* Compare mode control */}
+          {compareEnabled && <CompareControl map={map} />}
 
           <LayerErrorModal
             errors={layerErrors}

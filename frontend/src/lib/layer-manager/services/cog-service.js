@@ -4,18 +4,31 @@ import { get } from '../lib/request';
 // Symbol to indicate a canceled request
 export const CANCELED = Symbol('CANCELED');
 
+// Default TiTiler URL - can be overridden via environment variable
+const TITILER_BASE_URL =
+  process.env.NEXT_PUBLIC_TITILER_URL || 'https://titiler.resilienceatlas.org';
+
 /**
- * Extract the TiTiler base URL and COG URL from the layer's tile URL
+ * Extract the TiTiler base URL and COG URL from the layer's config
+ * Supports both legacy format (url in body) and new format (source in body)
  * @param {Object} layerModel - The layer model containing layerConfig
  * @returns {{ titilerBaseUrl: string, cogUrl: string } | null} - Parsed URLs or null if invalid
  */
 const parseCogLayerUrls = (layerModel) => {
   const { layerConfig } = layerModel;
 
-  // COG layer_config has url in body.url
+  // New format: source URL is stored directly in body.source
+  if (layerConfig?.body?.source) {
+    return {
+      titilerBaseUrl: TITILER_BASE_URL,
+      cogUrl: layerConfig.body.source,
+    };
+  }
+
+  // Legacy format: parse the full TiTiler tile URL from body.url
   const tileUrl = layerConfig?.body?.url;
   if (!tileUrl) {
-    console.warn('[COG Service] No tile URL found in layerConfig.body.url');
+    console.warn('[COG Service] No tile URL or source found in layerConfig.body');
     return null;
   }
 

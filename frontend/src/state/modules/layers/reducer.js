@@ -7,7 +7,9 @@ import {
   REORDER,
   SET_CHART_LIMIT,
   SET_DATE,
+  ADD_LAYER_AFTER_COMPARE,
 } from './actions';
+import { MOVE_COMPARE_LAYERS_TO_TOP } from '../compare/actions';
 import { getPersistedLayers, URL_PERSISTED_KEYS } from './utils';
 
 const persistedLayers = getPersistedLayers();
@@ -114,6 +116,24 @@ export default createReducer(initialState)({
     };
   },
 
+  [ADD_LAYER_AFTER_COMPARE]: (state, { id }) => {
+    // Add a new layer at index 2 (after comparison layers at 0 and 1)
+    const actives = [...state.actives];
+
+    // Don't add if already present
+    if (actives.includes(id)) {
+      return state;
+    }
+
+    // Insert at position 2 (after the two comparison layers)
+    actives.splice(2, 0, id);
+
+    return {
+      ...state,
+      actives,
+    };
+  },
+
   [REORDER]: (state, { startIndex, endIndex }) => {
     const actives = [...state.actives];
     const [removed] = actives.splice(startIndex, 1);
@@ -156,4 +176,29 @@ export default createReducer(initialState)({
       },
     },
   }),
+
+  [MOVE_COMPARE_LAYERS_TO_TOP]: (state, { leftLayerId, rightLayerId }) => {
+    const actives = [...state.actives];
+
+    // Remove comparison layers from their current positions
+    const leftIndex = actives.indexOf(leftLayerId);
+    const rightIndex = actives.indexOf(rightLayerId);
+
+    // Filter out both comparison layers
+    const filteredActives = actives.filter((id) => id !== leftLayerId && id !== rightLayerId);
+
+    // Add them back at the top: left first (index 0), right second (index 1)
+    // This ensures they're at the top of the legend (z-index order)
+    const newActives = [leftLayerId, rightLayerId, ...filteredActives];
+
+    // Only update if something actually changed
+    if (leftIndex === 0 && rightIndex === 1) {
+      return state;
+    }
+
+    return {
+      ...state,
+      actives: newActives,
+    };
+  },
 });

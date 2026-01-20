@@ -168,7 +168,8 @@
 .btn-visibility,
 .btn-remove,
 .btn-opacity,
-.btn-locate {
+.btn-locate,
+.btn-compare {
   display: flex;
   align-items: center;
   padding: 0;
@@ -253,6 +254,43 @@
   //   height: 12px;
   //   fill: #979797;
   // }
+}
+
+// Compare button with L/R badge
+.btn-compare {
+  @extend %clean-button-or-input;
+  position: relative;
+  cursor: pointer;
+
+  .icon, svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  // Badge showing L (left) or R (right) compare status
+  .compare-badge {
+    position: absolute;
+    top: -4px;
+    right: -6px;
+    min-width: 14px;
+    height: 14px;
+    padding: 0 3px;
+    font-size: 9px;
+    font-weight: 600;
+    line-height: 14px;
+    text-align: center;
+    color: #fff;
+    background-color: $blue;
+    border-radius: 7px;
+
+    &.-left {
+      background-color: #3b82f6; // Blue for left
+    }
+
+    &.-right {
+      background-color: #10b981; // Green for right
+    }
+  }
 }
 
 .btn-download-infowindow {

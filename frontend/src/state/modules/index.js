@@ -15,3 +15,4 @@ export { default as countries } from './countries';
 export { default as about } from './about';
 export { default as homepage } from './homepage';
 export { default as translations } from './translations';
+export { default as compare } from './compare';

@@ -1,6 +1,7 @@
 import { schema } from 'normalizr';
 import { replace } from 'lib/layer-manager';
 import { generateDownloadUrl } from 'utilities/generateDownloadUrl';
+import { reportWarning } from 'utilities/rollbar';
 import { birds } from './utils/decoders';
 
 import {
@@ -34,6 +35,20 @@ export const layer = new schema.Entity(
   {},
   {
     processStrategy: (l) => {
+      // Log deprecation warning for raster provider layers
+      if (l.attributes.layer_provider === 'raster') {
+        reportWarning(
+          'DEPRECATED: Layer using raster provider detected. This provider is deprecated and will be removed. Please migrate to COG provider.',
+          {
+            layerId: l.id,
+            layerName: l.attributes.name,
+            layerSlug: l.attributes.slug,
+            layerProvider: l.attributes.layer_provider,
+            context: 'layer_schema_processing',
+          },
+        );
+      }
+
       const getTimeline = () => ({
         defaultDate: new Date(l.attributes.timeline_default_date),
         endDate: new Date(l.attributes.timeline_end_date),

@@ -1,0 +1,267 @@
+// Compare Control Styles
+// These styles handle the layer comparison UI including the slider, labels, and clipping
+
+@use '../variables' as *;
+
+// Ensure the Leaflet container is positioned properly for our absolute positioning
+.leaflet-container {
+  position: relative;
+}
+
+.c-compare-control {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 9999; // High z-index to be above Leaflet panes
+
+  // Debug: Add a visible border to confirm the container is rendering
+  // border: 2px solid red;
+}
+
+// Instructions overlay when layers not selected
+.compare-instructions {
+  position: absolute;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10000;
+  pointer-events: auto;
+
+  &__content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(0, 0, 0, 0.85);
+    color: #fff;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    max-width: 90vw;
+    text-align: center;
+  }
+
+  &__close {
+    background: transparent;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+    flex-shrink: 0;
+
+    &:hover {
+      opacity: 1;
+    }
+
+    .icon {
+      width: 18px;
+      height: 18px;
+      fill: currentColor;
+    }
+  }
+}
+
+// Layer name labels
+.compare-label {
+  position: absolute;
+  top: 16px;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(0, 0, 0, 0.75);
+  color: #fff;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 500;
+  max-width: 40%;
+  pointer-events: none;
+
+  &--left {
+    left: 16px;
+  }
+
+  &--right {
+    right: 16px;
+    text-align: right;
+  }
+
+  &__badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    background: $blue;
+    color: #fff;
+    border-radius: 50%;
+    font-size: 11px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  &__name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+// Slider handle
+.compare-slider {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 40px; // Wider hit area for easier dragging
+  transform: translateX(-50%);
+  cursor: ew-resize;
+  pointer-events: auto;
+  z-index: 10001;
+
+  &:focus {
+    outline: none;
+
+    .compare-slider__handle {
+      box-shadow: 0 0 0 3px rgba(0, 137, 204, 0.5);
+    }
+  }
+
+  &__line {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    width: 4px;
+    transform: translateX(-50%);
+    background: #fff;
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.5);
+  }
+
+  &__handle {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 44px;
+    height: 44px;
+    background: #fff;
+    border-radius: 50%;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition:
+      transform 0.1s,
+      box-shadow 0.1s;
+
+    &:hover {
+      transform: translate(-50%, -50%) scale(1.1);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    }
+  }
+
+  &__arrows {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: #333;
+    font-size: 10px;
+    user-select: none;
+  }
+
+  &__arrow {
+    opacity: 0.7;
+
+    &--left {
+      margin-right: 2px;
+    }
+
+    &--right {
+      margin-left: 2px;
+    }
+  }
+}
+
+// Close button
+.compare-close {
+  position: absolute;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10002;
+  background: rgba(0, 0, 0, 0.85);
+  border: none;
+  color: #fff;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: auto;
+  transition:
+    background 0.2s,
+    transform 0.2s;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.95);
+    transform: translateX(-50%) scale(1.1);
+  }
+
+  .icon {
+    width: 18px;
+    height: 18px;
+    fill: currentColor;
+  }
+}
+
+// Layer clipping styles - applied to the map container
+// These use CSS custom properties set by the CompareControl component
+.m-map {
+  &.compare-mode {
+    // The left layer gets clipped from the right
+    .compare-layer-left {
+      clip-path: inset(0 calc(100% - var(--compare-position, 50%)) 0 0);
+    }
+
+    // The right layer gets clipped from the left
+    .compare-layer-right {
+      clip-path: inset(0 0 0 var(--compare-position, 50%));
+    }
+  }
+}
+
+// Responsive adjustments
+@media (max-width: $breakpoint-mobile) {
+  .compare-label {
+    max-width: 35%;
+    padding: 6px 10px;
+    font-size: 11px;
+
+    &__badge {
+      width: 16px;
+      height: 16px;
+      font-size: 9px;
+    }
+  }
+
+  .compare-slider__handle {
+    width: 36px;
+    height: 36px;
+  }
+
+  .compare-instructions__content {
+    font-size: 12px;
+    padding: 10px 14px;
+  }
+}

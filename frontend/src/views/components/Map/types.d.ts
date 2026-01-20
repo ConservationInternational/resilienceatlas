@@ -1,6 +1,14 @@
 import type { MAP_LABELS, BASEMAP_LABELS } from 'views/components/LayersList/Basemaps/constants';
 import type { NextRouter } from 'next/router';
 
+// URL-serializable compare state (from getCompareURLState selector)
+export interface CompareURLState {
+  enabled: boolean;
+  left: string | number | null;
+  right: string | number | null;
+  pos: number;
+}
+
 export interface MapViewProps {
   labels: (typeof MAP_LABELS)[number];
   basemap: (typeof BASEMAP_LABELS)[number];
@@ -43,6 +51,9 @@ export interface MapViewProps {
   };
   embed: boolean;
   drawing: boolean;
+  // Compare mode - simplified: only what's needed for rendering decision and URL persistence
+  compareEnabled: boolean;
+  compareURLState: CompareURLState | null;
   // actions
   loadLayers: (locale: string) => void;
   loadLayerGroups: (locale: string) => void;
