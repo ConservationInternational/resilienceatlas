@@ -136,10 +136,6 @@ const Header = ({
             <span />
           </button>
 
-          <ul className="nav-area">
-            <LanguageSwitcher translations={translations} />
-          </ul>
-
           {/* Desktop navigation - hidden on mobile */}
           <ul className="nav-area -resilience desktop-only">
             <li className="journey-link">
@@ -459,6 +455,8 @@ const Header = ({
                   </li>
                 </>
               ) : null}
+
+              <LanguageSwitcher translations={translations} />
             </ul>
           </div>,
           portalContainer,
