@@ -49,7 +49,14 @@ initialize_storage() {
   echo "Setting up homepage images..."
   bundle exec rake storage:setup_homepage_images 2>/dev/null || echo "Homepage image setup skipped or completed"
 
-  chmod -R 755 "$PUBLIC_STORAGE" "$PRIVATE_STORAGE" 2>/dev/null || true
+  # Only fix permissions on the top-level directories, not recursively on all files
+  # This is much faster than chmod -R which can take minutes on large storage directories
+  # Files created by the app will have correct permissions from umask
+  chmod 755 "$PUBLIC_STORAGE" "$PRIVATE_STORAGE" 2>/dev/null || true
+  
+  # Only fix subdirectory permissions (1 level deep) - this is usually sufficient
+  find "$PUBLIC_STORAGE" -maxdepth 1 -type d -exec chmod 755 {} \; 2>/dev/null || true
+  find "$PRIVATE_STORAGE" -maxdepth 1 -type d -exec chmod 755 {} \; 2>/dev/null || true
 }
 
 # Run storage initialization
