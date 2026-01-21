@@ -96,10 +96,10 @@ module TrendsEarthSeeder
     # SOC values are percentages: <-10 = degraded, -10 to 10 = stable, >10 = improvement
     # Using interval colormap format: [[[min, max], [r, g, b, a]], ...]
     soc: [
-      [[-32768, -32768], [0, 0, 0, 0]],       # NoData (transparent)
+      [[-32768, -101], [0, 0, 0, 0]],       # NoData (transparent)
       [[-100, -11], [155, 39, 121, 255]],     # Degradation (< -10%)
       [[-10, 10], [247, 247, 247, 255]],      # Stable (-10% to +10%)
-      [[11, 100], [0, 101, 0, 255]]           # Improvement (> +10%)
+      [[11, 32768], [0, 101, 0, 255]]           # Improvement (> +10%)
     ]
   }.freeze
 
