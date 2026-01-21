@@ -632,9 +632,9 @@ a.nav-current-forced:hover {
         }
       }
       
-      // Hide vital signs link on mobile
+      // Hide vital signs link on mobile - use !important to override .is-indicators/.is-atlas rules
       &.-vital-sign {
-        display: none;
+        display: none !important;
       }
     }
   }
@@ -785,6 +785,23 @@ a.nav-current-forced:hover {
       margin-top: rem(20px);
       padding-top: rem(15px);
       border-top: 1px solid rgba($gray-medium, 0.3);
+    }
+    
+    // Linkback button for sub-scopes on mobile
+    .mobile-linkback {
+      > a {
+        display: block;
+        padding: rem(15px) rem(10px);
+        color: var(--theme-color, #333333);
+        text-decoration: none;
+        font-size: rem(14px);
+        text-transform: uppercase;
+        text-align: center;
+        
+        &:hover {
+          background-color: rgba($gray-medium, 0.1);
+        }
+      }
     }
   }
 }

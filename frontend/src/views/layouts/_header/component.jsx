@@ -27,7 +27,10 @@ const Header = ({
   const [portalContainer, setPortalContainer] = useState(null);
 
   // Safely destructure site with default values to prevent errors during SSR/hydration
-  const { linkback_text = '', linkback_url = '' } = site || {};
+  const { linkback_text = '', linkback_url = '', subdomain = '' } = site || {};
+
+  // Check if we're on a sub-scope (not the main Resilience Atlas site)
+  const isSubScope = !!subdomain;
 
   useEffect(() => {
     setHasMounted(true);
@@ -302,161 +305,178 @@ const Header = ({
         createPortal(
           <div className="mobile-menu-overlay" onClick={toggleMobileMenu}>
             <ul className="mobile-menu-panel" onClick={(e) => e.stopPropagation()}>
-              <li className="journey-link">
-                <Link
-                  href="/journeys"
-                  className={pathname.includes('/journeys') ? 'nav-current-forced' : ''}
-                  onClick={toggleMobileMenu}
-                >
-                  <T _str="Journeys" />
-                </Link>
-              </li>
-
-              <li
-                className={cx({ 'is-expanded': expandedMenuItems['map-menu'] })}
-                data-menu-id="map-menu"
-              >
-                <Link
-                  href="/map"
-                  onClick={(e) => {
-                    if (menuItems?.length > 0) {
-                      e.preventDefault();
-                      setExpandedMenuItems((prev) => ({
-                        ...prev,
-                        ['map-menu']: !prev['map-menu'],
-                      }));
-                    } else {
-                      toggleMobileMenu();
-                    }
-                  }}
-                >
-                  <T _str="Map" />
-                  {menuItems?.length > 0 && (
-                    <span className="mobile-expand-indicator">
-                      {expandedMenuItems['map-menu'] ? ' ▲' : ' ▼'}
-                    </span>
-                  )}
-                </Link>
-
-                {expandedMenuItems['map-menu'] && (
-                  <ul className="mobile-submenu">
-                    {/* Add main Resilience Atlas map link at the top */}
-                    <li key="main-map">
-                      <Link href="/map" onClick={toggleMobileMenu}>
-                        <T _str="Resilience Atlas" />
-                      </Link>
-                    </li>
-                    {(menuItems || []).sort(byPosition).map((item) => {
-                      const hasChildren = !!(item.children && item.children.length);
-                      const isItemExpanded = expandedMenuItems[`mobile-${item.id}`];
-
-                      return (
-                        <li key={item.id} className={cx({ 'is-expanded': isItemExpanded })}>
-                          {item.link ? (
-                            <a
-                              href={item.link}
-                              onClick={(e) => {
-                                if (hasChildren) {
-                                  e.preventDefault();
-                                  setExpandedMenuItems((prev) => ({
-                                    ...prev,
-                                    [`mobile-${item.id}`]: !prev[`mobile-${item.id}`],
-                                  }));
-                                } else {
-                                  toggleMobileMenu();
-                                }
-                              }}
-                            >
-                              {item.label}
-                              {hasChildren && (
-                                <span className="mobile-expand-indicator">
-                                  {isItemExpanded ? ' ▲' : ' ▼'}
-                                </span>
-                              )}
-                            </a>
-                          ) : (
-                            <span
-                              onClick={() => {
-                                if (hasChildren) {
-                                  setExpandedMenuItems((prev) => ({
-                                    ...prev,
-                                    [`mobile-${item.id}`]: !prev[`mobile-${item.id}`],
-                                  }));
-                                }
-                              }}
-                              style={{ cursor: hasChildren ? 'pointer' : 'default' }}
-                            >
-                              {item.label}
-                              {hasChildren && (
-                                <span className="mobile-expand-indicator">
-                                  {isItemExpanded ? ' ▲' : ' ▼'}
-                                </span>
-                              )}
-                            </span>
-                          )}
-                          {hasChildren && isItemExpanded && (
-                            <ul className="mobile-submenu-nested">
-                              {item.children.sort(byPosition).map((child) => (
-                                <li key={child.id}>
-                                  {child.link ? (
-                                    <a href={child.link} onClick={toggleMobileMenu}>
-                                      {child.label}
-                                    </a>
-                                  ) : (
-                                    <span>{child.label}</span>
-                                  )}
-                                </li>
-                              ))}
-                            </ul>
-                          )}
-                        </li>
-                      );
-                    })}
-                  </ul>
-                )}
-              </li>
-
-              <li>
-                <Link href="/about" onClick={toggleMobileMenu}>
-                  <T _str="About" />
-                </Link>
-              </li>
-
-              {hasMounted && loggedIn ? (
+              {/* For sub-scopes, only show linkback button like on desktop */}
+              {isSubScope ? (
+                <li className="mobile-linkback">
+                  <a
+                    href={linkback_url || 'http://vitalsigns.org/'}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="theme-color link-back"
+                    onClick={toggleMobileMenu}
+                  >
+                    {linkback_text || <T _str="Go back to vital signs" />}
+                  </a>
+                </li>
+              ) : (
                 <>
-                  <li>
-                    <Link href="/me" onClick={toggleMobileMenu}>
-                      <T _str="Me" />
+                  <li className="journey-link">
+                    <Link
+                      href="/journeys"
+                      className={pathname.includes('/journeys') ? 'nav-current-forced' : ''}
+                      onClick={toggleMobileMenu}
+                    >
+                      <T _str="Journeys" />
                     </Link>
                   </li>
-                  <li>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        logout();
-                        toggleMobileMenu();
+
+                  <li
+                    className={cx({ 'is-expanded': expandedMenuItems['map-menu'] })}
+                    data-menu-id="map-menu"
+                  >
+                    <Link
+                      href="/map"
+                      onClick={(e) => {
+                        if (menuItems?.length > 0) {
+                          e.preventDefault();
+                          setExpandedMenuItems((prev) => ({
+                            ...prev,
+                            ['map-menu']: !prev['map-menu'],
+                          }));
+                        } else {
+                          toggleMobileMenu();
+                        }
                       }}
                     >
-                      <T _str="Logout" />
-                    </button>
-                  </li>
-                </>
-              ) : hasMounted ? (
-                <>
-                  <li>
-                    <Link href="/login" onClick={toggleMobileMenu}>
-                      <T _str="Login" />
+                      <T _str="Map" />
+                      {menuItems?.length > 0 && (
+                        <span className="mobile-expand-indicator">
+                          {expandedMenuItems['map-menu'] ? ' ▲' : ' ▼'}
+                        </span>
+                      )}
                     </Link>
-                  </li>
-                  <li>
-                    <Link href="/register" onClick={toggleMobileMenu}>
-                      <T _str="Register" />
-                    </Link>
-                  </li>
-                </>
-              ) : null}
 
-              <LanguageSwitcher translations={translations} />
+                    {expandedMenuItems['map-menu'] && (
+                      <ul className="mobile-submenu">
+                        {/* Add main Resilience Atlas map link at the top */}
+                        <li key="main-map">
+                          <Link href="/map" onClick={toggleMobileMenu}>
+                            <T _str="Resilience Atlas" />
+                          </Link>
+                        </li>
+                        {(menuItems || []).sort(byPosition).map((item) => {
+                          const hasChildren = !!(item.children && item.children.length);
+                          const isItemExpanded = expandedMenuItems[`mobile-${item.id}`];
+
+                          return (
+                            <li key={item.id} className={cx({ 'is-expanded': isItemExpanded })}>
+                              {item.link ? (
+                                <a
+                                  href={item.link}
+                                  onClick={(e) => {
+                                    if (hasChildren) {
+                                      e.preventDefault();
+                                      setExpandedMenuItems((prev) => ({
+                                        ...prev,
+                                        [`mobile-${item.id}`]: !prev[`mobile-${item.id}`],
+                                      }));
+                                    } else {
+                                      toggleMobileMenu();
+                                    }
+                                  }}
+                                >
+                                  {item.label}
+                                  {hasChildren && (
+                                    <span className="mobile-expand-indicator">
+                                      {isItemExpanded ? ' ▲' : ' ▼'}
+                                    </span>
+                                  )}
+                                </a>
+                              ) : (
+                                <span
+                                  onClick={() => {
+                                    if (hasChildren) {
+                                      setExpandedMenuItems((prev) => ({
+                                        ...prev,
+                                        [`mobile-${item.id}`]: !prev[`mobile-${item.id}`],
+                                      }));
+                                    }
+                                  }}
+                                  style={{ cursor: hasChildren ? 'pointer' : 'default' }}
+                                >
+                                  {item.label}
+                                  {hasChildren && (
+                                    <span className="mobile-expand-indicator">
+                                      {isItemExpanded ? ' ▲' : ' ▼'}
+                                    </span>
+                                  )}
+                                </span>
+                              )}
+                              {hasChildren && isItemExpanded && (
+                                <ul className="mobile-submenu-nested">
+                                  {item.children.sort(byPosition).map((child) => (
+                                    <li key={child.id}>
+                                      {child.link ? (
+                                        <a href={child.link} onClick={toggleMobileMenu}>
+                                          {child.label}
+                                        </a>
+                                      ) : (
+                                        <span>{child.label}</span>
+                                      )}
+                                    </li>
+                                  ))}
+                                </ul>
+                              )}
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    )}
+                  </li>
+
+                  <li>
+                    <Link href="/about" onClick={toggleMobileMenu}>
+                      <T _str="About" />
+                    </Link>
+                  </li>
+
+                  {hasMounted && loggedIn ? (
+                    <>
+                      <li>
+                        <Link href="/me" onClick={toggleMobileMenu}>
+                          <T _str="Me" />
+                        </Link>
+                      </li>
+                      <li>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            logout();
+                            toggleMobileMenu();
+                          }}
+                        >
+                          <T _str="Logout" />
+                        </button>
+                      </li>
+                    </>
+                  ) : hasMounted ? (
+                    <>
+                      <li>
+                        <Link href="/login" onClick={toggleMobileMenu}>
+                          <T _str="Login" />
+                        </Link>
+                      </li>
+                      <li>
+                        <Link href="/register" onClick={toggleMobileMenu}>
+                          <T _str="Register" />
+                        </Link>
+                      </li>
+                    </>
+                  ) : null}
+
+                  <LanguageSwitcher translations={translations} />
+                </>
+              )}
             </ul>
           </div>,
           portalContainer,
