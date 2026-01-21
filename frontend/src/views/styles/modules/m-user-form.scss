@@ -62,6 +62,15 @@
     font-size: 14px;
   }
 
+  .success-message {
+    color: #2e7d32;
+    font-size: 14px;
+    padding: 10px;
+    background-color: rgba(46, 125, 50, 0.1);
+    border-radius: 4px;
+    margin-bottom: 15px;
+  }
+
   .field {
     position: relative;
     padding-bottom: 14px;

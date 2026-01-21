@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form';
 import type { Resolver } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { T } from '@transifex/react';
+import { useRouter } from 'next/router';
 import { useDispatch } from 'react-redux';
 import type { ThunkDispatch } from 'redux-thunk';
 import type { UnknownAction } from 'redux';
@@ -18,7 +19,9 @@ import type { ISignupForm } from 'state/modules/user';
 type AppDispatch = ThunkDispatch<unknown, unknown, UnknownAction>;
 
 const SignupForm: FC = () => {
+  const router = useRouter();
   const dispatch = useDispatch<AppDispatch>();
+  const { query: { from = '/' } = {} } = router;
 
   const {
     register,
@@ -35,6 +38,11 @@ const SignupForm: FC = () => {
       await signup(data);
       const authToken = await signin({ email: data.email, password: data.password });
       dispatch(login(authToken));
+
+      // Redirect to the page user came from, or home page
+      if (from && router.isReady) {
+        router.push(from as string);
+      }
     } catch (err: unknown) {
       const error = err as { errors?: Record<string, string> };
       if (error.errors) {

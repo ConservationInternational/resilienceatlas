@@ -1,5 +1,5 @@
 import type { FC } from 'react';
-import React from 'react';
+import React, { useState } from 'react';
 import cx from 'classnames';
 import { useForm } from 'react-hook-form';
 import type { Resolver } from 'react-hook-form';
@@ -21,6 +21,7 @@ type AppDispatch = ThunkDispatch<unknown, unknown, UnknownAction>;
 const EditProfileForm: FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const user = useSelector((state: RootState) => state.user);
+  const [showSuccess, setShowSuccess] = useState(false);
 
   const {
     register,
@@ -41,8 +42,10 @@ const EditProfileForm: FC = () => {
 
   const onSubmit = async (data: IEditProfileForm) => {
     try {
+      setShowSuccess(false);
       await editProfile(data, user.auth_token);
       dispatch(loadUserData());
+      setShowSuccess(true);
     } catch (err: unknown) {
       const error = err as { errors?: Record<string, string>; _error?: string };
       if (error.errors) {
@@ -62,6 +65,11 @@ const EditProfileForm: FC = () => {
 
   return (
     <>
+      {showSuccess && (
+        <p className="success-message">
+          <T _str="Your profile has been updated successfully." />
+        </p>
+      )}
       {serverError && <p className="general-error-message">{serverError}</p>}
       <form onSubmit={handleSubmit(onSubmit)}>
         <FormInput
