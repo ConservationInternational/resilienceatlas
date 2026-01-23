@@ -59,7 +59,7 @@ module ConservationInternational
     end
 
     # Heroku Asset Pippeline
-    config.assets.initialize_on_precompile = true
+    config.assets.initialize_on_precompile = false
 
     config.middleware.insert_before 0, Rack::Cors do
       allow do

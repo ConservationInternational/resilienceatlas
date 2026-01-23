@@ -644,11 +644,13 @@ DEPENDENCIES
   rswag (~> 2.15)
   rswag-specs (~> 2.15)
   rubyzip (~> 3.0)
+  sassc-rails (~> 2.1)
   seed_dump (~> 3.3)
   shrine (~> 3.6)
   simple_command (~> 1.0)
   slim-rails (~> 3.6)
   sparkpost_rails!
+  sprockets-rails (~> 3.5)
   standard (~> 1.45)
   super_diff (~> 0.12)
   terser (~> 1.2)

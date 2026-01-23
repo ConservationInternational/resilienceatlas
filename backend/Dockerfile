@@ -179,7 +179,8 @@ RUN chmod +x bin/docker-entrypoint bin/rails bin/rake bin/setup 2>/dev/null || t
 
 # Precompile assets for production
 # Set RAILS_ENV and SECRET_KEY_BASE for asset precompilation
-RUN RAILS_ENV=production SECRET_KEY_BASE=placeholder_for_precompile bundle exec rake assets:precompile
+# DATABASE_URL is set to a dummy value since we don't need DB during asset compilation
+RUN RAILS_ENV=production SECRET_KEY_BASE=placeholder_for_precompile DATABASE_URL=postgres://localhost/dummy bundle exec rake assets:precompile
 
 # Expose port 3001
 EXPOSE 3001
