@@ -111,7 +111,8 @@
         span.inline-hint
           | For COG histogram analysis. Example:
           br
-          code {"assetId":"unused","params":{"titilerUrl":"https://titiler.resilienceatlas.org","cogUrl":"gs://bucket/file.tif"}}
+          code
+            | {"assetId":"unused","params":{"titilerUrl":"https://titiler.resilienceatlas.org","cogUrl":"gs://bucket/file.tif"}}
         span.label-note  (JSON)
         = f.text_area :analysis_body, rows: 10, class: "json-editor-textarea"
     = f.inputs "Timeline"
