@@ -4,6 +4,10 @@ ruby "3.4.8"
 
 gem "rails", "~> 7.2"
 
+# Asset pipeline
+gem "sprockets-rails", "~> 3.5"
+gem "sassc-rails", "~> 2.1"
+
 gem "terser", "~> 1.2"
 gem "slim-rails", "~> 3.6"
 gem "dotenv-rails", "~> 3.1"

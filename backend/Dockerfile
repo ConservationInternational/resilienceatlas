@@ -177,8 +177,9 @@ RUN if [ -d "public/storage" ] && [ "$(ls -A public/storage 2>/dev/null)" ]; the
 # Make scripts executable including the docker entrypoint
 RUN chmod +x bin/docker-entrypoint bin/rails bin/rake bin/setup 2>/dev/null || true
 
-# Precompile assets for production (if needed)
-RUN bundle exec rake assets:precompile || true
+# Precompile assets for production
+# Set RAILS_ENV and SECRET_KEY_BASE for asset precompilation
+RUN RAILS_ENV=production SECRET_KEY_BASE=placeholder_for_precompile bundle exec rake assets:precompile
 
 # Expose port 3001
 EXPOSE 3001

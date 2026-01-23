@@ -82,8 +82,8 @@ module Api
         end
 
         # Validate coordinates
-        lon_f = Float(lon) rescue nil
-        lat_f = Float(lat) rescue nil
+        lon_f = Float(lon, exception: false)
+        lat_f = Float(lat, exception: false)
         unless lon_f && lat_f && lon_f.between?(-180, 180) && lat_f.between?(-90, 90)
           return render json: {error: "Invalid coordinates"}, status: :bad_request
         end
@@ -177,7 +177,7 @@ module Api
           return nil unless allowed_patterns.any? { |pattern| uri.host.match?(pattern) }
 
           # Return sanitized URI (scheme + host + port only)
-          "#{uri.scheme}://#{uri.host}#{uri.port == uri.default_port ? "" : ":#{uri.port}"}"
+          "#{uri.scheme}://#{uri.host}#{(uri.port == uri.default_port) ? "" : ":#{uri.port}"}"
         rescue URI::InvalidURIError
           nil
         end
