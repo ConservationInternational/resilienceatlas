@@ -77,22 +77,40 @@ ActiveAdmin.register Layer do
       row :download
       row :layer_provider
       if resource.layer_provider == "cartodb"
-        row :query
-        row :css
+        row :query do |record|
+          pre class: "code-block" do
+            record.query
+          end
+        end
+        row :css do |record|
+          pre class: "code-block" do
+            record.css
+          end
+        end
         row :opacity
         row :zindex
         row :order
         row :zoom_max
         row :zoom_min
       else
-        row :layer_config
+        row :layer_config do |record|
+          render "admin/shared/json_display", json: record.layer_config if record.layer_config.present?
+        end
       end
-      row :interaction_config
+      row :interaction_config do |record|
+        render "admin/shared/json_display", json: record.interaction_config if record.interaction_config.present?
+      end
       row :analysis_suitable
       if resource.analysis_suitable
         row :analysis_type
-        row :analysis_query
-        row :analysis_body
+        row :analysis_query do |record|
+          pre class: "code-block" do
+            record.analysis_query
+          end
+        end
+        row :analysis_body do |record|
+          render "admin/shared/json_display", json: record.analysis_body if record.analysis_body.present?
+        end
         row :analysis_text_template
       end
       row :timeline
@@ -106,6 +124,17 @@ ActiveAdmin.register Layer do
         row :timeline_period
       end
       row :dashboard_order
+      row :sources do |record|
+        if record.sources.any?
+          ul do
+            record.sources.each do |source|
+              li link_to("#{source.source_type} - #{source.reference_short}", admin_source_path(source))
+            end
+          end
+        end
+      end
+      row :created_at
+      row :updated_at
     end
   end
 

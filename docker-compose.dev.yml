@@ -40,7 +40,10 @@ services:
           sleep 2
         done &&
         PGPASSWORD=postgres psql -h db -U postgres -d cigrp -c 'CREATE EXTENSION IF NOT EXISTS postgis; CREATE EXTENSION IF NOT EXISTS postgis_topology;' || true &&
-        bundle exec rails db:create db:migrate db:seed &&
+        bundle exec rails db:create db:migrate &&
+        if [ \"$${SKIP_SEED:-false}\" != \"true\" ]; then
+          bundle exec rails db:seed
+        fi &&
         rm -f tmp/pids/server.pid &&
         bundle exec rails server -b 0.0.0.0"
 

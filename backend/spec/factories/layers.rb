@@ -57,7 +57,7 @@
 #
 FactoryBot.define do
   factory :layer do
-    sequence(:slug) { |n| "Layer-#{n}" }
+    sequence(:slug) { |n| "layer-#{n}" }
     sequence(:name) do |n|
       Faker::Config.random = Random.new(n)
       Faker::Lorem.word
@@ -91,7 +91,7 @@ FactoryBot.define do
     end
     sequence(:opacity) do |n|
       Faker::Config.random = Random.new(n)
-      Faker::Number.between from: 1, to: 100
+      Faker::Number.between from: 0.0, to: 1.0
     end
     sequence(:zindex) do |n|
       Faker::Config.random = Random.new(n)
@@ -103,19 +103,19 @@ FactoryBot.define do
     end
     sequence(:zoom_max) do |n|
       Faker::Config.random = Random.new(n)
-      Faker::Number.between from: 1, to: 100
+      Faker::Number.between from: 12, to: 24
     end
     sequence(:zoom_min) do |n|
       Faker::Config.random = Random.new(n)
-      Faker::Number.between from: 1, to: 100
+      Faker::Number.between from: 0, to: 11
     end
     sequence(:layer_config) do |n|
-      Faker::Config.random = Random.new(n)
-      Faker::Number.between from: 1, to: 100
+      # Layer config must be valid JSON
+      '{"type": "raster", "source": {"tiles": ["https://example.com/tiles/{z}/{x}/{y}.png"]}}'
     end
     sequence(:interaction_config) do |n|
       # Interaction config must be valid JSON - frontend parses this with JSON.parse()
-      "{}"
+      '{"output": [], "enabled": true}'
     end
     sequence(:download) do |n|
       Faker::Config.random = Random.new(n)
@@ -130,8 +130,8 @@ FactoryBot.define do
       Faker::Lorem.sentence
     end
     sequence(:analysis_body) do |n|
-      Faker::Config.random = Random.new(n)
-      Faker::Lorem.sentence
+      # Analysis body must be valid JSON
+      '{"url": "https://example.com/cog.tif", "geometry": "{{geometry}}"}'
     end
     sequence(:analysis_text_template) do |n|
       Faker::Config.random = Random.new(n)

@@ -142,6 +142,36 @@ class Layer < ApplicationRecord
   validates_presence_of :slug, :layer_provider, :interaction_config
   validates :timeline, inclusion: {in: [true, false]}
 
+  # Slug format validation - must be URL-friendly
+  # Allows alphanumeric characters, hyphens, and underscores (case-insensitive)
+  validates :slug, uniqueness: true, format: {
+    with: /\A[a-zA-Z0-9]+(?:[-_][a-zA-Z0-9]+)*\z/,
+    message: "must be alphanumeric with hyphens or underscores (e.g., 'my-layer-name' or 'my_layer_name')"
+  }
+
+  # JSON validation for configuration fields
+  validates :interaction_config, json: {schema: :interaction_config, message: "must be valid JSON"}
+  validates :layer_config, json: {schema: :layer_config, message: "must be valid JSON"}, if: -> { layer_config.present? }
+  validates :analysis_body, json: {schema: :analysis_body, message: "must be valid JSON"}, if: -> { analysis_body.present? }
+
+  # Validate layer_provider is one of the allowed values
+  validates :layer_provider, inclusion: {
+    in: %w[cartodb cog gee raster],
+    message: "must be one of: cartodb, cog, gee, or raster",
+    allow_nil: false
+  }, if: -> { layer_provider.present? && !layer_provider.include?("tileset") }
+
+  # Numeric validations
+  validates :opacity, numericality: {greater_than_or_equal_to: 0, less_than_or_equal_to: 1}, allow_nil: true
+  validates :zoom_min, numericality: {only_integer: true, greater_than_or_equal_to: 0, less_than_or_equal_to: 24}, allow_nil: true
+  validates :zoom_max, numericality: {only_integer: true, greater_than_or_equal_to: 0, less_than_or_equal_to: 24}, allow_nil: true
+  validates :zindex, numericality: {only_integer: true}, allow_nil: true
+  validates :order, numericality: {only_integer: true}, allow_nil: true
+  validates :dashboard_order, numericality: {only_integer: true}, allow_nil: true
+
+  # Validate zoom_max is greater than or equal to zoom_min
+  validate :zoom_max_greater_than_or_equal_to_zoom_min
+
   # Ransack configuration - explicitly allowlist searchable attributes for security
   def self.ransackable_attributes(auth_object = nil)
     %w[
@@ -247,6 +277,13 @@ class Layer < ApplicationRecord
   end
 
   private
+
+  def zoom_max_greater_than_or_equal_to_zoom_min
+    return unless zoom_min.present? && zoom_max.present?
+    return if zoom_max >= zoom_min
+
+    errors.add(:zoom_max, "must be greater than or equal to zoom_min")
+  end
 
   def date_valid?(subdomain)
     file_date = File.basename(zipfile_name(subdomain), ".zip").split("-date-").last

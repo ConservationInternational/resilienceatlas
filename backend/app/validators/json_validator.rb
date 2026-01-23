@@ -22,7 +22,14 @@ class JsonValidator < ActiveModel::EachValidator
 
   def validate_json_schema_of(record, attribute, value)
     schema_name = options[:schema] || attribute
-    schema = Rails.root.join("app/models/json_schemas/#{record.class.to_s.underscore}/#{schema_name}.json")
-    JSON::Validator.validate!(schema.to_s, value)
+    schema_path = Rails.root.join("app/models/json_schemas/#{record.class.to_s.underscore}/#{schema_name}.json")
+
+    # Only validate against schema if the schema file exists
+    # Otherwise, just verify it's valid JSON (which we already did in parse_json)
+    return unless File.exist?(schema_path)
+
+    # Read and parse the schema file, then validate
+    schema = JSON.parse(File.read(schema_path))
+    JSON::Validator.validate!(schema, value)
   end
 end

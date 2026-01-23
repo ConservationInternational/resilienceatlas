@@ -1,0 +1,15 @@
+- if json.present?
+  - begin
+    - parsed = json.is_a?(String) ? JSON.parse(json) : json
+    - formatted = JSON.pretty_generate(parsed)
+    div.json-display-container
+      pre.json-display
+        = formatted
+  - rescue JSON::ParserError => e
+    div.json-display-error
+      span.error-label Invalid JSON:
+      = e.message
+      pre.json-raw
+        = json
+- else
+  span.empty-value (empty)

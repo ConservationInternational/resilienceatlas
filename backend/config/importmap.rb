@@ -3,6 +3,9 @@
 pin "application"
 pin "active_admin"
 
+# Pin all admin JS files for import from active_admin.js
+pin_all_from "app/javascript/admin", under: "admin"
+
 pin "@rails/ujs", to: "https://ga.jspm.io/npm:@rails/ujs@7.0.4/lib/assets/compiled/rails-ujs.js"
 
 pin "@rails/actiontext", to: "actiontext.js"

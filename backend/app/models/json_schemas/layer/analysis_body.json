@@ -1,0 +1,57 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "Layer Analysis Body",
+  "description": "Configuration for analysis requests (typically for COG/raster analysis)",
+  "type": "object",
+  "properties": {
+    "geometry": {
+      "description": "GeoJSON geometry or reference to geometry"
+    },
+    "url": {
+      "type": "string",
+      "description": "URL of the raster data source"
+    },
+    "bidx": {
+      "type": ["integer", "string"],
+      "description": "Band index for analysis"
+    },
+    "categorical": {
+      "type": "boolean",
+      "description": "Whether the data is categorical"
+    },
+    "categories": {
+      "type": "array",
+      "description": "Category definitions for categorical data",
+      "items": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": ["integer", "number"]
+          },
+          "label": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "histogram_options": {
+      "type": "object",
+      "description": "Options for histogram generation",
+      "properties": {
+        "bins": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "range": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          },
+          "minItems": 2,
+          "maxItems": 2
+        }
+      }
+    }
+  },
+  "additionalProperties": true
+}

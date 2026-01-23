@@ -1,53 +1,310 @@
 = semantic_form_for [:admin, resource], builder: ActiveAdmin::FormBuilder do |f|
   = f.semantic_errors
   = f.inputs "Layer metadata" do
-    = f.input :slug
+    li.input.string
+      = f.label :slug
+      span.inline-hint Required. Unique alphanumeric identifier with hyphens/underscores (e.g., 'rainfall-data' or 'crop_yield')
+      = f.text_field :slug
     = f.input :published
     = f.inputs "Translated fields" do
       = f.translated_inputs switch_locale: false do |ff|
         = ff.input :id, as: :hidden
         = ff.input :locale, as: :hidden
-        = ff.input :name
-        = ff.input :description
+        = ff.input :name, required: true
+        li.input.text
+          = ff.label :description
+          span.inline-hint Brief description of the layer
+          = ff.text_area :description, rows: 3
         = ff.input :processing
-        = ff.input :data_units
-        = ff.input :legend
-        span style="margin: 10px 10px 0 10px;font-size: small;display: block;"
-          = "Sentence displayed as a result of the analysis. To inject values, use the {{attributeName}} format where attributeName is the name of an attribute that is returned by the analysis query."
-          = ff.input :analysis_text_template, as: :string
+        li.input.string
+          = ff.label :data_units
+          span.inline-hint e.g., 'mm/year', 'kg/ha', '%'
+          = ff.text_field :data_units
+        li.input.text
+          = ff.label :legend
+          span.inline-hint JSON configuration for layer legend display
+          span.label-note  (JSON)
+          = ff.text_area :legend, rows: 8, class: "json-editor-textarea"
     = f.inputs "Metadata sources" do
       = f.input :sources, as: :select, collection: Source.with_translations.all.map { |s| ["#{s.source_type} - Ref: #{s.reference_short}", s.id] }, label: "Select sources:", multiple: true
     = f.inputs "Data download" do
-      = f.input :download
+      li.input.boolean
+        = f.label :download
+        span.inline-hint Allow users to download this layer's data
+        = f.check_box :download
   = f.inputs "Configuration" do
     = f.inputs "Layer", class: "inputs select-dependency-container" do
-      = f.input :layer_provider, as: :select, collection: ["cartodb", "cog", "gee", "xyz tileset", "raster"], input_html: {class: "select-dependency-controller"}, required: true
-      span class="select-dependency-field" style="margin: 0 10px;font-size: small;display: block;" data-available-for=["cartodb", "xyz tileset", "cog"]
-        = "If the layer has a timeline, {{year}}, {{month}} and {{day}} will be substituted with the corresponding values. Note that these values could be an empty string depending on the period choice (yearly, monthly or daily)."
-      = f.input :query, wrapper_html: {class: "select-dependency-field", data: {available_for: %w[cartodb raster]}}
-      = f.input :css, wrapper_html: {class: "select-dependency-field", data: {available_for: %w[cartodb raster]}}
-      = f.input :opacity, wrapper_html: {class: "select-dependency-field", data: {available_for: %w[cartodb raster]}}
-      = f.input :zindex, wrapper_html: {class: "select-dependency-field", data: {available_for: %w[cartodb raster]}}
-      = f.input :order, wrapper_html: {class: "select-dependency-field", data: {available_for: %w[cartodb raster]}}
-      = f.input :zoom_max, wrapper_html: {class: "select-dependency-field", data: {available_for: %w[cartodb raster]}}
-      = f.input :zoom_min, wrapper_html: {class: "select-dependency-field", data: {available_for: %w[cartodb raster]}}
-      = f.input :layer_config, wrapper_html: {class: "select-dependency-field", data: {available_for: ["xyz tileset", "gee", "cog"], required_for: ["cog"]}}
+      li.input.select
+        = f.label :layer_provider
+        span.inline-hint Required. Determines tile source: cartodb/raster use query+css, cog/gee/xyz use layer_config
+        = f.select :layer_provider, ["cartodb", "cog", "gee", "xyz tileset", "raster"], {}, class: "select-dependency-controller"
+      span class="select-dependency-field" style="margin: 0 10px; font-size: small; display: block;" data-available-for=["cartodb", "xyz tileset", "cog"]
+        | If the layer has a timeline, {{year}}, {{month}} and {{day}} will be substituted.
+      li.input.text.select-dependency-field data-available-for=["cartodb", "raster"]
+        = f.label :query
+        span.inline-hint SQL query for CartoDB layers
+        = f.text_area :query, rows: 4, class: "code-textarea"
+      li.input.text.select-dependency-field data-available-for=["cartodb", "raster"]
+        = f.label :css
+        span.inline-hint CartoCSS styling
+        = f.text_area :css, rows: 4, class: "code-textarea"
+      li.input.string.select-dependency-field data-available-for=["cartodb", "raster"]
+        = f.label :opacity
+        span.inline-hint Value between 0 (transparent) and 1 (opaque)
+        = f.text_field :opacity
+      li.input.string.select-dependency-field data-available-for=["cartodb", "raster"]
+        = f.label :zindex
+        span.inline-hint Layer stacking order (higher values appear on top)
+        = f.text_field :zindex
+      li.input.string.select-dependency-field data-available-for=["cartodb", "raster"]
+        = f.label :order
+        span.inline-hint Display order in the layer list
+        = f.text_field :order
+      li.input.string.select-dependency-field data-available-for=["cartodb", "raster"]
+        = f.label :zoom_max
+        span.inline-hint Maximum zoom level at which layer is visible (0-24, leave blank for no limit)
+        = f.text_field :zoom_max
+      li.input.string.select-dependency-field data-available-for=["cartodb", "raster"]
+        = f.label :zoom_min
+        span.inline-hint Minimum zoom level at which layer is visible (0-24, default: 0)
+        = f.text_field :zoom_min
+      li.input.text.select-dependency-field data-available-for=["xyz tileset", "gee", "cog"] data-required-for=["cog"]
+        = f.label :layer_config
+        span.inline-hint Required for COG. For COG: {"body":{"source":"URL"}} or {"body":{"url":"TiTiler URL"}}
+        span.label-note  (JSON)
+        = f.text_area :layer_config, rows: 10, class: "json-editor-textarea"
     = f.inputs "Interactivity"
-      = f.input :interaction_config, required: true
+      li.input.text
+        = f.label :interaction_config
+        span.inline-hint Required. Controls map click behavior. Use {"output":[],"enabled":false} to disable
+        span.label-note  (JSON)
+        = f.text_area :interaction_config, rows: 10, class: "json-editor-textarea"
     = f.inputs "Analysis"
-      = f.input :analysis_suitable, input_html: {data: {if: "checked", action: "show", target: ".analysis-query-input"}}
-      = f.input :analysis_type, as: :select, collection: Layer.analysis_types.keys, required: true, wrapper_html: { class: "analysis-query-input" }
-      = f.input :analysis_query, wrapper_html: {class: "analysis-query-input"}
-      = f.input :analysis_body, wrapper_html: {class: "analysis-query-input"}
+      li.input.boolean
+        = f.label :analysis_suitable
+        span.inline-hint Enable spatial analysis for this layer
+        = f.check_box :analysis_suitable, data: {if: "checked", action: "show", target: ".analysis-query-input"}
+      = f.inputs "Analysis text (translated)", class: "analysis-query-input" do
+        = f.translated_inputs switch_locale: false do |ff|
+          = ff.input :id, as: :hidden
+          = ff.input :locale, as: :hidden
+          li.input.string
+            = ff.label :analysis_text_template
+            span.inline-hint Sentence displayed as analysis result. Use {{attributeName}} to inject values.
+            = ff.text_field :analysis_text_template
+      li.input.select.analysis-query-input
+        = f.label :analysis_type
+        span.inline-hint CartoDB: 'text' only. COG: 'histogram' or 'categorical'. Others: 'histogram' only
+        = f.select :analysis_type, Layer.analysis_types.keys
+      li.input.text.analysis-query-input
+        = f.label :analysis_query
+        span.inline-hint For CartoDB 'text' analysis. SQL query with {{geometry}} placeholder for area selection
+        = f.text_area :analysis_query, rows: 4, class: "code-textarea"
+      li.input.text.analysis-query-input
+        = f.label :analysis_body
+        span.inline-hint For COG analysis. JSON with {"url":"COG URL","geometry":"{{geometry}}"}
+        span.label-note  (JSON)
+        = f.text_area :analysis_body, rows: 10, class: "json-editor-textarea"
     = f.inputs "Timeline"
-      = f.input :timeline, input_html: {data: {if: "checked", action: "show", target: ".timeline-query-input"}}, required: false
-      = f.input :timeline_steps, as: :string, input_html: { value: Array.wrap(f.object.timeline_steps).join(", ") }, wrapper_html: {class: "timeline-query-input"}, placeholder: "Optionally define individual steps manually in format YYYY-MM-DD divided by comma"
-      = f.input :timeline_start_date, wrapper_html: {class: "timeline-query-input"}, required: false
-      = f.input :timeline_end_date, wrapper_html: {class: "timeline-query-input"}
-      = f.input :timeline_default_date, wrapper_html: {class: "timeline-query-input"}, required: true
-      = f.input :timeline_period, as: :select, collection: Layer.timeline_periods.keys, required: true, wrapper_html: {class: "timeline-query-input"}
+      li.input.boolean
+        = f.label :timeline
+        span.inline-hint Enable timeline controls for temporal data
+        = f.check_box :timeline, data: {if: "checked", action: "show", target: ".timeline-query-input"}
+      li.input.string.timeline-query-input
+        = f.label :timeline_steps
+        span.inline-hint Comma-separated dates (YYYY-MM-DD), overrides start/end dates
+        = f.text_field :timeline_steps, value: Array.wrap(f.object.timeline_steps).join(", ")
+      li.input.date.timeline-query-input
+        = f.label :timeline_start_date
+        span.inline-hint Required if timeline_steps is empty. First date in the timeline range
+        = f.date_field :timeline_start_date
+      li.input.date.timeline-query-input
+        = f.label :timeline_end_date
+        span.inline-hint End date for timeline range
+        = f.date_field :timeline_end_date
+      li.input.date.timeline-query-input
+        = f.label :timeline_default_date
+        span.inline-hint Required. The date selected by default when the layer first loads
+        = f.date_field :timeline_default_date
+      li.input.select.timeline-query-input
+        = f.label :timeline_period
+        span.inline-hint Required. Granularity: yearly, monthly, or daily. Affects {{year}}/{{month}}/{{day}} substitution
+        = f.select :timeline_period, Layer.timeline_periods.keys
     = f.inputs "Dashboard"
-      = f.input :dashboard_order
-  = f.actions do
-    = f.action :submit
-    = f.cancel_link
+      li.input.string
+        = f.label :dashboard_order
+        span.inline-hint Order in the dashboard view (lower numbers appear first)
+        = f.text_field :dashboard_order
+  = f.actions
+
+css:
+  .inline-hint {
+    display: block;
+    font-size: 11px;
+    color: #666;
+    margin: 2px 0 4px 0;
+    font-style: italic;
+  }
+  .label-note {
+    font-size: 11px;
+    color: #888;
+    font-weight: normal;
+  }
+  li.input {
+    margin-bottom: 10px;
+  }
+  li.input label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 0;
+  }
+  textarea.json-editor-textarea {
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-size: 12px;
+    width: 100%;
+    min-height: 150px;
+  }
+
+javascript:
+  (function() {
+    // Toggle visibility based on checkbox state
+    function initCheckboxToggles() {
+      console.log('[Toggle] Initializing checkbox toggles');
+      // Handle analysis_suitable checkbox
+      var analysisCheckbox = document.querySelector('input[type="checkbox"][name*="[analysis_suitable]"]');
+      console.log('[Toggle] Analysis checkbox:', analysisCheckbox, 'checked:', analysisCheckbox ? analysisCheckbox.checked : 'not found');
+      if (analysisCheckbox) {
+        toggleVisibility(analysisCheckbox, '.analysis-query-input');
+        analysisCheckbox.addEventListener('change', function() {
+          toggleVisibility(analysisCheckbox, '.analysis-query-input');
+        });
+      }
+      // Handle timeline checkbox
+      var timelineCheckbox = document.querySelector('input[type="checkbox"][name*="[timeline]"]');
+      console.log('[Toggle] Timeline checkbox:', timelineCheckbox, 'checked:', timelineCheckbox ? timelineCheckbox.checked : 'not found');
+      if (timelineCheckbox) {
+        toggleVisibility(timelineCheckbox, '.timeline-query-input');
+        timelineCheckbox.addEventListener('change', function() {
+          toggleVisibility(timelineCheckbox, '.timeline-query-input');
+        });
+      }
+    }
+    function toggleVisibility(checkbox, targetSelector) {
+      var elements = document.querySelectorAll(targetSelector);
+      var isChecked = checkbox.checked;
+      console.log('[Toggle] Setting visibility for', targetSelector, 'isChecked:', isChecked, 'found elements:', elements.length);
+      elements.forEach(function(el) {
+        if (isChecked) {
+          el.style.display = '';
+        } else {
+          el.style.display = 'none';
+        }
+      });
+    }
+    function initJsonEditors() {
+      var textareas = document.querySelectorAll('textarea.json-editor-textarea');
+      console.log('[JSON Editor] Found ' + textareas.length + ' textareas');
+      textareas.forEach(function(textarea) {
+        if (textarea.dataset.jsonEditorInitialized) return;
+        textarea.dataset.jsonEditorInitialized = 'true';
+        setupJsonEditor(textarea);
+      });
+    }
+    function setupJsonEditor(textarea) {
+      var wrapper = document.createElement('div');
+      wrapper.className = 'json-editor-wrapper';
+      textarea.parentNode.insertBefore(wrapper, textarea);
+      wrapper.appendChild(textarea);
+      var toolbar = document.createElement('div');
+      toolbar.className = 'json-editor-toolbar';
+      toolbar.style.cssText = 'margin-bottom: 5px; display: flex; gap: 5px; align-items: center;';
+      var formatBtn = document.createElement('button');
+      formatBtn.type = 'button';
+      formatBtn.textContent = 'Format JSON';
+      formatBtn.style.cssText = 'padding: 4px 8px; font-size: 11px; cursor: pointer; background: #5E6469; color: white; border: none; border-radius: 3px;';
+      var statusEl = document.createElement('span');
+      statusEl.style.cssText = 'margin-left: 10px; font-size: 11px;';
+      formatBtn.onclick = function(e) {
+        e.preventDefault();
+        try {
+          var obj = JSON.parse(textarea.value);
+          textarea.value = JSON.stringify(obj, null, 2);
+          statusEl.textContent = 'Formatted!';
+          statusEl.style.color = 'green';
+        } catch (err) {
+          statusEl.textContent = 'Invalid JSON: ' + err.message;
+          statusEl.style.color = 'red';
+        }
+      };
+      toolbar.appendChild(formatBtn);
+      var minifyBtn = document.createElement('button');
+      minifyBtn.type = 'button';
+      minifyBtn.textContent = 'Minify';
+      minifyBtn.style.cssText = 'padding: 4px 8px; font-size: 11px; cursor: pointer; background: #5E6469; color: white; border: none; border-radius: 3px;';
+      minifyBtn.onclick = function(e) {
+        e.preventDefault();
+        try {
+          var obj = JSON.parse(textarea.value);
+          textarea.value = JSON.stringify(obj);
+          statusEl.textContent = 'Minified!';
+          statusEl.style.color = 'green';
+        } catch (err) {
+          statusEl.textContent = 'Invalid JSON: ' + err.message;
+          statusEl.style.color = 'red';
+        }
+      };
+      toolbar.appendChild(minifyBtn);
+      var validateBtn = document.createElement('button');
+      validateBtn.type = 'button';
+      validateBtn.textContent = 'Validate';
+      validateBtn.style.cssText = 'padding: 4px 8px; font-size: 11px; cursor: pointer; background: #5E6469; color: white; border: none; border-radius: 3px;';
+      validateBtn.onclick = function(e) {
+        e.preventDefault();
+        try {
+          JSON.parse(textarea.value);
+          statusEl.textContent = 'Valid JSON';
+          statusEl.style.color = 'green';
+        } catch (err) {
+          statusEl.textContent = err.message;
+          statusEl.style.color = 'red';
+        }
+      };
+      toolbar.appendChild(validateBtn);
+      toolbar.appendChild(statusEl);
+      wrapper.insertBefore(toolbar, textarea);
+      textarea.addEventListener('input', function() {
+        var value = textarea.value.trim();
+        if (!value) { statusEl.textContent = ''; return; }
+        try {
+          JSON.parse(value);
+          statusEl.textContent = 'Valid';
+          statusEl.style.color = 'green';
+        } catch (err) {
+          statusEl.textContent = 'Invalid';
+          statusEl.style.color = 'red';
+        }
+      });
+      try {
+        if (textarea.value.trim()) {
+          var obj = JSON.parse(textarea.value);
+          textarea.value = JSON.stringify(obj, null, 2);
+        }
+      } catch (e) {}
+    }
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', function() {
+        initCheckboxToggles();
+        initJsonEditors();
+      });
+    } else {
+      // Use setTimeout to ensure checkboxes have their checked state set
+      setTimeout(function() {
+        initCheckboxToggles();
+        initJsonEditors();
+      }, 0);
+    }
+    // Also run on window load as a fallback
+    window.addEventListener('load', function() {
+      initCheckboxToggles();
+    });
+  })();

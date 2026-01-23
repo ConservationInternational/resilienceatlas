@@ -144,3 +144,257 @@ div#footer{display: none;}
     cursor: default;
   }
 }
+// JSON Editor Styles
+.json-editor-wrapper {
+  margin-bottom: 10px;
+  
+  .json-editor-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-bottom: 8px;
+    padding: 8px;
+    background: #f5f5f5;
+    border: 1px solid #ddd;
+    border-bottom: none;
+    border-radius: 4px 4px 0 0;
+    align-items: center;
+  }
+  
+  .json-editor-btn {
+    padding: 5px 12px;
+    font-size: 12px;
+    border: 1px solid #5E6469;
+    border-radius: 3px;
+    background: white;
+    color: #5E6469;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    
+    &:hover {
+      background: #5E6469;
+      color: white;
+    }
+    
+    &.json-editor-format-btn {
+      border-color: #28a745;
+      color: #28a745;
+      
+      &:hover {
+        background: #28a745;
+        color: white;
+      }
+    }
+    
+    &.json-editor-validate-btn {
+      border-color: #17a2b8;
+      color: #17a2b8;
+      
+      &:hover {
+        background: #17a2b8;
+        color: white;
+      }
+    }
+  }
+  
+  .json-editor-status {
+    margin-left: auto;
+    font-size: 12px;
+    padding: 4px 8px;
+    border-radius: 3px;
+    
+    &.json-editor-status-success {
+      background: #d4edda;
+      color: #155724;
+    }
+    
+    &.json-editor-status-error {
+      background: #f8d7da;
+      color: #721c24;
+    }
+    
+    &.json-editor-status-warning {
+      background: #fff3cd;
+      color: #856404;
+    }
+  }
+}
+
+.json-editor-textarea {
+  width: 100% !important;
+  min-height: 200px;
+  max-height: 500px;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace;
+  font-size: 13px;
+  line-height: 1.5;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 0 0 4px 4px;
+  resize: vertical;
+  tab-size: 2;
+  white-space: pre;
+  overflow-x: auto;
+  
+  &.json-valid {
+    border-color: #28a745;
+    box-shadow: 0 0 0 1px rgba(40, 167, 69, 0.25);
+  }
+  
+  &.json-invalid {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 1px rgba(220, 53, 69, 0.25);
+    background-color: #fff8f8;
+  }
+}
+
+.json-editor-preview {
+  width: 100%;
+  min-height: 200px;
+  max-height: 500px;
+  overflow: auto;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace;
+  font-size: 13px;
+  line-height: 1.5;
+  padding: 12px;
+  background: #fafafa;
+  border: 1px solid #ddd;
+  border-radius: 0 0 4px 4px;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  
+  // Syntax highlighting colors
+  .json-key {
+    color: #881391;
+    font-weight: 500;
+  }
+  
+  .json-string {
+    color: #1a1aa6;
+  }
+  
+  .json-number {
+    color: #098658;
+  }
+  
+  .json-boolean {
+    color: #0000ff;
+    font-weight: 500;
+  }
+  
+  .json-null {
+    color: #808080;
+    font-style: italic;
+  }
+  
+  .json-error {
+    color: #dc3545;
+    font-weight: bold;
+    display: block;
+    margin-bottom: 10px;
+    padding: 8px;
+    background: #f8d7da;
+    border-radius: 3px;
+  }
+  
+  .json-empty {
+    color: #6c757d;
+    font-style: italic;
+  }
+}
+
+// Override for Active Admin form to make JSON fields wider
+.active_admin form {
+  li.input.text.json-field {
+    textarea {
+      width: calc(80% - 17px) !important;
+    }
+  }
+  
+  // Code textarea styling (for SQL, CSS, etc.)
+  textarea.code-textarea {
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace;
+    font-size: 13px;
+    line-height: 1.5;
+    tab-size: 2;
+    white-space: pre;
+  }
+  
+  // Label note styling for JSON indicators
+  .label-note {
+    color: #6c757d;
+    font-size: 11px;
+    font-weight: normal;
+    margin-left: 5px;
+  }
+  
+  // Inline hints styling
+  .inline-hints {
+    font-size: 12px;
+    color: #666;
+    font-style: italic;
+    margin-top: 5px;
+  }
+}
+// JSON Display styling for show views
+.json-display-container {
+  max-height: 400px;
+  overflow: auto;
+  background: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  
+  .json-display {
+    margin: 0;
+    padding: 12px;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace;
+    font-size: 12px;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    color: #333;
+  }
+}
+
+.json-display-error {
+  padding: 10px;
+  background: #f8d7da;
+  border: 1px solid #f5c6cb;
+  border-radius: 4px;
+  
+  .error-label {
+    color: #721c24;
+    font-weight: bold;
+    margin-right: 5px;
+  }
+  
+  .json-raw {
+    margin-top: 10px;
+    padding: 10px;
+    background: #fff;
+    border: 1px solid #ddd;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace;
+    font-size: 12px;
+    white-space: pre-wrap;
+  }
+}
+
+// Code block styling for show views (SQL, CSS, etc.)
+pre.code-block {
+  margin: 0;
+  padding: 12px;
+  background: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace;
+  font-size: 12px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  max-height: 300px;
+  overflow: auto;
+}
+
+.empty-value {
+  color: #6c757d;
+  font-style: italic;
+}
