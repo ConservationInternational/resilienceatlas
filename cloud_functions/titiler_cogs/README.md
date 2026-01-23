@@ -23,6 +23,8 @@ TiTiler powers the raster layer visualization in Resilience Atlas, enabling:
 - **Efficient data access**: COGs support HTTP range requests, so only the needed portions of large raster files are read
 - **Flexible visualization**: Apply rescaling, color mapping, and band combinations without regenerating data
 - **Cost-effective scaling**: AWS Lambda automatically scales to handle traffic spikes
+- **Histogram analysis**: Compute statistics within user-drawn areas
+- **Point queries**: Query raster values at specific coordinates
 
 ### API Endpoints
 
@@ -32,9 +34,9 @@ Once deployed, TiTiler provides these endpoints:
 |----------|-------------|
 | `/tiles/WebMercatorQuad/{z}/{x}/{y}` | Get map tiles for a COG |
 | `/info` | Get metadata about a COG |
-| `/statistics` | Get statistics for a COG |
+| `/statistics` | Compute statistics (min, max, mean, histogram) for a COG |
 | `/preview` | Generate a preview image |
-| `/point/{lon}/{lat}` | Query a point value |
+| `/point/{lon}/{lat}` | Query pixel values at a point |
 | `/healthz` | Health check endpoint |
 | `/docs` | Interactive API documentation |
 
@@ -56,7 +58,113 @@ Frontend → CloudFront CDN → API Gateway → Lambda (TiTiler) → S3/GCS (COG
 
 The service is deployed as an AWS Lambda function behind API Gateway with CloudFront CDN for global edge caching (24-hour default TTL).
 
-### Configuring COG Layers in Backend Admin
+---
+
+## COG Layer Analysis in Resilience Atlas
+
+TiTiler enables full analysis functionality for COG layers, equivalent to what Earth Engine provides for GEE layers. The backend provides proxy endpoints that handle CORS and validate requests.
+
+### Backend Proxy Endpoints
+
+| Backend Endpoint | TiTiler Endpoint | Purpose |
+|------------------|------------------|---------|
+| `/api/titiler/info` | `/info` | Get COG metadata (bounds, bands) |
+| `/api/titiler/statistics` | `/statistics` | Histogram analysis within geometry |
+| `/api/titiler/point` | `/point/{lon}/{lat}` | Point query for raster values |
+
+### Configuring Histogram Analysis (Statistics)
+
+To enable histogram analysis for a COG layer in the admin panel:
+
+**1. Set `layer_provider`:** `cog`
+
+**2. Set `analysis_suitable`:** ✓ (checked)
+
+**3. Set `analysis_type`:** `histogram` or `categorical`
+
+**4. Set `analysis_query`:**
+```
+/api/titiler/statistics?titilerUrl={{titilerUrl}}&cogUrl={{cogUrl}}
+```
+
+**5. Set `analysis_body`:**
+```json
+{
+  "assetId": "unused",
+  "params": {
+    "titilerUrl": "https://titiler.resilienceatlas.org",
+    "cogUrl": "https://storage.googleapis.com/bucket/your-layer.tif"
+  }
+}
+```
+
+### Configuring Point Queries (Raster Interaction)
+
+To enable click-to-query functionality for a COG layer:
+
+**Set `interaction_config`:**
+```json
+{
+  "output": [
+    {"column": "values.0", "property": "Band 1 Value"},
+    {"column": "values.1", "property": "Band 2 Value"}
+  ],
+  "config": {
+    "url": "/api/titiler/point?titilerUrl=https://titiler.resilienceatlas.org&cogUrl=https://storage.googleapis.com/bucket/layer.tif&lon={{lng}}&lat={{lat}}"
+  }
+}
+```
+
+The `{{lng}}` and `{{lat}}` placeholders are replaced with click coordinates at runtime.
+
+### Complete COG Layer Example
+
+Here's a complete configuration for a COG layer with tiles, analysis, and point queries:
+
+**layer_config:**
+```json
+{
+  "type": "tileLayer",
+  "body": {
+    "url": "https://titiler.resilienceatlas.org/tiles/WebMercatorQuad/{z}/{x}/{y}?url=https://storage.googleapis.com/bucket/layer.tif&bidx=1&colormap={{colormap}}"
+  },
+  "params": {
+    "colormap": {"1": [255,0,0,255], "2": [0,255,0,255], "3": [0,0,255,255]}
+  }
+}
+```
+
+**interaction_config:**
+```json
+{
+  "output": [
+    {"column": "values.0", "property": "Land Cover Class", "type": "number"}
+  ],
+  "config": {
+    "url": "/api/titiler/point?titilerUrl=https://titiler.resilienceatlas.org&cogUrl=https://storage.googleapis.com/bucket/layer.tif&lon={{lng}}&lat={{lat}}&bidx=1"
+  }
+}
+```
+
+**analysis_query:**
+```
+/api/titiler/statistics?titilerUrl={{titilerUrl}}&cogUrl={{cogUrl}}&bidx=1
+```
+
+**analysis_body:**
+```json
+{
+  "assetId": "unused",
+  "params": {
+    "titilerUrl": "https://titiler.resilienceatlas.org",
+    "cogUrl": "https://storage.googleapis.com/bucket/layer.tif"
+  }
+}
+```
+
+---
+
+## Configuring COG Layers in Backend Admin
 
 When creating a COG layer in the Resilience Atlas admin panel, set the `layer_config` JSON with the tile URL template. The frontend substitutes `{z}`, `{x}`, `{y}` and `{{colormap}}` parameters at runtime.
 

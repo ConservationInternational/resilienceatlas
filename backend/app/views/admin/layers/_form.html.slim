@@ -76,7 +76,10 @@
     = f.inputs "Interactivity"
       li.input.text
         = f.label :interaction_config
-        span.inline-hint Required. Controls map click behavior. Use {"output":[],"enabled":false} to disable
+        span.inline-hint
+          | Controls map click popup. Use {"output":[],"enabled":false} to disable.
+          br
+          | For COG point query: {"output":[{"column":"values.0","property":"Band 1"}],"config":{"url":"/api/titiler/point?titilerUrl={{titilerUrl}}&cogUrl={{cogUrl}}&lon={{lng}}&lat={{lat}}"}}
         span.label-note  (JSON)
         = f.text_area :interaction_config, rows: 10, class: "json-editor-textarea"
     = f.inputs "Analysis"
@@ -98,11 +101,17 @@
         = f.select :analysis_type, Layer.analysis_types.keys
       li.input.text.analysis-query-input
         = f.label :analysis_query
-        span.inline-hint For CartoDB 'text' analysis. SQL query with {{geometry}} placeholder for area selection
+        span.inline-hint
+          | For CartoDB: SQL query with {{geometry}} placeholder.
+          br
+          | For COG: TiTiler statistics endpoint URL, e.g. /api/titiler/statistics?titilerUrl={{titilerUrl}}&cogUrl={{cogUrl}}
         = f.text_area :analysis_query, rows: 4, class: "code-textarea"
       li.input.text.analysis-query-input
         = f.label :analysis_body
-        span.inline-hint For COG analysis. JSON with {"url":"COG URL","geometry":"{{geometry}}"}
+        span.inline-hint
+          | For COG histogram analysis. Example:
+          br
+          code {"assetId":"unused","params":{"titilerUrl":"https://titiler.resilienceatlas.org","cogUrl":"gs://bucket/file.tif"}}
         span.label-note  (JSON)
         = f.text_area :analysis_body, rows: 10, class: "json-editor-textarea"
     = f.inputs "Timeline"

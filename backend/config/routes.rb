@@ -49,8 +49,10 @@ Rails.application.routes.draw do
       post "/site-scope/authenticate", to: "site_scope_authentications#authenticate"
       get "/site-scope/check-access", to: "site_scope_authentications#check_access"
 
-      # TiTiler proxy endpoint for COG metadata (avoids CORS issues)
+      # TiTiler proxy endpoints for COG operations (avoids CORS issues)
       get "/titiler/info", to: "titiler#info"
+      post "/titiler/statistics", to: "titiler#statistics"
+      get "/titiler/point", to: "titiler#point"
 
       resources :photos, only: :create
       resources :feedbacks, only: :create

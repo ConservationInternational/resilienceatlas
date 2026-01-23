@@ -19,17 +19,95 @@ module Api
           return render json: {error: "Missing required parameters: titilerUrl and cogUrl"}, status: :bad_request
         end
 
-        # Parse and validate the titiler URL to prevent SSRF attacks
+        proxy_get_request(titiler_url, "/info", {url: cog_url})
+      end
+
+      # POST /api/titiler/statistics
+      # Proxies requests to TiTiler's /statistics endpoint for histogram analysis.
+      # Accepts a GeoJSON geometry in the request body to compute statistics within that area.
+      #
+      # Parameters:
+      #   titilerUrl - The base URL of the TiTiler instance
+      #   cogUrl - The URL of the COG file to analyze
+      #   bidx (optional) - Band index (1-based)
+      #   categorical (optional) - Whether to treat data as categorical
+      #   histogram_bins (optional) - Number of histogram bins
+      #
+      # Request body:
+      #   GeoJSON Feature or FeatureCollection defining the analysis area
+      #
+      # Returns:
+      #   JSON response from TiTiler with statistics including histogram
+      def statistics
+        titiler_url = params[:titilerUrl]
+        cog_url = params[:cogUrl]
+
+        if titiler_url.blank? || cog_url.blank?
+          return render json: {error: "Missing required parameters: titilerUrl and cogUrl"}, status: :bad_request
+        end
+
+        # Build query params
+        query_params = {url: cog_url}
+        query_params[:bidx] = params[:bidx] if params[:bidx].present?
+        query_params[:categorical] = params[:categorical] if params[:categorical].present?
+        query_params[:histogram_bins] = params[:histogram_bins] if params[:histogram_bins].present?
+
+        # Get GeoJSON from request body
+        geojson = request.body.read
+
+        proxy_post_request(titiler_url, "/statistics", query_params, geojson)
+      end
+
+      # GET /api/titiler/point
+      # Proxies requests to TiTiler's /point/{lon}/{lat} endpoint for raster point queries.
+      # Returns pixel values at the specified coordinates.
+      #
+      # Parameters:
+      #   titilerUrl - The base URL of the TiTiler instance
+      #   cogUrl - The URL of the COG file to query
+      #   lon - Longitude of the point
+      #   lat - Latitude of the point
+      #   bidx (optional) - Band index (1-based)
+      #
+      # Returns:
+      #   JSON response from TiTiler with pixel values at the point
+      def point
+        titiler_url = params[:titilerUrl]
+        cog_url = params[:cogUrl]
+        lon = params[:lon]
+        lat = params[:lat]
+
+        if titiler_url.blank? || cog_url.blank? || lon.blank? || lat.blank?
+          return render json: {error: "Missing required parameters: titilerUrl, cogUrl, lon, lat"}, status: :bad_request
+        end
+
+        # Validate coordinates
+        lon_f = Float(lon) rescue nil
+        lat_f = Float(lat) rescue nil
+        unless lon_f && lat_f && lon_f.between?(-180, 180) && lat_f.between?(-90, 90)
+          return render json: {error: "Invalid coordinates"}, status: :bad_request
+        end
+
+        # Build query params
+        query_params = {url: cog_url}
+        query_params[:bidx] = params[:bidx] if params[:bidx].present?
+
+        proxy_get_request(titiler_url, "/point/#{lon_f}/#{lat_f}", query_params)
+      end
+
+      private
+
+      # Proxy a GET request to TiTiler
+      def proxy_get_request(titiler_url, path, query_params)
         validated_uri = validated_titiler_uri(titiler_url)
         unless validated_uri
           return render json: {error: "Invalid titilerUrl"}, status: :bad_request
         end
 
         begin
-          # Build the TiTiler info URL using the validated base URI
-          uri = URI.parse("#{validated_uri}/info?url=#{CGI.escape(cog_url)}")
+          query_string = query_params.map { |k, v| "#{k}=#{CGI.escape(v.to_s)}" }.join("&")
+          uri = URI.parse("#{validated_uri}#{path}?#{query_string}")
 
-          # Make the request to TiTiler
           http = Net::HTTP.new(uri.host, uri.port)
           http.use_ssl = uri.scheme == "https"
           http.open_timeout = 10
@@ -38,18 +116,46 @@ module Api
           request = Net::HTTP::Get.new(uri.request_uri)
           response = http.request(request)
 
-          # Forward the response
           render json: response.body, status: response.code.to_i
         rescue Net::OpenTimeout, Net::ReadTimeout => e
-          Rails.logger.error "[TitilerController] Timeout fetching COG info: #{e.message}"
+          Rails.logger.error "[TitilerController] Timeout: #{e.message}"
           render json: {error: "Request to TiTiler timed out"}, status: :gateway_timeout
         rescue => e
-          Rails.logger.error "[TitilerController] Error fetching COG info: #{e.message}"
-          render json: {error: "Failed to fetch COG info from TiTiler"}, status: :internal_server_error
+          Rails.logger.error "[TitilerController] Error: #{e.message}"
+          render json: {error: "Failed to fetch data from TiTiler"}, status: :internal_server_error
         end
       end
 
-      private
+      # Proxy a POST request to TiTiler
+      def proxy_post_request(titiler_url, path, query_params, body)
+        validated_uri = validated_titiler_uri(titiler_url)
+        unless validated_uri
+          return render json: {error: "Invalid titilerUrl"}, status: :bad_request
+        end
+
+        begin
+          query_string = query_params.map { |k, v| "#{k}=#{CGI.escape(v.to_s)}" }.join("&")
+          uri = URI.parse("#{validated_uri}#{path}?#{query_string}")
+
+          http = Net::HTTP.new(uri.host, uri.port)
+          http.use_ssl = uri.scheme == "https"
+          http.open_timeout = 10
+          http.read_timeout = 60 # Statistics can take longer
+
+          request = Net::HTTP::Post.new(uri.request_uri)
+          request["Content-Type"] = "application/json"
+          request.body = body
+          response = http.request(request)
+
+          render json: response.body, status: response.code.to_i
+        rescue Net::OpenTimeout, Net::ReadTimeout => e
+          Rails.logger.error "[TitilerController] Timeout: #{e.message}"
+          render json: {error: "Request to TiTiler timed out"}, status: :gateway_timeout
+        rescue => e
+          Rails.logger.error "[TitilerController] Error: #{e.message}"
+          render json: {error: "Failed to fetch data from TiTiler"}, status: :internal_server_error
+        end
+      end
 
       # Validate that the titiler URL is an allowed TiTiler instance and return the validated URI
       # This prevents SSRF attacks by ensuring we only proxy to known TiTiler servers

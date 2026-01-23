@@ -1,0 +1,141 @@
+name: Earth Engine Functions Deployment
+
+on:
+  push:
+    paths:
+      - "cloud_functions/earth_engine/**"
+      - ".github/workflows/earth_engine*"
+  workflow_dispatch:
+    inputs:
+      deploy_main:
+        description: 'Deploy to the production stack'
+        required: false
+        default: false
+        type: boolean
+      branch:
+        description: 'Branch to deploy'
+        required: false
+        type: string
+
+env:
+  EE_DOMAIN: ee.resilienceatlas.org
+  SAM_TEMPLATE: cloud_functions/earth_engine/template.yaml
+
+# Required for OIDC authentication with AWS
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  build-and-deploy-feature-branch:
+    if: github.ref != 'refs/heads/main' && !inputs.deploy_main
+    name: Deploy develop/feature branch stack to AWS
+    runs-on: ubuntu-24.04
+    environment: staging
+    env:
+      ENVIRONMENT: staging
+    steps:
+      - name: Checkout the code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.branch || github.ref }}
+
+      - name: Set environment-specific variables
+        id: config
+        run: |
+          BRANCH_NAME=$(echo ${GITHUB_REF##*/} | tr -cd '[a-zA-Z0-9-]')
+          echo "stack_name=earth-engine-${BRANCH_NAME}" >> $GITHUB_OUTPUT
+          echo "fqdn=${BRANCH_NAME}.${{ env.EE_DOMAIN }}" >> $GITHUB_OUTPUT
+          echo "artifacts_bucket=${{ secrets.SAM_ARTIFACTS_BUCKET }}" >> $GITHUB_OUTPUT
+
+      - name: Configure AWS credentials via OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_OIDC_ROLE_ARN }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Install AWS SAM CLI
+        uses: aws-actions/setup-sam@v2
+        with:
+          use-installer: true
+
+      - name: Copy shared module to function directories
+        run: |
+          cp -r cloud_functions/earth_engine/shared cloud_functions/earth_engine/histogram/
+          cp -r cloud_functions/earth_engine/shared cloud_functions/earth_engine/raster_interaction/
+          cp -r cloud_functions/earth_engine/shared cloud_functions/earth_engine/download_image/
+
+      - name: Build SAM template
+        run: sam build --template ${{ env.SAM_TEMPLATE }}
+
+      - name: Deploy to feature stack
+        run: |
+          sam deploy --stack-name ${{ steps.config.outputs.stack_name }} \
+            --parameter-overrides \
+              FQDN=${{ steps.config.outputs.fqdn }} \
+              ZoneId=${{ secrets.ROUTE_53_ZONE_ID }} \
+              GeeServiceAccountEmail=${{ secrets.GEE_SERVICE_ACCOUNT_EMAIL }} \
+              GeePrivateKeySecretArn=${{ secrets.GEE_PRIVATE_KEY_SECRET_ARN }} \
+              RollbarAccessToken=${{ secrets.ROLLBAR_ACCESS_TOKEN }} \
+              RollbarEnvironment=staging \
+            --capabilities CAPABILITY_IAM \
+            --region ${{ secrets.AWS_REGION }} \
+            --s3-bucket ${{ steps.config.outputs.artifacts_bucket }} \
+            --resolve-image-repos \
+            --no-fail-on-empty-changeset
+
+  build-and-deploy-production:
+    name: Deploy the production stack to AWS
+    if: github.ref == 'refs/heads/main' || inputs.deploy_main
+    runs-on: ubuntu-24.04
+    environment: production
+    env:
+      ENVIRONMENT: production
+    steps:
+      - name: Checkout the code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.branch || github.ref }}
+
+      - name: Set environment-specific variables
+        id: config
+        run: |
+          echo "stack_name=earth-engine-production" >> $GITHUB_OUTPUT
+          echo "fqdn=${{ env.EE_DOMAIN }}" >> $GITHUB_OUTPUT
+          echo "artifacts_bucket=${{ secrets.SAM_ARTIFACTS_BUCKET }}" >> $GITHUB_OUTPUT
+
+      - name: Configure AWS credentials via OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_OIDC_ROLE_ARN }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Install AWS SAM CLI
+        uses: aws-actions/setup-sam@v2
+        with:
+          use-installer: true
+
+      - name: Copy shared module to function directories
+        run: |
+          cp -r cloud_functions/earth_engine/shared cloud_functions/earth_engine/histogram/
+          cp -r cloud_functions/earth_engine/shared cloud_functions/earth_engine/raster_interaction/
+          cp -r cloud_functions/earth_engine/shared cloud_functions/earth_engine/download_image/
+
+      - name: Build SAM template
+        run: sam build --template ${{ env.SAM_TEMPLATE }}
+
+      - name: Deploy to production
+        run: |
+          sam deploy --stack-name ${{ steps.config.outputs.stack_name }} \
+            --parameter-overrides \
+              FQDN=${{ steps.config.outputs.fqdn }} \
+              ZoneId=${{ secrets.ROUTE_53_ZONE_ID }} \
+              GeeServiceAccountEmail=${{ secrets.GEE_SERVICE_ACCOUNT_EMAIL }} \
+              GeePrivateKeySecretArn=${{ secrets.GEE_PRIVATE_KEY_SECRET_ARN }} \
+              RollbarAccessToken=${{ secrets.ROLLBAR_ACCESS_TOKEN }} \
+              RollbarEnvironment=production \
+            --capabilities CAPABILITY_IAM \
+            --region ${{ secrets.AWS_REGION }} \
+            --s3-bucket ${{ steps.config.outputs.artifacts_bucket }} \
+            --resolve-image-repos \
+            --no-fail-on-empty-changeset

@@ -1,2 +1,0 @@
-earthengine-api==0.1.354
-oauth2client==4.1.3

@@ -1,0 +1,43 @@
+name: Earth Engine Functions Cleanup
+
+on:
+  delete:
+    branches-ignore:
+      - main
+      - staging
+
+env:
+  AWS_REGION: us-east-1
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  cleanup-feature-stack:
+    name: Delete feature branch CloudFormation stack
+    runs-on: ubuntu-24.04
+    environment: staging
+    steps:
+      - name: Configure AWS credentials via OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_OIDC_ROLE_ARN }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Delete CloudFormation stack
+        run: |
+          FEATURE_BRANCH_NAME="${{ github.event.ref }}"
+          STACK_NAME="earth-engine-$(echo ${FEATURE_BRANCH_NAME##*/} | tr -cd '[a-zA-Z0-9-]')"
+          
+          echo "Attempting to delete stack: ${STACK_NAME}"
+          
+          # Check if stack exists
+          if aws cloudformation describe-stacks --stack-name ${STACK_NAME} 2>/dev/null; then
+            echo "Stack found, deleting..."
+            aws cloudformation delete-stack --stack-name ${STACK_NAME}
+            aws cloudformation wait stack-delete-complete --stack-name ${STACK_NAME}
+            echo "Stack ${STACK_NAME} deleted successfully"
+          else
+            echo "Stack ${STACK_NAME} not found, nothing to delete"
+          fi
