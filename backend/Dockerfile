@@ -178,9 +178,13 @@ RUN if [ -d "public/storage" ] && [ "$(ls -A public/storage 2>/dev/null)" ]; the
 RUN chmod +x bin/docker-entrypoint bin/rails bin/rake bin/setup 2>/dev/null || true
 
 # Precompile assets for production
-# Set RAILS_ENV and SECRET_KEY_BASE for asset precompilation
-# DATABASE_URL is set to a dummy value since we don't need DB during asset compilation
-RUN RAILS_ENV=production SECRET_KEY_BASE=placeholder_for_precompile DATABASE_URL=postgres://localhost/dummy bundle exec rake assets:precompile
+# Set required environment variables for asset precompilation
+# These are dummy values since we don't need DB or network during asset compilation
+RUN RAILS_ENV=production \
+    SECRET_KEY_BASE=placeholder_for_precompile \
+    DATABASE_URL=postgres://localhost/dummy \
+    BACKEND_URL=http://localhost:3001 \
+    bundle exec rake assets:precompile
 
 # Expose port 3001
 EXPOSE 3001
