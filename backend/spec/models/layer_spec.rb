@@ -288,8 +288,8 @@ RSpec.describe Layer, type: :model do
     end
 
     it "clones basic attributes" do
-      expect(cloned_layer.attributes.except("id", "name", "created_at", "updated_at"))
-        .to eq(layer.attributes.except("id", "name", "created_at", "updated_at"))
+      expect(cloned_layer.attributes.except("id", "name", "slug", "created_at", "updated_at"))
+        .to eq(layer.attributes.except("id", "name", "slug", "created_at", "updated_at"))
     end
 
     it "clones translations" do
@@ -299,6 +299,10 @@ RSpec.describe Layer, type: :model do
 
     it "updates name of cloned layer" do
       expect(cloned_layer.name).to include("#{layer.name} _copy_ ")
+    end
+
+    it "updates slug of cloned layer" do
+      expect(cloned_layer.slug).to include("#{layer.slug}-copy-")
     end
   end
 

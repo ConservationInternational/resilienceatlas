@@ -124,20 +124,10 @@ class Layer < ApplicationRecord
     Rails.logger&.info "Skipping Layer translations setup - database not ready: #{e.message}"
   end
 
-  # Only define enums if the table and columns exist to avoid migration issues
-  # Wrapped in begin/rescue to handle cases where database is being created
-  begin
-    if table_exists? && column_names.include?("timeline_period")
-      enum :timeline_period, {yearly: "yearly", monthly: "monthly", daily: "daily"}, default: :yearly, prefix: true
-    end
-
-    if table_exists? && column_names.include?("analysis_type")
-      enum :analysis_type, {histogram: "histogram", categorical: "categorical", text: "text"}, default: :histogram, prefix: true
-    end
-  rescue ActiveRecord::NoDatabaseError, ActiveRecord::ConnectionNotEstablished, ActiveRecord::StatementInvalid, PG::ConnectionBad => e
-    # Database not available yet - skip enum setup for now
-    Rails.logger&.info "Skipping Layer enums setup - database not ready: #{e.message}"
-  end
+  # Define enums for timeline_period and analysis_type
+  # These must be defined unconditionally so methods like Layer.analysis_types work in views
+  enum :timeline_period, {yearly: "yearly", monthly: "monthly", daily: "daily"}, default: :yearly, prefix: true
+  enum :analysis_type, {histogram: "histogram", categorical: "categorical", text: "text"}, default: :histogram, prefix: true
 
   validates_presence_of :slug, :layer_provider, :interaction_config
   validates :timeline, inclusion: {in: [true, false]}
@@ -220,7 +210,9 @@ class Layer < ApplicationRecord
     new_layer = Layer.new
     new_layer.assign_attributes attributes.except("id")
     translations.each { |t| new_layer.translations.build t.attributes.except("id") }
-    new_layer.name = "#{name} _copy_ #{DateTime.now}"
+    timestamp = DateTime.now.strftime("%Y%m%d%H%M%S")
+    new_layer.name = "#{name} _copy_ #{timestamp}"
+    new_layer.slug = "#{slug}-copy-#{timestamp}"
     new_layer.save!
     new_layer
   end
