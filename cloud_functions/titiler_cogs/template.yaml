@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: 'SAM Template for titiler-cogs using Python 3.14 (Amazon Linux 2023) with CloudFront CDN'
+Description: 'SAM Template for titiler-cogs using Python 3.13 (Amazon Linux 2023) with CloudFront CDN'
 
 Parameters:
   FQDN:
@@ -84,11 +84,11 @@ Resources:
             Ref: RollbarAccessToken
           ROLLBAR_ENVIRONMENT:
             Ref: RollbarEnvironment
-      ImageUri: titilercogsfunction:python3.14-v1
+      ImageUri: titilercogsfunction:python3.13-v1
     Metadata:
       Dockerfile: Dockerfile
       DockerContext: ./titiler_cogs
-      DockerTag: python3.14-v1
+      DockerTag: python3.13-v1
 
   RestApiGateway:
     Type: AWS::Serverless::Api

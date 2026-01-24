@@ -1,6 +1,6 @@
-# Use official AWS Lambda Python 3.14 image (Amazon Linux 2023 - glibc 2.34)
+# Use official AWS Lambda Python 3.13 image (Amazon Linux 2023 - glibc 2.34)
 # This matches the upstream TiTiler deployment approach
-FROM --platform=linux/amd64 public.ecr.aws/lambda/python:3.14
+FROM --platform=linux/amd64 public.ecr.aws/lambda/python:3.13
 
 WORKDIR /tmp
 
