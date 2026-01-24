@@ -80,6 +80,8 @@
           | Controls map click popup. Use {"output":[],"enabled":false} to disable.
           br
           | For COG point query: {"output":[{"column":"values.0","property":"Band 1"}],"config":{"url":"/api/titiler/point?titilerUrl={{titilerUrl}}&cogUrl={{cogUrl}}&lon={{lng}}&lat={{lat}}"}}
+          br
+          | Note: {{titilerUrl}} and {{cogUrl}} are auto-injected from environment. No params needed.
         span.label-note  (JSON)
         = f.text_area :interaction_config, rows: 10, class: "json-editor-textarea"
     = f.inputs "Analysis"
@@ -104,15 +106,14 @@
         span.inline-hint
           | For CartoDB: SQL query with {{geometry}} placeholder.
           br
-          | For COG: TiTiler statistics endpoint URL, e.g. /api/titiler/statistics?titilerUrl={{titilerUrl}}&cogUrl={{cogUrl}}
+          | For COG: /api/titiler/statistics?titilerUrl={{titilerUrl}}&cogUrl={{cogUrl}} (placeholders auto-filled)
         = f.text_area :analysis_query, rows: 4, class: "code-textarea"
       li.input.text.analysis-query-input
         = f.label :analysis_body
         span.inline-hint
-          | For COG histogram analysis. Example:
+          | For COG: {"assetId":"unused"} (titilerUrl and cogUrl auto-injected from layer_config).
           br
-          code
-            | {"assetId":"unused","params":{"titilerUrl":"https://titiler.resilienceatlas.org","cogUrl":"gs://bucket/file.tif"}}
+          | Optional override: {"assetId":"unused","params":{"cogUrl":"gs://bucket/custom.tif"}}
         span.label-note  (JSON)
         = f.text_area :analysis_body, rows: 10, class: "json-editor-textarea"
     = f.inputs "Timeline"

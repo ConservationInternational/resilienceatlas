@@ -1,10 +1,11 @@
-import React, { useReducer, useCallback, useEffect } from 'react';
+import React, { useReducer, useCallback, useEffect, useMemo } from 'react';
 import axios from 'axios';
 import moment from 'moment';
 import numeral from 'numeral';
 import get from 'lodash/get';
 import { replace } from 'lib/layer-manager';
 import { T } from '@transifex/react';
+import { getTitilerBaseUrl, getApiBaseUrl } from 'utilities/environment';
 
 import createReducer from 'state/utils/createReducer';
 import { createApiAction } from 'state/utils/api';
@@ -81,13 +82,47 @@ const LayerPopup = ({
   const interaction = layersInteraction[layer.id] || {};
   const interactionState = state.interaction[layer.id] || {};
 
+  // For COG layers, derive titilerUrl and cogUrl from environment and layer config
+  const cogParams = useMemo(() => {
+    if (layer.type !== 'cog') return {};
+
+    const titilerUrl = getTitilerBaseUrl();
+    let cogUrl = '';
+
+    // Try to extract COG URL from layer config
+    if (layer.layerConfig?.body?.source) {
+      // New format: source URL stored directly
+      cogUrl = layer.layerConfig.body.source;
+    } else if (layer.layerConfig?.body?.url) {
+      // Legacy format: parse from tile URL
+      const urlParamMatch = layer.layerConfig.body.url.match(/[?&]url=([^&]+)/);
+      if (urlParamMatch) {
+        cogUrl = decodeURIComponent(urlParamMatch[1]);
+      }
+    }
+
+    return { titilerUrl, cogUrl };
+  }, [layer.type, layer.layerConfig]);
+
   // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
     if (latlng && config && config.url) {
       dispatch({ type: FETCH.REQUEST });
 
+      // Merge params for URL substitution:
+      // 1. latlng - click coordinates ({{lng}}, {{lat}})
+      // 2. cogParams - auto-derived for COG layers ({{titilerUrl}}, {{cogUrl}})
+      // 3. layer.params - layer-level params
+      // 4. config.params - interaction config params (can override above)
+      const urlParams = {
+        ...latlng,
+        ...cogParams,
+        ...(layer.params || {}),
+        ...(config.params || {}),
+      };
+
       axios
-        .get(replace(config.url, latlng), {})
+        .get(replace(config.url, urlParams), {})
         .then(({ data: responseData }) => {
           // For COGs column in interactionConfig should always be 'values[*]' or 'values.*'
           const data =

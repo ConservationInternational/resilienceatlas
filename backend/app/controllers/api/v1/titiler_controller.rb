@@ -1,6 +1,10 @@
 module Api
   module V1
     class TitilerController < ApiController
+      # Skip CSRF for statistics POST - this is a public proxy endpoint
+      # The endpoint is protected by titiler_url validation (SSRF protection)
+      skip_forgery_protection only: [:statistics]
+
       # GET /api/titiler/info
       # Proxies requests to TiTiler's /info endpoint to fetch COG metadata.
       # This avoids CORS issues when the frontend requests COG bounds.

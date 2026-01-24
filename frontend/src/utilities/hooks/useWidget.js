@@ -1,6 +1,7 @@
 import cx from 'classnames';
 import { useMemo, useCallback } from 'react';
 import { useAxios } from './useAxios';
+import { getTitilerBaseUrl, getApiBaseUrl } from 'utilities/environment';
 
 const sqlApi = 'https://cdb-cdn.resilienceatlas.org/user/ra/api/v2/sql';
 
@@ -8,8 +9,18 @@ export const useWidget = ({ slug, geojson }, { type, analysisQuery, analysisBody
   const isCOGLayer = useMemo(() => type === 'cog', [type]);
   const query = useMemo(() => {
     if (analysisBody) {
-      const { assetId, params } = JSON.parse(analysisBody);
+      const { assetId, params: providedParams } = JSON.parse(analysisBody);
       let parsedQuery = analysisQuery;
+
+      // For COG layers, auto-inject titilerUrl if not provided in params
+      // This allows layer configs to omit titilerUrl and use environment-based defaults
+      const params = isCOGLayer
+        ? {
+            titilerUrl: getTitilerBaseUrl(),
+            apiUrl: getApiBaseUrl(),
+            ...providedParams, // Allow explicit params to override defaults
+          }
+        : providedParams;
 
       if (isCOGLayer && params && typeof params === 'object') {
         Object.entries(params).forEach(([key, value]) => {

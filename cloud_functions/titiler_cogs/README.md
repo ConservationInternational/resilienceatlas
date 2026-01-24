@@ -72,6 +72,19 @@ TiTiler enables full analysis functionality for COG layers, equivalent to what E
 | `/api/titiler/statistics` | `/statistics` | Histogram analysis within geometry |
 | `/api/titiler/point` | `/point/{lon}/{lat}` | Point query for raster values |
 
+### Auto-Injected Parameters
+
+**The frontend automatically provides these values for COG layers:**
+
+| Placeholder | Source | Description |
+|-------------|--------|-------------|
+| `{{titilerUrl}}` | Environment variable | TiTiler server URL (production, staging, or custom) |
+| `{{cogUrl}}` | `layer_config.body.source` or parsed from tile URL | COG file location |
+| `{{apiUrl}}` | Environment variable | Backend API URL |
+| `{{lng}}`, `{{lat}}` | Click coordinates | Map click location |
+
+This means **admins don't need to hardcode URLs** - just use the placeholders and the frontend handles the rest.
+
 ### Configuring Histogram Analysis (Statistics)
 
 To enable histogram analysis for a COG layer in the admin panel:
@@ -87,13 +100,19 @@ To enable histogram analysis for a COG layer in the admin panel:
 /api/titiler/statistics?titilerUrl={{titilerUrl}}&cogUrl={{cogUrl}}
 ```
 
-**5. Set `analysis_body`:**
+**5. Set `analysis_body` (minimal):**
+```json
+{"assetId": "unused"}
+```
+
+The `titilerUrl` and `cogUrl` placeholders are auto-filled from environment variables and the layer's `layer_config`.
+
+**Optional: Override cogUrl if different from tile source:**
 ```json
 {
   "assetId": "unused",
   "params": {
-    "titilerUrl": "https://titiler.resilienceatlas.org",
-    "cogUrl": "https://storage.googleapis.com/bucket/your-layer.tif"
+    "cogUrl": "https://storage.googleapis.com/bucket/analysis-layer.tif"
   }
 }
 ```
@@ -102,7 +121,7 @@ To enable histogram analysis for a COG layer in the admin panel:
 
 To enable click-to-query functionality for a COG layer:
 
-**Set `interaction_config`:**
+**Set `interaction_config` (simplified):**
 ```json
 {
   "output": [
@@ -110,12 +129,25 @@ To enable click-to-query functionality for a COG layer:
     {"column": "values.1", "property": "Band 2 Value"}
   ],
   "config": {
-    "url": "/api/titiler/point?titilerUrl=https://titiler.resilienceatlas.org&cogUrl=https://storage.googleapis.com/bucket/layer.tif&lon={{lng}}&lat={{lat}}"
+    "url": "/api/titiler/point?titilerUrl={{titilerUrl}}&cogUrl={{cogUrl}}&lon={{lng}}&lat={{lat}}"
   }
 }
 ```
 
-The `{{lng}}` and `{{lat}}` placeholders are replaced with click coordinates at runtime.
+All placeholders (`{{titilerUrl}}`, `{{cogUrl}}`, `{{lng}}`, `{{lat}}`) are auto-filled at runtime.
+
+**Optional: Override cogUrl:**
+```json
+{
+  "output": [{"column": "values.0", "property": "Band 1 Value"}],
+  "config": {
+    "url": "/api/titiler/point?titilerUrl={{titilerUrl}}&cogUrl={{cogUrl}}&lon={{lng}}&lat={{lat}}",
+    "params": {
+      "cogUrl": "https://storage.googleapis.com/bucket/custom-layer.tif"
+    }
+  }
+}
+```
 
 ### Complete COG Layer Example
 
@@ -126,6 +158,7 @@ Here's a complete configuration for a COG layer with tiles, analysis, and point 
 {
   "type": "tileLayer",
   "body": {
+    "source": "https://storage.googleapis.com/bucket/layer.tif",
     "url": "https://titiler.resilienceatlas.org/tiles/WebMercatorQuad/{z}/{x}/{y}?url=https://storage.googleapis.com/bucket/layer.tif&bidx=1&colormap={{colormap}}"
   },
   "params": {
@@ -134,14 +167,16 @@ Here's a complete configuration for a COG layer with tiles, analysis, and point 
 }
 ```
 
-**interaction_config:**
+> **Tip:** Set `body.source` to the COG URL for automatic `{{cogUrl}}` substitution in analysis/interaction configs.
+
+**interaction_config (simplified):**
 ```json
 {
   "output": [
     {"column": "values.0", "property": "Land Cover Class", "type": "number"}
   ],
   "config": {
-    "url": "/api/titiler/point?titilerUrl=https://titiler.resilienceatlas.org&cogUrl=https://storage.googleapis.com/bucket/layer.tif&lon={{lng}}&lat={{lat}}&bidx=1"
+    "url": "/api/titiler/point?titilerUrl={{titilerUrl}}&cogUrl={{cogUrl}}&lon={{lng}}&lat={{lat}}&bidx=1"
   }
 }
 ```
@@ -151,15 +186,12 @@ Here's a complete configuration for a COG layer with tiles, analysis, and point 
 /api/titiler/statistics?titilerUrl={{titilerUrl}}&cogUrl={{cogUrl}}&bidx=1
 ```
 
-**analysis_body:**
+**analysis_body (minimal):**
 ```json
-{
-  "assetId": "unused",
-  "params": {
-    "titilerUrl": "https://titiler.resilienceatlas.org",
-    "cogUrl": "https://storage.googleapis.com/bucket/layer.tif"
-  }
-}
+{"assetId": "unused"}
+```
+
+All `{{titilerUrl}}` and `{{cogUrl}}` placeholders are automatically filled from environment configuration and `layer_config.body.source`.
 ```
 
 ---

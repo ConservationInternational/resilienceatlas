@@ -40,8 +40,11 @@ namespace :storage do
           # Create parent directories
           FileUtils.mkdir_p(File.dirname(target_path))
 
-          # Extract file
-          entry.extract(target_path) { true } # true = overwrite
+          # Extract file content manually to avoid rubyzip path issues
+          # entry.extract can have issues with destination paths in some versions
+          File.open(target_path, "wb") do |file|
+            file.write(entry.get_input_stream.read)
+          end
           extracted_count += 1
         end
       end
