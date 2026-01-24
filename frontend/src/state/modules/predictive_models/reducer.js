@@ -11,10 +11,8 @@ import {
 } from './actions';
 import { getIndexableIndicatorValueRange, buildIndicatorsFromState } from './utils';
 
-const { name: persistedModel = null, values: persistedIndicators = [] } = getRouterParam(
-  'model',
-  (val) => qs.parse(val, { parseArrays: true, comma: true }),
-);
+const { name: persistedModel = null, values: persistedIndicators = [] } =
+  getRouterParam('model', (val) => qs.parse(val, { parseArrays: true, comma: true })) || {};
 
 const initialState = {
   byId: {
