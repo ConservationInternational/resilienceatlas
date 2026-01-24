@@ -12,6 +12,12 @@ export const getRouterParam = (param: string, parser?: (a: string) => string): s
 
   const params = new URLSearchParams(window.location.search.slice(1));
   const result = params.get(param);
+
+  // Return empty/null result early to avoid passing empty strings to parsers like JSON.parse
+  if (result === null || result === '') {
+    return result;
+  }
+
   if (parser && typeof parser === 'function') return parser(result);
   return result;
 };
