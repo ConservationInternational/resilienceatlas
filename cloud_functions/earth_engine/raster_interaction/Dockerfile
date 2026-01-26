@@ -1,5 +1,5 @@
-# Earth Engine Raster Interaction Lambda - Python 3.14
-FROM --platform=linux/amd64 public.ecr.aws/lambda/python:3.14
+# Earth Engine Raster Interaction Lambda - Python 3.13
+FROM --platform=linux/amd64 public.ecr.aws/lambda/python:3.13
 
 WORKDIR /tmp
 

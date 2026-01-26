@@ -48,10 +48,10 @@ Resources:
       Description: Earth Engine Python SDK and dependencies
       ContentUri: layers/earth_engine/
       CompatibleRuntimes:
-        - python3.14
+        - python3.13
       RetentionPolicy: Delete
     Metadata:
-      BuildMethod: python3.14
+      BuildMethod: python3.13
 
   # Analysis Histogram Function
   HistogramFunction:
@@ -84,11 +84,11 @@ Resources:
               Action:
                 - secretsmanager:GetSecretValue
               Resource: !Ref GeePrivateKeySecretArn
-      ImageUri: histogramfunction:python3.14-v1
+      ImageUri: histogramfunction:python3.13-v1
     Metadata:
       Dockerfile: Dockerfile
       DockerContext: ./histogram
-      DockerTag: python3.14-v1
+      DockerTag: python3.13-v1
 
   # Raster Interaction Function
   RasterInteractionFunction:
@@ -121,11 +121,11 @@ Resources:
               Action:
                 - secretsmanager:GetSecretValue
               Resource: !Ref GeePrivateKeySecretArn
-      ImageUri: rasterinteractionfunction:python3.14-v1
+      ImageUri: rasterinteractionfunction:python3.13-v1
     Metadata:
       Dockerfile: Dockerfile
       DockerContext: ./raster_interaction
-      DockerTag: python3.14-v1
+      DockerTag: python3.13-v1
 
   # Download Image Function
   DownloadImageFunction:
@@ -158,11 +158,11 @@ Resources:
               Action:
                 - secretsmanager:GetSecretValue
               Resource: !Ref GeePrivateKeySecretArn
-      ImageUri: downloadimagefunction:python3.14-v1
+      ImageUri: downloadimagefunction:python3.13-v1
     Metadata:
       Dockerfile: Dockerfile
       DockerContext: ./download_image
-      DockerTag: python3.14-v1
+      DockerTag: python3.13-v1
 
   RestApiGateway:
     Type: AWS::Serverless::Api
