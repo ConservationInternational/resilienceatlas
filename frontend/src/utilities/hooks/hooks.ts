@@ -7,8 +7,8 @@ export const useToggle = (initial = false): [boolean, () => void] => {
   const [toggled, setToggle] = useState(initial);
 
   const toggle = useCallback(() => {
-    setToggle(!toggled);
-  }, [toggled]);
+    setToggle((prev) => !prev);
+  }, []);
 
   return [toggled, toggle];
 };

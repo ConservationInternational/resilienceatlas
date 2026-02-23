@@ -8,7 +8,13 @@ module SitesFilters
   def set_site
     @site_scope = SiteScope.find_by(subdomain: params[:site_scope]) ||
       SiteScope.find_by(subdomain: request.subdomain.downcase) ||
-      SiteScope.find(1)
+      SiteScope.find_by(id: 1)
+
+    unless @site_scope
+      render json: {error: "No default site scope configured"}, status: :not_found
+      return
+    end
+
     params[:site_scope] = @site_scope.id
     params
   end

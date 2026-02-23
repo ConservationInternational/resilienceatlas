@@ -1,4 +1,4 @@
-import { useReducer, useEffect } from 'react';
+import { useReducer, useEffect, useRef } from 'react';
 import axios from 'axios';
 import createReducer from '../../state/utils/createReducer';
 import { createApiAction } from '../../state/utils/api';
@@ -42,16 +42,25 @@ const fetchReducer = createReducer(initialState)({
  */
 export const useAxios = (config, deps, parseData) => {
   const [state, dispatch] = useReducer(fetchReducer, initialState);
+  const configRef = useRef(config);
+  const parseDataRef = useRef(parseData);
+
+  // Keep refs in sync without triggering re-renders
+  configRef.current = config;
+  parseDataRef.current = parseData;
+
+  // Use a stable serialized key for deep comparison of config
+  const configKey = JSON.stringify(config);
 
   useEffect(() => {
     const abortController = new AbortController();
     dispatch({ type: FETCH.REQUEST });
 
-    axios({ ...config, signal: abortController.signal })
+    axios({ ...configRef.current, signal: abortController.signal })
       .then(({ data }) =>
         dispatch({
           type: FETCH.SUCCESS,
-          data: parseData ? parseData(data) : data,
+          data: parseDataRef.current ? parseDataRef.current(data) : data,
         }),
       )
       .catch((error) => {
@@ -72,7 +81,7 @@ export const useAxios = (config, deps, parseData) => {
       abortController.abort();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [config, parseData, ...deps]);
+  }, [configKey, ...deps]);
 
   return [state.data, state.loading, state.loaded, state.error];
 };

@@ -214,7 +214,7 @@ const ResilienceApp = ({ Component, ...rest }: AppPropsWithLayout) => {
   useEffect(() => {
     if (!NEXT_LOCALE) {
       // Set a cookie for 1 year
-      setCookie('NEXT_LOCALE', `${locale}; path=/; max-age=31536000; secure`);
+      setCookie('NEXT_LOCALE', locale, { path: '/', maxAge: 31536000, secure: true });
     }
   }, [locale, NEXT_LOCALE, setCookie]);
 

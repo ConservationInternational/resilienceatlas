@@ -217,22 +217,52 @@ class Layer < ApplicationRecord
     new_layer
   end
 
+  ALLOWED_DOWNLOAD_HOSTS = %w[
+    resilienceatlas.org
+    www.resilienceatlas.org
+    staging.resilienceatlas.org
+    carto.com
+    cartodb.com
+    globalresiliencepartnership.org
+  ].freeze
+
   def zip_attachments(options, domain, site_name = nil, subdomain = nil)
     site_name = site_name.present? ? site_name : "Conservation International"
+
+    # Sanitize subdomain to prevent path traversal
+    subdomain = subdomain.to_s.parameterize.presence
 
     download_path = options["download_path"] if options["download_path"].present?
     download_query = options["q"] if options["q"].present?
     download_format = options["with_format"] if options["with_format"].present?
     file_format = options["file_format"] if options["file_format"].present?
 
+    # Validate download_path against allowlist to prevent SSRF
+    if download_path.present?
+      begin
+        parsed = URI.parse(download_path)
+        unless parsed.is_a?(URI::HTTPS) || parsed.is_a?(URI::HTTP)
+          Rails.logger.warn "Blocked non-HTTP download_path: #{download_path}"
+          return false
+        end
+        unless ALLOWED_DOWNLOAD_HOSTS.any? { |host| parsed.host&.end_with?(host) }
+          Rails.logger.warn "Blocked download_path with disallowed host: #{parsed.host}"
+          return false
+        end
+      rescue URI::InvalidURIError
+        return false
+      end
+    end
+
+    # Sanitize filename to prevent Zip Slip
     file_name = if options["filename"].present?
-      options["filename"]
+      File.basename(options["filename"].to_s.gsub(/[^\w.\-]/, "_"))
     elsif options["download_path"].present? && URI(options["download_path"]).query.present?
       query_path = URI(options["download_path"]).query
       # Parse query parameters properly to extract filename
       query_params = CGI.parse(query_path)
-      filename = query_params["filename"]&.first
-      filename
+      raw_filename = query_params["filename"]&.first
+      raw_filename.present? ? File.basename(raw_filename.to_s.gsub(/[^\w.\-]/, "_")) : nil
     end
 
     layer_url = download_path.to_s if download_path

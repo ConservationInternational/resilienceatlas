@@ -40,7 +40,7 @@ export const parseDates = (layer, defaultURLDate) => {
       analysisBody: layer.analysisBody && replaceDates(layer.analysisBody),
       interactionConfig: layer.interactionConfig && replaceDates(layer.interactionConfig),
       cartocss: layer.cartocss && replaceDates(layer.cartocss),
-      sql: layer.sql && replaceDates(layer.cartocss),
+      sql: layer.sql && replaceDates(layer.sql),
     };
   }
 
@@ -49,7 +49,7 @@ export const parseDates = (layer, defaultURLDate) => {
     analysisBody: layer.analysisBody && replaceDates(layer.analysisBody),
     interactionConfig: layer.interactionConfig && replaceDates(layer.interactionConfig),
     cartocss: layer.cartocss && replaceDates(layer.cartocss),
-    sql: layer.sql && replaceDates(layer.cartocss),
+    sql: layer.sql && replaceDates(layer.sql),
     layerConfig: {
       ...layerConfig,
       body: {

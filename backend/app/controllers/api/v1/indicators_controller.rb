@@ -3,7 +3,7 @@ module Api
     class IndicatorsController < ApiController
       def index
         # TODO - Use strong params when arranged which to use
-        @indicators = Indicator.fetch_all(params)
+        @indicators = Indicator.fetch_all(params).includes(:category, models: :translations)
         render json: @indicators,
           meta: {total_indicators: @indicators.size},
           include: [:models, :category]

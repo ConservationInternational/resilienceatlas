@@ -3,6 +3,7 @@ module Api
     class ModelsController < ApiController
       def index
         @models = Model.fetch_all(model_params).with_translations
+          .includes(:site_scopes, indicators: [:translations, :category])
         render json: @models,
           meta: {total_models: @models.size},
           include: [:site_scopes, :indicators, "indicators.category"]
