@@ -19,9 +19,15 @@ Each dataset contains 14 bands:
 - Band 2: Land Productivity Dynamics (2001-2015)
 - Band 3: Land cover degradation (2000-2015)
 - Band 4: Soil organic carbon degradation (2000-2015)
-- Band 5-8: Same indicators for 2004-2019 period
+- Band 5: SDG 15.3.1 for 2004-2019
+- Band 6: Land Productivity Dynamics for 2004-2019
+- Band 7: Land cover degradation for 2015-2019
+- Band 8: Soil organic carbon degradation for 2015-2019
 - Band 9: SDG 15.3.1 status in 2019 vs baseline
-- Band 10-13: Same indicators for 2008-2023 period
+- Band 10: SDG 15.3.1 for 2008-2023
+- Band 11: Land Productivity Dynamics for 2008-2023
+- Band 12: Land cover degradation for 2015-2022
+- Band 13: Soil organic carbon degradation for 2015-2022
 - Band 14: SDG 15.3.1 status in 2023 vs baseline
 
 ## Categories

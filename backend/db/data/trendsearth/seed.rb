@@ -61,14 +61,14 @@ module TrendsEarthSeeder
     lc_baseline: 3,        # Land cover 2000-2015
     soc_baseline: 4,       # SOC 2000-2015
     sdg_2019: 5,           # SDG 15.3.1 2004-2019
-    lpd_2019: 6,           # LPD 2005-2019
-    lc_2019: 7,            # Land cover 2004-2019
-    soc_2019: 8,           # SOC 2004-2019
+    lpd_2019: 6,           # LPD 2004-2019
+    lc_2019: 7,            # Land cover 2015-2019
+    soc_2019: 8,           # SOC 2015-2019
     sdg_status_2019: 9,    # SDG status 2019 vs baseline
     sdg_2023: 10,          # SDG 15.3.1 2008-2023
-    lpd_2023: 11,          # LPD 2009-2023
-    lc_2023: 12,           # Land cover 2008-2023
-    soc_2023: 13,          # SOC 2008-2023
+    lpd_2023: 11,          # LPD 2008-2023
+    lc_2023: 12,           # Land cover 2015-2022
+    soc_2023: 13,          # SOC 2015-2022
     sdg_status_2023: 14    # SDG status 2023 vs baseline
   }.freeze
 
@@ -483,16 +483,16 @@ module TrendsEarthSeeder
         data_sources = [sources[:zenodo]]
         order = 1
 
-        # LPD 2009-2023 (Band 11) - all inactive by default (only SDG status and baseline are active)
+        # LPD 2008-2023 (Band 11) - all inactive by default (only SDG status and baseline are active)
         layer = create_layer(
           group: group,
-          slug: "lpd-2009-2023-#{dataset[:key].to_s.tr("_", "-")}",
+          slug: "lpd-2008-2023-#{dataset[:key].to_s.tr("_", "-")}",
           cog_key: dataset[:key],
           band: BANDS[:lpd_2023],
           colormap_key: :lpd,
           legend_key: :lpd,
-          name: "LPD 2009-2023 (#{dataset_short})",
-          info: "Land Productivity Dynamics for the 2009-2023 period using #{dataset_name} methodology.",
+          name: "LPD 2008-2023 (#{dataset_short})",
+          info: "Land Productivity Dynamics for the 2008-2023 period using #{dataset_name} methodology.",
           description: "Land Productivity Dynamics (LPD) measures changes in vegetation productivity over time.\n\n#{dataset_desc}",
           active: false,
           order: order,
@@ -502,16 +502,16 @@ module TrendsEarthSeeder
         puts "  Created layer: #{layer.slug}"
         order += 1
 
-        # LPD 2005-2019 (Band 6)
+        # LPD 2004-2019 (Band 6)
         layer = create_layer(
           group: group,
-          slug: "lpd-2005-2019-#{dataset[:key].to_s.tr("_", "-")}",
+          slug: "lpd-2004-2019-#{dataset[:key].to_s.tr("_", "-")}",
           cog_key: dataset[:key],
           band: BANDS[:lpd_2019],
           colormap_key: :lpd,
           legend_key: :lpd,
-          name: "LPD 2005-2019 (#{dataset_short})",
-          info: "Land Productivity Dynamics for the 2005-2019 period using #{dataset_name} methodology.",
+          name: "LPD 2004-2019 (#{dataset_short})",
+          info: "Land Productivity Dynamics for the 2004-2019 period using #{dataset_name} methodology.",
           description: "Land Productivity Dynamics (LPD) measures changes in vegetation productivity over time.\n\n#{dataset_desc}",
           active: false,
           order: order,
@@ -541,7 +541,7 @@ module TrendsEarthSeeder
       end
 
       # Clean up old LPD layer slugs
-      old_slugs = %w[lpd-2008-2023-trendsearth lpd-2008-2023-fao-wocat lpd-2008-2023-jrc]
+      old_slugs = %w[lpd-2009-2023-trendsearth lpd-2009-2023-fao-wocat lpd-2009-2023-jrc lpd-2005-2019-trendsearth lpd-2005-2019-fao-wocat lpd-2005-2019-jrc]
       old_slugs.each do |slug|
         old_layer = Layer.find_by(slug: slug)
         if old_layer
