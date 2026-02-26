@@ -142,10 +142,10 @@ import_level() {
     -progress
 
   # Step 2: Map columns from the temp table into admin_boundaries.
-  # geoBoundaries CGAZ uses:
-  #   ADM0: shapeGroup (ISO3), shapeName, geometry
-  #   ADM1: shapeGroup (ISO3 parent), shapeName, shapeISO, geometry
-  #   ADM2: shapeGroup (ISO3 parent), shapeName, shapeISO, geometry
+  # geoBoundaries CGAZ columns (all lowercase after ogr2ogr import):
+  #   ADM0: shapegroup (ISO3), shapename, geometry
+  #   ADM1: shapegroup (ISO3 parent), shapename, shapeid, geometry
+  #   ADM2: shapegroup (ISO3 parent), shapename, shapeid, geometry
   case $LEVEL in
     0)
       psql "$PG_CONN" -c "
@@ -166,7 +166,7 @@ import_level() {
         INSERT INTO admin_boundaries (name, iso_code, admin_level, parent_iso_code, geom, created_at, updated_at)
         SELECT
           \"shapename\",
-          COALESCE(\"shapeiso\", \"shapegroup\" || '_' || \"shapename\"),
+          COALESCE(\"shapeid\", \"shapegroup\" || '_' || \"shapename\"),
           1,
           \"shapegroup\",
           geom,
@@ -180,7 +180,7 @@ import_level() {
         INSERT INTO admin_boundaries (name, iso_code, admin_level, parent_iso_code, geom, created_at, updated_at)
         SELECT
           \"shapename\",
-          COALESCE(\"shapeiso\", \"shapegroup\" || '_' || \"shapename\"),
+          COALESCE(\"shapeid\", \"shapegroup\" || '_' || \"shapename\"),
           2,
           \"shapegroup\",
           geom,
