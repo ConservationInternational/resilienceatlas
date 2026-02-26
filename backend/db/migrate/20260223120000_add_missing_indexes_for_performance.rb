@@ -3,7 +3,9 @@ class AddMissingIndexesForPerformance < ActiveRecord::Migration[7.2]
     # site_scopes.subdomain — queried on every API request via SitesFilters#set_site
     add_index :site_scope_translations, :locale, if_not_exists: true
     unless index_exists?(:site_scopes, :subdomain)
-      add_index :site_scopes, :subdomain, unique: true
+      # Use a non-unique index since production data may legitimately have
+      # duplicate subdomains (e.g. multiple "amazonia" site scopes)
+      add_index :site_scopes, :subdomain
     end
 
     # share_urls.uid — used for lookups in ShareUrlsController#show, no index at all
@@ -11,9 +13,9 @@ class AddMissingIndexesForPerformance < ActiveRecord::Migration[7.2]
       add_index :share_urls, :uid, unique: true
     end
 
-    # layers.slug — validates uniqueness but has no unique DB index (race condition)
+    # layers.slug — used for lookups; non-unique because some rows have empty slugs
     unless index_exists?(:layers, :slug)
-      add_index :layers, :slug, unique: true
+      add_index :layers, :slug
     end
 
     # models_site_scopes join table — no indexes at all

@@ -19,6 +19,7 @@ RUN for i in {1..3}; do \
         libgeos-dev \
         libproj-dev \
         libgdal-dev \
+        gdal-bin \
         nodejs \
         npm \
         postgresql-client \
