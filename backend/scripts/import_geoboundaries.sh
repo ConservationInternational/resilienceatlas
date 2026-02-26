@@ -179,8 +179,8 @@ import_level() {
       psql "$PG_CONN" -c "
         INSERT INTO admin_boundaries (name, iso_code, admin_level, parent_iso_code, geom, created_at, updated_at)
         SELECT
-          \"shapename\",
-          COALESCE(\"shapeid\", \"shapegroup\" || '_' || \"shapename\"),
+          COALESCE(\"shapename\", \"shapeid\", 'Unknown'),
+          COALESCE(\"shapeid\", \"shapegroup\" || '_' || COALESCE(\"shapename\", 'unknown')),
           2,
           \"shapegroup\",
           geom,
