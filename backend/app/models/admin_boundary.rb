@@ -1,5 +1,4 @@
 class AdminBoundary < ApplicationRecord
-  validates :name, presence: true
   validates :admin_level, presence: true, inclusion: {in: [0, 1, 2]}
   validates :geom, presence: true
 
@@ -39,22 +38,36 @@ class AdminBoundary < ApplicationRecord
           admin_level,
           ST_AsMVTGeom(
             geom,
-            ST_TileEnvelope(#{z.to_i}, #{x.to_i}, #{y.to_i}),
+            ST_TileEnvelope($1, $2, $3),
             4096,
             256,
             true
           ) AS mvt_geom
         FROM admin_boundaries
-        WHERE geom && ST_TileEnvelope(#{z.to_i}, #{x.to_i}, #{y.to_i})
-          AND admin_level <= #{max_level.to_i}
+        WHERE geom && ST_TileEnvelope($1, $2, $3)
+          AND admin_level <= $4
       ) AS tile
     SQL
 
-    result = connection.execute(sql)
-    # The MVT binary is returned as a hex-encoded bytea; decode it
-    hex = result.first&.dig("mvt")
-    return "" if hex.blank?
+    result = connection.exec_query(
+      sql,
+      "MVT Tile",
+      [z.to_i, x.to_i, y.to_i, max_level.to_i],
+      prepare: false
+    )
+    row = result.rows.first
+    return "".b if row.nil?
 
-    connection.unescape_bytea(hex)
+    mvt = row[0]
+    return "".b if mvt.nil?
+
+    # PG adapter may return binary string directly or hex-encoded bytea
+    if mvt.is_a?(String) && mvt.encoding == Encoding::ASCII_8BIT
+      mvt
+    elsif mvt.is_a?(String) && mvt.start_with?("\\x")
+      [mvt[2..]].pack("H*")
+    else
+      mvt.force_encoding(Encoding::ASCII_8BIT)
+    end
   end
 end
