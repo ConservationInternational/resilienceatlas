@@ -12,6 +12,7 @@ import React, {
   type ReactNode,
 } from 'react';
 import L from 'leaflet';
+import { createBoundaryTileLayer } from './boundaries';
 
 export interface MapOptions extends L.MapOptions {
   zoom?: number;
@@ -44,6 +45,7 @@ export interface LeafletMapProps {
   customClass?: string;
   basemap?: BasemapConfig;
   label?: LabelConfig;
+  boundaries?: boolean;
   mapOptions?: MapOptions;
   events?: MapEvents;
   children?: (map: L.Map) => ReactNode;
@@ -54,11 +56,23 @@ export interface LeafletMapRef {
 }
 
 const LeafletMap = forwardRef<LeafletMapRef, LeafletMapProps>(
-  ({ customClass = '', basemap, label, mapOptions = {}, events = {}, children }, ref) => {
+  (
+    {
+      customClass = '',
+      basemap,
+      label,
+      boundaries = false,
+      mapOptions = {},
+      events = {},
+      children,
+    },
+    ref,
+  ) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const mapRef = useRef<L.Map | null>(null);
     const basemapLayerRef = useRef<L.TileLayer | null>(null);
     const labelLayerRef = useRef<L.TileLayer | null>(null);
+    const boundariesLayerRef = useRef<L.Layer | null>(null);
     const [mapReady, setMapReady] = useState(false);
 
     // Expose map instance to parent via ref
@@ -136,6 +150,29 @@ const LeafletMap = forwardRef<LeafletMapRef, LeafletMapProps>(
         }).addTo(mapRef.current);
       }
     }, [label]);
+
+    // Handle admin boundary vector tile overlay
+    useEffect(() => {
+      if (!mapRef.current) return;
+
+      // Remove existing boundaries layer
+      if (boundariesLayerRef.current) {
+        mapRef.current.removeLayer(boundariesLayerRef.current);
+        boundariesLayerRef.current = null;
+      }
+
+      if (!boundaries) return;
+
+      boundariesLayerRef.current = createBoundaryTileLayer();
+      boundariesLayerRef.current.addTo(mapRef.current);
+
+      return () => {
+        if (boundariesLayerRef.current && mapRef.current) {
+          mapRef.current.removeLayer(boundariesLayerRef.current);
+          boundariesLayerRef.current = null;
+        }
+      };
+    }, [boundaries]);
 
     // Handle events
     useEffect(() => {

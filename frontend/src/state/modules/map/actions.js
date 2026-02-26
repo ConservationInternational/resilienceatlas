@@ -4,6 +4,7 @@ export const SET_BASEMAP = 'map / SET_BASEMAP';
 export const SET_LABELS = 'map / SET_LABELS';
 export const SET_BOUNDS = 'map / SET_BOUNDS';
 export const SET_ISO = 'map / SET_ISO';
+export const SET_BOUNDARIES = 'map / SET_BOUNDARIES';
 export const SET_MAP_LAYER_GROUPS_INTERACTION = 'map / SET_LAYER_GROUPS_INTERACTION';
 export const SET_MAP_LAYER_GROUPS_INTERACTION_LATLNG = 'map / SET_LAYER_GROUPS_INTERACTION_LATLNG';
 export const SET_MAP_LAYER_GROUPS_INTERACTION_SELECTED =
@@ -31,6 +32,11 @@ export const setLabels = (payload) => ({
 
 export const setBounds = (payload) => ({
   type: SET_BOUNDS,
+  payload,
+});
+
+export const setBoundaries = (payload) => ({
+  type: SET_BOUNDARIES,
   payload,
 });
 

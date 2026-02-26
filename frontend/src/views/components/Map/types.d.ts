@@ -12,6 +12,7 @@ export interface CompareURLState {
 export interface MapViewProps {
   labels: (typeof MAP_LABELS)[number];
   basemap: (typeof BASEMAP_LABELS)[number];
+  boundaries: boolean;
   router: NextRouter;
   onLoadingLayers?: (loaded: boolean) => void;
   layers: {

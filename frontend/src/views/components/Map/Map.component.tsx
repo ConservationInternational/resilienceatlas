@@ -21,6 +21,9 @@ if (typeof window !== 'undefined') {
   // UTFGrid library requires corslite, only included in the minimized version
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   require('leaflet-utfgrid/L.UTFGrid-min');
+  // VectorGrid for MVT (protobuf) tile rendering — used for admin boundary overlays
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  require('leaflet.vectorgrid');
 
   // Import layer-manager components that also require window.L
   // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -86,6 +89,7 @@ const MapView = (props: MapViewProps) => {
     options,
     basemap,
     labels,
+    boundaries,
     embed,
     drawing,
     onLoadingLayers,
@@ -210,6 +214,7 @@ const MapView = (props: MapViewProps) => {
       customClass={mapClasses}
       label={safeLabel}
       basemap={safeBasemap}
+      boundaries={boundaries}
       mapOptions={{
         ...(options?.map || {}),
         zoom: Number(query.zoom) || site?.zoom_level || 2,

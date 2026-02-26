@@ -35,6 +35,7 @@ const makeMapStateToProps = () => {
     geojson: state.map.geojson,
     basemap: state.map.basemap,
     labels: state.map.labels,
+    boundaries: state.map.boundaries,
     layer_groups: state.layer_groups,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
