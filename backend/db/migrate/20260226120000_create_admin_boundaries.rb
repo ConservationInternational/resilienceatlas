@@ -1,7 +1,7 @@
 class CreateAdminBoundaries < ActiveRecord::Migration[7.2]
   def up
     create_table :admin_boundaries do |t|
-      t.string :name, null: false
+      t.string :name
       t.string :iso_code       # ISO 3166-1 alpha-3 for ADM0, sub-codes for ADM1/ADM2
       t.integer :admin_level, null: false, default: 0 # 0 = country, 1 = province/state, 2 = district
       t.string :parent_iso_code # references the parent boundary's iso_code
