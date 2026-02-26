@@ -19,7 +19,6 @@ class CreateAdminBoundaries < ActiveRecord::Migration[7.2]
     add_index :admin_boundaries, :admin_level
     add_index :admin_boundaries, :iso_code
     add_index :admin_boundaries, :geom, using: :gist
-    execute "CREATE INDEX index_admin_boundaries_on_level_and_geom ON admin_boundaries USING gist (admin_level, geom);"
   end
 
   def down
