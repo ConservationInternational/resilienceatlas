@@ -69,22 +69,13 @@ const LayerPopup = ({
     ? layers.find((l) => l.id === +layersInteractionSelected)
     : layers[0];
 
-  if (!layer) {
-    popup.remove();
-    return null;
-  }
-  // Get interactionConfig
-  const {
-    interactionConfig: { output, config },
-  } = layer;
-
-  // Get data from props or state
-  const interaction = layersInteraction[layer.id] || {};
-  const interactionState = state.interaction[layer.id] || {};
+  // Extract interactionConfig safely before hooks to avoid conditional hook calls
+  const output = layer?.interactionConfig?.output;
+  const config = layer?.interactionConfig?.config;
 
   // For COG layers, derive titilerUrl and cogUrl from environment and layer config
   const cogParams = useMemo(() => {
-    if (layer.type !== 'cog') return {};
+    if (!layer || layer.type !== 'cog') return {};
 
     const titilerUrl = getTitilerBaseUrl();
     let cogUrl = '';
@@ -102,11 +93,10 @@ const LayerPopup = ({
     }
 
     return { titilerUrl, cogUrl };
-  }, [layer.type, layer.layerConfig]);
+  }, [layer]);
 
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
-    if (latlng && config && config.url) {
+    if (layer && latlng && config && config.url) {
       dispatch({ type: FETCH.REQUEST });
 
       // Merge params for URL substitution:
@@ -147,6 +137,15 @@ const LayerPopup = ({
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  if (!layer) {
+    popup.remove();
+    return null;
+  }
+
+  // Get data from props or state
+  const interaction = layersInteraction[layer.id] || {};
+  const interactionState = state.interaction[layer.id] || {};
 
   return (
     <div className="c-map-popup">
