@@ -32,6 +32,7 @@ services:
       - staging_backend_public_storage:/app/public/storage
     environment:
       - RAILS_ENV=staging
+      - RACK_ENV=staging
       - DATABASE_URL=postgresql://postgres:${DATABASE_PASSWORD}@database:5432/resilienceatlas_staging
       - SECRET_KEY_BASE=${SECRET_KEY_BASE}
       - DEVISE_SECRET_KEY=${DEVISE_SECRET_KEY}

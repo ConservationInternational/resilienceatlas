@@ -10,7 +10,7 @@ end
 preload_app!
 
 port ENV["PORT"] || 3000
-environment ENV["RACK_ENV"] || "development"
+environment ENV["RACK_ENV"] || ENV["RAILS_ENV"] || "development"
 
 if ENV.fetch("RAILS_ENV") == "development"
   puts "LOGGER: development => worker_timeout 3600"

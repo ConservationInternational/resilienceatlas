@@ -14,6 +14,7 @@ services:
       - production_backend_public_storage:/app/public/storage
     environment:
       - RAILS_ENV=production
+      - RACK_ENV=production
       - DATABASE_URL=${PRODUCTION_DATABASE_URL}
       - SECRET_KEY_BASE=${PRODUCTION_SECRET_KEY_BASE}
       - DEVISE_KEY=${PRODUCTION_DEVISE_KEY}
