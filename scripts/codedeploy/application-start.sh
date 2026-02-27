@@ -96,23 +96,45 @@ export TAG="$DEPLOY_TAG"
 # Resolve Host IP for Database Connection
 # ============================================================================
 # Docker Swarm does not support 'host.docker.internal' with 'host-gateway'.
-# For containers to connect to PostgreSQL on the host, we need to use the
-# actual host IP or Docker's bridge gateway (172.17.0.1).
+# For containers on the overlay network to connect to PostgreSQL on the host,
+# we need to use the host's actual private IP (e.g. 172.31.x.x on AWS EC2),
+# NOT the Docker bridge gateway (172.17.0.1) which is only reachable from
+# containers on the default bridge network, not the Swarm overlay network.
 # We must update the .env file on disk since docker stack deploy reads from it.
 # ============================================================================
 if [ "$ENVIRONMENT" = "production" ]; then
-    # Get the Docker bridge gateway IP (typically 172.17.0.1)
-    DOCKER_HOST_IP=$(docker network inspect bridge --format '{{(index .IPAM.Config 0).Gateway}}' 2>/dev/null || echo "172.17.0.1")
+    # Get the host's actual private IP address (reachable from Swarm overlay network)
+    # On AWS EC2, this is the instance's VPC private IP (e.g. 172.31.x.x or 10.x.x.x)
+    DOCKER_HOST_IP=$(hostname -I | awk '{print $1}')
+    
+    # Fallback: if hostname -I fails, try to get the IP from the default route interface
+    if [ -z "$DOCKER_HOST_IP" ]; then
+        DOCKER_HOST_IP=$(ip route get 1 2>/dev/null | awk '{print $7; exit}')
+    fi
+    
+    # Final fallback to bridge gateway (less reliable for Swarm overlay)
+    if [ -z "$DOCKER_HOST_IP" ]; then
+        DOCKER_HOST_IP=$(docker network inspect bridge --format '{{(index .IPAM.Config 0).Gateway}}' 2>/dev/null || echo "172.17.0.1")
+        log_warning "Could not determine host private IP, falling back to Docker bridge gateway: $DOCKER_HOST_IP"
+    fi
+    
     export DOCKER_HOST_IP
-    log_info "Docker host gateway IP: $DOCKER_HOST_IP"
+    log_info "Host IP for database connection: $DOCKER_HOST_IP"
     
     # Update the .env.production file on disk to replace host.docker.internal
-    # This is necessary because docker stack deploy reads env vars from the file
+    # or any previously substituted IP with the current host IP
     ENV_FILE="$APP_DIR/.env.production"
-    if [ -f "$ENV_FILE" ] && grep -q "host.docker.internal" "$ENV_FILE"; then
-        log_info "Updating $ENV_FILE to replace host.docker.internal with $DOCKER_HOST_IP"
-        sed -i "s/host\.docker\.internal/$DOCKER_HOST_IP/g" "$ENV_FILE"
-        log_success "Updated .env.production file with Docker host IP"
+    if [ -f "$ENV_FILE" ]; then
+        if grep -q "host.docker.internal" "$ENV_FILE"; then
+            log_info "Updating $ENV_FILE to replace host.docker.internal with $DOCKER_HOST_IP"
+            sed -i "s/host\.docker\.internal/$DOCKER_HOST_IP/g" "$ENV_FILE"
+            log_success "Updated .env.production file with host IP: $DOCKER_HOST_IP"
+        elif grep -qE "@172\.17\." "$ENV_FILE"; then
+            # Fix previously deployed configs that used the wrong bridge gateway IP
+            log_info "Updating $ENV_FILE to replace Docker bridge IP (172.17.x.x) with host IP $DOCKER_HOST_IP"
+            sed -i "s/@172\.17\.[0-9]*\.[0-9]*:/@$DOCKER_HOST_IP:/g" "$ENV_FILE"
+            log_success "Updated .env.production file with correct host IP: $DOCKER_HOST_IP"
+        fi
         
         # Reload environment variables after modification
         set -a
