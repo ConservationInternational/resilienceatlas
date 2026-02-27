@@ -205,16 +205,19 @@ jobs:
         NODE_ENV=production
         
         # Database (external PostgreSQL)
-        DATABASE_URL=${{ secrets.PRODUCTION_DATABASE_URL }}
+        # Variable name must match docker-compose.swarm.yml: DATABASE_URL=${PRODUCTION_DATABASE_URL}
+        # The deployment script (application-start.sh) replaces host.docker.internal
+        # with the host's actual private IP for Swarm overlay network connectivity.
+        PRODUCTION_DATABASE_URL=${{ secrets.PRODUCTION_DATABASE_URL }}
         
-        # Rails secrets
-        SECRET_KEY_BASE=${{ secrets.PRODUCTION_SECRET_KEY_BASE }}
-        DEVISE_SECRET_KEY=${{ secrets.PRODUCTION_DEVISE_KEY }}
+        # Rails secrets (PRODUCTION_ prefix required by docker-compose.swarm.yml)
+        PRODUCTION_SECRET_KEY_BASE=${{ secrets.PRODUCTION_SECRET_KEY_BASE }}
+        PRODUCTION_DEVISE_KEY=${{ secrets.PRODUCTION_DEVISE_KEY }}
         
-        # Application URLs
-        BACKEND_URL=https://resilienceatlas.org
-        FRONTEND_URL=https://resilienceatlas.org
-        NEXT_PUBLIC_API_HOST=https://resilienceatlas.org
+        # Application URLs (PRODUCTION_ prefix required by docker-compose.swarm.yml)
+        PRODUCTION_BACKEND_URL=https://resilienceatlas.org
+        PRODUCTION_FRONTEND_URL=https://resilienceatlas.org
+        PRODUCTION_NEXT_PUBLIC_API_HOST=https://resilienceatlas.org
         
         # External services
         NEXT_PUBLIC_GOOGLE_ANALYTICS=${{ secrets.NEXT_PUBLIC_GOOGLE_ANALYTICS }}

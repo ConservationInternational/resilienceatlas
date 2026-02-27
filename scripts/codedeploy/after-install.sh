@@ -52,9 +52,17 @@ source "$ENV_FILE"
 set +a
 
 # Verify critical variables are set
-if [ -z "$SECRET_KEY_BASE" ]; then
-    log_error "SECRET_KEY_BASE is not set in $ENV_FILE"
-    exit 1
+# Production uses PRODUCTION_ prefix, staging uses unprefixed variable names
+if [ "$ENVIRONMENT" = "production" ]; then
+    if [ -z "$PRODUCTION_SECRET_KEY_BASE" ]; then
+        log_error "PRODUCTION_SECRET_KEY_BASE is not set in $ENV_FILE"
+        exit 1
+    fi
+else
+    if [ -z "$SECRET_KEY_BASE" ]; then
+        log_error "SECRET_KEY_BASE is not set in $ENV_FILE"
+        exit 1
+    fi
 fi
 log_success "Environment variables loaded successfully"
 
