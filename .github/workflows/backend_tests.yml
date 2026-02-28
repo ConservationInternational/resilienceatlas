@@ -147,7 +147,7 @@ jobs:
       run: |
         # Pre-pull base images to warm the cache
         echo "🔥 Warming cache with base images..."
-        docker pull ruby:3.4.8-bullseye || echo "Could not pre-pull Ruby base image"
+        docker pull ruby:3.4.8-bookworm || echo "Could not pre-pull Ruby base image"
         docker pull postgis/postgis:15-3.3 || echo "Could not pre-pull PostGIS image"
         
         # Show current cache status

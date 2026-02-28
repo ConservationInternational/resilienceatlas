@@ -51,12 +51,12 @@ if command -v sudo >/dev/null 2>&1; then
     ownership_fixed=true
     permissions_fixed=true
     
-    sudo chown -R $(whoami):$(whoami) public/storage public/uploads downloads storage log tmp 2>/dev/null || {
+    sudo chown -R $(whoami):$(whoami) db public/storage public/uploads downloads storage log tmp 2>/dev/null || {
         echo "Could not fix ownership"
         ownership_fixed=false
     }
     
-    sudo chmod -R 775 public/storage public/uploads downloads storage log tmp 2>/dev/null || {
+    sudo chmod -R 775 db public/storage public/uploads downloads storage log tmp 2>/dev/null || {
         echo "Could not fix permissions"
         permissions_fixed=false
     }
@@ -68,8 +68,8 @@ if command -v sudo >/dev/null 2>&1; then
     fi
 else
     echo "⚠️ sudo not available, attempting permission fix without sudo..."
-    chown -R $(whoami):$(whoami) public/storage public/uploads downloads storage log tmp 2>/dev/null || echo "Cannot fix ownership without sudo"
-    chmod -R 775 public/storage public/uploads downloads storage log tmp 2>/dev/null || echo "Cannot fix permissions without sudo"
+    chown -R $(whoami):$(whoami) db public/storage public/uploads downloads storage log tmp 2>/dev/null || echo "Cannot fix ownership without sudo"
+    chmod -R 775 db public/storage public/uploads downloads storage log tmp 2>/dev/null || echo "Cannot fix permissions without sudo"
 fi
 
 # Setup Rails log file
