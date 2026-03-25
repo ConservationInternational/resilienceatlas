@@ -16,11 +16,20 @@ COPY shared ${LAMBDA_TASK_ROOT}/shared/
 # Copy handler
 COPY app.py ${LAMBDA_TASK_ROOT}/
 
-# Reduce package size
-RUN cd ${LAMBDA_TASK_ROOT} && find . -type f -name '*.pyc' | while read f; do n=$(echo $f | sed 's/__pycache__\///' | sed 's/.cpython-[0-9]*//'); cp $f $n; done;
-RUN cd ${LAMBDA_TASK_ROOT} && find . -type d -a -name '__pycache__' -print0 | xargs -0 rm -rf
-RUN find ${LAMBDA_TASK_ROOT} -type d -a -name 'tests' -print0 | xargs -0 rm -rf
-RUN rm -rdf ${LAMBDA_TASK_ROOT}/boto3* ${LAMBDA_TASK_ROOT}/botocore* 2>/dev/null || true
+# Reduce package size - use Python for cleanup since findutils may not be in minimal lambda images
+RUN python -c "
+import pathlib, shutil
+root = pathlib.Path('${LAMBDA_TASK_ROOT}')
+for p in root.rglob('__pycache__'):
+    shutil.rmtree(p, ignore_errors=True)
+for p in root.rglob('tests'):
+    if p.is_dir():
+        shutil.rmtree(p, ignore_errors=True)
+for p in root.glob('boto3*'):
+    shutil.rmtree(p, ignore_errors=True) if p.is_dir() else p.unlink(missing_ok=True)
+for p in root.glob('botocore*'):
+    shutil.rmtree(p, ignore_errors=True) if p.is_dir() else p.unlink(missing_ok=True)
+"
 
 WORKDIR ${LAMBDA_TASK_ROOT}
 
