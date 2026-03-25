@@ -17,19 +17,12 @@ COPY shared ${LAMBDA_TASK_ROOT}/shared/
 COPY app.py ${LAMBDA_TASK_ROOT}/
 
 # Reduce package size - use Python for cleanup since findutils may not be in minimal lambda images
-RUN python -c "
-import pathlib, shutil
-root = pathlib.Path('${LAMBDA_TASK_ROOT}')
-for p in root.rglob('__pycache__'):
-    shutil.rmtree(p, ignore_errors=True)
-for p in root.rglob('tests'):
-    if p.is_dir():
-        shutil.rmtree(p, ignore_errors=True)
-for p in root.glob('boto3*'):
-    shutil.rmtree(p, ignore_errors=True) if p.is_dir() else p.unlink(missing_ok=True)
-for p in root.glob('botocore*'):
-    shutil.rmtree(p, ignore_errors=True) if p.is_dir() else p.unlink(missing_ok=True)
-"
+RUN python -c '\
+import pathlib, shutil, os; \
+root = pathlib.Path(os.environ["LAMBDA_TASK_ROOT"]); \
+[shutil.rmtree(p, ignore_errors=True) for p in list(root.rglob("__pycache__"))]; \
+[shutil.rmtree(p, ignore_errors=True) for p in list(root.rglob("tests")) if p.is_dir()]; \
+[(shutil.rmtree(p, ignore_errors=True) if p.is_dir() else p.unlink(missing_ok=True)) for p in list(root.glob("boto3*")) + list(root.glob("botocore*"))]'
 
 WORKDIR ${LAMBDA_TASK_ROOT}
 

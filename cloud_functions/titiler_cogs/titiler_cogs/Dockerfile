@@ -17,32 +17,15 @@ COPY requirements.txt ./
 RUN python -m pip install -r requirements.txt -t ${LAMBDA_TASK_ROOT} --no-binary pydantic
 
 # Reduce package size - use Python for cleanup since findutils may not be in minimal lambda images
-RUN python -c "
-import pathlib, shutil, re, subprocess
-root = pathlib.Path('${LAMBDA_TASK_ROOT}')
-# Promote .pyc to importable .py locations then remove __pycache__
-for pyc in sorted(root.rglob('*.pyc'), key=lambda p: len(p.parts)):
-    name = re.sub(r'\.cpython-[0-9]+', '', pyc.stem)
-    dest = pyc.parent.parent / (name + '.pyc')
-    if not dest.exists():
-        try: shutil.copy2(pyc, dest)
-        except: pass
-for p in sorted(root.rglob('__pycache__'), key=lambda p: -len(str(p))):
-    shutil.rmtree(p, ignore_errors=True)
-# Remove .py source files (we keep .pyc)
-for p in root.rglob('*.py'):
-    p.unlink(missing_ok=True)
-# Strip shared libraries
-for p in root.rglob('*.so*'):
-    if 'numpy.libs' not in str(p):
-        subprocess.run(['strip', '--strip-unneeded', str(p)], capture_output=True)
-# Remove tests and unnecessary packages
-for p in root.rglob('tests'):
-    if p.is_dir(): shutil.rmtree(p, ignore_errors=True)
-for pattern in ['numpy/doc', 'boto3*', 'botocore*', 'bin', 'geos_license', 'Misc']:
-    for p in root.glob(pattern):
-        shutil.rmtree(p, ignore_errors=True) if p.is_dir() else p.unlink(missing_ok=True)
-"
+RUN python -c '\
+import pathlib, shutil, re, subprocess, os; \
+root = pathlib.Path(os.environ["LAMBDA_TASK_ROOT"]); \
+[shutil.copy2(pyc, dest) for pyc in sorted(root.rglob("*.pyc"), key=lambda p: len(p.parts)) if not (dest := pyc.parent.parent / (re.sub(r".cpython-[0-9]+", "", pyc.stem) + ".pyc")).exists()]; \
+[shutil.rmtree(p, ignore_errors=True) for p in sorted(root.rglob("__pycache__"), key=lambda p: -len(str(p)))]; \
+[p.unlink(missing_ok=True) for p in list(root.rglob("*.py"))]; \
+[subprocess.run(["strip", "--strip-unneeded", str(p)], capture_output=True) for p in list(root.rglob("*.so*")) if "numpy.libs" not in str(p)]; \
+[shutil.rmtree(p, ignore_errors=True) for p in list(root.rglob("tests")) if p.is_dir()]; \
+[(shutil.rmtree(p, ignore_errors=True) if p.is_dir() else p.unlink(missing_ok=True)) for pat in ["numpy/doc", "boto3*", "botocore*", "bin", "geos_license", "Misc"] for p in root.glob(pat)]'
 
 # Copy handler
 COPY app.py ${LAMBDA_TASK_ROOT}/handler.py
