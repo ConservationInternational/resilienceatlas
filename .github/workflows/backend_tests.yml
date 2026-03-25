@@ -255,7 +255,7 @@ jobs:
 
     - name: Publish test results
       uses: dorny/test-reporter@v1
-      if: success() || failure()
+      if: (success() || failure()) && github.event_name != 'pull_request'
       with:
         name: Backend RSpec Tests
         path: backend/tmp/rspec.xml

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_01_20_160000) do
+ActiveRecord::Schema[7.2].define(version: 2026_02_26_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "postgis"
@@ -52,6 +52,19 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_20_160000) do
     t.bigint "blob_id", null: false
     t.string "variation_digest", null: false
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
+  end
+
+  create_table "admin_boundaries", force: :cascade do |t|
+    t.string "name"
+    t.string "iso_code"
+    t.integer "admin_level", default: 0, null: false
+    t.string "parent_iso_code"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.geometry "geom", limit: {srid: 4326, type: "multi_polygon"}, null: false
+    t.index ["admin_level"], name: "index_admin_boundaries_on_admin_level"
+    t.index ["geom"], name: "index_admin_boundaries_on_geom", using: :gist
+    t.index ["iso_code"], name: "index_admin_boundaries_on_iso_code"
   end
 
   create_table "admin_users", force: :cascade do |t|
@@ -381,6 +394,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_20_160000) do
     t.string "timeline_period"
     t.string "analysis_type"
     t.index ["layer_group_id"], name: "index_layers_on_layer_group_id"
+    t.index ["slug"], name: "index_layers_on_slug"
   end
 
   create_table "layers_sources", id: false, force: :cascade do |t|
@@ -431,6 +445,9 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_20_160000) do
   create_table "models_site_scopes", id: false, force: :cascade do |t|
     t.bigint "model_id", null: false
     t.bigint "site_scope_id", null: false
+    t.index ["model_id", "site_scope_id"], name: "index_models_site_scopes_on_model_id_and_site_scope_id", unique: true
+    t.index ["model_id"], name: "index_models_site_scopes_on_model_id"
+    t.index ["site_scope_id"], name: "index_models_site_scopes_on_site_scope_id"
   end
 
   create_table "photos", force: :cascade do |t|
@@ -444,6 +461,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_20_160000) do
     t.text "body"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["uid"], name: "index_share_urls_on_uid", unique: true
   end
 
   create_table "site_page_translations", force: :cascade do |t|
@@ -497,6 +515,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_20_160000) do
     t.string "encrypted_password"
     t.text "encrypted_viewable_password"
     t.index ["password_protected"], name: "index_site_scopes_on_password_protected"
+    t.index ["subdomain"], name: "index_site_scopes_on_subdomain"
   end
 
   create_table "source_translations", force: :cascade do |t|
