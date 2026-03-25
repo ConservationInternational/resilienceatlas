@@ -3,7 +3,7 @@ ActiveAdmin.register SiteScope do
 
   permit_params :subdomain, :color, :has_analysis, :latitude, :longitude, :header_theme, :zoom_level,
     :linkback_url, :header_color, :logo_url, :predictive_model, :analysis_options, :has_gef_logo,
-    :password_protected, :username, :password,
+    :password_protected, :username, :password, :linkback_text_color,
     translations_attributes: [:id, :locale, :name, :linkback_text, :_destroy]
 
   # Log validation errors for debugging
@@ -54,6 +54,7 @@ ActiveAdmin.register SiteScope do
       f.input :subdomain
       f.input :has_analysis
       f.input :linkback_url, as: :string
+      f.input :linkback_text_color, as: :color, hint: "Color for the linkback text. Leave blank for default."
       f.input :predictive_model
       f.input :analysis_options
       f.input :has_gef_logo, label: "Has GEF logo"

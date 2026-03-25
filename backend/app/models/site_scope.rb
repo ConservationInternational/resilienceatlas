@@ -71,7 +71,7 @@ class SiteScope < ApplicationRecord
     %w[
       id name color subdomain has_analysis latitude longitude header_theme zoom_level
       linkback_text linkback_url header_color logo_url predictive_model analysis_options
-      has_gef_logo password_protected username
+      has_gef_logo password_protected username linkback_text_color
     ]
   end
 

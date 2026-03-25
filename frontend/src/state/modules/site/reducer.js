@@ -13,6 +13,7 @@ const initialState = {
   zoom_level: NaN,
   linkback_text: null,
   linkback_url: null,
+  linkback_text_color: null,
   header_color: null,
   logo_url: '',
 

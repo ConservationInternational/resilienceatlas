@@ -27,7 +27,7 @@ const Header = ({
   const [portalContainer, setPortalContainer] = useState(null);
 
   // Safely destructure site with default values to prevent errors during SSR/hydration
-  const { linkback_text = '', linkback_url = '', subdomain = '' } = site || {};
+  const { linkback_text = '', linkback_url = '', linkback_text_color, subdomain = '' } = site || {};
 
   // Check if we're on a sub-scope (not the main Resilience Atlas site)
   const isSubScope = !!subdomain;
@@ -290,6 +290,7 @@ const Header = ({
                 target="_blank"
                 rel="noopener noreferrer"
                 className="theme-color link-back"
+                {...(linkback_text_color && { style: { color: linkback_text_color } })}
               >
                 {linkback_text || <T _str="Go back to vital signs" />}
               </a>
@@ -314,6 +315,7 @@ const Header = ({
                     rel="noopener noreferrer"
                     className="theme-color link-back"
                     onClick={toggleMobileMenu}
+                    {...(linkback_text_color && { style: { color: linkback_text_color } })}
                   >
                     {linkback_text || <T _str="Go back to vital signs" />}
                   </a>
