@@ -112,9 +112,17 @@ if [ -n "$DISK_USAGE" ] && [ "$DISK_USAGE" -gt 70 ]; then
     log_info "Removing all unused Docker images..."
     docker image prune -a -f 2>/dev/null || true
     
-    # Remove unused volumes
-    log_info "Removing unused Docker volumes..."
-    docker volume prune -f 2>/dev/null || true
+    # Remove unused volumes EXCEPT database data volumes
+    # Database volumes contain persistent data that cannot be recreated.
+    # We identify them by name pattern and remove only non-database volumes.
+    log_info "Removing unused Docker volumes (preserving database volumes)..."
+    for vol in $(docker volume ls -q --filter "dangling=true" 2>/dev/null); do
+        if echo "$vol" | grep -qE "postgres|_db_"; then
+            log_info "Preserving database volume: $vol"
+        else
+            docker volume rm "$vol" 2>/dev/null || true
+        fi
+    done
     
     # Clean up build cache older than 7 days
     log_info "Cleaning up Docker build cache older than 7 days..."
@@ -125,9 +133,21 @@ fi
 if [ -n "$DISK_USAGE" ] && [ "$DISK_USAGE" -gt 85 ]; then
     log_warning "Disk usage is ${DISK_USAGE}% (>85%). Running EMERGENCY cleanup..."
     
-    # Nuclear option: remove everything unused including all build cache
-    log_info "Removing ALL unused Docker resources including build cache..."
-    docker system prune -a --volumes -f 2>/dev/null || true
+    # Remove unused images and build cache, but NOT volumes
+    # Database volumes must be preserved to avoid data loss.
+    log_info "Removing ALL unused Docker images and build cache..."
+    docker image prune -a -f 2>/dev/null || true
+    docker builder prune -a -f 2>/dev/null || true
+    
+    # Remove non-database dangling volumes
+    log_info "Removing non-database unused volumes..."
+    for vol in $(docker volume ls -q --filter "dangling=true" 2>/dev/null); do
+        if echo "$vol" | grep -qE "postgres|_db_"; then
+            log_info "Preserving database volume: $vol"
+        else
+            docker volume rm "$vol" 2>/dev/null || true
+        fi
+    done
     
     # Also clean containerd content store (can accumulate failed pulls)
     if [ -d "/var/lib/containerd/io.containerd.content.v1.content/ingest" ]; then

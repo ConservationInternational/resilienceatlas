@@ -218,20 +218,24 @@ for i in 1 2 3 4 5; do
 done
 
 if [ -n "$BACKEND_CONTAINER" ]; then
-    log_info "Running migrations in container: $BACKEND_CONTAINER"
-    # Use timeout to prevent hanging - 120 seconds should be plenty for migrations
-    if timeout 120 docker exec "$BACKEND_CONTAINER" bundle exec rails db:migrate 2>&1; then
-        log_success "Database migrations completed"
+    log_info "Running database setup in container: $BACKEND_CONTAINER"
+    # Use db:prepare instead of db:migrate - it handles all cases:
+    #   - If database doesn't exist: creates it and loads schema
+    #   - If database exists but schema not loaded: loads schema
+    #   - If database exists with schema: runs pending migrations
+    # This makes deployment resilient to database volume loss.
+    if timeout 120 docker exec "$BACKEND_CONTAINER" bundle exec rails db:prepare 2>&1; then
+        log_success "Database setup completed"
     else
         EXIT_CODE=$?
         if [ $EXIT_CODE -eq 124 ]; then
-            log_warning "Database migrations timed out after 120 seconds"
+            log_warning "Database setup timed out after 120 seconds"
         else
-            log_warning "Database migrations returned exit code $EXIT_CODE (may be okay if no pending migrations)"
+            log_warning "Database setup returned exit code $EXIT_CODE (may be okay if no pending migrations)"
         fi
     fi
 else
-    log_warning "Could not find backend container for migrations - will run on next deploy"
+    log_warning "Could not find backend container for database setup - will run on next deploy"
 fi
 
 # ============================================================================
