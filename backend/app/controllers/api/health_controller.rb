@@ -1,5 +1,8 @@
 class Api::HealthController < ApplicationController
   skip_before_action :verify_authenticity_token
+  skip_before_action :check_subdomain
+  skip_before_action :get_subdomain
+  skip_before_action :set_locale
 
   def show
     # Check database connectivity
