@@ -289,7 +289,7 @@ const Header = ({
                 href={linkback_url || 'http://vitalsigns.org/'}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="theme-color link-back"
+                className={cx('link-back', { 'theme-color': !linkback_text_color })}
                 {...(linkback_text_color && { style: { color: linkback_text_color } })}
               >
                 {linkback_text || <T _str="Go back to vital signs" />}
@@ -313,7 +313,7 @@ const Header = ({
                     href={linkback_url || 'http://vitalsigns.org/'}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="theme-color link-back"
+                    className={cx('link-back', { 'theme-color': !linkback_text_color })}
                     onClick={toggleMobileMenu}
                     {...(linkback_text_color && { style: { color: linkback_text_color } })}
                   >
