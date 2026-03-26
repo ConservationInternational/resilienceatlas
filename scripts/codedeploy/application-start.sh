@@ -150,6 +150,19 @@ fi
 # state to Swarm and returns immediately. Swarm handles orchestration.
 # ============================================================================
 
+# Pre-pull the database image for staging deployments.
+# Unlike backend/frontend images (stored on ECR), the database image comes from
+# ghcr.io and is not pulled by the ECR pull step. The before-install.sh cleanup
+# may have pruned it (images older than 7 days are removed), so we must ensure
+# it's available locally before docker stack deploy tries to start the service.
+if [ "$ENVIRONMENT" = "staging" ]; then
+    DB_IMAGE=$(grep -E '^\s+image:' "$COMPOSE_FILE" | head -1 | awk '{print $2}')
+    if [ -n "$DB_IMAGE" ]; then
+        log_info "Pre-pulling database image: $DB_IMAGE"
+        docker pull "$DB_IMAGE" || log_warning "Failed to pull database image (may already be cached)"
+    fi
+fi
+
 log_info "Running docker stack deploy with compose file: $COMPOSE_FILE"
 docker stack deploy -c "$COMPOSE_FILE" "$STACK_NAME" --with-registry-auth --detach=true
 

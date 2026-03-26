@@ -99,6 +99,8 @@ log_info "Removing unused networks..."
 docker network prune -f 2>/dev/null || true
 
 # Level 2: Remove old images (always run - images are on ECR)
+# NOTE: This may also remove the database image (ghcr.io/baosystems/postgis) which
+# is NOT on ECR. The application-start.sh script explicitly pulls it before stack deploy.
 log_info "Removing Docker images older than 7 days..."
 docker image prune -a --filter "until=168h" -f 2>/dev/null || true
 

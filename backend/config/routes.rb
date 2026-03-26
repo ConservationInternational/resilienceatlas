@@ -1,6 +1,7 @@
 Rails.application.routes.draw do
-  # Health check endpoint at root level for ALB
+  # Health check endpoints at root level
   get "health", to: "api/health#show"
+  get "health/ready", to: "api/health#ready"
 
   mount Rswag::Ui::Engine => "/api-docs"
   mount Rswag::Api::Engine => "/api-docs"
@@ -19,8 +20,9 @@ Rails.application.routes.draw do
 
   # API routes
   namespace :api, defaults: {format: "json"} do
-    # Health check endpoint
+    # Health check endpoints
     get "health", to: "health#show"
+    get "health/ready", to: "health#ready"
 
     namespace :admin do
       resources :layers do

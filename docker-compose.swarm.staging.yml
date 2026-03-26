@@ -37,10 +37,14 @@ services:
       placement:
         constraints:
           - node.role == manager
+      update_config:
+        parallelism: 1
+        delay: 10s
+        failure_action: rollback
+        order: start-first
       restart_policy:
         condition: any
-        delay: 5s
-        max_attempts: 3
+        delay: 10s
       resources:
         limits:
           memory: 1024M
