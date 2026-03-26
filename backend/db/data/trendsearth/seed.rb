@@ -702,10 +702,10 @@ module TrendsEarthSeeder
       layer_config = {
         type: "tileLayer",
         body: {
-          url: "#{TITILER_BASE}/tiles/WebMercatorQuad/{z}/{x}/{y}?url=#{CGI.escape(cog_url)}&bidx=#{band}&colormap={{colormap}}"
-        },
-        params: {
-          colormap: colormap
+          source: cog_url,
+          bidx: band,
+          colormap: colormap,
+          options: {}
         }
       }
 

@@ -58,17 +58,23 @@ class UpdateCogLayersToSourceFormat < ActiveRecord::Migration[7.2]
         cog_url = extract_cog_url_from_tile_url(tile_url)
         next unless cog_url
 
+        # Extract the band index (bidx) from the tile URL if present
+        bidx = extract_bidx_from_tile_url(tile_url)
+
         # Get colormap from params or empty hash
         colormap = config.dig("params", "colormap") || {}
 
         # Build new layer_config
+        new_body = {
+          source: cog_url,
+          colormap: colormap,
+          options: config.dig("body", "options") || {}
+        }
+        new_body[:bidx] = bidx if bidx
+
         new_config = {
           type: "tileLayer",
-          body: {
-            source: cog_url,
-            colormap: colormap,
-            options: config.dig("body", "options") || {}
-          }
+          body: new_body
         }
 
         # Update the layer
@@ -113,6 +119,21 @@ class UpdateCogLayersToSourceFormat < ActiveRecord::Migration[7.2]
     CGI.unescape(url_match[1])
   rescue => e
     Rails.logger.warn "UpdateCogLayersToSourceFormat: Failed to extract COG URL from #{tile_url}: #{e.message}"
+    nil
+  end
+
+  # Extract the band index (bidx) from a TiTiler tile URL
+  # Example input: ...?url=...&bidx=14&colormap=...
+  # Example output: 14
+  def extract_bidx_from_tile_url(tile_url)
+    return nil if tile_url.blank?
+
+    bidx_match = tile_url.match(/[?&]bidx=(\d+)/)
+    return nil unless bidx_match
+
+    bidx_match[1].to_i
+  rescue => e
+    Rails.logger.warn "UpdateCogLayersToSourceFormat: Failed to extract bidx from #{tile_url}: #{e.message}"
     nil
   end
 end

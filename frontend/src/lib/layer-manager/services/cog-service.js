@@ -19,6 +19,7 @@ const parseCogLayerUrls = (layerModel) => {
     return {
       titilerBaseUrl: getTitilerBaseUrl(),
       cogUrl: layerConfig.body.source,
+      bidx: layerConfig.body.bidx || null,
     };
   }
 

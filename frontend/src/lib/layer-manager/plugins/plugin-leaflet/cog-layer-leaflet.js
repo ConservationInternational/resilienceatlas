@@ -19,7 +19,7 @@ const buildTitilerUrl = (layerConfig) => {
   }
 
   // New format: construct URL from source and colormap
-  const { source, colormap } = body;
+  const { source, colormap, bidx } = body;
 
   if (!source) {
     console.error('[COG Layer] No source URL found in layerConfig.body');
@@ -34,6 +34,11 @@ const buildTitilerUrl = (layerConfig) => {
 
   // Build the tile URL
   let tileUrl = `${titilerBaseUrl}/tiles/WebMercatorQuad/{z}/{x}/{y}?url=${encodedSource}`;
+
+  // Add band index if present (required for multi-band COGs)
+  if (bidx) {
+    tileUrl += `&bidx=${bidx}`;
+  }
 
   // Add colormap if present
   if (colormap && Object.keys(colormap).length > 0) {
