@@ -219,6 +219,7 @@ done
 
 if [ -n "$BACKEND_CONTAINER" ]; then
     log_info "Running database setup in container: $BACKEND_CONTAINER"
+
     # Use db:prepare instead of db:migrate - it handles all cases:
     #   - If database doesn't exist: creates it and loads schema
     #   - If database exists but schema not loaded: loads schema
