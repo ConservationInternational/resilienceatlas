@@ -2,7 +2,7 @@ ActiveAdmin.register SiteScope do
   includes :translations
 
   permit_params :subdomain, :color, :has_analysis, :latitude, :longitude, :header_theme, :zoom_level,
-    :linkback_url, :header_color, :logo_url, :predictive_model, :analysis_options, :has_gef_logo,
+    :linkback_url, :header_color, :logo_url, :favicon_url, :predictive_model, :analysis_options, :has_gef_logo,
     :password_protected, :username, :password, :linkback_text_color,
     translations_attributes: [:id, :locale, :name, :linkback_text, :_destroy]
 
@@ -51,6 +51,7 @@ ActiveAdmin.register SiteScope do
       f.input :header_theme, as: :select, collection: %w[ci-theme]
       f.input :header_color, as: :color
       f.input :logo_url, as: :string
+      f.input :favicon_url, as: :string, hint: "URL for the site favicon. Leave blank for default CI logo."
       f.input :subdomain
       f.input :has_analysis
       f.input :linkback_url, as: :string

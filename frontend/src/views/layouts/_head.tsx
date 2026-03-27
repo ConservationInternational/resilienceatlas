@@ -8,17 +8,19 @@ type CustomHeadProps = {
     color: string;
     header_color: string;
     logo_url: string;
+    favicon_url: string;
     loaded: boolean;
   };
 };
 
 const CustomHead: React.FC<CustomHeadProps> = ({ pageTitle, site }) => {
   // Safely destructure site with default values to prevent errors during SSR/hydration
-  const { name = '', color = '', header_color = '', logo_url = '', loaded = false } = site || {};
+  const { name = '', color = '', header_color = '', logo_url = '', favicon_url = '', loaded = false } = site || {};
 
   return (
     <Head>
       <title>{`${name} | ${pageTitle}`}</title>
+      {loaded && favicon_url && <link rel="icon" href={favicon_url} />}
       {loaded && (
         <style type="text/css">
           {`

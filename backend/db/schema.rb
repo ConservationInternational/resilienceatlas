@@ -515,6 +515,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_03_25_120000) do
     t.string "encrypted_password"
     t.text "encrypted_viewable_password"
     t.string "linkback_text_color"
+    t.text "favicon_url"
     t.index ["password_protected"], name: "index_site_scopes_on_password_protected"
     t.index ["subdomain"], name: "index_site_scopes_on_subdomain"
   end

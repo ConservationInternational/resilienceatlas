@@ -16,6 +16,7 @@ const initialState = {
   linkback_text_color: null,
   header_color: null,
   logo_url: '',
+  favicon_url: '',
 
   loading: false,
   loaded: false,
@@ -36,6 +37,7 @@ export default createReducer(initialState)({
       ...state,
       ...data,
       logo_url: data.logo_url || '/images/logo-ci.png',
+      favicon_url: data.favicon_url || '/favicon.ico',
 
       loading: false,
       loaded: true,
@@ -46,6 +48,7 @@ export default createReducer(initialState)({
   [LOAD.FAIL]: (state, { error }) => ({
     ...initialState,
     logo_url: '/images/logo-ci.png',
+    favicon_url: '/favicon.ico',
     loading: false,
     error,
   }),
