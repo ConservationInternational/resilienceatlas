@@ -11,15 +11,17 @@
         "latitude": 77.86032468095857,
         "longitude": -133.8751987454316,
         "header_theme": "ci-theme",
-        "zoom_level": 8,
+        "zoom_level": 3,
         "linkback_text": "Sed voluptatem dolor officia.",
         "linkback_url": "http://wolf-corwin.test/wilson",
         "header_color": "#e00b0b",
         "logo_url": "http://rogahn-deckow.test/miguel",
+        "favicon_url": null,
         "predictive_model": false,
         "analysis_options": false,
         "has_gef_logo": false,
-        "password_protected": false
+        "password_protected": false,
+        "linkback_text_color": null
       },
       "relationships": {
         "site_pages": {
@@ -38,15 +40,17 @@
         "latitude": 77.6773558478001,
         "longitude": 161.18302015003604,
         "header_theme": "ci-theme",
-        "zoom_level": 9,
+        "zoom_level": 3,
         "linkback_text": "Corporis nihil doloremque nam.",
         "linkback_url": "http://douglas-cronin.test/leopoldo",
         "header_color": "#f7bbbb",
         "logo_url": "http://schoen.test/fredericka",
+        "favicon_url": null,
         "predictive_model": false,
         "analysis_options": false,
         "has_gef_logo": false,
-        "password_protected": false
+        "password_protected": false,
+        "linkback_text_color": null
       },
       "relationships": {
         "site_pages": {

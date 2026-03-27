@@ -38,7 +38,7 @@ FactoryBot.define do
     latitude { Faker::Address.latitude }
     longitude { Faker::Address.longitude }
     header_theme { "ci-theme" }
-    zoom_level { rand(1..10) }
+    zoom_level { 3 }
     linkback_text { Faker::Lorem.sentence }
     linkback_url { Faker::Internet.url }
     header_color { Faker::Color.hex_color }
