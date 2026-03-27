@@ -33,8 +33,7 @@
   }
 
   .is-indicators &,
-  .is-atlas &,
-  .is-vs-theme & {
+  .is-atlas & {
     background-color: rgba(#222222, 0.7);
   }
 
@@ -74,8 +73,7 @@
 
       // TODO: Remove this?
       // .is-indicators &,
-      // .is-atlas &,
-      // .is-vs-theme & {
+      // .is-atlas & {
       //   // background-image: image-url("logo-vs.png");
       // }
 
@@ -100,7 +98,7 @@
       }
     }
 
-    &.-vital-sign {
+    &.-linkback {
       display: none;
 
       .is-indicators &,
@@ -284,8 +282,8 @@
       }
     }
 
-    // Force styling for direct child links of nav items
-    > li > a {
+    // Force styling for direct child links of nav items (exclude linkback)
+    &:not(.-linkback) > li > a {
       display: block !important;
       padding: rem(10px) !important;
       border-radius: 3px !important;
@@ -609,7 +607,7 @@ a.nav-current-forced:hover {
       }
 
       // Keep language switcher always visible
-      &:not(.-resilience):not(.-vital-sign) {
+      &:not(.-resilience):not(.-linkback) {
         display: block;
         position: absolute;
         top: rem(10px);
@@ -632,8 +630,8 @@ a.nav-current-forced:hover {
         }
       }
       
-      // Hide vital signs link on mobile - use !important to override .is-indicators/.is-atlas rules
-      &.-vital-sign {
+      // Hide linkback on mobile - use !important to override .is-indicators/.is-atlas rules
+      &.-linkback {
         display: none !important;
       }
     }

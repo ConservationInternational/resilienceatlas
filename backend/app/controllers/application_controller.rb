@@ -61,7 +61,7 @@ class ApplicationController < ActionController::Base
   private
 
   def allow_site_iframe
-    if ["resilienceatlas.org", "vitalsigns.org", "globalresiliencepartnership.org", "herokuapp.com"].include? request.domain
+    if ["resilienceatlas.org", "globalresiliencepartnership.org", "herokuapp.com"].include? request.domain
       response.headers.except! "X-Frame-Options"
     end
   end

@@ -245,7 +245,7 @@ app.add_middleware(
 app.add_middleware(
 	CORSMiddleware,
 	allow_credentials=True,
-	allow_origin_regex=r'https?://((([\w]*)\.)*vitalsigns\.org|(([\w]*)\.)*resilienceatlas\.org|localhost(:([\d])*)?)',
+	allow_origin_regex=r'https?://((([\w]*)\.)*resilienceatlas\.org|localhost(:([\d])*)?)',
 	allow_methods=["GET", "POST"],
 	allow_headers=["*"],
 	max_age=3600,

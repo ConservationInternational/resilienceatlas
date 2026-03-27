@@ -62,7 +62,7 @@ module Api
       end
 
       def validate(url)
-        permitted_domains = %w[vitalsigns.org resilienceatlas.org localhost globalresiliencepartnership.org]
+        permitted_domains = %w[resilienceatlas.org localhost globalresiliencepartnership.org]
         begin
           parsed_url = Addressable::URI.parse(url)
           @url = parsed_url

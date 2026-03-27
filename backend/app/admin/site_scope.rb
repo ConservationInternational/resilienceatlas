@@ -48,7 +48,7 @@ ActiveAdmin.register SiteScope do
 
     f.inputs "Site scope fields" do
       f.input :color
-      f.input :header_theme, as: :select, collection: %w[ci-theme vs-theme]
+      f.input :header_theme, as: :select, collection: %w[ci-theme]
       f.input :header_color, as: :color
       f.input :logo_url, as: :string
       f.input :subdomain

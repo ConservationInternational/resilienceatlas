@@ -37,7 +37,7 @@ FactoryBot.define do
     password_protected { false }
     latitude { Faker::Address.latitude }
     longitude { Faker::Address.longitude }
-    header_theme { ["ci-theme", "vs-theme"].sample }
+    header_theme { "ci-theme" }
     zoom_level { rand(1..10) }
     linkback_text { Faker::Lorem.sentence }
     linkback_url { Faker::Internet.url }

@@ -11,20 +11,10 @@ class PdfFile
     Prawn::Document.generate(@pdf_file_path) do |pdf|
       # header
       pdf.bounding_box [pdf.bounds.left, pdf.bounds.top], width: pdf.bounds.width do
-        theme = SiteScope.find_by(name: @site_name).try(:header_theme)
-
-        case theme
-        when "vs-theme"
-          b_color = "636363"
-          padding = 15
-          logo = "logo-vs.png"
-          color = "FFFFFF"
-        else
-          b_color = "FFFFFF"
-          padding = 0
-          logo = "logo-ci.png"
-          color = "DDDDDD"
-        end
+        b_color = "FFFFFF"
+        padding = 0
+        logo = "logo-ci.png"
+        color = "DDDDDD"
 
         pdf.font "Helvetica"
         pdf.font_size 15

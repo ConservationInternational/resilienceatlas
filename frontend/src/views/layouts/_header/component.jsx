@@ -283,19 +283,21 @@ const Header = ({
             <LanguageSwitcher translations={translations} />
           </ul>
 
-          <ul className="nav-area -vital-sign">
-            <li>
-              <a
-                href={linkback_url || 'http://vitalsigns.org/'}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={cx('link-back', { 'theme-color': !linkback_text_color })}
-                {...(linkback_text_color && { style: { color: linkback_text_color } })}
-              >
-                {linkback_text || <T _str="Go back to vital signs" />}
-              </a>
-            </li>
-          </ul>
+          {linkback_url && (
+            <ul className="nav-area -linkback">
+              <li>
+                <a
+                  href={linkback_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={cx('link-back', { 'theme-color': !linkback_text_color })}
+                  {...(linkback_text_color && { style: { color: linkback_text_color } })}
+                >
+                  {linkback_text || <T _str="Go back" />}
+                </a>
+              </li>
+            </ul>
+          )}
         </nav>
         <ul className="m-journey__paginationlist" />
       </header>
@@ -307,17 +309,17 @@ const Header = ({
           <div className="mobile-menu-overlay" onClick={toggleMobileMenu}>
             <ul className="mobile-menu-panel" onClick={(e) => e.stopPropagation()}>
               {/* For sub-scopes, only show linkback button like on desktop */}
-              {isSubScope ? (
+              {isSubScope && linkback_url ? (
                 <li className="mobile-linkback">
                   <a
-                    href={linkback_url || 'http://vitalsigns.org/'}
+                    href={linkback_url}
                     target="_blank"
                     rel="noopener noreferrer"
                     className={cx('link-back', { 'theme-color': !linkback_text_color })}
                     onClick={toggleMobileMenu}
                     {...(linkback_text_color && { style: { color: linkback_text_color } })}
                   >
-                    {linkback_text || <T _str="Go back to vital signs" />}
+                    {linkback_text || <T _str="Go back" />}
                   </a>
                 </li>
               ) : (

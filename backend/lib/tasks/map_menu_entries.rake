@@ -2,9 +2,8 @@ namespace :map_menu_entry do
   task create: :environment do
     gef = MapMenuEntry.create! label: "GEF-funded Projects", position: 1
     country = MapMenuEntry.create! label: "Country Atlases", position: 2
-    vital = MapMenuEntry.create! label: "Vital Signs", position: 3
-    regions = MapMenuEntry.create! label: "Regions", position: 4
-    _themes = MapMenuEntry.create! label: "Themes", position: 5
+    regions = MapMenuEntry.create! label: "Regions", position: 3
+    _themes = MapMenuEntry.create! label: "Themes", position: 4
 
     MapMenuEntry.create! label: "Trends.Earth",
       link: "https://maps.trends.earth/map",
@@ -28,25 +27,6 @@ namespace :map_menu_entry do
     MapMenuEntry.create! label: "Democratic Republic of Congo",
       link: "https://drc.resilienceatlas.org/map",
       position: 5, parent: country
-
-    MapMenuEntry.create! label: "Ghana",
-      link: "http://ghana.vitalsigns.org/explore-atlas-ghana",
-      position: 1, parent: vital
-    MapMenuEntry.create! label: "Rwanda",
-      link: "http://rwanda.vitalsigns.org/explore-atlas-rwanda",
-      position: 2, parent: vital
-    MapMenuEntry.create! label: "Tanzania",
-      link: "http://tanzania.vitalsigns.org/explore-atlas-tanzania",
-      position: 3, parent: vital
-    MapMenuEntry.create! label: "Uganda",
-      link: "http://uganda.vitalsigns.org/explore-atlas-uganda",
-      position: 4, parent: vital
-    MapMenuEntry.create! label: "Indicators",
-      link: "https://indicators.resilienceatlas.org/map",
-      position: 5, parent: vital
-    MapMenuEntry.create! label: "DSSG",
-      link: "https://dssg.resilienceatlas.org/map",
-      position: 6, parent: vital
 
     MapMenuEntry.create! label: "Africa",
       link: "https://africa.resilienceatlas.org/map",
