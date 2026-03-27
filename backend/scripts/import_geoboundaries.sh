@@ -9,20 +9,18 @@
 #   - ogr2ogr (part of GDAL) must be installed
 #   - The database must already have the admin_boundaries table
 #     (run: rails db:migrate)
-#   - The three .gpkg files must exist at the paths specified below
+#   - The three .gpkg files must be mounted at /data/geoboundaries/
 #
 # Usage:
-#   # With environment variables:
-#   DATABASE_URL=postgres://user:pass@host:port/dbname ./scripts/import_geoboundaries.sh
+#   # Mount the data volume and run inside Docker:
+#   docker compose -f docker-compose.dev.yml run --rm \
+#     -v /path/to/gpkg/files:/data/geoboundaries:ro \
+#     backend bash scripts/import_geoboundaries.sh
 #
-#   # Or with individual variables:
-#   DATABASE_HOST=localhost DATABASE_PORT=5432 DATABASE_USER=postgres \
-#     DATABASE_PASSWORD=postgres DATABASE_NAME=cigrp \
-#     ./scripts/import_geoboundaries.sh
-#
-#   # Inside Docker:
-#   docker compose -f docker-compose.dev.yml exec backend \
-#     bash scripts/import_geoboundaries.sh
+#   # Or use the rake task (preferred):
+#   docker compose -f docker-compose.dev.yml run --rm \
+#     -v /path/to/gpkg/files:/data/geoboundaries:ro \
+#     backend bundle exec rake boundaries:import
 #
 # The script will:
 #   1. Truncate the admin_boundaries table
@@ -49,14 +47,13 @@ else
 fi
 
 # ---------------------------------------------------------------------------
-# File paths — relative to the repo root
+# File paths — mount .gpkg files to /data/geoboundaries inside the container
 # ---------------------------------------------------------------------------
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+DATA_DIR="/data/geoboundaries"
 
-ADM0_GPKG="${REPO_ROOT}/geoBoundariesCGAZ_ADM0.gpkg"
-ADM1_GPKG="${REPO_ROOT}/geoBoundariesCGAZ_ADM1.gpkg"
-ADM2_GPKG="${REPO_ROOT}/geoBoundariesCGAZ_ADM2.gpkg"
+ADM0_GPKG="${DATA_DIR}/geoBoundariesCGAZ_ADM0.gpkg"
+ADM1_GPKG="${DATA_DIR}/geoBoundariesCGAZ_ADM1.gpkg"
+ADM2_GPKG="${DATA_DIR}/geoBoundariesCGAZ_ADM2.gpkg"
 
 # ---------------------------------------------------------------------------
 # Pre-flight checks
@@ -79,7 +76,8 @@ fi
 for f in "$ADM0_GPKG" "$ADM1_GPKG" "$ADM2_GPKG"; do
   if [ ! -f "$f" ]; then
     echo "❌  Missing file: $f"
-    echo "   Download CGAZ GeoPackages from https://www.geoboundaries.org/globalDownloads.html"
+    echo "   Mount the .gpkg files to ${DATA_DIR}. Example:"
+    echo "   docker compose run --rm -v /path/to/gpkg/files:${DATA_DIR}:ro backend bash scripts/import_geoboundaries.sh"
     exit 1
   fi
 done

@@ -12,6 +12,8 @@ services:
     volumes:
       - production_backend_storage:/app/storage
       - production_backend_public_storage:/app/public/storage
+      # Mount geoBoundaries data for import (one-time, then remove):
+      # - /path/to/geoboundaries:/data/geoboundaries:ro
     environment:
       - RAILS_ENV=production
       - RACK_ENV=production

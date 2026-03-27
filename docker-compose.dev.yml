@@ -27,6 +27,8 @@ services:
     volumes:
       - ./backend:/app
       - backend_bundle_cache:/usr/local/bundle
+      # Uncomment to mount geoBoundaries data for import:
+      # - /path/to/geoboundaries:/data/geoboundaries:ro
     networks:
       - app-network
     depends_on:
