@@ -218,6 +218,7 @@ module TrendsEarthSeeder
         header_theme: "dark",  # Dark theme for medium gray background
         header_color: "#5D5D5D",  # Medium gray background
         logo_url: "https://storage.googleapis.com/trendsearth-public/logo/trends_earth_logo_print_colored.png",
+        favicon_url: "/images/trends_earth_logo_square_200x200.png",
         linkback_url: "https://trends.earth"
       )
       site_scope.save!
