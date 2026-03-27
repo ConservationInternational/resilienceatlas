@@ -16,6 +16,10 @@ test:
   <<: *default
   database: resilienceatlas_test
 
+staging:
+  <<: *default
+  database: resilienceatlas_staging
+
 production:
   <<: *default
   database: cigrp
