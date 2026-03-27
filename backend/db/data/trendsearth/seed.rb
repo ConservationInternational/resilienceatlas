@@ -218,9 +218,12 @@ module TrendsEarthSeeder
         header_theme: "dark",  # Dark theme for medium gray background
         header_color: "#5D5D5D",  # Medium gray background
         logo_url: "https://storage.googleapis.com/trendsearth-public/logo/trends_earth_logo_print_colored.png",
-        favicon_url: "/images/trends_earth_logo_square_200x200.png",
         linkback_url: "https://trends.earth"
       )
+      # favicon_url may not exist yet if migration hasn't run (seed can be called from earlier migrations)
+      if SiteScope.column_names.include?("favicon_url")
+        site_scope.favicon_url = "/images/trends_earth_logo_square_200x200.png"
+      end
       site_scope.save!
 
       puts "  Created site scope: #{site_scope.subdomain}"
