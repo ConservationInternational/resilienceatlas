@@ -208,6 +208,7 @@ module TrendsEarthSeeder
       site_scope.assign_attributes(
         name: "Trends.Earth",  # Globalize translates this
         linkback_text: "Powered by Trends.Earth",  # Globalize translates this
+        linkback_text_color: "#FFFFFF",
         color: "#C62828",  # Highlight color from Trends.Earth logo (red)
         has_analysis: true,
         has_gef_logo: true,

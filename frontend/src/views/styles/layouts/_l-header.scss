@@ -25,6 +25,13 @@
   position: relative;
   z-index: 2;
   background-color: rgba($bg-color-1, 0.7);
+  // Prevent flash of wrong theme: hide header until site data loads, then fade in
+  opacity: 0;
+  transition: opacity 0.15s ease-in;
+
+  .site-loaded & {
+    opacity: 1;
+  }
 
   @extend %clearfix;
 

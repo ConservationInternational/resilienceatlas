@@ -6,7 +6,7 @@ const initialState = {
   predictive_model: false,
   name: '',
   subdomain: '',
-  color: '#0089cc',
+  color: '',
   header_theme: '',
   latitude: NaN,
   longitude: NaN,
