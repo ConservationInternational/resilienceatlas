@@ -15,7 +15,14 @@ type CustomHeadProps = {
 
 const CustomHead: React.FC<CustomHeadProps> = ({ pageTitle, site }) => {
   // Safely destructure site with default values to prevent errors during SSR/hydration
-  const { name = '', color = '', header_color = '', logo_url = '', favicon_url = '', loaded = false } = site || {};
+  const {
+    name = '',
+    color = '',
+    header_color = '',
+    logo_url = '',
+    favicon_url = '',
+    loaded = false,
+  } = site || {};
 
   return (
     <Head>
