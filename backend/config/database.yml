@@ -4,6 +4,7 @@ default: &default
   pool: 5
   timeout: 5000
   url: <%= ENV["DATABASE_URL"] %>
+  host: <%= ENV["DATABASE_HOST"] %>
   port: <%= ENV["DATABASE_PORT"] %>
   username: <%= ENV["DATABASE_USER"] %>
   password: <%= ENV["DATABASE_PASSWORD"] %>

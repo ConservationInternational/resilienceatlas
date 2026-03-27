@@ -37,14 +37,14 @@ class AdminBoundary < ApplicationRecord
           iso_code,
           admin_level,
           ST_AsMVTGeom(
-            geom,
+            ST_Transform(geom, 3857),
             ST_TileEnvelope($1, $2, $3),
             4096,
             256,
             true
           ) AS mvt_geom
         FROM admin_boundaries
-        WHERE geom && ST_TileEnvelope($1, $2, $3)
+        WHERE geom && ST_Transform(ST_TileEnvelope($1, $2, $3), 4326)
           AND admin_level <= $4
       ) AS tile
     SQL
