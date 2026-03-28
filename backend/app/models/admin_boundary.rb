@@ -22,12 +22,21 @@ class AdminBoundary < ApplicationRecord
   # Generates a Mapbox Vector Tile (MVT) for the given tile coordinates.
   # Uses ST_AsMVT and ST_AsMVTGeom from PostGIS 3+.
   #
+  # Performance: geometries are simplified proportional to zoom level so that
+  # low-zoom tiles don't process millions of vertices they can't display.
+  #
   # @param z [Integer] zoom level
   # @param x [Integer] tile column
   # @param y [Integer] tile row
   # @return [String] binary MVT protobuf data
   def self.mvt_tile(z, x, y)
     max_level = admin_level_for_zoom(z)
+
+    # Simplification tolerance in EPSG:4326 degrees, proportional to the
+    # size of a single pixel at this zoom level.  The tile is 4096 units
+    # wide and covers 360/2^z degrees of longitude, so one pixel ≈
+    # 360 / (2^z * 4096) degrees.  We simplify at ~4 px tolerance.
+    tolerance = 360.0 / (2**z * 1024)
 
     sql = <<~SQL
       SELECT ST_AsMVT(tile, 'boundaries', 4096, 'mvt_geom') AS mvt
@@ -37,22 +46,26 @@ class AdminBoundary < ApplicationRecord
           iso_code,
           admin_level,
           ST_AsMVTGeom(
-            ST_Transform(geom, 3857),
+            ST_Transform(
+              ST_SimplifyPreserveTopology(geom, $5),
+              3857
+            ),
             ST_TileEnvelope($1, $2, $3),
             4096,
-            256,
+            64,
             true
           ) AS mvt_geom
         FROM admin_boundaries
         WHERE geom && ST_Transform(ST_TileEnvelope($1, $2, $3), 4326)
           AND admin_level <= $4
       ) AS tile
+      WHERE mvt_geom IS NOT NULL
     SQL
 
     result = connection.exec_query(
       sql,
       "MVT Tile",
-      [z.to_i, x.to_i, y.to_i, max_level.to_i],
+      [z.to_i, x.to_i, y.to_i, max_level.to_i, tolerance],
       prepare: false
     )
     row = result.rows.first

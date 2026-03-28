@@ -17,9 +17,17 @@ on:
   workflow_dispatch:
     inputs:
       sync_database:
-        description: 'Sync production database to staging'
+        description: 'Sync production database to staging (incremental — preserves staging-only data)'
         required: false
-        default: 'true'
+        default: 'false'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
+      drop_database:
+        description: 'Drop and recreate staging DB from scratch (destroys all staging-only data like admin_boundaries)'
+        required: false
+        default: 'false'
         type: choice
         options:
           - 'true'
@@ -240,7 +248,8 @@ jobs:
         
         # Database sync configuration
         PRODUCTION_DATABASE_URL=${{ secrets.PRODUCTION_DATABASE_URL }}
-        SYNC_PRODUCTION_DB=${{ github.event.inputs.sync_database || 'true' }}
+        SYNC_PRODUCTION_DB=${{ github.event.inputs.sync_database || 'false' }}
+        DROP_STAGING_DB=${{ github.event.inputs.drop_database || 'false' }}
         
         # Storage file sync configuration (syncs images from production to staging)
         # Use "localhost" when both environments are on the same server (copies between Docker volumes)

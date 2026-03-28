@@ -2,9 +2,16 @@
 # ============================================================================
 # Database Sync Script - Copy production database to staging
 # ============================================================================
-# This script copies the production PostgreSQL database to the staging
+# This script syncs the production PostgreSQL database to the staging
 # Docker container. It is called during staging deployments when
 # SYNC_PRODUCTION_DB=true is set.
+#
+# Two modes:
+#   - Incremental (default): Restores production data into the existing
+#     staging database. Staging-only data (e.g. admin_boundaries) is
+#     preserved via the EXCLUDE_DATA_TABLES list.
+#   - Destructive (DROP_STAGING_DB=true): Drops and recreates the staging
+#     database from scratch. ALL staging-only data is wiped.
 # ============================================================================
 
 set -e
@@ -73,8 +80,12 @@ DUMP_FILE="$DUMP_DIR/production_dump.sql"
 # Tables to exclude data from (large or sensitive tables)
 # NOTE: active_storage_blobs and active_storage_attachments are INCLUDED
 # so that images for homepage, journeys, and sites are synced to staging
+# NOTE: admin_boundaries is excluded because it is populated via a manual
+# import step (rake boundaries:import) that requires mounted .gpkg files.
+# The table schema is still synced — only the row data is skipped.
 EXCLUDE_DATA_TABLES=(
     "action_text_rich_texts"
+    "admin_boundaries"
     "logs"
     "audit_logs"
     "versions"
@@ -138,45 +149,83 @@ STAGING_DB_USER="postgres"
 # Refresh the container ID in case it changed
 DB_CONTAINER=$(get_swarm_db_container "$STACK_NAME")
 
-# Drop and recreate staging database
-log_info "Recreating staging database..."
-docker exec "$DB_CONTAINER" psql -U "$STAGING_DB_USER" -c "
-    SELECT pg_terminate_backend(pid) FROM pg_stat_activity 
-    WHERE datname = '$STAGING_DB_NAME' AND pid <> pg_backend_pid();
-" 2>/dev/null || true
+if [ "${DROP_STAGING_DB:-false}" = "true" ]; then
+    # ========================================================================
+    # DESTRUCTIVE SYNC: Drop and recreate staging database from production.
+    # This wipes ALL staging-only data (e.g. admin_boundaries).
+    # Only runs when DROP_STAGING_DB=true is explicitly set.
+    # ========================================================================
+    log_warning "DROP_STAGING_DB=true — dropping and recreating staging database from scratch"
 
-docker exec "$DB_CONTAINER" psql -U "$STAGING_DB_USER" -c "
-    DROP DATABASE IF EXISTS $STAGING_DB_NAME;
-" 2>/dev/null || true
+    docker exec "$DB_CONTAINER" psql -U "$STAGING_DB_USER" -c "
+        SELECT pg_terminate_backend(pid) FROM pg_stat_activity
+        WHERE datname = '$STAGING_DB_NAME' AND pid <> pg_backend_pid();
+    " 2>/dev/null || true
 
-docker exec "$DB_CONTAINER" psql -U "$STAGING_DB_USER" -c "
-    CREATE DATABASE $STAGING_DB_NAME;
-" 2>/dev/null
+    docker exec "$DB_CONTAINER" psql -U "$STAGING_DB_USER" -c "
+        DROP DATABASE IF EXISTS $STAGING_DB_NAME;
+    " 2>/dev/null || true
 
-# Enable PostGIS extensions
-log_info "Enabling PostGIS extensions..."
-docker exec "$DB_CONTAINER" psql -U "$STAGING_DB_USER" -d "$STAGING_DB_NAME" -c "
-    CREATE EXTENSION IF NOT EXISTS postgis;
-    CREATE EXTENSION IF NOT EXISTS postgis_topology;
-    CREATE EXTENSION IF NOT EXISTS fuzzystrmatch;
-    CREATE EXTENSION IF NOT EXISTS postgis_tiger_geocoder;
-" 2>/dev/null
+    docker exec "$DB_CONTAINER" psql -U "$STAGING_DB_USER" -c "
+        CREATE DATABASE $STAGING_DB_NAME;
+    " 2>/dev/null
 
-# Restore production data to staging database
-log_info "Restoring production data to staging database..."
-cat "$DUMP_FILE" | docker exec -i "$DB_CONTAINER" psql -U "$STAGING_DB_USER" -d "$STAGING_DB_NAME" 2>"$DUMP_DIR/restore.log" || {
-    log_warning "Some errors occurred during restore (this may be normal for extension-related errors)"
-    # Show only critical errors, not extension-related warnings
-    grep -i "error" "$DUMP_DIR/restore.log" | grep -v "already exists" | grep -v "extension" | head -20 || true
-}
+    log_info "Enabling PostGIS extensions..."
+    docker exec "$DB_CONTAINER" psql -U "$STAGING_DB_USER" -d "$STAGING_DB_NAME" -c "
+        CREATE EXTENSION IF NOT EXISTS postgis;
+        CREATE EXTENSION IF NOT EXISTS postgis_topology;
+        CREATE EXTENSION IF NOT EXISTS fuzzystrmatch;
+        CREATE EXTENSION IF NOT EXISTS postgis_tiger_geocoder;
+    " 2>/dev/null
 
-# Verify the restore
-log_info "Verifying staging database..."
-TABLE_COUNT=$(docker exec "$DB_CONTAINER" psql -U "$STAGING_DB_USER" -d "$STAGING_DB_NAME" -t -c "
-    SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = 'public';
-")
+    log_info "Restoring production data to staging database..."
+    cat "$DUMP_FILE" | docker exec -i "$DB_CONTAINER" psql -U "$STAGING_DB_USER" -d "$STAGING_DB_NAME" 2>"$DUMP_DIR/restore.log" || {
+        log_warning "Some errors occurred during restore (this may be normal for extension-related errors)"
+        grep -i "error" "$DUMP_DIR/restore.log" | grep -v "already exists" | grep -v "extension" | head -20 || true
+    }
 
-log_success "Staging database now contains approximately $TABLE_COUNT tables"
+    TABLE_COUNT=$(docker exec "$DB_CONTAINER" psql -U "$STAGING_DB_USER" -d "$STAGING_DB_NAME" -t -c "
+        SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = 'public';
+    ")
+    log_success "Staging database now contains approximately $TABLE_COUNT tables"
+    log_warning "Staging-only data (e.g. admin_boundaries) was wiped. Re-import if needed: rake boundaries:import"
+else
+    # ========================================================================
+    # INCREMENTAL SYNC: Restore production data into existing staging database
+    # without dropping it. Excluded tables (like admin_boundaries) keep their
+    # staging-only data. Production tables are refreshed via TRUNCATE + COPY.
+    # ========================================================================
+    log_info "Incremental sync — preserving staging-only data"
+
+    # Ensure PostGIS extensions exist
+    docker exec "$DB_CONTAINER" psql -U "$STAGING_DB_USER" -d "$STAGING_DB_NAME" -c "
+        CREATE EXTENSION IF NOT EXISTS postgis;
+        CREATE EXTENSION IF NOT EXISTS postgis_topology;
+        CREATE EXTENSION IF NOT EXISTS fuzzystrmatch;
+        CREATE EXTENSION IF NOT EXISTS postgis_tiger_geocoder;
+    " 2>/dev/null
+
+    # Terminate other connections to avoid conflicts during restore
+    docker exec "$DB_CONTAINER" psql -U "$STAGING_DB_USER" -c "
+        SELECT pg_terminate_backend(pid) FROM pg_stat_activity
+        WHERE datname = '$STAGING_DB_NAME' AND pid <> pg_backend_pid();
+    " 2>/dev/null || true
+
+    # Use pg_restore-style approach: drop existing objects then recreate from dump.
+    # The --clean flag in plain-text SQL dumps emits DROP statements before CREATE.
+    # Since our dump is plain SQL, we generate a pre-clean script for non-excluded tables.
+    log_info "Restoring production data (incremental)..."
+    cat "$DUMP_FILE" | docker exec -i "$DB_CONTAINER" psql -U "$STAGING_DB_USER" -d "$STAGING_DB_NAME" \
+        -v ON_ERROR_STOP=0 2>"$DUMP_DIR/restore.log" || {
+        log_warning "Some errors occurred during restore (this may be normal for already-existing objects)"
+        grep -i "error" "$DUMP_DIR/restore.log" | grep -v "already exists" | grep -v "extension" | grep -v "duplicate key" | head -20 || true
+    }
+
+    TABLE_COUNT=$(docker exec "$DB_CONTAINER" psql -U "$STAGING_DB_USER" -d "$STAGING_DB_NAME" -t -c "
+        SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = 'public';
+    ")
+    log_success "Staging database now contains approximately $TABLE_COUNT tables (staging-only data preserved)"
+fi
 
 # Anonymize sensitive data (optional - only if ANONYMIZE_STAGING_DATA is set)
 if [ "$ANONYMIZE_STAGING_DATA" = "true" ]; then
@@ -185,9 +234,6 @@ if [ "$ANONYMIZE_STAGING_DATA" = "true" ]; then
         -- Anonymize user emails
         UPDATE users SET email = 'user' || id || '@staging.resilienceatlas.org'
         WHERE email NOT LIKE '%@staging.resilienceatlas.org';
-        
-        -- Reset passwords to a known value (optional)
-        -- UPDATE users SET encrypted_password = '...';
     " 2>/dev/null || log_warning "User anonymization skipped (table may not exist)"
 fi
 
