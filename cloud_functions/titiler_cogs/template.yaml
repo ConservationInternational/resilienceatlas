@@ -84,6 +84,9 @@ Resources:
             Ref: RollbarAccessToken
           ROLLBAR_ENVIRONMENT:
             Ref: RollbarEnvironment
+      Policies:
+        - S3ReadPolicy:
+            BucketName: trends.earth-private
       ImageUri: titilercogsfunction:python3.14-v1
     Metadata:
       Dockerfile: Dockerfile
