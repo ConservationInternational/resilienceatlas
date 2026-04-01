@@ -475,4 +475,8 @@ unless Rails.env.test?
   # Load Trends.Earth site scope seeds
   puts "Loading Trends.Earth seeds..."
   load Rails.root.join("db/data/trendsearth/seed.rb")
+
+  # Load LDN site scope seeds
+  puts "Loading LDN seeds..."
+  load Rails.root.join("db/data/ldn/seed.rb")
 end
