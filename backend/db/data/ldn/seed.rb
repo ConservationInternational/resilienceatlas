@@ -146,15 +146,13 @@ module LdnSeeder
     },
     achievement: [
       [[-32768, -32768], [0, 0, 0, 0]],
-      [[-10000, -76], [155, 39, 121, 255]],
-      [[-75, -51], [174, 82, 147, 255]],
-      [[-50, -26], [196, 131, 173, 255]],
-      [[-25, -1], [224, 187, 213, 255]],
-      [[0, 0], [247, 247, 247, 255]],
-      [[1, 25], [211, 236, 207, 255]],
-      [[26, 50], [127, 191, 123, 255]],
-      [[51, 75], [63, 146, 61, 255]],
-      [[76, 10000], [0, 101, 0, 255]]
+      [[-1.0, -0.50], [155, 39, 121, 255]],
+      [[-0.50, -0.05], [196, 131, 155, 255]],
+      [[-0.05, -0.001], [224, 187, 213, 255]],
+      [[-0.001, 0.001], [247, 247, 247, 255]],
+      [[0.001, 0.05], [211, 236, 207, 255]],
+      [[0.05, 0.50], [127, 191, 123, 255]],
+      [[0.50, 1.0], [0, 101, 0, 255]]
     ],
     land_types: {
       "-32768" => [0, 0, 0, 0]
@@ -226,13 +224,13 @@ module LdnSeeder
     achievement: {
       type: "custom",
       data: [
-        {name: "Not achieved (< -50%)", value: "#9b2779"},
-        {name: "Not achieved (moderate)", value: "#c4839b"},
-        {name: "Not achieved (slight)", value: "#e0bbd5"},
+        {name: "Not achieved (-100%)", value: "#9b2779"},
+        {name: "Not achieved (< -50%)", value: "#c4839b"},
+        {name: "Not achieved (< -5%)", value: "#e0bbd5"},
         {name: "Balanced", value: "#f7f7f7"},
-        {name: "Achieved (slight)", value: "#d3eccf"},
-        {name: "Achieved (moderate)", value: "#7fbf7b"},
-        {name: "Achieved (> 50%)", value: "#006500"}
+        {name: "Exceeded (< 5%)", value: "#d3eccf"},
+        {name: "Exceeded (< 50%)", value: "#7fbf7b"},
+        {name: "Exceeded (< 100%)", value: "#006500"}
       ]
     },
     land_types: {
@@ -469,6 +467,25 @@ module LdnSeeder
         is_trendsearth = dataset[:key] == :trendsearth
         label = "TrendsEarth_LDN_2000-2023_#{info[:filename_mode]}"
 
+        # Achievement by Land Type layer (top of each subcategory)
+        layer = create_ldn_cog_layer(
+          group: group,
+          slug: "ldn-achievement-#{dataset[:key].to_s.tr("_", "-")}",
+          s3_folder: info[:s3_folder],
+          filename: "#{label}_#{LDN_SUFFIXES[:achievement]}",
+          colormap: LDN_COLORMAPS[:achievement],
+          legend: LDN_LEGENDS[:achievement],
+          name: "LDN Achievement by Land Type (#{info[:short_name]})",
+          info: "LDN achievement percentage per land type (ΔᵢLDN) using #{info[:name]} productivity data. Positive values indicate LDN achieved for that land type, negative values indicate not achieved.",
+          description: "LDN counterbalancing achievement layer showing ΔᵢLDN = Aᵢgains − Aᵢlosses per land type i, expressed as a percentage.\n\nPositive values (green) indicate gains offset losses. Negative values (magenta) indicate losses exceed gains. LDN is achieved when ALL land types have ΔᵢLDN ≥ 0.\n\n#{info[:description]}",
+          active: is_trendsearth,
+          order: 1,
+          color: "#C62828",
+          analysis_type: "histogram",
+          sources: both_sources
+        )
+        puts "    Created layer: #{layer.slug}"
+
         # Gains & Losses layer
         layer = create_ldn_cog_layer(
           group: group,
@@ -480,28 +497,9 @@ module LdnSeeder
           name: "LDN Gains & Losses (#{info[:short_name]})",
           info: "Net gains and losses of natural capital per pixel using #{info[:name]} productivity data. Based on the 7-class SDG 15.3.1 status: losses map to persistent/recent degradation, gains to persistent/recent improvement.",
           description: "LDN counterbalancing gains and losses layer.\n\nPixel values: -1 = Loss (persistent or recent degradation), 0 = Neutral (baseline degradation, stable, or baseline improvement), 1 = Gain (recent or persistent improvement).\n\n#{info[:description]}",
-          active: is_trendsearth,
-          order: 1,
-          color: "#C62828",
-          sources: both_sources
-        )
-        puts "    Created layer: #{layer.slug}"
-
-        # Achievement by Land Type layer
-        layer = create_ldn_cog_layer(
-          group: group,
-          slug: "ldn-achievement-#{dataset[:key].to_s.tr("_", "-")}",
-          s3_folder: info[:s3_folder],
-          filename: "#{label}_#{LDN_SUFFIXES[:achievement]}",
-          colormap: LDN_COLORMAPS[:achievement],
-          legend: LDN_LEGENDS[:achievement],
-          name: "LDN Achievement by Land Type (#{info[:short_name]})",
-          info: "LDN achievement percentage per land type (ΔᵢLDN) using #{info[:name]} productivity data. Positive values indicate LDN achieved for that land type, negative values indicate not achieved.",
-          description: "LDN counterbalancing achievement layer showing ΔᵢLDN = Aᵢgains − Aᵢlosses per land type i, expressed as a percentage.\n\nPositive values (green) indicate gains offset losses. Negative values (magenta) indicate losses exceed gains. LDN is achieved when ALL land types have ΔᵢLDN ≥ 0.\n\n#{info[:description]}",
           active: false,
           order: 2,
           color: "#C62828",
-          analysis_type: "histogram",
           sources: both_sources
         )
         puts "    Created layer: #{layer.slug}"
