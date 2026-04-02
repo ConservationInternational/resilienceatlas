@@ -3,6 +3,7 @@ import cogLayer from './cog-layer-leaflet';
 import esriLayer from './esri-layer-leaflet';
 import geeLayer from './gee-layer-leaflet';
 import locaLayer from './loca-layer-leaflet';
+import martinLayer from './martin-layer-leaflet';
 import nexgddpLayer from './nexgddp-layer-leaflet';
 import leafletLayer from './leaflet-layer-leaflet';
 
@@ -35,6 +36,8 @@ class PluginLeaflet {
     // LEAFLET
     leaflet: leafletLayer,
     wms: leafletLayer,
+    // MARTIN (PostGIS vector tiles)
+    martin: martinLayer,
   };
 
   /**

@@ -16,6 +16,7 @@ const provider = {
   cog: 'cog',
   gee: 'leaflet',
   leaflet: 'leaflet',
+  martin: 'martin',
 };
 
 export const site_scope = new schema.Entity(
@@ -147,6 +148,19 @@ export const layer = new schema.Entity(
           body: {
             ...(layerConfig?.body || {}),
             url: layerConfig?.body?.url || layerConfig?.url,
+          },
+        },
+        // Martin vector tile layers - source name + optional styles
+        martin: {
+          ...layerConfig,
+          body: {
+            source: layerConfig?.body?.source || layerConfig?.source,
+            styles: layerConfig?.body?.styles || layerConfig?.styles || {},
+            options: {
+              interactive: true,
+              maxNativeZoom: l.attributes.zoom_max || 14,
+              ...(layerConfig?.body?.options || layerConfig?.options || {}),
+            },
           },
         },
       };

@@ -146,8 +146,8 @@ class Layer < ApplicationRecord
 
   # Validate layer_provider is one of the allowed values
   validates :layer_provider, inclusion: {
-    in: %w[cartodb cog gee raster],
-    message: "must be one of: cartodb, cog, gee, or raster",
+    in: %w[cartodb cog gee martin raster],
+    message: "must be one of: cartodb, cog, gee, martin, or raster",
     allow_nil: false
   }, if: -> { layer_provider.present? && !layer_provider.include?("tileset") }
 

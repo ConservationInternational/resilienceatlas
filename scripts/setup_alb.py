@@ -121,18 +121,22 @@ def create_security_group(ec2_client, vpc_id, group_name):
         return None
 
 def create_target_groups(elbv2_client, vpc_id):
-    """Create target groups for staging and production.
+    """Create target groups for staging, production, and their Martin tile servers.
     
     SINGLE-INSTANCE MODE:
-    - Staging uses port 3000
-    - Production uses port 4000
-    Both target groups point to the same EC2 instance.
+    - Production frontend/backend uses port 3000
+    - Staging frontend/backend uses port 4000
+    - Production Martin uses port 3002
+    - Staging Martin uses port 4002
+    All target groups point to the same EC2 instance.
     """
     target_groups = {}
     
     environments = [
-        {'name': 'staging', 'port': 3000},
-        {'name': 'production', 'port': 4000}
+        {'name': 'staging', 'port': 3000, 'health_check_path': '/'},
+        {'name': 'production', 'port': 4000, 'health_check_path': '/'},
+        {'name': 'martin-staging', 'port': 4002, 'health_check_path': '/health'},
+        {'name': 'martin-prod', 'port': 3002, 'health_check_path': '/health'},
     ]
     
     for env in environments:
@@ -144,7 +148,7 @@ def create_target_groups(elbv2_client, vpc_id):
                 Protocol='HTTP',
                 Port=env['port'],
                 VpcId=vpc_id,
-                HealthCheckPath='/',
+                HealthCheckPath=env['health_check_path'],
                 HealthCheckProtocol='HTTP',
                 HealthCheckPort='traffic-port',
                 HealthCheckIntervalSeconds=30,
@@ -284,6 +288,38 @@ def generate_https_listener_config(target_groups):
         },
         "listener_rules": [
             {
+                "priority": 50,
+                "description": "Route tiles.staging subdomain to Martin staging tile server",
+                "conditions": [
+                    {
+                        "field": "host-header",
+                        "values": ["tiles.staging.resilienceatlas.org"]
+                    }
+                ],
+                "actions": [
+                    {
+                        "type": "forward",
+                        "target_group_arn": target_groups['martin-staging']
+                    }
+                ]
+            },
+            {
+                "priority": 60,
+                "description": "Route tiles subdomain to Martin production tile server",
+                "conditions": [
+                    {
+                        "field": "host-header",
+                        "values": ["tiles.resilienceatlas.org"]
+                    }
+                ],
+                "actions": [
+                    {
+                        "type": "forward",
+                        "target_group_arn": target_groups['martin-prod']
+                    }
+                ]
+            },
+            {
                 "priority": 100,
                 "conditions": [
                     {
@@ -391,10 +427,22 @@ def main(profile=None, vpc_id=None):
     print("   - staging.resilienceatlas.org")
     print("2. Create HTTPS listener with SSL certificates")
     print("3. Add listener rules for domain-based routing")
+    print("   - tiles.staging.resilienceatlas.org → Martin staging (priority 50)")
+    print("   - tiles.resilienceatlas.org → Martin production (priority 60)")
+    print("   - staging.resilienceatlas.org → Staging app (priority 100)")
+    print("   - resilienceatlas.org → Production app (priority 200)")
     print("4. Register EC2 instances with target groups:")
-    print(f"   - Staging instances → {target_groups['staging']}")
-    print(f"   - Production instances → {target_groups['production']}")
-    print("5. Update Route53 records to point to ALB DNS name")
+    print(f"   - Staging app → {target_groups['staging']}")
+    print(f"   - Production app → {target_groups['production']}")
+    print(f"   - Staging Martin → {target_groups['martin-staging']}")
+    print(f"   - Production Martin → {target_groups['martin-prod']}")
+    print("5. Update Route53 records to point to ALB DNS name:")
+    print("   - tiles.staging.resilienceatlas.org → ALB")
+    print("   - tiles.resilienceatlas.org → ALB")
+    print("6. Request SSL certificate covering tiles.* subdomains (or wildcard *.resilienceatlas.org)")
+    print("7. Set GitHub repository variables:")
+    print("   - NEXT_PUBLIC_MARTIN_URL = https://tiles.staging.resilienceatlas.org")
+    print("   - PRODUCTION_NEXT_PUBLIC_MARTIN_URL = https://tiles.resilienceatlas.org")
     
     print("\n🔧 Manual HTTPS Listener Setup Commands:")
     print("Use the AWS CLI or Console to create HTTPS listener with the configuration in alb_configuration.json")
