@@ -57,14 +57,15 @@ fi
 # Get the appropriate ports
 FRONTEND_PORT=$(get_frontend_port "$ENVIRONMENT")
 BACKEND_PORT=$(get_backend_port "$ENVIRONMENT")
+MARTIN_PORT=$(get_martin_port "$ENVIRONMENT")
 
 log_info "Stack name: $STACK_NAME"
-log_info "Using ports - Frontend: $FRONTEND_PORT, Backend: $BACKEND_PORT"
+log_info "Using ports - Frontend: $FRONTEND_PORT, Backend: $BACKEND_PORT, Martin: $MARTIN_PORT"
 
 # Verify connectivity before starting health checks
 log_info "Testing port connectivity..."
-log_info "netstat output for ports $FRONTEND_PORT and $BACKEND_PORT:"
-netstat -tlnp 2>/dev/null | grep -E ":($FRONTEND_PORT|$BACKEND_PORT)" || log_warning "No listeners found on expected ports"
+log_info "netstat output for ports $FRONTEND_PORT, $BACKEND_PORT, and $MARTIN_PORT:"
+netstat -tlnp 2>/dev/null | grep -E ":($FRONTEND_PORT|$BACKEND_PORT|$MARTIN_PORT)" || log_warning "No listeners found on expected ports"
 
 # ============================================================================
 # Verify Swarm Services are Running
@@ -149,6 +150,37 @@ if [ $ATTEMPT -gt $MAX_ATTEMPTS ]; then
 fi
 
 # ============================================================================
+# Martin Tile Server Health Check
+# ============================================================================
+log_info "Performing Martin tile server health check..."
+ATTEMPT=1
+while [ $ATTEMPT -le $MAX_ATTEMPTS ]; do
+    log_info "Martin health check attempt $ATTEMPT/$MAX_ATTEMPTS..."
+    
+    # Force IPv4 (-4) because Swarm ingress routing mesh may not handle IPv6 correctly
+    RESPONSE=$(curl -4 -s --max-time 10 --connect-timeout 5 -w "HTTP_CODE:%{http_code}" "http://localhost:${MARTIN_PORT}/health" 2>&1 || echo "FAILED")
+    
+    if echo "$RESPONSE" | grep -q "HTTP_CODE:200"; then
+        log_success "Martin health check passed"
+        break
+    else
+        log_info "Martin not ready yet. Response: $RESPONSE"
+    fi
+    
+    sleep $WAIT_TIME
+    ATTEMPT=$((ATTEMPT + 1))
+done
+
+if [ $ATTEMPT -gt $MAX_ATTEMPTS ]; then
+    log_warning "Martin health check failed after $MAX_ATTEMPTS attempts (non-blocking)"
+    log_info "Martin service status:"
+    docker service ps "${STACK_NAME}_martin" --no-trunc 2>/dev/null || true
+    log_info "Martin service logs (last 30 lines):"
+    docker service logs "${STACK_NAME}_martin" --tail 30 2>/dev/null || true
+    # Martin failure is non-blocking — the app still works without vector tiles
+fi
+
+# ============================================================================
 # Database Health Check (Staging Only)
 # ============================================================================
 if [ "$ENVIRONMENT" = "staging" ]; then
@@ -194,7 +226,7 @@ docker stack ps "$STACK_NAME" --format "table {{.Name}}\t{{.Node}}\t{{.CurrentSt
 
 log_success "Deployment validation completed successfully!"
 log_success "Environment: $ENVIRONMENT"
-log_success "Frontend port: $FRONTEND_PORT, Backend port: $BACKEND_PORT"
+log_success "Frontend port: $FRONTEND_PORT, Backend port: $BACKEND_PORT, Martin port: $MARTIN_PORT"
 
 if [ "$ENVIRONMENT" = "staging" ]; then
     log_success "Application available at: https://staging.resilienceatlas.org"

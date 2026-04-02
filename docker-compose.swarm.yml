@@ -39,32 +39,8 @@ services:
       - SPARKPOST_API_KEY=${SPARKPOST_API_KEY}
       - ROLLBAR_ACCESS_TOKEN=${ROLLBAR_ACCESS_TOKEN}
       - ROLLBAR_ENV=production
+      - MARTIN_URL=http://martin:3000
     networks:
-      - prod-network
-    deploy:
-      mode: replicated
-      replicas: 2
-      update_config:
-        parallelism: 1
-        delay: 30s
-        failure_action: rollback
-        monitor: 60s
-        order: start-first
-      rollback_config:
-        parallelism: 1
-        delay: 10s
-      restart_policy:
-        condition: on-failure
-        delay: 5s
-        max_attempts: 3
-        window: 120s
-      resources:
-        limits:
-          memory: 1024M
-        reservations:
-          memory: 512M
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
       interval: 15s
       timeout: 10s
       retries: 3
@@ -86,6 +62,7 @@ services:
       - NEXT_PUBLIC_TRANSIFEX_SECRET=${NEXT_PUBLIC_TRANSIFEX_SECRET}
       - NEXT_PUBLIC_GOOGLE_API_KEY=${NEXT_PUBLIC_GOOGLE_API_KEY}
       - NEXT_PUBLIC_ROLLBAR_CLIENT_TOKEN=${NEXT_PUBLIC_ROLLBAR_CLIENT_TOKEN}
+      - NEXT_PUBLIC_MARTIN_URL=${PRODUCTION_NEXT_PUBLIC_MARTIN_URL}
       - ROLLBAR_ENV=production
     networks:
       - prod-network
@@ -117,6 +94,46 @@ services:
       timeout: 10s
       retries: 3
       start_period: 60s
+
+  martin:
+    image: ghcr.io/maplibre/martin:latest
+    ports:
+      - target: 3000
+        published: 3002
+        protocol: tcp
+        mode: ingress
+    environment:
+      - DATABASE_URL=${PRODUCTION_DATABASE_URL}
+    networks:
+      - prod-network
+    deploy:
+      mode: replicated
+      replicas: 2
+      update_config:
+        parallelism: 1
+        delay: 30s
+        failure_action: rollback
+        monitor: 60s
+        order: start-first
+      rollback_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+      resources:
+        limits:
+          memory: 1024M
+        reservations:
+          memory: 512M
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 15s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
 
 volumes:
   production_backend_storage:

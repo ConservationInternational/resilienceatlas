@@ -335,13 +335,13 @@ cd /opt/resilienceatlas
 ls -la /opt/resilienceatlas-backups/
 
 # Stop current containers
-docker compose -f docker-compose.staging.yml down
+docker compose -f docker-compose.swarm.staging.yml down
 
 # Checkout previous version (from backup .sha file)
 git checkout <previous-commit>
 
 # Rebuild and restart
-docker compose -f docker-compose.staging.yml up -d --build
+docker compose -f docker-compose.swarm.staging.yml up -d --build
 ```
 
 ## Monitoring and Troubleshooting
@@ -375,12 +375,12 @@ ssh ubuntu@<instance-ip>
 cd /opt/resilienceatlas
 
 # All container logs
-docker compose -f docker-compose.staging.yml logs
+docker compose -f docker-compose.swarm.staging.yml logs
 
 # Specific container
-docker compose -f docker-compose.staging.yml logs frontend
-docker compose -f docker-compose.staging.yml logs backend
-docker compose -f docker-compose.staging.yml logs database
+docker compose -f docker-compose.swarm.staging.yml logs frontend
+docker compose -f docker-compose.swarm.staging.yml logs backend
+docker compose -f docker-compose.swarm.staging.yml logs database
 ```
 
 ### Health Check Commands
@@ -392,5 +392,5 @@ curl -f http://localhost:3000
 curl -f http://localhost:3001/health
 
 # Database (staging only)
-docker compose -f docker-compose.staging.yml exec database pg_isready -U postgres
+docker compose -f docker-compose.swarm.staging.yml exec database pg_isready -U postgres
 ```

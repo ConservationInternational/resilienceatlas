@@ -166,7 +166,7 @@ if [ -n "$DISK_USAGE_AFTER" ] && [ "$DISK_USAGE_AFTER" -gt 90 ]; then
 fi
 
 # Backup current deployment (for rollback purposes)
-if [ -d "$APP_DIR" ] && [ -f "$APP_DIR/docker-compose.yml" -o -f "$APP_DIR/docker-compose.staging.yml" ]; then
+if [ -d "$APP_DIR" ] && [ -f "$APP_DIR/docker-compose.swarm.yml" -o -f "$APP_DIR/docker-compose.swarm.staging.yml" ]; then
     BACKUP_DIR="/opt/resilienceatlas-backups/${ENVIRONMENT}"
     BACKUP_NAME="backup-$(date +%Y%m%d-%H%M%S)"
     

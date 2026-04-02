@@ -7,8 +7,6 @@ on:
     paths:
       - 'backend/**'
       - 'frontend/**'
-      - 'docker-compose.yml'
-      - 'docker-compose.staging.yml'
       - 'docker-compose.swarm.yml'
       - 'docker-compose.swarm.staging.yml'
       - 'appspec.yml'
@@ -231,6 +229,9 @@ jobs:
         ROLLBAR_ACCESS_TOKEN=${{ secrets.ROLLBAR_ACCESS_TOKEN }}
         NEXT_PUBLIC_ROLLBAR_CLIENT_TOKEN=${{ secrets.NEXT_PUBLIC_ROLLBAR_CLIENT_TOKEN }}
         ROLLBAR_ENV=production
+        
+        # Martin tile server
+        PRODUCTION_NEXT_PUBLIC_MARTIN_URL=${{ vars.PRODUCTION_NEXT_PUBLIC_MARTIN_URL }}
         
         # Deployment info
         GIT_REVISION=${{ github.sha }}

@@ -32,6 +32,24 @@ services:
       timeout: 5s
       retries: 5
 
+  # Martin tile server for test environment
+  martin-test:
+    image: ghcr.io/maplibre/martin:latest
+    ports:
+      - "3002:3000"
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@db-test:5432/resilienceatlas_test
+    networks:
+      - test-network
+    depends_on:
+      db-test:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   # Backend test service
   backend-test:
     build:
@@ -51,6 +69,7 @@ services:
       - REDIS_URL=redis://redis-test:6379/0
       - BACKEND_URL=http://backend-test:3001
       - FRONTEND_URL=http://frontend-test:3000
+      - MARTIN_URL=http://martin-test:3000
       - CORS_ORIGINS=http://frontend-test:3000,http://localhost:3000
       - RAILS_FORCE_SSL=false
       - HEADLESS=true
@@ -150,6 +169,7 @@ services:
       - NEXT_PUBLIC_TRANSIFEX_TOKEN=test_token
       - NEXT_PUBLIC_TRANSIFEX_SECRET=test_secret
       - NEXT_PUBLIC_GOOGLE_API_KEY=test_api_key
+      - NEXT_PUBLIC_MARTIN_URL=http://martin-test:3000
       - PORT=3000
       - CYPRESS_INSTALL_BINARY=0
       - CYPRESS_CACHE_FOLDER=/tmp/cypress-cache
@@ -200,6 +220,7 @@ services:
       - NODE_ENV=test
       - CYPRESS_baseUrl=http://frontend-test:3000
       - CYPRESS_apiUrl=http://backend-test:3001
+      - CYPRESS_martinUrl=http://martin-test:3000
       - CYPRESS_video=true
       - CYPRESS_screenshotOnRunFailure=true
     volumes:
@@ -223,6 +244,7 @@ services:
       - NODE_ENV=test
       - CYPRESS_baseUrl=http://frontend-test:3000
       - CYPRESS_apiUrl=http://backend-test:3001
+      - CYPRESS_martinUrl=http://martin-test:3000
       - CYPRESS_video=true
       - CYPRESS_screenshotOnRunFailure=true
     volumes:

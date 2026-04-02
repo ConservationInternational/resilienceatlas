@@ -56,11 +56,6 @@ Rails.application.routes.draw do
       post "/titiler/statistics", to: "titiler#statistics"
       get "/titiler/point", to: "titiler#point"
 
-      # Admin boundary vector tiles (MVT/protobuf)
-      get "/boundary-tiles/:z/:x/:y", to: "boundary_tiles#show",
-        constraints: {z: /\d+/, x: /\d+/, y: /\d+/},
-        defaults: {format: "pbf"}
-
       resources :photos, only: :create
       resources :feedbacks, only: :create
       resources :static_pages, only: :show

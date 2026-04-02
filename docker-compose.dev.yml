@@ -13,6 +13,29 @@ services:
     networks:
       - app-network
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  martin:
+    image: ghcr.io/maplibre/martin:latest
+    ports:
+      - "3002:3000"
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/cigrp
+    networks:
+      - app-network
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   backend:
     build:
@@ -22,6 +45,7 @@ services:
       - "3001:3000"
     environment:
       - RAILS_ENV=development
+      - MARTIN_URL=http://martin:3000
     env_file:
       - ./backend/.env
     volumes:
@@ -62,6 +86,7 @@ services:
       - CHOKIDAR_USEPOLLING=true
       # Internal API host for server-side rendering (Docker network)
       - INTERNAL_API_HOST=http://backend:3000
+      - NEXT_PUBLIC_MARTIN_URL=http://localhost:3002
     env_file:
       - ./frontend/.env
     volumes:

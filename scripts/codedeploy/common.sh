@@ -7,8 +7,8 @@
 #
 # SINGLE-INSTANCE SUPPORT:
 # Both staging and production can run on the same EC2 instance:
-#   - Production: /opt/resilienceatlas-production (ports 3000, 3001)
-#   - Staging:    /opt/resilienceatlas-staging    (ports 4000, 4001, 5433)
+#   - Production: /opt/resilienceatlas-production (ports 3000, 3001, 3002)
+#   - Staging:    /opt/resilienceatlas-staging    (ports 4000, 4001, 4002, 5433)
 # ============================================================================
 
 # Colors for output
@@ -83,9 +83,9 @@ get_app_directory() {
 get_compose_file() {
     local environment="$1"
     if [ "$environment" = "staging" ]; then
-        echo "docker-compose.staging.yml"
+        echo "docker-compose.swarm.staging.yml"
     else
-        echo "docker-compose.yml"
+        echo "docker-compose.swarm.yml"
     fi
 }
 
@@ -113,6 +113,16 @@ get_backend_port() {
         echo "3001"
     else
         echo "4001"
+    fi
+}
+
+# Get martin port based on environment
+get_martin_port() {
+    local environment="$1"
+    if [ "$environment" = "production" ]; then
+        echo "3002"
+    else
+        echo "4002"
     fi
 }
 

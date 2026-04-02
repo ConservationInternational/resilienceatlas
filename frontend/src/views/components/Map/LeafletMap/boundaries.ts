@@ -1,8 +1,8 @@
 /**
- * Admin boundary vector tile layer using PostGIS-generated MVT tiles.
+ * Admin boundary vector tile layer served by Martin (PostGIS function source).
  *
- * The backend serves protobuf vector tiles at /api/boundary-tiles/{z}/{x}/{y}
- * with scale-dependent rendering:
+ * Martin auto-discovers the `boundary_tiles` function in PostGIS and serves
+ * MVT tiles at /boundary_tiles/{z}/{x}/{y} with scale-dependent rendering:
  *   zoom 0-4:  ADM0 (countries)
  *   zoom 5-7:  ADM0 + ADM1 (provinces/states)
  *   zoom 8+:   ADM0 + ADM1 + ADM2 (districts)
@@ -12,15 +12,13 @@
  */
 import L from 'leaflet';
 
-/**
- * Build the tile URL template for boundary MVT tiles.
- * Uses the configured API host or falls back to a relative URL.
- */
 function getBoundaryTileUrl(): string {
-  const apiHost = process.env.NEXT_PUBLIC_API_HOST || '';
-  // If apiHost is set and looks like a full URL, use it; otherwise use relative path
-  const base = apiHost && apiHost.startsWith('http') ? apiHost : '';
-  return `${base}/api/boundary-tiles/{z}/{x}/{y}`;
+  const martinUrl = process.env.NEXT_PUBLIC_MARTIN_URL;
+  if (!martinUrl) {
+    console.warn('NEXT_PUBLIC_MARTIN_URL is not set — boundary tiles will be unavailable');
+    return '';
+  }
+  return `${martinUrl}/boundary_tiles/{z}/{x}/{y}`;
 }
 
 /**
@@ -52,9 +50,14 @@ export function createBoundaryTileLayer(): L.Layer {
     return L.layerGroup(); // return empty layer as fallback
   }
 
-  return VectorGrid.protobuf(getBoundaryTileUrl(), {
+  const tileUrl = getBoundaryTileUrl();
+  if (!tileUrl) {
+    return L.layerGroup(); // Martin URL not configured
+  }
+
+  return VectorGrid.protobuf(tileUrl, {
     vectorTileLayerStyles: {
-      // 'boundaries' matches the MVT layer name set in AdminBoundary.mvt_tile
+      // 'boundaries' matches the MVT layer name in the boundary_tiles PostGIS function
       boundaries: (properties: { admin_level?: number }) => boundaryStyle(properties),
     },
     maxNativeZoom: 13,
