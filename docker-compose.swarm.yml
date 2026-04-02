@@ -97,6 +97,7 @@ services:
 
   martin:
     image: ghcr.io/maplibre/martin:latest
+    command: ["--config", "/config/martin.yaml"]
     ports:
       - target: 3000
         published: 3002
@@ -104,6 +105,8 @@ services:
         mode: ingress
     environment:
       - DATABASE_URL=${PRODUCTION_DATABASE_URL}
+    volumes:
+      - ./docker/martin.yaml:/config/martin.yaml:ro
     networks:
       - prod-network
     deploy:

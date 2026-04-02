@@ -166,6 +166,7 @@ services:
 
   martin:
     image: ghcr.io/maplibre/martin:latest
+    command: ["--config", "/config/martin.yaml"]
     ports:
       - target: 3000
         published: 4002
@@ -173,6 +174,8 @@ services:
         mode: ingress
     environment:
       - DATABASE_URL=postgresql://postgres:${DATABASE_PASSWORD}@database:5432/resilienceatlas_staging
+    volumes:
+      - ./docker/martin.yaml:/config/martin.yaml:ro
     networks:
       - staging-network
     depends_on:

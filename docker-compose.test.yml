@@ -37,8 +37,11 @@ services:
     image: ghcr.io/maplibre/martin:latest
     ports:
       - "3002:3000"
+    command: ["--config", "/config/martin.yaml"]
     environment:
       - DATABASE_URL=postgresql://postgres:postgres@db-test:5432/resilienceatlas_test
+    volumes:
+      - ./docker/martin.yaml:/config/martin.yaml:ro
     networks:
       - test-network
     depends_on:

@@ -1,0 +1,9 @@
+# Martin tile server configuration
+# See https://maplibre.org/martin/
+
+# Allow cross-origin requests from any origin.
+# Martin serves read-only public map tiles — no auth or cookies —
+# so wildcard CORS is safe and required for site-scope subdomains
+# (e.g. trendsearth.resilienceatlas.org, ldn.resilienceatlas.org).
+cors:
+  allow_origin: "*"
