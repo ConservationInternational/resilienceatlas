@@ -309,6 +309,7 @@ module LdnSeeder
     def run
       puts "Starting LDN site scope seed..."
 
+      cleanup_old_ldn_layers
       reset_sequences
 
       sources = create_sources
@@ -325,6 +326,26 @@ module LdnSeeder
       create_soc_layers(groups["ldn-soil-organic-carbon"], sources)
 
       puts "LDN site scope seed completed successfully!"
+    end
+
+    # Remove old LDN layers that were created directly under the productivity
+    # mode subcategories (before the scale sub-subcategories were added).
+    def cleanup_old_ldn_layers
+      old_slugs = DATASET_INFO.keys.flat_map do |key|
+        mode = key.to_s.tr("_", "-")
+        [
+          "ldn-achievement-#{mode}",
+          "ldn-gains-losses-#{mode}",
+          "ldn-land-types-#{mode}"
+        ]
+      end
+      old_slugs.each do |slug|
+        layer = Layer.find_by(slug: slug)
+        next unless layer
+        puts "  Removing old layer: #{slug}"
+        Agrupation.where(layer_id: layer.id).destroy_all
+        layer.destroy!
+      end
     end
 
     def reset_sequences
