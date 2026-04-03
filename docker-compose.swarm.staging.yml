@@ -41,7 +41,7 @@ services:
         parallelism: 1
         delay: 10s
         failure_action: rollback
-        order: start-first
+        order: stop-first
       restart_policy:
         condition: any
         delay: 10s

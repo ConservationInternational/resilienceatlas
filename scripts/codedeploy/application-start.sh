@@ -212,48 +212,21 @@ else
 fi
 
 # ============================================================================
-# Run Database Migrations (with timeout)
+# Database Migrations
 # ============================================================================
-log_info "Attempting database migrations..."
-
-# Find a running backend container (try a few times)
-BACKEND_CONTAINER=""
-for i in 1 2 3 4 5; do
-    BACKEND_CONTAINER=$(docker ps --filter "name=${STACK_NAME}_backend" --format "{{.ID}}" 2>/dev/null | head -1)
-    if [ -n "$BACKEND_CONTAINER" ]; then
-        break
-    fi
-    log_info "Waiting for backend container... (attempt $i/5)"
-    sleep 10
-done
-
-if [ -n "$BACKEND_CONTAINER" ]; then
-    log_info "Running database setup in container: $BACKEND_CONTAINER"
-
-    # Use db:prepare instead of db:migrate - it handles all cases:
-    #   - If database doesn't exist: creates it and loads schema
-    #   - If database exists but schema not loaded: loads schema
-    #   - If database exists with schema: runs pending migrations
-    # This makes deployment resilient to database volume loss.
-    if timeout 120 docker exec "$BACKEND_CONTAINER" bundle exec rails db:prepare 2>&1; then
-        log_success "Database setup completed"
-        # Martin discovers PostGIS functions at startup. If it started before
-        # migrations created boundary_tiles(), it won't serve those tiles.
-        # Force-updating the Martin service makes Swarm restart it so it
-        # re-discovers all functions now that migrations have run.
-        log_info "Restarting Martin to pick up any new PostGIS function sources..."
-        docker service update --force --detach "${STACK_NAME}_martin" 2>/dev/null || log_warning "Could not restart Martin service"
-    else
-        EXIT_CODE=$?
-        if [ $EXIT_CODE -eq 124 ]; then
-            log_warning "Database setup timed out after 120 seconds"
-        else
-            log_warning "Database setup returned exit code $EXIT_CODE (may be okay if no pending migrations)"
-        fi
-    fi
-else
-    log_warning "Could not find backend container for database setup - will run on next deploy"
-fi
+# NOTE: Database migrations are handled by the backend container's entrypoint
+# (bin/docker-entrypoint), which runs `rails db:migrate` before starting Puma.
+# Running db:prepare here via `docker exec` caused a race condition:
+#   - docker exec picks any running backend container (possibly the OLD one)
+#   - db:prepare acquires the Rails advisory lock on the database
+#   - the NEW container's entrypoint also tries db:migrate
+#   - the new container blocks on the lock, can't finish before health check
+#   - Swarm kills it after start_period + retries, tries again, same result
+#   - After max_attempts, Swarm rolls back the entire update
+#
+# The entrypoint handles all migration cases. If the database volume is lost,
+# a manual `rails db:prepare` can be run after deployment.
+log_info "Database migrations will be handled by the backend container entrypoint"
 
 # ============================================================================
 # Quick Health Check (non-blocking)
