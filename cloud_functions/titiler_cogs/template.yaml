@@ -53,6 +53,9 @@ Resources:
       Description: 'Titiler: Dynamic tiler'
       MemorySize: 1024
       Timeout: 10
+      Policies:
+        - S3ReadPolicy:
+            BucketName: trends.earth-private
       Events:
         API:
           Type: Api
