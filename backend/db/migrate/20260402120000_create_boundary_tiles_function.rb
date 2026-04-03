@@ -4,10 +4,15 @@
 # All boundary tile rendering happens inside PostGIS via this function.
 # Martin handles HTTP serving, caching headers, and connection pooling.
 #
+# Geometry is converted from polygons to linestrings via ST_Boundary() before
+# encoding to MVT.  This is critical: Leaflet's Canvas renderer clips polygons
+# using Sutherland-Hodgman (which creates artificial edges at tile boundaries),
+# but clips linestrings using Cohen-Sutherland (which just truncates).
+# Sending linestrings avoids the grid-line artifacts at tile edges.
+#
 # No geometry simplification is applied — full-resolution geometry is used
 # at all zoom levels.  ST_AsMVTGeom clips to the tile extent and quantizes
-# coordinates to the 4096-unit MVT grid, which keeps tiles compact without
-# introducing shared-edge artifacts between adjacent polygons.
+# coordinates to the 4096-unit MVT grid, which keeps tiles compact.
 class CreateBoundaryTilesFunction < ActiveRecord::Migration[7.2]
   def up
     execute <<~SQL
@@ -40,7 +45,7 @@ class CreateBoundaryTilesFunction < ActiveRecord::Migration[7.2]
             iso_code,
             admin_level,
             ST_AsMVTGeom(
-              ST_Transform(geom, 3857),
+              ST_Boundary(ST_Transform(geom, 3857)),
               tile_env,
               4096,
               256,
