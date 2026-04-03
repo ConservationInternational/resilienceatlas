@@ -98,6 +98,9 @@ services:
   martin:
     image: ghcr.io/maplibre/martin:latest
     command: ["--config", "/config/martin.yaml"]
+    configs:
+      - source: martin_config
+        target: /config/martin.yaml
     ports:
       - target: 3000
         published: 3002
@@ -105,8 +108,6 @@ services:
         mode: ingress
     environment:
       - DATABASE_URL=${PRODUCTION_DATABASE_URL}
-    volumes:
-      - ./docker/martin.yaml:/config/martin.yaml:ro
     networks:
       - prod-network
     deploy:
@@ -132,7 +133,7 @@ services:
         reservations:
           memory: 512M
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:3000/health 2>/dev/null || cat < /dev/null > /dev/tcp/localhost/3000"]
       interval: 15s
       timeout: 10s
       retries: 3
@@ -143,6 +144,10 @@ volumes:
     driver: local
   production_backend_public_storage:
     driver: local
+
+configs:
+  martin_config:
+    file: ./docker/martin.yaml
 
 networks:
   prod-network:

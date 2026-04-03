@@ -557,7 +557,7 @@ module LdnSeeder
           name: "SDG 15.3.1 Status 2023 vs Baseline (#{info[:short_name]})",
           info: "SDG Indicator 15.3.1 status in 2023 compared to 2000-2015 baseline, using #{info[:name]} productivity data.",
           description: "SDG Indicator 15.3.1 measures the proportion of land that is degraded over total land area. This layer shows the status in 2023 relative to the 2000-2015 baseline period.\n\n#{info[:description]}",
-          active: is_trendsearth,
+          active: false,
           order: order,
           color: "#C62828",
           sources: status_sources
