@@ -12,6 +12,8 @@ class CreateBoundaryTilesFunction < ActiveRecord::Migration[7.2]
         max_level integer;
         tolerance double precision;
         mvt bytea;
+        tile_env geometry;
+        buffered_env geometry;
       BEGIN
         -- Determine which admin levels to include based on zoom:
         --   zoom 0-4:  ADM0 only (countries)
@@ -25,9 +27,19 @@ class CreateBoundaryTilesFunction < ActiveRecord::Migration[7.2]
           max_level := 2;
         END IF;
 
-        -- Simplification tolerance in EPSG:4326 degrees.
-        -- ~8 pixel tolerance: 360 / (2^z * 512)
-        tolerance := 360.0 / (power(2, z) * 512);
+        -- Tile envelope in Web Mercator (EPSG:3857).
+        tile_env := ST_TileEnvelope(z, x, y);
+
+        -- Simplification tolerance in EPSG:3857 metres.
+        -- Earth circumference ~40075017m; at zoom z one tile ~= 40075017 / 2^z.
+        -- 4096 MVT extent → 1 texel = tile_width / 4096.
+        -- Use ~8 texel tolerance for simplification.
+        tolerance := 40075016.68 / (power(2, z) * 512);
+
+        -- Expand the spatial filter by the MVT buffer (256 texels)
+        -- so features slightly outside the tile are still included and
+        -- their simplified edges blend seamlessly with neighbouring tiles.
+        buffered_env := ST_Expand(tile_env, tolerance * 32);
 
         SELECT ST_AsMVT(tile, 'boundaries', 4096, 'mvt_geom') INTO mvt
         FROM (
@@ -36,17 +48,17 @@ class CreateBoundaryTilesFunction < ActiveRecord::Migration[7.2]
             iso_code,
             admin_level,
             ST_AsMVTGeom(
-              ST_Transform(
-                ST_Simplify(geom, tolerance),
-                3857
+              ST_SimplifyPreserveTopology(
+                ST_MakeValid(ST_Transform(geom, 3857)),
+                tolerance
               ),
-              ST_TileEnvelope(z, x, y),
+              tile_env,
               4096,
-              64,
+              256,
               true
             ) AS mvt_geom
           FROM admin_boundaries
-          WHERE geom && ST_Transform(ST_TileEnvelope(z, x, y), 4326)
+          WHERE geom && ST_Transform(buffered_env, 4326)
             AND admin_level <= max_level
         ) AS tile
         WHERE mvt_geom IS NOT NULL;
