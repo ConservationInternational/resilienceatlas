@@ -37,6 +37,21 @@ function boundaryStyle(properties: { admin_level?: number }): L.PathOptions {
 }
 
 /**
+ * Halo style: a wider, semi-transparent white line drawn behind the main
+ * boundary line to improve visibility against dark rasters.
+ */
+function haloStyle(properties: { admin_level?: number }): L.PathOptions {
+  const level = properties.admin_level ?? 0;
+  return {
+    weight: level === 0 ? 4.0 : level === 1 ? 3.0 : 2.0,
+    color: '#ffffff',
+    opacity: level === 0 ? 0.35 : level === 1 ? 0.25 : 0.2,
+    fill: false,
+    interactive: false,
+  };
+}
+
+/**
  * Creates a Leaflet VectorGrid layer that renders admin boundary MVT tiles.
  *
  * @returns A Leaflet layer instance (VectorGrid.Protobuf) ready to be added to the map.
@@ -55,12 +70,23 @@ export function createBoundaryTileLayer(): L.Layer {
     return L.layerGroup(); // Martin URL not configured
   }
 
-  return VectorGrid.protobuf(tileUrl, {
+  // Two layers stacked: a white halo underneath for contrast, then the main lines on top.
+  // Both use the same tile source; Martin caching keeps the overhead minimal.
+  const haloLayer = VectorGrid.protobuf(tileUrl, {
     vectorTileLayerStyles: {
-      // 'boundaries' matches the MVT layer name in the boundary_tiles PostGIS function
+      boundaries: (properties: { admin_level?: number }) => haloStyle(properties),
+    },
+    maxNativeZoom: 13,
+    pane: 'overlayPane',
+  });
+
+  const lineLayer = VectorGrid.protobuf(tileUrl, {
+    vectorTileLayerStyles: {
       boundaries: (properties: { admin_level?: number }) => boundaryStyle(properties),
     },
     maxNativeZoom: 13,
     pane: 'overlayPane',
   });
+
+  return L.layerGroup([haloLayer, lineLayer]);
 }
