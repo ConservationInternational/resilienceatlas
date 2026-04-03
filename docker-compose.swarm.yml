@@ -123,9 +123,9 @@ services:
         parallelism: 1
         delay: 10s
       restart_policy:
-        condition: on-failure
+        condition: any
         delay: 5s
-        max_attempts: 3
+        max_attempts: 5
         window: 120s
       resources:
         limits:
@@ -133,7 +133,7 @@ services:
         reservations:
           memory: 512M
     healthcheck:
-      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3000/health"]
+      test: ["CMD-SHELL", "bash -c '</dev/tcp/localhost/3000' || exit 1"]
       interval: 15s
       timeout: 10s
       retries: 3

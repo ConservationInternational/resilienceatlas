@@ -35,7 +35,7 @@ services:
         condition: service_healthy
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      test: ["CMD-SHELL", "bash -c '</dev/tcp/localhost/3000' || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 5
