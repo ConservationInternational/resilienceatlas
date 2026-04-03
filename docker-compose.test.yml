@@ -48,10 +48,7 @@ services:
       db-test:
         condition: service_healthy
     healthcheck:
-      test: ["CMD-SHELL", "bash -c '</dev/tcp/localhost/3000' || exit 1"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      test: ["NONE"]
 
   # Backend test service
   backend-test:
