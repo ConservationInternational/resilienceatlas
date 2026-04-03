@@ -364,6 +364,37 @@ npx cypress run --config baseUrl=http://localhost:3000
 - Automatic database refresh from production to staging on deploy (optional)
 - **Rollbar deployment tracking**: Automatically notifies Rollbar of deployments when `ROLLBAR_ACCESS_TOKEN` is configured
 
+### Boundary Data (Martin Vector Tiles)
+
+Admin boundary polygons are served as vector tiles via Martin from the `admin_boundaries` table. Data source: geoBoundaries CGAZ GeoPackage files (ADM0/ADM1/ADM2). Full-resolution geometry is used at all zoom levels — `ST_AsMVTGeom` clips to the tile extent and quantizes coordinates to the MVT grid, keeping tiles compact without introducing shared-edge artifacts.
+
+**Importing on deployed environments:**
+1. Upload `.gpkg` files to server (e.g. `scp` to `/tmp/geoboundaries/`)
+2. Find the Docker network: `docker network ls | grep staging` (or `production`)
+3. Run import via one-off container:
+   ```bash
+   # Staging
+   docker run --rm -it \
+     --network resilienceatlas-staging_staging-network \
+     --env-file /opt/resilienceatlas-staging/.env.staging \
+     -v /tmp/geoboundaries:/data/geoboundaries:ro \
+     <BACKEND_IMAGE> \
+     bundle exec rake boundaries:import
+   ```
+4. Restart Martin: `docker service update --force resilienceatlas-staging_martin`
+
+**Available rake tasks:**
+- `rake boundaries:import` — Import GeoPackage files into admin_boundaries
+- `rake boundaries:status` — Show row counts by admin level
+- `rake boundaries:clear` — Truncate all boundary data
+
+**Local development:**
+```bash
+docker compose -f docker-compose.dev.yml run --rm \
+  -v /path/to/gpkg/files:/data/geoboundaries:ro \
+  backend rake boundaries:import
+```
+
 ## Error Tracking (Rollbar)
 
 ### Overview

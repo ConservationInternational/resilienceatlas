@@ -111,6 +111,58 @@ docker compose -f docker-compose.test.yml run --rm --no-deps frontend-test ./bin
 docker compose -f docker-compose.test.yml up --abort-on-container-exit
 ```
 
+## Boundary Data (Martin Vector Tiles)
+
+Admin boundary polygons are served as vector tiles via [Martin](https://maplibre.org/martin/) from the `admin_boundaries` table. The data comes from [geoBoundaries CGAZ](https://www.geoboundaries.org/) GeoPackage files and includes three admin levels (ADM0/ADM1/ADM2).
+
+Full-resolution geometry is used at all zoom levels — `ST_AsMVTGeom` clips to the tile extent and quantizes coordinates to the MVT grid, keeping tiles compact without introducing shared-edge artifacts.
+
+### Importing Boundary Data (Deployed Environments)
+
+1. **Upload GeoPackage files** to the server (e.g. via `scp`):
+   ```bash
+   scp geoBoundariesCGAZ_ADM*.gpkg ubuntu@<server>:/tmp/geoboundaries/
+   ```
+
+2. **Find the correct Docker network and backend image**:
+   ```bash
+   docker network ls | grep staging   # or grep production
+   docker ps | grep backend
+   ```
+
+3. **Run the import** via a one-off container with the data volume-mounted:
+   ```bash
+   # Staging example
+   docker run --rm -it \
+     --network resilienceatlas-staging_staging-network \
+     --env-file /opt/resilienceatlas-staging/.env.staging \
+     -v /tmp/geoboundaries:/data/geoboundaries:ro \
+     <BACKEND_IMAGE> \
+     bundle exec rake boundaries:import
+   ```
+
+4. **Restart Martin** to pick up any function changes:
+   ```bash
+   docker service update --force resilienceatlas-staging_martin
+   ```
+
+### Available Rake Tasks
+
+| Task | Description |
+|------|-------------|
+| `rake boundaries:import` | Import GeoPackage files into admin_boundaries |
+| `rake boundaries:status` | Show row counts by admin level |
+| `rake boundaries:clear` | Truncate all boundary data |
+
+### Local Development
+
+```bash
+# With docker-compose.dev.yml running:
+docker compose -f docker-compose.dev.yml run --rm \
+  -v /path/to/gpkg/files:/data/geoboundaries:ro \
+  backend rake boundaries:import
+```
+
 ## Documentation
 
 - [Testing Documentation](.github/TESTING.md)

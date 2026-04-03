@@ -109,63 +109,12 @@ namespace :boundaries do
       puts "  ADM#{level}: #{AdminBoundary.where(admin_level: level).count} boundaries imported"
     end
 
-    # Pre-simplify geometry for artifact-free vector tile serving.
-    # Running on the full unclipped geometry ensures shared edges are
-    # simplified identically across all tiles — no seam artifacts.
-    puts ""
-    puts "Pre-simplifying geometries for vector tiles..."
-
-    conn = ActiveRecord::Base.connection
-
-    # geom_z0: aggressive simplification for zoom 0-4 (~0.1° ≈ 11 km)
-    puts "  geom_z0 (zoom 0-4, tolerance 0.1°)..."
-    conn.execute(<<~SQL)
-      UPDATE admin_boundaries SET
-        geom_z0 = ST_Multi(ST_SimplifyPreserveTopology(geom, 0.1))
-    SQL
-
-    # geom_z5: moderate simplification for zoom 5-7 (~0.005° ≈ 500 m)
-    puts "  geom_z5 (zoom 5-7, tolerance 0.005°)..."
-    conn.execute(<<~SQL)
-      UPDATE admin_boundaries SET
-        geom_z5 = ST_Multi(ST_SimplifyPreserveTopology(geom, 0.005))
-    SQL
-
-    puts "  done."
-
     puts ""
     puts "=== Import complete ==="
     puts "  ADM0 (countries):        #{AdminBoundary.countries.count}"
     puts "  ADM1 (provinces/states): #{AdminBoundary.provinces.count}"
     puts "  ADM2 (districts):        #{AdminBoundary.districts.count}"
     puts "  Total:                   #{AdminBoundary.count}"
-  end
-
-  desc "Re-generate pre-simplified geometry columns (geom_z0, geom_z5) from geom"
-  task simplify: :environment do
-    count = AdminBoundary.count
-    if count == 0
-      puts "admin_boundaries table is EMPTY — nothing to simplify."
-      next
-    end
-
-    conn = ActiveRecord::Base.connection
-
-    puts "Pre-simplifying #{count} boundaries..."
-
-    puts "  geom_z0 (zoom 0-4, tolerance 0.1°)..."
-    conn.execute(<<~SQL)
-      UPDATE admin_boundaries SET
-        geom_z0 = ST_Multi(ST_SimplifyPreserveTopology(geom, 0.1))
-    SQL
-
-    puts "  geom_z5 (zoom 5-7, tolerance 0.005°)..."
-    conn.execute(<<~SQL)
-      UPDATE admin_boundaries SET
-        geom_z5 = ST_Multi(ST_SimplifyPreserveTopology(geom, 0.005))
-    SQL
-
-    puts "  done."
   end
 
   desc "Show current admin_boundaries statistics"
