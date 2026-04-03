@@ -91,8 +91,24 @@ module LdnSeeder
   # LDN Counterbalancing output file suffixes
   LDN_SUFFIXES = {
     gains_losses: "gains_losses.tif",
-    achievement: "achievement.tif",
+    net_change_by_unit: "net_change_by_unit.tif",
     land_types: "land_types.tif"
+  }.freeze
+
+  # LDN Counterbalancing spatial scales
+  LDN_SCALES = {
+    ecoregion: {
+      label: "Counterbalancing by ecoregion",
+      filename_part: "ecoregion",
+      info: "Counterbalancing assessed within WWF ecoregions",
+      slug_part: "eco"
+    },
+    country_ecoregion: {
+      label: "Counterbalancing by ecoregion and country",
+      filename_part: "country_ecoregion",
+      info: "Counterbalancing assessed within intersections of country boundaries and WWF ecoregions",
+      slug_part: "ctry-eco"
+    }
   }.freeze
 
   # ──────────────────────────────────────────────────────────────
@@ -145,7 +161,7 @@ module LdnSeeder
       "0" => [247, 247, 247, 255],
       "1" => [0, 101, 0, 255]
     },
-    achievement: [
+    net_change_by_unit: [
       [[-32768, -32768], [0, 0, 0, 0]],
       [[-10000, -5000], [155, 39, 121, 255]],
       [[-5000, -500], [196, 131, 155, 255]],
@@ -222,7 +238,7 @@ module LdnSeeder
         {name: "Gain", value: "#006500"}
       ]
     },
-    achievement: {
+    net_change_by_unit: {
       type: "custom",
       data: [
         {name: "Not achieved (-100%)", value: "#9b2779"},
@@ -398,6 +414,25 @@ module LdnSeeder
         subgroup.save!
         groups[slug] = subgroup
         puts "    Created LDN subgroup: #{slug}"
+
+        # ── Sub-subcategories: counterbalancing scales ──
+        scale_order = 1
+        LDN_SCALES.each do |scale_key, scale_config|
+          scale_slug = "#{slug}-#{scale_config[:slug_part]}"
+          scale_group = LayerGroup.find_or_initialize_by(slug: scale_slug, site_scope_id: site_scope.id)
+          scale_group.assign_attributes(
+            :super_group_id => subgroup.id,
+            :layer_group_type => "subcategory",
+            :active => true,
+            "order" => scale_order,
+            :name => scale_config[:label],
+            :info => scale_config[:info]
+          )
+          scale_group.save!
+          groups[scale_slug] = scale_group
+          puts "      Created LDN scale subgroup: #{scale_slug}"
+          scale_order += 1
+        end
       end
 
       # ── SDG subcategories ──
@@ -463,65 +498,71 @@ module LdnSeeder
       both_sources = [sources[:zenodo], sources[:gpgv2_addendum]]
 
       datasets.each do |dataset|
-        group = groups[dataset[:group_slug]]
         info = DATASET_INFO[dataset[:key]]
         is_trendsearth = dataset[:key] == :trendsearth
-        label = "TrendsEarth_LDN_2000-2023_#{info[:filename_mode]}"
 
-        # Achievement by Land Type layer (top of each subcategory)
-        layer = create_ldn_cog_layer(
-          group: group,
-          slug: "ldn-achievement-#{dataset[:key].to_s.tr("_", "-")}",
-          s3_folder: info[:s3_folder],
-          filename: "#{label}_#{LDN_SUFFIXES[:achievement]}",
-          colormap: LDN_COLORMAPS[:achievement],
-          legend: LDN_LEGENDS[:achievement],
-          name: "LDN Achievement by Land Type (#{info[:short_name]})",
-          info: "LDN achievement percentage per land type (ΔᵢLDN) using #{info[:name]} productivity data. Positive values indicate LDN achieved for that land type, negative values indicate not achieved.",
-          description: "LDN counterbalancing achievement layer showing ΔᵢLDN = Aᵢgains − Aᵢlosses per land type i, expressed as a percentage.\n\nPositive values (green) indicate gains offset losses. Negative values (magenta) indicate losses exceed gains. LDN is achieved when ALL land types have ΔᵢLDN ≥ 0.\n\n#{info[:description]}",
-          active: is_trendsearth,
-          order: 1,
-          color: "#C62828",
-          analysis_type: "histogram",
-          sources: both_sources
-        )
-        puts "    Created layer: #{layer.slug}"
+        LDN_SCALES.each do |scale_key, scale_config|
+          scale_slug = "#{dataset[:group_slug]}-#{scale_config[:slug_part]}"
+          group = groups[scale_slug]
+          label = "TrendsEarth_LDN_2000-2023_#{info[:filename_mode]}_#{scale_config[:filename_part]}"
+          mode_suffix = dataset[:key].to_s.tr("_", "-")
+          scale_suffix = scale_config[:slug_part]
 
-        # Gains & Losses layer
-        layer = create_ldn_cog_layer(
-          group: group,
-          slug: "ldn-gains-losses-#{dataset[:key].to_s.tr("_", "-")}",
-          s3_folder: info[:s3_folder],
-          filename: "#{label}_#{LDN_SUFFIXES[:gains_losses]}",
-          colormap: LDN_COLORMAPS[:gains_losses],
-          legend: LDN_LEGENDS[:gains_losses],
-          name: "LDN Gains & Losses (#{info[:short_name]})",
-          info: "Net gains and losses of natural capital per pixel using #{info[:name]} productivity data. Based on the 7-class SDG 15.3.1 status: losses map to persistent/recent degradation, gains to persistent/recent improvement.",
-          description: "LDN counterbalancing gains and losses layer.\n\nPixel values: -1 = Loss (persistent or recent degradation), 0 = Neutral (baseline degradation, stable, or baseline improvement), 1 = Gain (recent or persistent improvement).\n\n#{info[:description]}",
-          active: false,
-          order: 2,
-          color: "#C62828",
-          sources: both_sources
-        )
-        puts "    Created layer: #{layer.slug}"
+          # Net change after counterbalancing layer (top of each subcategory)
+          layer = create_ldn_cog_layer(
+            group: group,
+            slug: "ldn-net-change-#{mode_suffix}-#{scale_suffix}",
+            s3_folder: info[:s3_folder],
+            filename: "#{label}_#{LDN_SUFFIXES[:net_change_by_unit]}",
+            colormap: LDN_COLORMAPS[:net_change_by_unit],
+            legend: LDN_LEGENDS[:net_change_by_unit],
+            name: "Net change after counterbalancing (#{info[:short_name]})",
+            info: "Net change after counterbalancing per spatial unit (ΔᵢLDN) using #{info[:name]} productivity data. Positive values indicate LDN achieved for that unit, negative values indicate not achieved.",
+            description: "LDN counterbalancing net change layer showing ΔᵢLDN = Aᵢgains − Aᵢlosses per spatial unit i, expressed as a percentage.\n\nPositive values (green) indicate gains offset losses. Negative values (magenta) indicate losses exceed gains. LDN is achieved when ALL units have ΔᵢLDN ≥ 0.\n\n#{info[:description]}",
+            active: is_trendsearth && scale_key == :ecoregion,
+            order: 1,
+            color: "#C62828",
+            analysis_type: "histogram",
+            sources: both_sources
+          )
+          puts "    Created layer: #{layer.slug}"
 
-        # Land Types layer (reference layer, inactive by default)
-        layer = create_ldn_cog_layer(
-          group: group,
-          slug: "ldn-land-types-#{dataset[:key].to_s.tr("_", "-")}",
-          s3_folder: info[:s3_folder],
-          filename: "#{label}_#{LDN_SUFFIXES[:land_types]}",
-          colormap: LDN_COLORMAPS[:land_types],
-          legend: LDN_LEGENDS[:land_types],
-          name: "Land Types (#{info[:short_name]})",
-          info: "Spatial planning unit land type codes. Each unique value represents a combination of protected area status and ecoregion.",
-          description: "Land type intersection raster. Each pixel value is a unique code representing the combination of protected area status and WWF ecoregion. Use the corresponding land_types.csv for decoding.\n\n#{info[:description]}",
-          active: false,
-          order: 3,
-          color: "#9E9E9E",
-          sources: both_sources
-        )
-        puts "    Created layer: #{layer.slug}"
+          # Gains & Losses layer
+          layer = create_ldn_cog_layer(
+            group: group,
+            slug: "ldn-gains-losses-#{mode_suffix}-#{scale_suffix}",
+            s3_folder: info[:s3_folder],
+            filename: "#{label}_#{LDN_SUFFIXES[:gains_losses]}",
+            colormap: LDN_COLORMAPS[:gains_losses],
+            legend: LDN_LEGENDS[:gains_losses],
+            name: "LDN Gains & Losses (#{info[:short_name]})",
+            info: "Net gains and losses of natural capital per pixel using #{info[:name]} productivity data. Based on the 7-class SDG 15.3.1 status: losses map to persistent/recent degradation, gains to persistent/recent improvement.",
+            description: "LDN counterbalancing gains and losses layer.\n\nPixel values: -1 = Loss (persistent or recent degradation), 0 = Neutral (baseline degradation, stable, or baseline improvement), 1 = Gain (recent or persistent improvement).\n\n#{info[:description]}",
+            active: false,
+            order: 2,
+            color: "#C62828",
+            sources: both_sources
+          )
+          puts "    Created layer: #{layer.slug}"
+
+          # Land Types layer (reference layer, inactive by default)
+          layer = create_ldn_cog_layer(
+            group: group,
+            slug: "ldn-land-types-#{mode_suffix}-#{scale_suffix}",
+            s3_folder: info[:s3_folder],
+            filename: "#{label}_#{LDN_SUFFIXES[:land_types]}",
+            colormap: LDN_COLORMAPS[:land_types],
+            legend: LDN_LEGENDS[:land_types],
+            name: "Land Types (#{info[:short_name]})",
+            info: "Spatial planning unit land type codes. Each unique value represents a combination of protected area status and ecoregion.",
+            description: "Land type intersection raster. Each pixel value is a unique code representing the combination of protected area status and WWF ecoregion. Use the corresponding land_types.csv for decoding.\n\n#{info[:description]}",
+            active: false,
+            order: 3,
+            color: "#9E9E9E",
+            sources: both_sources
+          )
+          puts "    Created layer: #{layer.slug}"
+        end
       end
     end
 
