@@ -967,6 +967,7 @@ module LdnSeeder
         body: {
           source: cog_url,
           colormap: colormap,
+          nodata: -32768,
           options: {}
         }
       }
@@ -989,6 +990,7 @@ module LdnSeeder
           source: cog_url,
           bidx: band,
           colormap: colormap,
+          nodata: -32768,
           options: {}
         }
       }

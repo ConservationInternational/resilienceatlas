@@ -710,6 +710,7 @@ module TrendsEarthSeeder
           source: cog_url,
           bidx: band,
           colormap: colormap,
+          nodata: -32768,
           options: {}
         }
       }

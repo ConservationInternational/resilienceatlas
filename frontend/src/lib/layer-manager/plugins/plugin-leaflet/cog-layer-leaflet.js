@@ -19,7 +19,7 @@ const buildTitilerUrl = (layerConfig) => {
   }
 
   // New format: construct URL from source and colormap
-  const { source, colormap, bidx } = body;
+  const { source, colormap, bidx, nodata } = body;
 
   if (!source) {
     console.error('[COG Layer] No source URL found in layerConfig.body');
@@ -38,6 +38,11 @@ const buildTitilerUrl = (layerConfig) => {
   // Add band index if present (required for multi-band COGs)
   if (bidx) {
     tileUrl += `&bidx=${bidx}`;
+  }
+
+  // Add nodata value so TiTiler masks those pixels as transparent
+  if (nodata !== undefined && nodata !== null) {
+    tileUrl += `&nodata=${nodata}`;
   }
 
   // Add colormap if present
