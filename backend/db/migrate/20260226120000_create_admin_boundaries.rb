@@ -1,5 +1,8 @@
 class CreateAdminBoundaries < ActiveRecord::Migration[7.2]
   def up
+    # Ensure PostGIS is available (idempotent — no-op if already enabled)
+    execute "CREATE EXTENSION IF NOT EXISTS postgis"
+
     create_table :admin_boundaries do |t|
       t.string :name
       t.string :iso_code       # ISO 3166-1 alpha-3 for ADM0, sub-codes for ADM1/ADM2
@@ -9,11 +12,10 @@ class CreateAdminBoundaries < ActiveRecord::Migration[7.2]
       t.timestamps
     end
 
-    # Use raw SQL for geometry column — works regardless of whether
-    # activerecord-postgis-adapter is fully loaded at migration time
+    # Modern PostGIS syntax (no legacy AddGeometryColumn wrapper needed)
     execute <<-SQL
-      SELECT AddGeometryColumn('public', 'admin_boundaries', 'geom', 4326, 'MULTIPOLYGON', 2);
-      ALTER TABLE admin_boundaries ALTER COLUMN geom SET NOT NULL;
+      ALTER TABLE admin_boundaries
+        ADD COLUMN geom geometry(MultiPolygon, 4326) NOT NULL;
     SQL
 
     add_index :admin_boundaries, :admin_level

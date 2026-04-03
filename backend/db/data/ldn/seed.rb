@@ -153,7 +153,39 @@ module LdnSeeder
   #   min (#9b2779) → zero (#f7f7f7) → max (#006500)
   #   Discretized into intervals for TiTiler
   #
-  # Land types: unique integer codes (spatial units), no meaningful color ramp
+  # Land types: unique integer codes from a positional encoding of input layers
+  # (e.g. PA status × ecoregion, or country × PA × ecoregion). Values range
+  # from 0 up to potentially millions for the country_ecoregion scale. We use a
+  # cycling qualitative palette so adjacent units are visually distinguishable.
+  # The palette repeats every 20 bands across a wide range up to Int32 max.
+  LAND_TYPES_PALETTE = [
+    [228, 26, 28, 255],   # red
+    [55, 126, 184, 255],  # blue
+    [77, 175, 74, 255],   # green
+    [152, 78, 163, 255],  # purple
+    [255, 127, 0, 255],   # orange
+    [255, 255, 51, 255],  # yellow
+    [166, 86, 40, 255],   # brown
+    [247, 129, 191, 255], # pink
+    [153, 153, 153, 255], # grey
+    [0, 190, 190, 255],   # teal
+    [188, 128, 189, 255], # lavender
+    [255, 200, 69, 255],  # gold
+    [0, 150, 100, 255],   # sea green
+    [210, 105, 30, 255],  # chocolate
+    [100, 149, 237, 255], # cornflower
+    [220, 20, 60, 255],   # crimson
+    [34, 139, 34, 255],   # forest green
+    [255, 165, 0, 255],   # dark orange
+    [106, 90, 205, 255],  # slate blue
+    [0, 206, 209, 255]    # dark turquoise
+  ].freeze
+
+  # Build cycling colormap covering 0 to ~20 million (well beyond any realistic
+  # land_types value). Each band covers 1000 values, cycling the 20-color palette.
+  LAND_TYPES_MAX = 20_000_000
+  LAND_TYPES_BAND_SIZE = 1_000
+
   LDN_COLORMAPS = {
     gains_losses: {
       "-32768" => [0, 0, 0, 0],
@@ -171,9 +203,15 @@ module LdnSeeder
       [[500, 5000], [127, 191, 123, 255]],
       [[5000, 10000], [0, 101, 0, 255]]
     ],
-    land_types: {
-      "-32768" => [0, 0, 0, 0]
-    }
+    # Cycling qualitative palette over the full value range
+    land_types: (
+      [[[-32768, -1], [0, 0, 0, 0]]] +
+      (0...(LAND_TYPES_MAX / LAND_TYPES_BAND_SIZE)).map { |i|
+        lo = i * LAND_TYPES_BAND_SIZE
+        hi = lo + LAND_TYPES_BAND_SIZE - 1
+        [[lo, hi], LAND_TYPES_PALETTE[i % 20]]
+      }
+    )
   }.freeze
 
   # ──────────────────────────────────────────────────────────────
@@ -253,7 +291,16 @@ module LdnSeeder
     land_types: {
       type: "custom",
       data: [
-        {name: "Land type (unique ID)", value: "#cccccc"}
+        {name: "Land type 1", value: "#e41a1c"},
+        {name: "", value: "#377eb8"},
+        {name: "", value: "#4daf4a"},
+        {name: "", value: "#984ea3"},
+        {name: "", value: "#ff7f00"},
+        {name: "", value: "#ffff33"},
+        {name: "", value: "#a65628"},
+        {name: "", value: "#f781bf"},
+        {name: "", value: "#999999"},
+        {name: "Land type 1000+", value: "#00bebe"}
       ]
     }
   }.freeze
