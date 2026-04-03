@@ -3,6 +3,11 @@
 #
 # All boundary tile rendering happens inside PostGIS via this function.
 # Martin handles HTTP serving, caching headers, and connection pooling.
+#
+# Geometry simplification is done at import time (not per-tile) to guarantee
+# that shared polygon edges are simplified identically across tiles,
+# eliminating seam / box artifacts.  See 20260403120000 migration for the
+# pre-simplified columns (geom_z0, geom_z5).
 class CreateBoundaryTilesFunction < ActiveRecord::Migration[7.2]
   def up
     execute <<~SQL
@@ -10,10 +15,8 @@ class CreateBoundaryTilesFunction < ActiveRecord::Migration[7.2]
       RETURNS bytea AS $$
       DECLARE
         max_level integer;
-        tolerance double precision;
         mvt bytea;
         tile_env geometry;
-        buffered_env geometry;
       BEGIN
         -- Determine which admin levels to include based on zoom:
         --   zoom 0-4:  ADM0 only (countries)
@@ -30,16 +33,14 @@ class CreateBoundaryTilesFunction < ActiveRecord::Migration[7.2]
         -- Tile envelope in Web Mercator (EPSG:3857).
         tile_env := ST_TileEnvelope(z, x, y);
 
-        -- Simplification tolerance in EPSG:3857 metres.
-        -- Earth circumference ~40075017m; at zoom z one tile ~= 40075017 / 2^z.
-        -- 4096 MVT extent → 1 texel = tile_width / 4096.
-        -- Use ~8 texel tolerance for simplification.
-        tolerance := 40075016.68 / (power(2, z) * 512);
-
-        -- Expand the spatial filter by the MVT buffer (256 texels)
-        -- so features slightly outside the tile are still included and
-        -- their simplified edges blend seamlessly with neighbouring tiles.
-        buffered_env := ST_Expand(tile_env, tolerance * 32);
+        -- Pick the pre-simplified geometry column based on zoom level:
+        --   zoom 0-4:  geom_z0  (~0.1° tolerance, ~11 km)
+        --   zoom 5-7:  geom_z5  (~0.005° tolerance, ~500 m)
+        --   zoom 8+:   geom     (full resolution)
+        --
+        -- Simplification was done once at import time on the full unclipped
+        -- geometry, so shared edges are identical across all tiles — no
+        -- seam artifacts.
 
         SELECT ST_AsMVT(tile, 'boundaries', 4096, 'mvt_geom') INTO mvt
         FROM (
@@ -48,9 +49,13 @@ class CreateBoundaryTilesFunction < ActiveRecord::Migration[7.2]
             iso_code,
             admin_level,
             ST_AsMVTGeom(
-              ST_SimplifyPreserveTopology(
-                ST_MakeValid(ST_Transform(geom, 3857)),
-                tolerance
+              ST_Transform(
+                CASE
+                  WHEN z <= 4 THEN COALESCE(geom_z0, geom)
+                  WHEN z <= 7 THEN COALESCE(geom_z5, geom)
+                  ELSE geom
+                END,
+                3857
               ),
               tile_env,
               4096,
@@ -58,7 +63,13 @@ class CreateBoundaryTilesFunction < ActiveRecord::Migration[7.2]
               true
             ) AS mvt_geom
           FROM admin_boundaries
-          WHERE geom && ST_Transform(buffered_env, 4326)
+          WHERE (
+            CASE
+              WHEN z <= 4 THEN COALESCE(geom_z0, geom)
+              WHEN z <= 7 THEN COALESCE(geom_z5, geom)
+              ELSE geom
+            END
+          ) && ST_Transform(tile_env, 4326)
             AND admin_level <= max_level
         ) AS tile
         WHERE mvt_geom IS NOT NULL;
@@ -68,7 +79,7 @@ class CreateBoundaryTilesFunction < ActiveRecord::Migration[7.2]
       $$ LANGUAGE plpgsql STABLE PARALLEL SAFE;
 
       COMMENT ON FUNCTION boundary_tiles IS
-        'Martin function source: admin boundary vector tiles with zoom-dependent level filtering';
+        'Martin function source: admin boundary vector tiles with zoom-dependent level filtering and pre-simplified geometry';
     SQL
   end
 
