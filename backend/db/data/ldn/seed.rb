@@ -540,7 +540,6 @@ module LdnSeeder
       datasets.each do |dataset|
         group = groups[dataset[:group_slug]]
         info = DATASET_INFO[dataset[:key]]
-        is_trendsearth = dataset[:key] == :trendsearth
 
         status_sources = [sources[:zenodo], sources[:gpgv2_addendum]]
         data_sources = [sources[:zenodo]]
