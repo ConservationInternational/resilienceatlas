@@ -43,7 +43,7 @@ function boundaryStyle(properties: { admin_level?: number }): L.PathOptions {
 function haloStyle(properties: { admin_level?: number }): L.PathOptions {
   const level = properties.admin_level ?? 0;
   return {
-    weight: level === 0 ? 4.0 : level === 1 ? 3.0 : 2.0,
+    weight: level === 0 ? 2.5 : level === 1 ? 2.0 : 1.0,
     color: '#ffffff',
     opacity: level === 0 ? 0.35 : level === 1 ? 0.25 : 0.2,
     fill: false,
