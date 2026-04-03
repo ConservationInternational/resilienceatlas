@@ -20,7 +20,9 @@ services:
       retries: 5
 
   martin:
-    image: ghcr.io/maplibre/martin:latest
+    build:
+      context: ./docker
+      dockerfile: martin.Dockerfile
     ports:
       - "3002:3000"
     command: ["--config", "/config/martin.yaml"]
@@ -35,7 +37,10 @@ services:
         condition: service_healthy
     restart: unless-stopped
     healthcheck:
-      test: ["NONE"]
+      test: ["CMD", "curl", "-sf", "http://localhost:3000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   backend:
     build:

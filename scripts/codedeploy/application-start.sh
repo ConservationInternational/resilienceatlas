@@ -164,6 +164,16 @@ if [ "$ENVIRONMENT" = "staging" ]; then
 fi
 
 log_info "Running docker stack deploy with compose file: $COMPOSE_FILE"
+
+# Build the custom Martin image locally (adds curl for health checks)
+# The Martin base image is minimal and has no HTTP client, so we extend it
+log_info "Building custom Martin image with health check support..."
+if docker build -t resilienceatlas-martin:latest -f docker/martin.Dockerfile docker/; then
+    log_success "Martin image built successfully"
+else
+    log_warning "Failed to build custom Martin image, stack will use upstream image"
+fi
+
 docker stack deploy -c "$COMPOSE_FILE" "$STACK_NAME" --with-registry-auth --detach=true
 
 log_success "Stack deploy command submitted to Swarm"

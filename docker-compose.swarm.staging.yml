@@ -165,7 +165,7 @@ services:
       start_period: 60s
 
   martin:
-    image: ghcr.io/maplibre/martin:latest
+    image: resilienceatlas-martin:latest
     command: ["--config", "/config/martin.yaml"]
     configs:
       - source: martin_config
@@ -200,7 +200,11 @@ services:
         reservations:
           memory: 256M
     healthcheck:
-      test: ["NONE"]
+      test: ["CMD", "curl", "-sf", "http://localhost:3000/health"]
+      interval: 15s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
 
 volumes:
   staging_postgres_data:

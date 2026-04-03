@@ -34,7 +34,9 @@ services:
 
   # Martin tile server for test environment
   martin-test:
-    image: ghcr.io/maplibre/martin:latest
+    build:
+      context: ./docker
+      dockerfile: martin.Dockerfile
     ports:
       - "3002:3000"
     command: ["--config", "/config/martin.yaml"]
@@ -48,7 +50,10 @@ services:
       db-test:
         condition: service_healthy
     healthcheck:
-      test: ["NONE"]
+      test: ["CMD", "curl", "-sf", "http://localhost:3000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   # Backend test service
   backend-test:
