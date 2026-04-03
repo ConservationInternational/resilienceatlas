@@ -227,6 +227,12 @@ if [ -n "$BACKEND_CONTAINER" ]; then
     # This makes deployment resilient to database volume loss.
     if timeout 120 docker exec "$BACKEND_CONTAINER" bundle exec rails db:prepare 2>&1; then
         log_success "Database setup completed"
+        # Martin discovers PostGIS functions at startup. If it started before
+        # migrations created boundary_tiles(), it won't serve those tiles.
+        # Force-updating the Martin service makes Swarm restart it so it
+        # re-discovers all functions now that migrations have run.
+        log_info "Restarting Martin to pick up any new PostGIS function sources..."
+        docker service update --force "${STACK_NAME}_martin" 2>/dev/null || log_warning "Could not restart Martin service"
     else
         EXIT_CODE=$?
         if [ $EXIT_CODE -eq 124 ]; then
