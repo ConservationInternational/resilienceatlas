@@ -368,6 +368,15 @@ npx cypress run --config baseUrl=http://localhost:3000
 
 Admin boundary polygons are served as vector tiles via Martin from the `admin_boundaries` table. Data source: geoBoundaries CGAZ GeoPackage files (ADM0/ADM1/ADM2). Full-resolution geometry is used at all zoom levels — `ST_AsMVTGeom` clips to the tile extent and quantizes coordinates to the MVT grid, keeping tiles compact without introducing shared-edge artifacts.
 
+**CDN (CloudFront):**
+Martin tiles are cached via CloudFront: `Browser → CloudFront (SSL + caching) → ALB (HTTP) → Martin`.
+- Production: `https://tiles.resilienceatlas.org` (24h cache TTL)
+- Staging: `https://tiles.staging.resilienceatlas.org` (1h cache TTL)
+- CloudFormation template: `infrastructure/martin-cdn/template.yaml`
+- Deploy: `infrastructure/martin-cdn/deploy.sh --staging --profile resilienceatlas`
+- Invalidate cache: `scripts/invalidate-martin-cache.sh --staging --profile resilienceatlas`
+- After reimporting data: restart Martin, then invalidate the CDN cache
+
 **Importing on deployed environments:**
 1. Upload `.gpkg` files to server (e.g. `scp` to `/tmp/geoboundaries/`)
 2. Find the Docker network: `docker network ls | grep staging` (or `production`)

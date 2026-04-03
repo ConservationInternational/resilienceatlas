@@ -117,6 +117,32 @@ Admin boundary polygons are served as vector tiles via [Martin](https://maplibre
 
 Full-resolution geometry is used at all zoom levels — `ST_AsMVTGeom` clips to the tile extent and quantizes coordinates to the MVT grid, keeping tiles compact without introducing shared-edge artifacts.
 
+### CDN (CloudFront)
+
+Martin tiles are cached at the edge via CloudFront:
+
+```
+Browser → CloudFront (SSL + caching) → ALB (HTTP, host-header routing) → Martin
+```
+
+| Environment | URL | Cache TTL |
+|-------------|-----|-----------|
+| Production  | `https://tiles.resilienceatlas.org` | 24 hours |
+| Staging     | `https://tiles.staging.resilienceatlas.org` | 1 hour |
+
+**Deploy/update the CDN stack:**
+```bash
+infrastructure/martin-cdn/deploy.sh --staging --profile resilienceatlas
+infrastructure/martin-cdn/deploy.sh --production --profile resilienceatlas
+```
+
+**Invalidate cache** (after reimporting boundary data or changing tile sources):
+```bash
+scripts/invalidate-martin-cache.sh --staging --profile resilienceatlas
+# Or invalidate only boundary tiles:
+scripts/invalidate-martin-cache.sh --staging --paths "/boundary_tiles/*" --profile resilienceatlas
+```
+
 ### Importing Boundary Data (Deployed Environments)
 
 1. **Upload GeoPackage files** to the server (e.g. via `scp`):

@@ -1,0 +1,135 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'CloudFront CDN for Martin vector tile server (admin boundaries + user layers)'
+
+Parameters:
+  FQDN:
+    Type: String
+    Description: Fully qualified domain name, e.g. tiles.resilienceatlas.org
+  ZoneId:
+    Type: String
+    Description: Route53 Hosted Zone ID for the domain (e.g. Z111111QQQQQQQ)
+  ALBDomainName:
+    Type: String
+    Description: ALB DNS name, e.g. resilienceatlas-alb-407780533.us-east-1.elb.amazonaws.com
+  CacheTTL:
+    Type: Number
+    Default: 86400
+    Description: Default cache TTL in seconds (default 24 hours)
+
+Resources:
+  # CloudFront Distribution — caches Martin tile responses at the edge
+  CloudFrontDistribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Enabled: true
+        Comment: !Sub "Martin tile CDN for ${FQDN}"
+        Aliases:
+          - !Ref FQDN
+        HttpVersion: http2and3
+        PriceClass: PriceClass_100  # North America + Europe edge locations
+        ViewerCertificate:
+          AcmCertificateArn: !Ref CloudFrontCertificate
+          SslSupportMethod: sni-only
+          MinimumProtocolVersion: TLSv1.2_2021
+        Origins:
+          - Id: ALBOrigin
+            DomainName: !Ref ALBDomainName
+            CustomOriginConfig:
+              HTTPPort: 80
+              OriginProtocolPolicy: http-only
+        DefaultCacheBehavior:
+          TargetOriginId: ALBOrigin
+          ViewerProtocolPolicy: redirect-to-https
+          AllowedMethods:
+            - GET
+            - HEAD
+            - OPTIONS
+          CachedMethods:
+            - GET
+            - HEAD
+          Compress: true
+          CachePolicyId: !Ref TileCachePolicy
+          OriginRequestPolicyId: !Ref TileOriginRequestPolicy
+        CacheBehaviors:
+          # Health check endpoint — bypass cache
+          - PathPattern: /health
+            TargetOriginId: ALBOrigin
+            ViewerProtocolPolicy: redirect-to-https
+            AllowedMethods:
+              - GET
+              - HEAD
+            CachedMethods:
+              - GET
+              - HEAD
+            CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad  # AWS managed CachingDisabled
+            OriginRequestPolicyId: !Ref TileOriginRequestPolicy
+
+  # Cache policy — path-only cache key (MVT tiles have no query strings)
+  TileCachePolicy:
+    Type: AWS::CloudFront::CachePolicy
+    Properties:
+      CachePolicyConfig:
+        Name: !Sub "${AWS::StackName}-TileCachePolicy"
+        Comment: "Cache policy for Martin vector tiles — path-only key"
+        DefaultTTL: !Ref CacheTTL
+        MaxTTL: 604800  # 7 days
+        MinTTL: 1
+        ParametersInCacheKeyAndForwardedToOrigin:
+          CookiesConfig:
+            CookieBehavior: none
+          HeadersConfig:
+            HeaderBehavior: none  # No headers in cache key
+          QueryStringsConfig:
+            QueryStringBehavior: none  # MVT tiles have no query params
+          EnableAcceptEncodingGzip: true
+          EnableAcceptEncodingBrotli: true
+
+  # Origin request policy — forwards Host header for ALB host-based routing
+  TileOriginRequestPolicy:
+    Type: AWS::CloudFront::OriginRequestPolicy
+    Properties:
+      OriginRequestPolicyConfig:
+        Name: !Sub "${AWS::StackName}-TileOriginRequestPolicy"
+        Comment: "Forward Host header to ALB for routing, Origin for CORS"
+        CookiesConfig:
+          CookieBehavior: none
+        HeadersConfig:
+          HeaderBehavior: whitelist
+          Headers:
+            - Host    # Required: ALB routes by Host header
+            - Origin  # Required: Martin returns CORS headers
+        QueryStringsConfig:
+          QueryStringBehavior: none
+
+  # ACM Certificate — must be in us-east-1 for CloudFront
+  CloudFrontCertificate:
+    Type: AWS::CertificateManager::Certificate
+    Properties:
+      DomainName: !Ref FQDN
+      ValidationMethod: DNS
+      DomainValidationOptions:
+        - DomainName: !Ref FQDN
+          HostedZoneId: !Ref ZoneId
+
+  # DNS record — points FQDN to CloudFront distribution
+  DnsRecord:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      HostedZoneId: !Ref ZoneId
+      Name: !Ref FQDN
+      Type: A
+      AliasTarget:
+        DNSName: !GetAtt CloudFrontDistribution.DomainName
+        HostedZoneId: Z2FDTNDATAQYW2  # CloudFront hosted zone ID (always this value)
+
+Outputs:
+  CloudFrontUrl:
+    Description: "CloudFront CDN URL for Martin tiles"
+    Value: !Sub "https://${FQDN}/"
+  CloudFrontDistributionId:
+    Description: "CloudFront Distribution ID (for cache invalidation)"
+    Value: !Ref CloudFrontDistribution
+  CloudFrontDomainName:
+    Description: "CloudFront distribution domain name"
+    Value: !GetAtt CloudFrontDistribution.DomainName

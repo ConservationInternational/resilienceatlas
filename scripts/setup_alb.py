@@ -222,6 +222,59 @@ def create_load_balancer(elbv2_client, subnet_ids, security_group_id):
         print(f"❌ Error creating load balancer: {e}")
         return None, None
 
+def add_martin_http_rules(elbv2_client, http_listener_arn, target_groups):
+    """Add forwarding rules for Martin tile hosts on the HTTP listener.
+    
+    CloudFront terminates SSL and connects to the ALB over HTTP (port 80),
+    sending the original Host header.  These rules forward Martin tile
+    requests to the correct target group before the default HTTPS-redirect
+    action fires.
+    """
+    rules = [
+        {
+            'priority': 50,
+            'host': 'tiles.staging.resilienceatlas.org',
+            'tg_key': 'martin-staging',
+            'label': 'Martin staging',
+        },
+        {
+            'priority': 60,
+            'host': 'tiles.resilienceatlas.org',
+            'tg_key': 'martin-prod',
+            'label': 'Martin production',
+        },
+    ]
+    
+    for rule in rules:
+        tg_arn = target_groups.get(rule['tg_key'])
+        if not tg_arn or 'PENDING' in str(tg_arn):
+            print(f"⚠️ Skipping {rule['label']} HTTP rule — target group not ready")
+            continue
+        try:
+            elbv2_client.create_rule(
+                ListenerArn=http_listener_arn,
+                Priority=rule['priority'],
+                Conditions=[
+                    {
+                        'Field': 'host-header',
+                        'Values': [rule['host']]
+                    }
+                ],
+                Actions=[
+                    {
+                        'Type': 'forward',
+                        'TargetGroupArn': tg_arn
+                    }
+                ]
+            )
+            print(f"✅ Added HTTP rule: {rule['host']} → {rule['label']} (priority {rule['priority']})")
+        except ClientError as e:
+            if e.response['Error']['Code'] == 'PriorityInUse':
+                print(f"⚠️ HTTP rule priority {rule['priority']} already exists for {rule['label']}")
+            else:
+                print(f"❌ Error creating HTTP rule for {rule['label']}: {e}")
+
+
 def create_listeners(elbv2_client, lb_arn, target_groups):
     """Create listeners with rules for domain-based routing."""
     try:
@@ -250,6 +303,12 @@ def create_listeners(elbv2_client, lb_arn, target_groups):
 
         http_listener_arn = response['Listeners'][0]['ListenerArn']
         print(f"✅ Created HTTP listener (redirects to HTTPS): {http_listener_arn}")
+
+        # Add Martin forwarding rules on the HTTP listener.
+        # CloudFront connects to the ALB over HTTP (port 80) and sends the
+        # Host header.  These rules forward Martin hosts to the tile server
+        # target groups *before* the default HTTPS redirect fires.
+        add_martin_http_rules(elbv2_client, http_listener_arn, target_groups)
 
         # Create HTTPS listener (requires SSL certificate)
         print("⚠️ HTTPS listener requires SSL certificate setup")

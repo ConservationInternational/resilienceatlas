@@ -115,6 +115,10 @@ namespace :boundaries do
     puts "  ADM1 (provinces/states): #{AdminBoundary.provinces.count}"
     puts "  ADM2 (districts):        #{AdminBoundary.districts.count}"
     puts "  Total:                   #{AdminBoundary.count}"
+    puts ""
+    puts "Next steps:"
+    puts "  1. Restart Martin:  docker service update --force <martin-service>"
+    puts "  2. Invalidate CDN:  scripts/invalidate-martin-cache.sh --staging  (or --production)"
   end
 
   desc "Show current admin_boundaries statistics"
