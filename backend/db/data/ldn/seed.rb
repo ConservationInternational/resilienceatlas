@@ -1509,7 +1509,7 @@ module LdnSeeder
         "-nln", "_gpkg_raw", "-overwrite",
         "-lco", "GEOMETRY_NAME=geom",
         "-lco", "FID=ogc_fid",
-        "-lco", "SPATIAL_INDEX=NO",
+        "-lco", "SPATIAL_INDEX=NONE",
         "-nlt", "PROMOTE_TO_MULTI",
         "-gt", "1000"
       ]
