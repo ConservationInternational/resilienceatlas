@@ -140,7 +140,9 @@ namespace :ldn do
       "-nln", "_gpkg_raw", "-overwrite",
       "-lco", "GEOMETRY_NAME=geom",
       "-lco", "FID=ogc_fid",
-      "-nlt", "PROMOTE_TO_MULTI"
+      "-lco", "SPATIAL_INDEX=NO",
+      "-nlt", "PROMOTE_TO_MULTI",
+      "-gt", "1000"
     ]
     raise "ogr2ogr failed for #{gpkg_path}" unless system(env, *cmd)
 
