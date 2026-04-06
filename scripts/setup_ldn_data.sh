@@ -7,17 +7,20 @@
 # bucket, then runs the existing rake tasks to import boundaries
 # and dissolve LDN geometries, and finally seeds the LDN scope.
 #
+# Automatically detects the environment:
+#   - Deployed (staging/production): uses running Swarm containers,
+#     detected via .env.staging or .env.production in the working dir.
+#   - Development: uses docker-compose.dev.yml.
+#
 # Prerequisites:
 #   - AWS CLI configured with access to the trends.earth-private bucket
-#   - Docker + docker compose available
-#   - The ResilienceAtlas dev environment (docker-compose.dev.yml)
+#   - Docker available
 #
 # Usage:
 #   ./scripts/setup_ldn_data.sh [--profile <aws-profile>] [--skip-download] [--skip-boundaries]
 #
 # Environment variables:
-#   AWS_PROFILE          — AWS CLI profile to use (or pass --profile)
-#   LDN_DATA_DIR         — Local directory for LDN data (default: repo root)
+#   LDN_DATA_DIR         — Local directory for LDN data (default: working dir)
 #   GEOBOUNDARIES_DIR    — Local directory for boundary GPKGs (default: /tmp/geoboundaries)
 # ──────────────────────────────────────────────────────────────
 
@@ -37,6 +40,11 @@ GEOBOUNDARIES_DIR="${GEOBOUNDARIES_DIR:-/tmp/geoboundaries}"
 AWS_PROFILE_ARG=""
 SKIP_DOWNLOAD=false
 SKIP_BOUNDARIES=false
+
+# Runtime mode — set by detect_mode()
+MODE=""            # "dev" or "deployed"
+STACK_NAME=""      # e.g. "resilienceatlas-staging"
+BACKEND_CONTAINER="" # container ID for deployed mode
 
 # ── Parse arguments ──
 while [[ $# -gt 0 ]]; do
@@ -62,7 +70,7 @@ while [[ $# -gt 0 ]]; do
       echo "  --skip-boundaries  Skip boundary import"
       echo ""
       echo "Environment:"
-      echo "  LDN_DATA_DIR       Local dir for LDN data (default: repo root)"
+      echo "  LDN_DATA_DIR       Local dir for LDN data (default: repo root / working dir)"
       echo "  GEOBOUNDARIES_DIR  Local dir for boundary GPKGs (default: /tmp/geoboundaries)"
       exit 0
       ;;
@@ -95,10 +103,112 @@ check_docker() {
   if ! command -v docker &>/dev/null; then
     error "Docker is not installed."
   fi
-  if ! docker compose version &>/dev/null; then
-    error "docker compose is not available."
+  ok "Docker available"
+}
+
+# ── Environment detection ──
+# Detect whether we're on a deployed server (Swarm) or in local dev.
+# Checks (in order):
+#   1. .env.staging / .env.production files in the app directory
+#   2. Running Docker Swarm stacks named resilienceatlas-staging/production
+#   3. Falls back to dev mode (docker-compose.dev.yml)
+
+detect_mode() {
+  local env=""
+
+  # Check for .env files
+  if [[ -f "$REPO_ROOT/.env.staging" ]]; then
+    env="staging"
+  elif [[ -f "$REPO_ROOT/.env.production" ]]; then
+    env="production"
   fi
-  ok "Docker compose available"
+
+  # If no .env file, check for running Swarm stacks
+  if [[ -z "$env" ]]; then
+    if docker service ls 2>/dev/null | grep -q "resilienceatlas-staging_backend"; then
+      env="staging"
+    elif docker service ls 2>/dev/null | grep -q "resilienceatlas-production_backend"; then
+      env="production"
+    fi
+  fi
+
+  # If no .env and no Swarm, check if we're in a deployed directory
+  if [[ -z "$env" ]]; then
+    case "$REPO_ROOT" in
+      */resilienceatlas-staging*)  env="staging" ;;
+      */resilienceatlas-production*) env="production" ;;
+    esac
+  fi
+
+  if [[ -n "$env" ]]; then
+    MODE="deployed"
+    STACK_NAME="resilienceatlas-${env}"
+    info "Detected deployed environment: ${env}"
+
+    # Find the running backend container
+    BACKEND_CONTAINER=$(docker ps --filter "name=${STACK_NAME}_backend" --format "{{.ID}}" 2>/dev/null | head -1)
+    if [[ -z "$BACKEND_CONTAINER" ]]; then
+      error "No running backend container found for stack ${STACK_NAME}. Is the stack deployed?"
+    fi
+    ok "Backend container: $BACKEND_CONTAINER"
+  else
+    MODE="dev"
+    info "Detected development environment"
+    if ! docker compose version &>/dev/null; then
+      error "docker compose is not available (required for dev mode)."
+    fi
+  fi
+}
+
+# Run a command in the backend container.
+# In deployed mode: docker exec on the running container.
+# In dev mode: docker compose run with optional volume mounts.
+backend_exec() {
+  local env_args=()
+  local vol_args=()
+  local cmd_args=()
+  local parsing_opts=true
+
+  # Parse -e and -v flags, collect the rest as the command
+  while [[ $# -gt 0 ]]; do
+    if $parsing_opts; then
+      case "$1" in
+        -e)
+          env_args+=("-e" "$2")
+          shift 2
+          ;;
+        -v)
+          vol_args+=("-v" "$2")
+          shift 2
+          ;;
+        --)
+          parsing_opts=false
+          shift
+          ;;
+        *)
+          parsing_opts=false
+          cmd_args+=("$1")
+          shift
+          ;;
+      esac
+    else
+      cmd_args+=("$1")
+      shift
+    fi
+  done
+
+  if [[ "$MODE" == "deployed" ]]; then
+    # docker exec: env vars work, but volumes don't — files must be
+    # docker-cp'd into the container before calling this.
+    docker exec \
+      ${env_args[@]+"${env_args[@]}"} \
+      "$BACKEND_CONTAINER" "${cmd_args[@]}"
+  else
+    docker compose -f "$REPO_ROOT/docker-compose.dev.yml" run --rm \
+      ${env_args[@]+"${env_args[@]}"} \
+      ${vol_args[@]+"${vol_args[@]}"} \
+      backend "${cmd_args[@]}"
+  fi
 }
 
 # ── Productivity modes and their S3 folders ──
@@ -153,6 +263,8 @@ download_ldn_datasets() {
   info "Downloading LDN counterbalancing GPKG files..."
   mkdir -p "$LDN_DATA_DIR"
 
+  local missing=0
+
   for mode_name in "${!MODE_S3_FOLDERS[@]}"; do
     local s3_folder="${MODE_S3_FOLDERS[$mode_name]}"
     local s3_base="s3://${S3_BUCKET}/${S3_PREFIX}/${s3_folder}"
@@ -162,7 +274,24 @@ download_ldn_datasets() {
     # Only the country_ecoregion GPKG is needed (dissolve_geometries + seed)
     local gpkg="TrendsEarth_LDN_2000-2023_${mode_name}_country_ecoregion_land_types.gpkg"
     download_file "$s3_base/${gpkg}" "${LDN_DATA_DIR}/${gpkg}"
+
+    if [[ ! -f "${LDN_DATA_DIR}/${gpkg}" ]]; then
+      missing=$((missing + 1))
+    fi
   done
+
+  if [[ $missing -gt 0 ]]; then
+    warn "$missing GPKG file(s) missing. The GPKG files may not be on S3 yet."
+    warn "Upload them from your local machine with:"
+    for mode_name in "${!MODE_S3_FOLDERS[@]}"; do
+      local s3_folder="${MODE_S3_FOLDERS[$mode_name]}"
+      local gpkg="TrendsEarth_LDN_2000-2023_${mode_name}_country_ecoregion_land_types.gpkg"
+      if [[ ! -f "${LDN_DATA_DIR}/${gpkg}" ]]; then
+        warn "  aws s3 cp ${gpkg} s3://${S3_BUCKET}/${S3_PREFIX}/${s3_folder}/${gpkg}"
+      fi
+    done
+    error "Cannot continue without GPKG files. Upload them to S3 and re-run."
+  fi
 
   ok "LDN GPKG files ready in $LDN_DATA_DIR"
 }
@@ -188,21 +317,25 @@ download_file() {
 import_boundaries() {
   info "Importing geoBoundaries into database..."
 
-  # Ensure dev environment is running
-  info "  Starting database (if not already running)..."
-  docker compose -f "$REPO_ROOT/docker-compose.dev.yml" up -d db
-  info "  Waiting for database to be ready..."
-  sleep 5
-
-  docker compose -f "$REPO_ROOT/docker-compose.dev.yml" run --rm \
-    -v "${GEOBOUNDARIES_DIR}:/data/geoboundaries:ro" \
-    backend bundle exec rake boundaries:import
+  if [[ "$MODE" == "deployed" ]]; then
+    # Copy GPKGs into the running container, then exec rake
+    docker exec "$BACKEND_CONTAINER" mkdir -p /data/geoboundaries
+    for f in geoBoundariesCGAZ_ADM0.gpkg geoBoundariesCGAZ_ADM1.gpkg geoBoundariesCGAZ_ADM2.gpkg; do
+      info "  Copying $f into container..."
+      docker cp "${GEOBOUNDARIES_DIR}/${f}" "${BACKEND_CONTAINER}:/data/geoboundaries/${f}"
+    done
+    backend_exec -- bundle exec rake boundaries:import
+  else
+    info "  Starting database (if not already running)..."
+    docker compose -f "$REPO_ROOT/docker-compose.dev.yml" up -d db
+    info "  Waiting for database to be ready..."
+    sleep 5
+    backend_exec -v "${GEOBOUNDARIES_DIR}:/data/geoboundaries:ro" \
+      -- bundle exec rake boundaries:import
+  fi
 
   ok "Boundaries imported"
-
-  # Show status
-  docker compose -f "$REPO_ROOT/docker-compose.dev.yml" run --rm \
-    backend bundle exec rake boundaries:status
+  backend_exec -- bundle exec rake boundaries:status
 }
 
 # ──────────────────────────────────────────────────────────────
@@ -212,16 +345,17 @@ import_boundaries() {
 dissolve_ldn_geometries() {
   info "Dissolving LDN geometries..."
 
-  docker compose -f "$REPO_ROOT/docker-compose.dev.yml" run --rm \
-    -e "LDN_DATA_DIR=/data/ldn" \
-    -v "${LDN_DATA_DIR}:/data/ldn:ro" \
-    backend bundle exec rake ldn:dissolve_geometries
+  if [[ "$MODE" == "deployed" ]]; then
+    copy_ldn_data_to_container
+    backend_exec -e "LDN_DATA_DIR=/data/ldn" \
+      -- bundle exec rake ldn:dissolve_geometries
+  else
+    backend_exec -e "LDN_DATA_DIR=/data/ldn" -v "${LDN_DATA_DIR}:/data/ldn:ro" \
+      -- bundle exec rake ldn:dissolve_geometries
+  fi
 
   ok "LDN geometries dissolved"
-
-  # Show status
-  docker compose -f "$REPO_ROOT/docker-compose.dev.yml" run --rm \
-    backend bundle exec rake ldn:dissolve_status
+  backend_exec -- bundle exec rake ldn:dissolve_status
 }
 
 # ──────────────────────────────────────────────────────────────
@@ -231,12 +365,44 @@ dissolve_ldn_geometries() {
 seed_ldn_scope() {
   info "Seeding LDN site scope..."
 
-  docker compose -f "$REPO_ROOT/docker-compose.dev.yml" run --rm \
-    -e "LDN_DATA_DIR=/data/ldn" \
-    -v "${LDN_DATA_DIR}:/data/ldn:ro" \
-    backend bundle exec rails runner db/data/ldn/seed.rb
+  if [[ "$MODE" == "deployed" ]]; then
+    # Data should already be in /data/ldn from the dissolve step
+    backend_exec -e "LDN_DATA_DIR=/data/ldn" \
+      -- bundle exec rails runner db/data/ldn/seed.rb
+  else
+    backend_exec -e "LDN_DATA_DIR=/data/ldn" -v "${LDN_DATA_DIR}:/data/ldn:ro" \
+      -- bundle exec rails runner db/data/ldn/seed.rb
+  fi
 
   ok "LDN scope seeded"
+}
+
+# ── Deployed-mode helper: copy LDN GPKGs + CSVs into container ──
+
+copy_ldn_data_to_container() {
+  docker exec "$BACKEND_CONTAINER" mkdir -p /data/ldn
+
+  # Copy all LDN GPKG files
+  for mode_name in "${!MODE_S3_FOLDERS[@]}"; do
+    local gpkg="TrendsEarth_LDN_2000-2023_${mode_name}_country_ecoregion_land_types.gpkg"
+    if [[ -f "${LDN_DATA_DIR}/${gpkg}" ]]; then
+      info "  Copying $gpkg into container..."
+      docker cp "${LDN_DATA_DIR}/${gpkg}" "${BACKEND_CONTAINER}:/data/ldn/${gpkg}"
+    else
+      warn "  $gpkg not found in ${LDN_DATA_DIR} — skipping"
+    fi
+  done
+
+  # Copy lookup CSVs (used by dissolve_geometries for realm/country enrichment)
+  for csv in ecoregion_key.csv admin0_key.csv; do
+    if [[ -f "${LDN_DATA_DIR}/${csv}" ]]; then
+      info "  Copying $csv into container..."
+      docker cp "${LDN_DATA_DIR}/${csv}" "${BACKEND_CONTAINER}:/data/ldn/${csv}"
+    elif [[ -f "${REPO_ROOT}/${csv}" ]]; then
+      info "  Copying $csv into container (from repo root)..."
+      docker cp "${REPO_ROOT}/${csv}" "${BACKEND_CONTAINER}:/data/ldn/${csv}"
+    fi
+  done
 }
 
 # ──────────────────────────────────────────────────────────────
@@ -256,6 +422,7 @@ main() {
 
   check_aws_cli
   check_docker
+  detect_mode
 
   if [[ "$SKIP_DOWNLOAD" == "false" ]]; then
     echo ""

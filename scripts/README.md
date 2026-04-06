@@ -155,6 +155,12 @@ Located in `scripts/codedeploy/`:
 | `validate-service.sh` | ValidateService | Performs health checks |
 | `sync-database.sh` | - | Copies production database to staging |
 
+### Data Setup Scripts
+
+| Script | Description |
+|--------|-------------|
+| `setup_ldn_data.sh` | Downloads LDN datasets and geoBoundaries from S3, imports boundaries, dissolves geometries, and seeds the LDN scope. Run with `--profile <aws-profile>`. |
+
 ### Management Scripts
 
 | Script | Description |
