@@ -4,6 +4,7 @@ import { withRouter } from 'next/router';
 
 import { setDrawing, setGeojson, setISO } from 'state/modules/map';
 import { load as loadCountries, makeCountries } from 'state/modules/countries';
+import { fetchIntersectingUnits, clearSpatialFilter } from 'state/modules/scope_datasets';
 
 import { AnalysisPanel } from './AnalysisPanel.component';
 
@@ -25,6 +26,8 @@ const mapDispatchToProps = {
   setDrawing,
   setGeojson,
   setISO,
+  fetchIntersectingUnits,
+  clearSpatialFilter,
 };
 
 const withConnect = connect(mapStateToProps, mapDispatchToProps);

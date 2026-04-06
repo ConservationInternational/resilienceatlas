@@ -1,0 +1,32 @@
+<% content_for :title do %>Import CSV — <%= resource.name %><% end %>
+
+<div class="panel">
+  <h3>Import CSV Data</h3>
+
+  <div class="panel_contents">
+    <p>Upload a CSV file to replace the current data for <strong><%= resource.name %></strong> (<%= resource.row_count %> rows currently).</p>
+    <p>The CSV must have a header row. Numeric values will be auto-converted.</p>
+
+    <%= form_tag import_csv_admin_scope_dataset_path(resource), method: :post, multipart: true do %>
+      <fieldset class="inputs">
+        <ol>
+          <li class="file input">
+            <label for="csv_file">CSV File</label>
+            <%= file_field_tag :csv_file, accept: ".csv" %>
+          </li>
+        </ol>
+      </fieldset>
+
+      <fieldset class="actions">
+        <ol>
+          <li class="action input_action">
+            <%= submit_tag "Import", class: "button" %>
+          </li>
+          <li class="cancel">
+            <%= link_to "Cancel", admin_scope_dataset_path(resource) %>
+          </li>
+        </ol>
+      </fieldset>
+    <% end %>
+  </div>
+</div>

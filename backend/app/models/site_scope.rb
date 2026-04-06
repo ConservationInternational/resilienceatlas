@@ -30,6 +30,7 @@ class SiteScope < ApplicationRecord
   has_one :homepage, dependent: :destroy
   has_many :layer_groups
   has_many :site_pages
+  has_many :scope_datasets, dependent: :destroy
 
   # Encryptor for viewable password storage
   def self.password_encryptor

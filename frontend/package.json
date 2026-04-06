@@ -60,6 +60,7 @@
     "react-redux": "^9.2.0",
     "react-router": "^7.12.0",
     "react-slick": "0.30.3",
+    "react-window": "^2.2.7",
     "recharts": "^2.15.0",
     "redux": "^5.0.1",
     "redux-thunk": "^3.1.0",
@@ -137,6 +138,8 @@
     "@headlessui/react": {
       "react": "19.2.0",
       "react-dom": "19.2.0"
-    }
+    },
+    "vector-tile": "npm:@mapbox/vector-tile@^2.0.4",
+    "point-geometry": "npm:@mapbox/point-geometry@^1.1.0"
   }
 }

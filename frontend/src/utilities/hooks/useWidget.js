@@ -8,6 +8,8 @@ const sqlApi = 'https://cdb-cdn.resilienceatlas.org/user/ra/api/v2/sql';
 export const useWidget = ({ slug, geojson }, { type, analysisQuery, analysisBody }) => {
   const isCOGLayer = useMemo(() => type === 'cog', [type]);
   const query = useMemo(() => {
+    if (!analysisQuery) return null;
+
     if (analysisBody) {
       const { assetId, params: providedParams } = JSON.parse(analysisBody);
       let parsedQuery = analysisQuery;

@@ -1,0 +1,276 @@
+// Scope Statistics — generic pre-computed dataset display for analysis panel
+
+.scope-statistics-panel {
+  padding: 12px 0;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  &__title {
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0;
+    color: #333;
+  }
+
+  &__variant-selector {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  &__dimension-selector {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    padding: 4px 0;
+  }
+
+  &__dimension-option {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    color: #555;
+    cursor: pointer;
+
+    input[type='radio'] {
+      margin: 0;
+      cursor: pointer;
+    }
+
+    span {
+      text-transform: capitalize;
+    }
+  }
+
+  &__variant-label {
+    font-size: 12px;
+    color: #666;
+    white-space: nowrap;
+  }
+
+  &__variant-select {
+    font-size: 12px;
+    padding: 4px 8px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    background: #fff;
+    cursor: pointer;
+
+    &:focus {
+      outline: none;
+      border-color: #3498db;
+      box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+    }
+  }
+
+  &__dataset {
+    margin-bottom: 24px;
+    padding: 0 16px;
+  }
+
+  &__dataset-title {
+    font-size: 14px;
+    font-weight: 600;
+    margin: 0 0 4px;
+    color: #444;
+  }
+
+  &__dataset-description {
+    font-size: 12px;
+    color: #777;
+    margin: 0 0 12px;
+    line-height: 1.4;
+  }
+}
+
+// Chart wrapper
+.scope-chart {
+  margin-bottom: 16px;
+
+  &__title {
+    font-size: 13px;
+    font-weight: 600;
+    margin: 0 0 4px;
+    color: #555;
+  }
+
+  &__description {
+    font-size: 11px;
+    color: #888;
+    margin: 0 0 8px;
+  }
+
+  &__container {
+    width: 100%;
+    min-height: 200px;
+    overflow: hidden;
+  }
+}
+
+// KPI Summary Cards
+.kpi-summary-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+
+  &__card {
+    flex: 1 1 120px;
+    min-width: 100px;
+    padding: 10px 12px;
+    border: 1px solid #e0e0e0;
+    border-top: 3px solid #3498db;
+    border-radius: 4px;
+    background: #fafafa;
+    text-align: center;
+  }
+
+  &__value {
+    font-size: 20px;
+    font-weight: 700;
+    color: #333;
+    line-height: 1.2;
+  }
+
+  &__label {
+    font-size: 11px;
+    color: #888;
+    margin-top: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+}
+
+// Data Table
+.scope-data-table {
+  margin-bottom: 16px;
+
+  &__controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+  }
+
+  &__filter {
+    font-size: 12px;
+    padding: 4px 8px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    background: #fff;
+  }
+
+  &__export {
+    font-size: 11px;
+    padding: 4px 10px;
+    margin-left: auto;
+  }
+
+  &__wrapper {
+    overflow-x: auto;
+    overflow-y: hidden;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    font-size: 12px;
+  }
+
+  &__header {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: #f5f5f5;
+    border-bottom: 2px solid #ddd;
+  }
+
+  &__table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+
+    th,
+    td {
+      padding: 6px 8px;
+      text-align: left;
+      white-space: nowrap;
+    }
+  }
+
+  &__th {
+    padding: 6px 8px;
+    text-align: left;
+    white-space: nowrap;
+    font-weight: 600;
+    color: #555;
+    user-select: none;
+
+    &:hover {
+      background: #eee;
+    }
+  }
+
+  &__sort-indicator {
+    font-size: 10px;
+    margin-left: 2px;
+  }
+
+  &__row {
+    border-bottom: 1px solid #eee;
+    align-items: center;
+
+    &:nth-child(even) {
+      background: #fafafa;
+    }
+
+    &:hover {
+      background: #e8f4fd;
+    }
+
+    &--clickable {
+      cursor: pointer;
+    }
+
+    &--highlighted {
+      background: #fce4ec !important;
+      outline: 2px solid #e74c3c;
+      outline-offset: -2px;
+    }
+  }
+
+  &__td {
+    padding: 6px 8px;
+    text-align: left;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: #333;
+  }
+
+  &__footer {
+    font-size: 11px;
+    color: #888;
+    padding: 6px 0;
+    text-align: right;
+  }
+}
+
+// Category badge
+.category-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 500;
+  background: #ddd;
+  color: #333;
+}

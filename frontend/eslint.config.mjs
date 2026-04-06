@@ -176,6 +176,7 @@ export default [
       'no-debugger': 'warn',
       // In React 17+, React import is not required for JSX
       'no-unused-vars': ['warn', { varsIgnorePattern: '^React$' }],
+      'react/jsx-uses-vars': 'error',
     },
   },
 ];

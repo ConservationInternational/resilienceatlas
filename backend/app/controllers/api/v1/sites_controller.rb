@@ -9,6 +9,7 @@ module Api
 
       def index
         sites = SiteScope.with_translations
+        expires_in 1.hour, public: true, stale_while_revalidate: 5.minutes
         render json: sites
       end
 
@@ -16,6 +17,7 @@ module Api
 
       def show
         site = SiteScope.find(params[:site_scope])
+        expires_in 1.hour, public: true, stale_while_revalidate: 5.minutes
         render json: site, include: ["site_pages"]
       end
     end

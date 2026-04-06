@@ -14,6 +14,14 @@ class FixMissingBidxForMultibandCogLayers < ActiveRecord::Migration[7.2]
       return
     end
 
+    # Reset column caches so models reflect the current DB schema.
+    # Earlier migrations in the same batch may have added/removed columns
+    # (e.g. timeline_format was added then removed), leaving stale caches.
+    [Layer, SiteScope, Source, LayerGroup].each do |klass|
+      klass.reset_column_information if klass.respond_to?(:reset_column_information)
+    end
+    Agrupation.reset_column_information if defined?(Agrupation) && Agrupation.respond_to?(:reset_column_information)
+
     Rails.logger.info "FixMissingBidx: Re-running Trends.Earth seed to set correct bidx values"
     load seed_file
     Rails.logger.info "FixMissingBidx: Seed completed"

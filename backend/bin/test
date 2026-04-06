@@ -178,6 +178,23 @@ else
   echo "⚠️  Rails test.log file may not be accessible, but continuing..."
 fi
 
+# Ensure /usr/local/bundle is writable (needed when using volume mounts in Docker)
+# When running via `docker compose run`, the command section in docker-compose.test.yml
+# is replaced, so the permission fix there never runs.
+# Always fix permissions when sudo is available, since subdirs (e.g. cache/) may be root-owned
+# even if the parent directory appears writable.
+if [ -d "/usr/local/bundle" ] && command -v sudo >/dev/null 2>&1; then
+  echo "🔧 Fixing /usr/local/bundle permissions..."
+  sudo chown -R "$(whoami):$(whoami)" /usr/local/bundle 2>/dev/null || echo "⚠️  Could not fix /usr/local/bundle ownership"
+fi
+
+# Unfreeze bundle if frozen (Dockerfile sets frozen=true, but we need to install at runtime
+# when the Gemfile.lock has changed or bundle volume is stale)
+if bundle config get frozen 2>/dev/null | grep -q "true"; then
+  echo "🔧 Unfreezing bundle for runtime install..."
+  bundle config set frozen false 2>/dev/null || true
+fi
+
 # Try bundle install, but don't fail if gems are already satisfied
 if ! bundle check >/dev/null 2>&1; then
   echo "Dependencies not satisfied, running bundle install..."

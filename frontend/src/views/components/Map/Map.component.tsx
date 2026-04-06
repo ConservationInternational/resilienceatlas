@@ -58,6 +58,7 @@ import MapOffset from './MapOffset';
 import MapPopup from './MapPopup';
 import LayerErrorModal, { type LayerError } from 'views/components/LayerErrorModal';
 import CompareControl from './CompareControl';
+import { ScopeGeometryLayer } from 'views/shared/ScopeStatistics';
 
 const MapView = (props: MapViewProps) => {
   const {
@@ -332,6 +333,9 @@ const MapView = (props: MapViewProps) => {
 
           {/* Compare mode control */}
           {compareEnabled && <CompareControl map={map} />}
+
+          {/* Scope dataset geometry overlay for chart↔map interaction */}
+          <ScopeGeometryLayer map={map} />
 
           <LayerErrorModal
             errors={layerErrors}

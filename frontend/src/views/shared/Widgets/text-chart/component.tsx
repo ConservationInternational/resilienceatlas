@@ -25,11 +25,12 @@ export const TextChart: FC<TextChartProps> = ({
   );
 
   const sentence = useMemo(() => {
-    if (!data?.rows?.[0]) {
+    if (!data?.rows?.[0] || !analysisTextTemplate) {
       return null;
     }
 
     return Object.keys(data.rows[0]).reduce((res, key) => {
+      if (!res) return null;
       let value: string | number = data.rows[0][key];
       if (typeof value === 'number') {
         value = value.toFixed(2);

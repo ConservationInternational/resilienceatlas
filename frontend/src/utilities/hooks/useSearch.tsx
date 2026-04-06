@@ -19,6 +19,7 @@ export const useSearch = (
         .map((d) => {
           const text = searchInput.value.toLowerCase();
           const value = d[valueKey] as string;
+          if (!value) return null;
           const index = value.toLowerCase().replace(/-/gi, ' ').indexOf(text);
 
           if (index >= 0) {

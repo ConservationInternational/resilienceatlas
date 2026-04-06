@@ -3,13 +3,16 @@ import qs from 'qs';
 import cx from 'classnames';
 import { useDropzone } from 'react-dropzone';
 import { T } from '@transifex/react';
+import { useSelector } from 'react-redux';
 
 import Tabs from 'views/shared/Tabs';
 import { useDownloadableReport } from 'utilities/hooks/downloadableReport';
 import { useSearch } from 'utilities';
 import { TABS } from '../Sidebar';
+import { getDatasets } from 'state/modules/scope_datasets';
 
 import { LayerAnalysis, PredictiveModelAnalysis } from './AnalysisContent';
+import { ScopeStatisticsPanel } from 'views/shared/ScopeStatistics';
 import { getServerSideTranslations } from 'i18n';
 
 const ACCEPTED_EXTENSIONS = ['.json', '.geojson'];
@@ -20,6 +23,8 @@ export const AnalysisPanel = ({
   setDrawing,
   setGeojson,
   setISO,
+  fetchIntersectingUnits,
+  clearSpatialFilter,
   toggle,
   // data
   countriesLoaded,
@@ -62,8 +67,19 @@ export const AnalysisPanel = ({
   const resetAnalytics = useCallback(() => {
     setGeojson(null);
     setISO(null);
+    clearSpatialFilter();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Trigger spatial filtering when a country or drawn shape is selected
+  useEffect(() => {
+    if (iso) {
+      fetchIntersectingUnits({ iso });
+    } else if (geojson) {
+      fetchIntersectingUnits({ geometry: geojson });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [iso, geojson]);
 
   const onDrop = useCallback(([file]) => {
     const regex = new RegExp(`((${ACCEPTED_EXTENSIONS.join('|')}))$`);
@@ -112,6 +128,8 @@ export const AnalysisPanel = ({
     onSelect: ({ iso }) => setISO(iso),
   });
   const downloadableReport = useDownloadableReport();
+  const scopeDatasets = useSelector(getDatasets);
+  const hasScopeDatasets = scopeDatasets.length > 0;
 
   <T _str={'Contract analysis panel'} />;
 
@@ -138,14 +156,16 @@ export const AnalysisPanel = ({
               >
                 <T _str="Country or region" />
               </button>
-              <button
-                type="button"
-                className={cx({ '-active': tab === 'shape' })}
-                data-tab="shape"
-                onClick={switchTab}
-              >
-                <T _str="Draw or upload shape" />
-              </button>
+              {!hasScopeDatasets && (
+                <button
+                  type="button"
+                  className={cx({ '-active': tab === 'shape' })}
+                  data-tab="shape"
+                  onClick={switchTab}
+                >
+                  <T _str="Draw or upload shape" />
+                </button>
+              )}
             </div>
 
             {!(geojson || iso) ? (
@@ -238,20 +258,23 @@ export const AnalysisPanel = ({
                     <T _str="Reset the analysis" />
                   </button>
                   <br />
-                  <a
-                    className="btn -primary"
-                    href="https://www.resilienceatlas.org/shinny-app"
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    <T _str="Go to Shinny App" />
-                  </a>
+                  {!hasScopeDatasets && (
+                    <a
+                      className="btn -primary"
+                      href="https://www.resilienceatlas.org/shinny-app"
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      <T _str="Go to Shinny App" />
+                    </a>
+                  )}
                 </div>
               </>
             )}
           </div>
         </div>
         <div id="analysisView" className="m-analysis" />
+        <ScopeStatisticsPanel />
       </div>
     </div>
   );

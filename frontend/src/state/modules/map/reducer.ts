@@ -46,7 +46,7 @@ const initialState: MapState = {
   boundaries: false,
   // geojson: getRouterParam('geojson', JSON.parse),
   bounds: null,
-  iso: null,
+  iso: getRouterParam('iso'),
   basemap: 'defaultmap',
   labels: 'none',
   layerGroupsInteraction: {},

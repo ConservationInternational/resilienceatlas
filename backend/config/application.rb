@@ -61,6 +61,10 @@ module ConservationInternational
     # Heroku Asset Pippeline
     config.assets.initialize_on_precompile = false
 
+    # Compress all text-based HTTP responses (JSON, HTML) with gzip.
+    # Provides ~70-80% size reduction on API JSON payloads.
+    config.middleware.use Rack::Deflater
+
     config.middleware.insert_before 0, Rack::Cors do
       allow do
         origins "*"

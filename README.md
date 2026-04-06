@@ -53,13 +53,33 @@
    | Email | `admin@example.com` |
    | Password | `password` |
 
+4. **Database Seeding**
+
+   Seeds run automatically on the first start (when the database is empty) and are **skipped on subsequent starts**. To re-seed:
+   ```bash
+   # Force seeds on next startup
+   FORCE_SEED=true docker compose -f docker-compose.dev.yml up backend
+
+   # Or run seeds manually against a running container
+   docker compose -f docker-compose.dev.yml exec backend bundle exec rails db:seed
+   ```
+
+5. **Load Admin Boundaries**
+
+   Admin boundary data (used for the analysis panel country selector) is not included in seeds. Import from the GeoPackage files in the `boundaries/` directory:
+   ```bash
+   docker compose -f docker-compose.dev.yml run --rm \
+     -v ./boundaries:/data/geoboundaries:ro \
+     backend rake boundaries:import
+   ```
+
 ### Hybrid Development (Database in Docker, Apps Local)
 
 For faster development iteration, you can run only the database in Docker while running the frontend and backend locally:
 
-1. **Start only the database**
+1. **Start only the database and martin**
    ```bash
-   docker compose -f docker-compose.dev.yml up -d db
+   docker compose -f docker-compose.dev.yml up -d db martin
    ```
 
 2. **Start the backend** (requires Ruby 3.4.8)

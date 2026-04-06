@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_03_26_200000) do
+ActiveRecord::Schema[7.2].define(version: 2026_04_06_140000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "postgis"
@@ -404,6 +404,14 @@ ActiveRecord::Schema[7.2].define(version: 2026_03_26_200000) do
     t.index ["source_id"], name: "index_layers_sources_on_source_id"
   end
 
+  create_table "ldn_dissolved_geometries", id: :serial, force: :cascade do |t|
+    t.text "dimension", null: false
+    t.text "unit_id", null: false
+    t.jsonb "properties"
+    t.geometry "geom", limit: {srid: 4326, type: "multi_polygon"}
+    t.index ["dimension"], name: "idx_ldn_dissolved_dim"
+  end
+
   create_table "map_menu_entries", force: :cascade do |t|
     t.string "link"
     t.integer "position"
@@ -454,6 +462,41 @@ ActiveRecord::Schema[7.2].define(version: 2026_03_26_200000) do
     t.text "image_data"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "scope_dataset_geometries", force: :cascade do |t|
+    t.bigint "scope_dataset_id", null: false
+    t.string "unit_id", null: false
+    t.jsonb "properties", default: {}, null: false
+    t.geometry "geom", limit: {srid: 4326, type: "multi_polygon"}, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["geom"], name: "index_scope_dataset_geometries_on_geom", using: :gist
+    t.index ["scope_dataset_id", "unit_id"], name: "idx_scope_dataset_geom_dataset_unit", unique: true
+    t.index ["scope_dataset_id"], name: "index_scope_dataset_geometries_on_scope_dataset_id"
+  end
+
+  create_table "scope_datasets", force: :cascade do |t|
+    t.bigint "site_scope_id", null: false
+    t.string "slug", null: false
+    t.string "name", null: false
+    t.text "description"
+    t.string "data_type", default: "tabular", null: false
+    t.jsonb "schema_config", default: [], null: false
+    t.jsonb "data", default: [], null: false
+    t.jsonb "chart_config", default: [], null: false
+    t.integer "display_order", default: 0
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "group_key"
+    t.string "variant_label"
+    t.string "dimension"
+    t.jsonb "dimension_config", default: {}
+    t.index ["site_scope_id", "dimension"], name: "index_scope_datasets_on_site_scope_id_and_dimension"
+    t.index ["site_scope_id", "group_key"], name: "index_scope_datasets_on_site_scope_id_and_group_key"
+    t.index ["site_scope_id", "slug"], name: "index_scope_datasets_on_site_scope_id_and_slug", unique: true
+    t.index ["site_scope_id"], name: "index_scope_datasets_on_site_scope_id"
+    t.index ["slug"], name: "index_scope_datasets_on_slug"
   end
 
   create_table "share_urls", force: :cascade do |t|
@@ -688,6 +731,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_03_26_200000) do
   add_foreign_key "journey_steps", "journeys", on_delete: :cascade
   add_foreign_key "layer_group_translations", "layer_groups"
   add_foreign_key "layer_translations", "layers"
+  add_foreign_key "scope_dataset_geometries", "scope_datasets"
+  add_foreign_key "scope_datasets", "site_scopes"
   add_foreign_key "static_page_section_items", "static_page_sections", column: "section_id", on_delete: :cascade
   add_foreign_key "static_page_section_paragraphs", "static_page_sections", column: "section_id", on_delete: :cascade
   add_foreign_key "static_page_section_references", "static_page_sections", column: "section_id", on_delete: :cascade

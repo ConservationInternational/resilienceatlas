@@ -47,6 +47,14 @@ Rails.application.routes.draw do
       get "/menu-entries", to: "menu_entries#index"
       get "/homepage", to: "homepages#show"
 
+      # Admin boundaries (country/province/district polygons)
+      get "/admin-boundaries", to: "admin_boundaries#index"
+
+      # Scope datasets (pre-computed statistics for site scopes)
+      get "/scope-datasets", to: "scope_datasets#index"
+      get "/scope-datasets/intersecting-units", to: "scope_datasets#intersecting_units"
+      get "/scope-datasets/:slug", to: "scope_datasets#show"
+
       # Site scope authentication endpoints
       post "/site-scope/authenticate", to: "site_scope_authentications#authenticate"
       get "/site-scope/check-access", to: "site_scope_authentications#check_access"

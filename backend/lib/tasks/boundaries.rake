@@ -28,7 +28,8 @@ namespace :boundaries do
 
     # Build PG connection string for ogr2ogr
     pg_conn = if ENV["DATABASE_URL"].present?
-      ENV["DATABASE_URL"]
+      # ogr2ogr requires postgresql:// scheme, not postgis://
+      ENV["DATABASE_URL"].sub(/\Apostgis:/, "postgresql:")
     else
       cfg = ActiveRecord::Base.connection_db_config.configuration_hash
       host = cfg[:host] || "localhost"
@@ -108,6 +109,22 @@ namespace :boundaries do
 
       puts "  ADM#{level}: #{AdminBoundary.where(admin_level: level).count} boundaries imported"
     end
+
+    puts ""
+    puts "Cleaning geometries (ST_MakeValid + clip to Web Mercator extent)..."
+    ActiveRecord::Base.connection.execute(<<~SQL)
+      UPDATE admin_boundaries
+      SET geom = ST_Multi(ST_CollectionExtract(
+        ST_Intersection(
+          ST_MakeValid(geom),
+          ST_MakeEnvelope(-180, -85.051129, 180, 85.051129, 4326)
+        ),
+        3
+      ))
+      WHERE NOT ST_IsValid(geom)
+         OR NOT ST_CoveredBy(geom, ST_MakeEnvelope(-180, -85.051129, 180, 85.051129, 4326))
+    SQL
+    puts "  Done."
 
     puts ""
     puts "=== Import complete ==="

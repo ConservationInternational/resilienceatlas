@@ -53,6 +53,8 @@ export const useAxios = (config, deps, parseData) => {
   const configKey = JSON.stringify(config);
 
   useEffect(() => {
+    if (!configRef.current) return;
+
     const abortController = new AbortController();
     dispatch({ type: FETCH.REQUEST });
 

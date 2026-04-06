@@ -1,0 +1,51 @@
+#!/bin/bash
+# Development entrypoint for the Rails backend.
+# Runs bundle install, migrations, and conditionally seeds the database.
+#
+# Environment variables:
+#   SKIP_SEED=true   - Never run seeds, even on a fresh database
+#   FORCE_SEED=true  - Always run seeds, even if data already exists
+
+set -e
+
+echo "=== Development Entrypoint ==="
+
+# --- Dependencies ---
+bundle install
+
+# --- Wait for database ---
+while ! pg_isready -h db -p 5432 -U postgres; do
+  echo "Waiting for database to be ready..."
+  sleep 2
+done
+
+# --- PostGIS extensions (idempotent, suppress status output) ---
+PGPASSWORD=postgres psql -h db -U postgres -d cigrp -q \
+  -c 'CREATE EXTENSION IF NOT EXISTS postgis; CREATE EXTENSION IF NOT EXISTS postgis_topology;' \
+  2>/dev/null || true
+
+# --- Migrations ---
+bundle exec rails db:create db:migrate
+
+# --- Seeding ---
+if [ "${SKIP_SEED:-false}" = "true" ]; then
+  echo "SKIP_SEED is set, skipping database seeds."
+elif [ "${FORCE_SEED:-false}" = "true" ]; then
+  echo "FORCE_SEED is set, running database seeds..."
+  bundle exec rails db:seed
+else
+  # Auto-detect: seed only when the database looks empty (no layers yet).
+  LAYER_COUNT=$(PGPASSWORD=postgres psql -h db -U postgres -d cigrp -tAc \
+    "SELECT COUNT(*) FROM layers;" 2>/dev/null || echo "0")
+  if [ "$LAYER_COUNT" -gt "0" ]; then
+    echo "Database already seeded ($LAYER_COUNT layers). Skipping seeds."
+    echo "  To force: FORCE_SEED=true docker compose -f docker-compose.dev.yml up backend"
+  else
+    echo "Empty database detected. Running seeds..."
+    bundle exec rails db:seed
+  fi
+fi
+
+# --- Start server ---
+rm -f tmp/pids/server.pid
+exec bundle exec rails server -b 0.0.0.0

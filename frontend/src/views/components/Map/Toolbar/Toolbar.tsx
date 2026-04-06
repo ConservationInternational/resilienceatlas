@@ -4,8 +4,13 @@ import { Popover, PopoverButton, PopoverPanel } from '@headlessui/react';
 
 import ShareModal from 'views/components/ShareModal';
 import SearchArea from './SearchArea';
+import BasemapButton from './BasemapButton';
+import BoundariesButton from './BoundariesButton';
+import LabelsButton from './LabelsButton';
+import { useMapSettingsSync } from './useMapSettingsSync';
 
 const Toolbar: React.FC = () => {
+  useMapSettingsSync();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const handleModalToggle = useCallback(() => setIsModalOpen(!isModalOpen), [isModalOpen]);
 
@@ -28,12 +33,21 @@ const Toolbar: React.FC = () => {
             )}
           </Popover>
         </li>
-        <li className="m-toolbar__item">
+        <li className="m-toolbar__item m-toolbar__item--gap-after">
           <button type="button" className="btn-share" onClick={handleModalToggle}>
             <svg className="icon">
               <use xmlnsXlink="http://www.w3.org/1999/xlink" xlinkHref="#icon-share" />
             </svg>
           </button>
+        </li>
+        <li className="m-toolbar__item">
+          <BasemapButton />
+        </li>
+        <li className="m-toolbar__item">
+          <BoundariesButton />
+        </li>
+        <li className="m-toolbar__item">
+          <LabelsButton />
         </li>
       </ul>
       <ShareModal isOpen={isModalOpen} setIsOpen={setIsModalOpen} />
