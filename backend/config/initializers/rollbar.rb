@@ -64,13 +64,34 @@ module RollbarRateLimiter
     def generate_key(error_or_message)
       case error_or_message
       when Exception
-        # Use class name + message + first backtrace line for fingerprinting
+        # Use class name + normalized message + first backtrace line for fingerprinting
+        # For database exceptions, strip variable SQL to group identical error types together
         backtrace_line = error_or_message.backtrace&.first || ""
-        "exc:#{error_or_message.class}:#{error_or_message.message}:#{backtrace_line}"
+        message = normalize_error_message(error_or_message)
+        "exc:#{error_or_message.class}:#{message}:#{backtrace_line}"
       when String
         "str:#{error_or_message}"
       else
         "obj:#{error_or_message.class}:#{error_or_message.to_s[0..100]}"
+      end
+    end
+
+    # Normalize exception messages for better rate-limit grouping.
+    # For database exceptions, strip the SQL query so all occurrences
+    # of the same PG error (e.g. UndefinedTable for the same relation)
+    # land in a single rate-limit bucket regardless of query params.
+    def normalize_error_message(exception)
+      msg = exception.message.to_s
+      case exception
+      when ActiveRecord::StatementInvalid
+        # Extract just the PG error (before "LINE N:" or the SQL)
+        if (match = msg.match(/\APG::\w+[^:]*:\s*ERROR:\s*(.+?)(?:\nLINE|\z)/m))
+          match[1].strip
+        else
+          msg.truncate(120)
+        end
+      else
+        msg.truncate(200)
       end
     end
 

@@ -7,10 +7,12 @@ module Api
       def index
         datasets = ScopeDataset.for_site_scope(params[:site_scope])
           .ordered
-          .select(
+        if geometry_table_exists?
+          datasets = datasets.select(
             "scope_datasets.*",
             "(SELECT COUNT(*) FROM scope_dataset_geometries WHERE scope_dataset_geometries.scope_dataset_id = scope_datasets.id) AS geom_count_cache"
           )
+        end
         expires_in 1.hour, public: true, stale_while_revalidate: 5.minutes
         render json: datasets, each_serializer: ScopeDatasetSerializer,
           meta: {total_datasets: datasets.size}
@@ -26,6 +28,11 @@ module Api
       end
 
       def intersecting_units
+        unless geometry_table_exists?
+          render json: {}
+          return
+        end
+
         if params[:iso].present?
           boundary = AdminBoundary.countries.find_by(iso_code: params[:iso])
           unless boundary
@@ -66,6 +73,12 @@ module Api
         return val if val.is_a?(Array)
         return [] if val.nil?
         val.gsub(/[{}"]/, "").split(",")
+      end
+
+      def geometry_table_exists?
+        @geometry_table_exists ||= ActiveRecord::Base.connection.table_exists?("scope_dataset_geometries")
+      rescue ActiveRecord::StatementInvalid
+        false
       end
     end
   end

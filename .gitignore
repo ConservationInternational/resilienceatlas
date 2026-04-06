@@ -267,4 +267,4 @@ scripts/cartodb_table_export/*.csv.gz
 scripts/cartodb_table_export/*.log
 
 # COG conversion status files
-scripts/cartodb_cog_conversion/cog_status/
+scripts/cartodb_cog_conversion/cog_status/boundaries/*.gpkg

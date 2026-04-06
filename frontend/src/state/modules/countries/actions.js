@@ -14,10 +14,10 @@ export const load = () =>
         const rows = boundaries
           .filter((b) => b.name && b.iso_code)
           .map((b) => ({
-          name: b.name,
-          iso: b.iso_code,
-          geometry: b.geometry,
-        }));
+            name: b.name,
+            iso: b.iso_code,
+            geometry: b.geometry,
+          }));
         return { ...response, data: { rows } };
       }),
     { schema: { rows: [country] } },

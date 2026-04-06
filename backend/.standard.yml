@@ -9,3 +9,4 @@ ignore:
   - 'db/data/layers.rb'  # Auto-generated seed data
   - 'bin/**/*'
   - 'vendor/**/*'
+  - 'tmp/**/*'
