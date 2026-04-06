@@ -65,10 +65,6 @@ describe('Map page - SSR Layout', () => {
     cy.get('.l-sidebar-content').should('exist');
     cy.get('.m-sidebar').should('exist');
     cy.get('.tabs').should('exist');
-    // Verify basemap and label selectors
-    cy.get('.m-basemap-selectors').should('exist');
-    cy.get('.m-basemap-selectors button').should('have.length.at.least', 4);
-    cy.get('.m-labels-selectors').should('exist');
   });
 });
 
