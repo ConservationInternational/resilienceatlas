@@ -2,10 +2,21 @@
 # ──────────────────────────────────────────────────────────────
 # setup_ldn_data.sh
 #
-# Downloads LDN (Land Degradation Neutrality) datasets and
-# geoBoundaries GeoPackage files from the trends.earth-private S3
-# bucket, then runs the existing rake tasks to import boundaries
-# and dissolve LDN geometries, and finally seeds the LDN scope.
+# Downloads pre-dissolved LDN geometry GPKGs, key CSVs, per-mode
+# statistics CSVs, and geoBoundaries GeoPackage files from the
+# trends.earth-private S3 bucket. Then imports boundaries, loads
+# pre-dissolved geometries, and seeds the LDN scope into the
+# Resilience Atlas database.
+#
+# Data on S3:
+#   Geometry GPKGs + key CSVs:
+#     s3://trends.earth-private/counterbalancing/land_type/output/
+#       pa_ecoregion.gpkg, pa_ecoregion_country.gpkg
+#       pa_ecoregion_key.csv, pa_ecoregion_country_key.csv
+#   Per-mode statistics CSVs (tab-delimited):
+#     s3://trends.earth-private/counterbalancing/{TE,JRC,FAO-WOCAT}/
+#       TrendsEarth_LDN_2000-2023_{mode}_ecoregion_summary.csv
+#       TrendsEarth_LDN_2000-2023_{mode}_country_ecoregion_summary.csv
 #
 # Automatically detects the environment:
 #   - Deployed (staging/production): uses running Swarm containers,
@@ -33,6 +44,7 @@ REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 S3_BUCKET="trends.earth-private"
 S3_PREFIX="counterbalancing"
 S3_INPUTS_PREFIX="${S3_PREFIX}/land_type/inputs"
+S3_OUTPUT_PREFIX="${S3_PREFIX}/land_type/output"
 
 LDN_DATA_DIR="${LDN_DATA_DIR:-$REPO_ROOT}"
 GEOBOUNDARIES_DIR="${GEOBOUNDARIES_DIR:-/tmp/geoboundaries}"
@@ -213,7 +225,9 @@ backend_exec() {
 
 # ── Productivity modes and their S3 folders ──
 # S3 layout: s3://trends.earth-private/counterbalancing/{mode_s3_folder}/
-#   Each folder contains TIFs, GPKGs, CSVs, JSONs, and XLSX files
+#   Each folder contains TIFs, summary CSVs, and other files.
+# Pre-dissolved geometry GPKGs + key CSVs are in:
+#   s3://trends.earth-private/counterbalancing/land_type/output/
 
 declare -A MODE_S3_FOLDERS=(
   ["Trends.Earth"]="TE"
@@ -221,10 +235,9 @@ declare -A MODE_S3_FOLDERS=(
   ["JRC"]="JRC"
 )
 
-# Only the country_ecoregion GPKG is needed per mode — it's used by
-# rake ldn:dissolve_geometries and seed.rb to import geometries + stats.
-# TIF files are served by TiTiler directly from S3 at runtime and do NOT
-# need to be downloaded locally.
+# Per-mode statistics CSVs are tab-delimited and contain pre-aggregated
+# LDN metrics. TIF files are served by TiTiler directly from S3 at
+# runtime and do NOT need to be downloaded locally.
 
 # ──────────────────────────────────────────────────────────────
 # Step 1: Download geoBoundaries GPKG files from S3
@@ -259,41 +272,54 @@ download_boundaries() {
 # Step 2: Download LDN datasets from S3
 # ──────────────────────────────────────────────────────────────
 
+# ──────────────────────────────────────────────────────────────
+# Step 2: Download LDN datasets from S3
+# ──────────────────────────────────────────────────────────────
+
 download_ldn_datasets() {
-  info "Downloading LDN counterbalancing GPKG files..."
+  info "Downloading LDN pre-dissolved geometry GPKGs, key CSVs, and per-mode statistics..."
   mkdir -p "$LDN_DATA_DIR"
 
+  local s3_output="s3://${S3_BUCKET}/${S3_OUTPUT_PREFIX}"
   local missing=0
 
+  # ── Pre-dissolved geometry GPKGs ──
+  for gpkg in pa_ecoregion.gpkg pa_ecoregion_country.gpkg; do
+    download_file "${s3_output}/${gpkg}" "${LDN_DATA_DIR}/${gpkg}"
+    if [[ ! -f "${LDN_DATA_DIR}/${gpkg}" ]]; then
+      missing=$((missing + 1))
+    fi
+  done
+
+  # ── Key CSVs (map GPKG unit_id → eco_id, country_id, biome, realm) ──
+  for csv in pa_ecoregion_key.csv pa_ecoregion_country_key.csv; do
+    download_file "${s3_output}/${csv}" "${LDN_DATA_DIR}/${csv}"
+    if [[ ! -f "${LDN_DATA_DIR}/${csv}" ]]; then
+      missing=$((missing + 1))
+    fi
+  done
+
+  # ── Per-mode statistics CSVs (tab-delimited) ──
   for mode_name in "${!MODE_S3_FOLDERS[@]}"; do
     local s3_folder="${MODE_S3_FOLDERS[$mode_name]}"
     local s3_base="s3://${S3_BUCKET}/${S3_PREFIX}/${s3_folder}"
 
     info "  Mode: $mode_name (s3 folder: $s3_folder)"
 
-    # Only the country_ecoregion GPKG is needed (dissolve_geometries + seed)
-    local gpkg="TrendsEarth_LDN_2000-2023_${mode_name}_country_ecoregion_land_types.gpkg"
-    download_file "$s3_base/${gpkg}" "${LDN_DATA_DIR}/${gpkg}"
-
-    if [[ ! -f "${LDN_DATA_DIR}/${gpkg}" ]]; then
-      missing=$((missing + 1))
-    fi
+    for summary_type in ecoregion_summary country_ecoregion_summary; do
+      local csv="TrendsEarth_LDN_2000-2023_${mode_name}_${summary_type}.csv"
+      download_file "${s3_base}/${csv}" "${LDN_DATA_DIR}/${csv}"
+      if [[ ! -f "${LDN_DATA_DIR}/${csv}" ]]; then
+        missing=$((missing + 1))
+      fi
+    done
   done
 
   if [[ $missing -gt 0 ]]; then
-    warn "$missing GPKG file(s) missing. The GPKG files may not be on S3 yet."
-    warn "Upload them from your local machine with:"
-    for mode_name in "${!MODE_S3_FOLDERS[@]}"; do
-      local s3_folder="${MODE_S3_FOLDERS[$mode_name]}"
-      local gpkg="TrendsEarth_LDN_2000-2023_${mode_name}_country_ecoregion_land_types.gpkg"
-      if [[ ! -f "${LDN_DATA_DIR}/${gpkg}" ]]; then
-        warn "  aws s3 cp ${gpkg} s3://${S3_BUCKET}/${S3_PREFIX}/${s3_folder}/${gpkg}"
-      fi
-    done
-    error "Cannot continue without GPKG files. Upload them to S3 and re-run."
+    error "$missing required file(s) missing from S3. Check the bucket and re-run."
   fi
 
-  ok "LDN GPKG files ready in $LDN_DATA_DIR"
+  ok "LDN data files ready in $LDN_DATA_DIR"
 }
 
 download_file() {
@@ -339,23 +365,23 @@ import_boundaries() {
 }
 
 # ──────────────────────────────────────────────────────────────
-# Step 4: Dissolve LDN geometries
+# Step 4: Import pre-dissolved LDN geometries
 # ──────────────────────────────────────────────────────────────
 
-dissolve_ldn_geometries() {
-  info "Dissolving LDN geometries..."
+import_ldn_geometries() {
+  info "Importing pre-dissolved LDN geometries..."
 
   if [[ "$MODE" == "deployed" ]]; then
-    copy_ldn_data_to_container
+    copy_geometry_data_to_container
     backend_exec -e "LDN_DATA_DIR=/data/ldn" \
-      -- bundle exec rake ldn:dissolve_geometries
+      -- bundle exec rake ldn:import_geometries
   else
     backend_exec -e "LDN_DATA_DIR=/data/ldn" -v "${LDN_DATA_DIR}:/data/ldn:ro" \
-      -- bundle exec rake ldn:dissolve_geometries
+      -- bundle exec rake ldn:import_geometries
   fi
 
-  ok "LDN geometries dissolved"
-  backend_exec -- bundle exec rake ldn:dissolve_status
+  ok "LDN geometries imported"
+  backend_exec -- bundle exec rake ldn:geometry_status
 }
 
 # ──────────────────────────────────────────────────────────────
@@ -366,7 +392,7 @@ seed_ldn_scope() {
   info "Seeding LDN site scope..."
 
   if [[ "$MODE" == "deployed" ]]; then
-    # Data should already be in /data/ldn from the dissolve step
+    copy_stats_data_to_container
     backend_exec -e "LDN_DATA_DIR=/data/ldn" \
       -- bundle exec rails runner db/data/ldn/seed.rb
   else
@@ -377,31 +403,45 @@ seed_ldn_scope() {
   ok "LDN scope seeded"
 }
 
-# ── Deployed-mode helper: copy LDN GPKGs + CSVs into container ──
+# ── Deployed-mode helper: copy pre-dissolved GPKGs + key CSVs into container ──
 
-copy_ldn_data_to_container() {
+copy_geometry_data_to_container() {
   docker exec "$BACKEND_CONTAINER" mkdir -p /data/ldn
 
-  # Copy all LDN GPKG files
-  for mode_name in "${!MODE_S3_FOLDERS[@]}"; do
-    local gpkg="TrendsEarth_LDN_2000-2023_${mode_name}_country_ecoregion_land_types.gpkg"
-    if [[ -f "${LDN_DATA_DIR}/${gpkg}" ]]; then
-      info "  Copying $gpkg into container..."
-      docker cp "${LDN_DATA_DIR}/${gpkg}" "${BACKEND_CONTAINER}:/data/ldn/${gpkg}"
+  for f in pa_ecoregion.gpkg pa_ecoregion_country.gpkg pa_ecoregion_key.csv pa_ecoregion_country_key.csv; do
+    if [[ -f "${LDN_DATA_DIR}/${f}" ]]; then
+      info "  Copying $f into container..."
+      docker cp "${LDN_DATA_DIR}/${f}" "${BACKEND_CONTAINER}:/data/ldn/${f}"
     else
-      warn "  $gpkg not found in ${LDN_DATA_DIR} — skipping"
+      warn "  $f not found in ${LDN_DATA_DIR} — skipping"
     fi
   done
+}
 
-  # Copy lookup CSVs (used by dissolve_geometries for realm/country enrichment)
-  for csv in ecoregion_key.csv admin0_key.csv; do
+# ── Deployed-mode helper: copy per-mode stats CSVs + key CSVs into container ──
+
+copy_stats_data_to_container() {
+  docker exec "$BACKEND_CONTAINER" mkdir -p /data/ldn
+
+  # Key CSVs (needed for metadata joins)
+  for csv in pa_ecoregion_key.csv pa_ecoregion_country_key.csv; do
     if [[ -f "${LDN_DATA_DIR}/${csv}" ]]; then
       info "  Copying $csv into container..."
       docker cp "${LDN_DATA_DIR}/${csv}" "${BACKEND_CONTAINER}:/data/ldn/${csv}"
-    elif [[ -f "${REPO_ROOT}/${csv}" ]]; then
-      info "  Copying $csv into container (from repo root)..."
-      docker cp "${REPO_ROOT}/${csv}" "${BACKEND_CONTAINER}:/data/ldn/${csv}"
     fi
+  done
+
+  # Per-mode statistics CSVs
+  for mode_name in "${!MODE_S3_FOLDERS[@]}"; do
+    for summary_type in ecoregion_summary country_ecoregion_summary; do
+      local csv="TrendsEarth_LDN_2000-2023_${mode_name}_${summary_type}.csv"
+      if [[ -f "${LDN_DATA_DIR}/${csv}" ]]; then
+        info "  Copying $csv into container..."
+        docker cp "${LDN_DATA_DIR}/${csv}" "${BACKEND_CONTAINER}:/data/ldn/${csv}"
+      else
+        warn "  $csv not found in ${LDN_DATA_DIR} — skipping"
+      fi
+    done
   done
 }
 
@@ -445,8 +485,11 @@ main() {
   fi
 
   echo ""
-  echo "── Step 4/5: Dissolve LDN geometries ──"
-  dissolve_ldn_geometries
+  echo "── Step 4/5: Import pre-dissolved LDN geometries ──"
+  if [[ "$MODE" == "deployed" ]]; then
+    copy_geometry_data_to_container
+  fi
+  import_ldn_geometries
 
   echo ""
   echo "── Step 5/5: Seed LDN site scope ──"

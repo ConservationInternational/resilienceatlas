@@ -1003,7 +1003,7 @@ module LdnSeeder
       "Not achieving" => "#e74c3c"
     }.freeze
 
-    # Methodology variants — GPKG filename fragment → human label.
+    # Methodology variants — S3 folder name → human label.
     SCOPE_DATASET_VARIANTS = {
       "te" => {filename_mode: "Trends.Earth", label: "Trends.Earth"},
       "fao-wocat" => {filename_mode: "FAO-WOCAT", label: "FAO-WOCAT"},
@@ -1013,7 +1013,8 @@ module LdnSeeder
     # ── Dataset definitions ──
     #
     # Each key becomes the group_key on the resulting ScopeDataset.
-    # :sql        — query against _gpkg_raw (the ogr2ogr-imported GPKG).
+    # :sql        — query against temp stats tables (_eco_stats / _country_eco_stats)
+    #               joined with key tables (_eco_key / _eco_country_key).
     # :dimension  — spatial aggregation level shown to the user.
     # :geometry_* — optional; when present, dissolved geometries are
     #   inserted into scope_dataset_geometries for map highlighting.
@@ -1087,25 +1088,22 @@ module LdnSeeder
           }
         ],
         sql: <<~SQL,
-          SELECT eco_id, MAX(ecoregion) AS ecoregion, MAX(biome) AS biome, MAX(realm) AS realm,
-            ROUND(SUM(gains_km2)::numeric, 1) AS gains_km2,
-            ROUND(SUM(losses_km2)::numeric, 1) AS losses_km2,
-            ROUND(SUM(delta_ldn_km2)::numeric, 1) AS delta_ldn_km2,
-            ROUND(SUM(area_km2)::numeric, 1) AS total_area_km2,
-            CASE WHEN SUM(area_km2) > 0
-              THEN ROUND((SUM(gains_km2) / SUM(area_km2) * 100)::numeric, 1)
+          SELECT s.eco_id, k.eco_name AS ecoregion, k.biome_name AS biome, k.realm,
+            ROUND(s.gains_km2::numeric, 1) AS gains_km2,
+            ROUND(s.losses_km2::numeric, 1) AS losses_km2,
+            ROUND(s.delta_ldn_km2::numeric, 1) AS delta_ldn_km2,
+            ROUND(s.total_area_km2::numeric, 1) AS total_area_km2,
+            CASE WHEN s.total_area_km2 > 0
+              THEN ROUND((s.gains_km2 / s.total_area_km2 * 100)::numeric, 1)
               ELSE 0 END AS gains_pct,
-            CASE WHEN SUM(area_km2) > 0
-              THEN ROUND((SUM(losses_km2) / SUM(area_km2) * 100)::numeric, 1)
+            CASE WHEN s.total_area_km2 > 0
+              THEN ROUND((s.losses_km2 / s.total_area_km2 * 100)::numeric, 1)
               ELSE 0 END AS losses_pct,
-            CASE WHEN SUM(area_km2) > 0
-              THEN ROUND((SUM(delta_ldn_km2) / SUM(area_km2) * 100)::numeric, 1)
-              ELSE 0 END AS ldn_pct,
-            CASE WHEN SUM(delta_ldn_km2) > 0 THEN 'Exceeding'
-                 WHEN SUM(delta_ldn_km2) = 0 THEN 'Achieving'
-                 ELSE 'Not achieving' END AS category
-          FROM _gpkg_raw WHERE eco_id IS NOT NULL
-          GROUP BY eco_id ORDER BY eco_id
+            ROUND(s.ldn_pct::numeric, 1) AS ldn_pct,
+            s.category
+          FROM _eco_stats s
+          JOIN _eco_key k ON s.eco_id = k.eco_id AND k.is_pa = 0
+          ORDER BY s.eco_id
         SQL
         geometry_dimension: "ecoregion"
       },
@@ -1119,7 +1117,7 @@ module LdnSeeder
         dimension_config: {unit_label: "Country", unit_id_column: "admin0_id", name_column: "country"},
         schema_config: [
           {name: "admin0_id", type: "integer", label: "Country ID"},
-          {name: "admin0_iso", type: "string", label: "Country ISO"},
+          {name: "country_code", type: "string", label: "Country ISO"},
           {name: "country", type: "string", label: "Country"},
           {name: "gains_km2", type: "number", label: "Gains (km²)", format: ",.1f"},
           {name: "losses_km2", type: "number", label: "Losses (km²)", format: ",.1f"},
@@ -1178,27 +1176,27 @@ module LdnSeeder
           }
         ],
         sql: <<~SQL,
-          SELECT r.admin0_id::int AS admin0_id, MAX(a.shape_group) AS admin0_iso, MAX(r.country) AS country,
-            ROUND(SUM(r.gains_km2)::numeric, 1) AS gains_km2,
-            ROUND(SUM(r.losses_km2)::numeric, 1) AS losses_km2,
-            ROUND(SUM(r.delta_ldn_km2)::numeric, 1) AS delta_ldn_km2,
-            ROUND(SUM(r.area_km2)::numeric, 1) AS total_area_km2,
-            CASE WHEN SUM(r.area_km2) > 0
-              THEN ROUND((SUM(r.gains_km2) / SUM(r.area_km2) * 100)::numeric, 1)
+          SELECT k.country_id AS admin0_id, k.country_code, k.country_name AS country,
+            ROUND(SUM(s.gains_km2)::numeric, 1) AS gains_km2,
+            ROUND(SUM(s.losses_km2)::numeric, 1) AS losses_km2,
+            ROUND(SUM(s.delta_ldn_km2)::numeric, 1) AS delta_ldn_km2,
+            ROUND(SUM(s.total_area_km2)::numeric, 1) AS total_area_km2,
+            CASE WHEN SUM(s.total_area_km2) > 0
+              THEN ROUND((SUM(s.gains_km2) / SUM(s.total_area_km2) * 100)::numeric, 1)
               ELSE 0 END AS gains_pct,
-            CASE WHEN SUM(r.area_km2) > 0
-              THEN ROUND((SUM(r.losses_km2) / SUM(r.area_km2) * 100)::numeric, 1)
+            CASE WHEN SUM(s.total_area_km2) > 0
+              THEN ROUND((SUM(s.losses_km2) / SUM(s.total_area_km2) * 100)::numeric, 1)
               ELSE 0 END AS losses_pct,
-            CASE WHEN SUM(r.area_km2) > 0
-              THEN ROUND((SUM(r.delta_ldn_km2) / SUM(r.area_km2) * 100)::numeric, 1)
+            CASE WHEN SUM(s.total_area_km2) > 0
+              THEN ROUND((SUM(s.delta_ldn_km2) / SUM(s.total_area_km2) * 100)::numeric, 1)
               ELSE 0 END AS ldn_pct,
-            CASE WHEN SUM(r.delta_ldn_km2) > 0 THEN 'Exceeding'
-                 WHEN SUM(r.delta_ldn_km2) = 0 THEN 'Achieving'
+            CASE WHEN SUM(s.delta_ldn_km2) > 0 THEN 'Exceeding'
+                 WHEN SUM(s.delta_ldn_km2) = 0 THEN 'Achieving'
                  ELSE 'Not achieving' END AS category
-          FROM _gpkg_raw r
-          LEFT JOIN _adm0_lkp a ON r.admin0_id::int = a.id
-          WHERE r.admin0_id IS NOT NULL
-          GROUP BY r.admin0_id::int ORDER BY r.admin0_id::int
+          FROM _country_eco_stats s
+          JOIN _eco_country_key k ON s.admin0_id = k.country_id AND s.eco_id = k.eco_id AND k.is_pa = 0
+          GROUP BY k.country_id, k.country_code, k.country_name
+          ORDER BY k.country_id
         SQL
         geometry_dimension: "country"
       },
@@ -1254,33 +1252,107 @@ module LdnSeeder
           }
         ],
         sql: <<~SQL,
-          SELECT biome, MODE() WITHIN GROUP (ORDER BY realm) AS realm,
-            ROUND(SUM(gains_km2)::numeric, 1) AS gains_km2,
-            ROUND(SUM(losses_km2)::numeric, 1) AS losses_km2,
-            ROUND(SUM(delta_ldn_km2)::numeric, 1) AS delta_ldn_km2,
-            ROUND(SUM(area_km2)::numeric, 1) AS total_area_km2,
-            CASE WHEN SUM(area_km2) > 0
-              THEN ROUND((SUM(delta_ldn_km2) / SUM(area_km2) * 100)::numeric, 1)
+          SELECT k.biome_name AS biome,
+            MODE() WITHIN GROUP (ORDER BY k.realm) AS realm,
+            ROUND(SUM(s.gains_km2)::numeric, 1) AS gains_km2,
+            ROUND(SUM(s.losses_km2)::numeric, 1) AS losses_km2,
+            ROUND(SUM(s.delta_ldn_km2)::numeric, 1) AS delta_ldn_km2,
+            ROUND(SUM(s.total_area_km2)::numeric, 1) AS total_area_km2,
+            CASE WHEN SUM(s.total_area_km2) > 0
+              THEN ROUND((SUM(s.delta_ldn_km2) / SUM(s.total_area_km2) * 100)::numeric, 1)
               ELSE 0 END AS ldn_pct,
-            CASE WHEN SUM(delta_ldn_km2) > 0 THEN 'Exceeding'
-                 WHEN SUM(delta_ldn_km2) = 0 THEN 'Achieving'
+            CASE WHEN SUM(s.delta_ldn_km2) > 0 THEN 'Exceeding'
+                 WHEN SUM(s.delta_ldn_km2) = 0 THEN 'Achieving'
                  ELSE 'Not achieving' END AS category
-          FROM _gpkg_raw WHERE biome IS NOT NULL
-          GROUP BY biome ORDER BY biome
+          FROM _eco_stats s
+          JOIN _eco_key k ON s.eco_id = k.eco_id AND k.is_pa = 0
+          WHERE k.biome_name IS NOT NULL
+          GROUP BY k.biome_name
+          ORDER BY k.biome_name
         SQL
         geometry_dimension: "biome"
       },
 
-      # ── 4. Country × Ecoregion summary ──
+      # ── 4. Realm-level summary ──
+      "realm-summary" => {
+        name_template: "Realm LDN Summary (%{variant})",
+        description_template: "LDN counterbalancing summary per biogeographic realm using %{variant} productivity methodology.",
+        display_order: 4,
+        dimension: "realm",
+        dimension_config: {unit_label: "Realm", unit_id_column: "realm", name_column: "realm"},
+        schema_config: [
+          {name: "realm", type: "string", label: "Realm"},
+          {name: "gains_km2", type: "number", label: "Gains (km²)", format: ",.1f"},
+          {name: "losses_km2", type: "number", label: "Losses (km²)", format: ",.1f"},
+          {name: "delta_ldn_km2", type: "number", label: "Net Change (km²)", format: ",.1f"},
+          {name: "total_area_km2", type: "number", label: "Total Area (km²)", format: ",.1f"},
+          {name: "ldn_pct", type: "number", label: "LDN Achievement (%)", format: ".1f"},
+          {name: "category", type: "category", label: "Category"}
+        ],
+        chart_config: [
+          {
+            id: "category-donut",
+            type: "donut",
+            title: "LDN Achievement",
+            description: "Number of realms by LDN achievement category.",
+            valueKey: "category",
+            categoryKey: "category",
+            colors: CATEGORY_COLORS,
+            aggregation: "count"
+          },
+          {
+            id: "area-donut",
+            type: "donut",
+            title: "LDN Achievement (by percent of land area)",
+            description: "Share of total land area by LDN achievement category.",
+            valueKey: "total_area_km2",
+            categoryKey: "category",
+            colors: CATEGORY_COLORS,
+            aggregation: "sum"
+          },
+          {
+            id: "realm-ldn-bar",
+            type: "horizontalBar",
+            title: "LDN Achievement by Realm",
+            description: "Percentage of LDN achievement per biogeographic realm.",
+            xAxis: {key: "ldn_pct", label: "LDN Achievement (%)"},
+            yAxis: {key: "realm", label: "Realm"},
+            colorBy: {key: "category", colors: CATEGORY_COLORS},
+            sortBy: {key: "ldn_pct", order: "desc"},
+            unitIdColumn: "realm"
+          }
+        ],
+        sql: <<~SQL,
+          SELECT k.realm,
+            ROUND(SUM(s.gains_km2)::numeric, 1) AS gains_km2,
+            ROUND(SUM(s.losses_km2)::numeric, 1) AS losses_km2,
+            ROUND(SUM(s.delta_ldn_km2)::numeric, 1) AS delta_ldn_km2,
+            ROUND(SUM(s.total_area_km2)::numeric, 1) AS total_area_km2,
+            CASE WHEN SUM(s.total_area_km2) > 0
+              THEN ROUND((SUM(s.delta_ldn_km2) / SUM(s.total_area_km2) * 100)::numeric, 1)
+              ELSE 0 END AS ldn_pct,
+            CASE WHEN SUM(s.delta_ldn_km2) > 0 THEN 'Exceeding'
+                 WHEN SUM(s.delta_ldn_km2) = 0 THEN 'Achieving'
+                 ELSE 'Not achieving' END AS category
+          FROM _eco_stats s
+          JOIN _eco_key k ON s.eco_id = k.eco_id AND k.is_pa = 0
+          WHERE k.realm IS NOT NULL
+          GROUP BY k.realm
+          ORDER BY k.realm
+        SQL
+        geometry_dimension: "realm"
+      },
+
+      # ── 5. Country × Ecoregion summary ──
       "country-ecoregion-summary" => {
         name_template: "Country × Ecoregion LDN Summary (%{variant})",
         description_template: "LDN counterbalancing summary per country and ecoregion intersection using %{variant} productivity methodology.",
-        display_order: 4,
+        display_order: 5,
         dimension: "country",
         dimension_config: {unit_label: "Country × Ecoregion", unit_id_column: "admin0_id", name_column: "country"},
         schema_config: [
           {name: "admin0_id", type: "integer", label: "Country ID"},
-          {name: "admin0_iso", type: "string", label: "Country ISO"},
+          {name: "country_code", type: "string", label: "Country ISO"},
           {name: "country", type: "string", label: "Country"},
           {name: "eco_id", type: "integer", label: "Ecoregion ID"},
           {name: "ecoregion", type: "string", label: "Ecoregion"},
@@ -1310,30 +1382,24 @@ module LdnSeeder
           }
         ],
         sql: <<~SQL
-          SELECT r.admin0_id::int AS admin0_id, MAX(a.shape_group) AS admin0_iso, MAX(r.country) AS country,
-            r.eco_id, MAX(r.ecoregion) AS ecoregion, MAX(r.biome) AS biome, MAX(r.realm) AS realm,
-            ROUND(SUM(r.gains_km2)::numeric, 1) AS gains_km2,
-            ROUND(SUM(r.losses_km2)::numeric, 1) AS losses_km2,
-            ROUND(SUM(r.delta_ldn_km2)::numeric, 1) AS delta_ldn_km2,
-            ROUND(SUM(r.area_km2)::numeric, 1) AS total_area_km2,
-            CASE WHEN SUM(r.area_km2) > 0
-              THEN ROUND((SUM(r.delta_ldn_km2) / SUM(r.area_km2) * 100)::numeric, 1)
-              ELSE 0 END AS ldn_pct,
-            CASE WHEN SUM(r.delta_ldn_km2) > 0 THEN 'Exceeding'
-                 WHEN SUM(r.delta_ldn_km2) = 0 THEN 'Achieving'
-                 ELSE 'Not achieving' END AS category
-          FROM _gpkg_raw r
-          LEFT JOIN _adm0_lkp a ON r.admin0_id::int = a.id
-          WHERE r.admin0_id IS NOT NULL AND r.eco_id IS NOT NULL
-          GROUP BY r.admin0_id::int, r.eco_id
-          ORDER BY r.admin0_id::int, r.eco_id
+          SELECT s.admin0_id, k.country_code, k.country_name AS country,
+            s.eco_id, k.eco_name AS ecoregion, k.biome_name AS biome, k.realm,
+            ROUND(s.gains_km2::numeric, 1) AS gains_km2,
+            ROUND(s.losses_km2::numeric, 1) AS losses_km2,
+            ROUND(s.delta_ldn_km2::numeric, 1) AS delta_ldn_km2,
+            ROUND(s.total_area_km2::numeric, 1) AS total_area_km2,
+            ROUND(s.ldn_pct::numeric, 1) AS ldn_pct,
+            s.category
+          FROM _country_eco_stats s
+          JOIN _eco_country_key k ON s.admin0_id = k.country_id AND s.eco_id = k.eco_id AND k.is_pa = 0
+          ORDER BY s.admin0_id, s.eco_id
         SQL
       }
 
     }.freeze
 
     def create_scope_datasets(site_scope)
-      puts "Creating scope datasets from GPKG files..."
+      puts "Creating scope datasets from statistics CSVs..."
 
       # Clean up old dataset slugs from previous seed versions
       %w[ecoregion-land-types country-ecoregion-land-types land-types].each do |old_key|
@@ -1357,17 +1423,20 @@ module LdnSeeder
 
       data_dir = ENV.fetch("LDN_DATA_DIR", DATA_DIR_DEFAULT)
 
+      # Import key CSVs once (shared across all variants)
+      import_key_csvs(data_dir)
+
       # ── Per-variant statistical datasets ──
       SCOPE_DATASET_VARIANTS.each do |variant_slug, variant_info|
-        gpkg_file = "TrendsEarth_LDN_2000-2023_#{variant_info[:filename_mode]}_country_ecoregion_land_types.gpkg"
-        gpkg_path = File.join(data_dir, gpkg_file)
+        eco_stats_csv = File.join(data_dir, "TrendsEarth_LDN_2000-2023_#{variant_info[:filename_mode]}_ecoregion_summary.csv")
+        country_eco_stats_csv = File.join(data_dir, "TrendsEarth_LDN_2000-2023_#{variant_info[:filename_mode]}_country_ecoregion_summary.csv")
 
-        unless File.exist?(gpkg_path)
-          puts "  SKIP #{variant_slug}: GPKG not found at #{gpkg_path}"
+        unless File.exist?(eco_stats_csv)
+          puts "  SKIP #{variant_slug}: ecoregion stats CSV not found at #{eco_stats_csv}"
           next
         end
 
-        import_gpkg_to_postgis(gpkg_path, data_dir)
+        import_stats_csvs(eco_stats_csv, country_eco_stats_csv)
 
         SCOPE_DATASET_DEFS.each do |group_key, defn|
           slug = "ldn-#{variant_slug}-#{group_key}"
@@ -1396,8 +1465,10 @@ module LdnSeeder
           copy_dissolved_geometries(dataset, defn[:geometry_dimension])
         end
 
-        cleanup_gpkg_tables
+        cleanup_stats_tables
       end
+
+      cleanup_key_tables
     end
 
     # ── Helper: create a layer from an S3 LDN COG ──
@@ -1487,71 +1558,110 @@ module LdnSeeder
       layer
     end
 
-    # ── Helper: import a GPKG file into a PostGIS table via ogr2ogr ──
+    # ── Helper: import key CSVs (shared across all variants) ──
 
-    def import_gpkg_to_postgis(gpkg_path, data_dir)
-      require "csv"
+    def import_key_csvs(data_dir)
       conn = ActiveRecord::Base.connection
-      dbcfg = ActiveRecord::Base.connection_db_config.configuration_hash
 
-      pg_host = dbcfg[:host] || "localhost"
-      pg_port = dbcfg[:port] || 5432
-      pg_db = dbcfg[:database]
-      pg_user = dbcfg[:username]
-      pg_pass = dbcfg[:password]
+      eco_key_csv = File.join(data_dir, "pa_ecoregion_key.csv")
+      country_key_csv = File.join(data_dir, "pa_ecoregion_country_key.csv")
 
-      puts "  Importing GPKG via ogr2ogr..."
-      env = {"PGPASSWORD" => pg_pass.to_s}
-      pg_dsn = "PG:host=#{pg_host} port=#{pg_port} dbname=#{pg_db} user=#{pg_user}"
-      cmd = [
-        "ogr2ogr", "-f", "PostgreSQL", pg_dsn,
-        gpkg_path, "land_types",
-        "-nln", "_gpkg_raw", "-overwrite",
-        "-lco", "GEOMETRY_NAME=geom",
-        "-lco", "FID=ogc_fid",
-        "-lco", "SPATIAL_INDEX=NONE",
-        "-nlt", "PROMOTE_TO_MULTI",
-        "-gt", "1000"
-      ]
-      raise "ogr2ogr failed for #{gpkg_path}" unless system(env, *cmd)
-
-      # Add computed columns: area, realm, country
-      puts "  Enriching with area, realm, and country..."
+      # Ecoregion key
+      conn.execute("DROP TABLE IF EXISTS _eco_key")
       conn.execute(<<~SQL)
-        ALTER TABLE _gpkg_raw
-          ADD COLUMN IF NOT EXISTS area_km2 double precision,
-          ADD COLUMN IF NOT EXISTS realm text,
-          ADD COLUMN IF NOT EXISTS country text;
+        CREATE TABLE _eco_key (
+          unit_id    int,
+          is_pa      int,
+          eco_id     int,
+          eco_name   text,
+          biome_num  int,
+          biome_name text,
+          realm      text
+        )
       SQL
-      conn.execute("UPDATE _gpkg_raw SET area_km2 = ST_Area(geom::geography) / 1e6")
+      copy_csv_to_table(conn, "_eco_key", eco_key_csv)
+      puts "  Imported _eco_key: #{conn.select_value("SELECT count(*) FROM _eco_key")} rows"
 
-      # Realm from ecoregion_key.csv
-      eco_csv = ENV.fetch("LDN_ECOREGION_KEY") { File.join(data_dir, "ecoregion_key.csv") }
-      if File.exist?(eco_csv)
-        conn.execute("CREATE TEMP TABLE IF NOT EXISTS _eco_lkp (eco_id int, eco_name text, biome_num int, biome_name text, realm text)")
-        conn.execute("TRUNCATE _eco_lkp")
-        copy_csv_to_table(conn, "_eco_lkp", eco_csv)
-        conn.execute("UPDATE _gpkg_raw r SET realm = e.realm FROM _eco_lkp e WHERE r.eco_id = e.eco_id")
-        puts "  Realm lookup applied"
-      end
+      # Country-ecoregion key
+      conn.execute("DROP TABLE IF EXISTS _eco_country_key")
+      conn.execute(<<~SQL)
+        CREATE TABLE _eco_country_key (
+          unit_id      int,
+          is_pa        int,
+          eco_id       int,
+          eco_name     text,
+          biome_num    int,
+          biome_name   text,
+          realm        text,
+          country_id   int,
+          country_code text,
+          country_name text
+        )
+      SQL
+      copy_csv_to_table(conn, "_eco_country_key", country_key_csv)
+      puts "  Imported _eco_country_key: #{conn.select_value("SELECT count(*) FROM _eco_country_key")} rows"
+    end
 
-      # Country name from admin0_key.csv
-      admin0_csv = ENV.fetch("LDN_ADMIN0_KEY") { File.join(data_dir, "admin0_key.csv") }
-      if File.exist?(admin0_csv)
-        conn.execute("CREATE TEMP TABLE IF NOT EXISTS _adm0_lkp (id int, shape_group text, shape_name text, shape_type text)")
-        conn.execute("TRUNCATE _adm0_lkp")
-        copy_csv_to_table(conn, "_adm0_lkp", admin0_csv)
-        conn.execute("UPDATE _gpkg_raw r SET country = a.shape_name FROM _adm0_lkp a WHERE r.admin0_id::int = a.id")
-        puts "  Country lookup applied"
+    # ── Helper: import per-mode statistics CSVs into temp tables ──
+
+    def import_stats_csvs(eco_stats_csv, country_eco_stats_csv)
+      conn = ActiveRecord::Base.connection
+
+      # Ecoregion stats (tab-delimited)
+      conn.execute("DROP TABLE IF EXISTS _eco_stats")
+      conn.execute(<<~SQL)
+        CREATE TABLE _eco_stats (
+          eco_id         int,
+          gains_km2      double precision,
+          losses_km2     double precision,
+          delta_ldn_km2  double precision,
+          total_area_km2 double precision,
+          ldn_pct        double precision,
+          category       text
+        )
+      SQL
+      copy_tsv_to_table(conn, "_eco_stats", eco_stats_csv)
+      puts "  Imported _eco_stats: #{conn.select_value("SELECT count(*) FROM _eco_stats")} rows"
+
+      # Country-ecoregion stats (tab-delimited)
+      if File.exist?(country_eco_stats_csv)
+        conn.execute("DROP TABLE IF EXISTS _country_eco_stats")
+        conn.execute(<<~SQL)
+          CREATE TABLE _country_eco_stats (
+            admin0_id      int,
+            eco_id         int,
+            gains_km2      double precision,
+            losses_km2     double precision,
+            delta_ldn_km2  double precision,
+            total_area_km2 double precision,
+            ldn_pct        double precision,
+            category       text
+          )
+        SQL
+        copy_tsv_to_table(conn, "_country_eco_stats", country_eco_stats_csv)
+        puts "  Imported _country_eco_stats: #{conn.select_value("SELECT count(*) FROM _country_eco_stats")} rows"
       end
     end
 
-    # ── Helper: stream a local CSV into a temp table via COPY FROM STDIN ──
+    # ── Helper: stream a local CSV into a table via COPY FROM STDIN ──
 
     def copy_csv_to_table(conn, table_name, csv_path)
       raw = conn.raw_connection
       raw.copy_data("COPY #{table_name} FROM STDIN CSV HEADER") do
         File.open(csv_path, "r") do |f|
+          while (line = f.gets)
+            raw.put_copy_data(line)
+          end
+        end
+      end
+    end
+
+    # ── Helper: stream a tab-delimited CSV into a table via COPY FROM STDIN ──
+
+    def copy_tsv_to_table(conn, table_name, tsv_path)
+      raw = conn.raw_connection
+      raw.copy_data("COPY #{table_name} FROM STDIN CSV HEADER DELIMITER E'\\t'") do
+        File.open(tsv_path, "r") do |f|
           while (line = f.gets)
             raw.put_copy_data(line)
           end
@@ -1577,7 +1687,7 @@ module LdnSeeder
         "SELECT to_regclass('public.ldn_dissolved_geometries') IS NOT NULL"
       )
       unless exists
-        puts "    SKIP geometries for #{dataset.slug}: run `rake ldn:dissolve_geometries` first"
+        puts "    SKIP geometries for #{dataset.slug}: run `rake ldn:import_geometries` first"
         return
       end
 
@@ -1601,11 +1711,20 @@ module LdnSeeder
       puts "    Copied #{count} geometries"
     end
 
-    # ── Helper: drop temporary tables created during GPKG import ──
+    # ── Helper: drop per-variant stats temp tables ──
 
-    def cleanup_gpkg_tables
+    def cleanup_stats_tables
       conn = ActiveRecord::Base.connection
-      %w[_gpkg_raw _eco_lkp _adm0_lkp].each do |t|
+      %w[_eco_stats _country_eco_stats].each do |t|
+        conn.execute("DROP TABLE IF EXISTS #{t}")
+      end
+    end
+
+    # ── Helper: drop shared key tables (after all variants are done) ──
+
+    def cleanup_key_tables
+      conn = ActiveRecord::Base.connection
+      %w[_eco_key _eco_country_key].each do |t|
         conn.execute("DROP TABLE IF EXISTS #{t}")
       end
     end
