@@ -108,7 +108,30 @@ namespace :boundaries do
         SQL
       end
 
-      conn.execute(insert_sql)
+      # Insert in batches to avoid PostgreSQL OOM on large geometry datasets
+      total_in_temp = conn.select_value("SELECT count(*) FROM #{temp_table}").to_i
+      batch_size = 2000
+
+      if total_in_temp > batch_size
+        puts "    Inserting #{total_in_temp} rows in batches of #{batch_size}..."
+        inserted = 0
+        while inserted < total_in_temp
+          batch_sql = insert_sql.chomp + " ORDER BY ogc_fid LIMIT #{batch_size} OFFSET #{inserted}"
+          begin
+            conn.execute(batch_sql)
+          rescue ActiveRecord::ConnectionFailed, PG::ConnectionBad
+            puts "    Connection lost after #{inserted} rows, reconnecting..."
+            ActiveRecord::Base.connection.reconnect!
+            conn = ActiveRecord::Base.connection
+            retry
+          end
+          inserted += batch_size
+          puts "    #{[inserted, total_in_temp].min}/#{total_in_temp} rows inserted"
+        end
+      else
+        conn.execute(insert_sql)
+      end
+
       conn.execute("DROP TABLE IF EXISTS #{temp_table}")
 
       puts "  ADM#{level}: #{AdminBoundary.where(admin_level: level).count} boundaries imported"
@@ -116,19 +139,66 @@ namespace :boundaries do
 
     puts ""
     puts "Cleaning geometries (ST_MakeValid + clip to Web Mercator extent)..."
-    ActiveRecord::Base.connection.execute(<<~SQL)
-      UPDATE admin_boundaries
-      SET geom = ST_Multi(ST_CollectionExtract(
-        ST_Intersection(
-          ST_MakeValid(geom),
-          ST_MakeEnvelope(-180, -85.051129, 180, 85.051129, 4326)
-        ),
-        3
-      ))
-      WHERE NOT ST_IsValid(geom)
-         OR NOT ST_CoveredBy(geom, ST_MakeEnvelope(-180, -85.051129, 180, 85.051129, 4326))
-    SQL
-    puts "  Done."
+    # Process in batches by admin level to avoid OOM on the DB server
+    [0, 1, 2].each do |level|
+      clean_conn = ActiveRecord::Base.connection
+      count = clean_conn.select_value(<<~SQL).to_i
+        SELECT count(*) FROM admin_boundaries
+        WHERE admin_level = #{level}
+          AND (NOT ST_IsValid(geom)
+               OR NOT ST_CoveredBy(geom, ST_MakeEnvelope(-180, -85.051129, 180, 85.051129, 4326)))
+      SQL
+      puts "  ADM#{level}: #{count} geometries to clean..."
+
+      # Batch the UPDATE to avoid OOM for large admin levels (e.g. ADM2)
+      clean_batch_size = 1000
+      if count > clean_batch_size
+        cleaned = 0
+        while cleaned < count
+          begin
+            clean_conn.execute(<<~SQL)
+              UPDATE admin_boundaries
+              SET geom = ST_Multi(ST_CollectionExtract(
+                ST_Intersection(
+                  ST_MakeValid(geom),
+                  ST_MakeEnvelope(-180, -85.051129, 180, 85.051129, 4326)
+                ),
+                3
+              ))
+              WHERE id IN (
+                SELECT id FROM admin_boundaries
+                WHERE admin_level = #{level}
+                  AND (NOT ST_IsValid(geom)
+                       OR NOT ST_CoveredBy(geom, ST_MakeEnvelope(-180, -85.051129, 180, 85.051129, 4326)))
+                LIMIT #{clean_batch_size}
+              )
+            SQL
+          rescue ActiveRecord::ConnectionFailed, PG::ConnectionBad
+            puts "    Connection lost, reconnecting..."
+            ActiveRecord::Base.connection.reconnect!
+            clean_conn = ActiveRecord::Base.connection
+            retry
+          end
+          cleaned += clean_batch_size
+          puts "    #{[cleaned, count].min}/#{count} cleaned"
+        end
+      else
+        clean_conn.execute(<<~SQL)
+          UPDATE admin_boundaries
+          SET geom = ST_Multi(ST_CollectionExtract(
+            ST_Intersection(
+              ST_MakeValid(geom),
+              ST_MakeEnvelope(-180, -85.051129, 180, 85.051129, 4326)
+            ),
+            3
+          ))
+          WHERE admin_level = #{level}
+            AND (NOT ST_IsValid(geom)
+                 OR NOT ST_CoveredBy(geom, ST_MakeEnvelope(-180, -85.051129, 180, 85.051129, 4326)))
+        SQL
+      end
+      puts "  ADM#{level}: done."
+    end
 
     puts ""
     puts "=== Import complete ==="
