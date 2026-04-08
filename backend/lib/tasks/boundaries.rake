@@ -76,7 +76,9 @@ namespace :boundaries do
         "ogr2ogr", "-f", "PostgreSQL", "PG:#{pg_conn}", gpkg_path, layer_name,
         "-nln", temp_table, "-overwrite",
         "-lco", "GEOMETRY_NAME=geom", "-lco", "FID=ogc_fid",
+        "-lco", "SPATIAL_INDEX=NONE",
         "-t_srs", "EPSG:4326", "-nlt", "PROMOTE_TO_MULTI",
+        "-gt", "1000",
         "--config", "PG_USE_COPY", "YES", "-progress"
       )
       abort "ERROR: ogr2ogr failed for ADM#{level}" unless success
