@@ -67,6 +67,12 @@ namespace :ldn do
     raise "ogr2ogr failed for pa_ecoregion_country.gpkg" unless system(env, *cmd)
 
     # ── Import key CSVs ──
+    # Sanitize key CSVs: strip ".0" float suffixes from integer columns
+    # (pandas may write int columns as floats when NaN is present)
+    [eco_key_csv, country_key_csv].each do |csv_path|
+      system("sed", "-i", 's/\\.0,/,/g; s/\\.0$//', csv_path.to_s)
+    end
+
     puts "Importing key CSVs..."
     conn.execute("DROP TABLE IF EXISTS _eco_key")
     conn.execute(<<~SQL)

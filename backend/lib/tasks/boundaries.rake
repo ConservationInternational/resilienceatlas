@@ -8,7 +8,7 @@ GPKG_FILES = {
 
 namespace :boundaries do
   desc "Import geoBoundaries CGAZ data into admin_boundaries table. " \
-       "Mount .gpkg files to #{DATA_DIR} first. " \
+       "Mount .gpkg files to #{DATA_DIR} first. Set FORCE=1 to skip confirmation prompt. " \
        "Usage: docker compose run --rm -v /path/to/files:#{DATA_DIR}:ro backend rake boundaries:import"
   task import: :environment do
     # Pre-flight: files present?
@@ -44,10 +44,14 @@ namespace :boundaries do
     current_count = AdminBoundary.count
     if current_count > 0
       puts "admin_boundaries table already has #{current_count} rows."
-      print "Truncate and re-import? [y/N] "
-      unless $stdin.gets&.strip&.downcase == "y"
-        puts "Aborted."
-        next
+      if ENV["FORCE"] == "1"
+        puts "FORCE=1 set — proceeding with truncate and re-import."
+      else
+        print "Truncate and re-import? [y/N] "
+        unless $stdin.gets&.strip&.downcase == "y"
+          puts "Aborted."
+          next
+        end
       end
     end
 

@@ -350,14 +350,14 @@ import_boundaries() {
       info "  Copying $f into container..."
       docker cp "${GEOBOUNDARIES_DIR}/${f}" "${BACKEND_CONTAINER}:/data/geoboundaries/${f}"
     done
-    backend_exec -- bundle exec rake boundaries:import
+    backend_exec -- bundle exec rake boundaries:import FORCE=1
   else
     info "  Starting database (if not already running)..."
     docker compose -f "$REPO_ROOT/docker-compose.dev.yml" up -d db
     info "  Waiting for database to be ready..."
     sleep 5
     backend_exec -v "${GEOBOUNDARIES_DIR}:/data/geoboundaries:ro" \
-      -- bundle exec rake boundaries:import
+      -- bundle exec rake boundaries:import FORCE=1
   fi
 
   ok "Boundaries imported"
@@ -486,9 +486,6 @@ main() {
 
   echo ""
   echo "── Step 4/5: Import pre-dissolved LDN geometries ──"
-  if [[ "$MODE" == "deployed" ]]; then
-    copy_geometry_data_to_container
-  fi
   import_ldn_geometries
 
   echo ""

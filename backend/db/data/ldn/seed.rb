@@ -1566,6 +1566,12 @@ module LdnSeeder
       eco_key_csv = File.join(data_dir, "pa_ecoregion_key.csv")
       country_key_csv = File.join(data_dir, "pa_ecoregion_country_key.csv")
 
+      # Sanitize key CSVs: strip ".0" float suffixes from integer columns
+      # (pandas may write int columns as floats when NaN is present)
+      [eco_key_csv, country_key_csv].each do |csv_path|
+        system("sed", "-i", 's/\.0,/,/g; s/\.0$//', csv_path)
+      end
+
       # Ecoregion key
       conn.execute("DROP TABLE IF EXISTS _eco_key")
       conn.execute(<<~SQL)
