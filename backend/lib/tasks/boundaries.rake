@@ -139,63 +139,48 @@ namespace :boundaries do
 
     puts ""
     puts "Cleaning geometries (ST_MakeValid + clip to Web Mercator extent)..."
-    # Process in batches by admin level to avoid OOM on the DB server
+    # Process one row at a time — ST_MakeValid + ST_Intersection on complex
+    # multipolygons (especially country-level) is very memory-intensive and
+    # can cause PostgreSQL to OOM even on small batches.
     [0, 1, 2].each do |level|
       clean_conn = ActiveRecord::Base.connection
-      count = clean_conn.select_value(<<~SQL).to_i
-        SELECT count(*) FROM admin_boundaries
+      dirty_ids = clean_conn.select_values(<<~SQL)
+        SELECT id FROM admin_boundaries
         WHERE admin_level = #{level}
           AND (NOT ST_IsValid(geom)
                OR NOT ST_CoveredBy(geom, ST_MakeEnvelope(-180, -85.051129, 180, 85.051129, 4326)))
+        ORDER BY id
       SQL
-      puts "  ADM#{level}: #{count} geometries to clean..."
+      puts "  ADM#{level}: #{dirty_ids.size} geometries to clean..."
 
-      # Batch the UPDATE to avoid OOM for large admin levels (e.g. ADM2)
-      clean_batch_size = 1000
-      if count > clean_batch_size
-        cleaned = 0
-        while cleaned < count
-          begin
-            clean_conn.execute(<<~SQL)
-              UPDATE admin_boundaries
-              SET geom = ST_Multi(ST_CollectionExtract(
-                ST_Intersection(
-                  ST_MakeValid(geom),
-                  ST_MakeEnvelope(-180, -85.051129, 180, 85.051129, 4326)
-                ),
-                3
-              ))
-              WHERE id IN (
-                SELECT id FROM admin_boundaries
-                WHERE admin_level = #{level}
-                  AND (NOT ST_IsValid(geom)
-                       OR NOT ST_CoveredBy(geom, ST_MakeEnvelope(-180, -85.051129, 180, 85.051129, 4326)))
-                LIMIT #{clean_batch_size}
-              )
-            SQL
-          rescue ActiveRecord::ConnectionFailed, PG::ConnectionBad
-            puts "    Connection lost, reconnecting..."
+      dirty_ids.each_with_index do |row_id, idx|
+        retries = 0
+        begin
+          clean_conn.execute(<<~SQL)
+            UPDATE admin_boundaries
+            SET geom = ST_Multi(ST_CollectionExtract(
+              ST_Intersection(
+                ST_MakeValid(geom),
+                ST_MakeEnvelope(-180, -85.051129, 180, 85.051129, 4326)
+              ),
+              3
+            ))
+            WHERE id = #{row_id.to_i}
+          SQL
+        rescue ActiveRecord::ConnectionFailed, PG::ConnectionBad => e
+          retries += 1
+          if retries <= 3
+            puts "    Row #{row_id}: connection lost (attempt #{retries}/3), reconnecting..."
+            sleep(retries * 2)
             ActiveRecord::Base.connection.reconnect!
             clean_conn = ActiveRecord::Base.connection
             retry
+          else
+            puts "    Row #{row_id}: failed after #{retries} attempts: #{e.message}"
+            raise
           end
-          cleaned += clean_batch_size
-          puts "    #{[cleaned, count].min}/#{count} cleaned"
         end
-      else
-        clean_conn.execute(<<~SQL)
-          UPDATE admin_boundaries
-          SET geom = ST_Multi(ST_CollectionExtract(
-            ST_Intersection(
-              ST_MakeValid(geom),
-              ST_MakeEnvelope(-180, -85.051129, 180, 85.051129, 4326)
-            ),
-            3
-          ))
-          WHERE admin_level = #{level}
-            AND (NOT ST_IsValid(geom)
-                 OR NOT ST_CoveredBy(geom, ST_MakeEnvelope(-180, -85.051129, 180, 85.051129, 4326)))
-        SQL
+        puts "    #{idx + 1}/#{dirty_ids.size} cleaned" if ((idx + 1) % 50).zero? || idx + 1 == dirty_ids.size
       end
       puts "  ADM#{level}: done."
     end
