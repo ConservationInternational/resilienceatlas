@@ -73,8 +73,10 @@ namespace :boundaries do
       temp_table = "temp_adm#{level}_import"
 
       # -makevalid: fix invalid geometries during import (GDAL ≥ 3.1)
-      # -clipdst:   clip to Web Mercator lat bounds, avoids expensive
-      #             post-import ST_Intersection in PostgreSQL
+      # Note: -clipdst cannot be used with -makevalid because ogr2ogr applies
+      # clipping before validation, causing TopologyException errors.
+      # Clipping to Web Mercator bounds is done post-import for the few rows
+      # that need it (Antarctica, polar regions).
       success = system(
         "ogr2ogr", "-f", "PostgreSQL", "PG:#{pg_conn}", gpkg_path, layer_name,
         "-nln", temp_table, "-overwrite",
@@ -82,7 +84,6 @@ namespace :boundaries do
         "-lco", "SPATIAL_INDEX=NONE",
         "-t_srs", "EPSG:4326", "-nlt", "PROMOTE_TO_MULTI",
         "-makevalid",
-        "-clipdst", "-180", "-85.051129", "180", "85.051129",
         "-gt", "1000",
         "--config", "PG_USE_COPY", "YES", "-progress"
       )
@@ -145,21 +146,50 @@ namespace :boundaries do
     end
 
     puts ""
-    puts "Verifying geometry validity (ogr2ogr already cleaned during import)..."
+    puts "Clipping geometries to Web Mercator bounds where needed..."
     web_mercator_env = "ST_MakeEnvelope(-180, -85.051129, 180, 85.051129, 4326)"
 
+    # Only a handful of polar geometries (Antarctica, Arctic Russia, etc.)
+    # extend beyond ±85.05°. These are already valid from -makevalid, so
+    # ST_Intersection is safe and fast on individual rows.
     [0, 1, 2].each do |level|
       conn = ActiveRecord::Base.connection
-      bad = conn.select_value(<<~SQL).to_i
-        SELECT count(*) FROM admin_boundaries
+      clip_ids = conn.select_values(<<~SQL)
+        SELECT id FROM admin_boundaries
         WHERE admin_level = #{level}
-          AND (NOT ST_IsValid(geom)
-               OR NOT ST_CoveredBy(geom, #{web_mercator_env}))
+          AND NOT ST_CoveredBy(geom, #{web_mercator_env})
+        ORDER BY id
       SQL
-      if bad > 0
-        puts "  WARNING: ADM#{level} has #{bad} geometries still invalid or out-of-bounds"
-      else
-        puts "  ADM#{level}: all geometries valid and within bounds"
+      if clip_ids.empty?
+        puts "  ADM#{level}: all geometries within bounds"
+        next
+      end
+
+      puts "  ADM#{level}: #{clip_ids.size} geometries to clip..."
+      clip_ids.each_with_index do |row_id, idx|
+        retries = 0
+        begin
+          conn.execute(<<~SQL)
+            UPDATE admin_boundaries
+            SET geom = ST_Multi(ST_CollectionExtract(
+              ST_Intersection(geom, #{web_mercator_env}), 3
+            ))
+            WHERE id = #{row_id.to_i}
+          SQL
+        rescue ActiveRecord::ConnectionFailed, PG::ConnectionBad => e
+          retries += 1
+          if retries <= 3
+            puts "    Row #{row_id}: connection lost (attempt #{retries}/3), reconnecting..."
+            sleep(retries * 2)
+            ActiveRecord::Base.connection.reconnect!
+            conn = ActiveRecord::Base.connection
+            retry
+          else
+            puts "    Row #{row_id}: clip failed after #{retries} attempts: #{e.message}"
+            raise
+          end
+        end
+        puts "    #{idx + 1}/#{clip_ids.size} clipped" if ((idx + 1) % 10).zero? || idx + 1 == clip_ids.size
       end
     end
 
