@@ -1105,7 +1105,8 @@ module LdnSeeder
           JOIN _eco_key k ON s.eco_id = k.eco_id AND k.is_pa = 0
           ORDER BY s.eco_id
         SQL
-        geometry_dimension: "ecoregion"
+        geometry_source: "ecoregion",
+        geometry_unit_key: "eco_id"
       },
 
       # ── 2. Country-level summary ──
@@ -1198,7 +1199,8 @@ module LdnSeeder
           GROUP BY k.country_id, k.country_code, k.country_name
           ORDER BY k.country_id
         SQL
-        geometry_dimension: "country"
+        geometry_source: "country_ecoregion",
+        geometry_unit_key: "country_id"
       },
 
       # ── 3. Biome-level summary ──
@@ -1270,7 +1272,8 @@ module LdnSeeder
           GROUP BY k.biome_name
           ORDER BY k.biome_name
         SQL
-        geometry_dimension: "biome"
+        geometry_source: "ecoregion",
+        geometry_unit_key: "biome"
       },
 
       # ── 4. Realm-level summary ──
@@ -1340,7 +1343,8 @@ module LdnSeeder
           GROUP BY k.realm
           ORDER BY k.realm
         SQL
-        geometry_dimension: "realm"
+        geometry_source: "ecoregion",
+        geometry_unit_key: "realm"
       },
 
       # ── 5. Country × Ecoregion summary ──
@@ -1462,7 +1466,7 @@ module LdnSeeder
           dataset.save!
           puts "  Created dataset: #{slug} (#{rows.size} rows)"
 
-          copy_dissolved_geometries(dataset, defn[:geometry_dimension])
+          copy_dissolved_geometries(dataset, defn[:geometry_source], defn[:geometry_unit_key])
         end
 
         cleanup_stats_tables
@@ -1683,21 +1687,24 @@ module LdnSeeder
       end
     end
 
-    # ── Helper: copy pre-dissolved geometries from ldn_dissolved_geometries ──
+    # ── Helper: copy geometries from ldn_dissolved_geometries ──
+    # Projects unit_id from the properties JSON so higher-level views
+    # (biome, realm, country) reuse ecoregion-level polygons with a
+    # shared unit_id — no ST_Union needed.
 
-    def copy_dissolved_geometries(dataset, dimension)
-      return unless dimension
+    def copy_dissolved_geometries(dataset, source, unit_key)
+      return unless source
 
       conn = ActiveRecord::Base.connection
       exists = conn.select_value(
         "SELECT to_regclass('public.ldn_dissolved_geometries') IS NOT NULL"
       )
       unless exists
-        puts "    SKIP geometries for #{dataset.slug}: run `rake ldn:import_geometries` first"
+        puts "    SKIP geometries for #{dataset.slug}: run `rake ldn:build_dimensions` first"
         return
       end
 
-      puts "    Copying dissolved geometries (#{dimension}) for #{dataset.slug}..."
+      puts "    Copying geometries (#{source} → #{unit_key}) for #{dataset.slug}..."
       dataset.scope_dataset_geometries.delete_all
 
       conn.execute(<<~SQL)
@@ -1705,12 +1712,12 @@ module LdnSeeder
           (scope_dataset_id, unit_id, properties, geom, created_at, updated_at)
         SELECT
           #{dataset.id},
-          unit_id,
+          properties ->> '#{conn.quote_string(unit_key)}',
           properties,
           geom,
           NOW(), NOW()
         FROM ldn_dissolved_geometries
-        WHERE dimension = '#{conn.quote_string(dimension)}'
+        WHERE dimension = '#{conn.quote_string(source)}'
       SQL
 
       count = dataset.scope_dataset_geometries.count
