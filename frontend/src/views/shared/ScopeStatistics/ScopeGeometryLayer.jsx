@@ -139,37 +139,41 @@ const ScopeGeometryLayer = ({ map }) => {
   // Update feature styles when highlight or spatial filter changes
   useEffect(() => {
     Object.entries(layersRef.current).forEach(([slug, { layer }]) => {
-      if (!layer.setFeatureStyle) return;
+      if (!layer.options?.vectorTileLayerStyles) return;
 
       // Build set of matching unit IDs for this dataset from the spatial filter
       const filterSet =
         spatialFilter && spatialFilter[slug] ? new Set(spatialFilter[slug].map(String)) : null;
 
+      let styleFn;
+
       if (!highlight && !filterSet) {
         // No highlight and no spatial filter — reset all to default
-        layer.setStyle(() => ({ ...DEFAULT_STYLE }));
-        return;
-      }
-
-      if (highlight && highlight.datasetSlug === slug) {
+        styleFn = () => ({ ...DEFAULT_STYLE });
+      } else if (highlight && highlight.datasetSlug === slug) {
         // This dataset has the highlighted unit — highlight matched, dim rest
-        layer.setStyle((properties) => {
+        styleFn = (properties) => {
           if (String(properties.unit_id) === highlight.unitId) {
             return { ...HIGHLIGHT_STYLE };
           }
           return { ...DIMMED_STYLE };
-        });
+        };
       } else if (highlight) {
         // Other dataset — dim everything during highlight
-        layer.setStyle(() => ({ ...DIMMED_STYLE }));
+        styleFn = () => ({ ...DIMMED_STYLE });
       } else if (filterSet) {
         // Spatial filter active, no highlight — show matching, dim non-matching
-        layer.setStyle((properties) => {
+        styleFn = (properties) => {
           if (filterSet.has(String(properties.unit_id))) {
             return { ...DEFAULT_STYLE };
           }
           return { ...DIMMED_STYLE };
-        });
+        };
+      }
+
+      if (styleFn) {
+        layer.options.vectorTileLayerStyles.scope_dataset_geometries = styleFn;
+        layer.redraw();
       }
     });
   }, [highlight, spatialFilter]);
