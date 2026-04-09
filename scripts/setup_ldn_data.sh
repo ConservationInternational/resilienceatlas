@@ -269,6 +269,64 @@ download_boundaries() {
 }
 
 # ──────────────────────────────────────────────────────────────
+# Step 1b: Pre-clean boundary GPKGs (makevalid + clip)
+#
+# Runs ogr2ogr on the HOST so geometry operations use host
+# memory, not the memory-constrained Docker container.
+# ──────────────────────────────────────────────────────────────
+
+clean_boundaries() {
+  info "Pre-cleaning boundary GPKGs (makevalid + clip to Web Mercator)..."
+
+  if ! command -v ogr2ogr &>/dev/null; then
+    warn "ogr2ogr not found on host — install gdal-bin: sudo apt-get install gdal-bin"
+    warn "Skipping pre-clean; rake task will import raw GPKGs."
+    return 0
+  fi
+
+  local CLIP="-180 -85.051129 180 85.051129"
+
+  for f in geoBoundariesCGAZ_ADM0.gpkg geoBoundariesCGAZ_ADM1.gpkg geoBoundariesCGAZ_ADM2.gpkg; do
+    local src="${GEOBOUNDARIES_DIR}/${f}"
+    local clean="${GEOBOUNDARIES_DIR}/clean_${f}"
+
+    if [[ -f "$clean" ]]; then
+      info "  Already cleaned: clean_${f} (skipping)"
+      continue
+    fi
+
+    info "  Cleaning $f ..."
+
+    # Try single-pass: makevalid + clip
+    if ogr2ogr -f GPKG "$clean" "$src" \
+         -t_srs EPSG:4326 -nlt PROMOTE_TO_MULTI \
+         -makevalid \
+         -clipdst $CLIP 2>/dev/null; then
+      info "    Single-pass OK"
+    else
+      # Fallback: two-step (makevalid, then clip)
+      info "    Single-pass failed, trying two-step..."
+      local valid="${GEOBOUNDARIES_DIR}/valid_${f}"
+      rm -f "$valid" "$clean"
+
+      ogr2ogr -f GPKG "$valid" "$src" \
+        -t_srs EPSG:4326 -nlt PROMOTE_TO_MULTI \
+        -makevalid \
+        || { error "ogr2ogr makevalid failed for $f"; return 1; }
+
+      ogr2ogr -f GPKG "$clean" "$valid" \
+        -clipdst $CLIP \
+        || { error "ogr2ogr clipdst failed for $f"; return 1; }
+
+      rm -f "$valid"
+      info "    Two-step OK"
+    fi
+  done
+
+  ok "Boundary GPKGs pre-cleaned"
+}
+
+# ──────────────────────────────────────────────────────────────
 # Step 2: Download LDN datasets from S3
 # ──────────────────────────────────────────────────────────────
 
@@ -344,11 +402,17 @@ import_boundaries() {
   info "Importing geoBoundaries into database..."
 
   if [[ "$MODE" == "deployed" ]]; then
-    # Copy GPKGs into the running container, then exec rake
+    # Copy GPKGs into the running container — prefer cleaned files
     docker exec "$BACKEND_CONTAINER" mkdir -p /data/geoboundaries
     for f in geoBoundariesCGAZ_ADM0.gpkg geoBoundariesCGAZ_ADM1.gpkg geoBoundariesCGAZ_ADM2.gpkg; do
-      info "  Copying $f into container..."
-      docker cp "${GEOBOUNDARIES_DIR}/${f}" "${BACKEND_CONTAINER}:/data/geoboundaries/${f}"
+      local src
+      if [[ -f "${GEOBOUNDARIES_DIR}/clean_${f}" ]]; then
+        src="${GEOBOUNDARIES_DIR}/clean_${f}"
+      else
+        src="${GEOBOUNDARIES_DIR}/${f}"
+      fi
+      info "  Copying $(basename "$src") → container:$f"
+      docker cp "$src" "${BACKEND_CONTAINER}:/data/geoboundaries/${f}"
     done
     backend_exec -- bundle exec rake boundaries:import FORCE=1
   else
@@ -468,6 +532,7 @@ main() {
     echo ""
     echo "── Step 1/5: Download geoBoundaries ──"
     download_boundaries
+    clean_boundaries
 
     echo ""
     echo "── Step 2/5: Download LDN datasets ──"
