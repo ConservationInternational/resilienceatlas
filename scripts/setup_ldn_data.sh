@@ -240,6 +240,26 @@ declare -A MODE_S3_FOLDERS=(
 # runtime and do NOT need to be downloaded locally.
 
 # ──────────────────────────────────────────────────────────────
+# Helper: check if local file matches S3 by size
+# Returns 0 (true) if sizes match, 1 (false) otherwise
+# ──────────────────────────────────────────────────────────────
+
+s3_size_matches() {
+  local s3_path="$1"
+  local local_path="$2"
+
+  local local_size
+  local_size=$(stat -c%s "$local_path" 2>/dev/null) || return 1
+
+  local s3_size
+  s3_size=$(aws s3api head-object --bucket "$S3_BUCKET" \
+    --key "${s3_path#s3://${S3_BUCKET}/}" $AWS_PROFILE_ARG \
+    --query ContentLength --output text 2>/dev/null) || return 1
+
+  [[ "$local_size" == "$s3_size" ]]
+}
+
+# ──────────────────────────────────────────────────────────────
 # Step 1: Download geoBoundaries GPKG files from S3
 # ──────────────────────────────────────────────────────────────
 
@@ -257,11 +277,14 @@ download_boundaries() {
     local s3_path="s3://${S3_BUCKET}/${S3_INPUTS_PREFIX}/${f}"
     local local_path="${GEOBOUNDARIES_DIR}/${f}"
 
-    if [[ -f "$local_path" ]]; then
-      info "  Already exists: $local_path (skipping)"
+    if [[ -f "$local_path" ]] && s3_size_matches "$s3_path" "$local_path"; then
+      info "  Up to date: $f (skipping)"
     else
+      [[ -f "$local_path" ]] && info "  Size mismatch, re-downloading: $f"
       info "  Downloading: $s3_path → $local_path"
       aws s3 cp "$s3_path" "$local_path" $AWS_PROFILE_ARG
+      # Invalidate pre-cleaned version so it gets regenerated
+      rm -f "${GEOBOUNDARIES_DIR}/clean_${f}"
     fi
   done
 
@@ -384,9 +407,10 @@ download_file() {
   local s3_path="$1"
   local local_path="$2"
 
-  if [[ -f "$local_path" ]]; then
-    info "    Already exists: $(basename "$local_path") (skipping)"
+  if [[ -f "$local_path" ]] && s3_size_matches "$s3_path" "$local_path"; then
+    info "    Up to date: $(basename "$local_path") (skipping)"
   else
+    [[ -f "$local_path" ]] && info "    Size mismatch, re-downloading: $(basename "$local_path")"
     info "    Downloading: $(basename "$local_path")"
     if ! aws s3 cp "$s3_path" "$local_path" $AWS_PROFILE_ARG 2>/dev/null; then
       warn "    Not found on S3: $(basename "$local_path") — skipping"

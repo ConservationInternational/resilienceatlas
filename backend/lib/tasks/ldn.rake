@@ -48,7 +48,9 @@ namespace :ldn do
       "-lco", "FID=ogc_fid",
       "-lco", "SPATIAL_INDEX=NONE",
       "-nlt", "PROMOTE_TO_MULTI",
-      "-gt", "1000"
+      "-gt", "1000",
+      "--config", "PG_USE_COPY", "YES",
+      "-progress"
     ]
     raise "ogr2ogr failed for pa_ecoregion.gpkg" unless system(env, *cmd)
 
@@ -62,7 +64,9 @@ namespace :ldn do
       "-lco", "FID=ogc_fid",
       "-lco", "SPATIAL_INDEX=NONE",
       "-nlt", "PROMOTE_TO_MULTI",
-      "-gt", "1000"
+      "-gt", "1000",
+      "--config", "PG_USE_COPY", "YES",
+      "-progress"
     ]
     raise "ogr2ogr failed for pa_ecoregion_country.gpkg" unless system(env, *cmd)
 
