@@ -72,18 +72,12 @@ namespace :boundaries do
 
       temp_table = "temp_adm#{level}_import"
 
-      # -makevalid: fix invalid geometries during import (GDAL ≥ 3.1)
-      # Note: -clipdst cannot be used with -makevalid because ogr2ogr applies
-      # clipping before validation, causing TopologyException errors.
-      # Clipping to Web Mercator bounds is done post-import for the few rows
-      # that need it (Antarctica, polar regions).
       success = system(
         "ogr2ogr", "-f", "PostgreSQL", "PG:#{pg_conn}", gpkg_path, layer_name,
         "-nln", temp_table, "-overwrite",
         "-lco", "GEOMETRY_NAME=geom", "-lco", "FID=ogc_fid",
         "-lco", "SPATIAL_INDEX=NONE",
         "-t_srs", "EPSG:4326", "-nlt", "PROMOTE_TO_MULTI",
-        "-makevalid",
         "-gt", "1000",
         "--config", "PG_USE_COPY", "YES", "-progress"
       )
@@ -146,12 +140,58 @@ namespace :boundaries do
     end
 
     puts ""
-    puts "Clipping geometries to Web Mercator bounds where needed..."
+    puts "Cleaning geometries (ST_MakeValid + clip to Web Mercator bounds)..."
     web_mercator_env = "ST_MakeEnvelope(-180, -85.051129, 180, 85.051129, 4326)"
 
-    # Only a handful of polar geometries (Antarctica, Arctic Russia, etc.)
-    # extend beyond ±85.05°. These are already valid from -makevalid, so
-    # ST_Intersection is safe and fast on individual rows.
+    # Two-pass cleaning:
+    #   Pass 1: ST_MakeValid — fix topology (lightweight, no OOM risk)
+    #   Pass 2: ST_Subdivide + ST_Intersection — clip to Web Mercator bounds
+    #           (ST_Subdivide requires valid input, so pass 1 must run first)
+
+    # Pass 1: Fix invalid geometries
+    [0, 1, 2].each do |level|
+      conn = ActiveRecord::Base.connection
+      invalid_ids = conn.select_values(<<~SQL)
+        SELECT id FROM admin_boundaries
+        WHERE admin_level = #{level} AND NOT ST_IsValid(geom)
+        ORDER BY id
+      SQL
+      if invalid_ids.empty?
+        puts "  ADM#{level}: all geometries already valid"
+        next
+      end
+
+      puts "  ADM#{level}: #{invalid_ids.size} invalid geometries to fix..."
+      invalid_ids.each_with_index do |row_id, idx|
+        retries = 0
+        begin
+          conn.execute(<<~SQL)
+            UPDATE admin_boundaries
+            SET geom = ST_Multi(ST_CollectionExtract(ST_MakeValid(geom), 3))
+            WHERE id = #{row_id.to_i}
+          SQL
+        rescue ActiveRecord::ConnectionFailed, PG::ConnectionBad => e
+          retries += 1
+          if retries <= 3
+            puts "    Row #{row_id}: connection lost (attempt #{retries}/3), reconnecting..."
+            sleep(retries * 2)
+            ActiveRecord::Base.connection.reconnect!
+            conn = ActiveRecord::Base.connection
+            retry
+          else
+            puts "    Row #{row_id}: ST_MakeValid failed after #{retries} attempts: #{e.message}"
+            raise
+          end
+        end
+        puts "    #{idx + 1}/#{invalid_ids.size} fixed" if ((idx + 1) % 50).zero? || idx + 1 == invalid_ids.size
+      end
+      puts "  ADM#{level}: validity fixed."
+    end
+
+    # Pass 2: Clip geometries that extend beyond Web Mercator bounds.
+    # Uses ST_Subdivide to break the (now-valid) geometry into small pieces,
+    # clips each piece, then ST_Union reassembles. This caps per-piece memory
+    # and avoids PostgreSQL OOM on huge countries (Russia, Canada, Antarctica).
     [0, 1, 2].each do |level|
       conn = ActiveRecord::Base.connection
       clip_ids = conn.select_values(<<~SQL)
@@ -161,7 +201,7 @@ namespace :boundaries do
         ORDER BY id
       SQL
       if clip_ids.empty?
-        puts "  ADM#{level}: all geometries within bounds"
+        puts "  ADM#{level}: all geometries within Web Mercator bounds"
         next
       end
 
@@ -172,7 +212,13 @@ namespace :boundaries do
           conn.execute(<<~SQL)
             UPDATE admin_boundaries
             SET geom = ST_Multi(ST_CollectionExtract(
-              ST_Intersection(geom, #{web_mercator_env}), 3
+              (SELECT ST_Union(
+                ST_Intersection(piece, #{web_mercator_env})
+              )
+              FROM ST_Subdivide(geom, 128) AS piece
+              WHERE ST_Intersects(piece, #{web_mercator_env})
+              ),
+              3
             ))
             WHERE id = #{row_id.to_i}
           SQL
@@ -191,6 +237,7 @@ namespace :boundaries do
         end
         puts "    #{idx + 1}/#{clip_ids.size} clipped" if ((idx + 1) % 10).zero? || idx + 1 == clip_ids.size
       end
+      puts "  ADM#{level}: clipping done."
     end
 
     puts ""
