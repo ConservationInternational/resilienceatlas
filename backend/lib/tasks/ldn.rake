@@ -225,6 +225,174 @@ namespace :ldn do
     puts "Done — #{total} dissolved geometries in ldn_dissolved_geometries."
   end
 
+  desc "Build dimension tables from raw GPKGs already imported via ogr2ogr (host-side)"
+  task build_dimensions: :environment do
+    data_dir = ENV.fetch("LDN_DATA_DIR", LDN_DEFAULT_DATA_DIR)
+    conn = ActiveRecord::Base.connection
+
+    eco_key_csv = File.join(data_dir, "pa_ecoregion_key.csv")
+    country_key_csv = File.join(data_dir, "pa_ecoregion_country_key.csv")
+
+    abort "ERROR: pa_ecoregion_key.csv not found in #{data_dir}" unless File.exist?(eco_key_csv)
+    abort "ERROR: pa_ecoregion_country_key.csv not found in #{data_dir}" unless File.exist?(country_key_csv)
+
+    # Verify raw tables exist (imported by host-side ogr2ogr)
+    %w[_pa_ecoregion_raw _pa_ecoregion_country_raw].each do |t|
+      count = conn.select_value("SELECT count(*) FROM #{t}")
+      puts "  #{t}: #{count} rows"
+    rescue => e
+      abort "ERROR: Table #{t} not found — run ogr2ogr import first. (#{e.message})"
+    end
+
+    # ── Import key CSVs ──
+    [eco_key_csv, country_key_csv].each do |csv_path|
+      system("sed", "-i", 's/\\.0,/,/g; s/\\.0$//', csv_path.to_s)
+    end
+
+    puts "Importing key CSVs..."
+    conn.execute("DROP TABLE IF EXISTS _eco_key")
+    conn.execute(<<~SQL)
+      CREATE TABLE _eco_key (
+        unit_id  int,
+        is_pa    int,
+        eco_id   int,
+        eco_name text,
+        biome_num int,
+        biome_name text,
+        realm    text
+      )
+    SQL
+    copy_csv(conn, "_eco_key", eco_key_csv)
+    puts "  _eco_key: #{conn.select_value("SELECT count(*) FROM _eco_key")} rows"
+
+    conn.execute("DROP TABLE IF EXISTS _eco_country_key")
+    conn.execute(<<~SQL)
+      CREATE TABLE _eco_country_key (
+        unit_id      int,
+        is_pa        int,
+        eco_id       int,
+        eco_name     text,
+        biome_num    int,
+        biome_name   text,
+        realm        text,
+        country_id   int,
+        country_code text,
+        country_name text
+      )
+    SQL
+    copy_csv(conn, "_eco_country_key", country_key_csv)
+    puts "  _eco_country_key: #{conn.select_value("SELECT count(*) FROM _eco_country_key")} rows"
+
+    # ── Create/truncate target table ──
+    conn.execute(<<~SQL)
+      CREATE TABLE IF NOT EXISTS ldn_dissolved_geometries (
+        id          serial PRIMARY KEY,
+        dimension   text NOT NULL,
+        unit_id     text NOT NULL,
+        properties  jsonb,
+        geom        geometry(MultiPolygon, 4326)
+      );
+      TRUNCATE ldn_dissolved_geometries;
+    SQL
+
+    total = 0
+
+    # ── Dimension: ecoregion ──
+    puts "Building ecoregion dimension..."
+    conn.execute(<<~SQL)
+      INSERT INTO ldn_dissolved_geometries (dimension, unit_id, properties, geom)
+      SELECT
+        'ecoregion',
+        k.eco_id::text,
+        jsonb_build_object(
+          'ecoregion', k.eco_name,
+          'biome', k.biome_name,
+          'realm', k.realm
+        ),
+        ST_Multi(ST_Union(g.geom))
+      FROM _pa_ecoregion_raw g
+      JOIN _eco_key k ON g.unit_id = k.unit_id
+      WHERE k.is_pa = 0
+      GROUP BY k.eco_id, k.eco_name, k.biome_name, k.realm
+    SQL
+    count = conn.select_value("SELECT count(*) FROM ldn_dissolved_geometries WHERE dimension = 'ecoregion'")
+    puts "  #{count} ecoregion geometries"
+    total += count.to_i
+
+    # ── Dimension: country ──
+    puts "Building country dimension..."
+    conn.execute(<<~SQL)
+      INSERT INTO ldn_dissolved_geometries (dimension, unit_id, properties, geom)
+      SELECT
+        'country',
+        k.country_id::text,
+        jsonb_build_object(
+          'country', k.country_name,
+          'country_code', k.country_code
+        ),
+        ST_Multi(ST_Union(g.geom))
+      FROM _pa_ecoregion_country_raw g
+      JOIN _eco_country_key k ON g.unit_id = k.unit_id
+      WHERE k.is_pa = 0
+      GROUP BY k.country_id, k.country_name, k.country_code
+    SQL
+    count = conn.select_value("SELECT count(*) FROM ldn_dissolved_geometries WHERE dimension = 'country'")
+    puts "  #{count} country geometries"
+    total += count.to_i
+
+    # ── Dimension: biome ──
+    puts "Building biome dimension..."
+    conn.execute(<<~SQL)
+      INSERT INTO ldn_dissolved_geometries (dimension, unit_id, properties, geom)
+      SELECT
+        'biome',
+        k.biome_name,
+        jsonb_build_object(
+          'biome', k.biome_name,
+          'realm', MODE() WITHIN GROUP (ORDER BY k.realm)
+        ),
+        ST_Multi(ST_Union(g.geom))
+      FROM _pa_ecoregion_raw g
+      JOIN _eco_key k ON g.unit_id = k.unit_id
+      WHERE k.is_pa = 0 AND k.biome_name IS NOT NULL
+      GROUP BY k.biome_name
+    SQL
+    count = conn.select_value("SELECT count(*) FROM ldn_dissolved_geometries WHERE dimension = 'biome'")
+    puts "  #{count} biome geometries"
+    total += count.to_i
+
+    # ── Dimension: realm ──
+    puts "Building realm dimension..."
+    conn.execute(<<~SQL)
+      INSERT INTO ldn_dissolved_geometries (dimension, unit_id, properties, geom)
+      SELECT
+        'realm',
+        k.realm,
+        jsonb_build_object('realm', k.realm),
+        ST_Multi(ST_Union(g.geom))
+      FROM _pa_ecoregion_raw g
+      JOIN _eco_key k ON g.unit_id = k.unit_id
+      WHERE k.is_pa = 0 AND k.realm IS NOT NULL
+      GROUP BY k.realm
+    SQL
+    count = conn.select_value("SELECT count(*) FROM ldn_dissolved_geometries WHERE dimension = 'realm'")
+    puts "  #{count} realm geometries"
+    total += count.to_i
+
+    # ── Index for fast lookups during seed ──
+    conn.execute(<<~SQL)
+      CREATE INDEX IF NOT EXISTS idx_ldn_dissolved_dim
+        ON ldn_dissolved_geometries (dimension);
+    SQL
+
+    # ── Cleanup temp tables ──
+    %w[_pa_ecoregion_raw _pa_ecoregion_country_raw _eco_key _eco_country_key].each do |t|
+      conn.execute("DROP TABLE IF EXISTS #{t}")
+    end
+
+    puts "Done — #{total} dissolved geometries in ldn_dissolved_geometries."
+  end
+
   desc "Show status of pre-dissolved geometries"
   task geometry_status: :environment do
     conn = ActiveRecord::Base.connection

@@ -58,6 +58,13 @@ MODE=""            # "dev" or "deployed"
 STACK_NAME=""      # e.g. "resilienceatlas-staging"
 BACKEND_CONTAINER="" # container ID for deployed mode
 
+# DB connection — set by get_host_db_dsn()
+DB_HOST=""
+DB_PORT=""
+DB_NAME=""
+DB_USER=""
+DB_PASS=""
+
 # ── Parse arguments ──
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -170,6 +177,63 @@ detect_mode() {
       error "docker compose is not available (required for dev mode)."
     fi
   fi
+}
+
+# ── Get host-side DB connection for direct ogr2ogr ──
+# Sets DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASS for use in ogr2ogr PG DSN.
+# In deployed mode: reads .env.staging/.env.production and uses published port.
+# In dev mode: uses docker-compose.dev.yml defaults (localhost:5432, postgres/postgres).
+
+get_host_db_dsn() {
+  if [[ "$MODE" == "deployed" ]]; then
+    local env_file=""
+    if [[ -f "$REPO_ROOT/.env.staging" ]]; then
+      env_file="$REPO_ROOT/.env.staging"
+    elif [[ -f "$REPO_ROOT/.env.production" ]]; then
+      env_file="$REPO_ROOT/.env.production"
+    fi
+
+    if [[ -z "$env_file" ]]; then
+      error "No .env file found — cannot determine DB credentials for host-side ogr2ogr"
+    fi
+
+    # Source env file to get POSTGRES_PASSWORD (used by the database service)
+    # Use a subshell + grep to avoid polluting the current environment
+    DB_PASS=$(grep -E '^POSTGRES_PASSWORD=' "$env_file" | head -1 | cut -d= -f2-)
+    if [[ -z "$DB_PASS" ]]; then
+      # Fallback: try DATABASE_PASSWORD (used in DATABASE_URL)
+      DB_PASS=$(grep -E '^DATABASE_PASSWORD=' "$env_file" | head -1 | cut -d= -f2-)
+    fi
+    if [[ -z "$DB_PASS" ]]; then
+      error "Cannot find POSTGRES_PASSWORD or DATABASE_PASSWORD in $env_file"
+    fi
+
+    # Determine DB name and published port from the stack name
+    case "$STACK_NAME" in
+      *staging*)
+        DB_NAME="resilienceatlas_staging"
+        DB_PORT="5433"
+        ;;
+      *production*)
+        # Production may use an external DB — check if port 5432 is published
+        DB_NAME="cigrp"
+        DB_PORT="5432"
+        warn "Production DB: verify port $DB_PORT is published to the host"
+        ;;
+    esac
+
+    DB_HOST="localhost"
+    DB_USER="postgres"
+  else
+    # Dev mode: hardcoded from docker-compose.dev.yml
+    DB_HOST="localhost"
+    DB_PORT="5432"
+    DB_NAME="cigrp"
+    DB_USER="postgres"
+    DB_PASS="postgres"
+  fi
+
+  info "Host DB DSN: host=$DB_HOST port=$DB_PORT dbname=$DB_NAME user=$DB_USER"
 }
 
 # Run a command in the backend container.
@@ -454,18 +518,70 @@ import_boundaries() {
 
 # ──────────────────────────────────────────────────────────────
 # Step 4: Import pre-dissolved LDN geometries
+#
+# Runs ogr2ogr on the HOST (bypassing the memory-constrained
+# Docker container), then invokes the rake task for key CSV
+# import and dimension building SQL only.
 # ──────────────────────────────────────────────────────────────
+
+import_ldn_gpkgs_from_host() {
+  local pg_dsn="PG:host=$DB_HOST port=$DB_PORT dbname=$DB_NAME user=$DB_USER"
+
+  if ! command -v ogr2ogr &>/dev/null; then
+    error "ogr2ogr not found on host — install gdal-bin: sudo apt-get install gdal-bin"
+  fi
+
+  for spec in \
+    "pa_ecoregion.gpkg:_pa_ecoregion_raw" \
+    "pa_ecoregion_country.gpkg:_pa_ecoregion_country_raw"; do
+
+    local gpkg="${spec%%:*}"
+    local table="${spec##*:}"
+    local path="${LDN_DATA_DIR}/${gpkg}"
+
+    if [[ ! -f "$path" ]]; then
+      error "$gpkg not found in $LDN_DATA_DIR"
+    fi
+
+    info "  Importing $gpkg → $table (host-side ogr2ogr)..."
+    PGPASSWORD="$DB_PASS" ogr2ogr -f PostgreSQL "$pg_dsn" \
+      "$path" \
+      -nln "$table" -overwrite \
+      -lco GEOMETRY_NAME=geom \
+      -lco FID=ogc_fid \
+      -lco SPATIAL_INDEX=NONE \
+      -nlt PROMOTE_TO_MULTI \
+      -gt 1000 \
+      --config PG_USE_COPY YES \
+      -progress \
+      || error "ogr2ogr failed for $gpkg"
+
+    ok "  $gpkg imported"
+  done
+}
 
 import_ldn_geometries() {
   info "Importing pre-dissolved LDN geometries..."
 
+  # Step 4a: Import GPKGs via ogr2ogr on the host
+  import_ldn_gpkgs_from_host
+
+  # Step 4b: Copy key CSVs into container, then run dimension building
   if [[ "$MODE" == "deployed" ]]; then
-    copy_geometry_data_to_container
+    docker exec "$BACKEND_CONTAINER" mkdir -p /data/ldn
+    for csv in pa_ecoregion_key.csv pa_ecoregion_country_key.csv; do
+      if [[ -f "${LDN_DATA_DIR}/${csv}" ]]; then
+        info "  Copying $csv into container..."
+        docker cp "${LDN_DATA_DIR}/${csv}" "${BACKEND_CONTAINER}:/data/ldn/${csv}"
+      else
+        error "$csv not found in ${LDN_DATA_DIR}"
+      fi
+    done
     backend_exec -e "LDN_DATA_DIR=/data/ldn" \
-      -- bundle exec rake ldn:import_geometries
+      -- bundle exec rake ldn:build_dimensions
   else
     backend_exec -e "LDN_DATA_DIR=/data/ldn" -v "${LDN_DATA_DIR}:/data/ldn:ro" \
-      -- bundle exec rake ldn:import_geometries
+      -- bundle exec rake ldn:build_dimensions
   fi
 
   ok "LDN geometries imported"
@@ -489,21 +605,6 @@ seed_ldn_scope() {
   fi
 
   ok "LDN scope seeded"
-}
-
-# ── Deployed-mode helper: copy pre-dissolved GPKGs + key CSVs into container ──
-
-copy_geometry_data_to_container() {
-  docker exec "$BACKEND_CONTAINER" mkdir -p /data/ldn
-
-  for f in pa_ecoregion.gpkg pa_ecoregion_country.gpkg pa_ecoregion_key.csv pa_ecoregion_country_key.csv; do
-    if [[ -f "${LDN_DATA_DIR}/${f}" ]]; then
-      info "  Copying $f into container..."
-      docker cp "${LDN_DATA_DIR}/${f}" "${BACKEND_CONTAINER}:/data/ldn/${f}"
-    else
-      warn "  $f not found in ${LDN_DATA_DIR} — skipping"
-    fi
-  done
 }
 
 # ── Deployed-mode helper: copy per-mode stats CSVs + key CSVs into container ──
@@ -551,6 +652,7 @@ main() {
   check_aws_cli
   check_docker
   detect_mode
+  get_host_db_dsn
 
   if [[ "$SKIP_DOWNLOAD" == "false" ]]; then
     echo ""
