@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_04_06_140000) do
+ActiveRecord::Schema[7.2].define(version: 2026_04_09_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "postgis"
@@ -468,9 +468,9 @@ ActiveRecord::Schema[7.2].define(version: 2026_04_06_140000) do
     t.bigint "scope_dataset_id", null: false
     t.string "unit_id", null: false
     t.jsonb "properties", default: {}, null: false
-    t.geometry "geom", limit: {srid: 4326, type: "multi_polygon"}, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.geometry "geom", limit: {srid: 4326, type: "multi_polygon"}, null: false
     t.index ["geom"], name: "index_scope_dataset_geometries_on_geom", using: :gist
     t.index ["scope_dataset_id", "unit_id"], name: "idx_scope_dataset_geom_dataset_unit"
     t.index ["scope_dataset_id"], name: "index_scope_dataset_geometries_on_scope_dataset_id"

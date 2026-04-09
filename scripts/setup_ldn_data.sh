@@ -280,10 +280,21 @@ backend_exec() {
       ${env_args[@]+"${env_args[@]}"} \
       "$BACKEND_CONTAINER" "${cmd_args[@]}"
   else
-    docker compose -f "$REPO_ROOT/docker-compose.dev.yml" run --rm \
-      ${env_args[@]+"${env_args[@]}"} \
-      ${vol_args[@]+"${vol_args[@]}"} \
-      backend "${cmd_args[@]}"
+    # Prefer exec on a running backend container (avoids starting a
+    # separate one-off container when the user already has the full
+    # dev stack up via docker compose up -d).
+    local running
+    running=$(docker compose -f "$REPO_ROOT/docker-compose.dev.yml" ps -q backend 2>/dev/null || true)
+    if [[ -n "$running" ]]; then
+      docker compose -f "$REPO_ROOT/docker-compose.dev.yml" exec \
+        ${env_args[@]+"${env_args[@]}"} \
+        backend "${cmd_args[@]}"
+    else
+      docker compose -f "$REPO_ROOT/docker-compose.dev.yml" run --rm \
+        ${env_args[@]+"${env_args[@]}"} \
+        ${vol_args[@]+"${vol_args[@]}"} \
+        backend "${cmd_args[@]}"
+    fi
   fi
 }
 
@@ -504,12 +515,34 @@ import_boundaries() {
     done
     backend_exec -- bundle exec rake boundaries:import FORCE=1
   else
-    info "  Starting database (if not already running)..."
-    docker compose -f "$REPO_ROOT/docker-compose.dev.yml" up -d db
-    info "  Waiting for database to be ready..."
-    sleep 5
-    backend_exec -v "${GEOBOUNDARIES_DIR}:/data/geoboundaries:ro" \
-      -- bundle exec rake boundaries:import FORCE=1
+    # Check if the backend is already running (user ran docker compose up -d)
+    local running
+    running=$(docker compose -f "$REPO_ROOT/docker-compose.dev.yml" ps -q backend 2>/dev/null || true)
+    if [[ -n "$running" ]]; then
+      info "  Backend already running — using exec"
+      # exec can't mount volumes, so docker-cp the GPKGs into the container
+      local container_id
+      container_id=$(docker compose -f "$REPO_ROOT/docker-compose.dev.yml" ps -q backend | head -1)
+      docker exec "$container_id" mkdir -p /data/geoboundaries
+      for f in geoBoundariesCGAZ_ADM0.gpkg geoBoundariesCGAZ_ADM1.gpkg geoBoundariesCGAZ_ADM2.gpkg; do
+        local src
+        if [[ -f "${GEOBOUNDARIES_DIR}/clean_${f}" ]]; then
+          src="${GEOBOUNDARIES_DIR}/clean_${f}"
+        else
+          src="${GEOBOUNDARIES_DIR}/${f}"
+        fi
+        info "  Copying $(basename "$src") → container:$f"
+        docker cp "$src" "${container_id}:/data/geoboundaries/${f}"
+      done
+      backend_exec -- bundle exec rake boundaries:import FORCE=1
+    else
+      info "  Starting database (if not already running)..."
+      docker compose -f "$REPO_ROOT/docker-compose.dev.yml" up -d db
+      info "  Waiting for database to be ready..."
+      sleep 5
+      backend_exec -v "${GEOBOUNDARIES_DIR}:/data/geoboundaries:ro" \
+        -- bundle exec rake boundaries:import FORCE=1
+    fi
   fi
 
   ok "Boundaries imported"
@@ -580,8 +613,27 @@ import_ldn_geometries() {
     backend_exec -e "LDN_DATA_DIR=/data/ldn" \
       -- bundle exec rake ldn:build_dimensions
   else
-    backend_exec -e "LDN_DATA_DIR=/data/ldn" -v "${LDN_DATA_DIR}:/data/ldn:ro" \
-      -- bundle exec rake ldn:build_dimensions
+    local running
+    running=$(docker compose -f "$REPO_ROOT/docker-compose.dev.yml" ps -q backend 2>/dev/null || true)
+    if [[ -n "$running" ]]; then
+      # Backend already running — docker-cp key CSVs instead of volume mount
+      local container_id
+      container_id=$(docker compose -f "$REPO_ROOT/docker-compose.dev.yml" ps -q backend | head -1)
+      docker exec "$container_id" mkdir -p /data/ldn
+      for csv in pa_ecoregion_key.csv pa_ecoregion_country_key.csv; do
+        if [[ -f "${LDN_DATA_DIR}/${csv}" ]]; then
+          info "  Copying $csv into container..."
+          docker cp "${LDN_DATA_DIR}/${csv}" "${container_id}:/data/ldn/${csv}"
+        else
+          error "$csv not found in ${LDN_DATA_DIR}"
+        fi
+      done
+      backend_exec -e "LDN_DATA_DIR=/data/ldn" \
+        -- bundle exec rake ldn:build_dimensions
+    else
+      backend_exec -e "LDN_DATA_DIR=/data/ldn" -v "${LDN_DATA_DIR}:/data/ldn:ro" \
+        -- bundle exec rake ldn:build_dimensions
+    fi
   fi
 
   ok "LDN geometries imported"
@@ -600,8 +652,25 @@ seed_ldn_scope() {
     backend_exec -e "LDN_DATA_DIR=/data/ldn" \
       -- bundle exec rails runner db/data/ldn/seed.rb
   else
-    backend_exec -e "LDN_DATA_DIR=/data/ldn" -v "${LDN_DATA_DIR}:/data/ldn:ro" \
-      -- bundle exec rails runner db/data/ldn/seed.rb
+    local running
+    running=$(docker compose -f "$REPO_ROOT/docker-compose.dev.yml" ps -q backend 2>/dev/null || true)
+    if [[ -n "$running" ]]; then
+      # Backend already running — docker-cp data files instead of volume mount
+      local container_id
+      container_id=$(docker compose -f "$REPO_ROOT/docker-compose.dev.yml" ps -q backend | head -1)
+      docker exec "$container_id" mkdir -p /data/ldn
+      # Copy key CSVs and per-mode stats CSVs
+      for f in "${LDN_DATA_DIR}"/*.csv; do
+        [[ -f "$f" ]] || continue
+        info "  Copying $(basename "$f") into container..."
+        docker cp "$f" "${container_id}:/data/ldn/$(basename "$f")"
+      done
+      backend_exec -e "LDN_DATA_DIR=/data/ldn" \
+        -- bundle exec rails runner db/data/ldn/seed.rb
+    else
+      backend_exec -e "LDN_DATA_DIR=/data/ldn" -v "${LDN_DATA_DIR}:/data/ldn:ro" \
+        -- bundle exec rails runner db/data/ldn/seed.rb
+    fi
   fi
 
   ok "LDN scope seeded"

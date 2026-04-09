@@ -16,6 +16,7 @@ import {
   getDatasets,
   getHighlight,
   getActiveVariant,
+  getActiveDimension,
   getSpatialFilter,
   setHighlight,
 } from 'state/modules/scope_datasets';
@@ -60,6 +61,7 @@ const ScopeGeometryLayer = ({ map }) => {
   const datasets = useSelector(getDatasets);
   const highlight = useSelector(getHighlight);
   const activeVariant = useSelector(getActiveVariant);
+  const activeDimension = useSelector(getActiveDimension);
   const spatialFilter = useSelector(getSpatialFilter);
   const layersRef = useRef({});
   const [L, setL] = useState(null);
@@ -76,22 +78,28 @@ const ScopeGeometryLayer = ({ map }) => {
     return `${martinUrl}/scope_dataset_tiles/{z}/{x}/{y}?scope_dataset_id=${datasetId}`;
   }, []);
 
-  // Add/remove vector tile layers when datasets change
+  // Add/remove vector tile layers on demand — only when a row is
+  // highlighted or a spatial filter (search) is active.
   useEffect(() => {
     if (!map || !loaded || !L) return;
 
     const VectorGrid = L.vectorGrid;
     if (!VectorGrid) return;
 
-    // Determine which datasets have geometries
-    const datasetsWithGeometry = datasets.filter(
-      (d) =>
-        d.geometry_count &&
-        d.geometry_count > 0 &&
-        (!activeVariant || !d.variant_label || d.variant_label === activeVariant),
-    );
+    const hasInteraction = !!(highlight || spatialFilter);
 
-    // Remove layers for datasets no longer present
+    // Determine which datasets should have geometry layers right now
+    const datasetsWithGeometry = hasInteraction
+      ? datasets.filter(
+          (d) =>
+            d.geometry_count &&
+            d.geometry_count > 0 &&
+            (!activeVariant || !d.variant_label || d.variant_label === activeVariant) &&
+            (!activeDimension || !d.dimension || d.dimension === activeDimension),
+        )
+      : [];
+
+    // Remove layers that should no longer be shown
     Object.keys(layersRef.current).forEach((slug) => {
       if (!datasetsWithGeometry.find((d) => d.slug === slug)) {
         map.removeLayer(layersRef.current[slug].layer);
@@ -99,7 +107,7 @@ const ScopeGeometryLayer = ({ map }) => {
       }
     });
 
-    // Add layers for new datasets
+    // Add layers for datasets that need them
     datasetsWithGeometry.forEach((dataset) => {
       if (layersRef.current[dataset.slug]) return;
 
@@ -134,7 +142,7 @@ const ScopeGeometryLayer = ({ map }) => {
       });
       layersRef.current = {};
     };
-  }, [map, loaded, datasets, activeVariant, buildTileUrl, dispatch, L]);
+  }, [map, loaded, datasets, activeVariant, activeDimension, highlight, spatialFilter, buildTileUrl, dispatch, L]);
 
   // Update feature styles when highlight or spatial filter changes
   useEffect(() => {
