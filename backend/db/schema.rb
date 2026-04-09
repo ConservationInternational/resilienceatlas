@@ -472,7 +472,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_04_06_140000) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["geom"], name: "index_scope_dataset_geometries_on_geom", using: :gist
-    t.index ["scope_dataset_id", "unit_id"], name: "idx_scope_dataset_geom_dataset_unit", unique: true
+    t.index ["scope_dataset_id", "unit_id"], name: "idx_scope_dataset_geom_dataset_unit"
     t.index ["scope_dataset_id"], name: "index_scope_dataset_geometries_on_scope_dataset_id"
   end
 

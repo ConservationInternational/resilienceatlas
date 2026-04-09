@@ -12,7 +12,7 @@ class CreateScopeDatasetGeometries < ActiveRecord::Migration[7.2]
         ADD COLUMN geom geometry(MultiPolygon, 4326) NOT NULL;
     SQL
 
-    add_index :scope_dataset_geometries, [:scope_dataset_id, :unit_id], unique: true,
+    add_index :scope_dataset_geometries, [:scope_dataset_id, :unit_id],
       name: "idx_scope_dataset_geom_dataset_unit"
     add_index :scope_dataset_geometries, :geom, using: :gist
   end

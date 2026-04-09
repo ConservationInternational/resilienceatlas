@@ -6,8 +6,8 @@
 #
 # Stores ecoregion-level and country-ecoregion-level polygons with
 # rich properties (biome, realm, country, etc.). Higher-level views
-# (biome, realm, country) are created at seed time by projecting the
-# unit_id from properties — no ST_Union aggregation needed.
+# (biome, realm, country) are handled at seed time by copying ecoregion
+# or country_ecoregion rows — multiple rows per unit_id is expected.
 #
 # Usage:
 #   # 1. Import GPKGs on the host (setup_ldn_data.sh handles this)

@@ -1,7 +1,7 @@
 class ScopeDatasetGeometry < ApplicationRecord
   belongs_to :scope_dataset
 
-  validates :unit_id, presence: true, uniqueness: {scope: :scope_dataset_id}
+  validates :unit_id, presence: true
   validates :geom, presence: true
 
   def self.ransackable_attributes(auth_object = nil)
