@@ -88,11 +88,16 @@ namespace :boundaries do
 
       conn = ActiveRecord::Base.connection
 
+      # ST_Multi(ST_CollectionExtract(geom, 3)) ensures only polygon parts
+      # are kept — clipdst can produce GeometryCollections with stray
+      # points/lines along clipping edges.
+      safe_geom = "ST_Multi(ST_CollectionExtract(geom, 3))"
+
       insert_sql = case level
       when 0
         <<~SQL
           INSERT INTO admin_boundaries (name, iso_code, admin_level, parent_iso_code, geom, created_at, updated_at)
-          SELECT "shapename", "shapegroup", 0, NULL, geom, NOW(), NOW()
+          SELECT "shapename", "shapegroup", 0, NULL, #{safe_geom}, NOW(), NOW()
           FROM #{temp_table}
         SQL
       when 1
@@ -100,7 +105,7 @@ namespace :boundaries do
           INSERT INTO admin_boundaries (name, iso_code, admin_level, parent_iso_code, geom, created_at, updated_at)
           SELECT "shapename",
                  COALESCE("shapeid", "shapegroup" || '_' || "shapename"),
-                 1, "shapegroup", geom, NOW(), NOW()
+                 1, "shapegroup", #{safe_geom}, NOW(), NOW()
           FROM #{temp_table}
         SQL
       when 2
@@ -108,7 +113,7 @@ namespace :boundaries do
           INSERT INTO admin_boundaries (name, iso_code, admin_level, parent_iso_code, geom, created_at, updated_at)
           SELECT COALESCE("shapename", "shapeid", 'Unknown'),
                  COALESCE("shapeid", "shapegroup" || '_' || COALESCE("shapename", 'unknown')),
-                 2, "shapegroup", geom, NOW(), NOW()
+                 2, "shapegroup", #{safe_geom}, NOW(), NOW()
           FROM #{temp_table}
         SQL
       end
