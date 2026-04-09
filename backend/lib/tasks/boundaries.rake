@@ -70,18 +70,66 @@ namespace :boundaries do
         &.sub(/^\d+:\s*/, "")&.sub(/\s*\(.*/, "")
       abort "ERROR: Could not determine layer name in #{gpkg_path}" if layer_name.blank?
 
+      # ── Pre-clean: GPKG → temp GPKG via ogr2ogr ──
+      # Geometry operations (makevalid, clip) run in GDAL process memory,
+      # not PostgreSQL — avoids OOM in memory-constrained DB containers.
+      clean_gpkg = "/tmp/clean_adm#{level}.gpkg"
+      FileUtils.rm_f(clean_gpkg)
+
+      # Try single-pass: makevalid + clip together
+      puts "  Pre-cleaning geometries (makevalid + clip to Web Mercator)..."
+      pre_ok = system(
+        "ogr2ogr", "-f", "GPKG", clean_gpkg, gpkg_path, layer_name,
+        "-t_srs", "EPSG:4326", "-nlt", "PROMOTE_TO_MULTI",
+        "-makevalid",
+        "-clipdst", "-180", "-85.051129", "180", "85.051129"
+      )
+
+      unless pre_ok
+        # Fallback: two-step (makevalid first, then clip on valid geometries)
+        puts "  Single-pass failed, trying two-step pre-clean..."
+        valid_gpkg = "/tmp/valid_adm#{level}.gpkg"
+        FileUtils.rm_f(valid_gpkg)
+        FileUtils.rm_f(clean_gpkg)
+
+        step1 = system(
+          "ogr2ogr", "-f", "GPKG", valid_gpkg, gpkg_path, layer_name,
+          "-t_srs", "EPSG:4326", "-nlt", "PROMOTE_TO_MULTI",
+          "-makevalid"
+        )
+        abort "ERROR: ogr2ogr makevalid failed for ADM#{level}" unless step1
+
+        valid_layer = `ogrinfo -q "#{valid_gpkg}" 2>/dev/null`.lines.first&.strip
+          &.sub(/^\d+:\s*/, "")&.sub(/\s*\(.*/, "")
+
+        step2 = system(
+          "ogr2ogr", "-f", "GPKG", clean_gpkg, valid_gpkg, valid_layer,
+          "-clipdst", "-180", "-85.051129", "180", "85.051129"
+        )
+        abort "ERROR: ogr2ogr clipdst failed for ADM#{level}" unless step2
+
+        FileUtils.rm_f(valid_gpkg)
+      end
+
+      # ── Import clean GPKG to PostgreSQL (no geometry transforms) ──
+      clean_layer = `ogrinfo -q "#{clean_gpkg}" 2>/dev/null`.lines.first&.strip
+        &.sub(/^\d+:\s*/, "")&.sub(/\s*\(.*/, "")
+      abort "ERROR: Could not determine layer name in #{clean_gpkg}" if clean_layer.blank?
+
       temp_table = "temp_adm#{level}_import"
 
+      puts "  Importing to PostgreSQL..."
       success = system(
-        "ogr2ogr", "-f", "PostgreSQL", "PG:#{pg_conn}", gpkg_path, layer_name,
+        "ogr2ogr", "-f", "PostgreSQL", "PG:#{pg_conn}", clean_gpkg, clean_layer,
         "-nln", temp_table, "-overwrite",
         "-lco", "GEOMETRY_NAME=geom", "-lco", "FID=ogc_fid",
         "-lco", "SPATIAL_INDEX=NONE",
-        "-t_srs", "EPSG:4326", "-nlt", "PROMOTE_TO_MULTI",
         "-gt", "1000",
         "--config", "PG_USE_COPY", "YES", "-progress"
       )
-      abort "ERROR: ogr2ogr failed for ADM#{level}" unless success
+      abort "ERROR: ogr2ogr import failed for ADM#{level}" unless success
+
+      FileUtils.rm_f(clean_gpkg)
 
       conn = ActiveRecord::Base.connection
 
@@ -140,104 +188,20 @@ namespace :boundaries do
     end
 
     puts ""
-    puts "Cleaning geometries (ST_MakeValid + clip to Web Mercator bounds)..."
+    puts "Verifying geometry quality..."
     web_mercator_env = "ST_MakeEnvelope(-180, -85.051129, 180, 85.051129, 4326)"
-
-    # Two-pass cleaning:
-    #   Pass 1: ST_MakeValid — fix topology (lightweight, no OOM risk)
-    #   Pass 2: ST_Subdivide + ST_Intersection — clip to Web Mercator bounds
-    #           (ST_Subdivide requires valid input, so pass 1 must run first)
-
-    # Pass 1: Fix invalid geometries
     [0, 1, 2].each do |level|
       conn = ActiveRecord::Base.connection
-      invalid_ids = conn.select_values(<<~SQL)
-        SELECT id FROM admin_boundaries
-        WHERE admin_level = #{level} AND NOT ST_IsValid(geom)
-        ORDER BY id
-      SQL
-      if invalid_ids.empty?
-        puts "  ADM#{level}: all geometries already valid"
-        next
+      invalid = conn.select_value("SELECT count(*) FROM admin_boundaries WHERE admin_level = #{level} AND NOT ST_IsValid(geom)").to_i
+      out_of_bounds = conn.select_value("SELECT count(*) FROM admin_boundaries WHERE admin_level = #{level} AND NOT ST_CoveredBy(geom, #{web_mercator_env})").to_i
+      status = []
+      status << "#{invalid} invalid" if invalid > 0
+      status << "#{out_of_bounds} out-of-bounds" if out_of_bounds > 0
+      if status.empty?
+        puts "  ADM#{level}: all geometries valid and within bounds"
+      else
+        puts "  WARNING ADM#{level}: #{status.join(", ")}"
       end
-
-      puts "  ADM#{level}: #{invalid_ids.size} invalid geometries to fix..."
-      invalid_ids.each_with_index do |row_id, idx|
-        retries = 0
-        begin
-          conn.execute(<<~SQL)
-            UPDATE admin_boundaries
-            SET geom = ST_Multi(ST_CollectionExtract(ST_MakeValid(geom), 3))
-            WHERE id = #{row_id.to_i}
-          SQL
-        rescue ActiveRecord::ConnectionFailed, PG::ConnectionBad => e
-          retries += 1
-          if retries <= 3
-            puts "    Row #{row_id}: connection lost (attempt #{retries}/3), reconnecting..."
-            sleep(retries * 2)
-            ActiveRecord::Base.connection.reconnect!
-            conn = ActiveRecord::Base.connection
-            retry
-          else
-            puts "    Row #{row_id}: ST_MakeValid failed after #{retries} attempts: #{e.message}"
-            raise
-          end
-        end
-        puts "    #{idx + 1}/#{invalid_ids.size} fixed" if ((idx + 1) % 50).zero? || idx + 1 == invalid_ids.size
-      end
-      puts "  ADM#{level}: validity fixed."
-    end
-
-    # Pass 2: Clip geometries that extend beyond Web Mercator bounds.
-    # Uses ST_Subdivide to break the (now-valid) geometry into small pieces,
-    # clips each piece, then ST_Union reassembles. This caps per-piece memory
-    # and avoids PostgreSQL OOM on huge countries (Russia, Canada, Antarctica).
-    [0, 1, 2].each do |level|
-      conn = ActiveRecord::Base.connection
-      clip_ids = conn.select_values(<<~SQL)
-        SELECT id FROM admin_boundaries
-        WHERE admin_level = #{level}
-          AND NOT ST_CoveredBy(geom, #{web_mercator_env})
-        ORDER BY id
-      SQL
-      if clip_ids.empty?
-        puts "  ADM#{level}: all geometries within Web Mercator bounds"
-        next
-      end
-
-      puts "  ADM#{level}: #{clip_ids.size} geometries to clip..."
-      clip_ids.each_with_index do |row_id, idx|
-        retries = 0
-        begin
-          conn.execute(<<~SQL)
-            UPDATE admin_boundaries
-            SET geom = ST_Multi(ST_CollectionExtract(
-              (SELECT ST_Union(
-                ST_Intersection(piece, #{web_mercator_env})
-              )
-              FROM ST_Subdivide(geom, 128) AS piece
-              WHERE ST_Intersects(piece, #{web_mercator_env})
-              ),
-              3
-            ))
-            WHERE id = #{row_id.to_i}
-          SQL
-        rescue ActiveRecord::ConnectionFailed, PG::ConnectionBad => e
-          retries += 1
-          if retries <= 3
-            puts "    Row #{row_id}: connection lost (attempt #{retries}/3), reconnecting..."
-            sleep(retries * 2)
-            ActiveRecord::Base.connection.reconnect!
-            conn = ActiveRecord::Base.connection
-            retry
-          else
-            puts "    Row #{row_id}: clip failed after #{retries} attempts: #{e.message}"
-            raise
-          end
-        end
-        puts "    #{idx + 1}/#{clip_ids.size} clipped" if ((idx + 1) % 10).zero? || idx + 1 == clip_ids.size
-      end
-      puts "  ADM#{level}: clipping done."
     end
 
     puts ""
