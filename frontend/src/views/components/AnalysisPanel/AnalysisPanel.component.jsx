@@ -171,16 +171,16 @@ export const AnalysisPanel = ({
             {!(geojson || iso) ? (
               <Tabs activeTab={tab} renderActiveOnly>
                 <Tabs.Pane name="region">
-                  <p>
-                    <T _str="Select a country or region from the list below." />
-                  </p>
                   <div className="m-search-analysis">
                     <svg className="icon-search">
                       <use xmlnsXlink="http://www.w3.org/1999/xlink" xlinkHref="#icon-search" />
                     </svg>
                     <input
                       className="searchAnalysis"
-                      placeholder={translations && translations['Type country']}
+                      placeholder={
+                        (translations && translations['Select a country or region from the list below.']) ||
+                        'Select a country or region from the list below.'
+                      }
                       type="search"
                       {...searchInput}
                     />
