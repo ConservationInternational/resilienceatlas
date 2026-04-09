@@ -1617,7 +1617,7 @@ module LdnSeeder
     def import_stats_csvs(eco_stats_csv, country_eco_stats_csv)
       conn = ActiveRecord::Base.connection
 
-      # Ecoregion stats (tab-delimited)
+      # Ecoregion stats (comma-delimited)
       conn.execute("DROP TABLE IF EXISTS _eco_stats")
       conn.execute(<<~SQL)
         CREATE TABLE _eco_stats (
@@ -1630,10 +1630,10 @@ module LdnSeeder
           category       text
         )
       SQL
-      copy_tsv_to_table(conn, "_eco_stats", eco_stats_csv)
+      copy_csv_to_table(conn, "_eco_stats", eco_stats_csv)
       puts "  Imported _eco_stats: #{conn.select_value("SELECT count(*) FROM _eco_stats")} rows"
 
-      # Country-ecoregion stats (tab-delimited)
+      # Country-ecoregion stats (comma-delimited)
       if File.exist?(country_eco_stats_csv)
         conn.execute("DROP TABLE IF EXISTS _country_eco_stats")
         conn.execute(<<~SQL)
@@ -1648,7 +1648,7 @@ module LdnSeeder
             category       text
           )
         SQL
-        copy_tsv_to_table(conn, "_country_eco_stats", country_eco_stats_csv)
+        copy_csv_to_table(conn, "_country_eco_stats", country_eco_stats_csv)
         puts "  Imported _country_eco_stats: #{conn.select_value("SELECT count(*) FROM _country_eco_stats")} rows"
       end
     end
@@ -1659,19 +1659,6 @@ module LdnSeeder
       raw = conn.raw_connection
       raw.copy_data("COPY #{table_name} FROM STDIN CSV HEADER") do
         File.open(csv_path, "r") do |f|
-          while (line = f.gets)
-            raw.put_copy_data(line)
-          end
-        end
-      end
-    end
-
-    # ── Helper: stream a tab-delimited CSV into a table via COPY FROM STDIN ──
-
-    def copy_tsv_to_table(conn, table_name, tsv_path)
-      raw = conn.raw_connection
-      raw.copy_data("COPY #{table_name} FROM STDIN CSV HEADER DELIMITER E'\\t'") do
-        File.open(tsv_path, "r") do |f|
           while (line = f.gets)
             raw.put_copy_data(line)
           end
