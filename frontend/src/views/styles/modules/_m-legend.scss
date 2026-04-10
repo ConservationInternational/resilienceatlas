@@ -249,12 +249,12 @@ $side-bar-width: 360px;
     position: relative;
     display: flex;
     display: -ms-box;
-    justify-content: space-between;
     align-items: center;
     padding: rem(16px) 0 0 rem(10px);
 
     .item {
-      width: 100%;
+      flex: 1 1 0;
+      min-width: 0;
       height: 8px;
     }
 
