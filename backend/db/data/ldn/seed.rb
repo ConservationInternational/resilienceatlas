@@ -389,6 +389,31 @@ module LdnSeeder
           ]
         end
       end
+
+      # Also clean up old ldn-prefixed SDG/LPD/LC/SOC layers that were
+      # previously duplicated instead of shared with the trendsearth scope.
+      DATASET_INFO.each_key do |key|
+        mode = key.to_s.tr("_", "-")
+        old_slugs += [
+          "ldn-sdg-15-3-1-status-2023-#{mode}",
+          "ldn-sdg-15-3-1-status-2019-#{mode}",
+          "ldn-sdg-15-3-1-2008-2023-#{mode}",
+          "ldn-sdg-15-3-1-2004-2019-#{mode}",
+          "ldn-sdg-15-3-1-baseline-2000-2015-#{mode}",
+          "ldn-lpd-2008-2023-#{mode}",
+          "ldn-lpd-2004-2019-#{mode}",
+          "ldn-lpd-baseline-2001-2015-#{mode}"
+        ]
+      end
+      old_slugs += %w[
+        ldn-lc-degradation-2015-2022
+        ldn-lc-degradation-2015-2019
+        ldn-lc-degradation-2000-2015
+        ldn-soc-degradation-2015-2022
+        ldn-soc-degradation-2015-2019
+        ldn-soc-degradation-2000-2015
+      ]
+
       old_slugs.each do |slug|
         layer = Layer.find_by(slug: slug)
         next unless layer
@@ -690,7 +715,7 @@ module LdnSeeder
         # SDG 15.3.1 Status 2023 vs Baseline
         layer = create_sdg_cog_layer(
           group: group,
-          slug: "ldn-sdg-15-3-1-status-2023-#{dataset[:key].to_s.tr("_", "-")}",
+          slug: "sdg-15-3-1-status-2023-#{dataset[:key].to_s.tr("_", "-")}",
           cog_key: dataset[:key],
           band: SDG_BANDS[:sdg_status_2023],
           colormap: SDG_COLORMAPS[:sdg_status],
@@ -709,7 +734,7 @@ module LdnSeeder
         # SDG 15.3.1 Status 2019 vs Baseline
         layer = create_sdg_cog_layer(
           group: group,
-          slug: "ldn-sdg-15-3-1-status-2019-#{dataset[:key].to_s.tr("_", "-")}",
+          slug: "sdg-15-3-1-status-2019-#{dataset[:key].to_s.tr("_", "-")}",
           cog_key: dataset[:key],
           band: SDG_BANDS[:sdg_status_2019],
           colormap: SDG_COLORMAPS[:sdg_status],
@@ -728,7 +753,7 @@ module LdnSeeder
         # SDG 15.3.1 2008-2023
         layer = create_sdg_cog_layer(
           group: group,
-          slug: "ldn-sdg-15-3-1-2008-2023-#{dataset[:key].to_s.tr("_", "-")}",
+          slug: "sdg-15-3-1-2008-2023-#{dataset[:key].to_s.tr("_", "-")}",
           cog_key: dataset[:key],
           band: SDG_BANDS[:sdg_2023],
           colormap: SDG_COLORMAPS[:sdg_indicator],
@@ -747,7 +772,7 @@ module LdnSeeder
         # SDG 15.3.1 2004-2019
         layer = create_sdg_cog_layer(
           group: group,
-          slug: "ldn-sdg-15-3-1-2004-2019-#{dataset[:key].to_s.tr("_", "-")}",
+          slug: "sdg-15-3-1-2004-2019-#{dataset[:key].to_s.tr("_", "-")}",
           cog_key: dataset[:key],
           band: SDG_BANDS[:sdg_2019],
           colormap: SDG_COLORMAPS[:sdg_indicator],
@@ -766,7 +791,7 @@ module LdnSeeder
         # SDG 15.3.1 Baseline 2000-2015
         layer = create_sdg_cog_layer(
           group: group,
-          slug: "ldn-sdg-15-3-1-baseline-2000-2015-#{dataset[:key].to_s.tr("_", "-")}",
+          slug: "sdg-15-3-1-baseline-2000-2015-#{dataset[:key].to_s.tr("_", "-")}",
           cog_key: dataset[:key],
           band: SDG_BANDS[:sdg_baseline],
           colormap: SDG_COLORMAPS[:sdg_indicator],
@@ -805,7 +830,7 @@ module LdnSeeder
         # LPD 2008-2023
         layer = create_sdg_cog_layer(
           group: group,
-          slug: "ldn-lpd-2008-2023-#{dataset[:key].to_s.tr("_", "-")}",
+          slug: "lpd-2008-2023-#{dataset[:key].to_s.tr("_", "-")}",
           cog_key: dataset[:key],
           band: SDG_BANDS[:lpd_2023],
           colormap: SDG_COLORMAPS[:lpd],
@@ -824,7 +849,7 @@ module LdnSeeder
         # LPD 2004-2019
         layer = create_sdg_cog_layer(
           group: group,
-          slug: "ldn-lpd-2004-2019-#{dataset[:key].to_s.tr("_", "-")}",
+          slug: "lpd-2004-2019-#{dataset[:key].to_s.tr("_", "-")}",
           cog_key: dataset[:key],
           band: SDG_BANDS[:lpd_2019],
           colormap: SDG_COLORMAPS[:lpd],
@@ -843,7 +868,7 @@ module LdnSeeder
         # LPD Baseline 2001-2015
         layer = create_sdg_cog_layer(
           group: group,
-          slug: "ldn-lpd-baseline-2001-2015-#{dataset[:key].to_s.tr("_", "-")}",
+          slug: "lpd-baseline-2001-2015-#{dataset[:key].to_s.tr("_", "-")}",
           cog_key: dataset[:key],
           band: SDG_BANDS[:lpd_baseline],
           colormap: SDG_COLORMAPS[:lpd],
@@ -872,7 +897,7 @@ module LdnSeeder
 
       layer = create_sdg_cog_layer(
         group: group,
-        slug: "ldn-lc-degradation-2015-2022",
+        slug: "lc-degradation-2015-2022",
         cog_key: :trendsearth,
         band: SDG_BANDS[:lc_2023],
         colormap: SDG_COLORMAPS[:land_cover],
@@ -889,7 +914,7 @@ module LdnSeeder
 
       layer = create_sdg_cog_layer(
         group: group,
-        slug: "ldn-lc-degradation-2015-2019",
+        slug: "lc-degradation-2015-2019",
         cog_key: :trendsearth,
         band: SDG_BANDS[:lc_2019],
         colormap: SDG_COLORMAPS[:land_cover],
@@ -906,7 +931,7 @@ module LdnSeeder
 
       layer = create_sdg_cog_layer(
         group: group,
-        slug: "ldn-lc-degradation-2000-2015",
+        slug: "lc-degradation-2000-2015",
         cog_key: :trendsearth,
         band: SDG_BANDS[:lc_baseline],
         colormap: SDG_COLORMAPS[:land_cover],
@@ -934,7 +959,7 @@ module LdnSeeder
 
       layer = create_sdg_cog_layer(
         group: group,
-        slug: "ldn-soc-degradation-2015-2022",
+        slug: "soc-degradation-2015-2022",
         cog_key: :trendsearth,
         band: SDG_BANDS[:soc_2023],
         colormap: SDG_COLORMAPS[:soc],
@@ -952,7 +977,7 @@ module LdnSeeder
 
       layer = create_sdg_cog_layer(
         group: group,
-        slug: "ldn-soc-degradation-2015-2019",
+        slug: "soc-degradation-2015-2019",
         cog_key: :trendsearth,
         band: SDG_BANDS[:soc_2019],
         colormap: SDG_COLORMAPS[:soc],
@@ -970,7 +995,7 @@ module LdnSeeder
 
       layer = create_sdg_cog_layer(
         group: group,
-        slug: "ldn-soc-degradation-2000-2015",
+        slug: "soc-degradation-2000-2015",
         cog_key: :trendsearth,
         band: SDG_BANDS[:soc_baseline],
         colormap: SDG_COLORMAPS[:soc],
@@ -1554,7 +1579,13 @@ module LdnSeeder
         sources.each { |source| layer.sources << source unless layer.sources.include?(source) }
       end
 
-      Agrupation.where(layer_id: layer.id).where.not(layer_group_id: group.id).destroy_all
+      # Only clean up stale agrupations within the SAME site scope.
+      # This preserves agrupations from other site scopes so a layer can
+      # be shared across trendsearth and LDN without interference.
+      scope_group_ids = LayerGroup.where(site_scope_id: group.site_scope_id).pluck(:id)
+      Agrupation.where(layer_id: layer.id, layer_group_id: scope_group_ids)
+        .where.not(layer_group_id: group.id).destroy_all
+
       agrupation = Agrupation.find_or_initialize_by(layer_id: layer.id, layer_group_id: group.id)
       agrupation.active = active
       agrupation.save!

@@ -762,8 +762,13 @@ module TrendsEarthSeeder
         sources.each { |source| layer.sources << source unless layer.sources.include?(source) }
       end
 
-      # Clean up any stale agrupations for this layer and create/update the correct one
-      Agrupation.where(layer_id: layer.id).where.not(layer_group_id: group.id).destroy_all
+      # Only clean up stale agrupations within the SAME site scope.
+      # This preserves agrupations from other site scopes so a layer can
+      # be shared across trendsearth and LDN without interference.
+      scope_group_ids = LayerGroup.where(site_scope_id: group.site_scope_id).pluck(:id)
+      Agrupation.where(layer_id: layer.id, layer_group_id: scope_group_ids)
+        .where.not(layer_group_id: group.id).destroy_all
+
       agrupation = Agrupation.find_or_initialize_by(layer_id: layer.id, layer_group_id: group.id)
       agrupation.active = active
       agrupation.save!

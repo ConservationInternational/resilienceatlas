@@ -78,15 +78,20 @@ const ScopeGeometryLayer = ({ map }) => {
     return `${martinUrl}/scope_dataset_tiles/{z}/{x}/{y}?scope_dataset_id=${datasetId}`;
   }, []);
 
-  // Add/remove vector tile layers on demand — only when a row is
-  // highlighted or a spatial filter (search) is active.
+  // Boolean: whether any interaction (highlight or spatial filter) is active.
+  // Used as a stable dependency so that switching between highlighted rows
+  // does NOT destroy / recreate tile layers (which would trigger new fetches).
+  const hasInteraction = !!(highlight || spatialFilter);
+
+  // Create / destroy vector tile layers.
+  // Depends on the stable boolean `hasInteraction`, NOT on the highlight
+  // object itself.  Switching rows keeps hasInteraction === true, so layers
+  // stay on the map and only their styles are updated (see next effect).
   useEffect(() => {
     if (!map || !loaded || !L) return;
 
     const VectorGrid = L.vectorGrid;
     if (!VectorGrid) return;
-
-    const hasInteraction = !!(highlight || spatialFilter);
 
     // Determine which datasets should have geometry layers right now
     const datasetsWithGeometry = hasInteraction
@@ -135,16 +140,18 @@ const ScopeGeometryLayer = ({ map }) => {
       layersRef.current[dataset.slug] = { layer, dataset };
     });
 
-    // Cleanup on unmount
+    // Cleanup on unmount or when interaction stops / datasets change
     return () => {
       Object.values(layersRef.current).forEach(({ layer: l }) => {
         if (map.hasLayer(l)) map.removeLayer(l);
       });
       layersRef.current = {};
     };
-  }, [map, loaded, datasets, activeVariant, activeDimension, highlight, spatialFilter, buildTileUrl, dispatch, L]);
+  }, [map, loaded, datasets, activeVariant, activeDimension, hasInteraction, buildTileUrl, dispatch, L]);
 
-  // Update feature styles when highlight or spatial filter changes
+  // Update feature styles when highlight or spatial filter changes.
+  // Uses setFeatureStyle/resetFeatureStyle to restyle already-rendered
+  // features in-place, avoiding the tile re-fetch that redraw() causes.
   useEffect(() => {
     Object.entries(layersRef.current).forEach(([slug, { layer }]) => {
       if (!layer.options?.vectorTileLayerStyles) return;
@@ -153,13 +160,12 @@ const ScopeGeometryLayer = ({ map }) => {
       const filterSet =
         spatialFilter && spatialFilter[slug] ? new Set(spatialFilter[slug].map(String)) : null;
 
+      // Compute the style function — used for tiles that load AFTER this update
       let styleFn;
 
       if (!highlight && !filterSet) {
-        // No highlight and no spatial filter — reset all to default
         styleFn = () => ({ ...DEFAULT_STYLE });
       } else if (highlight && highlight.datasetSlug === slug) {
-        // This dataset has the highlighted unit — highlight matched, dim rest
         styleFn = (properties) => {
           if (String(properties.unit_id) === highlight.unitId) {
             return { ...HIGHLIGHT_STYLE };
@@ -167,10 +173,8 @@ const ScopeGeometryLayer = ({ map }) => {
           return { ...DIMMED_STYLE };
         };
       } else if (highlight) {
-        // Other dataset — dim everything during highlight
         styleFn = () => ({ ...DIMMED_STYLE });
       } else if (filterSet) {
-        // Spatial filter active, no highlight — show matching, dim non-matching
         styleFn = (properties) => {
           if (filterSet.has(String(properties.unit_id))) {
             return { ...DEFAULT_STYLE };
@@ -180,8 +184,27 @@ const ScopeGeometryLayer = ({ map }) => {
       }
 
       if (styleFn) {
+        // Update style function for future tiles
         layer.options.vectorTileLayerStyles.scope_dataset_geometries = styleFn;
-        layer.redraw();
+
+        // Restyle already-rendered features in-place (no tile re-fetch).
+        // VectorGrid stores rendered features in _vectorTiles.
+        const tiles = layer._vectorTiles;
+        if (tiles) {
+          Object.values(tiles).forEach((tile) => {
+            const features = tile._features?.scope_dataset_geometries;
+            if (!features) return;
+            Object.entries(features).forEach(([id, featureInfo]) => {
+              const props = featureInfo?.feature?.properties || {};
+              const style = styleFn(props);
+              try {
+                layer.setFeatureStyle(id, style);
+              } catch (_) {
+                /* feature may not support setFeatureStyle */
+              }
+            });
+          });
+        }
       }
     });
   }, [highlight, spatialFilter]);

@@ -34,7 +34,9 @@ const ScopeChart = ({ config, data, schema, datasetSlug }) => {
   const handleClick = useCallback(
     (entry) => {
       if (!config.unitIdColumn || !entry) return;
-      const unitId = entry[config.unitIdColumn];
+      // Recharts onClick wraps the original data row in .payload
+      const row = entry.payload || entry;
+      const unitId = row[config.unitIdColumn];
       if (unitId != null) {
         dispatch(setHighlight(datasetSlug, String(unitId)));
       }

@@ -10,6 +10,9 @@ const isStaging = NEXT_PUBLIC_API_HOST && NEXT_PUBLIC_API_HOST.includes('staging
  * @type {import('next').NextConfig}
  */
 const nextConfig = {
+  turbopack: {
+    root: __dirname,
+  },
   output: 'standalone',
   poweredByHeader: false,
   // Enable trailing slash for better subdomain handling
