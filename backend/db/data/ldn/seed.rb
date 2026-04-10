@@ -868,7 +868,17 @@ module LdnSeeder
           {name: "gains_pct", type: "number", label: "Gains (% of area)", format: ".1f"},
           {name: "losses_pct", type: "number", label: "Losses (% of area)", format: ".1f"},
           {name: "ldn_pct", type: "number", label: "LDN Achievement (%)", format: ".1f"},
-          {name: "category", type: "category", label: "Category"}
+          {name: "category", type: "category", label: "Category"},
+          {name: "status_1_persistent_degradation_sqkm", type: "number", label: "Persistent Degradation (km²)", format: ",.1f"},
+          {name: "status_2_recent_degradation_sqkm", type: "number", label: "Recent Degradation (km²)", format: ",.1f"},
+          {name: "status_3_baseline_degradation_sqkm", type: "number", label: "Baseline Degradation (km²)", format: ",.1f"},
+          {name: "status_4_stability_sqkm", type: "number", label: "Stability (km²)", format: ",.1f"},
+          {name: "status_5_baseline_improvement_sqkm", type: "number", label: "Baseline Improvement (km²)", format: ",.1f"},
+          {name: "status_6_recent_improvement_sqkm", type: "number", label: "Recent Improvement (km²)", format: ",.1f"},
+          {name: "status_7_persistent_improvement_sqkm", type: "number", label: "Persistent Improvement (km²)", format: ",.1f"},
+          {name: "baseline_degraded_sqkm", type: "number", label: "Baseline Degraded (km²)", format: ",.1f"},
+          {name: "baseline_stable_sqkm", type: "number", label: "Baseline Stable (km²)", format: ",.1f"},
+          {name: "baseline_improved_sqkm", type: "number", label: "Baseline Improved (km²)", format: ",.1f"}
         ],
         chart_config: [
           {
@@ -930,7 +940,17 @@ module LdnSeeder
               THEN ROUND((s.losses_km2 / s.total_area_km2 * 100)::numeric, 1)
               ELSE 0 END AS losses_pct,
             ROUND(s.ldn_pct::numeric, 1) AS ldn_pct,
-            s.category
+            s.category,
+            ROUND(s.status_1_persistent_degradation_sqkm::numeric, 1) AS status_1_persistent_degradation_sqkm,
+            ROUND(s.status_2_recent_degradation_sqkm::numeric, 1) AS status_2_recent_degradation_sqkm,
+            ROUND(s.status_3_baseline_degradation_sqkm::numeric, 1) AS status_3_baseline_degradation_sqkm,
+            ROUND(s.status_4_stability_sqkm::numeric, 1) AS status_4_stability_sqkm,
+            ROUND(s.status_5_baseline_improvement_sqkm::numeric, 1) AS status_5_baseline_improvement_sqkm,
+            ROUND(s.status_6_recent_improvement_sqkm::numeric, 1) AS status_6_recent_improvement_sqkm,
+            ROUND(s.status_7_persistent_improvement_sqkm::numeric, 1) AS status_7_persistent_improvement_sqkm,
+            ROUND(s.baseline_degraded_sqkm::numeric, 1) AS baseline_degraded_sqkm,
+            ROUND(s.baseline_stable_sqkm::numeric, 1) AS baseline_stable_sqkm,
+            ROUND(s.baseline_improved_sqkm::numeric, 1) AS baseline_improved_sqkm
           FROM _eco_stats s
           JOIN _eco_key k ON s.eco_id = k.eco_id AND k.is_pa = 0
           ORDER BY s.eco_id
@@ -957,7 +977,17 @@ module LdnSeeder
           {name: "gains_pct", type: "number", label: "Gains (% of area)", format: ".1f"},
           {name: "losses_pct", type: "number", label: "Losses (% of area)", format: ".1f"},
           {name: "ldn_pct", type: "number", label: "LDN Achievement (%)", format: ".1f"},
-          {name: "category", type: "category", label: "Category"}
+          {name: "category", type: "category", label: "Category"},
+          {name: "status_1_persistent_degradation_sqkm", type: "number", label: "Persistent Degradation (km²)", format: ",.1f"},
+          {name: "status_2_recent_degradation_sqkm", type: "number", label: "Recent Degradation (km²)", format: ",.1f"},
+          {name: "status_3_baseline_degradation_sqkm", type: "number", label: "Baseline Degradation (km²)", format: ",.1f"},
+          {name: "status_4_stability_sqkm", type: "number", label: "Stability (km²)", format: ",.1f"},
+          {name: "status_5_baseline_improvement_sqkm", type: "number", label: "Baseline Improvement (km²)", format: ",.1f"},
+          {name: "status_6_recent_improvement_sqkm", type: "number", label: "Recent Improvement (km²)", format: ",.1f"},
+          {name: "status_7_persistent_improvement_sqkm", type: "number", label: "Persistent Improvement (km²)", format: ",.1f"},
+          {name: "baseline_degraded_sqkm", type: "number", label: "Baseline Degraded (km²)", format: ",.1f"},
+          {name: "baseline_stable_sqkm", type: "number", label: "Baseline Stable (km²)", format: ",.1f"},
+          {name: "baseline_improved_sqkm", type: "number", label: "Baseline Improved (km²)", format: ",.1f"}
         ],
         chart_config: [
           {
@@ -1023,7 +1053,17 @@ module LdnSeeder
               ELSE 0 END AS ldn_pct,
             CASE WHEN SUM(s.delta_ldn_km2) > 0 THEN 'Exceeding'
                  WHEN SUM(s.delta_ldn_km2) = 0 THEN 'Achieving'
-                 ELSE 'Not achieving' END AS category
+                 ELSE 'Not achieving' END AS category,
+            ROUND(SUM(s.status_1_persistent_degradation_sqkm)::numeric, 1) AS status_1_persistent_degradation_sqkm,
+            ROUND(SUM(s.status_2_recent_degradation_sqkm)::numeric, 1) AS status_2_recent_degradation_sqkm,
+            ROUND(SUM(s.status_3_baseline_degradation_sqkm)::numeric, 1) AS status_3_baseline_degradation_sqkm,
+            ROUND(SUM(s.status_4_stability_sqkm)::numeric, 1) AS status_4_stability_sqkm,
+            ROUND(SUM(s.status_5_baseline_improvement_sqkm)::numeric, 1) AS status_5_baseline_improvement_sqkm,
+            ROUND(SUM(s.status_6_recent_improvement_sqkm)::numeric, 1) AS status_6_recent_improvement_sqkm,
+            ROUND(SUM(s.status_7_persistent_improvement_sqkm)::numeric, 1) AS status_7_persistent_improvement_sqkm,
+            ROUND(SUM(s.baseline_degraded_sqkm)::numeric, 1) AS baseline_degraded_sqkm,
+            ROUND(SUM(s.baseline_stable_sqkm)::numeric, 1) AS baseline_stable_sqkm,
+            ROUND(SUM(s.baseline_improved_sqkm)::numeric, 1) AS baseline_improved_sqkm
           FROM _country_eco_stats s
           JOIN _eco_country_key k ON s.admin0_id = k.country_id AND s.eco_id = k.eco_id AND k.is_pa = 0
           GROUP BY k.country_id, k.country_code, k.country_name
@@ -1048,7 +1088,17 @@ module LdnSeeder
           {name: "delta_ldn_km2", type: "number", label: "Net Change (km²)", format: ",.1f"},
           {name: "total_area_km2", type: "number", label: "Total Area (km²)", format: ",.1f"},
           {name: "ldn_pct", type: "number", label: "LDN Achievement (%)", format: ".1f"},
-          {name: "category", type: "category", label: "Category"}
+          {name: "category", type: "category", label: "Category"},
+          {name: "status_1_persistent_degradation_sqkm", type: "number", label: "Persistent Degradation (km²)", format: ",.1f"},
+          {name: "status_2_recent_degradation_sqkm", type: "number", label: "Recent Degradation (km²)", format: ",.1f"},
+          {name: "status_3_baseline_degradation_sqkm", type: "number", label: "Baseline Degradation (km²)", format: ",.1f"},
+          {name: "status_4_stability_sqkm", type: "number", label: "Stability (km²)", format: ",.1f"},
+          {name: "status_5_baseline_improvement_sqkm", type: "number", label: "Baseline Improvement (km²)", format: ",.1f"},
+          {name: "status_6_recent_improvement_sqkm", type: "number", label: "Recent Improvement (km²)", format: ",.1f"},
+          {name: "status_7_persistent_improvement_sqkm", type: "number", label: "Persistent Improvement (km²)", format: ",.1f"},
+          {name: "baseline_degraded_sqkm", type: "number", label: "Baseline Degraded (km²)", format: ",.1f"},
+          {name: "baseline_stable_sqkm", type: "number", label: "Baseline Stable (km²)", format: ",.1f"},
+          {name: "baseline_improved_sqkm", type: "number", label: "Baseline Improved (km²)", format: ",.1f"}
         ],
         chart_config: [
           {
@@ -1095,7 +1145,17 @@ module LdnSeeder
               ELSE 0 END AS ldn_pct,
             CASE WHEN SUM(s.delta_ldn_km2) > 0 THEN 'Exceeding'
                  WHEN SUM(s.delta_ldn_km2) = 0 THEN 'Achieving'
-                 ELSE 'Not achieving' END AS category
+                 ELSE 'Not achieving' END AS category,
+            ROUND(SUM(s.status_1_persistent_degradation_sqkm)::numeric, 1) AS status_1_persistent_degradation_sqkm,
+            ROUND(SUM(s.status_2_recent_degradation_sqkm)::numeric, 1) AS status_2_recent_degradation_sqkm,
+            ROUND(SUM(s.status_3_baseline_degradation_sqkm)::numeric, 1) AS status_3_baseline_degradation_sqkm,
+            ROUND(SUM(s.status_4_stability_sqkm)::numeric, 1) AS status_4_stability_sqkm,
+            ROUND(SUM(s.status_5_baseline_improvement_sqkm)::numeric, 1) AS status_5_baseline_improvement_sqkm,
+            ROUND(SUM(s.status_6_recent_improvement_sqkm)::numeric, 1) AS status_6_recent_improvement_sqkm,
+            ROUND(SUM(s.status_7_persistent_improvement_sqkm)::numeric, 1) AS status_7_persistent_improvement_sqkm,
+            ROUND(SUM(s.baseline_degraded_sqkm)::numeric, 1) AS baseline_degraded_sqkm,
+            ROUND(SUM(s.baseline_stable_sqkm)::numeric, 1) AS baseline_stable_sqkm,
+            ROUND(SUM(s.baseline_improved_sqkm)::numeric, 1) AS baseline_improved_sqkm
           FROM _eco_stats s
           JOIN _eco_key k ON s.eco_id = k.eco_id AND k.is_pa = 0
           WHERE k.biome_name IS NOT NULL
@@ -1120,7 +1180,17 @@ module LdnSeeder
           {name: "delta_ldn_km2", type: "number", label: "Net Change (km²)", format: ",.1f"},
           {name: "total_area_km2", type: "number", label: "Total Area (km²)", format: ",.1f"},
           {name: "ldn_pct", type: "number", label: "LDN Achievement (%)", format: ".1f"},
-          {name: "category", type: "category", label: "Category"}
+          {name: "category", type: "category", label: "Category"},
+          {name: "status_1_persistent_degradation_sqkm", type: "number", label: "Persistent Degradation (km²)", format: ",.1f"},
+          {name: "status_2_recent_degradation_sqkm", type: "number", label: "Recent Degradation (km²)", format: ",.1f"},
+          {name: "status_3_baseline_degradation_sqkm", type: "number", label: "Baseline Degradation (km²)", format: ",.1f"},
+          {name: "status_4_stability_sqkm", type: "number", label: "Stability (km²)", format: ",.1f"},
+          {name: "status_5_baseline_improvement_sqkm", type: "number", label: "Baseline Improvement (km²)", format: ",.1f"},
+          {name: "status_6_recent_improvement_sqkm", type: "number", label: "Recent Improvement (km²)", format: ",.1f"},
+          {name: "status_7_persistent_improvement_sqkm", type: "number", label: "Persistent Improvement (km²)", format: ",.1f"},
+          {name: "baseline_degraded_sqkm", type: "number", label: "Baseline Degraded (km²)", format: ",.1f"},
+          {name: "baseline_stable_sqkm", type: "number", label: "Baseline Stable (km²)", format: ",.1f"},
+          {name: "baseline_improved_sqkm", type: "number", label: "Baseline Improved (km²)", format: ",.1f"}
         ],
         chart_config: [
           {
@@ -1166,7 +1236,17 @@ module LdnSeeder
               ELSE 0 END AS ldn_pct,
             CASE WHEN SUM(s.delta_ldn_km2) > 0 THEN 'Exceeding'
                  WHEN SUM(s.delta_ldn_km2) = 0 THEN 'Achieving'
-                 ELSE 'Not achieving' END AS category
+                 ELSE 'Not achieving' END AS category,
+            ROUND(SUM(s.status_1_persistent_degradation_sqkm)::numeric, 1) AS status_1_persistent_degradation_sqkm,
+            ROUND(SUM(s.status_2_recent_degradation_sqkm)::numeric, 1) AS status_2_recent_degradation_sqkm,
+            ROUND(SUM(s.status_3_baseline_degradation_sqkm)::numeric, 1) AS status_3_baseline_degradation_sqkm,
+            ROUND(SUM(s.status_4_stability_sqkm)::numeric, 1) AS status_4_stability_sqkm,
+            ROUND(SUM(s.status_5_baseline_improvement_sqkm)::numeric, 1) AS status_5_baseline_improvement_sqkm,
+            ROUND(SUM(s.status_6_recent_improvement_sqkm)::numeric, 1) AS status_6_recent_improvement_sqkm,
+            ROUND(SUM(s.status_7_persistent_improvement_sqkm)::numeric, 1) AS status_7_persistent_improvement_sqkm,
+            ROUND(SUM(s.baseline_degraded_sqkm)::numeric, 1) AS baseline_degraded_sqkm,
+            ROUND(SUM(s.baseline_stable_sqkm)::numeric, 1) AS baseline_stable_sqkm,
+            ROUND(SUM(s.baseline_improved_sqkm)::numeric, 1) AS baseline_improved_sqkm
           FROM _eco_stats s
           JOIN _eco_key k ON s.eco_id = k.eco_id AND k.is_pa = 0
           WHERE k.realm IS NOT NULL
@@ -1197,7 +1277,18 @@ module LdnSeeder
           {name: "delta_ldn_km2", type: "number", label: "Net Change (km²)", format: ",.1f"},
           {name: "total_area_km2", type: "number", label: "Total Area (km²)", format: ",.1f"},
           {name: "ldn_pct", type: "number", label: "LDN Achievement (%)", format: ".1f"},
-          {name: "category", type: "category", label: "Category"}
+          {name: "ldn_pct", type: "number", label: "LDN Achievement (%)", format: ".1f"},
+          {name: "category", type: "category", label: "Category"},
+          {name: "status_1_persistent_degradation_sqkm", type: "number", label: "Persistent Degradation (km²)", format: ",.1f"},
+          {name: "status_2_recent_degradation_sqkm", type: "number", label: "Recent Degradation (km²)", format: ",.1f"},
+          {name: "status_3_baseline_degradation_sqkm", type: "number", label: "Baseline Degradation (km²)", format: ",.1f"},
+          {name: "status_4_stability_sqkm", type: "number", label: "Stability (km²)", format: ",.1f"},
+          {name: "status_5_baseline_improvement_sqkm", type: "number", label: "Baseline Improvement (km²)", format: ",.1f"},
+          {name: "status_6_recent_improvement_sqkm", type: "number", label: "Recent Improvement (km²)", format: ",.1f"},
+          {name: "status_7_persistent_improvement_sqkm", type: "number", label: "Persistent Improvement (km²)", format: ",.1f"},
+          {name: "baseline_degraded_sqkm", type: "number", label: "Baseline Degraded (km²)", format: ",.1f"},
+          {name: "baseline_stable_sqkm", type: "number", label: "Baseline Stable (km²)", format: ",.1f"},
+          {name: "baseline_improved_sqkm", type: "number", label: "Baseline Improved (km²)", format: ",.1f"}
         ],
         chart_config: [
           {
@@ -1223,7 +1314,17 @@ module LdnSeeder
             ROUND(s.delta_ldn_km2::numeric, 1) AS delta_ldn_km2,
             ROUND(s.total_area_km2::numeric, 1) AS total_area_km2,
             ROUND(s.ldn_pct::numeric, 1) AS ldn_pct,
-            s.category
+            s.category,
+            ROUND(s.status_1_persistent_degradation_sqkm::numeric, 1) AS status_1_persistent_degradation_sqkm,
+            ROUND(s.status_2_recent_degradation_sqkm::numeric, 1) AS status_2_recent_degradation_sqkm,
+            ROUND(s.status_3_baseline_degradation_sqkm::numeric, 1) AS status_3_baseline_degradation_sqkm,
+            ROUND(s.status_4_stability_sqkm::numeric, 1) AS status_4_stability_sqkm,
+            ROUND(s.status_5_baseline_improvement_sqkm::numeric, 1) AS status_5_baseline_improvement_sqkm,
+            ROUND(s.status_6_recent_improvement_sqkm::numeric, 1) AS status_6_recent_improvement_sqkm,
+            ROUND(s.status_7_persistent_improvement_sqkm::numeric, 1) AS status_7_persistent_improvement_sqkm,
+            ROUND(s.baseline_degraded_sqkm::numeric, 1) AS baseline_degraded_sqkm,
+            ROUND(s.baseline_stable_sqkm::numeric, 1) AS baseline_stable_sqkm,
+            ROUND(s.baseline_improved_sqkm::numeric, 1) AS baseline_improved_sqkm
           FROM _country_eco_stats s
           JOIN _eco_country_key k ON s.admin0_id = k.country_id AND s.eco_id = k.eco_id AND k.is_pa = 0
           ORDER BY s.admin0_id, s.eco_id
@@ -1454,6 +1555,16 @@ module LdnSeeder
           eco_id         int,
           gains_km2      double precision,
           losses_km2     double precision,
+          status_1_persistent_degradation_sqkm  double precision,
+          status_2_recent_degradation_sqkm      double precision,
+          status_3_baseline_degradation_sqkm    double precision,
+          status_4_stability_sqkm               double precision,
+          status_5_baseline_improvement_sqkm    double precision,
+          status_6_recent_improvement_sqkm      double precision,
+          status_7_persistent_improvement_sqkm  double precision,
+          baseline_degraded_sqkm                double precision,
+          baseline_stable_sqkm                  double precision,
+          baseline_improved_sqkm                double precision,
           delta_ldn_km2  double precision,
           total_area_km2 double precision,
           ldn_pct        double precision,
@@ -1472,6 +1583,16 @@ module LdnSeeder
             eco_id         int,
             gains_km2      double precision,
             losses_km2     double precision,
+            status_1_persistent_degradation_sqkm  double precision,
+            status_2_recent_degradation_sqkm      double precision,
+            status_3_baseline_degradation_sqkm    double precision,
+            status_4_stability_sqkm               double precision,
+            status_5_baseline_improvement_sqkm    double precision,
+            status_6_recent_improvement_sqkm      double precision,
+            status_7_persistent_improvement_sqkm  double precision,
+            baseline_degraded_sqkm                double precision,
+            baseline_stable_sqkm                  double precision,
+            baseline_improved_sqkm                double precision,
             delta_ldn_km2  double precision,
             total_area_km2 double precision,
             ldn_pct        double precision,
