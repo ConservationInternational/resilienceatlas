@@ -5,6 +5,7 @@ from urllib.parse import urlparse
 from mangum import Mangum
 from rio_tiler.colormap import cmap as default_cmap
 from titiler.core.factory import TilerFactory
+from titiler.core.dependencies import create_colormap_dependency
 from titiler.core.errors import DEFAULT_STATUS_CODES, add_exception_handlers
 from titiler.core.middleware import CacheControlMiddleware
 from fastapi.middleware.cors import CORSMiddleware
@@ -288,7 +289,7 @@ _net_change_stops = [
 ]
 
 # Register all custom colormaps
-default_cmap = default_cmap.register({
+custom_cmap = default_cmap.register({
     # Continuous: SOC change (interpolated)
     "ra_soc_change": _interpolate_colormap(_soc_stops, steps_per_segment=5),
     # Continuous: LDN net change by unit (interpolated)
@@ -296,8 +297,10 @@ default_cmap = default_cmap.register({
 })
 
 
-# Create cog tiler
-cog = TilerFactory()
+# Create cog tiler with custom colormap dependency so registered
+# colormaps are available via ?colormap_name=<name>
+ColorMapParams = create_colormap_dependency(custom_cmap)
+cog = TilerFactory(colormap_dependency=ColorMapParams)
 
 # Create FastAPI app
 app = FastAPI(title="Resilience COG tiler", description="Cloud Optimized GeoTIFF")
