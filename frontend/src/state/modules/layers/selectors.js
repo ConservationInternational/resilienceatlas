@@ -106,7 +106,6 @@ export const getGrouped = () => {
     ) => {
       const isActive = getActiveFromDefaults(g_defaultActive);
       if (!groups.length && !g_categories.length) {
-        // eslint-disable-next-line no-console
         if (process.env.NODE_ENV !== 'test') {
           // eslint-disable-next-line no-console
           console.info('There aren`t groups setted.');

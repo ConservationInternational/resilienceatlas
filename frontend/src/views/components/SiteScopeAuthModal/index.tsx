@@ -17,7 +17,6 @@ import {
 
 import styles from './site-scope-auth-modal.module.scss';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type AppDispatch = ThunkDispatch<unknown, unknown, UnknownAction>;
 
 interface SiteScopeAuthFormData {

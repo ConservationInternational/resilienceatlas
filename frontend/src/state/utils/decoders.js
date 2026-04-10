@@ -1,4 +1,3 @@
-/* eslint-disable no-plusplus */
 const bands = 4;
 
 export const birds = (data, w, h, z, params) => {

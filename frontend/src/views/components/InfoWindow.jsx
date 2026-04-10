@@ -1,4 +1,3 @@
-/* eslint-disable no-underscore-dangle */
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import DangerousHTML from 'react-dangerous-html';

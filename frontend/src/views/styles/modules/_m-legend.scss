@@ -250,6 +250,7 @@ $side-bar-width: 360px;
     display: flex;
     display: -ms-box;
     align-items: center;
+    clear: both;
     padding: rem(16px) 0 0 rem(10px);
 
     .item {
@@ -311,6 +312,7 @@ $side-bar-width: 360px;
     position: relative;
     display: flex;
     display: -ms-box;
+    clear: both;
     justify-content: space-between;
     align-items: center;
     flex-wrap: wrap;
@@ -452,12 +454,6 @@ $side-bar-width: 360px;
 
 .ui-sortable-placeholder {
   background-color: rgba($bg-color-1, 0.5) !important;
-}
-
-li[data-id='38'] .item span {
-  border: 1px solid #6e3600;
-  background-color: transparent !important;
-  background-image: url('/images/pastoralPattern.png') !important;
 }
 
 .m-legend-timeline {

@@ -178,7 +178,8 @@ export const AnalysisPanel = ({
                     <input
                       className="searchAnalysis"
                       placeholder={
-                        (translations && translations['Select a country or region from the list below.']) ||
+                        (translations &&
+                          translations['Select a country or region from the list below.']) ||
                         'Select a country or region from the list below.'
                       }
                       type="search"

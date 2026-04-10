@@ -5,7 +5,7 @@ import numeral from 'numeral';
 import get from 'lodash/get';
 import { replace } from 'lib/layer-manager';
 import { T } from '@transifex/react';
-import { getTitilerBaseUrl, getApiBaseUrl } from 'utilities/environment';
+import { getTitilerBaseUrl } from 'utilities/environment';
 
 import createReducer from 'state/utils/createReducer';
 import { createApiAction } from 'state/utils/api';

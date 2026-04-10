@@ -404,14 +404,6 @@ ActiveRecord::Schema[7.2].define(version: 2026_04_09_120000) do
     t.index ["source_id"], name: "index_layers_sources_on_source_id"
   end
 
-  create_table "ldn_dissolved_geometries", id: :serial, force: :cascade do |t|
-    t.text "dimension", null: false
-    t.text "unit_id", null: false
-    t.jsonb "properties"
-    t.geometry "geom", limit: {srid: 4326, type: "multi_polygon"}
-    t.index ["dimension"], name: "idx_ldn_dissolved_dim"
-  end
-
   create_table "map_menu_entries", force: :cascade do |t|
     t.string "link"
     t.integer "position"

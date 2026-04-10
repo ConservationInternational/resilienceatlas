@@ -31,7 +31,6 @@ const Conclusion: React.FC<JourneyAttributes> = ({
             <DangerousHTML html={content} />
           </div>
           <div className="scrolldown-container">
-            {/* eslint-disable-next-line  */}
             <a className="scrolldown-link is-jumping" />
           </div>
           <button

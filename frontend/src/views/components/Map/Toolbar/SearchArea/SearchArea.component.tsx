@@ -63,6 +63,7 @@ if (googleAPILoader) {
       geocoderService = new Geocoder();
     })
     .catch((error) => {
+      // eslint-disable-next-line no-console
       console.warn('Google Maps API failed to load:', error.message);
       googleMapsLoadFailed = true;
     });
@@ -130,6 +131,7 @@ const SearchArea: React.FC<SearchAreaProps> = ({ fitBounds, onAfterChange }) => 
             } as Place;
           });
       } catch (error) {
+        // eslint-disable-next-line no-console
         console.warn('Failed to fetch autocomplete suggestions:', error);
         return [];
       }
@@ -167,6 +169,7 @@ const SearchArea: React.FC<SearchAreaProps> = ({ fitBounds, onAfterChange }) => 
       if (isCoordinates(place?.latLngString)) {
         // Skip geocoding if service is not available
         if (!geocoderService) {
+          // eslint-disable-next-line no-console
           console.warn('Geocoder service not available');
           return;
         }
@@ -204,6 +207,7 @@ const SearchArea: React.FC<SearchAreaProps> = ({ fitBounds, onAfterChange }) => 
           }
           onAfterChange();
         } catch (error) {
+          // eslint-disable-next-line no-console
           console.warn('Failed to fetch place details:', error);
           // Fallback to geocoder if new API fails
           if (geocoderService && place.place_id) {
@@ -217,6 +221,7 @@ const SearchArea: React.FC<SearchAreaProps> = ({ fitBounds, onAfterChange }) => 
       // Fallback: Requesting geometry given a place id using geocoder
       else if (place?.place_id) {
         if (!geocoderService) {
+          // eslint-disable-next-line no-console
           console.warn('Geocoder service not available');
           return;
         }

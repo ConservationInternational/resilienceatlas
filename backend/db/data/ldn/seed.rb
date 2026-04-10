@@ -97,13 +97,15 @@ module LdnSeeder
   # LDN Counterbalancing spatial scales
   LDN_SCALES = {
     ecoregion: {
-      label: "Counterbalancing by ecoregion",
+      label: "Net change (counterbalancing by ecoregion)",
+      by: "by ecoregion",
       filename_part: "ecoregion",
       info: "Counterbalancing assessed within WWF ecoregions",
       slug_part: "eco"
     },
     country_ecoregion: {
-      label: "Counterbalancing by ecoregion and country",
+      label: "Net change (counterbalancing by ecoregion and country)",
+      by: "by ecoregion and country",
       filename_part: "country_ecoregion",
       info: "Counterbalancing assessed within intersections of country boundaries and WWF ecoregions",
       slug_part: "ctry-eco"
@@ -230,9 +232,6 @@ module LdnSeeder
     def run
       puts "Starting LDN site scope seed..."
 
-      cleanup_old_ldn_layers
-      reset_sequences
-
       sources = create_sources
       site_scope = create_site_scope
       groups = create_layer_groups(site_scope)
@@ -247,67 +246,15 @@ module LdnSeeder
       create_soc_layers(groups["ldn-soil-organic-carbon"], sources)
 
       # Pre-computed statistical datasets for the analysis panel
-      create_scope_datasets(site_scope)
+      begin
+        create_scope_datasets(site_scope)
+      rescue => e
+        puts "WARNING: Scope dataset creation failed (non-fatal): #{e.message}"
+        puts "  Layers were created successfully. To load scope datasets, ensure"
+        puts "  CSV files are available at LDN_DATA_DIR and re-run the seed."
+      end
 
       puts "LDN site scope seed completed successfully!"
-    end
-
-    # Remove old LDN layers that were created directly under the productivity
-    # mode subcategories (before the scale sub-subcategories were added).
-    def cleanup_old_ldn_layers
-      old_slugs = DATASET_INFO.keys.flat_map do |key|
-        mode = key.to_s.tr("_", "-")
-        [
-          "ldn-achievement-#{mode}",
-          "ldn-gains-losses-#{mode}",
-          "ldn-land-types-#{mode}"
-        ] + LDN_SCALES.values.flat_map do |scale|
-          [
-            "ldn-land-types-#{mode}-#{scale[:slug_part]}"
-          ]
-        end
-      end
-
-      # Also clean up old ldn-prefixed SDG/LPD/LC/SOC layers that were
-      # previously duplicated instead of shared with the trendsearth scope.
-      DATASET_INFO.each_key do |key|
-        mode = key.to_s.tr("_", "-")
-        old_slugs += [
-          "ldn-sdg-15-3-1-status-2023-#{mode}",
-          "ldn-sdg-15-3-1-status-2019-#{mode}",
-          "ldn-sdg-15-3-1-2008-2023-#{mode}",
-          "ldn-sdg-15-3-1-2004-2019-#{mode}",
-          "ldn-sdg-15-3-1-baseline-2000-2015-#{mode}",
-          "ldn-lpd-2008-2023-#{mode}",
-          "ldn-lpd-2004-2019-#{mode}",
-          "ldn-lpd-baseline-2001-2015-#{mode}"
-        ]
-      end
-      old_slugs += %w[
-        ldn-lc-degradation-2015-2022
-        ldn-lc-degradation-2015-2019
-        ldn-lc-degradation-2000-2015
-        ldn-soc-degradation-2015-2022
-        ldn-soc-degradation-2015-2019
-        ldn-soc-degradation-2000-2015
-      ]
-
-      old_slugs.each do |slug|
-        layer = Layer.find_by(slug: slug)
-        next unless layer
-        puts "  Removing old layer: #{slug}"
-        Agrupation.where(layer_id: layer.id).destroy_all
-        layer.destroy!
-      end
-    end
-
-    def reset_sequences
-      puts "Resetting PostgreSQL sequences..."
-      %w[site_scopes layer_groups layers agrupations sources scope_datasets scope_dataset_geometries].each do |table|
-        ActiveRecord::Base.connection.execute(
-          "SELECT setval(pg_get_serial_sequence('#{table}', 'id'), COALESCE(MAX(id), 1)) FROM #{table}"
-        )
-      end
     end
 
     # ──────────────────────────────────────────────────────────────
@@ -375,7 +322,7 @@ module LdnSeeder
       # LDN is order 1 (top of TOC), then SDG, LPD, LC, SOC follow
       categories = {
         "ldn-counterbalancing" => {
-          name: "LDN",
+          name: "Land Degradation Neutrality (LDN)",
           info: "Land Degradation Neutrality (LDN) counterbalancing assessment. Evaluates whether gains in natural capital offset losses within spatial planning units, per the UNCCD GPGv2 Addendum methodology.",
           order: 1
         },
@@ -415,45 +362,23 @@ module LdnSeeder
         puts "  Created category: #{slug}"
       end
 
-      # ── LDN subcategories: Trends.Earth, FAO-WOCAT, JRC ──
-      ldn_subcats = {
-        "ldn-cb-trendsearth" => {name: "Trends.Earth", info: "LDN counterbalancing using Trends.Earth productivity methodology", order: 1},
-        "ldn-cb-fao-wocat" => {name: "FAO-WOCAT", info: "LDN counterbalancing using FAO-WOCAT productivity methodology", order: 2},
-        "ldn-cb-jrc" => {name: "JRC", info: "LDN counterbalancing using JRC productivity methodology", order: 3}
-      }
-
-      ldn_subcats.each do |slug, config|
+      # ── LDN subcategories: counterbalancing scales ──
+      ldn_scale_order = 1
+      LDN_SCALES.each do |scale_key, scale_config|
+        slug = "ldn-cb-#{scale_config[:slug_part]}"
         subgroup = LayerGroup.find_or_initialize_by(slug: slug, site_scope_id: site_scope.id)
         subgroup.assign_attributes(
           :super_group_id => groups["ldn-counterbalancing"].id,
           :layer_group_type => "subcategory",
           :active => true,
-          "order" => config[:order],
-          :name => config[:name],
-          :info => config[:info]
+          "order" => ldn_scale_order,
+          :name => scale_config[:label],
+          :info => scale_config[:info]
         )
         subgroup.save!
         groups[slug] = subgroup
         puts "    Created LDN subgroup: #{slug}"
-
-        # ── Sub-subcategories: counterbalancing scales ──
-        scale_order = 1
-        LDN_SCALES.each do |scale_key, scale_config|
-          scale_slug = "#{slug}-#{scale_config[:slug_part]}"
-          scale_group = LayerGroup.find_or_initialize_by(slug: scale_slug, site_scope_id: site_scope.id)
-          scale_group.assign_attributes(
-            :super_group_id => subgroup.id,
-            :layer_group_type => "subcategory",
-            :active => true,
-            "order" => scale_order,
-            :name => scale_config[:label],
-            :info => scale_config[:info]
-          )
-          scale_group.save!
-          groups[scale_slug] = scale_group
-          puts "      Created LDN scale subgroup: #{scale_slug}"
-          scale_order += 1
-        end
+        ldn_scale_order += 1
       end
 
       # ── SDG subcategories ──
@@ -510,26 +435,20 @@ module LdnSeeder
     def create_ldn_layers(groups, sources)
       puts "Creating LDN counterbalancing layers..."
 
-      datasets = [
-        {key: :trendsearth, group_slug: "ldn-cb-trendsearth"},
-        {key: :fao_wocat, group_slug: "ldn-cb-fao-wocat"},
-        {key: :jrc, group_slug: "ldn-cb-jrc"}
-      ]
-
       both_sources = [sources[:zenodo], sources[:gpgv2_addendum]]
 
-      datasets.each do |dataset|
-        info = DATASET_INFO[dataset[:key]]
-        is_trendsearth = dataset[:key] == :trendsearth
+      LDN_SCALES.each do |scale_key, scale_config|
+        group_slug = "ldn-cb-#{scale_config[:slug_part]}"
+        group = groups[group_slug]
+        scale_suffix = scale_config[:slug_part]
+        order = 1
 
-        LDN_SCALES.each do |scale_key, scale_config|
-          scale_slug = "#{dataset[:group_slug]}-#{scale_config[:slug_part]}"
-          group = groups[scale_slug]
+        DATASET_INFO.each do |dataset_key, info|
+          is_trendsearth = dataset_key == :trendsearth
+          mode_suffix = dataset_key.to_s.tr("_", "-")
           label = "TrendsEarth_LDN_2000-2023_#{info[:filename_mode]}_#{scale_config[:filename_part]}"
-          mode_suffix = dataset[:key].to_s.tr("_", "-")
-          scale_suffix = scale_config[:slug_part]
 
-          # Net change after counterbalancing layer (top of each subcategory)
+          # Net change after counterbalancing layer (one per methodology)
           layer = create_ldn_cog_layer(
             group: group,
             slug: "ldn-net-change-#{mode_suffix}-#{scale_suffix}",
@@ -537,35 +456,43 @@ module LdnSeeder
             filename: "#{label}_#{LDN_SUFFIXES[:net_change_by_unit]}",
             colormap: LDN_COLORMAPS[:net_change_by_unit],
             legend: LDN_LEGENDS[:net_change_by_unit],
-            name: "Net change after counterbalancing (#{info[:short_name]})",
+            name: "Net change (#{scale_config[:by]}, #{info[:short_name]})",
             info: "Net change after counterbalancing per spatial unit (ΔᵢLDN) using #{info[:name]} productivity data. Positive values indicate LDN achieved for that unit, negative values indicate not achieved.",
             description: "LDN counterbalancing net change layer showing ΔᵢLDN = Aᵢgains − Aᵢlosses per spatial unit i, expressed as a percentage.\n\nPositive values (green) indicate gains offset losses. Negative values (magenta) indicate losses exceed gains. LDN is achieved when ALL units have ΔᵢLDN ≥ 0.\n\n#{info[:description]}",
             active: is_trendsearth && scale_key == :ecoregion,
-            order: 1,
+            order: order,
             color: "#C62828",
             analysis_type: "histogram",
             sources: both_sources
           )
           puts "    Created layer: #{layer.slug}"
-
-          # Gains & Losses layer
-          layer = create_ldn_cog_layer(
-            group: group,
-            slug: "ldn-gains-losses-#{mode_suffix}-#{scale_suffix}",
-            s3_folder: info[:s3_folder],
-            filename: "#{label}_#{LDN_SUFFIXES[:gains_losses]}",
-            colormap: LDN_COLORMAPS[:gains_losses],
-            legend: LDN_LEGENDS[:gains_losses],
-            name: "LDN Gains & Losses (#{info[:short_name]})",
-            info: "Net gains and losses of natural capital per pixel using #{info[:name]} productivity data. Based on the 7-class SDG 15.3.1 status: losses map to persistent/recent degradation, gains to persistent/recent improvement.",
-            description: "LDN counterbalancing gains and losses layer.\n\nPixel values: -1 = Loss (persistent or recent degradation), 0 = Neutral (baseline degradation, stable, or baseline improvement), 1 = Gain (recent or persistent improvement).\n\n#{info[:description]}",
-            active: false,
-            order: 2,
-            color: "#C62828",
-            sources: both_sources
-          )
-          puts "    Created layer: #{layer.slug}"
+          order += 1
         end
+      end
+
+      # Gains & Losses layers (one per methodology — same across scales)
+      parent_group = groups["ldn-counterbalancing"]
+      gl_order = 1
+      DATASET_INFO.each do |dataset_key, info|
+        mode_suffix = dataset_key.to_s.tr("_", "-")
+        label = "TrendsEarth_LDN_2000-2023_#{info[:filename_mode]}_#{LDN_SCALES[:ecoregion][:filename_part]}"
+        layer = create_ldn_cog_layer(
+          group: parent_group,
+          slug: "ldn-gains-losses-#{mode_suffix}",
+          s3_folder: info[:s3_folder],
+          filename: "#{label}_#{LDN_SUFFIXES[:gains_losses]}",
+          colormap: LDN_COLORMAPS[:gains_losses],
+          legend: LDN_LEGENDS[:gains_losses],
+          name: "LDN gains and losses (per pixel) (#{info[:short_name]})",
+          info: "Net gains and losses of natural capital per pixel using #{info[:name]} productivity data. Based on the 7-class SDG 15.3.1 status: losses map to persistent/recent degradation, gains to persistent/recent improvement.",
+          description: "LDN counterbalancing gains and losses layer.\n\nPixel values: -1 = Loss (persistent or recent degradation), 0 = Neutral (baseline degradation, stable, or baseline improvement), 1 = Gain (recent or persistent improvement).\n\n#{info[:description]}",
+          active: false,
+          order: gl_order,
+          color: "#C62828",
+          sources: both_sources
+        )
+        puts "    Created layer: #{layer.slug}"
+        gl_order += 1
       end
     end
 
@@ -1307,26 +1234,6 @@ module LdnSeeder
 
     def create_scope_datasets(site_scope)
       puts "Creating scope datasets from statistics CSVs..."
-
-      # Clean up old dataset slugs from previous seed versions
-      %w[ecoregion-land-types country-ecoregion-land-types land-types].each do |old_key|
-        SCOPE_DATASET_VARIANTS.each_key do |variant_slug|
-          old_slug = "ldn-#{variant_slug}-#{old_key}"
-          old_ds = ScopeDataset.find_by(site_scope: site_scope, slug: old_slug)
-          next unless old_ds
-          puts "  Removing old dataset: #{old_slug}"
-          old_ds.scope_dataset_geometries.delete_all
-          old_ds.destroy!
-        end
-      end
-
-      # Clean up the shared land-types dataset (no longer used)
-      old_lt = ScopeDataset.find_by(site_scope: site_scope, slug: "ldn-land-types")
-      if old_lt
-        puts "  Removing old dataset: ldn-land-types"
-        old_lt.scope_dataset_geometries.delete_all
-        old_lt.destroy!
-      end
 
       data_dir = ENV.fetch("LDN_DATA_DIR", DATA_DIR_DEFAULT)
 

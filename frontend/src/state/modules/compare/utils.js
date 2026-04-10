@@ -16,6 +16,7 @@ export const getCompareStateFromURL = () => {
       sliderPosition: compareParam.pos || 50,
     };
   } catch (e) {
+    // eslint-disable-next-line no-console
     console.warn('Failed to parse compare state from URL:', e);
     return {};
   }

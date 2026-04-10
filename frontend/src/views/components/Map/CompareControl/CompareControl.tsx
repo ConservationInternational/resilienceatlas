@@ -298,12 +298,13 @@ const CompareControl: React.FC<CompareControlProps> = ({ map }) => {
     }
 
     // Cleanup function to run when component unmounts or effect re-runs
+    const currentClips = clipsApplied.current;
     return () => {
-      if (clipsApplied.current.left) {
-        clipsApplied.current.left.style.clip = '';
+      if (currentClips.left) {
+        currentClips.left.style.clip = '';
       }
-      if (clipsApplied.current.right) {
-        clipsApplied.current.right.style.clip = '';
+      if (currentClips.right) {
+        currentClips.right.style.clip = '';
       }
     };
   }, [enabled, layerManagerRef, map]);

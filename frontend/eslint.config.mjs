@@ -132,6 +132,7 @@ export default [
         'warn',
         {
           ignoreRestSiblings: true,
+          argsIgnorePattern: '^_',
         },
       ],
       '@typescript-eslint/no-explicit-any': 'warn',
@@ -175,8 +176,24 @@ export default [
       'no-console': 'warn',
       'no-debugger': 'warn',
       // In React 17+, React import is not required for JSX
-      'no-unused-vars': ['warn', { varsIgnorePattern: '^React$' }],
+      'no-unused-vars': ['warn', { varsIgnorePattern: '^React$', ignoreRestSiblings: true, argsIgnorePattern: '^_' }],
       'react/jsx-uses-vars': 'error',
+    },
+  },
+
+  // Layer manager library - allow console statements (intentional logging)
+  {
+    files: ['src/lib/layer-manager/**/*.js'],
+    rules: {
+      'no-console': 'off',
+    },
+  },
+
+  // Rollbar error reporting utility - allow console statements (fallback logging)
+  {
+    files: ['src/utilities/rollbar.tsx'],
+    rules: {
+      'no-console': 'off',
     },
   },
 ];

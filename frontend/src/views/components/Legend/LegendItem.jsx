@@ -9,6 +9,7 @@ const LegendItem = ({ legend: legendStr, layer }) => {
       legend = JSON.parse(legendStr);
     } catch (e) {
       // If the legend string is not valid JSON, skip rendering
+      // eslint-disable-next-line no-console
       console.warn(`Invalid legend JSON for layer ${layer?.id}:`, e.message);
       return null;
     }
@@ -18,6 +19,7 @@ const LegendItem = ({ legend: legendStr, layer }) => {
 
     // Ensure the legend type exists in our legends registry
     if (!type || !legends[type]) {
+      // eslint-disable-next-line no-console
       console.warn(`Unknown legend type "${type}" for layer ${layer?.id}`);
       return null;
     }

@@ -147,7 +147,17 @@ const ScopeGeometryLayer = ({ map }) => {
       });
       layersRef.current = {};
     };
-  }, [map, loaded, datasets, activeVariant, activeDimension, hasInteraction, buildTileUrl, dispatch, L]);
+  }, [
+    map,
+    loaded,
+    datasets,
+    activeVariant,
+    activeDimension,
+    hasInteraction,
+    buildTileUrl,
+    dispatch,
+    L,
+  ]);
 
   // Update feature styles when highlight or spatial filter changes.
   // Uses setFeatureStyle/resetFeatureStyle to restyle already-rendered
@@ -199,7 +209,7 @@ const ScopeGeometryLayer = ({ map }) => {
               const style = styleFn(props);
               try {
                 layer.setFeatureStyle(id, style);
-              } catch (_) {
+              } catch {
                 /* feature may not support setFeatureStyle */
               }
             });

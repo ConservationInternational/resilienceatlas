@@ -87,7 +87,6 @@ export function getNestedChildren(arr, ancestry) {
   const out = [];
 
   arr.forEach((item) => {
-    // eslint-disable-next-line eqeqeq
     if (item.ancestry == ancestry) {
       const children = getNestedChildren(arr, item.id);
 

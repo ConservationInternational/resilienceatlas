@@ -15,6 +15,7 @@ import L from 'leaflet';
 function getBoundaryTileUrl(): string {
   const martinUrl = process.env.NEXT_PUBLIC_MARTIN_URL;
   if (!martinUrl) {
+    // eslint-disable-next-line no-console
     console.warn('NEXT_PUBLIC_MARTIN_URL is not set — boundary tiles will be unavailable');
     return '';
   }
@@ -61,6 +62,7 @@ export function createBoundaryTileLayer(): L.Layer {
   const VectorGrid = (L as any).vectorGrid;
 
   if (!VectorGrid) {
+    // eslint-disable-next-line no-console
     console.warn('leaflet.vectorgrid is not loaded — boundary tiles unavailable');
     return L.layerGroup(); // return empty layer as fallback
   }

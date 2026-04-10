@@ -1,5 +1,4 @@
 import { fetchTile, fetchBounds, CANCELED } from '../../services/carto-service';
-import { replace } from '../../utils/query';
 
 // Get L dynamically at runtime, not at module load time
 const getL = () => (typeof window !== 'undefined' ? window.L : undefined);
@@ -8,11 +7,7 @@ const CartoLayer = (layerModel) => {
   const L = getL();
   if (!L) throw new Error('Leaflet must be defined.');
 
-  const { layerConfig, params, sqlParams, interactivity } = layerModel;
-  const layerConfigParsed =
-    layerConfig.parse === false
-      ? layerConfig
-      : JSON.parse(replace(JSON.stringify(layerConfig), params, sqlParams));
+  const { interactivity } = layerModel;
 
   return new Promise((resolve, reject) => {
     fetchTile(layerModel)

@@ -2,8 +2,11 @@
 import L from 'leaflet';
 
 // These will be dynamically imported on client-side only
+// eslint-disable-next-line @typescript-eslint/consistent-type-imports
 let LayerManager: typeof import('lib/layer-manager/components').LayerManager;
+// eslint-disable-next-line @typescript-eslint/consistent-type-imports
 let Layer: typeof import('lib/layer-manager/components').Layer;
+// eslint-disable-next-line @typescript-eslint/consistent-type-imports
 let PluginLeaflet: typeof import('lib/layer-manager/plugins/plugin-leaflet').default;
 
 // Make L globally available for plugins that expect it (like leaflet-geoman)
@@ -14,23 +17,17 @@ if (typeof window !== 'undefined') {
 
   // Now import plugins that depend on window.L
   // Using require() to ensure they run after the window.L assignment above
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
   require('@geoman-io/leaflet-geoman-free');
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
   require('leaflet-active-area');
   // UTFGrid library requires corslite, only included in the minimized version
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
   require('leaflet-utfgrid/L.UTFGrid-min');
   // VectorGrid for MVT (protobuf) tile rendering — used for admin boundary overlays
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
   require('leaflet.vectorgrid');
 
   // Import layer-manager components that also require window.L
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
   const components = require('lib/layer-manager/components');
   LayerManager = components.LayerManager;
   Layer = components.Layer;
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
   const lm = require('lib/layer-manager/plugins/plugin-leaflet');
   PluginLeaflet = lm.default;
 }
@@ -154,6 +151,7 @@ const MapView = (props: MapViewProps) => {
     // Skip bounds errors - they are non-critical since the layer can still render
     // without bounds data. Bounds are only used for "zoom to fit" functionality.
     if (error.errorType === 'bounds') {
+      // eslint-disable-next-line no-console
       console.warn(
         `Layer bounds failed to load for ${error.layerName}, but layer will still render.`,
       );

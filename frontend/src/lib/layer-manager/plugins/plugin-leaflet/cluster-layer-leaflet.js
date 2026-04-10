@@ -16,12 +16,7 @@ const ClusterLayer = (layerModel) => {
 
   return new Promise((resolve, reject) => {
     fetchCluster({ sql, cartocss, interactivity })
-      .then((response) => {
-        const config = response;
-
-        const sublayers = config.layers;
-        const visibility = sublayers.map(() => true);
-
+      .then((_response) => {
         const addCursor = (layer) => {
           const jQuery = getJQuery();
           if (jQuery) jQuery(layer.getContainer()).css('cursor', 'pointer');

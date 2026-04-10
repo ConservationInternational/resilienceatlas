@@ -1,6 +1,6 @@
 'use client';
 
-import { Component, createContext, useContext, useEffect, useRef, ReactNode } from 'react';
+import { Component, createContext, useContext, useEffect, useRef, type ReactNode } from 'react';
 import Rollbar from 'rollbar';
 
 // Rate limiting configuration to prevent Rollbar spam
@@ -34,7 +34,7 @@ class RollbarRateLimiter {
   }
 
   // Generate a key for the error to track similar errors together
-  private getErrorKey(error: Error | string, extra?: Record<string, unknown>): string {
+  private getErrorKey(error: Error | string): string {
     if (typeof error === 'string') {
       return `str:${error}`;
     }
@@ -44,10 +44,10 @@ class RollbarRateLimiter {
   }
 
   // Check if an error should be rate limited
-  shouldLimit(error: Error | string, extra?: Record<string, unknown>): boolean {
+  shouldLimit(error: Error | string, _extra?: Record<string, unknown>): boolean {
     this.maybeCleanup();
 
-    const key = this.getErrorKey(error, extra);
+    const key = this.getErrorKey(error);
     const now = Date.now();
     const entry = this.errorCounts.get(key);
 
@@ -87,8 +87,8 @@ class RollbarRateLimiter {
   }
 
   // Get suppressed count for an error (useful for summary reports)
-  getSuppressedCount(error: Error | string, extra?: Record<string, unknown>): number {
-    const key = this.getErrorKey(error, extra);
+  getSuppressedCount(error: Error | string, _extra?: Record<string, unknown>): number {
+    const key = this.getErrorKey(error);
     return this.errorCounts.get(key)?.suppressed || 0;
   }
 
