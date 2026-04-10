@@ -72,49 +72,102 @@ module TrendsEarthSeeder
     sdg_status_2023: 14    # SDG status 2023 vs baseline
   }.freeze
 
-  # Colormaps for TiTiler — interval format covering full Int16 range
-  # Ensures nodata (-32768) and any unmapped values render transparent
+  # ──────────────────────────────────────────────────────────────
+  # Colormap interpolation helpers (must precede constant definitions)
+  # ──────────────────────────────────────────────────────────────
+
+  # Build a fine-grained TiTiler interval colormap by linearly
+  # interpolating between the given color stops.
+  def self.interpolate_colormap(stops, steps_per_segment: 15)
+    intervals = []
+    intervals << [[-32_768, stops.first[:value] - 1], [0, 0, 0, 0]]
+
+    stops.each_cons(2) do |a, b|
+      v0, c0 = a[:value], a[:color]
+      v1, c1 = b[:value], b[:color]
+
+      (0...steps_per_segment).each do |i|
+        t0 = i.to_f / steps_per_segment
+        t1 = (i + 1).to_f / steps_per_segment
+
+        seg_start = (v0 + (v1 - v0) * t0).round
+        seg_end = (v0 + (v1 - v0) * t1).round
+
+        t_mid = (t0 + t1) / 2.0
+        r = (c0[0] + (c1[0] - c0[0]) * t_mid).round
+        g = (c0[1] + (c1[1] - c0[1]) * t_mid).round
+        b_ch = (c0[2] + (c1[2] - c0[2]) * t_mid).round
+        a_ch = (c0[3] + (c1[3] - c0[3]) * t_mid).round
+
+        intervals << [[seg_start, seg_end], [r, g, b_ch, a_ch]]
+      end
+    end
+
+    intervals << [[stops.last[:value] + 1, 32_767], [0, 0, 0, 0]]
+    intervals
+  end
+
+  # Generate an array of hex color strings for a choropleth legend.
+  def self.interpolate_legend_colors(stops, steps: 20)
+    v_min = stops.first[:value].to_f
+    v_max = stops.last[:value].to_f
+
+    (0...steps).map do |i|
+      v = v_min + (v_max - v_min) * i / (steps - 1).to_f
+      seg_idx = stops.each_cons(2).find_index { |a, b| v.between?(a[:value], b[:value]) } || 0
+      a, b = stops[seg_idx], stops[seg_idx + 1]
+
+      t = (b[:value] == a[:value]) ? 0.0 : (v - a[:value]).to_f / (b[:value] - a[:value])
+      r = (a[:color][0] + (b[:color][0] - a[:color][0]) * t).round
+      g = (a[:color][1] + (b[:color][1] - a[:color][1]) * t).round
+      bl = (a[:color][2] + (b[:color][2] - a[:color][2]) * t).round
+
+      format("#%02x%02x%02x", r, g, bl)
+    end
+  end
+
+  # SOC color stops: diverging ramp from degradation → stable → improvement
+  # Data range: -100 to +100 (percentage change in SOC)
+  SOC_COLOR_STOPS = [
+    {value: -100, color: [155, 39, 121, 255]},
+    {value: -75, color: [170, 72, 135, 255]},
+    {value: -50, color: [196, 131, 155, 255]},
+    {value: -30, color: [212, 162, 186, 255]},
+    {value: -10, color: [224, 187, 213, 255]},
+    {value: -3, color: [238, 221, 233, 255]},
+    {value: 0, color: [247, 247, 247, 255]},
+    {value: 3, color: [233, 243, 231, 255]},
+    {value: 10, color: [211, 236, 207, 255]},
+    {value: 30, color: [172, 215, 168, 255]},
+    {value: 50, color: [127, 191, 123, 255]},
+    {value: 75, color: [64, 146, 62, 255]},
+    {value: 100, color: [0, 101, 0, 255]}
+  ].freeze
+
+  # Colormaps for TiTiler
+  # Dict format for categorical layers (sdg_indicator, sdg_status, lpd, land_cover)
+  # Interpolated interval format for continuous layers (soc)
   COLORMAPS = {
-    sdg_indicator: [
-      [[-32768, -2], [0, 0, 0, 0]],
-      [[-1, -1], [155, 39, 121, 255]],
-      [[0, 0], [247, 247, 247, 255]],
-      [[1, 1], [0, 101, 0, 255]],
-      [[2, 32767], [0, 0, 0, 0]]
-    ],
-    sdg_status: [
-      [[-32768, 0], [0, 0, 0, 0]],
-      [[1, 1], [118, 42, 131, 255]],
-      [[2, 2], [175, 141, 195, 255]],
-      [[3, 3], [231, 212, 232, 255]],
-      [[4, 4], [247, 247, 247, 255]],
-      [[5, 5], [217, 240, 211, 255]],
-      [[6, 6], [127, 191, 123, 255]],
-      [[7, 7], [27, 120, 55, 255]],
-      [[8, 32767], [0, 0, 0, 0]]
-    ],
-    lpd: [
-      [[-32768, 0], [0, 0, 0, 0]],
-      [[1, 1], [155, 39, 121, 255]],
-      [[2, 2], [192, 116, 155, 255]],
-      [[3, 3], [225, 185, 189, 255]],
-      [[4, 4], [247, 247, 247, 255]],
-      [[5, 5], [0, 101, 0, 255]],
-      [[6, 32767], [0, 0, 0, 0]]
-    ],
-    land_cover: [
-      [[-32768, -2], [0, 0, 0, 0]],
-      [[-1, -1], [155, 39, 121, 255]],
-      [[0, 0], [247, 247, 247, 255]],
-      [[1, 1], [0, 101, 0, 255]],
-      [[2, 32767], [0, 0, 0, 0]]
-    ],
-    soc: [
-      [[-32768, -101], [0, 0, 0, 0]],
-      [[-100, -11], [155, 39, 121, 255]],
-      [[-10, 10], [247, 247, 247, 255]],
-      [[11, 32767], [0, 101, 0, 255]]
-    ]
+    sdg_indicator: {"-1" => [155, 39, 121, 255], "0" => [247, 247, 247, 255], "1" => [0, 101, 0, 255]},
+    sdg_status: {
+      "1" => [118, 42, 131, 255],
+      "2" => [175, 141, 195, 255],
+      "3" => [231, 212, 232, 255],
+      "4" => [247, 247, 247, 255],
+      "5" => [217, 240, 211, 255],
+      "6" => [127, 191, 123, 255],
+      "7" => [27, 120, 55, 255]
+    },
+    lpd: {
+      "1" => [155, 39, 121, 255],
+      "2" => [192, 116, 155, 255],
+      "3" => [225, 185, 189, 255],
+      "4" => [247, 247, 247, 255],
+      "5" => [0, 101, 0, 255]
+    },
+    land_cover: {"-1" => [155, 39, 121, 255], "0" => [247, 247, 247, 255], "1" => [0, 101, 0, 255]},
+    # SOC values are percentages: continuous diverging colormap
+    soc: interpolate_colormap(SOC_COLOR_STOPS, steps_per_segment: 15)
   }.freeze
 
   # Legend configurations (JSON format for database)
@@ -160,12 +213,28 @@ module TrendsEarthSeeder
       ]
     },
     soc: {
-      type: "custom",
-      data: [
-        {name: "Degradation (< -10%)", value: "#9b2779"},
-        {name: "Stable (-10% to +10%)", value: "#f7f7f7"},
-        {name: "Improvement (> +10%)", value: "#006500"}
-      ]
+      type: "choropleth",
+      bucket: interpolate_legend_colors(
+        [
+          {value: -100, color: [155, 39, 121]},
+          {value: -75, color: [170, 72, 135]},
+          {value: -50, color: [196, 131, 155]},
+          {value: -30, color: [212, 162, 186]},
+          {value: -10, color: [224, 187, 213]},
+          {value: -3, color: [238, 221, 233]},
+          {value: 0, color: [247, 247, 247]},
+          {value: 3, color: [233, 243, 231]},
+          {value: 10, color: [211, 236, 207]},
+          {value: 30, color: [172, 215, 168]},
+          {value: 50, color: [127, 191, 123]},
+          {value: 75, color: [64, 146, 62]},
+          {value: 100, color: [0, 101, 0]}
+        ],
+        steps: 20
+      ),
+      min: "-100%",
+      mid: "Stable",
+      max: "+100%"
     }
   }.freeze
 

@@ -183,49 +183,48 @@ module LdnSeeder
   # Colormaps (aligned with trends.earth styles.json)
   # ──────────────────────────────────────────────────────────────
 
-  # SDG colormaps — interval format covering full Int16 range
-  # Ensures nodata (-32768) and any unmapped values render transparent
+  # SOC color stops: diverging ramp from degradation → stable → improvement
+  # Data range: -100 to +100 (percentage change in SOC)
+  SOC_COLOR_STOPS = [
+    {value: -100, color: [155, 39, 121, 255]},
+    {value: -75, color: [170, 72, 135, 255]},
+    {value: -50, color: [196, 131, 155, 255]},
+    {value: -30, color: [212, 162, 186, 255]},
+    {value: -10, color: [224, 187, 213, 255]},
+    {value: -3, color: [238, 221, 233, 255]},
+    {value: 0, color: [247, 247, 247, 255]},
+    {value: 3, color: [233, 243, 231, 255]},
+    {value: 10, color: [211, 236, 207, 255]},
+    {value: 30, color: [172, 215, 168, 255]},
+    {value: 50, color: [127, 191, 123, 255]},
+    {value: 75, color: [64, 146, 62, 255]},
+    {value: 100, color: [0, 101, 0, 255]}
+  ].freeze
+
+  # SDG colormaps
+  # Dict format for categorical layers (sdg_indicator, sdg_status, lpd, land_cover)
+  # Interpolated interval format for continuous layers (soc)
   SDG_COLORMAPS = {
-    sdg_indicator: [
-      [[-32768, -2], [0, 0, 0, 0]],
-      [[-1, -1], [155, 39, 121, 255]],
-      [[0, 0], [247, 247, 247, 255]],
-      [[1, 1], [0, 101, 0, 255]],
-      [[2, 32767], [0, 0, 0, 0]]
-    ],
-    sdg_status: [
-      [[-32768, 0], [0, 0, 0, 0]],
-      [[1, 1], [118, 42, 131, 255]],
-      [[2, 2], [175, 141, 195, 255]],
-      [[3, 3], [231, 212, 232, 255]],
-      [[4, 4], [247, 247, 247, 255]],
-      [[5, 5], [217, 240, 211, 255]],
-      [[6, 6], [127, 191, 123, 255]],
-      [[7, 7], [27, 120, 55, 255]],
-      [[8, 32767], [0, 0, 0, 0]]
-    ],
-    lpd: [
-      [[-32768, 0], [0, 0, 0, 0]],
-      [[1, 1], [155, 39, 121, 255]],
-      [[2, 2], [192, 116, 155, 255]],
-      [[3, 3], [225, 185, 189, 255]],
-      [[4, 4], [247, 247, 247, 255]],
-      [[5, 5], [0, 101, 0, 255]],
-      [[6, 32767], [0, 0, 0, 0]]
-    ],
-    land_cover: [
-      [[-32768, -2], [0, 0, 0, 0]],
-      [[-1, -1], [155, 39, 121, 255]],
-      [[0, 0], [247, 247, 247, 255]],
-      [[1, 1], [0, 101, 0, 255]],
-      [[2, 32767], [0, 0, 0, 0]]
-    ],
-    soc: [
-      [[-32768, -101], [0, 0, 0, 0]],
-      [[-100, -11], [155, 39, 121, 255]],
-      [[-10, 10], [247, 247, 247, 255]],
-      [[11, 32767], [0, 101, 0, 255]]
-    ]
+    sdg_indicator: {"-1" => [155, 39, 121, 255], "0" => [247, 247, 247, 255], "1" => [0, 101, 0, 255]},
+    sdg_status: {
+      "1" => [118, 42, 131, 255],
+      "2" => [175, 141, 195, 255],
+      "3" => [231, 212, 232, 255],
+      "4" => [247, 247, 247, 255],
+      "5" => [217, 240, 211, 255],
+      "6" => [127, 191, 123, 255],
+      "7" => [27, 120, 55, 255]
+    },
+    lpd: {
+      "1" => [155, 39, 121, 255],
+      "2" => [192, 116, 155, 255],
+      "3" => [225, 185, 189, 255],
+      "4" => [247, 247, 247, 255],
+      "5" => [0, 101, 0, 255]
+    },
+    land_cover: {"-1" => [155, 39, 121, 255], "0" => [247, 247, 247, 255], "1" => [0, 101, 0, 255]},
+    # SOC values are percentages: continuous diverging colormap
+    soc: interpolate_colormap(SOC_COLOR_STOPS, steps_per_segment: 15)
   }.freeze
 
   # LDN Counterbalancing colormaps (from styles.json "LDN Counterbalancing" entries)
@@ -240,26 +239,24 @@ module LdnSeeder
   #
   # Land types: unique integer codes from a positional encoding of input layers
   LDN_COLORMAPS = {
-    # Gains/losses: Int16, values -1/0/1, nodata=-32768
-    # Use interval format covering full Int16 range so no gaps exist
-    gains_losses: [
-      [[-32768, -2], [0, 0, 0, 0]],
-      [[-1, -1], [155, 39, 121, 255]],
-      [[0, 0], [247, 247, 247, 255]],
-      [[1, 1], [0, 101, 0, 255]],
-      [[2, 32767], [0, 0, 0, 0]]
-    ],
+    # Gains/losses: categorical Int16, values -1/0/1, nodata=-32768
+    gains_losses: {"-1" => [155, 39, 121, 255], "0" => [247, 247, 247, 255], "1" => [0, 101, 0, 255]},
     # Net change by unit: Int16, values -10000..10000 (percentage × 100), nodata=-32768
-    # Continuous diverging colormap — interpolated between 7 key color stops so
-    # TiTiler renders a smooth gradient rather than flat categorical blocks.
+    # Continuous diverging colormap interpolated between 13 color stops
     net_change_by_unit: interpolate_colormap(
       [
         {value: -10_000, color: [155, 39, 121, 255]},
+        {value: -7_500, color: [170, 72, 135, 255]},
         {value: -5_000, color: [196, 131, 155, 255]},
+        {value: -2_500, color: [212, 162, 186, 255]},
         {value: -500, color: [224, 187, 213, 255]},
+        {value: -100, color: [238, 221, 233, 255]},
         {value: 0, color: [247, 247, 247, 255]},
+        {value: 100, color: [233, 243, 231, 255]},
         {value: 500, color: [211, 236, 207, 255]},
+        {value: 2_500, color: [172, 215, 168, 255]},
         {value: 5_000, color: [127, 191, 123, 255]},
+        {value: 7_500, color: [64, 146, 62, 255]},
         {value: 10_000, color: [0, 101, 0, 255]}
       ],
       steps_per_segment: 15
@@ -310,12 +307,28 @@ module LdnSeeder
       ]
     },
     soc: {
-      type: "custom",
-      data: [
-        {name: "Degradation (< -10%)", value: "#9b2779"},
-        {name: "Stable (-10% to +10%)", value: "#f7f7f7"},
-        {name: "Improvement (> +10%)", value: "#006500"}
-      ]
+      type: "choropleth",
+      bucket: interpolate_legend_colors(
+        [
+          {value: -100, color: [155, 39, 121]},
+          {value: -75, color: [170, 72, 135]},
+          {value: -50, color: [196, 131, 155]},
+          {value: -30, color: [212, 162, 186]},
+          {value: -10, color: [224, 187, 213]},
+          {value: -3, color: [238, 221, 233]},
+          {value: 0, color: [247, 247, 247]},
+          {value: 3, color: [233, 243, 231]},
+          {value: 10, color: [211, 236, 207]},
+          {value: 30, color: [172, 215, 168]},
+          {value: 50, color: [127, 191, 123]},
+          {value: 75, color: [64, 146, 62]},
+          {value: 100, color: [0, 101, 0]}
+        ],
+        steps: 20
+      ),
+      min: "-100%",
+      mid: "Stable",
+      max: "+100%"
     }
   }.freeze
 
@@ -333,11 +346,17 @@ module LdnSeeder
       bucket: interpolate_legend_colors(
         [
           {value: -10_000, color: [155, 39, 121]},
+          {value: -7_500, color: [170, 72, 135]},
           {value: -5_000, color: [196, 131, 155]},
+          {value: -2_500, color: [212, 162, 186]},
           {value: -500, color: [224, 187, 213]},
+          {value: -100, color: [238, 221, 233]},
           {value: 0, color: [247, 247, 247]},
+          {value: 100, color: [233, 243, 231]},
           {value: 500, color: [211, 236, 207]},
+          {value: 2_500, color: [172, 215, 168]},
           {value: 5_000, color: [127, 191, 123]},
+          {value: 7_500, color: [64, 146, 62]},
           {value: 10_000, color: [0, 101, 0]}
         ],
         steps: 20
