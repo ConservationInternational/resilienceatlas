@@ -111,99 +111,12 @@ module LdnSeeder
   }.freeze
 
   # ──────────────────────────────────────────────────────────────
-  # Colormap interpolation helpers (must precede constant definitions)
-  # ──────────────────────────────────────────────────────────────
-
-  # Build a fine-grained TiTiler interval colormap by linearly
-  # interpolating between the given color stops.
-  #
-  # @param stops [Array<Hash>]  ordered list of {value:, color: [r,g,b,a]}
-  # @param steps_per_segment [Integer] interpolation steps between each pair
-  # @return [Array] interval colormap with transparent bookends for nodata
-  def self.interpolate_colormap(stops, steps_per_segment: 15)
-    intervals = []
-    # Transparent region below data range
-    intervals << [[-32_768, stops.first[:value] - 1], [0, 0, 0, 0]]
-
-    stops.each_cons(2) do |a, b|
-      v0, c0 = a[:value], a[:color]
-      v1, c1 = b[:value], b[:color]
-
-      (0...steps_per_segment).each do |i|
-        t0 = i.to_f / steps_per_segment
-        t1 = (i + 1).to_f / steps_per_segment
-
-        seg_start = (v0 + (v1 - v0) * t0).round
-        seg_end = (v0 + (v1 - v0) * t1).round
-
-        # Use the midpoint fraction for the color
-        t_mid = (t0 + t1) / 2.0
-        r = (c0[0] + (c1[0] - c0[0]) * t_mid).round
-        g = (c0[1] + (c1[1] - c0[1]) * t_mid).round
-        b_ch = (c0[2] + (c1[2] - c0[2]) * t_mid).round
-        a_ch = (c0[3] + (c1[3] - c0[3]) * t_mid).round
-
-        intervals << [[seg_start, seg_end], [r, g, b_ch, a_ch]]
-      end
-    end
-
-    # Transparent region above data range
-    intervals << [[stops.last[:value] + 1, 32_767], [0, 0, 0, 0]]
-    intervals
-  end
-
-  # Generate an array of hex color strings for a choropleth legend bucket
-  # by interpolating between the same color stops used for the map.
-  #
-  # @param stops [Array<Hash>]  ordered list of {value:, color: [r,g,b]}
-  # @param steps [Integer] total number of legend swatches
-  # @return [Array<String>] hex colors e.g. ["#9b2779", ..., "#006500"]
-  def self.interpolate_legend_colors(stops, steps: 20)
-    v_min = stops.first[:value].to_f
-    v_max = stops.last[:value].to_f
-
-    (0...steps).map do |i|
-      # Map step index to value range
-      v = v_min + (v_max - v_min) * i / (steps - 1).to_f
-
-      # Find the surrounding stops
-      seg_idx = stops.each_cons(2).find_index { |a, b| v.between?(a[:value], b[:value]) } || 0
-      a, b = stops[seg_idx], stops[seg_idx + 1]
-
-      t = (b[:value] == a[:value]) ? 0.0 : (v - a[:value]).to_f / (b[:value] - a[:value])
-      r = (a[:color][0] + (b[:color][0] - a[:color][0]) * t).round
-      g = (a[:color][1] + (b[:color][1] - a[:color][1]) * t).round
-      bl = (a[:color][2] + (b[:color][2] - a[:color][2]) * t).round
-
-      format("#%02x%02x%02x", r, g, bl)
-    end
-  end
-
-  # ──────────────────────────────────────────────────────────────
   # Colormaps (aligned with trends.earth styles.json)
   # ──────────────────────────────────────────────────────────────
 
-  # SOC color stops: diverging ramp from degradation → stable → improvement
-  # Data range: -100 to +100 (percentage change in SOC)
-  SOC_COLOR_STOPS = [
-    {value: -100, color: [155, 39, 121, 255]},
-    {value: -75, color: [170, 72, 135, 255]},
-    {value: -50, color: [196, 131, 155, 255]},
-    {value: -30, color: [212, 162, 186, 255]},
-    {value: -10, color: [224, 187, 213, 255]},
-    {value: -3, color: [238, 221, 233, 255]},
-    {value: 0, color: [247, 247, 247, 255]},
-    {value: 3, color: [233, 243, 231, 255]},
-    {value: 10, color: [211, 236, 207, 255]},
-    {value: 30, color: [172, 215, 168, 255]},
-    {value: 50, color: [127, 191, 123, 255]},
-    {value: 75, color: [64, 146, 62, 255]},
-    {value: 100, color: [0, 101, 0, 255]}
-  ].freeze
-
-  # SDG colormaps
-  # Dict format for categorical layers (sdg_indicator, sdg_status, lpd, land_cover)
-  # Interpolated interval format for continuous layers (soc)
+  # Colormaps for TiTiler tile rendering.
+  # Categorical layers use inline dicts (small enough for query strings).
+  # Continuous layers use named colormaps registered in TiTiler (see app.py).
   SDG_COLORMAPS = {
     sdg_indicator: {"-1" => [155, 39, 121, 255], "0" => [247, 247, 247, 255], "1" => [0, 101, 0, 255]},
     sdg_status: {
@@ -223,44 +136,12 @@ module LdnSeeder
       "5" => [0, 101, 0, 255]
     },
     land_cover: {"-1" => [155, 39, 121, 255], "0" => [247, 247, 247, 255], "1" => [0, 101, 0, 255]},
-    # SOC values are percentages: continuous diverging colormap
-    soc: interpolate_colormap(SOC_COLOR_STOPS, steps_per_segment: 15)
+    soc: "ra_soc_change"
   }.freeze
 
-  # LDN Counterbalancing colormaps (from styles.json "LDN Counterbalancing" entries)
-  #
-  # Gains/losses: categorical -1/0/1 (styles.json "LDN Counterbalancing (gains and losses)")
-  #   -1 = loss (#9b2779), 0 = neutral (#f7f7f7), 1 = gain (#006500)
-  #
-  # Achievement: zero-centered diverging (styles.json "LDN Counterbalancing (land type achievement)")
-  #   Data is int16 scaled by 100: -10000 = -100%, 10000 = +100%
-  #   min (#9b2779) → zero (#f7f7f7) → max (#006500)
-  #   Discretized into intervals for TiTiler
-  #
-  # Land types: unique integer codes from a positional encoding of input layers
   LDN_COLORMAPS = {
-    # Gains/losses: categorical Int16, values -1/0/1, nodata=-32768
     gains_losses: {"-1" => [155, 39, 121, 255], "0" => [247, 247, 247, 255], "1" => [0, 101, 0, 255]},
-    # Net change by unit: Int16, values -10000..10000 (percentage × 100), nodata=-32768
-    # Continuous diverging colormap interpolated between 13 color stops
-    net_change_by_unit: interpolate_colormap(
-      [
-        {value: -10_000, color: [155, 39, 121, 255]},
-        {value: -7_500, color: [170, 72, 135, 255]},
-        {value: -5_000, color: [196, 131, 155, 255]},
-        {value: -2_500, color: [212, 162, 186, 255]},
-        {value: -500, color: [224, 187, 213, 255]},
-        {value: -100, color: [238, 221, 233, 255]},
-        {value: 0, color: [247, 247, 247, 255]},
-        {value: 100, color: [233, 243, 231, 255]},
-        {value: 500, color: [211, 236, 207, 255]},
-        {value: 2_500, color: [172, 215, 168, 255]},
-        {value: 5_000, color: [127, 191, 123, 255]},
-        {value: 7_500, color: [64, 146, 62, 255]},
-        {value: 10_000, color: [0, 101, 0, 255]}
-      ],
-      steps_per_segment: 15
-    )
+    net_change_by_unit: "ra_net_change"
   }.freeze
 
   # ──────────────────────────────────────────────────────────────
@@ -308,24 +189,13 @@ module LdnSeeder
     },
     soc: {
       type: "choropleth",
-      bucket: interpolate_legend_colors(
-        [
-          {value: -100, color: [155, 39, 121]},
-          {value: -75, color: [170, 72, 135]},
-          {value: -50, color: [196, 131, 155]},
-          {value: -30, color: [212, 162, 186]},
-          {value: -10, color: [224, 187, 213]},
-          {value: -3, color: [238, 221, 233]},
-          {value: 0, color: [247, 247, 247]},
-          {value: 3, color: [233, 243, 231]},
-          {value: 10, color: [211, 236, 207]},
-          {value: 30, color: [172, 215, 168]},
-          {value: 50, color: [127, 191, 123]},
-          {value: 75, color: [64, 146, 62]},
-          {value: 100, color: [0, 101, 0]}
-        ],
-        steps: 20
-      ),
+      bucket: [
+        "#9b2779", "#a84b87", "#b56f95", "#c1839e", "#c4939b",
+        "#cda3a8", "#d4b3b5", "#dbc3c2", "#e0bbd5", "#e8cdd8",
+        "#f0dfdb", "#f7f7f7", "#edf3e5", "#d3ecce", "#c0e4b5",
+        "#a6d99b", "#8dcb82", "#73bc68", "#5aad4f", "#419e35",
+        "#006500"
+      ],
       min: "-100%",
       mid: "Stable",
       max: "+100%"
@@ -343,24 +213,13 @@ module LdnSeeder
     },
     net_change_by_unit: {
       type: "choropleth",
-      bucket: interpolate_legend_colors(
-        [
-          {value: -10_000, color: [155, 39, 121]},
-          {value: -7_500, color: [170, 72, 135]},
-          {value: -5_000, color: [196, 131, 155]},
-          {value: -2_500, color: [212, 162, 186]},
-          {value: -500, color: [224, 187, 213]},
-          {value: -100, color: [238, 221, 233]},
-          {value: 0, color: [247, 247, 247]},
-          {value: 100, color: [233, 243, 231]},
-          {value: 500, color: [211, 236, 207]},
-          {value: 2_500, color: [172, 215, 168]},
-          {value: 5_000, color: [127, 191, 123]},
-          {value: 7_500, color: [64, 146, 62]},
-          {value: 10_000, color: [0, 101, 0]}
-        ],
-        steps: 20
-      ),
+      bucket: [
+        "#9b2779", "#a84b87", "#b56f95", "#c1839e", "#c4939b",
+        "#cda3a8", "#d4b3b5", "#dbc3c2", "#e0bbd5", "#e8cdd8",
+        "#f0dfdb", "#f7f7f7", "#edf3e5", "#d3ecce", "#c0e4b5",
+        "#a6d99b", "#8dcb82", "#73bc68", "#5aad4f", "#419e35",
+        "#006500"
+      ],
       min: "-100%",
       mid: "Balanced",
       max: "+100%"
@@ -1524,14 +1383,21 @@ module LdnSeeder
     def create_ldn_cog_layer(group:, slug:, s3_folder:, filename:, colormap:, legend:, name:, info:, description:, active:, order:, color:, analysis_type: "categorical", sources: [])
       cog_url = "s3://#{LDN_S3_BUCKET}/#{LDN_S3_PREFIX}/#{s3_folder}/#{filename}"
 
+      body = {
+        source: cog_url,
+        nodata: -32768,
+        options: {}
+      }
+
+      if colormap.is_a?(String)
+        body[:colormap_name] = colormap
+      else
+        body[:colormap] = colormap
+      end
+
       layer_config = {
         type: "tileLayer",
-        body: {
-          source: cog_url,
-          colormap: colormap,
-          nodata: -32768,
-          options: {}
-        }
+        body: body
       }
 
       save_layer(
@@ -1546,15 +1412,22 @@ module LdnSeeder
     def create_sdg_cog_layer(group:, slug:, cog_key:, band:, colormap:, legend:, name:, info:, description:, active:, order:, color:, analysis_type: "categorical", sources: [])
       cog_url = "#{SDG_COG_BASE}/#{SDG_COGS[cog_key]}"
 
+      body = {
+        source: cog_url,
+        bidx: band,
+        nodata: -32768,
+        options: {}
+      }
+
+      if colormap.is_a?(String)
+        body[:colormap_name] = colormap
+      else
+        body[:colormap] = colormap
+      end
+
       layer_config = {
         type: "tileLayer",
-        body: {
-          source: cog_url,
-          bidx: band,
-          colormap: colormap,
-          nodata: -32768,
-          options: {}
-        }
+        body: body
       }
 
       save_layer(

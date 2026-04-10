@@ -3,6 +3,7 @@ import os
 import re
 from urllib.parse import urlparse
 from mangum import Mangum
+from rio_tiler.colormap import cmap as default_cmap
 from titiler.core.factory import TilerFactory
 from titiler.core.errors import DEFAULT_STATUS_CODES, add_exception_handlers
 from titiler.core.middleware import CacheControlMiddleware
@@ -218,6 +219,81 @@ class BucketWhitelistMiddleware(BaseHTTPMiddleware):
             )
         
         return await call_next(request)
+
+
+# ──────────────────────────────────────────────────────────────
+# Register custom named colormaps for Resilience Atlas layers
+# These can be referenced via ?colormap_name=<name> in tile URLs,
+# avoiding the need to pass large colormap JSON in query strings.
+# ──────────────────────────────────────────────────────────────
+
+def _interpolate_colormap(stops, steps_per_segment=5):
+    """Build an interval colormap by interpolating between color stops.
+    
+    Args:
+        stops: list of (value, (r, g, b, a)) tuples, ordered by value
+        steps_per_segment: interpolation steps between each pair of stops
+    
+    Returns:
+        list of ((min, max), (r, g, b, a)) intervals
+    """
+    intervals = []
+    # Transparent below data range
+    intervals.append(((- 32768, stops[0][0] - 1), (0, 0, 0, 0)))
+    
+    for i in range(len(stops) - 1):
+        v0, c0 = stops[i]
+        v1, c1 = stops[i + 1]
+        
+        for j in range(steps_per_segment):
+            t0 = j / steps_per_segment
+            t1 = (j + 1) / steps_per_segment
+            
+            seg_start = round(v0 + (v1 - v0) * t0)
+            seg_end = round(v0 + (v1 - v0) * t1)
+            
+            t_mid = (t0 + t1) / 2.0
+            r = round(c0[0] + (c1[0] - c0[0]) * t_mid)
+            g = round(c0[1] + (c1[1] - c0[1]) * t_mid)
+            b = round(c0[2] + (c1[2] - c0[2]) * t_mid)
+            a = round(c0[3] + (c1[3] - c0[3]) * t_mid)
+            
+            intervals.append(((seg_start, seg_end), (r, g, b, a)))
+    
+    # Transparent above data range
+    intervals.append(((stops[-1][0] + 1, 32767), (0, 0, 0, 0)))
+    return intervals
+
+
+# SOC change: percentage change in soil organic carbon (-100% to +100%)
+_soc_stops = [
+    (-100, (155, 39, 121, 255)),
+    (-50,  (196, 131, 155, 255)),
+    (-10,  (224, 187, 213, 255)),
+    (0,    (247, 247, 247, 255)),
+    (10,   (211, 236, 207, 255)),
+    (50,   (127, 191, 123, 255)),
+    (100,  (0, 101, 0, 255)),
+]
+
+# LDN net change by unit: percentage × 100 (-10000 to +10000)
+_net_change_stops = [
+    (-10000, (155, 39, 121, 255)),
+    (-5000,  (196, 131, 155, 255)),
+    (-500,   (224, 187, 213, 255)),
+    (0,      (247, 247, 247, 255)),
+    (500,    (211, 236, 207, 255)),
+    (5000,   (127, 191, 123, 255)),
+    (10000,  (0, 101, 0, 255)),
+]
+
+# Register all custom colormaps
+default_cmap = default_cmap.register({
+    # Continuous: SOC change (interpolated)
+    "ra_soc_change": _interpolate_colormap(_soc_stops, steps_per_segment=5),
+    # Continuous: LDN net change by unit (interpolated)
+    "ra_net_change": _interpolate_colormap(_net_change_stops, steps_per_segment=5),
+})
 
 
 # Create cog tiler

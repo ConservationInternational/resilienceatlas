@@ -19,7 +19,7 @@ const buildTitilerUrl = (layerConfig) => {
   }
 
   // New format: construct URL from source and colormap
-  const { source, colormap, bidx, nodata } = body;
+  const { source, colormap, colormap_name, bidx, nodata } = body;
 
   if (!source) {
     console.error('[COG Layer] No source URL found in layerConfig.body');
@@ -45,8 +45,10 @@ const buildTitilerUrl = (layerConfig) => {
     tileUrl += `&nodata=${nodata}`;
   }
 
-  // Add colormap if present
-  if (colormap && Object.keys(colormap).length > 0) {
+  // Add colormap: prefer named colormap (compact URL) over inline JSON
+  if (colormap_name) {
+    tileUrl += `&colormap_name=${encodeURIComponent(colormap_name)}`;
+  } else if (colormap && Object.keys(colormap).length > 0) {
     const encodedColormap = encodeURIComponent(JSON.stringify(colormap));
     tileUrl += `&colormap=${encodedColormap}`;
   }
