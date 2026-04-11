@@ -1,7 +1,7 @@
 ActiveAdmin.register SiteScope do
   includes :translations
 
-  permit_params :subdomain, :color, :has_analysis, :latitude, :longitude, :header_theme, :zoom_level,
+  permit_params :subdomain, :color, :has_analysis, :has_search, :latitude, :longitude, :header_theme, :zoom_level,
     :linkback_url, :header_color, :logo_url, :favicon_url, :predictive_model, :analysis_options, :has_gef_logo,
     :password_protected, :username, :password, :linkback_text_color,
     translations_attributes: [:id, :locale, :name, :linkback_text, :_destroy]
@@ -54,6 +54,7 @@ ActiveAdmin.register SiteScope do
       f.input :favicon_url, as: :string, hint: "URL for the site favicon. Leave blank for default CI logo."
       f.input :subdomain
       f.input :has_analysis
+      f.input :has_search, label: "Has search box", hint: "Show the country/region search box on the map toolbar."
       f.input :linkback_url, as: :string
       f.input :linkback_text_color, as: :color, hint: "Color for the linkback text. Leave blank for default."
       f.input :predictive_model
@@ -142,6 +143,7 @@ ActiveAdmin.register SiteScope do
       row :logo_url
       row :subdomain
       row :has_analysis
+      row :has_search
       row :linkback_text
       row :linkback_url
       row :predictive_model

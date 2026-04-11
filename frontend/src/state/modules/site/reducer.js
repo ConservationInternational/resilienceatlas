@@ -3,6 +3,7 @@ import { LOAD } from './actions';
 
 const initialState = {
   has_analysis: false,
+  has_search: true,
   predictive_model: false,
   name: '',
   subdomain: '',

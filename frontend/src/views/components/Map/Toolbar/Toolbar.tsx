@@ -1,6 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import cx from 'classnames';
 import { Popover, PopoverButton, PopoverPanel } from '@headlessui/react';
+import { useSelector } from 'react-redux';
 
 import ShareModal from 'views/components/ShareModal';
 import SearchArea from './SearchArea';
@@ -13,10 +14,12 @@ const Toolbar: React.FC = () => {
   useMapSettingsSync();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const handleModalToggle = useCallback(() => setIsModalOpen(!isModalOpen), [isModalOpen]);
+  const hasSearch = useSelector((state: any) => state.site.has_search);
 
   return (
     <div className="m-toolbar">
       <ul>
+        {hasSearch !== false && (
         <li className="m-toolbar__item">
           <Popover>
             {({ open, close }) => (
@@ -33,6 +36,7 @@ const Toolbar: React.FC = () => {
             )}
           </Popover>
         </li>
+        )}
         <li className="m-toolbar__item m-toolbar__item--gap-after">
           <button type="button" className="btn-share" onClick={handleModalToggle}>
             <svg className="icon">
