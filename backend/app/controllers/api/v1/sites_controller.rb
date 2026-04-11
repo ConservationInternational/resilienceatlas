@@ -17,7 +17,13 @@ module Api
 
       def show
         site = SiteScope.find(params[:site_scope])
-        expires_in 1.hour, public: true, stale_while_revalidate: 5.minutes
+        if site.requires_authentication?
+          # Don't cache password-protected site data so the frontend always gets
+          # the current password_protected flag from the database.
+          expires_in 0, public: false, must_revalidate: true
+        else
+          expires_in 1.hour, public: true, stale_while_revalidate: 5.minutes
+        end
         render json: site, include: ["site_pages"]
       end
     end

@@ -22,6 +22,10 @@ module SitesFilters
   def check_site_scope_authentication
     return unless @site_scope&.requires_authentication?
 
+    # Password-protected scopes must not use public HTTP caching, since cached
+    # 200 responses would bypass authentication entirely.
+    response.cache_control.replace(no_store: true)
+
     token = request.headers["Site-Scope-Token"] || params[:site_scope_token]
 
     unless token && verify_site_scope_token(token, @site_scope.id)
