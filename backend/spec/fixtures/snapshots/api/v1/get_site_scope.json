@@ -7,6 +7,7 @@
       "color": "#ffdbdb",
       "subdomain": "kutch-spencer",
       "has_analysis": false,
+      "has_search": true,
       "latitude": 77.86032468095857,
       "longitude": -133.8751987454316,
       "header_theme": "ci-theme",
