@@ -287,8 +287,14 @@
     }
 
     .analysis-panel {
-      // Hide analysis panel on mobile or make it overlay
-      display: none;
+      // On mobile, overlay analysis panel as full-width sheet
+      position: fixed;
+      top: 60px;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      width: 100%;
+      z-index: 1001;
     }
 
     .btn-analysis-panel-expand {
