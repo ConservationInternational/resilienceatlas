@@ -49,7 +49,7 @@ const getMobileLinkbackColor = (color, themeColor) => {
   // Calculate perceived luminance (range 0–1)
   const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
 
-  // Colours with luminance > 0.7 are too light for a white background
+  // Colors with luminance > 0.7 are too light for a white background
   if (luminance > 0.7) {
     return themeColor || '#333333';
   }
