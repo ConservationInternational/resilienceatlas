@@ -18,6 +18,7 @@ import { subdomain } from 'utilities/getSubdomain';
 export const TABS = {
   LAYERS: 'layers',
   MODELS: 'models',
+  ANALYSIS: 'analysis',
 };
 
 const Sidebar = ({
@@ -49,12 +50,16 @@ const Sidebar = ({
 
   const switchTab = useCallback(
     ({ tab: newTab }) => {
+      if (newTab === TABS.ANALYSIS) {
+        toggleAnalysis();
+        return;
+      }
       if (tab !== newTab) {
         setTab(newTab);
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [tab],
+    [tab, toggleAnalysis],
   );
 
   const handleFeedbackBtnClick = () => {
@@ -113,7 +118,7 @@ const Sidebar = ({
             contentClassName="tabs-content content"
             menuClassName="tabs tabs-secondary-content"
             renderTabTitle={({ name, title, active, onTabSwitch }) => (
-              <li className={cx('tab-title', { active })}>
+              <li className={cx('tab-title', { active }, `-${name}`)}>
                 <LinkButton data-section={translations && translations[name]} onClick={onTabSwitch}>
                   {title}
                 </LinkButton>
@@ -137,6 +142,17 @@ const Sidebar = ({
                 name={TABS.MODELS}
               >
                 <PredictiveModels />
+              </Tabs.Pane>
+            )}
+
+            {site?.has_analysis && (
+              <Tabs.Pane
+                id="analysisTabPane"
+                className="content"
+                title={<T _str="Analysis" />}
+                name={TABS.ANALYSIS}
+              >
+                {/* Analysis panel is opened as a full-screen overlay via toggleAnalysis() */}
               </Tabs.Pane>
             )}
           </Tabs>
