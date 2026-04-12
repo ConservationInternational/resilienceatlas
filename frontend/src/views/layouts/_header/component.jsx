@@ -9,6 +9,54 @@ import { T } from '@transifex/react';
 
 const byPosition = sortBy('position');
 
+/**
+ * Returns a readable color for the linkback text on mobile.
+ * The mobile menu panel has a white background, so light colors (e.g. white)
+ * would be invisible. If the provided color is too light, falls back to the
+ * site theme color or a dark default.
+ */
+const getMobileLinkbackColor = (color, themeColor) => {
+  if (!color) return undefined;
+
+  const normalized = color.trim().toLowerCase().replace(/\s/g, '');
+
+  let r, g, b;
+
+  if (normalized.startsWith('#')) {
+    const hex = normalized.slice(1);
+    const fullHex =
+      hex.length === 3
+        ? hex
+            .split('')
+            .map((c) => c + c)
+            .join('')
+        : hex;
+    if (fullHex.length !== 6) return themeColor || '#333333';
+    r = parseInt(fullHex.substring(0, 2), 16);
+    g = parseInt(fullHex.substring(2, 4), 16);
+    b = parseInt(fullHex.substring(4, 6), 16);
+  } else if (normalized.startsWith('rgb(')) {
+    const parts = normalized.slice(4, -1).split(',');
+    if (parts.length < 3) return themeColor || '#333333';
+    r = parseInt(parts[0], 10);
+    g = parseInt(parts[1], 10);
+    b = parseInt(parts[2], 10);
+  } else {
+    // Named colors or other formats – be conservative and keep the original
+    return color;
+  }
+
+  // Calculate perceived luminance (range 0–1)
+  const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+
+  // Colours with luminance > 0.7 are too light for a white background
+  if (luminance > 0.7) {
+    return themeColor || '#333333';
+  }
+
+  return color;
+};
+
 const Header = ({
   loadMenuItems,
   logout,
@@ -27,7 +75,13 @@ const Header = ({
   const [portalContainer, setPortalContainer] = useState(null);
 
   // Safely destructure site with default values to prevent errors during SSR/hydration
-  const { linkback_text = '', linkback_url = '', linkback_text_color, subdomain = '' } = site || {};
+  const {
+    linkback_text = '',
+    linkback_url = '',
+    linkback_text_color,
+    subdomain = '',
+    color = '',
+  } = site || {};
 
   // Check if we're on a sub-scope (not the main Resilience Atlas site)
   const isSubScope = !!subdomain;
@@ -317,7 +371,9 @@ const Header = ({
                     rel="noopener noreferrer"
                     className={cx('link-back', { 'theme-color': !linkback_text_color })}
                     onClick={toggleMobileMenu}
-                    {...(linkback_text_color && { style: { color: linkback_text_color } })}
+                    {...(linkback_text_color && {
+                      style: { color: getMobileLinkbackColor(linkback_text_color, color) },
+                    })}
                   >
                     {linkback_text || <T _str="Go back" />}
                   </a>

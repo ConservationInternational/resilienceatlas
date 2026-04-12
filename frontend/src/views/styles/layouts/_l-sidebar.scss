@@ -298,10 +298,8 @@
     }
 
     .btn-analysis-panel-expand {
-      // Position analysis button differently on mobile
-      left: 10px;
-      top: auto;
-      bottom: 60px;
+      // Hide on mobile - the Analysis tab in the sidebar handles this on mobile
+      display: none;
     }
 
     .btn-map-feedback {

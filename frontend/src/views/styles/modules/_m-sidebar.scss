@@ -93,4 +93,11 @@
       }
     }
   }
+
+  // Hide the Analysis tab on desktop - the floating btn-analysis-panel-expand handles it there
+  .tab-title.-analysis {
+    @media screen and (min-width: #{$breakpoint-mobile + 1px}) {
+      display: none;
+    }
+  }
 }
