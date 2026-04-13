@@ -87,53 +87,7 @@ ActiveAdmin.register ScopeDataset do
     end
   end
 
-  form do |f|
-    f.inputs "Dataset" do
-      f.input :site_scope, as: :select, collection: SiteScope.with_translations.sort_by(&:name).map { |m| [m.name, m.id] }
-      f.input :slug
-      f.input :name
-      f.input :description
-      f.input :data_type, as: :select, collection: %w[tabular], include_blank: false
-      f.input :group_key, hint: "Optional key to group variant datasets together (e.g. 'ecoregion-summary'). Datasets sharing a group_key appear as switchable variants in the UI."
-      f.input :dimension, hint: "Dimension this dataset belongs to (e.g. 'ecoregion', 'country'). Used to group datasets into view modes with radio-button switching."
-      f.input :variant_label, hint: "Human-readable label for this variant (e.g. 'JRC', 'FAO-WOCAT'). Shown in the variant selector dropdown."
-      f.input :display_order
-    end
-
-    f.inputs "Dimension Config (JSON)" do
-      f.input :dimension_config, as: :text, input_html: {
-        class: "json-editor-textarea", rows: 6,
-        value: f.object.dimension_config.present? ? JSON.pretty_generate(f.object.dimension_config) : ""
-      },
-        hint: 'JSON object with dimension metadata: {"unit_label": "Ecoregion", "unit_id_column": "eco_id", "name_column": "ecoregion"}'
-    end
-
-    f.inputs "Schema Config (JSON)" do
-      f.input :schema_config, as: :text, input_html: {
-        class: "json-editor-textarea", rows: 12,
-        value: f.object.schema_config.present? ? JSON.pretty_generate(f.object.schema_config) : ""
-      },
-        hint: 'JSON array of column definitions: [{"name": "eco_id", "type": "integer", "label": "Ecoregion ID"}]'
-    end
-
-    f.inputs "Chart Config (JSON)" do
-      f.input :chart_config, as: :text, input_html: {
-        class: "json-editor-textarea", rows: 12,
-        value: f.object.chart_config.present? ? JSON.pretty_generate(f.object.chart_config) : ""
-      },
-        hint: "JSON array of chart specifications"
-    end
-
-    f.inputs "Data (JSON)" do
-      f.input :data, as: :text, input_html: {
-        class: "json-editor-textarea", rows: 20,
-        value: f.object.data.present? ? JSON.pretty_generate(f.object.data) : ""
-      },
-        hint: "JSON array of row objects. Use 'Import CSV' action on the show page for bulk import."
-    end
-
-    f.actions
-  end
+  form partial: "form"
 
   # Import CSV member action
   member_action :import_csv, method: [:get, :post] do
@@ -173,11 +127,11 @@ ActiveAdmin.register ScopeDataset do
       filename: "#{resource.slug}.csv"
   end
 
-  action_item :import_csv, only: [:show, :edit] do
+  action_item :import_csv, only: :show do
     link_to "Import CSV", import_csv_admin_scope_dataset_path(resource)
   end
 
-  action_item :export_csv, only: [:show, :edit] do
+  action_item :export_csv, only: :show do
     link_to "Export CSV", export_csv_admin_scope_dataset_path(resource)
   end
 end

@@ -6,17 +6,9 @@ console.log('[JSON Editor] Script loaded');
 (function() {
   'use strict';
 
-  // Configuration for JSON editor textareas - match by class or name attribute
-  const JSON_FIELD_SELECTORS = [
-    'textarea.json-editor-textarea',
-    'textarea[name*="[layer_config]"]',
-    'textarea[name*="[interaction_config]"]',
-    'textarea[name*="[analysis_body]"]',
-    'textarea[name*="[analysis_query]"]',
-    'textarea[name*="[schema_config]"]',
-    'textarea[name*="[chart_config]"]',
-    'textarea[name*="[dimension_config]"]'
-  ];
+  // Universal selector: any textarea with the json-editor-textarea class
+  // To enable the JSON editor on any admin form field, simply add class="json-editor-textarea"
+  const JSON_FIELD_SELECTOR = 'textarea.json-editor-textarea';
 
   // Simple syntax highlighting colors
   const SYNTAX_COLORS = {
@@ -31,9 +23,8 @@ console.log('[JSON Editor] Script loaded');
   // Initialize JSON editors on page load
   function initJsonEditors() {
     console.log('[JSON Editor] initJsonEditors called');
-    const selectors = JSON_FIELD_SELECTORS.join(', ');
-    const textareas = document.querySelectorAll(selectors);
-    console.log('[JSON Editor] Found', textareas.length, 'textareas matching:', selectors);
+    const textareas = document.querySelectorAll(JSON_FIELD_SELECTOR);
+    console.log('[JSON Editor] Found', textareas.length, 'textareas matching:', JSON_FIELD_SELECTOR);
     
     textareas.forEach(function(textarea) {
       if (textarea.dataset.jsonEditorInitialized) return;
@@ -304,6 +295,7 @@ console.log('[JSON Editor] Script loaded');
   document.addEventListener('DOMContentLoaded', initJsonEditors);
   document.addEventListener('turbolinks:load', initJsonEditors);
   document.addEventListener('turbo:load', initJsonEditors);
+  document.addEventListener('turbo:render', initJsonEditors);
   
   // Also initialize after a delay for dynamic content
   if (document.readyState !== 'loading') {
@@ -314,5 +306,30 @@ console.log('[JSON Editor] Script loaded');
   document.addEventListener('has_many_add:after', function() {
     setTimeout(initJsonEditors, 100);
   });
+
+  // MutationObserver: automatically initialize JSON editors for dynamically added textareas
+  var observer = new MutationObserver(function(mutations) {
+    var found = false;
+    for (var i = 0; i < mutations.length; i++) {
+      var addedNodes = mutations[i].addedNodes;
+      for (var j = 0; j < addedNodes.length; j++) {
+        var node = addedNodes[j];
+        if (node.nodeType !== 1) continue;
+        if (node.matches && node.matches(JSON_FIELD_SELECTOR) && !node.dataset.jsonEditorInitialized) {
+          found = true;
+          break;
+        }
+        if (node.querySelector && node.querySelector(JSON_FIELD_SELECTOR + ':not([data-json-editor-initialized])')) {
+          found = true;
+          break;
+        }
+      }
+      if (found) break;
+    }
+    if (found) {
+      setTimeout(initJsonEditors, 50);
+    }
+  });
+  observer.observe(document.documentElement, { childList: true, subtree: true });
 
 })();
