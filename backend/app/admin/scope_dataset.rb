@@ -101,23 +101,35 @@ ActiveAdmin.register ScopeDataset do
     end
 
     f.inputs "Dimension Config (JSON)" do
-      f.input :dimension_config, as: :text, input_html: {class: "json-editor-textarea", rows: 6},
+      f.input :dimension_config, as: :text, input_html: {
+        class: "json-editor-textarea", rows: 6,
+        value: f.object.dimension_config.present? ? JSON.pretty_generate(f.object.dimension_config) : ""
+      },
         hint: 'JSON object with dimension metadata: {"unit_label": "Ecoregion", "unit_id_column": "eco_id", "name_column": "ecoregion"}'
     end
 
     f.inputs "Schema Config (JSON)" do
-      f.input :schema_config, as: :text, input_html: {class: "json-editor-textarea", rows: 12},
+      f.input :schema_config, as: :text, input_html: {
+        class: "json-editor-textarea", rows: 12,
+        value: f.object.schema_config.present? ? JSON.pretty_generate(f.object.schema_config) : ""
+      },
         hint: 'JSON array of column definitions: [{"name": "eco_id", "type": "integer", "label": "Ecoregion ID"}]'
     end
 
     f.inputs "Chart Config (JSON)" do
-      f.input :chart_config, as: :text, input_html: {class: "json-editor-textarea", rows: 12},
+      f.input :chart_config, as: :text, input_html: {
+        class: "json-editor-textarea", rows: 12,
+        value: f.object.chart_config.present? ? JSON.pretty_generate(f.object.chart_config) : ""
+      },
         hint: "JSON array of chart specifications"
     end
 
     f.inputs "Data (JSON)" do
-      f.input :data, as: :text, input_html: {class: "json-editor-textarea", rows: 20},
-        hint: "JSON array of row objects. Use 'Import CSV' action for bulk import."
+      f.input :data, as: :text, input_html: {
+        class: "json-editor-textarea", rows: 20,
+        value: f.object.data.present? ? JSON.pretty_generate(f.object.data) : ""
+      },
+        hint: "JSON array of row objects. Use 'Import CSV' action on the show page for bulk import."
     end
 
     f.actions
@@ -161,11 +173,11 @@ ActiveAdmin.register ScopeDataset do
       filename: "#{resource.slug}.csv"
   end
 
-  action_item :import_csv, only: :show do
+  action_item :import_csv, only: [:show, :edit] do
     link_to "Import CSV", import_csv_admin_scope_dataset_path(resource)
   end
 
-  action_item :export_csv, only: :show do
+  action_item :export_csv, only: [:show, :edit] do
     link_to "Export CSV", export_csv_admin_scope_dataset_path(resource)
   end
 end
