@@ -293,7 +293,6 @@ module LdnSeeder
         linkback_text_color: "#FFFFFF",
         color: "#C62828",
         has_analysis: true,
-        has_search: false,
         has_gef_logo: true,
         latitude: 0,
         longitude: 0,
@@ -381,6 +380,20 @@ module LdnSeeder
         puts "    Created LDN subgroup: #{slug}"
         ldn_scale_order += 1
       end
+
+      # ── Gains & Losses subcategory (bottom of LDN TOC) ──
+      gl_subgroup = LayerGroup.find_or_initialize_by(slug: "ldn-cb-gains-losses", site_scope_id: site_scope.id)
+      gl_subgroup.assign_attributes(
+        :super_group_id => groups["ldn-counterbalancing"].id,
+        :layer_group_type => "subcategory",
+        :active => true,
+        "order" => ldn_scale_order,
+        :name => "LDN Gains and losses (per pixel)",
+        :info => "Per-pixel gains and losses of natural capital based on the 7-class SDG 15.3.1 status."
+      )
+      gl_subgroup.save!
+      groups["ldn-cb-gains-losses"] = gl_subgroup
+      puts "    Created LDN subgroup: ldn-cb-gains-losses"
 
       # ── SDG subcategories ──
       sdg_subcats = {
@@ -472,7 +485,7 @@ module LdnSeeder
       end
 
       # Gains & Losses layers (one per methodology — same across scales)
-      parent_group = groups["ldn-counterbalancing"]
+      parent_group = groups["ldn-cb-gains-losses"]
       gl_order = 1
       DATASET_INFO.each do |dataset_key, info|
         mode_suffix = dataset_key.to_s.tr("_", "-")
@@ -484,7 +497,7 @@ module LdnSeeder
           filename: "#{label}_#{LDN_SUFFIXES[:gains_losses]}",
           colormap: LDN_COLORMAPS[:gains_losses],
           legend: LDN_LEGENDS[:gains_losses],
-          name: "LDN gains and losses (per pixel) (#{info[:short_name]})",
+          name: "LDN gains and losses (per pixel, #{info[:short_name]})",
           info: "Net gains and losses of natural capital per pixel using #{info[:name]} productivity data. Based on the 7-class SDG 15.3.1 status: losses map to persistent/recent degradation, gains to persistent/recent improvement.",
           description: "LDN counterbalancing gains and losses layer.\n\nPixel values: -1 = Loss (persistent or recent degradation), 0 = Neutral (baseline degradation, stable, or baseline improvement), 1 = Gain (recent or persistent improvement).\n\n#{info[:description]}",
           active: false,
@@ -834,6 +847,24 @@ module LdnSeeder
       "Not achieving" => "#e74c3c"
     }.freeze
 
+    # Column definitions for the 7-class SDG 15.3.1 status transition donut chart.
+    STATUS_TRANSITION_COLUMNS = [
+      {key: "status_1_persistent_degradation_sqkm", label: "Persistent Degradation", color: "#762a83"},
+      {key: "status_2_recent_degradation_sqkm", label: "Recent Degradation", color: "#af8dc3"},
+      {key: "status_3_baseline_degradation_sqkm", label: "Baseline Degradation", color: "#e7d4e8"},
+      {key: "status_4_stability_sqkm", label: "Stability", color: "#c8c8c8"},
+      {key: "status_5_baseline_improvement_sqkm", label: "Baseline Improvement", color: "#d9f0d3"},
+      {key: "status_6_recent_improvement_sqkm", label: "Recent Improvement", color: "#7fbf7b"},
+      {key: "status_7_persistent_improvement_sqkm", label: "Persistent Improvement", color: "#1b7837"}
+    ].freeze
+
+    # Column definitions for the baseline condition (degraded / stable / improved) donut chart.
+    BASELINE_CONDITION_COLUMNS = [
+      {key: "baseline_degraded_sqkm", label: "Degraded", color: "#9b2779"},
+      {key: "baseline_stable_sqkm", label: "Stable", color: "#c8c8c8"},
+      {key: "baseline_improved_sqkm", label: "Improved", color: "#006500"}
+    ].freeze
+
     # Methodology variants — S3 folder name → human label.
     SCOPE_DATASET_VARIANTS = {
       "te" => {filename_mode: "Trends.Earth", label: "Trends.Earth"},
@@ -879,7 +910,9 @@ module LdnSeeder
           {name: "status_7_persistent_improvement_sqkm", type: "number", label: "Persistent Improvement (km²)", format: ",.1f"},
           {name: "baseline_degraded_sqkm", type: "number", label: "Baseline Degraded (km²)", format: ",.1f"},
           {name: "baseline_stable_sqkm", type: "number", label: "Baseline Stable (km²)", format: ",.1f"},
-          {name: "baseline_improved_sqkm", type: "number", label: "Baseline Improved (km²)", format: ",.1f"}
+          {name: "baseline_improved_sqkm", type: "number", label: "Baseline Improved (km²)", format: ",.1f"},
+          {name: "baseline_degraded_pct", type: "number", label: "Baseline Degraded (% of area)", format: ".1f"},
+          {name: "net_status_change_pct", type: "number", label: "Net Status Change (% of area)", format: ".1f"}
         ],
         chart_config: [
           {
@@ -903,6 +936,22 @@ module LdnSeeder
             aggregation: "sum"
           },
           {
+            id: "baseline-condition",
+            type: "columnsDonut",
+            title: "Baseline Land Condition (2000–2015)",
+            description: "Total land area by condition during the baseline period. Degraded, stable, and improved classes are derived from the SDG 15.3.1 baseline indicator.",
+            columns: BASELINE_CONDITION_COLUMNS,
+            aggregation: "sum"
+          },
+          {
+            id: "status-transition",
+            type: "columnsDonut",
+            title: "Land Status Transition (Baseline → 2023)",
+            description: "Total land area by 7-class SDG 15.3.1 status, showing how baseline condition evolved through 2023. Persistent classes stayed the same; recent classes changed direction; baseline classes reverted.",
+            columns: STATUS_TRANSITION_COLUMNS,
+            aggregation: "sum"
+          },
+          {
             id: "ecoregion-ldn-bar",
             type: "horizontalBar",
             title: "LDN Achievement by Ecoregion",
@@ -911,6 +960,29 @@ module LdnSeeder
             yAxis: {key: "ecoregion", fallback: "eco_id", label: "Ecoregion"},
             colorBy: {key: "category", colors: CATEGORY_COLORS},
             sortBy: {key: "ldn_pct", order: "desc"},
+            topN: 10,
+            bottomN: 10,
+            unitIdColumn: "eco_id"
+          },
+          {
+            id: "baseline-degradation-bar",
+            type: "horizontalBar",
+            title: "Baseline Degradation by Ecoregion",
+            description: "Percentage of ecoregion land area classified as degraded during the baseline period (2000–2015). Top 15 most degraded ecoregions shown.",
+            xAxis: {key: "baseline_degraded_pct", label: "Baseline Degraded (% of area)"},
+            yAxis: {key: "ecoregion", fallback: "eco_id", label: "Ecoregion"},
+            sortBy: {key: "baseline_degraded_pct", order: "desc"},
+            topN: 15,
+            unitIdColumn: "eco_id"
+          },
+          {
+            id: "net-status-change-bar",
+            type: "horizontalBar",
+            title: "Net Status Change by Ecoregion (Baseline → 2023)",
+            description: "Net change in land status: (recent + persistent improvement) minus (persistent + recent degradation) as a percentage of total area. Top 10 most improving and bottom 10 most worsening ecoregions shown.",
+            xAxis: {key: "net_status_change_pct", label: "Net Status Change (% of area)"},
+            yAxis: {key: "ecoregion", fallback: "eco_id", label: "Ecoregion"},
+            sortBy: {key: "net_status_change_pct", order: "desc"},
             topN: 10,
             bottomN: 10,
             unitIdColumn: "eco_id"
@@ -951,7 +1023,15 @@ module LdnSeeder
             ROUND(s.status_7_persistent_improvement_sqkm::numeric, 1) AS status_7_persistent_improvement_sqkm,
             ROUND(s.baseline_degraded_sqkm::numeric, 1) AS baseline_degraded_sqkm,
             ROUND(s.baseline_stable_sqkm::numeric, 1) AS baseline_stable_sqkm,
-            ROUND(s.baseline_improved_sqkm::numeric, 1) AS baseline_improved_sqkm
+            ROUND(s.baseline_improved_sqkm::numeric, 1) AS baseline_improved_sqkm,
+            CASE WHEN s.total_area_km2 > 0
+              THEN ROUND((s.baseline_degraded_sqkm / s.total_area_km2 * 100)::numeric, 1)
+              ELSE 0 END AS baseline_degraded_pct,
+            CASE WHEN s.total_area_km2 > 0
+              THEN ROUND(((s.status_6_recent_improvement_sqkm + s.status_7_persistent_improvement_sqkm
+                          - s.status_1_persistent_degradation_sqkm - s.status_2_recent_degradation_sqkm)
+                         / s.total_area_km2 * 100)::numeric, 1)
+              ELSE 0 END AS net_status_change_pct
           FROM _eco_stats s
           JOIN _eco_key k ON s.eco_id = k.eco_id AND k.is_pa = 0
           ORDER BY s.eco_id
@@ -988,7 +1068,9 @@ module LdnSeeder
           {name: "status_7_persistent_improvement_sqkm", type: "number", label: "Persistent Improvement (km²)", format: ",.1f"},
           {name: "baseline_degraded_sqkm", type: "number", label: "Baseline Degraded (km²)", format: ",.1f"},
           {name: "baseline_stable_sqkm", type: "number", label: "Baseline Stable (km²)", format: ",.1f"},
-          {name: "baseline_improved_sqkm", type: "number", label: "Baseline Improved (km²)", format: ",.1f"}
+          {name: "baseline_improved_sqkm", type: "number", label: "Baseline Improved (km²)", format: ",.1f"},
+          {name: "baseline_degraded_pct", type: "number", label: "Baseline Degraded (% of area)", format: ".1f"},
+          {name: "net_status_change_pct", type: "number", label: "Net Status Change (% of area)", format: ".1f"}
         ],
         chart_config: [
           {
@@ -1012,6 +1094,22 @@ module LdnSeeder
             aggregation: "sum"
           },
           {
+            id: "baseline-condition",
+            type: "columnsDonut",
+            title: "Baseline Land Condition (2000–2015)",
+            description: "Total land area by condition during the baseline period. Degraded, stable, and improved classes are derived from the SDG 15.3.1 baseline indicator.",
+            columns: BASELINE_CONDITION_COLUMNS,
+            aggregation: "sum"
+          },
+          {
+            id: "status-transition",
+            type: "columnsDonut",
+            title: "Land Status Transition (Baseline → 2023)",
+            description: "Total land area by 7-class SDG 15.3.1 status, showing how baseline condition evolved through 2023. Persistent classes stayed the same; recent classes changed direction; baseline classes reverted.",
+            columns: STATUS_TRANSITION_COLUMNS,
+            aggregation: "sum"
+          },
+          {
             id: "country-ldn-bar",
             type: "horizontalBar",
             title: "LDN Achievement by Country",
@@ -1020,6 +1118,29 @@ module LdnSeeder
             yAxis: {key: "country", fallback: "admin0_id", label: "Country"},
             colorBy: {key: "category", colors: CATEGORY_COLORS},
             sortBy: {key: "ldn_pct", order: "desc"},
+            topN: 10,
+            bottomN: 10,
+            unitIdColumn: "admin0_id"
+          },
+          {
+            id: "baseline-degradation-bar",
+            type: "horizontalBar",
+            title: "Baseline Degradation by Country",
+            description: "Percentage of country land area classified as degraded during the baseline period (2000–2015). Top 15 most degraded countries shown.",
+            xAxis: {key: "baseline_degraded_pct", label: "Baseline Degraded (% of area)"},
+            yAxis: {key: "country", fallback: "admin0_id", label: "Country"},
+            sortBy: {key: "baseline_degraded_pct", order: "desc"},
+            topN: 15,
+            unitIdColumn: "admin0_id"
+          },
+          {
+            id: "net-status-change-bar",
+            type: "horizontalBar",
+            title: "Net Status Change by Country (Baseline → 2023)",
+            description: "Net change in land status: (recent + persistent improvement) minus (persistent + recent degradation) as a percentage of total area. Top 10 most improving and bottom 10 most worsening countries shown.",
+            xAxis: {key: "net_status_change_pct", label: "Net Status Change (% of area)"},
+            yAxis: {key: "country", fallback: "admin0_id", label: "Country"},
+            sortBy: {key: "net_status_change_pct", order: "desc"},
             topN: 10,
             bottomN: 10,
             unitIdColumn: "admin0_id"
@@ -1064,7 +1185,15 @@ module LdnSeeder
             ROUND(SUM(s.status_7_persistent_improvement_sqkm)::numeric, 1) AS status_7_persistent_improvement_sqkm,
             ROUND(SUM(s.baseline_degraded_sqkm)::numeric, 1) AS baseline_degraded_sqkm,
             ROUND(SUM(s.baseline_stable_sqkm)::numeric, 1) AS baseline_stable_sqkm,
-            ROUND(SUM(s.baseline_improved_sqkm)::numeric, 1) AS baseline_improved_sqkm
+            ROUND(SUM(s.baseline_improved_sqkm)::numeric, 1) AS baseline_improved_sqkm,
+            CASE WHEN SUM(s.total_area_km2) > 0
+              THEN ROUND((SUM(s.baseline_degraded_sqkm) / SUM(s.total_area_km2) * 100)::numeric, 1)
+              ELSE 0 END AS baseline_degraded_pct,
+            CASE WHEN SUM(s.total_area_km2) > 0
+              THEN ROUND(((SUM(s.status_6_recent_improvement_sqkm) + SUM(s.status_7_persistent_improvement_sqkm)
+                          - SUM(s.status_1_persistent_degradation_sqkm) - SUM(s.status_2_recent_degradation_sqkm))
+                         / SUM(s.total_area_km2) * 100)::numeric, 1)
+              ELSE 0 END AS net_status_change_pct
           FROM _country_eco_stats s
           JOIN _eco_country_key k ON s.admin0_id = k.country_id AND s.eco_id = k.eco_id AND k.is_pa = 0
           GROUP BY k.country_id, k.country_code, k.country_name
@@ -1093,7 +1222,6 @@ module LdnSeeder
           {name: "losses_km2", type: "number", label: "Losses (km²)", format: ",.1f"},
           {name: "delta_ldn_km2", type: "number", label: "Net Change (km²)", format: ",.1f"},
           {name: "total_area_km2", type: "number", label: "Total Area (km²)", format: ",.1f"},
-          {name: "ldn_pct", type: "number", label: "LDN Achievement (%)", format: ".1f"},
           {name: "ldn_pct", type: "number", label: "LDN Achievement (%)", format: ".1f"},
           {name: "category", type: "category", label: "Category"},
           {name: "status_1_persistent_degradation_sqkm", type: "number", label: "Persistent Degradation (km²)", format: ",.1f"},

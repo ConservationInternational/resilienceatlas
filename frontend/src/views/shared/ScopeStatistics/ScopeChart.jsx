@@ -71,6 +71,8 @@ const ScopeChart = ({ config, data, schema, datasetSlug }) => {
       );
     case 'groupedBar':
       return <GroupedBarChart config={config} data={data} />;
+    case 'columnsDonut':
+      return <ColumnsDonutChart config={config} data={data} />;
     default:
       return null;
   }
@@ -402,6 +404,87 @@ const GroupedBarChart = ({ config, data }) => {
             <Bar key={b.key} dataKey={b.key} name={b.label} fill={b.color || DEFAULT_COLORS[0]} />
           ))}
         </BarChart>
+      </ResponsiveContainer>
+    </ChartWrapper>
+  );
+};
+
+/**
+ * ColumnsDonutChart — sums named columns across all rows and shows each as a
+ * donut segment.  Used for multi-column breakdowns like the 7-class SDG 15.3.1
+ * status transition or the 3-class baseline condition.
+ *
+ * Config shape:
+ *   columns: [{ key, label, color }]
+ *   aggregation: "sum" (default)
+ */
+const ColumnsDonutChart = ({ config, data }) => {
+  const { columns = [] } = config;
+
+  const pieData = useMemo(() => {
+    return columns.map((col) => {
+      const total = data.reduce((sum, row) => sum + (Number(row[col.key]) || 0), 0);
+      return { name: col.label || col.key, value: Math.round(total * 100) / 100, color: col.color };
+    });
+  }, [data, columns]);
+
+  const renderInsideLabel = useCallback(
+    ({ cx, cy, midAngle, innerRadius, outerRadius, percent }) => {
+      if (percent < 0.04) return null;
+      const RADIAN = Math.PI / 180;
+      const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
+      const x = cx + radius * Math.cos(-midAngle * RADIAN);
+      const y = cy + radius * Math.sin(-midAngle * RADIAN);
+      return (
+        <text
+          x={x}
+          y={y}
+          fill="#333"
+          textAnchor="middle"
+          dominantBaseline="central"
+          fontSize={11}
+          fontWeight={600}
+        >
+          {`${(percent * 100).toFixed(0)}%`}
+        </text>
+      );
+    },
+    [],
+  );
+
+  return (
+    <ChartWrapper title={config.title} description={config.description}>
+      <ResponsiveContainer width="100%" height={280}>
+        <PieChart>
+          <Pie
+            data={pieData}
+            dataKey="value"
+            nameKey="name"
+            cx="50%"
+            cy="50%"
+            innerRadius={45}
+            outerRadius={80}
+            label={renderInsideLabel}
+            labelLine={false}
+          >
+            {pieData.map((entry) => (
+              <Cell key={entry.name} fill={entry.color || DEFAULT_COLORS[0]} />
+            ))}
+          </Pie>
+          <Tooltip formatter={(value) => value.toLocaleString()} />
+          <Legend
+            layout="horizontal"
+            verticalAlign="bottom"
+            align="center"
+            wrapperStyle={{ fontSize: 11, paddingTop: 8 }}
+            formatter={(value) => {
+              const item = pieData.find((d) => d.name === value);
+              const total = pieData.reduce((sum, d) => sum + d.value, 0);
+              const pct = total > 0 && item ? ((item.value / total) * 100).toFixed(1) : '0';
+              return `${value} (${pct}%)`;
+            }}
+          />
+        </PieChart>
       </ResponsiveContainer>
     </ChartWrapper>
   );
