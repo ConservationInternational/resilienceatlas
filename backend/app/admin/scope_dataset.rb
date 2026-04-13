@@ -57,21 +57,16 @@ ActiveAdmin.register ScopeDataset do
       row :updated_at
     end
 
+    panel "Dimension Config" do
+      render "admin/shared/json_display", json: resource.dimension_config
+    end
+
     panel "Schema Config" do
-      if resource.schema_config.present?
-        table_for resource.schema_config do
-          column("Column") { |col| col["name"] }
-          column("Type") { |col| col["type"] }
-          column("Label") { |col| col["label"] }
-          column("Format") { |col| col["format"] }
-        end
-      else
-        para "No schema defined"
-      end
+      render "admin/shared/json_display", json: resource.schema_config
     end
 
     panel "Chart Config" do
-      pre JSON.pretty_generate(resource.chart_config)
+      render "admin/shared/json_display", json: resource.chart_config
     end
 
     panel "Data Preview (first 20 rows)" do
@@ -103,6 +98,11 @@ ActiveAdmin.register ScopeDataset do
       f.input :dimension, hint: "Dimension this dataset belongs to (e.g. 'ecoregion', 'country'). Used to group datasets into view modes with radio-button switching."
       f.input :variant_label, hint: "Human-readable label for this variant (e.g. 'JRC', 'FAO-WOCAT'). Shown in the variant selector dropdown."
       f.input :display_order
+    end
+
+    f.inputs "Dimension Config (JSON)" do
+      f.input :dimension_config, as: :text, input_html: {class: "json-editor-textarea", rows: 6},
+        hint: 'JSON object with dimension metadata: {"unit_label": "Ecoregion", "unit_id_column": "eco_id", "name_column": "ecoregion"}'
     end
 
     f.inputs "Schema Config (JSON)" do

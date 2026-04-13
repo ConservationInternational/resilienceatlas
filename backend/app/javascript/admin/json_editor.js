@@ -12,7 +12,10 @@ console.log('[JSON Editor] Script loaded');
     'textarea[name*="[layer_config]"]',
     'textarea[name*="[interaction_config]"]',
     'textarea[name*="[analysis_body]"]',
-    'textarea[name*="[analysis_query]"]'
+    'textarea[name*="[analysis_query]"]',
+    'textarea[name*="[schema_config]"]',
+    'textarea[name*="[chart_config]"]',
+    'textarea[name*="[dimension_config]"]'
   ];
 
   // Simple syntax highlighting colors
