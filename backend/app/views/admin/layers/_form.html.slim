@@ -176,23 +176,20 @@ css:
     min-height: 150px;
   }
 
+= render "admin/shared/json_editor_init"
+
 javascript:
   (function() {
-    // Toggle visibility based on checkbox state
+    // Toggle visibility based on checkbox state (layers-specific)
     function initCheckboxToggles() {
-      console.log('[Toggle] Initializing checkbox toggles');
-      // Handle analysis_suitable checkbox
       var analysisCheckbox = document.querySelector('input[type="checkbox"][name*="[analysis_suitable]"]');
-      console.log('[Toggle] Analysis checkbox:', analysisCheckbox, 'checked:', analysisCheckbox ? analysisCheckbox.checked : 'not found');
       if (analysisCheckbox) {
         toggleVisibility(analysisCheckbox, '.analysis-query-input');
         analysisCheckbox.addEventListener('change', function() {
           toggleVisibility(analysisCheckbox, '.analysis-query-input');
         });
       }
-      // Handle timeline checkbox
       var timelineCheckbox = document.querySelector('input[type="checkbox"][name*="[timeline]"]');
-      console.log('[Toggle] Timeline checkbox:', timelineCheckbox, 'checked:', timelineCheckbox ? timelineCheckbox.checked : 'not found');
       if (timelineCheckbox) {
         toggleVisibility(timelineCheckbox, '.timeline-query-input');
         timelineCheckbox.addEventListener('change', function() {
@@ -203,119 +200,14 @@ javascript:
     function toggleVisibility(checkbox, targetSelector) {
       var elements = document.querySelectorAll(targetSelector);
       var isChecked = checkbox.checked;
-      console.log('[Toggle] Setting visibility for', targetSelector, 'isChecked:', isChecked, 'found elements:', elements.length);
       elements.forEach(function(el) {
-        if (isChecked) {
-          el.style.display = '';
-        } else {
-          el.style.display = 'none';
-        }
+        el.style.display = isChecked ? '' : 'none';
       });
-    }
-    function initJsonEditors() {
-      var textareas = document.querySelectorAll('textarea.json-editor-textarea');
-      console.log('[JSON Editor] Found ' + textareas.length + ' textareas');
-      textareas.forEach(function(textarea) {
-        if (textarea.dataset.jsonEditorInitialized) return;
-        textarea.dataset.jsonEditorInitialized = 'true';
-        setupJsonEditor(textarea);
-      });
-    }
-    function setupJsonEditor(textarea) {
-      var wrapper = document.createElement('div');
-      wrapper.className = 'json-editor-wrapper';
-      textarea.parentNode.insertBefore(wrapper, textarea);
-      wrapper.appendChild(textarea);
-      var toolbar = document.createElement('div');
-      toolbar.className = 'json-editor-toolbar';
-      toolbar.style.cssText = 'margin-bottom: 5px; display: flex; gap: 5px; align-items: center;';
-      var formatBtn = document.createElement('button');
-      formatBtn.type = 'button';
-      formatBtn.textContent = 'Format JSON';
-      formatBtn.style.cssText = 'padding: 4px 8px; font-size: 11px; cursor: pointer; background: #5E6469; color: white; border: none; border-radius: 3px;';
-      var statusEl = document.createElement('span');
-      statusEl.style.cssText = 'margin-left: 10px; font-size: 11px;';
-      formatBtn.onclick = function(e) {
-        e.preventDefault();
-        try {
-          var obj = JSON.parse(textarea.value);
-          textarea.value = JSON.stringify(obj, null, 2);
-          statusEl.textContent = 'Formatted!';
-          statusEl.style.color = 'green';
-        } catch (err) {
-          statusEl.textContent = 'Invalid JSON: ' + err.message;
-          statusEl.style.color = 'red';
-        }
-      };
-      toolbar.appendChild(formatBtn);
-      var minifyBtn = document.createElement('button');
-      minifyBtn.type = 'button';
-      minifyBtn.textContent = 'Minify';
-      minifyBtn.style.cssText = 'padding: 4px 8px; font-size: 11px; cursor: pointer; background: #5E6469; color: white; border: none; border-radius: 3px;';
-      minifyBtn.onclick = function(e) {
-        e.preventDefault();
-        try {
-          var obj = JSON.parse(textarea.value);
-          textarea.value = JSON.stringify(obj);
-          statusEl.textContent = 'Minified!';
-          statusEl.style.color = 'green';
-        } catch (err) {
-          statusEl.textContent = 'Invalid JSON: ' + err.message;
-          statusEl.style.color = 'red';
-        }
-      };
-      toolbar.appendChild(minifyBtn);
-      var validateBtn = document.createElement('button');
-      validateBtn.type = 'button';
-      validateBtn.textContent = 'Validate';
-      validateBtn.style.cssText = 'padding: 4px 8px; font-size: 11px; cursor: pointer; background: #5E6469; color: white; border: none; border-radius: 3px;';
-      validateBtn.onclick = function(e) {
-        e.preventDefault();
-        try {
-          JSON.parse(textarea.value);
-          statusEl.textContent = 'Valid JSON';
-          statusEl.style.color = 'green';
-        } catch (err) {
-          statusEl.textContent = err.message;
-          statusEl.style.color = 'red';
-        }
-      };
-      toolbar.appendChild(validateBtn);
-      toolbar.appendChild(statusEl);
-      wrapper.insertBefore(toolbar, textarea);
-      textarea.addEventListener('input', function() {
-        var value = textarea.value.trim();
-        if (!value) { statusEl.textContent = ''; return; }
-        try {
-          JSON.parse(value);
-          statusEl.textContent = 'Valid';
-          statusEl.style.color = 'green';
-        } catch (err) {
-          statusEl.textContent = 'Invalid';
-          statusEl.style.color = 'red';
-        }
-      });
-      try {
-        if (textarea.value.trim()) {
-          var obj = JSON.parse(textarea.value);
-          textarea.value = JSON.stringify(obj, null, 2);
-        }
-      } catch (e) {}
     }
     if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', function() {
-        initCheckboxToggles();
-        initJsonEditors();
-      });
+      document.addEventListener('DOMContentLoaded', initCheckboxToggles);
     } else {
-      // Use setTimeout to ensure checkboxes have their checked state set
-      setTimeout(function() {
-        initCheckboxToggles();
-        initJsonEditors();
-      }, 0);
+      setTimeout(initCheckboxToggles, 0);
     }
-    // Also run on window load as a fallback
-    window.addEventListener('load', function() {
-      initCheckboxToggles();
-    });
+    window.addEventListener('load', initCheckboxToggles);
   })();

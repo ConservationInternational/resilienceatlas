@@ -1,0 +1,105 @@
+/ Shared inline JSON editor initialization for ActiveAdmin form textareas.
+/ Adds Format JSON, Minify, and Validate buttons to any textarea with class "json-editor-textarea".
+/ Render this partial from any admin form that has JSON fields:
+/   = render "admin/shared/json_editor_init"
+
+javascript:
+  (function() {
+    if (window.__jsonEditorInlineLoaded) return;
+    window.__jsonEditorInlineLoaded = true;
+    function initJsonEditors() {
+      var textareas = document.querySelectorAll('textarea.json-editor-textarea');
+      textareas.forEach(function(textarea) {
+        if (textarea.dataset.jsonEditorInitialized) return;
+        textarea.dataset.jsonEditorInitialized = 'true';
+        setupJsonEditor(textarea);
+      });
+    }
+    function setupJsonEditor(textarea) {
+      var wrapper = document.createElement('div');
+      wrapper.className = 'json-editor-wrapper';
+      textarea.parentNode.insertBefore(wrapper, textarea);
+      wrapper.appendChild(textarea);
+      var toolbar = document.createElement('div');
+      toolbar.className = 'json-editor-toolbar';
+      toolbar.style.cssText = 'margin-bottom: 5px; display: flex; gap: 5px; align-items: center;';
+      var statusEl = document.createElement('span');
+      statusEl.style.cssText = 'margin-left: 10px; font-size: 11px;';
+      var formatBtn = document.createElement('button');
+      formatBtn.type = 'button';
+      formatBtn.textContent = 'Format JSON';
+      formatBtn.style.cssText = 'padding: 4px 8px; font-size: 11px; cursor: pointer; background: #5E6469; color: white; border: none; border-radius: 3px;';
+      formatBtn.onclick = function(e) {
+        e.preventDefault();
+        try {
+          var obj = JSON.parse(textarea.value);
+          textarea.value = JSON.stringify(obj, null, 2);
+          statusEl.textContent = 'Formatted!';
+          statusEl.style.color = 'green';
+        } catch (err) {
+          statusEl.textContent = 'Invalid JSON: ' + err.message;
+          statusEl.style.color = 'red';
+        }
+      };
+      toolbar.appendChild(formatBtn);
+      var minifyBtn = document.createElement('button');
+      minifyBtn.type = 'button';
+      minifyBtn.textContent = 'Minify';
+      minifyBtn.style.cssText = 'padding: 4px 8px; font-size: 11px; cursor: pointer; background: #5E6469; color: white; border: none; border-radius: 3px;';
+      minifyBtn.onclick = function(e) {
+        e.preventDefault();
+        try {
+          var obj = JSON.parse(textarea.value);
+          textarea.value = JSON.stringify(obj);
+          statusEl.textContent = 'Minified!';
+          statusEl.style.color = 'green';
+        } catch (err) {
+          statusEl.textContent = 'Invalid JSON: ' + err.message;
+          statusEl.style.color = 'red';
+        }
+      };
+      toolbar.appendChild(minifyBtn);
+      var validateBtn = document.createElement('button');
+      validateBtn.type = 'button';
+      validateBtn.textContent = 'Validate';
+      validateBtn.style.cssText = 'padding: 4px 8px; font-size: 11px; cursor: pointer; background: #5E6469; color: white; border: none; border-radius: 3px;';
+      validateBtn.onclick = function(e) {
+        e.preventDefault();
+        try {
+          JSON.parse(textarea.value);
+          statusEl.textContent = 'Valid JSON';
+          statusEl.style.color = 'green';
+        } catch (err) {
+          statusEl.textContent = err.message;
+          statusEl.style.color = 'red';
+        }
+      };
+      toolbar.appendChild(validateBtn);
+      toolbar.appendChild(statusEl);
+      wrapper.insertBefore(toolbar, textarea);
+      textarea.addEventListener('input', function() {
+        var value = textarea.value.trim();
+        if (!value) { statusEl.textContent = ''; return; }
+        try {
+          JSON.parse(value);
+          statusEl.textContent = 'Valid';
+          statusEl.style.color = 'green';
+        } catch (err) {
+          statusEl.textContent = 'Invalid';
+          statusEl.style.color = 'red';
+        }
+      });
+      try {
+        if (textarea.value.trim()) {
+          var obj = JSON.parse(textarea.value);
+          textarea.value = JSON.stringify(obj, null, 2);
+        }
+      } catch (e) {}
+    }
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initJsonEditors);
+    } else {
+      setTimeout(initJsonEditors, 0);
+    }
+    window.addEventListener('load', initJsonEditors);
+  })();

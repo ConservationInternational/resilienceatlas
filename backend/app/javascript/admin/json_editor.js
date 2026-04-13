@@ -291,11 +291,15 @@ console.log('[JSON Editor] Script loaded');
     };
   }
 
+  // Expose globally so form partials can trigger initialization reliably
+  window.initJsonEditors = initJsonEditors;
+
   // Initialize on various page load events
   document.addEventListener('DOMContentLoaded', initJsonEditors);
   document.addEventListener('turbolinks:load', initJsonEditors);
   document.addEventListener('turbo:load', initJsonEditors);
   document.addEventListener('turbo:render', initJsonEditors);
+  window.addEventListener('load', initJsonEditors);
   
   // Also initialize after a delay for dynamic content
   if (document.readyState !== 'loading') {
