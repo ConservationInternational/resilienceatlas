@@ -1517,6 +1517,36 @@ module LdnSeeder
         )
       SQL
       copy_csv_to_table(conn, "_eco_stats", eco_stats_csv)
+
+      # Recompute total_area_km2 from the 7 status columns.  Older CSVs
+      # (generated before the algorithm fix) wrote change_area into
+      # total_area_km2; recomputing from status columns is always correct.
+      conn.execute(<<~SQL)
+        UPDATE _eco_stats SET
+          total_area_km2 = COALESCE(status_1_persistent_degradation_sqkm, 0)
+                         + COALESCE(status_2_recent_degradation_sqkm, 0)
+                         + COALESCE(status_3_baseline_degradation_sqkm, 0)
+                         + COALESCE(status_4_stability_sqkm, 0)
+                         + COALESCE(status_5_baseline_improvement_sqkm, 0)
+                         + COALESCE(status_6_recent_improvement_sqkm, 0)
+                         + COALESCE(status_7_persistent_improvement_sqkm, 0),
+          ldn_pct = CASE
+            WHEN (COALESCE(status_1_persistent_degradation_sqkm, 0)
+                + COALESCE(status_2_recent_degradation_sqkm, 0)
+                + COALESCE(status_3_baseline_degradation_sqkm, 0)
+                + COALESCE(status_4_stability_sqkm, 0)
+                + COALESCE(status_5_baseline_improvement_sqkm, 0)
+                + COALESCE(status_6_recent_improvement_sqkm, 0)
+                + COALESCE(status_7_persistent_improvement_sqkm, 0)) > 0
+            THEN delta_ldn_km2 / (COALESCE(status_1_persistent_degradation_sqkm, 0)
+                + COALESCE(status_2_recent_degradation_sqkm, 0)
+                + COALESCE(status_3_baseline_degradation_sqkm, 0)
+                + COALESCE(status_4_stability_sqkm, 0)
+                + COALESCE(status_5_baseline_improvement_sqkm, 0)
+                + COALESCE(status_6_recent_improvement_sqkm, 0)
+                + COALESCE(status_7_persistent_improvement_sqkm, 0)) * 100
+            ELSE 0 END
+      SQL
       puts "  Imported _eco_stats: #{conn.select_value("SELECT count(*) FROM _eco_stats")} rows"
 
       # Country-ecoregion stats (comma-delimited)
@@ -1545,6 +1575,34 @@ module LdnSeeder
           )
         SQL
         copy_csv_to_table(conn, "_country_eco_stats", country_eco_stats_csv)
+
+        # Recompute total_area_km2 from the 7 status columns (same fix as _eco_stats)
+        conn.execute(<<~SQL)
+          UPDATE _country_eco_stats SET
+            total_area_km2 = COALESCE(status_1_persistent_degradation_sqkm, 0)
+                           + COALESCE(status_2_recent_degradation_sqkm, 0)
+                           + COALESCE(status_3_baseline_degradation_sqkm, 0)
+                           + COALESCE(status_4_stability_sqkm, 0)
+                           + COALESCE(status_5_baseline_improvement_sqkm, 0)
+                           + COALESCE(status_6_recent_improvement_sqkm, 0)
+                           + COALESCE(status_7_persistent_improvement_sqkm, 0),
+            ldn_pct = CASE
+              WHEN (COALESCE(status_1_persistent_degradation_sqkm, 0)
+                  + COALESCE(status_2_recent_degradation_sqkm, 0)
+                  + COALESCE(status_3_baseline_degradation_sqkm, 0)
+                  + COALESCE(status_4_stability_sqkm, 0)
+                  + COALESCE(status_5_baseline_improvement_sqkm, 0)
+                  + COALESCE(status_6_recent_improvement_sqkm, 0)
+                  + COALESCE(status_7_persistent_improvement_sqkm, 0)) > 0
+              THEN delta_ldn_km2 / (COALESCE(status_1_persistent_degradation_sqkm, 0)
+                  + COALESCE(status_2_recent_degradation_sqkm, 0)
+                  + COALESCE(status_3_baseline_degradation_sqkm, 0)
+                  + COALESCE(status_4_stability_sqkm, 0)
+                  + COALESCE(status_5_baseline_improvement_sqkm, 0)
+                  + COALESCE(status_6_recent_improvement_sqkm, 0)
+                  + COALESCE(status_7_persistent_improvement_sqkm, 0)) * 100
+              ELSE 0 END
+        SQL
         puts "  Imported _country_eco_stats: #{conn.select_value("SELECT count(*) FROM _country_eco_stats")} rows"
       end
     end
