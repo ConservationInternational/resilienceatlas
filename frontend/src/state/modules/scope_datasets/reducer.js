@@ -4,6 +4,7 @@ import {
   LOAD_DETAIL,
   SET_HIGHLIGHT,
   CLEAR_HIGHLIGHT,
+  SET_HIGHLIGHT_BOUNDS,
   SET_ACTIVE_VARIANT,
   SET_ACTIVE_DIMENSION,
   SET_SPATIAL_FILTER,
@@ -42,6 +43,7 @@ const initialState = {
   loaded: false,
   error: null,
   highlight: null,
+  highlightBounds: null,
   detailLoading: {},
   activeVariant: null,
   activeDimension: null,
@@ -98,13 +100,26 @@ export default createReducer(initialState)({
     detailLoading: { ...state.detailLoading, [meta?.slug]: false },
   }),
 
-  [SET_HIGHLIGHT]: (state, { datasetSlug, unitId }) => ({
-    ...state,
-    highlight: { datasetSlug, unitId },
-  }),
+  [SET_HIGHLIGHT]: (state, { datasetSlug, unitId }) => {
+    // Toggle: if clicking the same row, clear the highlight
+    if (
+      state.highlight &&
+      state.highlight.datasetSlug === datasetSlug &&
+      state.highlight.unitId === unitId
+    ) {
+      return { ...state, highlight: null, highlightBounds: null };
+    }
+    return { ...state, highlight: { datasetSlug, unitId }, highlightBounds: null };
+  },
   [CLEAR_HIGHLIGHT]: (state) => ({
     ...state,
     highlight: null,
+    highlightBounds: null,
+  }),
+
+  [SET_HIGHLIGHT_BOUNDS]: (state, { bounds }) => ({
+    ...state,
+    highlightBounds: bounds,
   }),
 
   [SET_ACTIVE_VARIANT]: (state, { variant }) => ({

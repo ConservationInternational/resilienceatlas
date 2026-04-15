@@ -15,6 +15,7 @@ import {
   getLoaded,
   getDatasets,
   getHighlight,
+  getHighlightBounds,
   getActiveVariant,
   getActiveDimension,
   getSpatialFilter,
@@ -60,6 +61,7 @@ const ScopeGeometryLayer = ({ map }) => {
   const loaded = useSelector(getLoaded);
   const datasets = useSelector(getDatasets);
   const highlight = useSelector(getHighlight);
+  const highlightBounds = useSelector(getHighlightBounds);
   const activeVariant = useSelector(getActiveVariant);
   const activeDimension = useSelector(getActiveDimension);
   const spatialFilter = useSelector(getSpatialFilter);
@@ -218,6 +220,19 @@ const ScopeGeometryLayer = ({ map }) => {
       }
     });
   }, [highlight, spatialFilter]);
+
+  // Zoom the map to the highlighted polygon's bounding box
+  useEffect(() => {
+    if (!map || !highlightBounds || !L) return;
+    try {
+      const bounds = L.latLngBounds(highlightBounds);
+      if (bounds.isValid()) {
+        map.flyToBounds(bounds, { padding: [40, 40], maxZoom: 13, duration: 0.8 });
+      }
+    } catch {
+      /* invalid bounds — ignore */
+    }
+  }, [map, highlightBounds, L]);
 
   return null;
 };

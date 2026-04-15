@@ -17,7 +17,7 @@ import {
   Legend,
 } from 'recharts';
 
-import { setHighlight, getHighlight } from 'state/modules/scope_datasets';
+import { setHighlight, getHighlight, fetchGeometryBounds } from 'state/modules/scope_datasets';
 
 const DEFAULT_COLORS = ['#2ecc71', '#f39c12', '#e74c3c', '#3498db', '#9b59b6', '#1abc9c'];
 
@@ -38,10 +38,17 @@ const ScopeChart = ({ config, data, schema, datasetSlug }) => {
       const row = entry.payload || entry;
       const unitId = row[config.unitIdColumn];
       if (unitId != null) {
-        dispatch(setHighlight(datasetSlug, String(unitId)));
+        const unitIdStr = String(unitId);
+        dispatch(setHighlight(datasetSlug, unitIdStr));
+        // Fetch bounds to zoom the map (toggle-off is handled by the reducer)
+        const isAlreadyHighlighted =
+          highlight?.datasetSlug === datasetSlug && highlight?.unitId === unitIdStr;
+        if (!isAlreadyHighlighted) {
+          dispatch(fetchGeometryBounds(datasetSlug, unitIdStr));
+        }
       }
     },
-    [dispatch, datasetSlug, config.unitIdColumn],
+    [dispatch, datasetSlug, config.unitIdColumn, highlight],
   );
 
   switch (config.type) {

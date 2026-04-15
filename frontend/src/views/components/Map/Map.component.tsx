@@ -232,7 +232,9 @@ const MapView = (props: MapViewProps) => {
               'https://api.mapbox.com/styles/v1/cigrp',
             ) ||
             // to avoid displaying loading state when the user interacts with the map (click on a layer)
-            Object.prototype.hasOwnProperty.call(layer, '_content')
+            Object.prototype.hasOwnProperty.call(layer, '_content') ||
+            // Skip VectorGrid layers (scope geometry) — they manage their own lifecycle
+            Object.prototype.hasOwnProperty.call(layer, '_vectorTiles')
           )
             return;
           onLayerLoading(true);

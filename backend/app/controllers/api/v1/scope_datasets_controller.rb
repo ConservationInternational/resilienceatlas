@@ -2,7 +2,7 @@ module Api
   module V1
     class ScopeDatasetsController < ApiController
       include SitesFilters
-      skip_before_action :check_site_scope_authentication, only: [:index, :show, :intersecting_units]
+      skip_before_action :check_site_scope_authentication, only: [:index, :show, :intersecting_units, :geometry_bounds]
 
       def index
         datasets = ScopeDataset.for_site_scope(params[:site_scope])
@@ -25,6 +25,52 @@ module Api
         )
         expires_in 1.hour, public: true, stale_while_revalidate: 5.minutes
         render json: dataset, serializer: ScopeDatasetDetailSerializer
+      end
+
+      def geometry_bounds
+        unless geometry_table_exists?
+          render json: {error: "Geometry table not available"}, status: :not_found
+          return
+        end
+
+        dataset = ScopeDataset.find_by!(
+          site_scope_id: params[:site_scope],
+          slug: params[:slug]
+        )
+
+        unit_id = params[:unit_id]
+        unless unit_id.present?
+          render json: {error: "unit_id parameter is required"}, status: :unprocessable_entity
+          return
+        end
+
+        result = ActiveRecord::Base.connection.select_one(
+          ActiveRecord::Base.sanitize_sql_array([<<~SQL, dataset.id, unit_id.to_s])
+            SELECT
+              ST_XMin(ext) AS west,
+              ST_YMin(ext) AS south,
+              ST_XMax(ext) AS east,
+              ST_YMax(ext) AS north
+            FROM (
+              SELECT ST_Extent(geom) AS ext
+              FROM scope_dataset_geometries
+              WHERE scope_dataset_id = ? AND unit_id = ?
+            ) sub
+          SQL
+        )
+
+        unless result && result["west"]
+          render json: {error: "Geometry not found"}, status: :not_found
+          return
+        end
+
+        expires_in 1.day, public: true, stale_while_revalidate: 1.hour
+        render json: {
+          bounds: [
+            [result["south"].to_f, result["west"].to_f],
+            [result["north"].to_f, result["east"].to_f]
+          ]
+        }
       end
 
       def intersecting_units

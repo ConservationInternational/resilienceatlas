@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { T } from '@transifex/react';
 import { List } from 'react-window';
 
-import { setHighlight, getHighlight } from 'state/modules/scope_datasets';
+import { setHighlight, getHighlight, fetchGeometryBounds } from 'state/modules/scope_datasets';
 import CategoryBadge from './CategoryBadge';
 
 const ROW_HEIGHT = 32;
@@ -121,10 +121,17 @@ const ScopeDataTable = ({ config, data, schema, datasetSlug }) => {
       if (!unitIdColumn) return;
       const unitId = row[unitIdColumn];
       if (unitId != null) {
-        dispatch(setHighlight(datasetSlug, String(unitId)));
+        const unitIdStr = String(unitId);
+        dispatch(setHighlight(datasetSlug, unitIdStr));
+        // Fetch bounds to zoom the map (toggle-off is handled by the reducer)
+        const isAlreadyHighlighted =
+          highlight?.datasetSlug === datasetSlug && highlight?.unitId === unitIdStr;
+        if (!isAlreadyHighlighted) {
+          dispatch(fetchGeometryBounds(datasetSlug, unitIdStr));
+        }
       }
     },
-    [dispatch, datasetSlug, unitIdColumn],
+    [dispatch, datasetSlug, unitIdColumn, highlight],
   );
 
   const formatValue = useCallback((value, col) => {

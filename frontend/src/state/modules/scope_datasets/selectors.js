@@ -7,6 +7,7 @@ export const getBySlug = createSelector(getSlice, (s) => s.bySlug);
 export const getLoading = createSelector(getSlice, (s) => s.loading);
 export const getLoaded = createSelector(getSlice, (s) => s.loaded);
 export const getHighlight = createSelector(getSlice, (s) => s.highlight);
+export const getHighlightBounds = createSelector(getSlice, (s) => s.highlightBounds);
 export const getDetailLoading = createSelector(getSlice, (s) => s.detailLoading);
 export const getActiveVariant = createSelector(getSlice, (s) => s.activeVariant);
 export const getActiveDimension = createSelector(getSlice, (s) => s.activeDimension);
