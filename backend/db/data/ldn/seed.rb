@@ -842,28 +842,30 @@ module LdnSeeder
 
     # LDN achievement category colours shared by all chart configs.
     CATEGORY_COLORS = {
-      "Exceeding" => "#2ecc71",
-      "Achieving" => "#f39c12",
+      "Achieving" => "#2ecc71",
       "Not achieving" => "#e74c3c"
     }.freeze
 
-    # Column definitions for the 7-class SDG 15.3.1 status transition donut chart.
-    STATUS_TRANSITION_COLUMNS = [
-      {key: "status_1_persistent_degradation_sqkm", label: "Persistent Degradation", color: "#762a83"},
-      {key: "status_2_recent_degradation_sqkm", label: "Recent Degradation", color: "#af8dc3"},
-      {key: "status_3_baseline_degradation_sqkm", label: "Baseline Degradation", color: "#e7d4e8"},
-      {key: "status_4_stability_sqkm", label: "Stability", color: "#c8c8c8"},
-      {key: "status_5_baseline_improvement_sqkm", label: "Baseline Improvement", color: "#d9f0d3"},
-      {key: "status_6_recent_improvement_sqkm", label: "Recent Improvement", color: "#7fbf7b"},
-      {key: "status_7_persistent_improvement_sqkm", label: "Persistent Improvement", color: "#1b7837"}
-    ].freeze
+    # 3-class land condition colours (baseline / period breakdowns).
+    CONDITION_COLORS = {
+      "Degraded" => "#e74c3c",
+      "Stable" => "#f39c12",
+      "Improved" => "#2ecc71"
+    }.freeze
 
-    # Column definitions for the baseline condition (degraded / stable / improved) donut chart.
-    BASELINE_CONDITION_COLUMNS = [
-      {key: "baseline_degraded_sqkm", label: "Degraded", color: "#9b2779"},
-      {key: "baseline_stable_sqkm", label: "Stable", color: "#c8c8c8"},
-      {key: "baseline_improved_sqkm", label: "Improved", color: "#006500"}
-    ].freeze
+    # 9-cell transition matrix colours (baseline → period).
+    TRANSITION_COLORS = {
+      "Degraded → Degraded" => "#c0392b",
+      "Degraded → Stable" => "#e67e22",
+      "Degraded → Improved" => "#27ae60",
+      "Stable → Degraded" => "#d35400",
+      "Stable → Stable" => "#f1c40f",
+      "Stable → Improved" => "#2ecc71",
+      "Improved → Degraded" => "#e74c3c",
+      "Improved → Stable" => "#f9e79f",
+      "Improved → Improved" => "#1e8449"
+    }.freeze
+
 
     # Methodology variants — S3 folder name → human label.
     SCOPE_DATASET_VARIANTS = {
@@ -901,18 +903,21 @@ module LdnSeeder
           {name: "losses_pct", type: "number", label: "Losses (% of area)", format: ".1f"},
           {name: "ldn_pct", type: "number", label: "LDN Achievement (%)", format: ".1f"},
           {name: "category", type: "category", label: "Category"},
-          {name: "status_1_persistent_degradation_sqkm", type: "number", label: "Persistent Degradation (km²)", format: ",.1f"},
-          {name: "status_2_recent_degradation_sqkm", type: "number", label: "Recent Degradation (km²)", format: ",.1f"},
-          {name: "status_3_baseline_degradation_sqkm", type: "number", label: "Baseline Degradation (km²)", format: ",.1f"},
-          {name: "status_4_stability_sqkm", type: "number", label: "Stability (km²)", format: ",.1f"},
-          {name: "status_5_baseline_improvement_sqkm", type: "number", label: "Baseline Improvement (km²)", format: ",.1f"},
-          {name: "status_6_recent_improvement_sqkm", type: "number", label: "Recent Improvement (km²)", format: ",.1f"},
-          {name: "status_7_persistent_improvement_sqkm", type: "number", label: "Persistent Improvement (km²)", format: ",.1f"},
           {name: "baseline_degraded_sqkm", type: "number", label: "Baseline Degraded (km²)", format: ",.1f"},
           {name: "baseline_stable_sqkm", type: "number", label: "Baseline Stable (km²)", format: ",.1f"},
           {name: "baseline_improved_sqkm", type: "number", label: "Baseline Improved (km²)", format: ",.1f"},
-          {name: "baseline_degraded_pct", type: "number", label: "Baseline Degraded (% of area)", format: ".1f"},
-          {name: "net_status_change_pct", type: "number", label: "Net Status Change (% of area)", format: ".1f"}
+          {name: "period_degraded_sqkm", type: "number", label: "Period Degraded (km²)", format: ",.1f"},
+          {name: "period_stable_sqkm", type: "number", label: "Period Stable (km²)", format: ",.1f"},
+          {name: "period_improved_sqkm", type: "number", label: "Period Improved (km²)", format: ",.1f"},
+          {name: "deg_to_deg_sqkm", type: "number", label: "Degraded → Degraded (km²)", format: ",.1f"},
+          {name: "deg_to_stable_sqkm", type: "number", label: "Degraded → Stable (km²)", format: ",.1f"},
+          {name: "deg_to_imp_sqkm", type: "number", label: "Degraded → Improved (km²)", format: ",.1f"},
+          {name: "stable_to_deg_sqkm", type: "number", label: "Stable → Degraded (km²)", format: ",.1f"},
+          {name: "stable_to_stable_sqkm", type: "number", label: "Stable → Stable (km²)", format: ",.1f"},
+          {name: "stable_to_imp_sqkm", type: "number", label: "Stable → Improved (km²)", format: ",.1f"},
+          {name: "imp_to_deg_sqkm", type: "number", label: "Improved → Degraded (km²)", format: ",.1f"},
+          {name: "imp_to_stable_sqkm", type: "number", label: "Improved → Stable (km²)", format: ",.1f"},
+          {name: "imp_to_imp_sqkm", type: "number", label: "Improved → Improved (km²)", format: ",.1f"}
         ],
         chart_config: [
           {
@@ -936,22 +941,6 @@ module LdnSeeder
             aggregation: "sum"
           },
           {
-            id: "baseline-condition",
-            type: "columnsDonut",
-            title: "Baseline Land Condition (2000–2015)",
-            description: "Total land area by condition during the baseline period. Degraded, stable, and improved classes are derived from the SDG 15.3.1 baseline indicator.",
-            columns: BASELINE_CONDITION_COLUMNS,
-            aggregation: "sum"
-          },
-          {
-            id: "status-transition",
-            type: "columnsDonut",
-            title: "Land Status Transition (Baseline → 2023)",
-            description: "Total land area by 7-class SDG 15.3.1 status, showing how baseline condition evolved through 2023. Persistent classes stayed the same; recent classes changed direction; baseline classes reverted.",
-            columns: STATUS_TRANSITION_COLUMNS,
-            aggregation: "sum"
-          },
-          {
             id: "ecoregion-ldn-bar",
             type: "horizontalBar",
             title: "LDN Achievement by Ecoregion",
@@ -960,29 +949,6 @@ module LdnSeeder
             yAxis: {key: "ecoregion", fallback: "eco_id", label: "Ecoregion"},
             colorBy: {key: "category", colors: CATEGORY_COLORS},
             sortBy: {key: "ldn_pct", order: "desc"},
-            topN: 10,
-            bottomN: 10,
-            unitIdColumn: "eco_id"
-          },
-          {
-            id: "baseline-degradation-bar",
-            type: "horizontalBar",
-            title: "Baseline Degradation by Ecoregion",
-            description: "Percentage of ecoregion land area classified as degraded during the baseline period (2000–2015). Top 15 most degraded ecoregions shown.",
-            xAxis: {key: "baseline_degraded_pct", label: "Baseline Degraded (% of area)"},
-            yAxis: {key: "ecoregion", fallback: "eco_id", label: "Ecoregion"},
-            sortBy: {key: "baseline_degraded_pct", order: "desc"},
-            topN: 15,
-            unitIdColumn: "eco_id"
-          },
-          {
-            id: "net-status-change-bar",
-            type: "horizontalBar",
-            title: "Net Status Change by Ecoregion (Baseline → 2023)",
-            description: "Net change in land status: (recent + persistent improvement) minus (persistent + recent degradation) as a percentage of total area. Top 10 most improving and bottom 10 most worsening ecoregions shown.",
-            xAxis: {key: "net_status_change_pct", label: "Net Status Change (% of area)"},
-            yAxis: {key: "ecoregion", fallback: "eco_id", label: "Ecoregion"},
-            sortBy: {key: "net_status_change_pct", order: "desc"},
             topN: 10,
             bottomN: 10,
             unitIdColumn: "eco_id"
@@ -998,6 +964,45 @@ module LdnSeeder
             colorBy: {key: "category", colors: CATEGORY_COLORS},
             unitIdColumn: "eco_id",
             labelKey: "ecoregion"
+          },
+          {
+            id: "baseline-condition-donut",
+            type: "columnsDonut",
+            title: "Baseline Land Condition (2000-2015)",
+            description: "Total area by land condition class in the baseline period.",
+            columns: [
+              {key: "baseline_degraded_sqkm", label: "Degraded", color: CONDITION_COLORS["Degraded"]},
+              {key: "baseline_stable_sqkm", label: "Stable", color: CONDITION_COLORS["Stable"]},
+              {key: "baseline_improved_sqkm", label: "Improved", color: CONDITION_COLORS["Improved"]}
+            ]
+          },
+          {
+            id: "period-condition-donut",
+            type: "columnsDonut",
+            title: "Current Land Condition (2008-2023)",
+            description: "Total area by land condition class in the most recent assessment period.",
+            columns: [
+              {key: "period_degraded_sqkm", label: "Degraded", color: CONDITION_COLORS["Degraded"]},
+              {key: "period_stable_sqkm", label: "Stable", color: CONDITION_COLORS["Stable"]},
+              {key: "period_improved_sqkm", label: "Improved", color: CONDITION_COLORS["Improved"]}
+            ]
+          },
+          {
+            id: "transition-matrix-donut",
+            type: "columnsDonut",
+            title: "Baseline → Period Transitions",
+            description: "Total area for each of the nine baseline-to-period transition classes.",
+            columns: [
+              {key: "deg_to_deg_sqkm", label: "Degraded → Degraded", color: TRANSITION_COLORS["Degraded → Degraded"]},
+              {key: "deg_to_stable_sqkm", label: "Degraded → Stable", color: TRANSITION_COLORS["Degraded → Stable"]},
+              {key: "deg_to_imp_sqkm", label: "Degraded → Improved", color: TRANSITION_COLORS["Degraded → Improved"]},
+              {key: "stable_to_deg_sqkm", label: "Stable → Degraded", color: TRANSITION_COLORS["Stable → Degraded"]},
+              {key: "stable_to_stable_sqkm", label: "Stable → Stable", color: TRANSITION_COLORS["Stable → Stable"]},
+              {key: "stable_to_imp_sqkm", label: "Stable → Improved", color: TRANSITION_COLORS["Stable → Improved"]},
+              {key: "imp_to_deg_sqkm", label: "Improved → Degraded", color: TRANSITION_COLORS["Improved → Degraded"]},
+              {key: "imp_to_stable_sqkm", label: "Improved → Stable", color: TRANSITION_COLORS["Improved → Stable"]},
+              {key: "imp_to_imp_sqkm", label: "Improved → Improved", color: TRANSITION_COLORS["Improved → Improved"]}
+            ]
           }
         ],
         sql: <<~SQL,
@@ -1014,24 +1019,21 @@ module LdnSeeder
               ELSE 0 END AS losses_pct,
             ROUND(s.ldn_pct::numeric, 1) AS ldn_pct,
             s.category,
-            ROUND(s.status_1_persistent_degradation_sqkm::numeric, 1) AS status_1_persistent_degradation_sqkm,
-            ROUND(s.status_2_recent_degradation_sqkm::numeric, 1) AS status_2_recent_degradation_sqkm,
-            ROUND(s.status_3_baseline_degradation_sqkm::numeric, 1) AS status_3_baseline_degradation_sqkm,
-            ROUND(s.status_4_stability_sqkm::numeric, 1) AS status_4_stability_sqkm,
-            ROUND(s.status_5_baseline_improvement_sqkm::numeric, 1) AS status_5_baseline_improvement_sqkm,
-            ROUND(s.status_6_recent_improvement_sqkm::numeric, 1) AS status_6_recent_improvement_sqkm,
-            ROUND(s.status_7_persistent_improvement_sqkm::numeric, 1) AS status_7_persistent_improvement_sqkm,
-            ROUND(s.baseline_degraded_sqkm::numeric, 1) AS baseline_degraded_sqkm,
-            ROUND(s.baseline_stable_sqkm::numeric, 1) AS baseline_stable_sqkm,
-            ROUND(s.baseline_improved_sqkm::numeric, 1) AS baseline_improved_sqkm,
-            CASE WHEN s.total_area_km2 > 0
-              THEN ROUND((s.baseline_degraded_sqkm / s.total_area_km2 * 100)::numeric, 1)
-              ELSE 0 END AS baseline_degraded_pct,
-            CASE WHEN s.total_area_km2 > 0
-              THEN ROUND(((s.status_6_recent_improvement_sqkm + s.status_7_persistent_improvement_sqkm
-                          - s.status_1_persistent_degradation_sqkm - s.status_2_recent_degradation_sqkm)
-                         / s.total_area_km2 * 100)::numeric, 1)
-              ELSE 0 END AS net_status_change_pct
+            ROUND((COALESCE(s.deg_to_deg_sqkm,0) + COALESCE(s.deg_to_stable_sqkm,0) + COALESCE(s.deg_to_imp_sqkm,0))::numeric, 1) AS baseline_degraded_sqkm,
+            ROUND((COALESCE(s.stable_to_deg_sqkm,0) + COALESCE(s.stable_to_stable_sqkm,0) + COALESCE(s.stable_to_imp_sqkm,0))::numeric, 1) AS baseline_stable_sqkm,
+            ROUND((COALESCE(s.imp_to_deg_sqkm,0) + COALESCE(s.imp_to_stable_sqkm,0) + COALESCE(s.imp_to_imp_sqkm,0))::numeric, 1) AS baseline_improved_sqkm,
+            ROUND((COALESCE(s.deg_to_deg_sqkm,0) + COALESCE(s.stable_to_deg_sqkm,0) + COALESCE(s.imp_to_deg_sqkm,0))::numeric, 1) AS period_degraded_sqkm,
+            ROUND((COALESCE(s.deg_to_stable_sqkm,0) + COALESCE(s.stable_to_stable_sqkm,0) + COALESCE(s.imp_to_stable_sqkm,0))::numeric, 1) AS period_stable_sqkm,
+            ROUND((COALESCE(s.deg_to_imp_sqkm,0) + COALESCE(s.stable_to_imp_sqkm,0) + COALESCE(s.imp_to_imp_sqkm,0))::numeric, 1) AS period_improved_sqkm,
+            ROUND(COALESCE(s.deg_to_deg_sqkm, 0)::numeric, 1) AS deg_to_deg_sqkm,
+            ROUND(COALESCE(s.deg_to_stable_sqkm, 0)::numeric, 1) AS deg_to_stable_sqkm,
+            ROUND(COALESCE(s.deg_to_imp_sqkm, 0)::numeric, 1) AS deg_to_imp_sqkm,
+            ROUND(COALESCE(s.stable_to_deg_sqkm, 0)::numeric, 1) AS stable_to_deg_sqkm,
+            ROUND(COALESCE(s.stable_to_stable_sqkm, 0)::numeric, 1) AS stable_to_stable_sqkm,
+            ROUND(COALESCE(s.stable_to_imp_sqkm, 0)::numeric, 1) AS stable_to_imp_sqkm,
+            ROUND(COALESCE(s.imp_to_deg_sqkm, 0)::numeric, 1) AS imp_to_deg_sqkm,
+            ROUND(COALESCE(s.imp_to_stable_sqkm, 0)::numeric, 1) AS imp_to_stable_sqkm,
+            ROUND(COALESCE(s.imp_to_imp_sqkm, 0)::numeric, 1) AS imp_to_imp_sqkm
           FROM _eco_stats s
           JOIN _eco_key k ON s.eco_id = k.eco_id AND k.is_pa = 0
           ORDER BY s.eco_id
@@ -1059,18 +1061,21 @@ module LdnSeeder
           {name: "losses_pct", type: "number", label: "Losses (% of area)", format: ".1f"},
           {name: "ldn_pct", type: "number", label: "LDN Achievement (%)", format: ".1f"},
           {name: "category", type: "category", label: "Category"},
-          {name: "status_1_persistent_degradation_sqkm", type: "number", label: "Persistent Degradation (km²)", format: ",.1f"},
-          {name: "status_2_recent_degradation_sqkm", type: "number", label: "Recent Degradation (km²)", format: ",.1f"},
-          {name: "status_3_baseline_degradation_sqkm", type: "number", label: "Baseline Degradation (km²)", format: ",.1f"},
-          {name: "status_4_stability_sqkm", type: "number", label: "Stability (km²)", format: ",.1f"},
-          {name: "status_5_baseline_improvement_sqkm", type: "number", label: "Baseline Improvement (km²)", format: ",.1f"},
-          {name: "status_6_recent_improvement_sqkm", type: "number", label: "Recent Improvement (km²)", format: ",.1f"},
-          {name: "status_7_persistent_improvement_sqkm", type: "number", label: "Persistent Improvement (km²)", format: ",.1f"},
           {name: "baseline_degraded_sqkm", type: "number", label: "Baseline Degraded (km²)", format: ",.1f"},
           {name: "baseline_stable_sqkm", type: "number", label: "Baseline Stable (km²)", format: ",.1f"},
           {name: "baseline_improved_sqkm", type: "number", label: "Baseline Improved (km²)", format: ",.1f"},
-          {name: "baseline_degraded_pct", type: "number", label: "Baseline Degraded (% of area)", format: ".1f"},
-          {name: "net_status_change_pct", type: "number", label: "Net Status Change (% of area)", format: ".1f"}
+          {name: "period_degraded_sqkm", type: "number", label: "Period Degraded (km²)", format: ",.1f"},
+          {name: "period_stable_sqkm", type: "number", label: "Period Stable (km²)", format: ",.1f"},
+          {name: "period_improved_sqkm", type: "number", label: "Period Improved (km²)", format: ",.1f"},
+          {name: "deg_to_deg_sqkm", type: "number", label: "Degraded → Degraded (km²)", format: ",.1f"},
+          {name: "deg_to_stable_sqkm", type: "number", label: "Degraded → Stable (km²)", format: ",.1f"},
+          {name: "deg_to_imp_sqkm", type: "number", label: "Degraded → Improved (km²)", format: ",.1f"},
+          {name: "stable_to_deg_sqkm", type: "number", label: "Stable → Degraded (km²)", format: ",.1f"},
+          {name: "stable_to_stable_sqkm", type: "number", label: "Stable → Stable (km²)", format: ",.1f"},
+          {name: "stable_to_imp_sqkm", type: "number", label: "Stable → Improved (km²)", format: ",.1f"},
+          {name: "imp_to_deg_sqkm", type: "number", label: "Improved → Degraded (km²)", format: ",.1f"},
+          {name: "imp_to_stable_sqkm", type: "number", label: "Improved → Stable (km²)", format: ",.1f"},
+          {name: "imp_to_imp_sqkm", type: "number", label: "Improved → Improved (km²)", format: ",.1f"}
         ],
         chart_config: [
           {
@@ -1094,22 +1099,6 @@ module LdnSeeder
             aggregation: "sum"
           },
           {
-            id: "baseline-condition",
-            type: "columnsDonut",
-            title: "Baseline Land Condition (2000–2015)",
-            description: "Total land area by condition during the baseline period. Degraded, stable, and improved classes are derived from the SDG 15.3.1 baseline indicator.",
-            columns: BASELINE_CONDITION_COLUMNS,
-            aggregation: "sum"
-          },
-          {
-            id: "status-transition",
-            type: "columnsDonut",
-            title: "Land Status Transition (Baseline → 2023)",
-            description: "Total land area by 7-class SDG 15.3.1 status, showing how baseline condition evolved through 2023. Persistent classes stayed the same; recent classes changed direction; baseline classes reverted.",
-            columns: STATUS_TRANSITION_COLUMNS,
-            aggregation: "sum"
-          },
-          {
             id: "country-ldn-bar",
             type: "horizontalBar",
             title: "LDN Achievement by Country",
@@ -1118,29 +1107,6 @@ module LdnSeeder
             yAxis: {key: "country", fallback: "admin0_id", label: "Country"},
             colorBy: {key: "category", colors: CATEGORY_COLORS},
             sortBy: {key: "ldn_pct", order: "desc"},
-            topN: 10,
-            bottomN: 10,
-            unitIdColumn: "admin0_id"
-          },
-          {
-            id: "baseline-degradation-bar",
-            type: "horizontalBar",
-            title: "Baseline Degradation by Country",
-            description: "Percentage of country land area classified as degraded during the baseline period (2000–2015). Top 15 most degraded countries shown.",
-            xAxis: {key: "baseline_degraded_pct", label: "Baseline Degraded (% of area)"},
-            yAxis: {key: "country", fallback: "admin0_id", label: "Country"},
-            sortBy: {key: "baseline_degraded_pct", order: "desc"},
-            topN: 15,
-            unitIdColumn: "admin0_id"
-          },
-          {
-            id: "net-status-change-bar",
-            type: "horizontalBar",
-            title: "Net Status Change by Country (Baseline → 2023)",
-            description: "Net change in land status: (recent + persistent improvement) minus (persistent + recent degradation) as a percentage of total area. Top 10 most improving and bottom 10 most worsening countries shown.",
-            xAxis: {key: "net_status_change_pct", label: "Net Status Change (% of area)"},
-            yAxis: {key: "country", fallback: "admin0_id", label: "Country"},
-            sortBy: {key: "net_status_change_pct", order: "desc"},
             topN: 10,
             bottomN: 10,
             unitIdColumn: "admin0_id"
@@ -1156,6 +1122,45 @@ module LdnSeeder
             colorBy: {key: "category", colors: CATEGORY_COLORS},
             unitIdColumn: "admin0_id",
             labelKey: "country"
+          },
+          {
+            id: "baseline-condition-donut",
+            type: "columnsDonut",
+            title: "Baseline Land Condition (2000-2015)",
+            description: "Total area by land condition class in the baseline period.",
+            columns: [
+              {key: "baseline_degraded_sqkm", label: "Degraded", color: CONDITION_COLORS["Degraded"]},
+              {key: "baseline_stable_sqkm", label: "Stable", color: CONDITION_COLORS["Stable"]},
+              {key: "baseline_improved_sqkm", label: "Improved", color: CONDITION_COLORS["Improved"]}
+            ]
+          },
+          {
+            id: "period-condition-donut",
+            type: "columnsDonut",
+            title: "Current Land Condition (2008-2023)",
+            description: "Total area by land condition class in the most recent assessment period.",
+            columns: [
+              {key: "period_degraded_sqkm", label: "Degraded", color: CONDITION_COLORS["Degraded"]},
+              {key: "period_stable_sqkm", label: "Stable", color: CONDITION_COLORS["Stable"]},
+              {key: "period_improved_sqkm", label: "Improved", color: CONDITION_COLORS["Improved"]}
+            ]
+          },
+          {
+            id: "transition-matrix-donut",
+            type: "columnsDonut",
+            title: "Baseline → Period Transitions",
+            description: "Total area for each of the nine baseline-to-period transition classes.",
+            columns: [
+              {key: "deg_to_deg_sqkm", label: "Degraded → Degraded", color: TRANSITION_COLORS["Degraded → Degraded"]},
+              {key: "deg_to_stable_sqkm", label: "Degraded → Stable", color: TRANSITION_COLORS["Degraded → Stable"]},
+              {key: "deg_to_imp_sqkm", label: "Degraded → Improved", color: TRANSITION_COLORS["Degraded → Improved"]},
+              {key: "stable_to_deg_sqkm", label: "Stable → Degraded", color: TRANSITION_COLORS["Stable → Degraded"]},
+              {key: "stable_to_stable_sqkm", label: "Stable → Stable", color: TRANSITION_COLORS["Stable → Stable"]},
+              {key: "stable_to_imp_sqkm", label: "Stable → Improved", color: TRANSITION_COLORS["Stable → Improved"]},
+              {key: "imp_to_deg_sqkm", label: "Improved → Degraded", color: TRANSITION_COLORS["Improved → Degraded"]},
+              {key: "imp_to_stable_sqkm", label: "Improved → Stable", color: TRANSITION_COLORS["Improved → Stable"]},
+              {key: "imp_to_imp_sqkm", label: "Improved → Improved", color: TRANSITION_COLORS["Improved → Improved"]}
+            ]
           }
         ],
         sql: <<~SQL,
@@ -1173,27 +1178,23 @@ module LdnSeeder
             CASE WHEN SUM(s.total_area_km2) > 0
               THEN ROUND((SUM(s.delta_ldn_km2) / SUM(s.total_area_km2) * 100)::numeric, 1)
               ELSE 0 END AS ldn_pct,
-            CASE WHEN SUM(s.delta_ldn_km2) > 0 THEN 'Exceeding'
-                 WHEN SUM(s.delta_ldn_km2) = 0 THEN 'Achieving'
+            CASE WHEN SUM(s.delta_ldn_km2) >= 0 THEN 'Achieving'
                  ELSE 'Not achieving' END AS category,
-            ROUND(SUM(s.status_1_persistent_degradation_sqkm)::numeric, 1) AS status_1_persistent_degradation_sqkm,
-            ROUND(SUM(s.status_2_recent_degradation_sqkm)::numeric, 1) AS status_2_recent_degradation_sqkm,
-            ROUND(SUM(s.status_3_baseline_degradation_sqkm)::numeric, 1) AS status_3_baseline_degradation_sqkm,
-            ROUND(SUM(s.status_4_stability_sqkm)::numeric, 1) AS status_4_stability_sqkm,
-            ROUND(SUM(s.status_5_baseline_improvement_sqkm)::numeric, 1) AS status_5_baseline_improvement_sqkm,
-            ROUND(SUM(s.status_6_recent_improvement_sqkm)::numeric, 1) AS status_6_recent_improvement_sqkm,
-            ROUND(SUM(s.status_7_persistent_improvement_sqkm)::numeric, 1) AS status_7_persistent_improvement_sqkm,
-            ROUND(SUM(s.baseline_degraded_sqkm)::numeric, 1) AS baseline_degraded_sqkm,
-            ROUND(SUM(s.baseline_stable_sqkm)::numeric, 1) AS baseline_stable_sqkm,
-            ROUND(SUM(s.baseline_improved_sqkm)::numeric, 1) AS baseline_improved_sqkm,
-            CASE WHEN SUM(s.total_area_km2) > 0
-              THEN ROUND((SUM(s.baseline_degraded_sqkm) / SUM(s.total_area_km2) * 100)::numeric, 1)
-              ELSE 0 END AS baseline_degraded_pct,
-            CASE WHEN SUM(s.total_area_km2) > 0
-              THEN ROUND(((SUM(s.status_6_recent_improvement_sqkm) + SUM(s.status_7_persistent_improvement_sqkm)
-                          - SUM(s.status_1_persistent_degradation_sqkm) - SUM(s.status_2_recent_degradation_sqkm))
-                         / SUM(s.total_area_km2) * 100)::numeric, 1)
-              ELSE 0 END AS net_status_change_pct
+            ROUND(SUM(COALESCE(s.deg_to_deg_sqkm,0) + COALESCE(s.deg_to_stable_sqkm,0) + COALESCE(s.deg_to_imp_sqkm,0))::numeric, 1) AS baseline_degraded_sqkm,
+            ROUND(SUM(COALESCE(s.stable_to_deg_sqkm,0) + COALESCE(s.stable_to_stable_sqkm,0) + COALESCE(s.stable_to_imp_sqkm,0))::numeric, 1) AS baseline_stable_sqkm,
+            ROUND(SUM(COALESCE(s.imp_to_deg_sqkm,0) + COALESCE(s.imp_to_stable_sqkm,0) + COALESCE(s.imp_to_imp_sqkm,0))::numeric, 1) AS baseline_improved_sqkm,
+            ROUND(SUM(COALESCE(s.deg_to_deg_sqkm,0) + COALESCE(s.stable_to_deg_sqkm,0) + COALESCE(s.imp_to_deg_sqkm,0))::numeric, 1) AS period_degraded_sqkm,
+            ROUND(SUM(COALESCE(s.deg_to_stable_sqkm,0) + COALESCE(s.stable_to_stable_sqkm,0) + COALESCE(s.imp_to_stable_sqkm,0))::numeric, 1) AS period_stable_sqkm,
+            ROUND(SUM(COALESCE(s.deg_to_imp_sqkm,0) + COALESCE(s.stable_to_imp_sqkm,0) + COALESCE(s.imp_to_imp_sqkm,0))::numeric, 1) AS period_improved_sqkm,
+            ROUND(SUM(COALESCE(s.deg_to_deg_sqkm, 0))::numeric, 1) AS deg_to_deg_sqkm,
+            ROUND(SUM(COALESCE(s.deg_to_stable_sqkm, 0))::numeric, 1) AS deg_to_stable_sqkm,
+            ROUND(SUM(COALESCE(s.deg_to_imp_sqkm, 0))::numeric, 1) AS deg_to_imp_sqkm,
+            ROUND(SUM(COALESCE(s.stable_to_deg_sqkm, 0))::numeric, 1) AS stable_to_deg_sqkm,
+            ROUND(SUM(COALESCE(s.stable_to_stable_sqkm, 0))::numeric, 1) AS stable_to_stable_sqkm,
+            ROUND(SUM(COALESCE(s.stable_to_imp_sqkm, 0))::numeric, 1) AS stable_to_imp_sqkm,
+            ROUND(SUM(COALESCE(s.imp_to_deg_sqkm, 0))::numeric, 1) AS imp_to_deg_sqkm,
+            ROUND(SUM(COALESCE(s.imp_to_stable_sqkm, 0))::numeric, 1) AS imp_to_stable_sqkm,
+            ROUND(SUM(COALESCE(s.imp_to_imp_sqkm, 0))::numeric, 1) AS imp_to_imp_sqkm
           FROM _country_eco_stats s
           JOIN _eco_country_key k ON s.admin0_id = k.country_id AND s.eco_id = k.eco_id AND k.is_pa = 0
           GROUP BY k.country_id, k.country_code, k.country_name
@@ -1224,16 +1225,21 @@ module LdnSeeder
           {name: "total_area_km2", type: "number", label: "Total Area (km²)", format: ",.1f"},
           {name: "ldn_pct", type: "number", label: "LDN Achievement (%)", format: ".1f"},
           {name: "category", type: "category", label: "Category"},
-          {name: "status_1_persistent_degradation_sqkm", type: "number", label: "Persistent Degradation (km²)", format: ",.1f"},
-          {name: "status_2_recent_degradation_sqkm", type: "number", label: "Recent Degradation (km²)", format: ",.1f"},
-          {name: "status_3_baseline_degradation_sqkm", type: "number", label: "Baseline Degradation (km²)", format: ",.1f"},
-          {name: "status_4_stability_sqkm", type: "number", label: "Stability (km²)", format: ",.1f"},
-          {name: "status_5_baseline_improvement_sqkm", type: "number", label: "Baseline Improvement (km²)", format: ",.1f"},
-          {name: "status_6_recent_improvement_sqkm", type: "number", label: "Recent Improvement (km²)", format: ",.1f"},
-          {name: "status_7_persistent_improvement_sqkm", type: "number", label: "Persistent Improvement (km²)", format: ",.1f"},
           {name: "baseline_degraded_sqkm", type: "number", label: "Baseline Degraded (km²)", format: ",.1f"},
           {name: "baseline_stable_sqkm", type: "number", label: "Baseline Stable (km²)", format: ",.1f"},
-          {name: "baseline_improved_sqkm", type: "number", label: "Baseline Improved (km²)", format: ",.1f"}
+          {name: "baseline_improved_sqkm", type: "number", label: "Baseline Improved (km²)", format: ",.1f"},
+          {name: "period_degraded_sqkm", type: "number", label: "Period Degraded (km²)", format: ",.1f"},
+          {name: "period_stable_sqkm", type: "number", label: "Period Stable (km²)", format: ",.1f"},
+          {name: "period_improved_sqkm", type: "number", label: "Period Improved (km²)", format: ",.1f"},
+          {name: "deg_to_deg_sqkm", type: "number", label: "Degraded → Degraded (km²)", format: ",.1f"},
+          {name: "deg_to_stable_sqkm", type: "number", label: "Degraded → Stable (km²)", format: ",.1f"},
+          {name: "deg_to_imp_sqkm", type: "number", label: "Degraded → Improved (km²)", format: ",.1f"},
+          {name: "stable_to_deg_sqkm", type: "number", label: "Stable → Degraded (km²)", format: ",.1f"},
+          {name: "stable_to_stable_sqkm", type: "number", label: "Stable → Stable (km²)", format: ",.1f"},
+          {name: "stable_to_imp_sqkm", type: "number", label: "Stable → Improved (km²)", format: ",.1f"},
+          {name: "imp_to_deg_sqkm", type: "number", label: "Improved → Degraded (km²)", format: ",.1f"},
+          {name: "imp_to_stable_sqkm", type: "number", label: "Improved → Stable (km²)", format: ",.1f"},
+          {name: "imp_to_imp_sqkm", type: "number", label: "Improved → Improved (km²)", format: ",.1f"}
         ],
         chart_config: [
           {
@@ -1249,6 +1255,45 @@ module LdnSeeder
               total_area_km2: "sum", ldn_pct: "weighted_avg:total_area_km2"
             },
             sortBy: {key: "delta_ldn_km2", order: "desc"}
+          },
+          {
+            id: "baseline-condition-donut",
+            type: "columnsDonut",
+            title: "Baseline Land Condition (2000-2015)",
+            description: "Total area by land condition class in the baseline period.",
+            columns: [
+              {key: "baseline_degraded_sqkm", label: "Degraded", color: CONDITION_COLORS["Degraded"]},
+              {key: "baseline_stable_sqkm", label: "Stable", color: CONDITION_COLORS["Stable"]},
+              {key: "baseline_improved_sqkm", label: "Improved", color: CONDITION_COLORS["Improved"]}
+            ]
+          },
+          {
+            id: "period-condition-donut",
+            type: "columnsDonut",
+            title: "Current Land Condition (2008-2023)",
+            description: "Total area by land condition class in the most recent assessment period.",
+            columns: [
+              {key: "period_degraded_sqkm", label: "Degraded", color: CONDITION_COLORS["Degraded"]},
+              {key: "period_stable_sqkm", label: "Stable", color: CONDITION_COLORS["Stable"]},
+              {key: "period_improved_sqkm", label: "Improved", color: CONDITION_COLORS["Improved"]}
+            ]
+          },
+          {
+            id: "transition-matrix-donut",
+            type: "columnsDonut",
+            title: "Baseline → Period Transitions",
+            description: "Total area for each of the nine baseline-to-period transition classes.",
+            columns: [
+              {key: "deg_to_deg_sqkm", label: "Degraded → Degraded", color: TRANSITION_COLORS["Degraded → Degraded"]},
+              {key: "deg_to_stable_sqkm", label: "Degraded → Stable", color: TRANSITION_COLORS["Degraded → Stable"]},
+              {key: "deg_to_imp_sqkm", label: "Degraded → Improved", color: TRANSITION_COLORS["Degraded → Improved"]},
+              {key: "stable_to_deg_sqkm", label: "Stable → Degraded", color: TRANSITION_COLORS["Stable → Degraded"]},
+              {key: "stable_to_stable_sqkm", label: "Stable → Stable", color: TRANSITION_COLORS["Stable → Stable"]},
+              {key: "stable_to_imp_sqkm", label: "Stable → Improved", color: TRANSITION_COLORS["Stable → Improved"]},
+              {key: "imp_to_deg_sqkm", label: "Improved → Degraded", color: TRANSITION_COLORS["Improved → Degraded"]},
+              {key: "imp_to_stable_sqkm", label: "Improved → Stable", color: TRANSITION_COLORS["Improved → Stable"]},
+              {key: "imp_to_imp_sqkm", label: "Improved → Improved", color: TRANSITION_COLORS["Improved → Improved"]}
+            ]
           }
         ],
         sql: <<~SQL
@@ -1260,16 +1305,21 @@ module LdnSeeder
             ROUND(s.total_area_km2::numeric, 1) AS total_area_km2,
             ROUND(s.ldn_pct::numeric, 1) AS ldn_pct,
             s.category,
-            ROUND(s.status_1_persistent_degradation_sqkm::numeric, 1) AS status_1_persistent_degradation_sqkm,
-            ROUND(s.status_2_recent_degradation_sqkm::numeric, 1) AS status_2_recent_degradation_sqkm,
-            ROUND(s.status_3_baseline_degradation_sqkm::numeric, 1) AS status_3_baseline_degradation_sqkm,
-            ROUND(s.status_4_stability_sqkm::numeric, 1) AS status_4_stability_sqkm,
-            ROUND(s.status_5_baseline_improvement_sqkm::numeric, 1) AS status_5_baseline_improvement_sqkm,
-            ROUND(s.status_6_recent_improvement_sqkm::numeric, 1) AS status_6_recent_improvement_sqkm,
-            ROUND(s.status_7_persistent_improvement_sqkm::numeric, 1) AS status_7_persistent_improvement_sqkm,
-            ROUND(s.baseline_degraded_sqkm::numeric, 1) AS baseline_degraded_sqkm,
-            ROUND(s.baseline_stable_sqkm::numeric, 1) AS baseline_stable_sqkm,
-            ROUND(s.baseline_improved_sqkm::numeric, 1) AS baseline_improved_sqkm
+            ROUND((COALESCE(s.deg_to_deg_sqkm,0) + COALESCE(s.deg_to_stable_sqkm,0) + COALESCE(s.deg_to_imp_sqkm,0))::numeric, 1) AS baseline_degraded_sqkm,
+            ROUND((COALESCE(s.stable_to_deg_sqkm,0) + COALESCE(s.stable_to_stable_sqkm,0) + COALESCE(s.stable_to_imp_sqkm,0))::numeric, 1) AS baseline_stable_sqkm,
+            ROUND((COALESCE(s.imp_to_deg_sqkm,0) + COALESCE(s.imp_to_stable_sqkm,0) + COALESCE(s.imp_to_imp_sqkm,0))::numeric, 1) AS baseline_improved_sqkm,
+            ROUND((COALESCE(s.deg_to_deg_sqkm,0) + COALESCE(s.stable_to_deg_sqkm,0) + COALESCE(s.imp_to_deg_sqkm,0))::numeric, 1) AS period_degraded_sqkm,
+            ROUND((COALESCE(s.deg_to_stable_sqkm,0) + COALESCE(s.stable_to_stable_sqkm,0) + COALESCE(s.imp_to_stable_sqkm,0))::numeric, 1) AS period_stable_sqkm,
+            ROUND((COALESCE(s.deg_to_imp_sqkm,0) + COALESCE(s.stable_to_imp_sqkm,0) + COALESCE(s.imp_to_imp_sqkm,0))::numeric, 1) AS period_improved_sqkm,
+            ROUND(COALESCE(s.deg_to_deg_sqkm, 0)::numeric, 1) AS deg_to_deg_sqkm,
+            ROUND(COALESCE(s.deg_to_stable_sqkm, 0)::numeric, 1) AS deg_to_stable_sqkm,
+            ROUND(COALESCE(s.deg_to_imp_sqkm, 0)::numeric, 1) AS deg_to_imp_sqkm,
+            ROUND(COALESCE(s.stable_to_deg_sqkm, 0)::numeric, 1) AS stable_to_deg_sqkm,
+            ROUND(COALESCE(s.stable_to_stable_sqkm, 0)::numeric, 1) AS stable_to_stable_sqkm,
+            ROUND(COALESCE(s.stable_to_imp_sqkm, 0)::numeric, 1) AS stable_to_imp_sqkm,
+            ROUND(COALESCE(s.imp_to_deg_sqkm, 0)::numeric, 1) AS imp_to_deg_sqkm,
+            ROUND(COALESCE(s.imp_to_stable_sqkm, 0)::numeric, 1) AS imp_to_stable_sqkm,
+            ROUND(COALESCE(s.imp_to_imp_sqkm, 0)::numeric, 1) AS imp_to_imp_sqkm
           FROM _country_eco_stats s
           JOIN _eco_country_key k ON s.admin0_id = k.country_id AND s.eco_id = k.eco_id AND k.is_pa = 0
           ORDER BY s.admin0_id, s.eco_id
@@ -1497,9 +1547,9 @@ module LdnSeeder
       conn.execute("DROP TABLE IF EXISTS _eco_stats")
       conn.execute(<<~SQL)
         CREATE TABLE _eco_stats (
-          eco_id         int,
-          gains_km2      double precision,
-          losses_km2     double precision,
+          eco_id                                int,
+          gains_km2                             double precision,
+          losses_km2                            double precision,
           status_1_persistent_degradation_sqkm  double precision,
           status_2_recent_degradation_sqkm      double precision,
           status_3_baseline_degradation_sqkm    double precision,
@@ -1507,45 +1557,27 @@ module LdnSeeder
           status_5_baseline_improvement_sqkm    double precision,
           status_6_recent_improvement_sqkm      double precision,
           status_7_persistent_improvement_sqkm  double precision,
-          baseline_degraded_sqkm                double precision,
-          baseline_stable_sqkm                  double precision,
-          baseline_improved_sqkm                double precision,
-          delta_ldn_km2  double precision,
-          total_area_km2 double precision,
-          ldn_pct        double precision,
-          category       text
+          deg_to_deg_sqkm                       double precision,
+          deg_to_stable_sqkm                    double precision,
+          deg_to_imp_sqkm                       double precision,
+          stable_to_deg_sqkm                    double precision,
+          stable_to_stable_sqkm                 double precision,
+          stable_to_imp_sqkm                    double precision,
+          imp_to_deg_sqkm                       double precision,
+          imp_to_stable_sqkm                    double precision,
+          imp_to_imp_sqkm                       double precision,
+          delta_ldn_km2                         double precision,
+          total_area_km2                        double precision,
+          ldn_pct                               double precision,
+          category                              text
         )
       SQL
       copy_csv_to_table(conn, "_eco_stats", eco_stats_csv)
 
-      # Recompute total_area_km2 from the 7 status columns.  Older CSVs
-      # (generated before the algorithm fix) wrote change_area into
-      # total_area_km2; recomputing from status columns is always correct.
+      # Remap CSV categories: Exceeding → Achieving (>= 0%), Not achieving (< 0%)
       conn.execute(<<~SQL)
         UPDATE _eco_stats SET
-          total_area_km2 = COALESCE(status_1_persistent_degradation_sqkm, 0)
-                         + COALESCE(status_2_recent_degradation_sqkm, 0)
-                         + COALESCE(status_3_baseline_degradation_sqkm, 0)
-                         + COALESCE(status_4_stability_sqkm, 0)
-                         + COALESCE(status_5_baseline_improvement_sqkm, 0)
-                         + COALESCE(status_6_recent_improvement_sqkm, 0)
-                         + COALESCE(status_7_persistent_improvement_sqkm, 0),
-          ldn_pct = CASE
-            WHEN (COALESCE(status_1_persistent_degradation_sqkm, 0)
-                + COALESCE(status_2_recent_degradation_sqkm, 0)
-                + COALESCE(status_3_baseline_degradation_sqkm, 0)
-                + COALESCE(status_4_stability_sqkm, 0)
-                + COALESCE(status_5_baseline_improvement_sqkm, 0)
-                + COALESCE(status_6_recent_improvement_sqkm, 0)
-                + COALESCE(status_7_persistent_improvement_sqkm, 0)) > 0
-            THEN delta_ldn_km2 / (COALESCE(status_1_persistent_degradation_sqkm, 0)
-                + COALESCE(status_2_recent_degradation_sqkm, 0)
-                + COALESCE(status_3_baseline_degradation_sqkm, 0)
-                + COALESCE(status_4_stability_sqkm, 0)
-                + COALESCE(status_5_baseline_improvement_sqkm, 0)
-                + COALESCE(status_6_recent_improvement_sqkm, 0)
-                + COALESCE(status_7_persistent_improvement_sqkm, 0)) * 100
-            ELSE 0 END
+          category = CASE WHEN ldn_pct >= 0 THEN 'Achieving' ELSE 'Not achieving' END
       SQL
       puts "  Imported _eco_stats: #{conn.select_value("SELECT count(*) FROM _eco_stats")} rows"
 
@@ -1554,10 +1586,10 @@ module LdnSeeder
         conn.execute("DROP TABLE IF EXISTS _country_eco_stats")
         conn.execute(<<~SQL)
           CREATE TABLE _country_eco_stats (
-            admin0_id      int,
-            eco_id         int,
-            gains_km2      double precision,
-            losses_km2     double precision,
+            admin0_id                             int,
+            eco_id                                int,
+            gains_km2                             double precision,
+            losses_km2                            double precision,
             status_1_persistent_degradation_sqkm  double precision,
             status_2_recent_degradation_sqkm      double precision,
             status_3_baseline_degradation_sqkm    double precision,
@@ -1565,43 +1597,27 @@ module LdnSeeder
             status_5_baseline_improvement_sqkm    double precision,
             status_6_recent_improvement_sqkm      double precision,
             status_7_persistent_improvement_sqkm  double precision,
-            baseline_degraded_sqkm                double precision,
-            baseline_stable_sqkm                  double precision,
-            baseline_improved_sqkm                double precision,
-            delta_ldn_km2  double precision,
-            total_area_km2 double precision,
-            ldn_pct        double precision,
-            category       text
+            deg_to_deg_sqkm                       double precision,
+            deg_to_stable_sqkm                    double precision,
+            deg_to_imp_sqkm                       double precision,
+            stable_to_deg_sqkm                    double precision,
+            stable_to_stable_sqkm                 double precision,
+            stable_to_imp_sqkm                    double precision,
+            imp_to_deg_sqkm                       double precision,
+            imp_to_stable_sqkm                    double precision,
+            imp_to_imp_sqkm                       double precision,
+            delta_ldn_km2                         double precision,
+            total_area_km2                        double precision,
+            ldn_pct                               double precision,
+            category                              text
           )
         SQL
         copy_csv_to_table(conn, "_country_eco_stats", country_eco_stats_csv)
 
-        # Recompute total_area_km2 from the 7 status columns (same fix as _eco_stats)
+        # Remap CSV categories: Exceeding → Achieving (≥ 0%), Not achieving (< 0%)
         conn.execute(<<~SQL)
           UPDATE _country_eco_stats SET
-            total_area_km2 = COALESCE(status_1_persistent_degradation_sqkm, 0)
-                           + COALESCE(status_2_recent_degradation_sqkm, 0)
-                           + COALESCE(status_3_baseline_degradation_sqkm, 0)
-                           + COALESCE(status_4_stability_sqkm, 0)
-                           + COALESCE(status_5_baseline_improvement_sqkm, 0)
-                           + COALESCE(status_6_recent_improvement_sqkm, 0)
-                           + COALESCE(status_7_persistent_improvement_sqkm, 0),
-            ldn_pct = CASE
-              WHEN (COALESCE(status_1_persistent_degradation_sqkm, 0)
-                  + COALESCE(status_2_recent_degradation_sqkm, 0)
-                  + COALESCE(status_3_baseline_degradation_sqkm, 0)
-                  + COALESCE(status_4_stability_sqkm, 0)
-                  + COALESCE(status_5_baseline_improvement_sqkm, 0)
-                  + COALESCE(status_6_recent_improvement_sqkm, 0)
-                  + COALESCE(status_7_persistent_improvement_sqkm, 0)) > 0
-              THEN delta_ldn_km2 / (COALESCE(status_1_persistent_degradation_sqkm, 0)
-                  + COALESCE(status_2_recent_degradation_sqkm, 0)
-                  + COALESCE(status_3_baseline_degradation_sqkm, 0)
-                  + COALESCE(status_4_stability_sqkm, 0)
-                  + COALESCE(status_5_baseline_improvement_sqkm, 0)
-                  + COALESCE(status_6_recent_improvement_sqkm, 0)
-                  + COALESCE(status_7_persistent_improvement_sqkm, 0)) * 100
-              ELSE 0 END
+            category = CASE WHEN ldn_pct >= 0 THEN 'Achieving' ELSE 'Not achieving' END
         SQL
         puts "  Imported _country_eco_stats: #{conn.select_value("SELECT count(*) FROM _country_eco_stats")} rows"
       end

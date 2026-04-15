@@ -1,8 +1,7 @@
 import React from 'react';
 
 const CATEGORY_COLORS = {
-  Exceeding: '#2ecc71',
-  Achieving: '#f39c12',
+  Achieving: '#2ecc71',
   'Not achieving': '#e74c3c',
 };
 
