@@ -47,19 +47,18 @@ module Api
         result = ActiveRecord::Base.connection.select_one(
           ActiveRecord::Base.sanitize_sql_array([<<~SQL, dataset.id, unit_id.to_s])
             SELECT
-              ST_XMin(ext) AS west,
-              ST_YMin(ext) AS south,
-              ST_XMax(ext) AS east,
-              ST_YMax(ext) AS north
-            FROM (
-              SELECT ST_Extent(geom) AS ext
-              FROM scope_dataset_geometries
-              WHERE scope_dataset_id = ? AND unit_id = ?
-            ) sub
+              ST_AsGeoJSON(geom, 6) AS geojson,
+              ST_XMin(ST_Extent(geom) OVER ()) AS west,
+              ST_YMin(ST_Extent(geom) OVER ()) AS south,
+              ST_XMax(ST_Extent(geom) OVER ()) AS east,
+              ST_YMax(ST_Extent(geom) OVER ()) AS north
+            FROM scope_dataset_geometries
+            WHERE scope_dataset_id = ? AND unit_id = ?
+            LIMIT 1
           SQL
         )
 
-        unless result && result["west"]
+        unless result && result["geojson"]
           render json: {error: "Geometry not found"}, status: :not_found
           return
         end
@@ -69,7 +68,8 @@ module Api
           bounds: [
             [result["south"].to_f, result["west"].to_f],
             [result["north"].to_f, result["east"].to_f]
-          ]
+          ],
+          geometry: JSON.parse(result["geojson"])
         }
       end
 

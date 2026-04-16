@@ -1,9 +1,11 @@
 /**
- * ScopeGeometryLayer — Leaflet vector tile overlay for scope dataset geometries.
+ * ScopeGeometryLayer — Leaflet overlay for scope dataset geometries.
  *
- * Renders MVT tiles from the Martin `scope_dataset_tiles` function source.
- * Supports bidirectional highlighting: Redux state drives visual highlight,
- * and clicks on polygons dispatch highlight actions back to Redux.
+ * Highlight mode: fetches only the single selected polygon as GeoJSON from
+ * the backend and renders it with L.geoJSON — no bulk tile download.
+ *
+ * Spatial-filter mode: renders MVT tiles from Martin `scope_dataset_tiles`
+ * to show multiple matching polygons.
  *
  * Usage: render inside the Map children function, passing the map instance:
  *   <ScopeGeometryLayer map={map} />
@@ -16,11 +18,21 @@ import {
   getDatasets,
   getHighlight,
   getHighlightBounds,
+  getHighlightGeometry,
   getActiveVariant,
   getActiveDimension,
   getSpatialFilter,
   setHighlight,
 } from 'state/modules/scope_datasets';
+
+const HIGHLIGHT_STYLE = {
+  weight: 3,
+  color: '#e74c3c',
+  opacity: 1,
+  fill: true,
+  fillColor: '#e74c3c',
+  fillOpacity: 0.3,
+};
 
 const DEFAULT_STYLE = {
   weight: 1,
@@ -32,22 +44,13 @@ const DEFAULT_STYLE = {
   interactive: true,
 };
 
-const HIGHLIGHT_STYLE = {
-  weight: 3,
-  color: '#e74c3c',
-  opacity: 1,
-  fill: true,
-  fillColor: '#e74c3c',
-  fillOpacity: 0.3,
-};
-
-const DIMMED_STYLE = {
-  weight: 0.5,
-  color: '#999',
-  opacity: 0.3,
-  fill: true,
-  fillColor: '#999',
-  fillOpacity: 0.02,
+const HIDDEN_STYLE = {
+  weight: 0,
+  color: 'transparent',
+  opacity: 0,
+  fill: false,
+  fillOpacity: 0,
+  interactive: false,
 };
 
 function getMartinUrl() {
@@ -62,10 +65,12 @@ const ScopeGeometryLayer = ({ map }) => {
   const datasets = useSelector(getDatasets);
   const highlight = useSelector(getHighlight);
   const highlightBounds = useSelector(getHighlightBounds);
+  const highlightGeometry = useSelector(getHighlightGeometry);
   const activeVariant = useSelector(getActiveVariant);
   const activeDimension = useSelector(getActiveDimension);
   const spatialFilter = useSelector(getSpatialFilter);
-  const layersRef = useRef({});
+  const highlightLayerRef = useRef(null);
+  const filterLayersRef = useRef({});
   const [L, setL] = useState(null);
 
   // Dynamically import leaflet (requires window)
@@ -73,57 +78,101 @@ const ScopeGeometryLayer = ({ map }) => {
     import('leaflet').then((mod) => setL(mod.default || mod));
   }, []);
 
-  // Build tile URL for a given scope_dataset_id
+  // Build tile URL for a given scope_dataset_id (only used for spatial filter)
   const buildTileUrl = useCallback((datasetId) => {
     const martinUrl = getMartinUrl();
     if (!martinUrl) return null;
     return `${martinUrl}/scope_dataset_tiles/{z}/{x}/{y}?scope_dataset_id=${datasetId}`;
   }, []);
 
-  // Boolean: whether any interaction (highlight or spatial filter) is active.
-  // Used as a stable dependency so that switching between highlighted rows
-  // does NOT destroy / recreate tile layers (which would trigger new fetches).
-  const hasInteraction = !!(highlight || spatialFilter);
+  // ── Highlight: render a single GeoJSON polygon ──
+  useEffect(() => {
+    if (!map || !L) return;
 
-  // Create / destroy vector tile layers.
-  // Depends on the stable boolean `hasInteraction`, NOT on the highlight
-  // object itself.  Switching rows keeps hasInteraction === true, so layers
-  // stay on the map and only their styles are updated (see next effect).
+    // Remove previous highlight layer
+    if (highlightLayerRef.current) {
+      map.removeLayer(highlightLayerRef.current);
+      highlightLayerRef.current = null;
+    }
+
+    // If there's no highlight or no geometry yet, nothing to render
+    if (!highlight || !highlightGeometry) return;
+
+    const layer = L.geoJSON(highlightGeometry, {
+      style: () => HIGHLIGHT_STYLE,
+      interactive: false,
+    });
+    layer.addTo(map);
+    highlightLayerRef.current = layer;
+
+    return () => {
+      if (highlightLayerRef.current && map.hasLayer(highlightLayerRef.current)) {
+        map.removeLayer(highlightLayerRef.current);
+        highlightLayerRef.current = null;
+      }
+    };
+  }, [map, L, highlight, highlightGeometry]);
+
+  // ── Zoom the map to the highlighted polygon's bounding box ──
+  useEffect(() => {
+    if (!map || !highlightBounds || !L) return;
+    try {
+      const bounds = L.latLngBounds(highlightBounds);
+      if (bounds.isValid()) {
+        map.flyToBounds(bounds, { padding: [40, 40], maxZoom: 13, duration: 0.8 });
+      }
+    } catch {
+      /* invalid bounds — ignore */
+    }
+  }, [map, highlightBounds, L]);
+
+  // ── Spatial filter: MVT tile layers for showing multiple matching polygons ──
   useEffect(() => {
     if (!map || !loaded || !L) return;
 
     const VectorGrid = L.vectorGrid;
-    if (!VectorGrid) return;
+    if (!VectorGrid) {
+      // VectorGrid not available — skip spatial filter rendering
+      return;
+    }
 
-    // Determine which datasets should have geometry layers right now
-    const datasetsWithGeometry = hasInteraction
+    // Only create tile layers when spatial filter is active (no highlight-only)
+    const datasetsWithGeometry = spatialFilter
       ? datasets.filter(
           (d) =>
             d.geometry_count &&
             d.geometry_count > 0 &&
+            spatialFilter[d.slug] &&
             (!activeVariant || !d.variant_label || d.variant_label === activeVariant) &&
             (!activeDimension || !d.dimension || d.dimension === activeDimension),
         )
       : [];
 
     // Remove layers that should no longer be shown
-    Object.keys(layersRef.current).forEach((slug) => {
+    Object.keys(filterLayersRef.current).forEach((slug) => {
       if (!datasetsWithGeometry.find((d) => d.slug === slug)) {
-        map.removeLayer(layersRef.current[slug].layer);
-        delete layersRef.current[slug];
+        map.removeLayer(filterLayersRef.current[slug].layer);
+        delete filterLayersRef.current[slug];
       }
     });
 
     // Add layers for datasets that need them
     datasetsWithGeometry.forEach((dataset) => {
-      if (layersRef.current[dataset.slug]) return;
+      if (filterLayersRef.current[dataset.slug]) return;
 
       const tileUrl = buildTileUrl(dataset.id);
       if (!tileUrl) return;
 
+      const filterSet = new Set(spatialFilter[dataset.slug].map(String));
+
       const layer = VectorGrid.protobuf(tileUrl, {
         vectorTileLayerStyles: {
-          scope_dataset_geometries: () => ({ ...DEFAULT_STYLE }),
+          scope_dataset_geometries: (properties) => {
+            if (filterSet.has(String(properties.unit_id))) {
+              return { ...DEFAULT_STYLE };
+            }
+            return { ...HIDDEN_STYLE };
+          },
         },
         interactive: true,
         maxNativeZoom: 13,
@@ -139,15 +188,14 @@ const ScopeGeometryLayer = ({ map }) => {
       });
 
       layer.addTo(map);
-      layersRef.current[dataset.slug] = { layer, dataset };
+      filterLayersRef.current[dataset.slug] = { layer, dataset };
     });
 
-    // Cleanup on unmount or when interaction stops / datasets change
     return () => {
-      Object.values(layersRef.current).forEach(({ layer: l }) => {
+      Object.values(filterLayersRef.current).forEach(({ layer: l }) => {
         if (map.hasLayer(l)) map.removeLayer(l);
       });
-      layersRef.current = {};
+      filterLayersRef.current = {};
     };
   }, [
     map,
@@ -155,84 +203,11 @@ const ScopeGeometryLayer = ({ map }) => {
     datasets,
     activeVariant,
     activeDimension,
-    hasInteraction,
+    spatialFilter,
     buildTileUrl,
     dispatch,
     L,
   ]);
-
-  // Update feature styles when highlight or spatial filter changes.
-  // Uses setFeatureStyle/resetFeatureStyle to restyle already-rendered
-  // features in-place, avoiding the tile re-fetch that redraw() causes.
-  useEffect(() => {
-    Object.entries(layersRef.current).forEach(([slug, { layer }]) => {
-      if (!layer.options?.vectorTileLayerStyles) return;
-
-      // Build set of matching unit IDs for this dataset from the spatial filter
-      const filterSet =
-        spatialFilter && spatialFilter[slug] ? new Set(spatialFilter[slug].map(String)) : null;
-
-      // Compute the style function — used for tiles that load AFTER this update
-      let styleFn;
-
-      if (!highlight && !filterSet) {
-        styleFn = () => ({ ...DEFAULT_STYLE });
-      } else if (highlight && highlight.datasetSlug === slug) {
-        styleFn = (properties) => {
-          if (String(properties.unit_id) === highlight.unitId) {
-            return { ...HIGHLIGHT_STYLE };
-          }
-          return { ...DIMMED_STYLE };
-        };
-      } else if (highlight) {
-        styleFn = () => ({ ...DIMMED_STYLE });
-      } else if (filterSet) {
-        styleFn = (properties) => {
-          if (filterSet.has(String(properties.unit_id))) {
-            return { ...DEFAULT_STYLE };
-          }
-          return { ...DIMMED_STYLE };
-        };
-      }
-
-      if (styleFn) {
-        // Update style function for future tiles
-        layer.options.vectorTileLayerStyles.scope_dataset_geometries = styleFn;
-
-        // Restyle already-rendered features in-place (no tile re-fetch).
-        // VectorGrid stores rendered features in _vectorTiles.
-        const tiles = layer._vectorTiles;
-        if (tiles) {
-          Object.values(tiles).forEach((tile) => {
-            const features = tile._features?.scope_dataset_geometries;
-            if (!features) return;
-            Object.entries(features).forEach(([id, featureInfo]) => {
-              const props = featureInfo?.feature?.properties || {};
-              const style = styleFn(props);
-              try {
-                layer.setFeatureStyle(id, style);
-              } catch {
-                /* feature may not support setFeatureStyle */
-              }
-            });
-          });
-        }
-      }
-    });
-  }, [highlight, spatialFilter]);
-
-  // Zoom the map to the highlighted polygon's bounding box
-  useEffect(() => {
-    if (!map || !highlightBounds || !L) return;
-    try {
-      const bounds = L.latLngBounds(highlightBounds);
-      if (bounds.isValid()) {
-        map.flyToBounds(bounds, { padding: [40, 40], maxZoom: 13, duration: 0.8 });
-      }
-    } catch {
-      /* invalid bounds — ignore */
-    }
-  }, [map, highlightBounds, L]);
 
   return null;
 };

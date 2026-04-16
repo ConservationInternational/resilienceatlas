@@ -13,6 +13,7 @@ export const LOAD_DETAIL = createApiAction('scopeDatasets/LOAD_DETAIL');
 export const SET_HIGHLIGHT = 'scopeDatasets / SET_HIGHLIGHT';
 export const CLEAR_HIGHLIGHT = 'scopeDatasets / CLEAR_HIGHLIGHT';
 export const SET_HIGHLIGHT_BOUNDS = 'scopeDatasets / SET_HIGHLIGHT_BOUNDS';
+export const SET_HIGHLIGHT_GEOMETRY = 'scopeDatasets / SET_HIGHLIGHT_GEOMETRY';
 export const SET_ACTIVE_VARIANT = 'scopeDatasets / SET_ACTIVE_VARIANT';
 export const SET_ACTIVE_DIMENSION = 'scopeDatasets / SET_ACTIVE_DIMENSION';
 export const SET_SPATIAL_FILTER = 'scopeDatasets / SET_SPATIAL_FILTER';
@@ -65,6 +66,9 @@ export const fetchGeometryBounds = (datasetSlug, unitId) => (dispatch) => {
     .then(({ data }) => {
       if (data && data.bounds) {
         dispatch({ type: SET_HIGHLIGHT_BOUNDS, bounds: data.bounds });
+      }
+      if (data && data.geometry) {
+        dispatch({ type: SET_HIGHLIGHT_GEOMETRY, geometry: data.geometry });
       }
     })
     .catch(() => {
