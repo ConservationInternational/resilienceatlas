@@ -119,7 +119,7 @@ const ScopeGeometryLayer = ({ map }) => {
     try {
       const bounds = L.latLngBounds(highlightBounds);
       if (bounds.isValid()) {
-        map.flyToBounds(bounds, { padding: [40, 40], maxZoom: 13, duration: 0.8 });
+        map.fitBounds(bounds, { padding: [40, 40], maxZoom: 13 });
       }
     } catch {
       /* invalid bounds — ignore */
