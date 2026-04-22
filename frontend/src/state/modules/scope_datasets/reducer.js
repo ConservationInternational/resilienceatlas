@@ -109,9 +109,19 @@ export default createReducer(initialState)({
       state.highlight.datasetSlug === datasetSlug &&
       state.highlight.unitId === unitId
     ) {
-      return { ...state, highlight: null, highlightBounds: null, highlightGeometry: null };
+      return {
+        ...state,
+        highlight: null,
+        highlightBounds: null,
+        highlightGeometry: null,
+      };
     }
-    return { ...state, highlight: { datasetSlug, unitId }, highlightBounds: null, highlightGeometry: null };
+    return {
+      ...state,
+      highlight: { datasetSlug, unitId },
+      highlightBounds: null,
+      highlightGeometry: null,
+    };
   },
   [CLEAR_HIGHLIGHT]: (state) => ({
     ...state,

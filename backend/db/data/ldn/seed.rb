@@ -866,7 +866,6 @@ module LdnSeeder
       "Improved → Improved" => "#1e8449"
     }.freeze
 
-
     # Methodology variants — S3 folder name → human label.
     SCOPE_DATASET_VARIANTS = {
       "te" => {filename_mode: "Trends.Earth", label: "Trends.Earth"},
