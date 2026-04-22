@@ -1042,10 +1042,10 @@ module LdnSeeder
         geometry_unit_key: "eco_id"
       },
 
-      # ── 2. Country-level summary ──
-      "country-summary" => {
-        name_template: "Country LDN Summary (%{variant})",
-        description_template: "LDN counterbalancing summary per country using %{variant} productivity methodology.",
+      # ── 2. Country × Ecoregion summary (country-first with ecoregion drill-down) ──
+      "country-ecoregion-summary" => {
+        name_template: "Country × Ecoregion LDN Summary (%{variant})",
+        description_template: "LDN counterbalancing summary per country using %{variant} productivity methodology. Country-level results with ecoregion drill-down.",
         display_order: 2,
         dimension: "country",
         dimension_config: {unit_label: "Country", unit_id_column: "admin0_id", name_column: "country"},
@@ -1055,10 +1055,10 @@ module LdnSeeder
           {name: "country", type: "string", label: "Country"},
           {name: "gains_km2", type: "number", label: "Gains (km²)", format: ",.1f"},
           {name: "losses_km2", type: "number", label: "Losses (km²)", format: ",.1f"},
-          {name: "delta_ldn_km2", type: "number", label: "Net Change (km²)", format: ",.1f"},
-          {name: "total_area_km2", type: "number", label: "Total Area (km²)", format: ",.1f"},
           {name: "gains_pct", type: "number", label: "Gains (% of area)", format: ".1f"},
           {name: "losses_pct", type: "number", label: "Losses (% of area)", format: ".1f"},
+          {name: "delta_ldn_km2", type: "number", label: "Net Change (km²)", format: ",.1f"},
+          {name: "total_area_km2", type: "number", label: "Total Area (km²)", format: ",.1f"},
           {name: "ldn_pct", type: "number", label: "LDN Achievement (%)", format: ".1f"},
           {name: "category", type: "category", label: "Category"},
           {name: "baseline_degraded_sqkm", type: "number", label: "Baseline Degraded (km²)", format: ",.1f"},
@@ -1081,7 +1081,7 @@ module LdnSeeder
           {
             id: "category-donut",
             type: "donut",
-            title: "LDN Achievement",
+            title: "LDN Achievement (by count)",
             description: "Number of countries by LDN achievement category.",
             valueKey: "category",
             categoryKey: "category",
@@ -1091,7 +1091,7 @@ module LdnSeeder
           {
             id: "area-donut",
             type: "donut",
-            title: "LDN Achievement (by percent of land area)",
+            title: "LDN Achievement (by land area)",
             description: "Share of total land area by LDN achievement category.",
             valueKey: "total_area_km2",
             categoryKey: "category",
@@ -1115,7 +1115,7 @@ module LdnSeeder
             id: "gains-losses-scatter",
             type: "scatter",
             title: "Gains vs Losses by Country",
-            description: "Each point is a country. Points above the diagonal have net positive change.",
+            description: "Each point represents a country. Points above the diagonal have net positive change.",
             xAxis: {key: "losses_pct", label: "Losses (% of area)"},
             yAxis: {key: "gains_pct", label: "Gains (% of area)"},
             sizeKey: "ldn_pct",
@@ -1124,136 +1124,12 @@ module LdnSeeder
             labelKey: "country"
           },
           {
-            id: "baseline-condition-donut",
-            type: "columnsDonut",
-            title: "Baseline Land Condition (2000-2015)",
-            description: "Total area by land condition class in the baseline period.",
-            columns: [
-              {key: "baseline_degraded_sqkm", label: "Degraded", color: CONDITION_COLORS["Degraded"]},
-              {key: "baseline_stable_sqkm", label: "Stable", color: CONDITION_COLORS["Stable"]},
-              {key: "baseline_improved_sqkm", label: "Improved", color: CONDITION_COLORS["Improved"]}
-            ]
-          },
-          {
-            id: "period-condition-donut",
-            type: "columnsDonut",
-            title: "Current Land Condition (2008-2023)",
-            description: "Total area by land condition class in the most recent assessment period.",
-            columns: [
-              {key: "period_degraded_sqkm", label: "Degraded", color: CONDITION_COLORS["Degraded"]},
-              {key: "period_stable_sqkm", label: "Stable", color: CONDITION_COLORS["Stable"]},
-              {key: "period_improved_sqkm", label: "Improved", color: CONDITION_COLORS["Improved"]}
-            ]
-          },
-          {
-            id: "transition-matrix-donut",
-            type: "columnsDonut",
-            title: "Baseline → Period Transitions",
-            description: "Total area for each of the nine baseline-to-period transition classes.",
-            columns: [
-              {key: "deg_to_deg_sqkm", label: "Degraded → Degraded", color: TRANSITION_COLORS["Degraded → Degraded"]},
-              {key: "deg_to_stable_sqkm", label: "Degraded → Stable", color: TRANSITION_COLORS["Degraded → Stable"]},
-              {key: "deg_to_imp_sqkm", label: "Degraded → Improved", color: TRANSITION_COLORS["Degraded → Improved"]},
-              {key: "stable_to_deg_sqkm", label: "Stable → Degraded", color: TRANSITION_COLORS["Stable → Degraded"]},
-              {key: "stable_to_stable_sqkm", label: "Stable → Stable", color: TRANSITION_COLORS["Stable → Stable"]},
-              {key: "stable_to_imp_sqkm", label: "Stable → Improved", color: TRANSITION_COLORS["Stable → Improved"]},
-              {key: "imp_to_deg_sqkm", label: "Improved → Degraded", color: TRANSITION_COLORS["Improved → Degraded"]},
-              {key: "imp_to_stable_sqkm", label: "Improved → Stable", color: TRANSITION_COLORS["Improved → Stable"]},
-              {key: "imp_to_imp_sqkm", label: "Improved → Improved", color: TRANSITION_COLORS["Improved → Improved"]}
-            ]
-          }
-        ],
-        sql: <<~SQL,
-          SELECT k.country_id AS admin0_id, k.country_code, k.country_name AS country,
-            ROUND(SUM(s.gains_km2)::numeric, 1) AS gains_km2,
-            ROUND(SUM(s.losses_km2)::numeric, 1) AS losses_km2,
-            ROUND(SUM(s.delta_ldn_km2)::numeric, 1) AS delta_ldn_km2,
-            ROUND(SUM(s.total_area_km2)::numeric, 1) AS total_area_km2,
-            CASE WHEN SUM(s.total_area_km2) > 0
-              THEN ROUND((SUM(s.gains_km2) / SUM(s.total_area_km2) * 100)::numeric, 1)
-              ELSE 0 END AS gains_pct,
-            CASE WHEN SUM(s.total_area_km2) > 0
-              THEN ROUND((SUM(s.losses_km2) / SUM(s.total_area_km2) * 100)::numeric, 1)
-              ELSE 0 END AS losses_pct,
-            CASE WHEN SUM(s.total_area_km2) > 0
-              THEN ROUND((SUM(s.delta_ldn_km2) / SUM(s.total_area_km2) * 100)::numeric, 1)
-              ELSE 0 END AS ldn_pct,
-            CASE WHEN SUM(s.delta_ldn_km2) >= 0 THEN 'Achieving'
-                 ELSE 'Not achieving' END AS category,
-            ROUND(SUM(COALESCE(s.deg_to_deg_sqkm,0) + COALESCE(s.deg_to_stable_sqkm,0) + COALESCE(s.deg_to_imp_sqkm,0))::numeric, 1) AS baseline_degraded_sqkm,
-            ROUND(SUM(COALESCE(s.stable_to_deg_sqkm,0) + COALESCE(s.stable_to_stable_sqkm,0) + COALESCE(s.stable_to_imp_sqkm,0))::numeric, 1) AS baseline_stable_sqkm,
-            ROUND(SUM(COALESCE(s.imp_to_deg_sqkm,0) + COALESCE(s.imp_to_stable_sqkm,0) + COALESCE(s.imp_to_imp_sqkm,0))::numeric, 1) AS baseline_improved_sqkm,
-            ROUND(SUM(COALESCE(s.deg_to_deg_sqkm,0) + COALESCE(s.stable_to_deg_sqkm,0) + COALESCE(s.imp_to_deg_sqkm,0))::numeric, 1) AS period_degraded_sqkm,
-            ROUND(SUM(COALESCE(s.deg_to_stable_sqkm,0) + COALESCE(s.stable_to_stable_sqkm,0) + COALESCE(s.imp_to_stable_sqkm,0))::numeric, 1) AS period_stable_sqkm,
-            ROUND(SUM(COALESCE(s.deg_to_imp_sqkm,0) + COALESCE(s.stable_to_imp_sqkm,0) + COALESCE(s.imp_to_imp_sqkm,0))::numeric, 1) AS period_improved_sqkm,
-            ROUND(SUM(COALESCE(s.deg_to_deg_sqkm, 0))::numeric, 1) AS deg_to_deg_sqkm,
-            ROUND(SUM(COALESCE(s.deg_to_stable_sqkm, 0))::numeric, 1) AS deg_to_stable_sqkm,
-            ROUND(SUM(COALESCE(s.deg_to_imp_sqkm, 0))::numeric, 1) AS deg_to_imp_sqkm,
-            ROUND(SUM(COALESCE(s.stable_to_deg_sqkm, 0))::numeric, 1) AS stable_to_deg_sqkm,
-            ROUND(SUM(COALESCE(s.stable_to_stable_sqkm, 0))::numeric, 1) AS stable_to_stable_sqkm,
-            ROUND(SUM(COALESCE(s.stable_to_imp_sqkm, 0))::numeric, 1) AS stable_to_imp_sqkm,
-            ROUND(SUM(COALESCE(s.imp_to_deg_sqkm, 0))::numeric, 1) AS imp_to_deg_sqkm,
-            ROUND(SUM(COALESCE(s.imp_to_stable_sqkm, 0))::numeric, 1) AS imp_to_stable_sqkm,
-            ROUND(SUM(COALESCE(s.imp_to_imp_sqkm, 0))::numeric, 1) AS imp_to_imp_sqkm
-          FROM _country_eco_stats s
-          JOIN _eco_country_key k ON s.admin0_id = k.country_id AND s.eco_id = k.eco_id AND k.is_pa = 0
-          GROUP BY k.country_id, k.country_code, k.country_name
-          ORDER BY k.country_id
-        SQL
-        geometry_source: "country_ecoregion",
-        geometry_unit_key: "country_id"
-      },
-
-      # ── 3. Country × Ecoregion summary ──
-      "country-ecoregion-summary" => {
-        name_template: "Country × Ecoregion LDN Summary (%{variant})",
-        description_template: "LDN counterbalancing summary per country and ecoregion intersection using %{variant} productivity methodology.",
-        display_order: 3,
-        dimension: "country",
-        dimension_config: {unit_label: "Country × Ecoregion", unit_id_column: "admin0_id", name_column: "country"},
-        schema_config: [
-          {name: "admin0_id", type: "integer", label: "Country ID"},
-          {name: "country_code", type: "string", label: "Country ISO"},
-          {name: "country", type: "string", label: "Country"},
-          {name: "eco_id", type: "integer", label: "Ecoregion ID"},
-          {name: "ecoregion", type: "string", label: "Ecoregion"},
-          {name: "biome", type: "string", label: "Biome"},
-          {name: "realm", type: "string", label: "Realm"},
-          {name: "gains_km2", type: "number", label: "Gains (km²)", format: ",.1f"},
-          {name: "losses_km2", type: "number", label: "Losses (km²)", format: ",.1f"},
-          {name: "delta_ldn_km2", type: "number", label: "Net Change (km²)", format: ",.1f"},
-          {name: "total_area_km2", type: "number", label: "Total Area (km²)", format: ",.1f"},
-          {name: "ldn_pct", type: "number", label: "LDN Achievement (%)", format: ".1f"},
-          {name: "category", type: "category", label: "Category"},
-          {name: "baseline_degraded_sqkm", type: "number", label: "Baseline Degraded (km²)", format: ",.1f"},
-          {name: "baseline_stable_sqkm", type: "number", label: "Baseline Stable (km²)", format: ",.1f"},
-          {name: "baseline_improved_sqkm", type: "number", label: "Baseline Improved (km²)", format: ",.1f"},
-          {name: "period_degraded_sqkm", type: "number", label: "Period Degraded (km²)", format: ",.1f"},
-          {name: "period_stable_sqkm", type: "number", label: "Period Stable (km²)", format: ",.1f"},
-          {name: "period_improved_sqkm", type: "number", label: "Period Improved (km²)", format: ",.1f"},
-          {name: "deg_to_deg_sqkm", type: "number", label: "Degraded → Degraded (km²)", format: ",.1f"},
-          {name: "deg_to_stable_sqkm", type: "number", label: "Degraded → Stable (km²)", format: ",.1f"},
-          {name: "deg_to_imp_sqkm", type: "number", label: "Degraded → Improved (km²)", format: ",.1f"},
-          {name: "stable_to_deg_sqkm", type: "number", label: "Stable → Degraded (km²)", format: ",.1f"},
-          {name: "stable_to_stable_sqkm", type: "number", label: "Stable → Stable (km²)", format: ",.1f"},
-          {name: "stable_to_imp_sqkm", type: "number", label: "Stable → Improved (km²)", format: ",.1f"},
-          {name: "imp_to_deg_sqkm", type: "number", label: "Improved → Degraded (km²)", format: ",.1f"},
-          {name: "imp_to_stable_sqkm", type: "number", label: "Improved → Stable (km²)", format: ",.1f"},
-          {name: "imp_to_imp_sqkm", type: "number", label: "Improved → Improved (km²)", format: ",.1f"}
-        ],
-        chart_config: [
-          {
             id: "country-summary-table",
             type: "table",
             title: "Country-Level LDN Summary",
-            description: "Aggregated LDN metrics per country. Click a row to highlight on the map.",
-            groupBy: "admin0_id",
+            description: "Aggregated LDN metrics per country.",
             labelKey: "country",
             columns: %w[country gains_km2 losses_km2 delta_ldn_km2 total_area_km2 ldn_pct],
-            aggregation: {
-              gains_km2: "sum", losses_km2: "sum", delta_ldn_km2: "sum",
-              total_area_km2: "sum", ldn_pct: "weighted_avg:total_area_km2"
-            },
             sortBy: {key: "delta_ldn_km2", order: "desc"}
           },
           {
@@ -1297,32 +1173,41 @@ module LdnSeeder
           }
         ],
         sql: <<~SQL
-          SELECT s.admin0_id, k.country_code, k.country_name AS country,
-            s.eco_id, k.eco_name AS ecoregion, k.biome_name AS biome, k.realm,
-            ROUND(s.gains_km2::numeric, 1) AS gains_km2,
-            ROUND(s.losses_km2::numeric, 1) AS losses_km2,
-            ROUND(s.delta_ldn_km2::numeric, 1) AS delta_ldn_km2,
-            ROUND(s.total_area_km2::numeric, 1) AS total_area_km2,
-            ROUND(s.ldn_pct::numeric, 1) AS ldn_pct,
-            s.category,
-            ROUND((COALESCE(s.deg_to_deg_sqkm,0) + COALESCE(s.deg_to_stable_sqkm,0) + COALESCE(s.deg_to_imp_sqkm,0))::numeric, 1) AS baseline_degraded_sqkm,
-            ROUND((COALESCE(s.stable_to_deg_sqkm,0) + COALESCE(s.stable_to_stable_sqkm,0) + COALESCE(s.stable_to_imp_sqkm,0))::numeric, 1) AS baseline_stable_sqkm,
-            ROUND((COALESCE(s.imp_to_deg_sqkm,0) + COALESCE(s.imp_to_stable_sqkm,0) + COALESCE(s.imp_to_imp_sqkm,0))::numeric, 1) AS baseline_improved_sqkm,
-            ROUND((COALESCE(s.deg_to_deg_sqkm,0) + COALESCE(s.stable_to_deg_sqkm,0) + COALESCE(s.imp_to_deg_sqkm,0))::numeric, 1) AS period_degraded_sqkm,
-            ROUND((COALESCE(s.deg_to_stable_sqkm,0) + COALESCE(s.stable_to_stable_sqkm,0) + COALESCE(s.imp_to_stable_sqkm,0))::numeric, 1) AS period_stable_sqkm,
-            ROUND((COALESCE(s.deg_to_imp_sqkm,0) + COALESCE(s.stable_to_imp_sqkm,0) + COALESCE(s.imp_to_imp_sqkm,0))::numeric, 1) AS period_improved_sqkm,
-            ROUND(COALESCE(s.deg_to_deg_sqkm, 0)::numeric, 1) AS deg_to_deg_sqkm,
-            ROUND(COALESCE(s.deg_to_stable_sqkm, 0)::numeric, 1) AS deg_to_stable_sqkm,
-            ROUND(COALESCE(s.deg_to_imp_sqkm, 0)::numeric, 1) AS deg_to_imp_sqkm,
-            ROUND(COALESCE(s.stable_to_deg_sqkm, 0)::numeric, 1) AS stable_to_deg_sqkm,
-            ROUND(COALESCE(s.stable_to_stable_sqkm, 0)::numeric, 1) AS stable_to_stable_sqkm,
-            ROUND(COALESCE(s.stable_to_imp_sqkm, 0)::numeric, 1) AS stable_to_imp_sqkm,
-            ROUND(COALESCE(s.imp_to_deg_sqkm, 0)::numeric, 1) AS imp_to_deg_sqkm,
-            ROUND(COALESCE(s.imp_to_stable_sqkm, 0)::numeric, 1) AS imp_to_stable_sqkm,
-            ROUND(COALESCE(s.imp_to_imp_sqkm, 0)::numeric, 1) AS imp_to_imp_sqkm
+          SELECT k.country_id AS admin0_id, k.country_code, k.country_name AS country,
+            ROUND(SUM(s.gains_km2)::numeric, 1) AS gains_km2,
+            ROUND(SUM(s.losses_km2)::numeric, 1) AS losses_km2,
+            CASE WHEN SUM(s.total_area_km2) > 0
+              THEN ROUND((SUM(s.gains_km2) / SUM(s.total_area_km2) * 100)::numeric, 1)
+              ELSE 0 END AS gains_pct,
+            CASE WHEN SUM(s.total_area_km2) > 0
+              THEN ROUND((SUM(s.losses_km2) / SUM(s.total_area_km2) * 100)::numeric, 1)
+              ELSE 0 END AS losses_pct,
+            ROUND(SUM(s.delta_ldn_km2)::numeric, 1) AS delta_ldn_km2,
+            ROUND(SUM(s.total_area_km2)::numeric, 1) AS total_area_km2,
+            CASE WHEN SUM(s.total_area_km2) > 0
+              THEN ROUND((SUM(s.delta_ldn_km2) / SUM(s.total_area_km2) * 100)::numeric, 1)
+              ELSE 0 END AS ldn_pct,
+            CASE WHEN SUM(s.delta_ldn_km2) >= 0 THEN 'Achieving'
+                 ELSE 'Not achieving' END AS category,
+            ROUND(SUM(COALESCE(s.deg_to_deg_sqkm,0) + COALESCE(s.deg_to_stable_sqkm,0) + COALESCE(s.deg_to_imp_sqkm,0))::numeric, 1) AS baseline_degraded_sqkm,
+            ROUND(SUM(COALESCE(s.stable_to_deg_sqkm,0) + COALESCE(s.stable_to_stable_sqkm,0) + COALESCE(s.stable_to_imp_sqkm,0))::numeric, 1) AS baseline_stable_sqkm,
+            ROUND(SUM(COALESCE(s.imp_to_deg_sqkm,0) + COALESCE(s.imp_to_stable_sqkm,0) + COALESCE(s.imp_to_imp_sqkm,0))::numeric, 1) AS baseline_improved_sqkm,
+            ROUND(SUM(COALESCE(s.deg_to_deg_sqkm,0) + COALESCE(s.stable_to_deg_sqkm,0) + COALESCE(s.imp_to_deg_sqkm,0))::numeric, 1) AS period_degraded_sqkm,
+            ROUND(SUM(COALESCE(s.deg_to_stable_sqkm,0) + COALESCE(s.stable_to_stable_sqkm,0) + COALESCE(s.imp_to_stable_sqkm,0))::numeric, 1) AS period_stable_sqkm,
+            ROUND(SUM(COALESCE(s.deg_to_imp_sqkm,0) + COALESCE(s.stable_to_imp_sqkm,0) + COALESCE(s.imp_to_imp_sqkm,0))::numeric, 1) AS period_improved_sqkm,
+            ROUND(SUM(COALESCE(s.deg_to_deg_sqkm, 0))::numeric, 1) AS deg_to_deg_sqkm,
+            ROUND(SUM(COALESCE(s.deg_to_stable_sqkm, 0))::numeric, 1) AS deg_to_stable_sqkm,
+            ROUND(SUM(COALESCE(s.deg_to_imp_sqkm, 0))::numeric, 1) AS deg_to_imp_sqkm,
+            ROUND(SUM(COALESCE(s.stable_to_deg_sqkm, 0))::numeric, 1) AS stable_to_deg_sqkm,
+            ROUND(SUM(COALESCE(s.stable_to_stable_sqkm, 0))::numeric, 1) AS stable_to_stable_sqkm,
+            ROUND(SUM(COALESCE(s.stable_to_imp_sqkm, 0))::numeric, 1) AS stable_to_imp_sqkm,
+            ROUND(SUM(COALESCE(s.imp_to_deg_sqkm, 0))::numeric, 1) AS imp_to_deg_sqkm,
+            ROUND(SUM(COALESCE(s.imp_to_stable_sqkm, 0))::numeric, 1) AS imp_to_stable_sqkm,
+            ROUND(SUM(COALESCE(s.imp_to_imp_sqkm, 0))::numeric, 1) AS imp_to_imp_sqkm
           FROM _country_eco_stats s
           JOIN _eco_country_key k ON s.admin0_id = k.country_id AND s.eco_id = k.eco_id AND k.is_pa = 0
-          ORDER BY s.admin0_id, s.eco_id
+          GROUP BY k.country_id, k.country_code, k.country_name
+          ORDER BY k.country_id
         SQL
       }
 
