@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import type { ThunkDispatch } from 'redux-thunk';
 import type { UnknownAction } from 'redux';
 import { useForm } from 'react-hook-form';
+import { useRouter } from 'next/router';
 import { T } from '@transifex/react';
 
 import {
@@ -26,6 +27,7 @@ interface SiteScopeAuthFormData {
 
 const SiteScopeAuthModal = () => {
   const dispatch = useDispatch<AppDispatch>();
+  const router = useRouter();
   const error = useSelector(getSiteScopeAuthError);
   const loading = useSelector(isSiteScopeAuthLoading);
   const showModal = useSelector(shouldShowSiteScopeAuthModal);
@@ -51,7 +53,8 @@ const SiteScopeAuthModal = () => {
     try {
       await dispatch(authenticateWithSiteScope(currentSiteScope, values.username, values.password));
       reset();
-      // Modal will be closed automatically by the action
+      // Re-run page bootstrap requests so protected scope content loads immediately.
+      router.reload();
     } catch (err) {
       // Error is handled by the reducer
       setLocalError((err as Error).message);
