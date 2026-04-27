@@ -1053,9 +1053,9 @@ module LdnSeeder
             type: "donut",
             title: "LDN Achievement (by land area)",
             description: "Total land area (km²) achieving and not achieving LDN.",
-            methodology_note: "Each country's total land area is placed in the 'Achieving' or 'Not achieving' bucket based on the strict per-ecoregion criterion: all ecoregions must be net positive. The chart shows the sum of area in each bucket.",
+            methodology_note: "Each country's total land area is placed in the 'Achieving' or 'Not achieving' bucket based on whether that country's aggregate net change (sum of gains − losses across all its ecoregions) is ≥ 0 km². This is the same criterion used in the 'Net Change (by country, aggregate)' chart above. The chart shows the sum of land area in each bucket.",
             valueKey: "total_area_km2",
-            categoryKey: "category",
+            categoryKey: "agg_category",
             colors: CATEGORY_COLORS,
             aggregation: "sum",
             tooltipUnit: "km²"

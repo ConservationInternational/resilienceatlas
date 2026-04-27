@@ -253,7 +253,8 @@ const ScopeDataTable = ({ config, data, schema, datasetSlug }) => {
           </div>
           <List
             listRef={listRef}
-            style={{ height: LIST_HEIGHT, overflow: 'hidden auto' }}
+            className="scope-data-table__list-body"
+            style={{ height: LIST_HEIGHT, overflowX: 'hidden', overflowY: 'scroll' }}
             rowCount={sortedData.length}
             rowHeight={ROW_HEIGHT}
             rowComponent={DataRow}

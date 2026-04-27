@@ -233,6 +233,26 @@
     font-size: 12px;
   }
 
+  &__list-body {
+    &::-webkit-scrollbar {
+      width: 7px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: #f0f0f0;
+      border-radius: 4px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: #bbb;
+      border-radius: 4px;
+
+      &:hover {
+        background: #999;
+      }
+    }
+  }
+
   &__header {
     position: sticky;
     top: 0;
