@@ -52,7 +52,10 @@ const ScopeDataTable = ({ config, data, schema, datasetSlug }) => {
 
   const columns = useMemo(() => {
     if (config?.columns) {
-      return (schema || []).filter((col) => config.columns.includes(col.name));
+      // Preserve the order specified in config.columns
+      return config.columns
+        .map((name) => (schema || []).find((col) => col.name === name))
+        .filter(Boolean);
     }
     return schema || [];
   }, [config, schema]);

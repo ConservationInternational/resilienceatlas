@@ -920,88 +920,32 @@ module LdnSeeder
         ],
         chart_config: [
           {
-            id: "category-donut",
+            id: "ecoregion-count-pie",
             type: "donut",
-            title: "LDN Achievement",
-            description: "Number of ecoregions by LDN achievement category.",
+            title: "LDN Achievement (by ecoregion)",
+            description: "Number of ecoregions achieving and not achieving LDN.",
             valueKey: "category",
             categoryKey: "category",
             colors: CATEGORY_COLORS,
-            aggregation: "count"
+            aggregation: "count",
+            tooltipUnit: "ecoregions"
           },
           {
-            id: "area-donut",
+            id: "area-pie",
             type: "donut",
-            title: "LDN Achievement (by percent of land area)",
-            description: "Share of total land area by LDN achievement category.",
+            title: "LDN Achievement (by land area)",
+            description: "Total land area (km²) achieving and not achieving LDN.",
             valueKey: "total_area_km2",
             categoryKey: "category",
             colors: CATEGORY_COLORS,
-            aggregation: "sum"
+            aggregation: "sum",
+            tooltipUnit: "km²"
           },
           {
-            id: "ecoregion-ldn-bar",
-            type: "horizontalBar",
-            title: "LDN Achievement by Ecoregion",
-            description: "Percentage of LDN achievement per ecoregion. Top 10 and bottom 10 shown.",
-            xAxis: {key: "ldn_pct", label: "LDN Achievement (%)"},
-            yAxis: {key: "ecoregion", fallback: "eco_id", label: "Ecoregion"},
-            colorBy: {key: "category", colors: CATEGORY_COLORS},
-            sortBy: {key: "ldn_pct", order: "desc"},
-            topN: 10,
-            bottomN: 10,
-            unitIdColumn: "eco_id"
-          },
-          {
-            id: "gains-losses-scatter",
-            type: "scatter",
-            title: "Gains vs Losses by Ecoregion",
-            description: "Each point is an ecoregion. Points above the diagonal have net positive change.",
-            xAxis: {key: "losses_pct", label: "Losses (% of area)"},
-            yAxis: {key: "gains_pct", label: "Gains (% of area)"},
-            sizeKey: "ldn_pct",
-            colorBy: {key: "category", colors: CATEGORY_COLORS},
-            unitIdColumn: "eco_id",
-            labelKey: "ecoregion"
-          },
-          {
-            id: "baseline-condition-donut",
-            type: "columnsDonut",
-            title: "Baseline Land Condition (2000-2015)",
-            description: "Total area by land condition class in the baseline period.",
-            columns: [
-              {key: "baseline_degraded_sqkm", label: "Degraded", color: CONDITION_COLORS["Degraded"]},
-              {key: "baseline_stable_sqkm", label: "Stable", color: CONDITION_COLORS["Stable"]},
-              {key: "baseline_improved_sqkm", label: "Improved", color: CONDITION_COLORS["Improved"]}
-            ]
-          },
-          {
-            id: "period-condition-donut",
-            type: "columnsDonut",
-            title: "Current Land Condition (2008-2023)",
-            description: "Total area by land condition class in the most recent assessment period.",
-            columns: [
-              {key: "period_degraded_sqkm", label: "Degraded", color: CONDITION_COLORS["Degraded"]},
-              {key: "period_stable_sqkm", label: "Stable", color: CONDITION_COLORS["Stable"]},
-              {key: "period_improved_sqkm", label: "Improved", color: CONDITION_COLORS["Improved"]}
-            ]
-          },
-          {
-            id: "transition-matrix-donut",
-            type: "columnsDonut",
-            title: "Baseline → Period Transitions",
-            description: "Total area for each of the nine baseline-to-period transition classes.",
-            columns: [
-              {key: "deg_to_deg_sqkm", label: "Degraded → Degraded", color: TRANSITION_COLORS["Degraded → Degraded"]},
-              {key: "deg_to_stable_sqkm", label: "Degraded → Stable", color: TRANSITION_COLORS["Degraded → Stable"]},
-              {key: "deg_to_imp_sqkm", label: "Degraded → Improved", color: TRANSITION_COLORS["Degraded → Improved"]},
-              {key: "stable_to_deg_sqkm", label: "Stable → Degraded", color: TRANSITION_COLORS["Stable → Degraded"]},
-              {key: "stable_to_stable_sqkm", label: "Stable → Stable", color: TRANSITION_COLORS["Stable → Stable"]},
-              {key: "stable_to_imp_sqkm", label: "Stable → Improved", color: TRANSITION_COLORS["Stable → Improved"]},
-              {key: "imp_to_deg_sqkm", label: "Improved → Degraded", color: TRANSITION_COLORS["Improved → Degraded"]},
-              {key: "imp_to_stable_sqkm", label: "Improved → Stable", color: TRANSITION_COLORS["Improved → Stable"]},
-              {key: "imp_to_imp_sqkm", label: "Improved → Improved", color: TRANSITION_COLORS["Improved → Improved"]}
-            ]
+            id: "ecoregion-table",
+            type: "table",
+            title: "All Ecoregions",
+            columns: %w[ecoregion biome realm ldn_pct delta_ldn_km2 gains_km2 losses_km2 baseline_degraded_sqkm period_degraded_sqkm]
           }
         ],
         sql: <<~SQL,
@@ -1043,8 +987,8 @@ module LdnSeeder
 
       # ── 2. Country × Ecoregion summary (country-first with ecoregion drill-down) ──
       "country-ecoregion-summary" => {
-        name_template: "Country × Ecoregion LDN Summary (%{variant})",
-        description_template: "LDN counterbalancing summary per country using %{variant} productivity methodology. Country-level results with ecoregion drill-down.",
+        name_template: "Country LDN Summary (%{variant})",
+        description_template: "LDN counterbalancing results per country using %{variant} productivity methodology.",
         display_order: 2,
         dimension: "country",
         dimension_config: {unit_label: "Country", unit_id_column: "admin0_id", name_column: "country"},
@@ -1078,97 +1022,32 @@ module LdnSeeder
         ],
         chart_config: [
           {
-            id: "category-donut",
+            id: "country-count-pie",
             type: "donut",
-            title: "LDN Achievement (by count)",
-            description: "Number of countries by LDN achievement category.",
+            title: "LDN Achievement (by country)",
+            description: "Number of countries achieving and not achieving LDN.",
             valueKey: "category",
             categoryKey: "category",
             colors: CATEGORY_COLORS,
-            aggregation: "count"
+            aggregation: "count",
+            tooltipUnit: "countries"
           },
           {
-            id: "area-donut",
+            id: "area-pie",
             type: "donut",
             title: "LDN Achievement (by land area)",
-            description: "Share of total land area by LDN achievement category.",
+            description: "Total land area (km²) achieving and not achieving LDN.",
             valueKey: "total_area_km2",
             categoryKey: "category",
             colors: CATEGORY_COLORS,
-            aggregation: "sum"
+            aggregation: "sum",
+            tooltipUnit: "km²"
           },
           {
-            id: "country-ldn-bar",
-            type: "horizontalBar",
-            title: "LDN Achievement by Country",
-            description: "Percentage of LDN achievement per country. Top 10 and bottom 10 shown.",
-            xAxis: {key: "ldn_pct", label: "LDN Achievement (%)"},
-            yAxis: {key: "country", fallback: "admin0_id", label: "Country"},
-            colorBy: {key: "category", colors: CATEGORY_COLORS},
-            sortBy: {key: "ldn_pct", order: "desc"},
-            topN: 10,
-            bottomN: 10,
-            unitIdColumn: "admin0_id"
-          },
-          {
-            id: "gains-losses-scatter",
-            type: "scatter",
-            title: "Gains vs Losses by Country",
-            description: "Each point represents a country. Points above the diagonal have net positive change.",
-            xAxis: {key: "losses_pct", label: "Losses (% of area)"},
-            yAxis: {key: "gains_pct", label: "Gains (% of area)"},
-            sizeKey: "ldn_pct",
-            colorBy: {key: "category", colors: CATEGORY_COLORS},
-            unitIdColumn: "admin0_id",
-            labelKey: "country"
-          },
-          {
-            id: "country-summary-table",
+            id: "country-table",
             type: "table",
-            title: "Country-Level LDN Summary",
-            description: "Aggregated LDN metrics per country.",
-            labelKey: "country",
-            columns: %w[country gains_km2 losses_km2 delta_ldn_km2 total_area_km2 ldn_pct],
-            sortBy: {key: "delta_ldn_km2", order: "desc"}
-          },
-          {
-            id: "baseline-condition-donut",
-            type: "columnsDonut",
-            title: "Baseline Land Condition (2000-2015)",
-            description: "Total area by land condition class in the baseline period.",
-            columns: [
-              {key: "baseline_degraded_sqkm", label: "Degraded", color: CONDITION_COLORS["Degraded"]},
-              {key: "baseline_stable_sqkm", label: "Stable", color: CONDITION_COLORS["Stable"]},
-              {key: "baseline_improved_sqkm", label: "Improved", color: CONDITION_COLORS["Improved"]}
-            ]
-          },
-          {
-            id: "period-condition-donut",
-            type: "columnsDonut",
-            title: "Current Land Condition (2008-2023)",
-            description: "Total area by land condition class in the most recent assessment period.",
-            columns: [
-              {key: "period_degraded_sqkm", label: "Degraded", color: CONDITION_COLORS["Degraded"]},
-              {key: "period_stable_sqkm", label: "Stable", color: CONDITION_COLORS["Stable"]},
-              {key: "period_improved_sqkm", label: "Improved", color: CONDITION_COLORS["Improved"]}
-            ]
-          },
-          {
-            id: "transition-matrix-donut",
-            type: "columnsDonut",
-            title: "Baseline → Period Transitions",
-            description: "Total area for each of the nine baseline-to-period transition classes.",
-            columns: [
-              {key: "deg_to_deg_sqkm", label: "Degraded → Degraded", color: TRANSITION_COLORS["Degraded → Degraded"]},
-              {key: "deg_to_stable_sqkm", label: "Degraded → Stable", color: TRANSITION_COLORS["Degraded → Stable"]},
-              {key: "deg_to_imp_sqkm", label: "Degraded → Improved", color: TRANSITION_COLORS["Degraded → Improved"]},
-              {key: "stable_to_deg_sqkm", label: "Stable → Degraded", color: TRANSITION_COLORS["Stable → Degraded"]},
-              {key: "stable_to_stable_sqkm", label: "Stable → Stable", color: TRANSITION_COLORS["Stable → Stable"]},
-              {key: "stable_to_imp_sqkm", label: "Stable → Improved", color: TRANSITION_COLORS["Stable → Improved"]},
-              {key: "imp_to_deg_sqkm", label: "Improved → Degraded", color: TRANSITION_COLORS["Improved → Degraded"]},
-              {key: "imp_to_stable_sqkm", label: "Improved → Stable", color: TRANSITION_COLORS["Improved → Stable"]},
-              {key: "imp_to_imp_sqkm", label: "Improved → Improved", color: TRANSITION_COLORS["Improved → Improved"]}
-            ]
+            title: "All Countries",
+            columns: %w[country ldn_pct delta_ldn_km2 gains_km2 losses_km2 baseline_degraded_sqkm period_degraded_sqkm]
           }
         ],
         sql: <<~SQL
@@ -1207,6 +1086,47 @@ module LdnSeeder
           JOIN _eco_country_key k ON s.admin0_id = k.country_id AND s.eco_id = k.eco_id AND k.is_pa = 0
           GROUP BY k.country_id, k.country_code, k.country_name
           ORDER BY k.country_id
+        SQL
+      },
+
+      # ── 3. Ecoregion breakdown by country ──
+      "country-ecoregion-detail" => {
+        name_template: "Ecoregion Breakdown by Country (%{variant})",
+        description_template: "LDN counterbalancing results per ecoregion within each country using %{variant} productivity methodology. Each ecoregion is assessed only within the portion of its land area that falls inside the given country.",
+        display_order: 3,
+        dimension: "country",
+        dimension_config: {unit_label: "Country", unit_id_column: "admin0_id", name_column: "country"},
+        schema_config: [
+          {name: "admin0_id", type: "integer", label: "Country ID"},
+          {name: "eco_id", type: "integer", label: "Ecoregion ID"},
+          {name: "country", type: "string", label: "Country"},
+          {name: "ecoregion", type: "string", label: "Ecoregion"},
+          {name: "ldn_pct", type: "number", label: "Net Change (%)", format: ".1f"},
+          {name: "delta_ldn_km2", type: "number", label: "Net Change (km²)", format: ",.1f"},
+          {name: "gains_km2", type: "number", label: "Gains (km²)", format: ",.1f"},
+          {name: "losses_km2", type: "number", label: "Losses (km²)", format: ",.1f"},
+          {name: "baseline_degraded_sqkm", type: "number", label: "Degraded at Baseline (km²)", format: ",.1f"},
+          {name: "period_degraded_sqkm", type: "number", label: "Degraded in 2023 (km²)", format: ",.1f"}
+        ],
+        chart_config: [
+          {
+            id: "country-ecoregion-table",
+            type: "table",
+            title: "All Ecoregions (by Country)",
+            columns: %w[country ecoregion ldn_pct delta_ldn_km2 gains_km2 losses_km2 baseline_degraded_sqkm period_degraded_sqkm]
+          }
+        ],
+        sql: <<~SQL
+          SELECT k.country_id AS admin0_id, s.eco_id, k.country_name AS country, k.eco_name AS ecoregion,
+            ROUND(s.ldn_pct::numeric, 1) AS ldn_pct,
+            ROUND(s.delta_ldn_km2::numeric, 1) AS delta_ldn_km2,
+            ROUND(s.gains_km2::numeric, 1) AS gains_km2,
+            ROUND(s.losses_km2::numeric, 1) AS losses_km2,
+            ROUND((COALESCE(s.deg_to_deg_sqkm,0) + COALESCE(s.deg_to_stable_sqkm,0) + COALESCE(s.deg_to_imp_sqkm,0))::numeric, 1) AS baseline_degraded_sqkm,
+            ROUND((COALESCE(s.deg_to_deg_sqkm,0) + COALESCE(s.stable_to_deg_sqkm,0) + COALESCE(s.imp_to_deg_sqkm,0))::numeric, 1) AS period_degraded_sqkm
+          FROM _country_eco_stats s
+          JOIN _eco_country_key k ON s.admin0_id = k.country_id AND s.eco_id = k.eco_id AND k.is_pa = 0
+          ORDER BY k.country_name, k.eco_name
         SQL
       }
 

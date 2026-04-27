@@ -167,7 +167,7 @@ const HorizontalBarChart = ({ config, data, highlight, datasetSlug, onClick }) =
 };
 
 const DonutChart = ({ config, data }) => {
-  const { valueKey, categoryKey, colors, aggregation } = config;
+  const { valueKey, categoryKey, colors, aggregation, tooltipUnit } = config;
 
   const pieData = useMemo(() => {
     const grouped = {};
@@ -185,6 +185,8 @@ const DonutChart = ({ config, data }) => {
       value: Math.round(value * 100) / 100,
     }));
   }, [data, valueKey, categoryKey, aggregation]);
+
+  const total = useMemo(() => pieData.reduce((sum, d) => sum + d.value, 0), [pieData]);
 
   const getColor = useCallback(
     (name) =>
@@ -217,6 +219,36 @@ const DonutChart = ({ config, data }) => {
     [],
   );
 
+  const renderTooltip = useCallback(
+    ({ active, payload }) => {
+      if (!active || !payload?.length) return null;
+      const entry = payload[0];
+      const pct = total > 0 ? ((entry.value / total) * 100).toFixed(1) : '0';
+      const unit = tooltipUnit || '';
+      return (
+        <div
+          style={{
+            background: '#fff',
+            border: '1px solid #ccc',
+            borderRadius: 4,
+            padding: '8px 12px',
+            fontSize: 12,
+            lineHeight: 1.6,
+            boxShadow: '0 2px 6px rgba(0,0,0,0.15)',
+          }}
+        >
+          <div style={{ fontWeight: 600, marginBottom: 4 }}>{entry.name}</div>
+          <div>{pct}%</div>
+          <div>
+            {entry.value.toLocaleString()}
+            {unit ? ` ${unit}` : ''}
+          </div>
+        </div>
+      );
+    },
+    [total, tooltipUnit],
+  );
+
   return (
     <ChartWrapper title={config.title} description={config.description}>
       <ResponsiveContainer width="100%" height={250}>
@@ -236,7 +268,7 @@ const DonutChart = ({ config, data }) => {
               <Cell key={entry.name} fill={getColor(entry.name)} />
             ))}
           </Pie>
-          <Tooltip formatter={(value) => value.toLocaleString()} />
+          <Tooltip content={renderTooltip} />
           <Legend
             layout="horizontal"
             verticalAlign="bottom"
@@ -244,7 +276,6 @@ const DonutChart = ({ config, data }) => {
             wrapperStyle={{ fontSize: 11, paddingTop: 8 }}
             formatter={(value) => {
               const item = pieData.find((d) => d.name === value);
-              const total = pieData.reduce((sum, d) => sum + d.value, 0);
               const pct = total > 0 && item ? ((item.value / total) * 100).toFixed(1) : '0';
               return `${value} (${pct}%)`;
             }}
