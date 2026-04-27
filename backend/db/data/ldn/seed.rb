@@ -842,8 +842,8 @@ module LdnSeeder
 
     # LDN achievement category colours shared by all chart configs.
     CATEGORY_COLORS = {
-      "Achieving" => "#2ecc71",
-      "Not achieving" => "#e74c3c"
+      "Achieving" => "#006500",
+      "Not achieving" => "#9b2779"
     }.freeze
 
     # 3-class land condition colours (baseline / period breakdowns).
