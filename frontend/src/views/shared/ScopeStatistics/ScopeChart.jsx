@@ -152,7 +152,11 @@ const HorizontalBarChart = ({ config, data, highlight, datasetSlug, onClick }) =
   const maxHeight = Math.max(400, chartData.length * 24);
 
   return (
-    <ChartWrapper title={config.title} description={config.description} methodologyNote={config.methodology_note}>
+    <ChartWrapper
+      title={config.title}
+      description={config.description}
+      methodologyNote={config.methodology_note}
+    >
       <ResponsiveContainer width="100%" height={maxHeight}>
         <BarChart
           data={chartData}
@@ -271,7 +275,11 @@ const DonutChart = ({ config, data }) => {
   );
 
   return (
-    <ChartWrapper title={config.title} description={config.description} methodologyNote={config.methodology_note}>
+    <ChartWrapper
+      title={config.title}
+      description={config.description}
+      methodologyNote={config.methodology_note}
+    >
       <ResponsiveContainer width="100%" height={250}>
         <PieChart>
           <Pie
@@ -381,7 +389,11 @@ const ScatterPlot = ({ config, data, schema, onClick }) => {
   );
 
   return (
-    <ChartWrapper title={config.title} description={config.description} methodologyNote={config.methodology_note}>
+    <ChartWrapper
+      title={config.title}
+      description={config.description}
+      methodologyNote={config.methodology_note}
+    >
       <ResponsiveContainer width="100%" height={300}>
         <ScatterChart margin={{ top: 10, right: 10, bottom: 30, left: 10 }}>
           <CartesianGrid strokeDasharray="3 3" />
@@ -451,7 +463,11 @@ const GroupedBarChart = ({ config, data }) => {
   }, [data, groupKey, bars, aggregation]);
 
   return (
-    <ChartWrapper title={config.title} description={config.description} methodologyNote={config.methodology_note}>
+    <ChartWrapper
+      title={config.title}
+      description={config.description}
+      methodologyNote={config.methodology_note}
+    >
       <ResponsiveContainer width="100%" height={300}>
         <BarChart data={chartData} margin={{ left: 20, right: 20, top: 5, bottom: 5 }}>
           <CartesianGrid strokeDasharray="3 3" />
@@ -512,7 +528,11 @@ const ColumnsDonutChart = ({ config, data }) => {
   );
 
   return (
-    <ChartWrapper title={config.title} description={config.description} methodologyNote={config.methodology_note}>
+    <ChartWrapper
+      title={config.title}
+      description={config.description}
+      methodologyNote={config.methodology_note}
+    >
       <ResponsiveContainer width="100%" height={280}>
         <PieChart>
           <Pie
