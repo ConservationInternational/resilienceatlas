@@ -97,11 +97,59 @@
 .scope-chart {
   margin-bottom: 16px;
 
+  &__title-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0 0 4px;
+  }
+
   &__title {
     font-size: 13px;
     font-weight: 600;
-    margin: 0 0 4px;
+    margin: 0;
     color: #555;
+  }
+
+  &__info-btn {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    padding: 0;
+    border: 1px solid #aaa;
+    border-radius: 50%;
+    background: transparent;
+    color: #777;
+    font-size: 11px;
+    line-height: 1;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+
+    &:hover {
+      background: #eee;
+      border-color: #666;
+      color: #444;
+    }
+
+    &--active {
+      background: #3498db;
+      border-color: #3498db;
+      color: #fff;
+    }
+  }
+
+  &__methodology-note {
+    font-size: 11px;
+    color: #555;
+    background: #f0f4fa;
+    border-left: 3px solid #3498db;
+    border-radius: 0 3px 3px 0;
+    padding: 6px 10px;
+    margin: 0 0 8px;
+    line-height: 1.5;
   }
 
   &__description {

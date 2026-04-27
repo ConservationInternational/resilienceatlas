@@ -924,6 +924,7 @@ module LdnSeeder
             type: "donut",
             title: "LDN Achievement (by ecoregion)",
             description: "Number of ecoregions achieving and not achieving LDN.",
+            methodology_note: "An ecoregion is classified as 'Achieving' when net change (gains − losses) is ≥ 0 km². Net change is the difference between areas that improved in land condition and areas that degraded during the analysis period.",
             valueKey: "category",
             categoryKey: "category",
             colors: CATEGORY_COLORS,
@@ -935,6 +936,7 @@ module LdnSeeder
             type: "donut",
             title: "LDN Achievement (by land area)",
             description: "Total land area (km²) achieving and not achieving LDN.",
+            methodology_note: "Each ecoregion's total land area is placed in the 'Achieving' or 'Not achieving' bucket based on whether its net change (gains − losses) is ≥ 0 km². The chart shows the sum of area in each bucket, not the area that changed.",
             valueKey: "total_area_km2",
             categoryKey: "category",
             colors: CATEGORY_COLORS,
@@ -1004,6 +1006,7 @@ module LdnSeeder
           {name: "total_area_km2", type: "number", label: "Total Area (km²)", format: ",.1f"},
           {name: "ldn_pct", type: "number", label: "Net Change (%)", format: ".1f"},
           {name: "category", type: "category", label: "Category"},
+          {name: "agg_category", type: "category", label: "Aggregate Category"},
           {name: "baseline_degraded_sqkm", type: "number", label: "Baseline Degraded (km²)", format: ",.1f"},
           {name: "baseline_stable_sqkm", type: "number", label: "Baseline Stable (km²)", format: ",.1f"},
           {name: "baseline_improved_sqkm", type: "number", label: "Baseline Improved (km²)", format: ",.1f"},
@@ -1026,8 +1029,21 @@ module LdnSeeder
             type: "donut",
             title: "LDN Achievement (by country)",
             description: "Number of countries achieving and not achieving LDN.",
+            methodology_note: "A country is classified as 'Achieving' only if every ecoregion within its borders has a net positive change (gains − losses ≥ 0 km²). This is a strict criterion: even a single net-negative ecoregion marks the entire country as 'Not achieving'.",
             valueKey: "category",
             categoryKey: "category",
+            colors: CATEGORY_COLORS,
+            aggregation: "count",
+            tooltipUnit: "countries"
+          },
+          {
+            id: "country-agg-count-pie",
+            type: "donut",
+            title: "Net Change (by country, aggregate)",
+            description: "Number of countries with positive vs. negative aggregate net change (gains − losses).",
+            methodology_note: "A country is classified as 'Achieving' when the sum of net change across all its ecoregions is ≥ 0 km². Unlike the strict criterion above, gains in one ecoregion can offset losses in another. This chart reflects the aggregate balance.",
+            valueKey: "agg_category",
+            categoryKey: "agg_category",
             colors: CATEGORY_COLORS,
             aggregation: "count",
             tooltipUnit: "countries"
@@ -1037,6 +1053,7 @@ module LdnSeeder
             type: "donut",
             title: "LDN Achievement (by land area)",
             description: "Total land area (km²) achieving and not achieving LDN.",
+            methodology_note: "Each country's total land area is placed in the 'Achieving' or 'Not achieving' bucket based on the strict per-ecoregion criterion: all ecoregions must be net positive. The chart shows the sum of area in each bucket.",
             valueKey: "total_area_km2",
             categoryKey: "category",
             colors: CATEGORY_COLORS,
@@ -1065,8 +1082,10 @@ module LdnSeeder
             CASE WHEN SUM(s.total_area_km2) > 0
               THEN ROUND((SUM(s.delta_ldn_km2) / SUM(s.total_area_km2) * 100)::numeric, 1)
               ELSE 0 END AS ldn_pct,
-            CASE WHEN SUM(s.delta_ldn_km2) >= 0 THEN 'Achieving'
+            CASE WHEN MIN(s.delta_ldn_km2) >= 0 THEN 'Achieving'
                  ELSE 'Not achieving' END AS category,
+            CASE WHEN SUM(s.delta_ldn_km2) >= 0 THEN 'Achieving'
+                 ELSE 'Not achieving' END AS agg_category,
             ROUND(SUM(COALESCE(s.deg_to_deg_sqkm,0) + COALESCE(s.deg_to_stable_sqkm,0) + COALESCE(s.deg_to_imp_sqkm,0))::numeric, 1) AS baseline_degraded_sqkm,
             ROUND(SUM(COALESCE(s.stable_to_deg_sqkm,0) + COALESCE(s.stable_to_stable_sqkm,0) + COALESCE(s.stable_to_imp_sqkm,0))::numeric, 1) AS baseline_stable_sqkm,
             ROUND(SUM(COALESCE(s.imp_to_deg_sqkm,0) + COALESCE(s.imp_to_stable_sqkm,0) + COALESCE(s.imp_to_imp_sqkm,0))::numeric, 1) AS baseline_improved_sqkm,

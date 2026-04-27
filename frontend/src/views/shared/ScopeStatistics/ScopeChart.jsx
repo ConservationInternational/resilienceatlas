@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback } from 'react';
+import React, { useMemo, useCallback, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   ResponsiveContainer,
@@ -85,13 +85,34 @@ const ScopeChart = ({ config, data, schema, datasetSlug }) => {
   }
 };
 
-const ChartWrapper = ({ title, description, children }) => (
-  <div className="scope-chart">
-    {title && <h5 className="scope-chart__title">{title}</h5>}
-    {description && <p className="scope-chart__description">{description}</p>}
-    <div className="scope-chart__container">{children}</div>
-  </div>
-);
+const ChartWrapper = ({ title, description, methodologyNote, children }) => {
+  const [noteOpen, setNoteOpen] = useState(false);
+  return (
+    <div className="scope-chart">
+      {title && (
+        <div className="scope-chart__title-row">
+          <h5 className="scope-chart__title">{title}</h5>
+          {methodologyNote && (
+            <button
+              className={`scope-chart__info-btn${noteOpen ? ' scope-chart__info-btn--active' : ''}`}
+              onClick={() => setNoteOpen((v) => !v)}
+              title="How this was calculated"
+              aria-expanded={noteOpen}
+              type="button"
+            >
+              ⓘ
+            </button>
+          )}
+        </div>
+      )}
+      {noteOpen && methodologyNote && (
+        <div className="scope-chart__methodology-note">{methodologyNote}</div>
+      )}
+      {description && <p className="scope-chart__description">{description}</p>}
+      <div className="scope-chart__container">{children}</div>
+    </div>
+  );
+};
 
 const HorizontalBarChart = ({ config, data, highlight, datasetSlug, onClick }) => {
   const { xAxis, yAxis, colorBy, sortBy, topN, bottomN } = config;
@@ -131,7 +152,7 @@ const HorizontalBarChart = ({ config, data, highlight, datasetSlug, onClick }) =
   const maxHeight = Math.max(400, chartData.length * 24);
 
   return (
-    <ChartWrapper title={config.title} description={config.description}>
+    <ChartWrapper title={config.title} description={config.description} methodologyNote={config.methodology_note}>
       <ResponsiveContainer width="100%" height={maxHeight}>
         <BarChart
           data={chartData}
@@ -250,7 +271,7 @@ const DonutChart = ({ config, data }) => {
   );
 
   return (
-    <ChartWrapper title={config.title} description={config.description}>
+    <ChartWrapper title={config.title} description={config.description} methodologyNote={config.methodology_note}>
       <ResponsiveContainer width="100%" height={250}>
         <PieChart>
           <Pie
@@ -360,7 +381,7 @@ const ScatterPlot = ({ config, data, schema, onClick }) => {
   );
 
   return (
-    <ChartWrapper title={config.title} description={config.description}>
+    <ChartWrapper title={config.title} description={config.description} methodologyNote={config.methodology_note}>
       <ResponsiveContainer width="100%" height={300}>
         <ScatterChart margin={{ top: 10, right: 10, bottom: 30, left: 10 }}>
           <CartesianGrid strokeDasharray="3 3" />
@@ -430,7 +451,7 @@ const GroupedBarChart = ({ config, data }) => {
   }, [data, groupKey, bars, aggregation]);
 
   return (
-    <ChartWrapper title={config.title} description={config.description}>
+    <ChartWrapper title={config.title} description={config.description} methodologyNote={config.methodology_note}>
       <ResponsiveContainer width="100%" height={300}>
         <BarChart data={chartData} margin={{ left: 20, right: 20, top: 5, bottom: 5 }}>
           <CartesianGrid strokeDasharray="3 3" />
@@ -491,7 +512,7 @@ const ColumnsDonutChart = ({ config, data }) => {
   );
 
   return (
-    <ChartWrapper title={config.title} description={config.description}>
+    <ChartWrapper title={config.title} description={config.description} methodologyNote={config.methodology_note}>
       <ResponsiveContainer width="100%" height={280}>
         <PieChart>
           <Pie

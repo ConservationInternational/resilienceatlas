@@ -45,7 +45,7 @@
   = f.inputs "Chart Config (JSON)" do
     li.input.text
       = f.label :chart_config
-      span.inline-hint JSON array of chart specifications
+      span.inline-hint JSON array of chart specifications. Each item may include: id, type, title, description, methodology_note (shown via ⓘ icon when clicked), valueKey, categoryKey, colors, aggregation, tooltipUnit, unitIdColumn, xAxis, yAxis, etc.
       = f.text_area :chart_config, rows: 12, class: "json-editor-textarea", value: (f.object.chart_config.present? ? JSON.pretty_generate(f.object.chart_config) : "")
   = f.inputs "Data (JSON)" do
     li.input.text
