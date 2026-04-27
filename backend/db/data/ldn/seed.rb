@@ -900,7 +900,7 @@ module LdnSeeder
           {name: "total_area_km2", type: "number", label: "Total Area (km²)", format: ",.1f"},
           {name: "gains_pct", type: "number", label: "Gains (% of area)", format: ".1f"},
           {name: "losses_pct", type: "number", label: "Losses (% of area)", format: ".1f"},
-          {name: "ldn_pct", type: "number", label: "LDN Achievement (%)", format: ".1f"},
+          {name: "ldn_pct", type: "number", label: "Net Change (%)", format: ".1f"},
           {name: "category", type: "category", label: "Category"},
           {name: "baseline_degraded_sqkm", type: "number", label: "Baseline Degraded (km²)", format: ",.1f"},
           {name: "baseline_stable_sqkm", type: "number", label: "Baseline Stable (km²)", format: ",.1f"},
@@ -945,7 +945,7 @@ module LdnSeeder
             id: "ecoregion-table",
             type: "table",
             title: "All Ecoregions",
-            columns: %w[ecoregion biome realm ldn_pct delta_ldn_km2 gains_km2 losses_km2 baseline_degraded_sqkm period_degraded_sqkm]
+            columns: %w[ecoregion biome realm ldn_pct delta_ldn_km2 gains_km2 losses_km2 total_area_km2 baseline_degraded_sqkm period_degraded_sqkm]
           }
         ],
         sql: <<~SQL,
@@ -1002,7 +1002,7 @@ module LdnSeeder
           {name: "losses_pct", type: "number", label: "Losses (% of area)", format: ".1f"},
           {name: "delta_ldn_km2", type: "number", label: "Net Change (km²)", format: ",.1f"},
           {name: "total_area_km2", type: "number", label: "Total Area (km²)", format: ",.1f"},
-          {name: "ldn_pct", type: "number", label: "LDN Achievement (%)", format: ".1f"},
+          {name: "ldn_pct", type: "number", label: "Net Change (%)", format: ".1f"},
           {name: "category", type: "category", label: "Category"},
           {name: "baseline_degraded_sqkm", type: "number", label: "Baseline Degraded (km²)", format: ",.1f"},
           {name: "baseline_stable_sqkm", type: "number", label: "Baseline Stable (km²)", format: ",.1f"},
@@ -1047,7 +1047,7 @@ module LdnSeeder
             id: "country-table",
             type: "table",
             title: "All Countries",
-            columns: %w[country ldn_pct delta_ldn_km2 gains_km2 losses_km2 baseline_degraded_sqkm period_degraded_sqkm]
+            columns: %w[country ldn_pct delta_ldn_km2 gains_km2 losses_km2 total_area_km2 baseline_degraded_sqkm period_degraded_sqkm]
           }
         ],
         sql: <<~SQL
@@ -1105,6 +1105,7 @@ module LdnSeeder
           {name: "delta_ldn_km2", type: "number", label: "Net Change (km²)", format: ",.1f"},
           {name: "gains_km2", type: "number", label: "Gains (km²)", format: ",.1f"},
           {name: "losses_km2", type: "number", label: "Losses (km²)", format: ",.1f"},
+          {name: "total_area_km2", type: "number", label: "Total Area (km²)", format: ",.1f"},
           {name: "baseline_degraded_sqkm", type: "number", label: "Degraded at Baseline (km²)", format: ",.1f"},
           {name: "period_degraded_sqkm", type: "number", label: "Degraded in 2023 (km²)", format: ",.1f"}
         ],
@@ -1113,7 +1114,7 @@ module LdnSeeder
             id: "country-ecoregion-table",
             type: "table",
             title: "All Ecoregions (by Country)",
-            columns: %w[country ecoregion ldn_pct delta_ldn_km2 gains_km2 losses_km2 baseline_degraded_sqkm period_degraded_sqkm]
+            columns: %w[country ecoregion ldn_pct delta_ldn_km2 gains_km2 losses_km2 total_area_km2 baseline_degraded_sqkm period_degraded_sqkm]
           }
         ],
         sql: <<~SQL
@@ -1122,6 +1123,7 @@ module LdnSeeder
             ROUND(s.delta_ldn_km2::numeric, 1) AS delta_ldn_km2,
             ROUND(s.gains_km2::numeric, 1) AS gains_km2,
             ROUND(s.losses_km2::numeric, 1) AS losses_km2,
+            ROUND(s.total_area_km2::numeric, 1) AS total_area_km2,
             ROUND((COALESCE(s.deg_to_deg_sqkm,0) + COALESCE(s.deg_to_stable_sqkm,0) + COALESCE(s.deg_to_imp_sqkm,0))::numeric, 1) AS baseline_degraded_sqkm,
             ROUND((COALESCE(s.deg_to_deg_sqkm,0) + COALESCE(s.stable_to_deg_sqkm,0) + COALESCE(s.imp_to_deg_sqkm,0))::numeric, 1) AS period_degraded_sqkm
           FROM _country_eco_stats s
@@ -1354,6 +1356,7 @@ module LdnSeeder
           eco_id                                int,
           gains_km2                             double precision,
           losses_km2                            double precision,
+          total_area_km2                        double precision,
           status_1_persistent_degradation_sqkm  double precision,
           status_2_recent_degradation_sqkm      double precision,
           status_3_baseline_degradation_sqkm    double precision,
@@ -1371,7 +1374,6 @@ module LdnSeeder
           imp_to_stable_sqkm                    double precision,
           imp_to_imp_sqkm                       double precision,
           delta_ldn_km2                         double precision,
-          total_area_km2                        double precision,
           ldn_pct                               double precision,
           category                              text
         )
@@ -1394,6 +1396,7 @@ module LdnSeeder
             eco_id                                int,
             gains_km2                             double precision,
             losses_km2                            double precision,
+            total_area_km2                        double precision,
             status_1_persistent_degradation_sqkm  double precision,
             status_2_recent_degradation_sqkm      double precision,
             status_3_baseline_degradation_sqkm    double precision,
@@ -1411,7 +1414,6 @@ module LdnSeeder
             imp_to_stable_sqkm                    double precision,
             imp_to_imp_sqkm                       double precision,
             delta_ldn_km2                         double precision,
-            total_area_km2                        double precision,
             ldn_pct                               double precision,
             category                              text
           )
