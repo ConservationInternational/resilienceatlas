@@ -842,6 +842,7 @@ module LdnSeeder
 
     # LDN achievement category colours shared by all chart configs.
     CATEGORY_COLORS = {
+      "Exceeding" => "#4dac26",
       "Achieving" => "#006500",
       "Not achieving" => "#9b2779"
     }.freeze
@@ -924,7 +925,7 @@ module LdnSeeder
             type: "donut",
             title: "LDN Achievement (by ecoregion)",
             description: "Number of ecoregions achieving and not achieving LDN.",
-            methodology_note: "An ecoregion is classified as 'Achieving' when net change (gains − losses) is ≥ 0 km². Net change is the difference between areas that improved in land condition and areas that degraded during the analysis period.",
+            methodology_note: "Ecoregions are classified into three categories based on the net change percentage (gains − losses as % of total area): 'Exceeding' (> 5%), 'Achieving' (0–5%), or 'Not achieving' (< 0%). Net change is the difference between areas that improved in land condition and areas that degraded during the analysis period.",
             valueKey: "category",
             categoryKey: "category",
             colors: CATEGORY_COLORS,
@@ -936,7 +937,7 @@ module LdnSeeder
             type: "donut",
             title: "LDN Achievement (by land area)",
             description: "Total land area (km²) achieving and not achieving LDN.",
-            methodology_note: "Each ecoregion's total land area is placed in the 'Achieving' or 'Not achieving' bucket based on whether its net change (gains − losses) is ≥ 0 km². The chart shows the sum of area in each bucket, not the area that changed.",
+            methodology_note: "Each ecoregion's total land area is placed in the 'Exceeding', 'Achieving', or 'Not achieving' bucket based on its net change percentage (> 5%, 0–5%, or < 0% respectively). The chart shows the sum of area in each bucket, not the area that changed.",
             valueKey: "total_area_km2",
             categoryKey: "category",
             colors: CATEGORY_COLORS,
@@ -963,7 +964,7 @@ module LdnSeeder
               THEN ROUND((s.losses_km2 / s.total_area_km2 * 100)::numeric, 1)
               ELSE 0 END AS losses_pct,
             ROUND(s.ldn_pct::numeric, 1) AS ldn_pct,
-            s.category,
+            CASE WHEN s.ldn_pct > 5 THEN 'Exceeding' WHEN s.ldn_pct >= 0 THEN 'Achieving' ELSE 'Not achieving' END AS category,
             ROUND((COALESCE(s.deg_to_deg_sqkm,0) + COALESCE(s.deg_to_stable_sqkm,0) + COALESCE(s.deg_to_imp_sqkm,0))::numeric, 1) AS baseline_degraded_sqkm,
             ROUND((COALESCE(s.stable_to_deg_sqkm,0) + COALESCE(s.stable_to_stable_sqkm,0) + COALESCE(s.stable_to_imp_sqkm,0))::numeric, 1) AS baseline_stable_sqkm,
             ROUND((COALESCE(s.imp_to_deg_sqkm,0) + COALESCE(s.imp_to_stable_sqkm,0) + COALESCE(s.imp_to_imp_sqkm,0))::numeric, 1) AS baseline_improved_sqkm,
@@ -1041,7 +1042,7 @@ module LdnSeeder
             type: "donut",
             title: "Net Change (by country, aggregate)",
             description: "Number of countries with positive vs. negative aggregate net change (gains − losses).",
-            methodology_note: "A country is classified as 'Achieving' when the sum of net change across all its ecoregions is ≥ 0 km². Unlike the strict criterion above, gains in one ecoregion can offset losses in another. This chart reflects the aggregate balance.",
+            methodology_note: "Countries are classified into three categories based on aggregate net change percentage: 'Exceeding' (> 5%), 'Achieving' (0–5%), or 'Not achieving' (< 0%). Gains in one ecoregion can offset losses in another. This chart reflects the aggregate balance.",
             valueKey: "agg_category",
             categoryKey: "agg_category",
             colors: CATEGORY_COLORS,
@@ -1053,7 +1054,7 @@ module LdnSeeder
             type: "donut",
             title: "LDN Achievement (by land area)",
             description: "Total land area (km²) achieving and not achieving LDN.",
-            methodology_note: "Each country's total land area is placed in the 'Achieving' or 'Not achieving' bucket based on whether that country's aggregate net change (sum of gains − losses across all its ecoregions) is ≥ 0 km². This is the same criterion used in the 'Net Change (by country, aggregate)' chart above. The chart shows the sum of land area in each bucket.",
+            methodology_note: "Each country's total land area is placed in the 'Exceeding', 'Achieving', or 'Not achieving' bucket based on that country's aggregate net change percentage (> 5%, 0–5%, or < 0%). This is the same criterion used in the 'Net Change (by country, aggregate)' chart above. The chart shows the sum of land area in each bucket.",
             valueKey: "total_area_km2",
             categoryKey: "agg_category",
             colors: CATEGORY_COLORS,
@@ -1084,7 +1085,8 @@ module LdnSeeder
               ELSE 0 END AS ldn_pct,
             CASE WHEN MIN(s.delta_ldn_km2) >= 0 THEN 'Achieving'
                  ELSE 'Not achieving' END AS category,
-            CASE WHEN SUM(s.delta_ldn_km2) >= 0 THEN 'Achieving'
+            CASE WHEN SUM(s.total_area_km2) > 0 AND (SUM(s.delta_ldn_km2) / SUM(s.total_area_km2) * 100) > 5 THEN 'Exceeding'
+                 WHEN SUM(s.delta_ldn_km2) >= 0 THEN 'Achieving'
                  ELSE 'Not achieving' END AS agg_category,
             ROUND(SUM(COALESCE(s.deg_to_deg_sqkm,0) + COALESCE(s.deg_to_stable_sqkm,0) + COALESCE(s.deg_to_imp_sqkm,0))::numeric, 1) AS baseline_degraded_sqkm,
             ROUND(SUM(COALESCE(s.stable_to_deg_sqkm,0) + COALESCE(s.stable_to_stable_sqkm,0) + COALESCE(s.stable_to_imp_sqkm,0))::numeric, 1) AS baseline_stable_sqkm,
@@ -1393,17 +1395,10 @@ module LdnSeeder
           imp_to_stable_sqkm                    double precision,
           imp_to_imp_sqkm                       double precision,
           delta_ldn_km2                         double precision,
-          ldn_pct                               double precision,
-          category                              text
+          ldn_pct                               double precision
         )
       SQL
       copy_csv_to_table(conn, "_eco_stats", eco_stats_csv)
-
-      # Remap CSV categories: Exceeding → Achieving (>= 0%), Not achieving (< 0%)
-      conn.execute(<<~SQL)
-        UPDATE _eco_stats SET
-          category = CASE WHEN ldn_pct >= 0 THEN 'Achieving' ELSE 'Not achieving' END
-      SQL
       puts "  Imported _eco_stats: #{conn.select_value("SELECT count(*) FROM _eco_stats")} rows"
 
       # Country-ecoregion stats (comma-delimited)
@@ -1433,17 +1428,10 @@ module LdnSeeder
             imp_to_stable_sqkm                    double precision,
             imp_to_imp_sqkm                       double precision,
             delta_ldn_km2                         double precision,
-            ldn_pct                               double precision,
-            category                              text
+            ldn_pct                               double precision
           )
         SQL
         copy_csv_to_table(conn, "_country_eco_stats", country_eco_stats_csv)
-
-        # Remap CSV categories: Exceeding → Achieving (≥ 0%), Not achieving (< 0%)
-        conn.execute(<<~SQL)
-          UPDATE _country_eco_stats SET
-            category = CASE WHEN ldn_pct >= 0 THEN 'Achieving' ELSE 'Not achieving' END
-        SQL
         puts "  Imported _country_eco_stats: #{conn.select_value("SELECT count(*) FROM _country_eco_stats")} rows"
       end
     end
