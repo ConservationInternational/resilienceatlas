@@ -12,6 +12,5 @@ namespace :thresholds do
   DESC
   task seed: :environment do
     load Rails.root.join("db/data/thresholds/seed.rb")
-    ThresholdsSeeder.run
   end
 end
