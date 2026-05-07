@@ -6,6 +6,13 @@ import React, { useEffect, useRef, type ReactNode } from 'react';
 import L from 'leaflet';
 import { createRoot, type Root } from 'react-dom/client';
 
+// Props that LeafletMapPopup forwards to each direct child element
+interface ForwardedPopupProps {
+  latlng?: L.LatLngExpression | null;
+  data?: LeafletMapPopupProps['data'];
+  popup?: L.Popup | null;
+}
+
 export interface LeafletMapPopupProps {
   map: L.Map;
   latlng?: L.LatLngExpression | null;
@@ -76,23 +83,46 @@ const LeafletMapPopup: React.FC<LeafletMapPopupProps> = ({
       popupRef.current.openOn(map);
     }
 
-    // Render React children into popup
+    // Call onReady before rendering so children that receive the popup ref can call popup.remove()
+    if (onReady && popupRef.current) {
+      onReady(popupRef.current);
+    }
+
+    // Render React children into popup, forwarding popup-related props
     if (containerRef.current && children) {
       if (!rootRef.current) {
         rootRef.current = createRoot(containerRef.current);
       }
-      rootRef.current.render(<>{children}</>);
-    }
-
-    if (onReady && popupRef.current) {
-      onReady(popupRef.current);
+      const forwardedProps: ForwardedPopupProps = {
+        latlng,
+        data,
+        popup: popupRef.current,
+      };
+      rootRef.current.render(
+        <>
+          {React.Children.map(children, (child) =>
+            React.isValidElement(child) ? React.cloneElement(child, forwardedProps) : child,
+          )}
+        </>,
+      );
     }
   }, [map, latlng, children, onReady]);
 
   // Update content when data changes
   useEffect(() => {
     if (containerRef.current && children && rootRef.current) {
-      rootRef.current.render(<>{children}</>);
+      const forwardedProps: ForwardedPopupProps = {
+        latlng,
+        data,
+        popup: popupRef.current,
+      };
+      rootRef.current.render(
+        <>
+          {React.Children.map(children, (child) =>
+            React.isValidElement(child) ? React.cloneElement(child, forwardedProps) : child,
+          )}
+        </>,
+      );
     }
   }, [data, children]);
 
