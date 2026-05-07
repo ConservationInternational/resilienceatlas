@@ -1,6 +1,6 @@
 # SBTN Planetary Boundaries — Thresholds Site Scope Seed Script
 #
-# Creates an "sbtn-thresholds" site scope with three categories (Exceedances,
+# Creates a "thresholds" site scope with three categories (Exceedances,
 # Thresholds, Baselines), four indicator sub-groups each, twelve CartoDB map
 # layers, and three ScopeDatasets for the analysis panel.
 #
@@ -68,22 +68,23 @@ module ThresholdsSeeder
                   description: "Current baseline values by ecoregion."}
   }.freeze
 
-  # ── Color ramps (13 steps each) ───────────────────────────────────────────
-  # Sequential YlGn: light yellow-green (low) → dark green (high).
+  # ── Color ramps (13 steps each, colorblind-safe) ───────────────────────────
+  # Sequential Viridis: dark purple (low) → bright yellow (high).
   # Used for higher_is_better indicators (baselines / thresholds).
-  GREENS_13 = %w[#ffffe5 #f7fcb9 #edf8b1 #d9f0a3 #c7e9a3 #addd8e #78c679
-                 #41ab5d #31a354 #238443 #006837 #004529 #002b18].freeze
+  # Perceptually uniform and safe for all forms of color vision deficiency.
+  VIRIDIS_13 = %w[#440154 #481769 #472c7a #3b528b #2d718e #21908d #27ad81
+                  #4dc36a #7fd34e #b8de29 #d8e219 #ece51c #fde725].freeze
 
-  # Inverted: dark green (low = good) → light yellow (high = bad).
-  # Used for lower_is_better indicators (baselines / thresholds).
-  INV_GREENS_13 = %w[#002b18 #004529 #006837 #238443 #31a354 #41ab5d #78c679
-                     #addd8e #c7e9a3 #d9f0a3 #edf8b1 #f7fcb9 #ffffe5].freeze
+  # Inverted Viridis: bright yellow (low = good) → dark purple (high = bad).
+  # Used for lower_is_better indicators (less is better: low values are best).
+  VIRIDIS_13_INV = VIRIDIS_13.reverse.freeze
 
-  # Diverging RdYlGn extended: dark green (index 0, most-negative bin = best) →
-  # neutral yellow (index 6, near zero) → dark red (index 12, most-positive = worst).
+  # Diverging Blue-Orange: deep blue (index 0, most-negative = best) →
+  # white (index 6, near zero) → dark brown-orange (index 12, most-positive = worst).
+  # Blue and orange are distinguishable by all forms of colorblindness.
   # For exceedances: negative = meeting/exceeding target; positive = failing.
-  DIVERGING_13 = %w[#004529 #006837 #1a9850 #66bd63 #a6d96a #d9ef8b #ffffbf
-                    #fee08b #fdae61 #f46d43 #d73027 #a50026 #67001f].freeze
+  DIVERGING_13 = %w[#023858 #045a8d #0570b0 #3690c0 #74a9cf #d0e8f4 #f7f7f7
+                    #fde8c8 #fdba6b #f77f2e #d4521a #a63603 #7f2704].freeze
 
   # ── Data file ─────────────────────────────────────────────────────────────
   DATA_CSV = File.join(__dir__, "sbtn_thresholds.csv").freeze
@@ -98,6 +99,17 @@ module ThresholdsSeeder
 
     site_scope = create_site_scope
     groups     = create_layer_groups(site_scope)
+
+    # Remove any stale per-indicator sub-groups from earlier seeds
+    top_level_ids = groups.values.map(&:id)
+    stale = LayerGroup.where(site_scope_id: site_scope.id)
+                      .where.not(super_group_id: nil)
+                      .where(super_group_id: top_level_ids)
+    if stale.any?
+      puts "Removing #{stale.count} stale sub-groups from previous seed..."
+      stale.destroy_all
+    end
+
     create_layers(groups)
 
     begin
@@ -115,7 +127,7 @@ module ThresholdsSeeder
 
   def self.create_site_scope
     puts "Creating site scope..."
-    scope = SiteScope.find_or_initialize_by(subdomain: "sbtn-thresholds")
+    scope = SiteScope.find_or_initialize_by(subdomain: "thresholds")
     scope.assign_attributes(
       name:         "SBTN Planetary Boundaries",
       has_analysis: true,
@@ -137,7 +149,7 @@ module ThresholdsSeeder
     puts "Creating layer groups..."
     groups = {}
 
-    # Top-level category groups
+    # Top-level category groups — all indicator layers nest directly here
     CATEGORY_DEFS.each do |cat_key, cat|
       slug = "thresholds-#{cat_key}"
       g = LayerGroup.find_or_initialize_by(slug: slug, site_scope_id: site_scope.id)
@@ -151,25 +163,6 @@ module ThresholdsSeeder
       g.save!
       groups[slug] = g
       puts "  #{slug}"
-
-      # Indicator sub-groups
-      ind_order = 1
-      INDICATOR_DEFS.each do |ind_key, ind|
-        sub_slug = "thresholds-#{cat_key}-#{ind[:col].tr("_", "-")}"
-        sg = LayerGroup.find_or_initialize_by(slug: sub_slug, site_scope_id: site_scope.id)
-        sg.assign_attributes(
-          super_group_id:   g.id,
-          layer_group_type: "subcategory",
-          active:           true,
-          "order"        => ind_order,
-          name:             ind[:label],
-          info:             "#{cat[:label]} — #{ind[:label]} (#{ind[:unit]})"
-        )
-        sg.save!
-        groups[sub_slug] = sg
-        puts "    #{sub_slug}"
-        ind_order += 1
-      end
     end
 
     groups
@@ -183,12 +176,13 @@ module ThresholdsSeeder
     layer_order = 1
 
     CATEGORY_DEFS.each do |cat_key, cat|
+      ind_order = 1
       INDICATOR_DEFS.each do |ind_key, ind|
         col        = ind[:col]
         suffix     = cat[:suffix]
         value_col  = "#{col}_#{suffix}"
-        sub_slug   = "thresholds-#{cat_key}-#{col.tr("_", "-")}"
-        group      = groups[sub_slug]
+        cat_slug   = "thresholds-#{cat_key}"
+        group      = groups[cat_slug]
         layer_slug = "sbtn-#{col.tr("_", "-")}-#{suffix}"
 
         # Only natural land exceedance is active by default
@@ -206,8 +200,8 @@ module ThresholdsSeeder
           layer_type:        "layer",
           layer_provider:    "cartodb",
           active:            active,
-          "order"         => layer_order,
-          dashboard_order:   layer_order,
+          "order"         => ind_order,
+          dashboard_order:   ind_order,
           color:             "#2d6a4f",
           css:               css,
           query:             query,
@@ -239,6 +233,7 @@ module ThresholdsSeeder
         agrupation.save!
 
         puts "  #{layer_slug} (active=#{active})"
+        ind_order += 1
         layer_order += 1
       end
     end
@@ -364,7 +359,7 @@ module ThresholdsSeeder
 
   def self.sequential_rules(value_col:, ind:, base:)
     breaks = ind[:seq_breaks]
-    colors = ind[:higher_is_better] ? GREENS_13 : INV_GREENS_13
+    colors = ind[:higher_is_better] ? VIRIDIS_13 : VIRIDIS_13_INV
     css = breaks.each_with_index.map do |brk, i|
       if i == 0
         "  #ecoregions2017 [#{value_col} < #{brk}] { polygon-fill: #{colors[0]}; }"
@@ -406,7 +401,7 @@ module ThresholdsSeeder
       items << {name: "No data",          value: "#aaaaaa"}
     else
       breaks = ind[:seq_breaks]
-      colors = ind[:higher_is_better] ? GREENS_13 : INV_GREENS_13
+      colors = ind[:higher_is_better] ? VIRIDIS_13 : VIRIDIS_13_INV
       unit   = ind[:unit]
       items = breaks.each_with_index.map do |brk, i|
         label = i == 0 ? "< #{brk} #{unit}" : "#{breaks[i - 1]}\u2013#{brk} #{unit}"
@@ -416,7 +411,7 @@ module ThresholdsSeeder
       items << {name: "No data",                  value: "#aaaaaa"}
     end
 
-    {type: "basic", items: items}.to_json
+    {type: "custom", data: items}.to_json
   end
 
   # ── Interaction config ────────────────────────────────────────────────────
