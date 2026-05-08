@@ -1,6 +1,6 @@
 namespace :thresholds do
   desc <<~DESC
-    Seed the SBTN Planetary Boundaries (thresholds) site scope.
+    Seed the SBTN Thresholds (thresholds) site scope.
 
     Prefer running the full setup script which handles CSV acquisition and
     CartoDB upload automatically:

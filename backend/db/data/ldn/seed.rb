@@ -8,9 +8,58 @@
 #
 # Or within rails console:
 #   load 'db/data/ldn/seed.rb'
+#
+# ── CartoDB table requirement ────────────────────────────────────────────────
+# Layer popups show ecoregion metadata (eco_id, eco_name, biome, realm) via the
+# CartoDB SQL API (ecoregions2017 table, already present in CartoDB).
+#
+# To additionally show per-ecoregion LDN statistics the CartoDB table
+# `ldn_ecoregion_stats` must be created and populated.
+#
+# Source files (one per methodology, from the counterbalancing AWS pipeline):
+#   TrendsEarth_LDN_2000-2023_Trends.Earth_ecoregion_summary.csv
+#   TrendsEarth_LDN_2000-2023_FAO-WOCAT_ecoregion_summary.csv
+#   TrendsEarth_LDN_2000-2023_JRC_ecoregion_summary.csv
+#
+# The CSV files do NOT include a methodology column.  Before uploading, add a
+# `methodology` column to each CSV with values matching the dataset keys:
+#   'trendsearth'  (Trends.Earth CSV)
+#   'fao-wocat'    (FAO-WOCAT CSV)
+#   'jrc'          (JRC CSV)
+# Then combine all three into a single CSV and upload to CartoDB as the table
+# `ldn_ecoregion_stats` (cdb account).  Grant SELECT to publicuser.
+#
+# Expected columns (matching the pipeline CSV output + added methodology):
+#   eco_id                              INTEGER
+#   methodology                         TEXT
+#   gains_km2                           NUMERIC
+#   losses_km2                          NUMERIC
+#   total_area_km2                      NUMERIC
+#   status_1_persistent_degradation_sqkm  NUMERIC
+#   status_2_recent_degradation_sqkm      NUMERIC
+#   status_3_baseline_degradation_sqkm    NUMERIC
+#   status_4_stability_sqkm               NUMERIC
+#   status_5_baseline_improvement_sqkm    NUMERIC
+#   status_6_recent_improvement_sqkm      NUMERIC
+#   status_7_persistent_improvement_sqkm  NUMERIC
+#   deg_to_deg_sqkm   NUMERIC
+#   deg_to_stable_sqkm NUMERIC
+#   deg_to_imp_sqkm   NUMERIC
+#   stable_to_deg_sqkm NUMERIC
+#   stable_to_stable_sqkm NUMERIC
+#   stable_to_imp_sqkm NUMERIC
+#   imp_to_deg_sqkm   NUMERIC
+#   imp_to_stable_sqkm NUMERIC
+#   imp_to_imp_sqkm   NUMERIC
+#   delta_ldn_km2                       NUMERIC
+#   ldn_pct                             NUMERIC
+# ────────────────────────────────────────────────────────────────────────────
 
 module LdnSeeder
   TITILER_BASE = ENV.fetch("TITILER_URL", "https://staging.titiler.resilienceatlas.org")
+
+  # CartoDB SQL API base URL (account = 'cdb')
+  CARTO_SQL_BASE = "https://cdb-cdn.resilienceatlas.org/user/ra/api/v2/sql"
 
   # SDG 15.3.1 COGs on GCS (same as trendsearth seed)
   SDG_COG_BASE = "https://storage.googleapis.com/trendsearth-public/unccd_reporting/2016-2023"
@@ -477,6 +526,7 @@ module LdnSeeder
             order: order,
             color: "#C62828",
             analysis_type: "histogram",
+            methodology: dataset_key.to_s.tr("_", "-"),
             sources: both_sources
           )
           puts "    Created layer: #{layer.slug}"
@@ -503,6 +553,7 @@ module LdnSeeder
           active: false,
           order: gl_order,
           color: "#C62828",
+          methodology: dataset_key.to_s.tr("_", "-"),
           sources: both_sources
         )
         puts "    Created layer: #{layer.slug}"
@@ -545,6 +596,7 @@ module LdnSeeder
           active: false,
           order: order,
           color: "#C62828",
+          methodology: dataset[:key].to_s.tr("_", "-"),
           sources: status_sources
         )
         puts "    Created layer: #{layer.slug}"
@@ -564,6 +616,7 @@ module LdnSeeder
           active: false,
           order: order,
           color: "#C62828",
+          methodology: dataset[:key].to_s.tr("_", "-"),
           sources: status_sources
         )
         puts "    Created layer: #{layer.slug}"
@@ -583,6 +636,7 @@ module LdnSeeder
           active: false,
           order: order,
           color: "#C62828",
+          methodology: dataset[:key].to_s.tr("_", "-"),
           sources: data_sources
         )
         puts "    Created layer: #{layer.slug}"
@@ -602,6 +656,7 @@ module LdnSeeder
           active: false,
           order: order,
           color: "#C62828",
+          methodology: dataset[:key].to_s.tr("_", "-"),
           sources: data_sources
         )
         puts "    Created layer: #{layer.slug}"
@@ -621,6 +676,7 @@ module LdnSeeder
           active: false,
           order: order,
           color: "#C62828",
+          methodology: dataset[:key].to_s.tr("_", "-"),
           sources: data_sources
         )
         puts "    Created layer: #{layer.slug}"
@@ -660,6 +716,7 @@ module LdnSeeder
           active: false,
           order: order,
           color: "#C62828",
+          methodology: dataset[:key].to_s.tr("_", "-"),
           sources: data_sources
         )
         puts "    Created layer: #{layer.slug}"
@@ -679,6 +736,7 @@ module LdnSeeder
           active: false,
           order: order,
           color: "#C62828",
+          methodology: dataset[:key].to_s.tr("_", "-"),
           sources: data_sources
         )
         puts "    Created layer: #{layer.slug}"
@@ -698,6 +756,7 @@ module LdnSeeder
           active: false,
           order: order,
           color: "#C62828",
+          methodology: dataset[:key].to_s.tr("_", "-"),
           sources: data_sources
         )
         puts "    Created layer: #{layer.slug}"
@@ -1210,7 +1269,7 @@ module LdnSeeder
 
     # ── Helper: create a layer from an S3 LDN COG ──
 
-    def create_ldn_cog_layer(group:, slug:, s3_folder:, filename:, colormap:, legend:, name:, info:, description:, active:, order:, color:, analysis_type: "categorical", sources: [])
+    def create_ldn_cog_layer(group:, slug:, s3_folder:, filename:, colormap:, legend:, name:, info:, description:, active:, order:, color:, analysis_type: "categorical", sources: [], methodology: nil)
       cog_url = "s3://#{LDN_S3_BUCKET}/#{LDN_S3_PREFIX}/#{s3_folder}/#{filename}"
 
       body = {
@@ -1233,13 +1292,14 @@ module LdnSeeder
       save_layer(
         group: group, slug: slug, layer_config: layer_config, legend: legend,
         name: name, info: info, description: description, active: active,
-        order: order, color: color, analysis_type: analysis_type, sources: sources
+        order: order, color: color, analysis_type: analysis_type, sources: sources,
+        interaction_config: build_ldn_interaction_config(methodology: methodology)
       )
     end
 
     # ── Helper: create a layer from a GCS SDG COG (multi-band) ──
 
-    def create_sdg_cog_layer(group:, slug:, cog_key:, band:, colormap:, legend:, name:, info:, description:, active:, order:, color:, analysis_type: "categorical", sources: [])
+    def create_sdg_cog_layer(group:, slug:, cog_key:, band:, colormap:, legend:, name:, info:, description:, active:, order:, color:, analysis_type: "categorical", sources: [], methodology: nil)
       cog_url = "#{SDG_COG_BASE}/#{SDG_COGS[cog_key]}"
 
       body = {
@@ -1263,13 +1323,79 @@ module LdnSeeder
       save_layer(
         group: group, slug: slug, layer_config: layer_config, legend: legend,
         name: name, info: info, description: description, active: active,
-        order: order, color: color, analysis_type: analysis_type, sources: sources
+        order: order, color: color, analysis_type: analysis_type, sources: sources,
+        interaction_config: build_ldn_interaction_config(methodology: methodology)
       )
+    end
+
+    # ── Helper: build interaction_config for ecoregion popup ──
+    #
+    # Generates a CartoDB SQL API interaction config that shows ecoregion metadata
+    # (eco_id, eco_name, biome, realm) on popup click.  When `methodology` is
+    # non-nil the query also LEFT JOINs ldn_ecoregion_stats for that methodology,
+    # adding baseline degradation, gains, losses, net-change and LDN% columns.
+    #
+    # The CartoDB table `ldn_ecoregion_stats` must be loaded before popups show
+    # stats.  Expected columns (all lowercase):
+    # The `responseFormat: "rows"` flag tells LayerPopup.jsx to parse the CartoDB
+    # SQL API response ({ rows: [...] }) even though the layer provider is 'cog'.
+    # Column names match TrendsEarth_LDN_2000-2023_*_ecoregion_summary.csv output.
+    # Baseline degraded area is computed as deg_to_deg + deg_to_stable + deg_to_imp
+    # (all land classified degraded during the 2000-2015 baseline, regardless of
+    # subsequent trajectory). status_3_baseline_degradation_sqkm alone is
+    # insufficient because deg_to_imp transitions appear in status_6, not status_3.
+    def build_ldn_interaction_config(methodology: nil)
+      if methodology
+        sql = [
+          "SELECT e.eco_id, e.eco_name, e.biome_name, e.realm,",
+          "s.total_area_km2,",
+          "(s.deg_to_deg_sqkm + s.deg_to_stable_sqkm + s.deg_to_imp_sqkm) AS baseline_degraded_sqkm,",
+          "s.gains_km2, s.losses_km2, s.delta_ldn_km2, s.ldn_pct",
+          "FROM ecoregions2017 e",
+          "LEFT JOIN ldn_ecoregion_stats s",
+          "ON e.eco_id::int = s.eco_id AND s.methodology = '{{methodology}}'",
+          "WHERE ST_Contains(e.the_geom, ST_SetSRID(ST_Point({{lng}}, {{lat}}), 4326)) LIMIT 1"
+        ].join(" ")
+        output = [
+          {column: "eco_id",                            property: "Ecoregion ID",          type: "integer"},
+          {column: "eco_name",                          property: "Ecoregion",              type: "string"},
+          {column: "biome_name",                        property: "Biome",                 type: "string"},
+          {column: "realm",                             property: "Realm",                 type: "string"},
+          {column: "total_area_km2",           property: "Total area (km²)",      type: "number", format: "0,0"},
+          {column: "baseline_degraded_sqkm",   property: "Baseline degraded (km²)", type: "number", format: "0,0"},
+          {column: "gains_km2",                         property: "Gains (km²)",           type: "number", format: "0,0"},
+          {column: "losses_km2",                        property: "Losses (km²)",          type: "number", format: "0,0"},
+          {column: "delta_ldn_km2",                     property: "Net change (km²)",      type: "number", format: "0,0"},
+          {column: "ldn_pct",                           property: "Net change (%)",        type: "number", format: "0.0"}
+        ]
+        config = {
+          url: "#{CARTO_SQL_BASE}?q=#{sql.gsub(' ', '+')}",
+          responseFormat: "rows",
+          params: {methodology: methodology}
+        }
+      else
+        sql = [
+          "SELECT eco_id, eco_name, biome_name, realm",
+          "FROM ecoregions2017",
+          "WHERE ST_Contains(the_geom, ST_SetSRID(ST_Point({{lng}}, {{lat}}), 4326)) LIMIT 1"
+        ].join(" ")
+        output = [
+          {column: "eco_id",    property: "Ecoregion ID", type: "integer"},
+          {column: "eco_name",  property: "Ecoregion",    type: "string"},
+          {column: "biome_name",property: "Biome",        type: "string"},
+          {column: "realm",     property: "Realm",        type: "string"}
+        ]
+        config = {
+          url: "#{CARTO_SQL_BASE}?q=#{sql.gsub(' ', '+')}",
+          responseFormat: "rows"
+        }
+      end
+      {output: output, config: config}.to_json
     end
 
     # ── Helper: persist a Layer + Agrupation ──
 
-    def save_layer(group:, slug:, layer_config:, legend:, name:, info:, description:, active:, order:, color:, analysis_type:, sources:)
+    def save_layer(group:, slug:, layer_config:, legend:, name:, info:, description:, active:, order:, color:, analysis_type:, sources:, interaction_config: nil)
       layer = Layer.find_or_initialize_by(slug: slug)
       layer.assign_attributes(
         :layer_group_id => group.id,
@@ -1288,7 +1414,7 @@ module LdnSeeder
         :analysis_suitable => true,
         :analysis_type => analysis_type,
         :layer_config => layer_config.to_json,
-        :interaction_config => "{}",
+        :interaction_config => (interaction_config || "{}"),
         :name => name,
         :info => info,
         :legend => legend.to_json,

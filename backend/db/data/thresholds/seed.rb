@@ -1,4 +1,4 @@
-# SBTN Planetary Boundaries — Thresholds Site Scope Seed Script
+# SBTN Thresholds — Thresholds Site Scope Seed Script
 #
 # Creates a "thresholds" site scope with three categories (Exceedances,
 # Thresholds, Baselines), four indicator sub-groups each, twelve CartoDB map
@@ -129,12 +129,12 @@ module ThresholdsSeeder
     puts "Creating site scope..."
     scope = SiteScope.find_or_initialize_by(subdomain: "thresholds")
     scope.assign_attributes(
-      name:         "SBTN Planetary Boundaries",
+      name:         "SBTN Thresholds",
       has_analysis: true,
       latitude:     0,
       longitude:    0,
       zoom_level:   2,
-      header_theme: "dark",
+      header_theme: "ci-theme",
       header_color: "#2d6a4f",
       color:        "#2d6a4f"
     )
@@ -216,7 +216,7 @@ module ThresholdsSeeder
           download:          false,
           legend:            legend,
           name:              "#{ind[:label]} — #{cat[:label]}",
-          info:              "SBTN Planetary Boundaries: #{ind[:label]} #{cat[:label].downcase} " \
+          info:              "SBTN Thresholds: #{ind[:label]} #{cat[:label].downcase} " \
                              "by ecoregion (#{ind[:unit]})",
           description:       "#{cat[:description]} Indicator: #{ind[:label]}. Units: #{ind[:unit]}.",
           layer_config:      nil,
@@ -433,9 +433,9 @@ module ThresholdsSeeder
       {column: "eco_name",            property: "Ecoregion",                        prefix: "", sufix: "", type: "string",  format: nil},
       {column: "biome_name",          property: "Biome",                            prefix: "", sufix: "", type: "string",  format: nil},
       {column: "realm",               property: "Realm",                            prefix: "", sufix: "", type: "string",  format: nil},
-      {column: "#{col}_baseline",     property: "#{label} — Baseline (#{unit})",    prefix: "", sufix: "", type: "number",  format: ".3f"},
-      {column: "#{col}_threshold",    property: "#{label} — Threshold (#{unit})",   prefix: "", sufix: "", type: "number",  format: ".3f"},
-      {column: "#{col}_exceedance",   property: "#{label} — Exceedance (#{unit})",  prefix: "", sufix: "", type: "number",  format: ".3f"}
+      {column: "#{col}_baseline",     property: "#{label} — Baseline (#{unit})",    prefix: "", sufix: "", type: "number",  format: "0.000"},
+      {column: "#{col}_threshold",    property: "#{label} — Threshold (#{unit})",   prefix: "", sufix: "", type: "number",  format: "0.000"},
+      {column: "#{col}_exceedance",   property: "#{label} — Exceedance (#{unit})",  prefix: "", sufix: "", type: "number",  format: "0.000"}
     ]
     {output: output}.to_json
   end
