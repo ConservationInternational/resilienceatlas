@@ -433,9 +433,9 @@ module ThresholdsSeeder
       {column: "eco_name",            property: "Ecoregion",                        prefix: "", sufix: "", type: "string",  format: nil},
       {column: "biome_name",          property: "Biome",                            prefix: "", sufix: "", type: "string",  format: nil},
       {column: "realm",               property: "Realm",                            prefix: "", sufix: "", type: "string",  format: nil},
-      {column: "#{col}_baseline",     property: "#{label} — Baseline (#{unit})",    prefix: "", sufix: "", type: "number",  format: "0.000"},
-      {column: "#{col}_threshold",    property: "#{label} — Threshold (#{unit})",   prefix: "", sufix: "", type: "number",  format: "0.000"},
-      {column: "#{col}_exceedance",   property: "#{label} — Exceedance (#{unit})",  prefix: "", sufix: "", type: "number",  format: "0.000"}
+      {column: "#{col}_baseline",     property: "#{label} — Baseline (#{unit})",    prefix: "", sufix: "", type: "number",  format: "0.0"},
+      {column: "#{col}_threshold",    property: "#{label} — Threshold (#{unit})",   prefix: "", sufix: "", type: "number",  format: "0.0"},
+      {column: "#{col}_exceedance",   property: "#{label} — Exceedance (#{unit})",  prefix: "", sufix: "", type: "number",  format: "0.0"}
     ]
     {output: output}.to_json
   end
