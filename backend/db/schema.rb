@@ -10,21 +10,11 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_04_11_120000) do
+ActiveRecord::Schema[7.2].define(version: 2026_05_08_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "postgis"
   enable_extension "postgis_topology"
-
-  create_table "_eco_key", id: false, force: :cascade do |t|
-    t.integer "unit_id"
-    t.integer "is_pa"
-    t.integer "eco_id"
-    t.text "eco_name"
-    t.integer "biome_num"
-    t.text "biome_name"
-    t.text "realm"
-  end
 
   create_table "action_text_rich_texts", force: :cascade do |t|
     t.string "name", null: false
@@ -414,14 +404,6 @@ ActiveRecord::Schema[7.2].define(version: 2026_04_11_120000) do
     t.index ["source_id"], name: "index_layers_sources_on_source_id"
   end
 
-  create_table "ldn_dissolved_geometries", id: :serial, force: :cascade do |t|
-    t.text "dimension", null: false
-    t.text "unit_id", null: false
-    t.jsonb "properties"
-    t.geometry "geom", limit: {srid: 4326, type: "multi_polygon"}
-    t.index ["dimension"], name: "idx_ldn_dissolved_dim"
-  end
-
   create_table "map_menu_entries", force: :cascade do |t|
     t.string "link"
     t.integer "position"
@@ -570,6 +552,10 @@ ActiveRecord::Schema[7.2].define(version: 2026_04_11_120000) do
     t.string "linkback_text_color"
     t.text "favicon_url"
     t.boolean "has_search", default: true, null: false
+    t.text "logo_url_2"
+    t.text "logo_url_3"
+    t.text "logo_url_4"
+    t.text "logo_url_5"
     t.index ["password_protected"], name: "index_site_scopes_on_password_protected"
     t.index ["subdomain"], name: "index_site_scopes_on_subdomain"
   end

@@ -65,14 +65,21 @@
     float: left;
     padding: rem(5px) 0;
     opacity: 1;
+    display: flex;
+    align-items: center;
+    gap: rem(12px);
+
+    li {
+      display: flex;
+      align-items: center;
+    }
 
     a {
       position: relative;
-      display: block;
-      width: rem(200px);
+      display: flex;
+      align-items: center;
       height: rem($header-height - 20px);
       padding: rem(5px) 0;
-      // background-image: image-url("logo-ci.png");
       background-repeat: no-repeat;
       background-position: left center;
       background-size: contain;
@@ -91,6 +98,15 @@
       &:hover {
         text-decoration: none;
       }
+    }
+
+    .site-logo {
+      height: rem($header-height - 20px);
+      width: auto;
+      max-width: rem(200px);
+      display: block;
+      object-fit: contain;
+      text-indent: 0;
     }
   }
 
@@ -454,11 +470,14 @@ a.nav-current-forced:hover {
       float: left;
       padding: rem(10px) 0;
       width: calc(100% - 60px); // Leave space for hamburger button
-      
+
       a {
-        width: rem(160px);
         height: rem(40px);
         font-size: rem(16px);
+      }
+
+      .site-logo {
+        height: rem(40px);
       }
     }
 

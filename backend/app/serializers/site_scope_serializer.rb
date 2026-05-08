@@ -30,6 +30,16 @@ class SiteScopeSerializer < ActiveModel::Serializer
   attributes :id, :name, :color, :subdomain, :has_analysis, :has_search, :latitude,
     :longitude, :header_theme, :zoom_level, :linkback_text, :linkback_url,
     :header_color, :logo_url, :favicon_url, :predictive_model, :analysis_options, :has_gef_logo,
-    :password_protected, :linkback_text_color
+    :password_protected, :linkback_text_color, :logo_urls
   has_many :site_pages
+
+  def logo_urls
+    [
+      object.logo_url,
+      object.logo_url_2,
+      object.logo_url_3,
+      object.logo_url_4,
+      object.logo_url_5
+    ].select(&:present?).first(5)
+  end
 end

@@ -17,6 +17,22 @@ fi
 echo "🔧 Setting up tmp directories..."
 mkdir -p tmp tmp/cache tmp/pids tmp/sockets tmp/storage 2>/dev/null || true
 
+# Clear stale sprockets asset cache — subdirs may be owned by root from a previous Docker run,
+# causing Errno::EACCES when sprockets tries to write new cache entries.
+# Use sudo because the directory may be root-owned when docker compose run overrides the
+# service command (bypassing the chown block in the compose command: section).
+echo "🔧 Clearing stale sprockets asset cache..."
+if command -v sudo >/dev/null 2>&1; then
+  sudo rm -rf tmp/cache/assets 2>/dev/null || rm -rf tmp/cache/assets 2>/dev/null || true
+  sudo mkdir -p tmp/cache/assets 2>/dev/null || mkdir -p tmp/cache/assets 2>/dev/null || true
+  sudo chown "$(whoami):$(whoami)" tmp/cache/assets 2>/dev/null || true
+  sudo chmod 775 tmp/cache/assets 2>/dev/null || true
+else
+  rm -rf tmp/cache/assets 2>/dev/null || true
+  mkdir -p tmp/cache/assets 2>/dev/null || true
+fi
+echo "✅ Sprockets asset cache cleared"
+
 # Ensure log directory exists and is writable
 echo "🔧 Setting up log directory..."
 mkdir -p log 2>/dev/null || true
@@ -27,31 +43,9 @@ mkdir -p public/storage public/uploads public/uploads/cache public/uploads/store
 # Fix ownership and permissions for volume-mounted directories (Docker issue)
 # When directories are volume-mounted, they retain host permissions which may not match container user
 echo "🔧 Ensuring proper ownership and permissions for upload directories..."
-if command -v sudo >/dev/null 2>&1; then
-  # In Docker containers, we have sudo and need to fix permissions
-  ownership_fixed=true
-  permissions_fixed=true
-  
-  sudo chown -R $(whoami):$(whoami) public/storage public/uploads downloads storage log tmp/storage tmp/cache 2>/dev/null || {
-    echo "Could not fix ownership"
-    ownership_fixed=false
-  }
-  
-  sudo chmod -R 775 public/storage public/uploads downloads storage log tmp/storage tmp/cache 2>/dev/null || {
-    echo "Could not fix permissions"
-    permissions_fixed=false
-  }
-  
-  if [ "$ownership_fixed" = true ] && [ "$permissions_fixed" = true ]; then
-    echo "✅ Directory ownership and permissions fixed"
-  else
-    echo "⚠️  Some directory ownership and permissions could not be fixed, but continuing..."
-  fi
-else
-  echo "⚠️ sudo not available, attempting permission fix without sudo..."
-  chown -R $(whoami):$(whoami) public/storage public/uploads downloads storage log tmp/storage tmp/cache 2>/dev/null || echo "Cannot fix ownership without sudo"
-  chmod -R 775 public/storage public/uploads downloads storage log tmp/storage tmp/cache 2>/dev/null || echo "Cannot fix permissions without sudo"
-fi
+# Skip recursive chown on Windows-bind-mounted paths (extremely slow via Docker Desktop/WSL2).
+# Instead just touch the dirs and let Rails create files as needed.
+echo "✅ Skipping recursive chown on bind-mounted dirs (Windows filesystem performance)"
 
 # Specifically fix upload directories for photos
 echo "🔧 Setting up upload directories..."

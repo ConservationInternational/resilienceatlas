@@ -17,6 +17,7 @@ const initialState = {
   linkback_text_color: null,
   header_color: null,
   logo_url: '',
+  logo_urls: [],
   favicon_url: '',
 
   loading: false,
@@ -38,6 +39,10 @@ export default createReducer(initialState)({
       ...state,
       ...data,
       logo_url: data.logo_url || '/images/logo-ci.png',
+      logo_urls:
+        data.logo_urls && data.logo_urls.length > 0
+          ? data.logo_urls
+          : [data.logo_url || '/images/logo-ci.png'],
       favicon_url: data.favicon_url || '/favicon.ico',
 
       loading: false,

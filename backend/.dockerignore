@@ -10,6 +10,7 @@ tmp/*
 !tmp/.keep
 storage/*
 !storage/.keep
+public/storage
 node_modules
 .DS_Store
 *.swp

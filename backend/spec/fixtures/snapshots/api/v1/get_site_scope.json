@@ -21,7 +21,10 @@
       "analysis_options": false,
       "has_gef_logo": false,
       "password_protected": false,
-      "linkback_text_color": null
+      "linkback_text_color": null,
+      "logo_urls": [
+        "http://rogahn-deckow.test/miguel"
+      ]
     },
     "relationships": {
       "site_pages": {

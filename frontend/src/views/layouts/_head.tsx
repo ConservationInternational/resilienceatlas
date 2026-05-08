@@ -8,6 +8,7 @@ type CustomHeadProps = {
     color: string;
     header_color: string;
     logo_url: string;
+    logo_urls: string[];
     favicon_url: string;
     loaded: boolean;
   };

@@ -117,7 +117,11 @@ services:
         echo '🔧 Fixing permissions after volume mount...' &&
         
         # Fix ownership and permissions for files that need to be writable
-        sudo chown -R appuser:appuser /app &&
+        # Note: /app/public/storage is excluded from recursive chown - it may contain large media
+        # files (Windows-mounted via WSL2/9P) that make recursive chown extremely slow.
+        sudo find /app -maxdepth 1 -not -name 'public' -exec chown appuser:appuser {} + 2>/dev/null || true &&
+        sudo find /app -mindepth 2 -maxdepth 2 -path '/app/public/*' -not -name 'storage' -exec chown appuser:appuser {} + 2>/dev/null || true &&
+        sudo chown -R appuser:appuser /app/app /app/bin /app/config /app/db /app/lib /app/spec /app/test /app/log /app/tmp 2>/dev/null || true &&
         sudo chown -R appuser:appuser /usr/local/bundle &&
         sudo chmod 664 /app/Gemfile.lock &&
         sudo chmod 755 /app/bin/* &&
@@ -127,8 +131,8 @@ services:
         # Ensure all required directories exist with proper permissions
         sudo mkdir -p /app/tmp/cache /app/tmp/pids /app/tmp/sockets /app/tmp/storage &&
         sudo mkdir -p /app/public/storage /app/public/uploads /app/public/uploads/cache /app/public/uploads/store /app/downloads /app/storage &&
-        sudo chown -R appuser:appuser /app/tmp /app/public/storage /app/public/uploads /app/downloads /app/storage &&
-        sudo chmod -R 775 /app/tmp /app/public/storage /app/public/uploads /app/downloads /app/storage &&
+        sudo chown -R appuser:appuser /app/tmp /app/public/uploads /app/downloads /app/storage &&
+        sudo chmod -R 775 /app/tmp /app/public/uploads /app/downloads /app/storage &&
         
         echo '📦 Installing dependencies...' &&
         bundle install &&

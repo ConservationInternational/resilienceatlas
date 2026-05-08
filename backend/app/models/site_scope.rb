@@ -73,6 +73,7 @@ class SiteScope < ApplicationRecord
       id name color subdomain has_analysis has_search latitude longitude header_theme zoom_level
       linkback_text linkback_url header_color logo_url predictive_model analysis_options
       has_gef_logo password_protected username linkback_text_color
+      logo_url_2 logo_url_3 logo_url_4 logo_url_5
     ]
   end
 

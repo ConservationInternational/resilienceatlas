@@ -25,7 +25,11 @@
       "encrypted_password": null,
       "encrypted_viewable_password": null,
       "linkback_text_color": null,
-      "favicon_url": null
+      "favicon_url": null,
+      "logo_url_2": null,
+      "logo_url_3": null,
+      "logo_url_4": null,
+      "logo_url_5": null
     },
     {
       "name": "BBB",
@@ -50,7 +54,11 @@
       "encrypted_password": null,
       "encrypted_viewable_password": null,
       "linkback_text_color": null,
-      "favicon_url": null
+      "favicon_url": null,
+      "logo_url_2": null,
+      "logo_url_3": null,
+      "logo_url_4": null,
+      "logo_url_5": null
     }
   ]
 }

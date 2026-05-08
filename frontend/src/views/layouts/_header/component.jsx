@@ -81,6 +81,8 @@ const Header = ({
     linkback_text_color,
     subdomain = '',
     color = '',
+    name = '',
+    logo_urls = [],
   } = site || {};
 
   // Check if we're on a sub-scope (not the main Resilience Atlas site)
@@ -164,19 +166,33 @@ const Header = ({
       <header className="l-header--fullscreen">
         <nav className="l-header-nav">
           <ul className="brand-area">
-            <li>
-              <Link
-                href="/"
-                style={{
-                  display: 'block',
-                  cursor: 'pointer',
-                  textDecoration: 'none',
-                  color: '#333333',
-                }}
-              >
-                <T _str="Resilience Atlas"></T>
-              </Link>
-            </li>
+            {logo_urls.length > 0 ? (
+              logo_urls.map((url, index) => (
+                <li key={index}>
+                  <Link href="/" aria-label={index === 0 ? name || 'Resilience Atlas' : undefined}>
+                    <img
+                      src={url}
+                      alt={index === 0 ? name || 'Resilience Atlas' : ''}
+                      className="site-logo"
+                    />
+                  </Link>
+                </li>
+              ))
+            ) : (
+              <li>
+                <Link
+                  href="/"
+                  style={{
+                    display: 'block',
+                    cursor: 'pointer',
+                    textDecoration: 'none',
+                    color: '#333333',
+                  }}
+                >
+                  <T _str="Resilience Atlas"></T>
+                </Link>
+              </li>
+            )}
           </ul>
 
           {/* Mobile menu toggle button */}
