@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Preprocess SBTN planetary boundary threshold data into a single wide CSV.
+Preprocess SBTN threshold data into a single wide CSV.
 
 Reads per-realm, per-indicator CSVs and outputs one row per ecoregion with
 columns for each combination of indicator × metric (baseline / threshold /

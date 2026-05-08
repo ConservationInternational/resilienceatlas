@@ -60,11 +60,11 @@ module ThresholdsSeeder
 
   # ── Category definitions ───────────────────────────────────────────────────
   CATEGORY_DEFS = {
-    exceedances: {label: "Exceedances", suffix: "exceedance", order: 1,
-                  description: "Difference between the current baseline value and the planetary boundary threshold."},
-    thresholds:  {label: "Thresholds",  suffix: "threshold",  order: 2,
-                  description: "Planetary boundary threshold values by ecoregion."},
-    baselines:   {label: "Baselines",   suffix: "baseline",   order: 3,
+    exceedances: {label: "Exceedance", suffix: "exceedance", order: 1,
+                  description: "Difference between the current baseline value and threshold."},
+    thresholds:  {label: "Threshold",  suffix: "threshold",  order: 2,
+                  description: "Threshold value by ecoregion."},
+    baselines:   {label: "Baseline",   suffix: "baseline",   order: 3,
                   description: "Current baseline values by ecoregion."}
   }.freeze
 
@@ -189,10 +189,11 @@ module ThresholdsSeeder
         active = (ind_key == :natural_land && cat_key == :exceedances)
 
         css         = build_css(value_col: value_col, cat_key: cat_key, ind: ind)
-        query       = build_query(value_col: value_col)
+        query       = build_query(value_col: value_col, ind: ind)
         legend      = build_legend(value_col: value_col, cat_key: cat_key, ind: ind)
-        inter_cfg   = build_interaction_config(value_col: value_col, ind: ind, cat: cat)
-        interactivity = "eco_id, eco_name, biome_name, realm, #{value_col}"
+        inter_cfg   = build_interaction_config(ind: ind)
+        interactivity = "eco_id, eco_name, biome_name, realm, " \
+                        "#{col}_baseline, #{col}_threshold, #{col}_exceedance"
 
         layer = Layer.find_or_initialize_by(slug: layer_slug)
         layer.assign_attributes(
@@ -373,7 +374,8 @@ module ThresholdsSeeder
 
   # ── CartoDB SQL query ─────────────────────────────────────────────────────
 
-  def self.build_query(value_col:)
+  def self.build_query(value_col:, ind:)
+    col = ind[:col]
     <<~SQL.strip
       SELECT
         e.cartodb_id,
@@ -382,7 +384,9 @@ module ThresholdsSeeder
         e.eco_name,
         e.biome_name,
         e.realm,
-        t.#{value_col}
+        t.#{col}_baseline,
+        t.#{col}_threshold,
+        t.#{col}_exceedance
       FROM ecoregions2017 e
       LEFT JOIN sbtn_thresholds t ON e.eco_id::int = t.eco_id
     SQL
@@ -420,14 +424,18 @@ module ThresholdsSeeder
 
   # ── Interaction config ────────────────────────────────────────────────────
 
-  def self.build_interaction_config(value_col:, ind:, cat:)
+  def self.build_interaction_config(ind:)
+    col  = ind[:col]
+    unit = ind[:unit]
+    label = ind[:label]
     output = [
-      {column: "eco_id",    property: "Ecoregion ID", prefix: "", sufix: "", type: "integer", format: nil},
-      {column: "eco_name",  property: "Ecoregion",    prefix: "", sufix: "", type: "string",  format: nil},
-      {column: "biome_name",property: "Biome",        prefix: "", sufix: "", type: "string",  format: nil},
-      {column: "realm",     property: "Realm",        prefix: "", sufix: "", type: "string",  format: nil},
-      {column: value_col,   property: "#{ind[:label]} #{cat[:label]} (#{ind[:unit]})",
-       prefix: "", sufix: "", type: "number", format: ".3f"}
+      {column: "eco_id",              property: "Ecoregion ID",                    prefix: "", sufix: "", type: "integer", format: nil},
+      {column: "eco_name",            property: "Ecoregion",                        prefix: "", sufix: "", type: "string",  format: nil},
+      {column: "biome_name",          property: "Biome",                            prefix: "", sufix: "", type: "string",  format: nil},
+      {column: "realm",               property: "Realm",                            prefix: "", sufix: "", type: "string",  format: nil},
+      {column: "#{col}_baseline",     property: "#{label} — Baseline (#{unit})",    prefix: "", sufix: "", type: "number",  format: ".3f"},
+      {column: "#{col}_threshold",    property: "#{label} — Threshold (#{unit})",   prefix: "", sufix: "", type: "number",  format: ".3f"},
+      {column: "#{col}_exceedance",   property: "#{label} — Exceedance (#{unit})",  prefix: "", sufix: "", type: "number",  format: ".3f"}
     ]
     {output: output}.to_json
   end
