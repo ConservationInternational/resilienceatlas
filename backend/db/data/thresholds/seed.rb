@@ -391,27 +391,31 @@ module ThresholdsSeeder
   # ── Legend JSON ───────────────────────────────────────────────────────────
 
   def self.build_legend(value_col:, cat_key:, ind:)
+    unit = ind[:unit]
     if cat_key == :exceedances
-      breaks = ind[:exc_breaks]
-      items = breaks.each_with_index.map do |brk, i|
-        label = i == 0 ? "< #{brk}" : "#{breaks[i - 1]} to #{brk}"
-        {name: label, value: DIVERGING_13[i]}
-      end
-      items << {name: "> #{breaks.last}", value: DIVERGING_13[12]}
-      items << {name: "No data",          value: "#aaaaaa"}
+      breaks = ind[:exc_breaks]   # 12 elements → 13 bins
+      {
+        type:   "choropleth",
+        bucket: DIVERGING_13,
+        units:  unit,
+        min:    "< #{breaks.first} (best)",
+        mid:    "0 (target)",
+        max:    "> #{breaks.last} (worst)"
+      }.to_json
     else
-      breaks = ind[:seq_breaks]
+      breaks = ind[:seq_breaks]   # 12 elements → 13 bins
       colors = ind[:higher_is_better] ? VIRIDIS_13 : VIRIDIS_13_INV
-      unit   = ind[:unit]
-      items = breaks.each_with_index.map do |brk, i|
-        label = i == 0 ? "< #{brk} #{unit}" : "#{breaks[i - 1]}\u2013#{brk} #{unit}"
-        {name: label, value: colors[i]}
-      end
-      items << {name: "> #{breaks.last} #{unit}", value: colors[12]}
-      items << {name: "No data",                  value: "#aaaaaa"}
+      # Use break at index 5 as a mid-point label (centre of the 13-bin ramp)
+      mid_val = breaks[5]
+      {
+        type:   "choropleth",
+        bucket: colors,
+        units:  unit,
+        min:    "< #{breaks.first}",
+        mid:    "~#{mid_val}",
+        max:    "> #{breaks.last}"
+      }.to_json
     end
-
-    {type: "custom", data: items}.to_json
   end
 
   # ── Interaction config ────────────────────────────────────────────────────
