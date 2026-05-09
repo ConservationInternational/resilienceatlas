@@ -99,7 +99,7 @@ jobs:
         echo "date=$(date +%Y%m%d)" >> $GITHUB_OUTPUT
 
     - name: Cache Docker buildx layers (multi-service)
-      uses: actions/cache@v4
+      uses: actions/cache@v5
       with:
         path: /tmp/.buildx-cache
         key: ${{ runner.os }}-integration-buildx-${{ steps.cache-keys.outputs.backend-dockerfile-hash }}-${{ steps.cache-keys.outputs.frontend-dockerfile-hash }}-${{ steps.cache-keys.outputs.gemfile-hash }}-${{ steps.cache-keys.outputs.package-hash }}
@@ -669,7 +669,7 @@ jobs:
         docker compose -f docker-compose.test.yml logs db-test --tail=20
 
     - name: Publish test results
-      uses: dorny/test-reporter@v1
+      uses: dorny/test-reporter@v3
       if: success() || failure()
       continue-on-error: true
       with:

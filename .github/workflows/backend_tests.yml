@@ -123,7 +123,7 @@ jobs:
         echo "date=$(date +%Y%m%d)" >> $GITHUB_OUTPUT
 
     - name: Cache Docker buildx layers
-      uses: actions/cache@v4
+      uses: actions/cache@v5
       with:
         path: /tmp/.buildx-cache
         key: ${{ runner.os }}-backend-buildx-${{ steps.cache-keys.outputs.dockerfile-hash }}-${{ steps.cache-keys.outputs.gemfile-hash }}
@@ -133,7 +133,7 @@ jobs:
           ${{ runner.os }}-buildx-
 
     - name: Cache Ruby dependencies
-      uses: actions/cache@v4
+      uses: actions/cache@v5
       with:
         path: |
           /tmp/.bundle-cache
@@ -254,7 +254,7 @@ jobs:
         fi
 
     - name: Publish test results
-      uses: dorny/test-reporter@v1
+      uses: dorny/test-reporter@v3
       if: (success() || failure()) && github.event_name != 'pull_request'
       with:
         name: Backend RSpec Tests
