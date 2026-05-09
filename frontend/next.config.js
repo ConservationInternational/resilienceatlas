@@ -28,6 +28,16 @@ const nextConfig = {
     // !! WARN !!
     ignoreBuildErrors: true,
   },
+  images: {
+    // Allow Next.js <Image> to optimize images from the backend and CDN origins.
+    remotePatterns: [
+      { protocol: 'https', hostname: '**.resilienceatlas.org' },
+      { protocol: 'https', hostname: '**.globalresiliencepartnership.org' },
+      // Local development
+      { protocol: 'http', hostname: 'localhost' },
+      { protocol: 'http', hostname: 'backend' },
+    ],
+  },
   // Next.js 16+ uses experimental.serverActions instead of serverExternalPackages
   serverExternalPackages: [],
   async headers() {

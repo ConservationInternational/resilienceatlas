@@ -13,7 +13,6 @@
 #
 
 class ModelSerializer < ActiveModel::Serializer
-  cache key: "model_#{I18n.locale}"
   attributes :name, :description, :source, :query_analysis, :table_name
   has_many :site_scopes, each_serializer: SiteScopeSerializer
   has_many :indicators, each_serializer: IndicatorSerializer

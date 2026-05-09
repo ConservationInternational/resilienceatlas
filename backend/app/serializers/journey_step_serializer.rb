@@ -24,7 +24,6 @@
 class JourneyStepSerializer < ActiveModel::Serializer
   include BlobSerializer
 
-  cache key: "journey_step_#{I18n.locale}"
   attributes :id, :step_type, :position
 
   # attributes which visibility depends on journey step type

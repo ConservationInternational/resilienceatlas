@@ -37,6 +37,19 @@ Rails.application.configure do
   # Specifies the header that your server uses for sending files.
   config.action_dispatch.x_sendfile_header = "X-Accel-Redirect"
 
+  # Use Redis when available (requires REDIS_URL env var), otherwise memory store.
+  config.cache_store = if ENV["REDIS_URL"].present?
+    [:redis_cache_store, {
+      url: ENV["REDIS_URL"],
+      expires_in: 1.hour,
+      error_handler: ->(method:, returning:, exception:) {
+        Rails.logger.warn("Redis cache #{method} failed: #{exception.message}")
+      }
+    }]
+  else
+    [:memory_store, {size: 64.megabytes}]
+  end
+
   # Use a higher log level in staging to reduce noise but still capture issues
   config.log_level = :info
 

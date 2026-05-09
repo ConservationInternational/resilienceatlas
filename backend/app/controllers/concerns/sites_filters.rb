@@ -7,9 +7,11 @@ module SitesFilters
   end
 
   def set_site
-    @site_scope = SiteScope.find_by(subdomain: params[:site_scope]) ||
-      SiteScope.find_by(subdomain: request.subdomain.downcase) ||
-      SiteScope.find_by(id: 1)
+    # Reuse any SiteScope already fetched this request (e.g. by ApplicationController#get_subdomain)
+    # to avoid redundant DB round-trips.
+    @site_scope = find_site_scope_by_subdomain(params[:site_scope]) if params[:site_scope].present?
+    @site_scope ||= find_site_scope_by_subdomain(request.subdomain.downcase)
+    @site_scope ||= SiteScope.find_by(id: 1)
 
     unless @site_scope
       render json: {error: "No default site scope configured"}, status: :not_found

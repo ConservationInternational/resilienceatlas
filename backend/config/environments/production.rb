@@ -46,9 +46,9 @@ Rails.application.configure do
   # config.force_ssl = true
 
   # config.logger = ActiveSupport::Logger.new("log/production.log")
-  # Use the lowest log level to ensure availability of diagnostic information
-  # when problems arise.
-  config.log_level = :debug
+  # :info hides per-query SQL logs that are only useful during debugging.
+  # Use LOG_LEVEL=debug env var to re-enable temporarily when needed.
+  config.log_level = ENV.fetch("LOG_LEVEL", "info").to_sym
   # Use default logging formatter so that PID and timestamp are not suppressed.
   config.log_formatter = ::Logger::Formatter.new
 

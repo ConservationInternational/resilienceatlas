@@ -11,7 +11,6 @@
 #
 
 class CategorySerializer < ActiveModel::Serializer
-  cache key: "category_#{I18n.locale}"
   attributes :name, :slug, :description
   has_many :indicators, each_serializer: ModelSerializer
 end
