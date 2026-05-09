@@ -1357,19 +1357,19 @@ module LdnSeeder
           "WHERE ST_Contains(e.the_geom, ST_SetSRID(ST_Point({{lng}}, {{lat}}), 4326)) LIMIT 1"
         ].join(" ")
         output = [
-          {column: "eco_id",                            property: "Ecoregion ID",          type: "integer"},
-          {column: "eco_name",                          property: "Ecoregion",              type: "string"},
-          {column: "biome_name",                        property: "Biome",                 type: "string"},
-          {column: "realm",                             property: "Realm",                 type: "string"},
-          {column: "total_area_km2",           property: "Total area (km²)",      type: "number", format: "0,0"},
-          {column: "baseline_degraded_sqkm",   property: "Baseline degraded (km²)", type: "number", format: "0,0"},
-          {column: "gains_km2",                         property: "Gains (km²)",           type: "number", format: "0,0"},
-          {column: "losses_km2",                        property: "Losses (km²)",          type: "number", format: "0,0"},
-          {column: "delta_ldn_km2",                     property: "Net change (km²)",      type: "number", format: "0,0"},
-          {column: "ldn_pct",                           property: "Net change (%)",        type: "number", format: "0.0"}
+          {column: "eco_id", property: "Ecoregion ID", type: "integer"},
+          {column: "eco_name", property: "Ecoregion", type: "string"},
+          {column: "biome_name", property: "Biome", type: "string"},
+          {column: "realm", property: "Realm", type: "string"},
+          {column: "total_area_km2", property: "Total area (km²)", type: "number", format: "0,0"},
+          {column: "baseline_degraded_sqkm", property: "Baseline degraded (km²)", type: "number", format: "0,0"},
+          {column: "gains_km2", property: "Gains (km²)", type: "number", format: "0,0"},
+          {column: "losses_km2", property: "Losses (km²)", type: "number", format: "0,0"},
+          {column: "delta_ldn_km2", property: "Net change (km²)", type: "number", format: "0,0"},
+          {column: "ldn_pct", property: "Net change (%)", type: "number", format: "0.0"}
         ]
         config = {
-          url: "#{CARTO_SQL_BASE}?q=#{sql.gsub(' ', '+')}",
+          url: "#{CARTO_SQL_BASE}?q=#{sql.tr(" ", "+")}",
           responseFormat: "rows",
           params: {methodology: methodology}
         }
@@ -1380,13 +1380,13 @@ module LdnSeeder
           "WHERE ST_Contains(the_geom, ST_SetSRID(ST_Point({{lng}}, {{lat}}), 4326)) LIMIT 1"
         ].join(" ")
         output = [
-          {column: "eco_id",    property: "Ecoregion ID", type: "integer"},
-          {column: "eco_name",  property: "Ecoregion",    type: "string"},
-          {column: "biome_name",property: "Biome",        type: "string"},
-          {column: "realm",     property: "Realm",        type: "string"}
+          {column: "eco_id", property: "Ecoregion ID", type: "integer"},
+          {column: "eco_name", property: "Ecoregion", type: "string"},
+          {column: "biome_name", property: "Biome", type: "string"},
+          {column: "realm", property: "Realm", type: "string"}
         ]
         config = {
-          url: "#{CARTO_SQL_BASE}?q=#{sql.gsub(' ', '+')}",
+          url: "#{CARTO_SQL_BASE}?q=#{sql.tr(" ", "+")}",
           responseFormat: "rows"
         }
       end
@@ -1414,7 +1414,7 @@ module LdnSeeder
         :analysis_suitable => true,
         :analysis_type => analysis_type,
         :layer_config => layer_config.to_json,
-        :interaction_config => (interaction_config || "{}"),
+        :interaction_config => interaction_config || "{}",
         :name => name,
         :info => info,
         :legend => legend.to_json,

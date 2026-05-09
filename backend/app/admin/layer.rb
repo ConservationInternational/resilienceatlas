@@ -18,7 +18,7 @@ ActiveAdmin.register Layer do
       super
     rescue Date::Error
       resource.errors.add :timeline_steps, "Invalid date format"
-      render(action_name == "create" ? :new : :edit)
+      render((action_name == "create") ? :new : :edit)
     end
   end
 
