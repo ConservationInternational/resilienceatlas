@@ -40,6 +40,7 @@ services:
       - ROLLBAR_ACCESS_TOKEN=${ROLLBAR_ACCESS_TOKEN}
       - ROLLBAR_ENV=production
       - MARTIN_URL=http://martin:3000
+      - REDIS_URL=redis://redis:6379/0
     networks:
       - prod-network
     deploy:
@@ -119,6 +120,31 @@ services:
       timeout: 10s
       retries: 3
       start_period: 60s
+
+  redis:
+    image: redis:7-alpine
+    networks:
+      - prod-network
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+      restart_policy:
+        condition: any
+        delay: 5s
+      resources:
+        limits:
+          memory: 128M
+        reservations:
+          memory: 64M
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
   martin:
     image: resilienceatlas-martin:latest

@@ -54,6 +54,7 @@ services:
     environment:
       - RAILS_ENV=development
       - MARTIN_URL=http://martin:3000
+      - REDIS_URL=redis://redis:6379/0
     env_file:
       - ./backend/.env
     volumes:
@@ -101,6 +102,19 @@ services:
         condition: service_healthy
     restart: unless-stopped
     command: /app/bin/docker-dev-entrypoint.sh
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    networks:
+      - app-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 networks:
   app-network:
