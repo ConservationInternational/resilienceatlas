@@ -1,6 +1,7 @@
 import { connect } from 'react-redux';
 import { makeActives } from 'state/modules/layers';
 import { getByISO } from 'state/modules/countries/selectors';
+import { loadGeometry } from 'state/modules/countries/actions';
 import { LayerAnalysis } from './LayerAnalysis.component';
 
 const makeMapStateToProps = () => {
@@ -17,4 +18,8 @@ const makeMapStateToProps = () => {
   return mapStateToProps;
 };
 
-export default connect(makeMapStateToProps)(LayerAnalysis);
+const mapDispatchToProps = {
+  loadGeometry,
+};
+
+export default connect(makeMapStateToProps, mapDispatchToProps)(LayerAnalysis);

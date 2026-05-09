@@ -10,6 +10,11 @@
 # (e.g. trendsearth.resilienceatlas.org, ldn.resilienceatlas.org).
 cors: true
 
+# Cache boundary tiles in the browser for 24 hours (86400 s), matching
+# the CloudFront CDN TTL.  Without this Martin defaults to max-age=3600
+# (1 hour), causing needless re-fetches when users return to the map.
+cache_control_max_age: 86400
+
 # If a function source doesn't exist yet (e.g. migration hasn't run),
 # log a warning instead of aborting startup.
 on_invalid: warn

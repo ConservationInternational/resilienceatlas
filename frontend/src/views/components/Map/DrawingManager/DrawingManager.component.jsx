@@ -12,6 +12,7 @@ export const DrawingManager = ({
   bounds,
   iso,
   countries,
+  loadGeometry,
 }) => {
   const { setParam, removeParam } = useRouterParams();
   const layer = useRef(null);
@@ -97,7 +98,16 @@ export const DrawingManager = ({
     }
 
     if (iso && countries[iso]) {
-      const geojson_country = JSON.parse(countries[iso].geometry);
+      const countryEntry = countries[iso];
+
+      if (!countryEntry.geometryLoaded) {
+        // Geometry not yet loaded — request it. The effect will re-run once
+        // the reducer merges the geometry (countries[iso].geometryLoaded becomes true).
+        loadGeometry(iso);
+        return;
+      }
+
+      const geojson_country = JSON.parse(countryEntry.geometry);
 
       layer.current = L.geoJSON(geojson_country);
       layer.current.setZIndex(2000);
@@ -114,7 +124,7 @@ export const DrawingManager = ({
     } else {
       removeParam('iso');
     }
-  }, [iso, countries, map, setParam, removeParam]);
+  }, [iso, countries, map, setParam, removeParam, loadGeometry]);
 
   return null;
 };

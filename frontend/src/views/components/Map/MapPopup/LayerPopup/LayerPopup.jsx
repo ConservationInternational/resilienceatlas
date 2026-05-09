@@ -1,6 +1,6 @@
 import React, { useReducer, useCallback, useEffect, useMemo } from 'react';
 import axios from 'axios';
-import moment from 'moment';
+import { format, parseISO, isValid } from 'date-fns';
 import numeral from 'numeral';
 import get from 'lodash/get';
 import { replace } from 'lib/layer-manager';
@@ -50,7 +50,17 @@ const LayerPopup = ({
 
   const formatValue = useCallback((item, data) => {
     if (item.type === 'date' && item.format && data) {
-      data = moment(data).format(item.format);
+      const parsed = typeof data === 'string' ? parseISO(data) : new Date(data);
+      if (isValid(parsed)) {
+        // Layer configs may use moment-style tokens (YYYY, DD).
+        // Translate the most common ones to date-fns equivalents.
+        const dateFnsFormat = item.format
+          .replace(/YYYY/g, 'yyyy')
+          .replace(/YY/g, 'yy')
+          .replace(/DD/g, 'dd')
+          .replace(/D(?!D)/g, 'd');
+        data = format(parsed, dateFnsFormat);
+      }
     } else if (item.type === 'number' && item.format && data) {
       data = numeral(data).format(item.format);
     } else if (item.type === 'link' && data) {

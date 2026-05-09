@@ -49,6 +49,7 @@ Rails.application.routes.draw do
 
       # Admin boundaries (country/province/district polygons)
       get "/admin-boundaries", to: "admin_boundaries#index"
+      get "/admin-boundaries/:iso_code", to: "admin_boundaries#show"
 
       # Scope datasets (pre-computed statistics for site scopes)
       get "/scope-datasets", to: "scope_datasets#index"

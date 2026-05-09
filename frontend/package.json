@@ -40,7 +40,6 @@
     "leaflet-utfgrid": "0.3.0",
     "leaflet.vectorgrid": "^1.3.0",
     "lodash": "^4.17.22",
-    "moment": "^2.30.1",
     "next": "16.2.3",
     "next-redux-wrapper": "^8.1.0",
     "normalize.css": "^8.0.1",
@@ -69,8 +68,6 @@
     "sass": "^1.83.0",
     "slick-carousel": "^1.8.1",
     "use-debounce": "^10.0.4",
-    "vega": "^6.2.0",
-    "vega-lib": "^4.4.0",
     "yup": "^1.5.0"
   },
   "devDependencies": {

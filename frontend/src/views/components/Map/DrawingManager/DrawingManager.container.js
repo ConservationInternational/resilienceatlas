@@ -1,6 +1,7 @@
 import { connect } from 'react-redux';
 import { setGeojson, setDrawing, setISO } from 'state/modules/map';
 import { getByISO } from 'state/modules/countries/selectors';
+import { loadGeometry } from 'state/modules/countries/actions';
 
 import { DrawingManager } from './DrawingManager.component';
 
@@ -16,6 +17,7 @@ const mapDispatchToProps = {
   setGeojson,
   setDrawing,
   setISO,
+  loadGeometry,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(DrawingManager);
