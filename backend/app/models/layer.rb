@@ -256,13 +256,13 @@ class Layer < ApplicationRecord
 
     # Sanitize filename to prevent Zip Slip
     file_name = if options["filename"].present?
-      File.basename(options["filename"].to_s.gsub(/[^\w.\-]/, "_"))
+      File.basename(options["filename"].to_s.gsub(/[^\w.-]/, "_"))
     elsif options["download_path"].present? && URI(options["download_path"]).query.present?
       query_path = URI(options["download_path"]).query
       # Parse query parameters properly to extract filename
       query_params = CGI.parse(query_path)
       raw_filename = query_params["filename"]&.first
-      raw_filename.present? ? File.basename(raw_filename.to_s.gsub(/[^\w.\-]/, "_")) : nil
+      raw_filename.present? ? File.basename(raw_filename.to_s.gsub(/[^\w.-]/, "_")) : nil
     end
 
     layer_url = download_path.to_s if download_path

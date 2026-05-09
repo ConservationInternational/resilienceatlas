@@ -2,6 +2,7 @@ module Api
   module V1
     class ScopeDatasetsController < ApiController
       include SitesFilters
+
       skip_before_action :check_site_scope_authentication, only: [:index, :show, :intersecting_units, :geometry_bounds]
 
       def index

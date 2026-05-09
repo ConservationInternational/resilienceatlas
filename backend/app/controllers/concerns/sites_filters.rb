@@ -1,5 +1,6 @@
 module SitesFilters
   extend ActiveSupport::Concern
+
   included do
     before_action :set_site
     before_action :check_site_scope_authentication

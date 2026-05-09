@@ -2,6 +2,7 @@ module Api
   module V1
     class AdminBoundariesController < ApiController
       include SitesFilters
+
       skip_before_action :set_site, only: [:index]
       skip_before_action :check_site_scope_authentication, only: [:index]
 

@@ -181,7 +181,7 @@ module Api
           return nil unless allowed_patterns.any? { |pattern| uri.host.match?(pattern) }
 
           # Return sanitized URI (scheme + host + port only)
-          "#{uri.scheme}://#{uri.host}#{(uri.port == uri.default_port) ? "" : ":#{uri.port}"}"
+          "#{uri.scheme}://#{uri.host}#{":#{uri.port}" unless uri.port == uri.default_port}"
         rescue URI::InvalidURIError
           nil
         end
