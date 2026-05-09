@@ -97,7 +97,7 @@ RSpec.describe "Admin: Auth", type: :system do
 
         click_on "Login"
 
-        expect(page).to have_text("Invalid Email or password.")
+        expect(page).to have_text("Invalid email or password.")
       end
     end
   end

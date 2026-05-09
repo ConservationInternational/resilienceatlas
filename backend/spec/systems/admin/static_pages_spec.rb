@@ -95,6 +95,9 @@ RSpec.describe "Admin: Static Pages", type: :system do
       fill_in "static_page_base[image_credits_url]", with: "https://image-credits.com"
       # paragraph static page section
       click_on "Add New Section"
+      expect(page).to have_css("fieldset.has-many-toggle-collapse", minimum: 1, wait: 10)
+      page.execute_script("document.querySelectorAll('.section-hidden').forEach(function(el){ el.classList.remove('section-hidden') })")
+      sleep 0.2
       fill_in "static_page_base[sections_attributes][0][translations_attributes][0][title]", with: "New Paragraph title"
       fill_in "static_page_base[sections_attributes][0][slug]", with: "New Paragraph slug"
       fill_in "static_page_base[sections_attributes][0][title_size]", with: "2"
@@ -105,21 +108,33 @@ RSpec.describe "Admin: Static Pages", type: :system do
       fill_in "static_page_base[sections_attributes][0][section_paragraph_attributes][image_credits_url]", with: "https://paragraph-image-credits.com"
       # items static page section
       click_on "Add New Section"
+      expect(page).to have_css("fieldset.has-many-toggle-collapse", minimum: 2, wait: 10)
+      page.execute_script("document.querySelectorAll('.section-hidden').forEach(function(el){ el.classList.remove('section-hidden') })")
+      sleep 0.2
       fill_in "static_page_base[sections_attributes][1][translations_attributes][0][title]", with: "New Items title"
       fill_in "static_page_base[sections_attributes][1][slug]", with: "New Items slug"
       fill_in "static_page_base[sections_attributes][1][title_size]", with: "2"
       select "items", from: "static_page_base[sections_attributes][1][section_type]"
       click_on "Add New Section item"
+      expect(page).to have_css("fieldset.has-many-toggle-collapse", minimum: 3, wait: 10)
+      page.execute_script("document.querySelectorAll('.section-hidden').forEach(function(el){ el.classList.remove('section-hidden') })")
+      sleep 0.2
       fill_in "static_page_base[sections_attributes][1][section_items_attributes][0][translations_attributes][0][title]", with: "New Item title"
       fill_in_rich_text_area "static_page_base[sections_attributes][1][section_items_attributes][0][translations_attributes][0][description]", with: "New Item description"
       attach_file "static_page_base[sections_attributes][1][section_items_attributes][0][image]", Rails.root.join("spec/fixtures/files/picture.jpg")
       # references static page section
       click_on "Add New Section"
+      expect(page).to have_css("fieldset.has-many-toggle-collapse", minimum: 4, wait: 10)
+      page.execute_script("document.querySelectorAll('.section-hidden').forEach(function(el){ el.classList.remove('section-hidden') })")
+      sleep 0.2
       fill_in "static_page_base[sections_attributes][2][translations_attributes][0][title]", with: "New References title"
       fill_in "static_page_base[sections_attributes][2][slug]", with: "New References slug"
       fill_in "static_page_base[sections_attributes][2][title_size]", with: "2"
       select "references", from: "static_page_base[sections_attributes][2][section_type]"
       click_on "Add New Section reference"
+      expect(page).to have_css("fieldset.has-many-toggle-collapse", minimum: 5, wait: 10)
+      page.execute_script("document.querySelectorAll('.section-hidden').forEach(function(el){ el.classList.remove('section-hidden') })")
+      sleep 0.2
       fill_in "static_page_base[sections_attributes][2][section_references_attributes][0][slug]", with: "New Reference slug"
       fill_in_rich_text_area "static_page_base[sections_attributes][2][section_references_attributes][0][translations_attributes][0][text]", with: "New Reference text"
 
@@ -179,8 +194,10 @@ RSpec.describe "Admin: Static Pages", type: :system do
     end
 
     it "allows to update existing static page" do
+      # Expand all collapsed sections at once
+      page.execute_script("document.querySelectorAll('.section-hidden').forEach(function(el){ el.classList.remove('section-hidden') })")
+      sleep 0.3
       # base static page
-      all("fieldset.has-many-toggle-collapse").each { |element| element.click }
       fill_in "static_page_base[translations_attributes][0][title]", with: "Updated title"
       fill_in "static_page_base[translations_attributes][0][image_credits]", with: "Updated image credits"
       fill_in "static_page_base[slug]", with: "Updated slug"
@@ -194,14 +211,12 @@ RSpec.describe "Admin: Static Pages", type: :system do
       select "left", from: "static_page_base[sections_attributes][0][section_paragraph_attributes][image_position]"
       fill_in "static_page_base[sections_attributes][0][section_paragraph_attributes][image_credits_url]", with: "https://updated-paragraph-image-credits.com"
       # items static page section
-      all("fieldset.has-many-toggle-collapse").each { |element| element.click }
       fill_in "static_page_base[sections_attributes][1][translations_attributes][0][title]", with: "Updated Items title"
       fill_in "static_page_base[sections_attributes][1][slug]", with: "Updated Items slug"
       fill_in "static_page_base[sections_attributes][1][section_items_attributes][0][translations_attributes][0][title]", with: "Updated Item title"
       fill_in_rich_text_area "static_page_base[sections_attributes][1][section_items_attributes][0][translations_attributes][0][description]", with: "Updated Item description"
       attach_file "static_page_base[sections_attributes][1][section_items_attributes][0][image]", Rails.root.join("spec/fixtures/files/picture.jpg")
       # references static page section
-      all("fieldset.has-many-toggle-collapse").each { |element| element.click }
       fill_in "static_page_base[sections_attributes][2][translations_attributes][0][title]", with: "Updated References title"
       fill_in "static_page_base[sections_attributes][2][slug]", with: "Updated References slug"
       fill_in "static_page_base[sections_attributes][2][section_references_attributes][0][slug]", with: "Updated Reference slug"

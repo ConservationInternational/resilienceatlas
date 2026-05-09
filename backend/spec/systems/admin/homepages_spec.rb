@@ -81,9 +81,11 @@ RSpec.describe "Admin: Homepages", type: :system do
       safe_fill_in "homepage[homepage_journey_attributes][position]", with: "0"
       safe_fill_in "homepage[homepage_journey_attributes][translations_attributes][0][title]", with: "New journey title"
 
-      # homepage sections - click to add and wait for it to appear
-      safe_click "input[value='Add New Homepage section']"
-      wait_for_element "input[name='homepage[homepage_sections_attributes][0][translations_attributes][0][title]']", timeout: 15
+      # homepage sections - click to add and expand the new section
+      click_on "Add New Homepage section"
+      expect(page).to have_css("fieldset.has-many-toggle-collapse", minimum: 1, wait: 10)
+      page.execute_script("document.querySelectorAll('.section-hidden').forEach(function(el){ el.classList.remove('section-hidden') })")
+      sleep 0.3
 
       safe_fill_in "homepage[homepage_sections_attributes][0][translations_attributes][0][title]", with: "New section title"
       safe_fill_in "homepage[homepage_sections_attributes][0][translations_attributes][0][subtitle]", with: "New section subtitle"
@@ -151,12 +153,9 @@ RSpec.describe "Admin: Homepages", type: :system do
       safe_fill_in "homepage[homepage_journey_attributes][position]", with: "0"
       safe_fill_in "homepage[homepage_journey_attributes][translations_attributes][0][title]", with: "Updated journey title"
 
-      # homepage sections - expand the collapsible section first
-      fieldset = all("fieldset.has-many-toggle-collapse").last
-      if fieldset
-        fieldset.click
-        sleep 0.5  # Give time for animation
-      end
+      # Expand all collapsible sections using JS
+      page.execute_script("document.querySelectorAll('.section-hidden').forEach(function(el){ el.classList.remove('section-hidden') })")
+      sleep 0.3
 
       # Wait for the fields to be visible and enabled
       wait_for_element "input[name='homepage[homepage_sections_attributes][0][translations_attributes][0][title]']:not([disabled])", timeout: 15

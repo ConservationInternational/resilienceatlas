@@ -131,6 +131,8 @@ ActiveAdmin.register SiteScope do
     column :color
     column :header_theme
     column :has_analysis
+    column :linkback_text
+    column :linkback_url
     column :password_protected
 
     actions defaults: true do |site_scope|
