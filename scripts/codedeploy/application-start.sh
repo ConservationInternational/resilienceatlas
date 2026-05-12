@@ -174,6 +174,24 @@ else
     log_warning "Failed to build custom Martin image, stack will use upstream image"
 fi
 
+# ============================================================================
+# Remove existing Swarm configs before deploying
+# ============================================================================
+# Docker Swarm configs are immutable - their content cannot be updated once
+# created (only Labels can be changed). docker stack deploy will exit non-zero
+# if it tries to update a config whose content has changed.
+# The safe pattern is: scale the service using the config to 0, remove the
+# config, then let docker stack deploy recreate it with the new content.
+for config_name in "${STACK_NAME}_martin_config"; do
+    if docker config inspect "$config_name" >/dev/null 2>&1; then
+        log_info "Config $config_name exists - scaling down martin to allow config removal..."
+        docker service scale "${STACK_NAME}_martin=0" 2>/dev/null || true
+        sleep 3
+        log_info "Removing existing Swarm config: $config_name"
+        docker config rm "$config_name" || log_warning "Could not remove config $config_name - stack deploy may fail if config content changed"
+    fi
+done
+
 docker stack deploy -c "$COMPOSE_FILE" "$STACK_NAME" --with-registry-auth --detach=true
 
 log_success "Stack deploy command submitted to Swarm"
