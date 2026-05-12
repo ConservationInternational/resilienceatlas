@@ -175,22 +175,49 @@ else
 fi
 
 # ============================================================================
-# Remove existing Swarm configs before deploying
+# Remove existing Swarm configs only if their content has changed
 # ============================================================================
-# Docker Swarm configs are immutable - their content cannot be updated once
-# created (only Labels can be changed). docker stack deploy will exit non-zero
-# if it tries to update a config whose content has changed.
-# The safe pattern is: scale the service using the config to 0, remove the
-# config, then let docker stack deploy recreate it with the new content.
-for config_name in "${STACK_NAME}_martin_config"; do
-    if docker config inspect "$config_name" >/dev/null 2>&1; then
-        log_info "Config $config_name exists - scaling down martin to allow config removal..."
-        docker service scale "${STACK_NAME}_martin=0" 2>/dev/null || true
-        sleep 3
-        log_info "Removing existing Swarm config: $config_name"
-        docker config rm "$config_name" || log_warning "Could not remove config $config_name - stack deploy may fail if config content changed"
+# Docker Swarm configs are immutable - content cannot be updated once created
+# (only Labels can be changed). docker stack deploy exits non-zero if it tries
+# to update a config whose content has changed.
+#
+# Strategy: compare the stored config content against the local file.
+# - If unchanged: skip removal entirely (no downtime).
+# - If changed:   scale the dependent service to 0, remove the config, then
+#                 let docker stack deploy recreate it with the new content.
+#                 This causes brief downtime for Martin only, not backend/frontend.
+_update_swarm_config_if_changed() {
+    local config_name="$1"   # full Swarm config name (e.g. resilienceatlas-staging_martin_config)
+    local config_file="$2"   # path to the source file on disk
+    local service_name="$3"  # Swarm service that mounts this config
+
+    if ! docker config inspect "$config_name" >/dev/null 2>&1; then
+        log_info "Config $config_name does not exist yet - will be created by stack deploy"
+        return 0
     fi
-done
+
+    # Docker stores config data as base64. Compare against current file content.
+    local existing_b64
+    existing_b64=$(docker config inspect "$config_name" --format '{{json .Spec.Data}}' | tr -d '"')
+    local current_b64
+    current_b64=$(base64 < "$config_file" | tr -d '\n')
+
+    if [ "$existing_b64" = "$current_b64" ]; then
+        log_info "Config $config_name is unchanged - skipping removal"
+        return 0
+    fi
+
+    log_info "Config $config_name has changed - scaling $service_name to 0 to allow config update..."
+    docker service scale "${service_name}=0" 2>/dev/null || true
+    sleep 5
+    log_info "Removing outdated Swarm config: $config_name"
+    docker config rm "$config_name" || log_warning "Could not remove config $config_name - stack deploy may fail"
+}
+
+_update_swarm_config_if_changed \
+    "${STACK_NAME}_martin_config" \
+    "docker/martin.yaml" \
+    "${STACK_NAME}_martin"
 
 docker stack deploy -c "$COMPOSE_FILE" "$STACK_NAME" --with-registry-auth --detach=true
 
