@@ -1,6 +1,7 @@
 import cx from 'classnames';
 import { useMemo, useCallback } from 'react';
-import { useAxios } from './useAxios';
+import { useQuery } from '@tanstack/react-query';
+import axios from 'axios';
 import { getTitilerBaseUrl, getApiBaseUrl } from 'utilities/environment';
 
 const sqlApi = 'https://cdb-cdn.resilienceatlas.org/user/ra/api/v2/sql';
@@ -55,7 +56,20 @@ export const useWidget = ({ slug, geojson }, { type, analysisQuery, analysisBody
     };
   }, [analysisBody, geojson, analysisQuery, isCOGLayer]);
 
-  const [data, loading, loaded] = useAxios(query, [query]);
+  const {
+    data,
+    isFetching: loading,
+    isSuccess,
+    isError,
+  } = useQuery({
+    queryKey: ['widget', query],
+    queryFn: ({ signal }) => axios({ ...query, signal }).then((res) => res.data),
+    enabled: !!query,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+    retry: 1,
+  });
+  const loaded = isSuccess || isError;
 
   const rootWidgetProps = useCallback(
     () => ({

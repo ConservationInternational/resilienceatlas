@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import L from 'leaflet';
-import { useAxios } from 'utilities';
+import { useQuery } from '@tanstack/react-query';
+import axios from 'axios';
 import { T } from '@transifex/react';
 
 const DownloadImage = ({ analysisBody, geojson }) => {
@@ -16,7 +17,13 @@ const DownloadImage = ({ analysisBody, geojson }) => {
       },
     };
   }, [analysisBody, geojson]);
-  const [url] = useAxios(query, [query]);
+  const { data: url } = useQuery({
+    queryKey: ['download-image', query],
+    queryFn: ({ signal }) => axios({ ...query, signal }).then((res) => res.data),
+    staleTime: 30 * 60 * 1000,
+    gcTime: 60 * 60 * 1000,
+    retry: 1,
+  });
 
   if (!url) return null;
 
