@@ -222,6 +222,7 @@ GEM
     ffi (1.17.2-aarch64-linux-musl)
     ffi (1.17.2-arm-linux-gnu)
     ffi (1.17.2-arm-linux-musl)
+    ffi (1.17.2-x64-mingw-ucrt)
     ffi (1.17.2-x86_64-linux-gnu)
     ffi (1.17.2-x86_64-linux-musl)
     foreman (0.88.1)
@@ -333,6 +334,8 @@ GEM
       racc (~> 1.4)
     nokogiri (1.19.2-arm-linux-musl)
       racc (~> 1.4)
+    nokogiri (1.19.2-x64-mingw-ucrt)
+      racc (~> 1.4)
     nokogiri (1.19.2-x86_64-linux-gnu)
       racc (~> 1.4)
     nokogiri (1.19.2-x86_64-linux-musl)
@@ -417,6 +420,10 @@ GEM
       psych (>= 4.0.0)
       tsort
     redcarpet (3.6.1)
+    redis (5.4.1)
+      redis-client (>= 0.22.0)
+    redis-client (0.29.0)
+      connection_pool
     regexp_parser (2.10.0)
     reline (0.6.3)
       io-console (~> 0.5)
@@ -594,6 +601,7 @@ PLATFORMS
   aarch64-linux-musl
   arm-linux-gnu
   arm-linux-musl
+  x64-mingw-ucrt
   x86_64-linux-gnu
   x86_64-linux-musl
 
@@ -641,6 +649,7 @@ DEPENDENCIES
   rack-cors (~> 2.0)
   rails (~> 7.2)
   ransack (~> 4.3)
+  redis (>= 4.0.1)
   rgeo (~> 3.0)
   rgeo-geojson (~> 2.1)
   rollbar (~> 3.6)
