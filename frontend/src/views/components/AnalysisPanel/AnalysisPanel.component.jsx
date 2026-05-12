@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect, useMemo } from 'react';
+import React, { useState, useCallback, useEffect, useMemo, useRef } from 'react';
 import qs from 'qs';
 import cx from 'classnames';
 import { useDropzone } from 'react-dropzone';
@@ -131,10 +131,58 @@ export const AnalysisPanel = ({
   const scopeDatasets = useSelector(getDatasets);
   const hasScopeDatasets = scopeDatasets.length > 0;
 
-  <T _str={'Contract analysis panel'} />;
+  // ── Resizable panel ──
+  const MIN_WIDTH = 320;
+  const MAX_WIDTH = 900;
+  const DEFAULT_WIDTH = 490;
+  const panelRef = useRef(null);
+  const dragStartX = useRef(null);
+  const dragStartWidth = useRef(null);
+  const [panelWidth, setPanelWidth] = useState(DEFAULT_WIDTH);
+  const [isDragging, setIsDragging] = useState(false);
+
+  const handleResizeMouseDown = useCallback((e) => {
+    e.preventDefault();
+    dragStartX.current = e.clientX;
+    dragStartWidth.current = panelRef.current ? panelRef.current.offsetWidth : DEFAULT_WIDTH;
+    setIsDragging(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isDragging) return;
+
+    const onMouseMove = (e) => {
+      const delta = e.clientX - dragStartX.current;
+      const newWidth = Math.min(MAX_WIDTH, Math.max(MIN_WIDTH, dragStartWidth.current + delta));
+      setPanelWidth(newWidth);
+    };
+
+    const onMouseUp = () => {
+      setIsDragging(false);
+    };
+
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
+    return () => {
+      document.removeEventListener('mousemove', onMouseMove);
+      document.removeEventListener('mouseup', onMouseUp);
+    };
+  }, [isDragging]);
 
   return (
-    <div className="m-sidebar analysis-panel" id="analysisPanelView">
+    <div
+      ref={panelRef}
+      className="m-sidebar analysis-panel"
+      id="analysisPanelView"
+      style={{ '--analysis-panel-width': `${panelWidth}px` }}
+    >
+      <div
+        className={`analysis-panel__resize-handle${isDragging ? ' -dragging' : ''}`}
+        onMouseDown={handleResizeMouseDown}
+        role="separator"
+        aria-label="Resize analysis panel"
+        aria-orientation="vertical"
+      />
       <div className="title">
         <button
           className="btn-analysis-panel-contract"
