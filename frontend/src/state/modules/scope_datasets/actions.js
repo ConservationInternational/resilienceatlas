@@ -108,3 +108,25 @@ export const fetchIntersectingUnits =
 export const clearSpatialFilter = () => ({
   type: CLEAR_SPATIAL_FILTER,
 });
+
+export const fetchGeometryAtPoint = (lat, lng) => (dispatch) => {
+  return requestHandlers
+    .get(`${URL_SCOPE_DATASETS}/geometry-at-point`, {
+      params: { site_scope: subdomain, lat, lng },
+    })
+    .then(({ data }) => {
+      if (!Array.isArray(data) || !data.length) return;
+      // Use the first match — highlight that spatial unit in table + map
+      const first = data[0];
+      dispatch(setHighlight(first.slug, String(first.unit_id)));
+      if (first.geometry) {
+        dispatch({ type: SET_HIGHLIGHT_GEOMETRY, geometry: first.geometry });
+      }
+      if (first.bounds) {
+        dispatch({ type: SET_HIGHLIGHT_BOUNDS, bounds: first.bounds });
+      }
+    })
+    .catch(() => {
+      // Point lookup is best-effort — don't break the app
+    });
+};

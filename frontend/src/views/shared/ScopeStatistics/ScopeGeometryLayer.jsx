@@ -23,6 +23,7 @@ import {
   getActiveDimension,
   getSpatialFilter,
   setHighlight,
+  fetchGeometryAtPoint,
 } from 'state/modules/scope_datasets';
 
 const HIGHLIGHT_STYLE = {
@@ -126,6 +127,23 @@ const ScopeGeometryLayer = ({ map }) => {
     }
   }, [map, highlightBounds, L]);
 
+  // ── Map click → point-in-polygon lookup on server ──
+  useEffect(() => {
+    if (!map || !loaded || !L) return;
+
+    const hasGeometries = datasets.some((d) => d.geometry_count > 0);
+    if (!hasGeometries) return;
+
+    const handleMapClick = (e) => {
+      dispatch(fetchGeometryAtPoint(e.latlng.lat, e.latlng.lng));
+    };
+
+    map.on('click', handleMapClick);
+    return () => {
+      map.off('click', handleMapClick);
+    };
+  }, [map, loaded, L, datasets, dispatch]);
+
   // ── Spatial filter: MVT tile layers for showing multiple matching polygons ──
   useEffect(() => {
     if (!map || !loaded || !L) return;
@@ -184,6 +202,8 @@ const ScopeGeometryLayer = ({ map }) => {
         const unitId = e.layer?.properties?.unit_id;
         if (unitId != null) {
           dispatch(setHighlight(dataset.slug, String(unitId)));
+          // The map-level click handler will also fire and fetch geometry via
+          // point-in-polygon — no separate fetchGeometryBounds call needed here.
         }
       });
 
