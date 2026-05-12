@@ -207,9 +207,11 @@ _update_swarm_config_if_changed() {
         return 0
     fi
 
-    log_info "Config $config_name has changed - scaling $service_name to 0 to allow config update..."
-    docker service scale "${service_name}=0" 2>/dev/null || true
-    sleep 5
+    # Docker refuses to remove a config that is referenced by a service definition,
+    # even if the service has 0 replicas. We must remove the service entirely first.
+    log_info "Config $config_name has changed - removing service $service_name to allow config update..."
+    docker service rm "$service_name" 2>/dev/null || true
+    sleep 3
     log_info "Removing outdated Swarm config: $config_name"
     docker config rm "$config_name" || log_warning "Could not remove config $config_name - stack deploy may fail"
 }
