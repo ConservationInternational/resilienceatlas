@@ -71,6 +71,7 @@ gem "ransack", "~> 4.3"
 group :production, :staging do
   gem "puma", "~> 6.5"
   gem "redis", ">= 4.0.1"
+  gem "connection_pool", "~> 2.4"
 end
 
 group :development, :test do
