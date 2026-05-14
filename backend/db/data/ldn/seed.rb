@@ -98,7 +98,7 @@ module LdnSeeder
     },
     fao_wocat: {
       name: "FAO-WOCAT",
-      short_name: "FAO",
+      short_name: "FAO-WOCAT",
       s3_folder: "FAO-WOCAT",
       filename_mode: "FAO-WOCAT",
       description: "This layer uses the FAO-WOCAT Land Productivity Dynamics (LPD) methodology, which applies a 5-class system based on long-term productivity state and trend analysis."
