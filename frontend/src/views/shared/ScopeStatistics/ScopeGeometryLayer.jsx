@@ -73,6 +73,7 @@ const ScopeGeometryLayer = ({ map }) => {
   const spatialFilter = useSelector(getSpatialFilter);
   const analysisOpen = useSelector((state) => state.ui.analysisPanel);
   const highlightLayerRef = useRef(null);
+  const skipZoomRef = useRef(false);
   const filterLayersRef = useRef({});
   const [L, setL] = useState(null);
 
@@ -117,8 +118,13 @@ const ScopeGeometryLayer = ({ map }) => {
   }, [map, L, highlight, highlightGeometry]);
 
   // ── Zoom the map to the highlighted polygon's bounding box ──
+  // Only zoom when highlight originates from the table/chart, not from a map click.
   useEffect(() => {
     if (!map || !highlightBounds || !L) return;
+    if (skipZoomRef.current) {
+      skipZoomRef.current = false;
+      return;
+    }
     try {
       const bounds = L.latLngBounds(highlightBounds);
       if (bounds.isValid()) {
@@ -145,6 +151,7 @@ const ScopeGeometryLayer = ({ map }) => {
     if (!hasGeometries) return;
 
     const handleMapClick = (e) => {
+      skipZoomRef.current = true;
       dispatch(fetchGeometryAtPoint(e.latlng.lat, e.latlng.lng));
     };
 
