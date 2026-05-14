@@ -23,6 +23,7 @@ import {
   getActiveDimension,
   getSpatialFilter,
   setHighlight,
+  clearHighlight,
   fetchGeometryAtPoint,
 } from 'state/modules/scope_datasets';
 
@@ -70,6 +71,7 @@ const ScopeGeometryLayer = ({ map }) => {
   const activeVariant = useSelector(getActiveVariant);
   const activeDimension = useSelector(getActiveDimension);
   const spatialFilter = useSelector(getSpatialFilter);
+  const analysisOpen = useSelector((state) => state.ui.analysisPanel);
   const highlightLayerRef = useRef(null);
   const filterLayersRef = useRef({});
   const [L, setL] = useState(null);
@@ -127,9 +129,17 @@ const ScopeGeometryLayer = ({ map }) => {
     }
   }, [map, highlightBounds, L]);
 
-  // ── Map click → point-in-polygon lookup on server ──
+  // ── Clear highlight when analysis panel closes ──
+  useEffect(() => {
+    if (!analysisOpen) {
+      dispatch(clearHighlight());
+    }
+  }, [analysisOpen, dispatch]);
+
+  // ── Map click → point-in-polygon lookup on server (only when panel is open) ──
   useEffect(() => {
     if (!map || !loaded || !L) return;
+    if (!analysisOpen) return;
 
     const hasGeometries = datasets.some((d) => d.geometry_count > 0);
     if (!hasGeometries) return;
@@ -142,7 +152,7 @@ const ScopeGeometryLayer = ({ map }) => {
     return () => {
       map.off('click', handleMapClick);
     };
-  }, [map, loaded, L, datasets, dispatch]);
+  }, [map, loaded, L, datasets, dispatch, analysisOpen]);
 
   // ── Spatial filter: MVT tile layers for showing multiple matching polygons ──
   useEffect(() => {
