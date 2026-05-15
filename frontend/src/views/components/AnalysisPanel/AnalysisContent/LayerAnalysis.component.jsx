@@ -11,6 +11,7 @@ export const LayerAnalysis = ({
   geojson,
   iso,
   countries,
+  loadGeometry,
 }) => {
   const layers = activeLayers || [];
 
@@ -35,6 +36,16 @@ export const LayerAnalysis = ({
     return (
       <center>
         <T _str="None of the active layers can be analyzed." />
+      </center>
+    );
+  }
+
+  // If a country is selected but its geometry hasn't been fetched yet, request it.
+  if (iso && countries[iso] && !countries[iso].geometryLoaded) {
+    loadGeometry(iso);
+    return (
+      <center>
+        <T _str="Loading country geometry..." />
       </center>
     );
   }

@@ -1,47 +1,30 @@
-// Import leaflet and make it globally available BEFORE importing plugins
-import L from 'leaflet';
-
 // These will be dynamically imported on client-side only
-let LayerManager: typeof import('resilience-layer-manager/dist/components').LayerManager;
-let Layer: typeof import('resilience-layer-manager/dist/components').Layer;
-let PluginLeaflet: typeof import('resilience-layer-manager/dist/layer-manager').PluginLeaflet;
+// eslint-disable-next-line @typescript-eslint/consistent-type-imports
+let LayerManager: typeof import('lib/layer-manager/components').LayerManager;
+// eslint-disable-next-line @typescript-eslint/consistent-type-imports
+let Layer: typeof import('lib/layer-manager/components').Layer;
+// eslint-disable-next-line @typescript-eslint/consistent-type-imports
+let PluginOpenLayers: typeof import('lib/layer-manager/plugins/plugin-openlayers').default;
 
-// Make L globally available for plugins that expect it (like leaflet-geoman)
-// This must happen before importing plugins, so we use a side-effect approach
 if (typeof window !== 'undefined') {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (window as any).L = L;
-
-  // Now import plugins that depend on window.L
-  // Using require() to ensure they run after the window.L assignment above
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  require('@geoman-io/leaflet-geoman-free');
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  require('leaflet-active-area');
-  // UTFGrid library requires corslite, only included in the minimized version
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  require('leaflet-utfgrid/L.UTFGrid-min');
-
-  // Import layer-manager components that also require window.L
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const components = require('resilience-layer-manager/dist/components');
+  // Import layer-manager components
+  const components = require('lib/layer-manager/components');
   LayerManager = components.LayerManager;
   Layer = components.Layer;
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const lm = require('resilience-layer-manager/dist/layer-manager');
-  PluginLeaflet = lm.PluginLeaflet;
+  const lm = require('lib/layer-manager/plugins/plugin-openlayers');
+  PluginOpenLayers = lm.default;
 }
 
-// CSS imports must be static for bundler to process them
-import '@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css';
-
 import { useRouterParams } from 'utilities';
-import React, { useCallback, useEffect, useContext, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useContext, useMemo } from 'react';
+import { useState } from 'react';
 import qs from 'qs';
+import { toLonLat } from 'ol/proj';
+import type OlMap from 'ol/Map';
 import omit from 'lodash/omit';
 import pick from 'lodash/pick';
 import type { MapViewProps } from './types';
-import { LeafletMap, MapControls, ZoomControl } from './LeafletMap/exports';
+import { OLMap, MapControls, ZoomControl } from './OLMap/exports';
 import { TABS } from 'views/components/Sidebar';
 import { useLoadLayers, useGetCenter } from './Map.hooks';
 import { BASEMAPS, LABELS } from 'views/utils';
@@ -54,6 +37,8 @@ import DrawingManager from './DrawingManager';
 import MapOffset from './MapOffset';
 import MapPopup from './MapPopup';
 import LayerErrorModal, { type LayerError } from 'views/components/LayerErrorModal';
+import CompareControl from './CompareControl';
+import { ScopeGeometryLayer } from 'views/shared/ScopeStatistics';
 
 const MapView = (props: MapViewProps) => {
   const {
@@ -85,9 +70,13 @@ const MapView = (props: MapViewProps) => {
     options,
     basemap,
     labels,
+    boundaries,
     embed,
     drawing,
     onLoadingLayers,
+    // Compare mode - simplified props
+    compareEnabled,
+    compareURLState,
   } = props;
 
   const { query, locale } = router;
@@ -126,12 +115,32 @@ const MapView = (props: MapViewProps) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeLayers]);
 
+  // Update URL with compare state - uses selector-computed state to avoid duplication
+  useEffect(() => {
+    if (compareURLState) {
+      setParam('compare', JSON.stringify(compareURLState));
+    } else {
+      setParam('compare', null);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [compareURLState]);
+
   const getCenter = useGetCenter({ site, query });
 
   // Layer error handling
   const [layerErrors, setLayerErrors] = useState<LayerError[]>([]);
 
   const onLayerError = useCallback((error: LayerError) => {
+    // Skip bounds errors - they are non-critical since the layer can still render
+    // without bounds data. Bounds are only used for "zoom to fit" functionality.
+    if (error.errorType === 'bounds') {
+      // eslint-disable-next-line no-console
+      console.warn(
+        `Layer bounds failed to load for ${error.layerName}, but layer will still render.`,
+      );
+      return;
+    }
+
     setLayerErrors((prev) => {
       // Avoid duplicate errors for the same layer
       if (prev.some((e) => e.layerId === error.layerId)) {
@@ -156,10 +165,6 @@ const MapView = (props: MapViewProps) => {
     [onLoadingLayers],
   );
 
-  const onLayerLoaded = useCallback(() => {
-    onLayerLoading(false);
-  }, [onLayerLoading]);
-
   const MAX_LAYER_Z_INDEX = 1000;
 
   // Memoize label and basemap configs to prevent infinite re-renders
@@ -173,11 +178,21 @@ const MapView = (props: MapViewProps) => {
     return basemapConfig ? { url: basemapConfig.url, options: {} } : undefined;
   }, [basemap]);
 
+  // Build map container classes
+  const mapClasses = useMemo(() => {
+    const classes = ['m-map'];
+    if (compareEnabled) {
+      classes.push('compare-mode');
+    }
+    return classes.join(' ');
+  }, [compareEnabled]);
+
   return (
-    <LeafletMap
-      customClass="m-map"
+    <OLMap
+      customClass={mapClasses}
       label={safeLabel}
       basemap={safeBasemap}
+      boundaries={boundaries}
       mapOptions={{
         ...(options?.map || {}),
         zoom: Number(query.zoom) || site?.zoom_level || 2,
@@ -188,25 +203,12 @@ const MapView = (props: MapViewProps) => {
         maxZoom: 13,
       }}
       events={{
-        layeradd: (e) => {
-          const layer = (e as L.LayerEvent).layer as L.TileLayer;
-          if (
-            // to avoid displaying loading state with labels
-            (layer as { _url?: string })?._url?.startsWith(
-              'https://api.mapbox.com/styles/v1/cigrp',
-            ) ||
-            // to avoid displaying loading state when the user interacts with the map (click on a layer)
-            Object.prototype.hasOwnProperty.call(layer, '_content')
-          )
-            return;
-          onLayerLoading(true);
-          layer.on('load', onLayerLoaded);
-        },
-        zoomend: (e, map) => {
-          const mapZoom = map.getZoom();
+        zoomend: (map: OlMap) => {
+          const view = map.getView();
+          const mapZoom = Math.round(view.getZoom() ?? 2);
 
           if (mapZoom !== (+site?.zoom_level || 2)) {
-            setParam('zoom', String(map.getZoom()));
+            setParam('zoom', String(mapZoom));
           } else {
             // clear param if it's default
             setParam('zoom', null);
@@ -214,10 +216,13 @@ const MapView = (props: MapViewProps) => {
 
           // Update map center in url, because it basically changed
           // after 'pinches' and zoom in/out from mousewheel.
-          setParam('center', qs.stringify(map.getCenter()));
+          const [lng, lat] = toLonLat(view.getCenter() ?? [0, 20]);
+          setParam('center', qs.stringify({ lat, lng }));
         },
-        dragend: (e, map) => {
-          setParam('center', qs.stringify(map.getCenter()));
+        dragend: (map: OlMap) => {
+          const view = map.getView();
+          const [lng, lat] = toLonLat(view.getCenter() ?? [0, 20]);
+          setParam('center', qs.stringify({ lat, lng }));
         },
       }}
     >
@@ -226,7 +231,7 @@ const MapView = (props: MapViewProps) => {
           {tab === TABS.LAYERS && activeLayers && activeLayers.length > 0 && (
             <LayerManager
               map={map}
-              plugin={PluginLeaflet}
+              plugin={PluginOpenLayers}
               ref={layerManagerRef}
               onLayerLoading={onLayerLoading}
               onLayerError={onLayerError}
@@ -271,7 +276,7 @@ const MapView = (props: MapViewProps) => {
           {tab === TABS.MODELS && model_layer && (
             <LayerManager
               map={map}
-              plugin={PluginLeaflet}
+              plugin={PluginOpenLayers}
               ref={layerManagerRef}
               key="model_layer"
               onLayerError={onLayerError}
@@ -293,6 +298,12 @@ const MapView = (props: MapViewProps) => {
             </MapControls>
           )}
 
+          {/* Compare mode control */}
+          {compareEnabled && <CompareControl map={map} />}
+
+          {/* Scope dataset geometry overlay for chart↔map interaction */}
+          <ScopeGeometryLayer map={map} />
+
           <LayerErrorModal
             errors={layerErrors}
             onClose={handleCloseErrorModal}
@@ -300,7 +311,7 @@ const MapView = (props: MapViewProps) => {
           />
         </>
       )}
-    </LeafletMap>
+    </OLMap>
   );
 };
 

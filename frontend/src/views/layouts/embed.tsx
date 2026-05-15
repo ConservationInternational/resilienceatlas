@@ -13,6 +13,7 @@ type EmbedPageProps = React.PropsWithChildren & {
   site?: {
     subdomain: string;
     header_theme: string;
+    loaded: boolean;
   };
   pageTitle: string;
   page?: string;
@@ -24,7 +25,7 @@ const bare = false;
 
 const EmbedPage: React.FC<EmbedPageProps> = (props) => {
   const { site, page, pageTitle, children, dispatch } = props;
-  const { subdomain, header_theme } = site;
+  const { subdomain, header_theme, loaded = false } = site;
   const router = useRouter();
   const { locale, query } = router;
 
@@ -44,7 +45,7 @@ const EmbedPage: React.FC<EmbedPageProps> = (props) => {
         `is-${header_theme}`,
         `is-${bare ? '' : 'not-'}bare`,
         `${subdomain === 'atlas' ? 'has' : 'no'}-sidebar-logo`,
-        { 'is-indicators': !!subdomain, [`is-${page}-page`]: page },
+        { 'is-indicators': !!subdomain, [`is-${page}-page`]: page, 'site-loaded': loaded },
       )}
     >
       <Head pageTitle={pageTitle} />

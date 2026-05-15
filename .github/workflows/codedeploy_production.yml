@@ -4,6 +4,15 @@ on:
   push:
     branches:
       - main
+    paths:
+      - 'backend/**'
+      - 'frontend/**'
+      - 'docker/**'
+      - 'docker-compose.swarm.yml'
+      - 'docker-compose.swarm.staging.yml'
+      - 'appspec.yml'
+      - 'scripts/codedeploy/**'
+      - '.github/workflows/codedeploy_production.yml'
   workflow_dispatch:
 
 env:
@@ -21,18 +30,123 @@ permissions:
   contents: read
 
 jobs:
+  build-images:
+    name: Build ${{ matrix.service }} image
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 40
+    environment: production
+    
+    strategy:
+      matrix:
+        service: [backend, frontend]
+    
+    outputs:
+      backend-image: ${{ steps.set-output.outputs.backend-image }}
+      frontend-image: ${{ steps.set-output.outputs.frontend-image }}
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v5
+
+    - name: Configure AWS credentials via OIDC
+      uses: aws-actions/configure-aws-credentials@v6
+      with:
+        role-to-assume: ${{ secrets.AWS_OIDC_ROLE_ARN }}
+        role-session-name: GitHubActionsProductionBuild-${{ matrix.service }}
+        aws-region: ${{ env.AWS_REGION }}
+
+    - name: Get deployment info
+      id: deployment-info
+      run: |
+        echo "short-sha=$(echo ${{ github.sha }} | cut -c1-7)" >> $GITHUB_OUTPUT
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v4
+      with:
+        driver-opts: image=moby/buildkit:buildx-stable-1
+
+    - name: Log in to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v2
+
+    - name: Set ECR repository name
+      id: ecr-repo
+      run: |
+        echo "repo-name=resilienceatlas/${{ matrix.service }}" >> $GITHUB_OUTPUT
+
+    - name: Create ECR repository if it doesn't exist
+      run: |
+        REPO="${{ steps.ecr-repo.outputs.repo-name }}"
+        if ! aws ecr describe-repositories --repository-names "$REPO" 2>/dev/null; then
+          echo "Creating ECR repository: $REPO"
+          aws ecr create-repository \
+            --repository-name "$REPO" \
+            --image-scanning-configuration scanOnPush=true \
+            --image-tag-mutability MUTABLE
+        else
+          echo "ECR repository exists: $REPO"
+        fi
+
+    - name: Build and push ${{ matrix.service }} image to ECR
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        IMAGE_TAG: production-${{ steps.deployment-info.outputs.short-sha }}
+      run: |
+        # Set build args for frontend
+        BUILD_ARGS=""
+        EXTRA_TAGS=""
+        if [ "${{ matrix.service }}" = "frontend" ]; then
+          BUILD_ARGS="--build-arg NEXT_PUBLIC_API_HOST=https://resilienceatlas.org \
+            --build-arg NEXT_PUBLIC_GOOGLE_ANALYTICS=${{ secrets.NEXT_PUBLIC_GOOGLE_ANALYTICS }} \
+            --build-arg NEXT_PUBLIC_TRANSIFEX_TOKEN=${{ secrets.NEXT_PUBLIC_TRANSIFEX_TOKEN }} \
+            --build-arg NEXT_PUBLIC_TRANSIFEX_SECRET=${{ secrets.NEXT_PUBLIC_TRANSIFEX_SECRET }} \
+            --build-arg NEXT_PUBLIC_GOOGLE_API_KEY=${{ secrets.NEXT_PUBLIC_GOOGLE_API_KEY }} \
+            --build-arg NEXT_PUBLIC_ROLLBAR_CLIENT_TOKEN=${{ secrets.NEXT_PUBLIC_ROLLBAR_CLIENT_TOKEN }} \
+            --build-arg NEXT_PUBLIC_MARTIN_URL=${{ vars.PRODUCTION_NEXT_PUBLIC_MARTIN_URL }}"
+        fi
+        
+        # Add extra 'latest' tag for production
+        EXTRA_TAGS="--tag $ECR_REGISTRY/${{ steps.ecr-repo.outputs.repo-name }}:latest"
+        
+        docker buildx build \
+          --platform linux/arm64 \
+          --cache-from=type=gha,scope=${{ matrix.service }}-production-arm64 \
+          --cache-to=type=gha,mode=max,scope=${{ matrix.service }}-production-arm64 \
+          --target production \
+          $BUILD_ARGS \
+          --tag $ECR_REGISTRY/${{ steps.ecr-repo.outputs.repo-name }}:$IMAGE_TAG \
+          --tag $ECR_REGISTRY/${{ steps.ecr-repo.outputs.repo-name }}:production-latest \
+          $EXTRA_TAGS \
+          --push \
+          ./${{ matrix.service }}
+        
+        IMAGE_REF="$ECR_REGISTRY/${{ steps.ecr-repo.outputs.repo-name }}:$IMAGE_TAG"
+        echo "${{ matrix.service }}-image=$IMAGE_REF" >> $GITHUB_OUTPUT
+        echo "✅ ${{ matrix.service }} image pushed to ECR: $IMAGE_REF"
+      id: build-push
+    
+    - name: Set output for job
+      id: set-output
+      run: |
+        if [ "${{ matrix.service }}" = "backend" ]; then
+          echo "backend-image=${{ steps.build-push.outputs.backend-image }}" >> $GITHUB_OUTPUT
+        elif [ "${{ matrix.service }}" = "frontend" ]; then
+          echo "frontend-image=${{ steps.build-push.outputs.frontend-image }}" >> $GITHUB_OUTPUT
+        fi
+
   deploy:
     name: Deploy to Production via CodeDeploy
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 20
     environment: production
+    needs: build-images
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
 
     - name: Configure AWS credentials via OIDC
-      uses: aws-actions/configure-aws-credentials@v4
+      uses: aws-actions/configure-aws-credentials@v6
       with:
         role-to-assume: ${{ secrets.AWS_OIDC_ROLE_ARN }}
         role-session-name: GitHubActionsProductionDeploy
@@ -56,7 +170,24 @@ jobs:
         fi
         echo "✅ S3 bucket exists: $BUCKET_NAME"
 
+    - name: Log in to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v2
+
+    - name: Get built image references
+      id: images
+      run: |
+        # Images were built in parallel by the build-images job
+        echo "backend-image=${{ needs.build-images.outputs.backend-image }}" >> $GITHUB_OUTPUT
+        echo "frontend-image=${{ needs.build-images.outputs.frontend-image }}" >> $GITHUB_OUTPUT
+        echo "✅ Backend image: ${{ needs.build-images.outputs.backend-image }}"
+        echo "✅ Frontend image: ${{ needs.build-images.outputs.frontend-image }}"
+
     - name: Create environment file for deployment
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        BACKEND_IMAGE: ${{ steps.images.outputs.backend-image }}
+        FRONTEND_IMAGE: ${{ steps.images.outputs.frontend-image }}
       run: |
         # Generate .env.production with secrets from GitHub
         # This file is included in the deployment package and copied to the server
@@ -64,21 +195,29 @@ jobs:
         # Generated by GitHub Actions on $(date -u +"%Y-%m-%d %H:%M:%S UTC")
         # Commit: ${{ github.sha }}
         
+        # ECR Images (pre-built in CI)
+        ECR_REGISTRY=$ECR_REGISTRY
+        BACKEND_IMAGE=$BACKEND_IMAGE
+        FRONTEND_IMAGE=$FRONTEND_IMAGE
+        
         # Rails/Node environment
         RAILS_ENV=production
         NODE_ENV=production
         
         # Database (external PostgreSQL)
-        DATABASE_URL=${{ secrets.PRODUCTION_DATABASE_URL }}
+        # Variable name must match docker-compose.swarm.yml: DATABASE_URL=${PRODUCTION_DATABASE_URL}
+        # The deployment script (application-start.sh) replaces host.docker.internal
+        # with the host's actual private IP for Swarm overlay network connectivity.
+        PRODUCTION_DATABASE_URL=${{ secrets.PRODUCTION_DATABASE_URL }}
         
-        # Rails secrets
-        SECRET_KEY_BASE=${{ secrets.PRODUCTION_SECRET_KEY_BASE }}
-        DEVISE_SECRET_KEY=${{ secrets.PRODUCTION_DEVISE_KEY }}
+        # Rails secrets (PRODUCTION_ prefix required by docker-compose.swarm.yml)
+        PRODUCTION_SECRET_KEY_BASE=${{ secrets.PRODUCTION_SECRET_KEY_BASE }}
+        PRODUCTION_DEVISE_KEY=${{ secrets.PRODUCTION_DEVISE_KEY }}
         
-        # Application URLs
-        BACKEND_URL=https://resilienceatlas.org
-        FRONTEND_URL=https://resilienceatlas.org
-        NEXT_PUBLIC_API_HOST=https://resilienceatlas.org
+        # Application URLs (PRODUCTION_ prefix required by docker-compose.swarm.yml)
+        PRODUCTION_BACKEND_URL=https://resilienceatlas.org
+        PRODUCTION_FRONTEND_URL=https://resilienceatlas.org
+        PRODUCTION_NEXT_PUBLIC_API_HOST=https://resilienceatlas.org
         
         # External services
         NEXT_PUBLIC_GOOGLE_ANALYTICS=${{ secrets.NEXT_PUBLIC_GOOGLE_ANALYTICS }}
@@ -92,6 +231,9 @@ jobs:
         ROLLBAR_ACCESS_TOKEN=${{ secrets.ROLLBAR_ACCESS_TOKEN }}
         NEXT_PUBLIC_ROLLBAR_CLIENT_TOKEN=${{ secrets.NEXT_PUBLIC_ROLLBAR_CLIENT_TOKEN }}
         ROLLBAR_ENV=production
+        
+        # Martin tile server
+        PRODUCTION_NEXT_PUBLIC_MARTIN_URL=${{ vars.PRODUCTION_NEXT_PUBLIC_MARTIN_URL }}
         
         # Deployment info
         GIT_REVISION=${{ github.sha }}

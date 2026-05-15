@@ -7,7 +7,6 @@ import { toggle as toggleGroup } from 'state/modules/layer_groups';
 import { clickable } from 'utilities';
 
 import Layer from './Layer';
-import Basemaps from './Basemaps';
 
 const enhance = connect(null, (dispatch, ownProps) => ({
   toggleActive: () => dispatch(toggleGroup(ownProps.id)),
@@ -161,8 +160,6 @@ const LayersList = ({ groups, loading }) => (
       {(groups || []).map((group) => (
         <Group key={group.id} {...group} />
       ))}
-
-      <Basemaps />
     </ul>
   </>
 );

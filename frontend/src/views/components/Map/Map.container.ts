@@ -16,6 +16,7 @@ import {
   setMapLayerGroupsInteraction,
   setMapLayerGroupsInteractionLatLng,
 } from 'state/modules/map';
+import { getCompareEnabled, getCompareURLState } from 'state/modules/compare';
 
 // Import the component directly - SSR is disabled at the index.js level
 import MapView from './Map.component';
@@ -34,8 +35,8 @@ const makeMapStateToProps = () => {
     geojson: state.map.geojson,
     basemap: state.map.basemap,
     labels: state.map.labels,
+    boundaries: state.map.boundaries,
     layer_groups: state.layer_groups,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     activeLayers: getActives(state as any),
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -44,6 +45,9 @@ const makeMapStateToProps = () => {
     defaultActiveGroups: defaultActives(state as any),
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     grouped: groupedLayers(state as any),
+    // Compare mode state - only pass what's needed for rendering and URL persistence
+    compareEnabled: getCompareEnabled(state),
+    compareURLState: getCompareURLState(state),
   });
 
   return mapStateToProps;

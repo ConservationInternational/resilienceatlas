@@ -18,8 +18,9 @@
     padding: rem(15px) 0 rem(5px) rem(33px);
     letter-spacing: rem(0.5px);
     border: 0;
-    border-bottom: 1px solid #F1F1F1;
+    border-bottom: 1px solid #ccc;
     background: transparent;
+    text-overflow: ellipsis;
 
     &::-webkit-input-placeholder {
         color: $font-color-1;

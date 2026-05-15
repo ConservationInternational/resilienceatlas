@@ -63,7 +63,7 @@ class User < ApplicationRecord
 
       if user.nil?
         email = auth.info.email
-        name_arr = auth.info.name.split(" ")
+        name_arr = auth.info.name&.split(" ") || []
         user = User.where(email: email).first if email
 
         update_attr(user, name_arr, auth) if user
@@ -72,8 +72,8 @@ class User < ApplicationRecord
           user = User.create(
             email: email || "#{TEMP_EMAIL_PREFIX}-#{auth.uid}-#{auth.provider}.com",
             password: Devise.friendly_token[0, 20],
-            first_name: name_arr[0],
-            last_name: name_arr[1],
+            first_name: name_arr[0] || "User",
+            last_name: name_arr[1] || "",
             phone: auth.info.phone
           )
         end

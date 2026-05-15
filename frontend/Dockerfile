@@ -24,12 +24,13 @@ RUN npm config set registry https://registry.npmjs.org/ && \
 ENV CYPRESS_CACHE_FOLDER="/tmp/cypress-cache"
 
 WORKDIR /app
-COPY package.json .npmrc ./
+COPY package.json package-lock.json .npmrc ./
 
 # Install dependencies only when needed
 FROM base AS deps
-# Install production dependencies
-RUN npm install --only=production --legacy-peer-deps --no-audit --no-fund \
+# Install production dependencies with npm cache mount for faster builds
+RUN --mount=type=cache,target=/root/.npm \
+    npm ci --only=production --no-audit --no-fund \
   && echo "✅ Production dependencies installed successfully"
 
 # Development/Test dependencies
@@ -37,8 +38,9 @@ FROM base AS dev-deps
 # Skip Cypress binary download during npm install - it will be downloaded on first use
 ENV CYPRESS_INSTALL_BINARY=0
 
-# Install all dependencies
-RUN npm install --legacy-peer-deps --no-audit --no-fund \
+# Install all dependencies with npm cache mount for faster builds
+RUN --mount=type=cache,target=/root/.npm \
+    npm ci --no-audit --no-fund \
   && echo "🔍 Verifying node_modules exists..." \
   && ls -la /app/node_modules/ | head -5 \
   && echo "✅ node_modules verified"
@@ -101,7 +103,8 @@ RUN echo "🔍 Verifying node_modules in test stage..." \
 
 # Install Cypress binary (was skipped during npm install for faster build)
 ENV CYPRESS_CACHE_FOLDER="/tmp/cypress-cache"
-RUN npx cypress install \
+RUN --mount=type=cache,target=/tmp/cypress-cache \
+    npx cypress install \
   && echo "✅ Cypress binary installed"
 
 # Copy application source
@@ -116,6 +119,7 @@ ARG NEXT_PUBLIC_GOOGLE_ANALYTICS=GA_TEST_ID
 ARG NEXT_PUBLIC_TRANSIFEX_TOKEN=test_token
 ARG NEXT_PUBLIC_TRANSIFEX_SECRET=test_secret
 ARG NEXT_PUBLIC_GOOGLE_API_KEY=test_api_key
+ARG NEXT_PUBLIC_MARTIN_URL=
 
 # Set environment variables
 ENV NEXT_PUBLIC_API_HOST=$NEXT_PUBLIC_API_HOST
@@ -123,6 +127,7 @@ ENV NEXT_PUBLIC_GOOGLE_ANALYTICS=$NEXT_PUBLIC_GOOGLE_ANALYTICS
 ENV NEXT_PUBLIC_TRANSIFEX_TOKEN=$NEXT_PUBLIC_TRANSIFEX_TOKEN
 ENV NEXT_PUBLIC_TRANSIFEX_SECRET=$NEXT_PUBLIC_TRANSIFEX_SECRET
 ENV NEXT_PUBLIC_GOOGLE_API_KEY=$NEXT_PUBLIC_GOOGLE_API_KEY
+ENV NEXT_PUBLIC_MARTIN_URL=$NEXT_PUBLIC_MARTIN_URL
 ENV NODE_ENV=test
 ENV NEXT_TELEMETRY_DISABLED=1
 
@@ -142,6 +147,8 @@ ARG NEXT_PUBLIC_GOOGLE_ANALYTICS
 ARG NEXT_PUBLIC_TRANSIFEX_TOKEN
 ARG NEXT_PUBLIC_TRANSIFEX_SECRET
 ARG NEXT_PUBLIC_GOOGLE_API_KEY
+ARG NEXT_PUBLIC_ROLLBAR_CLIENT_TOKEN
+ARG NEXT_PUBLIC_MARTIN_URL
 
 # Set environment variables
 ENV NEXT_PUBLIC_API_HOST=$NEXT_PUBLIC_API_HOST
@@ -149,6 +156,8 @@ ENV NEXT_PUBLIC_GOOGLE_ANALYTICS=$NEXT_PUBLIC_GOOGLE_ANALYTICS
 ENV NEXT_PUBLIC_TRANSIFEX_TOKEN=$NEXT_PUBLIC_TRANSIFEX_TOKEN
 ENV NEXT_PUBLIC_TRANSIFEX_SECRET=$NEXT_PUBLIC_TRANSIFEX_SECRET
 ENV NEXT_PUBLIC_GOOGLE_API_KEY=$NEXT_PUBLIC_GOOGLE_API_KEY
+ENV NEXT_PUBLIC_ROLLBAR_CLIENT_TOKEN=$NEXT_PUBLIC_ROLLBAR_CLIENT_TOKEN
+ENV NEXT_PUBLIC_MARTIN_URL=$NEXT_PUBLIC_MARTIN_URL
 
 COPY . .
 COPY --from=deps /app/node_modules ./node_modules

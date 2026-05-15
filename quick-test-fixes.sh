@@ -8,7 +8,7 @@ set -e
 echo "🧪 Quick validation of integration test fixes..."
 
 echo "1️⃣ Testing Ruby syntax fix..."
-docker run --rm -v $(pwd)/backend:/code -w /code ruby:3.4.4-bullseye ruby -c app/controllers/api/v1/oembeds_controller.rb
+docker run --rm -v $(pwd)/backend:/code -w /code ruby:3.4.8-bullseye ruby -c app/controllers/api/v1/oembeds_controller.rb
 echo "✅ Ruby syntax check passed"
 
 echo "2️⃣ Checking Docker environment setup..."

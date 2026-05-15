@@ -8,8 +8,8 @@
 
 | Directory | Description | Documentation | Tech Stack |
 |-----------|-------------|---------------|------------|
-| frontend | Frontend application | [frontend/README.md](frontend/README.md) | React 18.3.1, Next.js 14.2.15, Node.js 22.11.0 |
-| backend | Ruby on Rails backend (API + backoffice) | [backend/README.md](backend/README.md) | Ruby 3.4.4, Rails 7.2.x |
+| frontend | Frontend application | [frontend/README.md](frontend/README.md) | React 19.2.0, Next.js 16.1.1, Node.js 24.0.0 |
+| backend | Ruby on Rails backend (API + backoffice) | [backend/README.md](backend/README.md) | Ruby 3.4.8, Rails 7.2.x |
 | cloud_functions | AWS Lambda functions | [cloud_functions/README.md](cloud_functions/README.md) | AWS Lambda |
 | infrastructure | Terraform for TiTiler COG tiler | [infrastructure/README.md](infrastructure/README.md) | Terraform, AWS |
 | data | Data processing scripts | [data/README.md](data/README.md) | Various tools |
@@ -53,6 +53,54 @@
    | Email | `admin@example.com` |
    | Password | `password` |
 
+4. **Database Seeding**
+
+   Seeds run automatically on the first start (when the database is empty) and are **skipped on subsequent starts**. To re-seed:
+   ```bash
+   # Force seeds on next startup
+   FORCE_SEED=true docker compose -f docker-compose.dev.yml up backend
+
+   # Or run seeds manually against a running container
+   docker compose -f docker-compose.dev.yml exec backend bundle exec rails db:seed
+   ```
+
+5. **Load Admin Boundaries**
+
+   Admin boundary data (used for the analysis panel country selector) is not included in seeds. Import from the GeoPackage files in the `boundaries/` directory:
+   ```bash
+   docker compose -f docker-compose.dev.yml run --rm \
+     -v ./boundaries:/data/geoboundaries:ro \
+     backend rake boundaries:import
+   ```
+
+### Hybrid Development (Database in Docker, Apps Local)
+
+For faster development iteration, you can run only the database in Docker while running the frontend and backend locally:
+
+1. **Start only the database and martin**
+   ```bash
+   docker compose -f docker-compose.dev.yml up -d db martin
+   ```
+
+2. **Start the backend** (requires Ruby 3.4.8)
+   ```bash
+   cd backend
+   bundle install
+   bin/rails db:setup    # First time only
+   bin/rails server -p 3001
+   ```
+
+3. **Start the frontend** (requires Node.js 24.0.0)
+   ```bash
+   cd frontend
+   npm install
+   npm run dev
+   ```
+
+The frontend will be available at http://localhost:3000 and the backend at http://localhost:3001.
+
+> **Note**: This approach requires having the correct Ruby and Node.js versions installed locally. Use the full Docker setup if you don't have these versions available.
+
 ## Running Tests
 
 ### Backend Tests
@@ -62,7 +110,7 @@ docker compose -f docker-compose.test.yml run --rm backend-test ./bin/test
 
 # Individual commands
 docker compose -f docker-compose.test.yml run --rm backend-test ./bin/test rspec    # Unit tests
-docker compose -f docker-compose.test.yml run --rm backend-test ./bin/test lint     # RuboCop
+docker compose -f docker-compose.test.yml run --rm backend-test ./bin/test lint     # StandardRB
 docker compose -f docker-compose.test.yml run --rm backend-test ./bin/test security # Brakeman
 docker compose -f docker-compose.test.yml run --rm backend-test ./bin/test system   # Browser tests
 ```
@@ -81,6 +129,84 @@ docker compose -f docker-compose.test.yml run --rm --no-deps frontend-test ./bin
 ### Integration Tests
 ```bash
 docker compose -f docker-compose.test.yml up --abort-on-container-exit
+```
+
+## Boundary Data (Martin Vector Tiles)
+
+Admin boundary polygons are served as vector tiles via [Martin](https://maplibre.org/martin/) from the `admin_boundaries` table. The data comes from [geoBoundaries CGAZ](https://www.geoboundaries.org/) GeoPackage files and includes three admin levels (ADM0/ADM1/ADM2).
+
+Full-resolution geometry is used at all zoom levels — `ST_AsMVTGeom` clips to the tile extent and quantizes coordinates to the MVT grid, keeping tiles compact without introducing shared-edge artifacts.
+
+### CDN (CloudFront)
+
+Martin tiles are cached at the edge via CloudFront:
+
+```
+Browser → CloudFront (SSL + caching) → ALB (HTTP, host-header routing) → Martin
+```
+
+| Environment | URL | Cache TTL |
+|-------------|-----|-----------|
+| Production  | `https://tiles.resilienceatlas.org` | 24 hours |
+| Staging     | `https://tiles.staging.resilienceatlas.org` | 1 hour |
+
+**Deploy/update the CDN stack:**
+```bash
+infrastructure/martin-cdn/deploy.sh --staging --profile resilienceatlas
+infrastructure/martin-cdn/deploy.sh --production --profile resilienceatlas
+```
+
+**Invalidate cache** (after reimporting boundary data or changing tile sources):
+```bash
+scripts/invalidate-martin-cache.sh --staging --profile resilienceatlas
+# Or invalidate only boundary tiles:
+scripts/invalidate-martin-cache.sh --staging --paths "/boundary_tiles/*" --profile resilienceatlas
+```
+
+### Importing Boundary Data (Deployed Environments)
+
+1. **Upload GeoPackage files** to the server (e.g. via `scp`):
+   ```bash
+   scp geoBoundariesCGAZ_ADM*.gpkg ubuntu@<server>:/tmp/geoboundaries/
+   ```
+
+2. **Find the correct Docker network and backend image**:
+   ```bash
+   docker network ls | grep staging   # or grep production
+   docker ps | grep backend
+   ```
+
+3. **Run the import** via a one-off container with the data volume-mounted:
+   ```bash
+   # Staging example
+   docker run --rm -it \
+     --network resilienceatlas-staging_staging-network \
+     --env-file /opt/resilienceatlas-staging/.env.staging \
+     -v /tmp/geoboundaries:/data/geoboundaries:ro \
+     <BACKEND_IMAGE> \
+     bundle exec rake boundaries:import
+   ```
+
+4. **Restart Martin** to pick up any function changes:
+   ```bash
+   docker service update --force resilienceatlas-staging_martin
+   ```
+
+### Available Rake Tasks
+
+| Task | Description |
+|------|-------------|
+| `rake boundaries:import` | Import GeoPackage files into admin_boundaries |
+| `rake boundaries:status` | Show row counts by admin level |
+| `rake boundaries:clear` | Truncate all boundary data |
+
+### Local Development
+
+```bash
+# With docker-compose.dev.yml running:
+docker compose -f docker-compose.dev.yml run --rm \
+  -v /path/to/gpkg/files:/data/geoboundaries:ro \
+  backend rake boundaries:import
 ```
 
 ## Documentation

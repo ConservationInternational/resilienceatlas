@@ -24,6 +24,10 @@
       border-bottom: 0;
     }
 
+    &--gap-after {
+      margin-bottom: rem(4px);
+    }
+
     svg {
       margin: auto;
       position: absolute;
@@ -64,5 +68,32 @@
     padding: 0;
     width: 100%;
     height: 100%;
+  }
+
+  // Mobile responsive styles
+  @media screen and (max-width: $breakpoint-mobile) {
+    &__item {
+      width: rem($mobile-touch-target-size);
+      height: rem($mobile-touch-target-size);
+
+      svg {
+        width: 18px;
+        height: 18px;
+      }
+    }
+
+    .m-toolbar__item--search {
+      min-width: rem($mobile-touch-target-size);
+    }
+
+    .m-toolbar-item--button {
+      width: rem($mobile-touch-target-size);
+      height: rem($mobile-touch-target-size);
+    }
+
+    .m-toolbar-item--panel {
+      width: calc(100vw - 50px); // Almost full width on mobile
+      max-width: rem(320px);
+    }
   }
 }

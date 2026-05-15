@@ -16,7 +16,7 @@ class ApplicationController < ActionController::Base
 
   def get_subdomain
     @subdomain = (request.subdomain != "") ? request.subdomain(0).split(".")[0] : "main"
-    @site_name = SiteScope.find_by(subdomain: request.subdomain).try(:name)
+    @site_name = find_site_scope_by_subdomain(request.subdomain)&.name
   end
 
   def check_subdomain
@@ -60,8 +60,18 @@ class ApplicationController < ActionController::Base
 
   private
 
+  # Looks up a SiteScope by subdomain, caching the result in request.env for the
+  # duration of the request so that multiple before_actions (get_subdomain and
+  # SitesFilters#set_site) share a single DB query per unique subdomain.
+  def find_site_scope_by_subdomain(subdomain)
+    return nil if subdomain.blank?
+    cache = (request.env[:site_scope_cache] ||= {})
+    return cache[subdomain] if cache.key?(subdomain)
+    cache[subdomain] = SiteScope.find_by(subdomain: subdomain)
+  end
+
   def allow_site_iframe
-    if ["resilienceatlas.org", "vitalsigns.org", "globalresiliencepartnership.org", "herokuapp.com"].include? request.domain
+    if ["resilienceatlas.org", "globalresiliencepartnership.org", "herokuapp.com"].include? request.domain
       response.headers.except! "X-Frame-Options"
     end
   end

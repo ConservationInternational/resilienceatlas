@@ -5,7 +5,7 @@ Always reference these instructions first and fallback to search or bash command
 ## Working Effectively
 
 ### Environment Setup
-- **CRITICAL**: Use Docker for all development - local Node.js and Ruby versions may not match requirements (Node.js 24.0.0, Ruby 3.4.4)
+- **CRITICAL**: Use Docker for all development - local Node.js and Ruby versions may not match requirements (Node.js 24.0.0, Ruby 3.4.8)
 - Environment files setup:
   ```bash
   cp .env.example .env
@@ -21,7 +21,7 @@ Always reference these instructions first and fallback to search or bash command
 - **NEVER CANCEL**: Initial Docker builds take 5-15 minutes depending on network conditions. Set timeout to 25+ minutes.
 
 ### Frontend Development (Next.js 16.0.0 + React 19.0.0 + TypeScript)
-- **Dependencies**: `cd frontend && npm install --legacy-peer-deps` - takes 5+ minutes. NEVER CANCEL. Set timeout to 10+ minutes.
+- **Dependencies**: `cd frontend && npm install` - takes 5+ minutes. NEVER CANCEL. Set timeout to 10+ minutes.
 - **Linting**: `./bin/test lint` - takes ~13 seconds, may show TypeScript `any` type warnings (normal)
 - **Type check**: `./bin/test type-check` - takes ~6 seconds
 - **Prettier**: `./bin/test prettier` - takes ~3 seconds  
@@ -30,7 +30,7 @@ Always reference these instructions first and fallback to search or bash command
 - **Dev server**: `npm run dev` - starts in ~2 seconds on port 3000
 
 ### Backend Development (Ruby on Rails 7.2.x + PostgreSQL + PostGIS)
-- **CRITICAL**: Must use Docker - Ruby 3.4.4 and specific gems required
+- **CRITICAL**: Must use Docker - Ruby 3.4.8 and specific gems required
 - **Dependencies**: `bundle install` - takes 2-5 minutes in Docker. NEVER CANCEL. Set timeout to 10+ minutes.
 - **Linting**: `./bin/test lint` - StandardRB code style checking
 - **Security**: `./bin/test security` - Brakeman security analysis  
@@ -93,7 +93,7 @@ The Dockerfiles include retry logic, but network configuration may be needed in 
 ### Quick Development Validation
 For rapid development without full Docker builds:
 1. **Environment setup**: Verify env files exist and have proper values
-2. **Frontend dependencies**: `cd frontend && npm install --legacy-peer-deps` (5+ minutes)
+2. **Frontend dependencies**: `cd frontend && npm install` (5+ minutes)
 3. **Frontend build**: `cd frontend && ./bin/test build` (~1 minute)
 4. **Frontend linting**: `cd frontend && ./bin/test lint` (~13 seconds)
 5. **Database**: `docker compose -f docker-compose.dev.yml up -d db` (30 seconds to ready)
@@ -109,12 +109,12 @@ Full validation should be done for major changes:
 
 ### Required Software Versions
 - **Node.js**: 24.0.0 (specified in frontend/.nvmrc and Dockerfile)
-- **Ruby**: 3.4.4 (specified in backend/.ruby-version and Gemfile)
+- **Ruby**: 3.4.8 (specified in backend/.ruby-version and Gemfile)
 - **PostgreSQL**: 15 with PostGIS 3.3 (from docker images)
 - **Docker**: Required for all development and testing
 
 ### Package Manager Commands
-- **Frontend**: `npm install --legacy-peer-deps` (legacy flag required for dependency compatibility)
+- **Frontend**: `npm install` (package.json overrides resolve all peer dependency conflicts)
 - **Backend**: `bundle install` (with retry logic for network resilience)
 - **Docker**: Use buildx for enhanced build features
 
@@ -132,8 +132,37 @@ Full validation should be done for major changes:
 - **DNS resolution errors**: Configure DNS as shown in Network Configuration section
 - **Network timeouts**: Builds include retry logic, wait for completion - NEVER CANCEL
 - **Chrome installation failures**: System tests require Chrome + Xvfb in Docker - full build can take 20+ minutes
-- **Dependency conflicts**: Use `--legacy-peer-deps` for npm, check Ruby/Node versions
+- **Dependency conflicts**: Check Ruby/Node versions, verify package.json overrides are correctly configured
 - **Package installation errors**: System dependencies may require multiple attempts, builds will retry automatically
+
+### Deployment Failures
+- **"No space left on device"**: EC2 disk full - the before-install.sh script now has automatic cleanup, but for manual cleanup:
+  ```bash
+  # Check disk usage
+  df -h
+  docker system df
+  
+  # Aggressive cleanup (safe - images are on ECR)
+  docker system prune -a --volumes -f
+  
+  # Clean containerd ingest (failed pulls)
+  sudo rm -rf /var/lib/containerd/io.containerd.content.v1.content/ingest/*
+  ```
+- **Database connection refused (172.17.0.1)**: PostgreSQL not listening on Docker bridge. Fix:
+  ```bash
+  # Edit PostgreSQL config
+  sudo sed -i "s/^listen_addresses.*/listen_addresses = '*'/" /etc/postgresql/16/main/postgresql.conf
+  
+  # Allow Docker network connections
+  echo "host all all 172.17.0.0/16 md5" | sudo tee -a /etc/postgresql/16/main/pg_hba.conf
+  
+  # Restart PostgreSQL
+  sudo systemctl restart postgresql@16-main
+  ```
+- **CodeDeploy validation failures**: Check deployment logs via AWS CLI:
+  ```bash
+  aws deploy get-deployment-target --deployment-id <id> --target-id <instance-id> --profile resilienceatlas
+  ```
 
 ### Runtime Issues  
 - **Frontend 500 errors**: Usually invalid Transifex credentials (normal in dev), or missing backend connection
@@ -163,7 +192,7 @@ cp backend/.env.sample backend/.env
 ### 2. Quick Validation (5-10 minutes)
 ```bash
 # Install frontend dependencies - NEVER CANCEL, takes 5+ minutes
-cd frontend && npm install --legacy-peer-deps
+cd frontend && npm install
 
 # Test frontend builds and checks - takes ~1 minute total
 ./bin/test type-check && ./bin/test prettier && ./bin/test build
@@ -335,6 +364,46 @@ npx cypress run --config baseUrl=http://localhost:3000
 - Automatic database refresh from production to staging on deploy (optional)
 - **Rollbar deployment tracking**: Automatically notifies Rollbar of deployments when `ROLLBAR_ACCESS_TOKEN` is configured
 
+### Boundary Data (Martin Vector Tiles)
+
+Admin boundary polygons are served as vector tiles via Martin from the `admin_boundaries` table. Data source: geoBoundaries CGAZ GeoPackage files (ADM0/ADM1/ADM2). Full-resolution geometry is used at all zoom levels — `ST_AsMVTGeom` clips to the tile extent and quantizes coordinates to the MVT grid, keeping tiles compact without introducing shared-edge artifacts.
+
+**CDN (CloudFront):**
+Martin tiles are cached via CloudFront: `Browser → CloudFront (SSL + caching) → ALB (HTTP) → Martin`.
+- Production: `https://tiles.resilienceatlas.org` (24h cache TTL)
+- Staging: `https://tiles.staging.resilienceatlas.org` (1h cache TTL)
+- CloudFormation template: `infrastructure/martin-cdn/template.yaml`
+- Deploy: `infrastructure/martin-cdn/deploy.sh --staging --profile resilienceatlas`
+- Invalidate cache: `scripts/invalidate-martin-cache.sh --staging --profile resilienceatlas`
+- After reimporting data: restart Martin, then invalidate the CDN cache
+
+**Importing on deployed environments:**
+1. Upload `.gpkg` files to server (e.g. `scp` to `/tmp/geoboundaries/`)
+2. Find the Docker network: `docker network ls | grep staging` (or `production`)
+3. Run import via one-off container:
+   ```bash
+   # Staging
+   docker run --rm -it \
+     --network resilienceatlas-staging_staging-network \
+     --env-file /opt/resilienceatlas-staging/.env.staging \
+     -v /tmp/geoboundaries:/data/geoboundaries:ro \
+     <BACKEND_IMAGE> \
+     bundle exec rake boundaries:import
+   ```
+4. Restart Martin: `docker service update --force resilienceatlas-staging_martin`
+
+**Available rake tasks:**
+- `rake boundaries:import` — Import GeoPackage files into admin_boundaries
+- `rake boundaries:status` — Show row counts by admin level
+- `rake boundaries:clear` — Truncate all boundary data
+
+**Local development:**
+```bash
+docker compose -f docker-compose.dev.yml run --rm \
+  -v /path/to/gpkg/files:/data/geoboundaries:ro \
+  backend rake boundaries:import
+```
+
 ## Error Tracking (Rollbar)
 
 ### Overview
@@ -342,6 +411,16 @@ Rollbar is integrated for error tracking and monitoring across both frontend and
 - **Frontend**: React Error Boundary with `RollbarProvider` in `_app.tsx`
 - **Backend**: Rails exception handling via `rollbar` gem in `config/initializers/rollbar.rb`
 - **Deployments**: Automatic deployment tracking in GitHub Actions workflows
+- **Rate Limiting**: Built-in rate limiting prevents spam during outages (e.g., database down)
+
+### Rate Limiting
+Both frontend and backend implement rate limiting to prevent Rollbar spam:
+- **Window**: 1 minute sliding window
+- **Limit**: Maximum 5 of the same error type per window
+- **Behavior**: Subsequent duplicate errors are suppressed locally, with suppression count included in the next sent error
+- **Cleanup**: Old tracking entries are cleaned up every 5 minutes
+
+This prevents scenarios like a database outage from generating thousands of identical error reports.
 
 ### Configuration
 Required GitHub Secrets for production/staging:
@@ -350,7 +429,7 @@ Required GitHub Secrets for production/staging:
 
 ### Usage in Frontend
 ```tsx
-import { useRollbar, reportError, reportCritical } from 'utilities/rollbar';
+import { useRollbar, reportError, reportCritical, getRateLimiterStats } from 'utilities/rollbar';
 
 // In React components
 const { logError, logWarning, logInfo, logCritical } = useRollbar();
@@ -359,14 +438,27 @@ logError(new Error('Something went wrong'), { extra: 'context' });
 // Outside React components
 reportError('API call failed', { endpoint: '/api/data' });
 reportCritical(new Error('Critical failure'), { severity: 'high' });
+
+// Check rate limiter stats (for debugging)
+const stats = getRateLimiterStats();
+console.log(`Tracked: ${stats.trackedErrors}, Suppressed: ${stats.totalSuppressed}`);
 ```
 
 ### Usage in Backend
 ```ruby
-# Automatic exception capture is enabled
-# Manual logging:
+# Automatic exception capture is enabled with rate limiting
+# Rate limiting is applied automatically via before_process hook
+
+# Manual logging (also rate limited):
 Rollbar.error(exception, custom_data: 'value')
 Rollbar.warning('Warning message')
 Rollbar.info('Informational message')
 Rollbar.critical('Critical issue', { context: 'data' })
+
+# Check rate limiter stats (for debugging):
+stats = RollbarRateLimiter.stats
+Rails.logger.info "Rollbar rate limiter: #{stats[:tracked_errors]} tracked, #{stats[:total_suppressed]} suppressed"
+
+# Use rate-limited wrapper explicitly (optional, automatic rate limiting is preferred):
+RollbarWithRateLimiting.error_with_rate_limit(exception, { extra: 'data' })
 ```

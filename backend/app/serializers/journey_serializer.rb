@@ -15,7 +15,6 @@
 class JourneySerializer < ActiveModel::Serializer
   include BlobSerializer
 
-  cache key: "journey_#{I18n.locale}"
   attributes :title, :subtitle, :theme, :background_image, :credits, :credits_url, :published
   has_many :journey_steps do |serializer|
     serializer.object.journey_steps.order :position

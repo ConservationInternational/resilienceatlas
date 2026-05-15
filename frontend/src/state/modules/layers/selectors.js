@@ -106,7 +106,6 @@ export const getGrouped = () => {
     ) => {
       const isActive = getActiveFromDefaults(g_defaultActive);
       if (!groups.length && !g_categories.length) {
-        // eslint-disable-next-line no-console
         if (process.env.NODE_ENV !== 'test') {
           // eslint-disable-next-line no-console
           console.info('There aren`t groups setted.');
@@ -139,7 +138,7 @@ export const getGrouped = () => {
             return {
               ...c,
               active: isActive(c),
-              layers: layers.map(parseLayer),
+              layers: layers.sort(byDashboardOrder).map(parseLayer),
               subcategory: subcategories.map((sc) => {
                 const layers = published.filter((l) => l.group === sc.id);
 

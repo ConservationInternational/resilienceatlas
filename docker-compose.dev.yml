@@ -13,40 +13,73 @@ services:
     networks:
       - app-network
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  martin:
+    build:
+      context: ./docker
+      dockerfile: martin.Dockerfile
+    ports:
+      - "3002:3000"
+    command: ["--config", "/config/martin.yaml"]
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/cigrp
+    volumes:
+      - ./docker/martin.yaml:/config/martin.yaml:ro
+    networks:
+      - app-network
+    depends_on:
+      db:
+        condition: service_healthy
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:3000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
+      target: base
     ports:
       - "3001:3000"
     environment:
       - RAILS_ENV=development
+      - MARTIN_URL=http://martin:3000
+      - REDIS_URL=redis://redis:6379/0
     env_file:
       - ./backend/.env
     volumes:
       - ./backend:/app
       - backend_bundle_cache:/usr/local/bundle
+      # Uncomment to mount geoBoundaries data for import:
+      # - /path/to/geoboundaries:/data/geoboundaries:ro
     networks:
       - app-network
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     restart: unless-stopped
-    command: >
-      bash -c "
-        bundle install &&
-        while ! pg_isready -h db -p 5432 -U postgres; do
-          echo 'Waiting for database to be ready...'
-          sleep 2
-        done &&
-        PGPASSWORD=postgres psql -h db -U postgres -d cigrp -c 'CREATE EXTENSION IF NOT EXISTS postgis; CREATE EXTENSION IF NOT EXISTS postgis_topology;' || true &&
-        bundle exec rails db:create db:migrate db:seed &&
-        rm -f tmp/pids/server.pid &&
-        bundle exec rails server -b 0.0.0.0"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:3000/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 90s
+    command: /app/bin/docker-dev-entrypoint
 
   frontend:
     image: node:24.0.0-bullseye
     working_dir: /app
+    tty: true
     ports:
       - "3000:3000"
     environment:
@@ -57,6 +90,7 @@ services:
       - CHOKIDAR_USEPOLLING=true
       # Internal API host for server-side rendering (Docker network)
       - INTERNAL_API_HOST=http://backend:3000
+      - NEXT_PUBLIC_MARTIN_URL=http://localhost:3002
     env_file:
       - ./frontend/.env
     volumes:
@@ -65,13 +99,23 @@ services:
     networks:
       - app-network
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
     restart: unless-stopped
-    command: >
-      bash -c "
-        git config --global url.https://github.com/.insteadOf ssh://git@github.com/ &&
-        npm install --legacy-peer-deps &&
-        npm run dev"
+    command: /app/bin/docker-dev-entrypoint.sh
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    networks:
+      - app-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 networks:
   app-network:

@@ -69,6 +69,7 @@
 @use 'modules/m-slider';
 @use 'modules/m-static-page';
 @use 'modules/m-toolbar';
+@use 'modules/m-map-settings-buttons';
 @use 'modules/m-widget';
 @use 'modules/m-widgets-list';
 @use 'modules/modal';
@@ -79,9 +80,11 @@
 @use 'modules/m-map-tour';
 @use 'modules/m-highlighted-text';
 @use 'modules/m-labels-selectors';
+@use 'modules/m-boundaries-selectors';
 @use 'modules/m-map-loading-screen';
 @use 'modules/m-wizard-form';
 @use 'modules/m-datepicker';
+@use 'modules/m-scope-statistics';
 
 // Global states
 @use 'state';

@@ -5,11 +5,13 @@ module Api
         journeys = Journey.only_published.with_translations
           .includes(background_image_attachment: [:blob], journey_steps: [:translations, background_image_attachment: [:blob]])
           .order(:created_at)
+        expires_in 1.hour, public: true, stale_while_revalidate: 5.minutes
         render json: journeys, meta: {total: journeys.size}
       end
 
       def show
         journey = Journey.find params[:id]
+        expires_in 1.hour, public: true, stale_while_revalidate: 5.minutes
         render json: journey, include: [:journey_steps]
       end
     end

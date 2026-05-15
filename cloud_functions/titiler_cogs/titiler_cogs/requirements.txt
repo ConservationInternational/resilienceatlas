@@ -1,3 +1,6 @@
-requests==2.32.4
-mangum==0.17.0
-titiler.application==0.11.6
+# TiTiler dependencies for AWS Lambda
+# Using official AWS Lambda Python 3.14 image (Amazon Linux 2023)
+requests>=2.32.0
+mangum>=0.19.0
+titiler.application==1.1.0
+rollbar>=1.0.0

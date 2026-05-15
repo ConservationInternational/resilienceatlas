@@ -15,7 +15,6 @@
 #
 
 class IndicatorSerializer < ActiveModel::Serializer
-  cache key: "indicator_#{I18n.locale}"
   attributes :name, :slug, :version, :position, :column_name, :operation
   has_many :models, each_serializer: ModelSerializer
   has_one :category, serializer: CategorySerializer

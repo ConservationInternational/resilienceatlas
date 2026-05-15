@@ -1,1 +1,1 @@
-export { default } from './Map.container';
+export { default } from './Map';

@@ -78,6 +78,12 @@ const Journey: FC<JourneyProps> = ({
 
   const { attributes } = stepInfo;
   const { step_type: stepType } = attributes;
+
+  // Fall back to journey's background_image if step doesn't have one
+  const stepBackgroundImage = attributes.background_image?.original
+    ? attributes.background_image
+    : journey.attributes?.background_image;
+
   return (
     <div className="l-journey" id="journeyIndexView">
       <Loader loading={journeyLoading} />
@@ -85,6 +91,7 @@ const Journey: FC<JourneyProps> = ({
       {journeyLoaded &&
         React.createElement(JOURNEY_TYPES[stepType], {
           ...attributes,
+          background_image: stepBackgroundImage,
           translations,
           isLastStep: stepIndex === steps.length - 1,
         })}

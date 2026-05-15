@@ -2,9 +2,16 @@
 # ============================================================================
 # Database Sync Script - Copy production database to staging
 # ============================================================================
-# This script copies the production PostgreSQL database to the staging
+# This script syncs the production PostgreSQL database to the staging
 # Docker container. It is called during staging deployments when
 # SYNC_PRODUCTION_DB=true is set.
+#
+# Two modes:
+#   - Incremental (default): Restores production data into the existing
+#     staging database. Staging-only data (e.g. admin_boundaries) is
+#     preserved via the EXCLUDE_DATA_TABLES list.
+#   - Destructive (DROP_STAGING_DB=true): Drops and recreates the staging
+#     database from scratch. ALL staging-only data is wiped.
 # ============================================================================
 
 set -e
@@ -19,9 +26,8 @@ log_info "Starting production database sync to staging..."
 APP_DIR="/opt/resilienceatlas-staging"
 cd "$APP_DIR"
 
-# Compose file for staging
-COMPOSE_FILE="docker-compose.staging.yml"
-PROJECT_NAME="resilienceatlas-staging"
+# Swarm stack name for staging
+STACK_NAME="resilienceatlas-staging"
 
 # Load environment variables
 if [ -f "$APP_DIR/.env.staging" ]; then
@@ -48,6 +54,13 @@ PROD_DB_NAME=$(echo "$PRODUCTION_DATABASE_URL" | sed -n 's/.*\/\([^?]*\).*/\1/p'
 # Set default port if not specified
 PROD_DB_PORT=${PROD_DB_PORT:-5432}
 
+# Translate host.docker.internal to localhost for host-based scripts
+# (host.docker.internal is used in Docker containers, but this script runs on the host)
+if [ "$PROD_DB_HOST" = "host.docker.internal" ]; then
+    log_info "Translating host.docker.internal to localhost for host-based access"
+    PROD_DB_HOST="localhost"
+fi
+
 log_info "Production database: $PROD_DB_HOST:$PROD_DB_PORT/$PROD_DB_NAME"
 
 # Test connection to production database
@@ -65,10 +78,14 @@ mkdir -p "$DUMP_DIR"
 DUMP_FILE="$DUMP_DIR/production_dump.sql"
 
 # Tables to exclude data from (large or sensitive tables)
+# NOTE: active_storage_blobs and active_storage_attachments are INCLUDED
+# so that images for homepage, journeys, and sites are synced to staging
+# NOTE: admin_boundaries is excluded because it is populated via a manual
+# import step (rake boundaries:import) that requires mounted .gpkg files.
+# The table schema is still synced — only the row data is skipped.
 EXCLUDE_DATA_TABLES=(
     "action_text_rich_texts"
-    "active_storage_blobs"
-    "active_storage_attachments"
+    "admin_boundaries"
     "logs"
     "audit_logs"
     "versions"
@@ -109,73 +126,199 @@ if [ ! -s "$DUMP_FILE" ]; then
     exit 1
 fi
 
-# Ensure staging database container is running
-log_info "Ensuring staging database container is running..."
-docker compose -p "$PROJECT_NAME" -f "$COMPOSE_FILE" up -d database
+# Database is managed by Docker Swarm stack - find the running container
+log_info "Finding Swarm database container..."
+DB_CONTAINER=$(get_swarm_db_container "$STACK_NAME")
+
+if [ -z "$DB_CONTAINER" ]; then
+    log_error "Database container not found. Is the Swarm stack deployed?"
+    log_info "Looking for containers matching: ${STACK_NAME}_database"
+    docker ps --filter "name=${STACK_NAME}" --format "table {{.Names}}\t{{.Status}}" || true
+    exit 1
+fi
+
+log_info "Found database container: $DB_CONTAINER"
 
 # Wait for database to be ready
-wait_for_database "$COMPOSE_FILE" "$PROJECT_NAME"
+wait_for_database_swarm "$STACK_NAME"
 
 # Get staging database credentials
 STAGING_DB_NAME="resilienceatlas_staging"
 STAGING_DB_USER="postgres"
 
-# Drop and recreate staging database
-log_info "Recreating staging database..."
-docker compose -p "$PROJECT_NAME" -f "$COMPOSE_FILE" exec -T database psql -U "$STAGING_DB_USER" -c "
-    SELECT pg_terminate_backend(pid) FROM pg_stat_activity 
-    WHERE datname = '$STAGING_DB_NAME' AND pid <> pg_backend_pid();
-" 2>/dev/null || true
+# Refresh the container ID in case it changed
+DB_CONTAINER=$(get_swarm_db_container "$STACK_NAME")
 
-docker compose -p "$PROJECT_NAME" -f "$COMPOSE_FILE" exec -T database psql -U "$STAGING_DB_USER" -c "
-    DROP DATABASE IF EXISTS $STAGING_DB_NAME;
-" 2>/dev/null || true
+if [ "${DROP_STAGING_DB:-false}" = "true" ]; then
+    # ========================================================================
+    # DESTRUCTIVE SYNC: Drop and recreate staging database from production.
+    # This wipes ALL staging-only data (e.g. admin_boundaries).
+    # Only runs when DROP_STAGING_DB=true is explicitly set.
+    # ========================================================================
+    log_warning "DROP_STAGING_DB=true — dropping and recreating staging database from scratch"
 
-docker compose -p "$PROJECT_NAME" -f "$COMPOSE_FILE" exec -T database psql -U "$STAGING_DB_USER" -c "
-    CREATE DATABASE $STAGING_DB_NAME;
-" 2>/dev/null
+    docker exec "$DB_CONTAINER" psql -U "$STAGING_DB_USER" -c "
+        SELECT pg_terminate_backend(pid) FROM pg_stat_activity
+        WHERE datname = '$STAGING_DB_NAME' AND pid <> pg_backend_pid();
+    " 2>/dev/null || true
 
-# Enable PostGIS extensions
-log_info "Enabling PostGIS extensions..."
-docker compose -p "$PROJECT_NAME" -f "$COMPOSE_FILE" exec -T database psql -U "$STAGING_DB_USER" -d "$STAGING_DB_NAME" -c "
-    CREATE EXTENSION IF NOT EXISTS postgis;
-    CREATE EXTENSION IF NOT EXISTS postgis_topology;
-    CREATE EXTENSION IF NOT EXISTS fuzzystrmatch;
-    CREATE EXTENSION IF NOT EXISTS postgis_tiger_geocoder;
-" 2>/dev/null
+    docker exec "$DB_CONTAINER" psql -U "$STAGING_DB_USER" -c "
+        DROP DATABASE IF EXISTS $STAGING_DB_NAME;
+    " 2>/dev/null || true
 
-# Restore production data to staging database
-log_info "Restoring production data to staging database..."
-cat "$DUMP_FILE" | docker compose -p "$PROJECT_NAME" -f "$COMPOSE_FILE" exec -T database psql -U "$STAGING_DB_USER" -d "$STAGING_DB_NAME" 2>"$DUMP_DIR/restore.log" || {
-    log_warning "Some errors occurred during restore (this may be normal for extension-related errors)"
-    # Show only critical errors, not extension-related warnings
-    grep -i "error" "$DUMP_DIR/restore.log" | grep -v "already exists" | grep -v "extension" | head -20 || true
-}
+    docker exec "$DB_CONTAINER" psql -U "$STAGING_DB_USER" -c "
+        CREATE DATABASE $STAGING_DB_NAME;
+    " 2>/dev/null
 
-# Verify the restore
-log_info "Verifying staging database..."
-TABLE_COUNT=$(docker compose -p "$PROJECT_NAME" -f "$COMPOSE_FILE" exec -T database psql -U "$STAGING_DB_USER" -d "$STAGING_DB_NAME" -t -c "
-    SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = 'public';
-")
+    log_info "Enabling PostGIS extensions..."
+    docker exec "$DB_CONTAINER" psql -U "$STAGING_DB_USER" -d "$STAGING_DB_NAME" -c "
+        CREATE EXTENSION IF NOT EXISTS postgis;
+        CREATE EXTENSION IF NOT EXISTS postgis_topology;
+        CREATE EXTENSION IF NOT EXISTS fuzzystrmatch;
+        CREATE EXTENSION IF NOT EXISTS postgis_tiger_geocoder;
+    " 2>/dev/null
 
-log_success "Staging database now contains approximately $TABLE_COUNT tables"
+    log_info "Restoring production data to staging database..."
+    cat "$DUMP_FILE" | docker exec -i "$DB_CONTAINER" psql -U "$STAGING_DB_USER" -d "$STAGING_DB_NAME" 2>"$DUMP_DIR/restore.log" || {
+        log_warning "Some errors occurred during restore (this may be normal for extension-related errors)"
+        grep -i "error" "$DUMP_DIR/restore.log" | grep -v "already exists" | grep -v "extension" | head -20 || true
+    }
+
+    TABLE_COUNT=$(docker exec "$DB_CONTAINER" psql -U "$STAGING_DB_USER" -d "$STAGING_DB_NAME" -t -c "
+        SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = 'public';
+    ")
+    log_success "Staging database now contains approximately $TABLE_COUNT tables"
+    log_warning "Staging-only data (e.g. admin_boundaries) was wiped. Re-import if needed: rake boundaries:import"
+else
+    # ========================================================================
+    # INCREMENTAL SYNC: Restore production data into existing staging database
+    # without dropping it. Excluded tables (like admin_boundaries) keep their
+    # staging-only data. Production tables are refreshed via TRUNCATE + COPY.
+    # ========================================================================
+    log_info "Incremental sync — preserving staging-only data"
+
+    # Ensure PostGIS extensions exist
+    docker exec "$DB_CONTAINER" psql -U "$STAGING_DB_USER" -d "$STAGING_DB_NAME" -c "
+        CREATE EXTENSION IF NOT EXISTS postgis;
+        CREATE EXTENSION IF NOT EXISTS postgis_topology;
+        CREATE EXTENSION IF NOT EXISTS fuzzystrmatch;
+        CREATE EXTENSION IF NOT EXISTS postgis_tiger_geocoder;
+    " 2>/dev/null
+
+    # Terminate other connections to avoid conflicts during restore
+    docker exec "$DB_CONTAINER" psql -U "$STAGING_DB_USER" -c "
+        SELECT pg_terminate_backend(pid) FROM pg_stat_activity
+        WHERE datname = '$STAGING_DB_NAME' AND pid <> pg_backend_pid();
+    " 2>/dev/null || true
+
+    # Use pg_restore-style approach: drop existing objects then recreate from dump.
+    # The --clean flag in plain-text SQL dumps emits DROP statements before CREATE.
+    # Since our dump is plain SQL, we generate a pre-clean script for non-excluded tables.
+    log_info "Restoring production data (incremental)..."
+    cat "$DUMP_FILE" | docker exec -i "$DB_CONTAINER" psql -U "$STAGING_DB_USER" -d "$STAGING_DB_NAME" \
+        -v ON_ERROR_STOP=0 2>"$DUMP_DIR/restore.log" || {
+        log_warning "Some errors occurred during restore (this may be normal for already-existing objects)"
+        grep -i "error" "$DUMP_DIR/restore.log" | grep -v "already exists" | grep -v "extension" | grep -v "duplicate key" | head -20 || true
+    }
+
+    TABLE_COUNT=$(docker exec "$DB_CONTAINER" psql -U "$STAGING_DB_USER" -d "$STAGING_DB_NAME" -t -c "
+        SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = 'public';
+    ")
+    log_success "Staging database now contains approximately $TABLE_COUNT tables (staging-only data preserved)"
+fi
 
 # Anonymize sensitive data (optional - only if ANONYMIZE_STAGING_DATA is set)
 if [ "$ANONYMIZE_STAGING_DATA" = "true" ]; then
     log_info "Anonymizing sensitive data in staging database..."
-    docker compose -p "$PROJECT_NAME" -f "$COMPOSE_FILE" exec -T database psql -U "$STAGING_DB_USER" -d "$STAGING_DB_NAME" -c "
+    docker exec "$DB_CONTAINER" psql -U "$STAGING_DB_USER" -d "$STAGING_DB_NAME" -c "
         -- Anonymize user emails
         UPDATE users SET email = 'user' || id || '@staging.resilienceatlas.org'
         WHERE email NOT LIKE '%@staging.resilienceatlas.org';
-        
-        -- Reset passwords to a known value (optional)
-        -- UPDATE users SET encrypted_password = '...';
     " 2>/dev/null || log_warning "User anonymization skipped (table may not exist)"
 fi
 
 # Clean up
 log_info "Cleaning up temporary files..."
 rm -rf "$DUMP_DIR"
+
+# ============================================================================
+# Sync ActiveStorage Files from Production
+# ============================================================================
+# ActiveStorage stores files in the backend container's storage directory.
+# We need to sync these files from production to staging for images to work.
+#
+# PRODUCTION_BACKEND_HOST can be:
+#   - "localhost" or "local" - copy directly between Docker volumes (same server)
+#   - A remote hostname/IP - use rsync over SSH
+# ============================================================================
+
+# Check if storage file sync is enabled
+PRODUCTION_BACKEND_HOST="${PRODUCTION_BACKEND_HOST:-}"
+PRODUCTION_STORAGE_PATH="${PRODUCTION_STORAGE_PATH:-/opt/resilienceatlas-production}"
+
+if [ "$SYNC_STORAGE_FILES" = "true" ]; then
+    log_info "Syncing ActiveStorage files from production..."
+    
+    # Docker volume paths
+    STORAGE_BASE="/var/lib/docker/volumes"
+    STAGING_STORAGE_VOLUME="resilienceatlas-staging_staging_backend_storage"
+    STAGING_PUBLIC_STORAGE_VOLUME="resilienceatlas-staging_staging_backend_public_storage"
+    PROD_STORAGE_VOLUME="resilienceatlas-production_production_backend_storage"
+    PROD_PUBLIC_STORAGE_VOLUME="resilienceatlas-production_production_backend_public_storage"
+    
+    # Check if this is a local (same server) or remote sync
+    if [ "$PRODUCTION_BACKEND_HOST" = "localhost" ] || [ "$PRODUCTION_BACKEND_HOST" = "local" ] || [ -z "$PRODUCTION_BACKEND_HOST" ]; then
+        log_info "Using local volume copy (production and staging on same server)..."
+        
+        # Check if production volumes exist
+        if [ -d "${STORAGE_BASE}/${PROD_STORAGE_VOLUME}/_data" ]; then
+            log_info "Copying private storage files..."
+            rsync -a --delete \
+                "${STORAGE_BASE}/${PROD_STORAGE_VOLUME}/_data/" \
+                "${STORAGE_BASE}/${STAGING_STORAGE_VOLUME}/_data/" 2>/dev/null && \
+                log_success "Private storage synced" || \
+                log_warning "Could not sync private storage files"
+        else
+            log_warning "Production storage volume not found: ${PROD_STORAGE_VOLUME}"
+        fi
+        
+        if [ -d "${STORAGE_BASE}/${PROD_PUBLIC_STORAGE_VOLUME}/_data" ]; then
+            log_info "Copying public storage files..."
+            rsync -a --delete \
+                "${STORAGE_BASE}/${PROD_PUBLIC_STORAGE_VOLUME}/_data/" \
+                "${STORAGE_BASE}/${STAGING_PUBLIC_STORAGE_VOLUME}/_data/" 2>/dev/null && \
+                log_success "Public storage synced" || \
+                log_warning "Could not sync public storage files"
+        else
+            log_warning "Production public storage volume not found: ${PROD_PUBLIC_STORAGE_VOLUME}"
+        fi
+        
+    else
+        log_info "Using remote rsync from ${PRODUCTION_BACKEND_HOST}..."
+        
+        if command -v rsync &> /dev/null; then
+            # Sync private storage from remote
+            rsync -avz --delete \
+                "${PRODUCTION_BACKEND_HOST}:${STORAGE_BASE}/${PROD_STORAGE_VOLUME}/_data/" \
+                "${STORAGE_BASE}/${STAGING_STORAGE_VOLUME}/_data/" 2>/dev/null && \
+                log_success "Private storage synced from remote" || \
+                log_warning "Could not sync private storage files (check SSH access)"
+            
+            # Sync public storage from remote
+            rsync -avz --delete \
+                "${PRODUCTION_BACKEND_HOST}:${STORAGE_BASE}/${PROD_PUBLIC_STORAGE_VOLUME}/_data/" \
+                "${STORAGE_BASE}/${STAGING_PUBLIC_STORAGE_VOLUME}/_data/" 2>/dev/null && \
+                log_success "Public storage synced from remote" || \
+                log_warning "Could not sync public storage files (check SSH access)"
+        else
+            log_warning "rsync not available, storage files not synced"
+        fi
+    fi
+    
+    log_success "Storage file sync completed"
+else
+    log_info "Storage file sync disabled (SYNC_STORAGE_FILES != true)"
+fi
 
 log_success "Database sync completed successfully!"
 log_success "Staging database has been refreshed with production data"

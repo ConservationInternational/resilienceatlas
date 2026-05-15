@@ -4,7 +4,7 @@ set -e
 # Only install dependencies if not in Docker (node_modules should already exist in Docker)
 if [ ! -d "node_modules" ]; then
   echo "🔧 Installing dependencies..."
-  npm install --legacy-peer-deps
+  npm install
 else
   echo "📦 Dependencies already installed"
 fi

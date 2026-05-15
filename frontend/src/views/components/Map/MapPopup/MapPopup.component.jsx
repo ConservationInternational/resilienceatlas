@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from 'react';
-import { LeafletMapPopup } from '../LeafletMap/exports';
+import { OLMapOverlay } from '../OLMap/exports';
 import LayerPopup from './LayerPopup';
 
 const MapPopup = ({
@@ -10,16 +10,16 @@ const MapPopup = ({
   layerGroupsInteractionSelected,
   layerGroupsInteractionLatLng,
 }) => {
-  const popupRef = useRef();
+  const overlayRef = useRef();
 
   useEffect(() => {
-    if (popupRef.current) {
-      popupRef.current.remove();
+    if (overlayRef.current) {
+      overlayRef.current.setPosition(undefined);
     }
   }, [layersInteraction.length]);
 
   return (
-    <LeafletMapPopup
+    <OLMapOverlay
       map={map}
       latlng={layerGroupsInteractionLatLng}
       data={{
@@ -27,8 +27,8 @@ const MapPopup = ({
         layersInteraction: layerGroupsInteraction,
         layersInteractionSelected: layerGroupsInteractionSelected,
       }}
-      onReady={(popup) => {
-        popupRef.current = popup;
+      onReady={(overlay) => {
+        overlayRef.current = overlay;
       }}
     >
       <LayerPopup
@@ -36,7 +36,7 @@ const MapPopup = ({
           setMapLayerGroupsInteractionSelected(selected);
         }}
       />
-    </LeafletMapPopup>
+    </OLMapOverlay>
   );
 };
 

@@ -3,18 +3,22 @@ import { LOAD } from './actions';
 
 const initialState = {
   has_analysis: false,
+  has_search: true,
   predictive_model: false,
   name: '',
   subdomain: '',
-  color: '#0089cc',
+  color: '',
   header_theme: '',
   latitude: NaN,
   longitude: NaN,
   zoom_level: NaN,
   linkback_text: null,
   linkback_url: null,
+  linkback_text_color: null,
   header_color: null,
   logo_url: '',
+  logo_urls: [],
+  favicon_url: '',
 
   loading: false,
   loaded: false,
@@ -35,6 +39,11 @@ export default createReducer(initialState)({
       ...state,
       ...data,
       logo_url: data.logo_url || '/images/logo-ci.png',
+      logo_urls:
+        data.logo_urls && data.logo_urls.length > 0
+          ? data.logo_urls
+          : [data.logo_url || '/images/logo-ci.png'],
+      favicon_url: data.favicon_url || '/favicon.ico',
 
       loading: false,
       loaded: true,
@@ -45,6 +54,7 @@ export default createReducer(initialState)({
   [LOAD.FAIL]: (state, { error }) => ({
     ...initialState,
     logo_url: '/images/logo-ci.png',
+    favicon_url: '/favicon.ico',
     loading: false,
     error,
   }),

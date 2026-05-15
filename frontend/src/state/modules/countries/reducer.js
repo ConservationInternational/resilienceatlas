@@ -1,9 +1,9 @@
 import { createReducer } from '../../utils';
-import { LOAD } from './actions';
+import { LOAD, LOAD_GEOMETRY } from './actions';
 
 const initialState = {
   byISO: {
-    /* [ISO]: { name, iso, bbox } */
+    /* [ISO]: { name, iso, geometry? } */
   },
   all: [
     /* ISO */
@@ -33,4 +33,21 @@ export default createReducer(initialState)({
     loading: false,
     error,
   }),
+
+  // Merge geometry into the existing entry for this ISO code.
+  [LOAD_GEOMETRY.SUCCESS]: (state, { payload }) => {
+    const { iso, geometry } = payload;
+    if (!iso) return state;
+    return {
+      ...state,
+      byISO: {
+        ...state.byISO,
+        [iso]: {
+          ...state.byISO[iso],
+          geometry,
+          geometryLoaded: true,
+        },
+      },
+    };
+  },
 });

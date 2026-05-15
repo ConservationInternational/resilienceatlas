@@ -1,6 +1,7 @@
 import { schema } from 'normalizr';
-import { replace } from 'resilience-layer-manager';
+import { replace } from 'lib/layer-manager';
 import { generateDownloadUrl } from 'utilities/generateDownloadUrl';
+import { reportWarning } from 'utilities/rollbar';
 import { birds } from './utils/decoders';
 
 import {
@@ -11,9 +12,10 @@ import {
 const provider = {
   cartodb: 'carto',
   raster: 'carto',
-  'xyz tileset': 'leaflet',
-  cog: 'leaflet',
-  gee: 'leaflet',
+  'xyz tileset': 'xyz tileset',
+  cog: 'cog',
+  gee: 'gee',
+  martin: 'martin',
 };
 
 export const site_scope = new schema.Entity(
@@ -33,6 +35,20 @@ export const layer = new schema.Entity(
   {},
   {
     processStrategy: (l) => {
+      // Log deprecation warning for raster provider layers
+      if (l.attributes.layer_provider === 'raster') {
+        reportWarning(
+          'DEPRECATED: Layer using raster provider detected. This provider is deprecated and will be removed. Please migrate to COG provider.',
+          {
+            layerId: l.id,
+            layerName: l.attributes.name,
+            layerSlug: l.attributes.slug,
+            layerProvider: l.attributes.layer_provider,
+            context: 'layer_schema_processing',
+          },
+        );
+      }
+
       const getTimeline = () => ({
         defaultDate: new Date(l.attributes.timeline_default_date),
         endDate: new Date(l.attributes.timeline_end_date),
@@ -84,11 +100,12 @@ export const layer = new schema.Entity(
           account: 'cdb',
         },
         // XYZ tileset layers - url can be at root level or nested in body
+        // If no url in layer_config, fallback to query field
         'xyz tileset': {
           type: 'tileLayer',
           body: {
             ...(layerConfig?.body || {}),
-            url: layerConfig?.body?.url || layerConfig?.url,
+            url: layerConfig?.body?.url || layerConfig?.url || l.attributes.query,
           },
         },
         // GEE layers - ensure body property exists
@@ -123,6 +140,19 @@ export const layer = new schema.Entity(
             },
           };
         })(),
+        // Martin vector tile layers - source name + optional styles
+        martin: {
+          ...layerConfig,
+          body: {
+            source: layerConfig?.body?.source || layerConfig?.source,
+            styles: layerConfig?.body?.styles || layerConfig?.styles || {},
+            options: {
+              interactive: true,
+              maxNativeZoom: l.attributes.zoom_max || 14,
+              ...(layerConfig?.body?.options || layerConfig?.options || {}),
+            },
+          },
+        },
       };
 
       return {

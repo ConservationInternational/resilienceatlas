@@ -1,1 +1,1 @@
-export { default } from './ToolUse.container';
+export { default } from './ToolUse';

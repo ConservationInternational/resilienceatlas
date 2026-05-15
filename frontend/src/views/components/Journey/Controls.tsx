@@ -38,7 +38,7 @@ const Controls: React.FC<ControlsProps> = ({
 
       {+step === slideslength ? (
         <Link
-          href={`/journeys/${isLastJourney ? journeyIds[0] : journeyIds[journeyIndex + 1]}`}
+          href={`/journeys/${isLastJourney ? journeyIds[0] : journeyIds[journeyIndex + 1]}/step/1`}
           className="btn-next-journey"
         >
           <T _str="Next journey" />

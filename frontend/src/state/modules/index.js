@@ -1,4 +1,3 @@
-export { reducer as form } from 'redux-form';
 export { default as ui } from './ui';
 export { default as site } from './site';
 export { default as sites } from './sites';
@@ -16,3 +15,5 @@ export { default as countries } from './countries';
 export { default as about } from './about';
 export { default as homepage } from './homepage';
 export { default as translations } from './translations';
+export { default as compare } from './compare';
+export { default as scope_datasets } from './scope_datasets';

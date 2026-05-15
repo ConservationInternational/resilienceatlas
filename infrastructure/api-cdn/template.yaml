@@ -1,0 +1,263 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'CloudFront CDN for Resilience Atlas API (JSON responses)'
+
+Parameters:
+  FQDN:
+    Type: String
+    Description: Fully qualified domain name, e.g. api.resilienceatlas.org
+  ZoneId:
+    Type: String
+    Description: Route53 Hosted Zone ID for the domain (e.g. Z111111QQQQQQQ)
+  ALBDomainName:
+    Type: String
+    Description: ALB DNS name, e.g. resilienceatlas-alb-407780533.us-east-1.elb.amazonaws.com
+  BackendFQDN:
+    Type: String
+    Description: Backend hostname for ALB routing, e.g. resilienceatlas.org or staging.resilienceatlas.org
+  CacheTTL:
+    Type: Number
+    Default: 3600
+    Description: Default cache TTL in seconds (default 1 hour)
+
+Resources:
+  # CloudFront Distribution — caches API JSON responses at the edge
+  CloudFrontDistribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Enabled: true
+        Comment: !Sub "API CDN for ${FQDN}"
+        Aliases:
+          - !Ref FQDN
+        HttpVersion: http2and3
+        PriceClass: PriceClass_100  # North America + Europe edge locations
+        ViewerCertificate:
+          AcmCertificateArn: !Ref CloudFrontCertificate
+          SslSupportMethod: sni-only
+          MinimumProtocolVersion: TLSv1.2_2021
+        Origins:
+          - Id: ALBOrigin
+            DomainName: !Ref ALBDomainName
+            CustomOriginConfig:
+              HTTPPort: 80
+              OriginProtocolPolicy: http-only
+        DefaultCacheBehavior:
+          TargetOriginId: ALBOrigin
+          ViewerProtocolPolicy: redirect-to-https
+          AllowedMethods:
+            - GET
+            - HEAD
+            - OPTIONS
+            - PUT
+            - PATCH
+            - POST
+            - DELETE
+          CachedMethods:
+            - GET
+            - HEAD
+          Compress: true
+          CachePolicyId: !Ref ApiCachePolicy
+          OriginRequestPolicyId: !Ref ApiOriginRequestPolicy
+        CacheBehaviors:
+          # Health check endpoint — bypass cache
+          - PathPattern: /health*
+            TargetOriginId: ALBOrigin
+            ViewerProtocolPolicy: redirect-to-https
+            AllowedMethods:
+              - GET
+              - HEAD
+            CachedMethods:
+              - GET
+              - HEAD
+            CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad  # AWS managed CachingDisabled
+            OriginRequestPolicyId: !Ref ApiOriginRequestPolicy
+          # Mutating endpoints (POST/PUT/DELETE) — bypass cache
+          - PathPattern: /api/share
+            TargetOriginId: ALBOrigin
+            ViewerProtocolPolicy: redirect-to-https
+            AllowedMethods:
+              - GET
+              - HEAD
+              - OPTIONS
+              - PUT
+              - PATCH
+              - POST
+              - DELETE
+            CachedMethods:
+              - GET
+              - HEAD
+            CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad  # CachingDisabled
+            OriginRequestPolicyId: !Ref ApiOriginRequestPolicy
+          - PathPattern: /api/feedbacks
+            TargetOriginId: ALBOrigin
+            ViewerProtocolPolicy: redirect-to-https
+            AllowedMethods:
+              - GET
+              - HEAD
+              - OPTIONS
+              - PUT
+              - PATCH
+              - POST
+              - DELETE
+            CachedMethods:
+              - GET
+              - HEAD
+            CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad  # CachingDisabled
+            OriginRequestPolicyId: !Ref ApiOriginRequestPolicy
+          - PathPattern: /api/photos
+            TargetOriginId: ALBOrigin
+            ViewerProtocolPolicy: redirect-to-https
+            AllowedMethods:
+              - GET
+              - HEAD
+              - OPTIONS
+              - PUT
+              - PATCH
+              - POST
+              - DELETE
+            CachedMethods:
+              - GET
+              - HEAD
+            CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad  # CachingDisabled
+            OriginRequestPolicyId: !Ref ApiOriginRequestPolicy
+          - PathPattern: /api/site-scope/authenticate
+            TargetOriginId: ALBOrigin
+            ViewerProtocolPolicy: redirect-to-https
+            AllowedMethods:
+              - GET
+              - HEAD
+              - OPTIONS
+              - PUT
+              - PATCH
+              - POST
+              - DELETE
+            CachedMethods:
+              - GET
+              - HEAD
+            CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad  # CachingDisabled
+            OriginRequestPolicyId: !Ref ApiOriginRequestPolicy
+          - PathPattern: /api/titiler/*
+            TargetOriginId: ALBOrigin
+            ViewerProtocolPolicy: redirect-to-https
+            AllowedMethods:
+              - GET
+              - HEAD
+              - OPTIONS
+              - PUT
+              - PATCH
+              - POST
+              - DELETE
+            CachedMethods:
+              - GET
+              - HEAD
+            CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad  # CachingDisabled — TiTiler proxied requests vary too much
+            OriginRequestPolicyId: !Ref ApiOriginRequestPolicy
+          # Admin routes — bypass cache
+          - PathPattern: /admin/*
+            TargetOriginId: ALBOrigin
+            ViewerProtocolPolicy: redirect-to-https
+            AllowedMethods:
+              - GET
+              - HEAD
+              - OPTIONS
+              - PUT
+              - PATCH
+              - POST
+              - DELETE
+            CachedMethods:
+              - GET
+              - HEAD
+            CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad  # CachingDisabled
+            OriginRequestPolicyId: !Ref ApiOriginRequestPolicy
+          # User endpoints — bypass cache (sessions, auth)
+          - PathPattern: /users/*
+            TargetOriginId: ALBOrigin
+            ViewerProtocolPolicy: redirect-to-https
+            AllowedMethods:
+              - GET
+              - HEAD
+              - OPTIONS
+              - PUT
+              - PATCH
+              - POST
+              - DELETE
+            CachedMethods:
+              - GET
+              - HEAD
+            CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad  # CachingDisabled
+            OriginRequestPolicyId: !Ref ApiOriginRequestPolicy
+
+  # Cache policy — cache key includes site_scope and locale query params
+  # Respects origin Cache-Control headers from Rails (expires_in directives)
+  ApiCachePolicy:
+    Type: AWS::CloudFront::CachePolicy
+    Properties:
+      CachePolicyConfig:
+        Name: !Sub "${AWS::StackName}-ApiCachePolicy"
+        Comment: "Cache policy for API JSON — key includes site_scope + locale"
+        DefaultTTL: !Ref CacheTTL
+        MaxTTL: 86400    # 24 hours max
+        MinTTL: 0        # Respect origin no-cache directives
+        ParametersInCacheKeyAndForwardedToOrigin:
+          CookiesConfig:
+            CookieBehavior: none
+          HeadersConfig:
+            HeaderBehavior: none
+          QueryStringsConfig:
+            QueryStringBehavior: whitelist
+            QueryStrings:
+              - site_scope
+              - locale
+          EnableAcceptEncodingGzip: true
+          EnableAcceptEncodingBrotli: true
+
+  # Origin request policy — forward Host for ALB routing, plus auth headers
+  ApiOriginRequestPolicy:
+    Type: AWS::CloudFront::OriginRequestPolicy
+    Properties:
+      OriginRequestPolicyConfig:
+        Name: !Sub "${AWS::StackName}-ApiOriginRequestPolicy"
+        Comment: "Forward Host + auth headers to ALB for API routing"
+        CookiesConfig:
+          CookieBehavior: none
+        HeadersConfig:
+          HeaderBehavior: whitelist
+          Headers:
+            - Host              # Required: ALB routes by Host header
+            - Origin            # Required: CORS preflight
+            - Site-Scope-Token  # Required: password-protected site scope auth
+            - Authorization     # Required: user auth (admin, downloads)
+        QueryStringsConfig:
+          QueryStringBehavior: all  # Forward all query params to origin
+
+  # ACM Certificate — must be in us-east-1 for CloudFront
+  CloudFrontCertificate:
+    Type: AWS::CertificateManager::Certificate
+    Properties:
+      DomainName: !Ref FQDN
+      ValidationMethod: DNS
+      DomainValidationOptions:
+        - DomainName: !Ref FQDN
+          HostedZoneId: !Ref ZoneId
+
+  # DNS record — points FQDN to CloudFront distribution
+  DnsRecord:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      HostedZoneId: !Ref ZoneId
+      Name: !Ref FQDN
+      Type: A
+      AliasTarget:
+        DNSName: !GetAtt CloudFrontDistribution.DomainName
+        HostedZoneId: Z2FDTNDATAQYW2  # CloudFront hosted zone ID (always this value)
+
+Outputs:
+  CloudFrontUrl:
+    Description: "CloudFront CDN URL for API"
+    Value: !Sub "https://${FQDN}/"
+  CloudFrontDistributionId:
+    Description: "CloudFront Distribution ID (for cache invalidation)"
+    Value: !Ref CloudFrontDistribution
+  CloudFrontDomainName:
+    Description: "CloudFront distribution domain name"
+    Value: !GetAtt CloudFrontDistribution.DomainName

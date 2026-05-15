@@ -21,8 +21,8 @@ RSpec.describe "Admin: Layers", type: :system do
   end
 
   describe "#show" do
-    context "with cartodb layer provider" do
-      let!(:layer) { create :layer, layer_provider: :cartodb, analysis_suitable: true }
+    context "with martin layer provider" do
+      let!(:layer) { create :layer, layer_provider: :martin, analysis_suitable: true }
 
       before do
         visit admin_layers_path
@@ -38,16 +38,9 @@ RSpec.describe "Admin: Layers", type: :system do
         expect(page).to have_text(layer.data_units)
         expect(page).to have_text(layer.legend)
         expect(page).to have_text(layer.layer_provider)
-        expect(page).to have_text(layer.query)
-        expect(page).to have_text(layer.css)
-        expect(page).to have_text(layer.opacity.to_s)
-        expect(page).to have_text(layer.zindex.to_s)
-        expect(page).to have_text(layer.order.to_s)
-        expect(page).to have_text(layer.zoom_max.to_s)
-        expect(page).to have_text(layer.zoom_min.to_s)
-        expect(page).to have_text(layer.interaction_config)
+        expect(page).to have_text(JSON.pretty_generate(JSON.parse(layer.layer_config)).gsub(/[[:space:]]+/, " ").strip)
         expect(page).to have_text(layer.analysis_query)
-        expect(page).to have_text(layer.analysis_body)
+        expect(page).to have_text(JSON.pretty_generate(JSON.parse(layer.analysis_body)).gsub(/[[:space:]]+/, " ").strip)
         expect(page).to have_text(layer.analysis_type)
         expect(page).to have_text(layer.analysis_text_template)
         expect(page).to have_text(layer.timeline_steps.join(", "))
@@ -76,8 +69,8 @@ RSpec.describe "Admin: Layers", type: :system do
         expect(page).to have_text(layer.data_units)
         expect(page).to have_text(layer.legend)
         expect(page).to have_text(layer.layer_provider)
-        expect(page).to have_text(layer.layer_config)
-        expect(page).to have_text(layer.interaction_config)
+        expect(page).to have_text(JSON.pretty_generate(JSON.parse(layer.layer_config)).gsub(/[[:space:]]+/, " ").strip)
+        expect(page).to have_text(JSON.pretty_generate(JSON.parse(layer.interaction_config)).gsub(/[[:space:]]+/, " ").strip)
         expect(page).to have_text(layer.dashboard_order.to_s)
       end
     end
@@ -91,7 +84,7 @@ RSpec.describe "Admin: Layers", type: :system do
       click_on "New Layer"
     end
 
-    it "allows to create new layer for cartodb layer provider" do
+    it "allows to create new layer for wms layer provider" do
       # Wait for page to load
       wait_for_page_load
 
@@ -101,10 +94,8 @@ RSpec.describe "Admin: Layers", type: :system do
       safe_fill_in "layer[translations_attributes][0][processing]", with: "New processing"
       safe_fill_in "layer[translations_attributes][0][data_units]", with: "New data_units"
       safe_fill_in "layer[translations_attributes][0][legend]", with: "New legend"
-      fill_in "layer[translations_attributes][0][analysis_text_template]", with: "New analysis_text_template"
-      select "cartodb", from: "layer[layer_provider]"
-      fill_in "layer[query]", with: "New query"
-      fill_in "layer[css]", with: "New css"
+      select "wms", from: "layer[layer_provider]"
+      fill_in "layer[layer_config]", with: '{"url": "https://example.com/wms"}'
       fill_in "layer[opacity]", with: "30.0"
       fill_in "layer[zindex]", with: "10000"
       fill_in "layer[order]", with: "2"
@@ -112,7 +103,8 @@ RSpec.describe "Admin: Layers", type: :system do
       fill_in "layer[zoom_min]", with: "200"
       fill_in "layer[interaction_config]", with: "New interaction_config"
       check "layer[analysis_suitable]"
-      select "text", from: "layer[analysis_type]"
+      select "histogram", from: "layer[analysis_type]"
+      fill_in "layer[translations_attributes][0][analysis_text_template]", with: "New analysis_text_template"
       fill_in "layer[analysis_query]", with: "New analysis_query"
       fill_in "layer[analysis_body]", with: "New analysis_body"
       check "layer[timeline]"
@@ -133,16 +125,14 @@ RSpec.describe "Admin: Layers", type: :system do
       expect(page).to have_text("New processing")
       expect(page).to have_text("New data_units")
       expect(page).to have_text("New legend")
-      expect(page).to have_text("cartodb")
-      expect(page).to have_text("New query")
-      expect(page).to have_text("New css")
+      expect(page).to have_text("wms")
       expect(page).to have_text("30.0")
       expect(page).to have_text("10000")
       expect(page).to have_text("2")
       expect(page).to have_text("1000")
       expect(page).to have_text("200")
       expect(page).to have_text("New interaction_config")
-      expect(page).to have_text("text")
+      expect(page).to have_text("histogram")
       expect(page).to have_text("New analysis_query")
       expect(page).to have_text("New analysis_body")
       expect(page).to have_text("New analysis_text_template")
@@ -161,7 +151,7 @@ RSpec.describe "Admin: Layers", type: :system do
       fill_in "layer[translations_attributes][0][data_units]", with: "New data_units"
       fill_in "layer[translations_attributes][0][legend]", with: "New legend"
       select "cog", from: "layer[layer_provider]"
-      fill_in "layer[layer_config]", with: "New layer_config"
+      fill_in "layer[layer_config]", with: '{"type": "raster", "tiles": ["https://example.com/{z}/{x}/{y}.tif"]}'
       fill_in "layer[interaction_config]", with: "New interaction_config"
       fill_in "layer[dashboard_order]", with: "80"
 
@@ -176,7 +166,7 @@ RSpec.describe "Admin: Layers", type: :system do
       expect(page).to have_text("New data_units")
       expect(page).to have_text("New legend")
       expect(page).to have_text("cog")
-      expect(page).to have_text("New layer_config")
+      expect(page).to have_text("raster")
       expect(page).to have_text("New interaction_config")
       expect(page).to have_text("80")
     end

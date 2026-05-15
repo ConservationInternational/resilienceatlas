@@ -20,37 +20,6 @@
   z-index: 5;
   box-shadow: 0 1px 4px 2px rgba(0,0,0,.1);
 
-  .btn-sidebar-toggle {
-    position: absolute;
-    top: 0;
-    right: 0;
-    width: rem(25px);
-    height: rem(48px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: none;
-    border: 0;
-    z-index: 2;
-    outline: none;
-
-    &:focus, &:active {
-      &:after {
-        @include arrow(8px, $blue, 2px, -45deg);
-      }
-    }
-
-    &:after {
-      content: '';
-      @include arrow(8px, $gray-70, 2px, -45deg);
-      transition: .25s ease-in-out;
-
-      .is-collapsed & {
-        transform: rotate(135deg);
-      }
-    }
-  }
-
   .btn-analysis-panel-contract {
     position: absolute;
     top: 0;
@@ -131,6 +100,43 @@
   z-index: 1;
   transition: .25s ease-in-out;
 
+  // Sidebar toggle button - positioned relative to l-sidebar--fullscreen
+  .btn-sidebar-toggle {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: rem(25px);
+    height: rem(48px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: 0;
+    z-index: 6; // Above l-sidebar-content (z-index: 5)
+    outline: none;
+
+    &:focus, &:active {
+      &:after {
+        @include arrow(8px, $blue, 2px, -45deg);
+      }
+    }
+
+    &:after {
+      content: '';
+      @include arrow(8px, $gray-70, 2px, -45deg);
+      transition: .25s ease-in-out;
+
+      .is-collapsed & {
+        transform: rotate(135deg);
+      }
+    }
+
+    // Mobile: Hide this button, use MobileSidebarToggle component instead
+    @media screen and (max-width: $breakpoint-mobile) {
+      display: none;
+    }
+  }
+
   // .is-not-bare & {
   //   top: rem($header-height);
   // }
@@ -151,14 +157,31 @@
     top: 0;
     left: rem($sidebar-width);
     bottom: 0;
-    width: $sidebar-analysis-width;
+    width: var(--analysis-panel-width, #{$sidebar-analysis-width});
+    min-width: 320px;
+    max-width: 900px;
     transform: translateX(-100%);
     background-color: $bg-color-1;
-    transition: .25s ease-in-out;
+    transition: transform .25s ease-in-out;
     box-shadow: 0px -1px 2px 0px rgba(0, 0, 0, 0.1);
     display: flex;
     flex-direction: column;
     overflow-y: auto;
+
+    .analysis-panel__resize-handle {
+      position: absolute;
+      top: 0;
+      right: -4px;
+      width: 8px;
+      height: 100%;
+      cursor: ew-resize;
+      z-index: 10;
+      background: transparent;
+
+      &:hover, &.-dragging {
+        background: rgba($blue, 0.3);
+      }
+    }
 
     > .title {
       position: sticky; // Needed for the scroll
@@ -251,6 +274,65 @@
     background-position: left center;
     background-size: contain;
     text-indent: -99999px;
+  }
+
+  // Mobile responsive styles
+  @media screen and (max-width: $breakpoint-mobile) {
+    // Full width sidebar on mobile when expanded
+    width: 100%;
+    max-width: 100vw;
+    z-index: 1000; // Higher z-index to appear above map
+
+    &.is-collapsed {
+      // Collapse completely off-screen on mobile
+      transform: translateX(-100%);
+    }
+
+    // Add backdrop overlay when sidebar is open on mobile
+    // The backdrop captures clicks on the parent element (l-sidebar--fullscreen)
+    // to close the sidebar, while clicks on sidebar content are stopped via stopPropagation
+    &:not(.is-collapsed)::before {
+      content: '';
+      position: fixed;
+      top: 60px; // Start below the header so header remains fully visible
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: -1; // Behind sidebar content but above map
+      pointer-events: none; // Don't block clicks on the pseudo-element itself
+    }
+
+    .analysis-panel {
+      // On mobile, overlay analysis panel as full-width sheet
+      position: fixed;
+      top: 60px;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      width: 100%;
+      z-index: 1001;
+    }
+
+    .btn-analysis-panel-expand {
+      // Hide on mobile - the Analysis tab in the sidebar handles this on mobile
+      display: none;
+    }
+
+    .btn-map-feedback {
+      // Position feedback button differently on mobile
+      left: 10px;
+    }
+  }
+
+  // Tablet responsive styles
+  @media screen and (min-width: $breakpoint-tablet-min) and (max-width: $breakpoint-tablet-max) {
+    // Slightly narrower sidebar on tablets
+    width: rem(300px);
+
+    .analysis-panel {
+      width: 400px;
+    }
   }
 }
 

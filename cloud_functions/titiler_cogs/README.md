@@ -1,4 +1,228 @@
-# lambda-python3.9
+# TiTiler COGs - Dynamic Tile Server
+
+## What is TiTiler?
+
+[TiTiler](https://developmentseed.org/titiler/) is a dynamic tile server for Cloud Optimized GeoTIFFs (COGs). It renders map tiles on-the-fly from raster data stored in S3, eliminating the need to pre-generate tile pyramids.
+
+**Current Version:** TiTiler 1.1.0 on Python 3.14
+
+### Adding a New Bucket
+
+TiTiler only serves tiles from whitelisted S3 or GCS buckets. To add a new bucket:
+
+1. Go to **GitHub → Settings → Secrets and variables → Actions → Variables**
+2. Edit `TITILER_ALLOWED_BUCKETS`
+3. Add your bucket URI (comma-separated): `s3://existing-bucket,s3://new-bucket,gs://gcs-bucket`
+4. Redeploy TiTiler
+
+### Purpose in Resilience Atlas
+
+TiTiler powers the raster layer visualization in Resilience Atlas, enabling:
+
+- **Dynamic tile rendering**: Generates map tiles from COG files in real-time as users pan and zoom
+- **Efficient data access**: COGs support HTTP range requests, so only the needed portions of large raster files are read
+- **Flexible visualization**: Apply rescaling, color mapping, and band combinations without regenerating data
+- **Cost-effective scaling**: AWS Lambda automatically scales to handle traffic spikes
+- **Histogram analysis**: Compute statistics within user-drawn areas
+- **Point queries**: Query raster values at specific coordinates
+
+### API Endpoints
+
+Once deployed, TiTiler provides these endpoints:
+
+| Endpoint | Description |
+|----------|-------------|
+| `/tiles/WebMercatorQuad/{z}/{x}/{y}` | Get map tiles for a COG |
+| `/info` | Get metadata about a COG |
+| `/statistics` | Compute statistics (min, max, mean, histogram) for a COG |
+| `/preview` | Generate a preview image |
+| `/point/{lon}/{lat}` | Query pixel values at a point |
+| `/healthz` | Health check endpoint |
+| `/docs` | Interactive API documentation |
+
+**Example tile request:**
+```
+GET /tiles/WebMercatorQuad/10/512/384?url=https://storage.googleapis.com/bucket/layer.tif&bidx=1&colormap={"1":[255,0,0,255]}
+```
+
+**Example with URL encoding (for browsers):**
+```
+GET /tiles/WebMercatorQuad/10/512/384?url=https%3A%2F%2Fstorage.googleapis.com%2Fbucket%2Flayer.tif&bidx=1&colormap=%7B%221%22%3A%5B255%2C0%2C0%2C255%5D%7D
+```
+
+### Architecture
+
+```
+Frontend → CloudFront CDN → API Gateway → Lambda (TiTiler) → S3/GCS (COG files)
+```
+
+The service is deployed as an AWS Lambda function behind API Gateway with CloudFront CDN for global edge caching (24-hour default TTL).
+
+---
+
+## COG Layer Analysis in Resilience Atlas
+
+TiTiler enables full analysis functionality for COG layers, equivalent to what Earth Engine provides for GEE layers. The backend provides proxy endpoints that handle CORS and validate requests.
+
+### Backend Proxy Endpoints
+
+| Backend Endpoint | TiTiler Endpoint | Purpose |
+|------------------|------------------|---------|
+| `/api/titiler/info` | `/info` | Get COG metadata (bounds, bands) |
+| `/api/titiler/statistics` | `/statistics` | Histogram analysis within geometry |
+| `/api/titiler/point` | `/point/{lon}/{lat}` | Point query for raster values |
+
+### Auto-Injected Parameters
+
+**The frontend automatically provides these values for COG layers:**
+
+| Placeholder | Source | Description |
+|-------------|--------|-------------|
+| `{{titilerUrl}}` | Environment variable | TiTiler server URL (production, staging, or custom) |
+| `{{cogUrl}}` | `layer_config.body.source` or parsed from tile URL | COG file location |
+| `{{apiUrl}}` | Environment variable | Backend API URL |
+| `{{lng}}`, `{{lat}}` | Click coordinates | Map click location |
+
+This means **admins don't need to hardcode URLs** - just use the placeholders and the frontend handles the rest.
+
+### Configuring Histogram Analysis (Statistics)
+
+To enable histogram analysis for a COG layer in the admin panel:
+
+**1. Set `layer_provider`:** `cog`
+
+**2. Set `analysis_suitable`:** ✓ (checked)
+
+**3. Set `analysis_type`:** `histogram` or `categorical`
+
+**4. Set `analysis_query`:**
+```
+/api/titiler/statistics?titilerUrl={{titilerUrl}}&cogUrl={{cogUrl}}
+```
+
+**5. Set `analysis_body` (minimal):**
+```json
+{"assetId": "unused"}
+```
+
+The `titilerUrl` and `cogUrl` placeholders are auto-filled from environment variables and the layer's `layer_config`.
+
+**Optional: Override cogUrl if different from tile source:**
+```json
+{
+  "assetId": "unused",
+  "params": {
+    "cogUrl": "https://storage.googleapis.com/bucket/analysis-layer.tif"
+  }
+}
+```
+
+### Configuring Point Queries (Raster Interaction)
+
+To enable click-to-query functionality for a COG layer:
+
+**Set `interaction_config` (simplified):**
+```json
+{
+  "output": [
+    {"column": "values.0", "property": "Band 1 Value"},
+    {"column": "values.1", "property": "Band 2 Value"}
+  ],
+  "config": {
+    "url": "/api/titiler/point?titilerUrl={{titilerUrl}}&cogUrl={{cogUrl}}&lon={{lng}}&lat={{lat}}"
+  }
+}
+```
+
+All placeholders (`{{titilerUrl}}`, `{{cogUrl}}`, `{{lng}}`, `{{lat}}`) are auto-filled at runtime.
+
+**Optional: Override cogUrl:**
+```json
+{
+  "output": [{"column": "values.0", "property": "Band 1 Value"}],
+  "config": {
+    "url": "/api/titiler/point?titilerUrl={{titilerUrl}}&cogUrl={{cogUrl}}&lon={{lng}}&lat={{lat}}",
+    "params": {
+      "cogUrl": "https://storage.googleapis.com/bucket/custom-layer.tif"
+    }
+  }
+}
+```
+
+### Complete COG Layer Example
+
+Here's a complete configuration for a COG layer with tiles, analysis, and point queries:
+
+**layer_config:**
+```json
+{
+  "type": "tileLayer",
+  "body": {
+    "source": "https://storage.googleapis.com/bucket/layer.tif",
+    "url": "https://titiler.resilienceatlas.org/tiles/WebMercatorQuad/{z}/{x}/{y}?url=https://storage.googleapis.com/bucket/layer.tif&bidx=1&colormap={{colormap}}"
+  },
+  "params": {
+    "colormap": {"1": [255,0,0,255], "2": [0,255,0,255], "3": [0,0,255,255]}
+  }
+}
+```
+
+> **Tip:** Set `body.source` to the COG URL for automatic `{{cogUrl}}` substitution in analysis/interaction configs.
+
+**interaction_config (simplified):**
+```json
+{
+  "output": [
+    {"column": "values.0", "property": "Land Cover Class", "type": "number"}
+  ],
+  "config": {
+    "url": "/api/titiler/point?titilerUrl={{titilerUrl}}&cogUrl={{cogUrl}}&lon={{lng}}&lat={{lat}}&bidx=1"
+  }
+}
+```
+
+**analysis_query:**
+```
+/api/titiler/statistics?titilerUrl={{titilerUrl}}&cogUrl={{cogUrl}}&bidx=1
+```
+
+**analysis_body (minimal):**
+```json
+{"assetId": "unused"}
+```
+
+All `{{titilerUrl}}` and `{{cogUrl}}` placeholders are automatically filled from environment configuration and `layer_config.body.source`.
+```
+
+---
+
+## Configuring COG Layers in Backend Admin
+
+When creating a COG layer in the Resilience Atlas admin panel, set the `layer_config` JSON with the tile URL template. The frontend substitutes `{z}`, `{x}`, `{y}` and `{{colormap}}` parameters at runtime.
+
+**Example `layer_config` for a COG layer:**
+```json
+{
+  "type": "tileLayer",
+  "body": {
+    "url": "https://staging.titiler.resilienceatlas.org/tiles/WebMercatorQuad/{z}/{x}/{y}?url=https://storage.googleapis.com/trendsearth-public/data/layer.tif&bidx=1&colormap={{colormap}}"
+  },
+  "params": {
+    "colormap": {"1": [255, 0, 0, 255], "2": [0, 255, 0, 255]}
+  }
+}
+```
+
+**Key fields:**
+- `body.url`: The TiTiler tile URL template with `{z}/{x}/{y}` placeholders
+- `params.colormap`: Color mapping for raster values (optional)
+- `bidx`: Band index parameter (1-based, e.g., `bidx=1` for first band)
+
+**Important:** Use the new TiTiler 1.1.0 endpoint format `/tiles/WebMercatorQuad/{z}/{x}/{y}` - the old `/cog/tiles/{z}/{x}/{y}` format is no longer supported.
+
+---
+
+## Project Structure
 
 This project contains source code and supporting files for a serverless application that you can deploy with the SAM CLI. It includes the following files and folders.
 

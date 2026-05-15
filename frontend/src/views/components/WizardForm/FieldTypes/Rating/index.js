@@ -1,1 +1,1 @@
-export { default } from './Rating.container';
+export { default } from './Rating';

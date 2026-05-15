@@ -19,7 +19,7 @@ export const useSyncedState = (function () {
 
     const removeListener = useCallback((listener: Listener<State>) => {
       const index = _listeners.findIndex((l) => l === listener);
-      if (index !== null) {
+      if (index !== -1) {
         _listeners.splice(index, 1);
       }
     }, []);

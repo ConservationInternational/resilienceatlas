@@ -32,6 +32,29 @@ services:
       timeout: 5s
       retries: 5
 
+  # Martin tile server for test environment
+  martin-test:
+    build:
+      context: ./docker
+      dockerfile: martin.Dockerfile
+    ports:
+      - "3002:3000"
+    command: ["--config", "/config/martin.yaml"]
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@db-test:5432/resilienceatlas_test
+    volumes:
+      - ./docker/martin.yaml:/config/martin.yaml:ro
+    networks:
+      - test-network
+    depends_on:
+      db-test:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:3000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   # Backend test service
   backend-test:
     build:
@@ -51,6 +74,7 @@ services:
       - REDIS_URL=redis://redis-test:6379/0
       - BACKEND_URL=http://backend-test:3001
       - FRONTEND_URL=http://frontend-test:3000
+      - MARTIN_URL=http://martin-test:3000
       - CORS_ORIGINS=http://frontend-test:3000,http://localhost:3000
       - RAILS_FORCE_SSL=false
       - HEADLESS=true
@@ -93,7 +117,11 @@ services:
         echo '🔧 Fixing permissions after volume mount...' &&
         
         # Fix ownership and permissions for files that need to be writable
-        sudo chown -R appuser:appuser /app &&
+        # Note: /app/public/storage is excluded from recursive chown - it may contain large media
+        # files (Windows-mounted via WSL2/9P) that make recursive chown extremely slow.
+        sudo find /app -maxdepth 1 -not -name 'public' -exec chown appuser:appuser {} + 2>/dev/null || true &&
+        sudo find /app -mindepth 2 -maxdepth 2 -path '/app/public/*' -not -name 'storage' -exec chown appuser:appuser {} + 2>/dev/null || true &&
+        sudo chown -R appuser:appuser /app/app /app/bin /app/config /app/db /app/lib /app/spec /app/test /app/log /app/tmp 2>/dev/null || true &&
         sudo chown -R appuser:appuser /usr/local/bundle &&
         sudo chmod 664 /app/Gemfile.lock &&
         sudo chmod 755 /app/bin/* &&
@@ -103,8 +131,8 @@ services:
         # Ensure all required directories exist with proper permissions
         sudo mkdir -p /app/tmp/cache /app/tmp/pids /app/tmp/sockets /app/tmp/storage &&
         sudo mkdir -p /app/public/storage /app/public/uploads /app/public/uploads/cache /app/public/uploads/store /app/downloads /app/storage &&
-        sudo chown -R appuser:appuser /app/tmp /app/public/storage /app/public/uploads /app/downloads /app/storage &&
-        sudo chmod -R 775 /app/tmp /app/public/storage /app/public/uploads /app/downloads /app/storage &&
+        sudo chown -R appuser:appuser /app/tmp /app/public/uploads /app/downloads /app/storage &&
+        sudo chmod -R 775 /app/tmp /app/public/uploads /app/downloads /app/storage &&
         
         echo '📦 Installing dependencies...' &&
         bundle install &&
@@ -150,6 +178,7 @@ services:
       - NEXT_PUBLIC_TRANSIFEX_TOKEN=test_token
       - NEXT_PUBLIC_TRANSIFEX_SECRET=test_secret
       - NEXT_PUBLIC_GOOGLE_API_KEY=test_api_key
+      - NEXT_PUBLIC_MARTIN_URL=http://martin-test:3000
       - PORT=3000
       - CYPRESS_INSTALL_BINARY=0
       - CYPRESS_CACHE_FOLDER=/tmp/cypress-cache
@@ -177,7 +206,7 @@ services:
       bash -c "
         set -e
         echo '🔧 Installing dependencies...' &&
-        npm install --legacy-peer-deps --no-audit --no-fund &&
+        npm install --no-audit --no-fund &&
         
         echo '🔍 Verifying installation...' &&
         node --version &&
@@ -200,6 +229,7 @@ services:
       - NODE_ENV=test
       - CYPRESS_baseUrl=http://frontend-test:3000
       - CYPRESS_apiUrl=http://backend-test:3001
+      - CYPRESS_martinUrl=http://martin-test:3000
       - CYPRESS_video=true
       - CYPRESS_screenshotOnRunFailure=true
     volumes:
@@ -223,6 +253,7 @@ services:
       - NODE_ENV=test
       - CYPRESS_baseUrl=http://frontend-test:3000
       - CYPRESS_apiUrl=http://backend-test:3001
+      - CYPRESS_martinUrl=http://martin-test:3000
       - CYPRESS_video=true
       - CYPRESS_screenshotOnRunFailure=true
     volumes:

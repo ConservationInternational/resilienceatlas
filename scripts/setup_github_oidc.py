@@ -24,7 +24,6 @@ GITHUB_OIDC_URL = "https://token.actions.githubusercontent.com"
 # See: https://github.blog/changelog/2023-06-27-github-actions-update-on-oidc-integration-with-aws/
 GITHUB_OIDC_THUMBPRINT = "6938fd4d98bab03faadb97b34396831e3780aea1"
 
-
 def create_clients(profile=None):
     """Create and return AWS service clients."""
     try:
@@ -99,8 +98,35 @@ def create_trust_policy(account_id, github_org, github_repo):
     }
 
 
-def create_deployment_policy():
-    """Create the permissions policy for GitHub Actions deployments."""
+def create_deployment_policy(route53_zone_id):
+    """
+    Create the permissions policy for GitHub Actions deployments.
+    
+    Args:
+        route53_zone_id: The Route53 hosted zone ID for DNS permissions (e.g., 'Z0123456789ABCDEFGHIJ')
+    
+    Permission Scoping Strategy (Least Privilege):
+    -----------------------------------------------
+    Where possible, permissions are scoped to specific resources:
+    
+    - CloudFormation: Scoped to stacks matching 'titiler-cogs-*/*' and 'aws-sam-cli-managed-default/*'
+    - Lambda: Scoped to functions matching 'titiler-cogs-*'
+    - IAM Roles: Scoped to roles matching 'titiler-cogs-*'
+    - S3: Scoped to 'resilienceatlas-deployments-*' and 'aws-sam-cli-managed-default-*' buckets
+    - ECR: GetAuthorizationToken requires '*', but repository operations scoped to 'titiler-cogs-*'
+    - CodeDeploy: Scoped to 'resilienceatlas' application
+    - Route53: Scoped to specific hosted zone (provided via --route53-zone-id)
+    
+    Some AWS services don't support resource-level permissions:
+    - API Gateway: Most actions don't support resource-level permissions
+    - CloudFront: Distribution IDs are generated dynamically during stack creation
+    - ACM: Certificate ARNs aren't known ahead of time when requesting new certificates
+    
+    For tighter security on these services, consider:
+    - Pre-provisioning resources and referencing them by ARN
+    - Using AWS Organizations SCPs for additional guardrails
+    - Enabling CloudTrail logging for audit purposes
+    """
     return {
         "Version": "2012-10-17",
         "Statement": [
@@ -117,7 +143,9 @@ def create_deployment_policy():
                 ],
                 "Resource": [
                     "arn:aws:s3:::resilienceatlas-deployments-*",
-                    "arn:aws:s3:::resilienceatlas-deployments-*/*"
+                    "arn:aws:s3:::resilienceatlas-deployments-*/*",
+                    "arn:aws:s3:::aws-sam-cli-managed-default-*",
+                    "arn:aws:s3:::aws-sam-cli-managed-default-*/*"
                 ]
             },
             {
@@ -159,6 +187,187 @@ def create_deployment_policy():
                     "codedeploy:GetDeployment"
                 ],
                 "Resource": "*"
+            },
+            {
+                "Sid": "CloudFormationSAM",
+                "Effect": "Allow",
+                "Action": [
+                    "cloudformation:CreateStack",
+                    "cloudformation:UpdateStack",
+                    "cloudformation:DeleteStack",
+                    "cloudformation:DescribeStacks",
+                    "cloudformation:DescribeStackEvents",
+                    "cloudformation:DescribeStackResource",
+                    "cloudformation:DescribeStackResources",
+                    "cloudformation:GetTemplate",
+                    "cloudformation:GetTemplateSummary",
+                    "cloudformation:ListStackResources",
+                    "cloudformation:CreateChangeSet",
+                    "cloudformation:DescribeChangeSet",
+                    "cloudformation:ExecuteChangeSet",
+                    "cloudformation:DeleteChangeSet",
+                    "cloudformation:ListChangeSets",
+                    "cloudformation:SetStackPolicy",
+                    "cloudformation:ValidateTemplate"
+                ],
+                "Resource": [
+                    "arn:aws:cloudformation:*:*:stack/titiler-cogs-*/*",
+                    "arn:aws:cloudformation:*:*:stack/aws-sam-cli-managed-default/*"
+                ]
+            },
+            {
+                "Sid": "CloudFormationDescribe",
+                "Effect": "Allow",
+                "Action": [
+                    "cloudformation:DescribeStacks",
+                    "cloudformation:GetTemplateSummary",
+                    "cloudformation:ValidateTemplate"
+                ],
+                "Resource": "*"
+            },
+            {
+                "Sid": "LambdaSAM",
+                "Effect": "Allow",
+                "Action": [
+                    "lambda:CreateFunction",
+                    "lambda:DeleteFunction",
+                    "lambda:GetFunction",
+                    "lambda:GetFunctionConfiguration",
+                    "lambda:UpdateFunctionCode",
+                    "lambda:UpdateFunctionConfiguration",
+                    "lambda:ListTags",
+                    "lambda:TagResource",
+                    "lambda:UntagResource",
+                    "lambda:AddPermission",
+                    "lambda:RemovePermission",
+                    "lambda:GetPolicy",
+                    "lambda:InvokeFunction"
+                ],
+                "Resource": [
+                    "arn:aws:lambda:*:*:function:titiler-cogs-*"
+                ]
+            },
+            {
+                "Sid": "APIGatewaySAM",
+                "Effect": "Allow",
+                "Action": [
+                    "apigateway:GET",
+                    "apigateway:POST",
+                    "apigateway:PUT",
+                    "apigateway:DELETE",
+                    "apigateway:PATCH"
+                ],
+                "Resource": "arn:aws:apigateway:*::*"
+            },
+            {
+                "Sid": "IAMRoleForLambda",
+                "Effect": "Allow",
+                "Action": [
+                    "iam:CreateRole",
+                    "iam:DeleteRole",
+                    "iam:GetRole",
+                    "iam:UpdateRole",
+                    "iam:PassRole",
+                    "iam:AttachRolePolicy",
+                    "iam:DetachRolePolicy",
+                    "iam:PutRolePolicy",
+                    "iam:DeleteRolePolicy",
+                    "iam:GetRolePolicy",
+                    "iam:ListRolePolicies",
+                    "iam:ListAttachedRolePolicies",
+                    "iam:TagRole",
+                    "iam:UntagRole"
+                ],
+                "Resource": [
+                    "arn:aws:iam::*:role/titiler-cogs-*"
+                ]
+            },
+            {
+                "Sid": "CloudFrontCDN",
+                "Effect": "Allow",
+                "Action": [
+                    "cloudfront:CreateDistribution",
+                    "cloudfront:UpdateDistribution",
+                    "cloudfront:DeleteDistribution",
+                    "cloudfront:GetDistribution",
+                    "cloudfront:GetDistributionConfig",
+                    "cloudfront:ListDistributions",
+                    "cloudfront:TagResource",
+                    "cloudfront:UntagResource",
+                    "cloudfront:CreateCachePolicy",
+                    "cloudfront:UpdateCachePolicy",
+                    "cloudfront:DeleteCachePolicy",
+                    "cloudfront:GetCachePolicy",
+                    "cloudfront:ListCachePolicies",
+                    "cloudfront:CreateOriginRequestPolicy",
+                    "cloudfront:UpdateOriginRequestPolicy",
+                    "cloudfront:DeleteOriginRequestPolicy",
+                    "cloudfront:GetOriginRequestPolicy",
+                    "cloudfront:ListOriginRequestPolicies",
+                    "cloudfront:CreateInvalidation"
+                ],
+                "Resource": "*"
+            },
+            {
+                "Sid": "ACMCertificates",
+                "Effect": "Allow",
+                "Action": [
+                    "acm:RequestCertificate",
+                    "acm:DescribeCertificate",
+                    "acm:DeleteCertificate",
+                    "acm:ListCertificates",
+                    "acm:AddTagsToCertificate",
+                    "acm:ListTagsForCertificate"
+                ],
+                "Resource": "*"
+            },
+            {
+                "Sid": "Route53DNS",
+                "Effect": "Allow",
+                "Action": [
+                    "route53:ChangeResourceRecordSets",
+                    "route53:GetHostedZone",
+                    "route53:ListResourceRecordSets"
+                ],
+                "Resource": f"arn:aws:route53:::hostedzone/{route53_zone_id}"
+            },
+            {
+                "Sid": "Route53Changes",
+                "Effect": "Allow",
+                "Action": [
+                    "route53:GetChange"
+                ],
+                "Resource": "arn:aws:route53:::change/*"
+            },
+            {
+                "Sid": "ECRImages",
+                "Effect": "Allow",
+                "Action": [
+                    "ecr:GetAuthorizationToken"
+                ],
+                "Resource": "*"
+            },
+            {
+                "Sid": "ECRRepositories",
+                "Effect": "Allow",
+                "Action": [
+                    "ecr:BatchCheckLayerAvailability",
+                    "ecr:GetDownloadUrlForLayer",
+                    "ecr:BatchGetImage",
+                    "ecr:InitiateLayerUpload",
+                    "ecr:UploadLayerPart",
+                    "ecr:CompleteLayerUpload",
+                    "ecr:PutImage",
+                    "ecr:CreateRepository",
+                    "ecr:DescribeRepositories",
+                    "ecr:DeleteRepository",
+                    "ecr:TagResource",
+                    "ecr:SetRepositoryPolicy"
+                ],
+                "Resource": [
+                    "arn:aws:ecr:*:*:repository/titiler-cogs-*",
+                    "arn:aws:ecr:*:*:repository/*titilercogsfunction*"
+                ]
             }
         ]
     }
@@ -225,14 +434,18 @@ def create_iam_role(iam_client, role_name, trust_policy, permissions_policy):
             return None
 
 
-def main(profile=None):
+def main(profile=None, github_org="ConservationInternational", github_repo="resilienceatlas", 
+         route53_zone_id=None, update_only=False):
     """Main function to set up GitHub OIDC."""
+    if not route53_zone_id:
+        print("❌ Error: --route53-zone-id is required")
+        print("   Find your zone ID in AWS Console → Route53 → Hosted zones → resilienceatlas.org")
+        sys.exit(1)
+    
     print("🚀 Setting up GitHub OIDC for ResilienceAtlas...")
     print("=" * 60)
 
     # Configuration
-    github_org = "ConservationInternational"
-    github_repo = "resilienceatlas"
     role_name = "GitHubActionsResilienceAtlasRole"
 
     # Create AWS clients
@@ -242,6 +455,24 @@ def main(profile=None):
     account_id = get_account_id(clients['sts'])
     print(f"📋 AWS Account ID: {account_id}")
     print(f"📋 GitHub Repo: {github_org}/{github_repo}")
+
+    if update_only:
+        # Just update the policy on existing role
+        print("\n📋 Updating IAM Role Policy...")
+        permissions_policy = create_deployment_policy(route53_zone_id)
+        try:
+            clients['iam'].put_role_policy(
+                RoleName=role_name,
+                PolicyName='GitHubActionsDeploymentPolicy',
+                PolicyDocument=json.dumps(permissions_policy)
+            )
+            print(f"✅ Updated deployment policy for role: {role_name}")
+            role_arn = f"arn:aws:iam::{account_id}:role/{role_name}"
+            print(f"\n✅ Policy update complete! Role ARN: {role_arn}")
+            return
+        except ClientError as e:
+            print(f"❌ Error updating policy: {e}")
+            sys.exit(1)
 
     # Create OIDC provider
     print("\n📋 Creating OIDC Identity Provider...")
@@ -253,7 +484,7 @@ def main(profile=None):
     # Create trust policy
     print("\n📋 Creating IAM Role with Trust Policy...")
     trust_policy = create_trust_policy(account_id, github_org, github_repo)
-    permissions_policy = create_deployment_policy()
+    permissions_policy = create_deployment_policy(route53_zone_id)
 
     role_arn = create_iam_role(
         clients['iam'],
@@ -294,7 +525,21 @@ def main(profile=None):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='Set up GitHub OIDC provider for AWS')
+    parser = argparse.ArgumentParser(
+        description='Set up GitHub OIDC provider for AWS',
+        epilog='Example: python setup_github_oidc.py --profile myprofile --route53-zone-id Z0123456789ABC'
+    )
     parser.add_argument('--profile', '-p', help='AWS profile name from ~/.aws/credentials')
+    parser.add_argument('--github-org', help='GitHub organization name', default='ConservationInternational')
+    parser.add_argument('--github-repo', help='GitHub repository name', default='resilienceatlas')
+    parser.add_argument('--route53-zone-id', required=True,
+                        help='Route53 hosted zone ID for DNS permissions (find in AWS Console → Route53 → Hosted zones)')
+    parser.add_argument('--update-policy', action='store_true', help='Update existing role policy only')
     args = parser.parse_args()
-    main(profile=args.profile)
+    main(
+        profile=args.profile,
+        github_org=args.github_org,
+        github_repo=args.github_repo,
+        route53_zone_id=args.route53_zone_id,
+        update_only=args.update_policy
+    )

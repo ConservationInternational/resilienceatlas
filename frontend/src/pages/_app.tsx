@@ -35,6 +35,7 @@ if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
   // so we can only add properties to it, not replace it entirely
   const ensureRouterComponents = () => {
     try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const nextObj = (window as any).next;
       if (nextObj && nextObj.router && typeof nextObj.router.components === 'undefined') {
         nextObj.router.components = {};
@@ -52,6 +53,7 @@ if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
   const interval = setInterval(() => {
     ensureRouterComponents();
     // Stop checking once the real router is initialized with actual components
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const nextObj = (window as any).next;
     if (nextObj?.router?.components && Object.keys(nextObj.router.components).length > 0) {
       clearInterval(interval);
@@ -66,7 +68,6 @@ if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
 import 'normalize.css/normalize.css';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
-import 'leaflet/dist/leaflet.css';
 
 // Project styles
 import 'views/styles/index.scss';
@@ -134,6 +135,7 @@ const ResilienceApp = ({ Component, ...rest }: AppPropsWithLayout) => {
         defaultOptions: {
           queries: {
             refetchOnWindowFocus: false,
+            staleTime: 5 * 60 * 1000,
           },
         },
       }),
@@ -181,6 +183,7 @@ const ResilienceApp = ({ Component, ...rest }: AppPropsWithLayout) => {
         tx.setCurrentLocale(locale);
       } catch (error) {
         // If Transifex fails on client, just log and continue
+        // eslint-disable-next-line no-console
         console.warn('Transifex client initialization failed:', error.message);
       }
     } else if (process.env.NODE_ENV === 'development' && !hasWarnedAboutTransifex.current) {
@@ -214,7 +217,7 @@ const ResilienceApp = ({ Component, ...rest }: AppPropsWithLayout) => {
   useEffect(() => {
     if (!NEXT_LOCALE) {
       // Set a cookie for 1 year
-      setCookie('NEXT_LOCALE', `${locale}; path=/; max-age=31536000; secure`);
+      setCookie('NEXT_LOCALE', locale, { path: '/', maxAge: 31536000, secure: true });
     }
   }, [locale, NEXT_LOCALE, setCookie]);
 

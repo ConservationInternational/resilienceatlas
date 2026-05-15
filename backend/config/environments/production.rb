@@ -43,12 +43,15 @@ Rails.application.configure do
   config.action_dispatch.x_sendfile_header = "X-Accel-Redirect"
 
   # Force all access to the app over SSL, use Strict-Transport-Security, and use secure cookies.
+  # INTENTIONALLY DISABLED: TLS is terminated at the AWS Application Load Balancer (ALB) before
+  # reaching Rails. Enabling force_ssl here would cause redirect loops because the ALB forwards
+  # plain HTTP to the Rails container. The ALB listener enforces HTTPS at the network edge.
   # config.force_ssl = true
 
   # config.logger = ActiveSupport::Logger.new("log/production.log")
-  # Use the lowest log level to ensure availability of diagnostic information
-  # when problems arise.
-  config.log_level = :debug
+  # :info hides per-query SQL logs that are only useful during debugging.
+  # Use LOG_LEVEL=debug env var to re-enable temporarily when needed.
+  config.log_level = ENV.fetch("LOG_LEVEL", "info").to_sym
   # Use default logging formatter so that PID and timestamp are not suppressed.
   config.log_formatter = ::Logger::Formatter.new
 
@@ -65,7 +68,18 @@ Rails.application.configure do
   # config.logger = ActiveSupport::TaggedLogging.new(SyslogLogger.new)
 
   # Use a different cache store in production.
-  # config.cache_store = :mem_cache_store
+  # Use Redis when available (requires REDIS_URL env var), otherwise memory store.
+  config.cache_store = if ENV["REDIS_URL"].present?
+    [:redis_cache_store, {
+      url: ENV["REDIS_URL"],
+      expires_in: 1.hour,
+      error_handler: ->(method:, returning:, exception:) {
+        Rails.logger.warn("Redis cache #{method} failed: #{exception.message}")
+      }
+    }]
+  else
+    [:memory_store, {size: 64.megabytes}]
+  end
 
   # Enable serving of images, stylesheets, and JavaScripts from an asset server.
   # config.action_controller.asset_host = 'http://assets.example.com'
@@ -92,5 +106,7 @@ Rails.application.configure do
   }
 
   # Store uploaded files on the local file system (see config/storage.yml for options).
-  config.active_storage.service = :local
+  # Using local_public to serve files directly from public/storage without Rails controller,
+  # which is required for the seeded image assets to work correctly.
+  config.active_storage.service = :local_public
 end

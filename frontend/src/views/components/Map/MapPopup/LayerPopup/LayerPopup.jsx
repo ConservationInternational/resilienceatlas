@@ -1,10 +1,11 @@
-import React, { useReducer, useCallback, useEffect } from 'react';
+import React, { useReducer, useCallback, useEffect, useMemo } from 'react';
 import axios from 'axios';
-import moment from 'moment';
+import { format, parseISO, isValid } from 'date-fns';
 import numeral from 'numeral';
 import get from 'lodash/get';
-import { replace } from 'resilience-layer-manager';
+import { replace } from 'lib/layer-manager';
 import { T } from '@transifex/react';
+import { getTitilerBaseUrl } from 'utilities/environment';
 
 import createReducer from 'state/utils/createReducer';
 import { createApiAction } from 'state/utils/api';
@@ -49,7 +50,17 @@ const LayerPopup = ({
 
   const formatValue = useCallback((item, data) => {
     if (item.type === 'date' && item.format && data) {
-      data = moment(data).format(item.format);
+      const parsed = typeof data === 'string' ? parseISO(data) : new Date(data);
+      if (isValid(parsed)) {
+        // Layer configs may use moment-style tokens (YYYY, DD).
+        // Translate the most common ones to date-fns equivalents.
+        const dateFnsFormat = item.format
+          .replace(/YYYY/g, 'yyyy')
+          .replace(/YY/g, 'yy')
+          .replace(/DD/g, 'dd')
+          .replace(/D(?!D)/g, 'd');
+        data = format(parsed, dateFnsFormat);
+      }
     } else if (item.type === 'number' && item.format && data) {
       data = numeral(data).format(item.format);
     } else if (item.type === 'link' && data) {
@@ -68,30 +79,57 @@ const LayerPopup = ({
     ? layers.find((l) => l.id === +layersInteractionSelected)
     : layers[0];
 
-  if (!layer) {
-    popup.remove();
-    return null;
-  }
-  // Get interactionConfig
-  const {
-    interactionConfig: { output, config },
-  } = layer;
+  // Extract interactionConfig safely before hooks to avoid conditional hook calls
+  const output = layer?.interactionConfig?.output;
+  const config = layer?.interactionConfig?.config;
 
-  // Get data from props or state
-  const interaction = layersInteraction[layer.id] || {};
-  const interactionState = state.interaction[layer.id] || {};
+  // For COG layers, derive titilerUrl and cogUrl from environment and layer config
+  const cogParams = useMemo(() => {
+    if (!layer || layer.type !== 'cog') return {};
 
-  // eslint-disable-next-line react-hooks/rules-of-hooks
+    const titilerUrl = getTitilerBaseUrl();
+    let cogUrl = '';
+
+    // Try to extract COG URL from layer config
+    if (layer.layerConfig?.body?.source) {
+      // New format: source URL stored directly
+      cogUrl = layer.layerConfig.body.source;
+    } else if (layer.layerConfig?.body?.url) {
+      // Legacy format: parse from tile URL
+      const urlParamMatch = layer.layerConfig.body.url.match(/[?&]url=([^&]+)/);
+      if (urlParamMatch) {
+        cogUrl = decodeURIComponent(urlParamMatch[1]);
+      }
+    }
+
+    return { titilerUrl, cogUrl };
+  }, [layer]);
+
   useEffect(() => {
-    if (latlng && config && config.url) {
+    if (layer && latlng && config && config.url) {
       dispatch({ type: FETCH.REQUEST });
 
+      // Merge params for URL substitution:
+      // 1. latlng - click coordinates ({{lng}}, {{lat}})
+      // 2. cogParams - auto-derived for COG layers ({{titilerUrl}}, {{cogUrl}})
+      // 3. layer.params - layer-level params
+      // 4. config.params - interaction config params (can override above)
+      const urlParams = {
+        ...latlng,
+        ...cogParams,
+        ...(layer.params || {}),
+        ...(config.params || {}),
+      };
+
       axios
-        .get(replace(config.url, latlng), {})
+        .get(replace(config.url, urlParams), {})
         .then(({ data: responseData }) => {
           // For COGs column in interactionConfig should always be 'values[*]' or 'values.*'
+          // Exception: when config.responseFormat === 'rows', treat the response as a
+          // CartoDB SQL API result ({ rows: [...] }) even for COG layers, enabling
+          // point-in-polygon ecoregion lookups via config.url.
           const data =
-            layer.type === 'cog'
+            layer.type === 'cog' && config?.responseFormat !== 'rows'
               ? { values: responseData?.values }
               : responseData && responseData.rows && responseData.rows[0];
           dispatch({
@@ -112,6 +150,15 @@ const LayerPopup = ({
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  if (!layer) {
+    popup.remove();
+    return null;
+  }
+
+  // Get data from props or state
+  const interaction = layersInteraction[layer.id] || {};
+  const interactionState = state.interaction[layer.id] || {};
 
   return (
     <div className="c-map-popup">
@@ -138,7 +185,7 @@ const LayerPopup = ({
                 const { column } = outputItem;
                 const columnArray = column.split('.');
                 const value =
-                  layer.type === 'cog'
+                  layer.type === 'cog' && config?.responseFormat !== 'rows'
                     ? columnArray.map((column) =>
                         get(interaction.data || interactionState.data, column),
                       )

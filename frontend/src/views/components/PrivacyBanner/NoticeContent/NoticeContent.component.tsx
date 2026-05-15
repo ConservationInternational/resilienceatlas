@@ -14,21 +14,21 @@ const NoticeContent: FC = () => {
       <p className="disclaimer">
         <T
           _str="We use cookies for analytics, personalization, and marketing purposes. Only essential
-        cookies are active by default to ensure you get the best experience. Please read our {cookiePolicy} to learn more."
+        cookies are active by default to ensure you get the best experience. Please read our {privacyPolicy} to learn more."
           _comment="We use cookies for analytics, personalization, and marketing purposes. Only essential
-        cookies are active by default to ensure you get the best experience. Please read our {cookiePolicy} to learn more."
-          cookiePolicy={
+        cookies are active by default to ensure you get the best experience. Please read our {privacyPolicy} to learn more."
+          privacyPolicy={
             <a
-              href="https://www.conservation.org/about/our-policies/cookie-policy"
-              title="cookie policy"
+              href="https://www.conservation.org/policies/privacy"
+              title="privacy policy"
               target="_blank"
               rel="noreferrer"
               className="link"
             >
               <T
-                _str="Cookie Policy"
+                _str="Privacy Policy"
                 _comment="We use cookies for analytics, personalization, and marketing purposes. Only essential
-        cookies are active by default to ensure you get the best experience. Please read our {cookiePolicy} to learn more."
+        cookies are active by default to ensure you get the best experience. Please read our {privacyPolicy} to learn more."
               />
             </a>
           }

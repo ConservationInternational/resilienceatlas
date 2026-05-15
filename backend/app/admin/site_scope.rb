@@ -1,9 +1,10 @@
 ActiveAdmin.register SiteScope do
   includes :translations
 
-  permit_params :subdomain, :color, :has_analysis, :latitude, :longitude, :header_theme, :zoom_level,
-    :linkback_url, :header_color, :logo_url, :predictive_model, :analysis_options, :has_gef_logo,
-    :password_protected, :username, :password,
+  permit_params :subdomain, :color, :has_analysis, :has_search, :latitude, :longitude, :header_theme, :zoom_level,
+    :linkback_url, :header_color, :logo_url, :logo_url_2, :logo_url_3, :logo_url_4, :logo_url_5,
+    :favicon_url, :predictive_model, :analysis_options, :has_gef_logo,
+    :password_protected, :username, :password, :linkback_text_color,
     translations_attributes: [:id, :locale, :name, :linkback_text, :_destroy]
 
   # Log validation errors for debugging
@@ -48,12 +49,19 @@ ActiveAdmin.register SiteScope do
 
     f.inputs "Site scope fields" do
       f.input :color
-      f.input :header_theme, as: :select, collection: %w[ci-theme vs-theme]
+      f.input :header_theme, as: :select, collection: %w[ci-theme]
       f.input :header_color, as: :color
-      f.input :logo_url, as: :string
+      f.input :logo_url, as: :string, label: "Logo URL 1", hint: "Primary logo URL. Displayed in the site header."
+      f.input :logo_url_2, as: :string, label: "Logo URL 2", hint: "Optional second logo URL."
+      f.input :logo_url_3, as: :string, label: "Logo URL 3", hint: "Optional third logo URL."
+      f.input :logo_url_4, as: :string, label: "Logo URL 4", hint: "Optional fourth logo URL."
+      f.input :logo_url_5, as: :string, label: "Logo URL 5", hint: "Optional fifth logo URL. All logos are displayed at equal height in the header."
+      f.input :favicon_url, as: :string, hint: "URL for the site favicon. Leave blank for default CI logo."
       f.input :subdomain
       f.input :has_analysis
+      f.input :has_search, label: "Has search box", hint: "Show the country/region search box on the map toolbar."
       f.input :linkback_url, as: :string
+      f.input :linkback_text_color, as: :color, hint: "Color for the linkback text. Leave blank for default."
       f.input :predictive_model
       f.input :analysis_options
       f.input :has_gef_logo, label: "Has GEF logo"
@@ -123,6 +131,8 @@ ActiveAdmin.register SiteScope do
     column :color
     column :header_theme
     column :has_analysis
+    column :linkback_text
+    column :linkback_url
     column :password_protected
 
     actions defaults: true do |site_scope|
@@ -138,8 +148,13 @@ ActiveAdmin.register SiteScope do
       row :header_theme
       row :header_color
       row :logo_url
+      row :logo_url_2
+      row :logo_url_3
+      row :logo_url_4
+      row :logo_url_5
       row :subdomain
       row :has_analysis
+      row :has_search
       row :linkback_text
       row :linkback_url
       row :predictive_model

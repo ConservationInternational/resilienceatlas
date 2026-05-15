@@ -13,6 +13,7 @@ type ReportLayoutProps = React.PropsWithChildren & {
   site?: {
     subdomain: string;
     header_theme: string;
+    loaded: boolean;
   };
   pageTitle: string;
   dispatch?: (action: unknown) => void;
@@ -23,7 +24,7 @@ const bare = false;
 const page = 'report';
 
 const ReportLayout: React.FC<ReportLayoutProps> = ({ site, pageTitle, children, dispatch }) => {
-  const { subdomain, header_theme } = site;
+  const { subdomain, header_theme, loaded = false } = site;
   const router = useRouter();
   const { locale } = router;
   // Currently data fetching in Layouts are not supporting getServerSideProps
@@ -40,7 +41,7 @@ const ReportLayout: React.FC<ReportLayoutProps> = ({ site, pageTitle, children, 
         `is-${header_theme}`,
         `is-${bare ? '' : 'not-'}bare`,
         `${subdomain === 'atlas' ? 'has' : 'no'}-sidebar-logo`,
-        { 'is-indicators': !!subdomain, [`is-${page}-page`]: page },
+        { 'is-indicators': !!subdomain, [`is-${page}-page`]: page, 'site-loaded': loaded },
       )}
     >
       <Head pageTitle={pageTitle} />

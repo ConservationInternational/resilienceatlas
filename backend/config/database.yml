@@ -1,9 +1,10 @@
 default: &default
   adapter: postgis
   encoding: unicode
-  pool: 5
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS", 5).to_i %>
   timeout: 5000
   url: <%= ENV["DATABASE_URL"] %>
+  host: <%= ENV["DATABASE_HOST"] %>
   port: <%= ENV["DATABASE_PORT"] %>
   username: <%= ENV["DATABASE_USER"] %>
   password: <%= ENV["DATABASE_PASSWORD"] %>
@@ -15,6 +16,10 @@ development:
 test:
   <<: *default
   database: resilienceatlas_test
+
+staging:
+  <<: *default
+  database: resilienceatlas_staging
 
 production:
   <<: *default

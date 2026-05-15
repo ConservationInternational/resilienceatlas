@@ -19,7 +19,6 @@
 #
 
 class SourceSerializer < ActiveModel::Serializer
-  cache key: "source_#{I18n.locale}"
   attributes :reference, :reference_short, :url
   def type
     "source"

@@ -1,4 +1,3 @@
-import { subdomain } from 'utilities/getSubdomain';
 import { getRouterParam } from 'utilities';
 import { createReducer } from '../../utils';
 import * as t from './actions';
@@ -27,6 +26,7 @@ interface GeoJSONFeature {
 
 export interface MapState {
   labels: (typeof MAP_LABELS)[number];
+  boundaries: boolean;
   drawing: boolean;
   bounds: Bounds | null;
   iso: string | null;
@@ -37,13 +37,17 @@ export interface MapState {
   geojson?: GeoJSONFeature | null;
 }
 
+// Use consistent defaults for initial state to prevent hydration mismatch.
+// The actual URL params and subdomain-based values are synced after hydration
+// via the useRouterValue hooks in the Basemaps component.
 const initialState: MapState = {
   drawing: false,
+  boundaries: false,
   // geojson: getRouterParam('geojson', JSON.parse),
   bounds: null,
   iso: getRouterParam('iso'),
-  basemap: getRouterParam('basemap') || (subdomain === 'atlas' ? 'satellite' : 'defaultmap'),
-  labels: (getRouterParam('labels') as (typeof MAP_LABELS)[number]) || 'none',
+  basemap: 'defaultmap',
+  labels: 'none',
   layerGroupsInteraction: {},
   layerGroupsInteractionSelected: null,
   layerGroupsInteractionLatLng: null,
@@ -67,6 +71,11 @@ export default createReducer(initialState)({
   [t.SET_LABELS]: (state, { payload }) => ({
     ...state,
     labels: payload,
+  }),
+
+  [t.SET_BOUNDARIES]: (state, { payload }) => ({
+    ...state,
+    boundaries: payload,
   }),
 
   [t.SET_BOUNDS]: (state, { payload }) => ({

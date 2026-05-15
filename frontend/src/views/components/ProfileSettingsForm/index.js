@@ -1,1 +1,1 @@
-export { default } from './ProfileSettingsForm.container';
+export { default } from './ProfileSettingsForm';

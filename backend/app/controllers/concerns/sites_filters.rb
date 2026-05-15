@@ -1,20 +1,33 @@
 module SitesFilters
   extend ActiveSupport::Concern
+
   included do
     before_action :set_site
     before_action :check_site_scope_authentication
   end
 
   def set_site
-    @site_scope = SiteScope.find_by(subdomain: params[:site_scope]) ||
-      SiteScope.find_by(subdomain: request.subdomain.downcase) ||
-      SiteScope.find(1)
+    # Reuse any SiteScope already fetched this request (e.g. by ApplicationController#get_subdomain)
+    # to avoid redundant DB round-trips.
+    @site_scope = find_site_scope_by_subdomain(params[:site_scope]) if params[:site_scope].present?
+    @site_scope ||= find_site_scope_by_subdomain(request.subdomain.downcase)
+    @site_scope ||= SiteScope.find_by(id: 1)
+
+    unless @site_scope
+      render json: {error: "No default site scope configured"}, status: :not_found
+      return
+    end
+
     params[:site_scope] = @site_scope.id
     params
   end
 
   def check_site_scope_authentication
     return unless @site_scope&.requires_authentication?
+
+    # Password-protected scopes must not use public HTTP caching, since cached
+    # 200 responses would bypass authentication entirely.
+    response.cache_control.replace(no_store: true)
 
     token = request.headers["Site-Scope-Token"] || params[:site_scope_token]
 

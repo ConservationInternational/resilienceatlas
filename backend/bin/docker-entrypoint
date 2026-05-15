@@ -1,0 +1,99 @@
+#!/bin/bash
+# Docker entrypoint script for the Rails backend
+# This script initializes storage directories and runs migrations before starting the server
+
+set -e
+
+echo "=== Starting Docker Entrypoint ==="
+
+# Function to initialize storage from seed files
+initialize_storage() {
+  local SEED_DIR="/app/storage_seed"
+  local PUBLIC_STORAGE="/app/public/storage"
+  local PRIVATE_STORAGE="/app/storage"
+
+  # Ensure storage directories exist with correct permissions
+  mkdir -p "$PUBLIC_STORAGE" "$PRIVATE_STORAGE"
+  
+  # Initialize public storage if seed files exist and destination is empty or missing files
+  if [ -d "$SEED_DIR" ] && [ "$(ls -A $SEED_DIR 2>/dev/null)" ]; then
+    echo "Checking public storage initialization from seed directory..."
+    
+    # Count files in seed directory (excluding .keep files)
+    SEED_FILE_COUNT=$(find "$SEED_DIR" -type f ! -name ".keep" 2>/dev/null | wc -l)
+    
+    # Count files in public storage (excluding .keep files)
+    PUBLIC_FILE_COUNT=$(find "$PUBLIC_STORAGE" -type f ! -name ".keep" 2>/dev/null | wc -l)
+    
+    echo "Seed files: $SEED_FILE_COUNT, Public storage files: $PUBLIC_FILE_COUNT"
+    
+    # If public storage has significantly fewer files, copy seed files
+    if [ "$PUBLIC_FILE_COUNT" -lt "$SEED_FILE_COUNT" ]; then
+      echo "Initializing public storage from seed files..."
+      cp -rn "$SEED_DIR/"* "$PUBLIC_STORAGE/" 2>/dev/null || true
+      echo "Storage initialization from seed directory complete."
+    else
+      echo "Public storage already contains files, skipping seed copy."
+    fi
+  fi
+  
+  # Also try to extract from journey_images.zip using Rails rake task
+  # This handles the case where the zip file exists but wasn't extracted
+  if [ -f "/app/db/data/journey_images.zip" ]; then
+    echo "Checking if journey images need extraction..."
+    # Run the rake task to extract journey images (it will skip if already extracted)
+    bundle exec rake storage:extract_journey_images 2>/dev/null || echo "Journey image extraction skipped or completed"
+  fi
+
+  # Setup homepage images from assets directory with fixed blob keys
+  echo "Setting up homepage images..."
+  bundle exec rake storage:setup_homepage_images 2>/dev/null || echo "Homepage image setup skipped or completed"
+
+  # Only fix permissions on the top-level directories, not recursively on all files
+  # This is much faster than chmod -R which can take minutes on large storage directories
+  # Files created by the app will have correct permissions from umask
+  chmod 755 "$PUBLIC_STORAGE" "$PRIVATE_STORAGE" 2>/dev/null || true
+  
+  # Only fix subdirectory permissions (1 level deep) - this is usually sufficient
+  find "$PUBLIC_STORAGE" -maxdepth 1 -type d -exec chmod 755 {} \; 2>/dev/null || true
+  find "$PRIVATE_STORAGE" -maxdepth 1 -type d -exec chmod 755 {} \; 2>/dev/null || true
+}
+
+# Run storage initialization
+initialize_storage
+
+# Run database migrations if this is the web process
+if [ "$1" = "bundle" ] && [ "$2" = "exec" ]; then
+  # Wait for database to be ready before attempting migrations.
+  # During Swarm deployments, the database service may be restarting and
+  # temporarily unavailable.  Without this check, db:migrate hangs on a
+  # TCP connect that never completes, and the container gets killed by the
+  # Swarm health check before Puma ever starts.
+  echo "Waiting for database connection..."
+  DB_HOST=$(ruby -ruri -e "u=URI.parse(ENV['DATABASE_URL']||'');puts u.host||'database'" 2>/dev/null || echo "database")
+  DB_PORT=$(ruby -ruri -e "u=URI.parse(ENV['DATABASE_URL']||'');puts u.port||5432" 2>/dev/null || echo "5432")
+  for i in $(seq 1 30); do
+    if ruby -rsocket -e "TCPSocket.new('$DB_HOST', $DB_PORT).close" 2>/dev/null; then
+      echo "Database is ready (connected to $DB_HOST:$DB_PORT)"
+      break
+    fi
+    if [ "$i" -eq 30 ]; then
+      echo "WARNING: Database not ready after 30 attempts, proceeding anyway"
+    else
+      echo "Waiting for database at $DB_HOST:$DB_PORT... (attempt $i/30)"
+    fi
+    sleep 2
+  done
+
+  echo "Running database migrations..."
+  bundle exec rails db:migrate 2>/dev/null || echo "Migration skipped or already up to date"
+  
+  # Fix existing blobs that have missing files (requires database access)
+  echo "Fixing any existing blobs with missing files..."
+  bundle exec rake storage:fix_existing_blobs 2>/dev/null || echo "Blob fix skipped or completed"
+fi
+
+echo "=== Entrypoint Complete, Starting Application ==="
+
+# Execute the main command
+exec "$@"

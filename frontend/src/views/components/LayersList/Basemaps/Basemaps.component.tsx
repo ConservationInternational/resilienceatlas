@@ -1,23 +1,58 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import cx from 'classnames';
 import { T, useLocale } from '@transifex/react';
 
-import { useRouterValue, useToggle, useTogglerButton, clickable } from 'utilities';
+import { useRouterValue, useToggle, useTogglerButton, clickable, getRouterParam } from 'utilities';
+import { subdomain } from 'utilities/getSubdomain';
 import { getMapLabelOptions } from 'views/components/LayersList/Basemaps/constants';
 import type { BASEMAP_LABELS, MAP_LABELS } from 'views/components/LayersList/Basemaps/constants';
 
 type BasemapsProps = {
   basemap: (typeof BASEMAP_LABELS)[number];
   labels: (typeof MAP_LABELS)[number];
+  boundaries: boolean;
   setBasemap: (basemap: (typeof BASEMAP_LABELS)[number]) => void;
   setLabels: (labels: (typeof MAP_LABELS)[number]) => void;
+  setBoundaries: (boundaries: boolean) => void;
 };
 
-const Basemaps = ({ basemap, labels, setBasemap, setLabels }: BasemapsProps) => {
+const Basemaps = ({
+  basemap,
+  labels,
+  boundaries,
+  setBasemap,
+  setLabels,
+  setBoundaries,
+}: BasemapsProps) => {
   const [opened, toggleOpened] = useToggle(false);
+
+  // Sync basemap and labels from URL params after hydration to prevent hydration mismatch
+  useEffect(() => {
+    const urlBasemap = getRouterParam('basemap');
+    const urlLabels = getRouterParam('labels') as (typeof MAP_LABELS)[number];
+
+    // Determine the correct basemap based on URL or subdomain
+    const correctBasemap = urlBasemap || (subdomain === 'atlas' ? 'satellite' : 'defaultmap');
+    const correctLabels = urlLabels || 'none';
+
+    // Only update if different from current state
+    if (correctBasemap !== basemap) {
+      setBasemap(correctBasemap as (typeof BASEMAP_LABELS)[number]);
+    }
+    if (correctLabels !== labels) {
+      setLabels(correctLabels);
+    }
+
+    const urlBoundaries = getRouterParam('boundaries');
+    if (urlBoundaries === 'true' && !boundaries) {
+      setBoundaries(true);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Run only once after mount
 
   useRouterValue('basemap', basemap, { onlyOnChange: true });
   useRouterValue('labels', labels, { onlyOnChange: true });
+  useRouterValue('boundaries', boundaries ? 'true' : null, { onlyOnChange: true });
 
   const { getTogglerProps } = useTogglerButton(basemap, setBasemap);
 
@@ -84,6 +119,25 @@ const Basemaps = ({ basemap, labels, setBasemap, setLabels }: BasemapsProps) => 
             </div>
           </li>
         ))}
+      </ul>
+      <ul className={cx('m-boundaries-selectors', { 'is-active': opened })}>
+        <li>
+          <div className="panel-item-switch m-form-input--switch label-option">
+            <input
+              type="checkbox"
+              className="panel-input-switch"
+              id="boundaries-toggle"
+              checked={boundaries}
+              onChange={() => {
+                setBoundaries(!boundaries);
+              }}
+            />
+            <label htmlFor="boundaries-toggle" />
+            <span>
+              <T _str="Country boundaries" />
+            </span>
+          </div>
+        </li>
       </ul>
     </li>
   );

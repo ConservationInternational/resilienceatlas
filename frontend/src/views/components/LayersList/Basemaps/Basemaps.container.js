@@ -1,16 +1,18 @@
 import { connect } from 'react-redux';
-import { setBasemap, setLabels } from 'state/modules/map';
+import { setBasemap, setLabels, setBoundaries } from 'state/modules/map';
 
 import Basemaps from './Basemaps.component';
 
 const mapStateToProps = (state) => ({
   basemap: state.map.basemap,
   labels: state.map.labels,
+  boundaries: state.map.boundaries,
 });
 
 const mapDispatchToProps = {
   setBasemap,
   setLabels,
+  setBoundaries,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(Basemaps);

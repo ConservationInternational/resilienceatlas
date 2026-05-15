@@ -59,7 +59,7 @@ RSpec.describe "Admin: Journeys", type: :system do
       expect(page).to have_text(journey_step_conclusion.id)
       expect(page).to have_text(journey_step_conclusion.title)
       expect(page).to have_text(journey_step_conclusion.subtitle)
-      expect(page).to have_text(ActionText::Content.new(journey_step_conclusion.content).to_plain_text)
+      expect(page).to have_text(journey_step_conclusion.content.to_plain_text.gsub(/\s+/, " ").strip)
       expect(page).to have_text(journey_step_conclusion.credits)
       expect(page).to have_text(journey_step_conclusion.credits_url)
       expect(page).to have_text(journey_step_conclusion.position)
@@ -79,7 +79,7 @@ RSpec.describe "Admin: Journeys", type: :system do
       expect(page).to have_text(journey_step_embed.id)
       expect(page).to have_text(journey_step_embed.title)
       expect(page).to have_text(journey_step_embed.subtitle)
-      expect(page).to have_text(ActionText::Content.new(journey_step_embed.content).to_plain_text)
+      expect(page).to have_text(journey_step_embed.content.to_plain_text.gsub(/\s+/, " ").strip)
       expect(page).to have_text(journey_step_embed.source)
       expect(page).to have_text(journey_step_embed.mask_sql)
       expect(page).to have_text(journey_step_embed.map_url)
@@ -110,7 +110,9 @@ RSpec.describe "Admin: Journeys", type: :system do
       attach_file "journey[background_image]", Rails.root.join("spec/fixtures/files/picture.jpg")
       # landing journey step
       click_on "Add New Journey step"
-      all("fieldset.has-many-toggle-collapse").last.click
+      expect(page).to have_css("fieldset.has-many-toggle-collapse", minimum: 1, wait: 10)
+      page.execute_script("document.querySelectorAll('.section-hidden').forEach(function(el){ el.classList.remove('section-hidden') })")
+      sleep 0.2
       fill_in "journey[journey_steps_attributes][0][translations_attributes][0][title]", with: "New step title"
       fill_in "journey[journey_steps_attributes][0][translations_attributes][0][description]", with: "New step description"
       fill_in "journey[journey_steps_attributes][0][translations_attributes][0][credits]", with: "New step credits"
@@ -118,7 +120,9 @@ RSpec.describe "Admin: Journeys", type: :system do
       attach_file "journey[journey_steps_attributes][0][background_image]", Rails.root.join("spec/fixtures/files/picture.jpg")
       # embed journey step
       click_on "Add New Journey step"
-      all("fieldset.has-many-toggle-collapse").last.click
+      expect(page).to have_css("fieldset.has-many-toggle-collapse", minimum: 2, wait: 10)
+      page.execute_script("document.querySelectorAll('.section-hidden').forEach(function(el){ el.classList.remove('section-hidden') })")
+      sleep 0.2
       select "embed", from: "journey[journey_steps_attributes][1][step_type]"
       fill_in "journey[journey_steps_attributes][1][translations_attributes][0][title]", with: "New embed step title"
       fill_in "journey[journey_steps_attributes][1][translations_attributes][0][subtitle]", with: "New embed step subtitle"
@@ -177,8 +181,9 @@ RSpec.describe "Admin: Journeys", type: :system do
       fill_in "journey[translations_attributes][0][credits]", with: "Update credits"
       fill_in "journey[credits_url]", with: "http://test.test"
       attach_file "journey[background_image]", Rails.root.join("spec/fixtures/files/picture.jpg")
-      # embed journey step
-      all("fieldset.has-many-toggle-collapse").last.click
+      # embed journey step - expand the section first
+      page.execute_script("document.querySelectorAll('.section-hidden').forEach(function(el){ el.classList.remove('section-hidden') })")
+      sleep 0.2
       fill_in_rich_text_area "journey[journey_steps_attributes][0][translations_attributes][0][content]", with: "Update step content"
       fill_in "journey[journey_steps_attributes][0][translations_attributes][0][source]", with: "Update step source"
       fill_in "journey[journey_steps_attributes][0][mask_sql]", with: "Update step mask_sql"

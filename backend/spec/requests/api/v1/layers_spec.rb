@@ -84,14 +84,14 @@ RSpec.describe "API V1 Layer", type: :request do
 
         context "when downloading the layer pdf of a specific layer with external file" do
           let(:file_format) { "pdf" }
-          let(:download_path) { "http://www.hgd1952.hr/pdf_datoteke/Test_document_PDF.pdf" }
+          let(:download_path) { "https://www.resilienceatlas.org/pdf_datoteke/Test_document_PDF.pdf" }
 
           before do
             allow_any_instance_of(Layer).to receive(:zipfile_name).and_return(stub_layer_zip)
-            stub_request(:get, "http://www.hgd1952.hr/pdf_datoteke/Test_document_PDF.pdf")
+            stub_request(:get, "https://www.resilienceatlas.org/pdf_datoteke/Test_document_PDF.pdf")
               .to_return(status: 200, body: File.new(Rails.root.join("spec/fixtures/files/document.pdf")), headers: {})
           end
-          after { File.delete(stub_layer_zip) }
+          after { File.delete(stub_layer_zip) if File.exist?(stub_layer_zip) }
 
           run_test!
 

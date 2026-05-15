@@ -20,7 +20,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
         },
       };
     }
-  } catch (error) {
+  } catch {
     return {
       redirect: {
         destination: '/404',

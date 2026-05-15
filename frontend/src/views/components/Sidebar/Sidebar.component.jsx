@@ -18,6 +18,7 @@ import { subdomain } from 'utilities/getSubdomain';
 export const TABS = {
   LAYERS: 'layers',
   MODELS: 'models',
+  ANALYSIS: 'analysis',
 };
 
 const Sidebar = ({
@@ -49,12 +50,16 @@ const Sidebar = ({
 
   const switchTab = useCallback(
     ({ tab: newTab }) => {
+      if (newTab === TABS.ANALYSIS) {
+        toggleAnalysis();
+        return;
+      }
       if (tab !== newTab) {
         setTab(newTab);
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [tab],
+    [tab, toggleAnalysis],
   );
 
   const handleFeedbackBtnClick = () => {
@@ -67,6 +72,23 @@ const Sidebar = ({
     );
   };
 
+  // Close sidebar when clicking backdrop on mobile
+  const handleBackdropClick = useCallback(
+    (e) => {
+      // Mobile breakpoint constant matching SCSS $breakpoint-mobile
+      const MOBILE_BREAKPOINT = 767;
+
+      // Only handle backdrop clicks on mobile
+      if (window.innerWidth <= MOBILE_BREAKPOINT && opened) {
+        // Check if click is on the backdrop (outside the sidebar content)
+        if (e.target.classList.contains('l-sidebar--fullscreen')) {
+          toggleOpen();
+        }
+      }
+    },
+    [opened, toggleOpen],
+  );
+
   const displayFeedbackButton = !subdomain;
 
   return (
@@ -75,8 +97,17 @@ const Sidebar = ({
         'is-collapsed': !opened,
         analyzing: analysisOpened,
       })}
+      onClick={handleBackdropClick}
     >
-      <div className="l-sidebar-content">
+      {/* Mobile toggle button - outside l-sidebar-content so it's always visible */}
+      <button
+        className={cx('btn-sidebar-toggle', { 'is-collapsed': !opened })}
+        type="button"
+        onClick={toggleOpen}
+        aria-label={translations && translations['Toggle sidebar']}
+      />
+
+      <div className="l-sidebar-content" onClick={(e) => e.stopPropagation()}>
         {site?.has_analysis && <AnalysisPanel toggle={toggleAnalysis} />}
 
         <div className="m-sidebar" id="sidebarView">
@@ -87,7 +118,7 @@ const Sidebar = ({
             contentClassName="tabs-content content"
             menuClassName="tabs tabs-secondary-content"
             renderTabTitle={({ name, title, active, onTabSwitch }) => (
-              <li className={cx('tab-title', { active })}>
+              <li className={cx('tab-title', { active }, `-${name}`)}>
                 <LinkButton data-section={translations && translations[name]} onClick={onTabSwitch}>
                   {title}
                 </LinkButton>
@@ -111,6 +142,17 @@ const Sidebar = ({
                 name={TABS.MODELS}
               >
                 <PredictiveModels />
+              </Tabs.Pane>
+            )}
+
+            {site?.has_analysis && (
+              <Tabs.Pane
+                id="analysisTabPane"
+                className="content"
+                title={<T _str="Analysis" />}
+                name={TABS.ANALYSIS}
+              >
+                {/* Analysis panel is opened as a full-screen overlay via toggleAnalysis() */}
               </Tabs.Pane>
             )}
           </Tabs>
@@ -152,12 +194,7 @@ const Sidebar = ({
             </p>
           </div>
         </div>
-        <button
-          className="btn-sidebar-toggle"
-          type="button"
-          onClick={toggleOpen}
-          aria-label={translations && translations['Toggle sidebar']}
-        />
+
         {hasMounted && site?.has_analysis && (
           <button
             className="btn-analysis-panel-expand"

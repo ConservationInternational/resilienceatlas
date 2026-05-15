@@ -1,7 +1,7 @@
 ActiveAdmin.register Layer do
   includes :translations
 
-  permit_params :name, :slug, :published, :zindex, :order, :query, :layer_config, :layer_provider, :css, :opacity,
+  permit_params :name, :slug, :published, :zindex, :order, :layer_config, :layer_provider, :opacity,
     :legend, :zoom_max, :zoom_min, :dashboard_order, :source_id, :data_units, :analysis_suitable, :analysis_type,
     :timeline, :timeline_steps, :timeline_start_date, :timeline_end_date, :timeline_default_date,
     :timeline_period, :analysis_query, :analysis_body, :interaction_config, :processing, :download,
@@ -18,6 +18,7 @@ ActiveAdmin.register Layer do
       super
     rescue Date::Error
       resource.errors.add :timeline_steps, "Invalid date format"
+      render((action_name == "create") ? :new : :edit)
     end
   end
 
@@ -76,23 +77,28 @@ ActiveAdmin.register Layer do
       row :legend
       row :download
       row :layer_provider
-      if resource.layer_provider == "cartodb"
-        row :query
-        row :css
-        row :opacity
-        row :zindex
-        row :order
-        row :zoom_max
-        row :zoom_min
-      else
-        row :layer_config
+      row :layer_config do |record|
+        render "admin/shared/json_display", json: record.layer_config if record.layer_config.present?
       end
-      row :interaction_config
+      row :opacity
+      row :zindex
+      row :order
+      row :zoom_max
+      row :zoom_min
+      row :interaction_config do |record|
+        render "admin/shared/json_display", json: record.interaction_config if record.interaction_config.present?
+      end
       row :analysis_suitable
       if resource.analysis_suitable
         row :analysis_type
-        row :analysis_query
-        row :analysis_body
+        row :analysis_query do |record|
+          pre class: "code-block" do
+            record.analysis_query
+          end
+        end
+        row :analysis_body do |record|
+          render "admin/shared/json_display", json: record.analysis_body if record.analysis_body.present?
+        end
         row :analysis_text_template
       end
       row :timeline
@@ -106,6 +112,17 @@ ActiveAdmin.register Layer do
         row :timeline_period
       end
       row :dashboard_order
+      row :sources do |record|
+        if record.sources.any?
+          ul do
+            record.sources.each do |source|
+              li link_to("#{source.source_type} - #{source.reference_short}", admin_source_path(source))
+            end
+          end
+        end
+      end
+      row :created_at
+      row :updated_at
     end
   end
 

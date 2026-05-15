@@ -1,1 +1,1 @@
-export { default } from './FreeAnswer.container';
+export { default } from './FreeAnswer';

@@ -124,23 +124,44 @@ class Layer < ApplicationRecord
     Rails.logger&.info "Skipping Layer translations setup - database not ready: #{e.message}"
   end
 
-  # Only define enums if the table and columns exist to avoid migration issues
-  # Wrapped in begin/rescue to handle cases where database is being created
-  begin
-    if table_exists? && column_names.include?("timeline_period")
-      enum :timeline_period, {yearly: "yearly", monthly: "monthly", daily: "daily"}, default: :yearly, prefix: true
-    end
-
-    if table_exists? && column_names.include?("analysis_type")
-      enum :analysis_type, {histogram: "histogram", categorical: "categorical", text: "text"}, default: :histogram, prefix: true
-    end
-  rescue ActiveRecord::NoDatabaseError, ActiveRecord::ConnectionNotEstablished, ActiveRecord::StatementInvalid, PG::ConnectionBad => e
-    # Database not available yet - skip enum setup for now
-    Rails.logger&.info "Skipping Layer enums setup - database not ready: #{e.message}"
-  end
+  # Define enums for timeline_period and analysis_type
+  # These must be defined unconditionally so methods like Layer.analysis_types work in views
+  enum :timeline_period, {yearly: "yearly", monthly: "monthly", daily: "daily"}, default: :yearly, prefix: true
+  enum :analysis_type, {histogram: "histogram", categorical: "categorical", text: "text"}, default: :histogram, prefix: true
 
   validates_presence_of :slug, :layer_provider, :interaction_config
   validates :timeline, inclusion: {in: [true, false]}
+
+  # Slug format validation - must be URL-friendly
+  # Allows alphanumeric characters, hyphens, and underscores (case-insensitive)
+  validates :slug, uniqueness: true, format: {
+    with: /\A[a-zA-Z0-9]+(?:[-_][a-zA-Z0-9]+)*\z/,
+    message: "must be alphanumeric with hyphens or underscores (e.g., 'my-layer-name' or 'my_layer_name')"
+  }
+
+  # JSON validation for configuration fields
+  validates :interaction_config, json: {schema: :interaction_config, message: "must be valid JSON"}
+  validates :layer_config, json: {schema: :layer_config, message: "must be valid JSON"}, if: -> { layer_config.present? }
+  validates :analysis_body, json: {schema: :analysis_body, message: "must be valid JSON"}, if: -> { analysis_body.present? }
+
+  # Validate layer_provider is one of the allowed values
+  VALID_PROVIDERS = ["cog", "esri", "gee", "martin", "wms", "wmts", "xyz tileset"].freeze
+  validates :layer_provider, inclusion: {
+    in: VALID_PROVIDERS,
+    message: "must be one of: cog, esri, gee, martin, wms, wmts, or xyz tileset",
+    allow_nil: false
+  }, if: -> { layer_provider.present? }
+
+  # Numeric validations
+  validates :opacity, numericality: {greater_than_or_equal_to: 0, less_than_or_equal_to: 1}, allow_nil: true
+  validates :zoom_min, numericality: {only_integer: true, greater_than_or_equal_to: 0, less_than_or_equal_to: 24}, allow_nil: true
+  validates :zoom_max, numericality: {only_integer: true, greater_than_or_equal_to: 0, less_than_or_equal_to: 24}, allow_nil: true
+  validates :zindex, numericality: {only_integer: true}, allow_nil: true
+  validates :order, numericality: {only_integer: true}, allow_nil: true
+  validates :dashboard_order, numericality: {only_integer: true}, allow_nil: true
+
+  # Validate zoom_max is greater than or equal to zoom_min
+  validate :zoom_max_greater_than_or_equal_to_zoom_min
 
   # Ransack configuration - explicitly allowlist searchable attributes for security
   def self.ransackable_attributes(auth_object = nil)
@@ -162,9 +183,8 @@ class Layer < ApplicationRecord
 
   with_options if: -> { analysis_suitable } do
     validates_presence_of :analysis_type
-    validates_inclusion_of :analysis_type, in: %w[text], message: "analysis type has to be text for cartodb provider", if: -> { layer_provider.to_s == "cartodb" && analysis_suitable }
     validates_inclusion_of :analysis_type, in: %w[histogram categorical], message: "analysis type has to be histogram or categorical for cog provider", if: -> { layer_provider.to_s == "cog" && analysis_suitable }
-    validates_inclusion_of :analysis_type, in: %w[histogram], message: "analysis type has to be histogram", if: -> { !layer_provider.to_s.in?(%w[cartodb cog]) && analysis_suitable }
+    validates_inclusion_of :analysis_type, in: %w[histogram], message: "analysis type has to be histogram", if: -> { layer_provider.to_s != "cog" && analysis_suitable }
   end
   with_options if: -> { timeline } do
     validates_presence_of :timeline_period, :timeline_default_date
@@ -190,27 +210,59 @@ class Layer < ApplicationRecord
     new_layer = Layer.new
     new_layer.assign_attributes attributes.except("id")
     translations.each { |t| new_layer.translations.build t.attributes.except("id") }
-    new_layer.name = "#{name} _copy_ #{DateTime.now}"
+    timestamp = DateTime.now.strftime("%Y%m%d%H%M%S")
+    new_layer.name = "#{name} _copy_ #{timestamp}"
+    new_layer.slug = "#{slug}-copy-#{timestamp}"
     new_layer.save!
     new_layer
   end
 
+  ALLOWED_DOWNLOAD_HOSTS = %w[
+    resilienceatlas.org
+    www.resilienceatlas.org
+    staging.resilienceatlas.org
+    carto.com
+    cartodb.com
+    globalresiliencepartnership.org
+  ].freeze
+
   def zip_attachments(options, domain, site_name = nil, subdomain = nil)
     site_name = site_name.present? ? site_name : "Conservation International"
+
+    # Sanitize subdomain to prevent path traversal
+    subdomain = subdomain.to_s.parameterize.presence
 
     download_path = options["download_path"] if options["download_path"].present?
     download_query = options["q"] if options["q"].present?
     download_format = options["with_format"] if options["with_format"].present?
     file_format = options["file_format"] if options["file_format"].present?
 
+    # Validate download_path against allowlist to prevent SSRF
+    if download_path.present?
+      begin
+        parsed = URI.parse(download_path)
+        unless parsed.is_a?(URI::HTTPS) || parsed.is_a?(URI::HTTP)
+          Rails.logger.warn "Blocked non-HTTP download_path: #{download_path}"
+          return false
+        end
+        unless ALLOWED_DOWNLOAD_HOSTS.any? { |host| parsed.host&.end_with?(host) }
+          Rails.logger.warn "Blocked download_path with disallowed host: #{parsed.host}"
+          return false
+        end
+      rescue URI::InvalidURIError
+        return false
+      end
+    end
+
+    # Sanitize filename to prevent Zip Slip
     file_name = if options["filename"].present?
-      options["filename"]
+      File.basename(options["filename"].to_s.gsub(/[^\w.-]/, "_"))
     elsif options["download_path"].present? && URI(options["download_path"]).query.present?
       query_path = URI(options["download_path"]).query
       # Parse query parameters properly to extract filename
       query_params = CGI.parse(query_path)
-      filename = query_params["filename"]&.first
-      filename
+      raw_filename = query_params["filename"]&.first
+      raw_filename.present? ? File.basename(raw_filename.to_s.gsub(/[^\w.-]/, "_")) : nil
     end
 
     layer_url = download_path.to_s if download_path
@@ -247,6 +299,13 @@ class Layer < ApplicationRecord
   end
 
   private
+
+  def zoom_max_greater_than_or_equal_to_zoom_min
+    return unless zoom_min.present? && zoom_max.present?
+    return if zoom_max >= zoom_min
+
+    errors.add(:zoom_max, "must be greater than or equal to zoom_min")
+  end
 
   def date_valid?(subdomain)
     file_date = File.basename(zipfile_name(subdomain), ".zip").split("-date-").last

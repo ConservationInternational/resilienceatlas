@@ -1,0 +1,301 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: 'SAM Template for Earth Engine functions - histogram, raster interaction, and download image'
+
+Parameters:
+  FQDN:
+    Type: String
+    Description: Fully qualified domain name for the API (e.g., ee.resilienceatlas.org)
+  ZoneId:
+    Type: String
+    Description: AWS Hosted Zone ID in the format "Z111111QQQQQQQ"
+  GeeServiceAccountEmail:
+    Type: String
+    Description: Google Earth Engine service account email
+  GeePrivateKeySecretArn:
+    Type: String
+    Description: ARN of the AWS Secrets Manager secret containing the GEE private key JSON
+  RollbarAccessToken:
+    Type: String
+    Default: ''
+    Description: Rollbar access token for error tracking (optional)
+  RollbarEnvironment:
+    Type: String
+    Default: 'production'
+    Description: Rollbar environment name (e.g., 'production', 'staging')
+  CacheTTL:
+    Type: Number
+    Default: 3600
+    Description: Default cache TTL in seconds (default 1 hour)
+
+Globals:
+  Function:
+    Timeout: 30
+    MemorySize: 512
+    Environment:
+      Variables:
+        GEE_SERVICE_ACCOUNT: !Ref GeeServiceAccountEmail
+        GEE_PRIVATE_KEY_SECRET_ARN: !Ref GeePrivateKeySecretArn
+        ROLLBAR_ACCESS_TOKEN: !Ref RollbarAccessToken
+        ROLLBAR_ENVIRONMENT: !Ref RollbarEnvironment
+
+Resources:
+  # Shared Lambda Layer for Earth Engine dependencies
+  EarthEngineLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: earth-engine-layer
+      Description: Earth Engine Python SDK and dependencies
+      ContentUri: layers/earth_engine/
+      CompatibleRuntimes:
+        - python3.14
+      RetentionPolicy: Delete
+    Metadata:
+      BuildMethod: python3.14
+
+  # Analysis Histogram Function
+  HistogramFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${AWS::StackName}-histogram"
+      PackageType: Image
+      Architectures:
+        - x86_64
+      Description: 'Earth Engine histogram analysis'
+      MemorySize: 1024
+      Timeout: 60
+      Events:
+        ApiPost:
+          Type: Api
+          Properties:
+            Path: /histogram
+            Method: POST
+            RestApiId: !Ref RestApiGateway
+        ApiOptions:
+          Type: Api
+          Properties:
+            Path: /histogram
+            Method: OPTIONS
+            RestApiId: !Ref RestApiGateway
+      Policies:
+        - Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - secretsmanager:GetSecretValue
+              Resource: !Ref GeePrivateKeySecretArn
+      ImageUri: histogramfunction:python3.14-v1
+    Metadata:
+      Dockerfile: Dockerfile
+      DockerContext: ./histogram
+      DockerTag: python3.14-v1
+
+  # Raster Interaction Function
+  RasterInteractionFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${AWS::StackName}-raster-interaction"
+      PackageType: Image
+      Architectures:
+        - x86_64
+      Description: 'Earth Engine raster point query'
+      MemorySize: 1024
+      Timeout: 60
+      Events:
+        ApiGet:
+          Type: Api
+          Properties:
+            Path: /raster
+            Method: GET
+            RestApiId: !Ref RestApiGateway
+        ApiOptions:
+          Type: Api
+          Properties:
+            Path: /raster
+            Method: OPTIONS
+            RestApiId: !Ref RestApiGateway
+      Policies:
+        - Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - secretsmanager:GetSecretValue
+              Resource: !Ref GeePrivateKeySecretArn
+      ImageUri: rasterinteractionfunction:python3.14-v1
+    Metadata:
+      Dockerfile: Dockerfile
+      DockerContext: ./raster_interaction
+      DockerTag: python3.14-v1
+
+  # Download Image Function
+  DownloadImageFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${AWS::StackName}-download-image"
+      PackageType: Image
+      Architectures:
+        - x86_64
+      Description: 'Earth Engine image download URL generator'
+      MemorySize: 1024
+      Timeout: 120
+      Events:
+        ApiPost:
+          Type: Api
+          Properties:
+            Path: /download
+            Method: POST
+            RestApiId: !Ref RestApiGateway
+        ApiOptions:
+          Type: Api
+          Properties:
+            Path: /download
+            Method: OPTIONS
+            RestApiId: !Ref RestApiGateway
+      Policies:
+        - Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - secretsmanager:GetSecretValue
+              Resource: !Ref GeePrivateKeySecretArn
+      ImageUri: downloadimagefunction:python3.14-v1
+    Metadata:
+      Dockerfile: Dockerfile
+      DockerContext: ./download_image
+      DockerTag: python3.14-v1
+
+  RestApiGateway:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: Prod
+      Cors:
+        AllowOrigin: "'*'"
+        AllowMethods: "'GET, POST, OPTIONS'"
+        AllowHeaders: "'Content-Type, Authorization'"
+        MaxAge: "'3600'"
+
+  # CloudFront Distribution for global edge caching
+  CloudFrontDistribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Enabled: true
+        Comment: !Sub "Earth Engine API CDN for ${FQDN}"
+        Aliases:
+          - !Ref FQDN
+        HttpVersion: http2and3
+        PriceClass: PriceClass_100
+        ViewerCertificate:
+          AcmCertificateArn: !Ref CloudFrontCertificate
+          SslSupportMethod: sni-only
+          MinimumProtocolVersion: TLSv1.2_2021
+        Origins:
+          - Id: ApiGatewayOrigin
+            DomainName: !Sub "${RestApiGateway}.execute-api.${AWS::Region}.amazonaws.com"
+            OriginPath: /Prod
+            CustomOriginConfig:
+              HTTPSPort: 443
+              OriginProtocolPolicy: https-only
+              OriginSSLProtocols:
+                - TLSv1.2
+        DefaultCacheBehavior:
+          TargetOriginId: ApiGatewayOrigin
+          ViewerProtocolPolicy: redirect-to-https
+          AllowedMethods:
+            - GET
+            - HEAD
+            - OPTIONS
+            - PUT
+            - PATCH
+            - POST
+            - DELETE
+          CachedMethods:
+            - GET
+            - HEAD
+            - OPTIONS
+          Compress: true
+          CachePolicyId: !Ref ApiCachePolicy
+          OriginRequestPolicyId: !Ref ApiOriginRequestPolicy
+
+  # Cache policy - short TTL for dynamic API
+  ApiCachePolicy:
+    Type: AWS::CloudFront::CachePolicy
+    Properties:
+      CachePolicyConfig:
+        Name: !Sub "${AWS::StackName}-ApiCachePolicy"
+        Comment: "Cache policy for Earth Engine API"
+        DefaultTTL: !Ref CacheTTL
+        MaxTTL: 86400
+        MinTTL: 0
+        ParametersInCacheKeyAndForwardedToOrigin:
+          CookiesConfig:
+            CookieBehavior: none
+          HeadersConfig:
+            HeaderBehavior: whitelist
+            Headers:
+              - Accept
+              - Content-Type
+          QueryStringsConfig:
+            QueryStringBehavior: all
+          EnableAcceptEncodingGzip: true
+          EnableAcceptEncodingBrotli: true
+
+  # Origin request policy
+  ApiOriginRequestPolicy:
+    Type: AWS::CloudFront::OriginRequestPolicy
+    Properties:
+      OriginRequestPolicyConfig:
+        Name: !Sub "${AWS::StackName}-ApiOriginRequestPolicy"
+        Comment: "Origin request policy for Earth Engine API"
+        CookiesConfig:
+          CookieBehavior: none
+        HeadersConfig:
+          HeaderBehavior: whitelist
+          Headers:
+            - Accept
+            - Content-Type
+            - Origin
+            - Referer
+        QueryStringsConfig:
+          QueryStringBehavior: all
+
+  # Certificate for CloudFront (must be in us-east-1)
+  CloudFrontCertificate:
+    Type: AWS::CertificateManager::Certificate
+    Properties:
+      DomainName: !Ref FQDN
+      ValidationMethod: DNS
+      DomainValidationOptions:
+        - DomainName: !Ref FQDN
+          HostedZoneId: !Ref ZoneId
+
+  # Route53 record pointing to CloudFront
+  DnsRecord:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      HostedZoneId: !Ref ZoneId
+      Name: !Ref FQDN
+      Type: A
+      AliasTarget:
+        DNSName: !GetAtt CloudFrontDistribution.DomainName
+        HostedZoneId: Z2FDTNDATAQYW2
+
+Outputs:
+  ApiGatewayUrl:
+    Description: "API Gateway endpoint URL (internal)"
+    Value: !Sub "https://${RestApiGateway}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
+  CloudFrontUrl:
+    Description: "CloudFront CDN URL"
+    Value: !Sub "https://${FQDN}/"
+  CloudFrontDistributionId:
+    Description: "CloudFront Distribution ID"
+    Value: !Ref CloudFrontDistribution
+  HistogramEndpoint:
+    Description: "Histogram analysis endpoint"
+    Value: !Sub "https://${FQDN}/histogram"
+  RasterInteractionEndpoint:
+    Description: "Raster interaction endpoint"
+    Value: !Sub "https://${FQDN}/raster"
+  DownloadImageEndpoint:
+    Description: "Download image endpoint"
+    Value: !Sub "https://${FQDN}/download"

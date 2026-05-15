@@ -1,4 +1,22 @@
 namespace :db do
+  desc "Drops PostGIS extensions not declared in schema.rb"
+  task drop_nonessential_postgis_extensions: :environment do
+    schema_file = Rails.root.join("db", "schema.rb")
+    required = schema_file.read.scan(/enable_extension\s+"([^"]+)"/).flatten
+
+    begin
+      conn = ActiveRecord::Base.connection
+      installed = conn.query_values("SELECT extname FROM pg_extension")
+      extra = installed - required
+      extra.each do |ext|
+        puts "Dropping auto-created extension: #{ext}"
+        conn.execute("DROP EXTENSION IF EXISTS #{conn.quote_column_name(ext)} CASCADE")
+      end
+    rescue ActiveRecord::NoDatabaseError
+      # Database doesn't exist yet, nothing to clean
+    end
+  end
+
   desc "Dumps the database to db/APP_NAME.dump"
   task dump: :environment do
     cmd = nil
@@ -59,6 +77,14 @@ namespace :db do
   end
 
   private
+
+  # Clean up auto-created PostGIS extensions before schema:load.
+  # PostGIS Docker images may auto-create extensions (e.g. postgis_tiger_geocoder)
+  # that own tables, preventing schema.rb's force: :cascade from dropping them.
+  # This parses schema.rb for the declared extensions and drops anything extra.
+  if Rake::Task.task_defined?("db:schema:load")
+    Rake::Task["db:schema:load"].enhance(["db:drop_nonessential_postgis_extensions"])
+  end
 
   def with_config
     yield Rails.application.class.parent_name.underscore,

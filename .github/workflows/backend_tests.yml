@@ -18,19 +18,49 @@ env:
   COMPOSE_DOCKER_CLI_BUILD: 1
 
 jobs:
-  backend-tests:
-    name: Backend Tests - ${{ matrix.suite }}
+  # Fast lint jobs without Docker - runs directly with Ruby
+  backend-lint:
+    name: Backend Lint Checks
     runs-on: ubuntu-latest
-    timeout-minutes: 30
-    
-    strategy:
-      fail-fast: false
-      matrix:
-        suite: [rspec, lint]
+    timeout-minutes: 10
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
+      
+    - name: Setup Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: '3.4.8'
+        bundler-cache: true
+        working-directory: backend
+    
+    - name: Install system dependencies
+      run: |
+        sudo apt-get update -qq
+        sudo apt-get install -y libpq-dev libgeos-dev libproj-dev libgdal-dev
+    
+    - name: Run RuboCop linting
+      working-directory: backend
+      run: ./bin/test lint
+    
+    - name: Run Brakeman security analysis
+      working-directory: backend
+      run: ./bin/test security
+    
+    - name: Run Bundle Audit
+      working-directory: backend
+      run: ./bin/test audit
+
+  # RSpec tests with full Docker environment
+  backend-rspec:
+    name: Backend RSpec Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v5
 
     - name: Free up disk space
       run: |
@@ -78,7 +108,7 @@ jobs:
         curl -I https://rubygems.org/ || echo "❌ RubyGems not reachable"
 
     - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
+      uses: docker/setup-buildx-action@v4
       with:
         driver-opts: image=moby/buildkit:buildx-stable-1
         buildkitd-flags: --allow-insecure-entitlement security.insecure
@@ -89,11 +119,11 @@ jobs:
         # Generate content-based cache keys for better cache reuse
         echo "dockerfile-hash=$(sha256sum backend/Dockerfile | cut -d' ' -f1)" >> $GITHUB_OUTPUT
         echo "gemfile-hash=$(sha256sum backend/Gemfile backend/Gemfile.lock | sha256sum | cut -d' ' -f1)" >> $GITHUB_OUTPUT
-        echo "ruby-version=$(cat backend/.ruby-version 2>/dev/null || echo '3.4.4')" >> $GITHUB_OUTPUT
+        echo "ruby-version=$(cat backend/.ruby-version 2>/dev/null || echo '3.4.8')" >> $GITHUB_OUTPUT
         echo "date=$(date +%Y%m%d)" >> $GITHUB_OUTPUT
 
     - name: Cache Docker buildx layers
-      uses: actions/cache@v4
+      uses: actions/cache@v5
       with:
         path: /tmp/.buildx-cache
         key: ${{ runner.os }}-backend-buildx-${{ steps.cache-keys.outputs.dockerfile-hash }}-${{ steps.cache-keys.outputs.gemfile-hash }}
@@ -103,7 +133,7 @@ jobs:
           ${{ runner.os }}-buildx-
 
     - name: Cache Ruby dependencies
-      uses: actions/cache@v4
+      uses: actions/cache@v5
       with:
         path: |
           /tmp/.bundle-cache
@@ -117,7 +147,7 @@ jobs:
       run: |
         # Pre-pull base images to warm the cache
         echo "🔥 Warming cache with base images..."
-        docker pull ruby:3.4.4-bullseye || echo "Could not pre-pull Ruby base image"
+        docker pull ruby:3.4.8-bookworm || echo "Could not pre-pull Ruby base image"
         docker pull postgis/postgis:15-3.3 || echo "Could not pre-pull PostGIS image"
         
         # Show current cache status
@@ -170,14 +200,12 @@ jobs:
         docker system df
 
     - name: Start test services
-      if: matrix.suite == 'rspec'
       run: |
         # Use shared Docker environment setup script from backend/scripts
         chmod +x backend/scripts/setup_docker_environment.sh
         ./backend/scripts/setup_docker_environment.sh all resilienceatlas_test
 
     - name: Setup test database
-      if: matrix.suite == 'rspec'
       run: |
         # Setup database using shared script with error handling
         echo "Setting up test database..."
@@ -195,7 +223,6 @@ jobs:
           }
 
     - name: Run RSpec tests
-      if: matrix.suite == 'rspec'
       run: |
         echo "Running RSpec tests with enhanced error handling..."
         docker compose -f docker-compose.test.yml run --rm backend-test \
@@ -214,26 +241,7 @@ jobs:
             exit 1
           }
 
-    - name: Run RuboCop linting
-      if: matrix.suite == 'lint'
-      run: |
-        docker compose -f docker-compose.test.yml run --rm --no-deps backend-test \
-          bash -c "./bin/test lint"
-
-    - name: Run Brakeman security analysis
-      if: matrix.suite == 'lint'
-      run: |
-        docker compose -f docker-compose.test.yml run --rm --no-deps backend-test \
-          bash -c "./bin/test security"
-
-    - name: Run Bundle Audit
-      if: matrix.suite == 'lint'
-      run: |
-        docker compose -f docker-compose.test.yml run --rm --no-deps backend-test \
-          bash -c "./bin/test audit"
-
     - name: Verify test results
-      if: matrix.suite == 'rspec'
       run: |
         if [ -f backend/tmp/rspec.xml ]; then
           echo "Test results file found at backend/tmp/rspec.xml"
@@ -246,15 +254,15 @@ jobs:
         fi
 
     - name: Publish test results
-      uses: dorny/test-reporter@v1
-      if: (success() || failure()) && matrix.suite == 'rspec'
+      uses: dorny/test-reporter@v3
+      if: (success() || failure()) && github.event_name != 'pull_request'
       with:
         name: Backend RSpec Tests
         path: backend/tmp/rspec.xml
         reporter: java-junit
 
     - name: Upload coverage reports
-      if: always() && matrix.suite == 'rspec'
+      if: always()
       run: |
         if docker compose -f docker-compose.test.yml run --rm backend-test test -f coverage/coverage.json; then
           docker compose -f docker-compose.test.yml run --rm backend-test \

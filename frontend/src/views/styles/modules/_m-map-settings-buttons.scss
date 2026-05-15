@@ -1,0 +1,252 @@
+@use '../sass-modules' as *;
+@use '../mixins' as *;
+@use '../variables' as *;
+
+// Shared popover positioning for basemap/labels toolbar buttons
+.m-toolbar .m-toolbar__item--popover {
+  position: absolute;
+  right: 0;
+  display: flex;
+  flex-direction: row-reverse;
+  flex-wrap: nowrap;
+  min-width: rem(30px);
+  width: auto;
+  z-index: 2;
+
+  &.is-open {
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3);
+  }
+}
+
+// ------------------------------------------------------------------
+// Basemap popover panel
+// ------------------------------------------------------------------
+.m-toolbar-basemap-panel {
+  width: rem(280px);
+  padding: rem(12px) rem(14px);
+  background-color: $bg-color-1;
+}
+
+.m-toolbar-basemap-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: rem(8px);
+}
+
+.m-toolbar-basemap-option {
+  @extend %clean-button-or-input;
+  width: 100%;
+  cursor: pointer;
+  text-align: center;
+
+  &:hover span {
+    opacity: 0.85;
+  }
+
+  &.is-active span {
+    color: $font-color-1;
+    font-weight: 500;
+
+    &::before {
+      border-color: $font-color-1;
+    }
+  }
+
+  span {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: rem(4px);
+    font-family: $font-face-1;
+    font-size: rem(11px);
+    font-weight: 400;
+    color: $gray-medium;
+    line-height: 1.2;
+    background: none !important;
+    height: auto;
+    width: auto;
+    background-size: 0 !important;
+
+    &::before {
+      content: '';
+      display: block;
+      width: rem(52px);
+      height: rem(52px);
+      border-radius: 50%;
+      border: 2px solid rgba(0, 0, 0, 0.15);
+      background-position: center;
+      background-repeat: no-repeat;
+      background-size: cover;
+      transition: border-color 0.15s;
+    }
+
+    &.icon-satellite::before {
+      background-image: url('/images/satellite_map.jpg');
+    }
+
+    &.icon-topographic::before {
+      background-image: url('/images/topographic_map.jpg');
+    }
+
+    &.icon-dark::before {
+      background-image: url('/images/dark_map.jpg');
+    }
+
+    &.icon-default::before {
+      background-image: url('/images/default_map.jpg');
+    }
+  }
+}
+
+// ------------------------------------------------------------------
+// Boundaries toggle button
+// ------------------------------------------------------------------
+.m-toolbar-boundaries-btn {
+  &.is-active {
+    background-color: darken-color($bg-color-1, 8%);
+
+    svg {
+      stroke: $font-color-1;
+      opacity: 1;
+    }
+  }
+
+  svg {
+    opacity: 0.7;
+  }
+}
+
+// ------------------------------------------------------------------
+// Labels popover panel
+// ------------------------------------------------------------------
+.m-toolbar-labels-panel {
+  width: rem(220px);
+  padding: rem(12px) rem(14px);
+  background-color: $bg-color-1;
+}
+
+.m-toolbar-labels-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: rem(8px);
+}
+
+.m-toolbar-labels-option {
+  @extend %clean-button-or-input;
+  width: 100%;
+  cursor: pointer;
+  text-align: center;
+
+  &:hover span {
+    opacity: 0.85;
+  }
+
+  &.is-active span {
+    color: $font-color-1;
+    font-weight: 500;
+
+    &::before {
+      border-color: $font-color-1;
+    }
+  }
+
+  span {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: rem(4px);
+    font-family: $font-face-1;
+    font-size: rem(11px);
+    font-weight: 400;
+    color: $gray-medium;
+    line-height: 1.2;
+    background: none !important;
+    height: auto;
+    width: auto;
+    background-size: 0 !important;
+
+    &::before {
+      content: '';
+      display: block;
+      width: rem(52px);
+      height: rem(52px);
+      border-radius: 50%;
+      border: 2px solid rgba(0, 0, 0, 0.15);
+      background-position: center;
+      background-repeat: no-repeat;
+      background-size: cover;
+      transition: border-color 0.15s;
+    }
+
+    // Default basemap label thumbnails
+    &.icon-labels-defaultmap-dark::before {
+      background-image: url('/images/labels_defaultmap_dark.jpg');
+    }
+
+    &.icon-labels-defaultmap-light::before {
+      background-image: url('/images/labels_defaultmap_light.jpg');
+    }
+
+    &.icon-labels-defaultmap-none::before {
+      background-image: url('/images/labels_defaultmap_none.jpg');
+    }
+
+    // Satellite basemap label thumbnails
+    &.icon-labels-satellite-dark::before {
+      background-image: url('/images/labels_satellite_dark.jpg');
+    }
+
+    &.icon-labels-satellite-light::before {
+      background-image: url('/images/labels_satellite_light.jpg');
+    }
+
+    &.icon-labels-satellite-none::before {
+      background-image: url('/images/labels_satellite_none.jpg');
+    }
+
+    // Topographic basemap label thumbnails
+    &.icon-labels-topographic-dark::before {
+      background-image: url('/images/labels_topographic_dark.jpg');
+    }
+
+    &.icon-labels-topographic-light::before {
+      background-image: url('/images/labels_topographic_light.jpg');
+    }
+
+    &.icon-labels-topographic-none::before {
+      background-image: url('/images/labels_topographic_none.jpg');
+    }
+
+    // Dark basemap label thumbnails
+    &.icon-labels-dark-dark::before {
+      background-image: url('/images/labels_dark_dark.jpg');
+    }
+
+    &.icon-labels-dark-light::before {
+      background-image: url('/images/labels_dark_light.jpg');
+    }
+
+    &.icon-labels-dark-none::before {
+      background-image: url('/images/labels_dark_none.jpg');
+    }
+  }
+}
+
+// ------------------------------------------------------------------
+// Mobile responsive
+// ------------------------------------------------------------------
+@media screen and (max-width: $breakpoint-mobile) {
+  .m-toolbar .m-toolbar__item--popover {
+    min-width: rem($mobile-touch-target-size);
+  }
+
+  .m-toolbar-basemap-panel {
+    width: calc(100vw - 50px);
+    max-width: rem(320px);
+  }
+
+  .m-toolbar-labels-panel {
+    width: calc(100vw - 50px);
+    max-width: rem(260px);
+  }
+}

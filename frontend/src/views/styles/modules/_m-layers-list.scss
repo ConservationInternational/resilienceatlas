@@ -100,6 +100,31 @@
       left: rem(15px);
     }
   }
+
+  // Mobile: Larger touch targets and spacing
+  @media screen and (max-width: $breakpoint-mobile) {
+    padding: rem(18px) rem(15px) rem(18px) rem(35px);
+    min-height: rem($mobile-sidebar-toggle-size); // Minimum touch target size
+
+    &:before {
+      @include arrow(rem(9px), $font-color-1, 2px, 135deg);
+      left: rem(18px);
+    }
+
+    .header-title {
+      font-size: rem(15px); // Slightly larger for readability
+    }
+
+    ul ul & {
+      padding: rem(18px) rem(15px) rem(18px) rem(40px);
+      min-height: rem($mobile-sidebar-toggle-size);
+
+      &:before {
+        @include arrow(rem(9px), rgba(#4a4a4a, 0.3), 2px, 135deg);
+        left: rem(18px);
+      }
+    }
+  }
 }
 
 .m-layers-list-panel {
@@ -172,6 +197,34 @@
     float: left;
     margin-top: rem(3px);
     margin-bottom: 0;
+  }
+
+  // Mobile: Better spacing and larger touch targets
+  @media screen and (max-width: $breakpoint-mobile) {
+    .layer {
+      padding: rem(10px) 0 rem(12px) rem(30px);
+    }
+
+    .panel-item-title {
+      max-width: 55%; // Slightly less to accommodate larger controls
+      margin-left: rem(12px);
+      font-size: rem(15px);
+      line-height: 1.4;
+    }
+
+    .icon-container {
+      width: 24px;
+      height: 24px;
+
+      > .icon {
+        width: 16px;
+        height: 16px;
+      }
+    }
+
+    .panel-item-switch {
+      margin-top: rem(5px);
+    }
   }
 }
 

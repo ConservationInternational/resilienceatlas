@@ -99,7 +99,11 @@ module ActiveAdmin
           # Render translation fieldsets
           translation_fields = available_locales.each_with_index.map do |locale, index|
             translation = object.translations.find { |t| t.locale.to_s == locale.to_s }
-            translation ||= object.translations.build(locale: locale)
+            # Use translation_class.new instead of translations.build to avoid
+            # pre-populating the AR collection with unsaved records.
+            # Using build causes duplicates when accepts_nested_attributes_for
+            # also builds the same translation, resulting in UniqueViolation on save.
+            translation ||= object.class.translation_class.new(locale: locale)
 
             fields = proc do |form|
               form.input(:locale, as: :hidden)

@@ -14,7 +14,9 @@ module Api
         oembed.provider_name = @domain
         oembed.provider_url = "http://#{@domain}"
         src_url = @url.to_s.gsub(@url.path.to_s.force_encoding("UTF-8"), "").gsub(@url.query.to_s.force_encoding("UTF-8"), "").delete("?")
-        oembed.html = %(<iframe frameborder="0" width="#{oembed.width}" height="#{oembed.height}" src="#{src_url.gsub("http://", "https://")}/embed/map?#{@query}"></iframe>)
+        escaped_query = ERB::Util.html_escape(@query)
+        escaped_src = ERB::Util.html_escape("#{src_url.gsub("http://", "https://")}/embed/map?#{escaped_query}")
+        oembed.html = %(<iframe frameborder="0" width="#{oembed.width.to_i}" height="#{oembed.height.to_i}" src="#{escaped_src}"></iframe>)
         case @format
         when "xml"
           render xml: JSON.parse(oembed.to_json).to_xml(root: "oembed")
@@ -60,7 +62,7 @@ module Api
       end
 
       def validate(url)
-        permitted_domains = %w[vitalsigns.org resilienceatlas.org localhost globalresiliencepartnership.org]
+        permitted_domains = %w[resilienceatlas.org localhost globalresiliencepartnership.org]
         begin
           parsed_url = Addressable::URI.parse(url)
           @url = parsed_url
@@ -101,9 +103,9 @@ module Api
       def render_error(status)
         self.response_body = nil
         st_codes = [404, 422, 400, 403]
-        st_texts = ["Not Found", "Unprocesable Entity", "Bad Request", "Forbidden"]
+        st_texts = ["Not Found", "Unprocessable Entity", "Bad Request", "Forbidden"]
         st_index = st_codes.index(status)
-        error_string = st_texts[st_index]
+        error_string = st_index ? st_texts[st_index] : "Internal Server Error"
         json_error_string = %( {"error": "#{error_string}"} )
         if @format == "json"
           render json: json_error_string, status: status and return

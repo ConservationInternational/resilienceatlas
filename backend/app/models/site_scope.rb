@@ -30,6 +30,7 @@ class SiteScope < ApplicationRecord
   has_one :homepage, dependent: :destroy
   has_many :layer_groups
   has_many :site_pages
+  has_many :scope_datasets, dependent: :destroy
 
   # Encryptor for viewable password storage
   def self.password_encryptor
@@ -69,9 +70,10 @@ class SiteScope < ApplicationRecord
   # Ransack configuration - explicitly allowlist searchable attributes for security
   def self.ransackable_attributes(auth_object = nil)
     %w[
-      id name color subdomain has_analysis latitude longitude header_theme zoom_level
+      id name color subdomain has_analysis has_search latitude longitude header_theme zoom_level
       linkback_text linkback_url header_color logo_url predictive_model analysis_options
-      has_gef_logo password_protected username
+      has_gef_logo password_protected username linkback_text_color
+      logo_url_2 logo_url_3 logo_url_4 logo_url_5
     ]
   end
 

@@ -1,0 +1,94 @@
+= semantic_form_for [:admin, resource], builder: ActiveAdmin::FormBuilder do |f|
+  = f.semantic_errors
+  = f.inputs "Dataset" do
+    li.input.select
+      = f.label :site_scope
+      = f.select :site_scope_id, SiteScope.with_translations.sort_by(&:name).map { |m| [m.name, m.id] }
+    li.input.string
+      = f.label :slug
+      span.inline-hint Required. Unique alphanumeric identifier with hyphens/underscores
+      = f.text_field :slug
+    li.input.string
+      = f.label :name
+      = f.text_field :name
+    li.input.text
+      = f.label :description
+      = f.text_area :description, rows: 3
+    li.input.select
+      = f.label :data_type
+      = f.select :data_type, %w[tabular]
+    li.input.string
+      = f.label :group_key
+      span.inline-hint Optional key to group variant datasets together (e.g. 'ecoregion-summary'). Datasets sharing a group_key appear as switchable variants in the UI.
+      = f.text_field :group_key
+    li.input.string
+      = f.label :dimension
+      span.inline-hint Dimension this dataset belongs to (e.g. 'ecoregion', 'country'). Used to group datasets into view modes with radio-button switching.
+      = f.text_field :dimension
+    li.input.string
+      = f.label :variant_label
+      span.inline-hint Human-readable label for this variant (e.g. 'JRC', 'FAO-WOCAT'). Shown in the variant selector dropdown.
+      = f.text_field :variant_label
+    li.input.string
+      = f.label :display_order
+      = f.text_field :display_order
+  = f.inputs "Dimension Config (JSON)" do
+    li.input.text
+      = f.label :dimension_config
+      span.inline-hint JSON object with dimension metadata: {"unit_label": "Ecoregion", "unit_id_column": "eco_id", "name_column": "ecoregion"}
+      = f.text_area :dimension_config, rows: 6, class: "json-editor-textarea", value: (f.object.dimension_config.present? ? JSON.pretty_generate(f.object.dimension_config) : "")
+  = f.inputs "Schema Config (JSON)" do
+    li.input.text
+      = f.label :schema_config
+      span.inline-hint JSON array of column definitions: [{"name": "eco_id", "type": "integer", "label": "Ecoregion ID"}]
+      = f.text_area :schema_config, rows: 12, class: "json-editor-textarea", value: (f.object.schema_config.present? ? JSON.pretty_generate(f.object.schema_config) : "")
+  = f.inputs "Chart Config (JSON)" do
+    li.input.text
+      = f.label :chart_config
+      span.inline-hint JSON array of chart specifications. Each item may include: id, type, title, description, methodology_note (shown via ⓘ icon when clicked), valueKey, categoryKey, colors, aggregation, tooltipUnit, unitIdColumn, xAxis, yAxis, etc.
+      = f.text_area :chart_config, rows: 12, class: "json-editor-textarea", value: (f.object.chart_config.present? ? JSON.pretty_generate(f.object.chart_config) : "")
+  = f.inputs "Data (JSON)" do
+    li.input.text
+      = f.label :data
+      span.inline-hint JSON array of row objects
+      = f.text_area :data, rows: 20, class: "json-editor-textarea", value: (f.object.data.present? ? JSON.pretty_generate(f.object.data) : "")
+    - if f.object.persisted?
+      li.input.csv-actions
+        = link_to "Import CSV", import_csv_admin_scope_dataset_path(f.object), class: "button"
+        = link_to "Export CSV", export_csv_admin_scope_dataset_path(f.object), class: "button"
+  = f.actions
+
+css:
+  .inline-hint {
+    display: block;
+    font-size: 11px;
+    color: #666;
+    margin: 2px 0 4px 0;
+    font-style: italic;
+  }
+  li.input {
+    margin-bottom: 10px;
+  }
+  li.input label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 0;
+  }
+  li.csv-actions {
+    padding: 8px 0;
+  }
+  li.csv-actions .button {
+    display: inline-block;
+    margin-right: 8px;
+    padding: 6px 16px;
+    background: #6a9;
+    color: #fff;
+    border-radius: 3px;
+    text-decoration: none;
+    font-size: 12px;
+  }
+  li.csv-actions .button:hover {
+    background: #5a8;
+  }
+
+= render "admin/shared/json_editor_init"

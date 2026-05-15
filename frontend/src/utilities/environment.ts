@@ -90,3 +90,31 @@ export const supportsSubdomains = (): boolean => {
   // Both staging and production support subdomains
   return isStaging() || isProduction();
 };
+
+/**
+ * Get the TiTiler base URL for the current environment
+ * TiTiler domains follow the pattern:
+ * - Production (main branch): titiler.resilienceatlas.org
+ * - Staging/feature branches: {branch}.titiler.resilienceatlas.org (e.g., staging.titiler.resilienceatlas.org)
+ *
+ * Can be overridden with NEXT_PUBLIC_TITILER_URL environment variable for custom deployments
+ */
+export const getTitilerBaseUrl = (): string => {
+  // Allow override via environment variable for custom deployments
+  if (process.env.NEXT_PUBLIC_TITILER_URL) {
+    return process.env.NEXT_PUBLIC_TITILER_URL;
+  }
+
+  const env = getDeploymentEnvironment();
+
+  switch (env) {
+    case 'staging':
+      return 'https://staging.titiler.resilienceatlas.org';
+    case 'production':
+      return 'https://titiler.resilienceatlas.org';
+    case 'development':
+    default:
+      // In development, default to staging TiTiler
+      return 'https://staging.titiler.resilienceatlas.org';
+  }
+};

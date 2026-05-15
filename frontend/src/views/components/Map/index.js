@@ -13,6 +13,7 @@ class MapErrorBoundary extends React.Component {
   }
 
   componentDidCatch(error, errorInfo) {
+    // eslint-disable-next-line no-console
     console.error('[MapErrorBoundary] Caught error:', error, errorInfo);
   }
 
@@ -29,16 +30,18 @@ class MapErrorBoundary extends React.Component {
   }
 }
 
-// Dynamic import to prevent SSR issues with Leaflet
-// Leaflet and its plugins require `window` which doesn't exist on the server
+// Dynamic import to prevent SSR issues with OpenLayers
+// OL and its plugins require `window` which doesn't exist on the server
 const MapContainerDynamic = dynamic(
   () =>
     import('./Map.container')
       .then((mod) => {
+        // eslint-disable-next-line no-console
         console.log('[Map/index.js] Map.container loaded successfully');
         return mod;
       })
       .catch((err) => {
+        // eslint-disable-next-line no-console
         console.error('[Map/index.js] Failed to load Map.container:', err);
         throw err;
       }),

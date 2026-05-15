@@ -119,4 +119,39 @@
   line-height: 0.5em;
 }
 
-//TODO responsive
+// Mobile responsive styles for modals
+@media screen and (max-width: $breakpoint-mobile) {
+  .modal-wrapper {
+    width: 95%;
+    max-width: 95%;
+    height: auto;
+    min-height: 200px;
+    max-height: 85vh;
+  }
+
+  .modal-container {
+    padding: rem(30px) rem(15px);
+  }
+
+  .m-modal-window {
+    h1, h2 {
+      font-size: rem(24px);
+    }
+
+    h4 {
+      font-size: rem(16px);
+    }
+
+    p {
+      font-size: rem(14px);
+    }
+  }
+
+  .btn-close,
+  .btn-close-modal {
+    top: 10px;
+    right: 10px;
+    font-size: 24px;
+    padding: 5px;
+  }
+}

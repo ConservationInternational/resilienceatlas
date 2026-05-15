@@ -4,13 +4,20 @@ Rails.start()
 
 console.log('[ActiveAdmin] JavaScript module loaded');
 
+// Import admin JavaScript modules (pinned via importmap)
+import "admin/json_editor"
+import "admin/select_dependency"
+import "admin/checkbox_dependency"
+import "admin/has_many_collapsable"
+import "admin/globalize_translations"
+import "admin/input_functions"
+
 // Load ActiveAdmin core assets using Sprockets (these are not available as ES6 modules)
 //= require active_admin/base
 //= require active_admin/sortable
 //= require trix
 //= require activeadmin_addons/all
 //= require_tree ./utils
-//= require_tree ./admin
 
 // ActiveAdmin Globalize Translations support
 // Custom replacement for activeadmin-globalize gem

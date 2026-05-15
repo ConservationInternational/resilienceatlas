@@ -37,7 +37,7 @@ export const getSettingsFromLocalStorage = () => {
     if (consentDate !== null) {
       return { allowCookies, consentDate };
     }
-  } catch (e) {
+  } catch {
     // eslint-disable-next-line no-console
     console.error('Unable to access the localStorage.');
   }
@@ -56,7 +56,7 @@ export const saveSettingsInLocalStorage = (allowCookies: boolean, consentDate: n
     localStorage.setItem(ALLOW_COOKIE_KEY, `${allowCookies}`);
     localStorage.setItem(CONSENT_DATE_KEY, `${consentDate}`);
     return true;
-  } catch (e) {
+  } catch {
     // eslint-disable-next-line no-console
     console.error('Unable to access the localStorage');
   }

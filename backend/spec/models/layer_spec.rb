@@ -87,26 +87,133 @@ RSpec.describe Layer, type: :model do
     expect(subject.errors["translations.name"]).to include("can't be blank")
   end
 
+  describe "slug validation" do
+    it "should require a unique slug" do
+      create(:layer, slug: "test-layer")
+      subject.slug = "test-layer"
+      expect(subject).not_to be_valid
+      expect(subject.errors[:slug]).to include("has already been taken")
+    end
+
+    it "should accept valid lowercase slugs with hyphens" do
+      subject.slug = "valid-layer-name"
+      expect(subject).to be_valid
+    end
+
+    it "should accept slugs with underscores" do
+      subject.slug = "valid_layer_name"
+      expect(subject).to be_valid
+    end
+
+    it "should accept slugs with uppercase letters" do
+      subject.slug = "Valid_Layer_Name"
+      expect(subject).to be_valid
+    end
+
+    it "should reject slugs with spaces" do
+      subject.slug = "invalid layer"
+      expect(subject).not_to be_valid
+    end
+
+    it "should reject slugs with special characters other than hyphens and underscores" do
+      subject.slug = "invalid-layer!"
+      expect(subject).not_to be_valid
+    end
+  end
+
+  describe "numeric validations" do
+    it "should reject opacity values greater than 1" do
+      subject.opacity = 1.5
+      expect(subject).not_to be_valid
+      expect(subject.errors[:opacity]).to include("must be less than or equal to 1")
+    end
+
+    it "should reject opacity values less than 0" do
+      subject.opacity = -0.1
+      expect(subject).not_to be_valid
+      expect(subject.errors[:opacity]).to include("must be greater than or equal to 0")
+    end
+
+    it "should accept valid opacity values" do
+      subject.opacity = 0.5
+      expect(subject).to be_valid
+    end
+
+    it "should reject zoom_min values greater than 24" do
+      subject.zoom_min = 25
+      expect(subject).not_to be_valid
+      expect(subject.errors[:zoom_min]).to include("must be less than or equal to 24")
+    end
+
+    it "should reject zoom_max values greater than 24" do
+      subject.zoom_max = 25
+      expect(subject).not_to be_valid
+      expect(subject.errors[:zoom_max]).to include("must be less than or equal to 24")
+    end
+
+    it "should reject zoom_max less than zoom_min" do
+      subject.zoom_min = 10
+      subject.zoom_max = 5
+      expect(subject).not_to be_valid
+      expect(subject.errors[:zoom_max]).to include("must be greater than or equal to zoom_min")
+    end
+  end
+
+  describe "JSON validation" do
+    it "should reject invalid JSON in interaction_config" do
+      subject.interaction_config = "not valid json"
+      expect(subject).not_to be_valid
+      expect(subject.errors[:interaction_config]).to include("must be valid JSON")
+    end
+
+    it "should accept valid JSON in interaction_config" do
+      subject.interaction_config = '{"output": [], "enabled": true}'
+      expect(subject).to be_valid
+    end
+
+    it "should reject invalid JSON in layer_config when present" do
+      subject.layer_config = "not valid json"
+      expect(subject).not_to be_valid
+      expect(subject.errors[:layer_config]).to include("must be valid JSON")
+    end
+
+    it "should accept valid JSON in layer_config" do
+      subject.layer_config = '{"type": "raster"}'
+      expect(subject).to be_valid
+    end
+
+    it "should reject invalid JSON in analysis_body when present" do
+      subject.analysis_body = "not valid json"
+      expect(subject).not_to be_valid
+      expect(subject.errors[:analysis_body]).to include("must be valid JSON")
+    end
+
+    it "should accept valid JSON in analysis_body" do
+      subject.analysis_body = '{"url": "https://example.com/cog.tif"}'
+      expect(subject).to be_valid
+    end
+  end
+
   context "when analysis is enabled" do
     subject { build :layer, analysis_suitable: true }
 
-    it "should not be valid when analysis type is histogram for cartodb provider" do
-      subject.layer_provider = "cartodb"
-      subject.analysis_type = "histogram"
+    it "should not be valid when analysis type is text for wms provider" do
+      subject.layer_provider = "wms"
+      subject.analysis_type = "text"
       expect(subject).not_to be_valid
-      expect(subject.errors[:analysis_type]).to include("analysis type has to be text for cartodb provider")
+      expect(subject.errors[:analysis_type]).to include("analysis type has to be histogram")
     end
 
-    it "should not be valid when analysis type is categorical for cartodb provider" do
-      subject.layer_provider = "cartodb"
+    it "should not be valid when analysis type is categorical for wms provider" do
+      subject.layer_provider = "wms"
       subject.analysis_type = "categorical"
       expect(subject).not_to be_valid
-      expect(subject.errors[:analysis_type]).to include("analysis type has to be text for cartodb provider")
+      expect(subject.errors[:analysis_type]).to include("analysis type has to be histogram")
     end
 
-    it "should be valid when analysis type is text for cartodb provider" do
-      subject.layer_provider = "cartodb"
-      subject.analysis_type = "text"
+    it "should be valid when analysis type is histogram for wms provider" do
+      subject.layer_provider = "wms"
+      subject.analysis_type = "histogram"
       expect(subject).to be_valid
     end
 
@@ -129,22 +236,22 @@ RSpec.describe Layer, type: :model do
       expect(subject).to be_valid
     end
 
-    it "should not be valid when analysis type is text for raster provider" do
-      subject.layer_provider = "raster"
+    it "should not be valid when analysis type is text for martin provider" do
+      subject.layer_provider = "martin"
       subject.analysis_type = "text"
       expect(subject).not_to be_valid
       expect(subject.errors[:analysis_type]).to include("analysis type has to be histogram")
     end
 
-    it "should not be valid when analysis type is categorical for raster provider" do
-      subject.layer_provider = "raster"
+    it "should not be valid when analysis type is categorical for martin provider" do
+      subject.layer_provider = "martin"
       subject.analysis_type = "categorical"
       expect(subject).not_to be_valid
       expect(subject.errors[:analysis_type]).to include("analysis type has to be histogram")
     end
 
-    it "should be valid when analysis type is histogram for raster provider" do
-      subject.layer_provider = "raster"
+    it "should be valid when analysis type is histogram for martin provider" do
+      subject.layer_provider = "martin"
       subject.analysis_type = "histogram"
       expect(subject).to be_valid
     end
@@ -181,8 +288,8 @@ RSpec.describe Layer, type: :model do
     end
 
     it "clones basic attributes" do
-      expect(cloned_layer.attributes.except("id", "name", "created_at", "updated_at"))
-        .to eq(layer.attributes.except("id", "name", "created_at", "updated_at"))
+      expect(cloned_layer.attributes.except("id", "name", "slug", "created_at", "updated_at"))
+        .to eq(layer.attributes.except("id", "name", "slug", "created_at", "updated_at"))
     end
 
     it "clones translations" do
@@ -192,6 +299,10 @@ RSpec.describe Layer, type: :model do
 
     it "updates name of cloned layer" do
       expect(cloned_layer.name).to include("#{layer.name} _copy_ ")
+    end
+
+    it "updates slug of cloned layer" do
+      expect(cloned_layer.slug).to include("#{layer.slug}-copy-")
     end
   end
 
@@ -217,16 +328,16 @@ RSpec.describe Layer, type: :model do
       end
     end
 
-    context "with cartodb configuration" do
+    context "with martin configuration" do
       let(:layer) do
         create(:layer,
-          layer_provider: "cartodb",
-          layer_config: '{"type": "cartodb", "sql": "SELECT * FROM table"}')
+          layer_provider: "martin",
+          layer_config: '{"type": "martin", "url": "https://example.com/martin/{z}/{x}/{y}"}')
       end
 
-      it "stores cartodb layer_config" do
-        expect(layer.layer_config).to include("cartodb")
-        expect(layer.layer_config).to include("SELECT")
+      it "stores martin layer_config" do
+        expect(layer.layer_config).to include("martin")
+        expect(layer.layer_config).to include("url")
       end
     end
 

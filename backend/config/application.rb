@@ -59,14 +59,19 @@ module ConservationInternational
     end
 
     # Heroku Asset Pippeline
-    config.assets.initialize_on_precompile = true
+    config.assets.initialize_on_precompile = false
 
-    config.middleware.insert_before 0, Rack::Cors do
-      allow do
-        origins "*"
-        resource "*", headers: :any, methods: [:get, :post, :options], expose: ["access-token", "expiry", "token-type", "uid", "client"]
-        resource "/api/*", headers: :any, methods: [:get, :post, :options, :delete, :put], expose: ["access-token", "expiry", "token-type", "uid", "client"]
-      end
-    end
+    # Compress text-based HTTP responses (JSON, HTML, CSS, JS, XML) with gzip.
+    # Placed just after ActionDispatch::Static so static files served from /public
+    # bypass compression (already on disk, CDN handles delivery). The :if condition
+    # prevents wasteful re-compression of already-compressed binary content (images,
+    # archives, video) that may be returned by Rails controllers (e.g. send_file).
+    config.middleware.insert_after ActionDispatch::Static, Rack::Deflater,
+      if: lambda { |_env, _status, headers, _body|
+        headers["Content-Type"].to_s.match?(%r{\A(text/|application/(json|javascript|xml|xhtml\+xml|atom\+xml|rss\+xml))})
+      }
+
+    # Rack::Attack must be in the middleware stack; the initializer only configures rules.
+    config.middleware.use Rack::Attack
   end
 end

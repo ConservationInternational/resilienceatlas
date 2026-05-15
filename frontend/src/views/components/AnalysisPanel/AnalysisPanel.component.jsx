@@ -1,15 +1,18 @@
-import React, { useState, useCallback, useEffect, useMemo } from 'react';
+import React, { useState, useCallback, useEffect, useMemo, useRef } from 'react';
 import qs from 'qs';
 import cx from 'classnames';
 import { useDropzone } from 'react-dropzone';
 import { T } from '@transifex/react';
+import { useSelector } from 'react-redux';
 
 import Tabs from 'views/shared/Tabs';
 import { useDownloadableReport } from 'utilities/hooks/downloadableReport';
 import { useSearch } from 'utilities';
 import { TABS } from '../Sidebar';
+import { getDatasets } from 'state/modules/scope_datasets';
 
 import { LayerAnalysis, PredictiveModelAnalysis } from './AnalysisContent';
+import { ScopeStatisticsPanel } from 'views/shared/ScopeStatistics';
 import { getServerSideTranslations } from 'i18n';
 
 const ACCEPTED_EXTENSIONS = ['.json', '.geojson'];
@@ -20,6 +23,8 @@ export const AnalysisPanel = ({
   setDrawing,
   setGeojson,
   setISO,
+  fetchIntersectingUnits,
+  clearSpatialFilter,
   toggle,
   // data
   countriesLoaded,
@@ -62,8 +67,19 @@ export const AnalysisPanel = ({
   const resetAnalytics = useCallback(() => {
     setGeojson(null);
     setISO(null);
+    clearSpatialFilter();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Trigger spatial filtering when a country or drawn shape is selected
+  useEffect(() => {
+    if (iso) {
+      fetchIntersectingUnits({ iso });
+    } else if (geojson) {
+      fetchIntersectingUnits({ geometry: geojson });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [iso, geojson]);
 
   const onDrop = useCallback(([file]) => {
     const regex = new RegExp(`((${ACCEPTED_EXTENSIONS.join('|')}))$`);
@@ -112,11 +128,61 @@ export const AnalysisPanel = ({
     onSelect: ({ iso }) => setISO(iso),
   });
   const downloadableReport = useDownloadableReport();
+  const scopeDatasets = useSelector(getDatasets);
+  const hasScopeDatasets = scopeDatasets.length > 0;
 
-  <T _str={'Contract analysis panel'} />;
+  // ── Resizable panel ──
+  const MIN_WIDTH = 320;
+  const MAX_WIDTH = 900;
+  const DEFAULT_WIDTH = 490;
+  const panelRef = useRef(null);
+  const dragStartX = useRef(null);
+  const dragStartWidth = useRef(null);
+  const [panelWidth, setPanelWidth] = useState(DEFAULT_WIDTH);
+  const [isDragging, setIsDragging] = useState(false);
+
+  const handleResizeMouseDown = useCallback((e) => {
+    e.preventDefault();
+    dragStartX.current = e.clientX;
+    dragStartWidth.current = panelRef.current ? panelRef.current.offsetWidth : DEFAULT_WIDTH;
+    setIsDragging(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isDragging) return;
+
+    const onMouseMove = (e) => {
+      const delta = e.clientX - dragStartX.current;
+      const newWidth = Math.min(MAX_WIDTH, Math.max(MIN_WIDTH, dragStartWidth.current + delta));
+      setPanelWidth(newWidth);
+    };
+
+    const onMouseUp = () => {
+      setIsDragging(false);
+    };
+
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
+    return () => {
+      document.removeEventListener('mousemove', onMouseMove);
+      document.removeEventListener('mouseup', onMouseUp);
+    };
+  }, [isDragging]);
 
   return (
-    <div className="m-sidebar analysis-panel" id="analysisPanelView">
+    <div
+      ref={panelRef}
+      className="m-sidebar analysis-panel"
+      id="analysisPanelView"
+      style={{ '--analysis-panel-width': `${panelWidth}px` }}
+    >
+      <div
+        className={`analysis-panel__resize-handle${isDragging ? ' -dragging' : ''}`}
+        onMouseDown={handleResizeMouseDown}
+        role="separator"
+        aria-label="Resize analysis panel"
+        aria-orientation="vertical"
+      />
       <div className="title">
         <button
           className="btn-analysis-panel-contract"
@@ -138,29 +204,32 @@ export const AnalysisPanel = ({
               >
                 <T _str="Country or region" />
               </button>
-              <button
-                type="button"
-                className={cx({ '-active': tab === 'shape' })}
-                data-tab="shape"
-                onClick={switchTab}
-              >
-                <T _str="Draw or upload shape" />
-              </button>
+              {!hasScopeDatasets && (
+                <button
+                  type="button"
+                  className={cx({ '-active': tab === 'shape' })}
+                  data-tab="shape"
+                  onClick={switchTab}
+                >
+                  <T _str="Draw or upload shape" />
+                </button>
+              )}
             </div>
 
             {!(geojson || iso) ? (
               <Tabs activeTab={tab} renderActiveOnly>
                 <Tabs.Pane name="region">
-                  <p>
-                    <T _str="Select a country or region from the list below." />
-                  </p>
                   <div className="m-search-analysis">
                     <svg className="icon-search">
                       <use xmlnsXlink="http://www.w3.org/1999/xlink" xlinkHref="#icon-search" />
                     </svg>
                     <input
                       className="searchAnalysis"
-                      placeholder={translations && translations['Type country']}
+                      placeholder={
+                        (translations &&
+                          translations['Select a country or region from the list below.']) ||
+                        'Select a country or region from the list below.'
+                      }
                       type="search"
                       {...searchInput}
                     />
@@ -238,20 +307,23 @@ export const AnalysisPanel = ({
                     <T _str="Reset the analysis" />
                   </button>
                   <br />
-                  <a
-                    className="btn -primary"
-                    href="https://www.resilienceatlas.org/shinny-app"
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    <T _str="Go to Shinny App" />
-                  </a>
+                  {!hasScopeDatasets && (
+                    <a
+                      className="btn -primary"
+                      href="https://www.resilienceatlas.org/shinny-app"
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      <T _str="Go to Shinny App" />
+                    </a>
+                  )}
                 </div>
               </>
             )}
           </div>
         </div>
         <div id="analysisView" className="m-analysis" />
+        <ScopeStatisticsPanel />
       </div>
     </div>
   );

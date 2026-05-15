@@ -10,10 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_01_07_120000) do
-  # Create topology schema if it doesn't exist (PostGIS may create it during extension installation)
-  execute "CREATE SCHEMA IF NOT EXISTS topology"
-
+ActiveRecord::Schema[7.2].define(version: 2026_05_15_140000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "postgis"
@@ -57,6 +54,19 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_07_120000) do
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
   end
 
+  create_table "admin_boundaries", force: :cascade do |t|
+    t.string "name"
+    t.string "iso_code"
+    t.integer "admin_level", default: 0, null: false
+    t.string "parent_iso_code"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.geometry "geom", limit: {srid: 4326, type: "multi_polygon"}, null: false
+    t.index ["admin_level"], name: "index_admin_boundaries_on_admin_level"
+    t.index ["geom"], name: "index_admin_boundaries_on_geom", using: :gist
+    t.index ["iso_code"], name: "index_admin_boundaries_on_iso_code"
+  end
+
   create_table "admin_users", force: :cascade do |t|
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
@@ -82,8 +92,12 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_07_120000) do
     t.datetime "confirmed_at", precision: nil
     t.datetime "confirmation_sent_at", precision: nil
     t.string "unconfirmed_email"
+    t.integer "failed_attempts", default: 0, null: false
+    t.string "unlock_token"
+    t.datetime "locked_at"
     t.index ["email"], name: "index_admin_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_admin_users_on_reset_password_token", unique: true
+    t.index ["unlock_token"], name: "index_admin_users_on_unlock_token", unique: true
   end
 
   create_table "agrupations", force: :cascade do |t|
@@ -384,6 +398,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_07_120000) do
     t.string "timeline_period"
     t.string "analysis_type"
     t.index ["layer_group_id"], name: "index_layers_on_layer_group_id"
+    t.index ["slug"], name: "index_layers_on_slug"
   end
 
   create_table "layers_sources", id: false, force: :cascade do |t|
@@ -434,6 +449,9 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_07_120000) do
   create_table "models_site_scopes", id: false, force: :cascade do |t|
     t.bigint "model_id", null: false
     t.bigint "site_scope_id", null: false
+    t.index ["model_id", "site_scope_id"], name: "index_models_site_scopes_on_model_id_and_site_scope_id", unique: true
+    t.index ["model_id"], name: "index_models_site_scopes_on_model_id"
+    t.index ["site_scope_id"], name: "index_models_site_scopes_on_site_scope_id"
   end
 
   create_table "photos", force: :cascade do |t|
@@ -442,11 +460,47 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_07_120000) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "scope_dataset_geometries", force: :cascade do |t|
+    t.bigint "scope_dataset_id", null: false
+    t.string "unit_id", null: false
+    t.jsonb "properties", default: {}, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.geometry "geom", limit: {srid: 4326, type: "multi_polygon"}, null: false
+    t.index ["geom"], name: "index_scope_dataset_geometries_on_geom", using: :gist
+    t.index ["scope_dataset_id", "unit_id"], name: "idx_scope_dataset_geom_dataset_unit"
+    t.index ["scope_dataset_id"], name: "index_scope_dataset_geometries_on_scope_dataset_id"
+  end
+
+  create_table "scope_datasets", force: :cascade do |t|
+    t.bigint "site_scope_id", null: false
+    t.string "slug", null: false
+    t.string "name", null: false
+    t.text "description"
+    t.string "data_type", default: "tabular", null: false
+    t.jsonb "schema_config", default: [], null: false
+    t.jsonb "data", default: [], null: false
+    t.jsonb "chart_config", default: [], null: false
+    t.integer "display_order", default: 0
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "group_key"
+    t.string "variant_label"
+    t.string "dimension"
+    t.jsonb "dimension_config", default: {}
+    t.index ["site_scope_id", "dimension"], name: "index_scope_datasets_on_site_scope_id_and_dimension"
+    t.index ["site_scope_id", "group_key"], name: "index_scope_datasets_on_site_scope_id_and_group_key"
+    t.index ["site_scope_id", "slug"], name: "index_scope_datasets_on_site_scope_id_and_slug", unique: true
+    t.index ["site_scope_id"], name: "index_scope_datasets_on_site_scope_id"
+    t.index ["slug"], name: "index_scope_datasets_on_slug"
+  end
+
   create_table "share_urls", force: :cascade do |t|
     t.string "uid"
     t.text "body"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["uid"], name: "index_share_urls_on_uid", unique: true
   end
 
   create_table "site_page_translations", force: :cascade do |t|
@@ -499,7 +553,15 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_07_120000) do
     t.string "username"
     t.string "encrypted_password"
     t.text "encrypted_viewable_password"
+    t.string "linkback_text_color"
+    t.text "favicon_url"
+    t.boolean "has_search", default: true, null: false
+    t.text "logo_url_2"
+    t.text "logo_url_3"
+    t.text "logo_url_4"
+    t.text "logo_url_5"
     t.index ["password_protected"], name: "index_site_scopes_on_password_protected"
+    t.index ["subdomain"], name: "index_site_scopes_on_subdomain"
   end
 
   create_table "source_translations", force: :cascade do |t|
@@ -670,6 +732,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_01_07_120000) do
   add_foreign_key "journey_steps", "journeys", on_delete: :cascade
   add_foreign_key "layer_group_translations", "layer_groups"
   add_foreign_key "layer_translations", "layers"
+  add_foreign_key "scope_dataset_geometries", "scope_datasets"
+  add_foreign_key "scope_datasets", "site_scopes"
   add_foreign_key "static_page_section_items", "static_page_sections", column: "section_id", on_delete: :cascade
   add_foreign_key "static_page_section_paragraphs", "static_page_sections", column: "section_id", on_delete: :cascade
   add_foreign_key "static_page_section_references", "static_page_sections", column: "section_id", on_delete: :cascade

@@ -1,6 +1,7 @@
 Rails.application.routes.draw do
-  # Health check endpoint at root level for ALB
+  # Health check endpoints at root level
   get "health", to: "api/health#show"
+  get "health/ready", to: "api/health#ready"
 
   mount Rswag::Ui::Engine => "/api-docs"
   mount Rswag::Api::Engine => "/api-docs"
@@ -19,8 +20,9 @@ Rails.application.routes.draw do
 
   # API routes
   namespace :api, defaults: {format: "json"} do
-    # Health check endpoint
+    # Health check endpoints
     get "health", to: "health#show"
+    get "health/ready", to: "health#ready"
 
     namespace :admin do
       resources :layers do
@@ -45,9 +47,25 @@ Rails.application.routes.draw do
       get "/menu-entries", to: "menu_entries#index"
       get "/homepage", to: "homepages#show"
 
+      # Admin boundaries (country/province/district polygons)
+      get "/admin-boundaries", to: "admin_boundaries#index"
+      get "/admin-boundaries/:iso_code", to: "admin_boundaries#show"
+
+      # Scope datasets (pre-computed statistics for site scopes)
+      get "/scope-datasets", to: "scope_datasets#index"
+      get "/scope-datasets/intersecting-units", to: "scope_datasets#intersecting_units"
+      get "/scope-datasets/geometry-at-point", to: "scope_datasets#geometry_at_point"
+      get "/scope-datasets/:slug/geometry-bounds/:unit_id", to: "scope_datasets#geometry_bounds"
+      get "/scope-datasets/:slug", to: "scope_datasets#show"
+
       # Site scope authentication endpoints
       post "/site-scope/authenticate", to: "site_scope_authentications#authenticate"
       get "/site-scope/check-access", to: "site_scope_authentications#check_access"
+
+      # TiTiler proxy endpoints for COG operations (avoids CORS issues)
+      get "/titiler/info", to: "titiler#info"
+      post "/titiler/statistics", to: "titiler#statistics"
+      get "/titiler/point", to: "titiler#point"
 
       resources :photos, only: :create
       resources :feedbacks, only: :create

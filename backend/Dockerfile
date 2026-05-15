@@ -1,14 +1,16 @@
 # Use the official Ruby image
-FROM ruby:3.4.4-bullseye AS base
+FROM ruby:3.4.8-bookworm AS base
 
 # Enable BuildKit inline cache
 ARG BUILDKIT_INLINE_CACHE=1
 
 # Configure package manager for better network resilience
 RUN echo 'Acquire::Retries "3";' >> /etc/apt/apt.conf.d/80-retries && \
-    echo 'Acquire::http::Timeout "60";' >> /etc/apt/apt.conf.d/80-timeout
+    echo 'Acquire::http::Timeout "120";' >> /etc/apt/apt.conf.d/80-timeout && \
+    echo 'Acquire::https::Timeout "120";' >> /etc/apt/apt.conf.d/80-timeout
 
 # Install dependencies with retry logic
+# Note: libgdal-dev can be slow on ARM64 due to compilation
 RUN for i in {1..3}; do \
       echo "Package installation attempt $i of 3" && \
       apt-get update -qq && apt-get install -y \
@@ -17,6 +19,7 @@ RUN for i in {1..3}; do \
         libgeos-dev \
         libproj-dev \
         libgdal-dev \
+        gdal-bin \
         nodejs \
         npm \
         postgresql-client \
@@ -26,9 +29,10 @@ RUN for i in {1..3}; do \
       (echo "⚠️ Package installation attempt $i failed, retrying in 10 seconds..." && sleep 10); \
     done
 
-# Configure bundler for better network resilience
-RUN bundle config set timeout 60 && \
-    bundle config set retry 5
+# Configure bundler for better network resilience and performance
+RUN bundle config set timeout 120 && \
+    bundle config set retry 5 && \
+    bundle config set jobs 4
 
 # Set the working directory
 WORKDIR /app
@@ -36,7 +40,9 @@ WORKDIR /app
 # Copy Gemfile and Gemfile.lock
 COPY Gemfile Gemfile.lock ./
 
-# Install Ruby dependencies with retry logic using bash explicitly
+# Install Ruby dependencies with retry logic
+# Note: Cache mounts are not used here because they don't persist to the production stage
+# The gems must be installed directly into /usr/local/bundle for production builds
 RUN bash -c 'for i in {1..3}; do \
       echo "Bundle install attempt $i of 3" && \
       bundle install && break || \
@@ -106,8 +112,9 @@ RUN groupadd -r appuser && useradd -r -g appuser -G audio,video appuser \
 RUN bundle config set frozen true && \
     bundle config set with "test development"
 
-# Install test gems with retry logic for network resilience
-RUN bash -c 'for i in {1..3}; do \
+# Install test gems with retry logic for network resilience and cache mount
+RUN --mount=type=cache,target=/usr/local/bundle \
+    bash -c 'for i in {1..3}; do \
       echo "Test gems install attempt $i of 3" && \
       bundle install && break || \
       ([ $i -eq 3 ] && echo "❌ Failed to install test gems after 3 attempts" && exit 1) || \
@@ -159,11 +166,32 @@ RUN mkdir -p log tmp/cache tmp/pids tmp/sockets tmp/storage \
   public/uploads public/uploads/cache public/uploads/store public/storage \
   downloads storage
 
-# Precompile assets for production (if needed)
-RUN bundle exec rake assets:precompile || true
+# Copy seed storage files to a separate directory
+# These will be copied to the volume-mounted public/storage at startup
+# if the volume is empty (first deployment or after volume reset)
+RUN if [ -d "public/storage" ] && [ "$(ls -A public/storage 2>/dev/null)" ]; then \
+      echo "Copying seed storage files..." && \
+      mkdir -p storage_seed && \
+      cp -r public/storage/* storage_seed/ 2>/dev/null || true; \
+    fi
+
+# Make scripts executable including the docker entrypoint
+RUN chmod +x bin/docker-entrypoint bin/rails bin/rake bin/setup 2>/dev/null || true
+
+# Precompile assets for production
+# Set required environment variables for asset precompilation
+# These are dummy values since we don't need DB or network during asset compilation
+RUN RAILS_ENV=production \
+    SECRET_KEY_BASE=placeholder_for_precompile \
+    DATABASE_URL=postgres://localhost/dummy \
+    BACKEND_URL=http://localhost:3001 \
+    bundle exec rake assets:precompile
 
 # Expose port 3001
 EXPOSE 3001
+
+# Use the entrypoint script to initialize storage before starting
+ENTRYPOINT ["/app/bin/docker-entrypoint"]
 
 # Default command
 CMD ["bundle", "exec", "rails", "server", "-b", "0.0.0.0", "-p", "3001"]

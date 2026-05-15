@@ -31,7 +31,7 @@ RSpec.describe "Admin: Site Pages", type: :system do
 
     it "shows site_page detail" do
       expect(page).to have_text(site_page.title)
-      expect(page).to have_text(ActionText::Content.new(site_page.body).to_plain_text)
+      expect(page).to have_text(site_page.body.to_plain_text.gsub(/\s+/, " ").strip)
       expect(page).to have_text(site_page.priority)
       expect(page).to have_text(site_page.slug)
     end
@@ -49,7 +49,14 @@ RSpec.describe "Admin: Site Pages", type: :system do
     it "allows to create new site_page" do
       fill_in "site_page[translations_attributes][0][title]", with: "New title"
       select site_scope.name, from: "site_page[site_scope_id]"
-      fill_in_rich_text_area "site_page[translations_attributes][0][body]", with: "New body"
+      # Wait for Trix editor to be in DOM, then fill via JS
+      # (fill_in_rich_text_area is unreliable for Globalize-translated ActionText fields)
+      find(".locale-en trix-editor, .locale.active trix-editor", wait: 10)
+      sleep 0.5 # Wait for Trix custom element initialization
+      page.execute_script(<<~JS, "<p>New body</p>")
+        var editor = document.querySelector(".locale-en trix-editor, .locale.active trix-editor");
+        if (editor && editor.editor) editor.editor.loadHTML(arguments[0]);
+      JS
       fill_in "site_page[priority]", with: "100"
       fill_in "site_page[slug]", with: "new-site-page"
 

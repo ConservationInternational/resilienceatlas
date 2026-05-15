@@ -1,0 +1,161 @@
+/ Shared inline JSON editor initialization for ActiveAdmin form textareas.
+/ Adds Format JSON, Minify, and Validate buttons to any textarea with class "json-editor-textarea".
+/ Render this partial from any admin form that has JSON fields:
+/   = render "admin/shared/json_editor_init"
+
+javascript:
+  (function() {
+    if (window.__jsonEditorInlineLoaded) return;
+    window.__jsonEditorInlineLoaded = true;
+    function initJsonEditors() {
+      var textareas = document.querySelectorAll('textarea.json-editor-textarea');
+      textareas.forEach(function(textarea) {
+        if (textarea.dataset.jsonEditorInitialized) return;
+        textarea.dataset.jsonEditorInitialized = 'true';
+        setupJsonEditor(textarea);
+      });
+    }
+    function setupJsonEditor(textarea) {
+      var wrapper = document.createElement('div');
+      wrapper.className = 'json-editor-wrapper';
+      textarea.parentNode.insertBefore(wrapper, textarea);
+      wrapper.appendChild(textarea);
+      var toolbar = document.createElement('div');
+      toolbar.className = 'json-editor-toolbar';
+      toolbar.style.cssText = 'margin-bottom: 5px; display: flex; gap: 5px; align-items: center;';
+      var statusEl = document.createElement('span');
+      statusEl.style.cssText = 'margin-left: 10px; font-size: 11px;';
+      var formatBtn = document.createElement('button');
+      formatBtn.type = 'button';
+      formatBtn.textContent = 'Format JSON';
+      formatBtn.style.cssText = 'padding: 4px 8px; font-size: 11px; cursor: pointer; background: #5E6469; color: white; border: none; border-radius: 3px;';
+      formatBtn.onclick = function(e) {
+        e.preventDefault();
+        try {
+          var obj = JSON.parse(textarea.value);
+          textarea.value = JSON.stringify(obj, null, 2);
+          statusEl.textContent = 'Formatted!';
+          statusEl.style.color = 'green';
+        } catch (err) {
+          statusEl.textContent = 'Invalid JSON: ' + err.message;
+          statusEl.style.color = 'red';
+        }
+      };
+      toolbar.appendChild(formatBtn);
+      var minifyBtn = document.createElement('button');
+      minifyBtn.type = 'button';
+      minifyBtn.textContent = 'Minify';
+      minifyBtn.style.cssText = 'padding: 4px 8px; font-size: 11px; cursor: pointer; background: #5E6469; color: white; border: none; border-radius: 3px;';
+      minifyBtn.onclick = function(e) {
+        e.preventDefault();
+        try {
+          var obj = JSON.parse(textarea.value);
+          textarea.value = JSON.stringify(obj);
+          statusEl.textContent = 'Minified!';
+          statusEl.style.color = 'green';
+        } catch (err) {
+          statusEl.textContent = 'Invalid JSON: ' + err.message;
+          statusEl.style.color = 'red';
+        }
+      };
+      toolbar.appendChild(minifyBtn);
+      var validateBtn = document.createElement('button');
+      validateBtn.type = 'button';
+      validateBtn.textContent = 'Validate';
+      validateBtn.style.cssText = 'padding: 4px 8px; font-size: 11px; cursor: pointer; background: #5E6469; color: white; border: none; border-radius: 3px;';
+      validateBtn.onclick = function(e) {
+        e.preventDefault();
+        try {
+          JSON.parse(textarea.value);
+          statusEl.textContent = 'Valid JSON';
+          statusEl.style.color = 'green';
+        } catch (err) {
+          statusEl.textContent = err.message;
+          statusEl.style.color = 'red';
+        }
+      };
+      toolbar.appendChild(validateBtn);
+      toolbar.appendChild(statusEl);
+      wrapper.insertBefore(toolbar, textarea);
+      textarea.addEventListener('input', function() {
+        var value = textarea.value.trim();
+        if (!value) { statusEl.textContent = ''; return; }
+        try {
+          JSON.parse(value);
+          statusEl.textContent = 'Valid';
+          statusEl.style.color = 'green';
+        } catch (err) {
+          statusEl.textContent = 'Invalid';
+          statusEl.style.color = 'red';
+        }
+      });
+      try {
+        if (textarea.value.trim()) {
+          var obj = JSON.parse(textarea.value);
+          textarea.value = JSON.stringify(obj, null, 2);
+        }
+      } catch (e) {}
+      // Add legend preview button for textareas with data-preview-type="legend"
+      if (textarea.dataset.previewType === 'legend') {
+        setupLegendPreview(textarea, wrapper, toolbar);
+      }
+    }
+    function setupLegendPreview(textarea, wrapper, toolbar) {
+      var configEl = document.getElementById('layer-preview-config');
+      if (!configEl) return;
+      var frontendUrl = configEl.dataset.frontendUrl;
+      if (!frontendUrl) return;
+      var previewIframe = null;
+      var debounceTimer = null;
+      function sendLegendToIframe() {
+        if (!previewIframe || !previewIframe.contentWindow) return;
+        var adminOrigin = window.location.origin;
+        previewIframe.contentWindow.postMessage(
+          { type: 'LEGEND_PREVIEW', legend: textarea.value },
+          frontendUrl
+        );
+      }
+      function debounced() {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(sendLegendToIframe, 600);
+      }
+      var previewBtn = document.createElement('button');
+      previewBtn.type = 'button';
+      previewBtn.textContent = 'Preview Legend';
+      previewBtn.style.cssText = 'padding: 4px 8px; font-size: 11px; cursor: pointer; background: #2E7D32; color: white; border: none; border-radius: 3px;';
+      previewBtn.onclick = function(e) {
+        e.preventDefault();
+        if (previewIframe) {
+          // Toggle visibility
+          var isHidden = previewIframe.style.display === 'none';
+          previewIframe.style.display = isHidden ? 'block' : 'none';
+          previewBtn.textContent = isHidden ? 'Hide Legend Preview' : 'Preview Legend';
+          if (isHidden) sendLegendToIframe();
+          return;
+        }
+        var adminOrigin = encodeURIComponent(window.location.origin);
+        // Encode current legend data in the URL so the iframe shows immediately on mount,
+        // avoiding the postMessage race condition where the message arrives before the
+        // React listener is registered.
+        var legendData = '';
+        try { legendData = btoa(textarea.value); } catch(e) {}
+        var iframeSrc = frontendUrl + '/admin-preview/legend?adminOrigin=' + adminOrigin + (legendData ? '&data=' + legendData : '');
+        previewIframe = document.createElement('iframe');
+        previewIframe.src = iframeSrc;
+        previewIframe.className = 'legend-preview-iframe';
+        // 360px matches $side-bar-width from _m-legend.scss for an accurate width preview
+        previewIframe.style.cssText = 'display:block;width:360px;border:1px solid #ddd;';
+        previewIframe.onload = function() { sendLegendToIframe(); };
+        wrapper.appendChild(previewIframe);
+        previewBtn.textContent = 'Hide Legend Preview';
+        textarea.addEventListener('input', debounced);
+      };
+      toolbar.appendChild(previewBtn);
+    }
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initJsonEditors);
+    } else {
+      setTimeout(initJsonEditors, 0);
+    }
+    window.addEventListener('load', initJsonEditors);
+  })();

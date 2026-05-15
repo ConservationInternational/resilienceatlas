@@ -26,7 +26,6 @@ class Api::Admin::LayersController < Api::Admin::ApiController
 
   def update
     Layer.transaction do
-      puts layer_params.inspect
       @layer.update!(layer_params)
       Api::Admin::LayersManager.new(@layer, params[:site_scope_id]).link_layer_group if params[:site_scope_id].present?
       render json: {success: true, message: "Layer Updated Successfully", data: @layer.as_json}, status: :ok

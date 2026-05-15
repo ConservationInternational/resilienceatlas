@@ -1,0 +1,24 @@
+# Martin tile server configuration
+# See https://maplibre.org/martin/config-file/
+#
+# IMPORTANT: When using --config, Martin ignores DATABASE_URL as an env var.
+# The postgres connection MUST be declared here (it can reference env vars).
+
+# Allow cross-origin requests from any origin.
+# Martin serves read-only public map tiles — no auth or cookies —
+# so wildcard CORS is safe and required for site-scope subdomains
+# (e.g. trendsearth.resilienceatlas.org, ldn.resilienceatlas.org).
+cors: true
+
+# Cache boundary tiles in the browser for 24 hours (86400 s), matching
+# the CloudFront CDN TTL.  Without this Martin defaults to max-age=3600
+# (1 hour), causing needless re-fetches when users return to the map.
+cache_control_max_age: 86400
+
+# If a function source doesn't exist yet (e.g. migration hasn't run),
+# log a warning instead of aborting startup.
+on_invalid: warn
+
+# Database connection — $DATABASE_URL is expanded from the container env.
+postgres:
+  connection_string: ${DATABASE_URL}
