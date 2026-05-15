@@ -1,10 +1,10 @@
 /**
  * Layer Map Preview Page
  *
- * Minimal iframe-embeddable page that renders a Leaflet map with the layer being
+ * Minimal iframe-embeddable page that renders an OLMap with the layer being
  * edited in the admin tool. Receives layer config via postMessage from Rails admin.
  *
- * Reuses the existing LeafletMap, LayerManager, Layer components and PluginLeaflet
+ * Reuses the existing OLMap, LayerManager, Layer components and PluginOpenLayers
  * — no logic is duplicated from the frontend.
  *
  * Usage:
@@ -13,23 +13,20 @@
  * Then send:
  *   iframe.contentWindow.postMessage({
  *     type: 'LAYER_PREVIEW',
- *     provider: 'cartodb',    // layer_provider field
- *     query: 'SELECT ...',    // SQL query (cartodb/raster)
- *     css: '#layer { ... }',  // CartoCSS (cartodb/raster)
- *     layer_config: '{}',     // JSON string (cog/martin/xyz/gee/leaflet)
- *     carto_account: 'cdb',   // optional, defaults to 'cdb'
+ *     provider: 'cog',        // layer_provider field (cog/esri/gee/leaflet/martin/wms/wmts/'xyz tileset')
+ *     layer_config: '{}',     // JSON string
  *   }, '*')
  */
 
 import dynamic from 'next/dynamic';
 import { useState, useEffect, useCallback, type ReactElement } from 'react';
-import type { LeafletMapProps } from 'views/components/Map/LeafletMap/exports';
+import type { OLMapProps } from 'views/components/Map/OLMap/exports';
 import type { NextPageWithLayout } from 'pages/_app';
 import basemaps from 'views/utils/basemaps.json';
 
-// LeafletMap imports leaflet which uses window — must be client-side only
-const LeafletMap = dynamic<LeafletMapProps>(
-  () => import('views/components/Map/LeafletMap/exports').then((m) => ({ default: m.LeafletMap })),
+// OLMap uses browser APIs — must be client-side only
+const OLMap = dynamic<OLMapProps>(
+  () => import('views/components/Map/OLMap/exports').then((m) => ({ default: m.OLMap })),
   { ssr: false },
 );
 
@@ -39,33 +36,30 @@ let LayerManager: typeof import('lib/layer-manager/components').LayerManager;
 // eslint-disable-next-line @typescript-eslint/consistent-type-imports
 let Layer: typeof import('lib/layer-manager/components').Layer;
 // eslint-disable-next-line @typescript-eslint/consistent-type-imports
-let PluginLeaflet: typeof import('lib/layer-manager/plugins/plugin-leaflet').default;
+let PluginOpenLayers: typeof import('lib/layer-manager/plugins/plugin-openlayers').default;
 
 if (typeof window !== 'undefined') {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (window as any).L = require('leaflet');
-
   const components = require('lib/layer-manager/components');
   LayerManager = components.LayerManager;
   Layer = components.Layer;
 
-  const lm = require('lib/layer-manager/plugins/plugin-leaflet');
-  PluginLeaflet = lm.default;
+  const lm = require('lib/layer-manager/plugins/plugin-openlayers');
+  PluginOpenLayers = lm.default;
 }
 
 // ─── Layer spec builder (mirrors schema.js processStrategy logic) ─────────────
 
-// Maps layer_provider values to the plugin method keys used by PluginLeaflet.method
-// Must match the `provider` map in src/state/schema.js
+// Maps layer_provider values to the plugin method keys used by PluginOpenLayers.method
+// Must match Layer::VALID_PROVIDERS in backend/app/models/layer.rb
 const PROVIDER_MAP: Record<string, string> = {
-  cartodb: 'carto',
-  carto: 'carto',
-  raster: 'carto',
-  'xyz tileset': 'leaflet',
   cog: 'cog',
-  gee: 'leaflet',
+  esri: 'arcgis',
+  gee: 'gee',
   leaflet: 'leaflet',
   martin: 'martin',
+  wms: 'wms',
+  wmts: 'wmts',
+  'xyz tileset': 'xyz tileset',
 };
 
 interface LayerSpec {
@@ -82,10 +76,7 @@ type ProviderLayerConfig = Record<string, unknown>;
 
 function buildLayerConfig(
   provider: string,
-  query: string,
-  css: string,
   layerConfigJson: string,
-  cartoAccount: string,
 ): ProviderLayerConfig | null {
   let layerConfig: Record<string, unknown> = {};
   try {
@@ -96,7 +87,6 @@ function buildLayerConfig(
     // Invalid JSON — use empty config
   }
 
-  const minzoom = (layerConfig as { zoom_min?: number }).zoom_min;
   const maxzoom = (layerConfig as { zoom_max?: number }).zoom_max;
   const body = (layerConfig as { body?: Record<string, unknown> }).body || {};
   const source = body.source || (layerConfig as { source?: unknown }).source;
@@ -104,55 +94,12 @@ function buildLayerConfig(
   const options: Record<string, unknown> = (body.options as Record<string, unknown> | undefined) ?? {};
 
   switch (provider) {
-    case 'cartodb':
-    case 'carto':
-      return {
-        body: {
-          layers: [
-            {
-              options: {
-                cartocss: css,
-                cartocss_version: '2.1.0',
-                sql: query,
-              },
-              type: 'mapnik',
-            },
-          ],
-          minzoom,
-          maxzoom,
-        },
-        account: cartoAccount || 'cdb',
-      };
-
-    case 'raster':
-      return {
-        body: {
-          layers: [
-            {
-              options: {
-                cartocss: css,
-                cartocss_version: '2.3.0',
-                sql: query,
-                raster: true,
-                raster_band: 1,
-                geom_column: 'the_raster_webmercator',
-                geom_type: 'raster',
-              },
-              type: 'cartodb',
-            },
-          ],
-          minzoom,
-          maxzoom,
-        },
-        account: cartoAccount || 'cdb',
-      };
-
     case 'xyz tileset':
       return {
         type: 'tileLayer',
         body: {
           ...body,
-          url: (body.url as string) || (layerConfig.url as string) || query,
+          url: (body.url as string) || (layerConfig.url as string),
         },
       };
 
@@ -186,6 +133,28 @@ function buildLayerConfig(
         },
       };
 
+    case 'esri':
+      return {
+        body: {
+          url: (body.url as string) || (layerConfig.url as string),
+          params: (body.params as Record<string, unknown>) || {},
+        },
+      };
+
+    case 'wms':
+      return {
+        body: {
+          url: (body.url as string) || (layerConfig.url as string),
+          params: (body.params as Record<string, unknown>) || {},
+        },
+      };
+
+    case 'wmts':
+      return {
+        ...layerConfig,
+        body: { ...body },
+      };
+
     case 'martin':
       return {
         ...layerConfig,
@@ -207,12 +176,9 @@ function buildLayerConfig(
 
 function buildLayerSpec(
   provider: string,
-  query: string,
-  css: string,
   layerConfigJson: string,
-  cartoAccount: string,
 ): LayerSpec | null {
-  const layerConfig = buildLayerConfig(provider, query, css, layerConfigJson, cartoAccount);
+  const layerConfig = buildLayerConfig(provider, layerConfigJson);
   if (!layerConfig) return null;
 
   const mappedProvider = PROVIDER_MAP[provider];
@@ -234,10 +200,7 @@ function buildLayerSpec(
 interface LayerPreviewMessage {
   type: 'LAYER_PREVIEW';
   provider: string;
-  query: string;
-  css: string;
   layer_config: string;
-  carto_account?: string;
 }
 
 // ─── Page component ───────────────────────────────────────────────────────────
@@ -249,7 +212,7 @@ const LayerPreviewPage: NextPageWithLayout = () => {
   const [adminOrigin, setAdminOrigin] = useState<string | null>(null);
 
   const applyPreviewMessage = useCallback((msg: LayerPreviewMessage) => {
-    const { provider, query = '', css = '', layer_config = '', carto_account = 'cdb' } = msg;
+    const { provider, layer_config = '' } = msg;
     setErrorMsg(null);
 
     if (!provider) {
@@ -258,7 +221,7 @@ const LayerPreviewPage: NextPageWithLayout = () => {
       return;
     }
 
-    const spec = buildLayerSpec(provider, query, css, layer_config, carto_account);
+    const spec = buildLayerSpec(provider, layer_config);
     if (!spec) {
       setStatus('error');
       setErrorMsg(`Unsupported layer provider: "${provider}"`);
@@ -329,18 +292,18 @@ const LayerPreviewPage: NextPageWithLayout = () => {
         </div>
       )}
 
-      <LeafletMap
+      <OLMap
         basemap={basemapConfig}
-        mapOptions={{ zoom: 2, center: [20, 0], minZoom: 2, maxZoom: 18 }}
+        mapOptions={{ zoom: 2, center: { lat: 20, lng: 0 }, minZoom: 2, maxZoom: 18 }}
       >
         {(map) =>
-          layerSpec && LayerManager && Layer && PluginLeaflet ? (
-            <LayerManager map={map} plugin={PluginLeaflet}>
+          layerSpec && LayerManager && Layer && PluginOpenLayers ? (
+            <LayerManager map={map} plugin={PluginOpenLayers}>
               <Layer {...layerSpec} />
             </LayerManager>
           ) : null
         }
-      </LeafletMap>
+      </OLMap>
     </div>
   );
 };
