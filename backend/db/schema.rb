@@ -16,6 +16,16 @@ ActiveRecord::Schema[7.2].define(version: 2026_05_15_120000) do
   enable_extension "postgis"
   enable_extension "postgis_topology"
 
+  create_table "_eco_key", id: false, force: :cascade do |t|
+    t.integer "unit_id"
+    t.integer "is_pa"
+    t.integer "eco_id"
+    t.text "eco_name"
+    t.integer "biome_num"
+    t.text "biome_name"
+    t.text "realm"
+  end
+
   create_table "action_text_rich_texts", force: :cascade do |t|
     t.string "name", null: false
     t.text "body"

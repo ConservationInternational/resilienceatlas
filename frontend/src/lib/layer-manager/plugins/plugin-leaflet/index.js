@@ -86,7 +86,7 @@ class PluginLeaflet {
    * A request to layer bounds
    */
   getLayerBoundsByProvider(provider) {
-    return this.method[provider].getBounds;
+    return this.method[provider]?.getBounds;
   }
 
   /**

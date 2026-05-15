@@ -1219,6 +1219,16 @@ module LdnSeeder
 
       data_dir = ENV.fetch("LDN_DATA_DIR", DATA_DIR_DEFAULT)
 
+      eco_key_csv     = File.join(data_dir, "pa_ecoregion_key.csv")
+      country_key_csv = File.join(data_dir, "pa_ecoregion_country_key.csv")
+
+      unless File.exist?(eco_key_csv) && File.exist?(country_key_csv)
+        missing = [eco_key_csv, country_key_csv].reject { |f| File.exist?(f) }
+        puts "  SKIP scope datasets: key CSV(s) not found: #{missing.map { |f| File.basename(f) }.join(", ")}"
+        puts "  (Run scripts/setup_ldn_data.sh to generate these files for full LDN analysis functionality)"
+        return
+      end
+
       # Import key CSVs once (shared across all variants)
       import_key_csvs(data_dir)
 

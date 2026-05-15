@@ -43,8 +43,8 @@ const nextConfig = {
   async headers() {
     return [
       {
-        // Apply headers to all routes
-        source: '/(.*)',
+        // Apply security headers to all routes except admin-preview
+        source: '/((?!admin-preview).*)',
         headers: [
           {
             key: 'X-Frame-Options',
@@ -53,6 +53,21 @@ const nextConfig = {
           {
             key: 'X-Content-Type-Options',
             value: 'nosniff',
+          },
+        ],
+      },
+      {
+        // Admin preview pages are embedded as iframes inside the Rails admin —
+        // omit X-Frame-Options and allow any origin via CSP frame-ancestors
+        source: '/admin-preview/:path*',
+        headers: [
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff',
+          },
+          {
+            key: 'Content-Security-Policy',
+            value: "frame-ancestors *",
           },
         ],
       },

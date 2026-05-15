@@ -134,10 +134,17 @@ javascript:
           return;
         }
         var adminOrigin = encodeURIComponent(window.location.origin);
-        var iframeSrc = frontendUrl + '/admin-preview/legend?adminOrigin=' + adminOrigin;
+        // Encode current legend data in the URL so the iframe shows immediately on mount,
+        // avoiding the postMessage race condition where the message arrives before the
+        // React listener is registered.
+        var legendData = '';
+        try { legendData = btoa(textarea.value); } catch(e) {}
+        var iframeSrc = frontendUrl + '/admin-preview/legend?adminOrigin=' + adminOrigin + (legendData ? '&data=' + legendData : '');
         previewIframe = document.createElement('iframe');
         previewIframe.src = iframeSrc;
         previewIframe.className = 'legend-preview-iframe';
+        // 360px matches $side-bar-width from _m-legend.scss for an accurate width preview
+        previewIframe.style.cssText = 'display:block;width:360px;border:1px solid #ddd;';
         previewIframe.onload = function() { sendLegendToIframe(); };
         wrapper.appendChild(previewIframe);
         previewBtn.textContent = 'Hide Legend Preview';

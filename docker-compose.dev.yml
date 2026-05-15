@@ -79,6 +79,7 @@ services:
   frontend:
     image: node:24.0.0-bullseye
     working_dir: /app
+    tty: true
     ports:
       - "3000:3000"
     environment:

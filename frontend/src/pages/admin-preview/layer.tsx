@@ -21,10 +21,19 @@
  *   }, '*')
  */
 
-// Import Leaflet statically (same pattern as Map.component.tsx)
-import L from 'leaflet';
+import dynamic from 'next/dynamic';
+import { useState, useEffect, useCallback, type ReactElement } from 'react';
+import type { LeafletMapProps } from 'views/components/Map/LeafletMap/exports';
+import type { NextPageWithLayout } from 'pages/_app';
+import basemaps from 'views/utils/basemaps.json';
 
-// Layer-manager components require window — loaded client-side only
+// LeafletMap imports leaflet which uses window — must be client-side only
+const LeafletMap = dynamic<LeafletMapProps>(
+  () => import('views/components/Map/LeafletMap/exports').then((m) => ({ default: m.LeafletMap })),
+  { ssr: false },
+);
+
+// All browser-only libraries — loaded client-side only
 // eslint-disable-next-line @typescript-eslint/consistent-type-imports
 let LayerManager: typeof import('lib/layer-manager/components').LayerManager;
 // eslint-disable-next-line @typescript-eslint/consistent-type-imports
@@ -34,7 +43,7 @@ let PluginLeaflet: typeof import('lib/layer-manager/plugins/plugin-leaflet').def
 
 if (typeof window !== 'undefined') {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (window as any).L = L;
+  (window as any).L = require('leaflet');
 
   const components = require('lib/layer-manager/components');
   LayerManager = components.LayerManager;
@@ -44,16 +53,25 @@ if (typeof window !== 'undefined') {
   PluginLeaflet = lm.default;
 }
 
-import { useState, useEffect, useCallback, type ReactElement } from 'react';
-import { LeafletMap } from 'views/components/Map/LeafletMap/exports';
-import type { NextPageWithLayout } from 'pages/_app';
-import basemaps from 'views/utils/basemaps.json';
-
 // ─── Layer spec builder (mirrors schema.js processStrategy logic) ─────────────
+
+// Maps layer_provider values to the plugin method keys used by PluginLeaflet.method
+// Must match the `provider` map in src/state/schema.js
+const PROVIDER_MAP: Record<string, string> = {
+  cartodb: 'carto',
+  carto: 'carto',
+  raster: 'carto',
+  'xyz tileset': 'leaflet',
+  cog: 'cog',
+  gee: 'leaflet',
+  leaflet: 'leaflet',
+  martin: 'martin',
+};
 
 interface LayerSpec {
   id: string;
   type: string;
+  provider: string;
   layerConfig: Record<string, unknown>;
   opacity: number;
   visibility: boolean;
@@ -197,10 +215,14 @@ function buildLayerSpec(
   const layerConfig = buildLayerConfig(provider, query, css, layerConfigJson, cartoAccount);
   if (!layerConfig) return null;
 
+  const mappedProvider = PROVIDER_MAP[provider];
+  if (!mappedProvider) return null;
+
   return {
     id: 'admin-preview',
     slug: 'admin-preview',
     type: provider,
+    provider: mappedProvider,
     layerConfig,
     opacity: 1,
     visibility: true,
@@ -226,13 +248,6 @@ const LayerPreviewPage: NextPageWithLayout = () => {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [adminOrigin, setAdminOrigin] = useState<string | null>(null);
 
-  // Read adminOrigin from URL query param on mount
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const origin = params.get('adminOrigin');
-    if (origin) setAdminOrigin(decodeURIComponent(origin));
-  }, []);
-
   const applyPreviewMessage = useCallback((msg: LayerPreviewMessage) => {
     const { provider, query = '', css = '', layer_config = '', carto_account = 'cdb' } = msg;
     setErrorMsg(null);
@@ -246,7 +261,7 @@ const LayerPreviewPage: NextPageWithLayout = () => {
     const spec = buildLayerSpec(provider, query, css, layer_config, carto_account);
     if (!spec) {
       setStatus('error');
-      setErrorMsg(`Unknown layer provider: "${provider}"`);
+      setErrorMsg(`Unsupported layer provider: "${provider}"`);
       return;
     }
 
@@ -258,6 +273,26 @@ const LayerPreviewPage: NextPageWithLayout = () => {
       setStatus('ready');
     });
   }, []);
+
+  // Read URL query params on mount: adminOrigin for postMessage security,
+  // and ?data= for immediate layer preview (avoids postMessage race condition).
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const origin = params.get('adminOrigin');
+    if (origin) setAdminOrigin(decodeURIComponent(origin));
+
+    const data = params.get('data');
+    if (data) {
+      try {
+        const msg = JSON.parse(atob(data));
+        if (msg?.type === 'LAYER_PREVIEW') {
+          applyPreviewMessage(msg as LayerPreviewMessage);
+        }
+      } catch {
+        // Ignore invalid base64 / JSON in URL
+      }
+    }
+  }, [applyPreviewMessage]);
 
   // Listen for postMessage from admin iframe parent
   useEffect(() => {

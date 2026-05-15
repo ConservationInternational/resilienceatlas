@@ -96,7 +96,12 @@ javascript:
 
         if (!previewIframe) {
           var adminOrigin = encodeURIComponent(window.location.origin);
-          var iframeSrc = frontendUrl + '/admin-preview/layer?adminOrigin=' + adminOrigin;
+          // Encode current form values in the URL so the iframe shows immediately on mount,
+          // avoiding the postMessage race condition.
+          var vals = getFormValues();
+          var layerData = '';
+          try { layerData = btoa(JSON.stringify({ type: 'LAYER_PREVIEW', provider: vals.provider, query: vals.query, css: vals.css, layer_config: vals.layer_config, carto_account: cartoAccount })); } catch(e) {}
+          var iframeSrc = frontendUrl + '/admin-preview/layer?adminOrigin=' + adminOrigin + (layerData ? '&data=' + layerData : '');
           previewIframe = document.createElement('iframe');
           previewIframe.src = iframeSrc;
           previewIframe.className = 'layer-preview-iframe';
