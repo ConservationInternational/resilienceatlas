@@ -95,6 +95,55 @@ javascript:
           textarea.value = JSON.stringify(obj, null, 2);
         }
       } catch (e) {}
+      // Add legend preview button for textareas with data-preview-type="legend"
+      if (textarea.dataset.previewType === 'legend') {
+        setupLegendPreview(textarea, wrapper, toolbar);
+      }
+    }
+    function setupLegendPreview(textarea, wrapper, toolbar) {
+      var configEl = document.getElementById('layer-preview-config');
+      if (!configEl) return;
+      var frontendUrl = configEl.dataset.frontendUrl;
+      if (!frontendUrl) return;
+      var previewIframe = null;
+      var debounceTimer = null;
+      function sendLegendToIframe() {
+        if (!previewIframe || !previewIframe.contentWindow) return;
+        var adminOrigin = window.location.origin;
+        previewIframe.contentWindow.postMessage(
+          { type: 'LEGEND_PREVIEW', legend: textarea.value },
+          frontendUrl
+        );
+      }
+      function debounced() {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(sendLegendToIframe, 600);
+      }
+      var previewBtn = document.createElement('button');
+      previewBtn.type = 'button';
+      previewBtn.textContent = 'Preview Legend';
+      previewBtn.style.cssText = 'padding: 4px 8px; font-size: 11px; cursor: pointer; background: #2E7D32; color: white; border: none; border-radius: 3px;';
+      previewBtn.onclick = function(e) {
+        e.preventDefault();
+        if (previewIframe) {
+          // Toggle visibility
+          var isHidden = previewIframe.style.display === 'none';
+          previewIframe.style.display = isHidden ? 'block' : 'none';
+          previewBtn.textContent = isHidden ? 'Hide Legend Preview' : 'Preview Legend';
+          if (isHidden) sendLegendToIframe();
+          return;
+        }
+        var adminOrigin = encodeURIComponent(window.location.origin);
+        var iframeSrc = frontendUrl + '/admin-preview/legend?adminOrigin=' + adminOrigin;
+        previewIframe = document.createElement('iframe');
+        previewIframe.src = iframeSrc;
+        previewIframe.className = 'legend-preview-iframe';
+        previewIframe.onload = function() { sendLegendToIframe(); };
+        wrapper.appendChild(previewIframe);
+        previewBtn.textContent = 'Hide Legend Preview';
+        textarea.addEventListener('input', debounced);
+      };
+      toolbar.appendChild(previewBtn);
     }
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', initJsonEditors);

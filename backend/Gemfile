@@ -2,6 +2,11 @@ source "https://rubygems.org"
 
 ruby "3.4.8"
 
+# Pin psych explicitly to avoid "unresolved or ambiguous specs" warning.
+# Ruby 3.4 ships psych 5.2.2 as a default gem; bundler also installs 5.3.1
+# for rdoc (>= 4.0.0). Pinning here tells bundler which version to activate.
+gem "psych", "5.3.1"
+
 gem "rails", "~> 7.2"
 
 # Asset pipeline
@@ -42,6 +47,7 @@ gem "cancancan", "~> 3.6"
 gem "addressable", "~> 2.8"
 
 gem "rack-cors", "~> 2.0"
+gem "rack-attack", "~> 6.7"
 
 # Error tracking and monitoring
 gem "rollbar", "~> 3.6"

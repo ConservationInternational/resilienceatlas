@@ -22,6 +22,30 @@
 // For example, to change the default status-tag color:
 //
 //   .status_tag { background: #6090DB; }
+
+// Ensure flash messages are always visible on the login page (and everywhere else),
+// regardless of what the active_admin_theme gem may do to these styles.
+.flashes {
+  .flash {
+    display: block !important;
+    visibility: visible !important;
+    padding: 10px 15px;
+    margin-bottom: 10px;
+    border-radius: 4px;
+    font-weight: bold;
+  }
+  .flash_alert, .flash_error {
+    background-color: #f2dede !important;
+    color: #a94442 !important;
+    border: 1px solid #ebccd1 !important;
+  }
+  .flash_notice, .flash_success {
+    background-color: #dff0d8 !important;
+    color: #3c763d !important;
+    border: 1px solid #d6e9c6 !important;
+  }
+}
+
 div#footer{display: none;}
 #layer_group_submit_action input{color: #5E6469;}
 #layer_group_submit_action:hover input{color: white;}
@@ -375,6 +399,33 @@ div#footer{display: none;}
     font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace;
     font-size: 12px;
     white-space: pre-wrap;
+  }
+}
+
+// ─── Admin preview iframes ────────────────────────────────────────────────────
+
+// Legend preview iframe (appears below the legend JSON textarea)
+.legend-preview-iframe {
+  display: block;
+  width: 100%;
+  height: 220px;
+  border: 1px solid #ddd;
+  border-top: none;
+  border-radius: 0 0 4px 4px;
+  background: white;
+}
+
+// Layer map preview panel (appears inside the Configuration > Layer fieldset)
+.layer-preview-panel {
+  margin-top: 6px;
+
+  .layer-preview-iframe {
+    display: block;
+    width: 100%;
+    height: 460px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: #f0f0f0;
   }
 }
 

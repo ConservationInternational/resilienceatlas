@@ -35,13 +35,18 @@ elif [ "${FORCE_SEED:-false}" = "true" ]; then
   bundle exec rails db:seed
 else
   # Auto-detect: seed only when the database looks empty (no layers yet).
-  LAYER_COUNT=$(PGPASSWORD=postgres psql -h db -U postgres -d cigrp -tAc \
-    "SELECT COUNT(*) FROM layers;" 2>/dev/null || echo "0")
-  if [ "$LAYER_COUNT" -gt "0" ]; then
-    echo "Database already seeded ($LAYER_COUNT layers). Skipping seeds."
+  # NOTE: Some migrations (e.g. FixMissingBidxForMultibandCogLayers) run a
+  # Trends.Earth sub-seed to fix layer data, which means the layers table may
+  # already have rows even on a brand-new database before db:seed has run.
+  # We therefore check for admin users (created only by db:seed) rather than
+  # for layers when deciding whether to skip seeding.
+  ADMIN_COUNT=$(PGPASSWORD=postgres psql -h db -U postgres -d cigrp -tAc \
+    "SELECT COUNT(*) FROM admin_users;" 2>/dev/null || echo "0")
+  if [ "$ADMIN_COUNT" -gt "0" ]; then
+    echo "Database already seeded ($ADMIN_COUNT admin users). Skipping seeds."
     echo "  To force: FORCE_SEED=true docker compose -f docker-compose.dev.yml up backend"
   else
-    echo "Empty database detected. Running seeds..."
+    echo "Empty database detected (no admin users). Running seeds..."
     bundle exec rails db:seed
   fi
 fi

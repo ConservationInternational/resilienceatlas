@@ -43,6 +43,9 @@ Rails.application.configure do
   config.action_dispatch.x_sendfile_header = "X-Accel-Redirect"
 
   # Force all access to the app over SSL, use Strict-Transport-Security, and use secure cookies.
+  # INTENTIONALLY DISABLED: TLS is terminated at the AWS Application Load Balancer (ALB) before
+  # reaching Rails. Enabling force_ssl here would cause redirect loops because the ALB forwards
+  # plain HTTP to the Rails container. The ALB listener enforces HTTPS at the network edge.
   # config.force_ssl = true
 
   # config.logger = ActiveSupport::Logger.new("log/production.log")

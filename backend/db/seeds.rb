@@ -4,7 +4,7 @@ require_relative "data/homepage_images"
 # Only create seed data in development/production, not in test environment
 unless Rails.env.test?
   unless AdminUser.exists?(email: "admin@example.com")
-    AdminUser.create!(email: "admin@example.com", password: "password", password_confirmation: "password")
+    AdminUser.create!(email: "admin@example.com", password: "password123456", password_confirmation: "password123456")
   end
   if SiteScope.all.size == 0
     SiteScope.create!(name: "Resilience Atlas", id: 1, header_theme: "Resilience", color: "#0089CC")

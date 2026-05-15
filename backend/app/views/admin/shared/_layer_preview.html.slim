@@ -1,0 +1,127 @@
+/ Layer map preview partial for the admin layer form.
+/ Adds a "Preview Layer" button to the Configuration section.
+/ Clicking it opens an iframe that renders the layer on an interactive map
+/ using the frontend's existing layer-manager (no code duplication).
+/
+/ Requires: div#layer-preview-config with data-frontend-url and data-carto-account attrs.
+/ Render this partial after _json_editor_init from the layer form.
+
+javascript:
+  (function() {
+    function initLayerPreview() {
+      var configEl = document.getElementById('layer-preview-config');
+      if (!configEl) return;
+      var frontendUrl = configEl.dataset.frontendUrl;
+      if (!frontendUrl) return;
+      var cartoAccount = configEl.dataset.cartoAccount || 'cdb';
+
+      // Find the Configuration > Layer inputs fieldset to append the preview UI
+      var layerFieldsets = document.querySelectorAll('fieldset.inputs');
+      var targetFieldset = null;
+      layerFieldsets.forEach(function(fs) {
+        var legend = fs.querySelector('legend');
+        if (legend && legend.textContent.trim() === 'Layer') {
+          targetFieldset = fs;
+        }
+      });
+      if (!targetFieldset) return;
+
+      // Create a wrapper li element (matches admin form style)
+      var previewContainer = document.createElement('li');
+      previewContainer.className = 'input layer-preview-container';
+      previewContainer.style.cssText = 'padding: 0; margin-top: 8px; list-style: none;';
+
+      var previewBtn = document.createElement('button');
+      previewBtn.type = 'button';
+      previewBtn.textContent = 'Preview Layer on Map';
+      previewBtn.style.cssText = 'padding: 5px 12px; font-size: 12px; cursor: pointer; background: #1976D2; color: white; border: none; border-radius: 3px; margin-bottom: 6px;';
+
+      var previewPanel = document.createElement('div');
+      previewPanel.className = 'layer-preview-panel';
+      previewPanel.style.display = 'none';
+
+      var previewIframe = null;
+      var debounceTimer = null;
+
+      function getFormValues() {
+        var provider = (document.querySelector('select[name="layer[layer_provider]"]') || {}).value || '';
+        var query = (document.querySelector('textarea[name="layer[query]"]') || {}).value || '';
+        var css = (document.querySelector('textarea[name="layer[css]"]') || {}).value || '';
+        var layerConfig = (document.querySelector('textarea[name="layer[layer_config]"]') || {}).value || '';
+        return { provider: provider, query: query, css: css, layer_config: layerConfig };
+      }
+
+      function sendLayerToIframe() {
+        if (!previewIframe || !previewIframe.contentWindow) return;
+        var vals = getFormValues();
+        previewIframe.contentWindow.postMessage(
+          {
+            type: 'LAYER_PREVIEW',
+            provider: vals.provider,
+            query: vals.query,
+            css: vals.css,
+            layer_config: vals.layer_config,
+            carto_account: cartoAccount
+          },
+          frontendUrl
+        );
+      }
+
+      function debounced() {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(sendLayerToIframe, 800);
+      }
+
+      function attachFormListeners() {
+        var providerSel = document.querySelector('select[name="layer[layer_provider]"]');
+        var queryTa = document.querySelector('textarea[name="layer[query]"]');
+        var cssTa = document.querySelector('textarea[name="layer[css]"]');
+        var layerConfigTa = document.querySelector('textarea[name="layer[layer_config]"]');
+        [providerSel, queryTa, cssTa, layerConfigTa].forEach(function(el) {
+          if (el) el.addEventListener('input', debounced);
+        });
+        if (providerSel) providerSel.addEventListener('change', debounced);
+      }
+
+      previewBtn.onclick = function(e) {
+        e.preventDefault();
+        var isVisible = previewPanel.style.display !== 'none';
+        if (isVisible) {
+          previewPanel.style.display = 'none';
+          previewBtn.textContent = 'Preview Layer on Map';
+          return;
+        }
+        previewPanel.style.display = 'block';
+        previewBtn.textContent = 'Hide Layer Preview';
+
+        if (!previewIframe) {
+          var adminOrigin = encodeURIComponent(window.location.origin);
+          var iframeSrc = frontendUrl + '/admin-preview/layer?adminOrigin=' + adminOrigin;
+          previewIframe = document.createElement('iframe');
+          previewIframe.src = iframeSrc;
+          previewIframe.className = 'layer-preview-iframe';
+          previewIframe.onload = function() { sendLayerToIframe(); };
+          previewPanel.appendChild(previewIframe);
+          attachFormListeners();
+        } else {
+          sendLayerToIframe();
+        }
+      };
+
+      previewContainer.appendChild(previewBtn);
+      previewContainer.appendChild(previewPanel);
+
+      var olEl = targetFieldset.querySelector('ol');
+      if (olEl) {
+        olEl.appendChild(previewContainer);
+      } else {
+        targetFieldset.appendChild(previewContainer);
+      }
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initLayerPreview);
+    } else {
+      setTimeout(initLayerPreview, 0);
+    }
+  })();

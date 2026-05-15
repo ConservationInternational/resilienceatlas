@@ -70,5 +70,8 @@ module ConservationInternational
       if: lambda { |_env, _status, headers, _body|
         headers["Content-Type"].to_s.match?(%r{\A(text/|application/(json|javascript|xml|xhtml\+xml|atom\+xml|rss\+xml))})
       }
+
+    # Rack::Attack must be in the middleware stack; the initializer only configures rules.
+    config.middleware.use Rack::Attack
   end
 end

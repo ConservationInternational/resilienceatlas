@@ -1,5 +1,7 @@
 = semantic_form_for [:admin, resource], builder: ActiveAdmin::FormBuilder do |f|
   = f.semantic_errors
+  / Config element passes frontend URL and CartoDB account to admin preview JavaScript
+  div#layer-preview-config data-frontend-url=ENV.fetch('FRONTEND_URL', '') data-carto-account=ENV.fetch('CARTO_ACCOUNT', 'cdb') style="display:none"
   = f.inputs "Layer metadata" do
     li.input.string
       = f.label :slug
@@ -24,7 +26,7 @@
           = ff.label :legend
           span.inline-hint JSON configuration for layer legend display
           span.label-note  (JSON)
-          = ff.text_area :legend, rows: 8, class: "json-editor-textarea"
+          = ff.text_area :legend, rows: 8, class: "json-editor-textarea", data: { preview_type: "legend" }
     = f.inputs "Metadata sources" do
       = f.input :sources, as: :select, collection: Source.with_translations.all.map { |s| ["#{s.source_type} - Ref: #{s.reference_short}", s.id] }, label: "Select sources:", multiple: true
     = f.inputs "Data download" do
@@ -177,6 +179,7 @@ css:
   }
 
 = render "admin/shared/json_editor_init"
+= render "admin/shared/layer_preview"
 
 javascript:
   (function() {
