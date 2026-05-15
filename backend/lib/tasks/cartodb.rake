@@ -35,7 +35,7 @@ module CartodbRakeHelpers
   # (e.g. "public") while table names may themselves contain underscores.
   def self.parse_export_filename(basename)
     name = basename.sub(/\.csv\.gz\z/, "")
-    idx  = name.index("_")
+    idx = name.index("_")
     return nil unless idx
 
     {schema: name[0...idx], table: name[(idx + 1)..]}
@@ -151,12 +151,12 @@ namespace :cartodb do
     require "zlib"
     require "tmpdir"
 
-    export_dir    = ENV.fetch("CARTODB_EXPORT_DIR", "/data/cartodb-tables")
-    s3_bucket     = ENV.fetch("CARTODB_S3_BUCKET", "")
-    s3_prefix     = ENV.fetch("CARTODB_S3_PREFIX", "cartodb-tables/")
+    export_dir = ENV.fetch("CARTODB_EXPORT_DIR", "/data/cartodb-tables")
+    s3_bucket = ENV.fetch("CARTODB_S3_BUCKET", "")
+    s3_prefix = ENV.fetch("CARTODB_S3_PREFIX", "cartodb-tables/")
     target_schema = ENV.fetch("CARTODB_IMPORT_SCHEMA", "ra_vector")
-    force         = ENV["FORCE"] == "1"
-    use_s3        = s3_bucket.present?
+    force = ENV["FORCE"] == "1"
+    use_s3 = s3_bucket.present?
 
     # ── Pre-flight checks ───────────────────────────────────────────────────
 
@@ -170,7 +170,7 @@ namespace :cartodb do
       abort "ERROR: aws CLI not found.  Install awscli to download from S3."
     end
 
-    ar_conn  = ActiveRecord::Base.connection
+    ar_conn = ActiveRecord::Base.connection
     raw_conn = ar_conn.raw_connection  # PG::Connection – used for streaming COPY
 
     Dir.mktmpdir("cartodb_import") do |tmpdir|
@@ -217,8 +217,8 @@ namespace :cartodb do
       # ── 4. Import each file ───────────────────────────────────────────────
 
       imported = []
-      skipped  = []
-      failed   = []
+      skipped = []
+      failed = []
 
       gz_basenames.each do |basename|
         info = manifest[basename] || CartodbRakeHelpers.parse_export_filename(basename)
@@ -229,8 +229,8 @@ namespace :cartodb do
         end
 
         src_schema = info[:schema]
-        tbl        = info[:table]
-        q_table    = "\"#{target_schema}\".\"#{tbl}\""
+        tbl = info[:table]
+        q_table = "\"#{target_schema}\".\"#{tbl}\""
 
         # Prompt before overwriting an existing table
         if ar_conn.table_exists?("#{target_schema}.#{tbl}") && !force
@@ -372,10 +372,10 @@ namespace :cartodb do
 
     puts "Found #{formerly_cartodb.count} formerly CartoDB layer(s).\n\n"
 
-    ar_conn     = ActiveRecord::Base.connection
-    updated     = []
+    ar_conn = ActiveRecord::Base.connection
+    updated = []
     needs_import = []
-    no_tables   = []
+    no_tables = []
 
     formerly_cartodb.each do |layer|
       puts "Layer ##{layer.id} (#{layer.slug}):"
@@ -394,7 +394,7 @@ namespace :cartodb do
 
       # ── Check which tables are now available locally ────────────────────
 
-      local_tables   = referenced.select { |t| ar_conn.table_exists?("#{target_schema}.#{t}") }
+      local_tables = referenced.select { |t| ar_conn.table_exists?("#{target_schema}.#{t}") }
       missing_tables = referenced - local_tables
 
       puts "  Available locally : #{local_tables.any? ? local_tables.join(", ") : "(none)"}"
@@ -523,8 +523,8 @@ namespace :cartodb do
     end
 
     all_ready = 0
-    partial   = 0
-    pending   = 0
+    partial = 0
+    pending = 0
 
     formerly_cartodb.each do |layer|
       referenced = CartodbRakeHelpers.extract_table_names_from_sql(layer.query)
@@ -537,7 +537,11 @@ namespace :cartodb do
       all_avail = statuses.values.all? { |s| s == :available }
       any_avail = statuses.values.any? { |s| s == :available }
 
-      icon = all_avail ? "✓" : (any_avail ? "~" : "✗")
+      icon = if all_avail
+        "✓"
+      else
+        (any_avail ? "~" : "✗")
+      end
 
       if all_avail
         all_ready += 1
@@ -549,7 +553,7 @@ namespace :cartodb do
 
       puts "  #{icon} ##{layer.id} #{layer.slug}"
       statuses.each do |t, s|
-        puts "      #{s == :available ? "✓" : "✗"} #{target_schema}.#{t}  (#{s})"
+        puts "      #{(s == :available) ? "✓" : "✗"} #{target_schema}.#{t}  (#{s})"
       end
     end
 
