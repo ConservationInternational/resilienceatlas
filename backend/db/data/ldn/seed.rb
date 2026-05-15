@@ -1219,7 +1219,7 @@ module LdnSeeder
 
       data_dir = ENV.fetch("LDN_DATA_DIR", DATA_DIR_DEFAULT)
 
-      eco_key_csv     = File.join(data_dir, "pa_ecoregion_key.csv")
+      eco_key_csv = File.join(data_dir, "pa_ecoregion_key.csv")
       country_key_csv = File.join(data_dir, "pa_ecoregion_country_key.csv")
 
       unless File.exist?(eco_key_csv) && File.exist?(country_key_csv)

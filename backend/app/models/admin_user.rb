@@ -31,7 +31,7 @@
 
 class AdminUser < ApplicationRecord
   devise :database_authenticatable, :recoverable, :rememberable,
-         :trackable, :validatable, :lockable, :timeoutable
+    :trackable, :validatable, :lockable, :timeoutable
 
   ROLES = %i[
     admin
