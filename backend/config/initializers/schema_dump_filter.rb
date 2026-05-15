@@ -1,31 +1,48 @@
 # frozen_string_literal: true
 
-# Handle PostGIS-managed schemas in schema.rb
+# Handle PostGIS-managed and external data schemas in schema.rb.
 #
-# The "topology" schema is created automatically by the postgis_topology extension.
-# This causes two issues:
-# 1. Schema dump: topology appears in schema.rb unnecessarily
-# 2. Schema load: create_schema "topology" fails because the extension already created it
+# Schema layout:
+#   ra_app    — Rails-managed tables; appears in schema.rb normally
+#   ra_vector — externally-managed vector / CartoDB attribute tables
+#   ra_raster — externally-managed raster data
+#   topology  — created automatically by postgis_topology extension
 #
-# This initializer:
-# - Filters topology from schema dumps (prevents future occurrences)
-# - Makes create_schema idempotent for topology (handles existing schema.rb files)
+# ra_vector and ra_raster are excluded from schema.rb entirely (both
+# create_schema statements and table definitions) because they contain data
+# loaded outside Rails migrations.  Their schemas are created by the
+# 20260515160000_create_ra_schemas migration.
+#
+# topology is excluded because postgis_topology creates it automatically,
+# so a create_schema call in schema.rb would fail on db:schema:load.
+#
+# All managed schemas are made idempotent on create_schema so that
+# db:schema:load does not fail when run against an existing database.
 
-POSTGIS_MANAGED_SCHEMAS = %w[topology].freeze
+# Schemas where create_schema must be idempotent on db:schema:load.
+# ra_app is created by the 20260515160000_create_ra_schemas migration and appears
+# in schema.rb; ra_vector/ra_raster are also migration-created but excluded from
+# schema.rb entirely (see below).
+IDEMPOTENT_SCHEMAS = %w[topology ra_app ra_vector ra_raster].freeze
 
-# Module to make create_schema idempotent for PostGIS-managed schemas
+# Schemas to omit entirely from schema.rb (create_schema statements + all tables).
+# ra_vector and ra_raster hold externally-managed data loaded outside Rails migrations.
+# topology is auto-created by the postgis_topology extension.
+FILTERED_FROM_DUMP = %w[topology ra_vector ra_raster].freeze
+
+# Module to make create_schema idempotent for all managed schemas
 module IdempotentPostgisSchema
   def create_schema(schema_name, *args, **kwargs)
-    # Skip creation for PostGIS-managed schemas if they already exist
-    if POSTGIS_MANAGED_SCHEMAS.include?(schema_name.to_s) && schema_exists?(schema_name)
+    if IDEMPOTENT_SCHEMAS.include?(schema_name.to_s) && schema_exists?(schema_name)
       return
     end
     super
   end
 end
 
-# Patch schema dumper to exclude PostGIS-managed schemas
+# Patch schema dumper to exclude externally-managed schemas and their tables
 module PostgisSchemaFilter
+  # Omit create_schema statements for filtered schemas
   def schemas(stream)
     schema_names = @connection.query_values(<<~SQL.squish, "SCHEMA")
       SELECT nspname
@@ -35,22 +52,37 @@ module PostgisSchemaFilter
       ORDER BY nspname
     SQL
 
-    filtered_schemas = schema_names - POSTGIS_MANAGED_SCHEMAS
+    filtered_schemas = schema_names - FILTERED_FROM_DUMP
 
     filtered_schemas.each do |schema_name|
       stream.puts "  create_schema #{schema_name.inspect}"
     end
     stream.puts if filtered_schemas.any?
   end
+
+  # Populate the set of table names that belong to external schemas so that
+  # ignored? can exclude them from the table dump.
+  def tables(stream)
+    @external_schema_tables = @connection.execute(<<~SQL).map { |row| row["relname"] }
+      SELECT c.relname
+      FROM pg_class c
+      JOIN pg_namespace n ON n.oid = c.relnamespace
+      WHERE c.relkind IN ('r', 'p')
+        AND n.nspname = ANY(ARRAY['#{FILTERED_FROM_DUMP.join("', '")}'])
+    SQL
+    super
+  end
+
+  def ignored?(table_name)
+    @external_schema_tables&.include?(table_name.to_s) || super
+  end
 end
 
 ActiveSupport.on_load(:active_record) do
-  # Prepend idempotent schema handling to the PostgreSQL adapter
   if defined?(ActiveRecord::ConnectionAdapters::PostgreSQLAdapter)
     ActiveRecord::ConnectionAdapters::PostgreSQLAdapter.prepend(IdempotentPostgisSchema)
   end
 
-  # Prepend schema filter to the schema dumper
   if defined?(ActiveRecord::ConnectionAdapters::PostgreSQL::SchemaDumper)
     ActiveRecord::ConnectionAdapters::PostgreSQL::SchemaDumper.prepend(PostgisSchemaFilter)
   end

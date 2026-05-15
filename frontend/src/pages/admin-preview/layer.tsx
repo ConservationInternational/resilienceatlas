@@ -73,10 +73,7 @@ interface LayerSpec {
 
 type ProviderLayerConfig = Record<string, unknown>;
 
-function buildLayerConfig(
-  provider: string,
-  layerConfigJson: string,
-): ProviderLayerConfig | null {
+function buildLayerConfig(provider: string, layerConfigJson: string): ProviderLayerConfig | null {
   let layerConfig: Record<string, unknown> = {};
   try {
     if (layerConfigJson) {
@@ -89,8 +86,10 @@ function buildLayerConfig(
   const maxzoom = (layerConfig as { zoom_max?: number }).zoom_max;
   const body = (layerConfig as { body?: Record<string, unknown> }).body || {};
   const source = body.source || (layerConfig as { source?: unknown }).source;
-  const styles: Record<string, unknown> = (body.styles as Record<string, unknown> | undefined) ?? {};
-  const options: Record<string, unknown> = (body.options as Record<string, unknown> | undefined) ?? {};
+  const styles: Record<string, unknown> =
+    (body.styles as Record<string, unknown> | undefined) ?? {};
+  const options: Record<string, unknown> =
+    (body.options as Record<string, unknown> | undefined) ?? {};
 
   switch (provider) {
     case 'xyz tileset':
@@ -163,10 +162,7 @@ function buildLayerConfig(
   }
 }
 
-function buildLayerSpec(
-  provider: string,
-  layerConfigJson: string,
-): LayerSpec | null {
+function buildLayerSpec(provider: string, layerConfigJson: string): LayerSpec | null {
   const layerConfig = buildLayerConfig(provider, layerConfigJson);
   if (!layerConfig) return null;
 

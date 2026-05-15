@@ -8,6 +8,10 @@ default: &default
   port: <%= ENV["DATABASE_PORT"] %>
   username: <%= ENV["DATABASE_USER"] %>
   password: <%= ENV["DATABASE_PASSWORD"] %>
+  # ra_app holds all Rails-managed tables; ra_vector/ra_raster hold external data
+  # and are included so unqualified SQL in layer queries can resolve without
+  # schema-qualifying every table name.
+  schema_search_path: ra_app,ra_vector,ra_raster,public
 
 development:
   <<: *default

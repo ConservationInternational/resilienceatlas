@@ -576,10 +576,11 @@ import_ldn_gpkgs_from_host() {
       error "$gpkg not found in $LDN_DATA_DIR"
     fi
 
-    info "  Importing $gpkg → $table (host-side ogr2ogr)..."
+    info "  Importing $gpkg → ra_vector.$table (host-side ogr2ogr)..."
     PGPASSWORD="$DB_PASS" ogr2ogr -f PostgreSQL "$pg_dsn" \
       "$path" \
       -nln "$table" -overwrite \
+      -lco SCHEMA=ra_vector \
       -lco GEOMETRY_NAME=geom \
       -lco FID=ogc_fid \
       -lco SPATIAL_INDEX=NONE \

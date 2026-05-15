@@ -1466,9 +1466,8 @@ module LdnSeeder
       end
 
       # Ecoregion key
-      conn.execute("DROP TABLE IF EXISTS _eco_key")
       conn.execute(<<~SQL)
-        CREATE TABLE _eco_key (
+        CREATE TEMP TABLE IF NOT EXISTS _eco_key (
           unit_id    int,
           is_pa      int,
           eco_id     int,
@@ -1476,15 +1475,15 @@ module LdnSeeder
           biome_num  int,
           biome_name text,
           realm      text
-        )
+        ) ON COMMIT PRESERVE ROWS
       SQL
+      conn.execute("TRUNCATE _eco_key")
       copy_csv_to_table(conn, "_eco_key", eco_key_csv)
       puts "  Imported _eco_key: #{conn.select_value("SELECT count(*) FROM _eco_key")} rows"
 
       # Country-ecoregion key
-      conn.execute("DROP TABLE IF EXISTS _eco_country_key")
       conn.execute(<<~SQL)
-        CREATE TABLE _eco_country_key (
+        CREATE TEMP TABLE IF NOT EXISTS _eco_country_key (
           unit_id      int,
           is_pa        int,
           eco_id       int,
@@ -1495,8 +1494,9 @@ module LdnSeeder
           country_id   int,
           country_code text,
           country_name text
-        )
+        ) ON COMMIT PRESERVE ROWS
       SQL
+      conn.execute("TRUNCATE _eco_country_key")
       copy_csv_to_table(conn, "_eco_country_key", country_key_csv)
       puts "  Imported _eco_country_key: #{conn.select_value("SELECT count(*) FROM _eco_country_key")} rows"
     end
@@ -1507,9 +1507,8 @@ module LdnSeeder
       conn = ActiveRecord::Base.connection
 
       # Ecoregion stats (comma-delimited)
-      conn.execute("DROP TABLE IF EXISTS _eco_stats")
       conn.execute(<<~SQL)
-        CREATE TABLE _eco_stats (
+        CREATE TEMP TABLE IF NOT EXISTS _eco_stats (
           eco_id                                int,
           gains_km2                             double precision,
           losses_km2                            double precision,
@@ -1532,16 +1531,16 @@ module LdnSeeder
           imp_to_imp_sqkm                       double precision,
           delta_ldn_km2                         double precision,
           ldn_pct                               double precision
-        )
+        ) ON COMMIT PRESERVE ROWS
       SQL
+      conn.execute("TRUNCATE _eco_stats")
       copy_csv_to_table(conn, "_eco_stats", eco_stats_csv)
       puts "  Imported _eco_stats: #{conn.select_value("SELECT count(*) FROM _eco_stats")} rows"
 
       # Country-ecoregion stats (comma-delimited)
       if File.exist?(country_eco_stats_csv)
-        conn.execute("DROP TABLE IF EXISTS _country_eco_stats")
         conn.execute(<<~SQL)
-          CREATE TABLE _country_eco_stats (
+          CREATE TEMP TABLE IF NOT EXISTS _country_eco_stats (
             admin0_id                             int,
             eco_id                                int,
             gains_km2                             double precision,
@@ -1565,8 +1564,9 @@ module LdnSeeder
             imp_to_imp_sqkm                       double precision,
             delta_ldn_km2                         double precision,
             ldn_pct                               double precision
-          )
+          ) ON COMMIT PRESERVE ROWS
         SQL
+        conn.execute("TRUNCATE _country_eco_stats")
         copy_csv_to_table(conn, "_country_eco_stats", country_eco_stats_csv)
         puts "  Imported _country_eco_stats: #{conn.select_value("SELECT count(*) FROM _country_eco_stats")} rows"
       end
@@ -1603,7 +1603,7 @@ module LdnSeeder
 
       conn = ActiveRecord::Base.connection
       exists = conn.select_value(
-        "SELECT to_regclass('public.ldn_dissolved_geometries') IS NOT NULL"
+        "SELECT to_regclass('ra_vector.ldn_dissolved_geometries') IS NOT NULL"
       )
       unless exists
         puts "    SKIP geometries for #{dataset.slug}: run `rake ldn:build_dimensions` first"

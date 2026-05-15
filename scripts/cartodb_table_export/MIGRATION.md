@@ -99,7 +99,7 @@ it into PostgreSQL.  Column types are inferred automatically from a 1 000-row sa
 | `CARTODB_S3_BUCKET` | _(none)_ | S3 bucket containing the exports.  Required when using S3. |
 | `CARTODB_S3_PREFIX` | `cartodb-tables/` | S3 key prefix |
 | `CARTODB_EXPORT_DIR` | `/data/cartodb-tables` | Local directory with `.csv.gz` files (used when `CARTODB_S3_BUCKET` is not set) |
-| `CARTODB_IMPORT_SCHEMA` | `public` | Target PostgreSQL schema |
+| `CARTODB_IMPORT_SCHEMA` | `ra_vector` | Target PostgreSQL schema |
 | `FORCE` | _(unset)_ | Set to `1` to overwrite existing tables without prompting |
 
 **From S3 (typical production use)**
@@ -167,7 +167,7 @@ For each such layer the task:
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `CARTODB_IMPORT_SCHEMA` | `public` | Schema that was used for import (must match `import_tables`) |
+| `CARTODB_IMPORT_SCHEMA` | `ra_vector` | Schema that was used for import (must match `import_tables`) |
 
 ```bash
 docker compose -f docker-compose.dev.yml run --rm backend \

@@ -487,7 +487,7 @@ module ThresholdsSeeder
   def self.copy_dissolved_geometries(dataset, source, unit_key)
     conn = ActiveRecord::Base.connection
     exists = conn.select_value(
-      "SELECT to_regclass('public.ldn_dissolved_geometries') IS NOT NULL"
+      "SELECT to_regclass('ra_vector.ldn_dissolved_geometries') IS NOT NULL"
     )
     unless exists
       puts "    SKIP geometries for #{dataset.slug}: run `rake ldn:build_dimensions` first"

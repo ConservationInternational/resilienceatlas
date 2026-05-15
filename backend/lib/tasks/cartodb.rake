@@ -154,7 +154,7 @@ namespace :cartodb do
     export_dir    = ENV.fetch("CARTODB_EXPORT_DIR", "/data/cartodb-tables")
     s3_bucket     = ENV.fetch("CARTODB_S3_BUCKET", "")
     s3_prefix     = ENV.fetch("CARTODB_S3_PREFIX", "cartodb-tables/")
-    target_schema = ENV.fetch("CARTODB_IMPORT_SCHEMA", "public")
+    target_schema = ENV.fetch("CARTODB_IMPORT_SCHEMA", "ra_vector")
     force         = ENV["FORCE"] == "1"
     use_s3        = s3_bucket.present?
 
@@ -357,7 +357,7 @@ namespace :cartodb do
       rake cartodb:update_layer_references
   DESC
   task update_layer_references: :environment do
-    target_schema = ENV.fetch("CARTODB_IMPORT_SCHEMA", "public")
+    target_schema = ENV.fetch("CARTODB_IMPORT_SCHEMA", "ra_vector")
 
     formerly_cartodb = Layer
       .where(layer_provider: nil, published: false)

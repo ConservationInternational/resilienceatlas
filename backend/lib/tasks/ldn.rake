@@ -45,9 +45,8 @@ namespace :ldn do
     end
 
     puts "Importing key CSVs..."
-    conn.execute("DROP TABLE IF EXISTS _eco_key")
     conn.execute(<<~SQL)
-      CREATE TABLE _eco_key (
+      CREATE TEMP TABLE IF NOT EXISTS _eco_key (
         unit_id  int,
         is_pa    int,
         eco_id   int,
@@ -55,14 +54,14 @@ namespace :ldn do
         biome_num int,
         biome_name text,
         realm    text
-      )
+      ) ON COMMIT PRESERVE ROWS
     SQL
+    conn.execute("TRUNCATE _eco_key")
     copy_csv(conn, "_eco_key", eco_key_csv)
     puts "  _eco_key: #{conn.select_value("SELECT count(*) FROM _eco_key")} rows"
 
-    conn.execute("DROP TABLE IF EXISTS _eco_country_key")
     conn.execute(<<~SQL)
-      CREATE TABLE _eco_country_key (
+      CREATE TEMP TABLE IF NOT EXISTS _eco_country_key (
         unit_id      int,
         is_pa        int,
         eco_id       int,
@@ -73,21 +72,22 @@ namespace :ldn do
         country_id   int,
         country_code text,
         country_name text
-      )
+      ) ON COMMIT PRESERVE ROWS
     SQL
+    conn.execute("TRUNCATE _eco_country_key")
     copy_csv(conn, "_eco_country_key", country_key_csv)
     puts "  _eco_country_key: #{conn.select_value("SELECT count(*) FROM _eco_country_key")} rows"
 
-    # ── Create/truncate target table ──
+    # ── Create/truncate target table in ra_vector (external vector data) ──
     conn.execute(<<~SQL)
-      CREATE TABLE IF NOT EXISTS ldn_dissolved_geometries (
+      CREATE TABLE IF NOT EXISTS ra_vector.ldn_dissolved_geometries (
         id          serial PRIMARY KEY,
         dimension   text NOT NULL,
         unit_id     text NOT NULL,
         properties  jsonb,
         geom        geometry(MultiPolygon, 4326)
       );
-      TRUNCATE ldn_dissolved_geometries;
+      TRUNCATE ra_vector.ldn_dissolved_geometries;
     SQL
 
     total = 0
@@ -98,7 +98,7 @@ namespace :ldn do
     # projected from properties for biome/realm/ecoregion views.
     puts "Loading ecoregion geometries..."
     conn.execute(<<~SQL)
-      INSERT INTO ldn_dissolved_geometries (dimension, unit_id, properties, geom)
+      INSERT INTO ra_vector.ldn_dissolved_geometries (dimension, unit_id, properties, geom)
       SELECT
         'ecoregion',
         k.eco_id::text,
@@ -109,11 +109,11 @@ namespace :ldn do
           'realm', k.realm
         ),
         g.geom
-      FROM _pa_ecoregion_raw g
+      FROM ra_vector._pa_ecoregion_raw g
       JOIN _eco_key k ON g.unit_id = k.unit_id
       WHERE k.is_pa = 0
     SQL
-    count = conn.select_value("SELECT count(*) FROM ldn_dissolved_geometries WHERE dimension = 'ecoregion'")
+    count = conn.select_value("SELECT count(*) FROM ra_vector.ldn_dissolved_geometries WHERE dimension = 'ecoregion'")
     puts "  #{count} ecoregion geometries"
     total += count.to_i
 
@@ -123,7 +123,7 @@ namespace :ldn do
     # properties->>'country_id' so all polygons in a country highlight together.
     puts "Loading country-ecoregion geometries..."
     conn.execute(<<~SQL)
-      INSERT INTO ldn_dissolved_geometries (dimension, unit_id, properties, geom)
+      INSERT INTO ra_vector.ldn_dissolved_geometries (dimension, unit_id, properties, geom)
       SELECT
         'country_ecoregion',
         k.country_id::text || ':' || k.eco_id::text,
@@ -137,46 +137,49 @@ namespace :ldn do
           'realm', k.realm
         ),
         g.geom
-      FROM _pa_ecoregion_country_raw g
+      FROM ra_vector._pa_ecoregion_country_raw g
       JOIN _eco_country_key k ON g.unit_id = k.unit_id
       WHERE k.is_pa = 0
     SQL
-    count = conn.select_value("SELECT count(*) FROM ldn_dissolved_geometries WHERE dimension = 'country_ecoregion'")
+    count = conn.select_value("SELECT count(*) FROM ra_vector.ldn_dissolved_geometries WHERE dimension = 'country_ecoregion'")
     puts "  #{count} country-ecoregion geometries"
     total += count.to_i
 
     # ── Index for fast lookups during seed ──
     conn.execute(<<~SQL)
       CREATE INDEX IF NOT EXISTS idx_ldn_dissolved_dim
-        ON ldn_dissolved_geometries (dimension);
+        ON ra_vector.ldn_dissolved_geometries (dimension);
     SQL
 
-    # ── Cleanup temp tables ──
-    %w[_pa_ecoregion_raw _pa_ecoregion_country_raw _eco_key _eco_country_key].each do |t|
+    # Temp tables (_eco_key, _eco_country_key) are session-scoped and will be
+    # dropped automatically when the connection closes.
+    # _pa_ecoregion_raw/_pa_ecoregion_country_raw live in ra_vector; drop them
+    # explicitly so they do not persist after the build.
+    %w[ra_vector._pa_ecoregion_raw ra_vector._pa_ecoregion_country_raw].each do |t|
       conn.execute("DROP TABLE IF EXISTS #{t}")
     end
 
-    puts "Done — #{total} geometries in ldn_dissolved_geometries."
+    puts "Done — #{total} geometries in ra_vector.ldn_dissolved_geometries."
   end
 
   desc "Show status of pre-dissolved geometries"
   task geometry_status: :environment do
     conn = ActiveRecord::Base.connection
     exists = conn.select_value(
-      "SELECT to_regclass('public.ldn_dissolved_geometries') IS NOT NULL"
+      "SELECT to_regclass('ra_vector.ldn_dissolved_geometries') IS NOT NULL"
     )
     unless exists
-      puts "Table ldn_dissolved_geometries does not exist. Run `rake ldn:build_dimensions` first."
+      puts "Table ra_vector.ldn_dissolved_geometries does not exist. Run `rake ldn:build_dimensions` first."
       next
     end
 
     rows = conn.exec_query(
-      "SELECT dimension, count(*) AS count FROM ldn_dissolved_geometries GROUP BY dimension ORDER BY dimension"
+      "SELECT dimension, count(*) AS count FROM ra_vector.ldn_dissolved_geometries GROUP BY dimension ORDER BY dimension"
     )
     if rows.empty?
       puts "Table exists but is empty."
     else
-      puts "ldn_dissolved_geometries:"
+      puts "ra_vector.ldn_dissolved_geometries:"
       rows.each { |r| puts "  #{r["dimension"]}: #{r["count"]} geometries" }
     end
   end
