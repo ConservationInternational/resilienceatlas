@@ -12,10 +12,9 @@ import {
 const provider = {
   cartodb: 'carto',
   raster: 'carto',
-  'xyz tileset': 'leaflet',
+  'xyz tileset': 'xyz tileset',
   cog: 'cog',
-  gee: 'leaflet',
-  leaflet: 'leaflet',
+  gee: 'gee',
   martin: 'martin',
 };
 
@@ -141,15 +140,6 @@ export const layer = new schema.Entity(
             },
           };
         })(),
-        // Generic leaflet layers - use layer_config directly from the backend
-        leaflet: {
-          ...layerConfig,
-          type: layerConfig?.type || 'tileLayer',
-          body: {
-            ...(layerConfig?.body || {}),
-            url: layerConfig?.body?.url || layerConfig?.url,
-          },
-        },
         // Martin vector tile layers - source name + optional styles
         martin: {
           ...layerConfig,

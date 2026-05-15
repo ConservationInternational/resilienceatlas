@@ -66,7 +66,7 @@ const parseCogLayerUrls = (layerModel) => {
 /**
  * Fetch bounds for a COG layer from TiTiler /info endpoint
  * @param {Object} layerModel - The layer model
- * @returns {Promise<[[number, number], [number, number]] | null>} - Leaflet bounds or null
+ * @returns {Promise<[[number, number], [number, number]] | null>} - Bounds as [[south, west], [north, east]] or null
  */
 export const fetchCogBounds = (layerModel) => {
   const urls = parseCogLayerUrls(layerModel);
@@ -104,14 +104,14 @@ export const fetchCogBounds = (layerModel) => {
       if (data && data.bounds && Array.isArray(data.bounds) && data.bounds.length === 4) {
         const [minx, miny, maxx, maxy] = data.bounds;
 
-        // Convert to Leaflet bounds format: [[south, west], [north, east]]
+        // Bounds format: [[south, west], [north, east]]
         // which is [[miny, minx], [maxy, maxx]] in lat/lng order
-        const leafletBounds = [
+        const bounds = [
           [miny, minx],
           [maxy, maxx],
         ];
 
-        return leafletBounds;
+        return bounds;
       }
 
       console.warn('[COG Service] Bounds not found in TiTiler info response:', data);

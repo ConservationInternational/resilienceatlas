@@ -55,7 +55,6 @@ const PROVIDER_MAP: Record<string, string> = {
   cog: 'cog',
   esri: 'arcgis',
   gee: 'gee',
-  leaflet: 'leaflet',
   martin: 'martin',
   wms: 'wms',
   wmts: 'wmts',
@@ -122,16 +121,6 @@ function buildLayerConfig(
         },
       };
     }
-
-    case 'leaflet':
-      return {
-        ...layerConfig,
-        type: (layerConfig.type as string) || 'tileLayer',
-        body: {
-          ...body,
-          url: (body.url as string) || (layerConfig.url as string),
-        },
-      };
 
     case 'esri':
       return {

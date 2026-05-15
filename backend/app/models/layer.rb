@@ -145,10 +145,10 @@ class Layer < ApplicationRecord
   validates :analysis_body, json: {schema: :analysis_body, message: "must be valid JSON"}, if: -> { analysis_body.present? }
 
   # Validate layer_provider is one of the allowed values
-  VALID_PROVIDERS = ["cog", "esri", "gee", "leaflet", "martin", "wms", "wmts", "xyz tileset"].freeze
+  VALID_PROVIDERS = ["cog", "esri", "gee", "martin", "wms", "wmts", "xyz tileset"].freeze
   validates :layer_provider, inclusion: {
     in: VALID_PROVIDERS,
-    message: "must be one of: cog, esri, gee, leaflet, martin, wms, wmts, or xyz tileset",
+    message: "must be one of: cog, esri, gee, martin, wms, wmts, or xyz tileset",
     allow_nil: false
   }, if: -> { layer_provider.present? }
 

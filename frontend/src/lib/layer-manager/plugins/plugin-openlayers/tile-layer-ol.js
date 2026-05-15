@@ -12,7 +12,7 @@ import TileWMS from 'ol/source/TileWMS';
  *   type: 'tileLayer' (default) | 'wms'
  *   params: for WMS: { LAYERS, VERSION, FORMAT, ... }
  */
-const LeafletLayerOL = (layerModel) => {
+const TileLayerOL = (layerModel) => {
   const { layerConfig, params, sqlParams } = layerModel;
   const layerConfigParsed =
     layerConfig.parse === false
@@ -48,6 +48,6 @@ const LeafletLayerOL = (layerModel) => {
   });
 };
 
-LeafletLayerOL.getBounds = () => Promise.resolve(null);
+TileLayerOL.getBounds = () => Promise.resolve(null);
 
-export default LeafletLayerOL;
+export default TileLayerOL;

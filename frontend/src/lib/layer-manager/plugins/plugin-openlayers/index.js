@@ -2,7 +2,7 @@ import cogLayer from './cog-layer-ol';
 import geeLayer from './gee-layer-ol';
 import esriLayer from './esri-layer-ol';
 import martinLayer from './martin-layer-ol';
-import leafletLayer from './leaflet-layer-ol';
+import tileLayer from './tile-layer-ol';
 import wmsLayer from './wms-layer-ol';
 import wmtsLayer from './wmts-layer-ol';
 import VectorTileLayer from 'ol/layer/VectorTile';
@@ -29,16 +29,14 @@ class PluginOpenLayers {
     esrifeatureservice: esriLayer,
     esrimapservice: esriLayer,
     esritileservice: esriLayer,
-    // Generic XYZ / WMS detection
-    leaflet: leafletLayer,
     // Named WMS provider
     wms: wmsLayer,
     // Named WMTS provider
     wmts: wmtsLayer,
     // Martin PostGIS vector tiles
     martin: martinLayer,
-    // xyz tileset (same as generic leaflet/XYZ)
-    'xyz tileset': leafletLayer,
+    // xyz tileset (same as generic XYZ tile)
+    'xyz tileset': tileLayer,
   };
 
   /**
