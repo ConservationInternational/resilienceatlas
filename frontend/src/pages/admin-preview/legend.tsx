@@ -67,7 +67,13 @@ const LegendPreviewPage: NextPageWithLayout = () => {
       <div className="side-bar">
         <div
           className="m-legend"
-          style={{ position: 'static', boxShadow: 'none', padding: '0', width: '100%', background: 'transparent' }}
+          style={{
+            position: 'static',
+            boxShadow: 'none',
+            padding: '0',
+            width: '100%',
+            background: 'transparent',
+          }}
         >
           <LegendErrorBoundary onError={setErrorMsg}>
             <LegendItem legend={legendJson} layer={{ id: 'admin-preview', chartLimit: 100 }} />
@@ -76,18 +82,10 @@ const LegendPreviewPage: NextPageWithLayout = () => {
       </div>
     );
   } else {
-    content = (
-      <div style={styles.placeholder}>
-        Waiting for legend data&hellip;
-      </div>
-    );
+    content = <div style={styles.placeholder}>Waiting for legend data&hellip;</div>;
   }
 
-  return (
-    <div style={styles.container}>
-      {content}
-    </div>
-  );
+  return <div style={styles.container}>{content}</div>;
 };
 
 // No layout — bare page suitable for iframe embedding

@@ -1,47 +1,30 @@
-// Import leaflet and make it globally available BEFORE importing plugins
-import L from 'leaflet';
-
 // These will be dynamically imported on client-side only
 // eslint-disable-next-line @typescript-eslint/consistent-type-imports
 let LayerManager: typeof import('lib/layer-manager/components').LayerManager;
 // eslint-disable-next-line @typescript-eslint/consistent-type-imports
 let Layer: typeof import('lib/layer-manager/components').Layer;
 // eslint-disable-next-line @typescript-eslint/consistent-type-imports
-let PluginLeaflet: typeof import('lib/layer-manager/plugins/plugin-leaflet').default;
+let PluginOpenLayers: typeof import('lib/layer-manager/plugins/plugin-openlayers').default;
 
-// Make L globally available for plugins that expect it (like leaflet-geoman)
-// This must happen before importing plugins, so we use a side-effect approach
 if (typeof window !== 'undefined') {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (window as any).L = L;
-
-  // Now import plugins that depend on window.L
-  // Using require() to ensure they run after the window.L assignment above
-  require('@geoman-io/leaflet-geoman-free');
-  require('leaflet-active-area');
-  // UTFGrid library requires corslite, only included in the minimized version
-  require('leaflet-utfgrid/L.UTFGrid-min');
-  // VectorGrid for MVT (protobuf) tile rendering — used for admin boundary overlays
-  require('leaflet.vectorgrid');
-
-  // Import layer-manager components that also require window.L
+  // Import layer-manager components
   const components = require('lib/layer-manager/components');
   LayerManager = components.LayerManager;
   Layer = components.Layer;
-  const lm = require('lib/layer-manager/plugins/plugin-leaflet');
-  PluginLeaflet = lm.default;
+  const lm = require('lib/layer-manager/plugins/plugin-openlayers');
+  PluginOpenLayers = lm.default;
 }
 
-// CSS imports must be static for bundler to process them
-import '@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css';
-
 import { useRouterParams } from 'utilities';
-import React, { useCallback, useEffect, useContext, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useContext, useMemo } from 'react';
+import { useState } from 'react';
 import qs from 'qs';
+import { toLonLat } from 'ol/proj';
+import type OlMap from 'ol/Map';
 import omit from 'lodash/omit';
 import pick from 'lodash/pick';
 import type { MapViewProps } from './types';
-import { LeafletMap, MapControls, ZoomControl } from './LeafletMap/exports';
+import { OLMap, MapControls, ZoomControl } from './OLMap/exports';
 import { TABS } from 'views/components/Sidebar';
 import { useLoadLayers, useGetCenter } from './Map.hooks';
 import { BASEMAPS, LABELS } from 'views/utils';
@@ -182,10 +165,6 @@ const MapView = (props: MapViewProps) => {
     [onLoadingLayers],
   );
 
-  const onLayerLoaded = useCallback(() => {
-    onLayerLoading(false);
-  }, [onLayerLoading]);
-
   const MAX_LAYER_Z_INDEX = 1000;
 
   // Memoize label and basemap configs to prevent infinite re-renders
@@ -209,7 +188,7 @@ const MapView = (props: MapViewProps) => {
   }, [compareEnabled]);
 
   return (
-    <LeafletMap
+    <OLMap
       customClass={mapClasses}
       label={safeLabel}
       basemap={safeBasemap}
@@ -224,27 +203,12 @@ const MapView = (props: MapViewProps) => {
         maxZoom: 13,
       }}
       events={{
-        layeradd: (e) => {
-          const layer = (e as L.LayerEvent).layer as L.TileLayer;
-          if (
-            // to avoid displaying loading state with labels
-            (layer as { _url?: string })?._url?.startsWith(
-              'https://api.mapbox.com/styles/v1/cigrp',
-            ) ||
-            // to avoid displaying loading state when the user interacts with the map (click on a layer)
-            Object.prototype.hasOwnProperty.call(layer, '_content') ||
-            // Skip VectorGrid layers (scope geometry) — they manage their own lifecycle
-            Object.prototype.hasOwnProperty.call(layer, '_vectorTiles')
-          )
-            return;
-          onLayerLoading(true);
-          layer.on('load', onLayerLoaded);
-        },
-        zoomend: (e, map) => {
-          const mapZoom = map.getZoom();
+        zoomend: (map: OlMap) => {
+          const view = map.getView();
+          const mapZoom = Math.round(view.getZoom() ?? 2);
 
           if (mapZoom !== (+site?.zoom_level || 2)) {
-            setParam('zoom', String(map.getZoom()));
+            setParam('zoom', String(mapZoom));
           } else {
             // clear param if it's default
             setParam('zoom', null);
@@ -252,10 +216,13 @@ const MapView = (props: MapViewProps) => {
 
           // Update map center in url, because it basically changed
           // after 'pinches' and zoom in/out from mousewheel.
-          setParam('center', qs.stringify(map.getCenter()));
+          const [lng, lat] = toLonLat(view.getCenter() ?? [0, 20]);
+          setParam('center', qs.stringify({ lat, lng }));
         },
-        dragend: (e, map) => {
-          setParam('center', qs.stringify(map.getCenter()));
+        dragend: (map: OlMap) => {
+          const view = map.getView();
+          const [lng, lat] = toLonLat(view.getCenter() ?? [0, 20]);
+          setParam('center', qs.stringify({ lat, lng }));
         },
       }}
     >
@@ -264,7 +231,7 @@ const MapView = (props: MapViewProps) => {
           {tab === TABS.LAYERS && activeLayers && activeLayers.length > 0 && (
             <LayerManager
               map={map}
-              plugin={PluginLeaflet}
+              plugin={PluginOpenLayers}
               ref={layerManagerRef}
               onLayerLoading={onLayerLoading}
               onLayerError={onLayerError}
@@ -309,7 +276,7 @@ const MapView = (props: MapViewProps) => {
           {tab === TABS.MODELS && model_layer && (
             <LayerManager
               map={map}
-              plugin={PluginLeaflet}
+              plugin={PluginOpenLayers}
               ref={layerManagerRef}
               key="model_layer"
               onLayerError={onLayerError}
@@ -344,7 +311,7 @@ const MapView = (props: MapViewProps) => {
           />
         </>
       )}
-    </LeafletMap>
+    </OLMap>
   );
 };
 

@@ -80,7 +80,7 @@ export default [
       'cypress/**',
     ],
   },
-  
+
   // Base JavaScript recommended rules
   js.configs.recommended,
 
@@ -176,7 +176,10 @@ export default [
       'no-console': 'warn',
       'no-debugger': 'warn',
       // In React 17+, React import is not required for JSX
-      'no-unused-vars': ['warn', { varsIgnorePattern: '^React$', ignoreRestSiblings: true, argsIgnorePattern: '^_' }],
+      'no-unused-vars': [
+        'warn',
+        { varsIgnorePattern: '^React$', ignoreRestSiblings: true, argsIgnorePattern: '^_' },
+      ],
       'react/jsx-uses-vars': 'error',
     },
   },

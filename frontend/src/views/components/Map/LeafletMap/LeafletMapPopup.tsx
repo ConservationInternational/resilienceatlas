@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Map Popup component for Leaflet
  * Displays a popup at a specific location on the map

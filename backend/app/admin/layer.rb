@@ -1,7 +1,7 @@
 ActiveAdmin.register Layer do
   includes :translations
 
-  permit_params :name, :slug, :published, :zindex, :order, :query, :layer_config, :layer_provider, :css, :opacity,
+  permit_params :name, :slug, :published, :zindex, :order, :layer_config, :layer_provider, :opacity,
     :legend, :zoom_max, :zoom_min, :dashboard_order, :source_id, :data_units, :analysis_suitable, :analysis_type,
     :timeline, :timeline_steps, :timeline_start_date, :timeline_end_date, :timeline_default_date,
     :timeline_period, :analysis_query, :analysis_body, :interaction_config, :processing, :download,
@@ -77,27 +77,14 @@ ActiveAdmin.register Layer do
       row :legend
       row :download
       row :layer_provider
-      if resource.layer_provider == "cartodb"
-        row :query do |record|
-          pre class: "code-block" do
-            record.query
-          end
-        end
-        row :css do |record|
-          pre class: "code-block" do
-            record.css
-          end
-        end
-        row :opacity
-        row :zindex
-        row :order
-        row :zoom_max
-        row :zoom_min
-      else
-        row :layer_config do |record|
-          render "admin/shared/json_display", json: record.layer_config if record.layer_config.present?
-        end
+      row :layer_config do |record|
+        render "admin/shared/json_display", json: record.layer_config if record.layer_config.present?
       end
+      row :opacity
+      row :zindex
+      row :order
+      row :zoom_max
+      row :zoom_min
       row :interaction_config do |record|
         render "admin/shared/json_display", json: record.interaction_config if record.interaction_config.present?
       end

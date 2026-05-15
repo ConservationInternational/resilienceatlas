@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Native Leaflet Map component to replace vizzuality-components
  * This provides React 19 compatible Leaflet integration

@@ -1,8 +1,8 @@
 /**
- * ScopeGeometryLayer — Leaflet overlay for scope dataset geometries.
+ * ScopeGeometryLayer — OpenLayers overlay for scope dataset geometries.
  *
  * Highlight mode: fetches only the single selected polygon as GeoJSON from
- * the backend and renders it with L.geoJSON — no bulk tile download.
+ * the backend and renders it with VectorLayer — no bulk tile download.
  *
  * Spatial-filter mode: renders MVT tiles from Martin `scope_dataset_tiles`
  * to show multiple matching polygons.
@@ -10,8 +10,18 @@
  * Usage: render inside the Map children function, passing the map instance:
  *   <ScopeGeometryLayer map={map} />
  */
-import { useEffect, useRef, useCallback, useState } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
+import VectorLayer from 'ol/layer/Vector';
+import VectorSource from 'ol/source/Vector';
+import VectorTileLayer from 'ol/layer/VectorTile';
+import VectorTileSource from 'ol/source/VectorTile';
+import MVT from 'ol/format/MVT';
+import GeoJSON from 'ol/format/GeoJSON';
+import Style from 'ol/style/Style';
+import Stroke from 'ol/style/Stroke';
+import Fill from 'ol/style/Fill';
+import { toLonLat } from 'ol/proj';
 
 import {
   getLoaded,
@@ -27,38 +37,20 @@ import {
   fetchGeometryAtPoint,
 } from 'state/modules/scope_datasets';
 
-const HIGHLIGHT_STYLE = {
-  weight: 3,
-  color: '#e74c3c',
-  opacity: 1,
-  fill: true,
-  fillColor: '#e74c3c',
-  fillOpacity: 0.3,
-};
+const geojsonFormat = new GeoJSON();
 
-const DEFAULT_STYLE = {
-  weight: 1,
-  color: '#666',
-  opacity: 0.6,
-  fill: true,
-  fillColor: '#666',
-  fillOpacity: 0.05,
-  interactive: true,
-};
+const HIGHLIGHT_OL_STYLE = new Style({
+  stroke: new Stroke({ color: '#e74c3c', width: 3 }),
+  fill: new Fill({ color: 'rgba(231,76,60,0.3)' }),
+});
 
-const HIDDEN_STYLE = {
-  weight: 0,
-  color: 'transparent',
-  opacity: 0,
-  fill: false,
-  fillOpacity: 0,
-  interactive: false,
-};
+const DEFAULT_OL_STYLE = new Style({
+  stroke: new Stroke({ color: '#666', width: 1, lineDash: [] }),
+  fill: new Fill({ color: 'rgba(102,102,102,0.05)' }),
+});
 
 function getMartinUrl() {
-  const martinUrl = process.env.NEXT_PUBLIC_MARTIN_URL;
-  if (!martinUrl) return null;
-  return martinUrl;
+  return process.env.NEXT_PUBLIC_MARTIN_URL || null;
 }
 
 const ScopeGeometryLayer = ({ map }) => {
@@ -72,15 +64,11 @@ const ScopeGeometryLayer = ({ map }) => {
   const activeDimension = useSelector(getActiveDimension);
   const spatialFilter = useSelector(getSpatialFilter);
   const analysisOpen = useSelector((state) => state.ui.analysisPanel);
+
   const highlightLayerRef = useRef(null);
   const skipZoomRef = useRef(false);
   const filterLayersRef = useRef({});
-  const [L, setL] = useState(null);
-
-  // Dynamically import leaflet (requires window)
-  useEffect(() => {
-    import('leaflet').then((mod) => setL(mod.default || mod));
-  }, []);
+  const filterClickHandlersRef = useRef({});
 
   // Build tile URL for a given scope_dataset_id (only used for spatial filter)
   const buildTileUrl = useCallback((datasetId) => {
@@ -91,7 +79,7 @@ const ScopeGeometryLayer = ({ map }) => {
 
   // ── Highlight: render a single GeoJSON polygon ──
   useEffect(() => {
-    if (!map || !L) return;
+    if (!map) return;
 
     // Remove previous highlight layer
     if (highlightLayerRef.current) {
@@ -99,41 +87,60 @@ const ScopeGeometryLayer = ({ map }) => {
       highlightLayerRef.current = null;
     }
 
-    // If there's no highlight or no geometry yet, nothing to render
     if (!highlight || !highlightGeometry) return;
 
-    const layer = L.geoJSON(highlightGeometry, {
-      style: () => HIGHLIGHT_STYLE,
-      interactive: false,
+    const source = new VectorSource({
+      features: geojsonFormat.readFeatures(highlightGeometry, {
+        dataProjection: 'EPSG:4326',
+        featureProjection: 'EPSG:3857',
+      }),
     });
-    layer.addTo(map);
+
+    const layer = new VectorLayer({
+      source,
+      style: HIGHLIGHT_OL_STYLE,
+      zIndex: 1500,
+      properties: { _systemLayer: true },
+    });
+    map.addLayer(layer);
     highlightLayerRef.current = layer;
 
     return () => {
-      if (highlightLayerRef.current && map.hasLayer(highlightLayerRef.current)) {
+      if (highlightLayerRef.current) {
         map.removeLayer(highlightLayerRef.current);
         highlightLayerRef.current = null;
       }
     };
-  }, [map, L, highlight, highlightGeometry]);
+  }, [map, highlight, highlightGeometry]);
 
   // ── Zoom the map to the highlighted polygon's bounding box ──
-  // Only zoom when highlight originates from the table/chart, not from a map click.
   useEffect(() => {
-    if (!map || !highlightBounds || !L) return;
+    if (!map || !highlightBounds) return;
     if (skipZoomRef.current) {
       skipZoomRef.current = false;
       return;
     }
     try {
-      const bounds = L.latLngBounds(highlightBounds);
-      if (bounds.isValid()) {
-        map.fitBounds(bounds, { padding: [40, 40], maxZoom: 13 });
-      }
+      // highlightBounds is [[lat1, lng1], [lat2, lng2]]
+      const [[lat1, lng1], [lat2, lng2]] = highlightBounds;
+      const extent = [
+        Math.min(lng1, lng2),
+        Math.min(lat1, lat2),
+        Math.max(lng1, lng2),
+        Math.max(lat1, lat2),
+      ];
+      // Transform from EPSG:4326 to EPSG:3857
+      const { transformExtent } = require('ol/proj');
+      const projectedExtent = transformExtent(extent, 'EPSG:4326', 'EPSG:3857');
+      map.getView().fit(projectedExtent, {
+        padding: [40, 40, 40, 40],
+        maxZoom: 13,
+        duration: 400,
+      });
     } catch {
       /* invalid bounds — ignore */
     }
-  }, [map, highlightBounds, L]);
+  }, [map, highlightBounds]);
 
   // ── Clear highlight when analysis panel closes ──
   useEffect(() => {
@@ -144,7 +151,7 @@ const ScopeGeometryLayer = ({ map }) => {
 
   // ── Map click → point-in-polygon lookup on server (only when panel is open) ──
   useEffect(() => {
-    if (!map || !loaded || !L) return;
+    if (!map || !loaded) return;
     if (!analysisOpen) return;
 
     const hasGeometries = datasets.some((d) => d.geometry_count > 0);
@@ -152,26 +159,23 @@ const ScopeGeometryLayer = ({ map }) => {
 
     const handleMapClick = (e) => {
       skipZoomRef.current = true;
-      dispatch(fetchGeometryAtPoint(e.latlng.lat, e.latlng.lng));
+      const [lng, lat] = toLonLat(e.coordinate);
+      dispatch(fetchGeometryAtPoint(lat, lng));
     };
 
-    map.on('click', handleMapClick);
+    map.on('singleclick', handleMapClick);
     return () => {
-      map.off('click', handleMapClick);
+      map.un('singleclick', handleMapClick);
     };
-  }, [map, loaded, L, datasets, dispatch, analysisOpen]);
+  }, [map, loaded, datasets, dispatch, analysisOpen]);
 
   // ── Spatial filter: MVT tile layers for showing multiple matching polygons ──
   useEffect(() => {
-    if (!map || !loaded || !L) return;
+    if (!map || !loaded) return;
 
-    const VectorGrid = L.vectorGrid;
-    if (!VectorGrid) {
-      // VectorGrid not available — skip spatial filter rendering
-      return;
-    }
+    const martinUrl = getMartinUrl();
+    if (!martinUrl) return;
 
-    // Only create tile layers when spatial filter is active (no highlight-only)
     const datasetsWithGeometry = spatialFilter
       ? datasets.filter(
           (d) =>
@@ -183,10 +187,15 @@ const ScopeGeometryLayer = ({ map }) => {
         )
       : [];
 
-    // Remove layers that should no longer be shown
+    // Remove layers no longer needed
     Object.keys(filterLayersRef.current).forEach((slug) => {
       if (!datasetsWithGeometry.find((d) => d.slug === slug)) {
         map.removeLayer(filterLayersRef.current[slug].layer);
+        // Clean up click handler
+        if (filterClickHandlersRef.current[slug]) {
+          map.un('singleclick', filterClickHandlersRef.current[slug]);
+          delete filterClickHandlersRef.current[slug];
+        }
         delete filterLayersRef.current[slug];
       }
     });
@@ -200,39 +209,51 @@ const ScopeGeometryLayer = ({ map }) => {
 
       const filterSet = new Set(spatialFilter[dataset.slug].map(String));
 
-      const layer = VectorGrid.protobuf(tileUrl, {
-        vectorTileLayerStyles: {
-          scope_dataset_geometries: (properties) => {
-            if (filterSet.has(String(properties.unit_id))) {
-              return { ...DEFAULT_STYLE };
-            }
-            return { ...HIDDEN_STYLE };
-          },
+      const source = new VectorTileSource({
+        url: tileUrl,
+        format: new MVT(),
+        maxZoom: 13,
+      });
+
+      const layer = new VectorTileLayer({
+        source,
+        style: (feature) => {
+          const unitId = String(feature.get('unit_id'));
+          return filterSet.has(unitId) ? DEFAULT_OL_STYLE : null;
         },
-        interactive: true,
-        maxNativeZoom: 13,
-        pane: 'overlayPane',
-        getFeatureId: (f) => f.properties.unit_id,
+        zIndex: 999,
+        properties: { _systemLayer: true },
       });
 
-      layer.on('click', (e) => {
-        const unitId = e.layer?.properties?.unit_id;
-        if (unitId != null) {
-          dispatch(setHighlight(dataset.slug, String(unitId)));
-          // The map-level click handler will also fire and fetch geometry via
-          // point-in-polygon — no separate fetchGeometryBounds call needed here.
+      map.addLayer(layer);
+
+      // Click handler: check if a feature in this layer was hit
+      const clickHandler = (e) => {
+        const features = map.getFeaturesAtPixel(e.pixel, {
+          layerFilter: (l) => l === layer,
+        });
+        if (features && features.length > 0) {
+          const unitId = features[0].get('unit_id');
+          if (unitId != null) {
+            dispatch(setHighlight(dataset.slug, String(unitId)));
+          }
         }
-      });
+      };
 
-      layer.addTo(map);
+      map.on('singleclick', clickHandler);
+      filterClickHandlersRef.current[dataset.slug] = clickHandler;
       filterLayersRef.current[dataset.slug] = { layer, dataset };
     });
 
     return () => {
-      Object.values(filterLayersRef.current).forEach(({ layer: l }) => {
-        if (map.hasLayer(l)) map.removeLayer(l);
+      Object.keys(filterLayersRef.current).forEach((slug) => {
+        map.removeLayer(filterLayersRef.current[slug].layer);
+        if (filterClickHandlersRef.current[slug]) {
+          map.un('singleclick', filterClickHandlersRef.current[slug]);
+        }
       });
       filterLayersRef.current = {};
+      filterClickHandlersRef.current = {};
     };
   }, [
     map,
@@ -243,7 +264,6 @@ const ScopeGeometryLayer = ({ map }) => {
     spatialFilter,
     buildTileUrl,
     dispatch,
-    L,
   ]);
 
   return null;

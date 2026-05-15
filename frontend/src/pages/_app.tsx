@@ -68,7 +68,6 @@ if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
 import 'normalize.css/normalize.css';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
-import 'leaflet/dist/leaflet.css';
 
 // Project styles
 import 'views/styles/index.scss';

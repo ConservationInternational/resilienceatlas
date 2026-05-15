@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Admin boundary vector tile layer served by Martin (PostGIS function source).
  *

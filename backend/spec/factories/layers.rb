@@ -79,7 +79,7 @@ FactoryBot.define do
       nil
     end
     sequence(:layer_provider) do |n|
-      ["cartodb", "cog", "gee", "xyz tileset"].sample random: Random.new(n)
+      ["cog", "esri", "gee", "martin", "wms", "wmts", "xyz tileset"].sample random: Random.new(n)
     end
     sequence(:query) do |n|
       Faker::Config.random = Random.new(n)
@@ -167,8 +167,6 @@ FactoryBot.define do
     after(:build) do |layer, _evaluator|
       layer.analysis_type = if layer.layer_provider == "cog"
         "histogram"
-      elsif layer.layer_provider == "cartodb"
-        "text"
       else
         "categorical"
       end

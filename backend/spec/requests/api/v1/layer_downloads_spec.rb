@@ -99,19 +99,19 @@ RSpec.describe "Layer Downloads", type: :request do
       end
     end
 
-    context "with cartodb layer type" do
+    context "with martin layer type" do
       let(:layer) do
         create :layer,
           download: true,
           layer_groups: [layer_group],
           sources: [source],
-          layer_provider: "cartodb",
-          query: "SELECT * FROM table WHERE year = 2023"
+          layer_provider: "martin",
+          layer_config: '{"url": "https://example.com/martin/{z}/{x}/{y}"}'
       end
 
-      it "has cartodb configuration" do
-        expect(layer.layer_provider).to eq("cartodb")
-        expect(layer.query).to be_present
+      it "has martin configuration" do
+        expect(layer.layer_provider).to eq("martin")
+        expect(layer.layer_config).to include("martin")
       end
     end
   end

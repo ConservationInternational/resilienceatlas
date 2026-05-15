@@ -197,23 +197,23 @@ RSpec.describe Layer, type: :model do
   context "when analysis is enabled" do
     subject { build :layer, analysis_suitable: true }
 
-    it "should not be valid when analysis type is histogram for cartodb provider" do
-      subject.layer_provider = "cartodb"
-      subject.analysis_type = "histogram"
+    it "should not be valid when analysis type is text for wms provider" do
+      subject.layer_provider = "wms"
+      subject.analysis_type = "text"
       expect(subject).not_to be_valid
-      expect(subject.errors[:analysis_type]).to include("analysis type has to be text for cartodb provider")
+      expect(subject.errors[:analysis_type]).to include("analysis type has to be histogram")
     end
 
-    it "should not be valid when analysis type is categorical for cartodb provider" do
-      subject.layer_provider = "cartodb"
+    it "should not be valid when analysis type is categorical for wms provider" do
+      subject.layer_provider = "wms"
       subject.analysis_type = "categorical"
       expect(subject).not_to be_valid
-      expect(subject.errors[:analysis_type]).to include("analysis type has to be text for cartodb provider")
+      expect(subject.errors[:analysis_type]).to include("analysis type has to be histogram")
     end
 
-    it "should be valid when analysis type is text for cartodb provider" do
-      subject.layer_provider = "cartodb"
-      subject.analysis_type = "text"
+    it "should be valid when analysis type is histogram for wms provider" do
+      subject.layer_provider = "wms"
+      subject.analysis_type = "histogram"
       expect(subject).to be_valid
     end
 
@@ -236,22 +236,22 @@ RSpec.describe Layer, type: :model do
       expect(subject).to be_valid
     end
 
-    it "should not be valid when analysis type is text for raster provider" do
-      subject.layer_provider = "raster"
+    it "should not be valid when analysis type is text for martin provider" do
+      subject.layer_provider = "martin"
       subject.analysis_type = "text"
       expect(subject).not_to be_valid
       expect(subject.errors[:analysis_type]).to include("analysis type has to be histogram")
     end
 
-    it "should not be valid when analysis type is categorical for raster provider" do
-      subject.layer_provider = "raster"
+    it "should not be valid when analysis type is categorical for martin provider" do
+      subject.layer_provider = "martin"
       subject.analysis_type = "categorical"
       expect(subject).not_to be_valid
       expect(subject.errors[:analysis_type]).to include("analysis type has to be histogram")
     end
 
-    it "should be valid when analysis type is histogram for raster provider" do
-      subject.layer_provider = "raster"
+    it "should be valid when analysis type is histogram for martin provider" do
+      subject.layer_provider = "martin"
       subject.analysis_type = "histogram"
       expect(subject).to be_valid
     end
@@ -328,16 +328,16 @@ RSpec.describe Layer, type: :model do
       end
     end
 
-    context "with cartodb configuration" do
+    context "with martin configuration" do
       let(:layer) do
         create(:layer,
-          layer_provider: "cartodb",
-          layer_config: '{"type": "cartodb", "sql": "SELECT * FROM table"}')
+          layer_provider: "martin",
+          layer_config: '{"type": "martin", "url": "https://example.com/martin/{z}/{x}/{y}"}')
       end
 
-      it "stores cartodb layer_config" do
-        expect(layer.layer_config).to include("cartodb")
-        expect(layer.layer_config).to include("SELECT")
+      it "stores martin layer_config" do
+        expect(layer.layer_config).to include("martin")
+        expect(layer.layer_config).to include("url")
       end
     end
 
