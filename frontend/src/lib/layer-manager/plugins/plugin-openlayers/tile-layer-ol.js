@@ -35,13 +35,13 @@ const TileLayerOL = (layerModel) => {
           }),
           opacity: layerModel.opacity ?? 1,
           zIndex: layerModel.zIndex,
-          properties: { _provider: 'leaflet', _layerId: layerModel.id },
+          properties: { _provider: 'xyz tileset', _layerId: layerModel.id },
         })
       : new TileLayer({
           source: new XYZ({ url, crossOrigin: 'anonymous' }),
           opacity: layerModel.opacity ?? 1,
           zIndex: layerModel.zIndex,
-          properties: { _provider: 'leaflet', _layerId: layerModel.id },
+          properties: { _provider: 'xyz tileset', _layerId: layerModel.id },
         });
 
     resolve(layer);

@@ -30,8 +30,8 @@ class MapErrorBoundary extends React.Component {
   }
 }
 
-// Dynamic import to prevent SSR issues with Leaflet
-// Leaflet and its plugins require `window` which doesn't exist on the server
+// Dynamic import to prevent SSR issues with OpenLayers
+// OL and its plugins require `window` which doesn't exist on the server
 const MapContainerDynamic = dynamic(
   () =>
     import('./Map.container')

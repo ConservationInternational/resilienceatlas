@@ -13,7 +13,7 @@
  * Then send:
  *   iframe.contentWindow.postMessage({
  *     type: 'LAYER_PREVIEW',
- *     provider: 'cog',        // layer_provider field (cog/esri/gee/leaflet/martin/wms/wmts/'xyz tileset')
+ *     provider: 'cog',        // layer_provider field (cog/esri/gee/martin/wms/wmts/'xyz tileset')
  *     layer_config: '{}',     // JSON string
  *   }, '*')
  */
