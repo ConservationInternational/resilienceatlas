@@ -205,7 +205,7 @@ module ThresholdsSeeder
           layer_type: "layer",
           layer_provider: "martin",
           active: active,
-          "order" => ind_order,
+          order: ind_order,
           dashboard_order: ind_order,
           color: "#2d6a4f",
           opacity: 1.0,
