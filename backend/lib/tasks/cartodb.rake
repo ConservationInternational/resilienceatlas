@@ -178,7 +178,7 @@ namespace :cartodb do
 
     # ── Pre-flight checks ───────────────────────────────────────────────────
 
-    unless use_s3 || (export_dir.present? && Dir.exist?(export_dir))
+    if !use_s3 && !(export_dir.present? && Dir.exist?(export_dir))
       abort "ERROR: No export source found.\n" \
             "  Set CARTODB_S3_BUCKET=<bucket> or CARTODB_EXPORT_DIR=<path>.\n" \
             "  (CARTODB_EXPORT_DIR only covers non-spatial .csv.gz tables.)"
@@ -370,7 +370,11 @@ namespace :cartodb do
         imported_vectors << {file: basename, src_schema: info[:schema], table: tbl, rows: row_count}
 
         # Remove local copy to free disk space in the temp directory
-        File.delete(local_path) rescue nil
+        begin
+          File.delete(local_path)
+        rescue
+          nil
+        end
       end
 
       # ── 5. Import non-spatial tables (.csv.gz via COPY) ───────────────────
@@ -486,7 +490,7 @@ namespace :cartodb do
 
       puts "  Imported : #{total_imported}"
       imported_vectors.each { |t| puts "    ✓  #{t[:src_schema]}.#{t[:table]} → #{target_schema}.#{t[:table]}  [vector, #{t[:rows]} features]" }
-      imported_tables.each  { |t| puts "    ✓  #{t[:src_schema]}.#{t[:table]} → #{target_schema}.#{t[:table]}  [table, #{t[:rows]} rows]" }
+      imported_tables.each { |t| puts "    ✓  #{t[:src_schema]}.#{t[:table]} → #{target_schema}.#{t[:table]}  [table, #{t[:rows]} rows]" }
 
       if missing.any?
         puts "  Not on S3: #{missing.size}"
@@ -496,13 +500,13 @@ namespace :cartodb do
       if total_skipped > 0
         puts "  Skipped  : #{total_skipped}"
         skipped_vectors.each { |t| puts "    –  #{t}" }
-        skipped_tables.each  { |f| puts "    –  #{f}" }
+        skipped_tables.each { |f| puts "    –  #{f}" }
       end
 
       if total_failed > 0
         puts "  Failed   : #{total_failed}"
         failed_vectors.each { |f| puts "    ✗  #{f[:table]} (#{f[:file]}): #{f[:reason]}" }
-        failed_tables.each  { |f| puts "    ✗  #{f[:file]}: #{f[:reason]}" }
+        failed_tables.each { |f| puts "    ✗  #{f[:file]}: #{f[:reason]}" }
         abort "\nERROR: #{total_failed} table(s) failed to import — see above."
       end
 
