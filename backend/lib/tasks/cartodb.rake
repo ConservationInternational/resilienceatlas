@@ -1,15 +1,17 @@
-# Rake tasks for importing CartoDB non-spatial tables and updating formerly CartoDB layer rows.
+# Rake tasks for importing CartoDB data and updating formerly CartoDB layer rows.
 #
 # Workflow:
-#   1. Run `export_tables_bash.sh export` on the CartoDB server to upload CSV.GZ files to S3.
-#   2. Run `rake cartodb:import_tables` to download and load those tables into PostgreSQL.
-#   3. Run `rake cartodb:update_layer_references` to update the formerly CartoDB layer rows.
-#   4. Manually review each layer in the admin UI: set a valid layer_provider and layer_config,
+#   1. Run `export_vectors_bash.sh export` on the CartoDB server to upload .gpkg files to S3.
+#   2. Run `export_tables_bash.sh export` for any non-spatial tables (optional).
+#   3. Run `rake cartodb:import_tables` to download and load those files into PostgreSQL.
+#      Vectors (.gpkg) are imported via ogr2ogr; non-spatial tables (.csv.gz) via COPY.
+#   4. Run `rake cartodb:update_layer_references` to update the formerly CartoDB layer rows.
+#   5. Manually review each layer in the admin UI: set a valid layer_provider and layer_config,
 #      then re-publish.
 #
-# The export script produces gzipped CSV files named {schema}_{table}.csv.gz (e.g.
-# public_sbtn_thresholds.csv.gz) plus an optional tables.csv manifest.  Both local-directory
-# and S3 sources are supported.
+# The vector export script produces GeoPackage files named {schema}_{table}.gpkg (e.g.
+# public_yam_gh.gpkg) at a separate S3 prefix from the non-spatial CSV.GZ tables.
+# Both local-directory (CSV only) and S3 sources are supported.
 
 # ---------------------------------------------------------------------------
 # Shared helpers (at file scope so all tasks can call them)
@@ -35,6 +37,16 @@ module CartodbRakeHelpers
   # (e.g. "public") while table names may themselves contain underscores.
   def self.parse_export_filename(basename)
     name = basename.sub(/\.csv\.gz\z/, "")
+    idx = name.index("_")
+    return nil unless idx
+
+    {schema: name[0...idx], table: name[(idx + 1)..]}
+  end
+
+  # Parse { schema:, table: } from a {schema}_{table}.gpkg filename.
+  # Same convention as parse_export_filename but for GeoPackage vector exports.
+  def self.parse_vector_filename(basename)
+    name = basename.sub(/\.gpkg\z/, "")
     idx = name.index("_")
     return nil unless idx
 
@@ -125,57 +137,79 @@ end
 
 namespace :cartodb do
   desc <<~DESC
-    Import non-spatial CartoDB tables from gzipped CSV exports into PostgreSQL.
+    Import CartoDB spatial vectors (.gpkg) and non-spatial tables (.csv.gz) from S3 into PostgreSQL.
 
-    The source is the output directory or S3 bucket produced by export_tables_bash.sh.
-    Each {schema}_{table}.csv.gz file is imported as a table in the target schema.
-    An optional tables.csv manifest (also produced by the export script) improves
-    schema/table name inference.
+    Vectors are the primary data source: each {schema}_{table}.gpkg file on S3 is imported
+    into the target schema via ogr2ogr.  Non-spatial tables (exported as {schema}_{table}.csv.gz)
+    are imported using PostgreSQL COPY.  Only tables actually referenced by formerly CartoDB
+    layers (layer_provider=NULL, published=false, query present) are imported.
 
-    Required – one of:
-      CARTODB_EXPORT_DIR=<path>   Local directory containing .csv.gz files
-                                  (default: /data/cartodb-tables)
-      CARTODB_S3_BUCKET=<bucket>  S3 bucket name (requires aws CLI and credentials)
+    Required:
+      CARTODB_S3_BUCKET=<bucket>        S3 bucket name
 
     Optional:
-      CARTODB_S3_PREFIX=<prefix>  S3 key prefix (default: cartodb-tables/)
-      CARTODB_IMPORT_SCHEMA=<schema>  Target PostgreSQL schema (default: public)
-      FORCE=1                     Overwrite existing tables without prompting
+      CARTODB_VECTORS_S3_PREFIX=<p>     S3 prefix for .gpkg vector files
+                                          (default: cartodb_exports/vectors/)
+      CARTODB_TABLES_S3_PREFIX=<p>      S3 prefix for .csv.gz non-spatial files
+                                          (default: cartodb_exports/non-spatial/)
+      CARTODB_EXPORT_DIR=<path>         Local directory for .csv.gz files (non-spatial only,
+                                          used when CARTODB_S3_BUCKET is not set)
+      CARTODB_IMPORT_SCHEMA=<schema>    Target PostgreSQL schema (default: ra_vector)
+      FORCE=1                           Overwrite existing tables without prompting
 
     Usage:
       rake cartodb:import_tables CARTODB_S3_BUCKET=my-bucket
-      rake cartodb:import_tables CARTODB_EXPORT_DIR=/data/cartodb-tables FORCE=1
+      rake cartodb:import_tables CARTODB_S3_BUCKET=my-bucket \\
+        CARTODB_VECTORS_S3_PREFIX=cartodb_exports/vectors/ \\
+        CARTODB_TABLES_S3_PREFIX=cartodb-tables/
   DESC
   task import_tables: :environment do
     require "csv"
     require "zlib"
     require "tmpdir"
 
-    export_dir = ENV.fetch("CARTODB_EXPORT_DIR", "/data/cartodb-tables")
     s3_bucket = ENV.fetch("CARTODB_S3_BUCKET", "")
-    s3_prefix = ENV.fetch("CARTODB_S3_PREFIX", "cartodb-tables/")
+    vectors_prefix = ENV.fetch("CARTODB_VECTORS_S3_PREFIX", "cartodb_exports/vectors/")
+    tables_prefix = ENV.fetch("CARTODB_TABLES_S3_PREFIX", "cartodb_exports/non-spatial/")
+    export_dir = ENV.fetch("CARTODB_EXPORT_DIR", "")
     target_schema = ENV.fetch("CARTODB_IMPORT_SCHEMA", "ra_vector")
     force = ENV["FORCE"] == "1"
     use_s3 = s3_bucket.present?
 
     # ── Pre-flight checks ───────────────────────────────────────────────────
 
-    unless use_s3 || Dir.exist?(export_dir)
+    unless use_s3 || (export_dir.present? && Dir.exist?(export_dir))
       abort "ERROR: No export source found.\n" \
             "  Set CARTODB_S3_BUCKET=<bucket> or CARTODB_EXPORT_DIR=<path>.\n" \
-            "  Local directory '#{export_dir}' does not exist."
+            "  (CARTODB_EXPORT_DIR only covers non-spatial .csv.gz tables.)"
     end
 
     if use_s3 && !system("which aws > /dev/null 2>&1")
-      abort "ERROR: aws CLI not found.  Install awscli to download from S3."
+      abort "ERROR: aws CLI not found. Install awscli to download from S3."
+    end
+
+    unless system("which ogr2ogr > /dev/null 2>&1")
+      abort "ERROR: ogr2ogr not found. Install gdal-bin to import .gpkg vector files."
     end
 
     ar_conn = ActiveRecord::Base.connection
     raw_conn = ar_conn.raw_connection  # PG::Connection – used for streaming COPY
 
-    # ── 0. Build the set of table names actually referenced by layers ────────
-    # Query the same set of flagged layers that update_layer_references works on
-    # so we only download/import what is genuinely needed.
+    # Build PG connection string for ogr2ogr
+    pg_conn = if ENV["DATABASE_URL"].present?
+      # ogr2ogr requires postgresql:// scheme, not postgis://
+      ENV["DATABASE_URL"].sub(/\Apostgis:/, "postgresql:")
+    else
+      cfg = ActiveRecord::Base.connection_db_config.configuration_hash
+      host = cfg[:host] || "localhost"
+      port = cfg[:port] || 5432
+      user = cfg[:username] || "postgres"
+      pass = cfg[:password] || ""
+      name = cfg[:database]
+      "postgresql://#{user}:#{pass}@#{host}:#{port}/#{name}"
+    end
+
+    # ── 0. Collect referenced table names from flagged layers ────────────────
 
     flagged_layers = Layer
       .where(layer_provider: nil, published: false)
@@ -183,7 +217,7 @@ namespace :cartodb do
 
     if flagged_layers.empty?
       abort "ERROR: No formerly CartoDB layers found " \
-            "(layer_provider=NULL, published=false, query present).  Nothing to import."
+            "(layer_provider=NULL, published=false, query present). Nothing to import."
     end
 
     referenced_table_names = flagged_layers
@@ -193,7 +227,7 @@ namespace :cartodb do
 
     if referenced_table_names.empty?
       abort "ERROR: #{flagged_layers.count} flagged layer(s) found but no table names " \
-            "could be parsed from their queries.  Check the query column for those layers."
+            "could be parsed from their queries. Check the query column for those layers."
     end
 
     puts "Found #{flagged_layers.count} flagged layer(s) referencing " \
@@ -202,116 +236,190 @@ namespace :cartodb do
     puts ""
 
     Dir.mktmpdir("cartodb_import") do |tmpdir|
-      # ── 1. Discover .csv.gz files ────────────────────────────────────────
+      # ── 1. Discover available files ─────────────────────────────────────────
 
-      if use_s3
-        puts "Listing s3://#{s3_bucket}/#{s3_prefix} ..."
-        list_output = `aws s3 ls "s3://#{s3_bucket}/#{s3_prefix}" 2>&1`
-        abort "ERROR: aws s3 ls failed:\n#{list_output}" unless $?.success?
-
-        gz_basenames = list_output.scan(/(\S+\.csv\.gz)\s*$/).flatten
-        puts "Found #{gz_basenames.size} CSV.GZ file(s) on S3."
+      # 1a. Vectors: .gpkg files from S3 vectors prefix
+      gpkg_basenames = if use_s3
+        puts "Listing s3://#{s3_bucket}/#{vectors_prefix} ..."
+        list_output = `aws s3 ls "s3://#{s3_bucket}/#{vectors_prefix}" 2>&1`
+        abort "ERROR: aws s3 ls failed for vectors prefix:\n#{list_output}" unless $?.success?
+        files = list_output.scan(/(\S+\.gpkg)\s*$/).flatten
+        puts "Found #{files.size} .gpkg file(s) at vectors prefix."
+        files
       else
-        gz_basenames = Dir.glob(File.join(export_dir, "*.csv.gz")).map { |f| File.basename(f) }
-        puts "Found #{gz_basenames.size} CSV.GZ file(s) in #{export_dir}."
+        []  # local vector import not supported; set CARTODB_S3_BUCKET
       end
 
-      if gz_basenames.empty?
+      # 1b. Non-spatial tables: .csv.gz from S3 tables prefix or local directory
+      gz_basenames = if use_s3
+        puts "Listing s3://#{s3_bucket}/#{tables_prefix} ..."
+        list_output = `aws s3 ls "s3://#{s3_bucket}/#{tables_prefix}" 2>&1`
+        if $?.success?
+          files = list_output.scan(/(\S+\.csv\.gz)\s*$/).flatten
+          puts "Found #{files.size} .csv.gz file(s) at tables prefix."
+          files
+        else
+          puts "NOTE: Tables prefix not accessible (#{tables_prefix}): #{list_output.strip}"
+          puts "      Non-spatial table import will be skipped."
+          []
+        end
+      elsif export_dir.present? && Dir.exist?(export_dir)
+        files = Dir.glob(File.join(export_dir, "*.csv.gz")).map { |f| File.basename(f) }
+        puts "Found #{files.size} .csv.gz file(s) in #{export_dir}."
+        files
+      else
+        []
+      end
+
+      # ── 2. Build table → file mappings and report coverage ──────────────────
+
+      gpkg_table_to_file = gpkg_basenames.each_with_object({}) do |basename, h|
+        info = CartodbRakeHelpers.parse_vector_filename(basename)
+        h[info[:table]] = basename if info
+      end
+
+      gz_table_to_file = gz_basenames.each_with_object({}) do |basename, h|
+        info = CartodbRakeHelpers.parse_export_filename(basename)
+        h[info[:table]] = basename if info
+      end
+
+      # Vectors take priority; non-spatial tables fill the remainder
+      to_import_as_vector = referenced_table_names.select { |t| gpkg_table_to_file.key?(t) }
+      to_import_as_table = (referenced_table_names - to_import_as_vector).select { |t| gz_table_to_file.key?(t) }
+      missing = referenced_table_names - to_import_as_vector - to_import_as_table
+
+      if missing.any?
+        puts "WARNING: The following table(s) are referenced by layers but NOT found on S3:"
+        missing.each { |t| puts "  ✗  #{t}" }
+        puts ""
+      end
+
+      puts "Import plan:"
+      puts "  Vectors  (.gpkg)     : #{to_import_as_vector.size}"
+      puts "  Non-spatial (.csv.gz): #{to_import_as_table.size}"
+      puts "  Missing (not on S3)  : #{missing.size}"
+      puts ""
+
+      if to_import_as_vector.empty? && to_import_as_table.empty?
         puts "Nothing to import."
         next
       end
 
-      # ── 2. Load the tables.csv manifest for accurate schema/table mapping ─
-
-      manifest_path = if use_s3
-        local_m = File.join(tmpdir, "tables.csv")
-        if system("aws s3 cp \"s3://#{s3_bucket}/#{s3_prefix}tables.csv\" \"#{local_m}\" 2>/dev/null")
-          local_m
-        end
-      else
-        File.join(export_dir, "tables.csv")
-      end
-
-      manifest = CartodbRakeHelpers.load_manifest(manifest_path)
-      puts "Loaded manifest with #{manifest.size} entry(ies)." if manifest.any?
-
-      # ── 2b. Filter to only the files needed by layers; report S3 gaps ────
-
-      if referenced_table_names.any?
-        # Build table_name → basename lookup from everything available on S3/disk
-        s3_table_to_file = gz_basenames.each_with_object({}) do |basename, h|
-          info = manifest[basename] || CartodbRakeHelpers.parse_export_filename(basename)
-          h[info[:table]] = basename if info
-        end
-
-        # Tables referenced by layers but not present on S3
-        missing_from_s3 = referenced_table_names - s3_table_to_file.keys
-        if missing_from_s3.any?
-          puts "\nWARNING: The following table(s) are referenced by layers but NOT available on S3:"
-          missing_from_s3.each { |t| puts "  ✗  #{t}" }
-        end
-
-        total_available = gz_basenames.size
-        gz_basenames = gz_basenames.select do |basename|
-          info = manifest[basename] || CartodbRakeHelpers.parse_export_filename(basename)
-          info && referenced_table_names.include?(info[:table])
-        end
-
-        puts "\nFiltering: #{gz_basenames.size} of #{total_available} file(s) on S3 are " \
-             "referenced by layers and will be imported."
-        puts "  (#{total_available - gz_basenames.size} unreferenced file(s) skipped)"
-        puts ""
-
-        if gz_basenames.empty?
-          puts "Nothing to import (no S3 files match any referenced table)."
-          next
-        end
-      end
-
-      # ── 3. Ensure the target schema exists (skip for public) ─────────────
+      # ── 3. Ensure the target schema exists ────────────────────────────────
 
       if target_schema != "public"
         ar_conn.execute("CREATE SCHEMA IF NOT EXISTS \"#{target_schema}\"")
         puts "Ensured schema '#{target_schema}' exists."
       end
 
-      # ── 4. Import each file ───────────────────────────────────────────────
+      # ── 4. Import vectors (.gpkg via ogr2ogr) ─────────────────────────────
 
-      imported = []
-      skipped = []
-      failed = []
+      imported_vectors = []
+      skipped_vectors = []
+      failed_vectors = []
 
-      gz_basenames.each do |basename|
-        info = manifest[basename] || CartodbRakeHelpers.parse_export_filename(basename)
-        unless info
-          warn "  SKIP #{basename}: cannot parse schema/table from filename."
-          skipped << basename
-          next
-        end
-
-        src_schema = info[:schema]
-        tbl = info[:table]
+      to_import_as_vector.each do |tbl|
+        basename = gpkg_table_to_file[tbl]
+        info = CartodbRakeHelpers.parse_vector_filename(basename)
         q_table = "\"#{target_schema}\".\"#{tbl}\""
 
-        # Prompt before overwriting an existing table
-        if ar_conn.table_exists?("#{target_schema}.#{tbl}") && !force
-          print "\n  Table #{q_table} already exists.  Overwrite? [y/N] "
-          unless $stdin.gets&.strip&.downcase == "y"
-            puts "  Skipped #{tbl}."
-            skipped << basename
+        if ar_conn.table_exists?("#{target_schema}.#{tbl}")
+          if force
+            puts "\n  Table #{q_table} already exists — overwriting (FORCE=1)."
+          else
+            puts "  Skipping #{tbl} (already exists; set FORCE=1 to overwrite)."
+            skipped_vectors << tbl
             next
           end
         end
 
-        puts "\nImporting #{basename} → #{q_table} (original schema: #{src_schema})..."
+        puts "\nImporting vector: #{basename} → #{q_table} ..."
 
-        # Download from S3 into the temp directory when necessary
+        local_path = File.join(tmpdir, basename)
+        print "  Downloading from S3... "
+        unless system("aws s3 cp \"s3://#{s3_bucket}/#{vectors_prefix}#{basename}\" \"#{local_path}\"")
+          warn "  FAILED: S3 download failed."
+          failed_vectors << {table: tbl, file: basename, reason: "S3 download failed"}
+          next
+        end
+        puts "  done (#{File.size(local_path)} bytes)."
+
+        puts "  Running ogr2ogr..."
+        success = system(
+          "ogr2ogr", "-f", "PostgreSQL",
+          "PG:#{pg_conn}",
+          local_path,
+          "-nln", "#{target_schema}.#{tbl}",
+          "-overwrite",
+          "-nlt", "PROMOTE_TO_MULTI",
+          "--config", "PG_USE_COPY", "YES"
+        )
+
+        unless success
+          warn "  FAILED: ogr2ogr returned non-zero exit code."
+          failed_vectors << {table: tbl, file: basename, reason: "ogr2ogr failed"}
+          next
+        end
+
+        row_count = begin
+          ar_conn.select_value("SELECT count(*) FROM #{q_table}").to_i
+        rescue
+          0
+        end
+        puts "  #{row_count} feature(s) loaded."
+        imported_vectors << {file: basename, src_schema: info[:schema], table: tbl, rows: row_count}
+
+        # Remove local copy to free disk space in the temp directory
+        File.delete(local_path) rescue nil
+      end
+
+      # ── 5. Import non-spatial tables (.csv.gz via COPY) ───────────────────
+
+      imported_tables = []
+      skipped_tables = []
+      failed_tables = []
+
+      # Load manifest for better schema/table name inference
+      manifest_path = if use_s3
+        local_m = File.join(tmpdir, "tables.csv")
+        local_m if system("aws s3 cp \"s3://#{s3_bucket}/#{tables_prefix}tables.csv\" \"#{local_m}\" 2>/dev/null")
+      elsif export_dir.present?
+        File.join(export_dir, "tables.csv")
+      end
+
+      manifest = CartodbRakeHelpers.load_manifest(manifest_path)
+      puts "Loaded manifest with #{manifest.size} entry(ies)." if manifest.any?
+
+      to_import_as_table.each do |tbl|
+        basename = gz_table_to_file[tbl]
+        info = manifest[basename] || CartodbRakeHelpers.parse_export_filename(basename)
+        unless info
+          warn "  SKIP #{basename}: cannot parse schema/table from filename."
+          skipped_tables << basename
+          next
+        end
+
+        src_schema = info[:schema]
+        q_table = "\"#{target_schema}\".\"#{tbl}\""
+
+        if ar_conn.table_exists?("#{target_schema}.#{tbl}")
+          if force
+            puts "\n  Table #{q_table} already exists — overwriting (FORCE=1)."
+          else
+            puts "  Skipping #{tbl} (already exists; set FORCE=1 to overwrite)."
+            skipped_tables << basename
+            next
+          end
+        end
+
+        puts "\nImporting table: #{basename} → #{q_table} (original schema: #{src_schema})..."
+
         gz_path = if use_s3
           local_path = File.join(tmpdir, basename)
           print "  Downloading from S3... "
-          unless system("aws s3 cp \"s3://#{s3_bucket}/#{s3_prefix}#{basename}\" \"#{local_path}\"")
+          unless system("aws s3 cp \"s3://#{s3_bucket}/#{tables_prefix}#{basename}\" \"#{local_path}\"")
             warn "FAILED."
-            failed << {file: basename, reason: "S3 download failed"}
+            failed_tables << {file: basename, reason: "S3 download failed"}
             next
           end
           puts "done (#{File.size(local_path)} bytes compressed)."
@@ -322,29 +430,28 @@ namespace :cartodb do
 
         unless File.exist?(gz_path) && File.size(gz_path) > 0
           warn "  FAILED: file not found or empty: #{gz_path}"
-          failed << {file: basename, reason: "file not found or empty"}
+          failed_tables << {file: basename, reason: "file not found or empty"}
           next
         end
 
-        # ── Infer column types from a sample of up to 1,000 rows ───────────
+        # ── Infer column types from a sample of up to 1,000 rows ─────────
 
         print "  Inferring column types... "
         col_types = CartodbRakeHelpers.infer_column_types(gz_path, limit: 1_000)
         if col_types.empty?
           warn "FAILED (no columns found in CSV)."
-          failed << {file: basename, reason: "no columns in CSV"}
+          failed_tables << {file: basename, reason: "no columns in CSV"}
           next
         end
         puts "#{col_types.size} column(s) detected."
 
-        # ── Create (or replace) the target table ────────────────────────────
+        # ── Create (or replace) the target table ──────────────────────────
 
         ar_conn.execute("DROP TABLE IF EXISTS #{q_table}")
         col_defs = col_types.map { |col, type| "\"#{col}\" #{type}" }.join(", ")
         ar_conn.execute("CREATE TABLE #{q_table} (#{col_defs})")
 
-        # ── Stream decompressed CSV directly into COPY FROM STDIN ───────────
-        # Uses the underlying PG::Connection for efficient chunk streaming.
+        # ── Stream decompressed CSV directly into COPY FROM STDIN ─────────
 
         print "  Loading rows... "
         begin
@@ -359,31 +466,44 @@ namespace :cartodb do
 
           row_count = ar_conn.select_value("SELECT count(*) FROM #{q_table}").to_i
           puts "#{row_count} row(s) loaded."
-          imported << {file: basename, src_schema: src_schema, table: tbl, rows: row_count}
+          imported_tables << {file: basename, src_schema: src_schema, table: tbl, rows: row_count}
         rescue => e
           warn "FAILED: #{e.message}"
           ar_conn.execute("DROP TABLE IF EXISTS #{q_table}")
-          failed << {file: basename, reason: e.message}
+          failed_tables << {file: basename, reason: e.message}
         end
       end
 
-      # ── 5. Summary ───────────────────────────────────────────────────────
+      # ── 6. Summary ────────────────────────────────────────────────────────
 
-      puts "\n#{"=" * 56}"
-      puts "  CartoDB Table Import — Summary"
-      puts "=" * 56
-      puts "  Imported : #{imported.size}"
-      imported.each { |t| puts "    ✓  #{t[:src_schema]}.#{t[:table]} → #{target_schema}.#{t[:table]}  (#{t[:rows]} rows)" }
+      puts "\n#{"=" * 60}"
+      puts "  CartoDB Import — Summary"
+      puts "=" * 60
 
-      if skipped.any?
-        puts "  Skipped  : #{skipped.size}"
-        skipped.each { |f| puts "    –  #{f}" }
+      total_imported = imported_vectors.size + imported_tables.size
+      total_failed = failed_vectors.size + failed_tables.size
+      total_skipped = skipped_vectors.size + skipped_tables.size
+
+      puts "  Imported : #{total_imported}"
+      imported_vectors.each { |t| puts "    ✓  #{t[:src_schema]}.#{t[:table]} → #{target_schema}.#{t[:table]}  [vector, #{t[:rows]} features]" }
+      imported_tables.each  { |t| puts "    ✓  #{t[:src_schema]}.#{t[:table]} → #{target_schema}.#{t[:table]}  [table, #{t[:rows]} rows]" }
+
+      if missing.any?
+        puts "  Not on S3: #{missing.size}"
+        missing.each { |t| puts "    ✗  #{t}" }
       end
 
-      if failed.any?
-        puts "  Failed   : #{failed.size}"
-        failed.each { |f| puts "    ✗  #{f[:file]}: #{f[:reason]}" }
-        abort "\nERROR: #{failed.size} table(s) failed to import — see above."
+      if total_skipped > 0
+        puts "  Skipped  : #{total_skipped}"
+        skipped_vectors.each { |t| puts "    –  #{t}" }
+        skipped_tables.each  { |f| puts "    –  #{f}" }
+      end
+
+      if total_failed > 0
+        puts "  Failed   : #{total_failed}"
+        failed_vectors.each { |f| puts "    ✗  #{f[:table]} (#{f[:file]}): #{f[:reason]}" }
+        failed_tables.each  { |f| puts "    ✗  #{f[:file]}: #{f[:reason]}" }
+        abort "\nERROR: #{total_failed} table(s) failed to import — see above."
       end
 
       puts ""
