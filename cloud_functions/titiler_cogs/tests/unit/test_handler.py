@@ -1,8 +1,24 @@
 import json
+import os
 
 import pytest
 
 from titiler_cogs import app
+from titiler_cogs.app import is_url_allowed
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Fixtures
+# ──────────────────────────────────────────────────────────────────────────────
+
+@pytest.fixture(autouse=True)
+def set_allowed_buckets(monkeypatch):
+    """Set TITILER_ALLOWED_BUCKETS for all tests and reset the cached value."""
+    monkeypatch.setenv("TITILER_ALLOWED_BUCKETS", "s3://resilienceatlas,s3://trends.earth-private,gs://my-gcs-bucket")
+    # Reset the module-level cache so each test picks up the env var fresh
+    app._allowed_buckets = None
+    yield
+    app._allowed_buckets = None
 
 
 @pytest.fixture()
@@ -62,11 +78,87 @@ def apigw_event():
     }
 
 
-def test_lambda_handler(apigw_event, mocker):
+# ──────────────────────────────────────────────────────────────────────────────
+# is_url_allowed – S3 URL formats
+# ──────────────────────────────────────────────────────────────────────────────
 
-    ret = app.lambda_handler(apigw_event, "")
-    data = json.loads(ret["body"])
+class TestIsUrlAllowedS3:
+    """Test that all supported S3 URL formats are accepted or rejected correctly."""
 
-    assert ret["statusCode"] == 200
-    assert "message" in ret["body"]
-    assert data["message"] == "hello world"
+    # --- Native s3:// scheme ---
+
+    def test_s3_scheme_allowed(self):
+        assert is_url_allowed("s3://resilienceatlas/cogs/layer.tif") is True
+
+    def test_s3_scheme_denied(self):
+        assert is_url_allowed("s3://other-bucket/file.tif") is False
+
+    # --- Virtual-hosted style (standard) ---
+
+    def test_virtual_hosted_no_region_allowed(self):
+        assert is_url_allowed("https://resilienceatlas.s3.amazonaws.com/cogs/layer.tif") is True
+
+    def test_virtual_hosted_with_region_allowed(self):
+        assert is_url_allowed("https://resilienceatlas.s3.us-east-1.amazonaws.com/cogs/layer.tif") is True
+
+    # --- Virtual-hosted dualstack (the production URL format) ---
+
+    def test_virtual_hosted_dualstack_no_region_allowed(self):
+        """s3.dualstack.amazonaws.com without explicit region should be allowed."""
+        assert is_url_allowed("https://resilienceatlas.s3.dualstack.amazonaws.com/cogs/layer.tif") is True
+
+    def test_virtual_hosted_dualstack_with_region_allowed(self):
+        """Production URL: resilienceatlas.s3.dualstack.us-east-1.amazonaws.com"""
+        assert is_url_allowed(
+            "https://resilienceatlas.s3.dualstack.us-east-1.amazonaws.com/cogs/chirps_mon_trnd_dec_rainyseas1.tif"
+        ) is True
+
+    def test_virtual_hosted_dualstack_denied_wrong_bucket(self):
+        assert is_url_allowed(
+            "https://other-bucket.s3.dualstack.us-east-1.amazonaws.com/file.tif"
+        ) is False
+
+    # --- Path-style ---
+
+    def test_path_style_allowed(self):
+        assert is_url_allowed("https://s3.amazonaws.com/resilienceatlas/cogs/layer.tif") is True
+
+    def test_path_style_with_region_allowed(self):
+        assert is_url_allowed("https://s3.us-east-1.amazonaws.com/resilienceatlas/cogs/layer.tif") is True
+
+    def test_path_style_denied_wrong_bucket(self):
+        assert is_url_allowed("https://s3.amazonaws.com/other-bucket/file.tif") is False
+
+    # --- Security: must not match crafted hostnames ---
+
+    def test_rejects_subdomain_spoofing(self):
+        """resilienceatlas.s3.amazonaws.com.evil.com must be rejected."""
+        assert is_url_allowed("https://resilienceatlas.s3.amazonaws.com.evil.com/file.tif") is False
+
+    def test_rejects_empty_url(self):
+        assert is_url_allowed("") is False
+
+    def test_rejects_none_like_empty(self):
+        assert is_url_allowed("") is False
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# is_url_allowed – GCS URL formats
+# ──────────────────────────────────────────────────────────────────────────────
+
+class TestIsUrlAllowedGCS:
+
+    def test_gs_scheme_allowed(self):
+        assert is_url_allowed("gs://my-gcs-bucket/file.tif") is True
+
+    def test_gs_scheme_denied(self):
+        assert is_url_allowed("gs://other-gcs-bucket/file.tif") is False
+
+    def test_https_storage_googleapis_allowed(self):
+        assert is_url_allowed("https://storage.googleapis.com/my-gcs-bucket/file.tif") is True
+
+    def test_https_storage_googleapis_denied(self):
+        assert is_url_allowed("https://storage.googleapis.com/other-bucket/file.tif") is False
+
+    def test_https_storage_cloud_google_allowed(self):
+        assert is_url_allowed("https://storage.cloud.google.com/my-gcs-bucket/file.tif") is True

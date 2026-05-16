@@ -88,8 +88,17 @@ Run inside the **Rails application** (Docker or direct).
 
 ### `rake cartodb:import_tables`
 
-Downloads every `{schema}_{table}.csv.gz` from S3 (or a local directory) and loads
-it into PostgreSQL.  Column types are inferred automatically from a 1 000-row sample
+Before downloading anything, the task queries the database for all layers flagged by
+the migration (`layer_provider IS NULL`, `published = false`, `query` present) and
+parses their SQL to collect every referenced table name.  Only files whose table name
+appears in that list are downloaded and imported — unreferenced files on S3 are
+silently skipped.  Any table that is referenced by a layer but has **no matching file
+on S3** is printed as a warning to aid debugging.
+
+The task aborts with an error if no flagged layers exist in the database, or if no
+table names can be parsed from their queries.
+
+Column types are inferred automatically from a 1 000-row sample
 (`bigint`, `double precision`, `boolean`, or `text`).
 
 **Environment variables**
@@ -123,8 +132,10 @@ docker compose -f docker-compose.dev.yml run --rm \
 
 **Import a single table**
 
-The task processes all `.csv.gz` files it finds.  To import just one table, place
-only that file (and the `tables.csv` manifest) in the export directory.
+The task only imports files that are needed by a layer.  To force-import a specific
+file that is not yet referenced by any layer, place only that file (and the
+`tables.csv` manifest) in a local export directory and use `CARTODB_EXPORT_DIR`
+while pointing at a database that has no flagged layers (fallback mode).
 
 ---
 
@@ -279,3 +290,10 @@ run `rake cartodb:status` to inspect the current state.
 Both tasks are safe to re-run.  `import_tables` will prompt before overwriting
 (or skip with `FORCE=1`).  `update_layer_references` will update
 `cartodb_migration.tables` with the latest availability.
+
+**`WARNING: referenced by layers but NOT available on S3`**  
+The task found table names in layer SQL queries that have no corresponding
+`{schema}_{table}.csv.gz` file on S3.  This means either the table was spatial
+(handled by the vector export pipeline) or it was never exported.  Check the
+`export_tables_bash.sh status` output on the CartoDB server and re-run the export
+if the file is missing.

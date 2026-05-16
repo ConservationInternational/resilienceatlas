@@ -173,6 +173,34 @@ namespace :cartodb do
     ar_conn = ActiveRecord::Base.connection
     raw_conn = ar_conn.raw_connection  # PG::Connection – used for streaming COPY
 
+    # ── 0. Build the set of table names actually referenced by layers ────────
+    # Query the same set of flagged layers that update_layer_references works on
+    # so we only download/import what is genuinely needed.
+
+    flagged_layers = Layer
+      .where(layer_provider: nil, published: false)
+      .where.not(query: [nil, ""])
+
+    if flagged_layers.empty?
+      abort "ERROR: No formerly CartoDB layers found " \
+            "(layer_provider=NULL, published=false, query present).  Nothing to import."
+    end
+
+    referenced_table_names = flagged_layers
+      .flat_map { |layer| CartodbRakeHelpers.extract_table_names_from_sql(layer.query) }
+      .uniq
+      .sort
+
+    if referenced_table_names.empty?
+      abort "ERROR: #{flagged_layers.count} flagged layer(s) found but no table names " \
+            "could be parsed from their queries.  Check the query column for those layers."
+    end
+
+    puts "Found #{flagged_layers.count} flagged layer(s) referencing " \
+         "#{referenced_table_names.size} unique table name(s):"
+    referenced_table_names.each { |t| puts "  - #{t}" }
+    puts ""
+
     Dir.mktmpdir("cartodb_import") do |tmpdir|
       # ── 1. Discover .csv.gz files ────────────────────────────────────────
 
@@ -206,6 +234,39 @@ namespace :cartodb do
 
       manifest = CartodbRakeHelpers.load_manifest(manifest_path)
       puts "Loaded manifest with #{manifest.size} entry(ies)." if manifest.any?
+
+      # ── 2b. Filter to only the files needed by layers; report S3 gaps ────
+
+      if referenced_table_names.any?
+        # Build table_name → basename lookup from everything available on S3/disk
+        s3_table_to_file = gz_basenames.each_with_object({}) do |basename, h|
+          info = manifest[basename] || CartodbRakeHelpers.parse_export_filename(basename)
+          h[info[:table]] = basename if info
+        end
+
+        # Tables referenced by layers but not present on S3
+        missing_from_s3 = referenced_table_names - s3_table_to_file.keys
+        if missing_from_s3.any?
+          puts "\nWARNING: The following table(s) are referenced by layers but NOT available on S3:"
+          missing_from_s3.each { |t| puts "  ✗  #{t}" }
+        end
+
+        total_available = gz_basenames.size
+        gz_basenames = gz_basenames.select do |basename|
+          info = manifest[basename] || CartodbRakeHelpers.parse_export_filename(basename)
+          info && referenced_table_names.include?(info[:table])
+        end
+
+        puts "\nFiltering: #{gz_basenames.size} of #{total_available} file(s) on S3 are " \
+             "referenced by layers and will be imported."
+        puts "  (#{total_available - gz_basenames.size} unreferenced file(s) skipped)"
+        puts ""
+
+        if gz_basenames.empty?
+          puts "Nothing to import (no S3 files match any referenced table)."
+          next
+        end
+      end
 
       # ── 3. Ensure the target schema exists (skip for public) ─────────────
 
