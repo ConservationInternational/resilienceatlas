@@ -364,7 +364,7 @@ namespace :cartodb do
           "-nln", "#{target_schema}.#{tbl}",
           "-overwrite",
           "-nlt", "PROMOTE_TO_MULTI",
-          "-gt", "1000",
+          "-gt", "100",
           "--config", "PG_USE_COPY", "YES"
         )
 
