@@ -318,7 +318,8 @@ namespace :cartodb do
       skipped_vectors = []
       failed_vectors = []
 
-      to_import_as_vector.each do |tbl|
+      total_vectors = to_import_as_vector.size
+      to_import_as_vector.each_with_index do |tbl, idx|
         basename = gpkg_table_to_file[tbl]
         info = CartodbRakeHelpers.parse_vector_filename(basename)
         q_table = "\"#{target_schema}\".\"#{tbl}\""
@@ -333,7 +334,7 @@ namespace :cartodb do
           end
         end
 
-        puts "\nImporting vector: #{basename} → #{q_table} ..."
+        puts "\nImporting vector [#{idx + 1}/#{total_vectors}]: #{basename} → #{q_table} ..."
 
         local_path = File.join(tmpdir, basename)
         print "  Downloading from S3... "
@@ -394,7 +395,8 @@ namespace :cartodb do
       manifest = CartodbRakeHelpers.load_manifest(manifest_path)
       puts "Loaded manifest with #{manifest.size} entry(ies)." if manifest.any?
 
-      to_import_as_table.each do |tbl|
+      total_tables = to_import_as_table.size
+      to_import_as_table.each_with_index do |tbl, idx|
         basename = gz_table_to_file[tbl]
         info = manifest[basename] || CartodbRakeHelpers.parse_export_filename(basename)
         unless info
@@ -416,7 +418,7 @@ namespace :cartodb do
           end
         end
 
-        puts "\nImporting table: #{basename} → #{q_table} (original schema: #{src_schema})..."
+        puts "\nImporting table [#{idx + 1}/#{total_tables}]: #{basename} → #{q_table} (original schema: #{src_schema})..."
 
         gz_path = if use_s3
           local_path = File.join(tmpdir, basename)
