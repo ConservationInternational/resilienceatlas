@@ -324,7 +324,18 @@ namespace :cartodb do
         info = CartodbRakeHelpers.parse_vector_filename(basename)
         q_table = "\"#{target_schema}\".\"#{tbl}\""
 
-        if ar_conn.table_exists?("#{target_schema}.#{tbl}")
+        exists = begin
+          ar_conn.table_exists?("#{target_schema}.#{tbl}")
+        rescue ActiveRecord::ConnectionFailed, PG::Error => e
+          warn "  DB connection lost before checking #{tbl} (#{e.message}) — reconnecting..."
+          sleep 5
+          ActiveRecord::Base.connection_pool.disconnect!
+          ar_conn = ActiveRecord::Base.connection
+          raw_conn = ar_conn.raw_connection
+          retry
+        end
+
+        if exists
           if force
             puts "\n  Table #{q_table} already exists — overwriting (FORCE=1)."
           else
@@ -353,12 +364,26 @@ namespace :cartodb do
           "-nln", "#{target_schema}.#{tbl}",
           "-overwrite",
           "-nlt", "PROMOTE_TO_MULTI",
+          "-gt", "1000",
           "--config", "PG_USE_COPY", "YES"
         )
 
         unless success
           warn "  FAILED: ogr2ogr returned non-zero exit code."
           failed_vectors << {table: tbl, file: basename, reason: "ogr2ogr failed"}
+          File.delete(local_path) rescue nil
+          # PostgreSQL may have crashed (OOM). Wait briefly and reconnect so the
+          # rest of the loop can continue checking/skipping existing tables.
+          warn "  Waiting for PostgreSQL to recover..."
+          sleep 5
+          begin
+            ActiveRecord::Base.connection_pool.disconnect!
+            ar_conn = ActiveRecord::Base.connection
+            raw_conn = ar_conn.raw_connection
+            warn "  Reconnected."
+          rescue => e
+            warn "  Reconnect failed: #{e.message} — subsequent tables may not import."
+          end
           next
         end
 
