@@ -364,6 +364,39 @@ app.add_middleware(
 
 add_exception_handlers(app, DEFAULT_STATUS_CODES)
 
+# In Starlette, handlers registered for the `Exception` class (including the one
+# in DEFAULT_STATUS_CODES) are routed to ServerErrorMiddleware, which sits OUTSIDE
+# CORSMiddleware.  As a result, any unhandled exception that reaches
+# ServerErrorMiddleware would produce a 500 response without CORS headers, causing
+# the browser to report a CORS error instead of the real status code.
+#
+# Fix: replace the generic Exception handler (set by add_exception_handlers above)
+# with one that manually adds the CORS headers before the response is emitted.
+_CORS_ORIGIN_RE = re.compile(
+    r'https?://((([\w]*)\.)*resilienceatlas\.org|localhost(:([\d])*)?)'
+)
+
+
+@app.exception_handler(Exception)
+async def _exception_with_cors_handler(request: Request, exc: Exception) -> JSONResponse:
+    """Catch-all handler registered with ServerErrorMiddleware.
+
+    Because Starlette routes Exception/500 handlers to ServerErrorMiddleware (outside
+    CORSMiddleware), we must add CORS headers manually here so the browser receives
+    them on 500 responses and can read the error detail.
+    """
+    origin = request.headers.get("origin", "")
+    cors_headers: dict[str, str] = {}
+    if _CORS_ORIGIN_RE.fullmatch(origin):
+        cors_headers["Access-Control-Allow-Origin"] = origin
+        cors_headers["Access-Control-Allow-Credentials"] = "true"
+        cors_headers["Vary"] = "Origin"
+    return JSONResponse(
+        status_code=500,
+        content={"detail": "Internal Server Error"},
+        headers=cors_headers if cors_headers else None,
+    )
+
 
 # Add health check
 

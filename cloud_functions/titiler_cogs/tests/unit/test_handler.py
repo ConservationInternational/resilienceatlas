@@ -3,7 +3,7 @@ import os
 
 import pytest
 
-from titiler_cogs import app
+from titiler_cogs.app import app
 from titiler_cogs.app import is_url_allowed
 
 
@@ -162,3 +162,54 @@ class TestIsUrlAllowedGCS:
 
     def test_https_storage_cloud_google_allowed(self):
         assert is_url_allowed("https://storage.cloud.google.com/my-gcs-bucket/file.tif") is True
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# CORS headers on error responses
+# ──────────────────────────────────────────────────────────────────────────────
+
+class TestCorsOnErrorResponses:
+    """Verify that CORS headers are present on error responses.
+
+    Starlette routes Exception/500 handlers to ServerErrorMiddleware (outside
+    CORSMiddleware).  The custom _exception_with_cors_handler must add the CORS
+    headers manually so the browser can read the error body.
+    """
+
+    @pytest.fixture()
+    def test_client(self):
+        from starlette.testclient import TestClient
+        # raise_server_exceptions=False so the client returns the 500 response
+        # instead of re-raising the exception in the test process.
+        return TestClient(app.app, raise_server_exceptions=False)
+
+    def test_denied_bucket_returns_cors_header(self, test_client):
+        """Requests for disallowed buckets return 403 with CORS headers."""
+        resp = test_client.get(
+            "/cog/info",
+            params={"url": "https://not-allowed.s3.amazonaws.com/file.tif"},
+            headers={"Origin": "https://staging.resilienceatlas.org"},
+        )
+        assert resp.status_code == 403
+        assert "access-control-allow-origin" in resp.headers
+
+    def test_preflight_returns_cors_headers(self, test_client):
+        """OPTIONS preflight for a tile request includes CORS headers."""
+        resp = test_client.options(
+            "/cog/tiles/WebMercatorQuad/3/2/3",
+            headers={
+                "Origin": "https://staging.resilienceatlas.org",
+                "Access-Control-Request-Method": "GET",
+            },
+        )
+        assert resp.status_code == 200
+        assert "access-control-allow-origin" in resp.headers
+
+    def test_unknown_origin_gets_no_cors_header(self, test_client):
+        """Requests from unknown origins must not receive CORS headers."""
+        resp = test_client.get(
+            "/cog/info",
+            params={"url": "https://not-allowed.s3.amazonaws.com/file.tif"},
+            headers={"Origin": "https://evil.example.com"},
+        )
+        assert "access-control-allow-origin" not in resp.headers
