@@ -22,15 +22,15 @@ class FixCogSourceUrlsToS3Scheme < ActiveRecord::Migration[7.2]
     execute(<<-SQL.squish)
       UPDATE layers
       SET layer_config = jsonb_set(
-        layer_config,
+        layer_config::jsonb,
         '{body,source}',
-        to_jsonb(replace(layer_config->'body'->>'source', '#{HTTPS_PREFIX}', '#{S3_PREFIX}'))
-      )
+        to_jsonb(replace(layer_config::jsonb->'body'->>'source', '#{HTTPS_PREFIX}', '#{S3_PREFIX}'))
+      )::text
       WHERE layer_provider = 'cog'
-      AND layer_config->'body'->>'source' LIKE '#{HTTPS_PREFIX}%'
+      AND layer_config::jsonb->'body'->>'source' LIKE '#{HTTPS_PREFIX}%'
     SQL
 
-    updated = execute("SELECT COUNT(*) FROM layers WHERE layer_provider = 'cog' AND layer_config->'body'->>'source' LIKE '#{S3_PREFIX}%'").first["count"]
+    updated = execute("SELECT COUNT(*) FROM layers WHERE layer_provider = 'cog' AND layer_config::jsonb->'body'->>'source' LIKE '#{S3_PREFIX}%'").first["count"]
     Rails.logger.info "FixCogSourceUrlsToS3Scheme: Updated #{updated} COG layer(s) to s3:// source URL scheme"
   end
 
@@ -39,12 +39,12 @@ class FixCogSourceUrlsToS3Scheme < ActiveRecord::Migration[7.2]
     execute(<<-SQL.squish)
       UPDATE layers
       SET layer_config = jsonb_set(
-        layer_config,
+        layer_config::jsonb,
         '{body,source}',
-        to_jsonb(replace(layer_config->'body'->>'source', '#{S3_PREFIX}', '#{HTTPS_PREFIX}'))
-      )
+        to_jsonb(replace(layer_config::jsonb->'body'->>'source', '#{S3_PREFIX}', '#{HTTPS_PREFIX}'))
+      )::text
       WHERE layer_provider = 'cog'
-      AND layer_config->'body'->>'source' LIKE '#{S3_PREFIX}%'
+      AND layer_config::jsonb->'body'->>'source' LIKE '#{S3_PREFIX}%'
     SQL
   end
 end
