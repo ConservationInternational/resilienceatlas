@@ -24,6 +24,7 @@ RUN for i in {1..3}; do \
         npm \
         postgresql-client \
         curl \
+        awscli \
       && rm -rf /var/lib/apt/lists/* && break || \
       ([ $i -eq 3 ] && echo "❌ Failed to install packages after 3 attempts" && exit 1) || \
       (echo "⚠️ Package installation attempt $i failed, retrying in 10 seconds..." && sleep 10); \

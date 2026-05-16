@@ -3,8 +3,8 @@ import os
 
 import pytest
 
-from titiler_cogs.app import app
-from titiler_cogs.app import is_url_allowed
+from titiler_cogs import app as app_module
+from titiler_cogs.app import app, is_url_allowed
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -16,9 +16,9 @@ def set_allowed_buckets(monkeypatch):
     """Set TITILER_ALLOWED_BUCKETS for all tests and reset the cached value."""
     monkeypatch.setenv("TITILER_ALLOWED_BUCKETS", "s3://resilienceatlas,s3://trends.earth-private,gs://my-gcs-bucket")
     # Reset the module-level cache so each test picks up the env var fresh
-    app._allowed_buckets = None
+    app_module._allowed_buckets = None
     yield
-    app._allowed_buckets = None
+    app_module._allowed_buckets = None
 
 
 @pytest.fixture()
@@ -179,9 +179,9 @@ class TestCorsOnErrorResponses:
     @pytest.fixture()
     def test_client(self):
         from starlette.testclient import TestClient
-        # raise_server_exceptions=False so the client returns the 500 response
+        # raise_server_exceptions=False so the client returns the error response
         # instead of re-raising the exception in the test process.
-        return TestClient(app.app, raise_server_exceptions=False)
+        return TestClient(app, raise_server_exceptions=False)
 
     def test_denied_bucket_returns_cors_header(self, test_client):
         """Requests for disallowed buckets return 403 with CORS headers."""

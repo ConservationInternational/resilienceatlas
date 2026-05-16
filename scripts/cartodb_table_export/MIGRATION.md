@@ -119,8 +119,8 @@ Column types are inferred automatically from a 1 000-row sample
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `CARTODB_S3_BUCKET` | _(none)_ | S3 bucket containing the exports.  Required when using S3. |
-| `CARTODB_S3_PREFIX` | `cartodb-tables/` | S3 key prefix |
+| `CARTODB_S3_BUCKET` | _(none)_ | S3 bucket name only (no prefix).  Required when using S3. |
+| `CARTODB_S3_PREFIX` | `cartodb-tables/` | S3 key prefix appended to the bucket name.  Must end with `/`.  Cannot be embedded in `CARTODB_S3_BUCKET`. |
 | `CARTODB_EXPORT_DIR` | `/data/cartodb-tables` | Local directory with `.csv.gz` files (used when `CARTODB_S3_BUCKET` is not set) |
 | `CARTODB_IMPORT_SCHEMA` | `ra_vector` | Target PostgreSQL schema |
 | `FORCE` | _(unset)_ | Set to `1` to overwrite existing tables without prompting |
@@ -143,22 +143,24 @@ docker compose -f docker-compose.dev.yml run --rm \
 **Staging server (run on the staging host)**
 
 ```bash
+source /opt/resilienceatlas-staging/.env.staging
 docker run --rm -it \
   --network resilienceatlas-staging_staging-network \
   --env-file /opt/resilienceatlas-staging/.env.staging \
   -e RAILS_ENV=staging \
-  ${BACKEND_IMAGE} \
+  "$BACKEND_IMAGE" \
   bundle exec rake cartodb:import_tables CARTODB_S3_BUCKET=my-backup-bucket
 ```
 
 **Production server (run on the production host)**
 
 ```bash
+source /opt/resilienceatlas/.env
 docker run --rm -it \
   --network resilienceatlas-production_prod-network \
   --env-file /opt/resilienceatlas/.env \
   -e RAILS_ENV=production \
-  ${BACKEND_IMAGE} \
+  "$BACKEND_IMAGE" \
   bundle exec rake cartodb:import_tables CARTODB_S3_BUCKET=my-backup-bucket
 ```
 
@@ -217,12 +219,13 @@ For each such layer the task:
 docker compose -f docker-compose.dev.yml run --rm backend \
   rake cartodb:update_layer_references
 
-# Staging / production — substitute env-file and network as above
+# Staging / production — source the env file first so $BACKEND_IMAGE is set
+source /opt/resilienceatlas/.env   # or .env.staging on the staging host
 docker run --rm -it \
   --network resilienceatlas-production_prod-network \
   --env-file /opt/resilienceatlas/.env \
   -e RAILS_ENV=production \
-  ${BACKEND_IMAGE} \
+  "$BACKEND_IMAGE" \
   bundle exec rake cartodb:update_layer_references
 ```
 
@@ -240,11 +243,12 @@ docker compose -f docker-compose.dev.yml run --rm backend \
   CARTODB_S3_BUCKET=my-backup-bucket FORCE=1
 
 # Production
+source /opt/resilienceatlas/.env
 docker run --rm -it \
   --network resilienceatlas-production_prod-network \
   --env-file /opt/resilienceatlas/.env \
   -e RAILS_ENV=production \
-  ${BACKEND_IMAGE} \
+  "$BACKEND_IMAGE" \
   bundle exec rake cartodb:migrate_tables CARTODB_S3_BUCKET=my-backup-bucket FORCE=1
 ```
 
@@ -260,11 +264,12 @@ changes.  Use it to monitor progress or verify a completed migration.
 docker compose -f docker-compose.dev.yml run --rm backend rake cartodb:status
 
 # Production
+source /opt/resilienceatlas/.env
 docker run --rm -it \
   --network resilienceatlas-production_prod-network \
   --env-file /opt/resilienceatlas/.env \
   -e RAILS_ENV=production \
-  ${BACKEND_IMAGE} \
+  "$BACKEND_IMAGE" \
   bundle exec rake cartodb:status
 ```
 
