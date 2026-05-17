@@ -2,21 +2,6 @@ import logging
 import os
 import re
 from urllib.parse import urlparse
-
-# Configure PROJ data directory before rasterio/GDAL initialization.
-# When packages are installed to a non-standard location (e.g. Lambda /tmp/ pip
-# target), PROJ cannot locate its authority database (proj.db), so every CRS read
-# from a file comes back as an "EngineeringCRS" with "Unknown engineering datum".
-# Attempting to transform tile bounds from EPSG:3857 to that unrecognized CRS then
-# raises CPLE_NotSupportedError for every single tile request.
-try:
-    import pyproj.datadir as _pyproj_datadir
-    _proj_data = _pyproj_datadir.get_data_dir()
-    os.environ.setdefault("PROJ_DATA", _proj_data)
-    os.environ.setdefault("PROJ_LIB", _proj_data)   # legacy name, read by older GDAL
-except Exception:
-    pass
-
 from mangum import Mangum
 from rio_tiler.colormap import cmap as default_cmap
 from titiler.core.factory import TilerFactory
