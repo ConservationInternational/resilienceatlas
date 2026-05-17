@@ -155,6 +155,19 @@ module CartodbRakeHelpers
     return false if sql.blank?
     sql.match?(/\b(?:WHERE|JOIN|GROUP\s+BY|HAVING|UNION|EXCEPT|INTERSECT|LIMIT|ORDER\s+BY)\b/i)
   end
+
+  # Extract a SQL query from a CartoDB-native layer_config JSON blob.
+  # CartoDB stored the SQL in two common shapes:
+  #   {"body":{"sql":"SELECT ..."},...}   ← most common
+  #   {"sql":"SELECT ...", ...}           ← older/alternate format
+  # Returns nil when no recognisable SQL is found or the JSON is invalid.
+  def self.extract_sql_from_cartodb_config(layer_config_json)
+    return nil if layer_config_json.blank?
+    cfg = JSON.parse(layer_config_json)
+    cfg.dig("body", "sql").presence || cfg["sql"].presence
+  rescue JSON::ParserError
+    nil
+  end
 end
 
 # ---------------------------------------------------------------------------
@@ -239,15 +252,23 @@ namespace :cartodb do
 
     flagged_layers = Layer
       .where(layer_provider: nil, published: false)
-      .where.not(query: [nil, ""])
+      .where(
+        "NOT (query IS NULL OR query = '') OR " \
+        "layer_config LIKE '%cartodb_migration%' OR " \
+        "(layer_config LIKE '%\"body\"%' AND layer_config LIKE '%\"sql\"%')"
+      )
 
     if flagged_layers.empty?
       abort "ERROR: No formerly CartoDB layers found " \
-            "(layer_provider=NULL, published=false, query present). Nothing to import."
+            "(layer_provider=NULL, published=false). Nothing to import."
     end
 
     referenced_table_names = flagged_layers
-      .flat_map { |layer| CartodbRakeHelpers.extract_table_names_from_sql(layer.query) }
+      .flat_map do |layer|
+        sql = layer.query.presence ||
+          CartodbRakeHelpers.extract_sql_from_cartodb_config(layer.layer_config)
+        CartodbRakeHelpers.extract_table_names_from_sql(sql)
+      end
       .uniq
       .sort
 
@@ -635,14 +656,23 @@ namespace :cartodb do
   task update_layer_references: :environment do
     target_schema = ENV.fetch("CARTODB_IMPORT_SCHEMA", "ra_vector")
 
+    # Include layers that either:
+    #   a) have a SQL query in the query column (standard path), OR
+    #   b) already have a cartodb_migration block (idempotent re-run), OR
+    #   c) have CartoDB-native layer_config JSON (body.sql / sql keys) —
+    #      these were silently skipped before because their query column is blank.
     formerly_cartodb = Layer
       .where(layer_provider: nil, published: false)
-      .where.not(query: [nil, ""])
+      .where(
+        "NOT (query IS NULL OR query = '') OR " \
+        "layer_config LIKE '%cartodb_migration%' OR " \
+        "(layer_config LIKE '%\"body\"%' AND layer_config LIKE '%\"sql\"%')"
+      )
       .order(:id)
 
     if formerly_cartodb.empty?
       puts "No formerly CartoDB layers found " \
-           "(layer_provider=NULL, published=false, query present).  Nothing to do."
+           "(layer_provider=NULL, published=false).  Nothing to do."
       next
     end
 
@@ -656,12 +686,24 @@ namespace :cartodb do
     formerly_cartodb.each do |layer|
       puts "Layer ##{layer.id} (#{layer.slug}):"
 
+      # ── Resolve the SQL source ──────────────────────────────────────────
+      # Prefer the query column; fall back to layer_config.body.sql for
+      # layers whose SQL was stored in CartoDB-native JSON format.
+
+      source_sql = if layer.query.present?
+        layer.query
+      else
+        fallback = CartodbRakeHelpers.extract_sql_from_cartodb_config(layer.layer_config)
+        puts "  ℹ  query column blank; extracted SQL from layer_config.body.sql" if fallback.present?
+        fallback
+      end
+
       # ── Parse table names from the CartoDB SQL ─────────────────────────
 
-      referenced = CartodbRakeHelpers.extract_table_names_from_sql(layer.query)
+      referenced = CartodbRakeHelpers.extract_table_names_from_sql(source_sql)
 
       if referenced.empty?
-        puts "  ⚠  No FROM/JOIN table references found in query — skipping."
+        puts "  ⚠  No FROM/JOIN table references found — skipping."
         no_tables << {id: layer.id, slug: layer.slug}
         next
       end
@@ -688,21 +730,18 @@ namespace :cartodb do
         "note" => "Set layer_provider and update layer_config, then set published=true."
       }
 
-      # Merge into the existing layer_config JSON (or start fresh)
-      existing_config = begin
-        layer.layer_config.present? ? JSON.parse(layer.layer_config) : {}
-      rescue JSON::ParserError
-        {}
-      end
+      # Start fresh for the new config (discard old CartoDB body/css keys;
+      # preserve only the cartodb_migration block we control)
+      new_config = {"cartodb_migration" => migration_block}
 
-      new_config = existing_config.merge("cartodb_migration" => migration_block)
+      # ── Strip CartoDB-internal columns from the SQL ─────────────────────
 
-      # ── Strip CartoDB-internal columns from the query ───────────────────
-
-      cleaned_query = CartodbRakeHelpers.strip_cartodb_columns(layer.query)
+      cleaned_query = CartodbRakeHelpers.strip_cartodb_columns(source_sql)
 
       # ── Persist via update_columns to bypass model validations ─────────
       # (layer_provider=NULL fails presence validation; we must go around it)
+      # Also writes cleaned SQL back to query so configure_martin_layers can
+      # find and use it regardless of where the original SQL came from.
 
       layer.update_columns(
         layer_config: new_config.to_json,
@@ -964,17 +1003,33 @@ namespace :cartodb do
     target_schema = ENV.fetch("CARTODB_IMPORT_SCHEMA", "public")
     ar_conn = ActiveRecord::Base.connection
 
+    # Mirror the same broad filter used by update_layer_references so the
+    # status report accurately reflects how many layers will be processed.
     formerly_cartodb = Layer
       .where(layer_provider: nil, published: false)
-      .where.not(query: [nil, ""])
+      .where(
+        "NOT (query IS NULL OR query = '') OR " \
+        "layer_config LIKE '%cartodb_migration%' OR " \
+        "(layer_config LIKE '%\"body\"%' AND layer_config LIKE '%\"sql\"%')"
+      )
       .order(:id)
+
+    # Layers that are still completely unreachable (no query, no CartoDB config)
+    no_sql_count = Layer
+      .where(layer_provider: nil, published: false)
+      .where(
+        "(query IS NULL OR query = '') AND " \
+        "(layer_config NOT LIKE '%cartodb_migration%' OR layer_config IS NULL) AND " \
+        "NOT (layer_config LIKE '%\"body\"%' AND layer_config LIKE '%\"sql\"%')"
+      ).count
 
     total_null = Layer.where(layer_provider: nil).count
 
     puts "=== CartoDB Migration Status (#{Time.current.strftime("%Y-%m-%d %H:%M")}) ==="
     puts ""
-    puts "  Layers with provider=NULL             : #{total_null}"
-    puts "  of which unpublished with query (flagged): #{formerly_cartodb.count}"
+    puts "  Layers with provider=NULL                    : #{total_null}"
+    puts "  of which processable by update_layer_references: #{formerly_cartodb.count}"
+    puts "  of which unreachable (no SQL anywhere)         : #{no_sql_count}" if no_sql_count > 0
     puts ""
 
     if formerly_cartodb.empty?
@@ -987,7 +1042,9 @@ namespace :cartodb do
     pending = 0
 
     formerly_cartodb.each do |layer|
-      referenced = CartodbRakeHelpers.extract_table_names_from_sql(layer.query)
+      source_sql = layer.query.presence ||
+        CartodbRakeHelpers.extract_sql_from_cartodb_config(layer.layer_config)
+      referenced = CartodbRakeHelpers.extract_table_names_from_sql(source_sql)
       next if referenced.empty?
 
       statuses = referenced.map do |t|
