@@ -358,7 +358,11 @@ namespace :cartodb do
           begin
             ActiveRecord::Base.connection_pool.disconnect!
             ar_conn = ActiveRecord::Base.connection
-            raw_conn = ar_conn.raw_connection rescue nil
+            raw_conn = begin
+              ar_conn.raw_connection
+            rescue
+              nil
+            end
           rescue => reconnect_err
             warn "  Reconnect attempt failed: #{reconnect_err.message}. Waiting 30s..."
             sleep 30
@@ -413,20 +417,22 @@ namespace :cartodb do
           warn "  Waiting for PostgreSQL to recover..."
           sleep 30
           10.times do |attempt|
-            begin
-              ActiveRecord::Base.connection_pool.disconnect!
-              ar_conn = ActiveRecord::Base.connection
-              ar_conn.execute("SELECT 1")
-              raw_conn = ar_conn.raw_connection rescue nil
-              warn "  Reconnected (attempt #{attempt + 1})."
-              break
-            rescue => e
-              if attempt < 9
-                warn "  PG not ready yet (attempt #{attempt + 1}/10): #{e.message}. Waiting 15s..."
-                sleep 15
-              else
-                warn "  Reconnect failed after all attempts: #{e.message} — subsequent tables may not import."
-              end
+            ActiveRecord::Base.connection_pool.disconnect!
+            ar_conn = ActiveRecord::Base.connection
+            ar_conn.execute("SELECT 1")
+            raw_conn = begin
+              ar_conn.raw_connection
+            rescue
+              nil
+            end
+            warn "  Reconnected (attempt #{attempt + 1})."
+            break
+          rescue => e
+            if attempt < 9
+              warn "  PG not ready yet (attempt #{attempt + 1}/10): #{e.message}. Waiting 15s..."
+              sleep 15
+            else
+              warn "  Reconnect failed after all attempts: #{e.message} — subsequent tables may not import."
             end
           end
 
@@ -437,7 +443,11 @@ namespace :cartodb do
         unless imported
           warn "  FAILED: ogr2ogr failed at all batch sizes (65535 → 1000 → 100 → 10)."
           failed_vectors << {table: tbl, file: basename, reason: "ogr2ogr failed (all batch sizes)"}
-          File.delete(local_path) rescue nil
+          begin
+            File.delete(local_path)
+          rescue
+            nil
+          end
           next
         end
 

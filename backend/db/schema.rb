@@ -12,6 +12,7 @@
 
 ActiveRecord::Schema[7.2].define(version: 2026_05_15_140000) do
   # These are extensions that must be enabled in order to support this database
+  enable_extension "fuzzystrmatch"
   enable_extension "plpgsql"
   enable_extension "postgis"
   enable_extension "postgis_topology"
