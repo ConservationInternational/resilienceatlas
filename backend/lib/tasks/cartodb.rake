@@ -326,12 +326,17 @@ namespace :cartodb do
 
         exists = begin
           ar_conn.table_exists?("#{target_schema}.#{tbl}")
-        rescue ActiveRecord::ConnectionFailed, PG::Error => e
+        rescue ActiveRecord::ConnectionFailed, ActiveRecord::DatabaseConnectionError, PG::Error => e
           warn "  DB connection lost before checking #{tbl} (#{e.message}) — reconnecting..."
-          sleep 5
-          ActiveRecord::Base.connection_pool.disconnect!
-          ar_conn = ActiveRecord::Base.connection
-          raw_conn = ar_conn.raw_connection
+          sleep 30
+          begin
+            ActiveRecord::Base.connection_pool.disconnect!
+            ar_conn = ActiveRecord::Base.connection
+            raw_conn = ar_conn.raw_connection rescue nil
+          rescue => reconnect_err
+            warn "  Reconnect attempt failed: #{reconnect_err.message}. Waiting 30s..."
+            sleep 30
+          end
           retry
         end
 
@@ -372,17 +377,25 @@ namespace :cartodb do
           warn "  FAILED: ogr2ogr returned non-zero exit code."
           failed_vectors << {table: tbl, file: basename, reason: "ogr2ogr failed"}
           File.delete(local_path) rescue nil
-          # PostgreSQL may have crashed (OOM). Wait briefly and reconnect so the
-          # rest of the loop can continue checking/skipping existing tables.
+          # PostgreSQL may have crashed (OOM). Wait and retry until PG recovers.
           warn "  Waiting for PostgreSQL to recover..."
-          sleep 5
-          begin
-            ActiveRecord::Base.connection_pool.disconnect!
-            ar_conn = ActiveRecord::Base.connection
-            raw_conn = ar_conn.raw_connection
-            warn "  Reconnected."
-          rescue => e
-            warn "  Reconnect failed: #{e.message} — subsequent tables may not import."
+          sleep 30
+          10.times do |attempt|
+            begin
+              ActiveRecord::Base.connection_pool.disconnect!
+              ar_conn = ActiveRecord::Base.connection
+              ar_conn.execute("SELECT 1")
+              raw_conn = ar_conn.raw_connection rescue nil
+              warn "  Reconnected (attempt #{attempt + 1})."
+              break
+            rescue => e
+              if attempt < 9
+                warn "  PG not ready yet (attempt #{attempt + 1}/10): #{e.message}. Waiting 15s..."
+                sleep 15
+              else
+                warn "  Reconnect failed after all attempts: #{e.message} — subsequent tables may not import."
+              end
+            end
           end
           next
         end
