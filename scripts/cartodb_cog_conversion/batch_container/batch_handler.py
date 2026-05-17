@@ -202,8 +202,13 @@ def convert_to_cog(
                 "error": "Source file has no CRS defined. Cannot convert to COG without valid CRS.",
             }
         
-        # Build gdal_translate command
-        # CRS is preserved by default when converting to COG
+        # Build gdal_translate command.
+        # When a canonical EPSG code is known, pass -a_srs so the output COG is
+        # written with the clean, authority-registered CRS definition rather than
+        # copying the source WKT verbatim.  CartoDB exports commonly embed EPSG:3857
+        # (and EPSG:4326) with non-standard datum names (e.g. "Unknown engineering
+        # datum") that PROJ 9+ treats as EngineeringCRS, causing rasterio to fail
+        # all coordinate transform calls at tile-serve time.
         cmd = [
             "gdal_translate",
             "-of", "COG",
@@ -211,9 +216,10 @@ def convert_to_cog(
             "-co", "BIGTIFF=IF_SAFER",
             "-co", "NUM_THREADS=ALL_CPUS",
             "-co", "OVERVIEWS=AUTO",
-            source_path,
-            cog_path,
         ]
+        if source_epsg:
+            cmd.extend(["-a_srs", source_epsg])
+        cmd.extend([source_path, cog_path])
         
         try:
             info(f"Running: {' '.join(cmd)}")
