@@ -758,6 +758,9 @@ def submit_batch_jobs(config: Config, pending: list[tuple[str, int]]) -> list[di
         )
         
         # Submit job
+        # OVERWRITE and MANIFEST_KEY are set per-job so that the value passed on
+        # the command line (via $env:OVERWRITE) takes precedence over whatever was
+        # baked into the job definition at deploy time.
         response = batch.submit_job(
             jobName=job_name,
             jobQueue=config.job_queue_name,
@@ -765,6 +768,7 @@ def submit_batch_jobs(config: Config, pending: list[tuple[str, int]]) -> list[di
             containerOverrides={
                 "environment": [
                     {"name": "MANIFEST_KEY", "value": manifest_key},
+                    {"name": "OVERWRITE", "value": str(config.overwrite).lower()},
                 ]
             }
         )
