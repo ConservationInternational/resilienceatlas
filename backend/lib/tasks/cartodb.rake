@@ -361,23 +361,29 @@ namespace :cartodb do
         end
         puts "  done (#{File.size(local_path)} bytes)."
 
-        puts "  Running ogr2ogr..."
-        success = system(
-          "ogr2ogr", "-f", "PostgreSQL",
-          "PG:#{pg_conn}",
-          local_path,
-          "-nln", "#{target_schema}.#{tbl}",
-          "-overwrite",
-          "-nlt", "PROMOTE_TO_MULTI",
-          "-gt", "100",
-          "--config", "PG_USE_COPY", "YES"
-        )
+        # Try progressively smaller batch sizes on OOM crash (large batches are
+        # faster; only pathological files need small ones).
+        batch_sizes = [65535, 1000, 100, 10]
+        imported = false
+        batch_sizes.each do |batch_size|
+          puts "  Running ogr2ogr (batch_size=#{batch_size})..."
+          success = system(
+            "ogr2ogr", "-f", "PostgreSQL",
+            "PG:#{pg_conn}",
+            local_path,
+            "-nln", "#{target_schema}.#{tbl}",
+            "-overwrite",
+            "-nlt", "PROMOTE_TO_MULTI",
+            "-gt", batch_size.to_s,
+            "--config", "PG_USE_COPY", "YES"
+          )
+          if success
+            imported = true
+            break
+          end
 
-        unless success
-          warn "  FAILED: ogr2ogr returned non-zero exit code."
-          failed_vectors << {table: tbl, file: basename, reason: "ogr2ogr failed"}
-          File.delete(local_path) rescue nil
-          # PostgreSQL may have crashed (OOM). Wait and retry until PG recovers.
+          # ogr2ogr failed — PostgreSQL may have crashed (OOM). Wait and reconnect.
+          warn "  ogr2ogr failed with batch_size=#{batch_size}."
           warn "  Waiting for PostgreSQL to recover..."
           sleep 30
           10.times do |attempt|
@@ -397,6 +403,15 @@ namespace :cartodb do
               end
             end
           end
+
+          next_batch = batch_sizes[batch_sizes.index(batch_size) + 1]
+          warn "  Retrying with smaller batch size #{next_batch}..." if next_batch
+        end
+
+        unless imported
+          warn "  FAILED: ogr2ogr failed at all batch sizes (65535 → 1000 → 100 → 10)."
+          failed_vectors << {table: tbl, file: basename, reason: "ogr2ogr failed (all batch sizes)"}
+          File.delete(local_path) rescue nil
           next
         end
 
