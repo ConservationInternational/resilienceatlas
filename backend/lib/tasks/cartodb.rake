@@ -18,18 +18,122 @@
 # ---------------------------------------------------------------------------
 
 module CartodbRakeHelpers
+  SQL_TABLE_STOP_WORDS = %w[
+    select where lateral values unnest generate_series on using inner left right full cross
+  ].freeze
+
   # Extract bare table names from FROM / JOIN clauses of a SQL string.
   # Handles schema-qualified names (schema.table) and SQL aliases.
   # Returns an array of lowercase table-name strings, deduplicated.
   def self.extract_table_names_from_sql(sql)
     return [] if sql.blank?
 
-    sql
-      .scan(/\b(?:FROM|JOIN)\s+(?:"?\w+"?\.)?"?(\w+)"?/i)
+    cte_names = sql.scan(/(?:\bWITH\b|,)\s*"?(\w+)"?\s+AS\s*\(/i).flatten.map(&:downcase)
+    tables = []
+
+    sql.scan(/\bFROM\s+(.+?)(?=\bWHERE\b|\bGROUP\s+BY\b|\bHAVING\b|\bORDER\s+BY\b|\bLIMIT\b|\bUNION\b|\bEXCEPT\b|\bINTERSECT\b|;|$)/im)
       .flatten
-      .map(&:downcase)
-      .reject { |t| %w[select where lateral values unnest generate_series].include?(t) }
+      .each do |from_clause|
+        from_clause.split(",").each do |entry|
+          match = entry.match(/\A\s*(?:"?\w+"?\.)?"?(\w+)"?/)
+          tables << match[1].downcase if match
+        end
+      end
+
+    tables.concat(sql.scan(/\bJOIN\s+(?:"?\w+"?\.)?"?(\w+)"?/i).flatten.map(&:downcase))
+
+    tables
+      .reject { |t| SQL_TABLE_STOP_WORDS.include?(t) || cte_names.include?(t) }
       .uniq
+  end
+
+  def self.raster_layer?(layer, sql)
+    layer.css.to_s.match?(/raster-colorizer|raster-opacity|raster-scaling/i) ||
+      sql.to_s.match?(/the_raster|st_clip\s*\(/i)
+  end
+
+  def self.build_cog_source_url(bucket, prefix, table_name)
+    normalized_prefix = prefix.to_s.sub(%r{\A/+}, "")
+    normalized_prefix = "#{normalized_prefix}/" if normalized_prefix.present? && !normalized_prefix.end_with?("/")
+    "s3://#{bucket}/#{normalized_prefix}#{table_name}.tif"
+  end
+
+  def self.parse_hex_color(color)
+    value = color.to_s.strip.downcase
+    return [0, 0, 0, 0] if value.blank? || value == "transparent"
+
+    if value.match?(/\A#[0-9a-f]{3}\z/i)
+      r = (value[1] * 2).to_i(16)
+      g = (value[2] * 2).to_i(16)
+      b = (value[3] * 2).to_i(16)
+      return [r, g, b, 255]
+    end
+
+    if value.match?(/\A#[0-9a-f]{6}\z/i)
+      return [value[1, 2].to_i(16), value[3, 2].to_i(16), value[5, 2].to_i(16), 255]
+    end
+
+    nil
+  end
+
+  def self.build_titiler_colormap(stops)
+    return nil if stops.blank?
+
+    values = stops.map { |stop| stop[:value] }
+    min = values.min
+    max = values.max
+    range = max - min
+    used_keys = {}
+
+    colormap = stops.each_with_object({}) do |stop, memo|
+      rgba = parse_hex_color(stop[:color])
+      next unless rgba
+
+      key = if range.zero?
+        0
+      else
+        (((stop[:value] - min) / range) * 255).round.clamp(0, 255)
+      end
+
+      while used_keys[key] && key < 255
+        key += 1
+      end
+      while used_keys[key] && key > 0
+        key -= 1
+      end
+
+      used_keys[key] = true
+      memo[key.to_s] = rgba
+    end
+
+    colormap.presence
+  end
+
+  def self.translate_raster_css(css)
+    return {} if css.blank?
+
+    opacity = css[/raster-opacity\s*:\s*([0-9.]+)/i, 1]
+    mode = css[/raster-colorizer-default-mode\s*:\s*([a-z]+)/i, 1]&.downcase
+    stops = css.scan(/stop\(\s*(-?\d*\.?\d+(?:e[+-]?\d+)?)\s*,\s*([^,\)]+)(?:\s*,\s*([^\)]+))?\s*\)/i).map do |value, color, extra|
+      {
+        value: value.to_f,
+        color: color.to_s.strip,
+        exact: extra.to_s.strip.downcase == "exact",
+      }
+    end
+
+    result = {}
+    result["opacity"] = opacity.to_f if opacity.present?
+    result["mode"] = mode if mode.present?
+
+    if stops.any?
+      min = stops.map { |stop| stop[:value] }.min
+      max = stops.map { |stop| stop[:value] }.max
+      result["rescale"] = "#{min},#{max}" if min && max
+      result["colormap"] = build_titiler_colormap(stops)
+    end
+
+    result.compact
   end
 
   # Parse { schema:, table: } from a {schema}_{table}.csv.gz filename.
@@ -724,11 +828,21 @@ namespace :cartodb do
         h[t] = local_tables.include?(t) ? "imported" : "missing"
       end
 
+      raster_layer = CartodbRakeHelpers.raster_layer?(layer, source_sql)
+      raster_tables = raster_layer ? (referenced - local_tables) : []
+
       migration_block = {
-        "status" => local_tables.any? ? "partial" : "pending",
+        "status" => raster_layer ? (raster_tables.any? ? "cog_pending" : "cog_ready") : (local_tables.any? ? "partial" : "pending"),
         "tables" => table_status,
+        "raster" => raster_layer,
+        "raster_tables" => raster_tables,
+        "source_sql" => source_sql,
+        "cleaned_query" => CartodbRakeHelpers.strip_cartodb_columns(source_sql),
         "note" => "Set layer_provider and update layer_config, then set published=true."
       }
+
+      style_config = CartodbRakeHelpers.translate_raster_css(layer.css)
+      migration_block["style"] = style_config if style_config.present?
 
       # Start fresh for the new config (discard old CartoDB body/css keys;
       # preserve only the cartodb_migration block we control)
@@ -784,9 +898,131 @@ namespace :cartodb do
     puts "Next steps:"
     puts "  1. For any still-missing tables, re-run rake cartodb:import_tables,"
     puts "     then re-run this task to refresh status."
-    puts "  2. Run rake cartodb:configure_martin_layers to automatically set"
-    puts "     layer_provider=martin, build layer_config, and publish all layers"
-    puts "     whose tables are fully imported."
+    puts "  2. Run rake cartodb:configure_cog_layers for raster/COG layers."
+    puts "  3. Run rake cartodb:configure_martin_layers for vector/Martin layers."
+  end
+
+  # ---------------------------------------------------------------------------
+
+  desc <<~DESC
+    Automatically configure raster-like CartoDB layers to use TiTiler-backed COGs.
+
+    For every layer flagged by update_layer_references with raster-style SQL/CSS:
+      - Sets layer_provider = "cog"
+      - Builds layer_config with body.source/body.sources pointing at converted COGs
+      - Translates legacy CartoCSS raster stops into TiTiler render params
+      - Publishes the layer when at least one COG source can be inferred
+
+    Optional:
+      S3_BUCKET=<bucket>               Bucket containing converted COGs (default: resilienceatlas)
+      COG_PREFIX=<prefix>              Prefix for converted COGs (default: cogs/)
+      DRY_RUN=1                        Preview changes without saving
+
+    Usage:
+      rake cartodb:configure_cog_layers
+      rake cartodb:configure_cog_layers DRY_RUN=1
+  DESC
+  task configure_cog_layers: :environment do
+    s3_bucket = ENV.fetch("S3_BUCKET", "resilienceatlas")
+    cog_prefix = ENV.fetch("COG_PREFIX", "cogs/")
+    dry_run = ENV["DRY_RUN"] == "1"
+
+    puts "DRY RUN — no changes will be saved.\n\n" if dry_run
+
+    candidates = Layer
+      .where(layer_provider: nil, published: false)
+      .where("layer_config LIKE '%cartodb_migration%'")
+      .order(:id)
+
+    if candidates.empty?
+      puts "No layers awaiting COG configuration. Nothing to do."
+      next
+    end
+
+    puts "Found #{candidates.count} layer(s) to review for COG configuration.\n\n"
+
+    configured_count = 0
+    published_count = 0
+    skipped_count = 0
+
+    candidates.each do |layer|
+      puts "Layer ##{layer.id} (#{layer.slug}):"
+
+      config = begin
+        layer.layer_config.present? ? JSON.parse(layer.layer_config) : {}
+      rescue JSON::ParserError
+        {}
+      end
+
+      migration = config["cartodb_migration"] || {}
+      source_sql = migration["source_sql"].presence || layer.query
+
+      unless CartodbRakeHelpers.raster_layer?(layer, source_sql)
+        puts "  - Not a raster-style CartoDB layer; leaving for Martin/manual handling."
+        skipped_count += 1
+        next
+      end
+
+      tables = migration["tables"] || {}
+      imported = tables.select { |_, status| status == "imported" }.keys
+      raster_tables = Array(migration["raster_tables"]).presence || (tables.keys - imported)
+
+      if raster_tables.empty?
+        puts "  - No raster COG tables inferred from migration metadata."
+        skipped_count += 1
+        next
+      end
+
+      sources = raster_tables.map do |table_name|
+        CartodbRakeHelpers.build_cog_source_url(s3_bucket, cog_prefix, table_name)
+      end
+
+      style = migration["style"].presence || CartodbRakeHelpers.translate_raster_css(layer.css)
+
+      body = {
+        "source" => sources.first,
+        "sources" => sources,
+        "options" => {
+          "interactive" => true,
+          "maxNativeZoom" => layer.zoom_max || 14,
+        },
+      }
+      body["colormap"] = style["colormap"] if style["colormap"].present?
+      body["rescale"] = style["rescale"] if style["rescale"].present?
+      body["cartocss_mode"] = style["mode"] if style["mode"].present?
+
+      migration["status"] = "configured_cog"
+      migration["raster"] = true
+      migration["raster_tables"] = raster_tables
+      migration["style"] = style if style.present?
+
+      new_config = {
+        "type" => "tileLayer",
+        "body" => body,
+        "cartodb_migration" => migration,
+      }
+
+      puts "  Sources  : #{sources.join(', ')}"
+      puts "  Publish  : yes"
+
+      unless dry_run
+        layer.update_columns(
+          layer_provider: "cog",
+          layer_config: new_config.to_json,
+          published: true
+        )
+      end
+
+      configured_count += 1
+      published_count += 1
+    end
+
+    puts "\n#{'=' * 56}"
+    puts "  COG Configuration#{dry_run ? ' (DRY RUN)' : ''} — Summary"
+    puts "=" * 56
+    puts "  Configured : #{configured_count}"
+    puts "    Published : #{published_count}"
+    puts "  Skipped    : #{skipped_count}"
   end
 
   # ---------------------------------------------------------------------------
@@ -848,6 +1084,12 @@ namespace :cartodb do
       migration = config["cartodb_migration"]
       unless migration
         puts "  ⚠  No cartodb_migration block — skipping."
+        skipped_count += 1
+        next
+      end
+
+      if migration["raster"]
+        puts "  - Raster-like layer detected; use configure_cog_layers instead."
         skipped_count += 1
         next
       end
@@ -986,7 +1228,7 @@ namespace :cartodb do
     Usage:
       rake cartodb:migrate_tables CARTODB_S3_BUCKET=my-bucket
   DESC
-  task migrate_tables: ["cartodb:import_tables", "cartodb:update_layer_references", "cartodb:configure_martin_layers"]
+  task migrate_tables: ["cartodb:import_tables", "cartodb:update_layer_references", "cartodb:configure_cog_layers", "cartodb:configure_martin_layers"]
 
   # ---------------------------------------------------------------------------
 

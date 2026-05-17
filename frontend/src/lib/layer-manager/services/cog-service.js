@@ -14,11 +14,17 @@ export const CANCELED = Symbol('CANCELED');
 const parseCogLayerUrls = (layerModel) => {
   const { layerConfig } = layerModel;
 
-  // New format: source URL is stored directly in body.source
-  if (layerConfig?.body?.source) {
+  const sources = Array.isArray(layerConfig?.body?.sources) && layerConfig.body.sources.length > 0
+    ? layerConfig.body.sources
+    : layerConfig?.body?.source
+      ? [layerConfig.body.source]
+      : [];
+
+  // New format: source URL is stored directly in body.source/body.sources
+  if (sources.length > 0) {
     return {
       titilerBaseUrl: getTitilerBaseUrl(),
-      cogUrl: layerConfig.body.source,
+      cogUrls: sources,
       bidx: layerConfig.body.bidx || null,
     };
   }
@@ -56,7 +62,7 @@ const parseCogLayerUrls = (layerModel) => {
     // Decode the URL parameter
     const cogUrl = decodeURIComponent(urlParamMatch[1]);
 
-    return { titilerBaseUrl, cogUrl };
+    return { titilerBaseUrl, cogUrls: [cogUrl] };
   } catch (error) {
     console.error('[COG Service] Error parsing COG layer URLs:', error);
     return null;
@@ -74,13 +80,11 @@ export const fetchCogBounds = (layerModel) => {
     return Promise.resolve(null);
   }
 
-  const { titilerBaseUrl, cogUrl } = urls;
+  const { titilerBaseUrl, cogUrls } = urls;
 
   // Use the backend API proxy to avoid CORS issues when calling TiTiler directly
   // The proxy forwards the request to TiTiler's /info endpoint
   const apiBaseUrl = getApiBaseUrl();
-  const infoUrl = `${apiBaseUrl}/api/titiler/info?titilerUrl=${encodeURIComponent(titilerBaseUrl)}&cogUrl=${encodeURIComponent(cogUrl)}`;
-
   // Cancel any existing bounds request for this layer
   const { cogBoundsRequest } = layerModel;
   if (cogBoundsRequest) {
@@ -90,32 +94,42 @@ export const fetchCogBounds = (layerModel) => {
   const cogBoundsRequestSource = CancelToken.source();
   layerModel.set('cogBoundsRequest', cogBoundsRequestSource);
 
-  return get(infoUrl, { cancelToken: cogBoundsRequestSource.token })
-    .then((res) => {
+  const requests = cogUrls.map((cogUrl) => {
+    const infoUrl = `${apiBaseUrl}/api/titiler/info?titilerUrl=${encodeURIComponent(titilerBaseUrl)}&cogUrl=${encodeURIComponent(cogUrl)}`;
+    return get(infoUrl, { cancelToken: cogBoundsRequestSource.token }).then((res) => {
       if (res.status > 400) {
         console.error('[COG Service] Error fetching COG info:', res);
         return null;
       }
 
       const data = res.data;
-
-      // TiTiler /info response includes bounds as [minx, miny, maxx, maxy]
-      // in geographic coordinates (EPSG:4326)
       if (data && data.bounds && Array.isArray(data.bounds) && data.bounds.length === 4) {
         const [minx, miny, maxx, maxy] = data.bounds;
-
-        // Bounds format: [[south, west], [north, east]]
-        // which is [[miny, minx], [maxy, maxx]] in lat/lng order
-        const bounds = [
+        return [
           [miny, minx],
           [maxy, maxx],
         ];
-
-        return bounds;
       }
 
       console.warn('[COG Service] Bounds not found in TiTiler info response:', data);
       return null;
+    });
+  });
+
+  return Promise.all(requests)
+    .then((boundsList) => {
+      const validBounds = boundsList.filter(Boolean);
+      if (validBounds.length === 0) return null;
+
+      const south = Math.min(...validBounds.map((bounds) => bounds[0][0]));
+      const west = Math.min(...validBounds.map((bounds) => bounds[0][1]));
+      const north = Math.max(...validBounds.map((bounds) => bounds[1][0]));
+      const east = Math.max(...validBounds.map((bounds) => bounds[1][1]));
+
+      return [
+        [south, west],
+        [north, east],
+      ];
     })
     .catch((err) => {
       // Handle canceled requests silently
