@@ -129,6 +129,32 @@ module CartodbRakeHelpers
     cleaned.gsub!(/[ \t]*,[ \t]*,[ \t]*/m, ", ")
     cleaned.strip
   end
+
+  # Schema-qualify unqualified table names in FROM/JOIN clauses of a SQL query.
+  # Handles aliases (FROM foo f, FROM foo AS f) — only the table reference in
+  # FROM/JOIN is qualified; subsequent alias references in ON/WHERE are left as-is,
+  # which is correct because PostgreSQL resolves them from the scoped FROM list.
+  def self.qualify_table_names_in_sql(sql, schema, table_names)
+    return sql if sql.blank?
+
+    qualified = sql.dup
+    # Longest names first to prevent partial-name clobber (e.g. "foo" inside "foobar")
+    table_names.sort_by { |t| -t.length }.each do |tbl|
+      escaped = Regexp.escape(tbl)
+      # Match FROM/JOIN <table> but not when already schema-qualified (ra_vector.table)
+      qualified.gsub!(
+        /\b(FROM|JOIN)\s+("?#{escaped}"?)(?=\s|,|\z|;)/i
+      ) { "#{$1} #{schema}.#{$2}" }
+    end
+    qualified
+  end
+
+  # Returns true if the SQL query needs a PostgreSQL view (has WHERE, JOIN,
+  # GROUP BY, etc.) rather than being a plain single-table reference.
+  def self.needs_view?(sql)
+    return false if sql.blank?
+    sql.match?(/\b(?:WHERE|JOIN|GROUP\s+BY|HAVING|UNION|EXCEPT|INTERSECT|LIMIT|ORDER\s+BY)\b/i)
+  end
 end
 
 # ---------------------------------------------------------------------------
@@ -709,25 +735,209 @@ namespace :cartodb do
     puts "Next steps:"
     puts "  1. For any still-missing tables, re-run rake cartodb:import_tables,"
     puts "     then re-run this task to refresh status."
-    puts "  2. For each updated layer, open the admin UI and:"
-    puts "       a. Set layer_provider (e.g. martin, wms, cog)"
-    puts "       b. Set layer_config to the appropriate JSON for that provider"
-    puts "       c. Set published=true when ready"
+    puts "  2. Run rake cartodb:configure_martin_layers to automatically set"
+    puts "     layer_provider=martin, build layer_config, and publish all layers"
+    puts "     whose tables are fully imported."
   end
 
   # ---------------------------------------------------------------------------
 
   desc <<~DESC
-    Full CartoDB table migration: run import_tables then update_layer_references in sequence.
+    Automatically configure imported CartoDB layers to use the Martin tile server.
 
-    Accepts all environment variables from both sub-tasks:
+    For every layer flagged by update_layer_references (layer_provider=NULL,
+    published=false, cartodb_migration block present in layer_config):
+      - Sets layer_provider = "martin"
+      - Builds layer_config with body.source = "<schema>.<table>"
+      - Sets published = true when ALL referenced tables are imported
+      - Leaves published = false when some tables are still missing
+
+    Layers with no imported tables at all are skipped.
+
+    Options:
+      CARTODB_IMPORT_SCHEMA=<schema>  Schema used during import (default: ra_vector)
+      DRY_RUN=1                       Preview changes without saving
+
+    Usage:
+      rake cartodb:configure_martin_layers
+      rake cartodb:configure_martin_layers DRY_RUN=1
+  DESC
+  task configure_martin_layers: :environment do
+    target_schema = ENV.fetch("CARTODB_IMPORT_SCHEMA", "ra_vector")
+    dry_run = ENV["DRY_RUN"] == "1"
+
+    puts "DRY RUN — no changes will be saved.\n\n" if dry_run
+
+    ar_conn = ActiveRecord::Base.connection
+
+    candidates = Layer
+      .where(layer_provider: nil, published: false)
+      .where("layer_config LIKE '%cartodb_migration%'")
+      .order(:id)
+
+    if candidates.empty?
+      puts "No layers awaiting Martin configuration. Nothing to do."
+      next
+    end
+
+    puts "Found #{candidates.count} layer(s) to configure.\n\n"
+
+    configured_count = 0
+    published_count  = 0
+    skipped_count    = 0
+    view_count       = 0
+
+    candidates.each do |layer|
+      puts "Layer ##{layer.id} (#{layer.slug}):"
+
+      config = begin
+        layer.layer_config.present? ? JSON.parse(layer.layer_config) : {}
+      rescue JSON::ParserError
+        {}
+      end
+
+      migration = config["cartodb_migration"]
+      unless migration
+        puts "  ⚠  No cartodb_migration block — skipping."
+        skipped_count += 1
+        next
+      end
+
+      tables   = migration["tables"] || {}
+      imported = tables.select { |_, v| v == "imported" }.keys
+      missing  = tables.select { |_, v| v == "missing"  }.keys
+
+      if imported.empty?
+        puts "  ✗  No imported tables yet — skipping."
+        skipped_count += 1
+        next
+      end
+
+      primary_table = imported.first
+      all_ready     = missing.empty?
+
+      # ── Determine Martin source ──────────────────────────────────────────
+      #
+      # Simple single-table layers (no WHERE/JOIN complexity) → point directly
+      # at the table; Martin streams the whole PostGIS table as vector tiles.
+      #
+      # Anything with WHERE filters, JOINs, or multiple imported tables → create
+      # a PostgreSQL view that preserves the original query logic.  The view is
+      # only created when ALL referenced tables are available (all_ready); when
+      # some are still missing we fall back to the primary table until everything
+      # is imported.
+
+      needs_view = all_ready &&
+        (imported.size > 1 || CartodbRakeHelpers.needs_view?(layer.query))
+
+      source = if needs_view && layer.query.present?
+        view_name = "v_layer_#{layer.id}"
+
+        # Schema-qualify all FROM/JOIN table references in the cleaned query
+        view_sql = CartodbRakeHelpers.qualify_table_names_in_sql(
+          layer.query, target_schema, imported
+        )
+
+        # update_layer_references stripped the_geom via strip_cartodb_columns.
+        # For a wildcard SELECT (*) the geometry column comes through anyway;
+        # for explicit column lists we must add it back so Martin can generate
+        # vector tiles.  Use the alias of the primary table when one is present.
+        unless view_sql.match?(/SELECT\s+\*/i) || view_sql.match?(/\bthe_geom\b|\bgeom\b/i)
+          alias_match = layer.query.match(
+            /\b(?:FROM|JOIN)\s+#{Regexp.escape(primary_table)}\s+(?:AS\s+)?(\w+)\b/i
+          )
+          geom_ref = alias_match ? "#{alias_match[1]}.the_geom"
+                                 : "#{target_schema}.#{primary_table}.the_geom"
+          view_sql = view_sql.sub(/\bSELECT\s+/i, "SELECT #{geom_ref}, ")
+        end
+
+        create_ddl = "CREATE OR REPLACE VIEW " \
+                     "#{target_schema}.#{view_name} AS #{view_sql}"
+
+        puts "  View     : #{target_schema}.#{view_name}"
+        puts "  SQL      : #{view_sql}"
+
+        if dry_run
+          "#{target_schema}.#{view_name}"
+        else
+          begin
+            ar_conn.execute(create_ddl)
+            puts "  ✓ View created."
+            view_count += 1
+            "#{target_schema}.#{view_name}"
+          rescue => e
+            warn "  ✗ View creation failed: #{e.message}"
+            warn "    Falling back to direct table reference."
+            "#{target_schema}.#{primary_table}"
+          end
+        end
+      else
+        # Could not create a view — either simple single-table select, or
+        # some tables are still missing.  For the latter case, print the SQL
+        # and stash it in the migration block so it is not lost when we retry.
+        if !all_ready && layer.query.present? &&
+            (imported.size > 1 || CartodbRakeHelpers.needs_view?(layer.query))
+          puts "  ⚠  Cannot create view yet (missing tables). Original SQL:"
+          puts "     #{layer.query}"
+          migration = migration.merge("pending_view_sql" => layer.query)
+        end
+
+        "#{target_schema}.#{primary_table}"
+      end
+
+      puts "  Source   : #{source}"
+      puts "  Missing  : #{missing.join(", ")}" if missing.any?
+      puts "  Publish  : #{all_ready ? "yes" : "no (missing tables)"}"
+
+      new_config = {
+        "body" => {
+          "source"  => source,
+          "styles"  => {},
+          "options" => {"interactive" => true, "maxNativeZoom" => 14}
+        },
+        "cartodb_migration" => migration
+      }
+
+      unless dry_run
+        layer.update_columns(
+          layer_provider: "martin",
+          layer_config:   new_config.to_json,
+          published:      all_ready
+        )
+      end
+
+      configured_count += 1
+      published_count  += 1 if all_ready
+    end
+
+    puts "\n#{'=' * 56}"
+    puts "  Martin Configuration#{dry_run ? ' (DRY RUN)' : ''} — Summary"
+    puts "=" * 56
+    puts "  Configured : #{configured_count}"
+    puts "    Published   : #{published_count}"
+    puts "    Unpublished : #{configured_count - published_count} (missing tables)"
+    puts "  Skipped    : #{skipped_count}"
+    puts "  Views created: #{view_count}" unless dry_run
+
+    if configured_count - published_count > 0
+      puts "\n  To pick up layers with missing tables:"
+      puts "  Re-run import_tables → update_layer_references → configure_martin_layers"
+    end
+  end
+
+  # ---------------------------------------------------------------------------
+
+  desc <<~DESC
+    Full CartoDB table migration: import_tables → update_layer_references → configure_martin_layers.
+
+    Accepts all environment variables from the sub-tasks:
       CARTODB_S3_BUCKET, CARTODB_EXPORT_DIR, CARTODB_S3_PREFIX,
       CARTODB_IMPORT_SCHEMA, FORCE
 
     Usage:
       rake cartodb:migrate_tables CARTODB_S3_BUCKET=my-bucket
   DESC
-  task migrate_tables: ["cartodb:import_tables", "cartodb:update_layer_references"]
+  task migrate_tables: ["cartodb:import_tables", "cartodb:update_layer_references", "cartodb:configure_martin_layers"]
 
   # ---------------------------------------------------------------------------
 
