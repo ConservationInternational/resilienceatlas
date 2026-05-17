@@ -74,21 +74,34 @@ def get_raster_crs(filepath: str) -> tuple[str, str]:
         crs_wkt = ""
         crs_epsg = ""
         
-        if "coordinateSystem" in info_data and "wkt" in info_data["coordinateSystem"]:
-            crs_wkt = info_data["coordinateSystem"]["wkt"]
-            
-            # Try to extract EPSG code from WKT
-            # Look for AUTHORITY["EPSG","XXXX"] pattern
+        if "coordinateSystem" not in info_data:
+            return ("", "")
+
+        coord_sys = info_data["coordinateSystem"]
+        crs_wkt = coord_sys.get("wkt", "")
+
+        # Prefer projjson: GDAL 3.x populates the top-level CRS id directly,
+        # so we get the correct EPSG code without any WKT parsing.
+        if "projjson" in coord_sys:
+            id_info = coord_sys["projjson"].get("id", {})
+            if id_info.get("authority") == "EPSG":
+                crs_epsg = f"EPSG:{id_info['code']}"
+
+        # Fall back to WKT regex when projjson has no EPSG id (e.g. CartoDB
+        # files whose datum PROJ reads as EngineeringCRS). Use findall + LAST
+        # match: in WKT1 the outermost PROJCS/GEOGCS AUTHORITY tag always
+        # appears last; re.search (first match) would return the wrong code
+        # for a nested element such as the linear unit (EPSG:9001 = metre).
+        if not crs_epsg and crs_wkt:
             import re
-            epsg_match = re.search(r'AUTHORITY\["EPSG","(\d+)"\]', crs_wkt)
-            if epsg_match:
-                crs_epsg = f"EPSG:{epsg_match.group(1)}"
+            epsg_matches = re.findall(r'AUTHORITY\["EPSG","(\d+)"\]', crs_wkt)
+            if epsg_matches:
+                crs_epsg = f"EPSG:{epsg_matches[-1]}"
             else:
-                # Try ID["EPSG",XXXX] pattern (newer WKT2)
-                epsg_match = re.search(r'ID\["EPSG",(\d+)\]', crs_wkt)
-                if epsg_match:
-                    crs_epsg = f"EPSG:{epsg_match.group(1)}"
-        
+                epsg_matches = re.findall(r'ID\["EPSG",(\d+)\]', crs_wkt)
+                if epsg_matches:
+                    crs_epsg = f"EPSG:{epsg_matches[-1]}"
+
         return (crs_wkt, crs_epsg)
         
     except Exception as e:
