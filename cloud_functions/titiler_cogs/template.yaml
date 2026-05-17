@@ -70,6 +70,10 @@ Resources:
           CPL_VSIL_CURL_ALLOWED_EXTENSIONS: .tif,.TIF,.tiff
           GDAL_CACHEMAX: 200
           GDAL_DISABLE_READDIR_ON_OPEN: EMPTY_DIR
+          # Point PROJ to the bundled database so CRS lookups don't fall back to
+          # "EngineeringCRS" when packages land in a non-standard Lambda path.
+          PROJ_DATA: /var/task/pyproj/proj_dir/share/proj
+          PROJ_LIB: /var/task/pyproj/proj_dir/share/proj
           GDAL_HTTP_MERGE_CONSECUTIVE_RANGES: true
           GDAL_HTTP_MULTIPLEX: true
           GDAL_HTTP_VERSION: 2
