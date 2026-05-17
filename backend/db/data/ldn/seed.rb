@@ -9,12 +9,12 @@
 # Or within rails console:
 #   load 'db/data/ldn/seed.rb'
 #
-# ── CartoDB table requirement ────────────────────────────────────────────────
+# ── Ecoregion popup table requirements ───────────────────────────────────────
 # Layer popups show ecoregion metadata (eco_id, eco_name, biome, realm) via the
-# CartoDB SQL API (ecoregions2017 table, already present in CartoDB).
+# local Rails API backed by the `ecoregions2017` PostGIS table.
 #
-# To additionally show per-ecoregion LDN statistics the CartoDB table
-# `ldn_ecoregion_stats` must be created and populated.
+# To additionally show per-ecoregion LDN statistics, create and populate the
+# `ldn_ecoregion_stats` table in the application database.
 #
 # Source files (one per methodology, from the counterbalancing AWS pipeline):
 #   TrendsEarth_LDN_2000-2023_Trends.Earth_ecoregion_summary.csv
@@ -26,8 +26,8 @@
 #   'trendsearth'  (Trends.Earth CSV)
 #   'fao-wocat'    (FAO-WOCAT CSV)
 #   'jrc'          (JRC CSV)
-# Then combine all three into a single CSV and upload to CartoDB as the table
-# `ldn_ecoregion_stats` (cdb account).  Grant SELECT to publicuser.
+# Then combine all three into a single CSV and import the result into the local
+# `ldn_ecoregion_stats` table.
 #
 # Expected columns (matching the pipeline CSV output + added methodology):
 #   eco_id                              INTEGER
@@ -58,8 +58,7 @@
 module LdnSeeder
   TITILER_BASE = ENV.fetch("TITILER_URL", "https://staging.titiler.resilienceatlas.org")
 
-  # CartoDB SQL API base URL (account = 'cdb')
-  CARTO_SQL_BASE = "https://cdb-cdn.resilienceatlas.org/user/ra/api/v2/sql"
+  LDN_ECOREGION_LOOKUP_PATH = "/api/scope-datasets/ldn-ecoregion-at-point"
 
   # SDG 15.3.1 COGs on GCS (same as trendsearth seed)
   SDG_COG_BASE = "https://storage.googleapis.com/trendsearth-public/unccd_reporting/2016-2023"
@@ -1340,15 +1339,13 @@ module LdnSeeder
 
     # ── Helper: build interaction_config for ecoregion popup ──
     #
-    # Generates a CartoDB SQL API interaction config that shows ecoregion metadata
-    # (eco_id, eco_name, biome, realm) on popup click.  When `methodology` is
-    # non-nil the query also LEFT JOINs ldn_ecoregion_stats for that methodology,
-    # adding baseline degradation, gains, losses, net-change and LDN% columns.
+    # Generates a local API interaction config that shows ecoregion metadata
+    # (eco_id, eco_name, biome, realm) on popup click. When `methodology` is
+    # non-nil the lookup also returns joined `ldn_ecoregion_stats` values for
+    # that methodology when the table is available.
     #
-    # The CartoDB table `ldn_ecoregion_stats` must be loaded before popups show
-    # stats.  Expected columns (all lowercase):
-    # The `responseFormat: "rows"` flag tells LayerPopup.jsx to parse the CartoDB
-    # SQL API response ({ rows: [...] }) even though the layer provider is 'cog'.
+    # The `responseFormat: "rows"` flag tells LayerPopup.jsx to parse the API
+    # response as `{ rows: [...] }` even though the layer provider is 'cog'.
     # Column names match TrendsEarth_LDN_2000-2023_*_ecoregion_summary.csv output.
     # Baseline degraded area is computed as deg_to_deg + deg_to_stable + deg_to_imp
     # (all land classified degraded during the 2000-2015 baseline, regardless of
@@ -1356,16 +1353,6 @@ module LdnSeeder
     # insufficient because deg_to_imp transitions appear in status_6, not status_3.
     def build_ldn_interaction_config(methodology: nil)
       if methodology
-        sql = [
-          "SELECT e.eco_id, e.eco_name, e.biome_name, e.realm,",
-          "s.total_area_km2,",
-          "(s.deg_to_deg_sqkm + s.deg_to_stable_sqkm + s.deg_to_imp_sqkm) AS baseline_degraded_sqkm,",
-          "s.gains_km2, s.losses_km2, s.delta_ldn_km2, s.ldn_pct",
-          "FROM ecoregions2017 e",
-          "LEFT JOIN ldn_ecoregion_stats s",
-          "ON e.eco_id::int = s.eco_id AND s.methodology = '{{methodology}}'",
-          "WHERE ST_Contains(e.the_geom, ST_SetSRID(ST_Point({{lng}}, {{lat}}), 4326)) LIMIT 1"
-        ].join(" ")
         output = [
           {column: "eco_id", property: "Ecoregion ID", type: "integer"},
           {column: "eco_name", property: "Ecoregion", type: "string"},
@@ -1379,16 +1366,11 @@ module LdnSeeder
           {column: "ldn_pct", property: "Net change (%)", type: "number", format: "0.0"}
         ]
         config = {
-          url: "#{CARTO_SQL_BASE}?q=#{sql.tr(" ", "+")}",
+          url: "#{LDN_ECOREGION_LOOKUP_PATH}?lat={{lat}}&lng={{lng}}&methodology={{methodology}}",
           responseFormat: "rows",
           params: {methodology: methodology}
         }
       else
-        sql = [
-          "SELECT eco_id, eco_name, biome_name, realm",
-          "FROM ecoregions2017",
-          "WHERE ST_Contains(the_geom, ST_SetSRID(ST_Point({{lng}}, {{lat}}), 4326)) LIMIT 1"
-        ].join(" ")
         output = [
           {column: "eco_id", property: "Ecoregion ID", type: "integer"},
           {column: "eco_name", property: "Ecoregion", type: "string"},
@@ -1396,7 +1378,7 @@ module LdnSeeder
           {column: "realm", property: "Realm", type: "string"}
         ]
         config = {
-          url: "#{CARTO_SQL_BASE}?q=#{sql.tr(" ", "+")}",
+          url: "#{LDN_ECOREGION_LOOKUP_PATH}?lat={{lat}}&lng={{lng}}",
           responseFormat: "rows"
         }
       end

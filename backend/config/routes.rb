@@ -55,6 +55,7 @@ Rails.application.routes.draw do
       get "/scope-datasets", to: "scope_datasets#index"
       get "/scope-datasets/intersecting-units", to: "scope_datasets#intersecting_units"
       get "/scope-datasets/geometry-at-point", to: "scope_datasets#geometry_at_point"
+      get "/scope-datasets/ldn-ecoregion-at-point", to: "scope_datasets#ldn_ecoregion_at_point"
       get "/scope-datasets/:slug/geometry-bounds/:unit_id", to: "scope_datasets#geometry_bounds"
       get "/scope-datasets/:slug", to: "scope_datasets#show"
 

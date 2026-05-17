@@ -1,14 +1,14 @@
 # SBTN Thresholds — Thresholds Site Scope Seed Script
 #
 # Creates a "thresholds" site scope with three categories (Exceedances,
-# Thresholds, Baselines), four indicator sub-groups each, twelve CartoDB map
-# layers, and three ScopeDatasets for the analysis panel.
+# Thresholds, Baselines), four indicator sub-groups each, twelve Martin-backed
+# vector map layers, and three ScopeDatasets for the analysis panel.
 #
 # Prerequisites:
 #   1. Run the Python preprocessor to generate sbtn_thresholds.csv:
 #        python db/data/thresholds/preprocess.py
-#   2. Upload sbtn_thresholds.csv to CartoDB as a table named "sbtn_thresholds"
-#      so the map layers can JOIN against it.
+#   2. Load sbtn_thresholds.csv into the local database table named
+#      "sbtn_thresholds" so the Martin tile function can join against it.
 #   3. The ldn_dissolved_geometries table must exist (run `rake ldn:build_dimensions`)
 #      for the analysis panel geometries to be populated.
 #
