@@ -14,11 +14,12 @@ export const CANCELED = Symbol('CANCELED');
 const parseCogLayerUrls = (layerModel) => {
   const { layerConfig } = layerModel;
 
-  const sources = Array.isArray(layerConfig?.body?.sources) && layerConfig.body.sources.length > 0
-    ? layerConfig.body.sources
-    : layerConfig?.body?.source
-      ? [layerConfig.body.source]
-      : [];
+  const sources =
+    Array.isArray(layerConfig?.body?.sources) && layerConfig.body.sources.length > 0
+      ? layerConfig.body.sources
+      : layerConfig?.body?.source
+        ? [layerConfig.body.source]
+        : [];
 
   // New format: source URL is stored directly in body.source/body.sources
   if (sources.length > 0) {

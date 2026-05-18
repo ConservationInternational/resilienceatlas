@@ -49,12 +49,18 @@ function evaluateWhen(when, props) {
       const num = parseFloat(props[key]);
       if (Number.isNaN(num)) return false;
       switch (spec.op) {
-        case '<=': return num <= spec.val;
-        case '>=': return num >= spec.val;
-        case '<':  return num < spec.val;
-        case '>':  return num > spec.val;
-        case '!=': return num !== spec.val;
-        default:   return false;
+        case '<=':
+          return num <= spec.val;
+        case '>=':
+          return num >= spec.val;
+        case '<':
+          return num < spec.val;
+        case '>':
+          return num > spec.val;
+        case '!=':
+          return num !== spec.val;
+        default:
+          return false;
       }
     }
     // String / strict equality
@@ -135,9 +141,7 @@ export function buildVectorTileStyle(styles) {
     if (!styleSpec) return null;
     const props = feature.getProperties();
     const pathOptions =
-      typeof styleSpec === 'function'
-        ? styleSpec(props)
-        : resolveConditions(styleSpec, props);
+      typeof styleSpec === 'function' ? styleSpec(props) : resolveConditions(styleSpec, props);
     return pathOptionsToStyle(pathOptions);
   };
 }

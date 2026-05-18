@@ -35,7 +35,8 @@ function buildSingleTitilerUrl(layerConfig, sourceOverride) {
 
 function buildTitilerUrls(layerConfig) {
   const { body } = layerConfig;
-  const sources = Array.isArray(body.sources) && body.sources.length > 0 ? body.sources : [body.source];
+  const sources =
+    Array.isArray(body.sources) && body.sources.length > 0 ? body.sources : [body.source];
   return sources.map((source) => buildSingleTitilerUrl(layerConfig, source)).filter(Boolean);
 }
 
