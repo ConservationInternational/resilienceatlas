@@ -6,6 +6,12 @@ Rails.application.routes.draw do
   mount Rswag::Ui::Engine => "/api-docs"
   mount Rswag::Api::Engine => "/api-docs"
 
+  # Sidekiq Web UI — constrained to authenticated AdminUsers
+  require "sidekiq/web"
+  authenticate :admin_user do
+    mount Sidekiq::Web => "/admin/sidekiq"
+  end
+
   # Users
   get "/users/:id/profile/edit", to: "api/v1/users#edit", as: :edit_user
   patch "/users/:id/profile/update", to: "api/v1/users#update", as: :update_user
@@ -35,6 +41,15 @@ Rails.application.routes.draw do
       get "layer-groups", to: "layer_groups#index", as: "layer_groups"
       get "/layers", to: "layers#index", as: "layers"
       get "/layers/:id/downloads", to: "layers#download_attachments", as: "download_attachments"
+
+      # S3 multipart upload coordination (used by Uppy in ActiveAdmin)
+      scope "uploads/multipart" do
+        post   "/",                    to: "uploads#create_multipart"
+        get    "/:upload_id",          to: "uploads#sign_parts"
+        get    "/:upload_id/batch",    to: "uploads#batch_sign_parts"
+        post   "/:upload_id/complete", to: "uploads#complete_multipart"
+        delete "/:upload_id",          to: "uploads#abort_multipart"
+      end
       get "/share/:uid", to: "share_urls#show"
       post "/share", to: "share_urls#create"
       get "/sites", to: "sites#index"

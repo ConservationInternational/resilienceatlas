@@ -1,0 +1,104 @@
+<%= content_for :title, "Import Large CSV — #{resource.name}" %>
+
+<div class="admin-page-header">
+  <h2>Import Large CSV</h2>
+  <p>For files larger than ~10 MB, upload directly to S3 and let a background job do the import. For small files, use the regular <a href="<%= import_csv_admin_scope_dataset_path(resource) %>">Import CSV</a> action.</p>
+</div>
+
+<% pending_imports = DataImport.where(importable: resource, import_type: "csv").order(created_at: :desc).limit(3) %>
+<% if pending_imports.any? %>
+  <div class="panel">
+    <h3>Recent CSV Import Jobs</h3>
+    <table>
+      <thead><tr><th>ID</th><th>Date</th><th>File</th><th>Rows</th><th>Status</th><th></th></tr></thead>
+      <tbody>
+        <% pending_imports.each do |di| %>
+          <tr>
+            <td><%= di.id %></td>
+            <td><%= di.created_at.strftime("%Y-%m-%d %H:%M") %></td>
+            <td><%= di.file_name %></td>
+            <td><%= di.rows_imported || "—" %></td>
+            <td><span class="status_tag status_<%= di.status %>"><%= di.status %></span></td>
+            <td><%= link_to "Details", admin_data_import_path(di) %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+<% end %>
+
+<div id="uppy-dashboard-csv"></div>
+
+<%= form_tag import_large_csv_admin_scope_dataset_path(resource), method: :post, id: "csv-finalize-form" do %>
+  <%= hidden_field_tag :s3_key, "", id: "csv-s3-key" %>
+  <%= hidden_field_tag :file_name, "", id: "csv-file-name" %>
+  <%= hidden_field_tag :file_size_bytes, "0", id: "csv-file-size" %>
+  <%= submit_tag "Queue Import Job", id: "csv-submit-btn", class: "button", disabled: true %>
+<% end %>
+
+<link rel="stylesheet" href="https://releases.transloadit.com/uppy/v3.27.3/uppy.min.css">
+<script src="https://releases.transloadit.com/uppy/v3.27.3/uppy.min.js"></script>
+
+<script>
+(function() {
+  const MULTIPART_BASE = "/api/v1/uploads/multipart";
+  const CSRF = document.querySelector('meta[name="csrf-token"]')?.content || "";
+
+  const uppy = new Uppy.Core({
+    restrictions: { maxNumberOfFiles: 1, allowedFileTypes: [".csv", ".tsv"] }
+  });
+
+  uppy.use(Uppy.Dashboard, {
+    inline: true,
+    target: "#uppy-dashboard-csv",
+    note: "Upload a CSV or TSV file"
+  });
+
+  uppy.use(Uppy.AwsS3Multipart, {
+    companionUrl: false,
+    async createMultipartUpload(file) {
+      const resp = await fetch(MULTIPART_BASE, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-CSRF-Token": CSRF },
+        body: JSON.stringify({
+          filename: file.name,
+          type: file.type || "text/csv",
+          metadata: { prefix: "staging", size: file.size }
+        })
+      });
+      return resp.json();
+    },
+    async signPart(file, { uploadId, key, partNumber }) {
+      const resp = await fetch(
+        `${MULTIPART_BASE}/${uploadId}?key=${encodeURIComponent(key)}&partNumbers[]=${partNumber}`,
+        { headers: { "X-CSRF-Token": CSRF } }
+      );
+      const data = await resp.json();
+      return { url: data.presignedUrls[partNumber] };
+    },
+    async listParts() { return []; },
+    async completeMultipartUpload(file, { uploadId, key, parts }) {
+      const resp = await fetch(`${MULTIPART_BASE}/${uploadId}/complete`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-CSRF-Token": CSRF },
+        body: JSON.stringify({ key, parts })
+      });
+      return resp.json();
+    },
+    async abortMultipartUpload(file, { uploadId, key }) {
+      await fetch(`${MULTIPART_BASE}/${uploadId}?key=${encodeURIComponent(key)}`, {
+        method: "DELETE",
+        headers: { "X-CSRF-Token": CSRF }
+      });
+    }
+  });
+
+  uppy.on("upload-success", (file, response) => {
+    const key = response.uploadURL?.replace(/^s3:\/\/[^/]+\//, "") || file.meta?.key || "";
+    document.getElementById("csv-s3-key").value = key;
+    document.getElementById("csv-file-name").value = file.name;
+    document.getElementById("csv-file-size").value = file.size;
+    document.getElementById("csv-submit-btn").disabled = false;
+  });
+})();
+</script>

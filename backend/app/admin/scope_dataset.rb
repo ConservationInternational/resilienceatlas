@@ -131,7 +131,40 @@ ActiveAdmin.register ScopeDataset do
     link_to "Import CSV", import_csv_admin_scope_dataset_path(resource)
   end
 
+  action_item :import_large_csv, only: :show do
+    link_to "Import Large CSV (S3)", import_large_csv_admin_scope_dataset_path(resource)
+  end
+
   action_item :export_csv, only: :show do
     link_to "Export CSV", export_csv_admin_scope_dataset_path(resource)
+  end
+
+  # Large CSV import via S3 + background job
+  member_action :import_large_csv, method: [:get, :post] do
+    if request.post?
+      s3_key    = params[:s3_key].to_s.strip
+      file_name = params[:file_name].to_s.strip
+      file_size = params[:file_size_bytes].to_i
+
+      if s3_key.blank? || !s3_key.start_with?("staging/")
+        redirect_to resource_path, alert: "Invalid S3 key — must start with 'staging/'"
+        return
+      end
+
+      di = DataImport.create!(
+        importable: resource,
+        admin_user: current_admin_user,
+        file_name: file_name.presence || File.basename(s3_key),
+        s3_key: s3_key,
+        file_size_bytes: file_size > 0 ? file_size : nil,
+        import_type: "csv",
+        status: "pending"
+      )
+
+      CsvImportJob.perform_later(di.id)
+      redirect_to resource_path, notice: "CSV import queued (job ##{di.id}). Refresh to check status."
+    else
+      render :import_large_csv
+    end
   end
 end

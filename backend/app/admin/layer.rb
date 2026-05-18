@@ -27,6 +27,77 @@ ActiveAdmin.register Layer do
     redirect_to edit_admin_layer_path(n)
   end
 
+  # ── COG Upload ──────────────────────────────────────────────────────────────
+
+  member_action :upload_cog, method: [:get, :post] do
+    if request.post?
+      s3_key       = params[:s3_key].to_s.strip
+      file_name    = params[:file_name].to_s.strip
+      file_size    = params[:file_size_bytes].to_i
+
+      if s3_key.blank? || !s3_key.start_with?("cogs/")
+        redirect_to resource_path, alert: "Invalid S3 key — must start with 'cogs/'"
+        return
+      end
+
+      s3_uri  = "s3://#{ENV.fetch("S3_BUCKET", "resilienceatlas")}/#{s3_key}"
+      new_config = {"body" => {"source" => s3_uri}}
+
+      DataImport.transaction do
+        resource.update_columns(
+          layer_provider: "cog",
+          layer_config: new_config.to_json,
+          interaction_config: LayerInteractionConfigBuilder.for_cog.to_json
+        )
+        DataImport.create!(
+          importable: resource,
+          admin_user: current_admin_user,
+          file_name: file_name.presence || File.basename(s3_key),
+          s3_key: s3_key,
+          file_size_bytes: file_size > 0 ? file_size : nil,
+          import_type: "cog",
+          status: "complete",
+          started_at: Time.current,
+          completed_at: Time.current
+        )
+      end
+
+      redirect_to resource_path, notice: "COG layer updated. S3 URI: #{s3_uri}"
+    else
+      render :upload_cog
+    end
+  end
+
+  # ── Vector Import ────────────────────────────────────────────────────────────
+
+  member_action :import_vector, method: [:get, :post] do
+    if request.post?
+      s3_key    = params[:s3_key].to_s.strip
+      file_name = params[:file_name].to_s.strip
+      file_size = params[:file_size_bytes].to_i
+
+      if s3_key.blank? || !s3_key.start_with?("staging/")
+        redirect_to resource_path, alert: "Invalid S3 key — must start with 'staging/'"
+        return
+      end
+
+      di = DataImport.create!(
+        importable: resource,
+        admin_user: current_admin_user,
+        file_name: file_name.presence || File.basename(s3_key),
+        s3_key: s3_key,
+        file_size_bytes: file_size > 0 ? file_size : nil,
+        import_type: "vector",
+        status: "pending"
+      )
+
+      VectorImportJob.perform_later(di.id)
+      redirect_to resource_path, notice: "Vector import queued (job ##{di.id}). Refresh to check status."
+    else
+      render :import_vector
+    end
+  end
+
   filter :slug
   filter :translations_name_eq, as: :select, label: "Name", collection: proc { Layer.with_translations.pluck(:name).map(&:to_s).sort }
   filter :layer_provider, as: :select
@@ -51,6 +122,14 @@ ActiveAdmin.register Layer do
 
   action_item :unpublish, only: :show, priority: 0, if: -> { resource.published? } do
     link_to "Unpublish Layer", unpublish_admin_layer_path(resource), data: {method: :put}
+  end
+
+  action_item :upload_cog, only: :show, priority: 1 do
+    link_to "Upload COG", upload_cog_admin_layer_path(resource)
+  end
+
+  action_item :import_vector, only: :show, priority: 2 do
+    link_to "Import Vector", import_vector_admin_layer_path(resource)
   end
 
   index do
@@ -123,6 +202,31 @@ ActiveAdmin.register Layer do
       end
       row :created_at
       row :updated_at
+    end
+
+    imports = DataImport.where(importable: resource).order(created_at: :desc).limit(10)
+    if imports.any?
+      panel "Import History" do
+        table_for imports do
+          column :id
+          column "Date", :created_at
+          column "By" do |di|
+            di.admin_user&.email
+          end
+          column :file_name
+          column "Size", &:formatted_file_size
+          column :import_type
+          column :status do |di|
+            status_tag di.status
+          end
+          column "Duration" do |di|
+            di.duration ? "#{di.duration.round(1)}s" : "—"
+          end
+          column "" do |di|
+            link_to "Details", admin_data_import_path(di)
+          end
+        end
+      end
     end
   end
 

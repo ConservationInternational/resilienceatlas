@@ -117,6 +117,30 @@ services:
       timeout: 5s
       retries: 5
 
+  sidekiq:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: base
+    environment:
+      - RAILS_ENV=development
+      - MARTIN_URL=http://martin:3000
+      - REDIS_URL=redis://redis:6379/0
+    env_file:
+      - ./backend/.env
+    volumes:
+      - ./backend:/app
+      - backend_bundle_cache:/usr/local/bundle
+    networks:
+      - app-network
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    command: bundle exec sidekiq -C config/sidekiq.yml
+
 networks:
   app-network:
     driver: bridge

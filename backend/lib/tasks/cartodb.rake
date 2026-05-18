@@ -859,7 +859,14 @@ namespace :cartodb do
         q_table = "\"#{target_schema}\".\"#{tbl}\""
 
         exists = begin
-          ar_conn.table_exists?("#{target_schema}.#{tbl}")
+          # ar_conn.table_exists?("schema.table") is unreliable in Rails 7 when the
+          # name is a dotted string — it may fail to parse the schema prefix and
+          # return false even when the table exists.  Query information_schema directly.
+          ar_conn.execute(
+            "SELECT 1 FROM information_schema.tables " \
+            "WHERE table_schema = #{ar_conn.quote(target_schema)} " \
+            "  AND table_name   = #{ar_conn.quote(tbl)} LIMIT 1"
+          ).ntuples > 0
         rescue ActiveRecord::ConnectionFailed, ActiveRecord::DatabaseConnectionError, PG::Error => e
           warn "  DB connection lost before checking #{tbl} (#{e.message}) — reconnecting..."
           sleep 30
