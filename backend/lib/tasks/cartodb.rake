@@ -602,9 +602,40 @@ namespace :cartodb do
               "ON #{q_table} USING gist(\"#{col}\")"
             )
             puts "done."
+
+            # ── Repair invalid geometries ──────────────────────────────────
+            # Invalid or corrupt geometries crash the PostGIS backend process
+            # when Martin runs ST_CurveToLine / ST_Transform / ST_AsMVTGeom,
+            # causing "connection closed" tile errors.
+            begin
+              invalid_count = ar_conn.execute(
+                "SELECT count(*) FROM #{q_table} WHERE NOT ST_IsValid(\"#{col}\")"
+              ).first["count"].to_i
+              if invalid_count > 0
+                print "  Repairing #{invalid_count} invalid geometry(ies) in #{col}... "
+                ar_conn.execute(
+                  "UPDATE #{q_table} SET \"#{col}\" = ST_MakeValid(\"#{col}\") " \
+                  "WHERE NOT ST_IsValid(\"#{col}\")"
+                )
+                puts "done."
+              end
+            rescue => e
+              warn "  WARNING: Could not repair invalid geometries in #{tbl}.#{col}: #{e.message.lines.first.strip}"
+              # Reconnect if the PostgreSQL backend process was killed (e.g. OOM on large table)
+              begin
+                ActiveRecord::Base.connection_pool.disconnect!
+                ar_conn = ActiveRecord::Base.connection
+              rescue => re
+                warn "  WARNING: Reconnect failed: #{re.message.lines.first.strip}"
+              end
+            end
           end
         rescue => e
-          warn "  WARNING: Could not create spatial index for #{tbl}: #{e.message}"
+          warn "  WARNING: Could not create spatial index for #{tbl}: #{e.message.lines.first.strip}"
+          begin
+            ActiveRecord::Base.connection_pool.disconnect!
+            ar_conn = ActiveRecord::Base.connection
+          rescue; end
         end
 
         # Remove local copy to free disk space in the temp directory
@@ -1383,6 +1414,123 @@ namespace :cartodb do
     puts ""
     puts "Restart Martin to pick up the new indices:"
     puts "  docker service update --force resilienceatlas-staging_martin"
+  end
+
+  # ---------------------------------------------------------------------------
+
+  desc <<~DESC
+    Repair invalid geometries in all tables in the ra_vector schema using ST_MakeValid.
+
+    Invalid or corrupt geometries crash the PostGIS backend process when Martin
+    runs ST_CurveToLine / ST_Transform / ST_AsMVTGeom, causing "connection closed"
+    tile errors.  New imports via cartodb:import_tables repair geometries
+    automatically; this task is for tables that were imported before that step
+    was added.
+
+    Optional:
+      CARTODB_IMPORT_SCHEMA=<schema>  Schema to repair (default: ra_vector)
+
+    Usage:
+      rake cartodb:fix_invalid_geometries
+  DESC
+  task fix_invalid_geometries: :environment do
+    target_schema = ENV.fetch("CARTODB_IMPORT_SCHEMA", "ra_vector")
+    ar_conn = ActiveRecord::Base.connection
+
+    rows = ar_conn.execute(
+      "SELECT f_table_name, f_geometry_column " \
+      "FROM geometry_columns " \
+      "WHERE f_table_schema = '#{target_schema}' " \
+      "ORDER BY f_table_name, f_geometry_column"
+    ).to_a
+
+    if rows.empty?
+      puts "No geometry columns found in schema '#{target_schema}'.  Nothing to do."
+      next
+    end
+
+    puts "Checking #{rows.size} geometry column(s) in #{target_schema} for invalid geometries...\n\n"
+
+    tables_fixed = 0
+    total_fixed  = 0
+    failed       = 0
+
+    rows.each_with_index do |row, i|
+      tbl = row["f_table_name"]
+      col = row["f_geometry_column"]
+      q_table = "\"#{target_schema}\".\"#{tbl}\""
+
+      begin
+        # Fast path: count then repair all at once (works for most tables)
+        invalid_count = ar_conn.execute(
+          "SELECT count(*) FROM #{q_table} WHERE NOT ST_IsValid(\"#{col}\")"
+        ).first["count"].to_i
+
+        if invalid_count > 0
+          print "  [#{i + 1}/#{rows.size}] #{tbl}.#{col}: #{invalid_count} invalid — repairing... "
+          ar_conn.execute(
+            "UPDATE #{q_table} SET \"#{col}\" = ST_MakeValid(\"#{col}\") " \
+            "WHERE NOT ST_IsValid(\"#{col}\")"
+          )
+          puts "done."
+          tables_fixed += 1
+          total_fixed  += invalid_count
+        end
+      rescue => e
+        # Fast path failed (likely OOM on a huge table). Reconnect then retry
+        # using ctid-batched updates so each transaction is small.
+        warn "  [#{i + 1}/#{rows.size}] #{tbl}.#{col}: full-table repair failed " \
+             "(#{e.message.lines.first.strip}) — retrying in batches..."
+        begin
+          ActiveRecord::Base.connection_pool.disconnect!
+          ar_conn = ActiveRecord::Base.connection
+        rescue => re
+          warn "  WARNING: Reconnect failed: #{re.message.lines.first.strip}"
+          failed += 1
+          next
+        end
+
+        col_fixed      = 0
+        batch_failed   = false
+        loop do
+          begin
+            n = ar_conn.execute(
+              "WITH batch AS ( " \
+              "  SELECT ctid FROM #{q_table} " \
+              "  WHERE NOT ST_IsValid(\"#{col}\") LIMIT 500 " \
+              ") " \
+              "UPDATE #{q_table} t " \
+              "SET \"#{col}\" = ST_MakeValid(t.\"#{col}\") " \
+              "FROM batch WHERE t.ctid = batch.ctid"
+            ).cmd_tuples
+            col_fixed += n
+            break if n == 0
+          rescue => be
+            warn "  [#{i + 1}/#{rows.size}] #{tbl}.#{col}: batched retry also failed — " \
+                 "#{be.message.lines.first.strip}"
+            batch_failed = true
+            begin
+              ActiveRecord::Base.connection_pool.disconnect!
+              ar_conn = ActiveRecord::Base.connection
+            rescue; end
+            break
+          end
+        end
+
+        if batch_failed
+          failed += 1
+        elsif col_fixed > 0
+          puts "  [#{i + 1}/#{rows.size}] #{tbl}.#{col}: fixed #{col_fixed} invalid geometry(ies) via batches."
+          tables_fixed += 1
+          total_fixed  += col_fixed
+        end
+      end
+    end
+
+    puts "\n#{"=" * 50}"
+    puts "  Tables repaired : #{tables_fixed}"
+    puts "  Geometries fixed: #{total_fixed}"
+    puts "  Failed          : #{failed}"
   end
 
   # ---------------------------------------------------------------------------

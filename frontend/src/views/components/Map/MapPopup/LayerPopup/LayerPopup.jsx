@@ -126,7 +126,7 @@ const LayerPopup = ({
         .then(({ data: responseData }) => {
           // For COGs column in interactionConfig should always be 'values[*]' or 'values.*'
           // Exception: when config.responseFormat === 'rows', treat the response as a
-          // CartoDB SQL API result ({ rows: [...] }) even for COG layers, enabling
+          // row-based API result ({ rows: [...] }) even for COG layers, enabling
           // point-in-polygon ecoregion lookups via config.url.
           const data =
             layer.type === 'cog' && config?.responseFormat !== 'rows'
