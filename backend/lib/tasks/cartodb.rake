@@ -880,7 +880,8 @@ namespace :cartodb do
 
         if exists
           if force
-            puts "\n  Table #{q_table} already exists — overwriting (FORCE=1)."
+            puts "\n  Table #{q_table} already exists — dropping before reimport (FORCE=1)."
+            ar_conn.execute("DROP TABLE IF EXISTS #{q_table}")
           else
             puts "  Skipping #{tbl} (already exists; set FORCE=1 to overwrite)."
             skipped_vectors << tbl
