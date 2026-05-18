@@ -59,8 +59,11 @@ module CartodbRakeHelpers
   end
 
   def self.parse_hex_color(color)
-    value = color.to_s.strip
-    return [0, 0, 0, 0] if value.blank? || value.casecmp?("transparent")
+    # Strip surrounding double-quotes (e.g. "#e31a1c" from some CSS)
+    value = color.to_s.strip.gsub(/\A"|"\z/, "")
+    return [0, 0, 0, 0] if value.blank? ||
+                            value.casecmp?("transparent") ||
+                            value.casecmp?("#transparent")
 
     # rgba(r, g, b, a) or rgb(r, g, b)
     if (m = value.match(/\Argba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)(?:\s*,\s*([0-9.]+))?\s*\)\z/i))
@@ -79,6 +82,12 @@ module CartodbRakeHelpers
 
     if v.match?(/\A#[0-9a-f]{6}\z/)
       return [v[1, 2].to_i(16), v[3, 2].to_i(16), v[5, 2].to_i(16), 255]
+    end
+
+    # Bare decimal integer: Mapnik packed-RGB format (e.g. 874914 = #0D59A2)
+    if value.match?(/\A\d+\z/)
+      n = value.to_i
+      return [(n >> 16) & 0xFF, (n >> 8) & 0xFF, n & 0xFF, 255]
     end
 
     nil
@@ -124,7 +133,10 @@ module CartodbRakeHelpers
     mode = css[/raster-colorizer-default-mode\s*:\s*([a-z]+)/i, 1]&.downcase
     # The color argument may be rgba(r,g,b,a) which contains commas, so we
     # must match it as a unit before falling back to the plain [^,)] pattern.
-    stops = css.scan(/stop\(\s*(-?\d*\.?\d+(?:e[+-]?\d+)?)\s*,\s*(rgba?\([^)]+\)|transparent|#[0-9a-fA-F]+)(?:\s*,\s*([a-z]+))?\s*\)/i).map do |value, color, extra|
+    # Some CSS blocks omit the outer closing ) on the last stop() call (the
+    # block's } terminates first), so the trailing ) is made optional (\)?).
+    # Edge cases also handled: "#rrggbb" quoted hex, #transparent, bare integers.
+    stops = css.scan(/stop\(\s*(-?\d*\.?\d+(?:e[+-]?\d+)?)\s*,\s*(rgba?\([^)]+\)|transparent|#transparent|"#[0-9a-fA-F]+"|#[0-9a-fA-F]+|\d+)(?:\s*,\s*([a-z]+))?\s*\)?/i).map do |value, color, extra|
       {
         value: value.to_f,
         color: color.to_s.strip,
