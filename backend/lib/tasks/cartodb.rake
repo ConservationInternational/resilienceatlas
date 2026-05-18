@@ -62,8 +62,8 @@ module CartodbRakeHelpers
     # Strip surrounding double-quotes (e.g. "#e31a1c" from some CSS)
     value = color.to_s.strip.gsub(/\A"|"\z/, "")
     return [0, 0, 0, 0] if value.blank? ||
-                            value.casecmp?("transparent") ||
-                            value.casecmp?("#transparent")
+      value.casecmp?("transparent") ||
+      value.casecmp?("#transparent")
 
     # rgba(r, g, b, a) or rgb(r, g, b)
     if (m = value.match(/\Argba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)(?:\s*,\s*([0-9.]+))?\s*\)\z/i))
@@ -140,7 +140,7 @@ module CartodbRakeHelpers
       {
         value: value.to_f,
         color: color.to_s.strip,
-        exact: extra.to_s.strip.downcase == "exact",
+        exact: extra.to_s.strip.downcase == "exact"
       }
     end
 
@@ -374,8 +374,8 @@ module CartodbRakeHelpers
     path_opts = {}
 
     # Stroke / line properties
-    path_opts["color"]   = base_props["line-color"]        if base_props["line-color"].present?
-    path_opts["weight"]  = base_props["line-width"].to_f   if base_props["line-width"].present?
+    path_opts["color"] = base_props["line-color"] if base_props["line-color"].present?
+    path_opts["weight"] = base_props["line-width"].to_f if base_props["line-width"].present?
     path_opts["opacity"] = base_props["line-opacity"].to_f if base_props["line-opacity"].present?
 
     # Fill opacity from base rule
@@ -399,8 +399,8 @@ module CartodbRakeHelpers
     # Point marker properties — used when no polygon/line styling is present
     # (CartoDB marker-* maps to Leaflet VectorGrid circleMarker pathOptions)
     if path_opts["color"].blank? && base_props["marker-line-color"].present?
-      path_opts["color"]   = base_props["marker-line-color"]
-      path_opts["weight"]  = base_props["marker-line-width"].to_f   if base_props["marker-line-width"].present?
+      path_opts["color"] = base_props["marker-line-color"]
+      path_opts["weight"] = base_props["marker-line-width"].to_f if base_props["marker-line-width"].present?
       path_opts["opacity"] = [base_props["marker-line-opacity"].to_f, 1.0].min if base_props["marker-line-opacity"].present?
     end
     if path_opts["fillOpacity"].blank? && base_props["marker-fill-opacity"].present?
@@ -417,12 +417,12 @@ module CartodbRakeHelpers
     # Build conditions array from conditional rules
     if conditional_rules.any?
       conds = conditional_rules.filter_map do |rule|
-        pfill  = rule[:styles]["polygon-fill"].to_s.strip
-        popac  = rule[:styles]["polygon-opacity"]
+        pfill = rule[:styles]["polygon-fill"].to_s.strip
+        popac = rule[:styles]["polygon-opacity"]
         lcolor = rule[:styles]["line-color"]
         overrides = {}
 
-        if pfill =~ /\Atransparent\z/i
+        if pfill.match?(/\Atransparent\z/i)
           overrides["fillOpacity"] = 0
           overrides["fill"] = false
         elsif pfill.present?
@@ -1056,7 +1056,11 @@ namespace :cartodb do
       raster_tables = raster_layer ? (referenced - local_tables) : []
 
       migration_block = {
-        "status" => raster_layer ? (raster_tables.any? ? "cog_pending" : "cog_ready") : (local_tables.any? ? "partial" : "pending"),
+        "status" => if raster_layer
+                      raster_tables.any? ? "cog_pending" : "cog_ready"
+                    else
+                      (local_tables.any? ? "partial" : "pending")
+                    end,
         "tables" => table_status,
         "raster" => raster_layer,
         "raster_tables" => raster_tables,
@@ -1208,8 +1212,8 @@ namespace :cartodb do
         "sources" => sources,
         "options" => {
           "interactive" => true,
-          "maxNativeZoom" => layer.zoom_max || 14,
-        },
+          "maxNativeZoom" => layer.zoom_max || 14
+        }
       }
       body["colormap"] = style["colormap"] if style["colormap"].present?
       body["rescale"] = style["rescale"] if style["rescale"].present?
@@ -1223,10 +1227,10 @@ namespace :cartodb do
       new_config = {
         "type" => "tileLayer",
         "body" => body,
-        "cartodb_migration" => migration,
+        "cartodb_migration" => migration
       }
 
-      puts "  Sources  : #{sources.join(', ')}"
+      puts "  Sources  : #{sources.join(", ")}"
       puts "  Publish  : yes"
 
       unless dry_run
@@ -1241,8 +1245,8 @@ namespace :cartodb do
       published_count += 1
     end
 
-    puts "\n#{'=' * 56}"
-    puts "  COG Configuration#{dry_run ? ' (DRY RUN)' : ''} — Summary"
+    puts "\n#{"=" * 56}"
+    puts "  COG Configuration#{dry_run ? " (DRY RUN)" : ""} — Summary"
     puts "=" * 56
     puts "  Configured : #{configured_count}"
     puts "    Published : #{published_count}"
@@ -1292,9 +1296,9 @@ namespace :cartodb do
     puts "Found #{candidates.count} layer(s) to configure.\n\n"
 
     configured_count = 0
-    published_count  = 0
-    skipped_count    = 0
-    view_count       = 0
+    published_count = 0
+    skipped_count = 0
+    view_count = 0
 
     candidates.each do |layer|
       puts "Layer ##{layer.id} (#{layer.slug}):"
@@ -1318,9 +1322,9 @@ namespace :cartodb do
         next
       end
 
-      tables   = migration["tables"] || {}
+      tables = migration["tables"] || {}
       imported = tables.select { |_, v| v == "imported" }.keys
-      missing  = tables.select { |_, v| v == "missing"  }.keys
+      missing = tables.select { |_, v| v == "missing" }.keys
 
       if imported.empty?
         puts "  ✗  No imported tables yet — skipping."
@@ -1329,7 +1333,7 @@ namespace :cartodb do
       end
 
       primary_table = imported.first
-      all_ready     = missing.empty?
+      all_ready = missing.empty?
 
       # ── Determine Martin source ──────────────────────────────────────────
       #
@@ -1411,8 +1415,8 @@ namespace :cartodb do
 
       new_config = {
         "body" => {
-          "source"  => source,
-          "styles"  => default_styles,
+          "source" => source,
+          "styles" => default_styles,
           "options" => {"interactive" => true, "maxNativeZoom" => 14}
         },
         "cartodb_migration" => migration
@@ -1421,17 +1425,17 @@ namespace :cartodb do
       unless dry_run
         layer.update_columns(
           layer_provider: "martin",
-          layer_config:   new_config.to_json,
-          published:      all_ready
+          layer_config: new_config.to_json,
+          published: all_ready
         )
       end
 
       configured_count += 1
-      published_count  += 1 if all_ready
+      published_count += 1 if all_ready
     end
 
-    puts "\n#{'=' * 56}"
-    puts "  Martin Configuration#{dry_run ? ' (DRY RUN)' : ''} — Summary"
+    puts "\n#{"=" * 56}"
+    puts "  Martin Configuration#{dry_run ? " (DRY RUN)" : ""} — Summary"
     puts "=" * 56
     puts "  Configured : #{configured_count}"
     puts "    Published   : #{published_count}"
@@ -1466,12 +1470,16 @@ namespace :cartodb do
     dry_run = ENV["DRY_RUN"] == "1"
     puts "DRY RUN — no changes will be saved.\n\n" if dry_run
 
-    fixed   = 0
+    fixed = 0
     skipped = 0
 
     Layer.where(layer_provider: "martin")
-         .where("layer_config LIKE '%cartodb_migration%'").find_each do |layer|
-      config = JSON.parse(layer.layer_config) rescue {}
+      .where("layer_config LIKE '%cartodb_migration%'").find_each do |layer|
+      config = begin
+        JSON.parse(layer.layer_config)
+      rescue
+        {}
+      end
       source = config.dig("body", "source").to_s
 
       unless source.start_with?("ra_vector.")
@@ -1490,8 +1498,8 @@ namespace :cartodb do
       fixed += 1
     end
 
-    puts "\n#{'=' * 56}"
-    puts "  fix_martin_sources#{dry_run ? ' (DRY RUN)' : ''} — Summary"
+    puts "\n#{"=" * 56}"
+    puts "  fix_martin_sources#{dry_run ? " (DRY RUN)" : ""} — Summary"
     puts "=" * 56
     puts "  Fixed   : #{fixed}"
     puts "  Skipped : #{skipped} (already correct)"
@@ -1523,11 +1531,15 @@ namespace :cartodb do
 
     updated = 0
     skipped = 0
-    no_css  = 0
+    no_css = 0
 
     Layer.where(layer_provider: "martin")
-         .where("layer_config LIKE '%cartodb_migration%'").find_each do |layer|
-      config = JSON.parse(layer.layer_config) rescue {}
+      .where("layer_config LIKE '%cartodb_migration%'").find_each do |layer|
+      config = begin
+        JSON.parse(layer.layer_config)
+      rescue
+        {}
+      end
       source = config.dig("body", "source").to_s
       styles = config.dig("body", "styles")
 
@@ -1560,8 +1572,8 @@ namespace :cartodb do
       updated += 1
     end
 
-    puts "\n#{'=' * 56}"
-    puts "  fix_martin_styles#{dry_run ? ' (DRY RUN)' : ''} — Summary"
+    puts "\n#{"=" * 56}"
+    puts "  fix_martin_styles#{dry_run ? " (DRY RUN)" : ""} — Summary"
     puts "=" * 56
     puts "  Updated : #{updated}"
     puts "  Skipped : #{skipped} (already have styles)"
@@ -1594,10 +1606,14 @@ namespace :cartodb do
 
     updated = 0
     skipped = 0
-    no_css  = 0
+    no_css = 0
 
     Layer.where(layer_provider: "cog").find_each do |layer|
-      config = JSON.parse(layer.layer_config) rescue {}
+      config = begin
+        JSON.parse(layer.layer_config)
+      rescue
+        {}
+      end
       existing_colormap = config.dig("body", "colormap") || {}
 
       # Skip if already has a full colormap (more than 1 entry)
@@ -1620,12 +1636,12 @@ namespace :cartodb do
         next
       end
 
-      puts "Layer ##{layer.id} (#{layer.slug}): #{style['colormap'].size} colormap entries, rescale=#{style['rescale']}"
+      puts "Layer ##{layer.id} (#{layer.slug}): #{style["colormap"].size} colormap entries, rescale=#{style["rescale"]}"
 
       unless dry_run
-        config["body"]["colormap"]     = style["colormap"]
-        config["body"]["rescale"]      = style["rescale"]      if style["rescale"].present?
-        config["body"]["cartocss_mode"] = style["mode"]        if style["mode"].present?
+        config["body"]["colormap"] = style["colormap"]
+        config["body"]["rescale"] = style["rescale"] if style["rescale"].present?
+        config["body"]["cartocss_mode"] = style["mode"] if style["mode"].present?
         # Persist the translated style into cartodb_migration so re-runs are stable
         config["cartodb_migration"] ||= {}
         config["cartodb_migration"]["style"] = style
@@ -1635,8 +1651,8 @@ namespace :cartodb do
       updated += 1
     end
 
-    puts "\n#{'=' * 56}"
-    puts "  fix_cog_styles#{dry_run ? ' (DRY RUN)' : ''} — Summary"
+    puts "\n#{"=" * 56}"
+    puts "  fix_cog_styles#{dry_run ? " (DRY RUN)" : ""} — Summary"
     puts "=" * 56
     puts "  Updated : #{updated}"
     puts "  Skipped : #{skipped} (already have full colormap)"
@@ -1693,13 +1709,13 @@ namespace :cartodb do
 
     created = 0
     skipped = 0
-    failed  = 0
+    failed = 0
 
     rows.each_with_index do |row, i|
       tbl = row["f_table_name"]
       col = row["f_geometry_column"]
       idx_name = "idx_#{tbl}_#{col}"[0, 63]
-      q_table  = "\"#{target_schema}\".\"#{tbl}\""
+      q_table = "\"#{target_schema}\".\"#{tbl}\""
 
       print "  [#{i + 1}/#{rows.size}] #{tbl}.#{col} → #{idx_name} ... "
 
@@ -1772,8 +1788,8 @@ namespace :cartodb do
     puts "Checking #{rows.size} geometry column(s) in #{target_schema} for invalid geometries...\n\n"
 
     tables_fixed = 0
-    total_fixed  = 0
-    failed       = 0
+    total_fixed = 0
+    failed = 0
 
     rows.each_with_index do |row, i|
       tbl = row["f_table_name"]
@@ -1794,7 +1810,7 @@ namespace :cartodb do
           )
           puts "done."
           tables_fixed += 1
-          total_fixed  += invalid_count
+          total_fixed += invalid_count
         end
       rescue => e
         # Fast path failed (likely OOM on a huge table). Reconnect then retry
@@ -1810,31 +1826,29 @@ namespace :cartodb do
           next
         end
 
-        col_fixed      = 0
-        batch_failed   = false
+        col_fixed = 0
+        batch_failed = false
         loop do
+          n = ar_conn.execute(
+            "WITH batch AS ( " \
+            "  SELECT ctid FROM #{q_table} " \
+            "  WHERE NOT ST_IsValid(\"#{col}\") LIMIT 500 " \
+            ") " \
+            "UPDATE #{q_table} t " \
+            "SET \"#{col}\" = ST_MakeValid(t.\"#{col}\") " \
+            "FROM batch WHERE t.ctid = batch.ctid"
+          ).cmd_tuples
+          col_fixed += n
+          break if n == 0
+        rescue => be
+          warn "  [#{i + 1}/#{rows.size}] #{tbl}.#{col}: batched retry also failed — " \
+               "#{be.message.lines.first.strip}"
+          batch_failed = true
           begin
-            n = ar_conn.execute(
-              "WITH batch AS ( " \
-              "  SELECT ctid FROM #{q_table} " \
-              "  WHERE NOT ST_IsValid(\"#{col}\") LIMIT 500 " \
-              ") " \
-              "UPDATE #{q_table} t " \
-              "SET \"#{col}\" = ST_MakeValid(t.\"#{col}\") " \
-              "FROM batch WHERE t.ctid = batch.ctid"
-            ).cmd_tuples
-            col_fixed += n
-            break if n == 0
-          rescue => be
-            warn "  [#{i + 1}/#{rows.size}] #{tbl}.#{col}: batched retry also failed — " \
-                 "#{be.message.lines.first.strip}"
-            batch_failed = true
-            begin
-              ActiveRecord::Base.connection_pool.disconnect!
-              ar_conn = ActiveRecord::Base.connection
-            rescue; end
-            break
-          end
+            ActiveRecord::Base.connection_pool.disconnect!
+            ar_conn = ActiveRecord::Base.connection
+          rescue; end
+          break
         end
 
         if batch_failed
@@ -1842,7 +1856,7 @@ namespace :cartodb do
         elsif col_fixed > 0
           puts "  [#{i + 1}/#{rows.size}] #{tbl}.#{col}: fixed #{col_fixed} invalid geometry(ies) via batches."
           tables_fixed += 1
-          total_fixed  += col_fixed
+          total_fixed += col_fixed
         end
       end
     end
