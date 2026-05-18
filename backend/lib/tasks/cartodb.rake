@@ -59,18 +59,26 @@ module CartodbRakeHelpers
   end
 
   def self.parse_hex_color(color)
-    value = color.to_s.strip.downcase
-    return [0, 0, 0, 0] if value.blank? || value == "transparent"
+    value = color.to_s.strip
+    return [0, 0, 0, 0] if value.blank? || value.casecmp?("transparent")
 
-    if value.match?(/\A#[0-9a-f]{3}\z/i)
-      r = (value[1] * 2).to_i(16)
-      g = (value[2] * 2).to_i(16)
-      b = (value[3] * 2).to_i(16)
+    # rgba(r, g, b, a) or rgb(r, g, b)
+    if (m = value.match(/\Argba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)(?:\s*,\s*([0-9.]+))?\s*\)\z/i))
+      r, g, b = m[1].to_i, m[2].to_i, m[3].to_i
+      a = m[4] ? (m[4].to_f * 255).round.clamp(0, 255) : 255
+      return [r, g, b, a]
+    end
+
+    v = value.downcase
+    if v.match?(/\A#[0-9a-f]{3}\z/)
+      r = (v[1] * 2).to_i(16)
+      g = (v[2] * 2).to_i(16)
+      b = (v[3] * 2).to_i(16)
       return [r, g, b, 255]
     end
 
-    if value.match?(/\A#[0-9a-f]{6}\z/i)
-      return [value[1, 2].to_i(16), value[3, 2].to_i(16), value[5, 2].to_i(16), 255]
+    if v.match?(/\A#[0-9a-f]{6}\z/)
+      return [v[1, 2].to_i(16), v[3, 2].to_i(16), v[5, 2].to_i(16), 255]
     end
 
     nil
@@ -114,7 +122,9 @@ module CartodbRakeHelpers
 
     opacity = css[/raster-opacity\s*:\s*([0-9.]+)/i, 1]
     mode = css[/raster-colorizer-default-mode\s*:\s*([a-z]+)/i, 1]&.downcase
-    stops = css.scan(/stop\(\s*(-?\d*\.?\d+(?:e[+-]?\d+)?)\s*,\s*([^,\)]+)(?:\s*,\s*([^\)]+))?\s*\)/i).map do |value, color, extra|
+    # The color argument may be rgba(r,g,b,a) which contains commas, so we
+    # must match it as a unit before falling back to the plain [^,)] pattern.
+    stops = css.scan(/stop\(\s*(-?\d*\.?\d+(?:e[+-]?\d+)?)\s*,\s*(rgba?\([^)]+\)|transparent|#[0-9a-fA-F]+)(?:\s*,\s*([a-z]+))?\s*\)/i).map do |value, color, extra|
       {
         value: value.to_f,
         color: color.to_s.strip,
@@ -284,10 +294,17 @@ module CartodbRakeHelpers
   #   line-width      → weight
   #   line-opacity    → opacity
   #
-  # Conditional rules with attribute filters (e.g. [type="hotspot area"]) are
-  # stored as a "conditions" array:
-  #   [{ "when" => { "type" => "hotspot area" }, "fillColor" => "#012700" }, ...]
-  # The frontend style-converter.js resolves these at render time.
+  # Conditional rules with attribute filters are stored as a "conditions" array
+  # and resolved by the frontend style-converter.js at render time.
+  #
+  # String equality filter:
+  #   [prop="val"]  → { "when" => { "prop" => "val" }, ...overrides }
+  # Numeric comparison filter:
+  #   [prop <= N]   → { "when" => { "prop" => { "op" => "<=", "val" => N } }, ...overrides }
+  #
+  # Multi-filter rules ([a="x"][b <= 3]) are AND-combined in the `when` object.
+  # Zoom filters ([zoom >= N]) are stripped — zoom-adaptive styling cannot be
+  # serialised to static JSON; the base rule provides the default appearance.
   #
   # Returns {} when no recognisable declarations are found.
   def self.translate_vector_css(css)
@@ -296,25 +313,49 @@ module CartodbRakeHelpers
     base_props = {}
     conditional_rules = []
 
-    # Each block: #selector(optional_filter) { declarations }
-    css.scan(/#[\w-]+(\[[^\]]*\])?\s*\{([^}]+)\}/m).each do |filter, declarations|
+    # Each block: #selector(optional_chained_filters) { declarations }
+    # (?:\s*\[[^\]]*\])* captures zero or more [filter] groups with optional
+    # leading whitespace (e.g. '#layer [prop<=90]' has a space before the filter)
+    css.scan(/#[\w-]+((?:\s*\[[^\]]*\])*)\s*\{([^}]+)\}/m).each do |filter_chain, declarations|
       props = {}
       declarations.scan(/([\w-]+)\s*:\s*([^;]+)/).each do |prop, val|
         props[prop.strip] = val.strip
       end
 
-      if filter.nil? || filter.strip.empty?
+      if filter_chain.nil? || filter_chain.strip.empty?
         base_props.merge!(props)
-      elsif (m = filter.match(/\[(\w+)\s*=\s*["']([^"']+)["']\]/))
-        conditional_rules << {property: m[1], value: m[2], styles: props}
+      else
+        # Parse each individual [filter] in the chained selector
+        filters = filter_chain.scan(/\[([^\]]+)\]/).map(&:first)
+
+        # Separate zoom-based filters (rendering hints) from data property filters
+        data_filters = filters.reject { |f| f.match?(/\Azoom\s*[<>=!]/i) }
+
+        # Rules that only constrain zoom (no data filter) are rendering hints — skip
+        next if data_filters.empty?
+
+        # Build the `when` conditions hash from data filters
+        when_hash = {}
+        data_filters.each do |f|
+          if (m = f.match(/(\w+)\s*=\s*["']([^"']+)["']/))
+            # String equality: [prop="val"]
+            when_hash[m[1]] = m[2]
+          elsif (m = f.match(/(\w+)\s*([<>]=?|!=)\s*([-\d.]+)/))
+            # Numeric comparison: [prop <= N]
+            when_hash[m[1]] = {"op" => m[2], "val" => m[3].to_f}
+          end
+        end
+
+        next unless when_hash.any?
+        conditional_rules << {when: when_hash, styles: props}
       end
     end
 
     path_opts = {}
 
     # Stroke / line properties
-    path_opts["color"]   = base_props["line-color"]       if base_props["line-color"].present?
-    path_opts["weight"]  = base_props["line-width"].to_f  if base_props["line-width"].present?
+    path_opts["color"]   = base_props["line-color"]        if base_props["line-color"].present?
+    path_opts["weight"]  = base_props["line-width"].to_f   if base_props["line-width"].present?
     path_opts["opacity"] = base_props["line-opacity"].to_f if base_props["line-opacity"].present?
 
     # Fill opacity from base rule
@@ -335,11 +376,12 @@ module CartodbRakeHelpers
       path_opts["fill"] = true
     end
 
-    # Build conditions array for attribute-filter rules
+    # Build conditions array from conditional rules
     if conditional_rules.any?
       conds = conditional_rules.filter_map do |rule|
         pfill  = rule[:styles]["polygon-fill"].to_s.strip
         popac  = rule[:styles]["polygon-opacity"]
+        lcolor = rule[:styles]["line-color"]
         overrides = {}
 
         if pfill =~ /\Atransparent\z/i
@@ -353,8 +395,9 @@ module CartodbRakeHelpers
           overrides["fillOpacity"] = popac.to_f
         end
 
+        overrides["color"] = lcolor if lcolor.present? && !overrides.key?("color")
         next if overrides.empty?
-        {"when" => {rule[:property] => rule[:value]}}.merge(overrides)
+        {"when" => rule[:when]}.merge(overrides)
       end
       path_opts["conditions"] = conds if conds.any?
     end
@@ -1484,6 +1527,82 @@ namespace :cartodb do
     puts "=" * 56
     puts "  Updated : #{updated}"
     puts "  Skipped : #{skipped} (already have styles)"
+    puts "  No CSS  : #{no_css} (no CSS or unrecognised CSS)"
+  end
+
+  # ---------------------------------------------------------------------------
+
+  desc <<~DESC
+    Re-translate CartoDB raster CSS into TiTiler colormap/rescale for COG layers.
+
+    COG layers migrated when rgba() color parsing was broken have incomplete
+    colormaps (only the one `stop(value, #hex)` entry survived, all rgba() stops
+    were silently dropped).  This task re-runs translate_raster_css against each
+    COG layer's original CSS and updates body.colormap, body.rescale, and
+    body.cartocss_mode.
+
+    Layers that already have a colormap with more than one entry are left alone.
+
+    Optional:
+      DRY_RUN=1   Print what would change without saving
+
+    Usage:
+      rake cartodb:fix_cog_styles
+      rake cartodb:fix_cog_styles DRY_RUN=1
+  DESC
+  task fix_cog_styles: :environment do
+    dry_run = ENV["DRY_RUN"] == "1"
+    puts "DRY RUN — no changes will be saved.\n\n" if dry_run
+
+    updated = 0
+    skipped = 0
+    no_css  = 0
+
+    Layer.where(layer_provider: "cog")
+         .where("layer_config LIKE '%cartodb_migration%'").find_each do |layer|
+      config = JSON.parse(layer.layer_config) rescue {}
+      existing_colormap = config.dig("body", "colormap") || {}
+
+      # Skip if already has a full colormap (more than 1 entry)
+      if existing_colormap.size > 1
+        skipped += 1
+        next
+      end
+
+      if layer.css.blank?
+        puts "Layer ##{layer.id} (#{layer.slug}): no CSS — skipping"
+        no_css += 1
+        next
+      end
+
+      style = CartodbRakeHelpers.translate_raster_css(layer.css)
+
+      if style["colormap"].blank?
+        puts "Layer ##{layer.id} (#{layer.slug}): CSS yielded no colormap — skipping"
+        no_css += 1
+        next
+      end
+
+      puts "Layer ##{layer.id} (#{layer.slug}): #{style['colormap'].size} colormap entries, rescale=#{style['rescale']}"
+
+      unless dry_run
+        config["body"]["colormap"]     = style["colormap"]
+        config["body"]["rescale"]      = style["rescale"]      if style["rescale"].present?
+        config["body"]["cartocss_mode"] = style["mode"]        if style["mode"].present?
+        # Persist the translated style into cartodb_migration so re-runs are stable
+        config["cartodb_migration"] ||= {}
+        config["cartodb_migration"]["style"] = style
+        layer.update_column(:layer_config, config.to_json)
+      end
+
+      updated += 1
+    end
+
+    puts "\n#{'=' * 56}"
+    puts "  fix_cog_styles#{dry_run ? ' (DRY RUN)' : ''} — Summary"
+    puts "=" * 56
+    puts "  Updated : #{updated}"
+    puts "  Skipped : #{skipped} (already have full colormap)"
     puts "  No CSS  : #{no_css} (no CSS or unrecognised CSS)"
   end
 

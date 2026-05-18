@@ -10,7 +10,9 @@
  * Extended PathOptions also support a `conditions` array for attribute-based
  * styling (converted from CartoDB conditional CSS rules):
  *   conditions: [{ when: { property: value }, ...overrides }, ...]
- * The first matching condition's overrides are merged into the base PathOptions.
+ * String equality: { when: { type: "hotspot" }, fillColor: "#abc" }
+ * Numeric comparison: { when: { value: { op: "<=", val: 35 } }, fillColor: "#abc" }
+ * All matching conditions are merged in order (CSS cascade: last match wins).
  */
 import Style from 'ol/style/Style';
 import Stroke from 'ol/style/Stroke';
@@ -31,8 +33,43 @@ function resolveColor(color, opacity) {
 }
 
 /**
+ * Evaluate a single `when` condition against feature properties.
+ *
+ * Each entry in `when` is either:
+ *   - a plain string/number for equality:   { type: "hotspot area" }
+ *   - an operator object for comparisons:   { value: { op: "<=", val: 35 } }
+ *
+ * @param {object} when - Condition descriptor
+ * @param {object} props - Feature properties
+ * @returns {boolean}
+ */
+function evaluateWhen(when, props) {
+  return Object.entries(when).every(([key, spec]) => {
+    if (spec !== null && typeof spec === 'object' && spec.op !== undefined) {
+      const num = parseFloat(props[key]);
+      if (Number.isNaN(num)) return false;
+      switch (spec.op) {
+        case '<=': return num <= spec.val;
+        case '>=': return num >= spec.val;
+        case '<':  return num < spec.val;
+        case '>':  return num > spec.val;
+        case '!=': return num !== spec.val;
+        default:   return false;
+      }
+    }
+    // String / strict equality
+    return String(props[key]) === String(spec);
+  });
+}
+
+/**
  * Resolve any `conditions` in a PathOptions object against feature properties.
  * Returns a plain PathOptions object (without the `conditions` key).
+ *
+ * Conditions are evaluated in declaration order and ALL matching conditions
+ * are merged (later declarations override earlier ones), matching the CSS
+ * cascade. This correctly handles overlapping numeric range rules such as
+ * choropleth `[value <= 90]` / `[value <= 35]` / `[value <= 0]` selectors.
  *
  * @param {object} pathOptions - PathOptions, possibly with a `conditions` array
  * @param {object} props - Feature properties from feature.getProperties()
@@ -42,14 +79,14 @@ function resolveConditions(pathOptions, props) {
   const { conditions, ...base } = pathOptions;
   if (!conditions || !conditions.length) return base;
 
+  let resolved = { ...base };
   for (const condition of conditions) {
     const { when, ...overrides } = condition;
-    const matches = Object.entries(when).every(
-      ([key, val]) => String(props[key]) === String(val)
-    );
-    if (matches) return { ...base, ...overrides };
+    if (evaluateWhen(when, props)) {
+      resolved = { ...resolved, ...overrides };
+    }
   }
-  return base;
+  return resolved;
 }
 
 /**
