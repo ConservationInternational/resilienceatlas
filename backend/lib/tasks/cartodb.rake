@@ -584,6 +584,29 @@ namespace :cartodb do
         puts "  #{row_count} feature(s) loaded."
         imported_vectors << {file: basename, src_schema: info[:schema], table: tbl, rows: row_count}
 
+        # ── Create spatial index ─────────────────────────────────────────────
+        # Martin computes bounding boxes at startup; without a GiST index it
+        # times out on every table and drops all sources from the catalog.
+        begin
+          geom_cols = ar_conn.execute(
+            "SELECT f_geometry_column FROM geometry_columns " \
+            "WHERE f_table_schema = '#{target_schema}' AND f_table_name = '#{tbl}'"
+          ).map { |r| r["f_geometry_column"] }
+
+          geom_cols.each do |col|
+            # PostgreSQL identifier limit is 63 bytes; truncate if needed.
+            idx_name = "idx_#{tbl}_#{col}"[0, 63]
+            print "  Creating spatial index #{idx_name}... "
+            ar_conn.execute(
+              "CREATE INDEX IF NOT EXISTS \"#{idx_name}\" " \
+              "ON #{q_table} USING gist(\"#{col}\")"
+            )
+            puts "done."
+          end
+        rescue => e
+          warn "  WARNING: Could not create spatial index for #{tbl}: #{e.message}"
+        end
+
         # Remove local copy to free disk space in the temp directory
         begin
           File.delete(local_path)
@@ -1149,17 +1172,17 @@ namespace :cartodb do
         puts "  SQL      : #{view_sql}"
 
         if dry_run
-          "#{target_schema}.#{view_name}"
+          view_name
         else
           begin
             ar_conn.execute(create_ddl)
             puts "  ✓ View created."
             view_count += 1
-            "#{target_schema}.#{view_name}"
+            view_name
           rescue => e
             warn "  ✗ View creation failed: #{e.message}"
             warn "    Falling back to direct table reference."
-            "#{target_schema}.#{primary_table}"
+            primary_table
           end
         end
       else
@@ -1173,7 +1196,7 @@ namespace :cartodb do
           migration = migration.merge("pending_view_sql" => layer.query)
         end
 
-        "#{target_schema}.#{primary_table}"
+        primary_table
       end
 
       puts "  Source   : #{source}"
@@ -1219,6 +1242,59 @@ namespace :cartodb do
   # ---------------------------------------------------------------------------
 
   desc <<~DESC
+    Fix Martin source IDs in existing layer_configs.
+
+    Martin auto-discovers PostgreSQL tables and registers them by bare table name
+    (e.g. "grp_africa_livelihoods"), NOT by schema-qualified name
+    ("ra_vector.grp_africa_livelihoods").  If configure_martin_layers was run
+    before this fix was applied, the layer_config body.source values will have
+    an incorrect "ra_vector." prefix, causing all tile requests to 404.
+
+    This task strips the prefix from every affected layer and is safe to re-run.
+
+    Usage:
+      rake cartodb:fix_martin_sources
+      rake cartodb:fix_martin_sources DRY_RUN=1
+  DESC
+  task fix_martin_sources: :environment do
+    dry_run = ENV["DRY_RUN"] == "1"
+    puts "DRY RUN — no changes will be saved.\n\n" if dry_run
+
+    fixed   = 0
+    skipped = 0
+
+    Layer.where(layer_provider: "martin")
+         .where("layer_config LIKE '%cartodb_migration%'").find_each do |layer|
+      config = JSON.parse(layer.layer_config) rescue {}
+      source = config.dig("body", "source").to_s
+
+      unless source.start_with?("ra_vector.")
+        skipped += 1
+        next
+      end
+
+      bare_source = source.sub(/\Ara_vector\./, "")
+      puts "Layer ##{layer.id}: #{source} → #{bare_source}"
+
+      unless dry_run
+        config["body"]["source"] = bare_source
+        layer.update_column(:layer_config, config.to_json)
+      end
+
+      fixed += 1
+    end
+
+    puts "\n#{'=' * 56}"
+    puts "  fix_martin_sources#{dry_run ? ' (DRY RUN)' : ''} — Summary"
+    puts "=" * 56
+    puts "  Fixed   : #{fixed}"
+    puts "  Skipped : #{skipped} (already correct)"
+    puts "\nRestart Martin if any sources were fixed: docker service update --force <stack>_martin" if fixed > 0 && !dry_run
+  end
+
+  # ---------------------------------------------------------------------------
+
+  desc <<~DESC
     Full CartoDB table migration: import_tables → update_layer_references → configure_martin_layers.
 
     Accepts all environment variables from the sub-tasks:
@@ -1229,6 +1305,85 @@ namespace :cartodb do
       rake cartodb:migrate_tables CARTODB_S3_BUCKET=my-bucket
   DESC
   task migrate_tables: ["cartodb:import_tables", "cartodb:update_layer_references", "cartodb:configure_cog_layers", "cartodb:configure_martin_layers"]
+
+  # ---------------------------------------------------------------------------
+
+  desc <<~DESC
+    Create GiST spatial indices on all geometry columns in the ra_vector schema.
+
+    Run this once after a bulk import to ensure Martin can compute tile bounds
+    quickly at startup (without indices Martin times out and drops all sources).
+    New imports via cartodb:import_tables create indices automatically; this task
+    is for tables that were imported before that step was added.
+
+    Optional:
+      CARTODB_IMPORT_SCHEMA=<schema>  Schema to index (default: ra_vector)
+
+    Usage:
+      rake cartodb:create_spatial_indices
+  DESC
+  task create_spatial_indices: :environment do
+    target_schema = ENV.fetch("CARTODB_IMPORT_SCHEMA", "ra_vector")
+    ar_conn = ActiveRecord::Base.connection
+
+    rows = ar_conn.execute(
+      "SELECT f_table_name, f_geometry_column " \
+      "FROM geometry_columns " \
+      "WHERE f_table_schema = '#{target_schema}' " \
+      "ORDER BY f_table_name, f_geometry_column"
+    ).to_a
+
+    if rows.empty?
+      puts "No geometry columns found in schema '#{target_schema}'.  Nothing to do."
+      next
+    end
+
+    puts "Creating GiST spatial indices for #{rows.size} geometry column(s) in #{target_schema}...\n\n"
+
+    created = 0
+    skipped = 0
+    failed  = 0
+
+    rows.each_with_index do |row, i|
+      tbl = row["f_table_name"]
+      col = row["f_geometry_column"]
+      idx_name = "idx_#{tbl}_#{col}"[0, 63]
+      q_table  = "\"#{target_schema}\".\"#{tbl}\""
+
+      print "  [#{i + 1}/#{rows.size}] #{tbl}.#{col} → #{idx_name} ... "
+
+      # Check if the index already exists to give an accurate created/skipped count.
+      exists = ar_conn.execute(
+        "SELECT 1 FROM pg_indexes " \
+        "WHERE schemaname = '#{target_schema}' AND indexname = '#{idx_name}'"
+      ).any?
+
+      if exists
+        puts "already exists."
+        skipped += 1
+        next
+      end
+
+      begin
+        ar_conn.execute(
+          "CREATE INDEX \"#{idx_name}\" ON #{q_table} USING gist(\"#{col}\")"
+        )
+        puts "done."
+        created += 1
+      rescue => e
+        warn "FAILED: #{e.message}"
+        failed += 1
+      end
+    end
+
+    puts "\n#{"=" * 50}"
+    puts "  Created : #{created}"
+    puts "  Skipped : #{skipped} (already existed)"
+    puts "  Failed  : #{failed}"
+    puts ""
+    puts "Restart Martin to pick up the new indices:"
+    puts "  docker service update --force resilienceatlas-staging_martin"
+  end
 
   # ---------------------------------------------------------------------------
 
