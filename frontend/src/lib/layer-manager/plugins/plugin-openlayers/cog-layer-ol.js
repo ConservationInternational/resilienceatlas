@@ -31,8 +31,16 @@ function buildSingleTitilerUrl(layerConfig, sourceOverride) {
   if (rescale && !isIntervalColormap) tileUrl += `&rescale=${encodeURIComponent(rescale)}`;
   if (colormap_name) {
     tileUrl += `&colormap_name=${encodeURIComponent(colormap_name)}`;
-  } else if (colormap && (isIntervalColormap ? colormap.length > 0 : Object.keys(colormap).length > 0)) {
+  } else if (
+    colormap &&
+    (isIntervalColormap ? colormap.length > 0 : Object.keys(colormap).length > 0)
+  ) {
     tileUrl += `&colormap=${encodeURIComponent(JSON.stringify(colormap))}`;
+  }
+  // Clip raster tiles to the boundary geometry stored during migration.
+  // This replaces CartoDB's ST_CLIP — TiTiler renders only within the feature polygon.
+  if (body.clip_geometry) {
+    tileUrl += `&feature=${encodeURIComponent(JSON.stringify(body.clip_geometry))}`;
   }
   return tileUrl;
 }

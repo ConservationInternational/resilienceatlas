@@ -114,12 +114,19 @@ class PluginOpenLayers {
     const clickHandler = (e) => {
       if (!mapLayer?.getVisible()) return;
 
-      // For vector tile layers: only fire if a feature was actually hit
+      // For vector tile layers: only fire if a feature was actually hit,
+      // and pass its properties directly so the popup doesn't need an HTTP call.
       if (mapLayer instanceof VectorTileLayer) {
         const features = this.map.getFeaturesAtPixel(e.pixel, {
           layerFilter: (l) => l === mapLayer,
         });
         if (!features || features.length === 0) return;
+
+        const [lng, lat] = toLonLat(e.coordinate);
+        // Strip the OL internal geometry key from the properties object
+        const { geometry: _geom, ...data } = features[0]?.getProperties() || {};
+        events.click({ latlng: { lat, lng }, data: Object.keys(data).length ? data : undefined });
+        return;
       }
 
       const [lng, lat] = toLonLat(e.coordinate);

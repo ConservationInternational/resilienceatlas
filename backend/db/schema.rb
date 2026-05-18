@@ -10,12 +10,16 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_05_15_140000) do
+ActiveRecord::Schema[7.2].define(version: 2026_05_17_000000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "fuzzystrmatch"
   enable_extension "plpgsql"
   enable_extension "postgis"
   enable_extension "postgis_topology"
+
+  create_schema "ra_app"
+  create_schema "ra_raster"
+  create_schema "ra_vector"
 
   create_table "action_text_rich_texts", force: :cascade do |t|
     t.string "name", null: false
@@ -459,6 +463,22 @@ ActiveRecord::Schema[7.2].define(version: 2026_05_15_140000) do
     t.text "image_data"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "sbtn_thresholds", primary_key: "eco_id", id: :integer, force: :cascade do |t|
+    t.text "ecoregion"
+    t.float "natural_land_baseline"
+    t.float "natural_land_threshold"
+    t.float "natural_land_exceedance"
+    t.float "nitrogen_dep_baseline"
+    t.float "nitrogen_dep_threshold"
+    t.float "nitrogen_dep_exceedance"
+    t.float "soil_erosion_baseline"
+    t.float "soil_erosion_threshold"
+    t.float "soil_erosion_exceedance"
+    t.float "soc_baseline"
+    t.float "soc_threshold"
+    t.float "soc_exceedance"
   end
 
   create_table "scope_dataset_geometries", force: :cascade do |t|

@@ -4,13 +4,12 @@ End-to-end guide for migrating CartoDB spatial vectors and non-spatial tables in
 Resilience Atlas PostgreSQL database and updating the layer rows that previously
 referenced them.
 
-The process has two halves:
-
 | Phase | Where it runs | Tool |
 |-------|--------------|------|
 | **Export (vectors)** | CartoDB server (Ubuntu 12.04) | `export_vectors_bash.sh` |
 | **Export (non-spatial)** | CartoDB server (Ubuntu 12.04) | `export_tables_bash.sh` |
-| **Import + update** | Rails app server / Docker | `rake cartodb:*` tasks |
+| **Import + configure** | Rails app server / Docker | `rake cartodb:migrate_tables` |
+| **Repair** | Rails app server / Docker | `rake cartodb:fix_*` tasks |
 
 ---
 
@@ -25,6 +24,11 @@ account.  After the Leaflet → OpenLayers migration:
   admin saves.
 - Each layer still has its original CartoDB SQL in the `query` column — that SQL
   references one or more CartoDB table names that need to be imported locally.
+
+The rake tasks automatically configure vector layers to use **Martin** (the PostGIS
+tile server) and raster layers to use **TiTiler** (Cloud-Optimised GeoTIFF renderer).
+After a successful run the vast majority of layers are published and visible without
+manual intervention.
 
 ---
 
@@ -94,96 +98,60 @@ s3://my-backup-bucket/cartodb-tables/
 
 ---
 
-## Phase 2 — Import into PostgreSQL
+## Phase 2 — Import and auto-configure
 
 The rake tasks run inside the Rails application container and connect to whatever
-database `DATABASE_URL` points to in the container's environment.  This means the
-**same task code** is used for development, staging, and production — you just run
-it in the right container with the right env file.
+database `DATABASE_URL` points to in the container's environment.
 
 | Environment | How to run | Database |
 |-------------|-----------|---------|
-| **Local dev** | `docker compose -f docker-compose.dev.yml run --rm backend rake ...` | `db` container (`DATABASE_URL` from `backend/.env`) |
+| **Local dev** | `docker compose -f docker-compose.dev.yml run --rm backend rake ...` | `db` container |
 | **Staging** | `docker run` on the staging server with `--env-file .env.staging` | staging Postgres |
 | **Production** | `docker run` on the production server with `--env-file .env` | production Postgres |
 
-> **Do not** run `docker compose -f docker-compose.dev.yml` commands on the
-> production or staging server — those commands use the dev `DATABASE_URL` which
-> points at the local `db` container, not the server's Postgres instance.
+> **Do not** run `docker compose -f docker-compose.dev.yml` commands on the production or
+> staging server — those use the dev `DATABASE_URL` which points at the local `db`
+> container, not the server's Postgres instance.
 
-### Prerequisites
+### `rake cartodb:migrate_tables` — primary command
 
-- AWS CLI with credentials (for S3 source) **or** the exported CSV.GZ files
-  mounted/copied to a local path.
-- The backend Docker image built and available (`BACKEND_IMAGE` env var or the tag
-  used in the relevant Compose / Swarm file).
+Runs the full import, auto-configuration, and repair pipeline in a single command:
 
-### Available tasks
-
-| Task | Purpose |
-|------|---------|
-| `rake cartodb:import_tables` | Import `.gpkg` vectors (via ogr2ogr) and `.csv.gz` non-spatial tables from S3 |
-| `rake cartodb:update_layer_references` | Update formerly CartoDB `Layer` rows to reference the imported tables |
-| `rake cartodb:migrate_tables` | Run both tasks in sequence |
-| `rake cartodb:status` | Show current migration status of all flagged layers |
-
----
-
-### `rake cartodb:import_tables`
-
-Before downloading anything, the task queries the database for all layers flagged by
-the migration (`layer_provider IS NULL`, `published = false`, `query` present) and
-parses their SQL to collect every referenced table name.  It then lists both the
-vectors prefix (for `.gpkg` files) and the tables prefix (for `.csv.gz` files) and
-routes each referenced table to the correct import path:
-
-- **Spatial vectors** (`.gpkg`) → downloaded and imported into PostGIS via `ogr2ogr`
-- **Non-spatial tables** (`.csv.gz`) → downloaded and imported via PostgreSQL `COPY`
-
-Vectors take priority: if a table name matches a `.gpkg` file it is always imported
-that way, not as a CSV.  Any table referenced by a layer but absent from both prefixes
-is printed as a warning.
-
-The task aborts with an error if no flagged layers exist in the database, or if no
-table names can be parsed from their queries.
-
-Column types for non-spatial tables are inferred automatically from a 1 000-row
-sample (`bigint`, `double precision`, `boolean`, or `text`).
-
-**Environment variables**
-
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `CARTODB_S3_BUCKET` | _(none)_ | S3 bucket name only (no prefix).  Required when using S3. |
-| `CARTODB_VECTORS_S3_PREFIX` | `cartodb_exports/vectors/` | S3 prefix for `.gpkg` vector files.  Must end with `/`. |
-| `CARTODB_TABLES_S3_PREFIX` | `cartodb_exports/non-spatial/` | S3 prefix for `.csv.gz` non-spatial files.  Must end with `/`. |
-| `CARTODB_EXPORT_DIR` | _(none)_ | Local directory with `.csv.gz` files (non-spatial only, used when `CARTODB_S3_BUCKET` is not set) |
-| `CARTODB_IMPORT_SCHEMA` | `ra_vector` | Target PostgreSQL schema |
-| `FORCE` | _(unset)_ | Set to `1` to overwrite tables that already exist in the database (default is to skip them) |
-
-**Local development (imports into the dev `db` container)**
-
-```bash
-# From S3 — vectors at cartodb_exports/vectors/ and tables at cartodb_exports/non-spatial/ (defaults)
-docker compose -f docker-compose.dev.yml run --rm backend \
-  rake cartodb:import_tables \
-  CARTODB_S3_BUCKET=my-backup-bucket
-
-# From S3 — explicit prefixes
-docker compose -f docker-compose.dev.yml run --rm backend \
-  rake cartodb:import_tables \
-  CARTODB_S3_BUCKET=my-backup-bucket \
-  CARTODB_VECTORS_S3_PREFIX=cartodb_exports/vectors/ \
-  CARTODB_TABLES_S3_PREFIX=cartodb_exports/non-spatial/
-
-# Non-spatial tables from a local directory (vectors still require S3)
-docker compose -f docker-compose.dev.yml run --rm \
-  -v /path/to/cartodb-tables:/data/cartodb-tables:ro \
-  backend \
-  rake cartodb:import_tables CARTODB_EXPORT_DIR=/data/cartodb-tables
+```
+import_tables → update_layer_references → configure_cog_layers → configure_martin_layers
+  → fix_cog_styles → fix_cog_sources → fix_cog_clip → fix_cog_interactivity
+  → fix_martin_sources → fix_martin_styles → fix_martin_interactivity
 ```
 
-**Staging server (run on the staging host)**
+| Step | What it does |
+|------|-------------|
+| `import_tables` | Downloads `.gpkg` vectors and `.csv.gz` tables from S3 and imports them into the `ra_vector` schema |
+| `update_layer_references` | Parses each layer's CartoDB SQL, records which tables are now available, identifies raster vs vector layers, and strips CartoDB-internal columns from the query |
+| `configure_cog_layers` | For raster-type layers: sets `layer_provider = "cog"`, builds `body.source` / `body.sources` pointing at the converted COGs on S3, translates CartoCSS stops to TiTiler colormap/rescale params, sets `interaction_config` for pixel value lookup, and publishes the layer |
+| `configure_martin_layers` | For vector-type layers: sets `layer_provider = "martin"`, builds `body.source = "<table>"`, translates CartoCSS to OpenLayers `PathOptions`, sets `interaction_config` from table columns, and publishes the layer when all tables are present |
+| `fix_cog_styles` | Re-translates CSS colormaps for **all** COG layers in the database (not just the ones configured in this run), ensuring correct `discrete`/`exact`/`linear` mode handling |
+| `fix_cog_sources` | Rebuilds `body.sources` for **all** multi-table COG mosaic layers |
+| `fix_cog_clip` | Extracts boundary polygons for raster layers that used CartoDB's `ST_CLIP` and stores a simplified GeoJSON in `body.clip_geometry`; the frontend passes this to TiTiler as the `feature` clip parameter |
+| `fix_cog_interactivity` | Backfills `interaction_config` (TiTiler `/cog/point` pixel-value lookup) for COG layers that are missing it |
+| `fix_martin_sources` | Strips any `ra_vector.` prefix from Martin `body.source` values |
+| `fix_martin_styles` | Backfills missing PathOptions styles for Martin layers that have no `styles` object |
+| `fix_martin_interactivity` | Builds `interaction_config` from PostGIS table columns for Martin layers; enables click popups that show feature attribute values directly from vector tile properties, with no HTTP round-trip |
+
+The repair steps (5–11) are idempotent and cover all layers already in the database, not
+just the ones configured in the current run.  Re-running `migrate_tables` at any time
+is safe and leaves the database in a fully consistent state.
+
+**Local dev**
+
+```bash
+docker compose -f docker-compose.dev.yml run --rm backend \
+  bundle exec rake cartodb:migrate_tables \
+  CARTODB_S3_BUCKET=resilienceatlas \
+  CARTODB_VECTORS_S3_PREFIX=cartodb_exports/vectors/ \
+  CARTODB_TABLES_S3_PREFIX=cartodb_exports/non-spatial/
+```
+
+**Staging server**
 
 ```bash
 source /opt/resilienceatlas-staging/.env.staging
@@ -192,99 +160,15 @@ docker run --rm -it \
   --env-file /opt/resilienceatlas-staging/.env.staging \
   -e RAILS_ENV=staging \
   "$BACKEND_IMAGE" \
-  bundle exec rake cartodb:import_tables \
-    CARTODB_S3_BUCKET=my-backup-bucket \
+  bundle exec rake cartodb:migrate_tables \
+    CARTODB_S3_BUCKET=resilienceatlas \
     CARTODB_VECTORS_S3_PREFIX=cartodb_exports/vectors/ \
     CARTODB_TABLES_S3_PREFIX=cartodb_exports/non-spatial/
 ```
 
-**Production server (run on the production host)**
+**Production server**
 
 ```bash
-source /opt/resilienceatlas/.env
-docker run --rm -it \
-  --network resilienceatlas-production_prod-network \
-  --env-file /opt/resilienceatlas/.env \
-  -e RAILS_ENV=production \
-  "$BACKEND_IMAGE" \
-  bundle exec rake cartodb:import_tables \
-    CARTODB_S3_BUCKET=my-backup-bucket \
-    CARTODB_VECTORS_S3_PREFIX=cartodb_exports/vectors/ \
-    CARTODB_TABLES_S3_PREFIX=cartodb_exports/non-spatial/
-```
-
----
-
-### `rake cartodb:update_layer_references`
-
-Finds every `Layer` row that was flagged by the migration:
-
-- `layer_provider IS NULL`
-- `published = false`
-- `query` is present (contains the original CartoDB SQL)
-
-For each such layer the task:
-
-1. **Parses** the `query` SQL to extract all `FROM` / `JOIN` table names.
-2. **Checks** which of those tables now exist in the local database.
-3. **Writes** a `cartodb_migration` block into `layer_config`:
-
-   ```json
-   {
-     "cartodb_migration": {
-       "status": "partial",
-       "tables": {
-         "sbtn_thresholds": "imported",
-         "ecoregions2017": "missing"
-       },
-       "note": "Set layer_provider and update layer_config, then set published=true."
-     }
-   }
-   ```
-
-4. **Cleans** the `query` field — removes CartoDB-internal columns
-   (`cartodb_id`, `the_geom_webmercator`, `the_geom`) so the SQL is valid
-   against local tables once a provider is configured.
-
-> All writes use `update_columns` to bypass model validations (necessary because
-> `layer_provider = NULL` fails the presence validation).  Layers remain
-> `published = false`.
-
-**Environment variables**
-
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `CARTODB_IMPORT_SCHEMA` | `ra_vector` | Schema that was used for import (must match `import_tables`) |
-
-```bash
-# Dev
-docker compose -f docker-compose.dev.yml run --rm backend \
-  rake cartodb:update_layer_references
-
-# Staging / production — source the env file first so $BACKEND_IMAGE is set
-source /opt/resilienceatlas/.env   # or .env.staging on the staging host
-docker run --rm -it \
-  --network resilienceatlas-production_prod-network \
-  --env-file /opt/resilienceatlas/.env \
-  -e RAILS_ENV=production \
-  "$BACKEND_IMAGE" \
-  bundle exec rake cartodb:update_layer_references
-```
-
----
-
-### `rake cartodb:migrate_tables` (combined)
-
-Runs `import_tables` then `update_layer_references` in a single command.  Accepts
-all environment variables from both sub-tasks.
-
-```bash
-# Dev
-docker compose -f docker-compose.dev.yml run --rm backend \
-  rake cartodb:migrate_tables \
-  CARTODB_S3_BUCKET=my-backup-bucket FORCE=1
-
-# Production
 source /opt/resilienceatlas/.env
 docker run --rm -it \
   --network resilienceatlas-production_prod-network \
@@ -292,31 +176,107 @@ docker run --rm -it \
   -e RAILS_ENV=production \
   "$BACKEND_IMAGE" \
   bundle exec rake cartodb:migrate_tables \
-    CARTODB_S3_BUCKET=my-backup-bucket \
+    CARTODB_S3_BUCKET=resilienceatlas \
     CARTODB_VECTORS_S3_PREFIX=cartodb_exports/vectors/ \
-    CARTODB_TABLES_S3_PREFIX=cartodb_exports/non-spatial/ \
-    FORCE=1
+    CARTODB_TABLES_S3_PREFIX=cartodb_exports/non-spatial/
+```
+
+**Environment variables accepted by `migrate_tables`**
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `CARTODB_S3_BUCKET` | _(required)_ | S3 bucket name |
+| `CARTODB_VECTORS_S3_PREFIX` | `cartodb_exports/vectors/` | S3 prefix for `.gpkg` vector files |
+| `CARTODB_TABLES_S3_PREFIX` | `cartodb_exports/non-spatial/` | S3 prefix for `.csv.gz` non-spatial files |
+| `CARTODB_IMPORT_SCHEMA` | `ra_vector` | Target PostgreSQL schema |
+| `S3_BUCKET` | `resilienceatlas` | S3 bucket for the converted COG `.tif` files |
+| `COG_PREFIX` | `cogs/` | S3 key prefix for COG files |
+| `FORCE` | _(unset)_ | Set to `1` to re-import tables that already exist |
+| `DRY_RUN` | _(unset)_ | Set to `1` on any sub-task to preview without saving |
+
+---
+
+## Repair tasks (standalone)
+
+The `fix_*` tasks are included in `migrate_tables` and do not need to be run
+separately as part of a normal migration.  They are available as standalone commands
+for targeted repairs — for example, if you need to re-translate colormaps without
+re-importing tables, or if you want to preview what would change before committing.
+
+```bash
+# Re-translate colormaps for all COG layers
+bundle exec rake cartodb:fix_cog_styles DRY_RUN=1
+bundle exec rake cartodb:fix_cog_styles
+
+# Rebuild body.sources for multi-table COG mosaic layers
+bundle exec rake cartodb:fix_cog_sources DRY_RUN=1
+bundle exec rake cartodb:fix_cog_sources
+
+# Store clip boundary polygons for ST_CLIP raster layers
+bundle exec rake cartodb:fix_cog_clip DRY_RUN=1
+bundle exec rake cartodb:fix_cog_clip
+
+# Set TiTiler point-query interaction_config for COG layers
+bundle exec rake cartodb:fix_cog_interactivity DRY_RUN=1
+bundle exec rake cartodb:fix_cog_interactivity
+
+# Strip ra_vector. prefix from Martin source IDs
+bundle exec rake cartodb:fix_martin_sources DRY_RUN=1
+bundle exec rake cartodb:fix_martin_sources
+
+# Backfill missing PathOptions styles for Martin layers
+bundle exec rake cartodb:fix_martin_styles DRY_RUN=1
+bundle exec rake cartodb:fix_martin_styles
+
+# Build click-popup field list from PostGIS table columns for Martin layers
+bundle exec rake cartodb:fix_martin_interactivity DRY_RUN=1
+bundle exec rake cartodb:fix_martin_interactivity FORCE=1   # overwrite existing configs
+bundle exec rake cartodb:fix_martin_interactivity
+```
+
+All tasks are idempotent — layers that are already correct are skipped.
+
+---
+
+## Phase 3 — Post-import one-time setup
+
+These tasks only need to be run **once** after the initial bulk import and are safe
+to skip on subsequent re-runs (they detect and skip work that is already done).
+
+### `rake cartodb:create_spatial_indices`
+
+Creates GiST spatial indices on all geometry columns in the `ra_vector` schema.
+Martin requires these indices to compute tile bounds at startup — without them it
+times out and drops sources.  `import_tables` creates indices automatically for new
+imports; this task backfills any tables that were imported before that step existed.
+
+```bash
+bundle exec rake cartodb:create_spatial_indices
+# then restart Martin so it picks up the new indices
+docker service update --force resilienceatlas-staging_martin
+```
+
+### `rake cartodb:fix_invalid_geometries`
+
+Repairs invalid or corrupt geometries in all `ra_vector` tables using
+`ST_MakeValid`.  Invalid geometries crash the PostGIS backend when Martin calls
+`ST_AsMVTGeom`, producing silent tile errors.  `import_tables` repairs geometries
+automatically; this task backfills older imports.
+
+```bash
+bundle exec rake cartodb:fix_invalid_geometries
 ```
 
 ---
 
+## Verification
+
 ### `rake cartodb:status`
 
-Re-checks table availability and prints a per-layer report without making any
-changes.  Use it to monitor progress or verify a completed migration.
+Prints a per-layer report of current migration state without making any changes.
 
 ```bash
-# Dev
-docker compose -f docker-compose.dev.yml run --rm backend rake cartodb:status
-
-# Production
-source /opt/resilienceatlas/.env
-docker run --rm -it \
-  --network resilienceatlas-production_prod-network \
-  --env-file /opt/resilienceatlas/.env \
-  -e RAILS_ENV=production \
-  "$BACKEND_IMAGE" \
-  bundle exec rake cartodb:status
+bundle exec rake cartodb:status
 ```
 
 Example output:
@@ -329,85 +289,85 @@ Example output:
 
   ✓ #42 sbtn-natural-land-exceedances
       ✓ public.sbtn_thresholds  (available)
-      ✗ public.ecoregions2017   (missing)
   ✗ #43 sbtn-nitrogen-dep-baselines
-      ✗ public.sbtn_thresholds  (missing)
       ✗ public.ecoregions2017   (missing)
 
-  All tables imported : 0
-  Partial             : 1
+  All tables imported : 1
+  Partial             : 0
   No tables yet       : 11
 ```
 
+Layers that remain `layer_provider = NULL` after `migrate_tables` either have missing
+source tables or are an unusual type that requires manual configuration in the admin UI.
+
 ---
 
-## Phase 3 — Operator review in the admin UI
+## Manual operator review (remaining layers)
 
-After running `migrate_tables`, each formerly CartoDB layer has:
+After running the full pipeline, any layer still showing `layer_provider = NULL` in
+`rake cartodb:status` needs manual attention in the Admin → Layers screen:
 
-- `published = false` — not visible to end users
-- `layer_config` — contains the `cartodb_migration` status block
-- `query` — CartoDB SQL with `cartodb_id` / `the_geom_webmercator` removed
-- `layer_provider` — still `NULL`
+1. Filter by `layer_provider IS NULL`.
+2. Examine `cartodb_migration.tables` in `layer_config` to see which tables are still missing.
+3. Decide the appropriate provider:
 
-The operator must configure each layer before republishing:
+   | Scenario | Provider | Notes |
+   |----------|---------|-------|
+   | Vector geometry served by Martin | `martin` | Ensure the table is in `ra_vector` |
+   | Raster COG on S3 | `cog` | Set `body.source` to the S3 URL |
+   | External WMS | `wms` | Set `body.url` |
 
-1. Open **Admin → Layers** and filter by `layer_provider IS NULL`.
-2. For each layer, examine `cartodb_migration.tables` in `layer_config` to see
-   which tables are available locally.
-3. Choose the appropriate new provider and update `layer_config`:
-
-   | Scenario | New provider | Notes |
-   |----------|-------------|-------|
-   | Geometry served by Martin tile server | `martin` | Point `layer_config` at the Martin endpoint |
-   | Raster file in S3 / COG | `cog` | Set `layer_config.tiles` |
-   | External WMS | `wms` | Set `layer_config.url` |
-
-4. Remove (or replace) the `cartodb_migration` key in `layer_config` once done.
-5. Set `published = true`.
-
-### Spatial tables (`ecoregions2017`, etc.)
-
-CartoDB spatial tables (geometry columns) are exported by `export_vectors_bash.sh`
-as `.gpkg` GeoPackage files and are imported directly by `rake cartodb:import_tables`
-into the `ra_vector` schema via `ogr2ogr`.  If a layer's `cartodb_migration.tables`
-shows a spatial table as `"missing"`, check that the corresponding `.gpkg` file
-exists on S3 at `CARTODB_VECTORS_S3_PREFIX` and that the table name matches the
-`{schema}_{table}.gpkg` filename convention.
+4. Set `published = true` when the configuration is complete.
 
 ---
 
 ## Troubleshooting
 
 **`No export source found`**  
-Set either `CARTODB_S3_BUCKET` (with valid AWS credentials) or
-`CARTODB_EXPORT_DIR` pointing to a directory that exists and contains `.csv.gz` files.
-
-**`aws CLI not found`**  
-The backend Docker image must have `awscli` installed, or mount the CSV.GZ files
-locally and use `CARTODB_EXPORT_DIR` instead.
+Set `CARTODB_S3_BUCKET` (with valid AWS credentials) or `CARTODB_EXPORT_DIR`
+pointing to a local directory with `.csv.gz` files.
 
 **Tables already in the database are skipped**  
-`import_tables` silently skips any table that already exists in `CARTODB_IMPORT_SCHEMA`.
-Pass `FORCE=1` to overwrite them instead.
-
-**`No formerly CartoDB layers found`**  
-The `update_layer_references` task only targets layers where
-`layer_provider IS NULL AND published = false AND query IS NOT NULL`.
-If all three conditions are not met (e.g. someone already set a provider),
-run `rake cartodb:status` to inspect the current state.
-
-**Re-running after adding more tables**  
-Both tasks are safe to re-run.  `import_tables` skips tables that are already
-present in the database; pass `FORCE=1` to overwrite them.
-`update_layer_references` will update `cartodb_migration.tables` with the latest availability.
+Pass `FORCE=1` to overwrite existing tables in `CARTODB_IMPORT_SCHEMA`.
 
 **`WARNING: referenced by layers but NOT found on S3`**  
-The task found table names in layer SQL queries that have no corresponding file
-(neither `.gpkg` at the vectors prefix nor `.csv.gz` at the tables prefix).  Either:
-- The `.gpkg` export for that table is missing — check `export_vectors_bash.sh status`
-  on the CartoDB server and re-run the export.
-- The table is non-spatial and the `.csv.gz` export is missing — check
-  `export_tables_bash.sh status` and re-run.
-- The S3 prefix env vars (`CARTODB_VECTORS_S3_PREFIX`, `CARTODB_TABLES_S3_PREFIX`)
-  do not match where the files were uploaded.
+The task found table names in layer SQL that have no corresponding file on S3.
+Check that the `.gpkg` or `.csv.gz` export for that table exists at the expected
+prefix and that the `CARTODB_VECTORS_S3_PREFIX` / `CARTODB_TABLES_S3_PREFIX` env
+vars match where the files were uploaded.
+
+**`No formerly CartoDB layers found`**  
+`update_layer_references` targets `layer_provider IS NULL AND published = false`.
+If someone already set a provider manually, use `rake cartodb:status` to inspect
+the current state.
+
+**Re-running after adding more tables**  
+All tasks are safe to re-run.  `import_tables` skips already-present tables
+(use `FORCE=1` to overwrite).  `update_layer_references` refreshes availability.
+`configure_cog_layers` and `configure_martin_layers` only process layers that are
+still `layer_provider = NULL`; the `fix_*` tasks process all layers of their type.
+
+**COG tiles render as scattered dots or wrong colours**  
+Run `rake cartodb:fix_cog_styles` — the colormap was likely stored in the wrong
+format for the layer's CartoDB coloriser mode (discrete, exact, or linear).
+
+**Martin layer tiles return 404**  
+Run `rake cartodb:fix_martin_sources` — `body.source` may contain an `ra_vector.`
+prefix that Martin does not recognise.
+
+**Multi-table COG layer shows only one region**  
+Run `rake cartodb:fix_cog_sources` — `body.sources` may be missing or incomplete.
+
+**Raster layer renders data outside the expected country boundary**  
+Run `rake cartodb:fix_cog_clip` — the layer uses `ST_CLIP` SQL but `body.clip_geometry`
+may not yet be stored.  Ensure the boundary table is present in the `ra_vector` schema
+(check with `rake cartodb:status`) then re-run the fix task.
+
+**Click popup shows nothing for a Martin vector layer**  
+Run `rake cartodb:fix_martin_interactivity` — `interaction_config` may be empty or missing.
+If the table has no non-geometry columns, the popup will always be empty by design.
+Use `FORCE=1` to overwrite an existing (possibly stale) config.
+
+**Click popup shows nothing for a COG raster layer**  
+Run `rake cartodb:fix_cog_interactivity` — `interaction_config` may be missing.
+Confirm the TiTiler service is reachable and the `titilerUrl` env var is set correctly.
