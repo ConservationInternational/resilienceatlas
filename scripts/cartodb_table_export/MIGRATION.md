@@ -9,7 +9,6 @@ referenced them.
 | **Export (vectors)** | CartoDB server (Ubuntu 12.04) | `export_vectors_bash.sh` |
 | **Export (non-spatial)** | CartoDB server (Ubuntu 12.04) | `export_tables_bash.sh` |
 | **Import + configure** | Rails app server / Docker | `rake cartodb:migrate_tables` |
-| **Repair** | Rails app server / Docker | `rake cartodb:fix_*` tasks |
 
 ---
 
@@ -119,25 +118,16 @@ Runs the full import, auto-configuration, and repair pipeline in a single comman
 
 ```
 import_tables → update_layer_references → configure_cog_layers → configure_martin_layers
-  → fix_cog_styles → fix_cog_sources → fix_cog_clip → fix_cog_interactivity
-  → fix_martin_sources → fix_martin_styles → fix_martin_interactivity
 ```
 
 | Step | What it does |
 |------|-------------|
 | `import_tables` | Downloads `.gpkg` vectors and `.csv.gz` tables from S3 and imports them into the `ra_vector` schema |
 | `update_layer_references` | Parses each layer's CartoDB SQL, records which tables are now available, identifies raster vs vector layers, and strips CartoDB-internal columns from the query |
-| `configure_cog_layers` | For raster-type layers: sets `layer_provider = "cog"`, builds `body.source` / `body.sources` pointing at the converted COGs on S3, translates CartoCSS stops to TiTiler colormap/rescale params, sets `interaction_config` for pixel value lookup, and publishes the layer |
-| `configure_martin_layers` | For vector-type layers: sets `layer_provider = "martin"`, builds `body.source = "<table>"`, translates CartoCSS to OpenLayers `PathOptions`, sets `interaction_config` from table columns, and publishes the layer when all tables are present |
-| `fix_cog_styles` | Re-translates CSS colormaps for **all** COG layers in the database (not just the ones configured in this run), ensuring correct `discrete`/`exact`/`linear` mode handling |
-| `fix_cog_sources` | Rebuilds `body.sources` for **all** multi-table COG mosaic layers |
-| `fix_cog_clip` | Extracts boundary polygons for raster layers that used CartoDB's `ST_CLIP` and stores a simplified GeoJSON in `body.clip_geometry`; the frontend passes this to TiTiler as the `feature` clip parameter |
-| `fix_cog_interactivity` | Backfills `interaction_config` (TiTiler `/cog/point` pixel-value lookup) for COG layers that are missing it |
-| `fix_martin_sources` | Strips any `ra_vector.` prefix from Martin `body.source` values |
-| `fix_martin_styles` | Backfills missing PathOptions styles for Martin layers that have no `styles` object |
-| `fix_martin_interactivity` | Builds `interaction_config` from PostGIS table columns for Martin layers; enables click popups that show feature attribute values directly from vector tile properties, with no HTTP round-trip |
+| `configure_cog_layers` | **Phase 1** — For newly-flagged raster layers: sets `layer_provider = "cog"`, builds `body.source` / `body.sources` pointing at the converted COGs on S3, translates CartoCSS stops to TiTiler colormap/rescale params, sets `interaction_config` for pixel value lookup, and publishes the layer. **Phase 2** — Repairs **all** existing COG layers: re-translates colormaps, rebuilds multi-table `body.sources`, backfills `body.clip_geometry` for ST_CLIP layers, and backfills `interaction_config`. |
+| `configure_martin_layers` | **Phase 1** — For newly-flagged vector layers: sets `layer_provider = "martin"`, builds `body.source = "<table>"`, translates CartoCSS to OpenLayers `PathOptions`, sets `interaction_config` from table columns, and publishes the layer when all tables are present. **Phase 2** — Repairs **all** existing Martin layers: strips any `ra_vector.` prefix from source IDs, backfills missing PathOptions styles, and rebuilds `interaction_config` from PostGIS table columns. |
 
-The repair steps (5–11) are idempotent and cover all layers already in the database, not
+Both configure tasks are idempotent and cover all layers already in the database, not
 just the ones configured in the current run.  Re-running `migrate_tables` at any time
 is safe and leaves the database in a fully consistent state.
 
@@ -196,45 +186,33 @@ docker run --rm -it \
 
 ---
 
-## Repair tasks (standalone)
+## Repair / targeted re-run
 
-The `fix_*` tasks are included in `migrate_tables` and do not need to be run
-separately as part of a normal migration.  They are available as standalone commands
-for targeted repairs — for example, if you need to re-translate colormaps without
-re-importing tables, or if you want to preview what would change before committing.
+The repair logic is built directly into `configure_cog_layers` and
+`configure_martin_layers` — there are no longer separate `fix_*` tasks.  Both
+tasks always run their full repair phase (Phase 2) regardless of whether they find
+new layers to configure in Phase 1.
+
+To re-run only the repair phase without a full import:
 
 ```bash
-# Re-translate colormaps for all COG layers
-bundle exec rake cartodb:fix_cog_styles DRY_RUN=1
-bundle exec rake cartodb:fix_cog_styles
+# Re-run COG repairs (colormaps, sources, clip geometry, interaction_config)
+bundle exec rake cartodb:configure_cog_layers
 
-# Rebuild body.sources for multi-table COG mosaic layers
-bundle exec rake cartodb:fix_cog_sources DRY_RUN=1
-bundle exec rake cartodb:fix_cog_sources
+# Preview COG repairs without saving
+bundle exec rake cartodb:configure_cog_layers DRY_RUN=1
 
-# Store clip boundary polygons for ST_CLIP raster layers
-bundle exec rake cartodb:fix_cog_clip DRY_RUN=1
-bundle exec rake cartodb:fix_cog_clip
+# Re-run Martin repairs (source IDs, styles, interaction_config)
+bundle exec rake cartodb:configure_martin_layers
 
-# Set TiTiler point-query interaction_config for COG layers
-bundle exec rake cartodb:fix_cog_interactivity DRY_RUN=1
-bundle exec rake cartodb:fix_cog_interactivity
+# Preview Martin repairs without saving
+bundle exec rake cartodb:configure_martin_layers DRY_RUN=1
 
-# Strip ra_vector. prefix from Martin source IDs
-bundle exec rake cartodb:fix_martin_sources DRY_RUN=1
-bundle exec rake cartodb:fix_martin_sources
-
-# Backfill missing PathOptions styles for Martin layers
-bundle exec rake cartodb:fix_martin_styles DRY_RUN=1
-bundle exec rake cartodb:fix_martin_styles
-
-# Build click-popup field list from PostGIS table columns for Martin layers
-bundle exec rake cartodb:fix_martin_interactivity DRY_RUN=1
-bundle exec rake cartodb:fix_martin_interactivity FORCE=1   # overwrite existing configs
-bundle exec rake cartodb:fix_martin_interactivity
+# Force-overwrite interaction_config on existing Martin layers
+bundle exec rake cartodb:configure_martin_layers FORCE=1
 ```
 
-All tasks are idempotent — layers that are already correct are skipped.
+All repair operations are idempotent — layers that are already correct are skipped.
 
 ---
 
@@ -344,30 +322,33 @@ the current state.
 **Re-running after adding more tables**  
 All tasks are safe to re-run.  `import_tables` skips already-present tables
 (use `FORCE=1` to overwrite).  `update_layer_references` refreshes availability.
-`configure_cog_layers` and `configure_martin_layers` only process layers that are
-still `layer_provider = NULL`; the `fix_*` tasks process all layers of their type.
+`configure_cog_layers` and `configure_martin_layers` configure layers that are still
+`layer_provider = NULL` (Phase 1) and repair all existing layers of their type (Phase 2).
 
 **COG tiles render as scattered dots or wrong colours**  
-Run `rake cartodb:fix_cog_styles` — the colormap was likely stored in the wrong
-format for the layer's CartoDB coloriser mode (discrete, exact, or linear).
+Run `rake cartodb:configure_cog_layers` — the colormap repair phase will re-translate
+all colormaps and correct any wrong `discrete`/`exact`/`linear` mode handling.
 
 **Martin layer tiles return 404**  
-Run `rake cartodb:fix_martin_sources` — `body.source` may contain an `ra_vector.`
-prefix that Martin does not recognise.
+Run `rake cartodb:configure_martin_layers` — the source-ID repair phase will strip any
+`ra_vector.` prefix from `body.source` values that Martin does not recognise.
 
 **Multi-table COG layer shows only one region**  
-Run `rake cartodb:fix_cog_sources` — `body.sources` may be missing or incomplete.
+Run `rake cartodb:configure_cog_layers` — the sources repair phase will rebuild
+`body.sources` for all multi-table COG mosaic layers.
 
 **Raster layer renders data outside the expected country boundary**  
-Run `rake cartodb:fix_cog_clip` — the layer uses `ST_CLIP` SQL but `body.clip_geometry`
-may not yet be stored.  Ensure the boundary table is present in the `ra_vector` schema
-(check with `rake cartodb:status`) then re-run the fix task.
+Run `rake cartodb:configure_cog_layers` — the clip geometry repair phase will extract
+boundary polygons for ST_CLIP layers and store them in `body.clip_geometry`.  Ensure
+the boundary table is present in the `ra_vector` schema (check with `rake cartodb:status`)
+before re-running.
 
 **Click popup shows nothing for a Martin vector layer**  
-Run `rake cartodb:fix_martin_interactivity` — `interaction_config` may be empty or missing.
-If the table has no non-geometry columns, the popup will always be empty by design.
-Use `FORCE=1` to overwrite an existing (possibly stale) config.
+Run `rake cartodb:configure_martin_layers FORCE=1` — the interactivity repair phase will
+rebuild `interaction_config` from PostGIS table columns.  If the table has no
+non-geometry columns, the popup will always be empty by design.
 
 **Click popup shows nothing for a COG raster layer**  
-Run `rake cartodb:fix_cog_interactivity` — `interaction_config` may be missing.
-Confirm the TiTiler service is reachable and the `titilerUrl` env var is set correctly.
+Run `rake cartodb:configure_cog_layers` — the interactivity repair phase will backfill
+`interaction_config` for any COG layers that are missing it.  Confirm the TiTiler
+service is reachable and the `titilerUrl` env var is set correctly.

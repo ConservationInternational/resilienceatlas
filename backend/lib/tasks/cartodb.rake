@@ -1347,373 +1347,589 @@ namespace :cartodb do
   # ---------------------------------------------------------------------------
 
   desc <<~DESC
-    Automatically configure raster-like CartoDB layers to use TiTiler-backed COGs.
+    Configure raster-like CartoDB layers to use TiTiler-backed COGs, then repair
+    all existing COG layers in the database.
 
-    For every layer flagged by update_layer_references with raster-style SQL/CSS:
+    Phase 1 — configure newly-flagged layers (layer_provider=NULL, published=false):
       - Sets layer_provider = "cog"
       - Builds layer_config with body.source/body.sources pointing at converted COGs
       - Translates legacy CartoCSS raster stops into TiTiler render params
       - Publishes the layer when at least one COG source can be inferred
 
-    Optional:
+    Phase 2 — repair all existing COG layers:
+      - Re-translates colormaps from original CartoCSS (fix_cog_styles)
+      - Rebuilds body.sources for multi-table COG mosaic layers (fix_cog_sources)
+      - Backfills clip geometry for ST_CLIP layers (fix_cog_clip)
+      - Sets TiTiler point-query interaction_config (fix_cog_interactivity)
+
+    Options:
       S3_BUCKET=<bucket>               Bucket containing converted COGs (default: resilienceatlas)
       COG_PREFIX=<prefix>              Prefix for converted COGs (default: cogs/)
+      CARTODB_IMPORT_SCHEMA=<schema>   Vector schema (default: ra_vector)
+      FORCE=1                          Overwrite existing interaction_config in Phase 2
       DRY_RUN=1                        Preview changes without saving
 
     Usage:
       rake cartodb:configure_cog_layers
       rake cartodb:configure_cog_layers DRY_RUN=1
+      rake cartodb:configure_cog_layers FORCE=1
   DESC
   task configure_cog_layers: :environment do
     s3_bucket = ENV.fetch("S3_BUCKET", "resilienceatlas")
     cog_prefix = ENV.fetch("COG_PREFIX", "cogs/")
     target_schema = ENV.fetch("CARTODB_IMPORT_SCHEMA", "ra_vector")
     dry_run = ENV["DRY_RUN"] == "1"
+    force = ENV["FORCE"] == "1"
+    ar_conn = ActiveRecord::Base.connection
 
     puts "DRY RUN — no changes will be saved.\n\n" if dry_run
 
-    candidates = Layer
-      .where(layer_provider: nil, published: false)
-      .where("layer_config LIKE '%cartodb_migration%'")
-      .order(:id)
-
-    if candidates.empty?
-      puts "No layers awaiting COG configuration. Nothing to do."
-      next
-    end
-
-    puts "Found #{candidates.count} layer(s) to review for COG configuration.\n\n"
+    # ── Phase 1: Configure newly-flagged COG layers ────────────────────────────
 
     configured_count = 0
     published_count = 0
     skipped_count = 0
 
-    candidates.each do |layer|
-      puts "Layer ##{layer.id} (#{layer.slug}):"
-
-      config = begin
-        layer.layer_config.present? ? JSON.parse(layer.layer_config) : {}
-      rescue JSON::ParserError
-        {}
-      end
-
-      migration = config["cartodb_migration"] || {}
-      source_sql = migration["source_sql"].presence || layer.query
-
-      unless CartodbRakeHelpers.raster_layer?(layer, source_sql)
-        puts "  - Not a raster-style CartoDB layer; leaving for Martin/manual handling."
-        skipped_count += 1
-        next
-      end
-
-      tables = migration["tables"] || {}
-      imported = tables.select { |_, status| status == "imported" }.keys
-      raster_tables = Array(migration["raster_tables"]).presence || (tables.keys - imported)
-
-      if raster_tables.empty?
-        puts "  - No raster COG tables inferred from migration metadata."
-        skipped_count += 1
-        next
-      end
-
-      sources = raster_tables.map do |table_name|
-        CartodbRakeHelpers.build_cog_source_url(s3_bucket, cog_prefix, table_name)
-      end
-
-      style = migration["style"].presence || CartodbRakeHelpers.translate_raster_css(layer.css)
-
-      body = {
-        "source" => sources.first,
-        "sources" => sources,
-        "options" => {
-          "interactive" => true,
-          "maxNativeZoom" => layer.zoom_max || 14
-        }
-      }
-      body["colormap"] = style["colormap"] if style["colormap"].present?
-      body["rescale"] = style["rescale"] if style["rescale"].present?
-      body["cartocss_mode"] = style["mode"] if style["mode"].present?
-
-      # Extract clip geometry for ST_CLIP layers (boundary polygon stored for TiTiler)
-      if source_sql.match?(/\bst_clip\s*\(/i)
-        clip_geom = CartodbRakeHelpers.extract_clip_geometry(
-          source_sql, ActiveRecord::Base.connection, target_schema
-        )
-        if clip_geom
-          body["clip_geometry"] = clip_geom
-          puts "  Clip     : #{clip_geom.dig("geometry", "type")} from #{CartodbRakeHelpers.extract_clip_info(source_sql)&.dig(:table)}"
-        else
-          puts "  Clip     : ST_CLIP detected but boundary table not available — skipped"
-        end
-      end
-
-      migration["status"] = "configured_cog"
-      migration["raster"] = true
-      migration["raster_tables"] = raster_tables
-      migration["style"] = style if style.present?
-
-      new_config = {
-        "type" => "tileLayer",
-        "body" => body,
-        "cartodb_migration" => migration
-      }
-
-      interaction_config = CartodbRakeHelpers.build_cog_interaction_config
-
-      puts "  Sources  : #{sources.join(", ")}"
-      puts "  Publish  : yes"
-
-      unless dry_run
-        layer.update_columns(
-          layer_provider: "cog",
-          layer_config: new_config.to_json,
-          interaction_config: interaction_config.to_json,
-          published: true
-        )
-      end
-
-      configured_count += 1
-      published_count += 1
-    end
-
-    puts "\n#{"=" * 56}"
-    puts "  COG Configuration#{dry_run ? " (DRY RUN)" : ""} — Summary"
-    puts "=" * 56
-    puts "  Configured : #{configured_count}"
-    puts "    Published : #{published_count}"
-    puts "  Skipped    : #{skipped_count}"
-  end
-
-  # ---------------------------------------------------------------------------
-
-  desc <<~DESC
-    Automatically configure imported CartoDB layers to use the Martin tile server.
-
-    For every layer flagged by update_layer_references (layer_provider=NULL,
-    published=false, cartodb_migration block present in layer_config):
-      - Sets layer_provider = "martin"
-      - Builds layer_config with body.source = "<schema>.<table>"
-      - Sets published = true when ALL referenced tables are imported
-      - Leaves published = false when some tables are still missing
-
-    Layers with no imported tables at all are skipped.
-
-    Options:
-      CARTODB_IMPORT_SCHEMA=<schema>  Schema used during import (default: ra_vector)
-      DRY_RUN=1                       Preview changes without saving
-
-    Usage:
-      rake cartodb:configure_martin_layers
-      rake cartodb:configure_martin_layers DRY_RUN=1
-  DESC
-  task configure_martin_layers: :environment do
-    target_schema = ENV.fetch("CARTODB_IMPORT_SCHEMA", "ra_vector")
-    dry_run = ENV["DRY_RUN"] == "1"
-
-    puts "DRY RUN — no changes will be saved.\n\n" if dry_run
-
-    ar_conn = ActiveRecord::Base.connection
-
     candidates = Layer
       .where(layer_provider: nil, published: false)
       .where("layer_config LIKE '%cartodb_migration%'")
       .order(:id)
 
     if candidates.empty?
-      puts "No layers awaiting Martin configuration. Nothing to do."
-      next
+      puts "No layers awaiting COG configuration."
+    else
+      puts "Found #{candidates.count} layer(s) to review for COG configuration.\n\n"
+
+      candidates.each do |layer|
+        puts "Layer ##{layer.id} (#{layer.slug}):"
+
+        config = begin
+          layer.layer_config.present? ? JSON.parse(layer.layer_config) : {}
+        rescue JSON::ParserError
+          {}
+        end
+
+        migration = config["cartodb_migration"] || {}
+        source_sql = migration["source_sql"].presence || layer.query
+
+        unless CartodbRakeHelpers.raster_layer?(layer, source_sql)
+          puts "  - Not a raster-style CartoDB layer; leaving for Martin/manual handling."
+          skipped_count += 1
+          next
+        end
+
+        tables = migration["tables"] || {}
+        imported = tables.select { |_, status| status == "imported" }.keys
+        raster_tables = Array(migration["raster_tables"]).presence || (tables.keys - imported)
+
+        if raster_tables.empty?
+          puts "  - No raster COG tables inferred from migration metadata."
+          skipped_count += 1
+          next
+        end
+
+        sources = raster_tables.map do |table_name|
+          CartodbRakeHelpers.build_cog_source_url(s3_bucket, cog_prefix, table_name)
+        end
+
+        style = migration["style"].presence || CartodbRakeHelpers.translate_raster_css(layer.css)
+
+        body = {
+          "source" => sources.first,
+          "sources" => sources,
+          "options" => {
+            "interactive" => true,
+            "maxNativeZoom" => layer.zoom_max || 14
+          }
+        }
+        body["colormap"] = style["colormap"] if style["colormap"].present?
+        body["rescale"] = style["rescale"] if style["rescale"].present?
+        body["cartocss_mode"] = style["mode"] if style["mode"].present?
+
+        # Extract clip geometry for ST_CLIP layers (boundary polygon stored for TiTiler)
+        if source_sql.match?(/\bst_clip\s*\(/i)
+          clip_geom = CartodbRakeHelpers.extract_clip_geometry(
+            source_sql, ar_conn, target_schema
+          )
+          if clip_geom
+            body["clip_geometry"] = clip_geom
+            puts "  Clip     : #{clip_geom.dig("geometry", "type")} from #{CartodbRakeHelpers.extract_clip_info(source_sql)&.dig(:table)}"
+          else
+            puts "  Clip     : ST_CLIP detected but boundary table not available — skipped"
+          end
+        end
+
+        migration["status"] = "configured_cog"
+        migration["raster"] = true
+        migration["raster_tables"] = raster_tables
+        migration["style"] = style if style.present?
+
+        new_config = {
+          "type" => "tileLayer",
+          "body" => body,
+          "cartodb_migration" => migration
+        }
+
+        interaction_config = CartodbRakeHelpers.build_cog_interaction_config
+
+        puts "  Sources  : #{sources.join(", ")}"
+        puts "  Publish  : yes"
+
+        unless dry_run
+          layer.update_columns(
+            layer_provider: "cog",
+            layer_config: new_config.to_json,
+            interaction_config: interaction_config.to_json,
+            published: true
+          )
+        end
+
+        configured_count += 1
+        published_count += 1
+      end
+
+      puts "\n#{"=" * 56}"
+      puts "  configure_cog_layers#{dry_run ? " (DRY RUN)" : ""} — Phase 1 Summary"
+      puts "=" * 56
+      puts "  Configured : #{configured_count}"
+      puts "    Published : #{published_count}"
+      puts "  Skipped    : #{skipped_count}"
     end
 
-    puts "Found #{candidates.count} layer(s) to configure.\n\n"
+    # ── Phase 2a: Re-translate colormaps for all existing COG layers ───────────
+
+    puts "\n── Re-translating COG colormaps ─────────────────────────────────────────"
+
+    cog_styles_updated = 0
+    cog_styles_skipped = 0
+    cog_styles_no_css   = 0
+
+    Layer.where(layer_provider: "cog").find_each do |layer|
+      config = begin
+        JSON.parse(layer.layer_config)
+      rescue
+        {}
+      end
+
+      if layer.css.blank?
+        if config.dig("body", "colormap").present?
+          cog_styles_skipped += 1
+        else
+          puts "Layer ##{layer.id} (#{layer.slug}): no CSS and no colormap — skipping"
+          cog_styles_no_css += 1
+        end
+        next
+      end
+
+      style = CartodbRakeHelpers.translate_raster_css(layer.css)
+
+      if style["colormap"].blank?
+        puts "Layer ##{layer.id} (#{layer.slug}): CSS yielded no colormap — skipping"
+        cog_styles_no_css += 1
+        next
+      end
+
+      puts "Layer ##{layer.id} (#{layer.slug}): #{style["colormap"].size} colormap entries, rescale=#{style["rescale"]}"
+
+      unless dry_run
+        config["body"]["colormap"] = style["colormap"]
+        if style["rescale"].present?
+          config["body"]["rescale"] = style["rescale"]
+        else
+          config["body"].delete("rescale")
+        end
+        config["body"]["cartocss_mode"] = style["mode"] if style["mode"].present?
+        config["cartodb_migration"] ||= {}
+        config["cartodb_migration"]["style"] = style
+        layer.update_column(:layer_config, config.to_json)
+      end
+
+      cog_styles_updated += 1
+    end
+
+    puts "  Updated : #{cog_styles_updated}"
+    puts "  Skipped : #{cog_styles_skipped} (no CSS, already has colormap)"
+    puts "  No CSS  : #{cog_styles_no_css} (CSS present but yielded no colormap)"
+
+    # ── Phase 2b: Rebuild body.sources for multi-table COG layers ─────────────
+
+    puts "\n── Rebuilding COG sources ───────────────────────────────────────────────"
+
+    cog_sources_updated = 0
+    cog_sources_skipped = 0
+    cog_sources_no_sql  = 0
+
+    Layer.where(layer_provider: "cog").find_each do |layer|
+      config = begin
+        JSON.parse(layer.layer_config)
+      rescue
+        {}
+      end
+
+      migration  = config["cartodb_migration"] || {}
+      source_sql = migration["source_sql"].to_s.strip
+
+      if source_sql.blank?
+        cog_sources_no_sql += 1
+        next
+      end
+
+      referenced = CartodbRakeHelpers.extract_table_names_from_sql(source_sql)
+
+      if referenced.empty?
+        cog_sources_no_sql += 1
+        next
+      end
+
+      local_vector  = referenced.select { |t| ar_conn.table_exists?("#{target_schema}.#{t}") }
+      raster_tables = referenced - local_vector
+
+      if raster_tables.empty?
+        puts "Layer ##{layer.id} (#{layer.slug}): no raster tables found — skipping"
+        cog_sources_no_sql += 1
+        next
+      end
+
+      sources = raster_tables.map { |t| CartodbRakeHelpers.build_cog_source_url(s3_bucket, cog_prefix, t) }
+
+      current_sources =
+        Array(config.dig("body", "sources")).presence ||
+        [config.dig("body", "source")].compact
+
+      if current_sources.sort == sources.sort
+        cog_sources_skipped += 1
+        next
+      end
+
+      puts "Layer ##{layer.id} (#{layer.slug}): #{raster_tables.size} raster table(s)"
+      puts "  Was: #{current_sources.join(", ")}"
+      puts "  Now: #{sources.join(", ")}"
+
+      unless dry_run
+        config["body"]["source"]  = sources.first
+        config["body"]["sources"] = sources
+        migration["raster_tables"] = raster_tables
+        config["cartodb_migration"] = migration
+
+        if source_sql.match?(/\bst_clip\s*\(/i)
+          clip_geom = CartodbRakeHelpers.extract_clip_geometry(source_sql, ar_conn, target_schema)
+          if clip_geom
+            config["body"]["clip_geometry"] = clip_geom
+            puts "  Clip     : #{clip_geom.dig("geometry", "type")} refreshed"
+          else
+            config["body"].delete("clip_geometry")
+          end
+        end
+
+        layer.update_column(:layer_config, config.to_json)
+      end
+
+      cog_sources_updated += 1
+    end
+
+    puts "  Updated : #{cog_sources_updated}"
+    puts "  Skipped : #{cog_sources_skipped} (sources already correct)"
+    puts "  No SQL  : #{cog_sources_no_sql} (no source SQL found)"
+
+    # ── Phase 2c: Backfill clip geometry for ST_CLIP COG layers ───────────────
+
+    puts "\n── Backfilling COG clip geometry ────────────────────────────────────────"
+
+    cog_clip_updated  = 0
+    cog_clip_skipped  = 0
+    cog_clip_no_clip  = 0
+
+    Layer.where(layer_provider: "cog").find_each do |layer|
+      config = begin
+        JSON.parse(layer.layer_config)
+      rescue
+        {}
+      end
+
+      migration  = config["cartodb_migration"] || {}
+      source_sql = migration["source_sql"].to_s.strip
+
+      unless source_sql.match?(/\bst_clip\s*\(/i)
+        cog_clip_no_clip += 1
+        next
+      end
+
+      clip_geom = CartodbRakeHelpers.extract_clip_geometry(source_sql, ar_conn, target_schema)
+
+      unless clip_geom
+        puts "Layer ##{layer.id} (#{layer.slug}): ST_CLIP detected but boundary unavailable"
+        cog_clip_skipped += 1
+        next
+      end
+
+      if config.dig("body", "clip_geometry") == clip_geom
+        cog_clip_skipped += 1
+        next
+      end
+
+      table = CartodbRakeHelpers.extract_clip_info(source_sql)&.dig(:table)
+      puts "Layer ##{layer.id} (#{layer.slug}): clip from #{table} → #{clip_geom.dig("geometry", "type")}"
+
+      unless dry_run
+        config["body"]["clip_geometry"] = clip_geom
+        layer.update_column(:layer_config, config.to_json)
+      end
+
+      cog_clip_updated += 1
+    end
+
+    puts "  Updated : #{cog_clip_updated}"
+    puts "  Skipped : #{cog_clip_skipped} (no change or boundary unavailable)"
+    puts "  No CLIP : #{cog_clip_no_clip} (no ST_CLIP in source SQL)"
+
+    # ── Phase 2d: Set TiTiler point-query interaction_config ──────────────────
+
+    puts "\n── Setting COG interaction_config ───────────────────────────────────────"
+
+    cog_ic_updated = 0
+    cog_ic_skipped = 0
+    cog_ic = CartodbRakeHelpers.build_cog_interaction_config
+
+    Layer.where(layer_provider: "cog").find_each do |layer|
+      if !force && layer.interaction_config.present? &&
+          layer.interaction_config != '{"output":[]}' &&
+          layer.interaction_config != '{"output": []}'
+        cog_ic_skipped += 1
+        next
+      end
+
+      puts "Layer ##{layer.id} (#{layer.slug})"
+
+      unless dry_run
+        layer.update_column(:interaction_config, cog_ic.to_json)
+      end
+
+      cog_ic_updated += 1
+    end
+
+    puts "  Updated : #{cog_ic_updated}"
+    puts "  Skipped : #{cog_ic_skipped} (already has interaction_config; use FORCE=1 to overwrite)"
+  end
+
+  # ---------------------------------------------------------------------------
+
+  desc <<~DESC
+    Configure imported CartoDB layers to use the Martin tile server, then repair
+    all existing Martin layers in the database.
+
+    Phase 1 — configure newly-flagged layers (layer_provider=NULL, published=false):
+      - Sets layer_provider = "martin"
+      - Builds layer_config with body.source = "<schema>.<table>"
+      - Sets published = true when ALL referenced tables are imported
+      - Leaves published = false when some tables are still missing
+
+    Phase 2 — repair all existing Martin layers:
+      - Strips ra_vector. prefix from body.source IDs (fix_martin_sources)
+      - Backfills missing OL PathOptions styles from CartoDB CSS (fix_martin_styles)
+      - Builds click popup field list from PostGIS table columns (fix_martin_interactivity)
+
+    Options:
+      CARTODB_IMPORT_SCHEMA=<schema>  Schema used during import (default: ra_vector)
+      FORCE=1                         Overwrite existing interaction_config in Phase 2
+      DRY_RUN=1                       Preview changes without saving
+
+    Usage:
+      rake cartodb:configure_martin_layers
+      rake cartodb:configure_martin_layers DRY_RUN=1
+      rake cartodb:configure_martin_layers FORCE=1
+  DESC
+  task configure_martin_layers: :environment do
+    target_schema = ENV.fetch("CARTODB_IMPORT_SCHEMA", "ra_vector")
+    dry_run = ENV["DRY_RUN"] == "1"
+    force = ENV["FORCE"] == "1"
+
+    puts "DRY RUN — no changes will be saved.\n\n" if dry_run
+
+    ar_conn = ActiveRecord::Base.connection
+
+    # ── Phase 1: Configure newly-flagged Martin layers ─────────────────────────
 
     configured_count = 0
     published_count = 0
     skipped_count = 0
     view_count = 0
 
-    candidates.each do |layer|
-      puts "Layer ##{layer.id} (#{layer.slug}):"
+    candidates = Layer
+      .where(layer_provider: nil, published: false)
+      .where("layer_config LIKE '%cartodb_migration%'")
+      .order(:id)
 
-      config = begin
-        layer.layer_config.present? ? JSON.parse(layer.layer_config) : {}
-      rescue JSON::ParserError
-        {}
-      end
+    if candidates.empty?
+      puts "No layers awaiting Martin configuration."
+    else
+      puts "Found #{candidates.count} layer(s) to configure.\n\n"
 
-      migration = config["cartodb_migration"]
-      unless migration
-        puts "  ⚠  No cartodb_migration block — skipping."
-        skipped_count += 1
-        next
-      end
+      candidates.each do |layer|
+        puts "Layer ##{layer.id} (#{layer.slug}):"
 
-      if migration["raster"]
-        puts "  - Raster-like layer detected; use configure_cog_layers instead."
-        skipped_count += 1
-        next
-      end
+        config = begin
+          layer.layer_config.present? ? JSON.parse(layer.layer_config) : {}
+        rescue JSON::ParserError
+          {}
+        end
 
-      tables = migration["tables"] || {}
-      imported = tables.select { |_, v| v == "imported" }.keys
-      missing = tables.select { |_, v| v == "missing" }.keys
+        migration = config["cartodb_migration"]
+        unless migration
+          puts "  ⚠  No cartodb_migration block — skipping."
+          skipped_count += 1
+          next
+        end
 
-      if imported.empty?
-        puts "  ✗  No imported tables yet — skipping."
-        skipped_count += 1
-        next
-      end
+        if migration["raster"]
+          puts "  - Raster-like layer detected; use configure_cog_layers instead."
+          skipped_count += 1
+          next
+        end
 
-      primary_table = imported.first
-      all_ready = missing.empty?
+        tables = migration["tables"] || {}
+        imported = tables.select { |_, v| v == "imported" }.keys
+        missing = tables.select { |_, v| v == "missing" }.keys
 
-      # ── Determine Martin source ──────────────────────────────────────────
-      #
-      # Simple single-table layers (no WHERE/JOIN complexity) → point directly
-      # at the table; Martin streams the whole PostGIS table as vector tiles.
-      #
-      # Anything with WHERE filters, JOINs, or multiple imported tables → create
-      # a PostgreSQL view that preserves the original query logic.  The view is
-      # only created when ALL referenced tables are available (all_ready); when
-      # some are still missing we fall back to the primary table until everything
-      # is imported.
+        if imported.empty?
+          puts "  ✗  No imported tables yet — skipping."
+          skipped_count += 1
+          next
+        end
 
-      needs_view = all_ready &&
-        (imported.size > 1 || CartodbRakeHelpers.needs_view?(layer.query))
+        primary_table = imported.first
+        all_ready = missing.empty?
 
-      source = if needs_view && layer.query.present?
-        view_name = "v_layer_#{layer.id}"
+        # ── Determine Martin source ──────────────────────────────────────────
+        #
+        # Simple single-table layers (no WHERE/JOIN complexity) → point directly
+        # at the table; Martin streams the whole PostGIS table as vector tiles.
+        #
+        # Anything with WHERE filters, JOINs, or multiple imported tables → create
+        # a PostgreSQL view that preserves the original query logic.  The view is
+        # only created when ALL referenced tables are available (all_ready); when
+        # some are still missing we fall back to the primary table until everything
+        # is imported.
 
-        # Schema-qualify all FROM/JOIN table references in the cleaned query
-        view_sql = CartodbRakeHelpers.qualify_table_names_in_sql(
-          layer.query, target_schema, imported
-        )
+        needs_view = all_ready &&
+          (imported.size > 1 || CartodbRakeHelpers.needs_view?(layer.query))
 
-        # update_layer_references stripped the_geom via strip_cartodb_columns.
-        # For a wildcard SELECT (*) the geometry column comes through anyway;
-        # for explicit column lists we must add it back so Martin can generate
-        # vector tiles.  Use the alias of the primary table when one is present.
-        unless view_sql.match?(/SELECT\s+\*/i) || view_sql.match?(/\bthe_geom\b|\bgeom\b/i)
-          alias_match = layer.query.match(
-            /\b(?:FROM|JOIN)\s+#{Regexp.escape(primary_table)}\s+(?:AS\s+)?(\w+)\b/i
+        source = if needs_view && layer.query.present?
+          view_name = "v_layer_#{layer.id}"
+
+          # Schema-qualify all FROM/JOIN table references in the cleaned query
+          view_sql = CartodbRakeHelpers.qualify_table_names_in_sql(
+            layer.query, target_schema, imported
           )
-          geom_ref = alias_match ? "#{alias_match[1]}.the_geom"
-                                 : "#{target_schema}.#{primary_table}.the_geom"
-          view_sql = view_sql.sub(/\bSELECT\s+/i, "SELECT #{geom_ref}, ")
-        end
 
-        create_ddl = "CREATE OR REPLACE VIEW " \
-                     "#{target_schema}.#{view_name} AS #{view_sql}"
-
-        puts "  View     : #{target_schema}.#{view_name}"
-        puts "  SQL      : #{view_sql}"
-
-        if dry_run
-          view_name
-        else
-          begin
-            ar_conn.execute(create_ddl)
-            puts "  ✓ View created."
-            view_count += 1
-            view_name
-          rescue => e
-            warn "  ✗ View creation failed: #{e.message}"
-            warn "    Falling back to direct table reference."
-            primary_table
+          # update_layer_references stripped the_geom via strip_cartodb_columns.
+          # For a wildcard SELECT (*) the geometry column comes through anyway;
+          # for explicit column lists we must add it back so Martin can generate
+          # vector tiles.  Use the alias of the primary table when one is present.
+          unless view_sql.match?(/SELECT\s+\*/i) || view_sql.match?(/\bthe_geom\b|\bgeom\b/i)
+            alias_match = layer.query.match(
+              /\b(?:FROM|JOIN)\s+#{Regexp.escape(primary_table)}\s+(?:AS\s+)?(\w+)\b/i
+            )
+            geom_ref = alias_match ? "#{alias_match[1]}.the_geom"
+                                   : "#{target_schema}.#{primary_table}.the_geom"
+            view_sql = view_sql.sub(/\bSELECT\s+/i, "SELECT #{geom_ref}, ")
           end
+
+          create_ddl = "CREATE OR REPLACE VIEW " \
+                       "#{target_schema}.#{view_name} AS #{view_sql}"
+
+          puts "  View     : #{target_schema}.#{view_name}"
+          puts "  SQL      : #{view_sql}"
+
+          if dry_run
+            view_name
+          else
+            begin
+              ar_conn.execute(create_ddl)
+              puts "  ✓ View created."
+              view_count += 1
+              view_name
+            rescue => e
+              warn "  ✗ View creation failed: #{e.message}"
+              warn "    Falling back to direct table reference."
+              primary_table
+            end
+          end
+        else
+          # Could not create a view — either simple single-table select, or
+          # some tables are still missing.  For the latter case, print the SQL
+          # and stash it in the migration block so it is not lost when we retry.
+          if !all_ready && layer.query.present? &&
+              (imported.size > 1 || CartodbRakeHelpers.needs_view?(layer.query))
+            puts "  ⚠  Cannot create view yet (missing tables). Original SQL:"
+            puts "     #{layer.query}"
+            migration = migration.merge("pending_view_sql" => layer.query)
+          end
+
+          primary_table
         end
-      else
-        # Could not create a view — either simple single-table select, or
-        # some tables are still missing.  For the latter case, print the SQL
-        # and stash it in the migration block so it is not lost when we retry.
-        if !all_ready && layer.query.present? &&
-            (imported.size > 1 || CartodbRakeHelpers.needs_view?(layer.query))
-          puts "  ⚠  Cannot create view yet (missing tables). Original SQL:"
-          puts "     #{layer.query}"
-          migration = migration.merge("pending_view_sql" => layer.query)
-        end
 
-        primary_table
-      end
+        puts "  Source   : #{source}"
+        puts "  Missing  : #{missing.join(", ")}" if missing.any?
+        puts "  Publish  : #{all_ready ? "yes" : "no (missing tables)"}"
 
-      puts "  Source   : #{source}"
-      puts "  Missing  : #{missing.join(", ")}" if missing.any?
-      puts "  Publish  : #{all_ready ? "yes" : "no (missing tables)"}"
+        # Translate CartoDB CSS to OL PathOptions for the styles block
+        raw_styles = CartodbRakeHelpers.translate_vector_css(layer.css)
+        default_styles = raw_styles.present? ? {source => raw_styles} : {}
+        puts "  Styles   : #{raw_styles.present? ? "translated from CSS" : "none (no CSS)"}"
 
-      # Translate CartoDB CSS to OL PathOptions for the styles block
-      raw_styles = CartodbRakeHelpers.translate_vector_css(layer.css)
-      default_styles = raw_styles.present? ? {source => raw_styles} : {}
-      puts "  Styles   : #{raw_styles.present? ? "translated from CSS" : "none (no CSS)"}"
+        # Build interaction_config from PostGIS table columns.
+        # The OL frontend reads feature properties directly from the vector tile on click,
+        # so no config.url is needed — just the output field list.
+        table_for_ic = source.sub(/\Av_layer_\d+\z/, primary_table)
+        martin_ic = CartodbRakeHelpers.build_martin_interaction_config(
+          table_for_ic, ar_conn, target_schema
+        )
+        puts "  Interact : #{martin_ic ? "#{martin_ic["output"].size} columns" : "none"}"
 
-      # Build interaction_config from PostGIS table columns.
-      # The OL frontend reads feature properties directly from the vector tile on click,
-      # so no config.url is needed — just the output field list.
-      table_for_ic = source.sub(/\Av_layer_\d+\z/, primary_table)
-      martin_ic = CartodbRakeHelpers.build_martin_interaction_config(
-        table_for_ic, ar_conn, target_schema
-      )
-      puts "  Interact : #{martin_ic ? "#{martin_ic["output"].size} columns" : "none"}"
-
-      new_config = {
-        "body" => {
-          "source" => source,
-          "styles" => default_styles,
-          "options" => {"interactive" => true, "maxNativeZoom" => 14}
-        },
-        "cartodb_migration" => migration
-      }
-
-      unless dry_run
-        update_attrs = {
-          layer_provider: "martin",
-          layer_config: new_config.to_json,
-          published: all_ready
+        new_config = {
+          "body" => {
+            "source" => source,
+            "styles" => default_styles,
+            "options" => {"interactive" => true, "maxNativeZoom" => 14}
+          },
+          "cartodb_migration" => migration
         }
-        update_attrs[:interaction_config] = martin_ic.to_json if martin_ic
-        layer.update_columns(**update_attrs)
+
+        unless dry_run
+          update_attrs = {
+            layer_provider: "martin",
+            layer_config: new_config.to_json,
+            published: all_ready
+          }
+          update_attrs[:interaction_config] = martin_ic.to_json if martin_ic
+          layer.update_columns(**update_attrs)
+        end
+
+        configured_count += 1
+        published_count += 1 if all_ready
       end
 
-      configured_count += 1
-      published_count += 1 if all_ready
+      puts "\n#{"=" * 56}"
+      puts "  configure_martin_layers#{dry_run ? " (DRY RUN)" : ""} — Phase 1 Summary"
+      puts "=" * 56
+      puts "  Configured : #{configured_count}"
+      puts "    Published   : #{published_count}"
+      puts "    Unpublished : #{configured_count - published_count} (missing tables)"
+      puts "  Skipped    : #{skipped_count}"
+      puts "  Views created: #{view_count}" unless dry_run
+
+      if configured_count - published_count > 0
+        puts "\n  To pick up layers with missing tables:"
+        puts "  Re-run import_tables → update_layer_references → configure_martin_layers"
+      end
     end
 
-    puts "\n#{"=" * 56}"
-    puts "  Martin Configuration#{dry_run ? " (DRY RUN)" : ""} — Summary"
-    puts "=" * 56
-    puts "  Configured : #{configured_count}"
-    puts "    Published   : #{published_count}"
-    puts "    Unpublished : #{configured_count - published_count} (missing tables)"
-    puts "  Skipped    : #{skipped_count}"
-    puts "  Views created: #{view_count}" unless dry_run
+    # ── Phase 2a: Strip ra_vector. prefix from Martin source IDs ──────────────
 
-    if configured_count - published_count > 0
-      puts "\n  To pick up layers with missing tables:"
-      puts "  Re-run import_tables → update_layer_references → configure_martin_layers"
-    end
-  end
+    puts "\n── Fixing Martin source IDs ─────────────────────────────────────────────"
 
-  # ---------------------------------------------------------------------------
-
-  desc <<~DESC
-    Fix Martin source IDs in existing layer_configs.
-
-    Martin auto-discovers PostgreSQL tables and registers them by bare table name
-    (e.g. "grp_africa_livelihoods"), NOT by schema-qualified name
-    ("ra_vector.grp_africa_livelihoods").  If configure_martin_layers was run
-    before this fix was applied, the layer_config body.source values will have
-    an incorrect "ra_vector." prefix, causing all tile requests to 404.
-
-    This task strips the prefix from every affected layer and is safe to re-run.
-
-    Usage:
-      rake cartodb:fix_martin_sources
-      rake cartodb:fix_martin_sources DRY_RUN=1
-  DESC
-  task fix_martin_sources: :environment do
-    dry_run = ENV["DRY_RUN"] == "1"
-    puts "DRY RUN — no changes will be saved.\n\n" if dry_run
-
-    fixed = 0
-    skipped = 0
+    martin_sources_fixed   = 0
+    martin_sources_skipped = 0
 
     Layer.where(layer_provider: "martin")
       .where("layer_config LIKE '%cartodb_migration%'").find_each do |layer|
@@ -1725,7 +1941,7 @@ namespace :cartodb do
       source = config.dig("body", "source").to_s
 
       unless source.start_with?("ra_vector.")
-        skipped += 1
+        martin_sources_skipped += 1
         next
       end
 
@@ -1737,43 +1953,20 @@ namespace :cartodb do
         layer.update_column(:layer_config, config.to_json)
       end
 
-      fixed += 1
+      martin_sources_fixed += 1
     end
 
-    puts "\n#{"=" * 56}"
-    puts "  fix_martin_sources#{dry_run ? " (DRY RUN)" : ""} — Summary"
-    puts "=" * 56
-    puts "  Fixed   : #{fixed}"
-    puts "  Skipped : #{skipped} (already correct)"
-    puts "\nRestart Martin if any sources were fixed: docker service update --force <stack>_martin" if fixed > 0 && !dry_run
-  end
+    puts "  Fixed   : #{martin_sources_fixed}"
+    puts "  Skipped : #{martin_sources_skipped} (already correct)"
+    puts "  Restart Martin if any sources were fixed: docker service update --force <stack>_martin" if martin_sources_fixed > 0 && !dry_run
 
-  # ---------------------------------------------------------------------------
+    # ── Phase 2b: Backfill missing OL PathOptions styles ──────────────────────
 
-  desc <<~DESC
-    Populate missing styles in martin layer configs by translating CartoDB CSS.
+    puts "\n── Backfilling Martin styles ─────────────────────────────────────────────"
 
-    Layers migrated before CSS translation was added have an empty `styles: {}`
-    in their layer_config, which causes the OpenLayers plugin to render nothing.
-    This task reads the original CartoDB CSS from each layer and converts it to
-    OL PathOptions format (color, weight, fillColor, fillOpacity, conditions).
-
-    Layers that already have a non-empty styles object are left unchanged.
-
-    Optional:
-      DRY_RUN=1   Print what would change without saving
-
-    Usage:
-      rake cartodb:fix_martin_styles
-      rake cartodb:fix_martin_styles DRY_RUN=1
-  DESC
-  task fix_martin_styles: :environment do
-    dry_run = ENV["DRY_RUN"] == "1"
-    puts "DRY RUN — no changes will be saved.\n\n" if dry_run
-
-    updated = 0
-    skipped = 0
-    no_css = 0
+    martin_styles_updated = 0
+    martin_styles_skipped = 0
+    martin_styles_no_css  = 0
 
     Layer.where(layer_provider: "martin")
       .where("layer_config LIKE '%cartodb_migration%'").find_each do |layer|
@@ -1786,20 +1979,20 @@ namespace :cartodb do
       styles = config.dig("body", "styles")
 
       if styles.present? && styles != {}
-        skipped += 1
+        martin_styles_skipped += 1
         next
       end
 
       if layer.css.blank?
         puts "Layer ##{layer.id} (#{layer.slug}): no CSS — skipping"
-        no_css += 1
+        martin_styles_no_css += 1
         next
       end
 
       translated = CartodbRakeHelpers.translate_vector_css(layer.css)
       if translated.blank?
         puts "Layer ##{layer.id} (#{layer.slug}): CSS yielded no usable styles — skipping"
-        no_css += 1
+        martin_styles_no_css += 1
         next
       end
 
@@ -1811,343 +2004,27 @@ namespace :cartodb do
         layer.update_column(:layer_config, config.to_json)
       end
 
-      updated += 1
+      martin_styles_updated += 1
     end
 
-    puts "\n#{"=" * 56}"
-    puts "  fix_martin_styles#{dry_run ? " (DRY RUN)" : ""} — Summary"
-    puts "=" * 56
-    puts "  Updated : #{updated}"
-    puts "  Skipped : #{skipped} (already have styles)"
-    puts "  No CSS  : #{no_css} (no CSS or unrecognised CSS)"
-  end
+    puts "  Updated : #{martin_styles_updated}"
+    puts "  Skipped : #{martin_styles_skipped} (already have styles)"
+    puts "  No CSS  : #{martin_styles_no_css} (no CSS or unrecognised CSS)"
 
-  # ---------------------------------------------------------------------------
+    # ── Phase 2c: Build interaction_config from PostGIS table columns ──────────
 
-  desc <<~DESC
-    Re-translate CartoDB raster CSS into TiTiler colormap/rescale for all COG layers.
+    puts "\n── Building Martin interaction_config ───────────────────────────────────"
 
-    Runs translate_raster_css against every COG layer's original CSS and
-    overwrites body.colormap, body.rescale, and body.cartocss_mode.  The CSS is
-    the authoritative source; any previously stored colormap is replaced.
-
-    Layers with no CSS and no existing colormap are reported as skipped.
-
-    Correctly handles all CartoDB coloriser modes:
-      linear   — gradient dict colormap {"key": [r,g,b,a]} with rescale
-      discrete — interval array [[[lower,upper],[r,g,b,a]],...] without rescale
-      exact    — interval array spanning one unit per stop, without rescale
-
-    Optional:
-      DRY_RUN=1   Print what would change without saving
-
-    Usage:
-      rake cartodb:fix_cog_styles
-      rake cartodb:fix_cog_styles DRY_RUN=1
-  DESC
-  task fix_cog_styles: :environment do
-    dry_run = ENV["DRY_RUN"] == "1"
-    puts "DRY RUN — no changes will be saved.\n\n" if dry_run
-
-    updated = 0
-    skipped = 0
-    no_css = 0
-
-    Layer.where(layer_provider: "cog").find_each do |layer|
-      config = begin
-        JSON.parse(layer.layer_config)
-      rescue
-        {}
-      end
-      if layer.css.blank?
-        existing_colormap = config.dig("body", "colormap")
-        if existing_colormap.present?
-          skipped += 1  # no CSS but already has a colormap — leave it alone
-        else
-          puts "Layer ##{layer.id} (#{layer.slug}): no CSS and no colormap — skipping"
-          no_css += 1
-        end
-        next
-      end
-
-      style = CartodbRakeHelpers.translate_raster_css(layer.css)
-
-      if style["colormap"].blank?
-        puts "Layer ##{layer.id} (#{layer.slug}): CSS yielded no colormap — skipping"
-        no_css += 1
-        next
-      end
-
-      puts "Layer ##{layer.id} (#{layer.slug}): #{style["colormap"].size} colormap entries, rescale=#{style["rescale"]}"
-
-      unless dry_run
-        config["body"]["colormap"] = style["colormap"]
-        # Interval colormaps (discrete/exact) don't use rescale; remove any
-        # stale rescale value left from a previous linear-mode migration.
-        if style["rescale"].present?
-          config["body"]["rescale"] = style["rescale"]
-        else
-          config["body"].delete("rescale")
-        end
-        config["body"]["cartocss_mode"] = style["mode"] if style["mode"].present?
-        # Persist the translated style into cartodb_migration so re-runs are stable
-        config["cartodb_migration"] ||= {}
-        config["cartodb_migration"]["style"] = style
-        layer.update_column(:layer_config, config.to_json)
-      end
-
-      updated += 1
-    end
-
-    puts "\n#{"=" * 56}"
-    puts "  fix_cog_styles#{dry_run ? " (DRY RUN)" : ""} — Summary"
-    puts "=" * 56
-    puts "  Updated : #{updated}"
-    puts "  Skipped : #{skipped} (no CSS, no existing colormap)"
-    puts "  No CSS  : #{no_css} (CSS present but yielded no colormap)"
-  end
-
-  # ---------------------------------------------------------------------------
-
-  desc <<~DESC
-    Ensure every COG layer has the correct body.sources array for multi-table layers.
-
-    For layers whose original CartoDB SQL used UNION across multiple raster tables
-    (e.g. SELECT … FROM table_a UNION SELECT … FROM table_b), each table becomes
-    an independent COG on S3.  The frontend renders them as a geographic mosaic via
-    a separate TiTiler /cog/tiles/ request per source.
-
-    This task re-derives the raster table list from source_sql stored in
-    cartodb_migration, excludes any tables that exist locally in the vector schema
-    (vector boundary tables used with ST_CLIP), and rebuilds body.source /
-    body.sources accordingly.
-
-    Run after every bulk migration and whenever COG sources may be incomplete.
-
-    Options:
-      S3_BUCKET=<name>              S3 bucket (default: resilienceatlas)
-      COG_PREFIX=<prefix>           S3 key prefix  (default: cogs/)
-      CARTODB_IMPORT_SCHEMA=<name>  Vector schema   (default: ra_vector)
-      DRY_RUN=1                     Print changes without writing
-
-    Usage:
-      rake cartodb:fix_cog_sources
-      rake cartodb:fix_cog_sources DRY_RUN=1
-  DESC
-  task fix_cog_sources: :environment do
-    s3_bucket = ENV.fetch("S3_BUCKET", "resilienceatlas")
-    cog_prefix = ENV.fetch("COG_PREFIX", "cogs/")
-    target_schema = ENV.fetch("CARTODB_IMPORT_SCHEMA", "ra_vector")
-    dry_run = ENV["DRY_RUN"] == "1"
-
-    ar_conn = ActiveRecord::Base.connection
-
-    updated = 0
-    skipped = 0
-    no_sql = 0
-
-    Layer.where(layer_provider: "cog").find_each do |layer|
-      config = begin
-        JSON.parse(layer.layer_config)
-      rescue
-        {}
-      end
-      migration = config["cartodb_migration"] || {}
-      source_sql = migration["source_sql"].to_s.strip
-
-      if source_sql.blank?
-        no_sql += 1
-        next
-      end
-
-      referenced = CartodbRakeHelpers.extract_table_names_from_sql(source_sql)
-
-      if referenced.empty?
-        no_sql += 1
-        next
-      end
-
-      # Tables that exist locally in the vector schema are boundary/clip helpers,
-      # not raster tiles — exclude them from the COG source list.
-      local_vector = referenced.select { |t| ar_conn.table_exists?("#{target_schema}.#{t}") }
-      raster_tables = referenced - local_vector
-
-      if raster_tables.empty?
-        puts "Layer ##{layer.id} (#{layer.slug}): no raster tables found — skipping"
-        no_sql += 1
-        next
-      end
-
-      sources = raster_tables.map { |t| CartodbRakeHelpers.build_cog_source_url(s3_bucket, cog_prefix, t) }
-
-      current_sources =
-        Array(config.dig("body", "sources")).presence ||
-        [config.dig("body", "source")].compact
-
-      if current_sources.sort == sources.sort
-        skipped += 1
-        next
-      end
-
-      puts "Layer ##{layer.id} (#{layer.slug}): #{raster_tables.size} raster table(s)"
-      puts "  Was: #{current_sources.join(", ")}"
-      puts "  Now: #{sources.join(", ")}"
-
-      unless dry_run
-        config["body"]["source"] = sources.first
-        config["body"]["sources"] = sources
-        migration["raster_tables"] = raster_tables
-        config["cartodb_migration"] = migration
-
-        # Also refresh clip geometry whenever sources are updated
-        if source_sql.match?(/\bst_clip\s*\(/i)
-          clip_geom = CartodbRakeHelpers.extract_clip_geometry(
-            source_sql, ar_conn, target_schema
-          )
-          if clip_geom
-            config["body"]["clip_geometry"] = clip_geom
-            puts "  Clip     : #{clip_geom.dig("geometry", "type")} refreshed"
-          else
-            config["body"].delete("clip_geometry")
-          end
-        end
-
-        layer.update_column(:layer_config, config.to_json)
-      end
-
-      updated += 1
-    end
-
-    puts "\n#{"=" * 56}"
-    puts "  fix_cog_sources#{dry_run ? " (DRY RUN)" : ""} — Summary"
-    puts "=" * 56
-    puts "  Updated : #{updated}"
-    puts "  Skipped : #{skipped} (sources already correct)"
-    puts "  No SQL  : #{no_sql} (no source SQL found)"
-  end
-
-  # ---------------------------------------------------------------------------
-
-  desc <<~DESC
-    Backfill clip geometry for COG layers that use ST_CLIP boundary tables.
-
-    For layers whose original CartoDB SQL clipped the raster to a vector boundary
-    (e.g. WITH geom AS (SELECT ... FROM country_boundary)), this task extracts
-    the boundary polygon from the ra_vector schema, simplifies it, and stores
-    it as body.clip_geometry in the layer_config.
-
-    The frontend passes clip_geometry to TiTiler as the `feature` query parameter,
-    which clips the rendered tile to the boundary shape.
-
-    Safe to re-run — only layers with ST_CLIP SQL and an available boundary table
-    are updated; layers without ST_CLIP are untouched.
-
-    Options:
-      CARTODB_IMPORT_SCHEMA=<name>  Vector schema (default: ra_vector)
-      DRY_RUN=1                     Print changes without writing
-
-    Usage:
-      rake cartodb:fix_cog_clip
-      rake cartodb:fix_cog_clip DRY_RUN=1
-  DESC
-  task fix_cog_clip: :environment do
-    target_schema = ENV.fetch("CARTODB_IMPORT_SCHEMA", "ra_vector")
-    dry_run = ENV["DRY_RUN"] == "1"
-    ar_conn = ActiveRecord::Base.connection
-
-    puts "DRY RUN — no changes will be saved.\n\n" if dry_run
-
-    updated = 0
-    skipped = 0
-    no_clip = 0
-
-    Layer.where(layer_provider: "cog").find_each do |layer|
-      config = begin
-        JSON.parse(layer.layer_config)
-      rescue
-        {}
-      end
-      migration = config["cartodb_migration"] || {}
-      source_sql = migration["source_sql"].to_s.strip
-
-      unless source_sql.match?(/\bst_clip\s*\(/i)
-        no_clip += 1
-        next
-      end
-
-      clip_geom = CartodbRakeHelpers.extract_clip_geometry(source_sql, ar_conn, target_schema)
-
-      unless clip_geom
-        puts "Layer ##{layer.id} (#{layer.slug}): ST_CLIP detected but boundary unavailable"
-        skipped += 1
-        next
-      end
-
-      current = config.dig("body", "clip_geometry")
-      if current == clip_geom
-        skipped += 1
-        next
-      end
-
-      table = CartodbRakeHelpers.extract_clip_info(source_sql)&.dig(:table)
-      puts "Layer ##{layer.id} (#{layer.slug}): clip from #{table} → #{clip_geom.dig("geometry", "type")}"
-
-      unless dry_run
-        config["body"]["clip_geometry"] = clip_geom
-        layer.update_column(:layer_config, config.to_json)
-      end
-
-      updated += 1
-    end
-
-    puts "\n#{"=" * 56}"
-    puts "  fix_cog_clip#{dry_run ? " (DRY RUN)" : ""} — Summary"
-    puts "=" * 56
-    puts "  Updated : #{updated}"
-    puts "  Skipped : #{skipped} (no change or boundary unavailable)"
-    puts "  No CLIP : #{no_clip} (no ST_CLIP in source SQL)"
-  end
-
-  # ---------------------------------------------------------------------------
-
-  desc <<~DESC
-    Build interaction_config for all Martin layers from their PostGIS table columns.
-
-    For each Martin layer, queries the ra_vector schema table to discover its
-    data columns and stores them as interaction_config.output.  This enables
-    the OpenLayers frontend to show a click popup with feature attribute values
-    without any HTTP round-trip — OL reads properties directly from the vector tile.
-
-    Layers that already have a non-empty interaction_config are left unchanged.
-    Use FORCE=1 to overwrite existing configs.
-
-    Options:
-      CARTODB_IMPORT_SCHEMA=<name>  Vector schema (default: ra_vector)
-      FORCE=1                       Overwrite existing interaction_config
-      DRY_RUN=1                     Print changes without writing
-
-    Usage:
-      rake cartodb:fix_martin_interactivity
-      rake cartodb:fix_martin_interactivity FORCE=1
-  DESC
-  task fix_martin_interactivity: :environment do
-    target_schema = ENV.fetch("CARTODB_IMPORT_SCHEMA", "ra_vector")
-    dry_run = ENV["DRY_RUN"] == "1"
-    force = ENV["FORCE"] == "1"
-    ar_conn = ActiveRecord::Base.connection
-
-    puts "DRY RUN — no changes will be saved.\n\n" if dry_run
-
-    updated = 0
-    skipped = 0
-    no_table = 0
+    martin_ic_updated  = 0
+    martin_ic_skipped  = 0
+    martin_ic_no_table = 0
 
     Layer.where(layer_provider: "martin")
       .where("layer_config LIKE '%cartodb_migration%'").find_each do |layer|
       if !force && layer.interaction_config.present? &&
           layer.interaction_config != '{"output":[]}' &&
           layer.interaction_config != '{"output": []}'
-        skipped += 1
+        martin_ic_skipped += 1
         next
       end
 
@@ -2159,7 +2036,7 @@ namespace :cartodb do
       source = config.dig("body", "source").to_s.sub(/\Ara_vector\./, "")
 
       if source.blank?
-        no_table += 1
+        martin_ic_no_table += 1
         next
       end
 
@@ -2167,7 +2044,7 @@ namespace :cartodb do
 
       unless ic
         puts "Layer ##{layer.id} (#{layer.slug}): no data columns in #{source}"
-        no_table += 1
+        martin_ic_no_table += 1
         next
       end
 
@@ -2177,69 +2054,12 @@ namespace :cartodb do
         layer.update_column(:interaction_config, ic.to_json)
       end
 
-      updated += 1
+      martin_ic_updated += 1
     end
 
-    puts "\n#{"=" * 56}"
-    puts "  fix_martin_interactivity#{dry_run ? " (DRY RUN)" : ""} — Summary"
-    puts "=" * 56
-    puts "  Updated  : #{updated}"
-    puts "  Skipped  : #{skipped} (already has interaction_config; use FORCE=1 to overwrite)"
-    puts "  No table : #{no_table} (source table not found or no data columns)"
-  end
-
-  # ---------------------------------------------------------------------------
-
-  desc <<~DESC
-    Set interaction_config for all migrated COG layers to use TiTiler point query.
-
-    For each COG layer without an interaction_config, sets the standard TiTiler
-    /cog/point endpoint config so that map clicks return the raster pixel value.
-
-    Layers that already have a non-empty interaction_config are left unchanged.
-    Use FORCE=1 to overwrite existing configs.
-
-    Options:
-      FORCE=1    Overwrite existing interaction_config
-      DRY_RUN=1  Print changes without writing
-
-    Usage:
-      rake cartodb:fix_cog_interactivity
-      rake cartodb:fix_cog_interactivity FORCE=1
-  DESC
-  task fix_cog_interactivity: :environment do
-    dry_run = ENV["DRY_RUN"] == "1"
-    force = ENV["FORCE"] == "1"
-
-    puts "DRY RUN — no changes will be saved.\n\n" if dry_run
-
-    updated = 0
-    skipped = 0
-
-    ic = CartodbRakeHelpers.build_cog_interaction_config
-
-    Layer.where(layer_provider: "cog").find_each do |layer|
-      if !force && layer.interaction_config.present? &&
-          layer.interaction_config != '{"output":[]}' &&
-          layer.interaction_config != '{"output": []}'
-        skipped += 1
-        next
-      end
-
-      puts "Layer ##{layer.id} (#{layer.slug})"
-
-      unless dry_run
-        layer.update_column(:interaction_config, ic.to_json)
-      end
-
-      updated += 1
-    end
-
-    puts "\n#{"=" * 56}"
-    puts "  fix_cog_interactivity#{dry_run ? " (DRY RUN)" : ""} — Summary"
-    puts "=" * 56
-    puts "  Updated : #{updated}"
-    puts "  Skipped : #{skipped} (already has interaction_config; use FORCE=1 to overwrite)"
+    puts "  Updated  : #{martin_ic_updated}"
+    puts "  Skipped  : #{martin_ic_skipped} (already has interaction_config; use FORCE=1 to overwrite)"
+    puts "  No table : #{martin_ic_no_table} (source table not found or no data columns)"
   end
 
   # ---------------------------------------------------------------------------
@@ -2250,19 +2070,12 @@ namespace :cartodb do
     Steps (run in order):
        1. import_tables             — download and import .gpkg / .csv.gz files from S3
        2. update_layer_references   — parse SQL, classify raster vs vector, strip CartoDB columns
-       3. configure_cog_layers      — set provider=cog, build COG sources, translate CSS colormaps
-       4. configure_martin_layers   — set provider=martin, build Martin sources, translate CSS styles
-       5. fix_cog_styles            — re-translate colormaps for all existing COG layers
-       6. fix_cog_sources           — rebuild body.sources for multi-table COG mosaic layers
-       7. fix_cog_clip              — store clip boundary geometry for ST_CLIP layers
-       8. fix_cog_interactivity     — set TiTiler point-query interaction_config for COG layers
-       9. fix_martin_sources        — strip ra_vector. prefix from Martin source IDs
-      10. fix_martin_styles         — backfill missing PathOptions styles for Martin layers
-      11. fix_martin_interactivity  — build click popup field list from PostGIS table columns
+       3. configure_cog_layers      — configure new COG layers + repair all existing COG layers
+       4. configure_martin_layers   — configure new Martin layers + repair all existing Martin layers
 
-    Steps 5-11 are idempotent repairs that ensure all layers in the database are
-    correct, not just the ones configured in this run.  This means migrate_tables
-    is safe to re-run at any time — no separate fix_* tasks are needed.
+    configure_cog_layers and configure_martin_layers each include a repair phase
+    that ensures all layers in the database are correct, not just newly configured
+    ones.  migrate_tables is safe to re-run at any time.
 
     Accepts all environment variables from the sub-tasks:
       CARTODB_S3_BUCKET, CARTODB_VECTORS_S3_PREFIX, CARTODB_TABLES_S3_PREFIX,
@@ -2276,14 +2089,7 @@ namespace :cartodb do
     "cartodb:import_tables",
     "cartodb:update_layer_references",
     "cartodb:configure_cog_layers",
-    "cartodb:configure_martin_layers",
-    "cartodb:fix_cog_styles",
-    "cartodb:fix_cog_sources",
-    "cartodb:fix_cog_clip",
-    "cartodb:fix_cog_interactivity",
-    "cartodb:fix_martin_sources",
-    "cartodb:fix_martin_styles",
-    "cartodb:fix_martin_interactivity"
+    "cartodb:configure_martin_layers"
   ]
 
   # ---------------------------------------------------------------------------
