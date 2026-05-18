@@ -24,10 +24,14 @@ function buildSingleTitilerUrl(layerConfig, sourceOverride) {
   let tileUrl = `${titilerBaseUrl}/tiles/WebMercatorQuad/{z}/{x}/{y}?url=${encodeURIComponent(source)}`;
   if (bidx) tileUrl += `&bidx=${bidx}`;
   if (nodata !== undefined && nodata !== null) tileUrl += `&nodata=${nodata}`;
-  if (rescale) tileUrl += `&rescale=${encodeURIComponent(rescale)}`;
+  // Interval colormaps (arrays) use raw pixel values directly in TiTiler.
+  // Passing rescale alongside them would pre-normalise values to 0-255 and
+  // break the interval matching, so rescale is omitted for that format.
+  const isIntervalColormap = Array.isArray(colormap);
+  if (rescale && !isIntervalColormap) tileUrl += `&rescale=${encodeURIComponent(rescale)}`;
   if (colormap_name) {
     tileUrl += `&colormap_name=${encodeURIComponent(colormap_name)}`;
-  } else if (colormap && Object.keys(colormap).length > 0) {
+  } else if (colormap && (isIntervalColormap ? colormap.length > 0 : Object.keys(colormap).length > 0)) {
     tileUrl += `&colormap=${encodeURIComponent(JSON.stringify(colormap))}`;
   }
   return tileUrl;

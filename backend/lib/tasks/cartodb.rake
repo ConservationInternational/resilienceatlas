@@ -93,9 +93,28 @@ module CartodbRakeHelpers
     nil
   end
 
-  def self.build_titiler_colormap(stops)
+  # Build a TiTiler colormap from CSS stops.
+  #
+  # For "linear" (default) mode: returns a 0-255 indexed gradient hash
+  #   {"key" => [r,g,b,a]} that TiTiler interpolates after rescaling.
+  #
+  # For "discrete" or "exact" mode: returns an explicit interval array
+  #   [[[lower, upper], [r,g,b,a]], ...] that TiTiler applies directly to
+  #   raw pixel values without any rescaling.
+  def self.build_titiler_colormap(stops, mode: "linear")
     return nil if stops.blank?
 
+    if %w[discrete exact].include?(mode.to_s.downcase)
+      build_interval_colormap(stops, exact: mode.to_s.downcase == "exact")
+    else
+      build_gradient_colormap(stops)
+    end
+  end
+
+  # Gradient colormap for linear/default mode.
+  # Normalises stop values to 0-255 key space; TiTiler interpolates between
+  # defined keys after rescaling raw pixel values with the rescale parameter.
+  def self.build_gradient_colormap(stops)
     values = stops.map { |stop| stop[:value] }
     min = values.min
     max = values.max
@@ -126,6 +145,35 @@ module CartodbRakeHelpers
     colormap.presence
   end
 
+  # Interval colormap for discrete/exact mode.
+  # Returns [[[lower, upper], [r,g,b,a]], ...] — TiTiler applies colours
+  # directly to raw pixel values (no rescale).
+  #
+  #   discrete: stop n covers [v_n, v_{n+1}) — step-function assignment
+  #   exact:    stop n covers [v_n, v_n+1)   — only exact integer values match
+  def self.build_interval_colormap(stops, exact: false)
+    sorted = stops.sort_by { |s| s[:value] }
+    colormap = []
+
+    sorted.each_with_index do |stop, i|
+      rgba = parse_hex_color(stop[:color])
+      next unless rgba
+
+      lower = stop[:value]
+      upper = if exact
+        lower + 1
+      elsif i + 1 < sorted.length
+        sorted[i + 1][:value]
+      else
+        lower + 1  # last stop: extend one unit beyond its value
+      end
+
+      colormap << [[lower, upper], rgba]
+    end
+
+    colormap.presence
+  end
+
   def self.translate_raster_css(css)
     return {} if css.blank?
 
@@ -151,8 +199,13 @@ module CartodbRakeHelpers
     if stops.any?
       min = stops.map { |stop| stop[:value] }.min
       max = stops.map { |stop| stop[:value] }.max
-      result["rescale"] = "#{min},#{max}" if min && max
-      result["colormap"] = build_titiler_colormap(stops)
+      result["colormap"] = build_titiler_colormap(stops, mode: mode || "linear")
+      # Gradient colormaps (linear mode) require rescale to normalise pixel
+      # values into the 0-255 key space.  Interval colormaps (discrete/exact)
+      # use raw pixel values directly, so rescale must NOT be set.
+      unless %w[discrete exact].include?(mode.to_s)
+        result["rescale"] = "#{min},#{max}" if min && max
+      end
     end
 
     result.compact
@@ -1583,15 +1636,18 @@ namespace :cartodb do
   # ---------------------------------------------------------------------------
 
   desc <<~DESC
-    Re-translate CartoDB raster CSS into TiTiler colormap/rescale for COG layers.
+    Re-translate CartoDB raster CSS into TiTiler colormap/rescale for all COG layers.
 
-    COG layers migrated when rgba() color parsing was broken have incomplete
-    colormaps (only the one `stop(value, #hex)` entry survived, all rgba() stops
-    were silently dropped).  This task re-runs translate_raster_css against each
-    COG layer's original CSS and updates body.colormap, body.rescale, and
-    body.cartocss_mode.
+    Runs translate_raster_css against every COG layer's original CSS and
+    overwrites body.colormap, body.rescale, and body.cartocss_mode.  The CSS is
+    the authoritative source; any previously stored colormap is replaced.
 
-    Layers that already have a colormap with more than one entry are left alone.
+    Layers with no CSS and no existing colormap are reported as skipped.
+
+    Correctly handles all CartoDB coloriser modes:
+      linear   — gradient dict colormap {"key": [r,g,b,a]} with rescale
+      discrete — interval array [[[lower,upper],[r,g,b,a]],...] without rescale
+      exact    — interval array spanning one unit per stop, without rescale
 
     Optional:
       DRY_RUN=1   Print what would change without saving
@@ -1614,17 +1670,14 @@ namespace :cartodb do
       rescue
         {}
       end
-      existing_colormap = config.dig("body", "colormap") || {}
-
-      # Skip if already has a full colormap (more than 1 entry)
-      if existing_colormap.size > 1
-        skipped += 1
-        next
-      end
-
       if layer.css.blank?
-        puts "Layer ##{layer.id} (#{layer.slug}): no CSS — skipping"
-        no_css += 1
+        existing_colormap = config.dig("body", "colormap")
+        if existing_colormap.present?
+          skipped += 1  # no CSS but already has a colormap — leave it alone
+        else
+          puts "Layer ##{layer.id} (#{layer.slug}): no CSS and no colormap — skipping"
+          no_css += 1
+        end
         next
       end
 
@@ -1640,7 +1693,13 @@ namespace :cartodb do
 
       unless dry_run
         config["body"]["colormap"] = style["colormap"]
-        config["body"]["rescale"] = style["rescale"] if style["rescale"].present?
+        # Interval colormaps (discrete/exact) don't use rescale; remove any
+        # stale rescale value left from a previous linear-mode migration.
+        if style["rescale"].present?
+          config["body"]["rescale"] = style["rescale"]
+        else
+          config["body"].delete("rescale")
+        end
         config["body"]["cartocss_mode"] = style["mode"] if style["mode"].present?
         # Persist the translated style into cartodb_migration so re-runs are stable
         config["cartodb_migration"] ||= {}
@@ -1655,8 +1714,8 @@ namespace :cartodb do
     puts "  fix_cog_styles#{dry_run ? " (DRY RUN)" : ""} — Summary"
     puts "=" * 56
     puts "  Updated : #{updated}"
-    puts "  Skipped : #{skipped} (already have full colormap)"
-    puts "  No CSS  : #{no_css} (no CSS or unrecognised CSS)"
+    puts "  Skipped : #{skipped} (no CSS, no existing colormap)"
+    puts "  No CSS  : #{no_css} (CSS present but yielded no colormap)"
   end
 
   # ---------------------------------------------------------------------------
