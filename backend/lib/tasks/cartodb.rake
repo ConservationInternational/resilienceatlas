@@ -272,6 +272,95 @@ module CartodbRakeHelpers
   rescue JSON::ParserError
     nil
   end
+
+  # Translate CartoDB vector CSS (CartoCSS) to OL PathOptions format used by
+  # the martin-layer-ol.js plugin.  Returns a PathOptions hash suitable for
+  # storage as a single entry in the martin layer `body.styles` object.
+  #
+  # Mapping:
+  #   polygon-fill    → fillColor
+  #   polygon-opacity → fillOpacity
+  #   line-color      → color
+  #   line-width      → weight
+  #   line-opacity    → opacity
+  #
+  # Conditional rules with attribute filters (e.g. [type="hotspot area"]) are
+  # stored as a "conditions" array:
+  #   [{ "when" => { "type" => "hotspot area" }, "fillColor" => "#012700" }, ...]
+  # The frontend style-converter.js resolves these at render time.
+  #
+  # Returns {} when no recognisable declarations are found.
+  def self.translate_vector_css(css)
+    return {} if css.blank?
+
+    base_props = {}
+    conditional_rules = []
+
+    # Each block: #selector(optional_filter) { declarations }
+    css.scan(/#[\w-]+(\[[^\]]*\])?\s*\{([^}]+)\}/m).each do |filter, declarations|
+      props = {}
+      declarations.scan(/([\w-]+)\s*:\s*([^;]+)/).each do |prop, val|
+        props[prop.strip] = val.strip
+      end
+
+      if filter.nil? || filter.strip.empty?
+        base_props.merge!(props)
+      elsif (m = filter.match(/\[(\w+)\s*=\s*["']([^"']+)["']\]/))
+        conditional_rules << {property: m[1], value: m[2], styles: props}
+      end
+    end
+
+    path_opts = {}
+
+    # Stroke / line properties
+    path_opts["color"]   = base_props["line-color"]       if base_props["line-color"].present?
+    path_opts["weight"]  = base_props["line-width"].to_f  if base_props["line-width"].present?
+    path_opts["opacity"] = base_props["line-opacity"].to_f if base_props["line-opacity"].present?
+
+    # Fill opacity from base rule
+    path_opts["fillOpacity"] = base_props["polygon-opacity"].to_f if base_props["polygon-opacity"].present?
+
+    # Fill color: prefer base rule; fall back to first non-transparent conditional fill
+    fill_color = base_props["polygon-fill"]
+    if fill_color.blank? || fill_color =~ /\Atransparent\z/i
+      first_fill = conditional_rules.find do |r|
+        r[:styles]["polygon-fill"].to_s.present? &&
+          r[:styles]["polygon-fill"] !~ /\Atransparent\z/i
+      end
+      fill_color = first_fill&.dig(:styles, "polygon-fill")
+    end
+
+    if fill_color.present? && fill_color !~ /\Atransparent\z/i
+      path_opts["fillColor"] = fill_color
+      path_opts["fill"] = true
+    end
+
+    # Build conditions array for attribute-filter rules
+    if conditional_rules.any?
+      conds = conditional_rules.filter_map do |rule|
+        pfill  = rule[:styles]["polygon-fill"].to_s.strip
+        popac  = rule[:styles]["polygon-opacity"]
+        overrides = {}
+
+        if pfill =~ /\Atransparent\z/i
+          overrides["fillOpacity"] = 0
+          overrides["fill"] = false
+        elsif pfill.present?
+          overrides["fillColor"] = pfill
+          overrides["fill"] = true
+          overrides["fillOpacity"] = popac.to_f if popac.present?
+        elsif popac.present?
+          overrides["fillOpacity"] = popac.to_f
+        end
+
+        next if overrides.empty?
+        {"when" => {rule[:property] => rule[:value]}}.merge(overrides)
+      end
+      path_opts["conditions"] = conds if conds.any?
+    end
+
+    path_opts
+  end
 end
 
 # ---------------------------------------------------------------------------
@@ -1234,10 +1323,15 @@ namespace :cartodb do
       puts "  Missing  : #{missing.join(", ")}" if missing.any?
       puts "  Publish  : #{all_ready ? "yes" : "no (missing tables)"}"
 
+      # Translate CartoDB CSS to OL PathOptions for the styles block
+      raw_styles = CartodbRakeHelpers.translate_vector_css(layer.css)
+      default_styles = raw_styles.present? ? {source => raw_styles} : {}
+      puts "  Styles   : #{raw_styles.present? ? "translated from CSS" : "none (no CSS)"}"
+
       new_config = {
         "body" => {
           "source"  => source,
-          "styles"  => {},
+          "styles"  => default_styles,
           "options" => {"interactive" => true, "maxNativeZoom" => 14}
         },
         "cartodb_migration" => migration
@@ -1321,6 +1415,76 @@ namespace :cartodb do
     puts "  Fixed   : #{fixed}"
     puts "  Skipped : #{skipped} (already correct)"
     puts "\nRestart Martin if any sources were fixed: docker service update --force <stack>_martin" if fixed > 0 && !dry_run
+  end
+
+  # ---------------------------------------------------------------------------
+
+  desc <<~DESC
+    Populate missing styles in martin layer configs by translating CartoDB CSS.
+
+    Layers migrated before CSS translation was added have an empty `styles: {}`
+    in their layer_config, which causes the OpenLayers plugin to render nothing.
+    This task reads the original CartoDB CSS from each layer and converts it to
+    OL PathOptions format (color, weight, fillColor, fillOpacity, conditions).
+
+    Layers that already have a non-empty styles object are left unchanged.
+
+    Optional:
+      DRY_RUN=1   Print what would change without saving
+
+    Usage:
+      rake cartodb:fix_martin_styles
+      rake cartodb:fix_martin_styles DRY_RUN=1
+  DESC
+  task fix_martin_styles: :environment do
+    dry_run = ENV["DRY_RUN"] == "1"
+    puts "DRY RUN — no changes will be saved.\n\n" if dry_run
+
+    updated = 0
+    skipped = 0
+    no_css  = 0
+
+    Layer.where(layer_provider: "martin")
+         .where("layer_config LIKE '%cartodb_migration%'").find_each do |layer|
+      config = JSON.parse(layer.layer_config) rescue {}
+      source = config.dig("body", "source").to_s
+      styles = config.dig("body", "styles")
+
+      if styles.present? && styles != {}
+        skipped += 1
+        next
+      end
+
+      if layer.css.blank?
+        puts "Layer ##{layer.id} (#{layer.slug}): no CSS — skipping"
+        no_css += 1
+        next
+      end
+
+      translated = CartodbRakeHelpers.translate_vector_css(layer.css)
+      if translated.blank?
+        puts "Layer ##{layer.id} (#{layer.slug}): CSS yielded no usable styles — skipping"
+        no_css += 1
+        next
+      end
+
+      new_styles = source.present? ? {source => translated} : translated
+      puts "Layer ##{layer.id} (#{layer.slug}): #{new_styles.to_json}"
+
+      unless dry_run
+        config["body"]["styles"] = new_styles
+        layer.update_column(:layer_config, config.to_json)
+      end
+
+      updated += 1
+    end
+
+    puts "\n#{'=' * 56}"
+    puts "  fix_martin_styles#{dry_run ? ' (DRY RUN)' : ''} — Summary"
+    puts "=" * 56
+    puts "  Updated : #{updated}"
+    puts "  Skipped : #{skipped} (already have styles)"
+    puts "  No CSS  : #{no_css} (no CSS or unrecognised CSS)"
   end
 
   # ---------------------------------------------------------------------------

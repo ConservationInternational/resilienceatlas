@@ -6,6 +6,11 @@
  *
  * PathOptions shape:
  *   { color, weight, opacity, fillColor, fillOpacity, fill }
+ *
+ * Extended PathOptions also support a `conditions` array for attribute-based
+ * styling (converted from CartoDB conditional CSS rules):
+ *   conditions: [{ when: { property: value }, ...overrides }, ...]
+ * The first matching condition's overrides are merged into the base PathOptions.
  */
 import Style from 'ol/style/Style';
 import Stroke from 'ol/style/Stroke';
@@ -23,6 +28,28 @@ function resolveColor(color, opacity) {
   // Named colors or rgb()/rgba() — wrap opacity as-is
   if (color.startsWith('rgba') || color.startsWith('rgb')) return color;
   return color;
+}
+
+/**
+ * Resolve any `conditions` in a PathOptions object against feature properties.
+ * Returns a plain PathOptions object (without the `conditions` key).
+ *
+ * @param {object} pathOptions - PathOptions, possibly with a `conditions` array
+ * @param {object} props - Feature properties from feature.getProperties()
+ * @returns {object} Resolved PathOptions without `conditions`
+ */
+function resolveConditions(pathOptions, props) {
+  const { conditions, ...base } = pathOptions;
+  if (!conditions || !conditions.length) return base;
+
+  for (const condition of conditions) {
+    const { when, ...overrides } = condition;
+    const matches = Object.entries(when).every(
+      ([key, val]) => String(props[key]) === String(val)
+    );
+    if (matches) return { ...base, ...overrides };
+  }
+  return base;
 }
 
 /**
@@ -70,7 +97,10 @@ export function buildVectorTileStyle(styles) {
     const styleSpec = styles[layerName];
     if (!styleSpec) return null;
     const props = feature.getProperties();
-    const pathOptions = typeof styleSpec === 'function' ? styleSpec(props) : styleSpec;
+    const pathOptions =
+      typeof styleSpec === 'function'
+        ? styleSpec(props)
+        : resolveConditions(styleSpec, props);
     return pathOptionsToStyle(pathOptions);
   };
 }
