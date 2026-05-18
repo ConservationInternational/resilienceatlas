@@ -1596,8 +1596,7 @@ namespace :cartodb do
     skipped = 0
     no_css  = 0
 
-    Layer.where(layer_provider: "cog")
-         .where("layer_config LIKE '%cartodb_migration%'").find_each do |layer|
+    Layer.where(layer_provider: "cog").find_each do |layer|
       config = JSON.parse(layer.layer_config) rescue {}
       existing_colormap = config.dig("body", "colormap") || {}
 
