@@ -1721,6 +1721,108 @@ namespace :cartodb do
   # ---------------------------------------------------------------------------
 
   desc <<~DESC
+    Ensure every COG layer has the correct body.sources array for multi-table layers.
+
+    For layers whose original CartoDB SQL used UNION across multiple raster tables
+    (e.g. SELECT … FROM table_a UNION SELECT … FROM table_b), each table becomes
+    an independent COG on S3.  The frontend renders them as a geographic mosaic via
+    a separate TiTiler /cog/tiles/ request per source.
+
+    This task re-derives the raster table list from source_sql stored in
+    cartodb_migration, excludes any tables that exist locally in the vector schema
+    (vector boundary tables used with ST_CLIP), and rebuilds body.source /
+    body.sources accordingly.
+
+    Run after every bulk migration and whenever COG sources may be incomplete.
+
+    Options:
+      S3_BUCKET=<name>              S3 bucket (default: resilienceatlas)
+      COG_PREFIX=<prefix>           S3 key prefix  (default: cogs/)
+      CARTODB_IMPORT_SCHEMA=<name>  Vector schema   (default: ra_vector)
+      DRY_RUN=1                     Print changes without writing
+
+    Usage:
+      rake cartodb:fix_cog_sources
+      rake cartodb:fix_cog_sources DRY_RUN=1
+  DESC
+  task fix_cog_sources: :environment do
+    s3_bucket     = ENV.fetch("S3_BUCKET", "resilienceatlas")
+    cog_prefix    = ENV.fetch("COG_PREFIX", "cogs/")
+    target_schema = ENV.fetch("CARTODB_IMPORT_SCHEMA", "ra_vector")
+    dry_run       = ENV["DRY_RUN"] == "1"
+
+    ar_conn = ActiveRecord::Base.connection
+
+    updated = 0
+    skipped = 0
+    no_sql  = 0
+
+    Layer.where(layer_provider: "cog").find_each do |layer|
+      config    = begin JSON.parse(layer.layer_config) rescue {} end
+      migration = config["cartodb_migration"] || {}
+      source_sql = migration["source_sql"].to_s.strip
+
+      if source_sql.blank?
+        no_sql += 1
+        next
+      end
+
+      referenced = CartodbRakeHelpers.extract_table_names_from_sql(source_sql)
+
+      if referenced.empty?
+        no_sql += 1
+        next
+      end
+
+      # Tables that exist locally in the vector schema are boundary/clip helpers,
+      # not raster tiles — exclude them from the COG source list.
+      local_vector = referenced.select { |t| ar_conn.table_exists?("#{target_schema}.#{t}") }
+      raster_tables = referenced - local_vector
+
+      if raster_tables.empty?
+        puts "Layer ##{layer.id} (#{layer.slug}): no raster tables found — skipping"
+        no_sql += 1
+        next
+      end
+
+      sources = raster_tables.map { |t| CartodbRakeHelpers.build_cog_source_url(s3_bucket, cog_prefix, t) }
+
+      current_sources = (
+        Array(config.dig("body", "sources")).presence ||
+        [config.dig("body", "source")].compact
+      )
+
+      if current_sources.sort == sources.sort
+        skipped += 1
+        next
+      end
+
+      puts "Layer ##{layer.id} (#{layer.slug}): #{raster_tables.size} raster table(s)"
+      puts "  Was: #{current_sources.join(", ")}"
+      puts "  Now: #{sources.join(", ")}"
+
+      unless dry_run
+        config["body"]["source"]  = sources.first
+        config["body"]["sources"] = sources
+        migration["raster_tables"] = raster_tables
+        config["cartodb_migration"] = migration
+        layer.update_column(:layer_config, config.to_json)
+      end
+
+      updated += 1
+    end
+
+    puts "\n#{"=" * 56}"
+    puts "  fix_cog_sources#{dry_run ? " (DRY RUN)" : ""} — Summary"
+    puts "=" * 56
+    puts "  Updated : #{updated}"
+    puts "  Skipped : #{skipped} (sources already correct)"
+    puts "  No SQL  : #{no_sql} (no source SQL found)"
+  end
+
+  # ---------------------------------------------------------------------------
+
+  desc <<~DESC
     Full CartoDB table migration: import_tables → update_layer_references → configure_martin_layers.
 
     Accepts all environment variables from the sub-tasks:
