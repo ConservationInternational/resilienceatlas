@@ -5,7 +5,7 @@
  * be reused with OL VectorTileLayer without rewriting every layer config.
  *
  * PathOptions shape:
- *   { color, weight, opacity, fillColor, fillOpacity, fill }
+ *   { color, weight, opacity, fillColor, fillOpacity, fill, fillPattern }
  *
  * Extended PathOptions also support a `conditions` array for attribute-based
  * styling (converted from CartoDB conditional CSS rules):
@@ -13,6 +13,9 @@
  * String equality: { when: { type: "hotspot" }, fillColor: "#abc" }
  * Numeric comparison: { when: { value: { op: "<=", val: 35 } }, fillColor: "#abc" }
  * All matching conditions are merged in order (CSS cascade: last match wins).
+ *
+ * fillPattern values:
+ *   "hatch" - diagonal crosshatch canvas pattern using fillColor as line colour
  */
 import Style from 'ol/style/Style';
 import Stroke from 'ol/style/Stroke';
@@ -30,6 +33,47 @@ function resolveColor(color, opacity) {
   // Named colors or rgb()/rgba() — wrap opacity as-is
   if (color.startsWith('rgba') || color.startsWith('rgb')) return color;
   return color;
+}
+
+/** Cache of CanvasPattern objects keyed by "color:size" to avoid recreation. */
+const hatchPatternCache = new Map();
+
+/**
+ * Create a repeating diagonal-crosshatch CanvasPattern in the given colour.
+ * Matches the visual style of CartoDB's polygon-pattern-file hatching.
+ *
+ * @param {string} color - CSS colour string for the hatch lines
+ * @param {number} [size=8] - Tile size in pixels
+ * @returns {CanvasPattern|string} CanvasPattern in browser; solid colour string as SSR fallback
+ */
+function createHatchPattern(color, size = 8) {
+  if (typeof document === 'undefined') return color; // SSR fallback
+  const cacheKey = `${color}:${size}`;
+  if (hatchPatternCache.has(cacheKey)) return hatchPatternCache.get(cacheKey);
+
+  const canvas = document.createElement('canvas');
+  canvas.width = size;
+  canvas.height = size;
+  const ctx = canvas.getContext('2d');
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 1.5;
+  ctx.lineCap = 'square';
+
+  // ╲ diagonal (seamless: extend slightly beyond tile boundary)
+  ctx.beginPath();
+  ctx.moveTo(-1, -1);
+  ctx.lineTo(size + 1, size + 1);
+  ctx.stroke();
+
+  // ╱ diagonal
+  ctx.beginPath();
+  ctx.moveTo(size + 1, -1);
+  ctx.lineTo(-1, size + 1);
+  ctx.stroke();
+
+  const pattern = ctx.createPattern(canvas, 'repeat');
+  hatchPatternCache.set(cacheKey, pattern);
+  return pattern;
 }
 
 /**
@@ -109,14 +153,21 @@ export function pathOptionsToStyle(pathOptions) {
     fillColor,
     fillOpacity = 0.2,
     fill = true,
+    fillPattern,
   } = pathOptions;
+
+  let fillStyle = null;
+  if (fillPattern === 'hatch') {
+    // Canvas crosshatch pattern: use fillColor as line colour at full opacity.
+    const hatchColor = resolveColor(fillColor || color, 1);
+    fillStyle = new Fill({ color: createHatchPattern(hatchColor) });
+  } else if (fill || fillOpacity > 0) {
+    fillStyle = new Fill({ color: resolveColor(fillColor || color, fillOpacity) });
+  }
 
   return new Style({
     stroke: weight > 0 ? new Stroke({ color: resolveColor(color, opacity), width: weight }) : null,
-    fill:
-      fill || fillOpacity > 0
-        ? new Fill({ color: resolveColor(fillColor || color, fillOpacity) })
-        : null,
+    fill: fillStyle,
   });
 }
 

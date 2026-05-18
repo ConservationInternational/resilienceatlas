@@ -467,30 +467,69 @@ module CartodbRakeHelpers
       end
     end
 
+    # polygon-pattern-file in the base rule: translate to a canvas hatch fill.
+    # The line-colour is used as the hatch line colour, matching CartoDB output.
+    if base_props["polygon-pattern-file"].present? && !path_opts.key?("fillPattern")
+      hatch_color = path_opts["color"].presence || base_props["line-color"].presence
+      path_opts["fillPattern"]  = "hatch"
+      path_opts["fillColor"]    = hatch_color if hatch_color && !path_opts.key?("fillColor")
+      path_opts["fillOpacity"]  = 1
+      path_opts["fill"]         = true
+    end
+
     # Build conditions array from conditional rules
     if conditional_rules.any?
       conds = conditional_rules.filter_map do |rule|
-        pfill = rule[:styles]["polygon-fill"].to_s.strip
-        popac = rule[:styles]["polygon-opacity"]
-        lcolor = rule[:styles]["line-color"]
+        pfill   = rule[:styles]["polygon-fill"].to_s.strip
+        popac   = rule[:styles]["polygon-opacity"]
+        lcolor  = rule[:styles]["line-color"]
+        lopac   = rule[:styles]["line-opacity"]
+        lwidth  = rule[:styles]["line-width"]
+        pattern = rule[:styles]["polygon-pattern-file"]
         overrides = {}
 
-        if pfill.match?(/\Atransparent\z/i)
+        if pattern.present?
+          # polygon-pattern-file → canvas crosshatch fill.
+          # polygon-opacity applies to the *solid* background, not the pattern;
+          # ignore it and use full opacity for the hatch lines.
+          hatch_color = lcolor.presence ||
+                        (pfill.present? && pfill !~ /\Atransparent\z/i ? pfill : nil)
+          overrides["fillPattern"]  = "hatch"
+          overrides["fillColor"]    = hatch_color if hatch_color
+          overrides["fillOpacity"]  = 1
+          overrides["fill"]         = true
+        elsif pfill.match?(/\Atransparent\z/i)
           overrides["fillOpacity"] = 0
-          overrides["fill"] = false
+          overrides["fill"]        = false
         elsif pfill.present?
-          overrides["fillColor"] = pfill
-          overrides["fill"] = true
+          overrides["fillColor"]   = pfill
+          overrides["fill"]        = true
           overrides["fillOpacity"] = popac.to_f if popac.present?
         elsif popac.present?
           overrides["fillOpacity"] = popac.to_f
         end
 
-        overrides["color"] = lcolor if lcolor.present? && !overrides.key?("color")
+        overrides["color"]   = lcolor      if lcolor.present?
+        overrides["opacity"] = lopac.to_f  if lopac.present?
+        # Stroke weight: use explicit value, or CartoDB default (1 px) when a
+        # stroke colour is declared but no width is specified.
+        if lwidth.present?
+          overrides["weight"] = lwidth.to_f
+        elsif lcolor.present?
+          overrides["weight"] = 1.0
+        end
+
         next if overrides.empty?
         {"when" => rule[:when]}.merge(overrides)
       end
       path_opts["conditions"] = conds if conds.any?
+    end
+
+    # When a layer has ONLY conditional rules and no base rule, CartoDB renders
+    # non-matching features as completely transparent.  Set an explicit invisible
+    # base so OL doesn't apply its own default (blue fill) to those features.
+    if path_opts["conditions"]&.any? && (path_opts.keys - ["conditions"]).empty?
+      path_opts = {"fill" => false, "fillOpacity" => 0, "weight" => 0}.merge(path_opts)
     end
 
     path_opts
