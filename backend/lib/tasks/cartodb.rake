@@ -323,6 +323,7 @@ module CartodbRakeHelpers
     return {} if css.blank?
 
     base_props = {}
+    zoom_hint_props = {}  # polygon/line props from zoom-only blocks (lower priority)
     conditional_rules = []
 
     # Each block: #selector(optional_chained_filters) { declarations }
@@ -343,8 +344,12 @@ module CartodbRakeHelpers
         # Separate zoom-based filters (rendering hints) from data property filters
         data_filters = filters.reject { |f| f.match?(/\Azoom\s*[<>=!]/i) }
 
-        # Rules that only constrain zoom (no data filter) are rendering hints — skip
-        next if data_filters.empty?
+        # Rules that only constrain zoom (no data filter) — keep polygon/line props
+        # as lower-priority fallback base hints (Martin renders at all zoom levels)
+        if data_filters.empty?
+          zoom_hint_props.merge!(props)
+          next
+        end
 
         # Build the `when` conditions hash from data filters
         when_hash = {}
@@ -362,6 +367,9 @@ module CartodbRakeHelpers
         conditional_rules << {when: when_hash, styles: props}
       end
     end
+
+    # Zoom-only block props are lower priority than explicit unfiltered base props
+    base_props = zoom_hint_props.merge(base_props)
 
     path_opts = {}
 
@@ -386,6 +394,24 @@ module CartodbRakeHelpers
     if fill_color.present? && fill_color !~ /\Atransparent\z/i
       path_opts["fillColor"] = fill_color
       path_opts["fill"] = true
+    end
+
+    # Point marker properties — used when no polygon/line styling is present
+    # (CartoDB marker-* maps to Leaflet VectorGrid circleMarker pathOptions)
+    if path_opts["color"].blank? && base_props["marker-line-color"].present?
+      path_opts["color"]   = base_props["marker-line-color"]
+      path_opts["weight"]  = base_props["marker-line-width"].to_f   if base_props["marker-line-width"].present?
+      path_opts["opacity"] = [base_props["marker-line-opacity"].to_f, 1.0].min if base_props["marker-line-opacity"].present?
+    end
+    if path_opts["fillOpacity"].blank? && base_props["marker-fill-opacity"].present?
+      path_opts["fillOpacity"] = [base_props["marker-fill-opacity"].to_f, 1.0].min
+    end
+    if path_opts["fillColor"].blank?
+      marker_fill = base_props["marker-fill"].to_s
+      if marker_fill.present? && marker_fill !~ /\Atransparent\z/i
+        path_opts["fillColor"] = marker_fill
+        path_opts["fill"] = true
+      end
     end
 
     # Build conditions array from conditional rules
