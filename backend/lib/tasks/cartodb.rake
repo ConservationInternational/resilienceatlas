@@ -471,20 +471,20 @@ module CartodbRakeHelpers
     # The line-colour is used as the hatch line colour, matching CartoDB output.
     if base_props["polygon-pattern-file"].present? && !path_opts.key?("fillPattern")
       hatch_color = path_opts["color"].presence || base_props["line-color"].presence
-      path_opts["fillPattern"]  = "hatch"
-      path_opts["fillColor"]    = hatch_color if hatch_color && !path_opts.key?("fillColor")
-      path_opts["fillOpacity"]  = 1
-      path_opts["fill"]         = true
+      path_opts["fillPattern"] = "hatch"
+      path_opts["fillColor"] = hatch_color if hatch_color && !path_opts.key?("fillColor")
+      path_opts["fillOpacity"] = 1
+      path_opts["fill"] = true
     end
 
     # Build conditions array from conditional rules
     if conditional_rules.any?
       conds = conditional_rules.filter_map do |rule|
-        pfill   = rule[:styles]["polygon-fill"].to_s.strip
-        popac   = rule[:styles]["polygon-opacity"]
-        lcolor  = rule[:styles]["line-color"]
-        lopac   = rule[:styles]["line-opacity"]
-        lwidth  = rule[:styles]["line-width"]
+        pfill = rule[:styles]["polygon-fill"].to_s.strip
+        popac = rule[:styles]["polygon-opacity"]
+        lcolor = rule[:styles]["line-color"]
+        lopac = rule[:styles]["line-opacity"]
+        lwidth = rule[:styles]["line-width"]
         pattern = rule[:styles]["polygon-pattern-file"]
         overrides = {}
 
@@ -493,24 +493,24 @@ module CartodbRakeHelpers
           # polygon-opacity applies to the *solid* background, not the pattern;
           # ignore it and use full opacity for the hatch lines.
           hatch_color = lcolor.presence ||
-                        (pfill.present? && pfill !~ /\Atransparent\z/i ? pfill : nil)
-          overrides["fillPattern"]  = "hatch"
-          overrides["fillColor"]    = hatch_color if hatch_color
-          overrides["fillOpacity"]  = 1
-          overrides["fill"]         = true
+            ((pfill.present? && pfill !~ /\Atransparent\z/i) ? pfill : nil)
+          overrides["fillPattern"] = "hatch"
+          overrides["fillColor"] = hatch_color if hatch_color
+          overrides["fillOpacity"] = 1
+          overrides["fill"] = true
         elsif pfill.match?(/\Atransparent\z/i)
           overrides["fillOpacity"] = 0
-          overrides["fill"]        = false
+          overrides["fill"] = false
         elsif pfill.present?
-          overrides["fillColor"]   = pfill
-          overrides["fill"]        = true
+          overrides["fillColor"] = pfill
+          overrides["fill"] = true
           overrides["fillOpacity"] = popac.to_f if popac.present?
         elsif popac.present?
           overrides["fillOpacity"] = popac.to_f
         end
 
-        overrides["color"]   = lcolor      if lcolor.present?
-        overrides["opacity"] = lopac.to_f  if lopac.present?
+        overrides["color"] = lcolor if lcolor.present?
+        overrides["opacity"] = lopac.to_f if lopac.present?
         # Stroke weight: use explicit value, or CartoDB default (1 px) when a
         # stroke colour is declared but no width is specified.
         if lwidth.present?
@@ -562,7 +562,7 @@ module CartodbRakeHelpers
       "ORDER BY ordinal_position"
     )
     cols = rows.map { |r| r["column_name"] }
-               .reject { |c| MARTIN_SKIP_COLS.include?(c) || c.match?(/\A(?:the_)?geom/i) }
+      .reject { |c| MARTIN_SKIP_COLS.include?(c) || c.match?(/\A(?:the_)?geom/i) }
     return nil if cols.empty?
 
     output = cols.map do |c|
@@ -638,9 +638,9 @@ module CartodbRakeHelpers
     )
     return nil unless geom_row
 
-    geom_col  = geom_row["f_geometry_column"]
-    srid      = geom_row["srid"].to_i
-    geom_expr = srid == 4326 ? geom_col : "ST_Transform(#{geom_col}, 4326)"
+    geom_col = geom_row["f_geometry_column"]
+    srid = geom_row["srid"].to_i
+    geom_expr = (srid == 4326) ? geom_col : "ST_Transform(#{geom_col}, 4326)"
 
     sql = "SELECT ST_AsGeoJSON(" \
           "ST_SimplifyPreserveTopology(ST_Union(#{geom_expr}), 0.5)) " \
@@ -1934,19 +1934,23 @@ namespace :cartodb do
       rake cartodb:fix_cog_sources DRY_RUN=1
   DESC
   task fix_cog_sources: :environment do
-    s3_bucket     = ENV.fetch("S3_BUCKET", "resilienceatlas")
-    cog_prefix    = ENV.fetch("COG_PREFIX", "cogs/")
+    s3_bucket = ENV.fetch("S3_BUCKET", "resilienceatlas")
+    cog_prefix = ENV.fetch("COG_PREFIX", "cogs/")
     target_schema = ENV.fetch("CARTODB_IMPORT_SCHEMA", "ra_vector")
-    dry_run       = ENV["DRY_RUN"] == "1"
+    dry_run = ENV["DRY_RUN"] == "1"
 
     ar_conn = ActiveRecord::Base.connection
 
     updated = 0
     skipped = 0
-    no_sql  = 0
+    no_sql = 0
 
     Layer.where(layer_provider: "cog").find_each do |layer|
-      config    = begin JSON.parse(layer.layer_config) rescue {} end
+      config = begin
+        JSON.parse(layer.layer_config)
+      rescue
+        {}
+      end
       migration = config["cartodb_migration"] || {}
       source_sql = migration["source_sql"].to_s.strip
 
@@ -1975,10 +1979,9 @@ namespace :cartodb do
 
       sources = raster_tables.map { |t| CartodbRakeHelpers.build_cog_source_url(s3_bucket, cog_prefix, t) }
 
-      current_sources = (
+      current_sources =
         Array(config.dig("body", "sources")).presence ||
         [config.dig("body", "source")].compact
-      )
 
       if current_sources.sort == sources.sort
         skipped += 1
@@ -1990,7 +1993,7 @@ namespace :cartodb do
       puts "  Now: #{sources.join(", ")}"
 
       unless dry_run
-        config["body"]["source"]  = sources.first
+        config["body"]["source"] = sources.first
         config["body"]["sources"] = sources
         migration["raster_tables"] = raster_tables
         config["cartodb_migration"] = migration
@@ -2048,8 +2051,8 @@ namespace :cartodb do
   DESC
   task fix_cog_clip: :environment do
     target_schema = ENV.fetch("CARTODB_IMPORT_SCHEMA", "ra_vector")
-    dry_run       = ENV["DRY_RUN"] == "1"
-    ar_conn       = ActiveRecord::Base.connection
+    dry_run = ENV["DRY_RUN"] == "1"
+    ar_conn = ActiveRecord::Base.connection
 
     puts "DRY RUN — no changes will be saved.\n\n" if dry_run
 
@@ -2058,7 +2061,11 @@ namespace :cartodb do
     no_clip = 0
 
     Layer.where(layer_provider: "cog").find_each do |layer|
-      config    = begin JSON.parse(layer.layer_config) rescue {} end
+      config = begin
+        JSON.parse(layer.layer_config)
+      rescue
+        {}
+      end
       migration = config["cartodb_migration"] || {}
       source_sql = migration["source_sql"].to_s.strip
 
@@ -2124,9 +2131,9 @@ namespace :cartodb do
   DESC
   task fix_martin_interactivity: :environment do
     target_schema = ENV.fetch("CARTODB_IMPORT_SCHEMA", "ra_vector")
-    dry_run       = ENV["DRY_RUN"] == "1"
-    force         = ENV["FORCE"] == "1"
-    ar_conn       = ActiveRecord::Base.connection
+    dry_run = ENV["DRY_RUN"] == "1"
+    force = ENV["FORCE"] == "1"
+    ar_conn = ActiveRecord::Base.connection
 
     puts "DRY RUN — no changes will be saved.\n\n" if dry_run
 
@@ -2143,7 +2150,11 @@ namespace :cartodb do
         next
       end
 
-      config = begin JSON.parse(layer.layer_config) rescue {} end
+      config = begin
+        JSON.parse(layer.layer_config)
+      rescue
+        {}
+      end
       source = config.dig("body", "source").to_s.sub(/\Ara_vector\./, "")
 
       if source.blank?
@@ -2197,7 +2208,7 @@ namespace :cartodb do
   DESC
   task fix_cog_interactivity: :environment do
     dry_run = ENV["DRY_RUN"] == "1"
-    force   = ENV["FORCE"] == "1"
+    force = ENV["FORCE"] == "1"
 
     puts "DRY RUN — no changes will be saved.\n\n" if dry_run
 
