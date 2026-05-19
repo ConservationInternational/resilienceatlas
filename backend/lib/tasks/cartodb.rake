@@ -216,11 +216,28 @@ module CartodbRakeHelpers
     if stops.any?
       min = stops.map { |stop| stop[:value] }.min
       max = stops.map { |stop| stop[:value] }.max
-      result["colormap"] = build_titiler_colormap(stops, mode: mode || "linear", default_rgba: default_rgba)
+
+      # For linear (gradient) mode: if the lowest or highest stop is transparent
+      # it is a nodata sentinel, not a real gradient endpoint.  Keeping it inflates
+      # the min/max range used for rescale — e.g. stop(20000,transparent) forces
+      # rescale="0,20000", compressing real data values (1–17) into keys 0–6 of
+      # the 0-255 gradient space so they all appear transparent.  Override to
+      # interval/discrete mode so transparent terminal stops become explicit nodata
+      # intervals and no rescale is applied.
+      effective_mode = mode || "linear"
+      if effective_mode == "linear"
+        sorted_stops = stops.sort_by { |s| s[:value] }
+        terminal_transparent =
+          parse_hex_color(sorted_stops.first[:color]) == [0, 0, 0, 0] ||
+          parse_hex_color(sorted_stops.last[:color]) == [0, 0, 0, 0]
+        effective_mode = "discrete" if terminal_transparent
+      end
+
+      result["colormap"] = build_titiler_colormap(stops, mode: effective_mode, default_rgba: default_rgba)
       # Gradient colormaps (linear mode) require rescale to normalise pixel
       # values into the 0-255 key space.  Interval colormaps (discrete/exact)
       # use raw pixel values directly, so rescale must NOT be set.
-      unless %w[discrete exact].include?(mode.to_s)
+      unless %w[discrete exact].include?(effective_mode)
         result["rescale"] = "#{min},#{max}" if min && max
       end
     end
