@@ -1,4 +1,10 @@
 ActiveAdmin.register ScopeDataset do
+  menu label: "Scope Datasets", parent: "Data", priority: 3
+
+  sidebar "About", only: :index do
+    para "Scope datasets link specific layers to a site scope, controlling which layers are available within each scope's analysis view."
+  end
+
   permit_params :site_scope_id, :slug, :name, :description, :data_type,
     :group_key, :variant_label, :dimension, :dimension_config,
     :schema_config, :data, :chart_config, :display_order

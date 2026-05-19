@@ -1,4 +1,10 @@
 ActiveAdmin.register Category do
+  menu label: "Categories", parent: "Data", priority: 1
+
+  sidebar "About", only: :index do
+    para "Categories group related indicators together for display in the map's layer panel. Each category contains one or more indicators and organises how data themes are presented."
+  end
+
   includes :translations, indicators: :translations
   permit_params :slug, indicator_ids: [],
     translations_attributes: [:id, :locale, :name, :description, :_destroy]

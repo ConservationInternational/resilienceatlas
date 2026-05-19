@@ -51,6 +51,14 @@ div#footer{display: none;}
 #layer_group_submit_action:hover input{color: white;}
 
 // ── Dataset Inventory ─────────────────────────────────────────────────────────
+.inventory-about {
+  background: #f4f8fb;
+  border-left: 4px solid #5b9bd5;
+  padding: 10px 14px;
+  margin-bottom: 16px;
+  border-radius: 2px;
+  p { margin: 0; color: #444; font-size: 13px; line-height: 1.5; }
+}
 .inventory-tabs {
   margin: 0 0 16px;
   border-bottom: 2px solid #ddd;

@@ -1,4 +1,10 @@
 ActiveAdmin.register Model do
+  menu label: "Models", parent: "Map Content", priority: 5
+
+  sidebar "About", only: :index do
+    para "Models represent analytical scenarios or predictive models that users can run through the map's analysis tools."
+  end
+
   includes :translations, site_scopes: :translations, indicators: :translations
   permit_params :table_name, :query_analysis, site_scope_ids: [], indicator_ids: [],
     translations_attributes: [:id, :locale, :name, :description, :source, :_destroy]

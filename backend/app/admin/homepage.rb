@@ -1,4 +1,10 @@
 ActiveAdmin.register Homepage do
+  menu label: "Homepages", parent: "Sites", priority: 1
+
+  sidebar "About", only: :index do
+    para "Each homepage is linked to a site scope and controls the public landing page content, including the title, background image, featured journeys, and content sections."
+  end
+
   includes :translations, site_scope: :translations
 
   permit_params :site_scope_id, :credits_url, :background_image, :show_journeys,

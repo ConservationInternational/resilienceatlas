@@ -1,5 +1,10 @@
 ActiveAdmin.register DataImport do
-  menu label: "Data Imports", parent: "Data"
+  menu label: "Data Imports", parent: "Data", priority: 4
+
+  sidebar "About", only: :index do
+    para "Tracks bulk data import jobs triggered from the admin interface. Review import history and check the status of in-progress or failed imports."
+  end
+
 
   actions :index, :show
 

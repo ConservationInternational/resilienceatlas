@@ -1,4 +1,10 @@
 ActiveAdmin.register AdminUser do
+  menu label: "Admin Users", parent: "Users & Feedback", priority: 1
+
+  sidebar "About", only: :index do
+    para "Admin users have full access to this administration panel. Add, remove, or update the accounts of people who can log in to administer the Resilience Atlas."
+  end
+
   permit_params :email, :password, :password_confirmation, :role
 
   index do

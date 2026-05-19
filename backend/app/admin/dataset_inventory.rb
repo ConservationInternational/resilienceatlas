@@ -1,7 +1,11 @@
 ActiveAdmin.register_page "Dataset Inventory" do
-  menu label: "Dataset Inventory", parent: "Data"
+  menu label: "Dataset Inventory", parent: "Data", priority: 5
 
   content title: "Dataset Inventory" do
+    div class: "inventory-about" do
+      para "An inventory of all datasets loaded into the Resilience Atlas database and object storage. Use the tabs to browse PostGIS vector tables (ra_vector schema), raster tables (ra_raster schema), and Cloud-Optimised GeoTIFF files on S3. Columns are sortable; use the search boxes to filter by table name or associated layer."
+    end
+
     section = params[:section].presence&.in?(%w[vector raster s3]) ? params[:section] : "vector"
     page    = [params[:page].to_i, 1].max
     per_page = 25
@@ -120,57 +124,6 @@ ActiveAdmin.register_page "Dataset Inventory" do
   end
 
   controller do
-    helper_method :format_bytes, :sort_link, :inventory_pagination
-
-    def format_bytes(bytes)
-      return "—" unless bytes&.positive?
-      if bytes >= 1.gigabyte
-        "#{(bytes.to_f / 1.gigabyte).round(2)} GB"
-      elsif bytes >= 1.megabyte
-        "#{(bytes.to_f / 1.megabyte).round(1)} MB"
-      else
-        "#{(bytes.to_f / 1.kilobyte).round(1)} KB"
-      end
-    end
-
-    def sort_link(label, col, current_sort, current_dir, base_params)
-      new_dir = (current_sort == col && current_dir == "asc") ? "desc" : "asc"
-      arrow = current_sort == col ? (current_dir == "asc" ? " ▲" : " ▼") : ""
-      link_to "#{label}#{arrow}".html_safe,
-        admin_dataset_inventory_path(base_params.merge(sort: col, dir: new_dir, page: 1))
-    end
-
-    def inventory_pagination(result, base_params)
-      total      = result[:total]
-      cur        = result[:page]
-      per        = result[:per_page]
-      return "".html_safe if total <= per
-
-      total_pages = (total.to_f / per).ceil
-      parts = []
-      parts << link_to("← Prev", admin_dataset_inventory_path(base_params.merge(page: cur - 1))) if cur > 1
-
-      window = (([cur - 2, 1].max)..([cur + 2, total_pages].min)).to_a
-      parts << link_to("1", admin_dataset_inventory_path(base_params.merge(page: 1))) if window.first > 1
-      parts << content_tag(:span, "…") if window.first > 2
-
-      window.each do |p|
-        parts << (p == cur ? content_tag(:strong, p) : link_to(p, admin_dataset_inventory_path(base_params.merge(page: p))))
-      end
-
-      parts << content_tag(:span, "…") if window.last < total_pages - 1
-      parts << link_to(total_pages, admin_dataset_inventory_path(base_params.merge(page: total_pages))) if window.last < total_pages
-      parts << link_to("Next →", admin_dataset_inventory_path(base_params.merge(page: cur + 1))) if cur < total_pages
-
-      from = (cur - 1) * per + 1
-      to   = [cur * per, total].min
-      content_tag(:div, class: "inventory-pagination") do
-        safe_join([
-          safe_join(parts, " "),
-          content_tag(:br),
-          content_tag(:small, "Showing #{number_with_delimiter(from)}–#{number_with_delimiter(to)} of #{number_with_delimiter(total)}")
-        ])
-      end
-    end
+    helper DatasetInventoryHelper
   end
 end

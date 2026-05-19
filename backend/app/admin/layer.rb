@@ -1,4 +1,10 @@
 ActiveAdmin.register Layer do
+  menu label: "Layers", parent: "Map Content", priority: 1
+
+  sidebar "About", only: :index do
+    para "Layers are the core map data layers. Each layer defines a data source (COG raster, Martin vector tiles, or other provider), display style, legend, zoom range, and associated metadata."
+  end
+
   includes :translations
 
   permit_params :name, :slug, :published, :zindex, :order, :layer_config, :layer_provider, :opacity,
