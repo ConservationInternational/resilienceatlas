@@ -1519,7 +1519,7 @@ namespace :cartodb do
 
     cog_styles_updated = 0
     cog_styles_skipped = 0
-    cog_styles_no_css   = 0
+    cog_styles_no_css = 0
 
     Layer.where(layer_provider: "cog").find_each do |layer|
       config = begin
@@ -1574,7 +1574,7 @@ namespace :cartodb do
 
     cog_sources_updated = 0
     cog_sources_skipped = 0
-    cog_sources_no_sql  = 0
+    cog_sources_no_sql = 0
 
     Layer.where(layer_provider: "cog").find_each do |layer|
       config = begin
@@ -1583,7 +1583,7 @@ namespace :cartodb do
         {}
       end
 
-      migration  = config["cartodb_migration"] || {}
+      migration = config["cartodb_migration"] || {}
       source_sql = migration["source_sql"].to_s.strip
 
       if source_sql.blank?
@@ -1598,7 +1598,7 @@ namespace :cartodb do
         next
       end
 
-      local_vector  = referenced.select { |t| ar_conn.table_exists?("#{target_schema}.#{t}") }
+      local_vector = referenced.select { |t| ar_conn.table_exists?("#{target_schema}.#{t}") }
       raster_tables = referenced - local_vector
 
       if raster_tables.empty?
@@ -1623,7 +1623,7 @@ namespace :cartodb do
       puts "  Now: #{sources.join(", ")}"
 
       unless dry_run
-        config["body"]["source"]  = sources.first
+        config["body"]["source"] = sources.first
         config["body"]["sources"] = sources
         migration["raster_tables"] = raster_tables
         config["cartodb_migration"] = migration
@@ -1652,9 +1652,9 @@ namespace :cartodb do
 
     puts "\n── Backfilling COG clip geometry ────────────────────────────────────────"
 
-    cog_clip_updated  = 0
-    cog_clip_skipped  = 0
-    cog_clip_no_clip  = 0
+    cog_clip_updated = 0
+    cog_clip_skipped = 0
+    cog_clip_no_clip = 0
 
     Layer.where(layer_provider: "cog").find_each do |layer|
       config = begin
@@ -1663,7 +1663,7 @@ namespace :cartodb do
         {}
       end
 
-      migration  = config["cartodb_migration"] || {}
+      migration = config["cartodb_migration"] || {}
       source_sql = migration["source_sql"].to_s.strip
 
       unless source_sql.match?(/\bst_clip\s*\(/i)
@@ -1945,7 +1945,7 @@ namespace :cartodb do
 
     puts "\n── Fixing Martin source IDs ─────────────────────────────────────────────"
 
-    martin_sources_fixed   = 0
+    martin_sources_fixed = 0
     martin_sources_skipped = 0
 
     Layer.where(layer_provider: "martin")
@@ -1983,7 +1983,7 @@ namespace :cartodb do
 
     martin_styles_updated = 0
     martin_styles_skipped = 0
-    martin_styles_no_css  = 0
+    martin_styles_no_css = 0
 
     Layer.where(layer_provider: "martin")
       .where("layer_config LIKE '%cartodb_migration%'").find_each do |layer|
@@ -2032,8 +2032,8 @@ namespace :cartodb do
 
     puts "\n── Building Martin interaction_config ───────────────────────────────────"
 
-    martin_ic_updated  = 0
-    martin_ic_skipped  = 0
+    martin_ic_updated = 0
+    martin_ic_skipped = 0
     martin_ic_no_table = 0
 
     Layer.where(layer_provider: "martin")
