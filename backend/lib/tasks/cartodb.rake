@@ -1745,10 +1745,12 @@ namespace :cartodb do
       # ── Persist all changes in a single write ─────────────────────────────
       config["cartodb_migration"] = migration
       unless dry_run
-        layer.update_columns(
-          layer_config: config.to_json,
-          interaction_config: ic_needs_update ? cog_ic.to_json : layer.interaction_config
-        ) if changed || ic_needs_update
+        if changed || ic_needs_update
+          layer.update_columns(
+            layer_config: config.to_json,
+            interaction_config: ic_needs_update ? cog_ic.to_json : layer.interaction_config
+          )
+        end
       end
     end
 
@@ -2023,11 +2025,11 @@ namespace :cartodb do
       # still missing at the time.  When all tables are now imported AND the
       # layer requires a JOIN/CTE, create the proper view so Martin can serve
       # vector tiles with geometry.
-      migration_block  = config["cartodb_migration"] || {}
-      tables_status    = migration_block["tables"] || {}
-      imported_list    = tables_status.select { |_, v| v == "imported" }.keys
-      raw_sql          = migration_block["source_sql"].presence ||
-                         migration_block["cleaned_query"].presence
+      migration_block = config["cartodb_migration"] || {}
+      tables_status = migration_block["tables"] || {}
+      imported_list = tables_status.select { |_, v| v == "imported" }.keys
+      raw_sql = migration_block["source_sql"].presence ||
+        migration_block["cleaned_query"].presence
 
       upgrade_to_view = imported_list.size > 1 &&
         !source.match?(/\Av_layer_\d+\z/) &&
@@ -2035,7 +2037,7 @@ namespace :cartodb do
 
       if upgrade_to_view
         view_name = "v_layer_#{layer.id}"
-        view_sql  = CartodbRakeHelpers.qualify_table_names_in_sql(
+        view_sql = CartodbRakeHelpers.qualify_table_names_in_sql(
           raw_sql, target_schema, imported_list
         )
 
@@ -2057,7 +2059,9 @@ namespace :cartodb do
         puts "Layer ##{layer.id} (#{layer.slug}): source upgrade #{source} → #{view_name}"
         puts "  SQL: #{view_sql}"
 
-        unless dry_run
+        if dry_run
+          martin_views_upgraded += 1
+        else
           begin
             ar_conn.execute(create_ddl)
             config["body"]["source"] = view_name
@@ -2071,8 +2075,6 @@ namespace :cartodb do
           rescue => e
             warn "Layer ##{layer.id}: ✗ view creation failed: #{e.message}"
           end
-        else
-          martin_views_upgraded += 1
         end
       end
 
