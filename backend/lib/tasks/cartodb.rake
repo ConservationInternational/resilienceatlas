@@ -405,27 +405,27 @@ module CartodbRakeHelpers
     return nil if table_names.empty? || sql.blank?
 
     quoted = table_names.map { |t| "'#{ar_conn.quote_string(t)}'" }.join(", ")
-    geom_tables = ar_conn.execute(
-      "SELECT f_table_name FROM geometry_columns " \
+    rows = ar_conn.execute(
+      "SELECT f_table_name, f_geometry_column FROM geometry_columns " \
       "WHERE f_table_schema = '#{schema}' AND f_table_name IN (#{quoted})"
-    ).map { |r| r["f_table_name"] }
+    ).map { |r| [r["f_table_name"], r["f_geometry_column"]] }
 
-    return nil if geom_tables.empty?
+    return nil if rows.empty?
 
-    geom_tables.each do |tbl|
-      # Look for: FROM/JOIN <tbl> [AS] alias  — alias is optional
-      m = sql.match(/\b(?:FROM|JOIN)\s+#{Regexp.escape(tbl)}\s+(?:AS\s+)?([a-zA-Z_]\w*)\b/i)
+    rows.each do |tbl, geom_col|
+      # Look for: FROM/JOIN [schema.]<tbl> [AS] alias  — alias is optional
+      m = sql.match(/\b(?:FROM|JOIN)\s+(?:#{Regexp.escape(schema)}\.)?#{Regexp.escape(tbl)}\s+(?:AS\s+)?([a-zA-Z_]\w*)\b/i)
       if m && !m[1].match?(SQL_KEYWORD_RE)
-        return "#{m[1]}.the_geom"
+        return "#{m[1]}.#{geom_col}"
       else
-        return "#{schema}.#{tbl}.the_geom"
+        return "#{schema}.#{tbl}.#{geom_col}"
       end
     end
 
     nil
   end
 
-  # Inject `geom_ref` (e.g. "t2.the_geom") into the outermost SELECT clause
+  # Inject `geom_ref` (e.g. "t2.geom") into the outermost SELECT clause
   # of `view_sql`.  Handles both plain queries and CTEs (WITH ... AS (...) SELECT).
   # For CTEs the injection point is the SELECT that follows the last CTE definition.
   def self.inject_geometry_into_select(view_sql, geom_ref)
@@ -435,6 +435,59 @@ module CartodbRakeHelpers
     else
       view_sql.sub(/\bSELECT\s+/i, "SELECT #{geom_ref}, ")
     end
+  end
+
+  # CartoDB always stored geometry as `the_geom`, but PostGIS tables imported
+  # from GPKG files may use a different column name (e.g. `geom`, `wkb_geometry`,
+  # `wkt_geom`).  Rename every `alias.the_geom` reference in `sql` to the actual
+  # geometry column name for each matching table, as reported by geometry_columns.
+  #
+  # Returns [modified_sql, geom_ref_found] where geom_ref_found is true if at
+  # least one geometry-bearing table was located in the SQL — meaning no further
+  # geometry injection is needed regardless of whether a rename took place.
+  def self.fix_the_geom_references(sql, schema, table_names, ar_conn)
+    return [sql, false] if table_names.empty? || sql.blank?
+
+    quoted = table_names.map { |t| "'#{ar_conn.quote_string(t)}'" }.join(", ")
+    rows = ar_conn.execute(
+      "SELECT f_table_name, f_geometry_column FROM geometry_columns " \
+      "WHERE f_table_schema = '#{schema}' AND f_table_name IN (#{quoted})"
+    ).map { |r| [r["f_table_name"], r["f_geometry_column"]] }
+
+    return [sql, false] if rows.empty?
+
+    result = sql.dup
+    geom_ref_found = false
+
+    rows.each do |tbl, geom_col|
+      # Locate the alias used for this table in FROM/JOIN clauses
+      m = sql.match(/\b(?:FROM|JOIN)\s+(?:#{Regexp.escape(schema)}\.)?#{Regexp.escape(tbl)}\s+(?:AS\s+)?([a-zA-Z_]\w*)\b/i)
+      tbl_alias = (m && !m[1].match?(SQL_KEYWORD_RE)) ? m[1] : nil
+
+      if tbl_alias
+        pat = /\b#{Regexp.escape(tbl_alias)}\.the_geom\b/i
+        if geom_col != "the_geom" && result.match?(pat)
+          result = result.gsub(pat, "#{tbl_alias}.#{geom_col}")
+          geom_ref_found = true
+        elsif result.match?(/\b#{Regexp.escape(tbl_alias)}\.(?:the_geom|#{Regexp.escape(geom_col)})\b/i)
+          geom_ref_found = true
+        end
+      end
+
+      # Also handle schema.table.the_geom and bare table.the_geom references
+      # (used when no alias is present in the original CartoDB SQL).
+      next if geom_col == "the_geom"
+      {
+        /\b#{Regexp.escape(schema)}\.#{Regexp.escape(tbl)}\.the_geom\b/i => "#{schema}.#{tbl}.#{geom_col}",
+        /\b#{Regexp.escape(tbl)}\.the_geom\b/i => "#{tbl}.#{geom_col}"
+      }.each do |pat, rep|
+        next unless result.match?(pat)
+        result = result.gsub(pat, rep)
+        geom_ref_found = true
+      end
+    end
+
+    [result, geom_ref_found]
   end
 
   # Extract a SQL query from a CartoDB-native layer_config JSON blob.
@@ -1894,12 +1947,19 @@ namespace :cartodb do
             layer.query, target_schema, imported
           )
 
+          # CartoDB always used `the_geom`, but GPKG-imported PostGIS tables may
+          # use a different column name (e.g. `geom`, `wkb_geometry`, `wkt_geom`).
+          # Rename any `alias.the_geom` references to the actual column name first.
+          view_sql, geom_ref_present = CartodbRakeHelpers.fix_the_geom_references(
+            view_sql, target_schema, imported, ar_conn
+          )
+
           # update_layer_references stripped the_geom via strip_cartodb_columns.
           # For a wildcard SELECT (*) the geometry column comes through anyway;
           # for explicit column lists we must add it back so Martin can generate
           # vector tiles.  Use PostGIS geometry_columns to identify which imported
           # table actually carries geometry (may not be the primary table).
-          unless view_sql.match?(/SELECT\s+\*/i) || view_sql.match?(/\bthe_geom\b|\bgeom\b/i)
+          unless view_sql.match?(/SELECT\s+\*/i) || geom_ref_present
             geom_ref = CartodbRakeHelpers.find_geometry_column_ref(
               layer.query, target_schema, imported, ar_conn
             )
@@ -2058,7 +2118,14 @@ namespace :cartodb do
           raw_sql, target_schema, imported_list
         )
 
-        unless view_sql.match?(/SELECT\s+\*/i) || view_sql.match?(/\bthe_geom\b|\bgeom\b/i)
+        # CartoDB always used `the_geom`, but GPKG-imported PostGIS tables may
+        # use a different column name (e.g. `geom`, `wkb_geometry`, `wkt_geom`).
+        # Rename any `alias.the_geom` references to the actual column name first.
+        view_sql, geom_ref_present = CartodbRakeHelpers.fix_the_geom_references(
+          view_sql, target_schema, imported_list, ar_conn
+        )
+
+        unless view_sql.match?(/SELECT\s+\*/i) || geom_ref_present
           geom_ref = CartodbRakeHelpers.find_geometry_column_ref(
             raw_sql, target_schema, imported_list, ar_conn
           )
