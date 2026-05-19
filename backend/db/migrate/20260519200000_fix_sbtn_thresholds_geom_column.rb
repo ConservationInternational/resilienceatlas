@@ -1,26 +1,25 @@
-# Fixes sbtn_thresholds_tiles to use ecoregions2017 for geometry instead
-# of ldn_dissolved_geometries, which does not exist on staging.
+# Fixes sbtn_thresholds_tiles — two bugs introduced in migration 20260519100000:
 #
-# Root cause: the original migration (20260515170000) referenced
-# ldn_dissolved_geometries (an LDN-specific pre-dissolved geometry table
-# created by `rake ldn:build_dimensions` in ra_vector schema). That table
-# has never been populated on staging, causing Martin to 500 on every tile
-# request.
+# 1. Schema resolution failure at tile-request time.
+#    When Rails runs a migration the connection has schema_search_path =
+#    ra_app,ra_vector,ra_raster,public (database.yml), so the function body
+#    compiled successfully.  But Martin uses its own DB connection whose
+#    search_path only covers ra_app — so unqualified `ecoregions2017` triggers
+#    "relation does not exist" every time a tile is requested.
 #
-# Fix: join directly against ecoregions2017, which is the same table the
-# original CartoDB query used.
+#    Generalized fix: add `SET search_path = ra_app, ra_vector, ra_raster, public`
+#    to the function definition.  PostgreSQL applies this search path for the
+#    entire duration of every call, regardless of the caller's session path.
+#    This is the standard PostgreSQL idiom for cross-schema functions and means
+#    the function will resolve tables correctly no matter which connection
+#    (Rails, Martin, psql, etc.) invokes it.
 #
-# Schema note: Martin's DB connection does not inherit Rails' schema_search_path
-# (ra_app,ra_vector,ra_raster,public from database.yml).  To ensure the
-# function resolves unqualified table names correctly regardless of caller,
-# we set SET search_path = ra_app, ra_vector, ra_raster, public in the
-# function definition itself.  See migration 20260519200000 for the fix
-# applied to a staging instance that ran this migration before the search_path
-# clause was added.
-#
-# Also adds eco_name, biome_name, and realm from ecoregions2017 to the
-# MVT properties so the interaction popup can display them.
-class FixSbtnThresholdsTileFunction < ActiveRecord::Migration[7.2]
+# 2. Wrong geometry column name.
+#    ecoregions2017 was imported via GPKG; the geometry column is `geom`, not
+#    `the_geom` (the CartoDB convention).  Two references to `e.the_geom` in
+#    the previous migration caused a "column does not exist" error that would
+#    have surfaced once the search-path problem was resolved.
+class FixSbtnThresholdsGeomColumn < ActiveRecord::Migration[7.2]
   def up
     execute <<~SQL
       CREATE OR REPLACE FUNCTION sbtn_thresholds_tiles(
@@ -87,7 +86,7 @@ class FixSbtnThresholdsTileFunction < ActiveRecord::Migration[7.2]
   end
 
   def down
-    # Restore the original function that depended on ldn_dissolved_geometries.
+    # Revert to the state left by 20260519100000 (wrong column, no SET search_path).
     execute <<~SQL
       CREATE OR REPLACE FUNCTION sbtn_thresholds_tiles(
         z integer, x integer, y integer, query_params json DEFAULT '{}'
@@ -109,6 +108,9 @@ class FixSbtnThresholdsTileFunction < ActiveRecord::Migration[7.2]
           SELECT
             t.eco_id,
             t.ecoregion,
+            e.eco_name,
+            e.biome_name,
+            e.realm,
             t.natural_land_baseline,
             t.natural_land_threshold,
             t.natural_land_exceedance,
@@ -122,17 +124,16 @@ class FixSbtnThresholdsTileFunction < ActiveRecord::Migration[7.2]
             t.soc_threshold,
             t.soc_exceedance,
             ST_AsMVTGeom(
-              ST_Transform(g.geom, 3857),
+              ST_Transform(e.the_geom, 3857),
               bounds,
               4096,
               256,
               true
             ) AS mvt_geom
-          FROM ldn_dissolved_geometries g
+          FROM ecoregions2017 e
           JOIN sbtn_thresholds t
-            ON (g.properties ->> 'eco_id')::integer = t.eco_id
-          WHERE g.dimension = 'ecoregion'
-            AND g.geom && ST_Transform(bounds, 4326)
+            ON e.eco_id::integer = t.eco_id
+          WHERE e.the_geom && ST_Transform(bounds, 4326)
         ) AS tile
         WHERE mvt_geom IS NOT NULL;
 
