@@ -8,10 +8,10 @@ if Rails.env.production? || Rails.env.staging?
   require "shrine/storage/s3"
 
   s3_options = {
-    bucket: ENV.fetch("S3_BUCKET", "resilienceatlas"),
-    region: ENV.fetch("AWS_REGION", "us-east-1"),
-    access_key_id: ENV["AWS_ACCESS_KEY_ID"],
-    secret_access_key: ENV["AWS_SECRET_ACCESS_KEY"]
+    bucket: ENV["S3_BUCKET"].presence || "resilienceatlas",
+    region: ENV["AWS_REGION"].presence || "us-east-1",
+    access_key_id: ENV["AWS_ACCESS_KEY_ID"].presence,
+    secret_access_key: ENV["AWS_SECRET_ACCESS_KEY"].presence
   }
 
   Shrine.storages = {

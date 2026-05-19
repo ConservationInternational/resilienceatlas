@@ -907,6 +907,16 @@ namespace :cartodb do
         end
         puts "  done (#{File.size(local_path)} bytes)."
 
+        # Drop any pre-existing table before calling ogr2ogr.  The -overwrite
+        # flag is unreliable with schema-qualified names in some ogr2ogr versions,
+        # and a partial table left over from a failed previous run will cause
+        # "relation already exists" even when the existence check says it's gone.
+        begin
+          ar_conn.execute("DROP TABLE IF EXISTS #{q_table} CASCADE")
+        rescue => drop_err
+          warn "  Warning: pre-import DROP failed (#{drop_err.message}) — proceeding anyway."
+        end
+
         # Try progressively smaller batch sizes on OOM crash (large batches are
         # faster; only pathological files need small ones).
         batch_sizes = [65535, 1000, 100, 10]

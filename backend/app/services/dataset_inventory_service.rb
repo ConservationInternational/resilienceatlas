@@ -168,9 +168,9 @@ class DatasetInventoryService
 
   def build_s3_client
     Aws::S3::Client.new(
-      region:            ENV.fetch("AWS_REGION", "us-east-1"),
-      access_key_id:     ENV["AWS_ACCESS_KEY_ID"],
-      secret_access_key: ENV["AWS_SECRET_ACCESS_KEY"]
+      region:            ENV["AWS_REGION"].presence || "us-east-1",
+      access_key_id:     ENV["AWS_ACCESS_KEY_ID"].presence,
+      secret_access_key: ENV["AWS_SECRET_ACCESS_KEY"].presence
     )
   end
 end
