@@ -33,7 +33,7 @@ class LayerInteractionConfigBuilder
       "ORDER BY ordinal_position"
     )
     cols = rows.map { |r| r["column_name"] }
-               .reject { |c| SKIP_COLS.include?(c) || c.match?(/\A(?:the_)?geom/i) }
+      .reject { |c| SKIP_COLS.include?(c) || c.match?(/\A(?:the_)?geom/i) }
     return nil if cols.empty?
 
     output = cols.map do |c|

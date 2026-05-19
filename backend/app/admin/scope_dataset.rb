@@ -142,7 +142,7 @@ ActiveAdmin.register ScopeDataset do
   # Large CSV import via S3 + background job
   member_action :import_large_csv, method: [:get, :post] do
     if request.post?
-      s3_key    = params[:s3_key].to_s.strip
+      s3_key = params[:s3_key].to_s.strip
       file_name = params[:file_name].to_s.strip
       file_size = params[:file_size_bytes].to_i
 
@@ -156,7 +156,7 @@ ActiveAdmin.register ScopeDataset do
         admin_user: current_admin_user,
         file_name: file_name.presence || File.basename(s3_key),
         s3_key: s3_key,
-        file_size_bytes: file_size > 0 ? file_size : nil,
+        file_size_bytes: (file_size > 0) ? file_size : nil,
         import_type: "csv",
         status: "pending"
       )

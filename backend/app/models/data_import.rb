@@ -3,16 +3,16 @@ class DataImport < ApplicationRecord
   belongs_to :admin_user
 
   enum :status, {
-    pending:    "pending",
+    pending: "pending",
     processing: "processing",
-    complete:   "complete",
-    failed:     "failed"
+    complete: "complete",
+    failed: "failed"
   }
 
   enum :import_type, {
-    cog:    "cog",
+    cog: "cog",
     vector: "vector",
-    csv:    "csv"
+    csv: "csv"
   }, prefix: :type
 
   validates :import_type, presence: true

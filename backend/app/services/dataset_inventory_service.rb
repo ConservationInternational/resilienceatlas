@@ -27,9 +27,7 @@ class DatasetInventoryService
     @s3_cogs ||= fetch_s3_cogs
   end
 
-  def s3_error
-    @s3_error
-  end
+  attr_reader :s3_error
 
   private
 
@@ -59,9 +57,9 @@ class DatasetInventoryService
 
     rows.map do |r|
       {
-        name:       r["table_name"],
-        schema:     r["table_schema"],
-        row_count:  r["row_count"].to_i,
+        name: r["table_name"],
+        schema: r["table_schema"],
+        row_count: r["row_count"].to_i,
         size_bytes: r["size_bytes"].to_i
       }
     end
@@ -108,8 +106,8 @@ class DatasetInventoryService
   # ── S3 inventory ─────────────────────────────────────────────────────────────
 
   def fetch_s3_cogs
-    bucket = ENV.fetch("S3_BUCKET", "resilienceatlas")
-    prefix = ENV.fetch("COG_PREFIX", "cogs/")
+    bucket = ENV["S3_BUCKET"].presence || "resilienceatlas"
+    prefix = ENV["COG_PREFIX"].presence || "cogs/"
     prefix = "#{prefix}/" unless prefix.end_with?("/")
 
     client = build_s3_client
@@ -124,9 +122,9 @@ class DatasetInventoryService
       resp = client.list_objects_v2(**opts)
       resp.contents.each do |obj|
         results << {
-          key:        obj.key,
+          key: obj.key,
           size_bytes: obj.size,
-          layers:     cog_layers_by_key[obj.key] || []
+          layers: cog_layers_by_key[obj.key] || []
         }
       end
 
@@ -145,7 +143,7 @@ class DatasetInventoryService
 
   def build_cog_layer_index
     index = Hash.new { |h, k| h[k] = [] }
-    bucket = ENV.fetch("S3_BUCKET", "resilienceatlas")
+    bucket = ENV["S3_BUCKET"].presence || "resilienceatlas"
 
     Layer.where(layer_provider: "cog").find_each do |layer|
       uri = LayerTableParser.source_from_config(layer)
@@ -168,8 +166,8 @@ class DatasetInventoryService
 
   def build_s3_client
     Aws::S3::Client.new(
-      region:            ENV["AWS_REGION"].presence || "us-east-1",
-      access_key_id:     ENV["AWS_ACCESS_KEY_ID"].presence,
+      region: ENV["AWS_REGION"].presence || "us-east-1",
+      access_key_id: ENV["AWS_ACCESS_KEY_ID"].presence,
       secret_access_key: ENV["AWS_SECRET_ACCESS_KEY"].presence
     )
   end

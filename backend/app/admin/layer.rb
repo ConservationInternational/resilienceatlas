@@ -31,16 +31,16 @@ ActiveAdmin.register Layer do
 
   member_action :upload_cog, method: [:get, :post] do
     if request.post?
-      s3_key       = params[:s3_key].to_s.strip
-      file_name    = params[:file_name].to_s.strip
-      file_size    = params[:file_size_bytes].to_i
+      s3_key = params[:s3_key].to_s.strip
+      file_name = params[:file_name].to_s.strip
+      file_size = params[:file_size_bytes].to_i
 
       if s3_key.blank? || !s3_key.start_with?("cogs/")
         redirect_to resource_path, alert: "Invalid S3 key — must start with 'cogs/'"
         return
       end
 
-      s3_uri  = "s3://#{ENV.fetch("S3_BUCKET", "resilienceatlas")}/#{s3_key}"
+      s3_uri = "s3://#{ENV.fetch("S3_BUCKET", "resilienceatlas")}/#{s3_key}"
       new_config = {"body" => {"source" => s3_uri}}
 
       DataImport.transaction do
@@ -54,7 +54,7 @@ ActiveAdmin.register Layer do
           admin_user: current_admin_user,
           file_name: file_name.presence || File.basename(s3_key),
           s3_key: s3_key,
-          file_size_bytes: file_size > 0 ? file_size : nil,
+          file_size_bytes: (file_size > 0) ? file_size : nil,
           import_type: "cog",
           status: "complete",
           started_at: Time.current,
@@ -72,7 +72,7 @@ ActiveAdmin.register Layer do
 
   member_action :import_vector, method: [:get, :post] do
     if request.post?
-      s3_key    = params[:s3_key].to_s.strip
+      s3_key = params[:s3_key].to_s.strip
       file_name = params[:file_name].to_s.strip
       file_size = params[:file_size_bytes].to_i
 
@@ -86,7 +86,7 @@ ActiveAdmin.register Layer do
         admin_user: current_admin_user,
         file_name: file_name.presence || File.basename(s3_key),
         s3_key: s3_key,
-        file_size_bytes: file_size > 0 ? file_size : nil,
+        file_size_bytes: (file_size > 0) ? file_size : nil,
         import_type: "vector",
         status: "pending"
       )

@@ -20,9 +20,9 @@ if Rails.env.production? || Rails.env.staging?
     # Permanent processed files
     store: Shrine::Storage::S3.new(prefix: "uploads/store", **s3_options),
     # Staging area for vector/CSV imports before background processing
-    staging: Shrine::Storage::S3.new(prefix: ENV.fetch("S3_STAGING_PREFIX", "staging"), **s3_options),
+    staging: Shrine::Storage::S3.new(prefix: ENV["S3_STAGING_PREFIX"].presence || "staging", **s3_options),
     # COG rasters
-    cogs: Shrine::Storage::S3.new(prefix: ENV.fetch("COG_PREFIX", "cogs"), **s3_options)
+    cogs: Shrine::Storage::S3.new(prefix: ENV["COG_PREFIX"].presence || "cogs", **s3_options)
   }
 else
   # -----------------------------------------------------------------------
@@ -34,21 +34,19 @@ else
   upload_staging_path = File.join(Rails.root, upload_root, "uploads", "staging")
 
   [upload_cache_path, upload_store_path, upload_staging_path].each do |path|
-    begin
-      FileUtils.mkdir_p(path) unless File.directory?(path)
-    rescue Errno::EACCES => e
-      Rails.logger.warn "Unable to create upload directory #{path}: #{e.message}"
-    rescue => e
-      Rails.logger.error "Error creating upload directory #{path}: #{e.message}"
-      raise e unless Rails.env.test?
-    end
+    FileUtils.mkdir_p(path) unless File.directory?(path)
+  rescue Errno::EACCES => e
+    Rails.logger.warn "Unable to create upload directory #{path}: #{e.message}"
+  rescue => e
+    Rails.logger.error "Error creating upload directory #{path}: #{e.message}"
+    raise e unless Rails.env.test?
   end
 
   Shrine.storages = {
-    cache:   Shrine::Storage::FileSystem.new(upload_root, prefix: "uploads/cache"),
-    store:   Shrine::Storage::FileSystem.new(upload_root, prefix: "uploads/store"),
+    cache: Shrine::Storage::FileSystem.new(upload_root, prefix: "uploads/cache"),
+    store: Shrine::Storage::FileSystem.new(upload_root, prefix: "uploads/store"),
     staging: Shrine::Storage::FileSystem.new(upload_root, prefix: "uploads/staging"),
-    cogs:    Shrine::Storage::FileSystem.new(upload_root, prefix: "uploads/cogs")
+    cogs: Shrine::Storage::FileSystem.new(upload_root, prefix: "uploads/cogs")
   }
 end
 

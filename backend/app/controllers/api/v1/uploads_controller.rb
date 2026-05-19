@@ -13,7 +13,7 @@ module Api
       before_action :authenticate_admin_user!
 
       ALLOWED_PREFIXES = %w[cogs staging].freeze
-      MAX_PART_COUNT   = 10_000
+      MAX_PART_COUNT = 10_000
 
       # POST /api/v1/uploads/multipart
       # Body: { filename, type, metadata: { size } }
@@ -38,17 +38,17 @@ module Api
       # GET /api/v1/uploads/multipart/:upload_id?key=...&partNumbers[]=...
       def sign_parts
         upload_id = params[:upload_id]
-        key       = validate_key!(params[:key])
+        key = validate_key!(params[:key])
         part_numbers = Array(params[:partNumbers]).map(&:to_i).first(MAX_PART_COUNT)
 
         presigned_urls = part_numbers.index_with do |part_number|
           s3_presigner.presigned_url(
             :upload_part,
-            bucket:      s3_bucket,
-            key:         key,
-            upload_id:   upload_id,
+            bucket: s3_bucket,
+            key: key,
+            upload_id: upload_id,
             part_number: part_number,
-            expires_in:  3600
+            expires_in: 3600
           )
         end
 
@@ -65,16 +65,16 @@ module Api
       # Body: { key, parts: [{ PartNumber, ETag }, ...] }
       def complete_multipart
         upload_id = params[:upload_id]
-        key       = validate_key!(params[:key])
-        parts     = params[:parts].map do |part|
+        key = validate_key!(params[:key])
+        parts = params[:parts].map do |part|
           {part_number: part[:PartNumber].to_i, etag: part[:ETag]}
         end
 
         s3_client.complete_multipart_upload(
-          bucket:            s3_bucket,
-          key:               key,
-          upload_id:         upload_id,
-          multipart_upload:  {parts: parts}
+          bucket: s3_bucket,
+          key: key,
+          upload_id: upload_id,
+          multipart_upload: {parts: parts}
         )
 
         render json: {location: "s3://#{s3_bucket}/#{key}"}
@@ -85,11 +85,11 @@ module Api
       # DELETE /api/v1/uploads/multipart/:upload_id?key=...
       def abort_multipart
         upload_id = params[:upload_id]
-        key       = validate_key!(params[:key])
+        key = validate_key!(params[:key])
 
         s3_client.abort_multipart_upload(
-          bucket:    s3_bucket,
-          key:       key,
+          bucket: s3_bucket,
+          key: key,
           upload_id: upload_id
         )
 
@@ -102,8 +102,8 @@ module Api
 
       def s3_client
         @s3_client ||= Aws::S3::Client.new(
-          region:            ENV.fetch("AWS_REGION", "us-east-1"),
-          access_key_id:     ENV["AWS_ACCESS_KEY_ID"],
+          region: ENV.fetch("AWS_REGION", "us-east-1"),
+          access_key_id: ENV["AWS_ACCESS_KEY_ID"],
           secret_access_key: ENV["AWS_SECRET_ACCESS_KEY"]
         )
       end
@@ -132,7 +132,7 @@ module Api
 
       def sanitize_filename(filename)
         # Strip path components and null bytes
-        File.basename(filename.gsub("\x00", "")).gsub(/[^\w.\-]/, "_")
+        File.basename(filename.delete("\x00")).gsub(/[^\w.\-]/, "_")
       end
     end
   end

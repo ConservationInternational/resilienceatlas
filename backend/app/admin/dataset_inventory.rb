@@ -5,7 +5,7 @@ ActiveAdmin.register_page "Dataset Inventory" do
     svc = DatasetInventoryService.new
     vector_tables = svc.vector_tables
     raster_tables = svc.raster_tables
-    cogs          = svc.s3_cogs
+    cogs = svc.s3_cogs
 
     div class: "inventory-refresh" do
       para do
@@ -21,8 +21,8 @@ ActiveAdmin.register_page "Dataset Inventory" do
       else
         table_for vector_tables do
           column("Table name") { |r| r[:name] }
-          column("Rows")       { |r| number_with_delimiter(r[:row_count]) }
-          column("Size")       { |r| format_bytes(r[:size_bytes]) }
+          column("Rows") { |r| number_with_delimiter(r[:row_count]) }
+          column("Size") { |r| format_bytes(r[:size_bytes]) }
           column("Used by layers") do |r|
             if r[:layers].any?
               safe_join(r[:layers].map { |l|
@@ -43,8 +43,8 @@ ActiveAdmin.register_page "Dataset Inventory" do
       else
         table_for raster_tables do
           column("Table name") { |r| r[:name] }
-          column("Rows")       { |r| number_with_delimiter(r[:row_count]) }
-          column("Size")       { |r| format_bytes(r[:size_bytes]) }
+          column("Rows") { |r| number_with_delimiter(r[:row_count]) }
+          column("Size") { |r| format_bytes(r[:size_bytes]) }
           column("Used by layers") do |r|
             if r[:layers].any?
               safe_join(r[:layers].map { |l|
@@ -68,8 +68,8 @@ ActiveAdmin.register_page "Dataset Inventory" do
         para "No COG objects found."
       else
         table_for cogs do
-          column("S3 Key")  { |r| r[:key] }
-          column("Size")    { |r| format_bytes(r[:size_bytes]) }
+          column("S3 Key") { |r| r[:key] }
+          column("Size") { |r| format_bytes(r[:size_bytes]) }
           column("Used by layers") do |r|
             if r[:layers].any?
               safe_join(r[:layers].map { |l|

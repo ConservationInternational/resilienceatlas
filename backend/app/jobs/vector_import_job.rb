@@ -23,8 +23,8 @@ class VectorImportJob
 
     di.update!(status: "processing", started_at: Time.current)
 
-    s3_key     = di.s3_key
-    file_name  = di.file_name.presence || File.basename(s3_key)
+    s3_key = di.s3_key
+    file_name = di.file_name.presence || File.basename(s3_key)
     table_name = "imported_#{layer.slug.gsub(/[^a-z0-9_]/, "_")}"
 
     work_dir = Rails.root.join("tmp", "imports", data_import_id.to_s)
@@ -77,8 +77,8 @@ class VectorImportJob
     region = ENV.fetch("AWS_REGION", "us-east-1")
 
     client = Aws::S3::Client.new(
-      region:            region,
-      access_key_id:     ENV["AWS_ACCESS_KEY_ID"],
+      region: region,
+      access_key_id: ENV["AWS_ACCESS_KEY_ID"],
       secret_access_key: ENV["AWS_SECRET_ACCESS_KEY"]
     )
 
@@ -126,10 +126,10 @@ class VectorImportJob
 
   def build_pg_url
     cfg = ActiveRecord::Base.connection_db_config.configuration_hash
-    host     = cfg[:host]     || "localhost"
-    port     = cfg[:port]     || 5432
-    dbname   = cfg[:database]
-    user     = cfg[:username]
+    host = cfg[:host] || "localhost"
+    port = cfg[:port] || 5432
+    dbname = cfg[:database]
+    user = cfg[:username]
     password = cfg[:password]
     "host=#{host} port=#{port} dbname=#{dbname} user=#{user} password=#{password}"
   end

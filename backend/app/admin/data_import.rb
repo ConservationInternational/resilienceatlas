@@ -73,8 +73,8 @@ ActiveAdmin.register DataImport do
 
     def status_class(status)
       case status.to_s
-      when "complete"   then "yes"
-      when "failed"     then "no"
+      when "complete" then "yes"
+      when "failed" then "no"
       when "processing" then "orange"
       else ""
       end

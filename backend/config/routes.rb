@@ -44,11 +44,11 @@ Rails.application.routes.draw do
 
       # S3 multipart upload coordination (used by Uppy in ActiveAdmin)
       scope "uploads/multipart" do
-        post   "/",                    to: "uploads#create_multipart"
-        get    "/:upload_id",          to: "uploads#sign_parts"
-        get    "/:upload_id/batch",    to: "uploads#batch_sign_parts"
-        post   "/:upload_id/complete", to: "uploads#complete_multipart"
-        delete "/:upload_id",          to: "uploads#abort_multipart"
+        post "/", to: "uploads#create_multipart"
+        get "/:upload_id", to: "uploads#sign_parts"
+        get "/:upload_id/batch", to: "uploads#batch_sign_parts"
+        post "/:upload_id/complete", to: "uploads#complete_multipart"
+        delete "/:upload_id", to: "uploads#abort_multipart"
       end
       get "/share/:uid", to: "share_urls#show"
       post "/share", to: "share_urls#create"
