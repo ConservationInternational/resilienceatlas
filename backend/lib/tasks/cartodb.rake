@@ -2252,12 +2252,25 @@ namespace :cartodb do
       raw_sql = migration_block["source_sql"].presence ||
         migration_block["cleaned_query"].presence
 
-      upgrade_to_view = imported_list.size > 1 &&
-        !source.match?(/\Av_layer_\d+\z/) &&
-        raw_sql.present?
+      # Detect whether a previously-created view was dropped (e.g. after a
+      # database restore).  When the source already looks like v_layer_N but
+      # the view no longer exists in the database we must recreate it.
+      view_gone = source.match?(/\Av_layer_\d+\z/) &&
+        raw_sql.present? &&
+        ar_conn.execute(
+          "SELECT 1 FROM pg_catalog.pg_views " \
+          "WHERE schemaname = '#{ar_conn.quote_string(target_schema)}' " \
+          "AND viewname = '#{ar_conn.quote_string(source)}'"
+        ).ntuples.zero?
+
+      upgrade_to_view = raw_sql.present? &&
+        ((imported_list.size > 1 && !source.match?(/\Av_layer_\d+\z/)) ||
+         view_gone)
 
       if upgrade_to_view
-        view_name = "v_layer_#{layer.id}"
+        # When recovering a dropped view, keep the same name so existing
+        # layer_config references remain valid.
+        view_name = source.match?(/\Av_layer_\d+\z/) ? source : "v_layer_#{layer.id}"
         view_sql = CartodbRakeHelpers.qualify_table_names_in_sql(
           raw_sql, target_schema, imported_list
         )
