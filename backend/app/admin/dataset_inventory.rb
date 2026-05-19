@@ -21,8 +21,8 @@ ActiveAdmin.register_page "Dataset Inventory" do
     # ── Tab bar ──────────────────────────────────────────────────────────────
     div class: "inventory-tabs" do
       [["vector", "Vector Tables"], ["raster", "Raster Tables"], ["s3", "S3 COGs"]].each do |tab, label|
-        link_to label, admin_dataset_inventory_path(section: tab),
-          class: "inventory-tab#{section == tab ? " active" : ""}"
+        text_node link_to(label, admin_dataset_inventory_path(section: tab),
+          class: "inventory-tab#{section == tab ? " active" : ""}")
       end
     end
 

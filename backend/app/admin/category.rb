@@ -1,8 +1,8 @@
 ActiveAdmin.register Category do
-  menu label: "Categories", parent: "Data", priority: 1
+  menu label: "Model Categories", parent: "Map Content", priority: 6
 
   sidebar "About", only: :index do
-    para "Categories group related indicators together for display in the map's layer panel. Each category contains one or more indicators and organises how data themes are presented."
+    para "Model categories group related indicators together for display in the map's layer panel. Each category contains one or more indicators and organises how data themes are presented."
   end
 
   includes :translations, indicators: :translations
