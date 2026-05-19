@@ -232,6 +232,29 @@ module CartodbRakeHelpers
     {schema: name[0...idx], table: name[(idx + 1)..]}
   end
 
+  # Detect the first real layer name inside a GeoPackage.
+  # CartoDB exports are generated via ogr2ogr -sql, so the layer is usually
+  # named "sql_statement" rather than the original table name.
+  def self.detect_gpkg_layer_name(path)
+    require "shellwords"
+
+    output = `ogrinfo -ro -so #{Shellwords.escape(path.to_s)} 2>/dev/null`
+    return nil unless $CHILD_STATUS.success?
+
+    output.each_line do |line|
+      match = line.match(/^\s*\d+\s*:\s*(.+?)(?:\s+\(|\s*$)/)
+      next unless match
+
+      layer_name = match[1].to_s.strip
+      next if layer_name.blank?
+      next if layer_name.start_with?("gpkg_", "sqlite_")
+
+      return layer_name
+    end
+
+    nil
+  end
+
   # Load the tables.csv manifest produced by the export script.
   # Returns: { "public_foo.csv.gz" => { schema: "public", table: "foo" }, ... }
   def self.load_manifest(path)
@@ -907,6 +930,18 @@ namespace :cartodb do
         end
         puts "  done (#{File.size(local_path)} bytes)."
 
+        source_layer = CartodbRakeHelpers.detect_gpkg_layer_name(local_path)
+        unless source_layer.present?
+          warn "  FAILED: Could not detect a source layer inside #{basename}."
+          failed_vectors << {table: tbl, file: basename, reason: "could not detect GeoPackage layer name"}
+          begin
+            File.delete(local_path)
+          rescue
+            nil
+          end
+          next
+        end
+
         # Drop any pre-existing table before calling ogr2ogr.  The -overwrite
         # flag is unreliable with schema-qualified names in some ogr2ogr versions,
         # and a partial table left over from a failed previous run will cause
@@ -922,12 +957,15 @@ namespace :cartodb do
         batch_sizes = [65535, 1000, 100, 10]
         imported = false
         batch_sizes.each do |batch_size|
-          puts "  Running ogr2ogr (batch_size=#{batch_size})..."
+          puts "  Running ogr2ogr (layer=#{source_layer}, batch_size=#{batch_size})..."
           success = system(
             "ogr2ogr", "-f", "PostgreSQL",
             "PG:#{pg_conn}",
             local_path,
-            "-nln", "#{target_schema}.#{tbl}",
+            source_layer,
+            "-nln", tbl,
+            "-lco", "SCHEMA=#{target_schema}",
+            "-lco", "SPATIAL_INDEX=NONE",
             "-overwrite",
             "-nlt", "PROMOTE_TO_MULTI",
             "-gt", batch_size.to_s,
