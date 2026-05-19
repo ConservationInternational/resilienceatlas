@@ -101,11 +101,11 @@ module CartodbRakeHelpers
   # For "discrete" or "exact" mode: returns an explicit interval array
   #   [[[lower, upper], [r,g,b,a]], ...] that TiTiler applies directly to
   #   raw pixel values without any rescaling.
-  def self.build_titiler_colormap(stops, mode: "linear")
+  def self.build_titiler_colormap(stops, mode: "linear", default_rgba: nil)
     return nil if stops.blank?
 
     if %w[discrete exact].include?(mode.to_s.downcase)
-      build_interval_colormap(stops, exact: mode.to_s.downcase == "exact")
+      build_interval_colormap(stops, exact: mode.to_s.downcase == "exact", default_rgba: default_rgba)
     else
       build_gradient_colormap(stops)
     end
@@ -151,9 +151,19 @@ module CartodbRakeHelpers
   #
   #   discrete: stop n covers [v_n, v_{n+1}) — step-function assignment
   #   exact:    stop n covers [v_n, v_n+1)   — only exact integer values match
-  def self.build_interval_colormap(stops, exact: false)
+  #
+  # When default_rgba is given (e.g. [0,0,0,0] for transparent), a sentinel
+  # interval is prepended covering [-32768, first_stop) so that out-of-range
+  # pixel values (e.g. nodata=0) receive the CartoDB default colour rather
+  # than TiTiler's own fallback (opaque black).
+  def self.build_interval_colormap(stops, exact: false, default_rgba: nil)
     sorted = stops.sort_by { |s| s[:value] }
     colormap = []
+
+    # Prepend sentinel for values below the minimum stop.
+    if default_rgba && sorted.any?
+      colormap << [[-32768, sorted.first[:value]], default_rgba]
+    end
 
     sorted.each_with_index do |stop, i|
       rgba = parse_hex_color(stop[:color])
@@ -179,6 +189,13 @@ module CartodbRakeHelpers
 
     opacity = css[/raster-opacity\s*:\s*([0-9.]+)/i, 1]
     mode = css[/raster-colorizer-default-mode\s*:\s*([a-z]+)/i, 1]&.downcase
+
+    # raster-colorizer-default-color: the colour TiTiler should use for pixel
+    # values that fall outside all defined stop intervals.  Most CartoDB layers
+    # use "transparent" here, so we propagate that as a sentinel interval.
+    raw_default_color = css[/raster-colorizer-default-color\s*:\s*(rgba?\([^;\}]+\)|transparent|#transparent|#[0-9a-fA-F]+)/i, 1]&.strip
+    default_rgba = raw_default_color.present? ? parse_hex_color(raw_default_color) : nil
+
     # The color argument may be rgba(r,g,b,a) which contains commas, so we
     # must match it as a unit before falling back to the plain [^,)] pattern.
     # Some CSS blocks omit the outer closing ) on the last stop() call (the
@@ -199,7 +216,7 @@ module CartodbRakeHelpers
     if stops.any?
       min = stops.map { |stop| stop[:value] }.min
       max = stops.map { |stop| stop[:value] }.max
-      result["colormap"] = build_titiler_colormap(stops, mode: mode || "linear")
+      result["colormap"] = build_titiler_colormap(stops, mode: mode || "linear", default_rgba: default_rgba)
       # Gradient colormaps (linear mode) require rescale to normalise pixel
       # values into the 0-255 key space.  Interval colormaps (discrete/exact)
       # use raw pixel values directly, so rescale must NOT be set.
