@@ -375,6 +375,51 @@ module CartodbRakeHelpers
     sql.match?(/\b(?:WHERE|JOIN|GROUP\s+BY|HAVING|UNION|EXCEPT|INTERSECT|LIMIT|ORDER\s+BY)\b/i)
   end
 
+  # Returns the geometry reference (e.g. "t2.the_geom") for the first table
+  # among `table_names` that has a geometry column in PostGIS, using the alias
+  # present in `sql`.  Falls back to "schema.table.the_geom" when unaliased.
+  # Returns nil when none of the tables has a geometry column.
+  #
+  # Uses the unqualified `sql` for alias extraction so callers can pass the
+  # original (pre-qualify) query and the schema-qualified view SQL interchangeably.
+  SQL_KEYWORD_RE = /\A(?:where|on|inner|outer|left|right|full|cross|join|set|as|and|or|not|in|is|null|group|order|having|limit|offset|select|from|union|with|using|distinct)\z/i
+
+  def self.find_geometry_column_ref(sql, schema, table_names, ar_conn)
+    return nil if table_names.empty? || sql.blank?
+
+    quoted = table_names.map { |t| "'#{ar_conn.quote_string(t)}'" }.join(", ")
+    geom_tables = ar_conn.execute(
+      "SELECT f_table_name FROM geometry_columns " \
+      "WHERE f_table_schema = '#{schema}' AND f_table_name IN (#{quoted})"
+    ).map { |r| r["f_table_name"] }
+
+    return nil if geom_tables.empty?
+
+    geom_tables.each do |tbl|
+      # Look for: FROM/JOIN <tbl> [AS] alias  — alias is optional
+      m = sql.match(/\b(?:FROM|JOIN)\s+#{Regexp.escape(tbl)}\s+(?:AS\s+)?([a-zA-Z_]\w*)\b/i)
+      if m && !m[1].match?(SQL_KEYWORD_RE)
+        return "#{m[1]}.the_geom"
+      else
+        return "#{schema}.#{tbl}.the_geom"
+      end
+    end
+
+    nil
+  end
+
+  # Inject `geom_ref` (e.g. "t2.the_geom") into the outermost SELECT clause
+  # of `view_sql`.  Handles both plain queries and CTEs (WITH ... AS (...) SELECT).
+  # For CTEs the injection point is the SELECT that follows the last CTE definition.
+  def self.inject_geometry_into_select(view_sql, geom_ref)
+    if view_sql.match?(/\bWITH\b/i)
+      # CTE form: the outermost SELECT follows the closing ) of the last CTE.
+      view_sql.sub(/(\)\s*\n?\s*)(SELECT\s+)/im, "\\1SELECT #{geom_ref}, ")
+    else
+      view_sql.sub(/\bSELECT\s+/i, "SELECT #{geom_ref}, ")
+    end
+  end
+
   # Extract a SQL query from a CartoDB-native layer_config JSON blob.
   # CartoDB stored the SQL in two common shapes:
   #   {"body":{"sql":"SELECT ..."},...}   ← most common
@@ -1833,14 +1878,17 @@ namespace :cartodb do
           # update_layer_references stripped the_geom via strip_cartodb_columns.
           # For a wildcard SELECT (*) the geometry column comes through anyway;
           # for explicit column lists we must add it back so Martin can generate
-          # vector tiles.  Use the alias of the primary table when one is present.
+          # vector tiles.  Use PostGIS geometry_columns to identify which imported
+          # table actually carries geometry (may not be the primary table).
           unless view_sql.match?(/SELECT\s+\*/i) || view_sql.match?(/\bthe_geom\b|\bgeom\b/i)
-            alias_match = layer.query.match(
-              /\b(?:FROM|JOIN)\s+#{Regexp.escape(primary_table)}\s+(?:AS\s+)?(\w+)\b/i
+            geom_ref = CartodbRakeHelpers.find_geometry_column_ref(
+              layer.query, target_schema, imported, ar_conn
             )
-            geom_ref = alias_match ? "#{alias_match[1]}.the_geom"
-                                   : "#{target_schema}.#{primary_table}.the_geom"
-            view_sql = view_sql.sub(/\bSELECT\s+/i, "SELECT #{geom_ref}, ")
+            if geom_ref
+              view_sql = CartodbRakeHelpers.inject_geometry_into_select(view_sql, geom_ref)
+            else
+              warn "  ⚠  No geometry column found in imported tables — view may return no tiles."
+            end
           end
 
           create_ddl = "CREATE OR REPLACE VIEW " \
@@ -1939,6 +1987,7 @@ namespace :cartodb do
 
     martin_sources_fixed = 0
     martin_sources_skipped = 0
+    martin_views_upgraded = 0
     martin_styles_updated = 0
     martin_styles_skipped = 0
     martin_styles_no_css = 0
@@ -1967,6 +2016,64 @@ namespace :cartodb do
         martin_sources_fixed += 1
       else
         martin_sources_skipped += 1
+      end
+
+      # ── Source upgrade: create view when all tables are now available ──────
+      # Phase 1 may have set source to a bare table because some tables were
+      # still missing at the time.  When all tables are now imported AND the
+      # layer requires a JOIN/CTE, create the proper view so Martin can serve
+      # vector tiles with geometry.
+      migration_block  = config["cartodb_migration"] || {}
+      tables_status    = migration_block["tables"] || {}
+      imported_list    = tables_status.select { |_, v| v == "imported" }.keys
+      raw_sql          = migration_block["source_sql"].presence ||
+                         migration_block["cleaned_query"].presence
+
+      upgrade_to_view = imported_list.size > 1 &&
+        !source.match?(/\Av_layer_\d+\z/) &&
+        raw_sql.present?
+
+      if upgrade_to_view
+        view_name = "v_layer_#{layer.id}"
+        view_sql  = CartodbRakeHelpers.qualify_table_names_in_sql(
+          raw_sql, target_schema, imported_list
+        )
+
+        unless view_sql.match?(/SELECT\s+\*/i) || view_sql.match?(/\bthe_geom\b|\bgeom\b/i)
+          geom_ref = CartodbRakeHelpers.find_geometry_column_ref(
+            raw_sql, target_schema, imported_list, ar_conn
+          )
+          if geom_ref
+            view_sql = CartodbRakeHelpers.inject_geometry_into_select(view_sql, geom_ref)
+          else
+            puts "Layer ##{layer.id} (#{layer.slug}): ⚠ no geometry table found — view upgrade skipped"
+            upgrade_to_view = false
+          end
+        end
+      end
+
+      if upgrade_to_view
+        create_ddl = "CREATE OR REPLACE VIEW #{target_schema}.#{view_name} AS #{view_sql}"
+        puts "Layer ##{layer.id} (#{layer.slug}): source upgrade #{source} → #{view_name}"
+        puts "  SQL: #{view_sql}"
+
+        unless dry_run
+          begin
+            ar_conn.execute(create_ddl)
+            config["body"]["source"] = view_name
+            source = view_name
+            migration_block["status"] = "configured"
+            config["cartodb_migration"] = migration_block
+            changed = true
+            martin_views_upgraded += 1
+            # Publish the layer now that all tables are available
+            layer.update_column(:published, true) unless layer.published?
+          rescue => e
+            warn "Layer ##{layer.id}: ✗ view creation failed: #{e.message}"
+          end
+        else
+          martin_views_upgraded += 1
+        end
       end
 
       # ── Styles: re-derive from CartoDB CSS on every run ───────────────────
@@ -2026,6 +2133,7 @@ namespace :cartodb do
 
     puts "  Source ID fixed   : #{martin_sources_fixed}"
     puts "  Source ID skipped : #{martin_sources_skipped} (already correct)"
+    puts "  Views upgraded    : #{martin_views_upgraded} (partial → full view)"
     puts "  Styles  updated   : #{martin_styles_updated}"
     puts "  Styles  skipped   : #{martin_styles_skipped} (no change)"
     puts "  Styles  no CSS    : #{martin_styles_no_css} (no CSS or unrecognised CSS)"

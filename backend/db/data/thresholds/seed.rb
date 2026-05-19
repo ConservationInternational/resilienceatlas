@@ -9,8 +9,9 @@
 #        python db/data/thresholds/preprocess.py
 #   2. Load sbtn_thresholds.csv into the local database table named
 #      "sbtn_thresholds" so the Martin tile function can join against it.
-#   3. The ldn_dissolved_geometries table must exist (run `rake ldn:build_dimensions`)
-#      for the analysis panel geometries to be populated.
+#      The tile function joins sbtn_thresholds with ecoregions2017 for geometry.
+#   3. The ecoregions2017 PostGIS table must exist (imported via the CartoDB
+#      migration pipeline or ogr2ogr) for tile serving to work.
 #
 # Run from the backend directory:
 #   bundle exec rails runner db/data/thresholds/seed.rb
@@ -117,7 +118,7 @@ module ThresholdsSeeder
     rescue => e
       puts "WARNING: Scope dataset creation failed (non-fatal): #{e.message}"
       puts "  Layers were created. Ensure sbtn_thresholds.csv exists and"
-      puts "  ldn_dissolved_geometries is populated, then re-run."
+      puts "  the sbtn_thresholds table is populated, then re-run."
     end
 
     puts "SBTN Thresholds seed completed successfully!"
