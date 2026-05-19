@@ -437,6 +437,88 @@ module CartodbRakeHelpers
     end
   end
 
+  # For UNION/UNION ALL queries: ensure every SELECT branch includes exactly
+  # one geometry column.  Branches that already reference a known geometry
+  # column are left unchanged; branches missing geometry get the appropriate
+  # column injected from geometry_columns (or NULL::geometry when the branch's
+  # table has no PostGIS geometry entry).
+  #
+  # This handles the common CartoDB pattern where `the_geom` appeared in only
+  # the first UNION branch — after `the_geom` renaming, that branch has a real
+  # geometry reference but subsequent branches are left without one, causing a
+  # UNION column-count mismatch in PostgreSQL.
+  #
+  # Has no effect on non-UNION queries or CTEs (WITH ... SELECT).
+  def self.balance_union_geometry(view_sql, schema, table_names, ar_conn)
+    return view_sql unless view_sql.match?(/\bUNION\b/i) && !view_sql.match?(/\bWITH\b/i)
+    return view_sql if table_names.empty?
+
+    # Build geometry map: table_name → geometry_column_name
+    quoted = table_names.map { |t| "'#{ar_conn.quote_string(t)}'" }.join(", ")
+    geom_map = ar_conn.execute(
+      "SELECT f_table_name, f_geometry_column FROM geometry_columns " \
+      "WHERE f_table_schema = '#{schema}' AND f_table_name IN (#{quoted})"
+    ).each_with_object({}) { |r, h| h[r["f_table_name"]] = r["f_geometry_column"] }
+
+    return view_sql if geom_map.empty?
+
+    geom_col_names = geom_map.values.uniq
+
+    # Split on top-level UNION [ALL] keywords, respecting paren depth so that
+    # UNIONs inside subqueries are not mistakenly split on.
+    parts = []
+    seps  = []
+    buf   = +""
+    depth = 0
+    pos   = 0
+
+    while pos < view_sql.length
+      ch = view_sql[pos]
+      if ch == "("
+        depth += 1; buf << ch; pos += 1
+      elsif ch == ")"
+        depth -= 1; buf << ch; pos += 1
+      elsif depth.zero? && (m = view_sql[pos..].match(/\AUNION(?:\s+ALL)?/i))
+        parts << buf.rstrip
+        seps  << m[0]
+        buf    = +""
+        pos   += m[0].length
+        pos   += 1 while pos < view_sql.length && view_sql[pos].match?(/\s/)
+      else
+        buf << ch; pos += 1
+      end
+    end
+    parts << buf.rstrip
+
+    return view_sql if parts.size <= 1
+
+    result_parts = parts.map do |part|
+      # Does this branch already SELECT a known geometry column?
+      already_has_geom = geom_col_names.any? do |col|
+        part.match?(/\bSELECT\b.*\b#{Regexp.escape(col)}\b/im)
+      end
+      next part if already_has_geom
+
+      # Find the geometry reference for this branch's primary FROM table.
+      geom_ref = nil
+      table_names.each do |tbl|
+        next unless geom_map[tbl]
+        next unless part.match?(/\b(?:FROM|JOIN)\s+(?:#{Regexp.escape(schema)}\.)?#{Regexp.escape(tbl)}\b/i)
+        m = part.match(/\b(?:FROM|JOIN)\s+(?:#{Regexp.escape(schema)}\.)?#{Regexp.escape(tbl)}\s+(?:AS\s+)?([a-zA-Z_]\w*)\b/i)
+        geom_ref = (m && !m[1].match?(SQL_KEYWORD_RE)) \
+          ? "#{m[1]}.#{geom_map[tbl]}" \
+          : geom_map[tbl]
+        break
+      end
+      geom_ref ||= "NULL::geometry"
+      inject_geometry_into_select(part, geom_ref)
+    end
+
+    result = result_parts.first.to_s
+    seps.each_with_index { |sep, i| result += "\n#{sep}\n#{result_parts[i + 1]}" }
+    result
+  end
+
   # CartoDB always stored geometry as `the_geom`, but PostGIS tables imported
   # from GPKG files may use a different column name (e.g. `geom`, `wkb_geometry`,
   # `wkt_geom`).  Rename every `alias.the_geom` reference in `sql` to the actual
@@ -488,6 +570,29 @@ module CartodbRakeHelpers
     end
 
     [result, geom_ref_found]
+  end
+
+  # Remove any remaining `alias.the_geom` or `schema.table.the_geom` references
+  # from a SQL string.  Called when fix_the_geom_references was unable to rename
+  # these refs — either because the associated table is not in geometry_columns
+  # (e.g. a pure-attribute joined table like dhs_indicators) or because
+  # geometry_columns listed the_geom but the physical column is absent.  After
+  # stripping, the caller injects the correct geometry column via
+  # inject_geometry_into_select.
+  #
+  # The strip is deliberately applied to the whole SQL string rather than just
+  # the SELECT clause: in practice, CartoDB queries only place `alias.the_geom`
+  # in the SELECT list, never in WHERE or ON predicates.
+  def self.strip_the_geom_refs(sql)
+    pat = /\b\w+(?:\.\w+)*\.the_geom\b/i
+    result = sql
+    # "alias.the_geom, " — first column or middle
+    result = result.gsub(/#{pat}[ \t]*,[ \t]*/i, "")
+    # ", alias.the_geom" — middle or last column
+    result = result.gsub(/[ \t]*,[ \t]*#{pat}/i, "")
+    # standalone (no commas left)
+    result = result.gsub(pat, "")
+    result
   end
 
   # Extract a SQL query from a CartoDB-native layer_config JSON blob.
@@ -1319,7 +1424,26 @@ namespace :cartodb do
         end
       end
 
-      # ── 6. Summary ────────────────────────────────────────────────────────
+      # ── 6. ANALYZE imported tables ────────────────────────────────────────
+      # pg_stat_user_tables.n_live_tup and pg_class.reltuples both stay at 0
+      # until PostgreSQL runs ANALYZE.  Run it now so the Dataset Inventory
+      # shows accurate row counts immediately rather than waiting for autovacuum.
+
+      all_imported = imported_vectors + imported_tables
+      if all_imported.any?
+        puts "\nRunning ANALYZE on #{all_imported.size} imported table(s) to update row count statistics..."
+        all_imported.each do |t|
+          q = "#{ar_conn.quote_table_name(target_schema)}.#{ar_conn.quote_table_name(t[:table])}"
+          begin
+            ar_conn.execute("ANALYZE #{q}")
+          rescue => e
+            warn "  WARNING: ANALYZE failed for #{q}: #{e.message.lines.first.strip}"
+          end
+        end
+        puts "Statistics updated."
+      end
+
+      # ── 7. Summary ────────────────────────────────────────────────────────
 
       puts "\n#{"=" * 60}"
       puts "  CartoDB Import — Summary"
@@ -1954,12 +2078,22 @@ namespace :cartodb do
             view_sql, target_schema, imported, ar_conn
           )
 
+          # Check whether any the_geom refs survived the rename pass.  This
+          # happens when the alias maps to a non-geometry table (e.g. the ref
+          # is on a joined attribute table) or when geometry_columns reports
+          # the_geom but the physical column is absent.  In those cases we
+          # strip the stale refs and inject the correct column below.
+          still_has_the_geom = view_sql.match?(/\b\w+(?:\.\w+)*\.the_geom\b/i)
+
           # update_layer_references stripped the_geom via strip_cartodb_columns.
           # For a wildcard SELECT (*) the geometry column comes through anyway;
           # for explicit column lists we must add it back so Martin can generate
           # vector tiles.  Use PostGIS geometry_columns to identify which imported
           # table actually carries geometry (may not be the primary table).
-          unless view_sql.match?(/SELECT\s+\*/i) || geom_ref_present
+          unless view_sql.match?(/SELECT\s+\*/i) || (geom_ref_present && !still_has_the_geom)
+            # Strip any stale the_geom refs that fix_the_geom_references could not
+            # rename (e.g. refs on a non-geometry joined table).
+            view_sql = CartodbRakeHelpers.strip_the_geom_refs(view_sql)
             geom_ref = CartodbRakeHelpers.find_geometry_column_ref(
               layer.query, target_schema, imported, ar_conn
             )
@@ -1968,6 +2102,16 @@ namespace :cartodb do
             else
               warn "  ⚠  No geometry column found in imported tables — view may return no tiles."
             end
+          end
+
+          # For UNION queries, balance geometry across all SELECT branches.
+          # fix_the_geom_references may have renamed the_geom in the first branch
+          # but left subsequent branches without a geometry column, causing a
+          # UNION column-count mismatch in PostgreSQL.
+          if view_sql.match?(/\bUNION\b/i)
+            view_sql = CartodbRakeHelpers.balance_union_geometry(
+              view_sql, target_schema, imported, ar_conn
+            )
           end
 
           create_ddl = "CREATE OR REPLACE VIEW " \
@@ -2125,7 +2269,17 @@ namespace :cartodb do
           view_sql, target_schema, imported_list, ar_conn
         )
 
-        unless view_sql.match?(/SELECT\s+\*/i) || geom_ref_present
+        # Check whether any the_geom refs survived the rename pass.  This
+        # happens when the alias maps to a non-geometry table (e.g. the ref
+        # is on a joined attribute table) or when geometry_columns reports
+        # the_geom but the physical column is absent.  In those cases we
+        # strip the stale refs and inject the correct column below.
+        still_has_the_geom = view_sql.match?(/\b\w+(?:\.\w+)*\.the_geom\b/i)
+
+        unless view_sql.match?(/SELECT\s+\*/i) || (geom_ref_present && !still_has_the_geom)
+          # Strip any stale the_geom refs that fix_the_geom_references could not
+          # rename (e.g. refs on a non-geometry joined table like dhs_indicators).
+          view_sql = CartodbRakeHelpers.strip_the_geom_refs(view_sql)
           geom_ref = CartodbRakeHelpers.find_geometry_column_ref(
             raw_sql, target_schema, imported_list, ar_conn
           )
@@ -2136,6 +2290,16 @@ namespace :cartodb do
             upgrade_to_view = false
           end
         end
+      end
+
+      # For UNION queries, balance geometry across all SELECT branches.
+      # fix_the_geom_references may have renamed the_geom in the first branch
+      # but left subsequent branches without a geometry column, causing a
+      # UNION column-count mismatch in PostgreSQL.
+      if upgrade_to_view && view_sql.match?(/\bUNION\b/i)
+        view_sql = CartodbRakeHelpers.balance_union_geometry(
+          view_sql, target_schema, imported_list, ar_conn
+        )
       end
 
       if upgrade_to_view

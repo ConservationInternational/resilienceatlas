@@ -121,21 +121,33 @@ class DatasetInventoryService
       SELECT
         t.table_schema,
         t.table_name,
-        COALESCE(s.n_live_tup, 0)::bigint AS row_count,
+        GREATEST(
+          COALESCE(s.n_live_tup, 0),
+          CASE WHEN c.reltuples > 0 THEN c.reltuples::bigint ELSE 0 END
+        )::bigint AS row_count,
         pg_total_relation_size(
           quote_ident(t.table_schema) || '.' || quote_ident(t.table_name)
         )::bigint AS size_bytes
       FROM information_schema.tables t
       LEFT JOIN pg_stat_user_tables s
         ON s.schemaname = t.table_schema AND s.relname = t.table_name
+      JOIN pg_namespace n ON n.nspname = t.table_schema
+      JOIN pg_class c ON c.relname = t.table_name AND c.relnamespace = n.oid
       WHERE t.table_schema IN (#{quoted_schemas})
         AND t.table_type = 'BASE TABLE'
       ORDER BY t.table_schema, t.table_name
     SQL
 
     rows.map do |r|
+      row_count = r["row_count"].to_i
+      # If both pg_stat and pg_class show 0 (freshly imported tables not yet
+      # ANALYZEd by autovacuum), fall back to an exact COUNT(*).
+      if row_count == 0
+        quoted_table = "#{conn.quote_table_name(r["table_schema"])}.#{conn.quote_table_name(r["table_name"])}"
+        row_count = conn.select_value("SELECT COUNT(*) FROM #{quoted_table}").to_i
+      end
       {name: r["table_name"], schema: r["table_schema"],
-       row_count: r["row_count"].to_i, size_bytes: r["size_bytes"].to_i}
+       row_count: row_count, size_bytes: r["size_bytes"].to_i}
     end
   end
 
