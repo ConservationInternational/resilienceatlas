@@ -174,4 +174,3 @@ ActiveAdmin.register_page "Dataset Inventory" do
     end
   end
 end
-end
