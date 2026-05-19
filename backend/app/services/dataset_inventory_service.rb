@@ -1,38 +1,116 @@
 # Scans PostgreSQL schemas (ra_vector, ra_raster) and S3 COG objects and
-# returns a summary of each asset with the layers that reference it.
-#
-# Usage:
-#   svc = DatasetInventoryService.new
-#   svc.vector_tables  # => [{name:, schema:, size_bytes:, row_count:, layers: [...]}]
-#   svc.raster_tables  # => same structure
-#   svc.s3_cogs        # => [{key:, size_bytes:, layers: [...]}]
+# returns a paginated, sortable, filterable summary of each asset with
+# the layers that reference it.
 class DatasetInventoryService
   VECTOR_SCHEMA = "ra_vector"
   RASTER_SCHEMA = "ra_raster"
+  TABLE_SORT_COLS = %w[name row_count size_bytes].freeze
+  S3_SORT_COLS = %w[key size_bytes layers].freeze
 
-  def vector_tables
-    pg_tables([VECTOR_SCHEMA]).map do |row|
-      row.merge(layers: layers_for_table(row[:name], [VECTOR_SCHEMA]))
+  attr_reader :s3_error, :table_data_error
+
+  # Returns {rows:, total:, page:, per_page:} – filterable/sortable/paginated.
+  def vector_tables(page: 1, per_page: 25, sort: "name", dir: "asc", q: nil, lq: nil)
+    filter_sort_paginate(all_vector_rows, page: page, per_page: per_page,
+      sort: sort, dir: dir, q: q, lq: lq, valid_sorts: TABLE_SORT_COLS)
+  end
+
+  def raster_tables(page: 1, per_page: 25, sort: "name", dir: "asc", q: nil, lq: nil)
+    filter_sort_paginate(all_raster_rows, page: page, per_page: per_page,
+      sort: sort, dir: dir, q: q, lq: lq, valid_sorts: TABLE_SORT_COLS)
+  end
+
+  # Returns {rows:, total:, page:, per_page:}. Sets #s3_error on failure.
+  def s3_cogs(page: 1, per_page: 25, sort: "key", dir: "asc", q: nil, lq: nil)
+    all = all_s3_rows
+    return {rows: [], total: 0, page: 1, per_page: per_page} if all.nil?
+
+    rows = all
+    rows = rows.select { |r| r[:key].to_s.downcase.include?(q.downcase) } if q.present?
+    if lq.present?
+      rows = rows.select do |r|
+        r[:layers].any? { |l| "#{l[:name]} #{l[:slug]}".downcase.include?(lq.downcase) }
+      end
     end
-  end
 
-  def raster_tables
-    pg_tables([RASTER_SCHEMA]).map do |row|
-      row.merge(layers: layers_for_table(row[:name], [RASTER_SCHEMA]))
+    safe_sort = S3_SORT_COLS.include?(sort) ? sort : "key"
+    rows = rows.sort_by do |r|
+      case safe_sort
+      when "size_bytes" then r[:size_bytes].to_i
+      when "layers" then r[:layers].size
+      else r[:key].to_s.downcase
+      end
     end
+    rows.reverse! if dir == "desc"
+
+    total = rows.size
+    {rows: rows.slice([(page.to_i - 1) * per_page, 0].max, per_page) || [],
+     total: total, page: page.to_i, per_page: per_page}
   end
 
-  # Returns nil and sets #s3_error if S3 is not configured or unreachable.
-  def s3_cogs
-    @s3_cogs ||= fetch_s3_cogs
-  end
+  # Read-only paginated view of an arbitrary table in a managed schema.
+  # Returns nil (and sets #table_data_error) if the table is not found or inaccessible.
+  def table_data(schema, table_name, page: 1, per_page: 50)
+    unless valid_table?(schema, table_name)
+      @table_data_error = "Table #{schema}.#{table_name} not found in managed schemas."
+      return nil
+    end
 
-  attr_reader :s3_error
+    quoted = "#{conn.quote_table_name(schema)}.#{conn.quote_table_name(table_name)}"
+    total = conn.select_value("SELECT COUNT(*) FROM #{quoted}").to_i
+    offset = ([page.to_i, 1].max - 1) * per_page
+    result = conn.select_all("SELECT * FROM #{quoted} LIMIT #{per_page.to_i} OFFSET #{offset.to_i}")
+    {columns: result.columns, rows: result.rows, total: total, page: page.to_i, per_page: per_page}
+  rescue => e
+    @table_data_error = e.message
+    nil
+  end
 
   private
 
   def conn
     @conn ||= ActiveRecord::Base.connection
+  end
+
+  def all_vector_rows
+    @all_vector_rows ||= pg_tables([VECTOR_SCHEMA]).map do |row|
+      row.merge(layers: layer_usage_by_table[row[:name]] || [])
+    end
+  end
+
+  def all_raster_rows
+    @all_raster_rows ||= pg_tables([RASTER_SCHEMA]).map do |row|
+      row.merge(layers: layer_usage_by_table[row[:name]] || [])
+    end
+  end
+
+  def all_s3_rows
+    @all_s3_rows ||= fetch_s3_cogs
+  end
+
+  def filter_sort_paginate(rows, page:, per_page:, sort:, dir:, q:, lq:, valid_sorts:)
+    rows = rows.select { |r| r[:name].to_s.downcase.include?(q.downcase) } if q.present?
+    if lq.present?
+      rows = rows.select do |r|
+        r[:layers].any? { |l| "#{l[:name]} #{l[:slug]}".downcase.include?(lq.downcase) }
+      end
+    end
+
+    safe_sort = valid_sorts.include?(sort) ? sort.to_sym : :name
+    rows = rows.sort_by { |r| [r[safe_sort].to_s.downcase, r[:name].to_s.downcase] }
+    rows.reverse! if dir == "desc"
+
+    total = rows.size
+    {rows: rows.slice([(page.to_i - 1) * per_page, 0].max, per_page) || [],
+     total: total, page: page.to_i, per_page: per_page}
+  end
+
+  def valid_table?(schema, table_name)
+    return false unless [VECTOR_SCHEMA, RASTER_SCHEMA].include?(schema.to_s)
+
+    (all_vector_rows + all_raster_rows).any? do |t|
+      t[:schema] == schema.to_s && t[:name] == table_name.to_s
+    end
   end
 
   # ── PostgreSQL inventory ────────────────────────────────────────────────────
@@ -43,10 +121,10 @@ class DatasetInventoryService
       SELECT
         t.table_schema,
         t.table_name,
-        COALESCE(s.n_live_tup, 0)::bigint                                              AS row_count,
+        COALESCE(s.n_live_tup, 0)::bigint AS row_count,
         pg_total_relation_size(
           quote_ident(t.table_schema) || '.' || quote_ident(t.table_name)
-        )::bigint                                                                       AS size_bytes
+        )::bigint AS size_bytes
       FROM information_schema.tables t
       LEFT JOIN pg_stat_user_tables s
         ON s.schemaname = t.table_schema AND s.relname = t.table_name
@@ -56,16 +134,12 @@ class DatasetInventoryService
     SQL
 
     rows.map do |r|
-      {
-        name: r["table_name"],
-        schema: r["table_schema"],
-        row_count: r["row_count"].to_i,
-        size_bytes: r["size_bytes"].to_i
-      }
+      {name: r["table_name"], schema: r["table_schema"],
+       row_count: r["row_count"].to_i, size_bytes: r["size_bytes"].to_i}
     end
   end
 
-  # Build a map: table_name (bare) => [layer_summary, ...]
+  # Build a map: bare table_name => [layer_summary, ...]
   def layer_usage_by_table
     @layer_usage_by_table ||= begin
       usage = Hash.new { |h, k| h[k] = [] }
@@ -73,19 +147,14 @@ class DatasetInventoryService
       Layer.find_each do |layer|
         summary = layer_summary(layer)
 
-        # SQL-based references (query, analysis_query)
         [layer.query, layer.analysis_query].compact.each do |sql|
-          LayerTableParser.tables_from_sql(sql).each do |tbl|
-            usage[tbl] << summary
-          end
+          LayerTableParser.tables_from_sql(sql).each { |tbl| usage[tbl] << summary }
         end
 
-        # Martin source (bare table or resolved view)
         if layer.layer_provider == "martin"
           tbl = LayerTableParser.resolve_martin_table(layer, conn)
           usage[tbl] << summary if tbl.present?
 
-          # Also record the view name itself if it differs
           raw_source = LayerTableParser.source_from_config(layer)
           usage[raw_source] << summary if raw_source.present? && raw_source != tbl
         end
@@ -93,10 +162,6 @@ class DatasetInventoryService
 
       usage.transform_values { |layers| layers.uniq { |l| l[:id] } }
     end
-  end
-
-  def layers_for_table(table_name, _schemas)
-    layer_usage_by_table[table_name] || []
   end
 
   def layer_summary(layer)
@@ -121,11 +186,8 @@ class DatasetInventoryService
 
       resp = client.list_objects_v2(**opts)
       resp.contents.each do |obj|
-        results << {
-          key: obj.key,
-          size_bytes: obj.size,
-          layers: cog_layers_by_key[obj.key] || []
-        }
+        results << {key: obj.key, size_bytes: obj.size,
+                    layers: cog_layers_by_key[obj.key] || []}
       end
 
       break unless resp.is_truncated
@@ -149,11 +211,9 @@ class DatasetInventoryService
       uri = LayerTableParser.source_from_config(layer)
       next if uri.blank?
 
-      # Normalise "s3://bucket/key" -> "key"
       key = uri.sub(%r{\As3://#{Regexp.escape(bucket)}/}, "").sub(%r{\As3://[^/]+/}, "")
       index[key] << layer_summary(layer)
 
-      # Also try the analysis_body URL
       ab_uri = LayerTableParser.s3_uri_from_analysis_body(layer)
       if ab_uri.present?
         ab_key = ab_uri.sub(%r{\As3://[^/]+/}, "")

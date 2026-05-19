@@ -49,6 +49,57 @@
 div#footer{display: none;}
 #layer_group_submit_action input{color: #5E6469;}
 #layer_group_submit_action:hover input{color: white;}
+
+// ── Dataset Inventory ─────────────────────────────────────────────────────────
+.inventory-tabs {
+  margin: 0 0 16px;
+  border-bottom: 2px solid #ddd;
+  a.inventory-tab {
+    display: inline-block;
+    padding: 8px 18px;
+    margin-right: 4px;
+    border: 1px solid transparent;
+    border-bottom: none;
+    border-radius: 4px 4px 0 0;
+    text-decoration: none;
+    color: #5c7a91;
+    background: #f5f5f5;
+    &:hover { background: #e8e8e8; }
+    &.active {
+      background: #fff;
+      border-color: #ddd;
+      color: #333;
+      font-weight: bold;
+      position: relative;
+      bottom: -2px;
+    }
+  }
+}
+
+.inventory-filters {
+  margin-bottom: 14px;
+  form { display: inline; }
+  label { font-weight: bold; margin-right: 4px; }
+}
+
+.inventory-pagination {
+  margin-top: 12px;
+  padding: 8px 0;
+  border-top: 1px solid #eee;
+  a { margin: 0 3px; }
+  strong { margin: 0 3px; }
+  small { display: block; margin-top: 4px; color: #888; }
+}
+
+.inventory-breadcrumb {
+  margin-bottom: 14px;
+}
+
+table.inventory-table {
+  th a { color: inherit; text-decoration: none; white-space: nowrap; }
+  th a:hover { text-decoration: underline; }
+}
+
 .active_admin {
   form trix-editor, form trix-toolbar {
     margin-left: 20%;
