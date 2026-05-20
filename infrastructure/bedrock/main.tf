@@ -126,6 +126,25 @@ resource "aws_iam_role_policy" "bedrock_agent_lambda" {
   })
 }
 
+# ─── Grant EC2 app role permission to invoke the Bedrock agent ───────────────
+
+data "aws_iam_role" "ec2_role" {
+  name = "ResilienceAtlasEC2Role"
+}
+
+resource "aws_iam_role_policy" "ec2_bedrock_invoke" {
+  name = "bedrock-invoke-agent-${var.environment}"
+  role = data.aws_iam_role.ec2_role.id
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect   = "Allow"
+      Action   = ["bedrock:InvokeAgent"]
+      Resource = "arn:aws:bedrock:${var.aws_region}:${data.aws_caller_identity.current.account_id}:agent-alias/${aws_bedrockagent_agent.main.id}/${aws_bedrockagent_agent_alias.live.agent_alias_id}"
+    }]
+  })
+}
+
 # ─── Bedrock Agent ───────────────────────────────────────────────────────────
 
 resource "aws_bedrockagent_agent" "main" {
