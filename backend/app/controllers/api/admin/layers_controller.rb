@@ -16,7 +16,7 @@ class Api::Admin::LayersController < Api::Admin::ApiController
       @layers = @layers.joins(:translations)
         .where(layer_translations: {locale: I18n.default_locale})
         .where(
-          "LOWER(layer_translations.name) LIKE :kw OR LOWER(layer_translations.description) LIKE :kw OR LOWER(layers.slug) LIKE :kw OR LOWER(layers.dataset_shortname) LIKE :kw",
+          "LOWER(layer_translations.name) LIKE :kw OR LOWER(layer_translations.description) LIKE :kw OR LOWER(layers.slug) LIKE :kw OR LOWER(layers.dataset_shortname) LIKE :kw OR LOWER(layers.layer_config::text) LIKE :kw",
           kw: kw
         )
     end

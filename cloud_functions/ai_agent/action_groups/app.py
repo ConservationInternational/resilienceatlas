@@ -219,8 +219,19 @@ def handle_list_layers(params: dict, _auth: AuthContext) -> str:
 
 def handle_get_layer(params: dict, _auth: AuthContext) -> str:
     layer_id = params.get("layer_id")
+    slug = params.get("slug")
+
+    # Resolve slug → id if only slug is provided
+    if not layer_id and slug:
+        matches = rails_get("/api/admin/layers", params={"keyword": slug}).get("data", [])
+        exact = [l for l in matches if l.get("slug") == slug]
+        if not exact:
+            return json.dumps({"success": False, "message": f"No layer found with slug '{slug}'."})
+        layer_id = exact[0]["id"]
+
     if not layer_id:
-        return json.dumps({"success": False, "message": "layer_id is required"})
+        return json.dumps({"success": False, "message": "Provide either layer_id or slug."})
+
     result = rails_get(f"/api/admin/layers/{layer_id}")
     layer = result.get("data", {})
     # Return the most useful fields for the agent to reason about

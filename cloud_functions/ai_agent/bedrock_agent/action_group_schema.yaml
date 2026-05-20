@@ -56,8 +56,10 @@ paths:
       description: |
         Returns layers with name, slug, provider, published status, description,
         dataset_shortname, and dataset_source_url. Use keyword to search across name,
-        description, slug, and dataset_shortname — e.g. "threshold", "boundaries", "stunting".
-        Use this to answer questions like "which layers serve thresholds data".
+        description, slug, dataset_shortname, AND layer_config — e.g. search for a
+        PostGIS table name like "forest_cover" to find all martin layers that query it.
+        Use this to answer questions like "which layers serve thresholds data" or
+        "which layers use the boundaries_adm1 table".
       requestBody:
         required: false
         content:
@@ -78,22 +80,26 @@ paths:
   /get_layer:
     post:
       operationId: get_layer
-      summary: Get full details for a single layer by ID
+      summary: Get full details for a single layer by ID or slug
       description: |
         Returns all fields for a layer including layer_config, interaction_config,
         description, dataset_shortname, dataset_source_url, and analysis settings.
-        Use after list_layers to inspect a specific layer's configuration.
+        Provide either layer_id (integer) or slug (string) — slug is convenient when
+        you know the layer's URL-safe identifier. Use after list_layers to inspect
+        a specific layer's full configuration for debugging or before updating it.
       requestBody:
         required: true
         content:
           application/json:
             schema:
               type: object
-              required: [layer_id]
               properties:
                 layer_id:
                   type: integer
                   description: The layer's integer ID
+                slug:
+                  type: string
+                  description: The layer's unique URL-safe slug (alternative to layer_id)
       responses:
         "200":
           description: Layer detail object
