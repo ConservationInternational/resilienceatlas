@@ -110,4 +110,4 @@ jobs:
               KbBucket="${{ secrets.AI_EMBEDDINGS_BUCKET }}" \
               BedrockAgentId="${{ secrets.BEDROCK_AGENT_ID }}" \
               BedrockAgentAliasId="${{ secrets.BEDROCK_AGENT_ALIAS_ID }}" \
-              DataBucket="${{ secrets.DATA_BUCKET_NAME }}"
+              DataBucket="${{ vars.DATA_BUCKET_NAME }}"

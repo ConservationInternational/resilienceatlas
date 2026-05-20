@@ -71,9 +71,14 @@ class ApplicationController < ActionController::Base
   end
 
   def allow_site_iframe
-    if ["resilienceatlas.org", "globalresiliencepartnership.org", "herokuapp.com"].include? request.domain
-      response.headers.except! "X-Frame-Options"
-    end
+    return unless %w[resilienceatlas.org globalresiliencepartnership.org].include?(request.domain)
+
+    # Replace the blanket X-Frame-Options deny with a CSP frame-ancestors directive
+    # scoped to known trusted origins. herokuapp.com removed — no longer in use.
+    response.headers.except!("X-Frame-Options")
+    response.headers["Content-Security-Policy"] =
+      "frame-ancestors 'self' https://resilienceatlas.org https://*.resilienceatlas.org " \
+      "https://globalresiliencepartnership.org https://*.globalresiliencepartnership.org"
   end
 
   protected

@@ -12,7 +12,7 @@ class Api::Admin::ApiController < ActionController::Base
 
   def authenticate_with_token
     authenticate_with_http_token do |auth_token, _options|
-      auth_token == ENV["RESILIENCE_API_KEY"]
+      ActiveSupport::SecurityUtils.secure_compare(auth_token, ENV["RESILIENCE_API_KEY"].to_s)
     end
   end
 

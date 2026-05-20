@@ -275,10 +275,26 @@ def handle_update_layer(params: dict, auth: AuthContext) -> str:
     if not layer_id:
         return json.dumps({"success": False, "message": "layer_id is required"})
 
-    # Optional site_scope_id provides authorization context (not sent to the API)
-    site_scope_id = params.pop("site_scope_id", None)
-    if err := auth.assert_can_update(site_scope_id):
-        return json.dumps({"success": False, "message": err})
+    # Discard any caller-supplied site_scope_id — not trusted for authorization.
+    params.pop("site_scope_id", None)
+
+    # Fast-path: reject entirely if no valid role (avoids an unnecessary API fetch).
+    if not auth.role:
+        return json.dumps({"success": False, "message": "Access denied: no valid session. Use the admin chat interface."})
+
+    # For non-superadmins: fetch the layer's real site scope and verify access.
+    # We do NOT trust a caller-supplied site_scope_id because omitting it would make
+    # can_access_site_scope(None) return True, allowing cross-scope updates.
+    if not auth.is_superadmin:
+        try:
+            layer_resp = rails_get(f"/api/admin/layers/{layer_id}")
+        except requests.HTTPError as exc:
+            if exc.response is not None and exc.response.status_code == 404:
+                return json.dumps({"success": False, "message": f"Layer {layer_id} not found."})
+            raise
+        actual_scope_id = (layer_resp.get("data") or {}).get("site_scope_id")
+        if err := auth.assert_can_update(actual_scope_id):
+            return json.dumps({"success": False, "message": err})
 
     # Contributors/staff may not publish layers
     if auth.is_contributor and params.get("published") is True:

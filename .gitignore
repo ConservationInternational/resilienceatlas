@@ -216,6 +216,8 @@ infrastructure/state/terraform.tfstate
 infrastructure/state/terraform.tfstate.backup
 !infrastructure/state/vars/terraform.tfvars
 
+infrastructure/bedrock/.terraform
+
 #####################################################################
 # AWS / Cloud Functions
 #####################################################################

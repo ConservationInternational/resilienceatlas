@@ -27,7 +27,8 @@ class Api::Admin::VectorTablesController < Api::Admin::ApiController
     )
 
     unless status.success?
-      return render json: {success: false, message: stderr.presence || stdout}, status: :unprocessable_entity
+      Rails.logger.error("ogr2ogr import failed for #{s3_uri.inspect}: #{stderr.presence || stdout}")
+      return render json: {success: false, message: "Vector table import failed. Check server logs for details."}, status: :unprocessable_entity
     end
 
     result = query_table_metadata(table_name)
@@ -70,20 +71,17 @@ class Api::Admin::VectorTablesController < Api::Admin::ApiController
       .then { |n| n.empty? ? "imported_layer" : n }
   end
 
-  def s3_uri_to_https(s3_uri)
-    # s3://bucket/key -> https://bucket.s3.amazonaws.com/key
-    # Public-read bucket — no signing needed
-    s3_uri.sub(%r{\As3://([^/]+)/(.+)\z}, 'https://\1.s3.amazonaws.com/\2')
-  end
-
   def build_gdal_path(s3_uri)
-    https_url = s3_uri_to_https(s3_uri)
-    ext = File.extname(URI.parse(https_url).path).downcase
+    # Use /vsis3/ so GDAL authenticates via the EC2 instance role;
+    # the data bucket does not need a public-read ACL.
+    # s3://bucket/key -> /vsis3/bucket/key
+    vsis3_path = s3_uri.sub(%r{\As3://}, "/vsis3/")
+    ext = File.extname(URI.parse(s3_uri.sub("s3://", "https://")).path).downcase
     case ext
     when ".zip"
-      "/vsizip//vsicurl/#{https_url}"
+      "/vsizip#{vsis3_path}"
     else
-      "/vsicurl/#{https_url}"
+      vsis3_path
     end
   end
 

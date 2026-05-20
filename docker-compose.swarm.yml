@@ -41,8 +41,6 @@ services:
       - ROLLBAR_ENV=production
       - MARTIN_URL=http://martin:3000
       - REDIS_URL=redis://redis:6379/0
-      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
-      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
       - S3_BUCKET=${S3_BUCKET}
       - AWS_REGION=${AWS_REGION}
     networks:
@@ -162,8 +160,6 @@ services:
       - ROLLBAR_ACCESS_TOKEN=${ROLLBAR_ACCESS_TOKEN}
       - ROLLBAR_ENV=production
       - REDIS_URL=redis://redis:6379/0
-      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
-      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
       - S3_BUCKET=${S3_BUCKET}
       - AWS_REGION=${AWS_REGION}
     networks:

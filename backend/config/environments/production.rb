@@ -48,6 +48,10 @@ Rails.application.configure do
   # plain HTTP to the Rails container. The ALB listener enforces HTTPS at the network edge.
   # config.force_ssl = true
 
+  # Treat all incoming requests as HTTPS (TLS terminated at ALB). Sets secure cookie flags and
+  # emits https:// URLs without causing HTTP→HTTPS redirect loops. Requires Rails 7.1+.
+  config.assume_ssl = true
+
   # config.logger = ActiveSupport::Logger.new("log/production.log")
   # :info hides per-query SQL logs that are only useful during debugging.
   # Use LOG_LEVEL=debug env var to re-enable temporarily when needed.
@@ -105,8 +109,8 @@ Rails.application.configure do
     protocol: backend_uri.scheme
   }
 
-  # Store uploaded files on the local file system (see config/storage.yml for options).
-  # Using local_public to serve files directly from public/storage without Rails controller,
-  # which is required for the seeded image assets to work correctly.
-  config.active_storage.service = :local_public
+  # Store uploaded files in S3 with instance-role credentials (private access, signed URLs).
+  # Seeded static assets that must be publicly accessible should live in public/ or a CDN,
+  # not through Active Storage.
+  config.active_storage.service = :amazon
 end

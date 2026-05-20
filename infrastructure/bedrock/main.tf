@@ -1,8 +1,8 @@
 terraform {
   backend "s3" {
-    bucket = "resilienceatlas-terraform-state"
-    key    = "bedrock/state"
+    bucket = "resilienceatlas-terraform-state-211441814460"
     region = "us-east-1"
+    # key is passed via -backend-config="key=bedrock/staging.tfstate" at init time
   }
 
   required_providers {
@@ -105,10 +105,12 @@ resource "aws_iam_role_policy" "bedrock_agent_policy" {
   })
 }
 
+data "aws_caller_identity" "current" {}
+
 # Placeholder locals — the actual Lambda ARNs come from SAM deploy outputs
 locals {
   stack_name               = "resilienceatlas-ai-agent-${var.environment}"
-  action_groups_lambda_arn = "arn:aws:lambda:${var.aws_region}:*:function:${local.stack_name}-action-groups"
+  action_groups_lambda_arn = "arn:aws:lambda:${var.aws_region}:${data.aws_caller_identity.current.account_id}:function:${local.stack_name}-action-groups"
 }
 
 resource "aws_iam_role_policy" "bedrock_agent_lambda" {
@@ -143,7 +145,7 @@ resource "aws_bedrockagent_agent_action_group" "layer_tools" {
   description       = "Tools for creating layers, searching context, and importing vector data"
 
   action_group_executor {
-    lambda = "arn:aws:lambda:${var.aws_region}:*:function:${local.stack_name}-action-groups"
+    lambda = local.action_groups_lambda_arn
   }
 
   api_schema {

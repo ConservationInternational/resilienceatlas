@@ -18,7 +18,9 @@ class Ability
 
   def staff_rights
     can :read, ActiveAdmin::Page, name: "Dashboard"
-    can [:read, :update], Layer
+    allowed_ids = @admin_user.allowed_site_scopes.pluck(:id)
+    can :read, Layer
+    can :update, Layer, site_scope_id: allowed_ids
     can :read, [LayerGroup, Category]
   end
 end
