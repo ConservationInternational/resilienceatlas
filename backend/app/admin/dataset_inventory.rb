@@ -51,7 +51,7 @@ ActiveAdmin.register_page "Dataset Inventory" do
       ar_conn.execute("ANALYZE #{q_schema}.#{q_table}")
 
       redirect_to admin_dataset_inventory_path(section: "nonspatial"),
-        notice: "Loaded #{number_with_delimiter(row_count)} rows into #{nonspatial_schema}.#{table_name}."
+        notice: "Loaded #{helpers.number_with_delimiter(row_count)} rows into #{nonspatial_schema}.#{table_name}."
     rescue => e
       redirect_to admin_dataset_inventory_path(section: "nonspatial"),
         alert: "Upload failed: #{e.message.truncate(300)}"
