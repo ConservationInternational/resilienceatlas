@@ -4,6 +4,7 @@
 class DatasetInventoryService
   VECTOR_SCHEMA = "ra_vector"
   RASTER_SCHEMA = "ra_raster"
+  NONSPATIAL_SCHEMA = "ra_nonspatial"
   TABLE_SORT_COLS = %w[name row_count size_bytes].freeze
   S3_SORT_COLS = %w[key size_bytes layers].freeze
 
@@ -17,6 +18,11 @@ class DatasetInventoryService
 
   def raster_tables(page: 1, per_page: 25, sort: "name", dir: "asc", q: nil, lq: nil)
     filter_sort_paginate(all_raster_rows, page: page, per_page: per_page,
+      sort: sort, dir: dir, q: q, lq: lq, valid_sorts: TABLE_SORT_COLS)
+  end
+
+  def nonspatial_tables(page: 1, per_page: 25, sort: "name", dir: "asc", q: nil, lq: nil)
+    filter_sort_paginate(all_nonspatial_rows, page: page, per_page: per_page,
       sort: sort, dir: dir, q: q, lq: lq, valid_sorts: TABLE_SORT_COLS)
   end
 
@@ -84,6 +90,12 @@ class DatasetInventoryService
     end
   end
 
+  def all_nonspatial_rows
+    @all_nonspatial_rows ||= pg_tables([NONSPATIAL_SCHEMA]).map do |row|
+      row.merge(layers: layer_usage_by_table[row[:name]] || [])
+    end
+  end
+
   def all_s3_rows
     @all_s3_rows ||= fetch_s3_cogs
   end
@@ -106,9 +118,9 @@ class DatasetInventoryService
   end
 
   def valid_table?(schema, table_name)
-    return false unless [VECTOR_SCHEMA, RASTER_SCHEMA].include?(schema.to_s)
+    return false unless [VECTOR_SCHEMA, RASTER_SCHEMA, NONSPATIAL_SCHEMA].include?(schema.to_s)
 
-    (all_vector_rows + all_raster_rows).any? do |t|
+    (all_vector_rows + all_raster_rows + all_nonspatial_rows).any? do |t|
       t[:schema] == schema.to_s && t[:name] == table_name.to_s
     end
   end

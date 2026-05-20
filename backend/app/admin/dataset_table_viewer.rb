@@ -11,7 +11,13 @@ ActiveAdmin.register_page "Dataset Table Viewer" do
     page = [params[:page].to_i, 1].max
     per_page = 50
 
-    back_section = (schema == DatasetInventoryService::RASTER_SCHEMA) ? "raster" : "vector"
+    back_section = if schema == DatasetInventoryService::RASTER_SCHEMA
+      "raster"
+    elsif schema == DatasetInventoryService::NONSPATIAL_SCHEMA
+      "nonspatial"
+    else
+      "vector"
+    end
 
     div class: "inventory-breadcrumb" do
       link_to "← Back to Dataset Inventory",

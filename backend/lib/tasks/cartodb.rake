@@ -303,17 +303,22 @@ module CartodbRakeHelpers
     end
   end
 
-  # Sample up to +limit+ data rows from a gzipped CSV file and infer a
+  # Sample up to +limit+ rows from a CSV or gzipped CSV file and infer a
   # PostgreSQL column type for each column.  Falls back to TEXT for anything
   # that does not look like a plain integer, decimal, or boolean.
-  def self.infer_column_types(gz_path, limit: 1_000)
+  # Supports both plain .csv and .csv.gz files.
+  def self.infer_column_types_from_file(file_path, limit: 1_000)
     require "csv"
     require "zlib"
 
     col_samples = {}
 
-    Zlib::GzipReader.open(gz_path) do |gz|
-      csv = CSV.new(gz, headers: true)
+    opener = file_path.to_s.end_with?(".gz") \
+      ? ->(p, &b) { Zlib::GzipReader.open(p, &b) } \
+      : ->(p, &b) { File.open(p, encoding: "UTF-8", &b) }
+
+    opener.call(file_path) do |io|
+      csv = CSV.new(io, headers: true)
       csv.each_with_index do |row, idx|
         break if idx >= limit
 
@@ -337,6 +342,11 @@ module CartodbRakeHelpers
         "text"
       end
     end
+  end
+
+  # Convenience alias for gzip-compressed CSV files (backwards-compatible).
+  def self.infer_column_types(gz_path, limit: 1_000)
+    infer_column_types_from_file(gz_path, limit: limit)
   end
 
   # Strip CartoDB-internal columns (cartodb_id, the_geom_webmercator, the_geom)
@@ -364,6 +374,23 @@ module CartodbRakeHelpers
     cleaned.gsub!(/,\s*\bFROM\b/i, " FROM")
     cleaned.gsub!(/[ \t]*,[ \t]*,[ \t]*/m, ", ")
     cleaned.strip
+  end
+
+  # Schema-qualify unqualified table names in FROM/JOIN clauses using a per-table
+  # schema map: { table_name => schema }.  Use this when tables from multiple
+  # schemas (e.g. ra_vector + ra_nonspatial) appear in the same query.
+  # Longest names are processed first to prevent partial-name clobbering.
+  def self.qualify_table_names_in_sql_multi(sql, table_schema_map)
+    return sql if sql.blank?
+
+    qualified = sql.dup
+    table_schema_map.sort_by { |t, _| -t.length }.each do |tbl, schema|
+      escaped = Regexp.escape(tbl)
+      qualified.gsub!(
+        /\b(FROM|JOIN)\s+("?#{escaped}"?)(?=\s|,|\z|;)/i
+      ) { "#{$1} #{schema}.#{$2}" }
+    end
+    qualified
   end
 
   # Schema-qualify unqualified table names in FROM/JOIN clauses of a SQL query.
@@ -944,7 +971,8 @@ namespace :cartodb do
                                           (default: cartodb_exports/non-spatial/)
       CARTODB_EXPORT_DIR=<path>         Local directory for .csv.gz files (non-spatial only,
                                           used when CARTODB_S3_BUCKET is not set)
-      CARTODB_IMPORT_SCHEMA=<schema>    Target PostgreSQL schema (default: ra_vector)
+      CARTODB_IMPORT_SCHEMA=<schema>    Target PostgreSQL schema for spatial vectors (default: ra_vector)
+      CARTODB_NONSPATIAL_SCHEMA=<schema> Target schema for non-spatial .csv.gz tables (default: ra_nonspatial)
       FORCE=1                           Overwrite existing tables without prompting
 
     Usage:
@@ -963,6 +991,7 @@ namespace :cartodb do
     tables_prefix = ENV.fetch("CARTODB_TABLES_S3_PREFIX", "cartodb_exports/non-spatial/")
     export_dir = ENV.fetch("CARTODB_EXPORT_DIR", "")
     target_schema = ENV.fetch("CARTODB_IMPORT_SCHEMA", "ra_vector")
+    nonspatial_schema = ENV.fetch("CARTODB_NONSPATIAL_SCHEMA", "ra_nonspatial")
     force = ENV["FORCE"] == "1"
     use_s3 = s3_bucket.present?
 
@@ -1103,11 +1132,16 @@ namespace :cartodb do
         next
       end
 
-      # ── 3. Ensure the target schema exists ────────────────────────────────
+      # ── 3. Ensure target schemas exist ────────────────────────────────────
 
       if target_schema != "public"
         ar_conn.execute("CREATE SCHEMA IF NOT EXISTS \"#{target_schema}\"")
         puts "Ensured schema '#{target_schema}' exists."
+      end
+
+      if nonspatial_schema != target_schema && nonspatial_schema != "public"
+        ar_conn.execute("CREATE SCHEMA IF NOT EXISTS \"#{nonspatial_schema}\"")
+        puts "Ensured schema '#{nonspatial_schema}' exists."
       end
 
       # ── 4. Import vectors (.gpkg via ogr2ogr) ─────────────────────────────
@@ -1354,9 +1388,9 @@ namespace :cartodb do
         end
 
         src_schema = info[:schema]
-        q_table = "\"#{target_schema}\".\"#{tbl}\""
+        q_table = "\"#{nonspatial_schema}\".\"#{tbl}\""
 
-        if ar_conn.table_exists?("#{target_schema}.#{tbl}")
+        if ar_conn.table_exists?("#{nonspatial_schema}.#{tbl}")
           if force
             puts "\n  Table #{q_table} already exists — overwriting (FORCE=1)."
           else
@@ -1436,8 +1470,16 @@ namespace :cartodb do
       all_imported = imported_vectors + imported_tables
       if all_imported.any?
         puts "\nRunning ANALYZE on #{all_imported.size} imported table(s) to update row count statistics..."
-        all_imported.each do |t|
+        imported_vectors.each do |t|
           q = "#{ar_conn.quote_table_name(target_schema)}.#{ar_conn.quote_table_name(t[:table])}"
+          begin
+            ar_conn.execute("ANALYZE #{q}")
+          rescue => e
+            warn "  WARNING: ANALYZE failed for #{q}: #{e.message.lines.first.strip}"
+          end
+        end
+        imported_tables.each do |t|
+          q = "#{ar_conn.quote_table_name(nonspatial_schema)}.#{ar_conn.quote_table_name(t[:table])}"
           begin
             ar_conn.execute("ANALYZE #{q}")
           rescue => e
@@ -1459,7 +1501,7 @@ namespace :cartodb do
 
       puts "  Imported : #{total_imported}"
       imported_vectors.each { |t| puts "    ✓  #{t[:src_schema]}.#{t[:table]} → #{target_schema}.#{t[:table]}  [vector, #{t[:rows]} features]" }
-      imported_tables.each { |t| puts "    ✓  #{t[:src_schema]}.#{t[:table]} → #{target_schema}.#{t[:table]}  [table, #{t[:rows]} rows]" }
+      imported_tables.each { |t| puts "    ✓  #{t[:src_schema]}.#{t[:table]} → #{nonspatial_schema}.#{t[:table]}  [nonspatial, #{t[:rows]} rows]" }
 
       if missing.any?
         puts "  Not on S3: #{missing.size}"
@@ -1505,13 +1547,15 @@ namespace :cartodb do
     re-publishing.
 
     Optional:
-      CARTODB_IMPORT_SCHEMA=<schema>  Schema where tables were imported (default: public)
+      CARTODB_IMPORT_SCHEMA=<schema>          Spatial vector schema (default: ra_vector)
+      CARTODB_NONSPATIAL_SCHEMA=<schema>      Non-spatial table schema (default: ra_nonspatial)
 
     Usage:
       rake cartodb:update_layer_references
   DESC
   task update_layer_references: :environment do
     target_schema = ENV.fetch("CARTODB_IMPORT_SCHEMA", "ra_vector")
+    nonspatial_schema = ENV.fetch("CARTODB_NONSPATIAL_SCHEMA", "ra_nonspatial")
 
     # Include layers that either:
     #   a) have a SQL query in the query column (standard path), OR
@@ -1569,11 +1613,22 @@ namespace :cartodb do
 
       # ── Check which tables are now available locally ────────────────────
 
-      local_tables = referenced.select { |t| ar_conn.table_exists?("#{target_schema}.#{t}") }
+      local_tables = referenced.select do |t|
+        ar_conn.table_exists?("#{target_schema}.#{t}") ||
+          ar_conn.table_exists?("#{nonspatial_schema}.#{t}")
+      end
       missing_tables = referenced - local_tables
+
+      # Track which schema each local table lives in
+      table_schemas = local_tables.each_with_object({}) do |t, h|
+        h[t] = ar_conn.table_exists?("#{nonspatial_schema}.#{t}") ? nonspatial_schema : target_schema
+      end
+      nonspatial_local = local_tables.select { |t| table_schemas[t] == nonspatial_schema }
+      spatial_local = local_tables - nonspatial_local
 
       puts "  Available locally : #{local_tables.any? ? local_tables.join(", ") : "(none)"}"
       puts "  Still missing     : #{missing_tables.any? ? missing_tables.join(", ") : "(none)"}"
+      puts "  Nonspatial tables : #{nonspatial_local.join(", ")}" if nonspatial_local.any?
 
       # ── Build the cartodb_migration block for layer_config ─────────────
 
@@ -1583,19 +1638,29 @@ namespace :cartodb do
 
       raster_layer = CartodbRakeHelpers.raster_layer?(layer, source_sql)
       raster_tables = raster_layer ? (referenced - local_tables) : []
+      all_nonspatial = local_tables.any? && spatial_local.empty? && !raster_layer
 
       migration_block = {
         "status" => if raster_layer
                       raster_tables.any? ? "cog_pending" : "cog_ready"
+                    elsif all_nonspatial
+                      "nonspatial"
                     else
                       (local_tables.any? ? "partial" : "pending")
                     end,
         "tables" => table_status,
+        "table_schemas" => table_schemas,
         "raster" => raster_layer,
         "raster_tables" => raster_tables,
+        "nonspatial_only" => all_nonspatial,
         "source_sql" => source_sql,
         "cleaned_query" => CartodbRakeHelpers.strip_cartodb_columns(source_sql),
-        "note" => "Set layer_provider and update layer_config, then set published=true."
+        "note" => if all_nonspatial
+                    "All referenced tables are non-spatial; this layer has no tile geometry. " \
+                    "Consider using it as a data source for charts/tables rather than a map layer."
+                  else
+                    "Set layer_provider and update layer_config, then set published=true."
+                  end
       }
 
       style_config = CartodbRakeHelpers.translate_raster_css(layer.css)
@@ -1994,6 +2059,7 @@ namespace :cartodb do
   DESC
   task configure_martin_layers: :environment do
     target_schema = ENV.fetch("CARTODB_IMPORT_SCHEMA", "ra_vector")
+    nonspatial_schema = ENV.fetch("CARTODB_NONSPATIAL_SCHEMA", "ra_nonspatial")
     dry_run = ENV["DRY_RUN"] == "1"
     force = ENV["FORCE"] == "1"
 
@@ -2040,6 +2106,12 @@ namespace :cartodb do
           next
         end
 
+        if migration["nonspatial_only"]
+          puts "  - All referenced tables are non-spatial (no geometry) — cannot serve as Martin tile layer."
+          skipped_count += 1
+          next
+        end
+
         tables = migration["tables"] || {}
         imported = tables.select { |_, v| v == "imported" }.keys
         missing = tables.select { |_, v| v == "missing" }.keys
@@ -2067,12 +2139,23 @@ namespace :cartodb do
         needs_view = all_ready &&
           (imported.size > 1 || CartodbRakeHelpers.needs_view?(layer.query))
 
+        # Build per-table schema map: spatial tables go to target_schema,
+        # non-spatial (joined attribute) tables go to nonspatial_schema.
+        migration_table_schemas = migration["table_schemas"] || {}
+        table_schema_map = imported.each_with_object({}) do |t, h|
+          h[t] = migration_table_schemas[t].presence || target_schema
+        end
+        # The primary table for Martin must be spatial (geometry-bearing).
+        # Prefer the first table in target_schema; fall back to first imported.
+        primary_table = imported.find { |t| table_schema_map[t] == target_schema } || imported.first
+
         source = if needs_view && layer.query.present?
           view_name = "v_layer_#{layer.id}"
 
-          # Schema-qualify all FROM/JOIN table references in the cleaned query
-          view_sql = CartodbRakeHelpers.qualify_table_names_in_sql(
-            layer.query, target_schema, imported
+          # Schema-qualify all FROM/JOIN table references using per-table schemas
+          # (spatial tables → target_schema, nonspatial → nonspatial_schema).
+          view_sql = CartodbRakeHelpers.qualify_table_names_in_sql_multi(
+            layer.query, table_schema_map
           )
 
           # CartoDB always used `the_geom`, but GPKG-imported PostGIS tables may
@@ -2275,8 +2358,12 @@ namespace :cartodb do
         # When recovering a dropped view, keep the same name so existing
         # layer_config references remain valid.
         view_name = source.match?(/\Av_layer_\d+\z/) ? source : "v_layer_#{layer.id}"
-        view_sql = CartodbRakeHelpers.qualify_table_names_in_sql(
-          raw_sql, target_schema, imported_list
+        p2_table_schemas = migration_block["table_schemas"] || {}
+        p2_schema_map = imported_list.each_with_object({}) do |t, h|
+          h[t] = p2_table_schemas[t].presence || target_schema
+        end
+        view_sql = CartodbRakeHelpers.qualify_table_names_in_sql_multi(
+          raw_sql, p2_schema_map
         )
 
         # CartoDB always used `the_geom`, but GPKG-imported PostGIS tables may
@@ -2427,7 +2514,8 @@ namespace :cartodb do
 
     Accepts all environment variables from the sub-tasks:
       CARTODB_S3_BUCKET, CARTODB_VECTORS_S3_PREFIX, CARTODB_TABLES_S3_PREFIX,
-      CARTODB_EXPORT_DIR, CARTODB_IMPORT_SCHEMA, S3_BUCKET, COG_PREFIX, FORCE
+      CARTODB_EXPORT_DIR, CARTODB_IMPORT_SCHEMA, CARTODB_NONSPATIAL_SCHEMA,
+      S3_BUCKET, COG_PREFIX, FORCE
 
     Usage:
       rake cartodb:migrate_tables CARTODB_S3_BUCKET=resilienceatlas

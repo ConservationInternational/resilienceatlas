@@ -1,0 +1,32 @@
+<%= form_tag upload_nonspatial_admin_dataset_inventory_path, method: :post, multipart: true,
+    style: "margin: 0;" do %>
+  <fieldset class="inputs">
+    <ol>
+      <li class="string input">
+        <label for="table_name">Table name <span style="color:#888;font-weight:normal">(alphanumeric + underscore, max 63 chars)</span></label>
+        <%= text_field_tag :table_name, nil,
+            id: "table_name",
+            placeholder: "e.g. dhs_indicators_gh",
+            required: true,
+            pattern: "[a-zA-Z0-9_]+",
+            maxlength: 63,
+            style: "width:280px" %>
+      </li>
+      <li class="file input">
+        <label for="csv_file">CSV file <span style="color:#888;font-weight:normal">(.csv, max 50 MB)</span></label>
+        <%= file_field_tag :csv_file, id: "csv_file", accept: ".csv", required: true %>
+      </li>
+    </ol>
+  </fieldset>
+  <p style="color:#c0392b;font-size:0.9em;margin:4px 0 8px 0">
+    <strong>Warning:</strong> uploading will <strong>drop and replace</strong> any existing table with the same name in
+    the <code>ra_nonspatial</code> schema.
+  </p>
+  <fieldset class="actions">
+    <ol>
+      <li class="action input_action">
+        <%= submit_tag "Upload", class: "button" %>
+      </li>
+    </ol>
+  </fieldset>
+<% end %>

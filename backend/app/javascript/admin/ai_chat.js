@@ -5,6 +5,7 @@
   'use strict';
 
   function initAiChat() {
+    console.log('[AI Chat] initAiChat called, aiChatMeta=', window.aiChatMeta);
     const meta = window.aiChatMeta;
     if (!meta) return; // Only active on the AI Chat page
 
@@ -101,8 +102,7 @@
   }
 
   // Initialize on both DOMContentLoaded (direct load) and turbolinks:load (Turbolinks navigation).
-  // turbolinks:load fires after the new body is in place and inline <script> tags have run,
-  // so window.aiChatMeta will be available if this page is the AI chat page.
+  console.log('[AI Chat] module body executing, readyState=', document.readyState);
   document.addEventListener('turbolinks:load', initAiChat);
 
   // Also handle a direct (non-Turbolinks) load
