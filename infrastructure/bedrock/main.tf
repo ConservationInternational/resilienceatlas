@@ -99,7 +99,7 @@ resource "aws_iam_role_policy" "bedrock_agent_policy" {
           "bedrock:InvokeModel",
           "bedrock:InvokeModelWithResponseStream"
         ]
-        Resource = "arn:aws:bedrock:${var.aws_region}::foundation-model/anthropic.claude-3-5-sonnet-20241022-v2:0"
+        Resource = "arn:aws:bedrock:${var.aws_region}::foundation-model/anthropic.claude-sonnet-4-5-20250929-v1:0"
       }
     ]
   })
@@ -131,7 +131,7 @@ resource "aws_iam_role_policy" "bedrock_agent_lambda" {
 resource "aws_bedrockagent_agent" "main" {
   agent_name              = "resilienceatlas-layer-manager-${var.environment}"
   description             = "AI agent for creating and managing Resilience Atlas map layers"
-  foundation_model        = "anthropic.claude-3-5-sonnet-20241022-v2:0"
+  foundation_model        = "anthropic.claude-sonnet-4-5-20250929-v1:0"
   agent_resource_role_arn = aws_iam_role.bedrock_agent.arn
   instruction             = file("${path.module}/../../cloud_functions/ai_agent/bedrock_agent/agent_instructions.txt")
 
