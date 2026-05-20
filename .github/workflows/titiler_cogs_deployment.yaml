@@ -37,7 +37,7 @@ jobs:
       ENVIRONMENT: staging
     steps:
       - name: Checkout the code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           ref: ${{ inputs.branch || github.ref }}
 
@@ -87,7 +87,7 @@ jobs:
       ENVIRONMENT: production
     steps:
       - name: Checkout the code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           ref: ${{ inputs.branch || github.ref }}
 

@@ -63,7 +63,7 @@ jobs:
     
     steps:
     - name: Checkout code
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
 
     - name: Configure AWS credentials via OIDC
       uses: aws-actions/configure-aws-credentials@v6
@@ -155,7 +155,7 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
 
     - name: Configure AWS credentials via OIDC
       uses: aws-actions/configure-aws-credentials@v6
