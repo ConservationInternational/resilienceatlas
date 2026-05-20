@@ -191,17 +191,8 @@ def handle_retrieve_context(params: dict, _auth: AuthContext) -> str:
     return json.dumps(results, ensure_ascii=False)
 
 
-def handle_list_layers(params: dict, _auth: AuthContext) -> str:
-    site_scope_id = params.get("site_scope_id")
-    keyword = params.get("keyword")
-    p: dict = {"per_page": 200}
-    if site_scope_id:
-        p["site_scope_id"] = site_scope_id
-    if keyword:
-        p["keyword"] = keyword
-    result = rails_get("/api/admin/layers", params=p)
-    layers = result.get("data", [])
-    condensed = [
+def _condense_layers(layers: list[dict]) -> list[dict]:
+    return [
         {
             "id": l.get("id"),
             "name": l.get("name"),
@@ -214,10 +205,50 @@ def handle_list_layers(params: dict, _auth: AuthContext) -> str:
         }
         for l in layers
     ]
-    return json.dumps(condensed, ensure_ascii=False)
 
 
-def handle_get_layer(params: dict, _auth: AuthContext) -> str:
+def handle_list_layers(params: dict, auth: AuthContext) -> str:
+    site_scope_id = params.get("site_scope_id")
+    keyword = params.get("keyword")
+
+    # Authorization: validate the requested scope is in the user's allowed set.
+    if site_scope_id is not None:
+        if not auth.can_access_site_scope(site_scope_id):
+            return json.dumps({"success": False, "message": f"Access denied: not authorized for site scope {site_scope_id}."})
+
+        p: dict = {"per_page": 200, "site_scope_id": site_scope_id}
+        if keyword:
+            p["keyword"] = keyword
+        result = rails_get("/api/admin/layers", params=p)
+        return json.dumps(_condense_layers(result.get("data", [])), ensure_ascii=False)
+
+    # No scope specified — restrict non-superadmins to their allowed scopes.
+    if not auth.is_superadmin and auth.allowed_site_scope_ids is not None:
+        if not auth.allowed_site_scope_ids:
+            return json.dumps({"success": False, "message": "Access denied: no site scopes assigned to your account."})
+        # Fetch each allowed scope and merge deduplicated results.
+        all_layers: list[dict] = []
+        seen_ids: set = set()
+        for sid in auth.allowed_site_scope_ids:
+            p = {"per_page": 200, "site_scope_id": sid}
+            if keyword:
+                p["keyword"] = keyword
+            for layer in rails_get("/api/admin/layers", params=p).get("data", []):
+                lid = layer.get("id")
+                if lid not in seen_ids:
+                    seen_ids.add(lid)
+                    all_layers.append(layer)
+        return json.dumps(_condense_layers(all_layers), ensure_ascii=False)
+
+    # Superadmin (or allowed_site_scope_ids is None = all scopes): pass through.
+    p = {"per_page": 200}
+    if keyword:
+        p["keyword"] = keyword
+    result = rails_get("/api/admin/layers", params=p)
+    return json.dumps(_condense_layers(result.get("data", [])), ensure_ascii=False)
+
+
+def handle_get_layer(params: dict, auth: AuthContext) -> str:
     layer_id = params.get("layer_id")
     slug = params.get("slug")
 
@@ -234,6 +265,13 @@ def handle_get_layer(params: dict, _auth: AuthContext) -> str:
 
     result = rails_get(f"/api/admin/layers/{layer_id}")
     layer = result.get("data", {})
+
+    # Authorization: non-superadmins may only read layers in their allowed scopes.
+    # site_scope_ids is included by the Rails show action (many-to-many via layer_groups).
+    if not auth.is_superadmin:
+        scope_ids = layer.get("site_scope_ids") or []
+        if scope_ids and not any(auth.can_access_site_scope(sid) for sid in scope_ids):
+            return json.dumps({"success": False, "message": "Access denied: not authorized for this layer's site scope."})
     # Return the most useful fields for the agent to reason about
     summary = {
         "id": layer.get("id"),
@@ -323,9 +361,10 @@ def handle_update_layer(params: dict, auth: AuthContext) -> str:
     if not auth.role:
         return json.dumps({"success": False, "message": "Access denied: no valid session. Use the admin chat interface."})
 
-    # For non-superadmins: fetch the layer's real site scope and verify access.
-    # We do NOT trust a caller-supplied site_scope_id because omitting it would make
-    # can_access_site_scope(None) return True, allowing cross-scope updates.
+    # For non-superadmins: fetch the layer's real site scopes and verify access.
+    # Layer has a many-to-many relationship with site_scopes (no direct site_scope_id
+    # column). The Rails show action returns site_scope_ids as an array.
+    # We do NOT trust any caller-supplied site_scope_id.
     if not auth.is_superadmin:
         try:
             layer_resp = rails_get(f"/api/admin/layers/{layer_id}")
@@ -333,9 +372,19 @@ def handle_update_layer(params: dict, auth: AuthContext) -> str:
             if exc.response is not None and exc.response.status_code == 404:
                 return json.dumps({"success": False, "message": f"Layer {layer_id} not found."})
             raise
-        actual_scope_id = (layer_resp.get("data") or {}).get("site_scope_id")
-        if err := auth.assert_can_update(actual_scope_id):
-            return json.dumps({"success": False, "message": err})
+        scope_ids = (layer_resp.get("data") or {}).get("site_scope_ids") or []
+        if scope_ids:
+            if not any(auth.can_access_site_scope(sid) for sid in scope_ids):
+                return json.dumps({
+                    "success": False,
+                    "message": f"Access denied: your account is not authorized for any site scope of layer {layer_id}.",
+                })
+        else:
+            # Layer has no site scopes assigned — only superadmins may update it.
+            return json.dumps({
+                "success": False,
+                "message": f"Access denied: layer {layer_id} has no site scope assigned. Ask a superadmin to assign it first.",
+            })
 
     # Contributors/staff may not publish layers
     if auth.is_contributor and params.get("published") is True:
@@ -355,7 +404,8 @@ def handle_update_layer(params: dict, auth: AuthContext) -> str:
 
 
 def handle_import_vector_table(params: dict, auth: AuthContext) -> str:
-    # Contributors can import (creates data) but the subsequent create_layer call will enforce published=false
+    if not auth.role:
+        return json.dumps({"success": False, "message": "Access denied: no valid session. Use the admin chat interface."})
     s3_uri = params.get("s3_uri")
     table_name = params.get("table_name")
     if not s3_uri:

@@ -47,7 +47,10 @@ class Api::Admin::LayersController < Api::Admin::ApiController
   end
 
   def show
-    render json: {success: true, message: "Layer Details", data: @layer.as_json}, status: :ok
+    # Include site_scope_ids so the Bedrock agent Lambda can enforce per-scope
+    # authorization. Layer uses a many-to-many via layer_groups (no direct column).
+    scope_ids = @layer.site_scopes.pluck(:id).map(&:to_s)
+    render json: {success: true, message: "Layer Details", data: @layer.as_json.merge("site_scope_ids" => scope_ids)}, status: :ok
   end
 
   def site_scopes

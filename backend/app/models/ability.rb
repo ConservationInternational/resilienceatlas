@@ -20,7 +20,8 @@ class Ability
     can :read, ActiveAdmin::Page, name: "Dashboard"
     allowed_ids = @admin_user.allowed_site_scopes.pluck(:id)
     can :read, Layer
-    can :update, Layer, site_scope_id: allowed_ids
+    # Layer has many site_scopes via layer_groups (no direct site_scope_id column).
+    can :update, Layer, site_scopes: {id: allowed_ids}
     can :read, [LayerGroup, Category]
   end
 end
