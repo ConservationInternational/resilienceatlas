@@ -101,6 +101,8 @@ services:
       - RESILIENCE_API_KEY=${RESILIENCE_API_KEY}
       - BACKEND_URL=${BACKEND_URL}
       - FRONTEND_URL=${FRONTEND_URL}
+      - CORS_WHITELIST=https://staging.resilienceatlas.org
+      - CORS_ORIGIN_REGEX=\Ahttps://([\w-]+\.)*staging\.resilienceatlas\.org\z
       - SPARKPOST_API_KEY=${SPARKPOST_API_KEY}
       - ROLLBAR_ACCESS_TOKEN=${ROLLBAR_ACCESS_TOKEN}
       - ROLLBAR_ENV=staging
