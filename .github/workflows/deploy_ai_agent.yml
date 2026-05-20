@@ -95,20 +95,14 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: Set up SAM CLI
-        uses: aws-actions/setup-sam@v2
-        with:
-          use-installer: true
-
-      - name: SAM deploy
-        working-directory: cloud_functions/ai_agent
+      - name: Deploy via CloudFormation
         run: |
-          sam deploy \
+          aws cloudformation deploy \
+            --template-file cloud_functions/ai_agent/template.yaml \
             --stack-name ${{ steps.stack.outputs.name }} \
             --region ${{ env.AWS_REGION }} \
-            --no-confirm-changeset \
             --no-fail-on-empty-changeset \
-            --capabilities CAPABILITY_IAM \
+            --capabilities CAPABILITY_IAM CAPABILITY_AUTO_EXPAND \
             --parameter-overrides \
               RailsApiUrl="${{ secrets.RAILS_API_URL }}" \
               ResilienceApiKeySecretArn="${{ vars.RESILIENCE_API_KEY_SECRET_ARN }}" \
