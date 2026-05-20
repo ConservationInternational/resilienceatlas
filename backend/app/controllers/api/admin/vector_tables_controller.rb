@@ -113,7 +113,7 @@ class Api::Admin::VectorTablesController < Api::Admin::ApiController
     ).first["n"].to_i
 
     excluded_cols = %w[ogc_fid the_geom the_geom_webmercator wkb_geometry
-                       created_at updated_at cartodb_id]
+                      created_at updated_at cartodb_id]
     columns = conn.columns(table_name)
       .reject { |c| excluded_cols.include?(c.name) }
       .map { |c| {name: c.name, type: c.sql_type} }

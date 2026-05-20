@@ -41,7 +41,7 @@ class AdminUser < ApplicationRecord
   # (integer 1 was "manager", removed — existing DB rows migrated to admin=0)
   ROLES = %i[admin staff superadmin contributor].freeze
 
-  enum :role, { admin: 0, staff: 2, superadmin: 3, contributor: 4 }
+  enum :role, {admin: 0, staff: 2, superadmin: 3, contributor: 4}
 
   has_many :admin_user_site_scopes, dependent: :destroy
   has_many :allowed_site_scopes, through: :admin_user_site_scopes, source: :site_scope

@@ -467,25 +467,30 @@ module CartodbRakeHelpers
     # Split on top-level UNION [ALL] keywords, respecting paren depth so that
     # UNIONs inside subqueries are not mistakenly split on.
     parts = []
-    seps  = []
-    buf   = +""
+    seps = []
+    buf = +""
     depth = 0
-    pos   = 0
+    pos = 0
 
     while pos < view_sql.length
       ch = view_sql[pos]
       if ch == "("
-        depth += 1; buf << ch; pos += 1
+        depth += 1
+        buf << ch
+        pos += 1
       elsif ch == ")"
-        depth -= 1; buf << ch; pos += 1
+        depth -= 1
+        buf << ch
+        pos += 1
       elsif depth.zero? && (m = view_sql[pos..].match(/\AUNION(?:\s+ALL)?/i))
         parts << buf.rstrip
-        seps  << m[0]
-        buf    = +""
-        pos   += m[0].length
-        pos   += 1 while pos < view_sql.length && view_sql[pos].match?(/\s/)
+        seps << m[0]
+        buf = +""
+        pos += m[0].length
+        pos += 1 while pos < view_sql.length && view_sql[pos].match?(/\s/)
       else
-        buf << ch; pos += 1
+        buf << ch
+        pos += 1
       end
     end
     parts << buf.rstrip
@@ -591,8 +596,7 @@ module CartodbRakeHelpers
     # ", alias.the_geom" — middle or last column
     result = result.gsub(/[ \t]*,[ \t]*#{pat}/i, "")
     # standalone (no commas left)
-    result = result.gsub(pat, "")
-    result
+    result.gsub(pat, "")
   end
 
   # Extract a SQL query from a CartoDB-native layer_config JSON blob.
@@ -2090,7 +2094,7 @@ namespace :cartodb do
           # for explicit column lists we must add it back so Martin can generate
           # vector tiles.  Use PostGIS geometry_columns to identify which imported
           # table actually carries geometry (may not be the primary table).
-          unless view_sql.match?(/SELECT\s+\*/i) || (geom_ref_present && !still_has_the_geom)
+          if !(view_sql.match?(/SELECT\s+\*/i) || (geom_ref_present && !still_has_the_geom))
             # Strip any stale the_geom refs that fix_the_geom_references could not
             # rename (e.g. refs on a non-geometry joined table).
             view_sql = CartodbRakeHelpers.strip_the_geom_refs(view_sql)
@@ -2289,7 +2293,7 @@ namespace :cartodb do
         # strip the stale refs and inject the correct column below.
         still_has_the_geom = view_sql.match?(/\b\w+(?:\.\w+)*\.the_geom\b/i)
 
-        unless view_sql.match?(/SELECT\s+\*/i) || (geom_ref_present && !still_has_the_geom)
+        if !(view_sql.match?(/SELECT\s+\*/i) || (geom_ref_present && !still_has_the_geom))
           # Strip any stale the_geom refs that fix_the_geom_references could not
           # rename (e.g. refs on a non-geometry joined table like dhs_indicators).
           view_sql = CartodbRakeHelpers.strip_the_geom_refs(view_sql)

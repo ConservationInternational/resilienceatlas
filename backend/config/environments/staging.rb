@@ -34,7 +34,6 @@ Rails.application.configure do
   # yet still be able to expire them through the digest params.
   config.assets.digest = true
 
-
   # Use Redis when available (requires REDIS_URL env var), otherwise memory store.
   config.cache_store = if ENV["REDIS_URL"].present?
     [:redis_cache_store, {

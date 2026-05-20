@@ -7,11 +7,11 @@ ActiveAdmin.register_page "Dataset Inventory" do
     end
 
     section = params[:section].presence&.in?(%w[vector raster s3]) ? params[:section] : "vector"
-    page    = [params[:page].to_i, 1].max
+    page = [params[:page].to_i, 1].max
     per_page = 25
-    sort    = params[:sort].presence || (section == "s3" ? "key" : "name")
-    dir     = params[:dir] == "desc" ? "desc" : "asc"
-    name_q  = params[:q].presence
+    sort = params[:sort].presence || ((section == "s3") ? "key" : "name")
+    dir = (params[:dir] == "desc") ? "desc" : "asc"
+    name_q = params[:q].presence
     layer_q = params[:lq].presence
 
     base = {section: section, sort: sort, dir: dir, q: name_q, lq: layer_q}
@@ -22,7 +22,7 @@ ActiveAdmin.register_page "Dataset Inventory" do
     div class: "inventory-tabs" do
       [["vector", "Vector Tables"], ["raster", "Raster Tables"], ["s3", "S3 COGs"]].each do |tab, label|
         text_node link_to(label, admin_dataset_inventory_path(section: tab),
-          class: "inventory-tab#{section == tab ? " active" : ""}")
+          class: "inventory-tab#{(section == tab) ? " active" : ""}") 
       end
     end
 
@@ -30,12 +30,12 @@ ActiveAdmin.register_page "Dataset Inventory" do
     div class: "inventory-filters" do
       form action: admin_dataset_inventory_path, method: :get do
         input type: :hidden, name: :section, value: section
-        input type: :hidden, name: :sort,    value: sort
-        input type: :hidden, name: :dir,     value: dir
+        input type: :hidden, name: :sort, value: sort
+        input type: :hidden, name: :dir, value: dir
         span do
           label(for: :q) { "Name:" }
           input type: :text, name: :q, id: :q, value: name_q,
-            placeholder: section == "s3" ? "Filter by S3 key…" : "Filter by table name…",
+            placeholder: (section == "s3") ? "Filter by S3 key…" : "Filter by table name…",
             style: "width:200px; margin:0 6px"
         end
         span do
@@ -54,14 +54,14 @@ ActiveAdmin.register_page "Dataset Inventory" do
     # ── Content by section ───────────────────────────────────────────────────
     case section
     when "vector", "raster"
-      schema = section == "vector" ? DatasetInventoryService::VECTOR_SCHEMA : DatasetInventoryService::RASTER_SCHEMA
-      result = section == "vector" ?
+      schema = (section == "vector") ? DatasetInventoryService::VECTOR_SCHEMA : DatasetInventoryService::RASTER_SCHEMA
+      result = (section == "vector") ?
         svc.vector_tables(page: page, per_page: per_page, sort: sort, dir: dir, q: name_q, lq: layer_q) :
         svc.raster_tables(page: page, per_page: per_page, sort: sort, dir: dir, q: name_q, lq: layer_q)
 
-      panel "#{section == "vector" ? "Vector" : "Raster"} Tables (#{schema} schema) — #{result[:total]} tables" do
+      panel "#{(section == "vector") ? "Vector" : "Raster"} Tables (#{schema} schema) — #{result[:total]} tables" do
         if result[:rows].empty?
-          para(name_q.present? || layer_q.present? ? "No tables match the current filters." : "No tables found in #{schema} schema.")
+          para((name_q.present? || layer_q.present?) ? "No tables match the current filters." : "No tables found in #{schema} schema.")
         else
           table_for result[:rows], class: "inventory-table" do
             column(sort_link("Table Name", "name", sort, dir, base.merge(page: 1))) do |r|
@@ -97,7 +97,7 @@ ActiveAdmin.register_page "Dataset Inventory" do
             "S3 not available: #{svc.s3_error}"
           end
         elsif result[:rows].empty?
-          para(name_q.present? || layer_q.present? ? "No objects match the current filters." : "No COG objects found.")
+          para((name_q.present? || layer_q.present?) ? "No objects match the current filters." : "No COG objects found.")
         else
           table_for result[:rows], class: "inventory-table" do
             column(sort_link("S3 Key", "key", sort, dir, base.merge(page: 1))) { |r| r[:key] }

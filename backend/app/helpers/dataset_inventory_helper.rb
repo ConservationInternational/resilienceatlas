@@ -12,7 +12,11 @@ module DatasetInventoryHelper
 
   def sort_link(label, col, current_sort, current_dir, base_params)
     new_dir = (current_sort == col && current_dir == "asc") ? "desc" : "asc"
-    arrow = current_sort == col ? (current_dir == "asc" ? " ▲" : " ▼") : ""
+    arrow = if current_sort == col
+      (current_dir == "asc") ? " ▲" : " ▼"
+    else
+      ""
+    end
     link_to "#{label}#{arrow}".html_safe,
       admin_dataset_inventory_path(base_params.merge(sort: col, dir: new_dir, page: 1))
   end
@@ -32,7 +36,7 @@ module DatasetInventoryHelper
     parts << content_tag(:span, "…") if window.first > 2
 
     window.each do |p|
-      parts << (p == cur ? content_tag(:strong, p) : link_to(p, admin_dataset_inventory_path(base_params.merge(page: p))))
+      parts << ((p == cur) ? content_tag(:strong, p) : link_to(p, admin_dataset_inventory_path(base_params.merge(page: p))))
     end
 
     parts << content_tag(:span, "…") if window.last < total_pages - 1
@@ -40,7 +44,7 @@ module DatasetInventoryHelper
     parts << link_to("Next →", admin_dataset_inventory_path(base_params.merge(page: cur + 1))) if cur < total_pages
 
     from = (cur - 1) * per + 1
-    to   = [cur * per, total].min
+    to = [cur * per, total].min
     content_tag(:div, class: "inventory-pagination") do
       safe_join([
         safe_join(parts, " "),
@@ -52,8 +56,8 @@ module DatasetInventoryHelper
 
   def table_viewer_pagination(result, schema, table_name)
     total = result[:total]
-    cur   = result[:page]
-    per   = result[:per_page]
+    cur = result[:page]
+    per = result[:per_page]
     return "".html_safe if total <= per
 
     total_pages = (total.to_f / per).ceil
@@ -66,7 +70,7 @@ module DatasetInventoryHelper
     parts << content_tag(:span, "…") if window.first > 2
 
     window.each do |p|
-      parts << (p == cur ? content_tag(:strong, p) : link_to(p, admin_dataset_table_viewer_path(base.merge(page: p))))
+      parts << ((p == cur) ? content_tag(:strong, p) : link_to(p, admin_dataset_table_viewer_path(base.merge(page: p))))
     end
 
     parts << content_tag(:span, "…") if window.last < total_pages - 1
@@ -74,7 +78,7 @@ module DatasetInventoryHelper
     parts << link_to("Next →", admin_dataset_table_viewer_path(base.merge(page: cur + 1))) if cur < total_pages
 
     from = (cur - 1) * per + 1
-    to   = [cur * per, total].min
+    to = [cur * per, total].min
     content_tag(:div, class: "inventory-pagination") do
       safe_join([
         safe_join(parts, " "),

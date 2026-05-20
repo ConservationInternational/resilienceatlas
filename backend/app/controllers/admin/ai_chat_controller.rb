@@ -63,7 +63,7 @@ class Admin::AiChatController < ApplicationController
     {
       "admin_user_id" => user.id.to_s,
       "admin_role" => user.role.to_s,
-      "allowed_site_scope_ids" => scope_ids == "*" ? "*" : scope_ids.join(",")
+      "allowed_site_scope_ids" => (scope_ids == "*") ? "*" : scope_ids.join(",")
     }
   end
 

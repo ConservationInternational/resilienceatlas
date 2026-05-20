@@ -5,7 +5,6 @@ ActiveAdmin.register DataImport do
     para "Tracks bulk data import jobs triggered from the admin interface. Review import history and check the status of in-progress or failed imports."
   end
 
-
   actions :index, :show
 
   filter :status, as: :select, collection: DataImport.statuses.keys
