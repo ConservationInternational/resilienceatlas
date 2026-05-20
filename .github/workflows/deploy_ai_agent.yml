@@ -21,7 +21,6 @@ on:
 
 env:
   AWS_REGION: us-east-1
-  ECR_REGISTRY: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com
 
 permissions:
   id-token: write
@@ -47,7 +46,7 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v2
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
 
       - name: Set stack name
         id: stack
@@ -59,29 +58,29 @@ jobs:
           fi
 
       - name: Build and push sync_embeddings image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v7
         with:
           context: cloud_functions/ai_agent/sync_embeddings
           push: true
-          tags: ${{ env.ECR_REGISTRY }}/resilienceatlas-ai-agent-sync-embeddings:${{ github.sha }}
+          tags: ${{ steps.login-ecr.outputs.registry }}/resilienceatlas-ai-agent-sync-embeddings:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
       - name: Build and push action_groups image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v7
         with:
           context: cloud_functions/ai_agent/action_groups
           push: true
-          tags: ${{ env.ECR_REGISTRY }}/resilienceatlas-ai-agent-action-groups:${{ github.sha }}
+          tags: ${{ steps.login-ecr.outputs.registry }}/resilienceatlas-ai-agent-action-groups:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
       - name: Build and push pipeline image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v7
         with:
           context: cloud_functions/ai_agent/pipeline
           push: true
-          tags: ${{ env.ECR_REGISTRY }}/resilienceatlas-ai-agent-pipeline:${{ github.sha }}
+          tags: ${{ steps.login-ecr.outputs.registry }}/resilienceatlas-ai-agent-pipeline:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
