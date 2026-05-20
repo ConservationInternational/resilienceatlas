@@ -11,8 +11,66 @@
       button#ai-chat-reset.btn.btn-secondary Reset conversation
 
 javascript:
-  window.aiChatMeta = {
-    messageUrl: "#{admin_ai_chat_message_path}",
-    resetUrl:   "#{admin_ai_chat_reset_path}",
-    csrfToken:  "#{form_authenticity_token}"
-  };
+  (function() {
+    var messageUrl = "#{admin_ai_chat_message_path}";
+    var resetUrl   = "#{admin_ai_chat_reset_path}";
+    var csrfToken  = "#{form_authenticity_token}";
+
+    var messages = document.getElementById('ai-chat-messages');
+    var input    = document.getElementById('ai-chat-input');
+    var sendBtn  = document.getElementById('ai-chat-send');
+    var resetBtn = document.getElementById('ai-chat-reset');
+
+    if (!messages || !input || !sendBtn || !resetBtn) return;
+    if (sendBtn.dataset.aiChatInit) return;
+    sendBtn.dataset.aiChatInit = '1';
+
+    function appendBubble(text, role) {
+      var bubble = document.createElement('div');
+      bubble.className = 'ai-chat-bubble ' + role;
+      bubble.textContent = text;
+      messages.appendChild(bubble);
+      messages.scrollTop = messages.scrollHeight;
+      return bubble;
+    }
+
+    function setLoading(on) {
+      sendBtn.disabled = on;
+      input.disabled   = on;
+    }
+
+    function sendMessage() {
+      var text = input.value.trim();
+      if (!text) return;
+      appendBubble(text, 'user');
+      input.value = '';
+      setLoading(true);
+      var thinking = appendBubble('Thinking\u2026', 'agent');
+      fetch(messageUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken },
+        body: JSON.stringify({ message: text })
+      }).then(function(r) { return r.json(); })
+        .then(function(d) {
+          thinking.remove();
+          appendBubble(d.success ? d.message : 'Error: ' + d.message, d.success ? 'agent' : 'error');
+        })
+        .catch(function() { thinking.remove(); appendBubble('Network error. Please try again.', 'error'); })
+        .finally(function() { setLoading(false); input.focus(); });
+    }
+
+    sendBtn.addEventListener('click', sendMessage);
+    input.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); sendMessage(); }
+    });
+    resetBtn.addEventListener('click', function() {
+      fetch(resetUrl, { method: 'POST', headers: { 'X-CSRF-Token': csrfToken } })
+        .catch(function() {})
+        .finally(function() {
+          messages.innerHTML = '';
+          appendBubble('Conversation reset. How can I help you?', 'agent');
+        });
+    });
+
+    appendBubble('Hello! I can help you create and configure Resilience Atlas layers. Describe what you need and I\'ll set it up.', 'agent');
+  })();
