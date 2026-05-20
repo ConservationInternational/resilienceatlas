@@ -50,6 +50,7 @@ jobs:
 
       - name: Create ECR repositories if missing
         run: |
+          ECR_LAMBDA_POLICY='{"Version":"2012-10-17","Statement":[{"Sid":"LambdaECRAccess","Effect":"Allow","Principal":{"Service":"lambda.amazonaws.com"},"Action":["ecr:BatchGetImage","ecr:GetDownloadUrlForLayer"]}]}'
           for repo in \
             resilienceatlas-ai-agent-sync-embeddings \
             resilienceatlas-ai-agent-action-groups \
@@ -57,6 +58,9 @@ jobs:
             aws ecr describe-repositories --repository-names "$repo" --region ${{ env.AWS_REGION }} \
               || aws ecr create-repository --repository-name "$repo" --region ${{ env.AWS_REGION }} \
                    --image-scanning-configuration scanOnPush=true
+            # Ensure Lambda can pull from this repo (required for container image functions)
+            aws ecr set-repository-policy --repository-name "$repo" --region ${{ env.AWS_REGION }} \
+              --policy-text "$ECR_LAMBDA_POLICY"
           done
 
       - name: Set stack name
