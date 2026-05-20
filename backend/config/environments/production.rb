@@ -98,16 +98,18 @@ Rails.application.configure do
   # Do not dump schema after migrations.
   # config.active_record.dump_schema_after_migration = false
 
-  config.action_mailer.default_url_options = {host: URI.parse(ENV.fetch("BACKEND_URL")).host}
-  config.action_mailer.delivery_method = :sparkpost
+  if (backend_url = ENV.fetch("BACKEND_URL", nil)).present?
+    backend_uri = URI.parse(backend_url)
+    config.action_mailer.default_url_options = {host: backend_uri.host}
+    config.action_mailer.delivery_method = :sparkpost
 
-  # Set default URL options for controllers (needed for Active Storage URLs)
-  backend_uri = URI.parse(ENV.fetch("BACKEND_URL"))
-  Rails.application.routes.default_url_options = {
-    host: backend_uri.host,
-    port: backend_uri.port,
-    protocol: backend_uri.scheme
-  }
+    # Set default URL options for controllers (needed for Active Storage URLs)
+    Rails.application.routes.default_url_options = {
+      host: backend_uri.host,
+      port: backend_uri.port,
+      protocol: backend_uri.scheme
+    }
+  end
 
   # Store uploaded files in S3 with instance-role credentials (private access, signed URLs).
   # Seeded static assets that must be publicly accessible should live in public/ or a CDN,

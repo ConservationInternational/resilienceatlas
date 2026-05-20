@@ -211,6 +211,9 @@ services:
       - REDIS_URL=redis://redis:6379/0
       - S3_BUCKET=${S3_BUCKET}
       - AWS_REGION=${AWS_REGION}
+      - BACKEND_URL=${BACKEND_URL}
+      - BEDROCK_AGENT_ID=${BEDROCK_AGENT_ID}
+      - BEDROCK_AGENT_ALIAS_ID=${BEDROCK_AGENT_ALIAS_ID}
     networks:
       - staging-network
     depends_on:
