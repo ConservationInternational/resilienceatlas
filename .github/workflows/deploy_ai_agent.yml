@@ -105,7 +105,7 @@ jobs:
           STACK_STATUS=$(aws cloudformation describe-stacks \
             --stack-name "$STACK_NAME" --region "$REGION" \
             --query "Stacks[0].StackStatus" --output text 2>/dev/null || echo "DOES_NOT_EXIST")
-          if [[ "$STACK_STATUS" == "ROLLBACK_COMPLETE" || "$STACK_STATUS" == "CREATE_FAILED" ]]; then
+          if [[ "$STACK_STATUS" == "ROLLBACK_COMPLETE" || "$STACK_STATUS" == "CREATE_FAILED" || "$STACK_STATUS" == "ROLLBACK_FAILED" ]]; then
             echo "Stack in $STACK_STATUS - deleting before redeploy..."
             aws cloudformation delete-stack --stack-name "$STACK_NAME" --region "$REGION"
             aws cloudformation wait stack-delete-complete --stack-name "$STACK_NAME" --region "$REGION"
