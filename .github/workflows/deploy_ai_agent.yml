@@ -48,6 +48,17 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
 
+      - name: Create ECR repositories if missing
+        run: |
+          for repo in \
+            resilienceatlas-ai-agent-sync-embeddings \
+            resilienceatlas-ai-agent-action-groups \
+            resilienceatlas-ai-agent-pipeline; do
+            aws ecr describe-repositories --repository-names "$repo" --region ${{ env.AWS_REGION }} \
+              || aws ecr create-repository --repository-name "$repo" --region ${{ env.AWS_REGION }} \
+                   --image-scanning-configuration scanOnPush=true
+          done
+
       - name: Set stack name
         id: stack
         run: |

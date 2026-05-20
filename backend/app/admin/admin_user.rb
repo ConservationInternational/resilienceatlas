@@ -7,8 +7,11 @@ ActiveAdmin.register AdminUser do
     para "Contributors/Staff can only create layers (always unpublished) — they cannot update or delete."
   end
 
-  permit_params :email, :password, :password_confirmation, :role,
-    allowed_site_scope_ids: []
+  permit_params do
+    permitted = [:email, :password, :password_confirmation]
+    permitted += [:role, {allowed_site_scope_ids: []}] if current_admin_user.superadmin?
+    permitted
+  end
 
   index do
     selectable_column
@@ -37,10 +40,12 @@ ActiveAdmin.register AdminUser do
         f.input :password
         f.input :password_confirmation
       end
-      f.input :role, as: :select, collection: AdminUser::ROLES.map { |r| [r.to_s.humanize, r] }
+      if current_admin_user.superadmin?
+        f.input :role, as: :select, collection: AdminUser::ROLES.map { |r| [r.to_s.humanize, r] }
+      end
     end
 
-    unless f.object.superadmin?
+    if current_admin_user.superadmin? && !f.object.superadmin?
       f.inputs "Site Scope Access" do
         f.input :allowed_site_scope_ids,
           as: :check_boxes,
@@ -79,8 +84,17 @@ ActiveAdmin.register AdminUser do
         params[:admin_user].delete(:password)
         params[:admin_user].delete(:password_confirmation)
       end
-      # Overwrite site scope assignments
-      resource.allowed_site_scope_ids = Array(params[:admin_user].delete(:allowed_site_scope_ids)).reject(&:blank?).map(&:to_i)
+      # Defense-in-depth: strip role/site-scope params for non-superadmins even if
+      # permit_params already excludes them.
+      unless current_admin_user.superadmin?
+        params[:admin_user].delete(:role)
+        params[:admin_user].delete(:allowed_site_scope_ids)
+      end
+      # Overwrite site scope assignments (superadmin only — others have already had
+      # allowed_site_scope_ids stripped above)
+      if current_admin_user.superadmin?
+        resource.allowed_site_scope_ids = Array(params[:admin_user].delete(:allowed_site_scope_ids)).reject(&:blank?).map(&:to_i)
+      end
       super
     end
   end
