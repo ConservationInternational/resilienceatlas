@@ -10,16 +10,14 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_05_17_000000) do
+ActiveRecord::Schema[7.2].define(version: 2026_05_20_140000) do
+  create_schema "ra_app"
+
   # These are extensions that must be enabled in order to support this database
   enable_extension "fuzzystrmatch"
   enable_extension "plpgsql"
   enable_extension "postgis"
   enable_extension "postgis_topology"
-
-  create_schema "ra_app"
-  create_schema "ra_raster"
-  create_schema "ra_vector"
 
   create_table "action_text_rich_texts", force: :cascade do |t|
     t.string "name", null: false
@@ -70,6 +68,16 @@ ActiveRecord::Schema[7.2].define(version: 2026_05_17_000000) do
     t.index ["admin_level"], name: "index_admin_boundaries_on_admin_level"
     t.index ["geom"], name: "index_admin_boundaries_on_geom", using: :gist
     t.index ["iso_code"], name: "index_admin_boundaries_on_iso_code"
+  end
+
+  create_table "admin_user_site_scopes", force: :cascade do |t|
+    t.bigint "admin_user_id", null: false
+    t.bigint "site_scope_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["admin_user_id", "site_scope_id"], name: "index_admin_user_site_scopes_unique", unique: true
+    t.index ["admin_user_id"], name: "index_admin_user_site_scopes_on_admin_user_id"
+    t.index ["site_scope_id"], name: "index_admin_user_site_scopes_on_site_scope_id"
   end
 
   create_table "admin_users", force: :cascade do |t|
@@ -144,6 +152,26 @@ ActiveRecord::Schema[7.2].define(version: 2026_05_17_000000) do
     t.datetime "updated_at", null: false
     t.index ["assetable_type", "assetable_id"], name: "idx_ckeditor_assetable"
     t.index ["assetable_type", "type", "assetable_id"], name: "idx_ckeditor_assetable_type"
+  end
+
+  create_table "data_imports", force: :cascade do |t|
+    t.string "importable_type", null: false
+    t.bigint "importable_id", null: false
+    t.bigint "admin_user_id", null: false
+    t.string "file_name"
+    t.string "s3_key"
+    t.bigint "file_size_bytes"
+    t.string "import_type", null: false
+    t.string "status", default: "pending", null: false
+    t.text "error_message"
+    t.integer "rows_imported"
+    t.datetime "started_at"
+    t.datetime "completed_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["admin_user_id"], name: "index_data_imports_on_admin_user_id"
+    t.index ["importable_type", "importable_id"], name: "index_data_imports_on_importable_type_and_importable_id"
+    t.index ["status"], name: "index_data_imports_on_status"
   end
 
   create_table "feedback_fields", force: :cascade do |t|
@@ -367,7 +395,6 @@ ActiveRecord::Schema[7.2].define(version: 2026_05_17_000000) do
     t.string "color"
     t.string "layer_provider"
     t.text "css"
-    t.text "interactivity"
     t.float "opacity"
     t.text "query"
     t.datetime "created_at", null: false
@@ -465,7 +492,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_05_17_000000) do
     t.datetime "updated_at", null: false
   end
 
-  create_table "sbtn_thresholds", primary_key: "eco_id", id: :integer, force: :cascade do |t|
+  create_table "sbtn_thresholds", primary_key: "eco_id", id: :integer, default: nil, force: :cascade do |t|
     t.text "ecoregion"
     t.float "natural_land_baseline"
     t.float "natural_land_threshold"
@@ -741,8 +768,11 @@ ActiveRecord::Schema[7.2].define(version: 2026_05_17_000000) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "admin_user_site_scopes", "admin_users"
+  add_foreign_key "admin_user_site_scopes", "site_scopes"
   add_foreign_key "agrupations", "layer_groups"
   add_foreign_key "agrupations", "layers"
+  add_foreign_key "data_imports", "admin_users"
   add_foreign_key "feedback_fields", "feedback_fields", column: "parent_id", on_delete: :cascade
   add_foreign_key "feedback_fields", "feedbacks", on_delete: :cascade
   add_foreign_key "homepage_sections", "homepages", on_delete: :cascade

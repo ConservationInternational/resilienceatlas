@@ -7,5 +7,7 @@ COPY requirements.txt ./
 RUN python -m pip install -r requirements.txt -t ${LAMBDA_TASK_ROOT}
 COPY app.py ${LAMBDA_TASK_ROOT}/
 WORKDIR ${LAMBDA_TASK_ROOT}
-RUN python -c "from app import handler; print('pipeline build OK')"
+RUN BEDROCK_AGENT_ID=placeholder \
+    BEDROCK_AGENT_ALIAS_ID=placeholder \
+    python -c "from app import handler; print('pipeline build OK')"
 CMD ["app.handler"]

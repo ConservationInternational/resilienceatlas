@@ -7,5 +7,8 @@ COPY requirements.txt ./
 RUN python -m pip install -r requirements.txt -t ${LAMBDA_TASK_ROOT}
 COPY app.py ${LAMBDA_TASK_ROOT}/
 WORKDIR ${LAMBDA_TASK_ROOT}
-RUN python -c "from app import handler; print('action_groups build OK')"
+RUN RAILS_API_URL=http://placeholder \
+    RESILIENCE_API_KEY=placeholder \
+    EMBEDDINGS_BUCKET=placeholder \
+    python -c "from app import handler; print('action_groups build OK')"
 CMD ["app.handler"]
