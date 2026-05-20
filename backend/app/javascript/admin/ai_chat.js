@@ -13,11 +13,16 @@
     const sendBtn = document.getElementById('ai-chat-send');
     const resetBtn = document.getElementById('ai-chat-reset');
 
-    if (!messages || !input || !sendBtn || !resetBtn) return;
+    if (!messages || !input || !sendBtn || !resetBtn) {
+      console.warn('[AI Chat] Expected DOM elements not found');
+      return;
+    }
 
     // Guard against double-initialization (e.g. if $(document).ready fires more than once)
     if (sendBtn.dataset.aiChatInit) return;
     sendBtn.dataset.aiChatInit = '1';
+
+    console.log('[AI Chat] Initialized');
 
     function appendBubble(text, role) {
       const bubble = document.createElement('div');
@@ -95,6 +100,15 @@
     appendBubble('Hello! I can help you create and configure Resilience Atlas layers. Describe what you need and I\'ll set it up.', 'agent');
   }
 
-  // Use jQuery's ready() so it fires on every Turbolinks navigation, not just initial load
-  $(document).ready(initAiChat);
+  // Initialize on both DOMContentLoaded (direct load) and turbolinks:load (Turbolinks navigation).
+  // turbolinks:load fires after the new body is in place and inline <script> tags have run,
+  // so window.aiChatMeta will be available if this page is the AI chat page.
+  document.addEventListener('turbolinks:load', initAiChat);
+
+  // Also handle a direct (non-Turbolinks) load
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initAiChat);
+  } else {
+    initAiChat();
+  }
 })();
