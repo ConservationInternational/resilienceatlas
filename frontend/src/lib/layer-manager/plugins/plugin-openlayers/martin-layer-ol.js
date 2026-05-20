@@ -62,9 +62,15 @@ const MartinLayerOL = (layerModel) => {
 
   return new Promise((resolve) => {
     const { body } = layerConfigParsed;
-    const { source, styles, colorRamp, options = {} } = body;
+    const { source, styles, colorRamp, options = {}, params: martinParams } = body;
 
-    const tileUrl = `${martinUrl}/${source}/{z}/{x}/{y}`;
+    // Build the tile URL. For function sources (e.g. ra_vector_tile) the params
+    // are passed as a URL query string so Martin forwards them as query_params JSON.
+    const queryString =
+      martinParams && Object.keys(martinParams).length > 0
+        ? new URLSearchParams(martinParams).toString()
+        : '';
+    const tileUrl = `${martinUrl}/${source}/{z}/{x}/{y}${queryString ? '?' + queryString : ''}`;
 
     const vectorTileSource = new VectorTileSource({
       url: tileUrl,

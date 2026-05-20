@@ -38,7 +38,7 @@ class VectorImportJob
       # 2. Import via ogr2ogr into ra_vector schema
       ogr2ogr_import!(local_path, table_name)
 
-      # 3. Create GiST spatial index (required for Martin to start quickly)
+      # 3. Create GiST spatial index (required for efficient tile queries)
       create_spatial_index(table_name)
 
       # 4. Build interaction_config from PostGIS column names
@@ -46,7 +46,9 @@ class VectorImportJob
       ic = LayerInteractionConfigBuilder.for_martin(table_name, conn, TARGET_SCHEMA)
 
       # 5. Update the Layer record
-      new_config = {"body" => {"source" => table_name}}
+      # Use the ra_vector_tile function source so Martin serves the layer
+      # immediately without needing a restart to discover the new table.
+      new_config = {"body" => {"source" => "ra_vector_tile", "params" => {"table" => table_name}}}
       update_attrs = {
         layer_provider: "martin",
         layer_config: new_config.to_json

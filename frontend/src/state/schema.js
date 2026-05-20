@@ -140,12 +140,15 @@ export const layer = new schema.Entity(
             },
           };
         })(),
-        // Martin vector tile layers - source name + optional styles
+        // Martin vector tile layers - source name + optional styles/params
         martin: {
           ...layerConfig,
           body: {
             source: layerConfig?.body?.source || layerConfig?.source,
             styles: layerConfig?.body?.styles || layerConfig?.styles || {},
+            // Martin function query params (e.g. { table: 'imported_slug' } for
+            // ra_vector_tile).  Passed as URL query string: ?table=imported_slug
+            params: layerConfig?.body?.params || {},
             options: {
               interactive: true,
               maxNativeZoom: l.attributes.zoom_max || 14,
