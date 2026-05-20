@@ -26,7 +26,7 @@ ActiveAdmin.register_page "Dataset Inventory" do
     ar_conn = ActiveRecord::Base.connection
 
     begin
-      col_types = CartodbRakeHelpers.infer_column_types_from_file(csv_file.path, limit: 2_000)
+      col_types = CsvColumnTypeInferrer.infer(csv_file.path, limit: 2_000)
       raise "No columns detected in the CSV file." if col_types.blank?
 
       q_schema = ar_conn.quote_table_name(nonspatial_schema)
@@ -143,20 +143,19 @@ ActiveAdmin.register_page "Dataset Inventory" do
             column("Used By Layers") do |r|
               if r[:layers].any?
                 safe_join(r[:layers].map { |l|
-                  link_to "#{l[:slug]} (#{l[:name]})", admin_layer_path(l[:id])
+                  if section == "vector"
+                    (link_to("#{l[:slug]} (#{l[:name]})", admin_layer_path(l[:id])) +
+                      " ".html_safe +
+                      link_to("(replace)", import_vector_admin_layer_path(l[:id]),
+                        style: "font-size:0.8em; color:#888;",
+                        title: "Import a new vector file for layer #{l[:slug]}")
+                    ).html_safe
+                  else
+                    link_to "#{l[:slug]} (#{l[:name]})", admin_layer_path(l[:id])
+                  end
                 }, ", ".html_safe)
               else
                 content_tag(:em, "unused")
-              end
-            end
-            column("Upload") do |r|
-              if r[:layers].any?
-                safe_join(r[:layers].map { |l|
-                  link_to "↑ Import Vector",
-                    import_vector_admin_layer_path(l[:id]),
-                    class: "button tiny",
-                    title: "Import a new vector file for layer #{l[:slug]}"
-                }, " ".html_safe)
               end
             end
           end
@@ -164,25 +163,46 @@ ActiveAdmin.register_page "Dataset Inventory" do
         end
       end
 
-      panel "Recent Vector Uploads" do
-        recent = DataImport.where(import_type: "vector")
-          .order(created_at: :desc).limit(8)
-        if recent.any?
-          table_for recent do
-            column(:id)
-            column("Layer") do |di|
-              next unless di.importable
-              link_to di.importable.slug, admin_layer_path(di.importable_id)
+      if section == "vector"
+        layer_opts = Layer.order(:id).pluck(:id, :slug)
+        panel "Import New Vector File" do
+          para "Select the layer this file is for, then go to its upload page to upload a GeoPackage, GeoJSON, or zipped Shapefile. The file is stored in S3 and imported into the ra_vector schema by a background job."
+          text_node(
+            select_tag("vector_import_layer_id",
+              options_for_select([["— select a layer —", ""]] + layer_opts.map { |id, slug| ["#{id}: #{slug}", id] }),
+              style: "width:340px"
+            ) +
+            " ".html_safe +
+            button_tag("→ Go to Import Page", type: "button", class: "button",
+              onclick: "var v=document.getElementById('vector_import_layer_id').value; if(v){window.location='/admin/layers/'+v+'/import_vector'}else{alert('Please select a layer first')}; return false;")
+          )
+        end
+
+        panel "Recent Vector Uploads" do
+          recent = DataImport.where(import_type: "vector")
+            .order(created_at: :desc).limit(8)
+          if recent.any?
+            table_for recent do
+              column(:id)
+              column("Layer") do |di|
+                next unless di.importable
+                link_to di.importable.slug, admin_layer_path(di.importable_id)
+              end
+              column(:file_name)
+              column("Size") { |di| di.formatted_file_size }
+              column(:status) { |di| status_tag di.status }
+              column("At") { |di| di.created_at.strftime("%Y-%m-%d %H:%M") }
+              column("") { |di| link_to "Details", admin_data_import_path(di) }
             end
-            column(:file_name)
-            column("Size") { |di| di.formatted_file_size }
-            column(:status) { |di| status_tag di.status }
-            column("At") { |di| di.created_at.strftime("%Y-%m-%d %H:%M") }
-            column("") { |di| link_to "Details", admin_data_import_path(di) }
+            text_node link_to "View all imports →", admin_data_imports_path(q: {import_type_eq: "vector"})
+          else
+            para "No vector imports recorded yet."
           end
-          text_node link_to "View all imports →", admin_data_imports_path(q: {import_type_eq: "vector"})
-        else
-          para "No vector imports recorded yet."
+        end
+      else
+        panel "About Raster Tables" do
+          para "Raster tables in the #{DatasetInventoryService::RASTER_SCHEMA} schema are populated via the CartoDB migration rake task " \
+               "(rake cartodb:import_tables). There is no admin upload interface for raster tables."
         end
       end
 
@@ -233,7 +253,26 @@ ActiveAdmin.register_page "Dataset Inventory" do
       panel "Upload CSV to #{schema}" do
         para "Upload a plain .csv file to create or replace a table in the #{schema} schema. " \
              "Column types are inferred automatically. Maximum file size: 50 MB."
-        render partial: "admin/dataset_inventory/upload_nonspatial_form"
+        # Build the form inline to avoid Arbre partial/route-helper issues.
+        form_html = [
+          %(<form action="/admin/dataset_inventory/upload_nonspatial" method="post" enctype="multipart/form-data">),
+          %(<input type="hidden" name="authenticity_token" value="#{ERB::Util.html_escape(form_authenticity_token)}">),
+          %(<div style="margin-bottom:12px">),
+          %(  <label for="ns_table_name" style="display:block;margin-bottom:4px;font-weight:bold">Table name</label>),
+          %(  <input type="text" name="table_name" id="ns_table_name" required maxlength="63" pattern="[a-zA-Z0-9_]+" style="width:280px" placeholder="e.g. my_attribute_table">),
+          %(  <span style="color:#666;font-size:0.85em">&nbsp;(letters, digits, underscores only)</span>),
+          %(</div>),
+          %(<div style="margin-bottom:12px">),
+          %(  <label for="ns_csv_file" style="display:block;margin-bottom:4px;font-weight:bold">CSV file (.csv, max 50 MB)</label>),
+          %(  <input type="file" name="csv_file" id="ns_csv_file" accept=".csv" required>),
+          %(</div>),
+          %(<p style="color:#c0392b;margin:8px 0 12px">),
+          %(  &#x26A0; This will drop and replace any existing table with the same name in #{ERB::Util.html_escape(schema)}.),
+          %(</p>),
+          %(<input type="submit" value="Upload CSV" class="button">),
+          %(</form>)
+        ].join.html_safe
+        text_node form_html
       end
 
     when "s3"
@@ -259,25 +298,34 @@ ActiveAdmin.register_page "Dataset Inventory" do
             column("Used By Layers") do |r|
               if r[:layers].any?
                 safe_join(r[:layers].map { |l|
-                  link_to "#{l[:slug]} (#{l[:name]})", admin_layer_path(l[:id])
+                  (link_to("#{l[:slug]} (#{l[:name]})", admin_layer_path(l[:id])) +
+                    " ".html_safe +
+                    link_to("(replace)", upload_cog_admin_layer_path(l[:id]),
+                      style: "font-size:0.8em; color:#888;",
+                      title: "Upload a new COG for layer #{l[:slug]}")
+                  ).html_safe
                 }, ", ".html_safe)
               else
                 content_tag(:em, "unused")
               end
             end
-            column("Upload") do |r|
-              if r[:layers].any?
-                safe_join(r[:layers].map { |l|
-                  link_to "↑ Upload COG",
-                    upload_cog_admin_layer_path(l[:id]),
-                    class: "button tiny",
-                    title: "Upload a new COG for layer #{l[:slug]}"
-                }, " ".html_safe)
-              end
-            end
           end
           text_node inventory_pagination(result, base)
         end
+      end
+
+      cog_layer_opts = Layer.order(:id).pluck(:id, :slug)
+      panel "Upload New COG for a Layer" do
+        para "Select the layer this COG is for, then go to its upload page. The file will be uploaded directly to S3 via multipart upload and the layer config will be updated immediately."
+        text_node(
+          select_tag("cog_upload_layer_id",
+            options_for_select([["— select a layer —", ""]] + cog_layer_opts.map { |id, slug| ["#{id}: #{slug}", id] }),
+            style: "width:340px"
+          ) +
+          " ".html_safe +
+          button_tag("→ Go to Upload Page", type: "button", class: "button",
+            onclick: "var v=document.getElementById('cog_upload_layer_id').value; if(v){window.location='/admin/layers/'+v+'/upload_cog'}else{alert('Please select a layer first')}; return false;")
+        )
       end
 
       panel "Recent COG Uploads" do
