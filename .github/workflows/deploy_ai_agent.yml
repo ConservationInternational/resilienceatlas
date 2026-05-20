@@ -73,6 +73,7 @@ jobs:
         with:
           context: cloud_functions/ai_agent/sync_embeddings
           push: true
+          provenance: false
           tags: ${{ steps.login-ecr.outputs.registry }}/resilienceatlas-ai-agent-sync-embeddings:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
@@ -82,6 +83,7 @@ jobs:
         with:
           context: cloud_functions/ai_agent/action_groups
           push: true
+          provenance: false
           tags: ${{ steps.login-ecr.outputs.registry }}/resilienceatlas-ai-agent-action-groups:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
@@ -91,6 +93,7 @@ jobs:
         with:
           context: cloud_functions/ai_agent/pipeline
           push: true
+          provenance: false
           tags: ${{ steps.login-ecr.outputs.registry }}/resilienceatlas-ai-agent-pipeline:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
