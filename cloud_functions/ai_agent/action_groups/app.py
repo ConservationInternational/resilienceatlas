@@ -175,7 +175,20 @@ def handle_retrieve_context(params: dict, _auth: AuthContext) -> str:
     top_k = int(params.get("top_k", TOP_K))
     if not query:
         return "Query is required."
-    matrix, documents = load_embeddings()
+    try:
+        matrix, documents = load_embeddings()
+    except Exception as exc:
+        # Embeddings index not yet built — return a helpful message so the agent
+        # can continue without RAG context instead of crashing.
+        logger.warning("retrieve_context: embeddings unavailable (%s)", exc)
+        return json.dumps({
+            "available": False,
+            "message": (
+                "The knowledge base is not yet available (embeddings not built). "
+                "Skip retrieve_context and proceed directly: use list_layers to search for "
+                "existing layers, get_layer to inspect a specific layer's configuration."
+            ),
+        })
     query_emb = get_embedding(query)
     scores = matrix @ query_emb
     top_indices = np.argsort(scores)[::-1][:top_k]
