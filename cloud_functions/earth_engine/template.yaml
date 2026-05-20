@@ -9,10 +9,6 @@ Parameters:
   ZoneId:
     Type: String
     Description: AWS Hosted Zone ID in the format "Z111111QQQQQQQ"
-  GeeServiceAccountEmail:
-    Type: String
-    Default: ''
-    Description: Google Earth Engine service account email
   GeePrivateKeySecretArn:
     Type: String
     Default: ''
@@ -36,7 +32,6 @@ Globals:
     MemorySize: 512
     Environment:
       Variables:
-        GEE_SERVICE_ACCOUNT: !Ref GeeServiceAccountEmail
         GEE_PRIVATE_KEY_SECRET_ARN: !Ref GeePrivateKeySecretArn
         ROLLBAR_ACCESS_TOKEN: !Ref RollbarAccessToken
         ROLLBAR_ENVIRONMENT: !Ref RollbarEnvironment
