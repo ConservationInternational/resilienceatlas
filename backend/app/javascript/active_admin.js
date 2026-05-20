@@ -11,6 +11,7 @@ import "admin/checkbox_dependency"
 import "admin/has_many_collapsable"
 import "admin/globalize_translations"
 import "admin/input_functions"
+import "admin/ai_chat"
 
 // Load ActiveAdmin core assets using Sprockets (these are not available as ES6 modules)
 //= require active_admin/base
