@@ -40,6 +40,15 @@ Parameters:
     Type: String
     Default: uploads/
     Description: S3 prefix filter for pipeline trigger
+  SyncEmbeddingsImageUri:
+    Type: String
+    Description: ECR image URI for the sync embeddings Lambda (pre-built)
+  ActionGroupsImageUri:
+    Type: String
+    Description: ECR image URI for the action groups Lambda (pre-built)
+  PipelineImageUri:
+    Type: String
+    Description: ECR image URI for the pipeline Lambda (pre-built)
 
 Globals:
   Function:
@@ -92,11 +101,7 @@ Resources:
             - Effect: Allow
               Action: secretsmanager:GetSecretValue
               Resource: !Ref ResilienceApiKeySecretArn
-      ImageUri: syncembeddingsfunction:python3.14-v1
-    Metadata:
-      Dockerfile: Dockerfile
-      DockerContext: ./sync_embeddings
-      DockerTag: python3.14-v1
+      ImageUri: !Ref SyncEmbeddingsImageUri
 
   # ─── Action Groups ────────────────────────────────────────────────────────
 
@@ -119,11 +124,7 @@ Resources:
             - Effect: Allow
               Action: secretsmanager:GetSecretValue
               Resource: !Ref ResilienceApiKeySecretArn
-      ImageUri: actiongroupsfunction:python3.14-v1
-    Metadata:
-      Dockerfile: Dockerfile
-      DockerContext: ./action_groups
-      DockerTag: python3.14-v1
+      ImageUri: !Ref ActionGroupsImageUri
 
   ActionGroupsFunctionPermission:
     Type: AWS::Lambda::Permission
@@ -165,11 +166,7 @@ Resources:
               Action:
                 - bedrock:InvokeAgent
               Resource: !Sub "arn:aws:bedrock:${AWS::Region}:${AWS::AccountId}:agent-alias/${BedrockAgentId}/${BedrockAgentAliasId}"
-      ImageUri: pipelinefunction:python3.14-v1
-    Metadata:
-      Dockerfile: Dockerfile
-      DockerContext: ./pipeline
-      DockerTag: python3.14-v1
+      ImageUri: !Ref PipelineImageUri
 
   # Reference to the existing data bucket (must already exist — no DeletionPolicy issues)
   DataBucketResource:
