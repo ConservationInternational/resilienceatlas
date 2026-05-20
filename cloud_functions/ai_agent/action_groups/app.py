@@ -375,40 +375,89 @@ def parse_parameters(raw_params: list[dict]) -> dict:
     return {p["name"]: p["value"] for p in (raw_params or [])}
 
 
+def parse_api_body_params(event: dict) -> dict:
+    """Extract parameters from API-schema action group requestBody."""
+    try:
+        props = (
+            event.get("requestBody", {})
+            .get("content", {})
+            .get("application/json", {})
+            .get("properties", [])
+        )
+        return {p["name"]: p["value"] for p in (props or [])}
+    except (AttributeError, TypeError):
+        return {}
+
+
 def make_response(event: dict, body_text: str) -> dict:
     action_group = event.get("actionGroup", "")
+    api_path = event.get("apiPath", "")
+    http_method = event.get("httpMethod", "POST")
     function = event.get("function", "")
-    return {
-        "response": {
-            "actionGroup": action_group,
-            "function": function,
-            "functionResponse": {
-                "responseBody": {"TEXT": {"body": body_text}},
+
+    if api_path:
+        # API-schema-based action group response format
+        return {
+            "messageVersion": "1.0",
+            "response": {
+                "actionGroup": action_group,
+                "apiPath": api_path,
+                "httpMethod": http_method,
+                "httpStatusCode": 200,
+                "responseBody": {
+                    "application/json": {"body": body_text},
+                },
             },
-        },
-        "sessionAttributes": event.get("sessionAttributes", {}),
-        "promptSessionAttributes": event.get("promptSessionAttributes", {}),
-    }
+            "sessionAttributes": event.get("sessionAttributes", {}),
+            "promptSessionAttributes": event.get("promptSessionAttributes", {}),
+        }
+    else:
+        # Function-based action group response format
+        return {
+            "response": {
+                "actionGroup": action_group,
+                "function": function,
+                "functionResponse": {
+                    "responseBody": {"TEXT": {"body": body_text}},
+                },
+            },
+            "sessionAttributes": event.get("sessionAttributes", {}),
+            "promptSessionAttributes": event.get("promptSessionAttributes", {}),
+        }
 
 
 def handler(event: dict, context: Any) -> dict:
     logger.info("Action group event: %s", json.dumps(event, default=str))
+
+    # API-schema groups send apiPath; function-based groups send function name
+    api_path = event.get("apiPath", "")
     function_name = event.get("function", "")
-    raw_params = event.get("parameters", [])
-    params = parse_parameters(raw_params)
+
+    # Derive the handler key from whichever is present
+    if api_path:
+        # Strip leading slash: "/list_layers" -> "list_layers"
+        handler_key = api_path.lstrip("/")
+        # Parameters come from requestBody for API-schema groups
+        params = parse_api_body_params(event)
+        # Also merge any top-level parameters array
+        params.update(parse_parameters(event.get("parameters", [])))
+    else:
+        handler_key = function_name
+        params = parse_parameters(event.get("parameters", []))
+
     auth = AuthContext(event.get("sessionAttributes", {}))
 
-    action_fn = ACTION_HANDLERS.get(function_name)
+    action_fn = ACTION_HANDLERS.get(handler_key)
     if action_fn is None:
-        return make_response(event, f"Unknown function: {function_name}")
+        return make_response(event, f"Unknown action: {handler_key}")
 
     try:
         result_text = action_fn(params, auth)
         return make_response(event, result_text)
     except requests.HTTPError as exc:
         error_text = f"API error {exc.response.status_code}: {exc.response.text[:500]}"
-        logger.error("Action %s failed: %s", function_name, error_text)
+        logger.error("Action %s failed: %s", handler_key, error_text)
         return make_response(event, error_text)
     except Exception as exc:
-        logger.exception("Unexpected error in action %s", function_name)
+        logger.exception("Unexpected error in action %s", handler_key)
         return make_response(event, f"Error: {exc}")
