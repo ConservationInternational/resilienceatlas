@@ -149,8 +149,40 @@ ActiveAdmin.register_page "Dataset Inventory" do
                 content_tag(:em, "unused")
               end
             end
+            column("Upload") do |r|
+              if r[:layers].any?
+                safe_join(r[:layers].map { |l|
+                  link_to "↑ Import Vector",
+                    import_vector_admin_layer_path(l[:id]),
+                    class: "button tiny",
+                    title: "Import a new vector file for layer #{l[:slug]}"
+                }, " ".html_safe)
+              end
+            end
           end
           text_node inventory_pagination(result, base)
+        end
+      end
+
+      panel "Recent Vector Uploads" do
+        recent = DataImport.where(import_type: "vector")
+          .order(created_at: :desc).limit(8)
+        if recent.any?
+          table_for recent do
+            column(:id)
+            column("Layer") do |di|
+              next unless di.importable
+              link_to di.importable.slug, admin_layer_path(di.importable_id)
+            end
+            column(:file_name)
+            column("Size") { |di| di.formatted_file_size }
+            column(:status) { |di| status_tag di.status }
+            column("At") { |di| di.created_at.strftime("%Y-%m-%d %H:%M") }
+            column("") { |di| link_to "Details", admin_data_import_path(di) }
+          end
+          text_node link_to "View all imports →", admin_data_imports_path(q: {import_type_eq: "vector"})
+        else
+          para "No vector imports recorded yet."
         end
       end
 
@@ -191,7 +223,7 @@ ActiveAdmin.register_page "Dataset Inventory" do
             }
             column(sort_link("Size", "size_bytes", sort, dir, base.merge(page: 1))) { |r|
               format_bytes(r[:size_bytes])
-            end
+            }
           end
           text_node inventory_pagination(result, base)
         end
@@ -233,8 +265,40 @@ ActiveAdmin.register_page "Dataset Inventory" do
                 content_tag(:em, "unused")
               end
             end
+            column("Upload") do |r|
+              if r[:layers].any?
+                safe_join(r[:layers].map { |l|
+                  link_to "↑ Upload COG",
+                    upload_cog_admin_layer_path(l[:id]),
+                    class: "button tiny",
+                    title: "Upload a new COG for layer #{l[:slug]}"
+                }, " ".html_safe)
+              end
+            end
           end
           text_node inventory_pagination(result, base)
+        end
+      end
+
+      panel "Recent COG Uploads" do
+        recent = DataImport.where(import_type: "cog")
+          .order(created_at: :desc).limit(8)
+        if recent.any?
+          table_for recent do
+            column(:id)
+            column("Layer") do |di|
+              next unless di.importable
+              link_to di.importable.slug, admin_layer_path(di.importable_id)
+            end
+            column(:file_name)
+            column("Size") { |di| di.formatted_file_size }
+            column(:status) { |di| status_tag di.status }
+            column("At") { |di| di.created_at.strftime("%Y-%m-%d %H:%M") }
+            column("") { |di| link_to "Details", admin_data_import_path(di) }
+          end
+          text_node link_to "View all imports →", admin_data_imports_path(q: {import_type_eq: "cog"})
+        else
+          para "No COG uploads recorded yet."
         end
       end
     end
