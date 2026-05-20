@@ -194,7 +194,7 @@ def handle_retrieve_context(params: dict, _auth: AuthContext) -> str:
 def handle_list_layers(params: dict, _auth: AuthContext) -> str:
     site_scope_id = params.get("site_scope_id")
     keyword = params.get("keyword")
-    p = {}
+    p: dict = {"per_page": 200}
     if site_scope_id:
         p["site_scope_id"] = site_scope_id
     if keyword:
@@ -208,10 +208,40 @@ def handle_list_layers(params: dict, _auth: AuthContext) -> str:
             "slug": l.get("slug"),
             "layer_provider": l.get("layer_provider"),
             "published": l.get("published"),
+            "description": l.get("description") or "",
+            "dataset_shortname": l.get("dataset_shortname") or "",
+            "dataset_source_url": l.get("dataset_source_url") or "",
         }
         for l in layers
     ]
     return json.dumps(condensed, ensure_ascii=False)
+
+
+def handle_get_layer(params: dict, _auth: AuthContext) -> str:
+    layer_id = params.get("layer_id")
+    if not layer_id:
+        return json.dumps({"success": False, "message": "layer_id is required"})
+    result = rails_get(f"/api/admin/layers/{layer_id}")
+    layer = result.get("data", {})
+    # Return the most useful fields for the agent to reason about
+    summary = {
+        "id": layer.get("id"),
+        "name": layer.get("name"),
+        "slug": layer.get("slug"),
+        "layer_provider": layer.get("layer_provider"),
+        "published": layer.get("published"),
+        "description": layer.get("description"),
+        "dataset_shortname": layer.get("dataset_shortname"),
+        "dataset_source_url": layer.get("dataset_source_url"),
+        "layer_config": layer.get("layer_config"),
+        "interaction_config": layer.get("interaction_config"),
+        "zoom_min": layer.get("zoom_min"),
+        "zoom_max": layer.get("zoom_max"),
+        "opacity": layer.get("opacity"),
+        "analysis_suitable": layer.get("analysis_suitable"),
+        "color": layer.get("color"),
+    }
+    return json.dumps(summary, ensure_ascii=False)
 
 
 def handle_list_site_scopes(_params: dict, auth: AuthContext) -> str:
@@ -332,6 +362,7 @@ def handle_import_vector_table(params: dict, auth: AuthContext) -> str:
 ACTION_HANDLERS = {
     "retrieve_context": handle_retrieve_context,
     "list_layers": handle_list_layers,
+    "get_layer": handle_get_layer,
     "list_site_scopes": handle_list_site_scopes,
     "create_layer": handle_create_layer,
     "update_layer": handle_update_layer,

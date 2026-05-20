@@ -52,8 +52,12 @@ paths:
   /list_layers:
     post:
       operationId: list_layers
-      summary: List existing layers, optionally filtered by site scope
-      description: Returns a condensed list of layers. Use to check for existing layers, find layer_group_ids, or verify a layer was created.
+      summary: List existing layers, optionally filtered by site scope or keyword
+      description: |
+        Returns layers with name, slug, provider, published status, description,
+        dataset_shortname, and dataset_source_url. Use keyword to search across name,
+        description, slug, and dataset_shortname — e.g. "threshold", "boundaries", "stunting".
+        Use this to answer questions like "which layers serve thresholds data".
       requestBody:
         required: false
         content:
@@ -66,10 +70,33 @@ paths:
                   description: Filter by site scope ID
                 keyword:
                   type: string
-                  description: Search by name
+                  description: Search across layer name, description, slug, and dataset_shortname
       responses:
         "200":
-          description: JSON array of [{id, name, slug, layer_provider, published}]
+          description: JSON array of [{id, name, slug, layer_provider, published, description, dataset_shortname, dataset_source_url}]
+
+  /get_layer:
+    post:
+      operationId: get_layer
+      summary: Get full details for a single layer by ID
+      description: |
+        Returns all fields for a layer including layer_config, interaction_config,
+        description, dataset_shortname, dataset_source_url, and analysis settings.
+        Use after list_layers to inspect a specific layer's configuration.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [layer_id]
+              properties:
+                layer_id:
+                  type: integer
+                  description: The layer's integer ID
+      responses:
+        "200":
+          description: Layer detail object
 
   /create_layer:
     post:
