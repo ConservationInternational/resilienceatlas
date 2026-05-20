@@ -186,6 +186,7 @@ RUN RAILS_ENV=production \
     SECRET_KEY_BASE=placeholder_for_precompile \
     DATABASE_URL=postgres://localhost/dummy \
     BACKEND_URL=http://localhost:3001 \
+    CORS_WHITELIST=localhost \
     bundle exec rake assets:precompile
 
 # Expose port 3001
