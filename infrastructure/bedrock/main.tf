@@ -179,12 +179,12 @@ resource "aws_bedrockagent_agent_alias" "live" {
   description      = "Production-ready alias for ${var.environment}"
 
   routing_configuration {
-    agent_version = "4"
+    agent_version = "5"
   }
 
   lifecycle {
     # Agent versions are immutable; update routing manually when promoting a
-    # new DRAFT to a numbered version (call update_agent_alias with routingConfiguration=[{}]).
+    # new DRAFT to a numbered version. See scripts/ for the boto3 process.
     ignore_changes = [routing_configuration]
   }
 }
