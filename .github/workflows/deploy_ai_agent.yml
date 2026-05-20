@@ -105,7 +105,7 @@ jobs:
             --capabilities CAPABILITY_IAM \
             --parameter-overrides \
               RailsApiUrl="${{ secrets.RAILS_API_URL }}" \
-              ResilienceApiKey="${{ secrets.RESILIENCE_API_KEY }}" \
+              ResilienceApiKeySecretArn="${{ vars.RESILIENCE_API_KEY_SECRET_ARN }}" \
               EmbeddingsBucket="${{ secrets.AI_EMBEDDINGS_BUCKET }}" \
               KbBucket="${{ secrets.AI_EMBEDDINGS_BUCKET }}" \
               BedrockAgentId="${{ secrets.BEDROCK_AGENT_ID }}" \

@@ -11,10 +11,11 @@ class Api::Admin::VectorTablesController < Api::Admin::ApiController
     validate_table_name!(table_name)
 
     gdal_path = build_gdal_path(s3_uri)
-    https_url = s3_uri_to_https(s3_uri)
     connection_string = build_pg_connection_string
+    pg_env = {"PGPASSWORD" => pg_password}
 
     stdout, stderr, status = Open3.capture3(
+      pg_env,
       "ogr2ogr",
       "-f", "PostgreSQL",
       connection_string,
@@ -92,21 +93,25 @@ class Api::Admin::VectorTablesController < Api::Admin::ApiController
     port = cfg[:port] || 5432
     dbname = cfg[:database]
     user = cfg[:username]
-    password = cfg[:password]
-    "PG:host=#{host} port=#{port} dbname=#{dbname} user=#{user} password=#{password}"
+    # Password is passed via PGPASSWORD env var — not included here to keep it out of process argv
+    "PG:host=#{host} port=#{port} dbname=#{dbname} user=#{user}"
+  end
+
+  def pg_password
+    ActiveRecord::Base.connection_db_config.configuration_hash[:password].to_s
   end
 
   def query_table_metadata(table_name)
     conn = ActiveRecord::Base.connection
 
-    geom_row = conn.execute(
-      conn.sanitize_sql(
-        ["SELECT type, srid FROM geometry_columns WHERE f_table_name = ?", table_name]
-      )
+    geom_row = conn.exec_query(
+      "SELECT type, srid FROM geometry_columns WHERE f_table_name = $1",
+      "SQL", [table_name]
     ).first
 
+    # table_name is validated to /\A[a-z][a-z0-9_]{0,62}\z/ — safe to interpolate
     row_count = conn.execute(
-      conn.sanitize_sql(["SELECT COUNT(*) AS n FROM \"#{table_name}\""])
+      "SELECT COUNT(*) AS n FROM #{conn.quote_table_name(table_name)}"
     ).first["n"].to_i
 
     excluded_cols = %w[ogc_fid the_geom the_geom_webmercator wkb_geometry

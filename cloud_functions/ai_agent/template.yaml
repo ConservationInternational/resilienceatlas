@@ -6,10 +6,9 @@ Parameters:
   RailsApiUrl:
     Type: String
     Description: Base URL of the Rails API (e.g. https://api.resilienceatlas.org)
-  ResilienceApiKey:
+  ResilienceApiKeySecretArn:
     Type: String
-    NoEcho: true
-    Description: Bearer token for the Rails admin API
+    Description: ARN of the Secrets Manager secret containing the Rails admin API bearer token
   EmbeddingsBucket:
     Type: String
     Description: S3 bucket for embeddings index and knowledge base docs
@@ -51,7 +50,7 @@ Globals:
     Environment:
       Variables:
         RAILS_API_URL: !Ref RailsApiUrl
-        RESILIENCE_API_KEY: !Ref ResilienceApiKey
+        RESILIENCE_API_KEY_SECRET_ARN: !Ref ResilienceApiKeySecretArn
         EMBEDDINGS_BUCKET: !Ref EmbeddingsBucket
         EMBEDDINGS_KEY: !Ref EmbeddingsKey
         INDEX_KEY: !Ref IndexKey
@@ -88,9 +87,11 @@ Resources:
         - Version: '2012-10-17'
           Statement:
             - Effect: Allow
-              Action:
-                - bedrock:InvokeModel
+              Action: bedrock:InvokeModel
               Resource: "arn:aws:bedrock:*::foundation-model/amazon.titan-embed-text-v2:0"
+            - Effect: Allow
+              Action: secretsmanager:GetSecretValue
+              Resource: !Ref ResilienceApiKeySecretArn
       ImageUri: syncembeddingsfunction:python3.14-v1
     Metadata:
       Dockerfile: Dockerfile
@@ -113,9 +114,11 @@ Resources:
         - Version: '2012-10-17'
           Statement:
             - Effect: Allow
-              Action:
-                - bedrock:InvokeModel
+              Action: bedrock:InvokeModel
               Resource: "arn:aws:bedrock:*::foundation-model/amazon.titan-embed-text-v2:0"
+            - Effect: Allow
+              Action: secretsmanager:GetSecretValue
+              Resource: !Ref ResilienceApiKeySecretArn
       ImageUri: actiongroupsfunction:python3.14-v1
     Metadata:
       Dockerfile: Dockerfile
@@ -128,6 +131,7 @@ Resources:
       FunctionName: !GetAtt ActionGroupsFunction.Arn
       Action: lambda:InvokeFunction
       Principal: bedrock.amazonaws.com
+      SourceArn: !Sub "arn:aws:bedrock:${AWS::Region}:${AWS::AccountId}:agent/${BedrockAgentId}"
 
   # ─── Pipeline ─────────────────────────────────────────────────────────────
 

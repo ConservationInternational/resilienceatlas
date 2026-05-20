@@ -118,13 +118,21 @@ class AuthContext:
     - superadmin: unrestricted (all site scopes, all actions)
     - admin:      full CRUD within assigned site scopes
     - staff/contributor: CRUD within assigned site scopes; may not set published=true
+
+    If session_attributes are absent or carry an unknown role, all mutations are denied.
     """
 
+    _VALID_ROLES = frozenset({"superadmin", "admin", "staff", "contributor"})
+
     def __init__(self, session_attributes: dict):
-        self.role = session_attributes.get("admin_role", "admin")
-        raw = session_attributes.get("allowed_site_scope_ids", "*")
-        if raw == "*":
-            self.allowed_site_scope_ids: set[str] | None = None  # None = all
+        role = session_attributes.get("admin_role", "")
+        self.role = role if role in self._VALID_ROLES else ""
+        raw = session_attributes.get("allowed_site_scope_ids")
+        if not self.role:
+            # No valid session — deny all mutations
+            self.allowed_site_scope_ids: set[str] | None = set()
+        elif raw is None or raw == "*":
+            self.allowed_site_scope_ids = None  # None = all scopes
         else:
             self.allowed_site_scope_ids = set(raw.split(",")) if raw else set()
 
@@ -146,6 +154,8 @@ class AuthContext:
 
     def assert_can_mutate(self, site_scope_id: str | int | None = None) -> str | None:
         """Returns an error string if the operation is not permitted, else None."""
+        if not self.role:
+            return "Access denied: no valid session. Use the admin chat interface."
         if not self.can_access_site_scope(site_scope_id):
             return (
                 f"Access denied: your account is not authorized for site scope {site_scope_id}. "

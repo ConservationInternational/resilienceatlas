@@ -9,8 +9,13 @@ class Admin::AiChatController < ApplicationController
   RATE_LIMIT_MAX = 20
   RATE_LIMIT_WINDOW = 60 # seconds
 
+  MAX_MESSAGE_LENGTH = 4_000
+
   def message
-    user_message = params.require(:message)
+    user_message = params.require(:message).to_s
+    if user_message.length > MAX_MESSAGE_LENGTH
+      return render json: {success: false, message: "Message too long (max #{MAX_MESSAGE_LENGTH} characters)."}, status: :unprocessable_entity
+    end
     session_id = current_session_id
 
     bedrock = Aws::BedrockAgentRuntime::Client.new(region: BEDROCK_REGION)
