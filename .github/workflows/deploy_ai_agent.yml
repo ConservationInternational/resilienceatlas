@@ -96,12 +96,27 @@ jobs:
           cache-to: type=gha,mode=max
 
       - name: Deploy via CloudFormation
+        id: cfn-deploy
         run: |
+          STACK_NAME="${{ steps.stack.outputs.name }}"
+          REGION="${{ env.AWS_REGION }}"
+
+          # If a previous run left the stack in a terminal-failed state, delete it first
+          STACK_STATUS=$(aws cloudformation describe-stacks \
+            --stack-name "$STACK_NAME" --region "$REGION" \
+            --query "Stacks[0].StackStatus" --output text 2>/dev/null || echo "DOES_NOT_EXIST")
+          if [[ "$STACK_STATUS" == "ROLLBACK_COMPLETE" || "$STACK_STATUS" == "CREATE_FAILED" ]]; then
+            echo "Stack in $STACK_STATUS - deleting before redeploy..."
+            aws cloudformation delete-stack --stack-name "$STACK_NAME" --region "$REGION"
+            aws cloudformation wait stack-delete-complete --stack-name "$STACK_NAME" --region "$REGION"
+          fi
+
           aws cloudformation deploy \
             --template-file cloud_functions/ai_agent/template.yaml \
-            --stack-name ${{ steps.stack.outputs.name }} \
-            --region ${{ env.AWS_REGION }} \
+            --stack-name "$STACK_NAME" \
+            --region "$REGION" \
             --no-fail-on-empty-changeset \
+            --disable-rollback \
             --capabilities CAPABILITY_IAM CAPABILITY_AUTO_EXPAND \
             --parameter-overrides \
               RailsApiUrl="${{ secrets.RAILS_API_URL }}" \
@@ -114,3 +129,20 @@ jobs:
               SyncEmbeddingsImageUri="${{ steps.login-ecr.outputs.registry }}/resilienceatlas-ai-agent-sync-embeddings:${{ github.sha }}" \
               ActionGroupsImageUri="${{ steps.login-ecr.outputs.registry }}/resilienceatlas-ai-agent-action-groups:${{ github.sha }}" \
               PipelineImageUri="${{ steps.login-ecr.outputs.registry }}/resilienceatlas-ai-agent-pipeline:${{ github.sha }}"
+
+      - name: Show CloudFormation failure events
+        if: failure() && steps.cfn-deploy.conclusion == 'failure'
+        run: |
+          STACK_NAME="${{ steps.stack.outputs.name }}"
+          REGION="${{ env.AWS_REGION }}"
+          echo "=== Stack Status ==="
+          aws cloudformation describe-stacks \
+            --stack-name "$STACK_NAME" --region "$REGION" \
+            --query "Stacks[0].{Status:StackStatus,Reason:StackStatusReason}" \
+            --output table 2>/dev/null || echo "Stack not found"
+          echo ""
+          echo "=== Failed Resource Events ==="
+          aws cloudformation describe-stack-events \
+            --stack-name "$STACK_NAME" --region "$REGION" \
+            --query "StackEvents[?ResourceStatus=='CREATE_FAILED'||ResourceStatus=='UPDATE_FAILED'||ResourceStatus=='ROLLBACK_IN_PROGRESS'].[Timestamp,LogicalResourceId,ResourceType,ResourceStatus,ResourceStatusReason]" \
+            --output table 2>/dev/null || echo "No events found (stack may have been deleted)"
