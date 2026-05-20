@@ -52,6 +52,7 @@ class LegendChart extends React.PureComponent {
 
   changeReferenceArea = (p) => {
     const { changeLimit } = this.props;
+    if (!p?.activePayload?.length) return;
     this.setState({ activeCoordinate: p.activePayload[0].payload });
     changeLimit(p);
   };
