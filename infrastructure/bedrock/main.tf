@@ -92,20 +92,17 @@ resource "aws_iam_role_policy" "bedrock_agent_policy" {
   role = aws_iam_role.bedrock_agent.id
   policy = jsonencode({
     Version = "2012-10-17"
-    Statement = [
-      {
-        Effect = "Allow"
-        Action = [
-          "bedrock:InvokeModel",
-          "bedrock:InvokeModelWithResponseStream"
-        ]
-        Resource = [
-          "arn:aws:bedrock:${var.aws_region}::foundation-model/anthropic.claude-sonnet-4-5-20250929-v1:0",
-          "arn:aws:bedrock:*::foundation-model/anthropic.claude-sonnet-4-5-20250929-v1:0",
-          "arn:aws:bedrock:${var.aws_region}:${data.aws_caller_identity.current.account_id}:inference-profile/us.anthropic.claude-sonnet-4-5-20250929-v1:0"
-        ]
-      }
-    ]
+    Statement = [{
+      Effect = "Allow"
+      Action = [
+        "bedrock:InvokeModel",
+        "bedrock:InvokeModelWithResponseStream"
+      ]
+      Resource = [
+        "arn:aws:bedrock:${var.aws_region}::foundation-model/amazon.nova-pro-v1:0",
+        "arn:aws:bedrock:${var.aws_region}:${data.aws_caller_identity.current.account_id}:inference-profile/us.amazon.nova-pro-v1:0"
+      ]
+    }]
   })
 }
 
@@ -154,7 +151,7 @@ resource "aws_iam_role_policy" "ec2_bedrock_invoke" {
 resource "aws_bedrockagent_agent" "main" {
   agent_name              = "resilienceatlas-layer-manager-${var.environment}"
   description             = "AI agent for creating and managing Resilience Atlas map layers"
-  foundation_model        = "us.anthropic.claude-sonnet-4-5-20250929-v1:0"
+  foundation_model        = "amazon.nova-pro-v1:0"
   agent_resource_role_arn = aws_iam_role.bedrock_agent.arn
   instruction             = file("${path.module}/../../cloud_functions/ai_agent/bedrock_agent/agent_instructions.txt")
 
@@ -182,7 +179,7 @@ resource "aws_bedrockagent_agent_alias" "live" {
   description      = "Production-ready alias for ${var.environment}"
 
   routing_configuration {
-    agent_version = "2"
+    agent_version = "4"
   }
 
   lifecycle {
