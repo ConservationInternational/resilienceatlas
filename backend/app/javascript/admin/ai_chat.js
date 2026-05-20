@@ -15,6 +15,10 @@
 
     if (!messages || !input || !sendBtn || !resetBtn) return;
 
+    // Guard against double-initialization (e.g. if $(document).ready fires more than once)
+    if (sendBtn.dataset.aiChatInit) return;
+    sendBtn.dataset.aiChatInit = '1';
+
     function appendBubble(text, role) {
       const bubble = document.createElement('div');
       bubble.className = 'ai-chat-bubble ' + role;
@@ -91,10 +95,6 @@
     appendBubble('Hello! I can help you create and configure Resilience Atlas layers. Describe what you need and I\'ll set it up.', 'agent');
   }
 
-  // Run after DOM is ready (works with Turbolinks / standard load)
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initAiChat);
-  } else {
-    initAiChat();
-  }
+  // Use jQuery's ready() so it fires on every Turbolinks navigation, not just initial load
+  $(document).ready(initAiChat);
 })();
