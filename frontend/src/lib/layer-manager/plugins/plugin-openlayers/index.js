@@ -148,9 +148,25 @@ class PluginOpenLayers {
   }
 
   setDecodeParams(layerModel) {
-    const { mapLayer } = layerModel;
-    // Force OL to re-render the layer
-    if (mapLayer) mapLayer.changed();
+    const { mapLayer, decodeParams } = layerModel;
+    if (!mapLayer) return this;
+
+    // For layers with a canvas decode function (e.g. GEE/SPARC), update the
+    // mutable decodeRef and refresh the tile source so every tile is
+    // re-fetched and re-decoded with the new params (e.g. updated chartLimit).
+    const decodeRef = mapLayer.get('_decodeRef');
+    if (decodeRef) {
+      decodeRef.params = decodeParams || {};
+      const source = typeof mapLayer.getSource === 'function' ? mapLayer.getSource() : null;
+      if (source && typeof source.refresh === 'function') {
+        source.refresh();
+      } else {
+        mapLayer.changed();
+      }
+    } else {
+      mapLayer.changed();
+    }
+
     return this;
   }
 
