@@ -4,9 +4,10 @@ class Ability
   def initialize(admin_user)
     @admin_user = admin_user
 
-    admin_rights if @admin_user.admin?
-    manager_rights if @admin_user.manager?
-    staff_rights if @admin_user.staff?
+    # superadmin and admin both get full access
+    admin_rights if @admin_user.admin? || @admin_user.superadmin?
+    # contributor? covers both :contributor and :staff roles (see AdminUser model)
+    staff_rights if @admin_user.contributor?
   end
 
   private
@@ -15,14 +16,9 @@ class Ability
     can :manage, :all
   end
 
-  def manager_rights
-    can :read, ActiveAdmin::Page, name: "Dashboard"
-    can :manage, [LayerGroup, Category, MapMenuEntry, Model, SitePage, SiteScope, Source, User]
-    can [:create, :update, :read], [Layer]
-  end
-
   def staff_rights
     can :read, ActiveAdmin::Page, name: "Dashboard"
-    can :read, [Layer, LayerGroup, Category]
+    can [:read, :update], Layer
+    can :read, [LayerGroup, Category]
   end
 end

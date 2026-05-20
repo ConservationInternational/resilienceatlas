@@ -1,0 +1,18 @@
+/ AI Chat panel partial for ActiveAdmin
+/ Rendered inside the AI Chat register_page content block
+
+#ai-chat-container
+  #ai-chat-messages.ai-chat-messages
+
+  .ai-chat-input-row
+    textarea#ai-chat-input.ai-chat-input rows="3" placeholder="Ask the AI to create or update a layer..."
+    .ai-chat-buttons
+      button#ai-chat-send.btn Send
+      button#ai-chat-reset.btn.btn-secondary Reset conversation
+
+javascript:
+  window.aiChatMeta = {
+    messageUrl: "#{admin_ai_chat_message_path}",
+    resetUrl:   "#{admin_ai_chat_reset_path}",
+    csrfToken:  "#{form_authenticity_token}"
+  };

@@ -33,13 +33,36 @@ class AdminUser < ApplicationRecord
   devise :database_authenticatable, :recoverable, :rememberable,
     :trackable, :validatable, :lockable, :timeoutable
 
-  ROLES = %i[
-    admin
-    manager
-    staff
-  ].freeze
+  # Role hierarchy (stored as integer — values are fixed; do NOT reassign):
+  #   0 admin       — full CRUD within assigned site scopes
+  #   2 staff       — create-only within assigned site scopes; layers always published=false
+  #   3 superadmin  — unrestricted: all site scopes, all actions
+  #   4 contributor — create-only within assigned site scopes; layers always published=false
+  # (integer 1 was "manager", removed — existing DB rows migrated to admin=0)
+  ROLES = %i[admin staff superadmin contributor].freeze
 
-  enum :role, ROLES
+  enum :role, { admin: 0, staff: 2, superadmin: 3, contributor: 4 }
+
+  has_many :admin_user_site_scopes, dependent: :destroy
+  has_many :allowed_site_scopes, through: :admin_user_site_scopes, source: :site_scope
+
+  # Returns true when this user can operate across all site scopes without restriction.
+  # NOTE: the enum already generates superadmin? — this is kept for explicitness.
+
+  # Returns true when this user can only create (not update/delete) layers via the agent.
+  # Intentionally overrides the enum predicate to cover both :contributor and :staff roles,
+  # which share identical restricted behaviour (create-only, always published=false).
+  def contributor?
+    role == "contributor" || role == "staff"
+  end
+
+  # Returns the site scope IDs this user is allowed to operate on.
+  # Superadmins get the sentinel value "*" meaning "all".
+  def allowed_site_scope_ids_for_agent
+    return "*" if superadmin?
+
+    allowed_site_scopes.pluck(:id).map(&:to_s)
+  end
 
   # Ransack configuration - explicitly allowlist searchable attributes for security
   def self.ransackable_attributes(auth_object = nil)

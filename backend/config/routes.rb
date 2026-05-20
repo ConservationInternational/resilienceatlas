@@ -36,6 +36,12 @@ Rails.application.routes.draw do
           get :site_scopes
         end
       end
+      resources :vector_tables, only: [] do
+        collection do
+          post :import
+        end
+      end
+      resources :scope_datasets, only: [:index, :show, :create, :update]
     end
     scope module: :v1 do
       get "layer-groups", to: "layer_groups#index", as: "layer_groups"
@@ -92,4 +98,10 @@ Rails.application.routes.draw do
   # Admin routes
   devise_for :admin_users, ActiveAdmin::Devise.config
   ActiveAdmin.routes(self)
+
+  # Admin AI chat (non-API, lives under /admin/ai_chat/...)
+  namespace :admin do
+    post "ai_chat/message", to: "ai_chat#message"
+    post "ai_chat/reset", to: "ai_chat#reset"
+  end
 end

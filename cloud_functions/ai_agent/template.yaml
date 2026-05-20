@@ -1,0 +1,195 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: 'SAM Template for Resilience Atlas AI Agent Lambdas'
+
+Parameters:
+  RailsApiUrl:
+    Type: String
+    Description: Base URL of the Rails API (e.g. https://api.resilienceatlas.org)
+  ResilienceApiKey:
+    Type: String
+    NoEcho: true
+    Description: Bearer token for the Rails admin API
+  EmbeddingsBucket:
+    Type: String
+    Description: S3 bucket for embeddings index and knowledge base docs
+  EmbeddingsKey:
+    Type: String
+    Default: ai_agent/embeddings.npy
+    Description: S3 key for the numpy embeddings matrix
+  IndexKey:
+    Type: String
+    Default: ai_agent/layer_index.json
+    Description: S3 key for the document index JSON
+  KbBucket:
+    Type: String
+    Description: S3 bucket containing knowledge base JSON docs (can be same as EmbeddingsBucket)
+  KbPrefix:
+    Type: String
+    Default: ai_agent/knowledge_base/
+    Description: S3 prefix for knowledge base JSON files
+  BedrockAgentId:
+    Type: String
+    Description: Bedrock Agent ID (for pipeline Lambda)
+  BedrockAgentAliasId:
+    Type: String
+    Description: Bedrock Agent Alias ID (for pipeline Lambda)
+  DataBucket:
+    Type: String
+    Description: S3 bucket where new data files are uploaded (triggers pipeline)
+  DataBucketPrefix:
+    Type: String
+    Default: uploads/
+    Description: S3 prefix filter for pipeline trigger
+
+Globals:
+  Function:
+    Timeout: 300
+    MemorySize: 1024
+    Architectures:
+      - x86_64
+    Environment:
+      Variables:
+        RAILS_API_URL: !Ref RailsApiUrl
+        RESILIENCE_API_KEY: !Ref ResilienceApiKey
+        EMBEDDINGS_BUCKET: !Ref EmbeddingsBucket
+        EMBEDDINGS_KEY: !Ref EmbeddingsKey
+        INDEX_KEY: !Ref IndexKey
+
+Resources:
+
+  # ─── Embedding Sync ───────────────────────────────────────────────────────
+
+  SyncEmbeddingsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${AWS::StackName}-sync-embeddings"
+      PackageType: Image
+      Description: 'Syncs layer records + KB docs to S3 embedding index'
+      MemorySize: 2048
+      Timeout: 600
+      Environment:
+        Variables:
+          KB_BUCKET: !Ref KbBucket
+          KB_PREFIX: !Ref KbPrefix
+      Events:
+        ScheduledSync:
+          Type: Schedule
+          Properties:
+            Schedule: cron(0 2 * * ? *)  # Daily at 02:00 UTC
+            Name: !Sub "${AWS::StackName}-daily-sync"
+            Description: Daily embedding index refresh
+            Enabled: true
+      Policies:
+        - S3ReadPolicy:
+            BucketName: !Ref KbBucket
+        - S3WritePolicy:
+            BucketName: !Ref EmbeddingsBucket
+        - Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - bedrock:InvokeModel
+              Resource: "arn:aws:bedrock:*::foundation-model/amazon.titan-embed-text-v2:0"
+      ImageUri: syncembeddingsfunction:python3.14-v1
+    Metadata:
+      Dockerfile: Dockerfile
+      DockerContext: ./sync_embeddings
+      DockerTag: python3.14-v1
+
+  # ─── Action Groups ────────────────────────────────────────────────────────
+
+  ActionGroupsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${AWS::StackName}-action-groups"
+      PackageType: Image
+      Description: 'Bedrock Agent action group handler — RAG + Rails API tools'
+      MemorySize: 1024
+      Timeout: 60
+      Policies:
+        - S3ReadPolicy:
+            BucketName: !Ref EmbeddingsBucket
+        - Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - bedrock:InvokeModel
+              Resource: "arn:aws:bedrock:*::foundation-model/amazon.titan-embed-text-v2:0"
+      ImageUri: actiongroupsfunction:python3.14-v1
+    Metadata:
+      Dockerfile: Dockerfile
+      DockerContext: ./action_groups
+      DockerTag: python3.14-v1
+
+  ActionGroupsFunctionPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !GetAtt ActionGroupsFunction.Arn
+      Action: lambda:InvokeFunction
+      Principal: bedrock.amazonaws.com
+
+  # ─── Pipeline ─────────────────────────────────────────────────────────────
+
+  PipelineFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${AWS::StackName}-pipeline"
+      PackageType: Image
+      Description: 'S3 upload trigger — invokes Bedrock Agent to auto-create layers'
+      MemorySize: 512
+      Timeout: 900
+      Environment:
+        Variables:
+          BEDROCK_AGENT_ID: !Ref BedrockAgentId
+          BEDROCK_AGENT_ALIAS_ID: !Ref BedrockAgentAliasId
+      Events:
+        S3Upload:
+          Type: S3
+          Properties:
+            Bucket: !Ref DataBucketResource
+            Events: s3:ObjectCreated:*
+            Filter:
+              S3Key:
+                Rules:
+                  - Name: prefix
+                    Value: !Ref DataBucketPrefix
+      Policies:
+        - Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - bedrock:InvokeAgent
+              Resource: !Sub "arn:aws:bedrock:${AWS::Region}:${AWS::AccountId}:agent-alias/${BedrockAgentId}/${BedrockAgentAliasId}"
+      ImageUri: pipelinefunction:python3.14-v1
+    Metadata:
+      Dockerfile: Dockerfile
+      DockerContext: ./pipeline
+      DockerTag: python3.14-v1
+
+  # Reference to the existing data bucket (must already exist — no DeletionPolicy issues)
+  DataBucketResource:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      BucketName: !Ref DataBucket
+
+Outputs:
+  ActionGroupsFunctionArn:
+    Description: ARN of the action groups Lambda (add to Bedrock Agent action group)
+    Value: !GetAtt ActionGroupsFunction.Arn
+    Export:
+      Name: !Sub "${AWS::StackName}-action-groups-arn"
+
+  SyncEmbeddingsFunctionArn:
+    Description: ARN of the embedding sync Lambda
+    Value: !GetAtt SyncEmbeddingsFunction.Arn
+    Export:
+      Name: !Sub "${AWS::StackName}-sync-embeddings-arn"
+
+  PipelineFunctionArn:
+    Description: ARN of the pipeline Lambda
+    Value: !GetAtt PipelineFunction.Arn
+    Export:
+      Name: !Sub "${AWS::StackName}-pipeline-arn"

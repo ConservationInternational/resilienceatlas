@@ -1,0 +1,57 @@
+{
+  "id": "doc::structure::navigation",
+  "title": "Navigation and Workflow — How to Create Layers",
+  "description": "Step-by-step workflows for the agent to create and configure layers on Resilience Atlas.",
+  "workflows": {
+    "create_cog_layer": {
+      "steps": [
+        "1. Verify S3 URI is accessible: use the titiler/info endpoint proxy to validate — GET /api/titiler/info?titilerUrl=<url>&cogUrl=<s3_uri>",
+        "2. Determine site_scope_id: ask user or call GET /api/admin/layers?collection=site_scopes",
+        "3. Determine layer_group_id: ask user or check existing layers in the same group",
+        "4. Build layer_config JSON for COG provider: {\"body\":{\"source\":\"<s3_uri>\",\"colormap_name\":\"<colormap>\"}}",
+        "5. Set interaction_config to {} or a value output config",
+        "6. POST /api/admin/layers with all required fields"
+      ]
+    },
+    "create_martin_vector_layer": {
+      "steps": [
+        "1. Import vector file to PostGIS: POST /api/admin/vector_tables/import with {\"s3_uri\":\"<s3_uri>\"}",
+        "2. Note the returned table_name",
+        "3. Build layer_config: {\"body\":{\"source\":\"ra_vector_tile\",\"params\":{\"table\":\"<table_name>\"},\"styles\":{\"<table_name>\":{\"fillColor\":\"#3498db\",\"fillOpacity\":0.7}}}}",
+        "4. POST /api/admin/layers with layer_provider='martin'"
+      ]
+    },
+    "create_wms_layer": {
+      "steps": [
+        "1. Get WMS URL and LAYERS parameter from the data provider",
+        "2. Build layer_config: {\"body\":{\"url\":\"<wms_url>\",\"params\":{\"LAYERS\":\"<layer_name>\"}}}",
+        "3. POST /api/admin/layers with layer_provider='wms'"
+      ]
+    },
+    "create_xyz_layer": {
+      "steps": [
+        "1. Get the tile URL template with {z}/{x}/{y}",
+        "2. Build layer_config: {\"body\":{\"url\":\"<tile_url>\"}}",
+        "3. POST /api/admin/layers with layer_provider='xyz tileset'"
+      ]
+    },
+    "update_layer_config": {
+      "steps": [
+        "1. GET /api/admin/layers/<id> to see current config",
+        "2. Modify the relevant fields",
+        "3. PATCH /api/admin/layers/<id> with updated fields"
+      ]
+    }
+  },
+  "important_rules": [
+    "slug must be globally unique across ALL layers. Check for conflicts before creating.",
+    "interaction_config is required — minimum value is '{}'.",
+    "layer_config must be valid JSON. Always validate JSON before sending.",
+    "Always link to a site_scope via site_scope_id parameter.",
+    "For martin layers, always import the vector table first using the vector_tables/import endpoint.",
+    "For COG layers, the S3 bucket is public-read — use s3:// URIs.",
+    "Never set layer_provider to 'leaflet', 'carto', 'cartodb', or 'raster' — these are deprecated."
+  ],
+  "api_base_path": "/api/admin",
+  "authentication": "Bearer token in Authorization header: 'Authorization: Bearer <RESILIENCE_API_KEY>'"
+}

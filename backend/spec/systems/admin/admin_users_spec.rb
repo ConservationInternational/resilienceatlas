@@ -43,14 +43,14 @@ RSpec.describe "Admin: Admin Users", type: :system do
       fill_in "admin_user[email]", with: "test@test.test"
       fill_in "admin_user[password]", with: "SuperSecret6"
       fill_in "admin_user[password_confirmation]", with: "SuperSecret6"
-      select "Manager", from: "admin_user[role]"
+      select "Admin", from: "admin_user[role]"
 
       click_on "Create Admin user"
 
       expect(page).to have_current_path(admin_admin_user_path(new_admin_user))
       expect(page).to have_text("Admin user was successfully created.")
       expect(page).to have_text("test@test.test")
-      expect(page).to have_text("manager")
+      expect(page).to have_text("admin")
     end
 
     it "shows error when validation fails" do

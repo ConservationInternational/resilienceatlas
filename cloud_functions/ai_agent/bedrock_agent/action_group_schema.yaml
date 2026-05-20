@@ -1,0 +1,208 @@
+openapi: "3.0.0"
+info:
+  title: Resilience Atlas Agent Actions
+  version: "1.0"
+  description: |
+    Action group for the Resilience Atlas Bedrock Agent.
+    Provides tools to query the RAG knowledge base, manage layers, and import vector data.
+
+paths:
+  /retrieve_context:
+    post:
+      operationId: retrieve_context
+      summary: Search the RAG knowledge base for relevant context
+      description: |
+        Performs a semantic similarity search over layer records and knowledge base documents.
+        Use this BEFORE creating or updating layers to find existing similar layers, provider
+        configuration examples, and structural documentation.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [query]
+              properties:
+                query:
+                  type: string
+                  description: Natural language search query, e.g. "COG layer with viridis colormap"
+                top_k:
+                  type: integer
+                  description: Number of results to return (default 5, max 10)
+                  default: 5
+      responses:
+        "200":
+          description: JSON array of matching documents with similarity scores
+
+  /list_site_scopes:
+    post:
+      operationId: list_site_scopes
+      summary: List all available site scopes (Atlas instances)
+      description: Returns all site scopes with id, name, and subdomain. Use to find the correct site_scope_id before creating layers.
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        "200":
+          description: JSON array of [{id, name, subdomain}]
+
+  /list_layers:
+    post:
+      operationId: list_layers
+      summary: List existing layers, optionally filtered by site scope
+      description: Returns a condensed list of layers. Use to check for existing layers, find layer_group_ids, or verify a layer was created.
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                site_scope_id:
+                  type: integer
+                  description: Filter by site scope ID
+                keyword:
+                  type: string
+                  description: Search by name
+      responses:
+        "200":
+          description: JSON array of [{id, name, slug, layer_provider, published}]
+
+  /create_layer:
+    post:
+      operationId: create_layer
+      summary: Create a new layer in Resilience Atlas
+      description: |
+        Creates a layer record. Required fields: slug, layer_provider, interaction_config, name.
+        The layer_config JSON format depends on the provider — always call retrieve_context first
+        to find the correct format. Pass site_scope_id to link the layer to the correct Atlas instance.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [slug, layer_provider, name]
+              properties:
+                site_scope_id:
+                  type: integer
+                  description: ID of the site scope to add this layer to
+                slug:
+                  type: string
+                  description: Unique URL-safe identifier (alphanumeric, hyphens, underscores)
+                name:
+                  type: string
+                  description: Human-readable layer name
+                layer_provider:
+                  type: string
+                  enum: [cog, esri, gee, martin, wms, wmts, "xyz tileset"]
+                layer_config:
+                  type: string
+                  description: JSON string with provider-specific configuration
+                interaction_config:
+                  type: string
+                  description: JSON string for popup configuration. Minimum valid value is "{}"
+                layer_group_id:
+                  type: integer
+                  description: ID of the layer group to assign this layer to
+                description:
+                  type: string
+                opacity:
+                  type: number
+                  minimum: 0
+                  maximum: 1
+                published:
+                  type: boolean
+                  default: true
+                zoom_min:
+                  type: integer
+                zoom_max:
+                  type: integer
+                color:
+                  type: string
+                  description: Hex color for legend swatch
+                download:
+                  type: boolean
+                analysis_suitable:
+                  type: boolean
+                dataset_shortname:
+                  type: string
+                dataset_source_url:
+                  type: string
+      responses:
+        "200":
+          description: Layer creation result with the created layer data
+
+  /update_layer:
+    post:
+      operationId: update_layer
+      summary: Update an existing layer
+      description: Updates a layer by its integer ID. Only provide the fields you want to change.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [layer_id]
+              properties:
+                layer_id:
+                  type: integer
+                  description: The layer's integer ID
+                site_scope_id:
+                  type: integer
+                  description: Site scope this layer belongs to — used for authorization. Required for staff/contributor users.
+                name:
+                  type: string
+                layer_config:
+                  type: string
+                  description: JSON string with updated provider configuration
+                interaction_config:
+                  type: string
+                description:
+                  type: string
+                opacity:
+                  type: number
+                published:
+                  type: boolean
+                zoom_min:
+                  type: integer
+                zoom_max:
+                  type: integer
+                color:
+                  type: string
+                analysis_suitable:
+                  type: boolean
+      responses:
+        "200":
+          description: Update result with the updated layer data
+
+  /import_vector_table:
+    post:
+      operationId: import_vector_table
+      summary: Import a vector file from S3 into PostGIS for use with martin provider
+      description: |
+        Uses ogr2ogr to import a GeoPackage, GeoJSON, KML, Shapefile (zip), or other
+        vector format from an S3 URI into a PostGIS table. Returns the table_name and
+        metadata (geometry_type, row_count, columns). Use the returned table_name when
+        creating a martin layer.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [s3_uri]
+              properties:
+                s3_uri:
+                  type: string
+                  description: "S3 URI of the vector file, e.g. s3://bucket/path/file.gpkg"
+                table_name:
+                  type: string
+                  description: "Optional target PostGIS table name (lowercase, alphanumeric + underscores). Auto-derived from filename if omitted."
+      responses:
+        "200":
+          description: Import result with table_name, geometry_type, srid, row_count, and columns

@@ -1,0 +1,113 @@
+name: Deploy AI Agent Lambdas
+
+on:
+  push:
+    branches:
+      - main
+      - staging
+    paths:
+      - 'cloud_functions/ai_agent/**'
+      - '.github/workflows/deploy_ai_agent.yml'
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Target environment'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+          - staging
+          - production
+
+env:
+  AWS_REGION: us-east-1
+  ECR_REGISTRY: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment || (github.ref == 'refs/heads/main' && 'production' || 'staging') }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Set stack name
+        id: stack
+        run: |
+          if [[ "${{ github.ref }}" == "refs/heads/main" || "${{ github.event.inputs.environment }}" == "production" ]]; then
+            echo "name=resilienceatlas-ai-agent-production" >> "$GITHUB_OUTPUT"
+          else
+            echo "name=resilienceatlas-ai-agent-staging" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build and push sync_embeddings image
+        uses: docker/build-push-action@v5
+        with:
+          context: cloud_functions/ai_agent/sync_embeddings
+          push: true
+          tags: ${{ env.ECR_REGISTRY }}/resilienceatlas-ai-agent-sync-embeddings:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build and push action_groups image
+        uses: docker/build-push-action@v5
+        with:
+          context: cloud_functions/ai_agent/action_groups
+          push: true
+          tags: ${{ env.ECR_REGISTRY }}/resilienceatlas-ai-agent-action-groups:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build and push pipeline image
+        uses: docker/build-push-action@v5
+        with:
+          context: cloud_functions/ai_agent/pipeline
+          push: true
+          tags: ${{ env.ECR_REGISTRY }}/resilienceatlas-ai-agent-pipeline:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Set up SAM CLI
+        uses: aws-actions/setup-sam@v2
+        with:
+          use-installer: true
+
+      - name: SAM build
+        working-directory: cloud_functions/ai_agent
+        run: sam build --use-container
+
+      - name: SAM deploy
+        working-directory: cloud_functions/ai_agent
+        run: |
+          sam deploy \
+            --stack-name ${{ steps.stack.outputs.name }} \
+            --region ${{ env.AWS_REGION }} \
+            --no-confirm-changeset \
+            --no-fail-on-empty-changeset \
+            --capabilities CAPABILITY_IAM \
+            --parameter-overrides \
+              RailsApiUrl="${{ secrets.RAILS_API_URL }}" \
+              ResilienceApiKey="${{ secrets.RESILIENCE_API_KEY }}" \
+              EmbeddingsBucket="${{ secrets.AI_EMBEDDINGS_BUCKET }}" \
+              KbBucket="${{ secrets.AI_EMBEDDINGS_BUCKET }}" \
+              BedrockAgentId="${{ secrets.BEDROCK_AGENT_ID }}" \
+              BedrockAgentAliasId="${{ secrets.BEDROCK_AGENT_ALIAS_ID }}" \
+              DataBucket="${{ secrets.DATA_BUCKET_NAME }}"

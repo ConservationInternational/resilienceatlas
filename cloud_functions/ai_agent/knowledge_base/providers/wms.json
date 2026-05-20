@@ -1,0 +1,36 @@
+{
+  "id": "doc::providers::wms",
+  "title": "WMS (Web Map Service) Provider",
+  "description": "OGC Web Map Service tiles via HTTP. Use for external WMS endpoints that serve pre-rendered map images.",
+  "layer_provider": "wms",
+  "layer_config_schema": {
+    "body": {
+      "url": "WMS service endpoint URL, e.g. 'https://example.org/geoserver/wms'.",
+      "params": {
+        "LAYERS": "Comma-separated layer names as defined by the WMS service (required).",
+        "VERSION": "WMS version string, default '1.3.0'.",
+        "FORMAT": "Image format, default 'image/png'.",
+        "TRANSPARENT": "Boolean, default true for overlay layers.",
+        "STYLES": "Optional named style.",
+        "TIME": "Optional ISO 8601 time string for time-enabled layers, e.g. '2023-01-01T00:00:00Z'.",
+        "CQL_FILTER": "Optional CQL filter expression.",
+        "SLD_BODY": "Optional SLD XML for custom styling."
+      }
+    }
+  },
+  "examples": [
+    {
+      "description": "Basic WMS layer",
+      "layer_config": "{\"body\":{\"url\":\"https://example.org/geoserver/wms\",\"params\":{\"LAYERS\":\"workspace:layer_name\",\"VERSION\":\"1.3.0\",\"FORMAT\":\"image/png\",\"TRANSPARENT\":true}}}"
+    },
+    {
+      "description": "WMS with time dimension",
+      "layer_config": "{\"body\":{\"url\":\"https://nrt3.modaps.eosdis.nasa.gov/wms/api/v1\",\"params\":{\"LAYERS\":\"MOD09GA_006_RGB_143\",\"VERSION\":\"1.3.0\",\"FORMAT\":\"image/png\",\"TRANSPARENT\":true,\"TIME\":\"2023-06-15\"}}}"
+    }
+  ],
+  "notes": [
+    "Defaults applied automatically: VERSION=1.3.0, FORMAT=image/png, TRANSPARENT=true.",
+    "The LAYERS param is required — ask the data provider for the correct layer name.",
+    "For CORS-restricted services, check if the service allows cross-origin requests."
+  ]
+}
