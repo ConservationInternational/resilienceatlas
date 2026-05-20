@@ -1,4 +1,4 @@
-ActiveAdmin.register_page "AI Chat" do
+ActiveAdmin.register_page "AI Assistant" do
   menu priority: 2, label: "AI Layer Assistant"
 
   content title: "AI Layer Assistant" do
