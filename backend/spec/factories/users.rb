@@ -24,8 +24,8 @@
 FactoryBot.define do
   factory :user do
     sequence(:email) { |n| "person-#{n}@example.com" }
-    password { "password" }
-    password_confirmation { "password" }
+    password { "password1234" }
+    password_confirmation { "password1234" }
     sequence(:first_name) do |n|
       Faker::Config.random = Random.new(n)
       Faker::Name.first_name

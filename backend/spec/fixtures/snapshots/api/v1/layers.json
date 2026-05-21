@@ -1,7 +1,7 @@
 {
   "data": [
     {
-      "id": "36",
+      "id": "265",
       "type": "layers",
       "attributes": {
         "name": "voluptatem",
@@ -18,7 +18,7 @@
         "css": "Voluptatem hic similique exercitationem.",
         "query": "Voluptatem hic similique exercitationem.",
         "layer_config": "{\"type\": \"raster\", \"source\": {\"tiles\": [\"https://example.com/tiles/{z}/{x}/{y}.png\"]}}",
-        "layer_provider": "cog",
+        "layer_provider": "wmts",
         "published": true,
         "locate_layer": false,
         "icon_class": null,
@@ -48,30 +48,30 @@
       "relationships": {
         "layer_group": {
           "data": {
-            "id": "13",
+            "id": "205",
             "type": "layer_groups"
           }
         },
         "sources": {
           "data": [
             {
-              "id": "9",
+              "id": "70",
               "type": "sources"
             }
           ]
         },
         "agrupation": {
           "data": {
-            "id": 13,
-            "layer_id": 36,
-            "layer_group_id": 13,
+            "id": 140,
+            "layer_id": 265,
+            "layer_group_id": 205,
             "active": false
           }
         }
       }
     },
     {
-      "id": "37",
+      "id": "266",
       "type": "layers",
       "attributes": {
         "name": "cum",
@@ -88,7 +88,7 @@
         "css": "Cum veritatis sapiente exercitationem.",
         "query": "Cum veritatis sapiente exercitationem.",
         "layer_config": "{\"type\": \"raster\", \"source\": {\"tiles\": [\"https://example.com/tiles/{z}/{x}/{y}.png\"]}}",
-        "layer_provider": "cartodb",
+        "layer_provider": "cog",
         "published": true,
         "locate_layer": false,
         "icon_class": null,
@@ -101,7 +101,7 @@
         "analysis_suitable": true,
         "analysis_query": "Cum veritatis sapiente exercitationem.",
         "analysis_body": "{\"url\": \"https://example.com/cog.tif\", \"geometry\": \"{{geometry}}\"}",
-        "analysis_type": "text",
+        "analysis_type": "histogram",
         "analysis_text_template": "Cum veritatis sapiente exercitationem.",
         "interaction_config": "{\"output\": [], \"enabled\": true}",
         "timeline": true,
@@ -118,30 +118,30 @@
       "relationships": {
         "layer_group": {
           "data": {
-            "id": "13",
+            "id": "205",
             "type": "layer_groups"
           }
         },
         "sources": {
           "data": [
             {
-              "id": "9",
+              "id": "70",
               "type": "sources"
             }
           ]
         },
         "agrupation": {
           "data": {
-            "id": 14,
-            "layer_id": 37,
-            "layer_group_id": 13,
+            "id": 141,
+            "layer_id": 266,
+            "layer_group_id": 205,
             "active": false
           }
         }
       }
     },
     {
-      "id": "38",
+      "id": "267",
       "type": "layers",
       "attributes": {
         "name": "molestiae",
@@ -171,7 +171,7 @@
         "analysis_suitable": false,
         "analysis_query": "Molestiae et provident facere.",
         "analysis_body": "{\"url\": \"https://example.com/cog.tif\", \"geometry\": \"{{geometry}}\"}",
-        "analysis_type": "categorical",
+        "analysis_type": "histogram",
         "analysis_text_template": "Molestiae et provident facere.",
         "interaction_config": "{\"output\": [], \"enabled\": true}",
         "timeline": false,
@@ -188,23 +188,23 @@
       "relationships": {
         "layer_group": {
           "data": {
-            "id": "13",
+            "id": "205",
             "type": "layer_groups"
           }
         },
         "sources": {
           "data": [
             {
-              "id": "9",
+              "id": "70",
               "type": "sources"
             }
           ]
         },
         "agrupation": {
           "data": {
-            "id": 15,
-            "layer_id": 38,
-            "layer_group_id": 13,
+            "id": 142,
+            "layer_id": 267,
+            "layer_group_id": 205,
             "active": false
           }
         }
@@ -213,7 +213,7 @@
   ],
   "included": [
     {
-      "id": "9",
+      "id": "70",
       "type": "sources",
       "attributes": {
         "reference": "voluptatem",

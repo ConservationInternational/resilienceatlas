@@ -10,7 +10,7 @@
     "processing": "voluptatem",
     "description": "Voluptatem hic similique exercitationem.",
     "analysis_text_template": "Voluptatem hic similique exercitationem.",
-    "id": 6,
+    "id": 235,
     "layer_group_id": null,
     "slug": "layer-1",
     "layer_type": null,
@@ -18,12 +18,12 @@
     "active": null,
     "order": 38,
     "color": null,
-    "layer_provider": "cog",
+    "layer_provider": "wmts",
     "css": "Voluptatem hic similique exercitationem.",
     "opacity": 0.4170219986692967,
     "query": "Voluptatem hic similique exercitationem.",
-    "created_at": "2026-01-23T21:12:36.766+01:00",
-    "updated_at": "2026-01-23T21:12:36.782+01:00",
+    "created_at": "2026-05-21T18:30:51.132+02:00",
+    "updated_at": "2026-05-21T18:30:51.146+02:00",
     "locate_layer": false,
     "icon_class": null,
     "published": true,
@@ -56,6 +56,7 @@
     "timeline_end_date": "2022-11-27",
     "timeline_default_date": "2022-11-27",
     "timeline_period": "monthly",
-    "analysis_type": "histogram"
+    "analysis_type": "histogram",
+    "site_scope_ids": []
   }
 }
