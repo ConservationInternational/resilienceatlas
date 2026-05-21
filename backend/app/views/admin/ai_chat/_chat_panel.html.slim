@@ -56,7 +56,7 @@ javascript:
       var thinking = appendBubble('Thinking\u2026', 'agent');
       fetch(messageUrl, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken },
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-Token': csrfToken },
         body: JSON.stringify({ message: text })
       }).then(function(r) { return r.json(); })
         .then(function(d) {
@@ -72,7 +72,7 @@ javascript:
       if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); sendMessage(); }
     });
     resetBtn.addEventListener('click', function() {
-      fetch(resetUrl, { method: 'POST', headers: { 'X-CSRF-Token': csrfToken } })
+      fetch(resetUrl, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-Token': csrfToken } })
         .catch(function() {})
         .finally(function() {
           messages.innerHTML = '';
@@ -81,7 +81,7 @@ javascript:
     });
 
     // Load and display past messages, then show the welcome prompt
-    fetch(historyUrl)
+    fetch(historyUrl, { headers: { 'Accept': 'application/json' } })
       .then(function(r) { return r.json(); })
       .then(function(d) {
         if (!d.success || !d.data || d.data.length === 0) {

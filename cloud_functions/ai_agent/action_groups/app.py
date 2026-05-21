@@ -330,13 +330,10 @@ def handle_create_layer(params: dict, auth: AuthContext) -> str:
     if auth.is_contributor:
         layer_fields["published"] = False
 
-    # Parse JSON string fields
-    for field in ("layer_config", "interaction_config", "analysis_body"):
-        if field in layer_fields and isinstance(layer_fields[field], str):
-            try:
-                layer_fields[field] = json.loads(layer_fields[field])
-            except json.JSONDecodeError:
-                pass
+    # NOTE: layer_config, interaction_config, and analysis_body are stored as JSON
+    # strings in text columns. Send them as strings so Rails params.permit() treats
+    # them as scalars (permit silently drops Hash values) and the JSON validator can
+    # parse and validate them. Do NOT pre-parse them into dicts here.
 
     # Deduplication: check if a layer with this slug already exists
     slug = layer_fields.get("slug")
@@ -405,13 +402,10 @@ def handle_update_layer(params: dict, auth: AuthContext) -> str:
     if auth.is_contributor and params.get("published") is True:
         params["published"] = False
 
-    # Parse JSON string fields
-    for field in ("layer_config", "interaction_config", "analysis_body"):
-        if field in params and isinstance(params[field], str):
-            try:
-                params[field] = json.loads(params[field])
-            except json.JSONDecodeError:
-                pass
+    # NOTE: layer_config, interaction_config, and analysis_body are stored as JSON
+    # strings in text columns. Send them as strings so Rails params.permit() treats
+    # them as scalars (permit silently drops Hash values) and the JSON validator can
+    # parse and validate them. Do NOT pre-parse them into dicts here.
     result = rails_patch(f"/api/admin/layers/{layer_id}", {"layer": params})
     logger.info("AGENT_AUDIT update_layer layer_id=%s admin_role=%s fields=%s",
                 layer_id, auth.role, list(params.keys()))

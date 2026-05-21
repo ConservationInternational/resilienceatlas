@@ -1,4 +1,9 @@
 class Admin::AiChatController < ApplicationController
+  # All chat endpoints receive JSON fetch requests from the admin panel.
+  # Use :null_session so CSRF verification never raises — the request is
+  # still protected by Devise's authenticate_admin_user! below.
+  protect_from_forgery with: :null_session
+
   before_action :authenticate_admin_user!
   before_action :check_rate_limit, only: [:message]
 
