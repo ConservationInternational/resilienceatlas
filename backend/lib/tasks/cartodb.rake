@@ -435,13 +435,31 @@ module CartodbRakeHelpers
 
     quoted = table_names.map { |t| "'#{ar_conn.quote_string(t)}'" }.join(", ")
     rows = ar_conn.execute(
-      "SELECT f_table_name, f_geometry_column FROM geometry_columns " \
+      "SELECT f_table_name, f_geometry_column, srid FROM geometry_columns " \
       "WHERE f_table_schema = '#{schema}' AND f_table_name IN (#{quoted})"
-    ).map { |r| [r["f_table_name"], r["f_geometry_column"]] }
+    ).map { |r| [r["f_table_name"], r["f_geometry_column"], r["srid"].to_i] }
 
     return nil if rows.empty?
 
-    rows.each do |tbl, geom_col|
+    # Sort candidates to prefer the table most likely to carry real geometry:
+    # 1. Non-zero SRID and has at least one non-NULL geometry row  (best)
+    # 2. Non-zero SRID but geometry column is entirely NULL        (possible)
+    # 3. SRID=0 — ogr2ogr dummy column from a non-spatial import  (worst)
+    # This prevents selecting a joined non-spatial table's dummy geom column
+    # (e.g. dhs_indicators or poverty_gha_national_csv) over the real spatial
+    # table (e.g. dhs_regions or country_mask) when both appear in geometry_columns.
+    rows = rows.sort_by do |tbl, geom_col, srid|
+      if srid.zero?
+        2  # last: SRID=0 → likely a non-spatial import with a dummy geometry
+      else
+        has_data = ar_conn.execute(
+          "SELECT 1 FROM \"#{schema}\".\"#{tbl}\" WHERE \"#{geom_col}\" IS NOT NULL LIMIT 1"
+        ).ntuples > 0
+        has_data ? 0 : 1
+      end
+    end
+
+    rows.each do |tbl, geom_col, _srid|
       # Look for: FROM/JOIN [schema.]<tbl> [AS] alias  — alias is optional
       m = sql.match(/\b(?:FROM|JOIN)\s+(?:#{Regexp.escape(schema)}\.)?#{Regexp.escape(tbl)}\s+(?:AS\s+)?([a-zA-Z_]\w*)\b/i)
       if m && !m[1].match?(SQL_KEYWORD_RE)
@@ -2350,9 +2368,39 @@ namespace :cartodb do
           "AND viewname = '#{ar_conn.quote_string(source)}'"
         ).ntuples.zero?
 
+      # Detect whether an existing view has broken geometry: SRID=0 in
+      # geometry_columns causes ST_Transform to error (HTTP 500); all-NULL
+      # geometry causes empty tiles (HTTP 204).  Both stem from
+      # find_geometry_column_ref previously selecting the wrong table's geom
+      # column.  Re-derive the view SQL with the corrected ordering so the
+      # next task run heals already-configured layers automatically.
+      view_has_bad_geom = source.match?(/\Av_layer_\d+\z/) &&
+        raw_sql.present? &&
+        !view_gone &&
+        begin
+          vgeom = ar_conn.execute(
+            "SELECT f_geometry_column, srid FROM geometry_columns " \
+            "WHERE f_table_schema = '#{ar_conn.quote_string(target_schema)}' " \
+            "AND f_table_name = '#{ar_conn.quote_string(source)}'"
+          ).first
+          if vgeom
+            gcol = vgeom["f_geometry_column"]
+            vgeom["srid"].to_i.zero? ||
+              ar_conn.execute(
+                "SELECT 1 FROM \"#{target_schema}\".\"#{source}\" " \
+                "WHERE \"#{gcol}\" IS NOT NULL LIMIT 1"
+              ).ntuples.zero?
+          else
+            false
+          end
+        rescue
+          false
+        end
+
       upgrade_to_view = raw_sql.present? &&
         ((imported_list.size > 1 && !source.match?(/\Av_layer_\d+\z/)) ||
-         view_gone)
+         view_gone ||
+         view_has_bad_geom)
 
       if upgrade_to_view
         # When recovering a dropped view, keep the same name so existing
