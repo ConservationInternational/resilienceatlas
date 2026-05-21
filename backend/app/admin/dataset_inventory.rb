@@ -153,7 +153,7 @@ ActiveAdmin.register_page "Dataset Inventory" do
               link_to r[:name], admin_dataset_table_viewer_path(schema: schema, table: r[:name])
             end
             column(sort_link("Rows", "row_count", sort, dir, base.merge(page: 1))) { |r|
-              number_with_delimiter(r[:row_count])
+              r[:row_count].nil? ? content_tag(:em, "—", title: "Row count unavailable for views") : number_with_delimiter(r[:row_count])
             }
             column(sort_link("Size", "size_bytes", sort, dir, base.merge(page: 1))) { |r|
               format_bytes(r[:size_bytes])
@@ -256,7 +256,7 @@ ActiveAdmin.register_page "Dataset Inventory" do
               link_to r[:name], admin_dataset_table_viewer_path(schema: schema, table: r[:name])
             end
             column(sort_link("Rows", "row_count", sort, dir, base.merge(page: 1))) { |r|
-              number_with_delimiter(r[:row_count])
+              r[:row_count].nil? ? content_tag(:em, "—", title: "Row count unavailable for views") : number_with_delimiter(r[:row_count])
             }
             column(sort_link("Size", "size_bytes", sort, dir, base.merge(page: 1))) { |r|
               format_bytes(r[:size_bytes])

@@ -171,6 +171,7 @@ class DatasetInventoryService
       SELECT
         t.table_schema,
         t.table_name,
+        t.table_type,
         GREATEST(
           COALESCE(s.n_live_tup, 0),
           CASE WHEN c.reltuples > 0 THEN c.reltuples::bigint ELSE 0 END
@@ -190,14 +191,19 @@ class DatasetInventoryService
 
     rows.map do |r|
       row_count = r["row_count"].to_i
-      # If both pg_stat and pg_class show 0 (freshly imported tables not yet
-      # ANALYZEd by autovacuum), fall back to an exact COUNT(*).
-      if row_count == 0
+      # Only fall back to an exact COUNT(*) for base tables whose stats haven't
+      # been populated yet (freshly imported, not yet ANALYZEd by autovacuum).
+      # Views never have pg_stat/reltuples entries so the fallback would always
+      # fire — and counting a complex spatial view can OOM-kill the database.
+      if row_count == 0 && r["table_type"] == "BASE TABLE"
         quoted_table = "#{conn.quote_table_name(r["table_schema"])}.#{conn.quote_table_name(r["table_name"])}"
         row_count = conn.select_value("SELECT COUNT(*) FROM #{quoted_table}").to_i
       end
+      # Views never have reliable row-count stats; nil signals "not applicable"
+      # so the UI can display something other than a misleading zero.
+      effective_count = (r["table_type"] == "VIEW") ? nil : row_count
       {name: r["table_name"], schema: r["table_schema"],
-       row_count: row_count, size_bytes: r["size_bytes"].to_i}
+       row_count: effective_count, size_bytes: r["size_bytes"].to_i}
     end
   end
 
