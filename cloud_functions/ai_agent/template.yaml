@@ -49,6 +49,14 @@ Parameters:
   PipelineImageUri:
     Type: String
     Description: ECR image URI for the pipeline Lambda (pre-built)
+  RollbarAccessToken:
+    Type: String
+    Default: ''
+    Description: Rollbar server-side access token for error tracking (optional)
+  RollbarEnvironment:
+    Type: String
+    Default: 'production'
+    Description: Rollbar environment name (e.g. production, staging)
 
 Globals:
   Function:
@@ -63,6 +71,8 @@ Globals:
         EMBEDDINGS_BUCKET: !Ref EmbeddingsBucket
         EMBEDDINGS_KEY: !Ref EmbeddingsKey
         INDEX_KEY: !Ref IndexKey
+        ROLLBAR_ACCESS_TOKEN: !Ref RollbarAccessToken
+        ROLLBAR_ENVIRONMENT: !Ref RollbarEnvironment
 
 Resources:
 

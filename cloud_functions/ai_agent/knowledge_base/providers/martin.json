@@ -49,11 +49,21 @@
     {
       "description": "Martin using a named PostGIS table directly",
       "layer_config": "{\"body\":{\"source\":\"admin_boundaries\",\"styles\":{\"admin_boundaries\":{\"fillColor\":\"transparent\",\"color\":\"#e74c3c\",\"weight\":2,\"fillOpacity\":0}}}}"
+    },
+    {
+      "description": "Martin layer backed by a view that joins a non-spatial table with a geometry table. Call create_vector_view first, then reference the view name via ra_vector_tile. NEVER put raw SQL in body.source.",
+      "setup_steps": [
+        "1. Call describe_table on both tables to confirm column names and join keys.",
+        "2. Call create_vector_view with name='v_my_join' and a bare SELECT that exposes a geometry column.",
+        "3. Create the layer with source='ra_vector_tile' and params.table='v_my_join'."
+      ],
+      "layer_config": "{\"body\":{\"source\":\"ra_vector_tile\",\"params\":{\"table\":\"v_sbtn_thresholds\"},\"colorRamp\":{\"property\":\"soil_erosion_threshold\",\"breaks\":[0.2,0.5,1,2,3,5,7,10,14,18,25,35],\"colors\":[\"#440154\",\"#481769\",\"#472c7a\",\"#3b528b\",\"#2d718e\",\"#21908d\",\"#27ad81\",\"#4dc36a\",\"#7fd34e\",\"#b8de29\",\"#d8e219\",\"#ece51c\",\"#fde725\"],\"default\":\"#aaaaaa\"},\"options\":{\"interactive\":true,\"maxNativeZoom\":8}}}"
     }
   ],
   "notes": [
-    "Martin source 'ra_vector_tile' is a PostGIS function that serves any imported table via ?table=<name>.",
+    "Martin source 'ra_vector_tile' is a PostGIS function that serves any imported table or ra_vector view via ?table=<name>.",
     "Use the vector_tables/import API endpoint to import a vector file and get a table_name before creating a martin layer.",
+    "For layers that join a non-spatial table with geometry, call create_vector_view to create a view in ra_vector first, then use ra_vector_tile with params.table pointing to that view. NEVER put raw SQL in body.source — Martin URL-encodes the source in the tile URL path, causing 404 errors.",
     "Style keys must match the MVT layer name (usually the PostGIS table name).",
     "For interactive popups, ensure interaction_config is also set on the layer."
   ]
