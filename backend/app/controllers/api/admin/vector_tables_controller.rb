@@ -2,6 +2,91 @@
 
 class Api::Admin::VectorTablesController < Api::Admin::ApiController
   ALLOWED_EXTENSIONS = %w[.gpkg .geojson .json .kml .zip .shp].freeze
+  MANAGED_SCHEMAS = [
+    DatasetInventoryService::NONSPATIAL_SCHEMA,
+    DatasetInventoryService::VECTOR_SCHEMA,
+    DatasetInventoryService::RASTER_SCHEMA
+  ].freeze
+
+  # GET /api/admin/vector_tables[?q=keyword]
+  # Lists all PostGIS tables in managed schemas with row counts and linked layers.
+  def index
+    svc = DatasetInventoryService.new
+    q   = params[:q].presence&.downcase
+
+    rows = [
+      svc.nonspatial_tables(per_page: 2000)[:rows],
+      svc.vector_tables(per_page: 2000)[:rows],
+      svc.raster_tables(per_page: 2000)[:rows]
+    ].flatten
+
+    rows.select! { |t| t[:name].to_s.downcase.include?(q) } if q
+
+    data = rows.map do |t|
+      {
+        name: t[:name],
+        schema: t[:schema],
+        row_count: t[:row_count],
+        size_bytes: t[:size_bytes],
+        layers: t[:layers]
+      }
+    end
+
+    render json: {success: true, data: data}, status: :ok
+  rescue => e
+    render json: {success: false, message: e.message}, status: :internal_server_error
+  end
+
+  # GET /api/admin/vector_tables/:id   (id = table name)
+  # Returns columns (with types), sample rows, and total row count.
+  def show
+    table_name = params[:id]
+    svc        = DatasetInventoryService.new
+
+    data         = nil
+    found_schema = nil
+    MANAGED_SCHEMAS.each do |schema|
+      result = svc.table_data(schema, table_name, page: 1, per_page: 10)
+      if result
+        data         = result
+        found_schema = schema
+        break
+      end
+    end
+
+    unless found_schema
+      return render json: {
+        success: false,
+        message: "Table '#{table_name}' not found in any managed schema (#{MANAGED_SCHEMAS.join(', ')})."
+      }, status: :not_found
+    end
+
+    conn = ActiveRecord::Base.connection
+    col_types = conn.select_all(
+      "SELECT column_name, data_type, udt_name " \
+      "FROM information_schema.columns " \
+      "WHERE table_schema = #{conn.quote(found_schema)} " \
+      "  AND table_name   = #{conn.quote(table_name)} " \
+      "ORDER BY ordinal_position"
+    )
+    type_map = col_types.rows.each_with_object({}) do |(col, dtype, udt), h|
+      # For user-defined types (e.g. geometry), show udt_name; otherwise show data_type
+      h[col] = (dtype == "USER-DEFINED") ? udt : dtype
+    end
+
+    render json: {
+      success: true,
+      data: {
+        name: table_name,
+        schema: found_schema,
+        total_rows: data[:total],
+        columns: data[:columns].map { |c| {name: c, type: type_map[c]} },
+        sample_rows: data[:rows]
+      }
+    }, status: :ok
+  rescue => e
+    render json: {success: false, message: e.message}, status: :internal_server_error
+  end
 
   def import
     s3_uri = params.require(:s3_uri)

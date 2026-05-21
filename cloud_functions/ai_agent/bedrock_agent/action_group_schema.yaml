@@ -239,3 +239,49 @@ paths:
       responses:
         "200":
           description: Import result with table_name, geometry_type, srid, row_count, and columns
+
+  /list_tables:
+    post:
+      operationId: list_tables
+      summary: List all PostGIS tables in managed schemas
+      description: |
+        Returns tables in ra_nonspatial, ra_vector, and ra_raster schemas with their row counts
+        and which layers reference each table. Use this to discover available data sources before
+        writing SQL for a martin layer, or to find which table holds specific data.
+        Use the optional keyword filter (q) to narrow results by table name.
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                q:
+                  type: string
+                  description: Filter by table name substring, e.g. "sbtn" or "ecoregion"
+      responses:
+        "200":
+          description: JSON array of [{name, schema, row_count, layers:[{id,slug,name}]}]
+
+  /describe_table:
+    post:
+      operationId: describe_table
+      summary: Get columns, types, and sample rows for a specific PostGIS table
+      description: |
+        Returns column names and data types plus up to 10 sample rows from the table.
+        Use this to understand what data is available before writing a SQL query
+        for a martin layer_config. Works for tables in ra_nonspatial, ra_vector, and ra_raster.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [table_name]
+              properties:
+                table_name:
+                  type: string
+                  description: "Bare table name (no schema prefix), e.g. 'sbtn_thresholds' or 'ecoregions2017'"
+      responses:
+        "200":
+          description: "{name, schema, total_rows, columns:[{name,type}], sample_rows:[[...]]}"

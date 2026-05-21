@@ -36,7 +36,7 @@ Rails.application.routes.draw do
           get :site_scopes
         end
       end
-      resources :vector_tables, only: [] do
+      resources :vector_tables, only: [:index, :show] do
         collection do
           post :import
         end

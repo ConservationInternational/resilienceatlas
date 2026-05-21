@@ -3,8 +3,10 @@ Action Groups Lambda for Bedrock Agent
 Handles all agent tool calls:
   - retrieve_context       RAG similarity search
   - list_layers            GET /api/admin/layers
-  - list_layer_groups      (via layers site_scopes endpoint)
+  - get_layer              GET /api/admin/layers/:id
   - list_site_scopes       GET /api/admin/layers?collection=site_scopes
+  - list_tables            GET /api/admin/vector_tables
+  - describe_table         GET /api/admin/vector_tables/:name
   - create_layer           POST /api/admin/layers
   - update_layer           PATCH /api/admin/layers/:id
   - import_vector_table    POST /api/admin/vector_tables/import
@@ -431,6 +433,38 @@ def handle_import_vector_table(params: dict, auth: AuthContext) -> str:
     return json.dumps(result, ensure_ascii=False)
 
 
+def handle_list_tables(params: dict, _auth: AuthContext) -> str:
+    """List all PostGIS tables in managed schemas (ra_nonspatial, ra_vector, ra_raster)."""
+    q = params.get("q")
+    api_params: dict = {}
+    if q:
+        api_params["q"] = q
+    result = rails_get("/api/admin/vector_tables", params=api_params or None)
+    tables = result.get("data", [])
+    summary = [
+        {
+            "name": t.get("name"),
+            "schema": t.get("schema"),
+            "row_count": t.get("row_count"),
+            "layers": [
+                {"id": l.get("id"), "slug": l.get("slug"), "name": l.get("name")}
+                for l in (t.get("layers") or [])
+            ],
+        }
+        for t in tables
+    ]
+    return json.dumps(summary, ensure_ascii=False)
+
+
+def handle_describe_table(params: dict, _auth: AuthContext) -> str:
+    """Get columns (with types) and sample rows for a specific PostGIS table."""
+    table_name = params.get("table_name")
+    if not table_name:
+        return json.dumps({"success": False, "message": "table_name is required"})
+    result = rails_get(f"/api/admin/vector_tables/{table_name}")
+    return json.dumps(result.get("data", result), ensure_ascii=False)
+
+
 # ── Bedrock action group dispatcher ──────────────────────────────────────────
 
 ACTION_HANDLERS = {
@@ -438,6 +472,8 @@ ACTION_HANDLERS = {
     "list_layers": handle_list_layers,
     "get_layer": handle_get_layer,
     "list_site_scopes": handle_list_site_scopes,
+    "list_tables": handle_list_tables,
+    "describe_table": handle_describe_table,
     "create_layer": handle_create_layer,
     "update_layer": handle_update_layer,
     "import_vector_table": handle_import_vector_table,
