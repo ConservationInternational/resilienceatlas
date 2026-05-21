@@ -189,8 +189,7 @@ namespace :integration_test do
         zoom_min: 1,
         dashboard_order: 2,
         layer_provider: "xyz tileset",
-        analysis_suitable: true,
-        analysis_type: "histogram",
+        analysis_suitable: false,
         interaction_config: "{}")
       puts "✅ Created Layer with ID: #{layer_1429.id}"
     rescue => e
