@@ -38,13 +38,19 @@ When you need to understand available PostGIS data before building or fixing a l
 - `ra_vector` — polygon/point/line data imported from GeoPackage/GeoJSON
 - `ra_raster` — raster data via PostGIS raster extension
 
-**Building SQL for martin layers that join non-spatial to spatial data:**
-```
-SELECT s.*, e.geom
-FROM ra_nonspatial.sbtn_thresholds s
-JOIN ra_vector.ecoregions2017 e ON s.eco_id = e.eco_id
-```
-Use `describe_table` on BOTH tables to find the correct join key column.
+**Building martin layers that join non-spatial to spatial data:**
+`layer_config.body.source` must ALWAYS be a function name, table name, or view name — NEVER raw SQL.
+If a layer needs to join a non-spatial table (e.g. `ra_nonspatial.sbtn_thresholds`) with a geometry
+table (e.g. `ra_vector.ecoregions2017`):
+1. Use `describe_table` on BOTH tables to find the correct join key columns and geometry column name.
+2. Call `create_vector_view` with a name starting with `v_` and a bare SELECT that performs the join.
+   The SELECT must include the geometry column from the ra_vector table.
+3. Use `ra_vector_tile` as the source and `{"table": "<view_name>"}` as params in layer_config:
+   ```json
+   { "body": { "source": "ra_vector_tile", "params": { "table": "v_my_view" }, ... } }
+   ```
+Putting raw SQL in `body.source` will cause 404 errors because Martin URL-encodes the source in the
+tile URL path (`/{source}/{z}/{x}/{y}`).
 
 ## Working Process for NEW Layers
 

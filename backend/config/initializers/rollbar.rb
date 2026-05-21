@@ -180,9 +180,15 @@ Rollbar.configure do |config|
   config.person_email_method = "email"
 
   # Async handler for non-blocking error reporting
+  # Rescue inside the thread so delivery failures are visible in Docker logs
+  # rather than silently disappearing (critical during DB outages).
   config.use_async = true
   config.async_handler = proc { |payload|
-    Thread.new { Rollbar.process_from_async_handler(payload) }
+    Thread.new do
+      Rollbar.process_from_async_handler(payload)
+    rescue => e
+      Rails.logger.error("[Rollbar] Async delivery failed: #{e.class}: #{e.message}")
+    end
   }
 
   # Rate limiting hook - prevent spam during outages (e.g., database down)
@@ -193,7 +199,8 @@ Rollbar.configure do |config|
     error_source = exception || message
 
     if error_source && RollbarRateLimiter.should_limit?(error_source)
-      Rails.logger.debug { "Rollbar: Rate limited - #{error_source.class}" } if defined?(Rails)
+      # Use warn so rate-limiting is visible in Docker logs (helps diagnose missing reports)
+      Rails.logger.warn("[Rollbar] Rate limited: #{error_source.class}") if defined?(Rails)
       throw :ignore # This tells Rollbar to skip this error
     end
 
@@ -230,4 +237,14 @@ Rollbar.configure do |config|
 
   # In test, disable Rollbar entirely
   config.enabled = false if Rails.env.test?
+end
+
+# Log Rollbar status at startup so it's immediately visible in Docker logs.
+# A missing ROLLBAR_ACCESS_TOKEN is the most common reason errors never reach Rollbar.
+Rails.application.config.after_initialize do
+  if Rollbar.configuration.enabled
+    Rails.logger.info("[Rollbar] Error tracking enabled (environment: #{Rollbar.configuration.environment})")
+  else
+    Rails.logger.warn("[Rollbar] Error tracking DISABLED — set ROLLBAR_ACCESS_TOKEN to enable")
+  end
 end

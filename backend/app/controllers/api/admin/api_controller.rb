@@ -1,6 +1,11 @@
 # frozen_string_literal: true
 
 class Api::Admin::ApiController < ActionController::Base
+  # This controller uses HTTP Bearer token auth, not cookie sessions.
+  # CSRF protection is irrelevant here and would block all non-browser clients
+  # (e.g. the Bedrock Lambda agent calling PATCH /api/admin/layers/:id).
+  skip_before_action :verify_authenticity_token
+
   before_action :authenticate_api_token
 
   rescue_from ActiveRecord::RecordNotFound, with: :render_record_not_found

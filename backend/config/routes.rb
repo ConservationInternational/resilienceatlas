@@ -42,6 +42,7 @@ Rails.application.routes.draw do
         end
       end
       resources :scope_datasets, only: [:index, :show, :create, :update]
+      resources :vector_views, only: [:index, :create, :destroy]
     end
     scope module: :v1 do
       get "layer-groups", to: "layer_groups#index", as: "layer_groups"

@@ -37,6 +37,7 @@ import DrawingManager from './DrawingManager';
 import MapOffset from './MapOffset';
 import MapPopup from './MapPopup';
 import LayerErrorModal, { type LayerError } from 'views/components/LayerErrorModal';
+import { reportWarning } from 'utilities/rollbar';
 import CompareControl from './CompareControl';
 import { ScopeGeometryLayer } from 'views/shared/ScopeStatistics';
 
@@ -140,6 +141,17 @@ const MapView = (props: MapViewProps) => {
       );
       return;
     }
+
+    // Report layer load failures to Rollbar for monitoring
+    reportWarning(`Layer failed to load: ${error.layerName || error.layerId}`, {
+      layerId: error.layerId,
+      layerName: error.layerName,
+      errorType: error.errorType,
+      provider: error.provider,
+      url: error.url,
+      errorDescription: error.errorDescription,
+      timestamp: error.timestamp,
+    });
 
     setLayerErrors((prev) => {
       // Avoid duplicate errors for the same layer

@@ -10,6 +10,8 @@ Handles all agent tool calls:
   - create_layer           POST /api/admin/layers
   - update_layer           PATCH /api/admin/layers/:id
   - import_vector_table    POST /api/admin/vector_tables/import
+  - create_vector_view     POST /api/admin/vector_views
+  - drop_vector_view       DELETE /api/admin/vector_views/:name
 
 Embeddings are loaded from S3 at cold start for fast RAG lookups.
 """
@@ -24,6 +26,22 @@ import requests
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
+
+# Optional Rollbar integration for error tracking
+_rollbar_initialized = False
+try:
+    import rollbar
+    _rollbar_token = os.environ.get("ROLLBAR_ACCESS_TOKEN")
+    if _rollbar_token:
+        rollbar.init(
+            access_token=_rollbar_token,
+            environment=os.environ.get("ROLLBAR_ENVIRONMENT", "development"),
+            handler="blocking",
+        )
+        _rollbar_initialized = True
+        logger.info("Rollbar initialized for ai_agent action_groups function")
+except ImportError:
+    pass
 
 RAILS_API_URL = os.environ["RAILS_API_URL"]
 _sm = boto3.client("secretsmanager", region_name=os.environ.get("AWS_REGION", "us-east-1"))
@@ -105,6 +123,14 @@ def rails_post(path: str, body: dict) -> dict:
 def rails_patch(path: str, body: dict) -> dict:
     resp = requests.patch(
         f"{RAILS_API_URL}{path}", headers=rails_headers(), json=body, timeout=30
+    )
+    resp.raise_for_status()
+    return resp.json()
+
+
+def rails_delete(path: str) -> dict:
+    resp = requests.delete(
+        f"{RAILS_API_URL}{path}", headers=rails_headers(), timeout=30
     )
     resp.raise_for_status()
     return resp.json()
@@ -458,6 +484,46 @@ def handle_describe_table(params: dict, _auth: AuthContext) -> str:
     result = rails_get(f"/api/admin/vector_tables/{table_name}")
     return json.dumps(result.get("data", result), ensure_ascii=False)
 
+def handle_create_vector_view(params: dict, auth: AuthContext) -> str:
+    """Create (or replace) a PostgreSQL view in ra_vector from a SELECT query.
+
+    The view can then be served as MVT tiles via ra_vector_tile with
+    params.table = <view_name>.  Only use this when you need to join a
+    non-spatial table with a geometry table — do NOT put raw SQL into
+    layer_config.body.source.
+
+    Required params: name (must start with v_), sql (bare SELECT statement).
+    Optional: description.
+    """
+    if not auth.role:
+        return json.dumps({"success": False, "message": "Access denied: no valid session. Use the admin chat interface."})
+    name = params.get("name")
+    sql = params.get("sql")
+    if not name:
+        return json.dumps({"success": False, "message": "name is required (e.g. 'v_my_view')"})
+    if not sql:
+        return json.dumps({"success": False, "message": "sql is required (bare SELECT statement)"})
+    body: dict = {"name": name, "sql": sql}
+    if params.get("description"):
+        body["description"] = params["description"]
+    result = rails_post("/api/admin/vector_views", body)
+    logger.info("AGENT_AUDIT create_vector_view name=%s admin_role=%s", name, auth.role)
+    return json.dumps(result, ensure_ascii=False)
+
+
+def handle_drop_vector_view(params: dict, auth: AuthContext) -> str:
+    """Drop a PostgreSQL view from ra_vector.  Use with caution — any martin
+    layers that reference this view via ra_vector_tile?table=<name> will stop
+    serving tiles immediately.
+    """
+    if not auth.role:
+        return json.dumps({"success": False, "message": "Access denied: no valid session. Use the admin chat interface."})
+    name = params.get("name")
+    if not name:
+        return json.dumps({"success": False, "message": "name is required"})
+    result = rails_delete(f"/api/admin/vector_views/{name}")
+    logger.info("AGENT_AUDIT drop_vector_view name=%s admin_role=%s", name, auth.role)
+    return json.dumps(result, ensure_ascii=False)
 
 # ── Bedrock action group dispatcher ──────────────────────────────────────────
 
@@ -471,6 +537,8 @@ ACTION_HANDLERS = {
     "create_layer": handle_create_layer,
     "update_layer": handle_update_layer,
     "import_vector_table": handle_import_vector_table,
+    "create_vector_view": handle_create_vector_view,
+    "drop_vector_view": handle_drop_vector_view,
 }
 
 
@@ -561,7 +629,11 @@ def handler(event: dict, context: Any) -> dict:
     except requests.HTTPError as exc:
         error_text = f"API error {exc.response.status_code}: {exc.response.text[:500]}"
         logger.error("Action %s failed: %s", handler_key, error_text)
+        if _rollbar_initialized:
+            rollbar.report_exc_info(extra_data={"action": handler_key, "error_text": error_text})
         return make_response(event, error_text)
     except Exception as exc:
         logger.exception("Unexpected error in action %s", handler_key)
+        if _rollbar_initialized:
+            rollbar.report_exc_info(extra_data={"action": handler_key})
         return make_response(event, f"Error: {exc}")

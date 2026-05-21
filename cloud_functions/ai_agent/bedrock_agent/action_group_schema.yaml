@@ -285,3 +285,70 @@ paths:
       responses:
         "200":
           description: "{name, schema, total_rows, columns:[{name,type}], sample_rows:[[...]]}"
+
+  /create_vector_view:
+    post:
+      operationId: create_vector_view
+      summary: Create (or replace) a PostgreSQL view in ra_vector from a SELECT query
+      description: |
+        Creates a named view in the ra_vector schema using a bare SELECT statement.
+        The view can join any combination of ra_vector, ra_nonspatial, or ra_raster tables.
+        Once created, the view is immediately available as a martin tile source:
+          layer_config.body.source  = "ra_vector_tile"
+          layer_config.body.params  = { "table": "<view_name>" }
+
+        IMPORTANT: body.source must NEVER contain raw SQL. Use this action to create
+        a view first, then reference the view name in the layer_config.
+
+        Rules:
+          - name must start with "v_" (e.g. "v_my_join")
+          - sql must be a bare SELECT (no INSERT/UPDATE/DROP/semicolons)
+          - the SELECT must expose a geometry column from ra_vector or ra_raster
+          - only ra_vector, ra_nonspatial, and ra_raster schemas are allowed in the SQL
+
+        Use describe_table on both tables to find the correct join key columns before
+        writing the SELECT.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, sql]
+              properties:
+                name:
+                  type: string
+                  description: "View name, must start with 'v_', lowercase alphanumeric + underscores, max 63 chars. E.g. 'v_sbtn_thresholds'"
+                sql:
+                  type: string
+                  description: "Bare SELECT statement. No semicolons or DML keywords. Must include a geometry column."
+                description:
+                  type: string
+                  description: "Optional human-readable description stored as a PostgreSQL comment on the view."
+      responses:
+        "200":
+          description: "{ success: true, data: { name, geometry_column, description } } on success, or { success: false, message } on error"
+
+  /drop_vector_view:
+    post:
+      operationId: drop_vector_view
+      summary: Drop a PostgreSQL view from ra_vector
+      description: |
+        Drops the named view from ra_vector. Any martin layers that reference this
+        view via ra_vector_tile?table=<name> will stop serving tiles immediately.
+        Only views whose names start with "v_" can be dropped via this action.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name:
+                  type: string
+                  description: "Name of the view to drop (must start with 'v_')"
+      responses:
+        "200":
+          description: "{ success: true, message } or { success: false, message }"
+

@@ -7,11 +7,12 @@
 # Prerequisites:
 #   1. Run the Python preprocessor to generate sbtn_thresholds.csv:
 #        python db/data/thresholds/preprocess.py
-#   2. Load sbtn_thresholds.csv into the local database table named
-#      "sbtn_thresholds" so the Martin tile function can join against it.
-#      The tile function joins sbtn_thresholds with ecoregions2017 for geometry.
-#   3. The ecoregions2017 PostGIS table must exist (imported via the CartoDB
-#      migration pipeline or ogr2ogr) for tile serving to work.
+#   2. Load sbtn_thresholds.csv into the persistent ra_nonspatial.sbtn_thresholds
+#      table (created by migration 20260515170000).  This script does that
+#      automatically via copy_csv_to_table.
+#   3. The ra_vector.ecoregions2017 PostGIS table must exist (imported via the
+#      CartoDB migration pipeline or ogr2ogr) — the seed creates (or replaces)
+#      the view ra_vector.v_sbtn_thresholds that joins the two tables.
 #
 # Run from the backend directory:
 #   bundle exec rails runner db/data/thresholds/seed.rb
@@ -171,15 +172,48 @@ module ThresholdsSeeder
 
   # ── Martin vector tile layers ─────────────────────────────────────────────
   #
-  # Each layer uses the sbtn_thresholds_tiles Martin function source and a
-  # colorRamp config so the frontend applies choropleth fill colours from
-  # the indicator value properties embedded in every MVT feature.
+  # Each layer uses ra_vector_tile with params.table = "v_sbtn_thresholds".
+  # v_sbtn_thresholds is a view in ra_vector that joins ra_nonspatial.sbtn_thresholds
+  # with ra_vector.ecoregions2017 on eco_id.  This means no bespoke tile function
+  # is needed — any table/view in ra_vector is served by the generic ra_vector_tile
+  # function source.
   #
-  # The sbtn_thresholds_tiles function is created by migration
-  # 20260515160000_create_sbtn_thresholds_tile_function.rb.
+  # The colorRamp config tells the frontend which MVT property to colour on.
+
+  # Ensures the v_sbtn_thresholds view exists (idempotent — CREATE OR REPLACE).
+  # Called at the start of create_layers so a bare seed run (without having run
+  # migration 20260521110000 first) still works.
+  def self.ensure_view!
+    ActiveRecord::Base.connection.execute(<<~SQL)
+      CREATE OR REPLACE VIEW ra_vector.v_sbtn_thresholds AS
+      SELECT
+        t.eco_id,
+        t.ecoregion,
+        e.eco_name,
+        e.biome_name,
+        e.realm,
+        t.natural_land_baseline,
+        t.natural_land_threshold,
+        t.natural_land_exceedance,
+        t.nitrogen_dep_baseline,
+        t.nitrogen_dep_threshold,
+        t.nitrogen_dep_exceedance,
+        t.soil_erosion_baseline,
+        t.soil_erosion_threshold,
+        t.soil_erosion_exceedance,
+        t.soc_baseline,
+        t.soc_threshold,
+        t.soc_exceedance,
+        e.geom
+      FROM ra_nonspatial.sbtn_thresholds t
+      JOIN ra_vector.ecoregions2017 e ON e.eco_id::integer = t.eco_id
+    SQL
+    puts "  Ensured view ra_vector.v_sbtn_thresholds"
+  end
 
   def self.create_layers(groups)
     puts "Creating Martin vector tile layers..."
+    ensure_view!
 
     layer_order = 1
 
@@ -256,7 +290,8 @@ module ThresholdsSeeder
 
     {
       body: {
-        source: "sbtn_thresholds_tiles",
+        source: "ra_vector_tile",
+        params: {table: "v_sbtn_thresholds"},
         colorRamp: {
           property: value_col,
           breaks: breaks,
@@ -304,13 +339,13 @@ module ThresholdsSeeder
     row_count = conn.select_value("SELECT count(*) FROM #{TEMP_TABLE}")
     puts "  Loaded #{row_count} rows into #{TEMP_TABLE}"
 
-    # Refresh the persistent table used by the sbtn_thresholds_tiles Martin function.
-    if conn.table_exists?("sbtn_thresholds")
-      conn.execute("TRUNCATE TABLE sbtn_thresholds")
-      conn.execute("INSERT INTO sbtn_thresholds SELECT * FROM #{TEMP_TABLE}")
-      puts "  Refreshed sbtn_thresholds persistent table for Martin tiles (#{row_count} rows)"
+    # Refresh the persistent table used by the v_sbtn_thresholds view.
+    if conn.table_exists?("sbtn_thresholds", "ra_nonspatial")
+      conn.execute("TRUNCATE TABLE ra_nonspatial.sbtn_thresholds")
+      conn.execute("INSERT INTO ra_nonspatial.sbtn_thresholds SELECT * FROM #{TEMP_TABLE}")
+      puts "  Refreshed ra_nonspatial.sbtn_thresholds (#{row_count} rows) for Martin tiles"
     else
-      puts "  WARNING: sbtn_thresholds table not found — run pending migrations first"
+      puts "  WARNING: ra_nonspatial.sbtn_thresholds not found — run pending migrations first"
     end
 
     display_order = 1
