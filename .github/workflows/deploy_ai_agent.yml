@@ -139,6 +139,16 @@ jobs:
               ActionGroupsImageUri="${{ steps.login-ecr.outputs.registry }}/resilienceatlas-ai-agent-action-groups:${{ github.sha }}" \
               PipelineImageUri="${{ steps.login-ecr.outputs.registry }}/resilienceatlas-ai-agent-pipeline:${{ github.sha }}"
 
+      - name: Update Bedrock agent instructions and promote new version
+        run: |
+          pip install boto3 --quiet
+          python scripts/update_bedrock_agent.py
+        env:
+          BEDROCK_AGENT_ID: ${{ secrets.BEDROCK_AGENT_ID }}
+          BEDROCK_AGENT_ALIAS_ID: ${{ secrets.BEDROCK_AGENT_ALIAS_ID }}
+          BEDROCK_AGENT_ALIAS_NAME: ${{ github.ref == 'refs/heads/main' && 'live-production' || 'live-staging' }}
+          AWS_REGION: ${{ env.AWS_REGION }}
+
       - name: Show CloudFormation failure events
         if: failure() && steps.cfn-deploy.conclusion == 'failure'
         run: |
