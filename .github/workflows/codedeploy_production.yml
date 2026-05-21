@@ -236,6 +236,10 @@ jobs:
         AWS_REGION=${{ env.AWS_REGION }}
         BEDROCK_AGENT_ID=${{ secrets.BEDROCK_AGENT_ID }}
         BEDROCK_AGENT_ALIAS_ID=${{ secrets.BEDROCK_AGENT_ALIAS_ID }}
+
+        # Google Analytics 4
+        GA4_PROPERTY_ID=${{ secrets.GA4_PROPERTY_ID }}
+        GOOGLE_APPLICATION_CREDENTIALS_JSON=${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_JSON }}
         
         # Martin tile server
         PRODUCTION_NEXT_PUBLIC_MARTIN_URL=${{ vars.PRODUCTION_NEXT_PUBLIC_MARTIN_URL }}
