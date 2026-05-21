@@ -297,6 +297,11 @@ class Layer < ApplicationRecord
     zipfile
   end
 
+  # Invalidate the dataset inventory layer-usage cache whenever a layer changes,
+  # so the admin inventory page reflects the latest layer config without waiting
+  # for the TTL to expire.
+  after_commit -> { DatasetInventoryService.invalidate_layer_cache! }
+
   private
 
   def zoom_max_greater_than_or_equal_to_zoom_min

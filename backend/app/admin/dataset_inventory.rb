@@ -49,6 +49,7 @@ ActiveAdmin.register_page "Dataset Inventory" do
 
       row_count = ar_conn.select_value("SELECT COUNT(*) FROM #{q_schema}.#{q_table}").to_i
       ar_conn.execute("ANALYZE #{q_schema}.#{q_table}")
+      DatasetInventoryService.invalidate_all_caches!
 
       redirect_to admin_dataset_inventory_path(section: "nonspatial"),
         notice: "Loaded #{helpers.number_with_delimiter(row_count)} rows into #{nonspatial_schema}.#{table_name}."
@@ -58,15 +59,32 @@ ActiveAdmin.register_page "Dataset Inventory" do
     end
   end
 
+  # ── Refresh cached inventory data ────────────────────────────────────────────
+  page_action :refresh_cache, method: :post do
+    DatasetInventoryService.invalidate_all_caches!
+    redirect_to admin_dataset_inventory_path(section: params[:section].presence || "vector"),
+      notice: "Cache cleared — the next page load will re-scan all schemas and S3."
+  end
+
   content title: "Dataset Inventory" do
+    section = params[:section].presence&.in?(%w[vector raster nonspatial s3]) ? params[:section] : "vector"
+
     div class: "inventory-about" do
+      refresh_form = [
+        %(<form action="/admin/dataset_inventory/refresh_cache" method="post" style="float:right;margin:0">),
+        %(<input type="hidden" name="authenticity_token" value="#{ERB::Util.html_escape(form_authenticity_token)}">),
+        %(<input type="hidden" name="section" value="#{ERB::Util.html_escape(section)}">),
+        %(<input type="submit" value="↺ Refresh Cache" class="button" ),
+        %(title="Clear cached inventory data and force a full re-scan on next page load">),
+        %(</form>)
+      ].join.html_safe
+      text_node refresh_form
       para "An inventory of all datasets loaded into the Resilience Atlas database and object storage. " \
            "Use the tabs to browse PostGIS vector tables (ra_vector schema), raster tables (ra_raster schema), " \
            "non-spatial attribute tables (ra_nonspatial schema), and Cloud-Optimised GeoTIFF files on S3. " \
            "Columns are sortable; use the search boxes to filter by table name or associated layer."
     end
 
-    section = params[:section].presence&.in?(%w[vector raster nonspatial s3]) ? params[:section] : "vector"
     page = [params[:page].to_i, 1].max
     per_page = 25
     sort = params[:sort].presence || ((section == "s3") ? "key" : "name")

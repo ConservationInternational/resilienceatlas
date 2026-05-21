@@ -60,6 +60,9 @@ class VectorImportJob
         status: "complete",
         completed_at: Time.current
       )
+      # update_columns bypasses after_commit, so bust both the layer-usage and
+      # pg_tables caches explicitly now that the new table and layer config are live.
+      DatasetInventoryService.invalidate_all_caches!
     rescue => e
       di.update!(
         status: "failed",

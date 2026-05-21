@@ -1,6 +1,11 @@
 # Scans PostgreSQL schemas (ra_vector, ra_raster) and S3 COG objects and
 # returns a paginated, sortable, filterable summary of each asset with
 # the layers that reference it.
+#
+# Layer-to-table and layer-to-COG association maps are cached in Redis to avoid
+# a full Layer scan + SQL parsing on every page load. The cache is automatically
+# invalidated when any Layer is saved or destroyed (Layer after_commit callback).
+# Use +invalidate_all_caches!+ or the admin "Refresh Cache" action for a full reset.
 class DatasetInventoryService
   VECTOR_SCHEMA = "ra_vector"
   RASTER_SCHEMA = "ra_raster"
@@ -8,7 +13,33 @@ class DatasetInventoryService
   TABLE_SORT_COLS = %w[name row_count size_bytes].freeze
   S3_SORT_COLS = %w[key size_bytes layers].freeze
 
+  # Cache keys
+  LAYER_USAGE_CACHE_KEY = "dataset_inventory/layer_usage"
+  S3_RAW_CACHE_KEY      = "dataset_inventory/s3_raw"
+
+  # Cache TTLs — these are safety-net fallbacks only; primary invalidation happens
+  # via explicit cache busting at every write path (Layer after_commit, upload actions,
+  # import jobs) so the TTL rarely triggers in normal operation.
+  LAYER_USAGE_TTL = 1.hour
+  PG_TABLES_TTL   = 1.hour
+  S3_RAW_TTL      = 2.hours
+
   attr_reader :s3_error, :table_data_error
+
+  # Invalidate only the layer-usage map. Called by Layer#after_commit so the
+  # cache is refreshed automatically after any layer save or destroy.
+  def self.invalidate_layer_cache!
+    Rails.cache.delete(LAYER_USAGE_CACHE_KEY)
+  end
+
+  # Invalidate all dataset inventory caches (called by the admin Refresh Cache action).
+  def self.invalidate_all_caches!
+    Rails.cache.delete(LAYER_USAGE_CACHE_KEY)
+    Rails.cache.delete(S3_RAW_CACHE_KEY)
+    [VECTOR_SCHEMA, RASTER_SCHEMA, NONSPATIAL_SCHEMA].each do |schema|
+      Rails.cache.delete("dataset_inventory/pg_tables/#{schema}")
+    end
+  end
 
   # Returns {rows:, total:, page:, per_page:} – filterable/sortable/paginated.
   def vector_tables(page: 1, per_page: 25, sort: "name", dir: "asc", q: nil, lq: nil)
@@ -128,6 +159,13 @@ class DatasetInventoryService
   # ── PostgreSQL inventory ────────────────────────────────────────────────────
 
   def pg_tables(schemas)
+    cache_key = "dataset_inventory/pg_tables/#{schemas.sort.join(",")}"
+    Rails.cache.fetch(cache_key, expires_in: PG_TABLES_TTL) do
+      fetch_pg_tables(schemas)
+    end
+  end
+
+  def fetch_pg_tables(schemas)
     quoted_schemas = schemas.map { |s| conn.quote(s) }.join(", ")
     rows = conn.execute(<<~SQL)
       SELECT
@@ -163,29 +201,59 @@ class DatasetInventoryService
     end
   end
 
-  # Build a map: bare table_name => [layer_summary, ...]
-  def layer_usage_by_table
-    @layer_usage_by_table ||= begin
-      usage = Hash.new { |h, k| h[k] = [] }
+  # Single Layer.find_each pass that builds both the table-usage map and the
+  # COG-key index. Result is cached in Redis and shared by all three schema
+  # sections and the S3 tab, so layers are scanned only once per cache period.
+  # Automatically invalidated via Layer#after_commit.
+  def layer_usage_maps
+    @layer_usage_maps ||= Rails.cache.fetch(LAYER_USAGE_CACHE_KEY, expires_in: LAYER_USAGE_TTL) do
+      table_usage = Hash.new { |h, k| h[k] = [] }
+      cog_index   = Hash.new { |h, k| h[k] = [] }
+      bucket      = ENV["S3_BUCKET"].presence || "resilienceatlas"
 
       Layer.find_each do |layer|
         summary = layer_summary(layer)
 
         [layer.query, layer.analysis_query].compact.each do |sql|
-          LayerTableParser.tables_from_sql(sql).each { |tbl| usage[tbl] << summary }
+          LayerTableParser.tables_from_sql(sql).each { |tbl| table_usage[tbl] << summary }
         end
 
         if layer.layer_provider == "martin"
           tbl = LayerTableParser.resolve_martin_table(layer, conn)
-          usage[tbl] << summary if tbl.present?
+          table_usage[tbl] << summary if tbl.present?
 
           raw_source = LayerTableParser.source_from_config(layer)
-          usage[raw_source] << summary if raw_source.present? && raw_source != tbl
+          table_usage[raw_source] << summary if raw_source.present? && raw_source != tbl
+        end
+
+        next unless layer.layer_provider == "cog"
+
+        uri = LayerTableParser.source_from_config(layer)
+        if uri.present?
+          key = uri.sub(%r{\As3://#{Regexp.escape(bucket)}/}, "").sub(%r{\As3://[^/]+/}, "")
+          cog_index[key] << summary
+        end
+
+        ab_uri = LayerTableParser.s3_uri_from_analysis_body(layer)
+        if ab_uri.present?
+          ab_key = ab_uri.sub(%r{\As3://[^/]+/}, "")
+          cog_index[ab_key] << summary
         end
       end
 
-      usage.transform_values { |layers| layers.uniq { |l| l[:id] } }
+      {
+        table_usage: table_usage.transform_values { |ls| ls.uniq { |l| l[:id] } },
+        cog_index:   cog_index.transform_values   { |ls| ls.uniq { |l| l[:id] } }
+      }
     end
+  end
+
+  def layer_usage_by_table
+    @layer_usage_by_table ||= layer_usage_maps[:table_usage]
+  end
+
+  def cog_layer_index
+    @cog_layer_index ||= layer_usage_maps[:cog_index]
   end
 
   def layer_summary(layer)
@@ -194,25 +262,42 @@ class DatasetInventoryService
 
   # ── S3 inventory ─────────────────────────────────────────────────────────────
 
+  # Combines the cached raw S3 listing with the cached COG layer index.
   def fetch_s3_cogs
+    raw = fetch_raw_s3_objects
+    return nil if raw.nil?
+
+    index = cog_layer_index
+    raw.map { |obj| obj.merge(layers: index[obj[:key]] || []) }
+  end
+
+  # Returns the raw S3 object list [{key:, size_bytes:}] from cache or live S3.
+  # Never writes nil to cache — on S3 error, @s3_error is set on the instance
+  # and nil propagates so the caller can surface the error message.
+  def fetch_raw_s3_objects
+    cached = Rails.cache.read(S3_RAW_CACHE_KEY)
+    return cached if cached
+
+    result = list_s3_objects
+    Rails.cache.write(S3_RAW_CACHE_KEY, result, expires_in: S3_RAW_TTL) if result
+    result
+  end
+
+  def list_s3_objects
     bucket = ENV["S3_BUCKET"].presence || "resilienceatlas"
     prefix = ENV["COG_PREFIX"].presence || "cogs/"
     prefix = "#{prefix}/" unless prefix.end_with?("/")
 
     client = build_s3_client
     results = []
-    cog_layers_by_key = build_cog_layer_index
-
     continuation_token = nil
+
     loop do
       opts = {bucket: bucket, prefix: prefix, max_keys: 1000}
       opts[:continuation_token] = continuation_token if continuation_token
 
       resp = client.list_objects_v2(**opts)
-      resp.contents.each do |obj|
-        results << {key: obj.key, size_bytes: obj.size,
-                    layers: cog_layers_by_key[obj.key] || []}
-      end
+      resp.contents.each { |obj| results << {key: obj.key, size_bytes: obj.size} }
 
       break unless resp.is_truncated
       continuation_token = resp.next_continuation_token
@@ -225,27 +310,6 @@ class DatasetInventoryService
   rescue => e
     @s3_error = "S3 unavailable: #{e.message}"
     nil
-  end
-
-  def build_cog_layer_index
-    index = Hash.new { |h, k| h[k] = [] }
-    bucket = ENV["S3_BUCKET"].presence || "resilienceatlas"
-
-    Layer.where(layer_provider: "cog").find_each do |layer|
-      uri = LayerTableParser.source_from_config(layer)
-      next if uri.blank?
-
-      key = uri.sub(%r{\As3://#{Regexp.escape(bucket)}/}, "").sub(%r{\As3://[^/]+/}, "")
-      index[key] << layer_summary(layer)
-
-      ab_uri = LayerTableParser.s3_uri_from_analysis_body(layer)
-      if ab_uri.present?
-        ab_key = ab_uri.sub(%r{\As3://[^/]+/}, "")
-        index[ab_key] << layer_summary(layer)
-      end
-    end
-
-    index.transform_values { |layers| layers.uniq { |l| l[:id] } }
   end
 
   def build_s3_client
