@@ -102,7 +102,7 @@ Rails.application.routes.draw do
   # Admin AI chat (non-API, lives under /admin/ai_chat/...)
   namespace :admin do
     post "ai_chat/message", to: "ai_chat#message"
-    post "ai_chat/reset",   to: "ai_chat#reset"
-    get  "ai_chat/history", to: "ai_chat#history"
+    post "ai_chat/reset", to: "ai_chat#reset"
+    get "ai_chat/history", to: "ai_chat#history"
   end
 end

@@ -10,9 +10,11 @@ module CsvColumnTypeInferrer
 
     col_samples = {}
 
-    opener = file_path.to_s.end_with?(".gz") \
-      ? ->(p, &b) { Zlib::GzipReader.open(p, &b) } \
-      : ->(p, &b) { File.open(p, encoding: "UTF-8", &b) }
+    opener = if file_path.to_s.end_with?(".gz")
+      ->(p, &b) { Zlib::GzipReader.open(p, &b) }
+    else
+      ->(p, &b) { File.open(p, encoding: "UTF-8", &b) }
+    end
 
     opener.call(file_path) do |io|
       csv = CSV.new(io, headers: true)

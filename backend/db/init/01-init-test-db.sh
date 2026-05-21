@@ -9,6 +9,7 @@ EOSQL
 
 # Enable PostGIS extensions on both databases
 psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "cigrp" <<-'EOSQL'
+    CREATE EXTENSION IF NOT EXISTS fuzzystrmatch;
     CREATE EXTENSION IF NOT EXISTS postgis;
     CREATE EXTENSION IF NOT EXISTS postgis_topology;
     CREATE SCHEMA IF NOT EXISTS ra_app;
@@ -17,6 +18,7 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "cigrp" <<-'EOSQL'
 EOSQL
 
 psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "cigrp_test" <<-'EOSQL'
+    CREATE EXTENSION IF NOT EXISTS fuzzystrmatch;
     CREATE EXTENSION IF NOT EXISTS postgis;
     CREATE EXTENSION IF NOT EXISTS postgis_topology;
     CREATE SCHEMA IF NOT EXISTS ra_app;

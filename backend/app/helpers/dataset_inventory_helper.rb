@@ -23,8 +23,8 @@ module DatasetInventoryHelper
 
   def inventory_pagination(result, base_params)
     total = result[:total]
-    cur   = result[:page]
-    per   = result[:per_page]
+    cur = result[:page]
+    per = result[:per_page]
     return "".html_safe if total <= per
 
     total_pages = (total.to_f / per).ceil
