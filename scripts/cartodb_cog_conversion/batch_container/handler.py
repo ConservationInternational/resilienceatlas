@@ -95,11 +95,16 @@ def process_single_tiff(event):
     if dest_prefix and not dest_prefix.endswith('/'):
         dest_prefix += '/'
     
-    # Build destination key
+    # Build destination key: strip CartoDB schema prefix so the output filename
+    # matches the bare table name the DB migration stores (e.g. asiasover.tif, not
+    # public_asiasover_cog.tif).
     filename = Path(source_key).name
-    # Add _cog suffix before extension
     stem = Path(filename).stem
-    dest_key = f"{dest_prefix}{stem}_cog.tif"
+    for schema_prefix in ('cdb_importer_', 'public_'):
+        if stem.startswith(schema_prefix):
+            stem = stem[len(schema_prefix):]
+            break
+    dest_key = f"{dest_prefix}{stem}.tif"
     
     logger.info(f"Processing: s3://{source_bucket}/{source_key} -> s3://{dest_bucket}/{dest_key}")
     

@@ -47,7 +47,8 @@ class Config:
         # S3 configuration
         self.s3_bucket = os.environ.get("S3_BUCKET", "")
         self.source_prefix = os.environ.get("SOURCE_PREFIX", "cartodb_exports/rasters/")
-        self.cog_prefix = os.environ.get("COG_PREFIX", "cartodb_exports/cogs/")
+        # Default matches the path the DB migration expects (cogs/)
+        self.cog_prefix = os.environ.get("COG_PREFIX", "cogs/")
         self.aws_region = os.environ.get("AWS_REGION", "us-east-1")
         self.aws_profile = os.environ.get("AWS_PROFILE", "")
         
@@ -298,7 +299,12 @@ def find_pending_conversions(
         # Build expected COG key
         filename = os.path.basename(source_key)
         stem = os.path.splitext(filename)[0]
-        cog_key = f"{config.cog_prefix}{stem}_cog.tif"
+        # Strip CartoDB schema prefixes so output matches the table name used in the DB
+        for schema_prefix in ('cdb_importer_', 'public_'):
+            if stem.startswith(schema_prefix):
+                stem = stem[len(schema_prefix):]
+                break
+        cog_key = f"{config.cog_prefix}{stem}.tif"
         
         # Check if COG exists
         if cog_key not in cogs or config.overwrite:
@@ -752,6 +758,9 @@ def submit_batch_jobs(config: Config, pending: list[tuple[str, int]]) -> list[di
         )
         
         # Submit job
+        # OVERWRITE and MANIFEST_KEY are set per-job so that the value passed on
+        # the command line (via $env:OVERWRITE) takes precedence over whatever was
+        # baked into the job definition at deploy time.
         response = batch.submit_job(
             jobName=job_name,
             jobQueue=config.job_queue_name,
@@ -759,6 +768,7 @@ def submit_batch_jobs(config: Config, pending: list[tuple[str, int]]) -> list[di
             containerOverrides={
                 "environment": [
                     {"name": "MANIFEST_KEY", "value": manifest_key},
+                    {"name": "OVERWRITE", "value": str(config.overwrite).lower()},
                 ]
             }
         )
@@ -974,7 +984,7 @@ def main():
 Environment Variables:
   S3_BUCKET           S3 bucket name (required)
   SOURCE_PREFIX       Source prefix for raw TIFFs (default: cartodb_exports/rasters/)
-  COG_PREFIX          Destination prefix for COGs (default: cartodb_exports/cogs/)
+  COG_PREFIX          Destination prefix for COGs (default: cogs/)
   AWS_REGION          AWS region (default: us-east-1)
   AWS_PROFILE         AWS credentials profile name
   FILES_PER_JOB       Files to process per batch job (default: 50)

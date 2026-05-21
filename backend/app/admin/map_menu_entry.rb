@@ -1,4 +1,10 @@
 ActiveAdmin.register MapMenuEntry do
+  menu label: "Map Menu Entries", parent: "Map Content", priority: 3
+
+  sidebar "About", only: :index do
+    para "Map menu entries define the items in the main navigation menu on the map page, typically linking to specific layer groups or curated map views."
+  end
+
   includes :translations
   config.sort_order = "position_asc"
   permit_params :link, :ancestry, :position,

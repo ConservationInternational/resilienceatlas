@@ -1,26 +1,61 @@
 require "shrine"
 require "shrine/storage/file_system"
 
-# Ensure upload directories exist with proper error handling
-upload_root = "public"
-upload_cache_path = File.join(Rails.root, upload_root, "uploads", "cache")
-upload_store_path = File.join(Rails.root, upload_root, "uploads", "store")
+if Rails.env.production? || Rails.env.staging?
+  # -----------------------------------------------------------------------
+  # S3-backed storage for production / staging
+  # -----------------------------------------------------------------------
+  require "shrine/storage/s3"
 
-begin
-  FileUtils.mkdir_p(upload_cache_path) unless File.directory?(upload_cache_path)
-  FileUtils.mkdir_p(upload_store_path) unless File.directory?(upload_store_path)
-rescue Errno::EACCES => e
-  Rails.logger.warn "Unable to create upload directories: #{e.message}. Directories may need to be created manually."
-  # Continue initialization as directories might already exist or be created by external process
-rescue => e
-  Rails.logger.error "Error creating upload directories: #{e.message}"
-  raise e unless Rails.env.test? # In test env, continue even if directory creation fails
+  s3_options = {
+    bucket: ENV["S3_BUCKET"].presence || "resilienceatlas",
+    region: ENV["AWS_REGION"].presence || "us-east-1",
+    access_key_id: ENV["AWS_ACCESS_KEY_ID"].presence,
+    secret_access_key: ENV["AWS_SECRET_ACCESS_KEY"].presence
+  }
+
+  Shrine.storages = {
+    # Temporary: presigned uploads land here first
+    cache: Shrine::Storage::S3.new(prefix: "uploads/cache", **s3_options),
+    # Permanent processed files
+    store: Shrine::Storage::S3.new(prefix: "uploads/store", **s3_options),
+    # Staging area for vector/CSV imports before background processing
+    staging: Shrine::Storage::S3.new(prefix: ENV["S3_STAGING_PREFIX"].presence || "staging", **s3_options),
+    # COG rasters
+    cogs: Shrine::Storage::S3.new(prefix: ENV["COG_PREFIX"].presence || "cogs", **s3_options)
+  }
+else
+  # -----------------------------------------------------------------------
+  # Filesystem storage for development / test
+  # -----------------------------------------------------------------------
+  upload_root = "public"
+  upload_cache_path = File.join(Rails.root, upload_root, "uploads", "cache")
+  upload_store_path = File.join(Rails.root, upload_root, "uploads", "store")
+  upload_staging_path = File.join(Rails.root, upload_root, "uploads", "staging")
+
+  [upload_cache_path, upload_store_path, upload_staging_path].each do |path|
+    FileUtils.mkdir_p(path) unless File.directory?(path)
+  rescue Errno::EACCES => e
+    Rails.logger.warn "Unable to create upload directory #{path}: #{e.message}"
+  rescue => e
+    Rails.logger.error "Error creating upload directory #{path}: #{e.message}"
+    raise e unless Rails.env.test?
+  end
+
+  Shrine.storages = {
+    cache: Shrine::Storage::FileSystem.new(upload_root, prefix: "uploads/cache"),
+    store: Shrine::Storage::FileSystem.new(upload_root, prefix: "uploads/store"),
+    staging: Shrine::Storage::FileSystem.new(upload_root, prefix: "uploads/staging"),
+    cogs: Shrine::Storage::FileSystem.new(upload_root, prefix: "uploads/cogs")
+  }
 end
-
-Shrine.storages = {
-  cache: Shrine::Storage::FileSystem.new(upload_root, prefix: "uploads/cache"), # temporary
-  store: Shrine::Storage::FileSystem.new(upload_root, prefix: "uploads/store") # permanent
-}
 
 Shrine.plugin :activerecord
 Shrine.plugin :cached_attachment_data # for forms
+
+# Presigned URL generation (used by the uploads controller for direct S3 multipart)
+Shrine.plugin :presign_endpoint, presign_options: {
+  method: :put,
+  expires_in: 3600 # 1 hour
+}
+Shrine.plugin :determine_mime_type

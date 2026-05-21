@@ -21,7 +21,7 @@ jobs:
     environment: staging
     steps:
       - name: Checkout the code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Configure AWS credentials via OIDC
         uses: aws-actions/configure-aws-credentials@v6
@@ -30,7 +30,7 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Install AWS SAM CLI
-        uses: aws-actions/setup-sam@v2
+        uses: aws-actions/setup-sam@v3
         with:
           use-installer: true
 

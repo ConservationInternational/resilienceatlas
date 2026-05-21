@@ -10,6 +10,7 @@ from titiler.core.errors import DEFAULT_STATUS_CODES, add_exception_handlers
 from titiler.core.middleware import CacheControlMiddleware
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, HTTPException, Query, Request, Response
+from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
 import rollbar
 from rollbar.contrib.fastapi import ReporterMiddleware as RollbarMiddleware
@@ -128,6 +129,8 @@ def is_url_allowed(url: str) -> bool:
     # - s3://bucket-name/key
     # - https://bucket-name.s3.amazonaws.com/key
     # - https://bucket-name.s3.region.amazonaws.com/key
+    # - https://bucket-name.s3.dualstack.amazonaws.com/key          (dual-stack: IPv4+IPv6)
+    # - https://bucket-name.s3.dualstack.region.amazonaws.com/key   (dual-stack with region)
     # - https://s3.amazonaws.com/bucket-name/key
     # - https://s3.region.amazonaws.com/bucket-name/key
     #
@@ -155,10 +158,11 @@ def is_url_allowed(url: str) -> bool:
         
         # === AWS S3 URL patterns ===
         
-        # Virtual-hosted style: bucket-name.s3.amazonaws.com or bucket-name.s3.region.amazonaws.com
+        # Virtual-hosted style: bucket-name.s3.amazonaws.com, bucket-name.s3.region.amazonaws.com,
+        # or bucket-name.s3.dualstack.region.amazonaws.com (IPv4+IPv6 dual-stack endpoint)
         # Pattern ensures host ENDS with .amazonaws.com (no suffix allowed)
         s3_virtual_hosted_pattern = re.compile(
-            r'^(?P<bucket>[a-z0-9][a-z0-9.-]+[a-z0-9])\.s3(\.(?P<region>[a-z0-9-]+))?\.amazonaws\.com$'
+            r'^(?P<bucket>[a-z0-9][a-z0-9.-]+[a-z0-9])\.s3(\.dualstack)?(\.(?P<region>[a-z0-9-]+))?\.amazonaws\.com$'
         )
         match = s3_virtual_hosted_pattern.match(host)
         if match:
@@ -203,6 +207,11 @@ class BucketWhitelistMiddleware(BaseHTTPMiddleware):
     """Middleware to restrict access to whitelisted cloud storage buckets only.
     
     Supports AWS S3 and Google Cloud Storage buckets.
+    
+    Returns JSONResponse objects rather than raising exceptions so that the
+    CORSMiddleware (outermost) can intercept the response and add CORS headers.
+    Raising exceptions from BaseHTTPMiddleware bypasses all inner middleware
+    and lands directly in ServerErrorMiddleware without CORS headers.
     """
     
     async def dispatch(self, request: Request, call_next):
@@ -212,12 +221,23 @@ class BucketWhitelistMiddleware(BaseHTTPMiddleware):
         
         # Check the 'url' query parameter
         url_param = request.query_params.get("url")
-        if url_param and not is_url_allowed(url_param):
-            raise HTTPException(
-                status_code=403,
-                detail=f"Access denied. Only whitelisted cloud storage buckets are allowed. "
-                       f"Allowed buckets: {_format_allowed_buckets()}"
-            )
+        if url_param:
+            try:
+                if not is_url_allowed(url_param):
+                    return JSONResponse(
+                        content={
+                            "detail": (
+                                "Access denied. Only whitelisted cloud storage buckets are allowed. "
+                                f"Allowed buckets: {_format_allowed_buckets()}"
+                            )
+                        },
+                        status_code=403,
+                    )
+            except ValueError as exc:
+                return JSONResponse(
+                    content={"detail": str(exc)},
+                    status_code=500,
+                )
         
         return await call_next(request)
 
@@ -307,12 +327,23 @@ app = FastAPI(title="Resilience COG tiler", description="Cloud Optimized GeoTIFF
 
 app.include_router(cog.router, tags=["Cloud Optimized GeoTIFF"])
 
-# Add Rollbar middleware for error tracking (must be first to catch all errors)
+# Middleware ordering note (Starlette applies add_middleware in reverse):
+# The LAST add_middleware call becomes the OUTERMOST user middleware.
+# To ensure CORS headers appear on ALL responses (including error responses
+# from inner middleware), CORSMiddleware must be the outermost user middleware.
+# Therefore CORSMiddleware is added LAST here.
+#
+# Execution order (outer → inner):
+#   ServerErrorMiddleware → CORSMiddleware → CacheControlMiddleware
+#     → BucketWhitelistMiddleware → [RollbarMiddleware →] ExceptionMiddleware → Router
+
+# Add Rollbar middleware innermost so it captures application-level errors
 if _rollbar_token:
     app.add_middleware(RollbarMiddleware)
 
-# Add bucket whitelist middleware (must be added before other middlewares)
-# Supports both AWS S3 and Google Cloud Storage buckets
+# Add bucket whitelist middleware
+# Returns JSONResponse on denial (never raises) so the outer CORSMiddleware
+# can add CORS headers to the error response.
 app.add_middleware(BucketWhitelistMiddleware)
 
 app.add_middleware(
@@ -321,6 +352,7 @@ app.add_middleware(
 	cachecontrol_max_http_code=400,
 	exclude_path={r"/healthz"},
 )
+# CORSMiddleware added LAST → outermost user middleware → wraps all responses
 app.add_middleware(
 	CORSMiddleware,
 	allow_credentials=True,
@@ -331,6 +363,39 @@ app.add_middleware(
 )
 
 add_exception_handlers(app, DEFAULT_STATUS_CODES)
+
+# In Starlette, handlers registered for the `Exception` class (including the one
+# in DEFAULT_STATUS_CODES) are routed to ServerErrorMiddleware, which sits OUTSIDE
+# CORSMiddleware.  As a result, any unhandled exception that reaches
+# ServerErrorMiddleware would produce a 500 response without CORS headers, causing
+# the browser to report a CORS error instead of the real status code.
+#
+# Fix: replace the generic Exception handler (set by add_exception_handlers above)
+# with one that manually adds the CORS headers before the response is emitted.
+_CORS_ORIGIN_RE = re.compile(
+    r'https?://((([\w]*)\.)*resilienceatlas\.org|localhost(:([\d])*)?)'
+)
+
+
+@app.exception_handler(Exception)
+async def _exception_with_cors_handler(request: Request, exc: Exception) -> JSONResponse:
+    """Catch-all handler registered with ServerErrorMiddleware.
+
+    Because Starlette routes Exception/500 handlers to ServerErrorMiddleware (outside
+    CORSMiddleware), we must add CORS headers manually here so the browser receives
+    them on 500 responses and can read the error detail.
+    """
+    origin = request.headers.get("origin", "")
+    cors_headers: dict[str, str] = {}
+    if _CORS_ORIGIN_RE.fullmatch(origin):
+        cors_headers["Access-Control-Allow-Origin"] = origin
+        cors_headers["Access-Control-Allow-Credentials"] = "true"
+        cors_headers["Vary"] = "Origin"
+    return JSONResponse(
+        status_code=500,
+        content={"detail": "Internal Server Error"},
+        headers=cors_headers if cors_headers else None,
+    )
 
 
 # Add health check

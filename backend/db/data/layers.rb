@@ -628,6 +628,27 @@ end
 
 
 puts "Creating Layers..."
+
+# ── CartoDB → nil remapping ──────────────────────────────────────────────────
+# CartoDB was removed as a supported layer provider during the Leaflet→OpenLayers
+# migration.  These legacy layers reference external CartoDB tables that are not
+# available in the app's PostgreSQL database, so they cannot be automatically
+# converted to Martin vector tiles.  The before_validation callback below remaps
+# layer_provider "cartodb" → nil and unpublishes the layer so the seed does not
+# fail provider validation.  The FlagCartodbLayersForReview migration applies the
+# same treatment to any existing DB records.
+Layer.class_eval do
+  before_validation :_remap_cartodb_provider_for_seed, prepend: true
+
+  def _remap_cartodb_provider_for_seed
+    return unless layer_provider == "cartodb"
+
+    self.layer_provider = nil
+    self.published = false
+  end
+end
+# ────────────────────────────────────────────────────────────────────────────
+
 layers = {}
 
 layers[1] = Layer.find_or_create_by!(id: 1) do |l|
@@ -15096,6 +15117,10 @@ end
 Agrupation.find_or_create_by!(layer_id: 1750, layer_group_id: 1122) do |a|
   a.active = false
 end
+
+# Remove the CartoDB remapping callback so it does not persist if this file is
+# loaded inside a longer-running process (e.g. rails console, test suite).
+Layer.skip_callback(:validation, :before, :_remap_cartodb_provider_for_seed)
 Agrupation.find_or_create_by!(layer_id: 1754, layer_group_id: 1123) do |a|
   a.active = false
 end

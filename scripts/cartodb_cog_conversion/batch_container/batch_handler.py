@@ -50,50 +50,38 @@ def get_s3_client():
     return boto3.client("s3")
 
 
-def get_raster_crs(filepath: str) -> tuple[str, str]:
+def get_raster_epsg(filepath: str) -> str:
+    """Return the EPSG code embedded in a raster file (e.g. 'EPSG:3857'), or ''.
+
+    Prefer GDAL's structured CRS id when present. If it is missing, fall back
+    to parsing the WKT and use the last CRS identifier rather than nested unit
+    or base-geography identifiers.
     """
-    Get the CRS of a raster file using gdalinfo.
-    
-    Returns:
-        Tuple of (crs_wkt, crs_epsg) where crs_epsg may be empty if not an EPSG code
-    """
+    import re as _re
     try:
         result = subprocess.run(
             ["gdalinfo", "-json", filepath],
-            capture_output=True,
-            text=True,
-            timeout=60,
+            capture_output=True, text=True, timeout=60,
         )
         if result.returncode != 0:
-            return ("", "")
-        
-        import json as json_module
-        info_data = json_module.loads(result.stdout)
-        
-        # Get CRS from coordinateSystem
-        crs_wkt = ""
-        crs_epsg = ""
-        
-        if "coordinateSystem" in info_data and "wkt" in info_data["coordinateSystem"]:
-            crs_wkt = info_data["coordinateSystem"]["wkt"]
-            
-            # Try to extract EPSG code from WKT
-            # Look for AUTHORITY["EPSG","XXXX"] pattern
-            import re
-            epsg_match = re.search(r'AUTHORITY\["EPSG","(\d+)"\]', crs_wkt)
-            if epsg_match:
-                crs_epsg = f"EPSG:{epsg_match.group(1)}"
-            else:
-                # Try ID["EPSG",XXXX] pattern (newer WKT2)
-                epsg_match = re.search(r'ID\["EPSG",(\d+)\]', crs_wkt)
-                if epsg_match:
-                    crs_epsg = f"EPSG:{epsg_match.group(1)}"
-        
-        return (crs_wkt, crs_epsg)
-        
+            return ""
+        coordinate_system = json.loads(result.stdout).get("coordinateSystem", {})
+
+        projjson_id = coordinate_system.get("projjson", {}).get("id", {})
+        if projjson_id.get("authority") == "EPSG" and projjson_id.get("code"):
+            return f"EPSG:{projjson_id['code']}"
+
+        wkt = coordinate_system.get("wkt", "")
+
+        # Prefer WKT2's top-level ID tags when present; otherwise fall back to
+        # WKT1 AUTHORITY tags and take the last match, which is the outermost CRS.
+        for pattern in (r'ID\["EPSG",(\d+)\]', r'AUTHORITY\["EPSG","(\d+)"\]'):
+            matches = _re.findall(pattern, wkt)
+            if matches:
+                return f"EPSG:{matches[-1]}"
     except Exception as e:
-        error(f"Failed to get CRS: {e}")
-        return ("", "")
+        error(f"Failed to read CRS from {filepath}: {e}")
+    return ""
 
 
 def cog_exists(s3_client, bucket: str, cog_key: str) -> bool:
@@ -185,25 +173,20 @@ def convert_to_cog(
                 "source_key": source_key,
                 "error": f"Download failed: {e}",
             }
-        
-        # Get source CRS for logging and verification
-        source_wkt, source_epsg = get_raster_crs(source_path)
-        if source_epsg:
-            info(f"Source CRS: {source_epsg}")
-        elif source_wkt:
-            info(f"Source CRS: (custom WKT, not EPSG)")
-        else:
-            # Fail if source has no CRS - data integrity requirement
-            error(f"Source file has no CRS defined: {source_key}")
-            error("Fix the source raster export to include SRID before converting to COG")
+
+        # Read the EPSG code from the source and assign it to the output COG.
+        # CartoDB exports embed a broken WKT datum name that PROJ 9+ rejects
+        # at tile-serve time; passing -a_srs rewrites it with a clean definition.
+        source_epsg = get_raster_epsg(source_path)
+        if not source_epsg:
+            error(f"Source file has no recognisable CRS: {source_key}")
             return {
                 "success": False,
                 "source_key": source_key,
-                "error": "Source file has no CRS defined. Cannot convert to COG without valid CRS.",
+                "error": "Source file has no CRS. Fix the export before converting.",
             }
-        
-        # Build gdal_translate command
-        # CRS is preserved by default when converting to COG
+        info(f"Source CRS: {source_epsg}")
+
         cmd = [
             "gdal_translate",
             "-of", "COG",
@@ -211,8 +194,8 @@ def convert_to_cog(
             "-co", "BIGTIFF=IF_SAFER",
             "-co", "NUM_THREADS=ALL_CPUS",
             "-co", "OVERVIEWS=AUTO",
-            source_path,
-            cog_path,
+            "-a_srs", source_epsg,
+            source_path, cog_path,
         ]
         
         try:
@@ -244,24 +227,6 @@ def convert_to_cog(
                 "error": f"gdal_translate error: {e}",
             }
         
-        # Verify output CRS matches expected
-        output_wkt, output_epsg = get_raster_crs(cog_path)
-        if output_epsg:
-            info(f"Output CRS: {output_epsg}")
-        elif output_wkt:
-            info(f"Output CRS: (custom WKT preserved)")
-        else:
-            info(f"WARNING: Output has no CRS - source may have been missing CRS")
-        
-        # Verify CRS was preserved
-        if source_epsg and output_epsg and source_epsg != output_epsg:
-            error(f"CRS mismatch! Source: {source_epsg}, Output: {output_epsg}")
-            return {
-                "success": False,
-                "source_key": source_key,
-                "error": f"CRS not preserved: {source_epsg} -> {output_epsg}",
-            }
-        
         # Upload COG to S3
         try:
             info(f"Uploading to s3://{bucket}/{cog_key}")
@@ -272,14 +237,13 @@ def convert_to_cog(
                 "source_key": source_key,
                 "error": f"Upload failed: {e}",
             }
-    
+
     info(f"Successfully converted: {source_key} -> {cog_key}")
     return {
         "success": True,
         "source_key": source_key,
         "dest_key": cog_key,
-        "source_crs": source_epsg or "(custom)",
-        "output_crs": output_epsg or "(custom)",
+        "source_crs": source_epsg,
         "skipped": False,
     }
 

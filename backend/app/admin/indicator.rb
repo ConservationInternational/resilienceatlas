@@ -1,4 +1,10 @@
 ActiveAdmin.register Indicator do
+  menu label: "Indicators", parent: "Map Content", priority: 4
+
+  sidebar "About", only: :index do
+    para "Indicators represent individual data themes or metrics shown in the map. They belong to one or more categories and appear in the map's legend and analysis panel."
+  end
+
   includes :translations
   config.sort_order = "position_asc"
   config.paginate = false

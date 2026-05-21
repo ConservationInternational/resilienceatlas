@@ -15,7 +15,7 @@
 # different TiTiler instances.
 #
 class MigrateRasterLayersToCogProvider < ActiveRecord::Migration[7.2]
-  COG_S3_BASE_URL = "https://resilienceatlas.s3.dualstack.us-east-1.amazonaws.com/cogs/".freeze
+  COG_S3_BASE_URL = "s3://resilienceatlas/cogs/".freeze
 
   def up
     # Find all raster layers - join with translations to get name for logging
@@ -73,7 +73,7 @@ class MigrateRasterLayersToCogProvider < ActiveRecord::Migration[7.2]
       UPDATE layers
       SET layer_provider = 'raster'
       WHERE layer_provider = 'cog'
-      AND layer_config LIKE '%resilienceatlas.s3.dualstack%'
+      AND layer_config LIKE '%s3://resilienceatlas/cogs/%'
       AND layer_config LIKE '%"source":%'
     SQL
   end

@@ -13,7 +13,7 @@ test:
 
 amazon:
   service: S3
-  access_key_id: ""
-  secret_access_key: ""
-  bucket: ""
-  region: "" # e.g. 'us-east-1'
+  # Credentials are sourced from the EC2 instance role — do not set access_key_id
+  # or secret_access_key here. The AWS SDK credential chain handles it automatically.
+  bucket: <%= ENV.fetch('S3_BUCKET', 'resilienceatlas') %>
+  region: <%= ENV.fetch('AWS_REGION', 'us-east-1') %>

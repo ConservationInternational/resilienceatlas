@@ -1,16 +1,17 @@
 # SBTN Thresholds — Thresholds Site Scope Seed Script
 #
 # Creates a "thresholds" site scope with three categories (Exceedances,
-# Thresholds, Baselines), four indicator sub-groups each, twelve CartoDB map
-# layers, and three ScopeDatasets for the analysis panel.
+# Thresholds, Baselines), four indicator sub-groups each, twelve Martin-backed
+# vector map layers, and three ScopeDatasets for the analysis panel.
 #
 # Prerequisites:
 #   1. Run the Python preprocessor to generate sbtn_thresholds.csv:
 #        python db/data/thresholds/preprocess.py
-#   2. Upload sbtn_thresholds.csv to CartoDB as a table named "sbtn_thresholds"
-#      so the map layers can JOIN against it.
-#   3. The ldn_dissolved_geometries table must exist (run `rake ldn:build_dimensions`)
-#      for the analysis panel geometries to be populated.
+#   2. Load sbtn_thresholds.csv into the local database table named
+#      "sbtn_thresholds" so the Martin tile function can join against it.
+#      The tile function joins sbtn_thresholds with ecoregions2017 for geometry.
+#   3. The ecoregions2017 PostGIS table must exist (imported via the CartoDB
+#      migration pipeline or ogr2ogr) for tile serving to work.
 #
 # Run from the backend directory:
 #   bundle exec rails runner db/data/thresholds/seed.rb
@@ -117,7 +118,7 @@ module ThresholdsSeeder
     rescue => e
       puts "WARNING: Scope dataset creation failed (non-fatal): #{e.message}"
       puts "  Layers were created. Ensure sbtn_thresholds.csv exists and"
-      puts "  ldn_dissolved_geometries is populated, then re-run."
+      puts "  the sbtn_thresholds table is populated, then re-run."
     end
 
     puts "SBTN Thresholds seed completed successfully!"
@@ -168,10 +169,17 @@ module ThresholdsSeeder
     groups
   end
 
-  # ── CartoDB layers ────────────────────────────────────────────────────────
+  # ── Martin vector tile layers ─────────────────────────────────────────────
+  #
+  # Each layer uses the sbtn_thresholds_tiles Martin function source and a
+  # colorRamp config so the frontend applies choropleth fill colours from
+  # the indicator value properties embedded in every MVT feature.
+  #
+  # The sbtn_thresholds_tiles function is created by migration
+  # 20260515160000_create_sbtn_thresholds_tile_function.rb.
 
   def self.create_layers(groups)
-    puts "Creating CartoDB layers..."
+    puts "Creating Martin vector tile layers..."
 
     layer_order = 1
 
@@ -188,39 +196,36 @@ module ThresholdsSeeder
         # Only natural land exceedance is active by default
         active = ind_key == :natural_land && cat_key == :exceedances
 
-        css = build_css(value_col: value_col, cat_key: cat_key, ind: ind)
-        query = build_query(value_col: value_col, ind: ind)
-        legend = build_legend(value_col: value_col, cat_key: cat_key, ind: ind)
         inter_cfg = build_interaction_config(ind: ind)
-        interactivity = "eco_id, eco_name, biome_name, realm, " \
-                        "#{col}_baseline, #{col}_threshold, #{col}_exceedance"
+        legend = build_legend(value_col: value_col, cat_key: cat_key, ind: ind)
+        layer_config = build_martin_layer_config(value_col: value_col, cat_key: cat_key, ind: ind)
 
         layer = Layer.find_or_initialize_by(slug: layer_slug)
         layer.assign_attributes(
-          :layer_group_id => group.id,
-          :layer_type => "layer",
-          :layer_provider => "cartodb",
-          :active => active,
-          "order" => ind_order,
-          :dashboard_order => ind_order,
-          :color => "#2d6a4f",
-          :css => css,
-          :query => query,
-          :interactivity => interactivity,
-          :interaction_config => inter_cfg,
-          :opacity => 1.0,
-          :zoom_max => 24,
-          :zoom_min => 0,
-          :published => true,
-          :analysis_suitable => false,
-          :download => false,
-          :legend => legend,
-          :name => "#{ind[:label]} — #{cat[:label]}",
-          :info => "SBTN Thresholds: #{ind[:label]} #{cat[:label].downcase} " \
-                             "by ecoregion (#{ind[:unit]})",
-          :description => "#{cat[:description]} Indicator: #{ind[:label]}. Units: #{ind[:unit]}.",
-          :layer_config => nil,
-          :analysis_body => nil
+          layer_group_id: group.id,
+          layer_type: "layer",
+          layer_provider: "martin",
+          active: active,
+          order: ind_order,
+          dashboard_order: ind_order,
+          color: "#2d6a4f",
+          opacity: 1.0,
+          zoom_max: 24,
+          zoom_min: 0,
+          published: true,
+          analysis_suitable: false,
+          download: false,
+          legend: legend,
+          name: "#{ind[:label]} — #{cat[:label]}",
+          info: "SBTN Thresholds: #{ind[:label]} #{cat[:label].downcase} " \
+                "by ecoregion (#{ind[:unit]})",
+          description: "#{cat[:description]} Indicator: #{ind[:label]}. Units: #{ind[:unit]}.",
+          interaction_config: inter_cfg,
+          layer_config: layer_config.to_json,
+          css: nil,
+          query: nil,
+          interactivity: nil,
+          analysis_body: nil
         )
         layer.save!
 
@@ -238,6 +243,32 @@ module ThresholdsSeeder
         layer_order += 1
       end
     end
+  end
+
+  def self.build_martin_layer_config(value_col:, cat_key:, ind:)
+    if cat_key == :exceedances
+      breaks = ind[:exc_breaks]
+      colors = DIVERGING_13
+    else
+      breaks = ind[:seq_breaks]
+      colors = ind[:higher_is_better] ? VIRIDIS_13 : VIRIDIS_13_INV
+    end
+
+    {
+      body: {
+        source: "sbtn_thresholds_tiles",
+        colorRamp: {
+          property: value_col,
+          breaks: breaks,
+          colors: colors,
+          default: "#aaaaaa"
+        },
+        options: {
+          interactive: true,
+          maxNativeZoom: 8
+        }
+      }
+    }
   end
 
   # ── Scope datasets (analysis panel) ──────────────────────────────────────
@@ -272,6 +303,15 @@ module ThresholdsSeeder
     copy_csv_to_table(conn, TEMP_TABLE, DATA_CSV)
     row_count = conn.select_value("SELECT count(*) FROM #{TEMP_TABLE}")
     puts "  Loaded #{row_count} rows into #{TEMP_TABLE}"
+
+    # Refresh the persistent table used by the sbtn_thresholds_tiles Martin function.
+    if conn.table_exists?("sbtn_thresholds")
+      conn.execute("TRUNCATE TABLE sbtn_thresholds")
+      conn.execute("INSERT INTO sbtn_thresholds SELECT * FROM #{TEMP_TABLE}")
+      puts "  Refreshed sbtn_thresholds persistent table for Martin tiles (#{row_count} rows)"
+    else
+      puts "  WARNING: sbtn_thresholds table not found — run pending migrations first"
+    end
 
     display_order = 1
     CATEGORY_DEFS.each do |cat_key, cat|
@@ -317,78 +357,6 @@ module ThresholdsSeeder
     end
   ensure
     conn&.execute("DROP TABLE IF EXISTS #{TEMP_TABLE}")
-  end
-
-  # ── CSS helpers ───────────────────────────────────────────────────────────
-
-  def self.build_css(value_col:, cat_key:, ind:)
-    base = <<~CSS
-      #ecoregions2017 {
-        polygon-fill: #aaaaaa;
-        polygon-opacity: 0.8;
-        line-color: #ffffff;
-        line-width: 0.3;
-        line-opacity: 0.5;
-      }
-      #ecoregions2017 [#{value_col}=null] { polygon-fill: #aaaaaa; }
-    CSS
-
-    if cat_key == :exceedances
-      exceedance_rules(value_col: value_col, ind: ind, base: base)
-    else
-      sequential_rules(value_col: value_col, ind: ind, base: base)
-    end
-  end
-
-  def self.exceedance_rules(value_col:, ind:, base:)
-    # For all indicators the sign already encodes direction:
-    #   negative exceedance = meeting/exceeding the target = good → green
-    #   positive exceedance = failing to meet the target   = bad  → red
-    # DIVERGING_13[0] is the darkest green (lowest/most-negative bin).
-    breaks = ind[:exc_breaks]
-    css = breaks.each_with_index.map do |brk, i|
-      if i == 0
-        "  #ecoregions2017 [#{value_col} < #{brk}] { polygon-fill: #{DIVERGING_13[0]}; }"
-      else
-        "  #ecoregions2017 [#{value_col} >= #{breaks[i - 1]}][#{value_col} < #{brk}] { polygon-fill: #{DIVERGING_13[i]}; }"
-      end
-    end
-    css << "  #ecoregions2017 [#{value_col} >= #{breaks.last}] { polygon-fill: #{DIVERGING_13[12]}; }"
-    base + css.join("\n") + "\n"
-  end
-
-  def self.sequential_rules(value_col:, ind:, base:)
-    breaks = ind[:seq_breaks]
-    colors = ind[:higher_is_better] ? VIRIDIS_13 : VIRIDIS_13_INV
-    css = breaks.each_with_index.map do |brk, i|
-      if i == 0
-        "  #ecoregions2017 [#{value_col} < #{brk}] { polygon-fill: #{colors[0]}; }"
-      else
-        "  #ecoregions2017 [#{value_col} >= #{breaks[i - 1]}][#{value_col} < #{brk}] { polygon-fill: #{colors[i]}; }"
-      end
-    end
-    css << "  #ecoregions2017 [#{value_col} >= #{breaks.last}] { polygon-fill: #{colors[12]}; }"
-    base + css.join("\n") + "\n"
-  end
-
-  # ── CartoDB SQL query ─────────────────────────────────────────────────────
-
-  def self.build_query(value_col:, ind:)
-    col = ind[:col]
-    <<~SQL.strip
-      SELECT
-        e.cartodb_id,
-        e.the_geom_webmercator,
-        e.eco_id,
-        e.eco_name,
-        e.biome_name,
-        e.realm,
-        t.#{col}_baseline,
-        t.#{col}_threshold,
-        t.#{col}_exceedance
-      FROM ecoregions2017 e
-      LEFT JOIN sbtn_thresholds t ON e.eco_id::int = t.eco_id
-    SQL
   end
 
   # ── Legend JSON ───────────────────────────────────────────────────────────

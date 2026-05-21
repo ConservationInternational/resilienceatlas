@@ -86,6 +86,18 @@ namespace :db do
     Rake::Task["db:schema:load"].enhance(["db:drop_nonessential_postgis_extensions"])
   end
 
+  # Same protection for db:test:load_schema (triggered by Rails when schema.rb
+  # version doesn't match the latest migration recorded in schema_migrations).
+  # After loading the schema, run db:migrate so all pending migrations are applied
+  # and schema_migrations is fully populated — preventing PendingMigrationError.
+  if Rake::Task.task_defined?("db:test:load_schema")
+    Rake::Task["db:test:load_schema"].enhance(["db:drop_nonessential_postgis_extensions"])
+    Rake::Task["db:test:load_schema"].enhance do
+      Rake::Task["db:migrate"].reenable
+      Rake::Task["db:migrate"].invoke
+    end
+  end
+
   def with_config
     yield Rails.application.class.parent_name.underscore,
       ActiveRecord::Base.connection_db_config.configuration_hash[:host],

@@ -1,0 +1,33 @@
+{
+  "id": "doc::providers::esri",
+  "title": "ESRI (ArcGIS REST) Provider",
+  "description": "ArcGIS REST tile services (MapServer, TileServer, ImageServer). Use for ESRI/Esri-hosted datasets.",
+  "layer_provider": "esri",
+  "layer_config_schema": {
+    "body": {
+      "url": "ArcGIS REST service endpoint, e.g. 'https://server.arcgisonline.com/arcgis/rest/services/World_Imagery/MapServer'. Do NOT append /tile/{z}/{y}/{x} — the plugin does that.",
+      "params": {
+        "layers": "Optional: show/hide specific sub-layers, e.g. 'show:0,1,2'.",
+        "transparent": "Boolean, default false for basemaps, true for overlays.",
+        "format": "Image format, e.g. 'png24' or 'png32' or 'jpg'.",
+        "dpi": "Resolution, default 96.",
+        "f": "Response format, always 'image' for tiles."
+      }
+    }
+  },
+  "examples": [
+    {
+      "description": "World Imagery basemap from ArcGIS Online",
+      "layer_config": "{\"body\":{\"url\":\"https://server.arcgisonline.com/arcgis/rest/services/World_Imagery/MapServer\"}}"
+    },
+    {
+      "description": "ArcGIS MapServer with specific layers visible",
+      "layer_config": "{\"body\":{\"url\":\"https://example.arcgis.com/arcgis/rest/services/MyService/MapServer\",\"params\":{\"layers\":\"show:0,1\",\"transparent\":true,\"format\":\"png24\"}}}"
+    }
+  ],
+  "notes": [
+    "The URL should be the service root (e.g. .../MapServer) not a tile URL.",
+    "ArcGIS Online services often require authentication — check if the service is public.",
+    "For tiled cache services, the plugin uses ol/source/TileArcGISRest which handles tile URLs automatically."
+  ]
+}

@@ -1,4 +1,10 @@
 ActiveAdmin.register Source do
+  menu label: "Sources", parent: "Data", priority: 2
+
+  sidebar "About", only: :index do
+    para "Sources record the attribution and provenance of layer data, including the organisation name, publication year, and reference URL. Each source can be linked to one or more layers."
+  end
+
   includes :translations
   permit_params :source_type, :url, :contact_name, :contact_email, :last_updated, :version, :spatial_resolution_units, :license_url,
     translations_attributes: [:id, :locale, :reference, :reference_short, :license, :_destroy]

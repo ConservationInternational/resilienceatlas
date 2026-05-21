@@ -56,6 +56,8 @@ Resources:
       Policies:
         - S3ReadPolicy:
             BucketName: trends.earth-private
+        - S3ReadPolicy:
+            BucketName: resilienceatlas
       Events:
         API:
           Type: Api

@@ -1,4 +1,10 @@
 ActiveAdmin.register SitePage do
+  menu label: "Site Pages", parent: "Sites", priority: 2
+
+  sidebar "About", only: :index do
+    para "Site pages are custom informational pages attached to a specific site scope — for example, an About page or Methodology section for a particular scope."
+  end
+
   includes :translations, site_scope: :translations
   permit_params :priority, :slug, :site_scope_id,
     translations_attributes: [:id, :locale, :title, :body, :_destroy]

@@ -24,6 +24,7 @@ RUN for i in {1..3}; do \
         npm \
         postgresql-client \
         curl \
+        awscli \
       && rm -rf /var/lib/apt/lists/* && break || \
       ([ $i -eq 3 ] && echo "❌ Failed to install packages after 3 attempts" && exit 1) || \
       (echo "⚠️ Package installation attempt $i failed, retrying in 10 seconds..." && sleep 10); \
@@ -185,6 +186,7 @@ RUN RAILS_ENV=production \
     SECRET_KEY_BASE=placeholder_for_precompile \
     DATABASE_URL=postgres://localhost/dummy \
     BACKEND_URL=http://localhost:3001 \
+    CORS_WHITELIST=localhost \
     bundle exec rake assets:precompile
 
 # Expose port 3001

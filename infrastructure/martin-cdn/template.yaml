@@ -65,13 +65,17 @@ Resources:
             CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad  # AWS managed CachingDisabled
             OriginRequestPolicyId: !Ref TileOriginRequestPolicy
 
-  # Cache policy — path-only cache key (MVT tiles have no query strings)
+  # Cache policy — path + 'table' query param in cache key.
+  # boundary_tiles and scope_dataset_tiles use no query params; ra_vector_tile
+  # uses ?table=<name> to identify which ra_vector table to serve.
+  # Whitelisting 'table' ensures each table gets its own cache partition while
+  # unrecognised params are not included in (or forwarded via) the cache key.
   TileCachePolicy:
     Type: AWS::CloudFront::CachePolicy
     Properties:
       CachePolicyConfig:
         Name: !Sub "${AWS::StackName}-TileCachePolicy"
-        Comment: "Cache policy for Martin vector tiles — path-only key"
+        Comment: "Cache policy for Martin vector tiles — path + table param key"
         DefaultTTL: !Ref CacheTTL
         MaxTTL: 604800  # 7 days
         MinTTL: 1
@@ -81,17 +85,20 @@ Resources:
           HeadersConfig:
             HeaderBehavior: none  # No headers in cache key
           QueryStringsConfig:
-            QueryStringBehavior: none  # MVT tiles have no query params
+            QueryStringBehavior: whitelist  # Include 'table' param in cache key
+            QueryStrings:
+              - table
           EnableAcceptEncodingGzip: true
           EnableAcceptEncodingBrotli: true
 
   # Origin request policy — forwards Host header for ALB host-based routing
+  # and the 'table' query param for ra_vector_tile function sources.
   TileOriginRequestPolicy:
     Type: AWS::CloudFront::OriginRequestPolicy
     Properties:
       OriginRequestPolicyConfig:
         Name: !Sub "${AWS::StackName}-TileOriginRequestPolicy"
-        Comment: "Forward Host header to ALB for routing, Origin for CORS"
+        Comment: "Forward Host header to ALB for routing, Origin for CORS, table param to Martin"
         CookiesConfig:
           CookieBehavior: none
         HeadersConfig:
@@ -100,7 +107,9 @@ Resources:
             - Host    # Required: ALB routes by Host header
             - Origin  # Required: Martin returns CORS headers
         QueryStringsConfig:
-          QueryStringBehavior: none
+          QueryStringBehavior: whitelist  # Forward 'table' param so Martin receives it
+          QueryStrings:
+            - table
 
   # ACM Certificate — must be in us-east-1 for CloudFront
   CloudFrontCertificate:

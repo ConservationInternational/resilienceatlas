@@ -1,4 +1,10 @@
 ActiveAdmin.register LayerGroup do
+  menu label: "Layer Groups", parent: "Map Content", priority: 2
+
+  sidebar "About", only: :index do
+    para "Layer groups organise related map layers into collapsible sections within the map's layer panel, controlling how layers are grouped and ordered for the user."
+  end
+
   permit_params :name, :slug, :category, :active, :order, :info, :layer_group_type, :super_group_id, :icon_class,
     :site_scope_id, agrupations_attributes: [:layer_id, :id, :active, :_destroy],
     translations_attributes: [:id, :locale, :name, :info, :_destroy]
