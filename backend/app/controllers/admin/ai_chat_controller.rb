@@ -28,6 +28,7 @@ class Admin::AiChatController < ApplicationController
     bedrock = Aws::BedrockAgentRuntime::Client.new(region: BEDROCK_REGION)
 
     response_text = []
+    started_at = Time.current
     bedrock.invoke_agent(
       agent_id: BEDROCK_AGENT_ID,
       agent_alias_id: BEDROCK_AGENT_ALIAS_ID,
@@ -43,11 +44,32 @@ class Admin::AiChatController < ApplicationController
       end
     end
 
+    elapsed = Time.current - started_at
     response_body = response_text.join
+
+    if response_body.blank?
+      Rails.logger.warn "AiChat: Bedrock returned empty response after #{elapsed.round(1)}s " \
+                        "(session=#{session_id} user=#{current_admin_user.id})"
+      Rollbar.warning("AI chat: Bedrock returned empty response",
+                      session_id: session_id,
+                      admin_user_id: current_admin_user.id,
+                      elapsed_seconds: elapsed.round(1))
+      return render json: {
+        success: false,
+        message: "The agent didn't return a response. This can happen when it gets " \
+                 "confused during multi-step tasks — please try rephrasing or resetting the conversation."
+      }, status: :service_unavailable
+    end
+
+    Rails.logger.info "AiChat: Bedrock response received in #{elapsed.round(1)}s " \
+                      "(#{response_body.length} chars, session=#{session_id})"
+
     persist_messages(session_id, user_message, response_body)
 
     render json: {success: true, message: response_body, session_id: session_id}
   rescue Aws::BedrockAgentRuntime::Errors::ServiceError => e
+    Rails.logger.error "AiChat: Bedrock service error: #{e.class}: #{e.message}"
+    Rollbar.error(e, session_id: session_id, admin_user_id: current_admin_user&.id)
     render json: {success: false, message: "Agent error: #{e.message}"}, status: :service_unavailable
   rescue => e
     Rails.logger.error "Admin AI chat error: #{e.class}: #{e.message}"
