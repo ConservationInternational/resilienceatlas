@@ -179,8 +179,7 @@ resource "aws_bedrockagent_agent_alias" "live" {
   description      = "Production-ready alias for ${var.environment}"
 
   routing_configuration {
-    agent_version = "5"
-  }
+      agent_version = "7"
 
   lifecycle {
     # Agent versions are immutable; update routing manually when promoting a
