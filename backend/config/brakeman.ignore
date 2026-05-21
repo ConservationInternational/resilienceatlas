@@ -68,8 +68,100 @@
         352
       ],
       "note": ""
+    },
+    {
+      "warning_type": "SQL Injection",
+      "warning_code": 0,
+      "fingerprint": "13b70468e7f3dae9f5da2e155c1fcdc89a2574db5243509ec3f00163ac71c33b",
+      "check_name": "SQL",
+      "message": "Possible SQL injection",
+      "file": "app/jobs/vector_import_job.rb",
+      "line": 123,
+      "link": "https://brakemanscanner.org/docs/warning_types/sql_injection/",
+      "code": "ActiveRecord::Base.connection.execute(\"CREATE INDEX IF NOT EXISTS #{ActiveRecord::Base.connection.quote_table_name(\"idx_#{table_name}_#{col}\"[0, 63])} ON \\\"#{\"ra_vector\"}\\\".\\\"#{table_name}\\\" USING GIST (\\\"#{col}\\\")\")",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "VectorImportJob",
+        "method": "create_spatial_index"
+      },
+      "user_input": "table_name",
+      "confidence": "Medium",
+      "cwe_id": [
+        89
+      ],
+      "note": "False positive: table and column identifiers are validated and quoted before interpolation."
+    },
+    {
+      "warning_type": "Command Injection",
+      "warning_code": 14,
+      "fingerprint": "3167dca553271b09cc50155d5741f0f7dde5a7e15df03e2add5d6173a7549f54",
+      "check_name": "Execute",
+      "message": "Possible command injection",
+      "file": "app/jobs/vector_import_job.rb",
+      "line": 104,
+      "link": "https://brakemanscanner.org/docs/warning_types/command_injection/",
+      "code": "Open3.capture3(\"ogr2ogr\", \"-f\", \"PostgreSQL\", \"PG:#{build_pg_url}\", local_path, \"-nln\", \"#{\"ra_vector\"}.#{table_name}\", \"-nlt\", \"PROMOTE_TO_MULTI\", \"-t_srs\", \"EPSG:4326\", \"-overwrite\", \"--config\", \"OGR_TRUNCATE\", \"YES\")",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "VectorImportJob",
+        "method": "ogr2ogr_import!"
+      },
+      "user_input": "build_pg_url",
+      "confidence": "Medium",
+      "cwe_id": [
+        77
+      ],
+      "note": "False positive: Open3.capture3 is called without a shell and arguments are passed as an array."
+    },
+    {
+      "warning_type": "SQL Injection",
+      "warning_code": 0,
+      "fingerprint": "3949b7744f7f9535aa9365383c6a45d2d45391a788abd85ab2b8272b469aab35",
+      "check_name": "SQL",
+      "message": "Possible SQL injection",
+      "file": "app/jobs/vector_import_job.rb",
+      "line": 116,
+      "link": "https://brakemanscanner.org/docs/warning_types/sql_injection/",
+      "code": "ActiveRecord::Base.connection.execute(\"SELECT f_geometry_column FROM geometry_columns WHERE f_table_schema = '#{\"ra_vector\"}' AND f_table_name = '#{table_name}'\")",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "VectorImportJob",
+        "method": "create_spatial_index"
+      },
+      "user_input": "table_name",
+      "confidence": "Medium",
+      "cwe_id": [
+        89
+      ],
+      "note": "False positive: table_name is normalized to a safe identifier before this query runs."
+    },
+    {
+      "warning_type": "Command Injection",
+      "warning_code": 14,
+      "fingerprint": "85a57cc113771e2d5e3fab92db0071fc79dc6a3166d100d63f66dac0fa74a093",
+      "check_name": "Execute",
+      "message": "Possible command injection",
+      "file": "app/controllers/api/admin/vector_tables_controller.rb",
+      "line": 107,
+      "link": "https://brakemanscanner.org/docs/warning_types/command_injection/",
+      "code": "Open3.capture3({ \"PGPASSWORD\" => pg_password }, \"ogr2ogr\", \"-f\", \"PostgreSQL\", build_pg_connection_string, build_gdal_path(params.require(:s3_uri)), \"-nln\", (params[:table_name] or derive_table_name(params.require(:s3_uri))), \"-overwrite\", \"-t_srs\", \"EPSG:4326\", \"--config\", \"GDAL_HTTP_TIMEOUT\", \"30\")",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "Api::Admin::VectorTablesController",
+        "method": "import"
+      },
+      "user_input": "params.require(:s3_uri)",
+      "confidence": "High",
+      "cwe_id": [
+        77
+      ],
+      "note": "False positive: URI and table name are validated before invocation and Open3.capture3 is invoked without a shell."
     }
   ],
-  "updated": "2026-01-20 22:00:00 +0000",
+  "updated": "2026-05-21 13:16:00 +0000",
   "brakeman_version": "6.2.2"
 }

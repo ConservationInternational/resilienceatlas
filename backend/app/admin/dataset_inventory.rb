@@ -8,7 +8,7 @@ ActiveAdmin.register_page "Dataset Inventory" do
 
     table_name = params[:table_name].to_s
       .gsub(/[^a-zA-Z0-9_]/, "_").downcase.slice(0, 63).presence
-    csv_file   = params[:csv_file]
+    csv_file = params[:csv_file]
 
     if table_name.blank? || csv_file.blank?
       redirect_to admin_dataset_inventory_path(section: "nonspatial"),
@@ -30,7 +30,7 @@ ActiveAdmin.register_page "Dataset Inventory" do
       raise "No columns detected in the CSV file." if col_types.blank?
 
       q_schema = ar_conn.quote_table_name(nonspatial_schema)
-      q_table  = ar_conn.quote_table_name(table_name)
+      q_table = ar_conn.quote_table_name(table_name)
       ar_conn.execute("CREATE SCHEMA IF NOT EXISTS #{q_schema}")
       ar_conn.execute("DROP TABLE IF EXISTS #{q_schema}.#{q_table}")
       col_defs = col_types.map { |c, t| "#{ar_conn.quote_column_name(c)} #{t}" }.join(", ")
@@ -170,8 +170,7 @@ ActiveAdmin.register_page "Dataset Inventory" do
           text_node(
             select_tag("vector_import_layer_id",
               options_for_select([["— select a layer —", ""]] + layer_opts.map { |id, slug| ["#{id}: #{slug}", id] }),
-              style: "width:340px"
-            ) +
+              style: "width:340px") +
             " ".html_safe +
             button_tag("→ Go to Import Page", type: "button", class: "button",
               onclick: "var v=document.getElementById('vector_import_layer_id').value; if(v){window.location='/admin/layers/'+v+'/import_vector'}else{alert('Please select a layer first')}; return false;")
@@ -320,8 +319,7 @@ ActiveAdmin.register_page "Dataset Inventory" do
         text_node(
           select_tag("cog_upload_layer_id",
             options_for_select([["— select a layer —", ""]] + cog_layer_opts.map { |id, slug| ["#{id}: #{slug}", id] }),
-            style: "width:340px"
-          ) +
+            style: "width:340px") +
           " ".html_safe +
           button_tag("→ Go to Upload Page", type: "button", class: "button",
             onclick: "var v=document.getElementById('cog_upload_layer_id').value; if(v){window.location='/admin/layers/'+v+'/upload_cog'}else{alert('Please select a layer first')}; return false;")

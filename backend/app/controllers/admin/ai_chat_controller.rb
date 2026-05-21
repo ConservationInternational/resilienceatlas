@@ -102,10 +102,18 @@ class Admin::AiChatController < ApplicationController
   # Wrapped in rescue so a DB error never breaks the chat response.
   def persist_messages(session_id, user_text, agent_text)
     user = current_admin_user
-    AiChatMessage.create!(admin_user: user, bedrock_session_id: session_id,
-                          role: "user",  content: user_text)
-    AiChatMessage.create!(admin_user: user, bedrock_session_id: session_id,
-                          role: "agent", content: agent_text)
+    AiChatMessage.create!(
+      admin_user: user,
+      bedrock_session_id: session_id,
+      role: "user",
+      content: user_text
+    )
+    AiChatMessage.create!(
+      admin_user: user,
+      bedrock_session_id: session_id,
+      role: "agent",
+      content: agent_text
+    )
   rescue => e
     Rails.logger.warn "AI chat: failed to persist messages: #{e.message}"
   end

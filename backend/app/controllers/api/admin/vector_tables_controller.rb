@@ -12,7 +12,7 @@ class Api::Admin::VectorTablesController < Api::Admin::ApiController
   # Lists all PostGIS tables in managed schemas with row counts and linked layers.
   def index
     svc = DatasetInventoryService.new
-    q   = params[:q].presence&.downcase
+    q = params[:q].presence&.downcase
 
     rows = [
       svc.nonspatial_tables(per_page: 2000)[:rows],
@@ -41,14 +41,14 @@ class Api::Admin::VectorTablesController < Api::Admin::ApiController
   # Returns columns (with types), sample rows, and total row count.
   def show
     table_name = params[:id]
-    svc        = DatasetInventoryService.new
+    svc = DatasetInventoryService.new
 
-    data         = nil
+    data = nil
     found_schema = nil
     MANAGED_SCHEMAS.each do |schema|
       result = svc.table_data(schema, table_name, page: 1, per_page: 10)
       if result
-        data         = result
+        data = result
         found_schema = schema
         break
       end
@@ -57,7 +57,7 @@ class Api::Admin::VectorTablesController < Api::Admin::ApiController
     unless found_schema
       return render json: {
         success: false,
-        message: "Table '#{table_name}' not found in any managed schema (#{MANAGED_SCHEMAS.join(', ')})."
+        message: "Table '#{table_name}' not found in any managed schema (#{MANAGED_SCHEMAS.join(", ")})."
       }, status: :not_found
     end
 
@@ -197,8 +197,10 @@ class Api::Admin::VectorTablesController < Api::Admin::ApiController
       "SELECT COUNT(*) AS n FROM #{conn.quote_table_name(table_name)}"
     ).first["n"].to_i
 
-    excluded_cols = %w[ogc_fid the_geom the_geom_webmercator wkb_geometry
-                      created_at updated_at cartodb_id]
+    excluded_cols = %w[
+      ogc_fid the_geom the_geom_webmercator wkb_geometry
+      created_at updated_at cartodb_id
+    ]
     columns = conn.columns(table_name)
       .reject { |c| excluded_cols.include?(c.name) }
       .map { |c| {name: c.name, type: c.sql_type} }

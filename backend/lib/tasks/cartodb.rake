@@ -313,9 +313,11 @@ module CartodbRakeHelpers
 
     col_samples = {}
 
-    opener = file_path.to_s.end_with?(".gz") \
-      ? ->(p, &b) { Zlib::GzipReader.open(p, &b) } \
-      : ->(p, &b) { File.open(p, encoding: "UTF-8", &b) }
+    opener = if file_path.to_s.end_with?(".gz")
+      ->(p, &b) { Zlib::GzipReader.open(p, &b) }
+    else
+      ->(p, &b) { File.open(p, encoding: "UTF-8", &b) }
+    end
 
     opener.call(file_path) do |io|
       csv = CSV.new(io, headers: true)
@@ -2059,7 +2061,6 @@ namespace :cartodb do
   DESC
   task configure_martin_layers: :environment do
     target_schema = ENV.fetch("CARTODB_IMPORT_SCHEMA", "ra_vector")
-    nonspatial_schema = ENV.fetch("CARTODB_NONSPATIAL_SCHEMA", "ra_nonspatial")
     dry_run = ENV["DRY_RUN"] == "1"
     force = ENV["FORCE"] == "1"
 
@@ -2122,7 +2123,6 @@ namespace :cartodb do
           next
         end
 
-        primary_table = imported.first
         all_ready = missing.empty?
 
         # ── Determine Martin source ──────────────────────────────────────────
