@@ -38,7 +38,10 @@ paths:
     post:
       operationId: list_site_scopes
       summary: List all available site scopes (Atlas instances)
-      description: Returns all site scopes with id, name, and subdomain. Use to find the correct site_scope_id before creating layers.
+      description: |
+        Returns all site scopes with id, name, and subdomain.
+        ALWAYS call this first to resolve a site scope name to its numeric ID before creating layers.
+        Never ask the user for a numeric site scope ID — look it up here.
       requestBody:
         required: false
         content:
@@ -48,6 +51,29 @@ paths:
       responses:
         "200":
           description: JSON array of [{id, name, subdomain}]
+
+  /list_layer_groups:
+    post:
+      operationId: list_layer_groups
+      summary: List layer groups (categories) for a site scope
+      description: |
+        Returns layer groups with id, name, and layer count for the given site scope.
+        ALWAYS call this to resolve a category/group name to its numeric layer_group_id before creating layers.
+        Never ask the user for a numeric layer_group_id — look it up here.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [site_scope_id]
+              properties:
+                site_scope_id:
+                  type: integer
+                  description: The site scope ID whose layer groups to list
+      responses:
+        "200":
+          description: JSON array of [{id, name, layers_count}]
 
   /list_layers:
     post:
@@ -152,8 +178,14 @@ paths:
                   default: true
                 zoom_min:
                   type: integer
+                  minimum: 0
+                  maximum: 24
+                  description: Minimum zoom level (0–24). Defaults to 0 if omitted.
                 zoom_max:
                   type: integer
+                  minimum: 0
+                  maximum: 24
+                  description: Maximum zoom level (0–24). Must be >= zoom_min. Defaults to 18 if omitted.
                 color:
                   type: string
                   description: Hex color for legend swatch
@@ -203,8 +235,14 @@ paths:
                   type: boolean
                 zoom_min:
                   type: integer
+                  minimum: 0
+                  maximum: 24
+                  description: Minimum zoom level (0–24).
                 zoom_max:
                   type: integer
+                  minimum: 0
+                  maximum: 24
+                  description: Maximum zoom level (0–24). Must be >= zoom_min.
                 color:
                   type: string
                 analysis_suitable:

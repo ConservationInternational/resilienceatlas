@@ -180,35 +180,78 @@ module ThresholdsSeeder
   #
   # The colorRamp config tells the frontend which MVT property to colour on.
 
-  # Ensures the v_sbtn_thresholds view exists (idempotent — CREATE OR REPLACE).
-  # Called at the start of create_layers so a bare seed run (without having run
-  # migration 20260521110000 first) still works.
+  MATVIEW_SQL = <<~SQL.freeze
+    SELECT
+      t.eco_id,
+      t.ecoregion,
+      e.eco_name,
+      e.biome_name,
+      e.realm,
+      t.natural_land_baseline,
+      t.natural_land_threshold,
+      t.natural_land_exceedance,
+      t.nitrogen_dep_baseline,
+      t.nitrogen_dep_threshold,
+      t.nitrogen_dep_exceedance,
+      t.soil_erosion_baseline,
+      t.soil_erosion_threshold,
+      t.soil_erosion_exceedance,
+      t.soc_baseline,
+      t.soc_threshold,
+      t.soc_exceedance,
+      ST_MakeValid(e.geom) AS geom
+    FROM ra_nonspatial.sbtn_thresholds t
+    JOIN ra_vector.ecoregions2017 e ON e.eco_id::integer = t.eco_id
+  SQL
+
+  # Ensures ra_vector.v_sbtn_thresholds exists as a MATERIALIZED VIEW with a
+  # GiST spatial index.  Idempotent — safe to call multiple times.
+  #
+  # Uses a materialized view (not a regular view) so that:
+  #   - The GiST index forces the planner to use a spatial index scan per tile
+  #     instead of loading all ecoregion geometry in a full JOIN scan.
+  #   - ST_MakeValid prevents PostGIS SIGSEGV on any invalid geometry rows.
+  #
+  # Call refresh_view! separately after populating ra_nonspatial.sbtn_thresholds.
   def self.ensure_view!
-    ActiveRecord::Base.connection.execute(<<~SQL)
-      CREATE OR REPLACE VIEW ra_vector.v_sbtn_thresholds AS
-      SELECT
-        t.eco_id,
-        t.ecoregion,
-        e.eco_name,
-        e.biome_name,
-        e.realm,
-        t.natural_land_baseline,
-        t.natural_land_threshold,
-        t.natural_land_exceedance,
-        t.nitrogen_dep_baseline,
-        t.nitrogen_dep_threshold,
-        t.nitrogen_dep_exceedance,
-        t.soil_erosion_baseline,
-        t.soil_erosion_threshold,
-        t.soil_erosion_exceedance,
-        t.soc_baseline,
-        t.soc_threshold,
-        t.soc_exceedance,
-        e.geom
-      FROM ra_nonspatial.sbtn_thresholds t
-      JOIN ra_vector.ecoregions2017 e ON e.eco_id::integer = t.eco_id
+    conn = ActiveRecord::Base.connection
+
+    relkind = conn.select_value(<<~SQL)
+      SELECT c.relkind
+      FROM pg_class c
+      JOIN pg_namespace n ON n.oid = c.relnamespace
+      WHERE n.nspname = 'ra_vector' AND c.relname = 'v_sbtn_thresholds'
     SQL
-    puts "  Ensured view ra_vector.v_sbtn_thresholds"
+
+    if relkind == "m"
+      puts "  Materialized view ra_vector.v_sbtn_thresholds already exists"
+      return
+    end
+
+    # Drop any existing regular view (relkind 'v') before creating the mat view.
+    conn.execute("DROP VIEW IF EXISTS ra_vector.v_sbtn_thresholds CASCADE") if relkind == "v"
+
+    conn.execute(<<~SQL)
+      CREATE MATERIALIZED VIEW ra_vector.v_sbtn_thresholds AS
+      #{MATVIEW_SQL}
+      WITH DATA
+    SQL
+    conn.execute(<<~SQL)
+      CREATE INDEX v_sbtn_thresholds_geom_idx
+        ON ra_vector.v_sbtn_thresholds
+        USING GIST (geom)
+    SQL
+    puts "  Created materialized view ra_vector.v_sbtn_thresholds"
+  end
+
+  # Refreshes the materialized view so tile queries reflect the latest data in
+  # ra_nonspatial.sbtn_thresholds.  Call after inserting/truncating that table.
+  def self.refresh_view!
+    conn = ActiveRecord::Base.connection
+    conn.execute("REFRESH MATERIALIZED VIEW ra_vector.v_sbtn_thresholds")
+    puts "  Refreshed materialized view ra_vector.v_sbtn_thresholds"
+  rescue => e
+    puts "  WARNING: could not refresh materialized view: #{e.message}"
   end
 
   def self.create_layers(groups)
@@ -343,6 +386,8 @@ module ThresholdsSeeder
       conn.execute("TRUNCATE TABLE ra_nonspatial.sbtn_thresholds")
       conn.execute("INSERT INTO ra_nonspatial.sbtn_thresholds SELECT * FROM #{TEMP_TABLE}")
       puts "  Refreshed ra_nonspatial.sbtn_thresholds (#{row_count} rows) for Martin tiles"
+      # Refresh the materialized view so the new data is visible to tile queries.
+      refresh_view!
     else
       puts "  WARNING: ra_nonspatial.sbtn_thresholds not found — run pending migrations first"
     end

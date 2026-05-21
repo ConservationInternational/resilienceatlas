@@ -27,22 +27,6 @@ import requests
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
-# Optional Rollbar integration for error tracking
-_rollbar_initialized = False
-try:
-    import rollbar
-    _rollbar_token = os.environ.get("ROLLBAR_ACCESS_TOKEN")
-    if _rollbar_token:
-        rollbar.init(
-            access_token=_rollbar_token,
-            environment=os.environ.get("ROLLBAR_ENVIRONMENT", "development"),
-            handler="blocking",
-        )
-        _rollbar_initialized = True
-        logger.info("Rollbar initialized for ai_agent action_groups function")
-except ImportError:
-    pass
-
 RAILS_API_URL = os.environ["RAILS_API_URL"]
 _sm = boto3.client("secretsmanager", region_name=os.environ.get("AWS_REGION", "us-east-1"))
 
@@ -334,6 +318,38 @@ def handle_get_layer(params: dict, auth: AuthContext) -> str:
     return json.dumps(summary, ensure_ascii=False)
 
 
+def _extract_rails_error(exc: requests.HTTPError) -> dict:
+    """Turn a Rails HTTP error into a structured dict the agent can read and act on."""
+    try:
+        body = exc.response.json()
+    except Exception:
+        body = {"error": exc.response.text or str(exc)}
+    # Rails validation failures surface as {"success":false,"error":"Validation failed: ..."}
+    message = body.get("error") or body.get("message") or f"HTTP {exc.response.status_code} error"
+    return {
+        "success": False,
+        "http_status": exc.response.status_code,
+        "message": message,
+        "details": body,
+    }
+
+
+def _validate_zoom(zoom_min, zoom_max) -> str | None:
+    """Return an error message string if zoom values are invalid, else None."""
+    for field, val in (("zoom_min", zoom_min), ("zoom_max", zoom_max)):
+        if val is not None:
+            try:
+                v = int(val)
+            except (TypeError, ValueError):
+                return f"{field} must be an integer, got {val!r}."
+            if not (0 <= v <= 24):
+                return (
+                    f"{field} must be between 0 and 24 (got {v}). "
+                    "Valid zoom levels are 0–24."
+                )
+    return None
+
+
 def handle_list_site_scopes(_params: dict, auth: AuthContext) -> str:
     result = rails_get("/api/admin/layers", params={"collection": "site_scopes"})
     all_scopes = result.get("data", [])
@@ -341,6 +357,24 @@ def handle_list_site_scopes(_params: dict, auth: AuthContext) -> str:
     if not auth.is_superadmin and auth.allowed_site_scope_ids is not None:
         all_scopes = [s for s in all_scopes if str(s.get("id")) in auth.allowed_site_scope_ids]
     return json.dumps(all_scopes, ensure_ascii=False)
+
+
+def handle_list_layer_groups(params: dict, auth: AuthContext) -> str:
+    site_scope_id = params.get("site_scope_id")
+    if not site_scope_id:
+        return json.dumps({"success": False, "message": "site_scope_id is required"})
+    if not auth.can_access_site_scope(site_scope_id):
+        return json.dumps({"success": False, "message": f"Access denied: not authorized for site scope {site_scope_id}."})
+    result = rails_get("/api/layer-groups", params={"site_scope": site_scope_id})
+    # Public API may return the array directly or wrapped in {"data": [...]}
+    groups = result.get("data", result) if isinstance(result, dict) else result
+    if not isinstance(groups, list):
+        groups = []
+    summary = [
+        {"id": g.get("id"), "name": g.get("name"), "layers_count": len(g.get("layers", []))}
+        for g in groups
+    ]
+    return json.dumps(summary, ensure_ascii=False)
 
 
 def handle_create_layer(params: dict, auth: AuthContext) -> str:
@@ -355,6 +389,11 @@ def handle_create_layer(params: dict, auth: AuthContext) -> str:
     # Contributors/staff may only create unpublished layers
     if auth.is_contributor:
         layer_fields["published"] = False
+
+    # Validate zoom constraints (Rails rejects zoom_min/zoom_max outside 0–24)
+    zoom_err = _validate_zoom(layer_fields.get("zoom_min"), layer_fields.get("zoom_max"))
+    if zoom_err:
+        return json.dumps({"success": False, "message": zoom_err})
 
     # NOTE: layer_config, interaction_config, and analysis_body are stored as JSON
     # strings in text columns. Send them as strings so Rails params.permit() treats
@@ -378,7 +417,13 @@ def handle_create_layer(params: dict, auth: AuthContext) -> str:
     body: dict = {"layer": layer_fields}
     if site_scope_id:
         body["site_scope_id"] = site_scope_id
-    result = rails_post("/api/admin/layers", body)
+    try:
+        result = rails_post("/api/admin/layers", body)
+    except requests.HTTPError as exc:
+        err = _extract_rails_error(exc)
+        logger.warning("AGENT_AUDIT create_layer FAILED slug=%s http_status=%s message=%s",
+                       slug, err.get("http_status"), err.get("message"))
+        return json.dumps(err, ensure_ascii=False)
     logger.info(
         "AGENT_AUDIT create_layer slug=%s provider=%s site_scope_id=%s admin_role=%s result_id=%s",
         slug, layer_fields.get("layer_provider"), site_scope_id, auth.role,
@@ -428,11 +473,22 @@ def handle_update_layer(params: dict, auth: AuthContext) -> str:
     if auth.is_contributor and params.get("published") is True:
         params["published"] = False
 
+    # Validate zoom constraints (Rails rejects zoom_min/zoom_max outside 0–24)
+    zoom_err = _validate_zoom(params.get("zoom_min"), params.get("zoom_max"))
+    if zoom_err:
+        return json.dumps({"success": False, "message": zoom_err})
+
     # NOTE: layer_config, interaction_config, and analysis_body are stored as JSON
     # strings in text columns. Send them as strings so Rails params.permit() treats
     # them as scalars (permit silently drops Hash values) and the JSON validator can
     # parse and validate them. Do NOT pre-parse them into dicts here.
-    result = rails_patch(f"/api/admin/layers/{layer_id}", {"layer": params})
+    try:
+        result = rails_patch(f"/api/admin/layers/{layer_id}", {"layer": params})
+    except requests.HTTPError as exc:
+        err = _extract_rails_error(exc)
+        logger.warning("AGENT_AUDIT update_layer FAILED layer_id=%s http_status=%s message=%s",
+                       layer_id, err.get("http_status"), err.get("message"))
+        return json.dumps(err, ensure_ascii=False)
     logger.info("AGENT_AUDIT update_layer layer_id=%s admin_role=%s fields=%s",
                 layer_id, auth.role, list(params.keys()))
     return json.dumps(result, ensure_ascii=False)
@@ -532,6 +588,7 @@ ACTION_HANDLERS = {
     "list_layers": handle_list_layers,
     "get_layer": handle_get_layer,
     "list_site_scopes": handle_list_site_scopes,
+    "list_layer_groups": handle_list_layer_groups,
     "list_tables": handle_list_tables,
     "describe_table": handle_describe_table,
     "create_layer": handle_create_layer,
@@ -629,11 +686,7 @@ def handler(event: dict, context: Any) -> dict:
     except requests.HTTPError as exc:
         error_text = f"API error {exc.response.status_code}: {exc.response.text[:500]}"
         logger.error("Action %s failed: %s", handler_key, error_text)
-        if _rollbar_initialized:
-            rollbar.report_exc_info(extra_data={"action": handler_key, "error_text": error_text})
         return make_response(event, error_text)
     except Exception as exc:
         logger.exception("Unexpected error in action %s", handler_key)
-        if _rollbar_initialized:
-            rollbar.report_exc_info(extra_data={"action": handler_key})
         return make_response(event, f"Error: {exc}")
