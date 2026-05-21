@@ -258,7 +258,6 @@ module ThresholdsSeeder
           layer_config: layer_config.to_json,
           css: nil,
           query: nil,
-          interactivity: nil,
           analysis_body: nil
         )
         layer.save!
