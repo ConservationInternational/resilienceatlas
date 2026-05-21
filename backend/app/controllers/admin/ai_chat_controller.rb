@@ -1,8 +1,10 @@
 class Admin::AiChatController < ApplicationController
-  # All chat endpoints receive JSON fetch requests from the admin panel.
-  # Use :null_session so CSRF verification never raises — the request is
-  # still protected by Devise's authenticate_admin_user! below.
-  protect_from_forgery with: :null_session
+  # Skip CSRF verification for the JSON fetch endpoints in this controller.
+  # Security is provided by authenticate_admin_user! (Devise session auth) below.
+  # CSRF token mismatch caused InvalidAuthenticityToken because form_authenticity_token
+  # is rendered at page load but the session state can diverge between page load and
+  # the async fetch, especially with SameSite=Lax cookie_store sessions.
+  skip_before_action :verify_authenticity_token
 
   before_action :authenticate_admin_user!
   before_action :check_rate_limit, only: [:message]
