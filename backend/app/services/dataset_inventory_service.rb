@@ -146,7 +146,7 @@ class DatasetInventoryService
       JOIN pg_namespace n ON n.nspname = t.table_schema
       JOIN pg_class c ON c.relname = t.table_name AND c.relnamespace = n.oid
       WHERE t.table_schema IN (#{quoted_schemas})
-        AND t.table_type = 'BASE TABLE'
+        AND t.table_type IN ('BASE TABLE', 'VIEW')
       ORDER BY t.table_schema, t.table_name
     SQL
 
