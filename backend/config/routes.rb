@@ -6,6 +6,12 @@ Rails.application.routes.draw do
   mount Rswag::Ui::Engine => "/api-docs"
   mount Rswag::Api::Engine => "/api-docs"
 
+  # Sidekiq Web UI — constrained to authenticated AdminUsers
+  require "sidekiq/web"
+  authenticate :admin_user do
+    mount Sidekiq::Web => "/admin/sidekiq"
+  end
+
   # Users
   get "/users/:id/profile/edit", to: "api/v1/users#edit", as: :edit_user
   patch "/users/:id/profile/update", to: "api/v1/users#update", as: :update_user
@@ -30,11 +36,26 @@ Rails.application.routes.draw do
           get :site_scopes
         end
       end
+      resources :vector_tables, only: [:index, :show] do
+        collection do
+          post :import
+        end
+      end
+      resources :scope_datasets, only: [:index, :show, :create, :update]
     end
     scope module: :v1 do
       get "layer-groups", to: "layer_groups#index", as: "layer_groups"
       get "/layers", to: "layers#index", as: "layers"
       get "/layers/:id/downloads", to: "layers#download_attachments", as: "download_attachments"
+
+      # S3 multipart upload coordination (used by Uppy in ActiveAdmin)
+      scope "uploads/multipart" do
+        post "/", to: "uploads#create_multipart"
+        get "/:upload_id", to: "uploads#sign_parts"
+        get "/:upload_id/batch", to: "uploads#batch_sign_parts"
+        post "/:upload_id/complete", to: "uploads#complete_multipart"
+        delete "/:upload_id", to: "uploads#abort_multipart"
+      end
       get "/share/:uid", to: "share_urls#show"
       post "/share", to: "share_urls#create"
       get "/sites", to: "sites#index"
@@ -55,6 +76,7 @@ Rails.application.routes.draw do
       get "/scope-datasets", to: "scope_datasets#index"
       get "/scope-datasets/intersecting-units", to: "scope_datasets#intersecting_units"
       get "/scope-datasets/geometry-at-point", to: "scope_datasets#geometry_at_point"
+      get "/scope-datasets/ldn-ecoregion-at-point", to: "scope_datasets#ldn_ecoregion_at_point"
       get "/scope-datasets/:slug/geometry-bounds/:unit_id", to: "scope_datasets#geometry_bounds"
       get "/scope-datasets/:slug", to: "scope_datasets#show"
 
@@ -76,4 +98,11 @@ Rails.application.routes.draw do
   # Admin routes
   devise_for :admin_users, ActiveAdmin::Devise.config
   ActiveAdmin.routes(self)
+
+  # Admin AI chat (non-API, lives under /admin/ai_chat/...)
+  namespace :admin do
+    post "ai_chat/message", to: "ai_chat#message"
+    post "ai_chat/reset", to: "ai_chat#reset"
+    get "ai_chat/history", to: "ai_chat#history"
+  end
 end

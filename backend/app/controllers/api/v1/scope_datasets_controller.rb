@@ -3,7 +3,7 @@ module Api
     class ScopeDatasetsController < ApiController
       include SitesFilters
 
-      skip_before_action :check_site_scope_authentication, only: [:index, :show, :intersecting_units, :geometry_bounds, :geometry_at_point]
+      skip_before_action :check_site_scope_authentication, only: [:index, :show, :intersecting_units, :geometry_bounds, :geometry_at_point, :ldn_ecoregion_at_point]
 
       def index
         datasets = ScopeDataset.for_site_scope(params[:site_scope])
@@ -126,6 +126,51 @@ module Api
         }
       end
 
+      def ldn_ecoregion_at_point
+        lat = params[:lat].to_f
+        lng = params[:lng].to_f
+
+        unless params[:lat].present? && params[:lng].present? &&
+            lat.between?(-90, 90) && lng.between?(-180, 180)
+          render json: {error: "Valid lat and lng parameters are required"}, status: :unprocessable_entity
+          return
+        end
+
+        unless table_exists_safely?("ecoregions2017")
+          render json: {rows: []}
+          return
+        end
+
+        methodology = params[:methodology].presence
+        stats_available = methodology.present? && table_exists_safely?("ldn_ecoregion_stats")
+
+        sql = +"SELECT e.eco_id, e.eco_name, e.biome_name, e.realm"
+        binds = []
+
+        if stats_available
+          sql << ", s.total_area_km2,"
+          sql << " (s.deg_to_deg_sqkm + s.deg_to_stable_sqkm + s.deg_to_imp_sqkm) AS baseline_degraded_sqkm,"
+          sql << " s.gains_km2, s.losses_km2, s.delta_ldn_km2, s.ldn_pct"
+        end
+
+        sql << " FROM ecoregions2017 e"
+
+        if stats_available
+          sql << " LEFT JOIN ldn_ecoregion_stats s"
+          sql << " ON e.eco_id::int = s.eco_id AND s.methodology = ?"
+          binds << methodology
+        end
+
+        sql << " WHERE ST_Contains(e.the_geom, ST_SetSRID(ST_MakePoint(?, ?), 4326)) LIMIT 1"
+        binds.concat([lng, lat])
+
+        result = ActiveRecord::Base.connection.select_one(
+          ActiveRecord::Base.sanitize_sql_array([sql, *binds])
+        )
+
+        render json: {rows: result ? [result] : []}
+      end
+
       def intersecting_units
         unless geometry_table_exists?
           render json: {}
@@ -176,6 +221,12 @@ module Api
 
       def geometry_table_exists?
         @geometry_table_exists ||= ActiveRecord::Base.connection.table_exists?("scope_dataset_geometries")
+      rescue ActiveRecord::StatementInvalid
+        false
+      end
+
+      def table_exists_safely?(table_name)
+        ActiveRecord::Base.connection.table_exists?(table_name)
       rescue ActiveRecord::StatementInvalid
         false
       end

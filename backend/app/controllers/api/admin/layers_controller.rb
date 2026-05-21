@@ -6,6 +6,20 @@ class Api::Admin::LayersController < Api::Admin::ApiController
 
   def index
     @layers = Layer.order("created_at DESC")
+    if params[:site_scope_id].present?
+      @layers = @layers.joins(layer_groups: :site_scopes)
+        .where(site_scopes: {id: params[:site_scope_id]})
+        .distinct
+    end
+    if params[:keyword].present?
+      kw = "%#{params[:keyword].downcase}%"
+      @layers = @layers.joins(:translations)
+        .where(layer_translations: {locale: I18n.default_locale})
+        .where(
+          "LOWER(layer_translations.name) LIKE :kw OR LOWER(layer_translations.title) LIKE :kw OR LOWER(layer_translations.description) LIKE :kw OR LOWER(layers.slug) LIKE :kw OR LOWER(layers.dataset_shortname) LIKE :kw OR LOWER(layers.layer_config::text) LIKE :kw",
+          kw: kw
+        )
+    end
     @layers = @layers.paginate page: page, per_page: per_page
     render json: {success: true, message: "List of all Layers", data: @layers.as_json, meta_attributes: meta_attributes(@layers)},
       status: :ok
@@ -33,7 +47,10 @@ class Api::Admin::LayersController < Api::Admin::ApiController
   end
 
   def show
-    render json: {success: true, message: "Layer Details", data: @layer.as_json}, status: :ok
+    # Include site_scope_ids so the Bedrock agent Lambda can enforce per-scope
+    # authorization. Layer uses a many-to-many via layer_groups (no direct column).
+    scope_ids = @layer.site_scopes.pluck(:id).map(&:to_s)
+    render json: {success: true, message: "Layer Details", data: @layer.as_json.merge("site_scope_ids" => scope_ids)}, status: :ok
   end
 
   def site_scopes
@@ -53,7 +70,7 @@ class Api::Admin::LayersController < Api::Admin::ApiController
   end
 
   def per_page
-    params.fetch(:per_page, 30)
+    params.fetch(:per_page, 200)
   end
 
   def page

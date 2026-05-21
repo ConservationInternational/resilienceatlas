@@ -3,7 +3,10 @@
 
 FROM ghcr.io/osgeo/gdal:ubuntu-small-3.9.3
 
-# Install Python dependencies
+# Install Python dependencies.
+# Do not install proj-data here: the base image already ships a compatible
+# PROJ database, and Ubuntu's proj-data package overwrites it with an older
+# layout that triggers "DATABASE.LAYOUT.VERSION.MINOR" mismatches at runtime.
 RUN apt-get update && apt-get install -y --no-install-recommends \
     python3 \
     python3-pip \
@@ -21,7 +24,7 @@ COPY batch_handler.py /app/
 # Set environment variables
 ENV GDAL_CACHEMAX=512
 ENV GDAL_DATA=/usr/share/gdal
-ENV PROJ_LIB=/usr/share/proj
+ENV PROJ_LIB=/usr/local/share/proj
 
 # Run the batch handler
 ENTRYPOINT [ "python3", "/app/batch_handler.py" ]

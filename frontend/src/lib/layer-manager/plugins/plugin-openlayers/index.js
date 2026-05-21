@@ -114,12 +114,19 @@ class PluginOpenLayers {
     const clickHandler = (e) => {
       if (!mapLayer?.getVisible()) return;
 
-      // For vector tile layers: only fire if a feature was actually hit
+      // For vector tile layers: only fire if a feature was actually hit,
+      // and pass its properties directly so the popup doesn't need an HTTP call.
       if (mapLayer instanceof VectorTileLayer) {
         const features = this.map.getFeaturesAtPixel(e.pixel, {
           layerFilter: (l) => l === mapLayer,
         });
         if (!features || features.length === 0) return;
+
+        const [lng, lat] = toLonLat(e.coordinate);
+        // Strip the OL internal geometry key from the properties object
+        const { geometry: _geom, ...data } = features[0]?.getProperties() || {};
+        events.click({ latlng: { lat, lng }, data: Object.keys(data).length ? data : undefined });
+        return;
       }
 
       const [lng, lat] = toLonLat(e.coordinate);
@@ -141,9 +148,25 @@ class PluginOpenLayers {
   }
 
   setDecodeParams(layerModel) {
-    const { mapLayer } = layerModel;
-    // Force OL to re-render the layer
-    if (mapLayer) mapLayer.changed();
+    const { mapLayer, decodeParams } = layerModel;
+    if (!mapLayer) return this;
+
+    // For layers with a canvas decode function (e.g. GEE/SPARC), update the
+    // mutable decodeRef and refresh the tile source so every tile is
+    // re-fetched and re-decoded with the new params (e.g. updated chartLimit).
+    const decodeRef = mapLayer.get('_decodeRef');
+    if (decodeRef) {
+      decodeRef.params = decodeParams || {};
+      const source = typeof mapLayer.getSource === 'function' ? mapLayer.getSource() : null;
+      if (source && typeof source.refresh === 'function') {
+        source.refresh();
+      } else {
+        mapLayer.changed();
+      }
+    } else {
+      mapLayer.changed();
+    }
+
     return this;
   }
 

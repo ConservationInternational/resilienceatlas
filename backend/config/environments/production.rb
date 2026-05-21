@@ -48,6 +48,10 @@ Rails.application.configure do
   # plain HTTP to the Rails container. The ALB listener enforces HTTPS at the network edge.
   # config.force_ssl = true
 
+  # Treat all incoming requests as HTTPS (TLS terminated at ALB). Sets secure cookie flags and
+  # emits https:// URLs without causing HTTP→HTTPS redirect loops. Requires Rails 7.1+.
+  config.assume_ssl = true
+
   # config.logger = ActiveSupport::Logger.new("log/production.log")
   # :info hides per-query SQL logs that are only useful during debugging.
   # Use LOG_LEVEL=debug env var to re-enable temporarily when needed.
@@ -94,19 +98,21 @@ Rails.application.configure do
   # Do not dump schema after migrations.
   # config.active_record.dump_schema_after_migration = false
 
-  config.action_mailer.default_url_options = {host: URI.parse(ENV.fetch("BACKEND_URL")).host}
-  config.action_mailer.delivery_method = :sparkpost
+  if (backend_url = ENV.fetch("BACKEND_URL", nil)).present?
+    backend_uri = URI.parse(backend_url)
+    config.action_mailer.default_url_options = {host: backend_uri.host}
+    config.action_mailer.delivery_method = :sparkpost
 
-  # Set default URL options for controllers (needed for Active Storage URLs)
-  backend_uri = URI.parse(ENV.fetch("BACKEND_URL"))
-  Rails.application.routes.default_url_options = {
-    host: backend_uri.host,
-    port: backend_uri.port,
-    protocol: backend_uri.scheme
-  }
+    # Set default URL options for controllers (needed for Active Storage URLs)
+    Rails.application.routes.default_url_options = {
+      host: backend_uri.host,
+      port: backend_uri.port,
+      protocol: backend_uri.scheme
+    }
+  end
 
-  # Store uploaded files on the local file system (see config/storage.yml for options).
-  # Using local_public to serve files directly from public/storage without Rails controller,
-  # which is required for the seeded image assets to work correctly.
-  config.active_storage.service = :local_public
+  # Store uploaded files in S3 with instance-role credentials (private access, signed URLs).
+  # Seeded static assets that must be publicly accessible should live in public/ or a CDN,
+  # not through Active Storage.
+  config.active_storage.service = :amazon
 end

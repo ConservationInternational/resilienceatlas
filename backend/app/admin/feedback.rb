@@ -1,4 +1,10 @@
 ActiveAdmin.register Feedback do
+  menu label: "Feedbacks", parent: "Users & Feedback", priority: 4
+
+  sidebar "About", only: :index do
+    para "User-submitted feedback messages from the public-facing site. Review and manage visitor comments and contact requests."
+  end
+
   actions :index, :show, :destroy
 
   config.filters = false

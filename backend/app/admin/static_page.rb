@@ -1,4 +1,10 @@
 ActiveAdmin.register StaticPage::Base do
+  menu label: "Static Pages", parent: "Sites", priority: 3
+
+  sidebar "About", only: :index do
+    para "Static pages are global informational pages shared across all site scopes, such as Terms of Use and Privacy Policy."
+  end
+
   includes :translations
 
   permit_params :slug, :image, :image_credits_url,

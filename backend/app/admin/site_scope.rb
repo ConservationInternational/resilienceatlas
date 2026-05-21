@@ -1,4 +1,10 @@
 ActiveAdmin.register SiteScope do
+  menu label: "Site Scopes", parent: "Sites", priority: 4
+
+  sidebar "About", only: :index do
+    para "Site scopes define separate branded deployments of the Resilience Atlas — for example, a country-specific or partner-branded version. Each scope has its own homepage, layers, and branding."
+  end
+
   includes :translations
 
   permit_params :subdomain, :color, :has_analysis, :has_search, :latitude, :longitude, :header_theme, :zoom_level,

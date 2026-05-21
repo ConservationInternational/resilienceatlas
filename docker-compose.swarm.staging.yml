@@ -101,11 +101,17 @@ services:
       - RESILIENCE_API_KEY=${RESILIENCE_API_KEY}
       - BACKEND_URL=${BACKEND_URL}
       - FRONTEND_URL=${FRONTEND_URL}
+      - CORS_WHITELIST=https://staging.resilienceatlas.org
+      - CORS_ORIGIN_REGEX=\Ahttps://([\w-]+\.)*staging\.resilienceatlas\.org\z
       - SPARKPOST_API_KEY=${SPARKPOST_API_KEY}
       - ROLLBAR_ACCESS_TOKEN=${ROLLBAR_ACCESS_TOKEN}
       - ROLLBAR_ENV=staging
       - MARTIN_URL=http://martin:3000
       - REDIS_URL=redis://redis:6379/0
+      - S3_BUCKET=${S3_BUCKET}
+      - AWS_REGION=${AWS_REGION}
+      - BEDROCK_AGENT_ID=${BEDROCK_AGENT_ID}
+      - BEDROCK_AGENT_ALIAS_ID=${BEDROCK_AGENT_ALIAS_ID}
     networks:
       - staging-network
     depends_on:
@@ -190,6 +196,43 @@ services:
       timeout: 10s
       retries: 3
       start_period: 60s
+
+  sidekiq:
+    image: ${BACKEND_IMAGE}
+    environment:
+      - RAILS_ENV=staging
+      - RACK_ENV=staging
+      - DATABASE_URL=postgresql://postgres:${DATABASE_PASSWORD}@database:5432/resilienceatlas_staging
+      - SECRET_KEY_BASE=${SECRET_KEY_BASE}
+      - DEVISE_SECRET_KEY=${DEVISE_SECRET_KEY}
+      - RESILIENCE_API_KEY=${RESILIENCE_API_KEY}
+      - ROLLBAR_ACCESS_TOKEN=${ROLLBAR_ACCESS_TOKEN}
+      - ROLLBAR_ENV=staging
+      - REDIS_URL=redis://redis:6379/0
+      - S3_BUCKET=${S3_BUCKET}
+      - AWS_REGION=${AWS_REGION}
+      - BACKEND_URL=${BACKEND_URL}
+      - BEDROCK_AGENT_ID=${BEDROCK_AGENT_ID}
+      - BEDROCK_AGENT_ALIAS_ID=${BEDROCK_AGENT_ALIAS_ID}
+    networks:
+      - staging-network
+    depends_on:
+      - database
+      - redis
+    deploy:
+      mode: replicated
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 256M
+    command: bundle exec sidekiq -C config/sidekiq.yml
 
   martin:
     image: resilienceatlas-martin:latest

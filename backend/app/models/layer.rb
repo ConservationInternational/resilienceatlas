@@ -71,7 +71,6 @@ class Layer < ApplicationRecord
     color
     layer_provider
     css
-    interactivity
     opacity
     query
     created_at
@@ -168,7 +167,7 @@ class Layer < ApplicationRecord
     %w[
       active analysis_body analysis_query analysis_suitable analysis_type color created_at css
       dashboard_order dataset_shortname dataset_source_url download end_date icon_class id
-      id_value interaction_config interactivity layer_config layer_group_id layer_provider
+      id_value interaction_config layer_config layer_group_id layer_provider
       layer_type locate_layer opacity order published query slug spatial_resolution
       spatial_resolution_units start_date temporal_resolution temporal_resolution_units
       timeline timeline_default_date timeline_end_date timeline_period timeline_start_date

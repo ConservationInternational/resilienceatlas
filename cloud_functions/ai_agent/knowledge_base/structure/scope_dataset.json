@@ -1,0 +1,51 @@
+{
+  "id": "doc::structure::scope_dataset",
+  "title": "ScopeDataset — Statistics Panel Data",
+  "description": "ScopeDatasets provide pre-computed tabular statistics displayed in the site's Analysis/Statistics panel. Each dataset defines its schema (columns), chart configuration, and optionally spatial geometries for map highlighting.",
+  "admin_api_endpoints": {
+    "list": "GET /api/admin/scope_datasets?site_scope_id=<id>",
+    "show": "GET /api/admin/scope_datasets/<id>",
+    "create": "POST /api/admin/scope_datasets",
+    "update": "PATCH /api/admin/scope_datasets/<id>"
+  },
+  "key_fields": {
+    "site_scope_id": "Integer. Foreign key to SiteScope. Required.",
+    "slug": "Unique identifier per site_scope. Format: alphanumeric with hyphens or underscores.",
+    "name": "Display name shown in the statistics panel.",
+    "description": "Optional text description.",
+    "data_type": "Always 'tabular'.",
+    "group_key": "Groups multiple variants of the same dataset (e.g. 'ecoregion-summary'). Variants with the same group_key appear as a switchable selector in the UI.",
+    "variant_label": "Human-readable label for this variant within a group (e.g. 'JRC', 'FAO-WOCAT', 'Trends.Earth').",
+    "dimension": "Spatial aggregation level (e.g. 'ecoregion', 'country', 'admin2'). Used to create radio-button dimension switchers.",
+    "dimension_config": "JSON object: {\"unit_label\": \"Ecoregion\", \"unit_id_column\": \"eco_id\", \"name_column\": \"ecoregion\"}",
+    "display_order": "Integer. Controls sort order in the statistics panel.",
+    "schema_config": "JSON array defining columns. See schema_config format below.",
+    "chart_config": "JSON array of chart specifications. See chart_config format below.",
+    "data": "JSON array of row objects. Required for model validation. Each row must match schema_config columns."
+  },
+  "schema_config_format": {
+    "description": "Array of column definition objects.",
+    "fields": {
+      "name": "Column name matching the data row keys.",
+      "type": "Data type: 'integer', 'number', 'string', 'category'.",
+      "label": "Human-readable column header.",
+      "format": "Optional number format string, e.g. '0.0', '0,0.00', '0%'.",
+      "prefix": "Optional string prefix for display, e.g. '$'.",
+      "sufix": "Optional string suffix for display, e.g. 'ha'."
+    },
+    "example": "[{\"name\":\"eco_id\",\"type\":\"integer\",\"label\":\"Ecoregion ID\"},{\"name\":\"ecoregion\",\"type\":\"string\",\"label\":\"Ecoregion\"},{\"name\":\"area_ha\",\"type\":\"number\",\"label\":\"Area (ha)\",\"format\":\"0,0\",\"sufix\":\" ha\"}]"
+  },
+  "chart_config_types": {
+    "bar": "Vertical bar chart. Fields: type, id, title, valueKey, categoryKey, colors, aggregation, tooltipUnit.",
+    "pie": "Pie chart. Fields: type, id, title, valueKey, categoryKey, colors.",
+    "scatter": "Scatter plot. Fields: type, id, title, xAxis {key, label}, yAxis {key, label}.",
+    "table": "Data table. Fields: type, id, title, columns (array of schema column names to show), unitIdColumn.",
+    "kpi": "KPI summary cards. Fields: type, id, title, metrics [{key, label, format, aggregation}]."
+  },
+  "notes": [
+    "data field is required by model validation — must be a non-empty JSON array.",
+    "The update endpoint only accepts config fields (schema_config, chart_config, dimension_config, etc.) — not data.",
+    "Spatial geometries for map highlighting are managed separately via scope_dataset_geometries.",
+    "Multiple datasets with the same group_key on the same site_scope create variant switcher UI."
+  ]
+}

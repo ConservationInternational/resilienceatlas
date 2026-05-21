@@ -14,6 +14,7 @@ const nextConfig = {
     root: __dirname,
   },
   output: 'standalone',
+  productionBrowserSourceMaps: true,
   poweredByHeader: false,
   // Enable trailing slash for better subdomain handling
   trailingSlash: false,

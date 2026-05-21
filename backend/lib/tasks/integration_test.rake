@@ -170,7 +170,8 @@ namespace :integration_test do
         zoom_max: 10,
         zoom_min: 1,
         dashboard_order: 1,
-        layer_provider: "cartodb",
+        layer_provider: "xyz tileset",
+        analysis_suitable: false,
         interaction_config: "{}")
       puts "✅ Created Layer with ID: #{layer_66.id}"
     rescue => e
@@ -187,7 +188,9 @@ namespace :integration_test do
         zoom_max: 10,
         zoom_min: 1,
         dashboard_order: 2,
-        layer_provider: "cartodb",
+        layer_provider: "xyz tileset",
+        analysis_suitable: true,
+        analysis_type: "histogram",
         interaction_config: "{}")
       puts "✅ Created Layer with ID: #{layer_1429.id}"
     rescue => e

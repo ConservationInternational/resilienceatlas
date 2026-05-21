@@ -1,4 +1,10 @@
 ActiveAdmin.register Journey do
+  menu label: "Journeys", parent: "Sites", priority: 5
+
+  sidebar "About", only: :index do
+    para "Journeys are guided narrative tours that walk users through a curated sequence of map views with accompanying story text and media."
+  end
+
   includes :translations
 
   permit_params :credits_url, :background_image, :published,

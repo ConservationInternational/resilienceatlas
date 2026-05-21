@@ -1,0 +1,31 @@
+{
+  "id": "doc::structure::site_scope",
+  "title": "SiteScope — Atlas Instance Configuration",
+  "description": "A SiteScope represents a distinct Resilience Atlas instance (e.g. a country, theme, or program). Each site scope has its own subdomain, layers, layer groups, and settings.",
+  "list_endpoint": "GET /api/admin/layers?collection=site_scopes (use the site_scopes collection on layers endpoint)",
+  "key_fields": {
+    "id": "Integer primary key. Always use this to link layers and scope_datasets.",
+    "name": "Display name (translated). E.g. 'Resilience Atlas', 'LDN Uganda'.",
+    "subdomain": "URL subdomain that identifies this site. E.g. 'ldn', 'trendsearth', 'indicators'. The main site uses subdomain null or 'default'.",
+    "has_analysis": "Boolean. Enables the analysis panel (allows indicator analysis on selected areas).",
+    "latitude": "Float. Map center latitude on load.",
+    "longitude": "Float. Map center longitude on load.",
+    "zoom_level": "Integer. Initial map zoom, default 3.",
+    "color": "Hex accent color for this site, e.g. '#C62828'.",
+    "header_theme": "Theme name: 'ci-theme' (light) or 'dark'.",
+    "header_color": "Hex color for the header background.",
+    "logo_url": "URL to the site logo image.",
+    "predictive_model": "Boolean. Enables ML prediction tools.",
+    "analysis_options": "Boolean. Enables advanced analysis options panel.",
+    "has_gef_logo": "Boolean. Shows GEF logo in header.",
+    "password_protected": "Boolean. Restricts access to username/password."
+  },
+  "usage_notes": [
+    "When creating a layer, always specify the site_scope_id to link it to the correct site.",
+    "site_scope_id is passed as a top-level param: POST /api/admin/layers with {\"site_scope_id\": <id>, \"layer\": {...}}.",
+    "Scope datasets are linked to a site_scope via site_scope_id.",
+    "Layer groups belong to a single site_scope.",
+    "To find the correct site_scope_id, use GET /api/admin/layers?collection=site_scopes or check the admin UI."
+  ],
+  "how_to_find_site_scope_id": "Use the layers endpoint site_scopes collection: GET /api/admin/layers?collection=site_scopes. Returns [{id, name, subdomain}]. The main default site is id=1."
+}

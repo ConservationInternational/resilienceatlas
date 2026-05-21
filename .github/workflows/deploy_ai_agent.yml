@@ -1,0 +1,155 @@
+name: Deploy AI Agent Lambdas
+
+on:
+  push:
+    branches:
+      - main
+      - staging
+    paths:
+      - 'cloud_functions/ai_agent/**'
+      - '.github/workflows/deploy_ai_agent.yml'
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Target environment'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+          - staging
+          - production
+
+env:
+  AWS_REGION: us-east-1
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment || (github.ref == 'refs/heads/main' && 'production' || 'staging') }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ secrets.AWS_OIDC_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Create ECR repositories if missing
+        run: |
+          ECR_LAMBDA_POLICY='{"Version":"2012-10-17","Statement":[{"Sid":"LambdaECRAccess","Effect":"Allow","Principal":{"Service":"lambda.amazonaws.com"},"Action":["ecr:BatchGetImage","ecr:GetDownloadUrlForLayer"]}]}'
+          for repo in \
+            resilienceatlas-ai-agent-sync-embeddings \
+            resilienceatlas-ai-agent-action-groups \
+            resilienceatlas-ai-agent-pipeline; do
+            aws ecr describe-repositories --repository-names "$repo" --region ${{ env.AWS_REGION }} \
+              || aws ecr create-repository --repository-name "$repo" --region ${{ env.AWS_REGION }} \
+                   --image-scanning-configuration scanOnPush=true
+            # Ensure Lambda can pull from this repo (required for container image functions)
+            aws ecr set-repository-policy --repository-name "$repo" --region ${{ env.AWS_REGION }} \
+              --policy-text "$ECR_LAMBDA_POLICY"
+          done
+
+      - name: Set stack name
+        id: stack
+        run: |
+          if [[ "${{ github.ref }}" == "refs/heads/main" || "${{ github.event.inputs.environment }}" == "production" ]]; then
+            echo "name=resilienceatlas-ai-agent-production" >> "$GITHUB_OUTPUT"
+          else
+            echo "name=resilienceatlas-ai-agent-staging" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build and push sync_embeddings image
+        uses: docker/build-push-action@v7
+        with:
+          context: cloud_functions/ai_agent/sync_embeddings
+          push: true
+          provenance: false
+          tags: ${{ steps.login-ecr.outputs.registry }}/resilienceatlas-ai-agent-sync-embeddings:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build and push action_groups image
+        uses: docker/build-push-action@v7
+        with:
+          context: cloud_functions/ai_agent/action_groups
+          push: true
+          provenance: false
+          tags: ${{ steps.login-ecr.outputs.registry }}/resilienceatlas-ai-agent-action-groups:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build and push pipeline image
+        uses: docker/build-push-action@v7
+        with:
+          context: cloud_functions/ai_agent/pipeline
+          push: true
+          provenance: false
+          tags: ${{ steps.login-ecr.outputs.registry }}/resilienceatlas-ai-agent-pipeline:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Deploy via CloudFormation
+        id: cfn-deploy
+        run: |
+          STACK_NAME="${{ steps.stack.outputs.name }}"
+          REGION="${{ env.AWS_REGION }}"
+
+          # If a previous run left the stack in a terminal-failed state, delete it first
+          STACK_STATUS=$(aws cloudformation describe-stacks \
+            --stack-name "$STACK_NAME" --region "$REGION" \
+            --query "Stacks[0].StackStatus" --output text 2>/dev/null || echo "DOES_NOT_EXIST")
+          if [[ "$STACK_STATUS" == "ROLLBACK_COMPLETE" || "$STACK_STATUS" == "CREATE_FAILED" || "$STACK_STATUS" == "ROLLBACK_FAILED" ]]; then
+            echo "Stack in $STACK_STATUS - deleting before redeploy..."
+            aws cloudformation delete-stack --stack-name "$STACK_NAME" --region "$REGION"
+            aws cloudformation wait stack-delete-complete --stack-name "$STACK_NAME" --region "$REGION"
+          fi
+
+          aws cloudformation deploy \
+            --template-file cloud_functions/ai_agent/template.yaml \
+            --stack-name "$STACK_NAME" \
+            --region "$REGION" \
+            --no-fail-on-empty-changeset \
+            --disable-rollback \
+            --capabilities CAPABILITY_IAM CAPABILITY_AUTO_EXPAND \
+            --parameter-overrides \
+              RailsApiUrl="${{ secrets.RAILS_API_URL }}" \
+              ResilienceApiKeySecretArn="${{ vars.RESILIENCE_API_KEY_SECRET_ARN }}" \
+              EmbeddingsBucket="${{ secrets.AI_EMBEDDINGS_BUCKET }}" \
+              KbBucket="${{ secrets.AI_EMBEDDINGS_BUCKET }}" \
+              BedrockAgentId="${{ secrets.BEDROCK_AGENT_ID }}" \
+              BedrockAgentAliasId="${{ secrets.BEDROCK_AGENT_ALIAS_ID }}" \
+              DataBucket="${{ vars.DATA_BUCKET_NAME }}" \
+              SyncEmbeddingsImageUri="${{ steps.login-ecr.outputs.registry }}/resilienceatlas-ai-agent-sync-embeddings:${{ github.sha }}" \
+              ActionGroupsImageUri="${{ steps.login-ecr.outputs.registry }}/resilienceatlas-ai-agent-action-groups:${{ github.sha }}" \
+              PipelineImageUri="${{ steps.login-ecr.outputs.registry }}/resilienceatlas-ai-agent-pipeline:${{ github.sha }}"
+
+      - name: Show CloudFormation failure events
+        if: failure() && steps.cfn-deploy.conclusion == 'failure'
+        run: |
+          STACK_NAME="${{ steps.stack.outputs.name }}"
+          REGION="${{ env.AWS_REGION }}"
+          echo "=== Stack Status ==="
+          aws cloudformation describe-stacks \
+            --stack-name "$STACK_NAME" --region "$REGION" \
+            --query "Stacks[0].{Status:StackStatus,Reason:StackStatusReason}" \
+            --output table 2>/dev/null || echo "Stack not found"
+          echo ""
+          echo "=== Failed Resource Events ==="
+          aws cloudformation describe-stack-events \
+            --stack-name "$STACK_NAME" --region "$REGION" \
+            --query "StackEvents[?ResourceStatus=='CREATE_FAILED'||ResourceStatus=='UPDATE_FAILED'||ResourceStatus=='ROLLBACK_IN_PROGRESS'].[Timestamp,LogicalResourceId,ResourceType,ResourceStatus,ResourceStatusReason]" \
+            --output table 2>/dev/null || echo "No events found (stack may have been deleted)"

@@ -266,7 +266,9 @@ const MapView = (props: MapViewProps) => {
                       },
                     })}
                   decodeParams={
-                    l.decodeParams ? { ...l.decodeParams, chartLimit: l.chartLimit || 100 } : null
+                    l.decodeParams
+                      ? { ...l.decodeParams, chartLimit: Number(l.chartLimit) || 100 }
+                      : null
                   }
                 />
               ))}

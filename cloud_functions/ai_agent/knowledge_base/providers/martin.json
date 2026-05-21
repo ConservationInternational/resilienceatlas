@@ -1,0 +1,60 @@
+{
+  "id": "doc::providers::martin",
+  "title": "Martin (PostGIS Vector Tiles) Provider",
+  "description": "Vector tiles served by Martin from a PostGIS table or function. Best for polygon/point data with dynamic styling and interactivity.",
+  "layer_provider": "martin",
+  "layer_config_schema": {
+    "body": {
+      "source": "Martin source name — PostGIS table name or function name, e.g. 'ra_vector_tile' or 'my_imported_table'.",
+      "params": "Query parameters appended to the tile URL. For ra_vector_tile function: {\"table\": \"imported_table_name\"}.",
+      "styles": "Styling object keyed by MVT layer name (usually the table name). Each value is a style rule object.",
+      "options": {
+        "interactive": "Boolean, default true. Enables popups on click.",
+        "maxNativeZoom": "Max zoom level tiles are fetched at, default 14."
+      }
+    }
+  },
+  "style_schema": {
+    "fillColor": "CSS color string or hex, e.g. '#3498db'.",
+    "fillOpacity": "Float 0-1.",
+    "fillPattern": "Optional pattern. Currently only 'hatch' is supported.",
+    "color": "Stroke/border color.",
+    "weight": "Stroke width in pixels.",
+    "opacity": "Layer opacity 0-1.",
+    "colorRamp": {
+      "description": "Graduated color ramp applied to a numeric property.",
+      "property": "Column name to classify on.",
+      "breaks": "Array of numeric breakpoints, length N.",
+      "colors": "Array of colors (hex or CSS), length N+1.",
+      "default": "Fallback color for values outside breaks."
+    },
+    "conditions": [
+      {
+        "description": "Conditional style rules applied to features matching a filter.",
+        "when": {"column_name": "value_or_operator"},
+        "fillColor": "Color when condition matches.",
+        "fillOpacity": "Opacity when condition matches."
+      }
+    ]
+  },
+  "examples": [
+    {
+      "description": "Martin layer using ra_vector_tile function (imported vector table)",
+      "layer_config": "{\"body\":{\"source\":\"ra_vector_tile\",\"params\":{\"table\":\"forest_cover_2023\"},\"styles\":{\"forest_cover_2023\":{\"fillColor\":\"#2ecc71\",\"fillOpacity\":0.7,\"color\":\"#27ae60\",\"weight\":1}}}}"
+    },
+    {
+      "description": "Martin with graduated color ramp on a numeric property",
+      "layer_config": "{\"body\":{\"source\":\"ra_vector_tile\",\"params\":{\"table\":\"population_density\"},\"styles\":{\"population_density\":{\"colorRamp\":{\"property\":\"pop_per_km2\",\"breaks\":[10,50,200,1000],\"colors\":[\"#ffffcc\",\"#a1dab4\",\"#41b6c4\",\"#2c7fb8\",\"#253494\"],\"default\":\"#cccccc\"}}}}}"
+    },
+    {
+      "description": "Martin using a named PostGIS table directly",
+      "layer_config": "{\"body\":{\"source\":\"admin_boundaries\",\"styles\":{\"admin_boundaries\":{\"fillColor\":\"transparent\",\"color\":\"#e74c3c\",\"weight\":2,\"fillOpacity\":0}}}}"
+    }
+  ],
+  "notes": [
+    "Martin source 'ra_vector_tile' is a PostGIS function that serves any imported table via ?table=<name>.",
+    "Use the vector_tables/import API endpoint to import a vector file and get a table_name before creating a martin layer.",
+    "Style keys must match the MVT layer name (usually the PostGIS table name).",
+    "For interactive popups, ensure interaction_config is also set on the layer."
+  ]
+}

@@ -10,8 +10,11 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_05_15_140000) do
+ActiveRecord::Schema[7.2].define(version: 2026_05_21_000000) do
+  create_schema "ra_app"
+
   # These are extensions that must be enabled in order to support this database
+  enable_extension "fuzzystrmatch"
   enable_extension "plpgsql"
   enable_extension "postgis"
   enable_extension "postgis_topology"
@@ -67,6 +70,16 @@ ActiveRecord::Schema[7.2].define(version: 2026_05_15_140000) do
     t.index ["iso_code"], name: "index_admin_boundaries_on_iso_code"
   end
 
+  create_table "admin_user_site_scopes", force: :cascade do |t|
+    t.bigint "admin_user_id", null: false
+    t.bigint "site_scope_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["admin_user_id", "site_scope_id"], name: "index_admin_user_site_scopes_unique", unique: true
+    t.index ["admin_user_id"], name: "index_admin_user_site_scopes_on_admin_user_id"
+    t.index ["site_scope_id"], name: "index_admin_user_site_scopes_on_site_scope_id"
+  end
+
   create_table "admin_users", force: :cascade do |t|
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
@@ -98,6 +111,18 @@ ActiveRecord::Schema[7.2].define(version: 2026_05_15_140000) do
     t.index ["email"], name: "index_admin_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_admin_users_on_reset_password_token", unique: true
     t.index ["unlock_token"], name: "index_admin_users_on_unlock_token", unique: true
+  end
+
+  create_table "ai_chat_messages", force: :cascade do |t|
+    t.bigint "admin_user_id", null: false
+    t.string "bedrock_session_id", null: false
+    t.string "role", null: false
+    t.text "content", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["admin_user_id", "created_at"], name: "index_ai_chat_messages_on_admin_user_id_and_created_at"
+    t.index ["admin_user_id"], name: "index_ai_chat_messages_on_admin_user_id"
+    t.index ["bedrock_session_id"], name: "index_ai_chat_messages_on_bedrock_session_id"
   end
 
   create_table "agrupations", force: :cascade do |t|
@@ -139,6 +164,26 @@ ActiveRecord::Schema[7.2].define(version: 2026_05_15_140000) do
     t.datetime "updated_at", null: false
     t.index ["assetable_type", "assetable_id"], name: "idx_ckeditor_assetable"
     t.index ["assetable_type", "type", "assetable_id"], name: "idx_ckeditor_assetable_type"
+  end
+
+  create_table "data_imports", force: :cascade do |t|
+    t.string "importable_type", null: false
+    t.bigint "importable_id", null: false
+    t.bigint "admin_user_id", null: false
+    t.string "file_name"
+    t.string "s3_key"
+    t.bigint "file_size_bytes"
+    t.string "import_type", null: false
+    t.string "status", default: "pending", null: false
+    t.text "error_message"
+    t.integer "rows_imported"
+    t.datetime "started_at"
+    t.datetime "completed_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["admin_user_id"], name: "index_data_imports_on_admin_user_id"
+    t.index ["importable_type", "importable_id"], name: "index_data_imports_on_importable_type_and_importable_id"
+    t.index ["status"], name: "index_data_imports_on_status"
   end
 
   create_table "feedback_fields", force: :cascade do |t|
@@ -362,7 +407,6 @@ ActiveRecord::Schema[7.2].define(version: 2026_05_15_140000) do
     t.string "color"
     t.string "layer_provider"
     t.text "css"
-    t.text "interactivity"
     t.float "opacity"
     t.text "query"
     t.datetime "created_at", null: false
@@ -458,6 +502,22 @@ ActiveRecord::Schema[7.2].define(version: 2026_05_15_140000) do
     t.text "image_data"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "sbtn_thresholds", primary_key: "eco_id", id: :integer, default: nil, force: :cascade do |t|
+    t.text "ecoregion"
+    t.float "natural_land_baseline"
+    t.float "natural_land_threshold"
+    t.float "natural_land_exceedance"
+    t.float "nitrogen_dep_baseline"
+    t.float "nitrogen_dep_threshold"
+    t.float "nitrogen_dep_exceedance"
+    t.float "soil_erosion_baseline"
+    t.float "soil_erosion_threshold"
+    t.float "soil_erosion_exceedance"
+    t.float "soc_baseline"
+    t.float "soc_threshold"
+    t.float "soc_exceedance"
   end
 
   create_table "scope_dataset_geometries", force: :cascade do |t|
@@ -720,8 +780,12 @@ ActiveRecord::Schema[7.2].define(version: 2026_05_15_140000) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "admin_user_site_scopes", "admin_users"
+  add_foreign_key "admin_user_site_scopes", "site_scopes"
+  add_foreign_key "ai_chat_messages", "admin_users"
   add_foreign_key "agrupations", "layer_groups"
   add_foreign_key "agrupations", "layers"
+  add_foreign_key "data_imports", "admin_users"
   add_foreign_key "feedback_fields", "feedback_fields", column: "parent_id", on_delete: :cascade
   add_foreign_key "feedback_fields", "feedbacks", on_delete: :cascade
   add_foreign_key "homepage_sections", "homepages", on_delete: :cascade

@@ -16,6 +16,9 @@ const provider = {
   cog: 'cog',
   gee: 'gee',
   martin: 'martin',
+  esri: 'arcgis',
+  wms: 'wms',
+  wmts: 'wmts',
 };
 
 export const site_scope = new schema.Entity(
@@ -140,17 +143,41 @@ export const layer = new schema.Entity(
             },
           };
         })(),
-        // Martin vector tile layers - source name + optional styles
+        // Martin vector tile layers - source name + optional styles/params
         martin: {
           ...layerConfig,
           body: {
             source: layerConfig?.body?.source || layerConfig?.source,
             styles: layerConfig?.body?.styles || layerConfig?.styles || {},
+            // Martin function query params (e.g. { table: 'imported_slug' } for
+            // ra_vector_tile).  Passed as URL query string: ?table=imported_slug
+            params: layerConfig?.body?.params || {},
             options: {
               interactive: true,
               maxNativeZoom: l.attributes.zoom_max || 14,
               ...(layerConfig?.body?.options || layerConfig?.options || {}),
             },
+          },
+        },
+        // ArcGIS REST services (MapServer / TileServer / FeatureServer)
+        esri: {
+          body: {
+            url: layerConfig?.body?.url || layerConfig?.url,
+            params: layerConfig?.body?.params || {},
+          },
+        },
+        // OGC Web Map Service
+        wms: {
+          body: {
+            url: layerConfig?.body?.url || layerConfig?.url,
+            params: layerConfig?.body?.params || {},
+          },
+        },
+        // OGC Web Map Tile Service
+        wmts: {
+          ...layerConfig,
+          body: {
+            ...(layerConfig?.body || {}),
           },
         },
       };

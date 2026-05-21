@@ -36,7 +36,7 @@ jobs:
       ENVIRONMENT: staging
     steps:
       - name: Checkout the code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           ref: ${{ inputs.branch || github.ref }}
 
@@ -55,7 +55,7 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Install AWS SAM CLI
-        uses: aws-actions/setup-sam@v2
+        uses: aws-actions/setup-sam@v3
         with:
           use-installer: true
 
@@ -69,15 +69,14 @@ jobs:
         run: sam build --template ${{ env.SAM_TEMPLATE }}
 
       - name: Deploy to feature stack
+        env:
+          GEE_KEY_ARN: ${{ secrets.GEE_PRIVATE_KEY_SECRET_ARN }}
         run: |
+          OVERRIDES="FQDN=${{ steps.config.outputs.fqdn }} ZoneId=${{ secrets.ROUTE_53_ZONE_ID }}"
+          [ -n "$GEE_KEY_ARN" ] && OVERRIDES="$OVERRIDES GeePrivateKeySecretArn=$GEE_KEY_ARN"
+          OVERRIDES="$OVERRIDES RollbarAccessToken=${{ secrets.ROLLBAR_ACCESS_TOKEN }} RollbarEnvironment=staging"
           sam deploy --stack-name ${{ steps.config.outputs.stack_name }} \
-            --parameter-overrides \
-              FQDN=${{ steps.config.outputs.fqdn }} \
-              ZoneId=${{ secrets.ROUTE_53_ZONE_ID }} \
-              GeeServiceAccountEmail=${{ secrets.GEE_SERVICE_ACCOUNT_EMAIL }} \
-              GeePrivateKeySecretArn=${{ secrets.GEE_PRIVATE_KEY_SECRET_ARN }} \
-              RollbarAccessToken=${{ secrets.ROLLBAR_ACCESS_TOKEN }} \
-              RollbarEnvironment=staging \
+            --parameter-overrides $OVERRIDES \
             --capabilities CAPABILITY_IAM \
             --region ${{ secrets.AWS_REGION }} \
             --s3-bucket ${{ steps.config.outputs.artifacts_bucket }} \
@@ -93,7 +92,7 @@ jobs:
       ENVIRONMENT: production
     steps:
       - name: Checkout the code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           ref: ${{ inputs.branch || github.ref }}
 
@@ -111,7 +110,7 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Install AWS SAM CLI
-        uses: aws-actions/setup-sam@v2
+        uses: aws-actions/setup-sam@v3
         with:
           use-installer: true
 
@@ -125,15 +124,14 @@ jobs:
         run: sam build --template ${{ env.SAM_TEMPLATE }}
 
       - name: Deploy to production
+        env:
+          GEE_KEY_ARN: ${{ secrets.GEE_PRIVATE_KEY_SECRET_ARN }}
         run: |
+          OVERRIDES="FQDN=${{ steps.config.outputs.fqdn }} ZoneId=${{ secrets.ROUTE_53_ZONE_ID }}"
+          [ -n "$GEE_KEY_ARN" ] && OVERRIDES="$OVERRIDES GeePrivateKeySecretArn=$GEE_KEY_ARN"
+          OVERRIDES="$OVERRIDES RollbarAccessToken=${{ secrets.ROLLBAR_ACCESS_TOKEN }} RollbarEnvironment=production"
           sam deploy --stack-name ${{ steps.config.outputs.stack_name }} \
-            --parameter-overrides \
-              FQDN=${{ steps.config.outputs.fqdn }} \
-              ZoneId=${{ secrets.ROUTE_53_ZONE_ID }} \
-              GeeServiceAccountEmail=${{ secrets.GEE_SERVICE_ACCOUNT_EMAIL }} \
-              GeePrivateKeySecretArn=${{ secrets.GEE_PRIVATE_KEY_SECRET_ARN }} \
-              RollbarAccessToken=${{ secrets.ROLLBAR_ACCESS_TOKEN }} \
-              RollbarEnvironment=production \
+            --parameter-overrides $OVERRIDES \
             --capabilities CAPABILITY_IAM \
             --region ${{ secrets.AWS_REGION }} \
             --s3-bucket ${{ steps.config.outputs.artifacts_bucket }} \

@@ -23,6 +23,12 @@
 #
 
 ActiveAdmin.register User do
+  menu label: "Users", parent: "Users & Feedback", priority: 2
+
+  sidebar "About", only: :index do
+    para "Registered end-users of the public-facing Resilience Atlas site. Review user accounts, profile information, and sign-in activity."
+  end
+
   permit_params :email, :password, :password_confirmation, :first_name, :last_name, :phone, :organization, :organization_role
 
   index do

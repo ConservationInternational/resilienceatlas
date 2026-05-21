@@ -46,7 +46,7 @@ jobs:
     
     steps:
     - name: Checkout code
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
 
     - name: Configure AWS credentials via OIDC
       uses: aws-actions/configure-aws-credentials@v6
@@ -143,7 +143,7 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
 
     - name: Configure AWS credentials via OIDC
       uses: aws-actions/configure-aws-credentials@v6
@@ -231,6 +231,11 @@ jobs:
         ROLLBAR_ACCESS_TOKEN=${{ secrets.ROLLBAR_ACCESS_TOKEN }}
         NEXT_PUBLIC_ROLLBAR_CLIENT_TOKEN=${{ secrets.NEXT_PUBLIC_ROLLBAR_CLIENT_TOKEN }}
         ROLLBAR_ENV=production
+        
+        # AWS / AI Agent
+        AWS_REGION=${{ env.AWS_REGION }}
+        BEDROCK_AGENT_ID=${{ secrets.BEDROCK_AGENT_ID }}
+        BEDROCK_AGENT_ALIAS_ID=${{ secrets.BEDROCK_AGENT_ALIAS_ID }}
         
         # Martin tile server
         PRODUCTION_NEXT_PUBLIC_MARTIN_URL=${{ vars.PRODUCTION_NEXT_PUBLIC_MARTIN_URL }}
