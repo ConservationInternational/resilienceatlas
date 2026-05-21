@@ -46,6 +46,14 @@
   color: #c5221f;
 }
 
+.ai-chat-divider {
+  align-self: center;
+  color: #888;
+  font-size: 11px;
+  padding: 6px 0;
+  letter-spacing: 0.03em;
+}
+
 .ai-chat-input-row {
   display: flex;
   flex-direction: column;

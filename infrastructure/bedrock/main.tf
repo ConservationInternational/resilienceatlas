@@ -139,8 +139,12 @@ resource "aws_iam_role_policy" "ec2_bedrock_invoke" {
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [{
-      Effect   = "Allow"
-      Action   = ["bedrock:InvokeAgent"]
+      Effect = "Allow"
+      Action = [
+        "bedrock:InvokeAgent",
+        "bedrock:DeleteAgentMemory",
+        "bedrock:GetAgentMemory",
+      ]
       Resource = "arn:aws:bedrock:${var.aws_region}:${data.aws_caller_identity.current.account_id}:agent-alias/${aws_bedrockagent_agent.main.id}/${aws_bedrockagent_agent_alias.live.agent_alias_id}"
     }]
   })
@@ -156,6 +160,11 @@ resource "aws_bedrockagent_agent" "main" {
   instruction             = file("${path.module}/../../cloud_functions/ai_agent/bedrock_agent/agent_instructions.txt")
 
   idle_session_ttl_in_seconds = 1800
+
+  memory_configuration {
+    enabled_memory_types = ["SESSION_SUMMARY"]
+    storage_days         = 30
+  }
 }
 
 resource "aws_bedrockagent_agent_action_group" "layer_tools" {
@@ -179,7 +188,8 @@ resource "aws_bedrockagent_agent_alias" "live" {
   description      = "Production-ready alias for ${var.environment}"
 
   routing_configuration {
-      agent_version = "7"
+    agent_version = "8"
+  }
 
   lifecycle {
     # Agent versions are immutable; update routing manually when promoting a

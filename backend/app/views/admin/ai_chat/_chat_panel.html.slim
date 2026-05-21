@@ -14,6 +14,7 @@ javascript:
   (function() {
     var messageUrl = "#{admin_ai_chat_message_path}";
     var resetUrl   = "#{admin_ai_chat_reset_path}";
+    var historyUrl = "#{admin_ai_chat_history_path}";
     var csrfToken  = "#{form_authenticity_token}";
 
     var messages = document.getElementById('ai-chat-messages');
@@ -32,6 +33,13 @@ javascript:
       messages.appendChild(bubble);
       messages.scrollTop = messages.scrollHeight;
       return bubble;
+    }
+
+    function appendDivider(label) {
+      var div = document.createElement('div');
+      div.className = 'ai-chat-divider';
+      div.textContent = label;
+      messages.appendChild(div);
     }
 
     function setLoading(on) {
@@ -72,5 +80,26 @@ javascript:
         });
     });
 
-    appendBubble('Hello! I can help you create and configure Resilience Atlas layers. Describe what you need and I\'ll set it up.', 'agent');
+    // Load and display past messages, then show the welcome prompt
+    fetch(historyUrl)
+      .then(function(r) { return r.json(); })
+      .then(function(d) {
+        if (!d.success || !d.data || d.data.length === 0) {
+          appendBubble('Hello! I can help you create and configure Resilience Atlas layers. Describe what you need and I\'ll set it up.', 'agent');
+          return;
+        }
+        var lastSession = null;
+        d.data.forEach(function(m) {
+          if (m.session_id !== lastSession) {
+            var date = m.created_at ? new Date(m.created_at).toLocaleDateString() : 'Past session';
+            appendDivider('\u2014 ' + date + ' \u2014');
+            lastSession = m.session_id;
+          }
+          appendBubble(m.content, m.role);
+        });
+        appendDivider('\u2014 New session \u2014');
+      })
+      .catch(function() {
+        appendBubble('Hello! I can help you create and configure Resilience Atlas layers. Describe what you need and I\'ll set it up.', 'agent');
+      });
   })();
