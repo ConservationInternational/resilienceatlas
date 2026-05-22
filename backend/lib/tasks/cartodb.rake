@@ -400,6 +400,25 @@ module CartodbRakeHelpers
     cleaned.strip
   end
 
+  # Fix missing whitespace before SQL clause-starting keywords.
+  # CartoDB SQL stored in the database sometimes has collapsed newlines that
+  # removed the space between a clause-ending token and the next keyword,
+  # producing tokens like `l.landscape_noWHERE` instead of `l.landscape_no WHERE`.
+  # INSERT a single space before each affected keyword.
+  #
+  # Only keywords that unambiguously begin a new SQL clause are handled here;
+  # `FROM`, `JOIN`, and `ON` are intentionally excluded because they can appear
+  # as substrings of legitimate identifiers (e.g. `from_date`, `platform`).
+  def self.fix_sql_keyword_spacing(sql)
+    return sql if sql.blank?
+
+    result = sql.dup
+    %w[WHERE HAVING UNION EXCEPT INTERSECT].each do |kw|
+      result = result.gsub(/(\w)(#{kw})\b/i) { "#{$1} #{$2}" }
+    end
+    result
+  end
+
   # Schema-qualify unqualified table names in FROM/JOIN clauses using a per-table
   # schema map: { table_name => schema }.  Use this when tables from multiple
   # schemas (e.g. ra_vector + ra_nonspatial) appear in the same query.
@@ -2448,6 +2467,11 @@ namespace :cartodb do
       raw_sql = migration_block["source_sql"].presence ||
         migration_block["cleaned_query"].presence
 
+      # Normalise whitespace: CartoDB SQL stored in the DB sometimes has
+      # collapsed newlines that removed the space between a clause-ending
+      # token and the next SQL keyword (e.g. `landscape_noWHERE`).
+      raw_sql = CartodbRakeHelpers.fix_sql_keyword_spacing(raw_sql) if raw_sql.present?
+
       # Detect whether a previously-created view was dropped (e.g. after a
       # database restore).  When the source already looks like v_layer_N but
       # the view no longer exists in the database we must recreate it.
@@ -2567,6 +2591,26 @@ namespace :cartodb do
             martin_views_upgraded += 1
             # Publish the layer now that all tables are available
             layer.update_column(:published, true) unless layer.published?
+          rescue PG::UndefinedColumn => e
+            # Show the actual columns available in each source table so the
+            # underlying source_sql can be corrected in the database.
+            if (m = e.message.match(/column ([\w."]+) does not exist/i))
+              missing_ref = m[1].gsub('"', "")
+              tbl_alias   = missing_ref.include?(".") ? missing_ref.split(".").first : nil
+              imported_list.each do |tbl|
+                next if tbl_alias && !view_sql.match?(
+                  /\b(?:FROM|JOIN)\s+(?:"?#{Regexp.escape(target_schema)}"?\.)?"?#{Regexp.escape(tbl)}"?\s+(?:AS\s+)?"?#{Regexp.escape(tbl_alias)}"?\b/i
+                )
+                actual_cols = ar_conn.execute(
+                  "SELECT column_name FROM information_schema.columns " \
+                  "WHERE table_schema = #{ar_conn.quote(target_schema)} " \
+                  "AND table_name = #{ar_conn.quote(tbl)} " \
+                  "ORDER BY ordinal_position"
+                ).map { |r| r["column_name"] }
+                warn "  Available columns in #{target_schema}.#{tbl}: #{actual_cols.join(", ")}" if actual_cols.any?
+              end
+            end
+            warn "Layer ##{layer.id}: ✗ view creation failed: #{e.message}"
           rescue => e
             warn "Layer ##{layer.id}: ✗ view creation failed: #{e.message}"
           end
