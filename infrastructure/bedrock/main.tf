@@ -155,7 +155,7 @@ resource "aws_iam_role_policy" "github_actions_bedrock" {
           "bedrock:DeleteAgentAlias",
         ]
         Resource = [
-          aws_bedrockagent_agent.main.arn,
+          "arn:aws:bedrock:${var.aws_region}:${data.aws_caller_identity.current.account_id}:agent/${aws_bedrockagent_agent.main.id}",
           "arn:aws:bedrock:${var.aws_region}:${data.aws_caller_identity.current.account_id}:agent-alias/${aws_bedrockagent_agent.main.id}/*",
         ]
       },
@@ -163,7 +163,7 @@ resource "aws_iam_role_policy" "github_actions_bedrock" {
         # update_agent passes agentResourceRoleArn, which requires iam:PassRole
         Effect   = "Allow"
         Action   = ["iam:PassRole"]
-        Resource = aws_iam_role.bedrock_agent.arn
+        Resource = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${aws_iam_role.bedrock_agent.name}"
       },
     ]
   })
