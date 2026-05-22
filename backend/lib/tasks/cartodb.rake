@@ -2273,7 +2273,8 @@ namespace :cartodb do
 
         new_config = {
           "body" => {
-            "source" => source,
+            "source" => "ra_vector_tile",
+            "params" => {"table" => source},
             "styles" => default_styles,
             "options" => {"interactive" => true, "maxNativeZoom" => 14}
           },
@@ -2342,9 +2343,11 @@ namespace :cartodb do
         source = bare_source
         changed = true
         martin_sources_fixed += 1
-      else
-        martin_sources_skipped += 1
       end
+
+      # view_source is the actual ra_vector table/view name.  When the layer
+      # already uses the ra_vector_tile function source, params.table holds it.
+      view_source = config.dig("body", "params", "table").presence || source
 
       # ── Source upgrade: create view when all tables are now available ──────
       # Phase 1 may have set source to a bare table because some tables were
@@ -2360,12 +2363,14 @@ namespace :cartodb do
       # Detect whether a previously-created view was dropped (e.g. after a
       # database restore).  When the source already looks like v_layer_N but
       # the view no longer exists in the database we must recreate it.
-      view_gone = source.match?(/\Av_layer_\d+\z/) &&
+      # Use view_source (the actual table/view name) since source may already
+      # be "ra_vector_tile" if the layer was previously migrated.
+      view_gone = view_source.match?(/\Av_layer_\d+\z/) &&
         raw_sql.present? &&
         ar_conn.execute(
           "SELECT 1 FROM pg_catalog.pg_views " \
           "WHERE schemaname = '#{ar_conn.quote_string(target_schema)}' " \
-          "AND viewname = '#{ar_conn.quote_string(source)}'"
+          "AND viewname = '#{ar_conn.quote_string(view_source)}'"
         ).ntuples.zero?
 
       # Detect whether an existing view has broken geometry: SRID=0 in
@@ -2374,20 +2379,20 @@ namespace :cartodb do
       # find_geometry_column_ref previously selecting the wrong table's geom
       # column.  Re-derive the view SQL with the corrected ordering so the
       # next task run heals already-configured layers automatically.
-      view_has_bad_geom = source.match?(/\Av_layer_\d+\z/) &&
+      view_has_bad_geom = view_source.match?(/\Av_layer_\d+\z/) &&
         raw_sql.present? &&
         !view_gone &&
         begin
           vgeom = ar_conn.execute(
             "SELECT f_geometry_column, srid FROM geometry_columns " \
             "WHERE f_table_schema = '#{ar_conn.quote_string(target_schema)}' " \
-            "AND f_table_name = '#{ar_conn.quote_string(source)}'"
+            "AND f_table_name = '#{ar_conn.quote_string(view_source)}'"
           ).first
           if vgeom
             gcol = vgeom["f_geometry_column"]
             vgeom["srid"].to_i.zero? ||
               ar_conn.execute(
-                "SELECT 1 FROM \"#{target_schema}\".\"#{source}\" " \
+                "SELECT 1 FROM \"#{target_schema}\".\"#{view_source}\" " \
                 "WHERE \"#{gcol}\" IS NOT NULL LIMIT 1"
               ).ntuples.zero?
           else
@@ -2398,14 +2403,14 @@ namespace :cartodb do
         end
 
       upgrade_to_view = raw_sql.present? &&
-        ((imported_list.size > 1 && !source.match?(/\Av_layer_\d+\z/)) ||
+        ((imported_list.size > 1 && !view_source.match?(/\Av_layer_\d+\z/)) ||
          view_gone ||
          view_has_bad_geom)
 
       if upgrade_to_view
         # When recovering a dropped view, keep the same name so existing
         # layer_config references remain valid.
-        view_name = source.match?(/\Av_layer_\d+\z/) ? source : "v_layer_#{layer.id}"
+        view_name = view_source.match?(/\Av_layer_\d+\z/) ? view_source : "v_layer_#{layer.id}"
         p2_table_schemas = migration_block["table_schemas"] || {}
         p2_schema_map = imported_list.each_with_object({}) do |t, h|
           h[t] = p2_table_schemas[t].presence || target_schema
@@ -2464,8 +2469,10 @@ namespace :cartodb do
         else
           begin
             ar_conn.execute(create_ddl)
-            config["body"]["source"] = view_name
-            source = view_name
+            config["body"]["source"] = "ra_vector_tile"
+            config["body"]["params"] = (config["body"]["params"] || {}).merge("table" => view_name)
+            view_source = view_name
+            source = "ra_vector_tile"
             migration_block["status"] = "configured"
             config["cartodb_migration"] = migration_block
             changed = true
@@ -2477,6 +2484,33 @@ namespace :cartodb do
           end
         end
       end
+
+      # ── Upgrade bare table/view name → ra_vector_tile function source ──────
+      # Martin only exposes the ra_vector_tile function, not individual tables
+      # or views as direct sources.  Any layer whose body.source is still a
+      # bare ra_vector name (not yet upgraded by the migration or a previous
+      # rake run) must be wrapped here.
+      if source != "ra_vector_tile" && source.present? &&
+          ar_conn.execute(
+            "SELECT 1 FROM pg_class c " \
+            "JOIN pg_namespace n ON n.oid = c.relnamespace " \
+            "WHERE n.nspname = 'ra_vector' AND c.relname = #{ar_conn.quote(source)} " \
+            "AND c.relkind IN ('r', 'v', 'm') LIMIT 1"
+          ).ntuples > 0
+        puts "Layer ##{layer.id} (#{layer.slug}): upgrade #{source} → ra_vector_tile (table=#{source})"
+        config["body"]["params"] = (config["body"]["params"] || {}).merge("table" => source)
+        config["body"]["source"] = "ra_vector_tile"
+        view_source = source
+        source = "ra_vector_tile"
+        changed = true
+        martin_sources_fixed += 1
+      else
+        martin_sources_skipped += 1
+      end
+
+      # table_name: the actual ra_vector table/view used as the MVT layer name
+      # by Martin's ST_AsMVT call (not "ra_vector_tile").  Used for styles and IC.
+      table_name = view_source
 
       # ── Styles: re-derive from CartoDB CSS on every run ───────────────────
       # Always re-translate so fixes to translate_vector_css are applied even
@@ -2490,7 +2524,7 @@ namespace :cartodb do
           puts "Layer ##{layer.id} (#{layer.slug}): CSS yielded no usable styles — skipping styles"
           martin_styles_no_css += 1
         else
-          new_styles = source.present? ? {source => translated} : translated
+          new_styles = table_name.present? ? {table_name => translated} : translated
           if config.dig("body", "styles") == new_styles
             martin_styles_skipped += 1
           else
@@ -2508,12 +2542,12 @@ namespace :cartodb do
         layer.interaction_config == '{"output": []}'
 
       if ic_needs_update
-        if source.blank?
+        if table_name.blank?
           martin_ic_no_table += 1
         else
-          ic = CartodbRakeHelpers.build_martin_interaction_config(source, ar_conn, target_schema)
+          ic = CartodbRakeHelpers.build_martin_interaction_config(table_name, ar_conn, target_schema)
           if ic
-            puts "Layer ##{layer.id} (#{layer.slug}): #{ic["output"].size} columns from #{source}"
+            puts "Layer ##{layer.id} (#{layer.slug}): #{ic["output"].size} columns from #{table_name}"
             unless dry_run
               layer.update_column(:interaction_config, ic.to_json)
             end
