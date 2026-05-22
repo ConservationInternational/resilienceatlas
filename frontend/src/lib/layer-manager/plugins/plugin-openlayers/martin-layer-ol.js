@@ -81,7 +81,7 @@ const MartinLayerOL = (layerModel) => {
     let styleFunction;
     if (colorRamp) {
       styleFunction = buildColorRampStyle(colorRamp);
-    } else if (styles) {
+    } else if (styles && Object.keys(styles).length > 0) {
       styleFunction = buildVectorTileStyle(styles);
     }
 

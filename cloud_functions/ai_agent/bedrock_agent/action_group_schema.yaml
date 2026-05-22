@@ -367,26 +367,3 @@ paths:
         "200":
           description: "{ success: true, data: { name, geometry_column, description } } on success, or { success: false, message } on error"
 
-  /drop_vector_view:
-    post:
-      operationId: drop_vector_view
-      summary: Drop a PostgreSQL view from ra_vector
-      description: |
-        Drops the named view from ra_vector. Any martin layers that reference this
-        view via ra_vector_tile?table=<name> will stop serving tiles immediately.
-        Only views whose names start with "v_" can be dropped via this action.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required: [name]
-              properties:
-                name:
-                  type: string
-                  description: "Name of the view to drop (must start with 'v_')"
-      responses:
-        "200":
-          description: "{ success: true, message } or { success: false, message }"
-
