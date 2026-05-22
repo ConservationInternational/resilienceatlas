@@ -20,6 +20,7 @@ from botocore.exceptions import ClientError
 
 # GitHub's OIDC provider URL and thumbprint
 GITHUB_OIDC_URL = "https://token.actions.githubusercontent.com"
+GITHUB_OIDC_HOST = GITHUB_OIDC_URL.removeprefix("https://")
 # This is GitHub's OIDC thumbprint - it rarely changes
 # See: https://github.blog/changelog/2023-06-27-github-actions-update-on-oidc-integration-with-aws/
 GITHUB_OIDC_THUMBPRINT = "6938fd4d98bab03faadb97b34396831e3780aea1"
@@ -65,7 +66,7 @@ def create_oidc_provider(iam_client):
         if e.response['Error']['Code'] == 'EntityAlreadyExists':
             # Provider already exists, get its ARN
             account_id = boto3.client('sts').get_caller_identity()['Account']
-            arn = f"arn:aws:iam::{account_id}:oidc-provider/token.actions.githubusercontent.com"
+            arn = f"arn:aws:iam::{account_id}:oidc-provider/{GITHUB_OIDC_HOST}"
             print(f"⚠️ OIDC provider already exists: {arn}")
             return arn
         else:
@@ -81,16 +82,16 @@ def create_trust_policy(account_id, github_org, github_repo):
             {
                 "Effect": "Allow",
                 "Principal": {
-                    "Federated": f"arn:aws:iam::{account_id}:oidc-provider/token.actions.githubusercontent.com"
+                    "Federated": f"arn:aws:iam::{account_id}:oidc-provider/{GITHUB_OIDC_HOST}"
                 },
                 "Action": "sts:AssumeRoleWithWebIdentity",
                 "Condition": {
                     "StringEquals": {
-                        "token.actions.githubusercontent.com:aud": "sts.amazonaws.com"
+                        f"{GITHUB_OIDC_HOST}:aud": "sts.amazonaws.com"
                     },
                     "StringLike": {
                         # Allow from specific repo, any branch/environment
-                        "token.actions.githubusercontent.com:sub": f"repo:{github_org}/{github_repo}:*"
+                        f"{GITHUB_OIDC_HOST}:sub": f"repo:{github_org}/{github_repo}:*"
                     }
                 }
             }

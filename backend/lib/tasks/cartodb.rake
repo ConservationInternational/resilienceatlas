@@ -118,14 +118,13 @@ module CartodbRakeHelpers
   # Build a TiTiler colormap from CSS stops.
   #
   # For "linear" (default) mode: returns a fine-grained interval array that
-  #   approximates CSS linear interpolation by subdividing each coloured
-  #   segment into small sub-intervals with interpolated RGBA values.
-  #   Transparent stops (nodata sentinels) are kept as exact single intervals
-  #   so that e.g. stop(0, transparent) masks ocean/nodata pixels precisely.
+  #   approximates CSS linear interpolation.  Transparent stops (nodata
+  #   sentinels like stop(0,transparent)) are kept as exact single intervals
+  #   so they are never blended with adjacent colours.  Coloured segments are
+  #   subdivided into a small number of steps to keep the URL short.
   #
   # For "discrete" or "exact" mode: returns an explicit interval array
-  #   [[[lower, upper], [r,g,b,a]], ...] that TiTiler applies directly to
-  #   raw pixel values without any rescaling.
+  #   [[[lower, upper], [r,g,b,a]], ...] applied directly to raw pixel values.
   def self.build_titiler_colormap(stops, mode: "linear", default_rgba: nil)
     return nil if stops.blank?
 
@@ -136,22 +135,23 @@ module CartodbRakeHelpers
     end
   end
 
-  # Fine-grained interval colormap for linear/gradient mode.
-  # Approximates CSS linear interpolation by subdividing each pair of adjacent
-  # coloured stops into many small intervals with linearly interpolated RGBA
-  # values — enough for the human eye to perceive a smooth gradient.
+  # Fine-grained interval colormap for linear mode.
   #
-  # Transparent stops (nodata/clip sentinels) are kept as exact single
-  # intervals so that e.g. stop(0, transparent) continues to mask ocean
-  # pixels precisely without blurring into adjacent coloured values.
+  # Approximates CSS linear interpolation by subdividing each coloured segment
+  # into a small number of sub-intervals with linearly interpolated RGBA values.
+  # Transparent stop endpoints are kept as exact single intervals — this is
+  # critical for layers like CHIRPS where stop(0,transparent) masks ocean
+  # pixels and must never bleed into adjacent coloured values.
   #
-  # Step size: ~0.1 data units per sub-interval, capped at 50 steps per
-  # segment.  Sufficient for smooth appearance across typical data ranges.
+  # Step count is capped at MAX_GRADIENT_STEPS (6) to keep the colormap JSON
+  # short enough for URL embedding.  At typical tile zoom levels 6 steps per
+  # gradient segment is visually indistinguishable from a true linear ramp.
+  MAX_GRADIENT_STEPS = 6
+
   def self.build_fine_interval_colormap(stops, default_rgba: nil)
     sorted = stops.sort_by { |s| s[:value] }
     colormap = []
 
-    # Prepend sentinel for values below the minimum stop.
     if default_rgba && sorted.any?
       colormap << [[-32768, sorted.first[:value]], default_rgba]
     end
@@ -169,12 +169,10 @@ module CartodbRakeHelpers
         range = upper_val - lower_val
 
         if rgba == [0, 0, 0, 0] || next_rgba.nil? || next_rgba == [0, 0, 0, 0] || range <= 0
-          # One endpoint is transparent or range is degenerate: keep as a single
-          # exact interval so nodata/sentinel values are preserved precisely.
+          # Transparent endpoint or degenerate range: single exact interval.
           colormap << [[lower_val, upper_val], rgba]
         else
-          # Both endpoints are coloured: subdivide to approximate the gradient.
-          n_steps = [[(range / 0.1).ceil, 2].max, 50].min
+          n_steps = MAX_GRADIENT_STEPS
           step = range / n_steps.to_f
           n_steps.times do |j|
             t = j.to_f / n_steps
@@ -187,7 +185,6 @@ module CartodbRakeHelpers
           end
         end
       else
-        # Last stop: extend one unit beyond its value.
         colormap << [[lower_val, lower_val + 1], rgba]
       end
     end
@@ -195,10 +192,11 @@ module CartodbRakeHelpers
     colormap.presence
   end
 
-  # Gradient colormap for linear/default mode (legacy, no longer used for CSS
-  # translation — kept for reference).
+  # Gradient colormap (legacy, kept for reference).
   # Normalises stop values to 0-255 key space; TiTiler interpolates between
   # defined keys after rescaling raw pixel values with the rescale parameter.
+  # NOT used for CSS translation — interior transparent stops cannot be
+  # represented precisely in the 0-255 key space.
   def self.build_gradient_colormap(stops)
     values = stops.map { |stop| stop[:value] }
     min = values.min
@@ -299,8 +297,8 @@ module CartodbRakeHelpers
     result["mode"] = mode if mode.present?
 
     if stops.any?
-      min = stops.map { |stop| stop[:value] }.min
-      max = stops.map { |stop| stop[:value] }.max
+      stops.map { |stop| stop[:value] }.min
+      stops.map { |stop| stop[:value] }.max
 
       # For linear (gradient) mode: if the lowest or highest stop is transparent
       # it is a nodata sentinel, not a real gradient endpoint.  Keeping it inflates
@@ -333,8 +331,8 @@ module CartodbRakeHelpers
       end
 
       result["colormap"] = build_titiler_colormap(stops, mode: effective_mode, default_rgba: default_rgba)
-      # All colormap modes (linear, discrete, exact) now produce interval arrays
-      # that apply colours directly to raw pixel values; no rescale is needed.
+      # All colormap modes now produce interval arrays using raw pixel values;
+      # no rescale parameter is needed.
     end
 
     result.compact
