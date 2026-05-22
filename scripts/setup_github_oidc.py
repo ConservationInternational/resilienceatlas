@@ -375,6 +375,27 @@ def create_deployment_policy(route53_zone_id):
                     "arn:aws:ecr:*:*:repository/*rasterinteractionfunction*",
                     "arn:aws:ecr:*:*:repository/*downloadimagefunction*"
                 ]
+            },
+            {
+                # Bootstrapping script does not know specific Bedrock agent IDs,
+                # so agent-management permissions are scoped at the service level.
+                "Sid": "BedrockAgentManagement",
+                "Effect": "Allow",
+                "Action": [
+                    "bedrock:GetAgent",
+                    "bedrock:UpdateAgent",
+                    "bedrock:PrepareAgent",
+                    "bedrock:ListAgentVersions",
+                    "bedrock:ListAgentActionGroups",
+                    "bedrock:GetAgentActionGroup",
+                    "bedrock:UpdateAgentActionGroup",
+                    "bedrock:CreateAgentAlias",
+                    "bedrock:GetAgentAlias",
+                    "bedrock:ListAgentAliases",
+                    "bedrock:UpdateAgentAlias",
+                    "bedrock:DeleteAgentAlias"
+                ],
+                "Resource": "*"
             }
         ]
     }
@@ -404,7 +425,7 @@ def create_iam_role(iam_client, role_name, trust_policy, permissions_policy):
             PolicyName='GitHubActionsDeploymentPolicy',
             PolicyDocument=json.dumps(permissions_policy)
         )
-        print(f"✅ Attached deployment policy to role")
+        print("✅ Attached deployment policy to role")
 
         return role_arn
 
@@ -420,7 +441,7 @@ def create_iam_role(iam_client, role_name, trust_policy, permissions_policy):
                     RoleName=role_name,
                     PolicyDocument=json.dumps(trust_policy)
                 )
-                print(f"✅ Updated trust policy for role")
+                print("✅ Updated trust policy for role")
             except ClientError as update_error:
                 print(f"⚠️ Could not update trust policy: {update_error}")
 
@@ -431,7 +452,7 @@ def create_iam_role(iam_client, role_name, trust_policy, permissions_policy):
                     PolicyName='GitHubActionsDeploymentPolicy',
                     PolicyDocument=json.dumps(permissions_policy)
                 )
-                print(f"✅ Updated deployment policy for role")
+                print("✅ Updated deployment policy for role")
             except ClientError as update_error:
                 print(f"⚠️ Could not update permissions policy: {update_error}")
 
@@ -518,7 +539,7 @@ def main(profile=None, github_org="ConservationInternational", github_repo="resi
 
     print("\n📋 Trust Policy allows:")
     print(f"  - Repository: {github_org}/{github_repo}")
-    print(f"  - All branches and environments")
+    print("  - All branches and environments")
 
     print("\n📋 Permissions granted:")
     print("  - S3: Upload/download deployment packages")

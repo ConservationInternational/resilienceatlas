@@ -2673,7 +2673,7 @@ namespace :cartodb do
             # Show the actual columns available in each source table so the
             # underlying source_sql can be corrected in the database.
             if (m = e.message.match(/column ([\w."]+) does not exist/i))
-              missing_ref = m[1].gsub('"', "")
+              missing_ref = m[1].delete('"')
               tbl_alias = missing_ref.include?(".") ? missing_ref.split(".").first : nil
               imported_list.each do |tbl|
                 next if tbl_alias && !view_sql.match?(

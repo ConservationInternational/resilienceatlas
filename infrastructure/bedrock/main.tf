@@ -151,6 +151,8 @@ resource "aws_iam_role_policy" "github_actions_bedrock" {
           "bedrock:GetAgentActionGroup",
           "bedrock:UpdateAgentActionGroup",
           "bedrock:CreateAgentAlias",
+          "bedrock:GetAgentAlias",
+          "bedrock:ListAgentAliases",
           "bedrock:UpdateAgentAlias",
           "bedrock:DeleteAgentAlias",
         ]
@@ -164,7 +166,7 @@ resource "aws_iam_role_policy" "github_actions_bedrock" {
         Effect   = "Allow"
         Action   = ["iam:PassRole"]
         Resource = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${aws_iam_role.bedrock_agent.name}"
-      },
+      }
     ]
   })
 }
