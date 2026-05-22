@@ -42,11 +42,6 @@ const OLMapOverlay: React.FC<OLMapOverlayProps> = ({ map, latlng, data, onReady,
       positioning: 'bottom-center',
       stopEvent: true,
       offset: [0, -8],
-      autoPan: {
-        animation: {
-          duration: 250,
-        },
-      },
     });
 
     map.addOverlay(overlay);
@@ -76,6 +71,7 @@ const OLMapOverlay: React.FC<OLMapOverlayProps> = ({ map, latlng, data, onReady,
     const coord = fromLonLat([latlng.lng, latlng.lat]);
     overlayRef.current.setPosition(coord);
 
+    // Render children first so the container has its correct size before the pan check
     if (children) {
       if (!rootRef.current) {
         rootRef.current = createRoot(containerRef.current);
@@ -93,6 +89,51 @@ const OLMapOverlay: React.FC<OLMapOverlayProps> = ({ map, latlng, data, onReady,
         </>,
       );
     }
+
+    // Pan the map to keep the popup fully visible, accounting for the sidebar on the left
+    requestAnimationFrame(() => {
+      const element = containerRef.current;
+      const overlay = overlayRef.current;
+      if (!element || !overlay?.getPosition()) return;
+
+      const view = map.getView();
+      const mapEl = map.getTargetElement() as HTMLElement | null;
+      if (!mapEl) return;
+
+      const mapRect = mapEl.getBoundingClientRect();
+      const rect = element.getBoundingClientRect();
+      const resolution = view.getResolution() ?? 1;
+      const center = view.getCenter();
+      if (!center) return;
+
+      // Detect sidebar so the popup doesn't pan behind it
+      const sidebar = document.querySelector<HTMLElement>('.l-sidebar-content');
+      const sidebarRight = sidebar ? sidebar.getBoundingClientRect().right : 0;
+      const leftMargin = Math.max(sidebarRight - mapRect.left, 0) + 20;
+      const MARGIN = 20;
+
+      let dx = 0;
+      let dy = 0;
+
+      if (rect.left < mapRect.left + leftMargin) {
+        dx = rect.left - (mapRect.left + leftMargin);
+      } else if (rect.right > mapRect.right - MARGIN) {
+        dx = rect.right - (mapRect.right - MARGIN);
+      }
+
+      if (rect.top < mapRect.top + MARGIN) {
+        dy = rect.top - (mapRect.top + MARGIN);
+      } else if (rect.bottom > mapRect.bottom - MARGIN) {
+        dy = rect.bottom - (mapRect.bottom - MARGIN);
+      }
+
+      if (dx !== 0 || dy !== 0) {
+        view.animate({
+          center: [center[0] + dx * resolution, center[1] + dy * resolution],
+          duration: 250,
+        });
+      }
+    });
   }, [latlng, data, children]);
 
   return null;
