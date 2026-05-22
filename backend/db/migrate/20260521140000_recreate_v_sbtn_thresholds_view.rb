@@ -9,6 +9,8 @@
 # only the integer-cast functional index is missing.
 class RecreateVSbtnThresholdsView < ActiveRecord::Migration[7.2]
   def up
+    return unless source_tables_available?
+
     execute <<~SQL
       CREATE OR REPLACE VIEW ra_vector.v_sbtn_thresholds AS
       SELECT
@@ -51,5 +53,12 @@ class RecreateVSbtnThresholdsView < ActiveRecord::Migration[7.2]
       DROP VIEW IF EXISTS ra_vector.v_sbtn_thresholds;
       DROP INDEX IF EXISTS ra_vector.idx_ecoregions2017_eco_id_int;
     SQL
+  end
+
+  private
+
+  def source_tables_available?
+    select_value("SELECT to_regclass('ra_nonspatial.sbtn_thresholds')").present? &&
+      select_value("SELECT to_regclass('ra_vector.ecoregions2017')").present?
   end
 end

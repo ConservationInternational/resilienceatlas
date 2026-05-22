@@ -21,9 +21,10 @@
 
 # Schemas where create_schema must be idempotent on db:schema:load.
 # ra_app is created by the 20260515160000_create_ra_schemas migration and appears
-# in schema.rb; ra_vector/ra_raster are also migration-created but excluded from
-# schema.rb entirely (see below).
-IDEMPOTENT_SCHEMAS = %w[topology ra_app ra_vector ra_raster].freeze
+# in schema.rb; ra_vector/ra_raster are migration-created but excluded from
+# schema.rb entirely (see below). topology/tiger/tiger_data can already exist
+# when PostGIS extensions are preloaded in the database image.
+IDEMPOTENT_SCHEMAS = %w[topology ra_app ra_vector ra_raster tiger tiger_data].freeze
 
 # Schemas to omit entirely from schema.rb (create_schema statements + all tables).
 # ra_vector and ra_raster hold externally-managed data loaded outside Rails migrations.
