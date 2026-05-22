@@ -127,6 +127,7 @@ jobs:
             --capabilities CAPABILITY_IAM CAPABILITY_AUTO_EXPAND \
             --parameter-overrides \
               RailsApiUrl="${{ secrets.RAILS_API_URL }}" \
+              TitilerUrl="${{ github.ref == 'refs/heads/main' && 'https://titiler.resilienceatlas.org' || 'https://staging.titiler.resilienceatlas.org' }}" \
               ResilienceApiKeySecretArn="${{ vars.RESILIENCE_API_KEY_SECRET_ARN }}" \
               EmbeddingsBucket="${{ secrets.AI_EMBEDDINGS_BUCKET }}" \
               KbBucket="${{ secrets.AI_EMBEDDINGS_BUCKET }}" \

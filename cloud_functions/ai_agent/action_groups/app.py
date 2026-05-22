@@ -1,6 +1,6 @@
 """
 Action Groups Lambda for Bedrock Agent
-Handles all agent tool calls (8 endpoints):
+Handles all agent tool calls (9 endpoints):
   - retrieve_context       RAG similarity search
   - get_site_scopes        List site scopes; or list layer groups for a scope (site_scope_id param)
   - get_layers             List layers; or get full detail for one layer (layer_id/slug param)
@@ -9,6 +9,7 @@ Handles all agent tool calls (8 endpoints):
   - update_layer           PATCH /api/admin/layers/:id
   - import_vector_table    POST /api/admin/vector_tables/import
   - create_vector_view     POST /api/admin/vector_views
+  - get_statistics         COG raster stats via TiTiler; or vector column stats via Rails
 
 Embeddings are loaded from S3 at cold start for fast RAG lookups.
 """
@@ -25,6 +26,7 @@ logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 RAILS_API_URL = os.environ["RAILS_API_URL"]
+TITILER_URL = os.environ.get("TITILER_URL", "https://titiler.resilienceatlas.org")
 _sm = boto3.client("secretsmanager", region_name=os.environ.get("AWS_REGION", "us-east-1"))
 
 
@@ -565,6 +567,42 @@ def handle_create_vector_view(params: dict, auth: AuthContext) -> str:
     return json.dumps(result, ensure_ascii=False)
 
 
+def handle_get_statistics(params: dict, _auth: "AuthContext") -> str:
+    """Get data statistics (min/max/histogram) for a COG raster via TiTiler, or a vector
+    table column via the Rails API.  Used to inform legend / colormap configuration."""
+    s3_uri = params.get("s3_uri")
+    table_name = params.get("table_name")
+    column = params.get("column")
+
+    if s3_uri:
+        bidx = params.get("bidx", "1")
+        try:
+            resp = requests.get(
+                f"{TITILER_URL}/cog/statistics",
+                params={"url": s3_uri, "bidx": str(bidx)},
+                timeout=60,
+            )
+            resp.raise_for_status()
+            return json.dumps(resp.json(), ensure_ascii=False)
+        except requests.HTTPError as exc:
+            return json.dumps({
+                "success": False,
+                "message": f"TiTiler error: {exc.response.status_code} {exc.response.text[:200]}",
+            })
+    elif table_name and column:
+        bins = params.get("bins", "10")
+        result = rails_get(
+            f"/api/admin/vector_tables/{table_name}/statistics",
+            params={"column": column, "bins": str(bins)},
+        )
+        return json.dumps(result, ensure_ascii=False)
+    else:
+        return json.dumps({
+            "success": False,
+            "message": "Provide either s3_uri (for COG raster statistics) or table_name + column (for vector table statistics).",
+        })
+
+
 # ── Bedrock action group dispatcher ──────────────────────────────────────────
 
 ACTION_HANDLERS = {
@@ -576,6 +614,7 @@ ACTION_HANDLERS = {
     "update_layer": handle_update_layer,
     "import_vector_table": handle_import_vector_table,
     "create_vector_view": handle_create_vector_view,
+    "get_statistics": handle_get_statistics,
 }
 
 

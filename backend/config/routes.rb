@@ -37,6 +37,9 @@ Rails.application.routes.draw do
         end
       end
       resources :vector_tables, only: [:index, :show] do
+        member do
+          get :statistics
+        end
         collection do
           post :import
         end

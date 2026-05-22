@@ -321,3 +321,53 @@ paths:
         "200":
           description: "{ success: true, data: { name, geometry_column, description } } on success, or { success: false, message } on error"
 
+  /get_statistics:
+    post:
+      operationId: get_statistics
+      summary: Get data statistics (min, max, mean, histogram) for a COG raster band or a vector table column
+      description: |
+        Always call this before setting colormap stops, gradient ranges, or legend breakpoints
+        for a new layer so the legend reflects the actual data distribution.
+
+        COG raster mode (provide s3_uri):
+          Returns per-band statistics from TiTiler: min, max, mean, stddev, percentiles,
+          and a histogram array. Use min/max (or percentile_2/percentile_98 to avoid outliers)
+          to set the colormap stops in layer_config.
+
+        Vector / martin mode (provide table_name + column):
+          Queries PostGIS for min, max, mean, stddev, null_count, and histogram buckets
+          for the specified numeric column. Use min/max to set colorRamp range stops.
+
+        Only one mode is active per call — provide s3_uri OR table_name+column, not both.
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                s3_uri:
+                  type: string
+                  description: "S3 URI of a COG raster file (e.g. s3://bucket/path/file.tif). Mutually exclusive with table_name."
+                table_name:
+                  type: string
+                  description: "PostGIS table name for vector column statistics. Mutually exclusive with s3_uri."
+                column:
+                  type: string
+                  description: "Numeric column name to compute statistics for (required when table_name is provided)."
+                bidx:
+                  type: integer
+                  description: "Band index for COG rasters (default 1)."
+                  default: 1
+                bins:
+                  type: integer
+                  description: "Number of histogram buckets for vector columns (default 10, max 50)."
+                  default: 10
+      responses:
+        "200":
+          description: |
+            COG: per-band object keyed by band name (e.g. b1) with min, max, mean, std, percentile_2,
+            percentile_98, histogram [[counts], [bin_edges]].
+            Vector: { success: true, data: { table, schema, column, min, max, mean, std,
+            total_count, null_count, histogram: [{min, max, count}] } }
+

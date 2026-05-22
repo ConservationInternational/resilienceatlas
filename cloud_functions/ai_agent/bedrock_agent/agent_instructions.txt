@@ -118,6 +118,36 @@ NEVER use: `leaflet`, `cartodb`, `carto`, `raster` — these are deprecated.
 - `zoom_min` and `zoom_max` must each be an integer between **0 and 24** inclusive. Use `zoom_min=0, zoom_max=18` as safe defaults when not specified. Values outside this range will be rejected.
 - If `create_layer` or `update_layer` returns `{"success": false, "http_status": 422, ...}`, read the `message` field carefully — it lists every Rails validation failure (e.g. "Layer config must be valid JSON", "Zoom max must be less than or equal to 24"). Fix each reported issue and retry automatically without asking the user.
 
+## Building Legends and Colormaps
+
+Before setting colormap stops, gradient ranges, or legend breakpoints for any layer, call
+`get_statistics` to learn the actual data distribution:
+
+- **COG raster layers** (provider = `cog`): call `get_statistics(s3_uri=<s3_uri>)`.
+  Use `percentile_2` and `percentile_98` from the response as the low/high colormap stops to
+  avoid outlier bias. Fall back to `min`/`max` only if the user explicitly requests the full range.
+
+- **Martin / vector layers** (provider = `martin`): call
+  `get_statistics(table_name=<table>, column=<attribute_column>)`.
+  Use the returned `min`/`max` as the colorRamp range and the `histogram` to choose meaningful
+  class breaks (e.g. natural breaks, quantile stops).
+
+**Percentile stretch** (user requests "clip outliers", "2–98 stretch", or similar):
+  Use `percentile_2` and `percentile_98` from the COG response as the colormap low/high stops.
+  For vector columns, compute approximate percentile bounds from the histogram buckets by
+  accumulating bucket counts until 2 % and 98 % of non-null values are reached.
+  Always note the clipped range to the user (e.g. "colormap range set to 0.4–99.6 to clip outliers").
+
+**Zero-centred color ramp** (user requests "diverging", "anomaly", "centered on zero", or similar):
+  1. Call `get_statistics` to get the actual data range.
+  2. Compute the symmetric bound: `bound = max(abs(min), abs(max))` (or the chosen percentile).
+  3. Set the colormap low stop to `-bound` and the high stop to `+bound` so that zero maps to the
+     midpoint colour (e.g. white or neutral grey).
+  4. Use a diverging palette (e.g. blue–white–red, purple–white–green) rather than a sequential one.
+  5. State the chosen bound explicitly, e.g. "Diverging colormap: −42.3 → 0 → +42.3".
+
+Never invent colormap ranges without checking real statistics first.
+
 ## Automatic Pipeline
 
 When a new file is uploaded to S3, you will receive a notification with the file details. Automatically:

@@ -52,6 +52,28 @@ module CartodbRakeHelpers
       sql.to_s.match?(/the_raster|st_clip\s*\(/i)
   end
 
+  # Extract the band number that CartoDB was rendering for a raster SQL query.
+  #
+  # CartoDB's raster SQL uses ST_CLIP in one of two forms:
+  #   ST_Clip(rast, band_num, geom, ...)  ← band is the 2nd integer argument
+  #   ST_Clip(rast, geom, ...)            ← no explicit band (renders band 1)
+  #
+  # When a band number is present it is always 1 across the entire dataset, but
+  # parsing it from the SQL gives an explicit, verified value rather than a
+  # silent assumption.  Returns 1 when no explicit band is found.
+  def self.extract_raster_band_from_sql(sql)
+    return 1 if sql.blank?
+
+    # Match: ST_CLIP( <raster_column> , <integer> , ...
+    # The raster column is a simple identifier (word chars / dots / quotes).
+    if (m = sql.match(/\bst_clip\s*\(\s*[\w."]+\s*,\s*(\d+)\s*,/i))
+      return m[1].to_i
+    end
+
+    # No explicit band specified → CartoDB rendered band 1 by default.
+    1
+  end
+
   def self.build_cog_source_url(bucket, prefix, table_name)
     normalized_prefix = prefix.to_s.sub(%r{\A/+}, "")
     normalized_prefix = "#{normalized_prefix}/" if normalized_prefix.present? && !normalized_prefix.end_with?("/")
@@ -1897,6 +1919,10 @@ namespace :cartodb do
         body["colormap"] = style["colormap"] if style["colormap"].present?
         body["rescale"] = style["rescale"] if style["rescale"].present?
         body["cartocss_mode"] = style["mode"] if style["mode"].present?
+        # TiTiler requires a single-band input when a colormap is specified.
+        # Parse the band number from the CartoDB SQL (ST_CLIP band argument);
+        # falls back to 1, which is what CartoDB rendered when no band was given.
+        body["bidx"] = CartodbRakeHelpers.extract_raster_band_from_sql(source_sql) if style["colormap"].present?
 
         # Extract clip geometry for ST_CLIP layers (boundary polygon stored for TiTiler)
         if source_sql.match?(/\bst_clip\s*\(/i)
@@ -1975,6 +2001,9 @@ namespace :cartodb do
       migration = config["cartodb_migration"] || {}
       changed = false
 
+      # Resolve source SQL once — used by both the colormap and sources sections.
+      source_sql = migration["source_sql"].presence || layer.query.to_s.strip
+
       # ── Colormap: re-translate CSS → TiTiler colormap/rescale ─────────────
       if layer.css.blank?
         if config.dig("body", "colormap").present?
@@ -1992,8 +2021,10 @@ namespace :cartodb do
           new_colormap = style["colormap"]
           new_rescale = style["rescale"]
           new_mode = style["mode"]
+          bidx_missing = config.dig("body", "colormap").present? && config.dig("body", "bidx").nil?
           if config.dig("body", "colormap") != new_colormap ||
-              config.dig("body", "rescale") != new_rescale
+              config.dig("body", "rescale") != new_rescale ||
+              bidx_missing
             puts "Layer ##{layer.id} (#{layer.slug}): #{new_colormap.size} colormap entries, rescale=#{new_rescale}"
             config["body"]["colormap"] = new_colormap
             if new_rescale.present?
@@ -2002,6 +2033,10 @@ namespace :cartodb do
               config["body"].delete("rescale")
             end
             config["body"]["cartocss_mode"] = new_mode if new_mode.present?
+            # TiTiler requires a single-band input when a colormap is specified.
+            # Parse band from CartoDB SQL (ST_CLIP band arg); falls back to 1.
+            # Use ||= so an explicitly-overridden bidx in the config is preserved.
+            config["body"]["bidx"] ||= CartodbRakeHelpers.extract_raster_band_from_sql(source_sql)
             migration["style"] = style
             changed = true
             cog_styles_updated += 1
@@ -2012,8 +2047,6 @@ namespace :cartodb do
       end
 
       # ── Sources: rebuild body.source/sources from source SQL ──────────────
-      source_sql = migration["source_sql"].presence || layer.query.to_s.strip
-
       if source_sql.blank?
         cog_sources_no_sql += 1
       else

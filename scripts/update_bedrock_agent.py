@@ -82,17 +82,38 @@ print()
 
 # ── 5. Create a new version by making a temporary alias ──────────────────────
 temp_name = "temp-promote"
+
+# Clean up any leftover temp alias from a previous failed run
+for summary in ba.list_agent_aliases(agentId=AGENT_ID)["agentAliasSummaries"]:
+    if summary["agentAliasName"] == temp_name:
+        ba.delete_agent_alias(agentId=AGENT_ID, agentAliasId=summary["agentAliasId"])
+        print(f"Cleaned up stale alias {summary['agentAliasId']}")
+        time.sleep(3)
+        break
+
 resp = ba.create_agent_alias(agentId=AGENT_ID, agentAliasName=temp_name)
 temp_alias_id = resp["agentAlias"]["agentAliasId"]
-print(f"Temp alias created: {temp_alias_id}")
-time.sleep(8)
+print(f"Temp alias created: {temp_alias_id}, waiting for version...", end="", flush=True)
 
-versions = ba.list_agent_versions(agentId=AGENT_ID)["agentVersionSummaries"]
-versioned = [v for v in versions if v["agentVersion"] != "DRAFT"]
-versioned.sort(key=lambda v: int(v["agentVersion"]))
-new_version = versioned[-1]["agentVersion"]
+# Poll until the alias finishes CREATING and has a version in its routing config
+new_version = None
+for _ in range(30):
+    time.sleep(5)
+    alias_info = ba.get_agent_alias(agentId=AGENT_ID, agentAliasId=temp_alias_id)["agentAlias"]
+    status = alias_info.get("agentAliasStatus", "")
+    routing = alias_info.get("routingConfiguration", [{}])
+    new_version = routing[0].get("agentVersion") if routing else None
+    print(f" {status}({new_version})", end="", flush=True)
+    if status not in ("CREATING", "UPDATING") and new_version:
+        break
+print()
+
+if not new_version:
+    print("ERROR: could not determine new version from temp alias", file=sys.stderr)
+    ba.delete_agent_alias(agentId=AGENT_ID, agentAliasId=temp_alias_id)
+    sys.exit(1)
+
 print(f"New agent version: {new_version}")
-
 ba.delete_agent_alias(agentId=AGENT_ID, agentAliasId=temp_alias_id)
 print("Temp alias deleted")
 

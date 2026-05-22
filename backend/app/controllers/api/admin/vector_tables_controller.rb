@@ -88,6 +88,109 @@ class Api::Admin::VectorTablesController < Api::Admin::ApiController
     render json: {success: false, message: e.message}, status: :internal_server_error
   end
 
+  # GET /api/admin/vector_tables/:id/statistics?column=col_name[&bins=10]
+  # Returns min, max, mean, stddev, null_count, and histogram for a numeric column.
+  def statistics
+    table_name = params[:id]
+    column = params[:column].presence
+    bins = params[:bins].to_i
+    bins = 10 if bins < 2 || bins > 50
+
+    return render json: {success: false, message: "column is required"}, status: :bad_request unless column
+
+    validate_table_name!(table_name)
+
+    conn = ActiveRecord::Base.connection
+
+    found_schema = MANAGED_SCHEMAS.find do |schema|
+      conn.select_value(
+        "SELECT 1 FROM information_schema.tables " \
+        "WHERE table_schema = #{conn.quote(schema)} AND table_name = #{conn.quote(table_name)} LIMIT 1"
+      )
+    end
+
+    unless found_schema
+      return render json: {success: false, message: "Table '#{table_name}' not found."}, status: :not_found
+    end
+
+    col_info = conn.select_one(
+      "SELECT data_type FROM information_schema.columns " \
+      "WHERE table_schema = #{conn.quote(found_schema)} AND table_name = #{conn.quote(table_name)} " \
+      "  AND column_name = #{conn.quote(column)} LIMIT 1"
+    )
+
+    unless col_info
+      return render json: {
+        success: false,
+        message: "Column '#{column}' not found in table '#{table_name}'."
+      }, status: :not_found
+    end
+
+    unless col_info["data_type"]&.match?(/\A(smallint|integer|bigint|numeric|decimal|real|double precision|money)\z/i)
+      return render json: {
+        success: false,
+        message: "Column '#{column}' has type '#{col_info["data_type"]}' which is not numeric."
+      }, status: :unprocessable_entity
+    end
+
+    qualified = "#{conn.quote_table_name(found_schema)}.#{conn.quote_table_name(table_name)}"
+    quoted_col = conn.quote_column_name(column)
+
+    stats = conn.select_one(<<~SQL)
+      SELECT
+        MIN(#{quoted_col}::float)    AS min,
+        MAX(#{quoted_col}::float)    AS max,
+        AVG(#{quoted_col}::float)    AS mean,
+        STDDEV(#{quoted_col}::float) AS std,
+        COUNT(*)                     AS total_count,
+        COUNT(*) FILTER (WHERE #{quoted_col} IS NULL) AS null_count
+      FROM #{qualified}
+    SQL
+
+    lo = stats["min"]&.to_f
+    hi = stats["max"]&.to_f
+
+    histogram = if lo.nil?
+      []
+    elsif lo == hi
+      [{min: lo, max: hi, count: stats["total_count"].to_i - stats["null_count"].to_i}]
+    else
+      bucket_width = (hi - lo) / bins
+      conn.select_all(<<~SQL).map do |row|
+        SELECT
+          width_bucket(#{quoted_col}::float, #{lo}, #{hi + 1e-10}, #{bins}) AS bucket,
+          COUNT(*) AS cnt
+        FROM #{qualified}
+        WHERE #{quoted_col} IS NOT NULL
+        GROUP BY bucket
+        ORDER BY bucket
+      SQL
+        b = row["bucket"].to_i
+        {min: (lo + (b - 1) * bucket_width).round(6), max: (lo + b * bucket_width).round(6), count: row["cnt"].to_i}
+      end
+    end
+
+    render json: {
+      success: true,
+      data: {
+        table: table_name,
+        schema: found_schema,
+        column: column,
+        min: lo,
+        max: hi,
+        mean: stats["mean"]&.to_f,
+        std: stats["std"]&.to_f,
+        total_count: stats["total_count"].to_i,
+        null_count: stats["null_count"].to_i,
+        histogram: histogram
+      }
+    }, status: :ok
+  rescue ArgumentError => e
+    render json: {success: false, message: e.message}, status: :unprocessable_entity
+  rescue => e
+    render json: {success: false, message: e.message}, status: :internal_server_error
+  end
+
   def import
     s3_uri = params.require(:s3_uri)
     table_name = params[:table_name].presence || derive_table_name(s3_uri)
