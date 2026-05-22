@@ -16,6 +16,7 @@ Parameters:
   RollbarAccessToken:
     Type: String
     Default: ''
+    NoEcho: true
     Description: Rollbar access token for error tracking (optional)
   RollbarEnvironment:
     Type: String
@@ -37,19 +38,6 @@ Globals:
         ROLLBAR_ENVIRONMENT: !Ref RollbarEnvironment
 
 Resources:
-  # Shared Lambda Layer for Earth Engine dependencies
-  EarthEngineLayer:
-    Type: AWS::Serverless::LayerVersion
-    Properties:
-      LayerName: earth-engine-layer
-      Description: Earth Engine Python SDK and dependencies
-      ContentUri: layers/earth_engine/
-      CompatibleRuntimes:
-        - python3.14
-      RetentionPolicy: Delete
-    Metadata:
-      BuildMethod: python3.14
-
   # Analysis Histogram Function
   HistogramFunction:
     Type: AWS::Serverless::Function

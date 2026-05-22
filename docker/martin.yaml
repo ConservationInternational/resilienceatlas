@@ -4,10 +4,14 @@
 # IMPORTANT: When using --config, Martin ignores DATABASE_URL as an env var.
 # The postgres connection MUST be declared here (it can reference env vars).
 
-# Allow cross-origin requests from any origin.
-# Martin serves read-only public map tiles — no auth or cookies —
-# so wildcard CORS is safe and required for site-scope subdomains
-# (e.g. trendsearth.resilienceatlas.org, ldn.resilienceatlas.org).
+# Enable CORS for all origins.
+# Martin's `cors: true` defaults to `origin: *`, which per Martin's implementation
+# echoes back the request Origin header rather than returning a literal `*`.
+# This means CloudFront must include the Origin header in its cache key
+# (see infrastructure/martin-cdn/template.yaml TileCachePolicy) so that
+# each requesting subdomain receives its own correctly-scoped CORS header.
+# Martin serves read-only public map tiles — no auth or cookies — so
+# allowing all origins is safe.
 cors: true
 
 # Cache boundary tiles in the browser for 24 hours (86400 s), matching

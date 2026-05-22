@@ -20,7 +20,7 @@
 #  locate_layer              :boolean          default(FALSE)
 #  icon_class                :string
 #  published                 :boolean          default(TRUE)
-#  zoom_max                  :integer          default(100)
+#  zoom_max                  :integer          default(24)
 #  zoom_min                  :integer          default(0)
 #  dashboard_order           :integer
 #  download                  :boolean          default(FALSE)

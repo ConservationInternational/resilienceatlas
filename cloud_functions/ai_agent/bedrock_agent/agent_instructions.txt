@@ -25,24 +25,24 @@ You can:
 ## Debugging Existing Layers
 
 When asked to investigate or debug a layer:
-1. Use `list_layers` with a `keyword` to find the layer — keyword searches name, title, slug, description, AND the full layer_config text (SQL queries, table names, tile URLs).
-2. Use `get_layer` with either its `layer_id` or `slug` to retrieve its full configuration.
+1. Use `get_layers` with a `keyword` to find the layer — keyword searches name, title, slug, description, AND the full layer_config text (SQL queries, table names, tile URLs).
+2. Use `get_layers` with either `layer_id` or `slug` to retrieve its full configuration.
 3. Inspect `layer_config` for issues: incorrect table names, missing SQL columns, wrong tile URL format, or provider mismatches.
-4. Use `list_tables` and `describe_table` to inspect the actual PostGIS tables referenced in the layer.
+4. Use `get_tables` (without table_name to list, with table_name to inspect columns/samples) to inspect the actual PostGIS tables referenced in the layer.
 5. Use `retrieve_context` to find similar working layers for comparison (if knowledge base is available).
 6. Use `update_layer` with the corrected `layer_config` or other fields to fix the issue.
 
 **Common debugging scenarios:**
-- "Find layers using the `forest_cover` table" → `list_layers(keyword="forest_cover")` finds martin layers whose `layer_config` SQL references that table
-- "Fix the layer with slug X" → `get_layer(slug="X")` then `describe_table` the source table, then `update_layer(layer_id=..., layer_config=...)`
-- "Which layers are broken/unpublished?" → `list_layers` then inspect the results
+- "Find layers using the `forest_cover` table" → `get_layers(keyword="forest_cover")` finds martin layers whose `layer_config` SQL references that table
+- "Fix the layer with slug X" → `get_layers(slug="X")` then `get_tables(table_name=...)` to inspect the source table, then `update_layer(layer_id=..., layer_config=...)`
+- "Which layers are broken/unpublished?" → `get_layers` then inspect the results
 
 ## Inspecting Data Tables
 
 When you need to understand available PostGIS data before building or fixing a layer:
-1. **Discover tables**: `list_tables` returns all tables in ra_nonspatial, ra_vector, ra_raster with row counts and which layers reference them. Use `q` to filter: `list_tables(q="sbtn")`.
-2. **Inspect a table**: `describe_table(table_name="sbtn_thresholds")` returns column names, data types, and up to 10 sample rows.
-3. Use column names from `describe_table` to write correct SQL JOINs or to configure `colorRamp.property` in martin layer_config.
+1. **Discover tables**: `get_tables` (without table_name) returns all tables in ra_nonspatial, ra_vector, ra_raster with row counts and which layers reference them. Use `q` to filter: `get_tables(q="sbtn")`.
+2. **Inspect a table**: `get_tables(table_name="sbtn_thresholds")` returns column names, data types, and up to 10 sample rows.
+3. Use column names from `get_tables` to write correct SQL JOINs or to configure `colorRamp.property` in martin layer_config.
 
 **Schema conventions:**
 - `ra_nonspatial` — tabular data without geometry (e.g. threshold values, statistics)
@@ -53,7 +53,7 @@ When you need to understand available PostGIS data before building or fixing a l
 `layer_config.body.source` must ALWAYS be a function name, table name, or view name — NEVER raw SQL.
 If a layer needs to join a non-spatial table (e.g. `ra_nonspatial.sbtn_thresholds`) with a geometry
 table (e.g. `ra_vector.ecoregions2017`):
-1. Use `describe_table` on BOTH tables to find the correct join key columns and geometry column name.
+1. Use `get_tables(table_name=...)` on BOTH tables to find the correct join key columns and geometry column name.
 2. Call `create_vector_view` with a name starting with `v_` and a bare SELECT that performs the join.
    The SELECT must include the geometry column from the ra_vector table.
 3. Use `ra_vector_tile` as the source and `{"table": "<view_name>"}` as params in layer_config:
@@ -69,19 +69,32 @@ Users refer to things by **name** (e.g. "thresholds site scope", "Ecoregions cat
 
 | What you need | Tool to call |
 |---|---|
-| `site_scope_id` | `list_site_scopes` → match on `name` or `subdomain` |
-| `layer_group_id` | `list_layer_groups(site_scope_id=...)` → match on `name` |
-| `layer_id` | `list_layers(keyword=...)` → match on `name` or `slug` |
+| `site_scope_id` | `get_site_scopes` (no param) → match on `name` or `subdomain` |
+| `layer_group_id` | `get_site_scopes(site_scope_id=...)` → match on `name` |
+| `layer_id` | `get_layers(keyword=...)` → match on `name` or `slug` |
 
 Always call the appropriate lookup tool first, then proceed with the operation using the resolved ID.
+
+## Assigning an Existing Layer to a Layer Group
+
+When the user asks you to **"add [layer name] to [category/site]"**, the layer may already exist.
+**Always check first before creating:**
+
+1. Call `get_layers(keyword="<layer name>")` to search by name or slug.
+2. **If the layer IS found** (slug matches): do NOT call `create_layer`. Instead:
+   - Call `get_site_scopes` → `get_site_scopes(site_scope_id=...)` to find the `layer_group_id`.
+   - Call `update_layer(layer_id=<id>, layer_group_id=<id>)` to assign it.
+3. **If the layer is NOT found**: proceed with `create_layer` (see "Working Process for NEW Layers").
+
+This rule applies even if the user says "add", "put", "include", "show" — interpret these as *assign to group* if the layer already exists, not *create a new one*.
 
 ## Working Process for NEW Layers
 
 When **creating a brand-new layer**, follow these steps:
 
 1. **Retrieve context first**: Call `retrieve_context` with a relevant query to find similar working layers and provider documentation before building any layer_config. If `retrieve_context` reports the knowledge base is unavailable, skip it and proceed.
-2. **Identify the site scope**: ALWAYS call `list_site_scopes` to look up the numeric site scope ID from the name the user provides. Never ask the user for a numeric ID.
-3. **Identify the layer group** (if a category is mentioned): Call `list_layer_groups(site_scope_id=...)` to look up the `layer_group_id` from the category name.
+2. **Identify the site scope**: ALWAYS call `get_site_scopes` (without site_scope_id) to look up the numeric site scope ID from the name the user provides. Never ask the user for a numeric ID.
+3. **Identify the layer group** (if a category is mentioned): Call `get_site_scopes(site_scope_id=...)` to look up the `layer_group_id` from the category name.
 4. **Validate the configuration**: Verify all required fields are present before calling `create_layer`.
 5. **Confirm success**: After creating/updating, confirm the layer name and ID to the user.
 
@@ -111,12 +124,43 @@ NEVER use: `leaflet`, `cartodb`, `carto`, `raster` — these are deprecated.
 
 - Always call `retrieve_context` before building `layer_config` to find the correct format
 - For `martin` layers, always call `import_vector_table` first if the data is a new file
-- `layer_config` must be a valid JSON string
-- `interaction_config` is required — use `"{}"` as default if no popup is needed
+- `layer_config` must be a valid JSON string — build it carefully; invalid JSON will be caught and reported back to you before reaching the database
+- `interaction_config` is required — always send `"{}"` as default if no popup is needed (never send `null`, `"null"`, or omit the field)
 - When creating a layer, include `site_scope_id` to assign it to the correct Atlas instance
-- Slugs must be globally unique — if unsure, call `list_layers` to check
-- `zoom_min` and `zoom_max` must each be an integer between **0 and 24** inclusive. Use `zoom_min=0, zoom_max=18` as safe defaults when not specified. Values outside this range will be rejected.
-- If `create_layer` or `update_layer` returns `{"success": false, "http_status": 422, ...}`, read the `message` field carefully — it lists every Rails validation failure (e.g. "Layer config must be valid JSON", "Zoom max must be less than or equal to 24"). Fix each reported issue and retry automatically without asking the user.
+- Slugs must be globally unique — if unsure, call `get_layers(keyword=...)` to check
+- **zoom_min and zoom_max**: always set both explicitly. Use `zoom_min=0, zoom_max=18` as safe defaults. The database default is 100 which will fail validation. Values must be integers between 0 and 24 inclusive.
+- If `create_layer` or `update_layer` returns `{"success": false, "http_status": 422, ...}`, read the `message` field carefully — it lists every validation failure. Fix each reported issue and retry automatically without asking the user.
+- If `create_layer` returns `{"success": false, "message": "A layer with slug '...' already exists ..."}`, use `update_layer` instead of retrying `create_layer`.
+
+## Building Legends and Colormaps
+
+Before setting colormap stops, gradient ranges, or legend breakpoints for any layer, call
+`get_statistics` to learn the actual data distribution:
+
+- **COG raster layers** (provider = `cog`): call `get_statistics(s3_uri=<s3_uri>)`.
+  Use `percentile_2` and `percentile_98` from the response as the low/high colormap stops to
+  avoid outlier bias. Fall back to `min`/`max` only if the user explicitly requests the full range.
+
+- **Martin / vector layers** (provider = `martin`): call
+  `get_statistics(table_name=<table>, column=<attribute_column>)`.
+  Use the returned `min`/`max` as the colorRamp range and the `histogram` to choose meaningful
+  class breaks (e.g. natural breaks, quantile stops).
+
+**Percentile stretch** (user requests "clip outliers", "2–98 stretch", or similar):
+  Use `percentile_2` and `percentile_98` from the COG response as the colormap low/high stops.
+  For vector columns, compute approximate percentile bounds from the histogram buckets by
+  accumulating bucket counts until 2 % and 98 % of non-null values are reached.
+  Always note the clipped range to the user (e.g. "colormap range set to 0.4–99.6 to clip outliers").
+
+**Zero-centred color ramp** (user requests "diverging", "anomaly", "centered on zero", or similar):
+  1. Call `get_statistics` to get the actual data range.
+  2. Compute the symmetric bound: `bound = max(abs(min), abs(max))` (or the chosen percentile).
+  3. Set the colormap low stop to `-bound` and the high stop to `+bound` so that zero maps to the
+     midpoint colour (e.g. white or neutral grey).
+  4. Use a diverging palette (e.g. blue–white–red, purple–white–green) rather than a sequential one.
+  5. State the chosen bound explicitly, e.g. "Diverging colormap: −42.3 → 0 → +42.3".
+
+Never invent colormap ranges without checking real statistics first.
 
 ## Automatic Pipeline
 

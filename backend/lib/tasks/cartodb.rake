@@ -52,6 +52,28 @@ module CartodbRakeHelpers
       sql.to_s.match?(/the_raster|st_clip\s*\(/i)
   end
 
+  # Extract the band number that CartoDB was rendering for a raster SQL query.
+  #
+  # CartoDB's raster SQL uses ST_CLIP in one of two forms:
+  #   ST_Clip(rast, band_num, geom, ...)  ← band is the 2nd integer argument
+  #   ST_Clip(rast, geom, ...)            ← no explicit band (renders band 1)
+  #
+  # When a band number is present it is always 1 across the entire dataset, but
+  # parsing it from the SQL gives an explicit, verified value rather than a
+  # silent assumption.  Returns 1 when no explicit band is found.
+  def self.extract_raster_band_from_sql(sql)
+    return 1 if sql.blank?
+
+    # Match: ST_CLIP( <raster_column> , <integer> , ...
+    # The raster column is a simple identifier (word chars / dots / quotes).
+    if (m = sql.match(/\bst_clip\s*\(\s*[\w."]+\s*,\s*(\d+)\s*,/i))
+      return m[1].to_i
+    end
+
+    # No explicit band specified → CartoDB rendered band 1 by default.
+    1
+  end
+
   def self.build_cog_source_url(bucket, prefix, table_name)
     normalized_prefix = prefix.to_s.sub(%r{\A/+}, "")
     normalized_prefix = "#{normalized_prefix}/" if normalized_prefix.present? && !normalized_prefix.end_with?("/")
@@ -222,15 +244,29 @@ module CartodbRakeHelpers
       # the min/max range used for rescale — e.g. stop(20000,transparent) forces
       # rescale="0,20000", compressing real data values (1–17) into keys 0–6 of
       # the 0-255 gradient space so they all appear transparent.  Override to
-      # interval/discrete mode so transparent terminal stops become explicit nodata
-      # intervals and no rescale is applied.
+      # interval/discrete mode only when this compression would actually occur.
+      # When transparent stops are at or near the data boundaries (e.g. a
+      # temperature layer spanning -2..2.1 with transparent sentinels at those
+      # same values), the gradient colormap works correctly — values below/above
+      # the rescale range clamp to the transparent endpoint keys automatically.
       effective_mode = mode || "linear"
       if effective_mode == "linear"
         sorted_stops = stops.sort_by { |s| s[:value] }
         terminal_transparent =
           parse_hex_color(sorted_stops.first[:color]) == [0, 0, 0, 0] ||
           parse_hex_color(sorted_stops.last[:color]) == [0, 0, 0, 0]
-        effective_mode = "discrete" if terminal_transparent
+        if terminal_transparent
+          colored_stops = sorted_stops.reject { |s| parse_hex_color(s[:color]) == [0, 0, 0, 0] }
+          if colored_stops.empty?
+            effective_mode = "discrete"
+          else
+            total_range = sorted_stops.last[:value].to_f - sorted_stops.first[:value].to_f
+            colored_range = colored_stops.last[:value].to_f - colored_stops.first[:value].to_f
+            # Only switch to discrete when the colored range covers less than half
+            # of the total stop range — indicating a far-outlier nodata sentinel.
+            effective_mode = "discrete" if total_range > 0 && colored_range / total_range < 0.5
+          end
+        end
       end
 
       result["colormap"] = build_titiler_colormap(stops, mode: effective_mode, default_rgba: default_rgba)
@@ -376,6 +412,25 @@ module CartodbRakeHelpers
     cleaned.gsub!(/,\s*\bFROM\b/i, " FROM")
     cleaned.gsub!(/[ \t]*,[ \t]*,[ \t]*/m, ", ")
     cleaned.strip
+  end
+
+  # Fix missing whitespace before SQL clause-starting keywords.
+  # CartoDB SQL stored in the database sometimes has collapsed newlines that
+  # removed the space between a clause-ending token and the next keyword,
+  # producing tokens like `l.landscape_noWHERE` instead of `l.landscape_no WHERE`.
+  # INSERT a single space before each affected keyword.
+  #
+  # Only keywords that unambiguously begin a new SQL clause are handled here;
+  # `FROM`, `JOIN`, and `ON` are intentionally excluded because they can appear
+  # as substrings of legitimate identifiers (e.g. `from_date`, `platform`).
+  def self.fix_sql_keyword_spacing(sql)
+    return sql if sql.blank?
+
+    result = sql.dup
+    %w[WHERE HAVING UNION EXCEPT INTERSECT].each do |kw|
+      result = result.gsub(/(\w)(#{kw})\b/i) { "#{$1} #{$2}" }
+    end
+    result
   end
 
   # Schema-qualify unqualified table names in FROM/JOIN clauses using a per-table
@@ -745,16 +800,12 @@ module CartodbRakeHelpers
     # Fill opacity from base rule
     path_opts["fillOpacity"] = base_props["polygon-opacity"].to_f if base_props["polygon-opacity"].present?
 
-    # Fill color: prefer base rule; fall back to first non-transparent conditional fill
+    # Fill color: only use an explicit base CSS polygon-fill rule.
+    # Do NOT fall back to the first conditional fill — if there is no base rule
+    # (or it is transparent), the invisible-base guard below will fire and set
+    # fill:false/fillOpacity:0/weight:0, which correctly matches CartoDB's own
+    # behaviour: features that don't satisfy any conditional rule are invisible.
     fill_color = base_props["polygon-fill"]
-    if fill_color.blank? || fill_color =~ /\Atransparent\z/i
-      first_fill = conditional_rules.find do |r|
-        r[:styles]["polygon-fill"].to_s.present? &&
-          r[:styles]["polygon-fill"] !~ /\Atransparent\z/i
-      end
-      fill_color = first_fill&.dig(:styles, "polygon-fill")
-    end
-
     if fill_color.present? && fill_color !~ /\Atransparent\z/i
       path_opts["fillColor"] = fill_color
       path_opts["fill"] = true
@@ -1897,6 +1948,10 @@ namespace :cartodb do
         body["colormap"] = style["colormap"] if style["colormap"].present?
         body["rescale"] = style["rescale"] if style["rescale"].present?
         body["cartocss_mode"] = style["mode"] if style["mode"].present?
+        # TiTiler requires a single-band input when a colormap is specified.
+        # Parse the band number from the CartoDB SQL (ST_CLIP band argument);
+        # falls back to 1, which is what CartoDB rendered when no band was given.
+        body["bidx"] = CartodbRakeHelpers.extract_raster_band_from_sql(source_sql) if style["colormap"].present?
 
         # Extract clip geometry for ST_CLIP layers (boundary polygon stored for TiTiler)
         if source_sql.match?(/\bst_clip\s*\(/i)
@@ -1975,6 +2030,9 @@ namespace :cartodb do
       migration = config["cartodb_migration"] || {}
       changed = false
 
+      # Resolve source SQL once — used by both the colormap and sources sections.
+      source_sql = migration["source_sql"].presence || layer.query.to_s.strip
+
       # ── Colormap: re-translate CSS → TiTiler colormap/rescale ─────────────
       if layer.css.blank?
         if config.dig("body", "colormap").present?
@@ -1992,8 +2050,10 @@ namespace :cartodb do
           new_colormap = style["colormap"]
           new_rescale = style["rescale"]
           new_mode = style["mode"]
+          bidx_missing = config.dig("body", "colormap").present? && config.dig("body", "bidx").nil?
           if config.dig("body", "colormap") != new_colormap ||
-              config.dig("body", "rescale") != new_rescale
+              config.dig("body", "rescale") != new_rescale ||
+              bidx_missing
             puts "Layer ##{layer.id} (#{layer.slug}): #{new_colormap.size} colormap entries, rescale=#{new_rescale}"
             config["body"]["colormap"] = new_colormap
             if new_rescale.present?
@@ -2002,6 +2062,10 @@ namespace :cartodb do
               config["body"].delete("rescale")
             end
             config["body"]["cartocss_mode"] = new_mode if new_mode.present?
+            # TiTiler requires a single-band input when a colormap is specified.
+            # Parse band from CartoDB SQL (ST_CLIP band arg); falls back to 1.
+            # Use ||= so an explicitly-overridden bidx in the config is preserved.
+            config["body"]["bidx"] ||= CartodbRakeHelpers.extract_raster_band_from_sql(source_sql)
             migration["style"] = style
             changed = true
             cog_styles_updated += 1
@@ -2012,8 +2076,6 @@ namespace :cartodb do
       end
 
       # ── Sources: rebuild body.source/sources from source SQL ──────────────
-      source_sql = migration["source_sql"].presence || layer.query.to_s.strip
-
       if source_sql.blank?
         cog_sources_no_sql += 1
       else
@@ -2415,6 +2477,11 @@ namespace :cartodb do
       raw_sql = migration_block["source_sql"].presence ||
         migration_block["cleaned_query"].presence
 
+      # Normalise whitespace: CartoDB SQL stored in the DB sometimes has
+      # collapsed newlines that removed the space between a clause-ending
+      # token and the next SQL keyword (e.g. `landscape_noWHERE`).
+      raw_sql = CartodbRakeHelpers.fix_sql_keyword_spacing(raw_sql) if raw_sql.present?
+
       # Detect whether a previously-created view was dropped (e.g. after a
       # database restore).  When the source already looks like v_layer_N but
       # the view no longer exists in the database we must recreate it.
@@ -2534,6 +2601,26 @@ namespace :cartodb do
             martin_views_upgraded += 1
             # Publish the layer now that all tables are available
             layer.update_column(:published, true) unless layer.published?
+          rescue PG::UndefinedColumn => e
+            # Show the actual columns available in each source table so the
+            # underlying source_sql can be corrected in the database.
+            if (m = e.message.match(/column ([\w."]+) does not exist/i))
+              missing_ref = m[1].gsub('"', "")
+              tbl_alias   = missing_ref.include?(".") ? missing_ref.split(".").first : nil
+              imported_list.each do |tbl|
+                next if tbl_alias && !view_sql.match?(
+                  /\b(?:FROM|JOIN)\s+(?:"?#{Regexp.escape(target_schema)}"?\.)?"?#{Regexp.escape(tbl)}"?\s+(?:AS\s+)?"?#{Regexp.escape(tbl_alias)}"?\b/i
+                )
+                actual_cols = ar_conn.execute(
+                  "SELECT column_name FROM information_schema.columns " \
+                  "WHERE table_schema = #{ar_conn.quote(target_schema)} " \
+                  "AND table_name = #{ar_conn.quote(tbl)} " \
+                  "ORDER BY ordinal_position"
+                ).map { |r| r["column_name"] }
+                warn "  Available columns in #{target_schema}.#{tbl}: #{actual_cols.join(", ")}" if actual_cols.any?
+              end
+            end
+            warn "Layer ##{layer.id}: ✗ view creation failed: #{e.message}"
           rescue => e
             warn "Layer ##{layer.id}: ✗ view creation failed: #{e.message}"
           end
