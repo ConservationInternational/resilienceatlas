@@ -81,15 +81,9 @@ for _ in range(60):
 print()
 
 # ── 5. Create a new version by making a temporary alias ──────────────────────
-temp_name = "temp-promote"
-
-# Clean up any leftover temp alias from a previous failed run
-for summary in ba.list_agent_aliases(agentId=AGENT_ID)["agentAliasSummaries"]:
-    if summary["agentAliasName"] == temp_name:
-        ba.delete_agent_alias(agentId=AGENT_ID, agentAliasId=summary["agentAliasId"])
-        print(f"Cleaned up stale alias {summary['agentAliasId']}")
-        time.sleep(3)
-        break
+# Use a unique alias name per run so CI does not need bedrock:ListAgentAliases
+# permission to search for and clean up a fixed temp alias.
+temp_name = f"temp-promote-{int(time.time())}"
 
 resp = ba.create_agent_alias(agentId=AGENT_ID, agentAliasName=temp_name)
 temp_alias_id = resp["agentAlias"]["agentAliasId"]
