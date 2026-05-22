@@ -143,14 +143,23 @@ export const layer = new schema.Entity(
             },
           };
         })(),
-        // Martin vector tile layers - source name + optional styles/params
+        // Martin vector tile layers - source name + optional styles/colorRamp/params
         martin: {
           ...layerConfig,
           body: {
             source: layerConfig?.body?.source || layerConfig?.source,
-            styles: layerConfig?.body?.styles || layerConfig?.styles || {},
-            // Martin function query params (e.g. { table: 'imported_slug' } for
-            // ra_vector_tile).  Passed as URL query string: ?table=imported_slug
+            // colorRamp takes priority over styles for colour-ramp vector tile layers
+            // (e.g. SBTN thresholds). Must be forwarded so MartinLayerOL can call
+            // buildColorRampStyle instead of buildVectorTileStyle.
+            ...(layerConfig?.body?.colorRamp ? { colorRamp: layerConfig.body.colorRamp } : {}),
+            // Only include styles when explicitly provided; defaulting to {} would
+            // cause MartinLayerOL to call buildVectorTileStyle({}) and return null
+            // for every feature, producing a blank map.
+            ...(layerConfig?.body?.styles || layerConfig?.styles
+              ? { styles: layerConfig?.body?.styles || layerConfig?.styles }
+              : {}),
+            // Martin function query params (e.g. { table: 'v_sbtn_thresholds' } for
+            // ra_vector_tile).  Passed as URL query string: ?table=v_sbtn_thresholds
             params: layerConfig?.body?.params || {},
             options: {
               interactive: true,

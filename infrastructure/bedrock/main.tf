@@ -127,6 +127,48 @@ resource "aws_iam_role_policy" "bedrock_agent_lambda" {
   })
 }
 
+# ─── Grant GitHub Actions role permission to manage the Bedrock agent ─────────
+# Required by scripts/update_bedrock_agent.py (runs in deploy_ai_agent.yml CI).
+
+data "aws_iam_role" "github_actions" {
+  name = "GitHubActionsResilienceAtlasRole"
+}
+
+resource "aws_iam_role_policy" "github_actions_bedrock" {
+  name = "bedrock-agent-management-${var.environment}"
+  role = data.aws_iam_role.github_actions.id
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "bedrock:GetAgent",
+          "bedrock:UpdateAgent",
+          "bedrock:PrepareAgent",
+          "bedrock:ListAgentVersions",
+          "bedrock:ListAgentActionGroups",
+          "bedrock:GetAgentActionGroup",
+          "bedrock:UpdateAgentActionGroup",
+          "bedrock:CreateAgentAlias",
+          "bedrock:UpdateAgentAlias",
+          "bedrock:DeleteAgentAlias",
+        ]
+        Resource = [
+          "arn:aws:bedrock:${var.aws_region}:${data.aws_caller_identity.current.account_id}:agent/${aws_bedrockagent_agent.main.id}",
+          "arn:aws:bedrock:${var.aws_region}:${data.aws_caller_identity.current.account_id}:agent-alias/${aws_bedrockagent_agent.main.id}/*",
+        ]
+      },
+      {
+        # update_agent passes agentResourceRoleArn, which requires iam:PassRole
+        Effect   = "Allow"
+        Action   = ["iam:PassRole"]
+        Resource = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/${aws_iam_role.bedrock_agent.name}"
+      },
+    ]
+  })
+}
+
 # ─── Grant EC2 app role permission to invoke the Bedrock agent ───────────────
 
 data "aws_iam_role" "ec2_role" {

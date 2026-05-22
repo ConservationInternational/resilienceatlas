@@ -180,35 +180,20 @@ module ThresholdsSeeder
   #
   # The colorRamp config tells the frontend which MVT property to colour on.
 
-  # Ensures the v_sbtn_thresholds view exists (idempotent — CREATE OR REPLACE).
-  # Called at the start of create_layers so a bare seed run (without having run
-  # migration 20260521110000 first) still works.
+  # Checks that the view ra_vector.v_sbtn_thresholds exists.  It is created by
+  # migration 20260521110000 — this method just emits a warning if it is missing.
   def self.ensure_view!
-    ActiveRecord::Base.connection.execute(<<~SQL)
-      CREATE OR REPLACE VIEW ra_vector.v_sbtn_thresholds AS
-      SELECT
-        t.eco_id,
-        t.ecoregion,
-        e.eco_name,
-        e.biome_name,
-        e.realm,
-        t.natural_land_baseline,
-        t.natural_land_threshold,
-        t.natural_land_exceedance,
-        t.nitrogen_dep_baseline,
-        t.nitrogen_dep_threshold,
-        t.nitrogen_dep_exceedance,
-        t.soil_erosion_baseline,
-        t.soil_erosion_threshold,
-        t.soil_erosion_exceedance,
-        t.soc_baseline,
-        t.soc_threshold,
-        t.soc_exceedance,
-        e.geom
-      FROM ra_nonspatial.sbtn_thresholds t
-      JOIN ra_vector.ecoregions2017 e ON e.eco_id::integer = t.eco_id
+    relkind = ActiveRecord::Base.connection.select_value(<<~SQL)
+      SELECT c.relkind FROM pg_class c
+      JOIN pg_namespace n ON n.oid = c.relnamespace
+      WHERE n.nspname = 'ra_vector' AND c.relname = 'v_sbtn_thresholds'
     SQL
-    puts "  Ensured view ra_vector.v_sbtn_thresholds"
+
+    if relkind
+      puts "  View ra_vector.v_sbtn_thresholds exists (relkind=#{relkind})"
+    else
+      puts "  WARNING: ra_vector.v_sbtn_thresholds not found — run pending migrations first"
+    end
   end
 
   def self.create_layers(groups)
@@ -258,7 +243,6 @@ module ThresholdsSeeder
           layer_config: layer_config.to_json,
           css: nil,
           query: nil,
-          interactivity: nil,
           analysis_body: nil
         )
         layer.save!

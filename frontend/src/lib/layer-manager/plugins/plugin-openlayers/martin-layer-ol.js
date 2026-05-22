@@ -81,7 +81,7 @@ const MartinLayerOL = (layerModel) => {
     let styleFunction;
     if (colorRamp) {
       styleFunction = buildColorRampStyle(colorRamp);
-    } else if (styles) {
+    } else if (styles && Object.keys(styles).length > 0) {
       styleFunction = buildVectorTileStyle(styles);
     }
 
@@ -97,6 +97,37 @@ const MartinLayerOL = (layerModel) => {
   });
 };
 
-MartinLayerOL.getBounds = () => Promise.resolve(null);
+MartinLayerOL.getBounds = (layerModel) => {
+  const martinUrl = process.env.NEXT_PUBLIC_MARTIN_URL;
+  if (!martinUrl) return Promise.resolve(null);
+
+  const { layerConfig } = layerModel;
+  if (!layerConfig) return Promise.resolve(null);
+
+  try {
+    const body = layerConfig.body;
+    const source = body?.source;
+    if (!source) return Promise.resolve(null);
+
+    // Martin's TileJSON endpoint returns bounds in [west, south, east, north] format
+    return fetch(`${martinUrl}/${source}`)
+      .then((res) => {
+        if (!res.ok) return null;
+        return res.json();
+      })
+      .then((data) => {
+        if (!Array.isArray(data?.bounds) || data.bounds.length < 4) return null;
+        const [west, south, east, north] = data.bounds;
+        // Convert to Leaflet convention: [[lat1, lng1], [lat2, lng2]] = [[south, west], [north, east]]
+        return [
+          [south, west],
+          [north, east],
+        ];
+      })
+      .catch(() => null);
+  } catch {
+    return Promise.resolve(null);
+  }
+};
 
 export default MartinLayerOL;

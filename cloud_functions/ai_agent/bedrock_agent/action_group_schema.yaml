@@ -34,32 +34,20 @@ paths:
         "200":
           description: JSON array of matching documents with similarity scores
 
-  /list_site_scopes:
+  /get_site_scopes:
     post:
-      operationId: list_site_scopes
-      summary: List all available site scopes (Atlas instances)
-      description: Returns all site scopes with id, name, and subdomain. Use to find the correct site_scope_id before creating layers.
-      requestBody:
-        required: false
-        content:
-          application/json:
-            schema:
-              type: object
-      responses:
-        "200":
-          description: JSON array of [{id, name, subdomain}]
-
-  /list_layers:
-    post:
-      operationId: list_layers
-      summary: List existing layers, optionally filtered by site scope or keyword
+      operationId: get_site_scopes
+      summary: List site scopes, or list layer groups for a specific scope
       description: |
-        Returns layers with name, slug, provider, published status, description,
-        dataset_shortname, and dataset_source_url. Use keyword to search across name,
-        description, slug, dataset_shortname, AND layer_config — e.g. search for a
-        PostGIS table name like "forest_cover" to find all martin layers that query it.
-        Use this to answer questions like "which layers serve thresholds data" or
-        "which layers use the boundaries_adm1 table".
+        Without site_scope_id: returns all site scopes [{id, name, subdomain}].
+        ALWAYS call this first (without site_scope_id) to resolve a site scope name to its
+        numeric ID before creating layers or querying layer groups.
+        Never ask the user for a numeric site scope ID — look it up here.
+
+        With site_scope_id: returns layer groups [{id, name, layers_count}] for that scope.
+        Call this (with site_scope_id) to resolve a category/group name to its numeric
+        layer_group_id before creating layers.
+        Never ask the user for a numeric layer_group_id — look it up here.
       requestBody:
         required: false
         content:
@@ -69,26 +57,28 @@ paths:
               properties:
                 site_scope_id:
                   type: integer
-                  description: Filter by site scope ID
-                keyword:
-                  type: string
-                  description: Search across layer name, description, slug, and dataset_shortname
+                  description: If provided, return layer groups for this scope instead of listing all site scopes
       responses:
         "200":
-          description: JSON array of [{id, name, slug, layer_provider, published, description, dataset_shortname, dataset_source_url}]
+          description: Array of site scopes [{id,name,subdomain}] (no param) or layer groups [{id,name,layers_count}] (with site_scope_id)
 
-  /get_layer:
+  /get_layers:
     post:
-      operationId: get_layer
-      summary: Get full details for a single layer by ID or slug
+      operationId: get_layers
+      summary: List layers (with optional filters) or get full detail for one layer
       description: |
-        Returns all fields for a layer including layer_config, interaction_config,
-        description, dataset_shortname, dataset_source_url, and analysis settings.
-        Provide either layer_id (integer) or slug (string) — slug is convenient when
-        you know the layer's URL-safe identifier. Use after list_layers to inspect
+        Without layer_id/slug: lists layers with name, slug, provider, published status,
+        description, dataset_shortname, and dataset_source_url. Use keyword to search across
+        name, description, slug, dataset_shortname, AND layer_config — e.g. search for a
+        PostGIS table name like "forest_cover" to find all martin layers that query it.
+
+        With layer_id or slug: returns full layer detail including layer_config,
+        interaction_config, and all configuration fields. Use after listing layers to inspect
         a specific layer's full configuration for debugging or before updating it.
+        Provide either layer_id (integer) or slug (string) — slug is convenient when you know
+        the layer's URL-safe identifier.
       requestBody:
-        required: true
+        required: false
         content:
           application/json:
             schema:
@@ -96,13 +86,19 @@ paths:
               properties:
                 layer_id:
                   type: integer
-                  description: The layer's integer ID
+                  description: If provided, return full detail for this specific layer
                 slug:
                   type: string
-                  description: The layer's unique URL-safe slug (alternative to layer_id)
+                  description: If provided (and layer_id absent), return full detail for the layer with this slug
+                site_scope_id:
+                  type: integer
+                  description: Filter list results by site scope ID (only used when layer_id and slug are absent)
+                keyword:
+                  type: string
+                  description: Search across layer name, description, slug, and dataset_shortname (only used when layer_id and slug are absent)
       responses:
         "200":
-          description: Layer detail object
+          description: Layer detail object (with layer_id/slug) or array of condensed layer records (without)
 
   /create_layer:
     post:
@@ -152,8 +148,14 @@ paths:
                   default: true
                 zoom_min:
                   type: integer
+                  minimum: 0
+                  maximum: 24
+                  description: Minimum zoom level (0–24). Defaults to 0 if omitted.
                 zoom_max:
                   type: integer
+                  minimum: 0
+                  maximum: 24
+                  description: Maximum zoom level (0–24). Must be >= zoom_min. Defaults to 18 if omitted.
                 color:
                   type: string
                   description: Hex color for legend swatch
@@ -203,8 +205,14 @@ paths:
                   type: boolean
                 zoom_min:
                   type: integer
+                  minimum: 0
+                  maximum: 24
+                  description: Minimum zoom level (0–24).
                 zoom_max:
                   type: integer
+                  minimum: 0
+                  maximum: 24
+                  description: Maximum zoom level (0–24). Must be >= zoom_min.
                 color:
                   type: string
                 analysis_suitable:
@@ -240,15 +248,19 @@ paths:
         "200":
           description: Import result with table_name, geometry_type, srid, row_count, and columns
 
-  /list_tables:
+  /get_tables:
     post:
-      operationId: list_tables
-      summary: List all PostGIS tables in managed schemas
+      operationId: get_tables
+      summary: List PostGIS tables in managed schemas, or get details for one table
       description: |
-        Returns tables in ra_nonspatial, ra_vector, and ra_raster schemas with their row counts
-        and which layers reference each table. Use this to discover available data sources before
-        writing SQL for a martin layer, or to find which table holds specific data.
-        Use the optional keyword filter (q) to narrow results by table name.
+        Without table_name: returns tables in ra_nonspatial, ra_vector, and ra_raster schemas
+        with their row counts and which layers reference each table. Use this to discover
+        available data sources before writing SQL for a martin layer, or to find which table
+        holds specific data. Use the optional keyword filter (q) to narrow results by table name.
+
+        With table_name: returns column names, data types, and up to 10 sample rows from the
+        specified table. Use this to understand what data is available before writing a SQL query
+        for a martin layer_config. Works for tables in ra_nonspatial, ra_vector, and ra_raster.
       requestBody:
         required: false
         content:
@@ -256,35 +268,15 @@ paths:
             schema:
               type: object
               properties:
-                q:
-                  type: string
-                  description: Filter by table name substring, e.g. "sbtn" or "ecoregion"
-      responses:
-        "200":
-          description: JSON array of [{name, schema, row_count, layers:[{id,slug,name}]}]
-
-  /describe_table:
-    post:
-      operationId: describe_table
-      summary: Get columns, types, and sample rows for a specific PostGIS table
-      description: |
-        Returns column names and data types plus up to 10 sample rows from the table.
-        Use this to understand what data is available before writing a SQL query
-        for a martin layer_config. Works for tables in ra_nonspatial, ra_vector, and ra_raster.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required: [table_name]
-              properties:
                 table_name:
                   type: string
-                  description: "Bare table name (no schema prefix), e.g. 'sbtn_thresholds' or 'ecoregions2017'"
+                  description: "If provided, return column details and sample rows for this table (no schema prefix, e.g. 'sbtn_thresholds')"
+                q:
+                  type: string
+                  description: "Filter list results by table name substring, e.g. 'sbtn' or 'ecoregion' (only used when table_name is absent)"
       responses:
         "200":
-          description: "{name, schema, total_rows, columns:[{name,type}], sample_rows:[[...]]}"
+          description: Array of [{name,schema,row_count,layers}] (no param) or table detail with columns and sample rows (with table_name)
 
   /create_vector_view:
     post:
@@ -306,7 +298,7 @@ paths:
           - the SELECT must expose a geometry column from ra_vector or ra_raster
           - only ra_vector, ra_nonspatial, and ra_raster schemas are allowed in the SQL
 
-        Use describe_table on both tables to find the correct join key columns before
+        Use get_tables (with table_name) on both tables to find the correct join key columns before
         writing the SELECT.
       requestBody:
         required: true
@@ -328,27 +320,4 @@ paths:
       responses:
         "200":
           description: "{ success: true, data: { name, geometry_column, description } } on success, or { success: false, message } on error"
-
-  /drop_vector_view:
-    post:
-      operationId: drop_vector_view
-      summary: Drop a PostgreSQL view from ra_vector
-      description: |
-        Drops the named view from ra_vector. Any martin layers that reference this
-        view via ra_vector_tile?table=<name> will stop serving tiles immediately.
-        Only views whose names start with "v_" can be dropped via this action.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required: [name]
-              properties:
-                name:
-                  type: string
-                  description: "Name of the view to drop (must start with 'v_')"
-      responses:
-        "200":
-          description: "{ success: true, message } or { success: false, message }"
 

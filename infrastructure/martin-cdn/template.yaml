@@ -83,7 +83,9 @@ Resources:
           CookiesConfig:
             CookieBehavior: none
           HeadersConfig:
-            HeaderBehavior: none  # No headers in cache key
+            HeaderBehavior: whitelist
+            Headers:
+              - Origin  # Cache separately per requesting origin for correct CORS headers
           QueryStringsConfig:
             QueryStringBehavior: whitelist  # Include 'table' param in cache key
             QueryStrings:

@@ -35,6 +35,11 @@ const MapPopup = ({
         onChangeInteractiveLayer={(selected) => {
           setMapLayerGroupsInteractionSelected(selected);
         }}
+        onClose={() => {
+          if (overlayRef.current) {
+            overlayRef.current.setPosition(undefined);
+          }
+        }}
       />
     </OLMapOverlay>
   );

@@ -10,6 +10,8 @@
 #   ./invalidate-martin-cache.sh --staging --paths "/boundary_tiles/*"
 #
 # Without --paths, invalidates all cached content (/*).
+# By default, waits for the invalidation to complete before exiting.
+# Use --no-wait to return immediately after submitting.
 
 set -euo pipefail
 
@@ -17,6 +19,7 @@ REGION="us-east-1"
 PROFILE_ARG=""
 ENV=""
 PATHS="/*"
+WAIT=true
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -24,11 +27,13 @@ while [[ $# -gt 0 ]]; do
     --production)  ENV="production"; shift ;;
     --profile)     PROFILE_ARG="--profile $2"; shift 2 ;;
     --paths)       PATHS="$2"; shift 2 ;;
+    --no-wait)     WAIT=false; shift ;;
     -h|--help)
-      echo "Usage: $0 --staging|--production [--profile <aws-profile>] [--paths <pattern>]"
+      echo "Usage: $0 --staging|--production [--profile <aws-profile>] [--paths <pattern>] [--no-wait]"
       echo ""
       echo "Examples:"
-      echo "  $0 --staging                              # Invalidate all cached tiles"
+      echo "  $0 --staging                              # Invalidate all cached tiles (waits for completion)"
+      echo "  $0 --staging --no-wait                    # Submit invalidation and return immediately"
       echo "  $0 --staging --paths '/boundary_tiles/*'   # Invalidate only boundary tiles"
       exit 0
       ;;
@@ -74,6 +79,20 @@ INVALIDATION_ID=$(aws cloudfront create-invalidation \
   $PROFILE_ARG)
 
 echo "Invalidation created: $INVALIDATION_ID"
-echo ""
-echo "Check status with:"
-echo "  aws cloudfront get-invalidation --distribution-id $DIST_ID --id $INVALIDATION_ID $PROFILE_ARG"
+
+if [[ "$WAIT" == "true" ]]; then
+  echo ""
+  echo "Waiting for invalidation to complete across all edge locations..."
+  aws cloudfront wait invalidation-completed \
+    --distribution-id "$DIST_ID" \
+    --id "$INVALIDATION_ID" \
+    $PROFILE_ARG
+  echo "Done. All edge locations have been cleared."
+  echo ""
+  echo "Note: Tiles will be re-cached on first access — seeing 'Hit from cloudfront'"
+  echo "after this is expected and means CloudFront fetched a fresh copy from Martin."
+else
+  echo ""
+  echo "Check status with:"
+  echo "  aws cloudfront get-invalidation --distribution-id $DIST_ID --id $INVALIDATION_ID $PROFILE_ARG"
+fi

@@ -7,6 +7,8 @@
 
   .popup-header {
     border-bottom: 1px solid #ccc;
+    display: flex;
+    align-items: stretch;
 
     .popup-header-select {
       width: calc(100% - 46px);
@@ -18,6 +20,25 @@
       outline: none;
       height: 46px;
       font-weight: 600;
+    }
+
+    .popup-close-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 46px;
+      flex-shrink: 0;
+      border: none;
+      border-left: 1px solid #ccc;
+      background: transparent;
+      cursor: pointer;
+      font-size: 14px;
+      color: $font-color-1;
+      padding: 0;
+
+      &:hover {
+        color: #999;
+      }
     }
   }
 
@@ -47,12 +68,17 @@
       padding: 2px;
       font-weight: 600;
       vertical-align: baseline;
+      overflow-wrap: break-word;
+      word-break: break-word;
+      max-width: 160px;
     }
 
     .dd {
       width: 60%; // Make sure data in tooltip always have 60% of the free space
       padding: 0 0 0 10px;
       vertical-align: baseline;
+      overflow-wrap: break-word;
+      word-break: break-word;
     }
   }
 }
@@ -107,6 +133,17 @@
   background: white;
   color: #333;
   box-shadow: 0 3px 14px rgba(0, 0, 0, 0.4);
+}
+
+.ol-popup-content-wrapper {
+  background: white;
+  color: #333;
+  box-shadow: 0 3px 14px rgba(0, 0, 0, 0.4);
+  padding: 0;
+  text-align: left;
+  border-radius: 0;
+  min-width: 200px;
+  max-width: 420px;
 }
 
 .leaflet-container a.leaflet-popup-close-button {

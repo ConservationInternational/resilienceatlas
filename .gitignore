@@ -276,3 +276,4 @@ scripts/cartodb_cog_conversion/cog_status/raw_tiffs.txt
 scripts/cartodb_cog_conversion/cog_status/submitted_jobs.json
 scripts/ldn_ecoregion_stats.csv
 backend/db/data/thresholds/sbtn_thresholds.csv
+infrastructure/bedrock/staging.tfvars

@@ -1,7 +1,7 @@
 import React, { useCallback, useContext } from 'react';
 import cx from 'classnames';
 import { event } from 'utilities/ga';
-import { T } from '@transifex/react';
+import { T, useT } from '@transifex/react';
 
 import InfoWindow from 'views/components/InfoWindow';
 import LoginRequiredWindow from 'views/components/LoginRequiredWindow';
@@ -39,6 +39,7 @@ const Layer = (props) => {
     subgroupName,
   } = props;
   const layerManagerRef = useContext(LayerManagerContext);
+  const t = useT();
   const [isOpen, toggleOpen] = useToggle(false);
   const slider = useInput('opacity_slider', opacity_text);
   const opacityInput = useUpdaterInput(id, opacity_text, (v) => {
@@ -118,6 +119,8 @@ const Layer = (props) => {
         data-id={id}
         onClick={fitMapToLayer}
         disabled={!isActive}
+        aria-label={t('Zoom to layer')}
+        title={t('Zoom to layer')}
       >
         <svg className="icon icon-zoom-pan">
           <use xlinkHref="#icon-zoom-pan" />
@@ -157,11 +160,9 @@ const Layer = (props) => {
           className="btn-download icon-container panel-trasparecy-switcher"
           attr="download"
           title={
-            readyToDownload ? (
-              <T _str="Layers" />
-            ) : (
-              <T _str="Please login to enable download feature." />
-            )
+            readyToDownload
+              ? t('Download layer data')
+              : t('Please login to enable download feature.')
           }
           onClick={() => {
             if (readyToDownload) {
