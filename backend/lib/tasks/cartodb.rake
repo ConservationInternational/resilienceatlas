@@ -433,6 +433,30 @@ module CartodbRakeHelpers
     result
   end
 
+  # Fix "SELECT  FROM schema.table" patterns where strip_cartodb_columns has
+  # removed the sole column (the_geom) from a subquery SELECT, leaving only
+  # whitespace between SELECT and FROM.  Replaces the missing column with the
+  # table's actual geometry column as reported by geometry_columns.
+  def self.fix_empty_subquery_selects(sql, schema, ar_conn)
+    return sql if sql.blank?
+
+    sql.gsub(/\bSELECT(\s+)(FROM\s+(?:"?#{Regexp.escape(schema)}"?\.)?"?(\w+)"?\b)/i) do
+      space     = $1
+      from_part = $2
+      tbl       = $3.downcase
+      geom = begin
+        ar_conn.execute(
+          "SELECT f_geometry_column FROM geometry_columns " \
+          "WHERE f_table_schema = #{ar_conn.quote(schema)} " \
+          "AND f_table_name = #{ar_conn.quote(tbl)} LIMIT 1"
+        ).first&.dig("f_geometry_column")
+      rescue
+        nil
+      end
+      geom ? "SELECT #{geom} #{from_part}" : "SELECT#{space}#{from_part}"
+    end
+  end
+
   # Schema-qualify unqualified table names in FROM/JOIN clauses using a per-table
   # schema map: { table_name => schema }.  Use this when tables from multiple
   # schemas (e.g. ra_vector + ra_nonspatial) appear in the same query.
@@ -600,25 +624,57 @@ module CartodbRakeHelpers
     return view_sql if parts.size <= 1
 
     result_parts = parts.map do |part|
+      # Strip any geometry references for tables not in this branch's FROM clause.
+      # CartoDB sometimes referenced geometry from a table that only appears in a
+      # different UNION branch (e.g. `sagcot_1.geom` in `SELECT … FROM vs_countries`).
+      # After schema-qualification those become invalid 3-part identifiers; remove
+      # them here so the correct geometry can be injected below.
+      branch_tables = CartodbRakeHelpers.extract_table_names_from_sql(part)
+      working_part = part.dup
+      orphan_stripped = false
+      geom_map.each do |tbl, gcol|
+        next if branch_tables.include?(tbl)
+        esc_tbl = Regexp.escape(tbl)
+        esc_col = Regexp.escape(gcol)
+        esc_sch = Regexp.escape(schema)
+        [
+          /\b#{esc_sch}\.#{esc_tbl}\.#{esc_col}\b[ \t]*,[ \t]*/i,
+          /[ \t]*,[ \t]*\b#{esc_sch}\.#{esc_tbl}\.#{esc_col}\b/i,
+          /\b#{esc_sch}\.#{esc_tbl}\.#{esc_col}\b/i,
+          /\b#{esc_tbl}\.#{esc_col}\b[ \t]*,[ \t]*/i,
+          /[ \t]*,[ \t]*\b#{esc_tbl}\.#{esc_col}\b/i,
+          /\b#{esc_tbl}\.#{esc_col}\b/i
+        ].each do |re|
+          next unless working_part.match?(re)
+          working_part = working_part.gsub(re, "")
+          orphan_stripped = true
+        end
+      end
+      if orphan_stripped
+        working_part.gsub!(/\bSELECT\s*,/i, "SELECT")
+        working_part.gsub!(/,\s*\bFROM\b/i, " FROM")
+        working_part.gsub!(/[ \t]*,[ \t]*,[ \t]*/m, ", ")
+      end
+
       # Does this branch already SELECT a known geometry column?
       already_has_geom = geom_col_names.any? do |col|
-        part.match?(/\bSELECT\b.*\b#{Regexp.escape(col)}\b/im)
+        working_part.match?(/\bSELECT\b.*\b#{Regexp.escape(col)}\b/im)
       end
-      next part if already_has_geom
+      next working_part if already_has_geom
 
       # Find the geometry reference for this branch's primary FROM table.
       geom_ref = nil
       table_names.each do |tbl|
         next unless geom_map[tbl]
-        next unless part.match?(/\b(?:FROM|JOIN)\s+(?:#{Regexp.escape(schema)}\.)?#{Regexp.escape(tbl)}\b/i)
-        m = part.match(/\b(?:FROM|JOIN)\s+(?:#{Regexp.escape(schema)}\.)?#{Regexp.escape(tbl)}\s+(?:AS\s+)?([a-zA-Z_]\w*)\b/i)
+        next unless working_part.match?(/\b(?:FROM|JOIN)\s+(?:#{Regexp.escape(schema)}\.)?#{Regexp.escape(tbl)}\b/i)
+        m = working_part.match(/\b(?:FROM|JOIN)\s+(?:#{Regexp.escape(schema)}\.)?#{Regexp.escape(tbl)}\s+(?:AS\s+)?([a-zA-Z_]\w*)\b/i)
         geom_ref = (m && !m[1].match?(SQL_KEYWORD_RE)) \
           ? "#{m[1]}.#{geom_map[tbl]}" \
           : geom_map[tbl]
         break
       end
       geom_ref ||= "NULL::geometry"
-      inject_geometry_into_select(part, geom_ref)
+      inject_geometry_into_select(working_part, geom_ref)
     end
 
     result = result_parts.first.to_s
@@ -903,7 +959,7 @@ module CartodbRakeHelpers
 
   # Format a threshold float as a clean string label (no trailing ".0").
   def self.format_threshold(value)
-    (value == value.floor) ? value.to_i.to_s : value.to_s
+    value == value.floor ? value.to_i.to_s : value.to_s
   end
 
   # Extract all [value <= N] → polygon-fill conditions from CartoDB CSS.
@@ -2541,6 +2597,13 @@ namespace :cartodb do
           raw_sql, p2_schema_map
         )
 
+        # Fix any "SELECT  FROM table" patterns left by strip_cartodb_columns
+        # having removed the_geom as the sole column of a subquery SELECT (e.g.
+        # `st_intersects((select the_geom from t where ...))` → `select  from t`).
+        view_sql = CartodbRakeHelpers.fix_empty_subquery_selects(
+          view_sql, target_schema, ar_conn
+        )
+
         # CartoDB always used `the_geom`, but GPKG-imported PostGIS tables may
         # use a different column name (e.g. `geom`, `wkb_geometry`, `wkt_geom`).
         # Rename any `alias.the_geom` references to the actual column name first.
@@ -2559,14 +2622,19 @@ namespace :cartodb do
           # Strip any stale the_geom refs that fix_the_geom_references could not
           # rename (e.g. refs on a non-geometry joined table like dhs_indicators).
           view_sql = CartodbRakeHelpers.strip_the_geom_refs(view_sql)
-          geom_ref = CartodbRakeHelpers.find_geometry_column_ref(
-            raw_sql, target_schema, imported_list, ar_conn
-          )
-          if geom_ref
-            view_sql = CartodbRakeHelpers.inject_geometry_into_select(view_sql, geom_ref)
-          else
-            puts "Layer ##{layer.id} (#{layer.slug}): ⚠ no geometry table found — view upgrade skipped"
-            upgrade_to_view = false
+          # For UNION queries, geometry injection is deferred to balance_union_geometry
+          # which handles each branch independently.  Injecting here would bind the
+          # geometry of one branch's table into all branches via the outermost SELECT.
+          unless view_sql.match?(/\bUNION\b/i)
+            geom_ref = CartodbRakeHelpers.find_geometry_column_ref(
+              raw_sql, target_schema, imported_list, ar_conn
+            )
+            if geom_ref
+              view_sql = CartodbRakeHelpers.inject_geometry_into_select(view_sql, geom_ref)
+            else
+              puts "Layer ##{layer.id} (#{layer.slug}): ⚠ no geometry table found — view upgrade skipped"
+              upgrade_to_view = false
+            end
           end
         end
       end
@@ -2700,12 +2768,14 @@ namespace :cartodb do
                 current_legend["bucket"].first.is_a?(Hash)
               # Object-format buckets: fix if any bucket is missing its color
               current_legend["bucket"].any? { |b| b["color"].blank? }
-            else
-              # Simple string-array format already has colors — leave it alone.
-              # Everything else needs a usable choropleth legend.
-              !(current_legend["type"] == "choropleth" &&
+            elsif current_legend["type"] == "choropleth" &&
                 current_legend["bucket"].is_a?(Array) &&
-                current_legend["bucket"].first.is_a?(String))
+                current_legend["bucket"].first.is_a?(String)
+              # Simple string-array format already has colors — leave it alone
+              false
+            else
+              # No usable choropleth legend
+              true
             end
 
           if needs_legend_fix

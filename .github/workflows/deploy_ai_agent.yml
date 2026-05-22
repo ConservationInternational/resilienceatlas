@@ -7,6 +7,7 @@ on:
       - staging
     paths:
       - 'cloud_functions/ai_agent/**'
+      - 'scripts/update_bedrock_agent.py'
       - '.github/workflows/deploy_ai_agent.yml'
   workflow_dispatch:
     inputs:
