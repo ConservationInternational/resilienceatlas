@@ -68,12 +68,17 @@
       padding: 2px;
       font-weight: 600;
       vertical-align: baseline;
+      overflow-wrap: break-word;
+      word-break: break-word;
+      max-width: 160px;
     }
 
     .dd {
       width: 60%; // Make sure data in tooltip always have 60% of the free space
       padding: 0 0 0 10px;
       vertical-align: baseline;
+      overflow-wrap: break-word;
+      word-break: break-word;
     }
   }
 }
@@ -138,6 +143,7 @@
   text-align: left;
   border-radius: 0;
   min-width: 200px;
+  max-width: 420px;
 }
 
 .leaflet-container a.leaflet-popup-close-button {

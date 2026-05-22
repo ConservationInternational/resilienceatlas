@@ -42,6 +42,11 @@ const OLMapOverlay: React.FC<OLMapOverlayProps> = ({ map, latlng, data, onReady,
       positioning: 'bottom-center',
       stopEvent: true,
       offset: [0, -8],
+      autoPan: {
+        animation: {
+          duration: 250,
+        },
+      },
     });
 
     map.addOverlay(overlay);
