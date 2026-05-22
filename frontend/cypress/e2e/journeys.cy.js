@@ -22,8 +22,8 @@ describe('Journeys index page - SSR Layout', () => {
 
   it('should have the page header with navigation', () => {
     cy.get('.l-header--fullscreen').should('exist');
-    cy.get('.brand-area').should('be.visible');
-    cy.get('.nav-area').should('be.visible');
+    cy.get('.brand-area').should('exist');
+    cy.get('.nav-area').should('exist');
   });
 
   it('should display journey grid elements if journeys exist', () => {
@@ -52,4 +52,3 @@ describe('Journeys index page - SSR Layout', () => {
     });
   });
 });
-

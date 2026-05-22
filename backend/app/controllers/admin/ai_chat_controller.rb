@@ -69,10 +69,10 @@ class Admin::AiChatController < ApplicationController
                         "(session=#{session_id} user=#{current_admin_user.id}) " \
                         "tool_calls=#{tool_calls.inspect}"
       Rollbar.warning("AI chat: Bedrock returned empty response",
-                      session_id: session_id,
-                      admin_user_id: current_admin_user.id,
-                      elapsed_seconds: elapsed.round(1),
-                      tool_calls: tool_calls)
+        session_id: session_id,
+        admin_user_id: current_admin_user.id,
+        elapsed_seconds: elapsed.round(1),
+        tool_calls: tool_calls)
       return render json: {
         success: false,
         message: "The agent didn't return a response. This can happen when it gets " \

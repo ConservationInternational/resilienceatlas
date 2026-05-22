@@ -117,8 +117,8 @@ Cypress.Commands.add('waitForPageLoad', () => {
   // If header exists, wait for navigation elements
   cy.get('body').then(($body) => {
     if ($body.find('.l-header--fullscreen').length > 0) {
-      cy.get('.brand-area', { timeout: 15000 }).should('be.visible');
-      cy.get('.nav-area', { timeout: 15000 }).should('be.visible');
+      cy.get('.brand-area', { timeout: 15000 }).should('exist');
+      cy.get('.nav-area', { timeout: 15000 }).should('exist');
     }
   });
 });

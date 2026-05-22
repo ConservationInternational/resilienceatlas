@@ -21,9 +21,10 @@
 
 # Schemas where create_schema must be idempotent on db:schema:load.
 # ra_app is created by the 20260515160000_create_ra_schemas migration and appears
-# in schema.rb; ra_vector/ra_raster are also migration-created but excluded from
-# schema.rb entirely (see below).
-IDEMPOTENT_SCHEMAS = %w[topology ra_app ra_vector ra_raster].freeze
+# in schema.rb; ra_vector/ra_raster are migration-created but excluded from
+# schema.rb entirely (see below). topology/tiger/tiger_data can already exist
+# when PostGIS extensions are preloaded in the database image.
+IDEMPOTENT_SCHEMAS = %w[topology ra_app ra_vector ra_raster tiger tiger_data].freeze
 
 # Schemas to omit entirely from schema.rb (create_schema statements + all tables).
 # ra_vector and ra_raster hold externally-managed data loaded outside Rails migrations.
@@ -32,6 +33,19 @@ FILTERED_FROM_DUMP = %w[topology ra_vector ra_raster].freeze
 
 # Module to make create_schema idempotent for all managed schemas
 module IdempotentPostgisSchema
+  def enable_extension(name, **)
+    case name.to_s
+    when "postgis"
+      execute('CREATE EXTENSION IF NOT EXISTS "postgis" SCHEMA public')
+    when "fuzzystrmatch"
+      execute('CREATE EXTENSION IF NOT EXISTS "fuzzystrmatch" SCHEMA public')
+      # postgis_tiger_geocoder expects soundex() in public.
+      execute('ALTER EXTENSION "fuzzystrmatch" SET SCHEMA public')
+    else
+      super
+    end
+  end
+
   def create_schema(schema_name, *args, **kwargs)
     if IDEMPOTENT_SCHEMAS.include?(schema_name.to_s) && schema_exists?(schema_name)
       return

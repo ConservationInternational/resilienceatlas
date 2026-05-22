@@ -852,7 +852,7 @@ module CartodbRakeHelpers
 
   # Format a threshold float as a clean string label (no trailing ".0").
   def self.format_threshold(value)
-    value == value.floor ? value.to_i.to_s : value.to_s
+    (value == value.floor) ? value.to_i.to_s : value.to_s
   end
 
   # Extract all [value <= N] → polygon-fill conditions from CartoDB CSS.
@@ -2613,14 +2613,12 @@ namespace :cartodb do
                 current_legend["bucket"].first.is_a?(Hash)
               # Object-format buckets: fix if any bucket is missing its color
               current_legend["bucket"].any? { |b| b["color"].blank? }
-            elsif current_legend["type"] == "choropleth" &&
-                current_legend["bucket"].is_a?(Array) &&
-                current_legend["bucket"].first.is_a?(String)
-              # Simple string-array format already has colors — leave it alone
-              false
             else
-              # No usable choropleth legend
-              true
+              # Simple string-array format already has colors — leave it alone.
+              # Everything else needs a usable choropleth legend.
+              !(current_legend["type"] == "choropleth" &&
+                current_legend["bucket"].is_a?(Array) &&
+                current_legend["bucket"].first.is_a?(String))
             end
 
           if needs_legend_fix

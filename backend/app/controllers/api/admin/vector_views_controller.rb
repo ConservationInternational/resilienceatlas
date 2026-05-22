@@ -60,7 +60,7 @@ class Api::Admin::VectorViewsController < Api::Admin::ApiController
   # Body: { name: "v_my_view", sql: "SELECT ...", description: "optional" }
   def create
     name = params.require(:name)
-    sql  = params.require(:sql)
+    sql = params.require(:sql)
     description = params[:description].presence
 
     validate_view_name!(name)

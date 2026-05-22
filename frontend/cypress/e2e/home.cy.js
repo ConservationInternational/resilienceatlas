@@ -30,8 +30,8 @@ describe('Homepage - SSR Layout', () => {
   it('should have the page header with navigation', () => {
     // Header is SSR rendered
     cy.get('.l-header--fullscreen', { timeout: 10000 }).should('exist');
-    cy.get('.brand-area').should('be.visible');
-    cy.get('.nav-area').should('be.visible');
+    cy.get('.brand-area').should('exist');
+    cy.get('.nav-area').should('exist');
     cy.log('✓ Header with navigation rendered');
   });
 

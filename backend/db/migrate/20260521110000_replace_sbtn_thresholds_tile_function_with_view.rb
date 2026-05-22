@@ -17,6 +17,11 @@
 #   3. Drops the sbtn_thresholds_tiles function (no longer needed).
 class ReplaceSbtnThresholdsTileFunctionWithView < ActiveRecord::Migration[7.2]
   def up
+    unless sbtn_thresholds_table_exists?
+      say "Skipping v_sbtn_thresholds view migration: ra_nonspatial.sbtn_thresholds is missing", true
+      return
+    end
+
     # 1. Create the view
     execute <<~SQL
       CREATE OR REPLACE VIEW ra_vector.v_sbtn_thresholds AS
@@ -140,5 +145,11 @@ class ReplaceSbtnThresholdsTileFunctionWithView < ActiveRecord::Migration[7.2]
     SQL
 
     execute "DROP VIEW IF EXISTS ra_vector.v_sbtn_thresholds;"
+  end
+
+  private
+
+  def sbtn_thresholds_table_exists?
+    connection.select_value("SELECT to_regclass('ra_nonspatial.sbtn_thresholds') IS NOT NULL")
   end
 end

@@ -10,13 +10,16 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_05_21_000000) do
+ActiveRecord::Schema[7.2].define(version: 2026_05_21_120000) do
   create_schema "ra_app"
+  create_schema "tiger"
+  create_schema "tiger_data"
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "fuzzystrmatch"
   enable_extension "plpgsql"
   enable_extension "postgis"
+  enable_extension "postgis_tiger_geocoder"
   enable_extension "postgis_topology"
 
   create_table "action_text_rich_texts", force: :cascade do |t|
@@ -113,6 +116,14 @@ ActiveRecord::Schema[7.2].define(version: 2026_05_21_000000) do
     t.index ["unlock_token"], name: "index_admin_users_on_unlock_token", unique: true
   end
 
+  create_table "agrupations", force: :cascade do |t|
+    t.bigint "layer_id"
+    t.bigint "layer_group_id"
+    t.boolean "active", default: false
+    t.index ["layer_group_id"], name: "index_agrupations_on_layer_group_id"
+    t.index ["layer_id"], name: "index_agrupations_on_layer_id"
+  end
+
   create_table "ai_chat_messages", force: :cascade do |t|
     t.bigint "admin_user_id", null: false
     t.string "bedrock_session_id", null: false
@@ -123,14 +134,6 @@ ActiveRecord::Schema[7.2].define(version: 2026_05_21_000000) do
     t.index ["admin_user_id", "created_at"], name: "index_ai_chat_messages_on_admin_user_id_and_created_at"
     t.index ["admin_user_id"], name: "index_ai_chat_messages_on_admin_user_id"
     t.index ["bedrock_session_id"], name: "index_ai_chat_messages_on_bedrock_session_id"
-  end
-
-  create_table "agrupations", force: :cascade do |t|
-    t.bigint "layer_id"
-    t.bigint "layer_group_id"
-    t.boolean "active", default: false
-    t.index ["layer_group_id"], name: "index_agrupations_on_layer_group_id"
-    t.index ["layer_id"], name: "index_agrupations_on_layer_id"
   end
 
   create_table "categories", force: :cascade do |t|
@@ -782,9 +785,9 @@ ActiveRecord::Schema[7.2].define(version: 2026_05_21_000000) do
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "admin_user_site_scopes", "admin_users"
   add_foreign_key "admin_user_site_scopes", "site_scopes"
-  add_foreign_key "ai_chat_messages", "admin_users"
   add_foreign_key "agrupations", "layer_groups"
   add_foreign_key "agrupations", "layers"
+  add_foreign_key "ai_chat_messages", "admin_users"
   add_foreign_key "data_imports", "admin_users"
   add_foreign_key "feedback_fields", "feedback_fields", column: "parent_id", on_delete: :cascade
   add_foreign_key "feedback_fields", "feedbacks", on_delete: :cascade

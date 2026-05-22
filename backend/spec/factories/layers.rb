@@ -165,11 +165,7 @@ FactoryBot.define do
     end
 
     after(:build) do |layer, _evaluator|
-      layer.analysis_type = if layer.layer_provider == "cog"
-        "histogram"
-      else
-        "categorical"
-      end
+      layer.analysis_type = "histogram"
     end
   end
 end
