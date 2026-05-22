@@ -1,17 +1,14 @@
 """
 Action Groups Lambda for Bedrock Agent
-Handles all agent tool calls:
+Handles all agent tool calls (8 endpoints):
   - retrieve_context       RAG similarity search
-  - list_layers            GET /api/admin/layers
-  - get_layer              GET /api/admin/layers/:id
-  - list_site_scopes       GET /api/admin/layers?collection=site_scopes
-  - list_tables            GET /api/admin/vector_tables
-  - describe_table         GET /api/admin/vector_tables/:name
+  - get_site_scopes        List site scopes; or list layer groups for a scope (site_scope_id param)
+  - get_layers             List layers; or get full detail for one layer (layer_id/slug param)
+  - get_tables             List PostGIS tables; or describe one table (table_name param)
   - create_layer           POST /api/admin/layers
   - update_layer           PATCH /api/admin/layers/:id
   - import_vector_table    POST /api/admin/vector_tables/import
   - create_vector_view     POST /api/admin/vector_views
-  - drop_vector_view       DELETE /api/admin/vector_views/:name
 
 Embeddings are loaded from S3 at cold start for fast RAG lookups.
 """
@@ -232,26 +229,66 @@ def _condense_layers(layers: list[dict]) -> list[dict]:
     ]
 
 
-def handle_list_layers(params: dict, auth: AuthContext) -> str:
+def handle_get_layers(params: dict, auth: AuthContext) -> str:
+    """List layers OR get full detail for one layer.
+
+    Single-layer mode (layer_id or slug provided): returns full layer detail.
+    List mode (no layer_id/slug): returns condensed list, filtered by site_scope_id/keyword.
+    """
+    layer_id = params.get("layer_id")
+    slug = params.get("slug")
+
+    # ── Single-layer mode ────────────────────────────────────────────────────
+    if layer_id or slug:
+        # Resolve slug → id if only slug is provided
+        if not layer_id and slug:
+            matches = rails_get("/api/admin/layers", params={"keyword": slug}).get("data", [])
+            exact = [l for l in matches if l.get("slug") == slug]
+            if not exact:
+                return json.dumps({"success": False, "message": f"No layer found with slug '{slug}'."})
+            layer_id = exact[0]["id"]
+
+        result = rails_get(f"/api/admin/layers/{layer_id}")
+        layer = result.get("data", {})
+
+        if not auth.is_superadmin:
+            scope_ids = layer.get("site_scope_ids") or []
+            if scope_ids and not any(auth.can_access_site_scope(sid) for sid in scope_ids):
+                return json.dumps({"success": False, "message": "Access denied: not authorized for this layer's site scope."})
+        return json.dumps({
+            "id": layer.get("id"),
+            "name": layer.get("name"),
+            "slug": layer.get("slug"),
+            "layer_provider": layer.get("layer_provider"),
+            "published": layer.get("published"),
+            "description": layer.get("description"),
+            "dataset_shortname": layer.get("dataset_shortname"),
+            "dataset_source_url": layer.get("dataset_source_url"),
+            "layer_config": layer.get("layer_config"),
+            "interaction_config": layer.get("interaction_config"),
+            "zoom_min": layer.get("zoom_min"),
+            "zoom_max": layer.get("zoom_max"),
+            "opacity": layer.get("opacity"),
+            "analysis_suitable": layer.get("analysis_suitable"),
+            "color": layer.get("color"),
+        }, ensure_ascii=False)
+
+    # ── List mode ────────────────────────────────────────────────────────────
     site_scope_id = params.get("site_scope_id")
     keyword = params.get("keyword")
 
-    # Authorization: validate the requested scope is in the user's allowed set.
     if site_scope_id is not None:
         if not auth.can_access_site_scope(site_scope_id):
             return json.dumps({"success": False, "message": f"Access denied: not authorized for site scope {site_scope_id}."})
-
         p: dict = {"per_page": 200, "site_scope_id": site_scope_id}
         if keyword:
             p["keyword"] = keyword
         result = rails_get("/api/admin/layers", params=p)
         return json.dumps(_condense_layers(result.get("data", [])), ensure_ascii=False)
 
-    # No scope specified — restrict non-superadmins to their allowed scopes.
     if not auth.is_superadmin and auth.allowed_site_scope_ids is not None:
         if not auth.allowed_site_scope_ids:
             return json.dumps({"success": False, "message": "Access denied: no site scopes assigned to your account."})
-        # Fetch each allowed scope and merge deduplicated results.
         all_layers: list[dict] = []
         seen_ids: set = set()
         for sid in auth.allowed_site_scope_ids:
@@ -265,57 +302,12 @@ def handle_list_layers(params: dict, auth: AuthContext) -> str:
                     all_layers.append(layer)
         return json.dumps(_condense_layers(all_layers), ensure_ascii=False)
 
-    # Superadmin (or allowed_site_scope_ids is None = all scopes): pass through.
     p = {"per_page": 200}
     if keyword:
         p["keyword"] = keyword
     result = rails_get("/api/admin/layers", params=p)
     return json.dumps(_condense_layers(result.get("data", [])), ensure_ascii=False)
 
-
-def handle_get_layer(params: dict, auth: AuthContext) -> str:
-    layer_id = params.get("layer_id")
-    slug = params.get("slug")
-
-    # Resolve slug → id if only slug is provided
-    if not layer_id and slug:
-        matches = rails_get("/api/admin/layers", params={"keyword": slug}).get("data", [])
-        exact = [l for l in matches if l.get("slug") == slug]
-        if not exact:
-            return json.dumps({"success": False, "message": f"No layer found with slug '{slug}'."})
-        layer_id = exact[0]["id"]
-
-    if not layer_id:
-        return json.dumps({"success": False, "message": "Provide either layer_id or slug."})
-
-    result = rails_get(f"/api/admin/layers/{layer_id}")
-    layer = result.get("data", {})
-
-    # Authorization: non-superadmins may only read layers in their allowed scopes.
-    # site_scope_ids is included by the Rails show action (many-to-many via layer_groups).
-    if not auth.is_superadmin:
-        scope_ids = layer.get("site_scope_ids") or []
-        if scope_ids and not any(auth.can_access_site_scope(sid) for sid in scope_ids):
-            return json.dumps({"success": False, "message": "Access denied: not authorized for this layer's site scope."})
-    # Return the most useful fields for the agent to reason about
-    summary = {
-        "id": layer.get("id"),
-        "name": layer.get("name"),
-        "slug": layer.get("slug"),
-        "layer_provider": layer.get("layer_provider"),
-        "published": layer.get("published"),
-        "description": layer.get("description"),
-        "dataset_shortname": layer.get("dataset_shortname"),
-        "dataset_source_url": layer.get("dataset_source_url"),
-        "layer_config": layer.get("layer_config"),
-        "interaction_config": layer.get("interaction_config"),
-        "zoom_min": layer.get("zoom_min"),
-        "zoom_max": layer.get("zoom_max"),
-        "opacity": layer.get("opacity"),
-        "analysis_suitable": layer.get("analysis_suitable"),
-        "color": layer.get("color"),
-    }
-    return json.dumps(summary, ensure_ascii=False)
 
 
 def _extract_rails_error(exc: requests.HTTPError) -> dict:
@@ -350,31 +342,34 @@ def _validate_zoom(zoom_min, zoom_max) -> str | None:
     return None
 
 
-def handle_list_site_scopes(_params: dict, auth: AuthContext) -> str:
-    result = rails_get("/api/admin/layers", params={"collection": "site_scopes"})
-    all_scopes = result.get("data", [])
-    # Non-superadmins only see their allowed scopes
-    if not auth.is_superadmin and auth.allowed_site_scope_ids is not None:
-        all_scopes = [s for s in all_scopes if str(s.get("id")) in auth.allowed_site_scope_ids]
-    return json.dumps(all_scopes, ensure_ascii=False)
+def handle_get_site_scopes(params: dict, auth: AuthContext) -> str:
+    """List site scopes OR list layer groups for a specific scope.
 
-
-def handle_list_layer_groups(params: dict, auth: AuthContext) -> str:
+    Without site_scope_id: returns all site scopes [{id, name, subdomain}].
+    With site_scope_id: returns layer groups [{id, name, layers_count}] for that scope.
+    """
     site_scope_id = params.get("site_scope_id")
-    if not site_scope_id:
-        return json.dumps({"success": False, "message": "site_scope_id is required"})
-    if not auth.can_access_site_scope(site_scope_id):
-        return json.dumps({"success": False, "message": f"Access denied: not authorized for site scope {site_scope_id}."})
-    result = rails_get("/api/layer-groups", params={"site_scope": site_scope_id})
-    # Public API may return the array directly or wrapped in {"data": [...]}
-    groups = result.get("data", result) if isinstance(result, dict) else result
-    if not isinstance(groups, list):
-        groups = []
-    summary = [
-        {"id": g.get("id"), "name": g.get("name"), "layers_count": len(g.get("layers", []))}
-        for g in groups
-    ]
-    return json.dumps(summary, ensure_ascii=False)
+
+    if site_scope_id:
+        # ── Layer groups mode ────────────────────────────────────────────────
+        if not auth.can_access_site_scope(site_scope_id):
+            return json.dumps({"success": False, "message": f"Access denied: not authorized for site scope {site_scope_id}."})
+        result = rails_get("/api/layer-groups", params={"site_scope": site_scope_id})
+        groups = result.get("data", result) if isinstance(result, dict) else result
+        if not isinstance(groups, list):
+            groups = []
+        summary = [
+            {"id": g.get("id"), "name": g.get("name"), "layers_count": len(g.get("layers", []))}
+            for g in groups
+        ]
+        return json.dumps(summary, ensure_ascii=False)
+    else:
+        # ── Site scopes list mode ────────────────────────────────────────────
+        result = rails_get("/api/admin/layers", params={"collection": "site_scopes"})
+        all_scopes = result.get("data", [])
+        if not auth.is_superadmin and auth.allowed_site_scope_ids is not None:
+            all_scopes = [s for s in all_scopes if str(s.get("id")) in auth.allowed_site_scope_ids]
+        return json.dumps(all_scopes, ensure_ascii=False)
 
 
 def handle_create_layer(params: dict, auth: AuthContext) -> str:
@@ -509,36 +504,39 @@ def handle_import_vector_table(params: dict, auth: AuthContext) -> str:
     return json.dumps(result, ensure_ascii=False)
 
 
-def handle_list_tables(params: dict, _auth: AuthContext) -> str:
-    """List all PostGIS tables in managed schemas (ra_nonspatial, ra_vector, ra_raster)."""
-    q = params.get("q")
-    api_params: dict = {}
-    if q:
-        api_params["q"] = q
-    result = rails_get("/api/admin/vector_tables", params=api_params or None)
-    tables = result.get("data", [])
-    summary = [
-        {
-            "name": t.get("name"),
-            "schema": t.get("schema"),
-            "row_count": t.get("row_count"),
-            "layers": [
-                {"id": l.get("id"), "slug": l.get("slug"), "name": l.get("name")}
-                for l in (t.get("layers") or [])
-            ],
-        }
-        for t in tables
-    ]
-    return json.dumps(summary, ensure_ascii=False)
+def handle_get_tables(params: dict, _auth: AuthContext) -> str:
+    """List PostGIS tables OR get full details for one table.
 
-
-def handle_describe_table(params: dict, _auth: AuthContext) -> str:
-    """Get columns (with types) and sample rows for a specific PostGIS table."""
+    With table_name: returns columns, types, and sample rows for that table.
+    Without table_name: lists all tables in managed schemas with row counts.
+    """
     table_name = params.get("table_name")
-    if not table_name:
-        return json.dumps({"success": False, "message": "table_name is required"})
-    result = rails_get(f"/api/admin/vector_tables/{table_name}")
-    return json.dumps(result.get("data", result), ensure_ascii=False)
+
+    if table_name:
+        # ── Describe mode ────────────────────────────────────────────────────
+        result = rails_get(f"/api/admin/vector_tables/{table_name}")
+        return json.dumps(result.get("data", result), ensure_ascii=False)
+    else:
+        # ── List mode ────────────────────────────────────────────────────────
+        q = params.get("q")
+        api_params: dict = {}
+        if q:
+            api_params["q"] = q
+        result = rails_get("/api/admin/vector_tables", params=api_params or None)
+        tables = result.get("data", [])
+        summary = [
+            {
+                "name": t.get("name"),
+                "schema": t.get("schema"),
+                "row_count": t.get("row_count"),
+                "layers": [
+                    {"id": l.get("id"), "slug": l.get("slug"), "name": l.get("name")}
+                    for l in (t.get("layers") or [])
+                ],
+            }
+            for t in tables
+        ]
+        return json.dumps(summary, ensure_ascii=False)
 
 def handle_create_vector_view(params: dict, auth: AuthContext) -> str:
     """Create (or replace) a PostgreSQL view in ra_vector from a SELECT query.
@@ -567,35 +565,17 @@ def handle_create_vector_view(params: dict, auth: AuthContext) -> str:
     return json.dumps(result, ensure_ascii=False)
 
 
-def handle_drop_vector_view(params: dict, auth: AuthContext) -> str:
-    """Drop a PostgreSQL view from ra_vector.  Use with caution — any martin
-    layers that reference this view via ra_vector_tile?table=<name> will stop
-    serving tiles immediately.
-    """
-    if not auth.role:
-        return json.dumps({"success": False, "message": "Access denied: no valid session. Use the admin chat interface."})
-    name = params.get("name")
-    if not name:
-        return json.dumps({"success": False, "message": "name is required"})
-    result = rails_delete(f"/api/admin/vector_views/{name}")
-    logger.info("AGENT_AUDIT drop_vector_view name=%s admin_role=%s", name, auth.role)
-    return json.dumps(result, ensure_ascii=False)
-
 # ── Bedrock action group dispatcher ──────────────────────────────────────────
 
 ACTION_HANDLERS = {
     "retrieve_context": handle_retrieve_context,
-    "list_layers": handle_list_layers,
-    "get_layer": handle_get_layer,
-    "list_site_scopes": handle_list_site_scopes,
-    "list_layer_groups": handle_list_layer_groups,
-    "list_tables": handle_list_tables,
-    "describe_table": handle_describe_table,
+    "get_site_scopes": handle_get_site_scopes,
+    "get_layers": handle_get_layers,
+    "get_tables": handle_get_tables,
     "create_layer": handle_create_layer,
     "update_layer": handle_update_layer,
     "import_vector_table": handle_import_vector_table,
     "create_vector_view": handle_create_vector_view,
-    "drop_vector_view": handle_drop_vector_view,
 }
 
 
