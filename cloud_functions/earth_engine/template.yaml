@@ -16,6 +16,7 @@ Parameters:
   RollbarAccessToken:
     Type: String
     Default: ''
+    NoEcho: true
     Description: Rollbar access token for error tracking (optional)
   RollbarEnvironment:
     Type: String
