@@ -139,25 +139,33 @@ resource "aws_iam_role_policy" "github_actions_bedrock" {
   role = data.aws_iam_role.github_actions.id
   policy = jsonencode({
     Version = "2012-10-17"
-    Statement = [{
-      Effect = "Allow"
-      Action = [
-        "bedrock:GetAgent",
-        "bedrock:UpdateAgent",
-        "bedrock:PrepareAgent",
-        "bedrock:ListAgentVersions",
-        "bedrock:ListAgentActionGroups",
-        "bedrock:GetAgentActionGroup",
-        "bedrock:UpdateAgentActionGroup",
-        "bedrock:CreateAgentAlias",
-        "bedrock:UpdateAgentAlias",
-        "bedrock:DeleteAgentAlias",
-      ]
-      Resource = [
-        aws_bedrockagent_agent.main.arn,
-        "arn:aws:bedrock:${var.aws_region}:${data.aws_caller_identity.current.account_id}:agent-alias/${aws_bedrockagent_agent.main.id}/*",
-      ]
-    }]
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "bedrock:GetAgent",
+          "bedrock:UpdateAgent",
+          "bedrock:PrepareAgent",
+          "bedrock:ListAgentVersions",
+          "bedrock:ListAgentActionGroups",
+          "bedrock:GetAgentActionGroup",
+          "bedrock:UpdateAgentActionGroup",
+          "bedrock:CreateAgentAlias",
+          "bedrock:UpdateAgentAlias",
+          "bedrock:DeleteAgentAlias",
+        ]
+        Resource = [
+          aws_bedrockagent_agent.main.arn,
+          "arn:aws:bedrock:${var.aws_region}:${data.aws_caller_identity.current.account_id}:agent-alias/${aws_bedrockagent_agent.main.id}/*",
+        ]
+      },
+      {
+        # update_agent passes agentResourceRoleArn, which requires iam:PassRole
+        Effect   = "Allow"
+        Action   = ["iam:PassRole"]
+        Resource = aws_iam_role.bedrock_agent.arn
+      },
+    ]
   })
 }
 
