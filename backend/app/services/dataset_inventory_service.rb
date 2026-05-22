@@ -15,14 +15,14 @@ class DatasetInventoryService
 
   # Cache keys
   LAYER_USAGE_CACHE_KEY = "dataset_inventory/layer_usage"
-  S3_RAW_CACHE_KEY      = "dataset_inventory/s3_raw"
+  S3_RAW_CACHE_KEY = "dataset_inventory/s3_raw"
 
   # Cache TTLs — these are safety-net fallbacks only; primary invalidation happens
   # via explicit cache busting at every write path (Layer after_commit, upload actions,
   # import jobs) so the TTL rarely triggers in normal operation.
   LAYER_USAGE_TTL = 1.hour
-  PG_TABLES_TTL   = 1.hour
-  S3_RAW_TTL      = 2.hours
+  PG_TABLES_TTL = 1.hour
+  S3_RAW_TTL = 2.hours
 
   attr_reader :s3_error, :table_data_error
 
@@ -214,8 +214,8 @@ class DatasetInventoryService
   def layer_usage_maps
     @layer_usage_maps ||= Rails.cache.fetch(LAYER_USAGE_CACHE_KEY, expires_in: LAYER_USAGE_TTL) do
       table_usage = Hash.new { |h, k| h[k] = [] }
-      cog_index   = Hash.new { |h, k| h[k] = [] }
-      bucket      = ENV["S3_BUCKET"].presence || "resilienceatlas"
+      cog_index = Hash.new { |h, k| h[k] = [] }
+      bucket = ENV["S3_BUCKET"].presence || "resilienceatlas"
 
       Layer.find_each do |layer|
         summary = layer_summary(layer)
@@ -249,7 +249,7 @@ class DatasetInventoryService
 
       {
         table_usage: table_usage.transform_values { |ls| ls.uniq { |l| l[:id] } },
-        cog_index:   cog_index.transform_values   { |ls| ls.uniq { |l| l[:id] } }
+        cog_index: cog_index.transform_values { |ls| ls.uniq { |l| l[:id] } }
       }
     end
   end

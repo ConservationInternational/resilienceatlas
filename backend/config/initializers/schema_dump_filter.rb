@@ -33,6 +33,19 @@ FILTERED_FROM_DUMP = %w[topology ra_vector ra_raster].freeze
 
 # Module to make create_schema idempotent for all managed schemas
 module IdempotentPostgisSchema
+  def enable_extension(name, **)
+    case name.to_s
+    when "postgis"
+      execute('CREATE EXTENSION IF NOT EXISTS "postgis" SCHEMA public')
+    when "fuzzystrmatch"
+      execute('CREATE EXTENSION IF NOT EXISTS "fuzzystrmatch" SCHEMA public')
+      # postgis_tiger_geocoder expects soundex() in public.
+      execute('ALTER EXTENSION "fuzzystrmatch" SET SCHEMA public')
+    else
+      super
+    end
+  end
+
   def create_schema(schema_name, *args, **kwargs)
     if IDEMPOTENT_SCHEMAS.include?(schema_name.to_s) && schema_exists?(schema_name)
       return
