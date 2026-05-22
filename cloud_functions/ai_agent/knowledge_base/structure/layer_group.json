@@ -15,10 +15,10 @@
     "icon_class": "Optional CSS icon class for the group icon."
   },
   "linking_layers": {
-    "description": "When creating a layer, pass site_scope_id and layer_group_id. The admin API creates the Agrupation automatically.",
+    "description": "When creating a layer, pass site_scope_id and layer_group_id. The admin API creates the Agrupation automatically, and the agent create_layer action accepts these as top-level parameters.",
     "endpoint": "POST /api/admin/layers with body: {\"site_scope_id\": <id>, \"layer\": {\"layer_group_id\": <group_id>, ...other fields}}"
   },
-  "how_to_find_groups": "Use GET /api/admin/layers which returns the full list. Or use the admin UI. Layer group IDs are visible in the URL when editing in ActiveAdmin.",
+  "how_to_find_groups": "Use get_site_scopes(site_scope_id=...) to list groups for the selected site scope. Prefer that over scraping IDs from the admin UI.",
   "usage_notes": [
     "A layer can belong to multiple layer groups (via multiple Agrupation records), but this is uncommon.",
     "If the correct layer group does not exist, one must be created in ActiveAdmin first.",

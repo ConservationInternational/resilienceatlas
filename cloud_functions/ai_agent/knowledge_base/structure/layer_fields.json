@@ -5,16 +5,16 @@
   "required_fields": {
     "slug": "URL-safe identifier. Format: alphanumeric with hyphens or underscores. E.g. 'ndvi-2023' or 'forest_cover'. Must be globally unique.",
     "layer_provider": "One of: 'cog', 'esri', 'gee', 'martin', 'wms', 'wmts', 'xyz tileset'.",
-    "interaction_config": "JSON object controlling popup content. Minimum valid value: {}. For click-to-inspect: {\"output\":[{\"column\":\"value\",\"property\":\"Value\",\"type\":\"number\",\"format\":\"0.0\"}]}.",
+    "interaction_config": "JSON object controlling popup content. Minimum valid value: {}. Canonical managed configs differ by provider: COG layers use the TiTiler point-query template; imported Martin layers usually use an output array generated from table columns.",
     "name": "Human-readable display name (translated). Plain string."
   },
   "important_optional_fields": {
-    "layer_config": "JSON string with provider-specific tile configuration. See provider docs for each format.",
+    "layer_config": "JSON string with provider-specific tile configuration. Effectively required for all useful providers, and strictly required for cog layers by model validation.",
     "layer_group_id": "Integer ID of the LayerGroup to assign this layer to.",
     "opacity": "Float 0.0–1.0, default null (treated as 1.0 in frontend).",
     "published": "Boolean, default true. Set false to hide from public.",
-    "zoom_min": "Minimum zoom level (0–20), default 0.",
-    "zoom_max": "Maximum zoom level (0–100), default 100.",
+    "zoom_min": "Minimum zoom level (0–24), default 0.",
+    "zoom_max": "Maximum zoom level (0–24), default 24. Must be >= zoom_min.",
     "order": "Integer display order within the layer group.",
     "description": "Plain text or HTML description (translated).",
     "legend": "Legend text or HTML (translated).",
@@ -30,11 +30,11 @@
       "value": "{}"
     },
     {
-      "description": "Single numeric value popup",
-      "value": "{\"output\":[{\"column\":\"values[0]\",\"property\":\"NDVI\",\"type\":\"number\",\"format\":\"0.00\"}]}"
+      "description": "Canonical COG point-query popup",
+      "value": "{\"output\":[{\"column\":\"values.0\",\"property\":\"Value\",\"type\":\"number\"}],\"config\":{\"url\":\"{{titilerUrl}}/cog/point/{{lng}}/{{lat}}?url={{cogUrl}}\"}}"
     },
     {
-      "description": "Multiple properties with units",
+      "description": "Martin popup generated from table columns",
       "value": "{\"output\":[{\"column\":\"name\",\"property\":\"Name\",\"type\":\"string\"},{\"column\":\"area_ha\",\"property\":\"Area (ha)\",\"type\":\"number\",\"format\":\"0,0\"}]}"
     }
   ],
@@ -43,5 +43,11 @@
     "Examples: 'forest-cover', 'ndvi_2023', 'population-density-2020'",
     "Invalid: 'my layer', '-starts-with-dash', 'ends_with_'"
   ],
+  "analysis_expectations": {
+    "analysis_suitable": "When true, analysis_type becomes constrained by the provider.",
+    "cog": "Current validation allows analysis_type 'histogram' or 'categorical'.",
+    "non_cog": "Current validation only allows analysis_type 'histogram'.",
+    "text_analysis": "The analysis_type enum still includes 'text' historically, but current model validation does not allow it for analysis_suitable layers in normal create/update flows."
+  },
   "api_endpoint": "POST /api/admin/layers with body: {\"layer\": {...fields...}, \"site_scope_id\": 1}"
 }

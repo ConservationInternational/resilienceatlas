@@ -6,7 +6,8 @@
   "layer_config_schema": {
     "body": {
       "url": "Tile URL template with {z}/{x}/{y} placeholders, e.g. 'https://tile.openstreetmap.org/{z}/{x}/{y}.png'.",
-      "type": "Always 'tileLayer'. Optional — defaults to 'tileLayer'."
+      "type": "Optional. Defaults to 'tileLayer'. Legacy fallback value 'wms' is also supported by the generic tile-layer adapter, but prefer the dedicated wms provider for new layers.",
+      "params": "Only used when type='wms' on the legacy generic adapter. For new WMS integrations, use the wms provider instead."
     }
   },
   "examples": [
@@ -19,14 +20,15 @@
       "layer_config": "{\"body\":{\"url\":\"https://tile.openstreetmap.org/{z}/{x}/{y}.png\"}}"
     },
     {
-      "description": "URL at root level (legacy format also supported)",
-      "layer_config": "{\"url\":\"https://tiles.example.com/{z}/{x}/{y}.png\"}"
+      "description": "Legacy generic tile layer using WMS mode on xyz provider",
+      "layer_config": "{\"body\":{\"url\":\"https://example.org/geoserver/wms\",\"type\":\"wms\",\"params\":{\"LAYERS\":\"workspace:layer_name\"}}}"
     }
   ],
   "notes": [
-    "The url can be at root level or nested in body — both are handled.",
     "Note: the layer_provider value in the database is 'xyz tileset' (with a space), not 'xyz'.",
+    "Use body.url for current managed layers. Do not rely on a root-level url field.",
     "Prefer COG for raster analysis layers where value-based interaction is needed.",
-    "For Mapbox tiles, the access token must be included in the URL."
+    "For Mapbox tiles, the access token must be included in the URL.",
+    "interaction_config is required on the Layer record even when there is no popup behavior; use '{}'."
   ]
 }
