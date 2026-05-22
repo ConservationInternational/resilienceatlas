@@ -42,6 +42,7 @@ const layerDataReducer = createReducer(initialState)({
 
 const LayerPopup = ({
   onChangeInteractiveLayer,
+  onClose,
   latlng,
   data: { layers, layersInteraction, layersInteractionSelected },
   popup,
@@ -175,6 +176,11 @@ const LayerPopup = ({
             </option>
           ))}
         </select>
+        {onClose && (
+          <button type="button" className="popup-close-btn" onClick={onClose} aria-label="Close">
+            ✕
+          </button>
+        )}
       </header>
 
       <div className="popup-content">
