@@ -244,15 +244,29 @@ module CartodbRakeHelpers
       # the min/max range used for rescale — e.g. stop(20000,transparent) forces
       # rescale="0,20000", compressing real data values (1–17) into keys 0–6 of
       # the 0-255 gradient space so they all appear transparent.  Override to
-      # interval/discrete mode so transparent terminal stops become explicit nodata
-      # intervals and no rescale is applied.
+      # interval/discrete mode only when this compression would actually occur.
+      # When transparent stops are at or near the data boundaries (e.g. a
+      # temperature layer spanning -2..2.1 with transparent sentinels at those
+      # same values), the gradient colormap works correctly — values below/above
+      # the rescale range clamp to the transparent endpoint keys automatically.
       effective_mode = mode || "linear"
       if effective_mode == "linear"
         sorted_stops = stops.sort_by { |s| s[:value] }
         terminal_transparent =
           parse_hex_color(sorted_stops.first[:color]) == [0, 0, 0, 0] ||
           parse_hex_color(sorted_stops.last[:color]) == [0, 0, 0, 0]
-        effective_mode = "discrete" if terminal_transparent
+        if terminal_transparent
+          colored_stops = sorted_stops.reject { |s| parse_hex_color(s[:color]) == [0, 0, 0, 0] }
+          if colored_stops.empty?
+            effective_mode = "discrete"
+          else
+            total_range = sorted_stops.last[:value].to_f - sorted_stops.first[:value].to_f
+            colored_range = colored_stops.last[:value].to_f - colored_stops.first[:value].to_f
+            # Only switch to discrete when the colored range covers less than half
+            # of the total stop range — indicating a far-outlier nodata sentinel.
+            effective_mode = "discrete" if total_range > 0 && colored_range / total_range < 0.5
+          end
+        end
       end
 
       result["colormap"] = build_titiler_colormap(stops, mode: effective_mode, default_rgba: default_rgba)
@@ -786,16 +800,12 @@ module CartodbRakeHelpers
     # Fill opacity from base rule
     path_opts["fillOpacity"] = base_props["polygon-opacity"].to_f if base_props["polygon-opacity"].present?
 
-    # Fill color: prefer base rule; fall back to first non-transparent conditional fill
+    # Fill color: only use an explicit base CSS polygon-fill rule.
+    # Do NOT fall back to the first conditional fill — if there is no base rule
+    # (or it is transparent), the invisible-base guard below will fire and set
+    # fill:false/fillOpacity:0/weight:0, which correctly matches CartoDB's own
+    # behaviour: features that don't satisfy any conditional rule are invisible.
     fill_color = base_props["polygon-fill"]
-    if fill_color.blank? || fill_color =~ /\Atransparent\z/i
-      first_fill = conditional_rules.find do |r|
-        r[:styles]["polygon-fill"].to_s.present? &&
-          r[:styles]["polygon-fill"] !~ /\Atransparent\z/i
-      end
-      fill_color = first_fill&.dig(:styles, "polygon-fill")
-    end
-
     if fill_color.present? && fill_color !~ /\Atransparent\z/i
       path_opts["fillColor"] = fill_color
       path_opts["fill"] = true

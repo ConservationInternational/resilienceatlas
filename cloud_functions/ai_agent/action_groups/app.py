@@ -387,15 +387,46 @@ def handle_create_layer(params: dict, auth: AuthContext) -> str:
     if auth.is_contributor:
         layer_fields["published"] = False
 
-    # Validate zoom constraints (Rails rejects zoom_min/zoom_max outside 0–24)
-    zoom_err = _validate_zoom(layer_fields.get("zoom_min"), layer_fields.get("zoom_max"))
-    if zoom_err:
-        return json.dumps({"success": False, "message": zoom_err})
+    # Apply safe defaults for zoom levels when not explicitly provided.
+    # The Rails DB default for zoom_max is 100 which fails the ≤24 validation.
+    if layer_fields.get("zoom_min") is None:
+        layer_fields["zoom_min"] = 0
+    if layer_fields.get("zoom_max") is None:
+        layer_fields["zoom_max"] = 18
+
+    # Default interaction_config to "{}" when absent or explicitly "null".
+    # "null" passes Rails presence check but is semantically wrong; "{}" is
+    # the correct empty value for a JSON text column.
+    ic = layer_fields.get("interaction_config")
+    if not ic or ic.strip().lower() in ("null", "none", ""):
+        layer_fields["interaction_config"] = "{}"
 
     # NOTE: layer_config, interaction_config, and analysis_body are stored as JSON
     # strings in text columns. Send them as strings so Rails params.permit() treats
     # them as scalars (permit silently drops Hash values) and the JSON validator can
     # parse and validate them. Do NOT pre-parse them into dicts here.
+    #
+    # Validate JSON string fields early so the agent receives a clear error
+    # message rather than an opaque 422 from Rails.
+    for _json_field in ("layer_config", "interaction_config", "analysis_body"):
+        _val = layer_fields.get(_json_field)
+        if _val is not None:
+            try:
+                json.loads(_val)
+            except (json.JSONDecodeError, TypeError) as _e:
+                return json.dumps({
+                    "success": False,
+                    "message": (
+                        f"{_json_field} must be a valid JSON string. "
+                        f"Error: {_e}. "
+                        f"Received value (first 300 chars): {str(_val)[:300]}"
+                    ),
+                })
+
+    # Validate zoom constraints (Rails rejects zoom_min/zoom_max outside 0–24)
+    zoom_err = _validate_zoom(layer_fields.get("zoom_min"), layer_fields.get("zoom_max"))
+    if zoom_err:
+        return json.dumps({"success": False, "message": zoom_err})
 
     # Deduplication: check if a layer with this slug already exists
     slug = layer_fields.get("slug")
@@ -479,6 +510,23 @@ def handle_update_layer(params: dict, auth: AuthContext) -> str:
     # strings in text columns. Send them as strings so Rails params.permit() treats
     # them as scalars (permit silently drops Hash values) and the JSON validator can
     # parse and validate them. Do NOT pre-parse them into dicts here.
+    #
+    # Validate JSON string fields early so the agent receives a clear error
+    # message rather than an opaque 422 from Rails.
+    for _json_field in ("layer_config", "interaction_config", "analysis_body"):
+        _val = params.get(_json_field)
+        if _val is not None:
+            try:
+                json.loads(_val)
+            except (json.JSONDecodeError, TypeError) as _e:
+                return json.dumps({
+                    "success": False,
+                    "message": (
+                        f"{_json_field} must be a valid JSON string. "
+                        f"Error: {_e}. "
+                        f"Received value (first 300 chars): {str(_val)[:300]}"
+                    ),
+                })
     try:
         result = rails_patch(f"/api/admin/layers/{layer_id}", {"layer": params})
     except requests.HTTPError as exc:
