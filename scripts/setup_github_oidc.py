@@ -212,6 +212,7 @@ def create_deployment_policy(route53_zone_id):
                 ],
                 "Resource": [
                     "arn:aws:cloudformation:*:*:stack/titiler-cogs-*/*",
+                    "arn:aws:cloudformation:*:*:stack/earth-engine-*/*",
                     "arn:aws:cloudformation:*:*:stack/aws-sam-cli-managed-default/*"
                 ]
             },
@@ -244,7 +245,8 @@ def create_deployment_policy(route53_zone_id):
                     "lambda:InvokeFunction"
                 ],
                 "Resource": [
-                    "arn:aws:lambda:*:*:function:titiler-cogs-*"
+                    "arn:aws:lambda:*:*:function:titiler-cogs-*",
+                    "arn:aws:lambda:*:*:function:earth-engine-*"
                 ]
             },
             {
@@ -279,7 +281,8 @@ def create_deployment_policy(route53_zone_id):
                     "iam:UntagRole"
                 ],
                 "Resource": [
-                    "arn:aws:iam::*:role/titiler-cogs-*"
+                    "arn:aws:iam::*:role/titiler-cogs-*",
+                    "arn:aws:iam::*:role/earth-engine-*"
                 ]
             },
             {
@@ -366,7 +369,11 @@ def create_deployment_policy(route53_zone_id):
                 ],
                 "Resource": [
                     "arn:aws:ecr:*:*:repository/titiler-cogs-*",
-                    "arn:aws:ecr:*:*:repository/*titilercogsfunction*"
+                    "arn:aws:ecr:*:*:repository/*titilercogsfunction*",
+                    "arn:aws:ecr:*:*:repository/earth-engine-*",
+                    "arn:aws:ecr:*:*:repository/*histogramfunction*",
+                    "arn:aws:ecr:*:*:repository/*rasterinteractionfunction*",
+                    "arn:aws:ecr:*:*:repository/*downloadimagefunction*"
                 ]
             }
         ]
