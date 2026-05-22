@@ -847,6 +847,58 @@ module CartodbRakeHelpers
   end
 
   # ---------------------------------------------------------------------------
+  # Legend helpers
+  # ---------------------------------------------------------------------------
+
+  # Format a threshold float as a clean string label (no trailing ".0").
+  def self.format_threshold(value)
+    value == value.floor ? value.to_i.to_s : value.to_s
+  end
+
+  # Extract all [value <= N] → polygon-fill conditions from CartoDB CSS.
+  # Returns an array of {threshold:, color:} hashes sorted ascending by threshold.
+  def self.extract_value_conditions_from_css(css)
+    return [] if css.blank?
+
+    conditions = []
+    css.scan(/#[\w-]+((?:\s*\[[^\]]*\])*)\s*\{([^}]+)\}/m).each do |filter_chain, declarations|
+      next if filter_chain.nil? || filter_chain.strip.empty?
+
+      props = {}
+      declarations.scan(/([\w-]+)\s*:\s*([^;]+)/).each { |p, v| props[p.strip] = v.strip }
+      pfill = props["polygon-fill"].to_s.strip
+      next if pfill.blank? || pfill =~ /\Atransparent\z/i
+
+      filters = filter_chain.scan(/\[([^\]]+)\]/).map(&:first)
+      data_filters = filters.reject { |f| f.match?(/\Azoom\s*[<>=!]/i) }
+      next unless data_filters.size == 1
+
+      f = data_filters.first
+      next unless (m = f.match(/\Avalue\s*<=\s*([-\d.]+)\z/i))
+
+      conditions << {threshold: m[1].to_f, color: pfill}
+    end
+
+    conditions.sort_by { |c| c[:threshold] }
+  end
+
+  # Build a choropleth legend hash from CartoDB CSS [value <= N] conditions.
+  # Buckets are ordered ascending by threshold; the first bucket includes a
+  # "min-value" of "0".  Returns nil when the CSS has no usable conditions.
+  def self.build_choropleth_legend_from_css(css)
+    conditions = extract_value_conditions_from_css(css)
+    return nil if conditions.empty?
+
+    buckets = conditions.each_with_index.map do |cond, i|
+      bucket = {"color" => cond[:color], "max-value" => format_threshold(cond[:threshold])}
+      bucket["min-value"] = "0" if i.zero?
+      bucket
+    end
+
+    {"type" => "choropleth", "bucket" => buckets}
+  end
+
+  # ---------------------------------------------------------------------------
   # Interactivity helpers
   # ---------------------------------------------------------------------------
 
@@ -2323,6 +2375,9 @@ namespace :cartodb do
     martin_ic_updated = 0
     martin_ic_skipped = 0
     martin_ic_no_table = 0
+    martin_legends_updated = 0
+    martin_legends_skipped = 0
+    martin_legends_no_css = 0
 
     Layer.where(layer_provider: "martin")
       .where("layer_config LIKE '%cartodb_migration%'").find_each do |layer|
@@ -2536,6 +2591,80 @@ namespace :cartodb do
         end
       end
 
+      # ── Legend: repair missing or incomplete choropleth legend ────────────
+      # Rebuilds or repairs the choropleth legend from CartoDB CSS whenever
+      # the legend is blank, or the bucket objects are missing their color keys.
+      # Preserves existing bucket labels (e.g. "40%") when the bucket count
+      # matches the CSS conditions; falls back to raw numeric labels otherwise.
+      if layer.css.present?
+        css_conditions = CartodbRakeHelpers.extract_value_conditions_from_css(layer.css)
+
+        if css_conditions.any?
+          current_legend_str = layer.legend.presence
+          current_legend = begin
+            JSON.parse(current_legend_str || "{}")
+          rescue
+            {}
+          end
+
+          needs_legend_fix = force ||
+            if current_legend["type"] == "choropleth" &&
+                current_legend["bucket"].is_a?(Array) &&
+                current_legend["bucket"].first.is_a?(Hash)
+              # Object-format buckets: fix if any bucket is missing its color
+              current_legend["bucket"].any? { |b| b["color"].blank? }
+            elsif current_legend["type"] == "choropleth" &&
+                current_legend["bucket"].is_a?(Array) &&
+                current_legend["bucket"].first.is_a?(String)
+              # Simple string-array format already has colors — leave it alone
+              false
+            else
+              # No usable choropleth legend
+              true
+            end
+
+          if needs_legend_fix
+            existing_buckets =
+              if current_legend["bucket"].is_a?(Array) &&
+                  current_legend["bucket"].first.is_a?(Hash)
+                current_legend["bucket"]
+              end
+
+            legend_data =
+              if existing_buckets && existing_buckets.size == css_conditions.size
+                # Preserve existing labels; fill in colors from CSS in ascending order
+                new_buckets = existing_buckets.each_with_index.map do |b, i|
+                  b.merge("color" => css_conditions[i][:color])
+                end
+                {"type" => "choropleth", "bucket" => new_buckets}
+              else
+                # Build from scratch with raw numeric threshold labels
+                CartodbRakeHelpers.build_choropleth_legend_from_css(layer.css)
+              end
+
+            if legend_data
+              unless dry_run
+                ar_conn.execute(
+                  "UPDATE layer_translations " \
+                  "SET legend = #{ar_conn.quote(legend_data.to_json)} " \
+                  "WHERE layer_id = #{layer.id}"
+                )
+              end
+              puts "Layer ##{layer.id} (#{layer.slug}): legend repaired (#{legend_data["bucket"].size} buckets)"
+              martin_legends_updated += 1
+            else
+              martin_legends_skipped += 1
+            end
+          else
+            martin_legends_skipped += 1
+          end
+        else
+          martin_legends_no_css += 1
+        end
+      else
+        martin_legends_no_css += 1
+      end
+
       # ── interaction_config: build from PostGIS table columns ──────────────
       ic_needs_update = force || layer.interaction_config.blank? ||
         layer.interaction_config == '{"output":[]}' ||
@@ -2573,6 +2702,9 @@ namespace :cartodb do
     puts "  Styles  updated   : #{martin_styles_updated}"
     puts "  Styles  skipped   : #{martin_styles_skipped} (no change)"
     puts "  Styles  no CSS    : #{martin_styles_no_css} (no CSS or unrecognised CSS)"
+    puts "  Legend  updated   : #{martin_legends_updated}"
+    puts "  Legend  skipped   : #{martin_legends_skipped} (already correct; use FORCE=1 to rebuild)"
+    puts "  Legend  no CSS    : #{martin_legends_no_css} (no CSS or no [value <= N] conditions)"
     puts "  Int.cfg updated   : #{martin_ic_updated}"
     puts "  Int.cfg skipped   : #{martin_ic_skipped} (already set; use FORCE=1 to overwrite)"
     puts "  Int.cfg no table  : #{martin_ic_no_table} (source table not found or no data columns)"
