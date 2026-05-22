@@ -441,9 +441,9 @@ module CartodbRakeHelpers
     return sql if sql.blank?
 
     sql.gsub(/\bSELECT(\s+)(FROM\s+(?:"?#{Regexp.escape(schema)}"?\.)?"?(\w+)"?\b)/i) do
-      space     = $1
+      space = $1
       from_part = $2
-      tbl       = $3.downcase
+      tbl = $3.downcase
       geom = begin
         ar_conn.execute(
           "SELECT f_geometry_column FROM geometry_columns " \
@@ -959,7 +959,7 @@ module CartodbRakeHelpers
 
   # Format a threshold float as a clean string label (no trailing ".0").
   def self.format_threshold(value)
-    value == value.floor ? value.to_i.to_s : value.to_s
+    (value == value.floor) ? value.to_i.to_s : value.to_s
   end
 
   # Extract all [value <= N] → polygon-fill conditions from CartoDB CSS.
@@ -2674,7 +2674,7 @@ namespace :cartodb do
             # underlying source_sql can be corrected in the database.
             if (m = e.message.match(/column ([\w."]+) does not exist/i))
               missing_ref = m[1].gsub('"', "")
-              tbl_alias   = missing_ref.include?(".") ? missing_ref.split(".").first : nil
+              tbl_alias = missing_ref.include?(".") ? missing_ref.split(".").first : nil
               imported_list.each do |tbl|
                 next if tbl_alias && !view_sql.match?(
                   /\b(?:FROM|JOIN)\s+(?:"?#{Regexp.escape(target_schema)}"?\.)?"?#{Regexp.escape(tbl)}"?\s+(?:AS\s+)?"?#{Regexp.escape(tbl_alias)}"?\b/i
@@ -2768,14 +2768,10 @@ namespace :cartodb do
                 current_legend["bucket"].first.is_a?(Hash)
               # Object-format buckets: fix if any bucket is missing its color
               current_legend["bucket"].any? { |b| b["color"].blank? }
-            elsif current_legend["type"] == "choropleth" &&
-                current_legend["bucket"].is_a?(Array) &&
-                current_legend["bucket"].first.is_a?(String)
-              # Simple string-array format already has colors — leave it alone
-              false
             else
-              # No usable choropleth legend
-              true
+              !(current_legend["type"] == "choropleth" &&
+                current_legend["bucket"].is_a?(Array) &&
+                current_legend["bucket"].first.is_a?(String))
             end
 
           if needs_legend_fix
