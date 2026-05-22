@@ -60,18 +60,15 @@ class Api::Admin::VectorViewsController < Api::Admin::ApiController
   # Body: { name: "v_my_view", sql: "SELECT ...", description: "optional" }
   def create
     name = params.require(:name)
-    sql = params.require(:sql)
+    sql = validated_select_sql!(params.require(:sql))
     description = params[:description].presence
 
     validate_view_name!(name)
-    validate_sql!(sql)
 
     conn = ActiveRecord::Base.connection
 
     conn.transaction do
-      conn.execute(
-        "CREATE OR REPLACE VIEW #{conn.quote_table_name("ra_vector")}.#{conn.quote_table_name(name)} AS #{sql}"
-      )
+      conn.execute(create_view_statement(conn, name, sql))
 
       if description.present?
         conn.execute(
@@ -166,5 +163,15 @@ class Api::Admin::VectorViewsController < Api::Admin::ApiController
         "SQL references unmanaged schemas: #{unmanaged.join(", ")}. " \
         "Only #{MANAGED_SCHEMAS.join(", ")} are allowed."
     end
+
+    stripped
+  end
+
+  def validated_select_sql!(sql)
+    validate_sql!(sql)
+  end
+
+  def create_view_statement(conn, view_name, select_sql)
+    "CREATE OR REPLACE VIEW #{conn.quote_table_name("ra_vector")}.#{conn.quote_table_name(view_name)} AS #{select_sql}"
   end
 end

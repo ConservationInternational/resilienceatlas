@@ -122,9 +122,9 @@ const OLMapOverlay: React.FC<OLMapOverlayProps> = ({ map, latlng, data, onReady,
       }
 
       if (rect.top < mapRect.top + MARGIN) {
-        dy = rect.top - (mapRect.top + MARGIN);
+        dy = (mapRect.top + MARGIN) - rect.top;
       } else if (rect.bottom > mapRect.bottom - MARGIN) {
-        dy = rect.bottom - (mapRect.bottom - MARGIN);
+        dy = (mapRect.bottom - MARGIN) - rect.bottom;
       }
 
       if (dx !== 0 || dy !== 0) {
