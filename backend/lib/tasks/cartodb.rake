@@ -117,8 +117,11 @@ module CartodbRakeHelpers
 
   # Build a TiTiler colormap from CSS stops.
   #
-  # For "linear" (default) mode: returns a 0-255 indexed gradient hash
-  #   {"key" => [r,g,b,a]} that TiTiler interpolates after rescaling.
+  # For "linear" (default) mode: returns a fine-grained interval array that
+  #   approximates CSS linear interpolation by subdividing each coloured
+  #   segment into small sub-intervals with interpolated RGBA values.
+  #   Transparent stops (nodata sentinels) are kept as exact single intervals
+  #   so that e.g. stop(0, transparent) masks ocean/nodata pixels precisely.
   #
   # For "discrete" or "exact" mode: returns an explicit interval array
   #   [[[lower, upper], [r,g,b,a]], ...] that TiTiler applies directly to
@@ -129,11 +132,71 @@ module CartodbRakeHelpers
     if %w[discrete exact].include?(mode.to_s.downcase)
       build_interval_colormap(stops, exact: mode.to_s.downcase == "exact", default_rgba: default_rgba)
     else
-      build_gradient_colormap(stops)
+      build_fine_interval_colormap(stops, default_rgba: default_rgba)
     end
   end
 
-  # Gradient colormap for linear/default mode.
+  # Fine-grained interval colormap for linear/gradient mode.
+  # Approximates CSS linear interpolation by subdividing each pair of adjacent
+  # coloured stops into many small intervals with linearly interpolated RGBA
+  # values — enough for the human eye to perceive a smooth gradient.
+  #
+  # Transparent stops (nodata/clip sentinels) are kept as exact single
+  # intervals so that e.g. stop(0, transparent) continues to mask ocean
+  # pixels precisely without blurring into adjacent coloured values.
+  #
+  # Step size: ~0.1 data units per sub-interval, capped at 50 steps per
+  # segment.  Sufficient for smooth appearance across typical data ranges.
+  def self.build_fine_interval_colormap(stops, default_rgba: nil)
+    sorted = stops.sort_by { |s| s[:value] }
+    colormap = []
+
+    # Prepend sentinel for values below the minimum stop.
+    if default_rgba && sorted.any?
+      colormap << [[-32768, sorted.first[:value]], default_rgba]
+    end
+
+    sorted.each_with_index do |stop, i|
+      rgba = parse_hex_color(stop[:color])
+      next unless rgba
+
+      lower_val = stop[:value]
+
+      if i + 1 < sorted.length
+        next_stop = sorted[i + 1]
+        upper_val = next_stop[:value]
+        next_rgba = parse_hex_color(next_stop[:color])
+        range = upper_val - lower_val
+
+        if rgba == [0, 0, 0, 0] || next_rgba.nil? || next_rgba == [0, 0, 0, 0] || range <= 0
+          # One endpoint is transparent or range is degenerate: keep as a single
+          # exact interval so nodata/sentinel values are preserved precisely.
+          colormap << [[lower_val, upper_val], rgba]
+        else
+          # Both endpoints are coloured: subdivide to approximate the gradient.
+          n_steps = [[(range / 0.1).ceil, 2].max, 50].min
+          step = range / n_steps.to_f
+          n_steps.times do |j|
+            t = j.to_f / n_steps
+            sub_lower = lower_val + j * step
+            sub_upper = lower_val + (j + 1) * step
+            interp_rgba = rgba.zip(next_rgba).map { |c1, c2|
+              (c1 + (c2 - c1) * t).round.clamp(0, 255)
+            }
+            colormap << [[sub_lower, sub_upper], interp_rgba]
+          end
+        end
+      else
+        # Last stop: extend one unit beyond its value.
+        colormap << [[lower_val, lower_val + 1], rgba]
+      end
+    end
+
+    colormap.presence
+  end
+
+  # Gradient colormap for linear/default mode (legacy, no longer used for CSS
+  # translation — kept for reference).
   # Normalises stop values to 0-255 key space; TiTiler interpolates between
   # defined keys after rescaling raw pixel values with the rescale parameter.
   def self.build_gradient_colormap(stops)
@@ -270,12 +333,8 @@ module CartodbRakeHelpers
       end
 
       result["colormap"] = build_titiler_colormap(stops, mode: effective_mode, default_rgba: default_rgba)
-      # Gradient colormaps (linear mode) require rescale to normalise pixel
-      # values into the 0-255 key space.  Interval colormaps (discrete/exact)
-      # use raw pixel values directly, so rescale must NOT be set.
-      unless %w[discrete exact].include?(effective_mode)
-        result["rescale"] = "#{min},#{max}" if min && max
-      end
+      # All colormap modes (linear, discrete, exact) now produce interval arrays
+      # that apply colours directly to raw pixel values; no rescale is needed.
     end
 
     result.compact
