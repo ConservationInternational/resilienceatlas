@@ -119,7 +119,10 @@ MartinLayerOL.getBounds = (layerModel) => {
         if (!Array.isArray(data?.bounds) || data.bounds.length < 4) return null;
         const [west, south, east, north] = data.bounds;
         // Convert to Leaflet convention: [[lat1, lng1], [lat2, lng2]] = [[south, west], [north, east]]
-        return [[south, west], [north, east]];
+        return [
+          [south, west],
+          [north, east],
+        ];
       })
       .catch(() => null);
   } catch {
