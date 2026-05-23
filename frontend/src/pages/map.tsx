@@ -16,6 +16,7 @@ import MapLoadingScreen from 'views/components/Map/loading-screen';
 
 import { LayerManagerProvider } from 'views/contexts/layerManagerCtx';
 import { useCookiesConsent } from 'utilities/hooks/useCookiesConsent';
+import { useSiteScopeContentReady } from 'utilities/hooks/useSiteScopeContentReady';
 
 import { withTranslations, useSetServerSideTranslations } from 'utilities/hooks/transifex';
 import type { NextPageWithLayout } from './_app';
@@ -28,7 +29,8 @@ const MapPage: NextPageWithLayout = ({ translations, setTranslations, isSidebarO
   const { isOpen, setIsOpen } = useTour();
   const [anyLayerLoading, setAnyLayerLoading] = useState(false);
   const [mapControlsReady, setMapControlsReady] = useState(false);
-  const { consentDate } = useCookiesConsent();
+  const { consentDate, initialized: cookiesConsentInitialized } = useCookiesConsent();
+  const siteScopeContentReady = useSiteScopeContentReady();
 
   // TODO: migrate this, how it works?
   // const { location: { state } } = props;
@@ -74,12 +76,29 @@ const MapPage: NextPageWithLayout = ({ translations, setTranslations, isSidebarO
   useEffect(() => {
     // Showing the map tour only once,
     // to show it again remove cookies from the browser
-    // Wait for: 1) cookie consent to be handled, 2) map controls to be ready
-    if (!mapTour && !isOpen && consentDate && mapControlsReady) {
+    // Wait for: 1) protected-scope auth to be resolved, 2) cookie consent to be handled,
+    // 3) map controls to be ready
+    if (
+      !mapTour &&
+      !isOpen &&
+      siteScopeContentReady &&
+      cookiesConsentInitialized &&
+      consentDate &&
+      mapControlsReady
+    ) {
       setCookie('mapTour', 'enabled');
       setIsOpen(true);
     }
-  }, [isOpen, mapTour, setCookie, setIsOpen, consentDate, mapControlsReady]);
+  }, [
+    isOpen,
+    mapTour,
+    setCookie,
+    setIsOpen,
+    cookiesConsentInitialized,
+    consentDate,
+    mapControlsReady,
+    siteScopeContentReady,
+  ]);
 
   // ? 350px is the width of the left sidebar
   const sidebarSize = useMemo(() => (isSidebarOpen ? 350 : 25), [isSidebarOpen]);

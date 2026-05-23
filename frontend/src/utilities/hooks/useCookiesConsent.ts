@@ -5,6 +5,8 @@ import { useSyncedState } from 'utilities/hooks/useSyncedState';
 interface CookiesConsent {
   /** Whether the user consented to the use of cookies */
   allowCookies: boolean | null;
+  /** Whether the consent state has been initialized from local storage */
+  initialized: boolean;
   /** The date at which the user consented to the use of or refused the cookies */
   consentDate?: number | null;
   /**
@@ -67,6 +69,7 @@ export const saveSettingsInLocalStorage = (allowCookies: boolean, consentDate: n
 export const useCookiesConsent = (): CookiesConsent => {
   const [allowCookies, setAllowCookies] = useState<boolean>(null);
   const [consentDate, setConsentDate] = useState<number>(null);
+  const [initialized, setInitialized] = useState(false);
 
   /** Callback executed when the synced state has received an update */
   const onUpdateSyncedState = useCallback(({ allowCookies, consentDate }) => {
@@ -102,10 +105,13 @@ export const useCookiesConsent = (): CookiesConsent => {
     if (settings) {
       updateSyncedState(settings);
     }
+
+    setInitialized(true);
   }, [updateSyncedState]);
 
   return {
     allowCookies,
+    initialized,
     consentDate,
     updateConsent: onUpdateConsent,
   };

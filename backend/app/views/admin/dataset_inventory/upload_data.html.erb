@@ -47,7 +47,7 @@
   <div id="uppy-dashboard-vector"></div>
   <p id="dataset-vector-upload-warning" style="display:none;color:#c0392b"></p>
 
-  <%= form_tag import_vector_admin_dataset_inventory_path, method: :post, id: "dataset-vector-finalize-form" do %>
+  <%= form_tag admin_dataset_inventory_import_vector_path, method: :post, id: "dataset-vector-finalize-form" do %>
     <%= hidden_field_tag :s3_key, "", id: "dataset-vector-s3-key" %>
     <%= hidden_field_tag :file_name, "", id: "dataset-vector-file-name" %>
     <%= hidden_field_tag :file_size_bytes, "0", id: "dataset-vector-file-size" %>
@@ -81,7 +81,7 @@
 
   <div id="uppy-dashboard-cog"></div>
 
-  <%= form_tag upload_cog_admin_dataset_inventory_path, method: :post, id: "dataset-cog-finalize-form" do %>
+  <%= form_tag admin_dataset_inventory_upload_cog_path, method: :post, id: "dataset-cog-finalize-form" do %>
     <%= hidden_field_tag :s3_key, "", id: "dataset-cog-s3-key" %>
     <%= hidden_field_tag :file_name, "", id: "dataset-cog-file-name" %>
     <%= hidden_field_tag :file_size_bytes, "0", id: "dataset-cog-file-size" %>
@@ -94,7 +94,7 @@
   <p>Upload a plain <code>.csv</code> file to create or replace a table in <code><%= DatasetInventoryService::NONSPATIAL_SCHEMA %></code>. Column types are inferred automatically.</p>
   <p style="color:#c0392b"><strong>Warning:</strong> this will drop and replace any existing table with the same name.</p>
 
-  <%= form_tag upload_nonspatial_admin_dataset_inventory_path, method: :post, multipart: true, style: "margin: 0;" do %>
+  <%= form_tag admin_dataset_inventory_upload_nonspatial_path, method: :post, multipart: true, style: "margin: 0;" do %>
     <fieldset class="inputs">
       <ol>
         <li class="string input">

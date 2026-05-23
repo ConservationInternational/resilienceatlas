@@ -80,6 +80,52 @@ module CartodbRakeHelpers
     "s3://#{bucket}/#{normalized_prefix}#{table_name}.tif"
   end
 
+  def self.polygonal_wgs84_geometry_column?(conn, schema, table, column)
+    row = conn.select_one(
+      "SELECT type, srid FROM geometry_columns " \
+      "WHERE f_table_schema = #{conn.quote(schema)} " \
+      "AND f_table_name = #{conn.quote(table)} " \
+      "AND f_geometry_column = #{conn.quote(column)} " \
+      "LIMIT 1"
+    )
+
+    return false unless row
+
+    row["srid"].to_i == 4326 && row["type"].to_s.upcase.include?("POLYGON")
+  rescue => e
+    Rails.logger.warn "polygonal_wgs84_geometry_column?(#{schema}.#{table}.#{column}): #{e.message}"
+    false
+  end
+
+  def self.antimeridian_candidate_count(conn, q_table, column)
+    conn.select_value(
+      "SELECT count(*) FROM #{q_table} " \
+      "WHERE \"#{column}\" IS NOT NULL " \
+      "AND ST_XMax(ST_Envelope(\"#{column}\")) - ST_XMin(ST_Envelope(\"#{column}\")) > 180"
+    ).to_i
+  end
+
+  def self.antimeridian_normalization_sql(column)
+    "ST_Multi(ST_CollectionExtract(" \
+      "ST_WrapX(ST_ShiftLongitude(ST_MakeValid(\"#{column}\")), 180, -360), 3))"
+  end
+
+  def self.repair_antimeridian_geometries!(conn, schema:, table:, column:)
+    return 0 unless polygonal_wgs84_geometry_column?(conn, schema, table, column)
+
+    q_table = "\"#{schema}\".\"#{table}\""
+    candidate_count = antimeridian_candidate_count(conn, q_table, column)
+    return 0 if candidate_count.zero?
+
+    conn.execute(
+      "UPDATE #{q_table} SET \"#{column}\" = #{antimeridian_normalization_sql(column)} " \
+      "WHERE \"#{column}\" IS NOT NULL " \
+      "AND ST_XMax(ST_Envelope(\"#{column}\")) - ST_XMin(ST_Envelope(\"#{column}\")) > 180"
+    )
+
+    candidate_count
+  end
+
   def self.parse_hex_color(color)
     # Strip surrounding double-quotes (e.g. "#e31a1c" from some CSS)
     value = color.to_s.strip.gsub(/\A"|"\z/, "")
@@ -1569,6 +1615,17 @@ namespace :cartodb do
                 )
                 puts "done."
               end
+
+              antimeridian_count = CartodbRakeHelpers.repair_antimeridian_geometries!(
+                ar_conn,
+                schema: target_schema,
+                table: tbl,
+                column: col
+              )
+              if antimeridian_count > 0
+                print "  Normalizing #{antimeridian_count} antimeridian-spanning polygon(s) in #{col}... "
+                puts "done."
+              end
             rescue => e
               warn "  WARNING: Could not repair invalid geometries in #{tbl}.#{col}: #{e.message.lines.first.strip}"
               # Reconnect if the PostgreSQL backend process was killed (e.g. OOM on large table)
@@ -3032,13 +3089,16 @@ namespace :cartodb do
   # ---------------------------------------------------------------------------
 
   desc <<~DESC
-    Repair invalid geometries in all tables in the ra_vector schema using ST_MakeValid.
+    Repair invalid geometries and antimeridian-spanning polygons in all tables
+    in the ra_vector schema.
 
     Invalid or corrupt geometries crash the PostGIS backend process when Martin
     runs ST_CurveToLine / ST_Transform / ST_AsMVTGeom, causing "connection closed"
-    tile errors.  New imports via cartodb:import_tables repair geometries
-    automatically; this task is for tables that were imported before that step
-    was added.
+    tile errors. Some WGS84 polygon layers also contain valid geometries whose
+    rings span more than 180 degrees of longitude, which can render as a seam
+    across the map after tiling. New imports via cartodb:import_tables repair
+    both cases automatically; this task is for tables imported before those
+    fixes were added.
 
     Optional:
       CARTODB_IMPORT_SCHEMA=<schema>  Schema to repair (default: ra_vector)
@@ -3062,10 +3122,12 @@ namespace :cartodb do
       next
     end
 
-    puts "Checking #{rows.size} geometry column(s) in #{target_schema} for invalid geometries...\n\n"
+    puts "Checking #{rows.size} geometry column(s) in #{target_schema} for invalid or wrapped geometries...\n\n"
 
     tables_fixed = 0
     total_fixed = 0
+    tables_wrapped = 0
+    total_wrapped = 0
     failed = 0
 
     rows.each_with_index do |row, i|
@@ -3088,6 +3150,18 @@ namespace :cartodb do
           puts "done."
           tables_fixed += 1
           total_fixed += invalid_count
+        end
+
+        antimeridian_count = CartodbRakeHelpers.repair_antimeridian_geometries!(
+          ar_conn,
+          schema: target_schema,
+          table: tbl,
+          column: col
+        )
+        if antimeridian_count > 0
+          puts "  [#{i + 1}/#{rows.size}] #{tbl}.#{col}: normalized #{antimeridian_count} antimeridian-spanning polygon(s)."
+          tables_wrapped += 1
+          total_wrapped += antimeridian_count
         end
       rescue => e
         # Fast path failed (likely OOM on a huge table). Reconnect then retry
@@ -3130,10 +3204,29 @@ namespace :cartodb do
 
         if batch_failed
           failed += 1
-        elsif col_fixed > 0
-          puts "  [#{i + 1}/#{rows.size}] #{tbl}.#{col}: fixed #{col_fixed} invalid geometry(ies) via batches."
-          tables_fixed += 1
-          total_fixed += col_fixed
+        else
+          if col_fixed > 0
+            puts "  [#{i + 1}/#{rows.size}] #{tbl}.#{col}: fixed #{col_fixed} invalid geometry(ies) via batches."
+            tables_fixed += 1
+            total_fixed += col_fixed
+          end
+
+          begin
+            antimeridian_count = CartodbRakeHelpers.repair_antimeridian_geometries!(
+              ar_conn,
+              schema: target_schema,
+              table: tbl,
+              column: col
+            )
+            if antimeridian_count > 0
+              puts "  [#{i + 1}/#{rows.size}] #{tbl}.#{col}: normalized #{antimeridian_count} antimeridian-spanning polygon(s)."
+              tables_wrapped += 1
+              total_wrapped += antimeridian_count
+            end
+          rescue => we
+            warn "  [#{i + 1}/#{rows.size}] #{tbl}.#{col}: antimeridian normalization failed — #{we.message.lines.first.strip}"
+            failed += 1
+          end
         end
       end
     end
@@ -3141,6 +3234,8 @@ namespace :cartodb do
     puts "\n#{"=" * 50}"
     puts "  Tables repaired : #{tables_fixed}"
     puts "  Geometries fixed: #{total_fixed}"
+    puts "  Tables normalized: #{tables_wrapped}"
+    puts "  Wrapped polygons : #{total_wrapped}"
     puts "  Failed          : #{failed}"
   end
 

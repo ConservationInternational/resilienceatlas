@@ -14,7 +14,7 @@ ActiveAdmin.register_page "Dataset Inventory" do
       file_size = params[:file_size_bytes].to_i
 
       if s3_key.blank? || !s3_key.start_with?("cogs/")
-        redirect_to upload_cog_admin_dataset_inventory_path,
+        redirect_to admin_dataset_inventory_upload_cog_path,
           alert: "Invalid S3 key — must start with 'cogs/'"
         return
       end
@@ -36,7 +36,7 @@ ActiveAdmin.register_page "Dataset Inventory" do
       redirect_to admin_dataset_inventory_path(section: "s3"),
         notice: "COG uploaded to #{s3_uri}. Update a layer manually to point at this URI."
     else
-      redirect_to upload_data_admin_dataset_inventory_path(anchor: "cog-upload")
+      redirect_to admin_dataset_inventory_upload_data_path(anchor: "cog-upload")
     end
   end
 
@@ -49,13 +49,13 @@ ActiveAdmin.register_page "Dataset Inventory" do
         .gsub(/[^a-zA-Z0-9_]/, "_").downcase.slice(0, 54).presence
 
       if table_name.blank?
-        redirect_to import_vector_admin_dataset_inventory_path,
+        redirect_to admin_dataset_inventory_import_vector_path,
           alert: "A table name is required."
         return
       end
 
       if s3_key.blank? || !s3_key.start_with?("staging/#{table_name}/")
-        redirect_to import_vector_admin_dataset_inventory_path,
+        redirect_to admin_dataset_inventory_import_vector_path,
           alert: "Invalid S3 key for the chosen table name. Upload the file again."
         return
       end
@@ -75,7 +75,7 @@ ActiveAdmin.register_page "Dataset Inventory" do
       redirect_to admin_dataset_inventory_path(section: "vector"),
         notice: "Vector import queued into ra_vector.imported_#{table_name}. Update a layer manually after the import completes."
     else
-      redirect_to upload_data_admin_dataset_inventory_path(anchor: "vector-upload")
+      redirect_to admin_dataset_inventory_upload_data_path(anchor: "vector-upload")
     end
   end
 
@@ -263,7 +263,7 @@ ActiveAdmin.register_page "Dataset Inventory" do
         panel "Import New Vector File" do
           para "Upload a GeoPackage, GeoJSON, or zipped Shapefile directly to S3 and import it into the #{schema} schema without choosing a layer first. After the import completes, manually point any layer you want at the imported table."
           para do
-            link_to "Open Shared Upload Page →", upload_data_admin_dataset_inventory_path(anchor: "vector-upload"), class: "button"
+            link_to "Open Shared Upload Page →", admin_dataset_inventory_upload_data_path(anchor: "vector-upload"), class: "button"
           end
         end
 
@@ -343,7 +343,7 @@ ActiveAdmin.register_page "Dataset Inventory" do
       panel "Upload CSV to #{schema}" do
         para "Use the shared upload page to create or replace a nonspatial table in the #{schema} schema. Column types are inferred automatically. Maximum file size: 50 MB."
         para do
-          link_to "Open Shared Upload Page →", upload_data_admin_dataset_inventory_path(anchor: "nonspatial-upload"), class: "button"
+          link_to "Open Shared Upload Page →", admin_dataset_inventory_upload_data_path(anchor: "nonspatial-upload"), class: "button"
         end
       end
 
@@ -389,7 +389,7 @@ ActiveAdmin.register_page "Dataset Inventory" do
       panel "Upload New COG" do
         para "Upload a Cloud-Optimized GeoTIFF directly to S3 without choosing a layer first. After it finishes, manually update whatever layer should point at the new S3 URI."
         para do
-          link_to "Open Shared Upload Page →", upload_data_admin_dataset_inventory_path(anchor: "cog-upload"), class: "button"
+          link_to "Open Shared Upload Page →", admin_dataset_inventory_upload_data_path(anchor: "cog-upload"), class: "button"
         end
       end
 
