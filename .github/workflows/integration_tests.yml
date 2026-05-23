@@ -95,7 +95,7 @@ jobs:
         echo "gemfile-hash=$(sha256sum backend/Gemfile backend/Gemfile.lock | sha256sum | cut -d' ' -f1)" >> $GITHUB_OUTPUT
         echo "package-hash=$(sha256sum frontend/package.json frontend/package-lock.json | sha256sum | cut -d' ' -f1)" >> $GITHUB_OUTPUT
         echo "ruby-version=$(cat backend/.ruby-version 2>/dev/null || echo '3.4.8')" >> $GITHUB_OUTPUT
-        echo "node-version=$(cat frontend/.nvmrc 2>/dev/null || echo '22.11.0')" >> $GITHUB_OUTPUT
+        echo "node-version=$(cat frontend/.nvmrc 2>/dev/null || echo '24.0.0')" >> $GITHUB_OUTPUT
         echo "date=$(date +%Y%m%d)" >> $GITHUB_OUTPUT
 
     - name: Cache Docker buildx layers (multi-service)
@@ -398,7 +398,7 @@ jobs:
           echo "Creating fallback test result file using Docker..."
           docker run --rm \
             -v "$(pwd)/integration-tests/results:/app/results" \
-            node:22.11.0-alpine \
+            node:24-alpine \
             sh -c 'printf "%s\n" \
               "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" \
               "<testsuite name=\"Integration Connectivity Tests\" tests=\"1\" failures=\"1\" errors=\"0\" time=\"0.1\">" \
@@ -550,7 +550,7 @@ jobs:
           # Create fallback test result file using Docker to avoid permission issues
           docker run --rm \
             -v "$(pwd)/frontend/cypress/results:/app/results" \
-            node:22.11.0-alpine \
+            node:24-alpine \
             sh -c 'printf "%s\n" \
               "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" \
               "<testsuite name=\"Cypress Integration Tests\" tests=\"1\" failures=\"1\" errors=\"0\" time=\"0.1\">" \

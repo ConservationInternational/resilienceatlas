@@ -1,7 +1,7 @@
 /**
  * Layer Manager Integration Tests
- * 
- * Tests for resilience-layer-manager functionality including:
+ *
+ * Tests for the internal lib/layer-manager module including:
  * - Layer configuration and loading
  * - Date/timeline parameter replacement
  * - Layer interaction and popups
@@ -32,7 +32,7 @@ describe('Layer Manager - Date Parameter Replacement', () => {
   });
 
   it('should properly replace date parameters in layer URLs', () => {
-    // This tests the replace() function from resilience-layer-manager
+    // This tests the replace() function from lib/layer-manager/utils/query
     cy.visit('/map?tab=layers');
     cy.waitForMapPageReady();
 
@@ -115,7 +115,7 @@ describe('Layer Manager - Layer Popup Interactions', () => {
     });
   });
 
-  it('should format popup data using resilience-layer-manager replace function', () => {
+  it('should format popup data using layer-manager replace function', () => {
     // Test that the LayerPopup component properly formats data
     cy.visit('/map?tab=layers');
     cy.waitForMapPageReady();

@@ -107,25 +107,6 @@
     "underscore": "1.13.8",
     "glob": "^10.4.5",
     "inflight": "npm:@aspect-build/inflight@^1.0.0",
-    "resilience-layer-manager": {
-      "react": "19.2.0",
-      "react-dom": "19.2.0",
-      "axios": "^1.12.0"
-    },
-    "layer-manager": {
-      "axios": "^1.12.0"
-    },
-    "react-datepicker": {
-      "react": "19.2.0",
-      "react-dom": "19.2.0"
-    },
-    "@reactour/tour": {
-      "react": "19.2.0"
-    },
-    "@headlessui/react": {
-      "react": "19.2.0",
-      "react-dom": "19.2.0"
-    },
     "vector-tile": "npm:@mapbox/vector-tile@^2.0.4",
     "point-geometry": "npm:@mapbox/point-geometry@^1.1.0"
   }

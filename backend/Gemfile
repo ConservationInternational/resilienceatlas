@@ -62,7 +62,7 @@ gem "sparkpost_rails", github: "sportstech/sparkpost_rails" # Rails 7 support
 gem "rubyzip", "~> 3.0"
 gem "prawn", "~> 2.5"
 gem "prawn-table", "~> 0.2"
-gem "standard", "~> 1.45"
+gem "standard", "~> 1.50"
 gem "json-schema", "~> 5.1"
 gem "ostruct", "~> 0.6"
 
