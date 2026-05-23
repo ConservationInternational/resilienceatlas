@@ -2,6 +2,10 @@
 @use '../mixins' as *;
 @use '../variables' as *;
 
+$map-popup-mobile-screen-padding: 32px;
+$map-popup-mobile-toolbar-offset: calc(#{rem($mobile-touch-target-size)} + #{rem(10px)});
+$map-popup-max-width: 420px;
+
 .c-map-popup {
   width: 100%;
   max-width: 100%;
@@ -95,14 +99,14 @@
   padding: 0px;
   text-align: left;
   border-radius: 0;
-  max-width: min(420px, calc(100vw - 32px));
+  max-width: min($map-popup-max-width, calc(100vw - $map-popup-mobile-screen-padding));
 }
 
 .leaflet-popup-content {
   margin: 0;
   line-height: 1.4;
   min-height: 46px;
-  width: min(420px, calc(100vw - 32px));
+  width: min($map-popup-max-width, calc(100vw - $map-popup-mobile-screen-padding));
 }
 
 .leaflet-popup-content p {
@@ -145,17 +149,17 @@
   padding: 0;
   text-align: left;
   border-radius: 0;
-  width: min(420px, calc(100vw - 32px));
+  width: min($map-popup-max-width, calc(100vw - $map-popup-mobile-screen-padding));
   min-width: 200px;
-  max-width: 420px;
+  max-width: $map-popup-max-width;
 }
 
 @media screen and (max-width: $breakpoint-mobile) {
   .leaflet-popup-content-wrapper,
   .leaflet-popup-content,
   .ol-popup-content-wrapper {
-    width: calc(100vw - 32px);
-    max-width: calc(100vw - 32px);
+    width: calc(100vw - $map-popup-mobile-screen-padding - $map-popup-mobile-toolbar-offset);
+    max-width: calc(100vw - $map-popup-mobile-screen-padding - $map-popup-mobile-toolbar-offset);
     min-width: 0;
   }
 }
