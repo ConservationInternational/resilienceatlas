@@ -257,6 +257,9 @@ jobs:
         
         # Martin tile server
         NEXT_PUBLIC_MARTIN_URL=${{ vars.NEXT_PUBLIC_MARTIN_URL }}
+
+        # Imported site scope basic auth config (plain JSON, single-quoted for shell-safe sourcing)
+        SITE_SCOPE_AUTH_CONFIG_JSON='${{ vars.SITE_SCOPE_AUTH_CONFIG_JSON }}'
         
         # Database sync configuration
         PRODUCTION_DATABASE_URL=${{ secrets.PRODUCTION_DATABASE_URL }}

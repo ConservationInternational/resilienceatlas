@@ -183,6 +183,23 @@ docker run --rm -it \
 | `COG_PREFIX` | `cogs/` | S3 key prefix for COG files |
 | `FORCE` | _(unset)_ | Set to `1` to re-import tables that already exist |
 | `DRY_RUN` | _(unset)_ | Set to `1` on any sub-task to preview without saving |
+| `SITE_SCOPE_AUTH_CONFIG_JSON` | _(unset)_ | Optional JSON object keyed by site scope subdomain with `username` and `password` fields |
+
+**Site scope auth config example**
+
+Use one plain-text JSON env var to protect multiple existing site scopes during `cartodb:apply_site_scope_auth_config` or the full `migrate_tables` pipeline:
+
+```bash
+SITE_SCOPE_AUTH_CONFIG_JSON='{"trendsearth":{"username":"te-user","password":"secret123"},"ldn":{"username":"ldn-user","password":"secret456"}}'
+```
+
+The task looks up existing site scopes by `subdomain` and applies password protection to any configured matches.
+
+Run only the auth sync when you need to reapply or rotate imported site credentials without rerunning the full import:
+
+```bash
+bundle exec rake cartodb:apply_site_scope_auth_config
+```
 
 ---
 

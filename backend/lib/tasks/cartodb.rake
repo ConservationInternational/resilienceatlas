@@ -22,6 +22,8 @@ module CartodbRakeHelpers
     select where lateral values unnest generate_series on using inner left right full cross
   ].freeze
 
+  SITE_SCOPE_AUTH_CONFIG_ENV = "SITE_SCOPE_AUTH_CONFIG_JSON".freeze
+
   # Extract bare table names from FROM / JOIN clauses of a SQL string.
   # Handles schema-qualified names (schema.table) and SQL aliases.
   # Returns an array of lowercase table-name strings, deduplicated.
@@ -45,6 +47,72 @@ module CartodbRakeHelpers
     tables
       .reject { |t| SQL_TABLE_STOP_WORDS.include?(t) || cte_names.include?(t) }
       .uniq
+  end
+
+  def self.load_site_scope_auth_config
+    raw = ENV[SITE_SCOPE_AUTH_CONFIG_ENV].to_s.strip
+    return {} if raw.blank?
+
+    if raw.length >= 2 && ((raw.start_with?("'") && raw.end_with?("'")) || (raw.start_with?("\"") && raw.end_with?("\"")))
+      raw = raw[1...-1]
+    end
+
+    parsed = JSON.parse(raw)
+    unless parsed.is_a?(Hash)
+      warn "SITE_SCOPE_AUTH_CONFIG_JSON must be a JSON object keyed by site subdomain."
+      return {}
+    end
+
+    parsed.each_with_object({}) do |(subdomain, credentials), config|
+      config[subdomain.to_s.downcase] = credentials
+    end
+  rescue JSON::ParserError => e
+    warn "Could not parse SITE_SCOPE_AUTH_CONFIG_JSON: #{e.message}"
+    {}
+  end
+
+  def self.apply_site_scope_auth_config!
+    config = load_site_scope_auth_config
+    return {updated: 0, skipped: 0, missing: 0} if config.empty?
+
+    updated = 0
+    skipped = 0
+    missing = 0
+
+    puts "\nApplying site scope auth config from #{SITE_SCOPE_AUTH_CONFIG_ENV}..."
+
+    config.each do |subdomain, credentials|
+      site_scope = SiteScope.find_by(subdomain: subdomain)
+      unless site_scope
+        warn "  Missing site scope for auth config: #{subdomain}"
+        missing += 1
+        next
+      end
+
+      unless credentials.is_a?(Hash)
+        warn "  Invalid auth config for #{subdomain}: expected an object with username/password"
+        skipped += 1
+        next
+      end
+
+      username = credentials["username"] || credentials[:username]
+      password = credentials["password"] || credentials[:password]
+
+      if username.blank? || password.blank?
+        warn "  Incomplete auth config for #{subdomain}: username/password required"
+        skipped += 1
+        next
+      end
+
+      site_scope.password_protected = true
+      site_scope.username = username.to_s.strip
+      site_scope.password = password.to_s
+      site_scope.save!
+      updated += 1
+      puts "  Protected site scope: #{subdomain}"
+    end
+
+    {updated: updated, skipped: skipped, missing: missing}
   end
 
   def self.raster_layer?(layer, sql)
@@ -1822,6 +1890,22 @@ namespace :cartodb do
   # ---------------------------------------------------------------------------
 
   desc <<~DESC
+    Apply site-scope basic auth from SITE_SCOPE_AUTH_CONFIG_JSON.
+
+    Expects SITE_SCOPE_AUTH_CONFIG_JSON to be a JSON object keyed by site scope
+    subdomain, with username/password pairs as values.
+
+    Usage:
+      rake cartodb:apply_site_scope_auth_config SITE_SCOPE_AUTH_CONFIG_JSON='{"trendsearth":{"username":"te-user","password":"secret123"}}'
+  DESC
+  task apply_site_scope_auth_config: :environment do
+    auth_summary = CartodbRakeHelpers.apply_site_scope_auth_config!
+    puts "Site scope auth sync: updated=#{auth_summary[:updated]}, skipped=#{auth_summary[:skipped]}, missing=#{auth_summary[:missing]}"
+  end
+
+  # ---------------------------------------------------------------------------
+
+  desc <<~DESC
     Update formerly CartoDB layer rows to reference the tables imported by import_tables.
 
     For each layer flagged by the FlagCartodbLayersForReview migration
@@ -2983,9 +3067,10 @@ namespace :cartodb do
 
     Steps (run in order):
        1. import_tables             — download and import .gpkg / .csv.gz files from S3
-       2. update_layer_references   — parse SQL, classify raster vs vector, strip CartoDB columns
-       3. configure_cog_layers      — configure new COG layers + repair all existing COG layers
-       4. configure_martin_layers   — configure new Martin layers + repair all existing Martin layers
+       2. apply_site_scope_auth_config — apply site-scope username/password config from env
+       3. update_layer_references   — parse SQL, classify raster vs vector, strip CartoDB columns
+       4. configure_cog_layers      — configure new COG layers + repair all existing COG layers
+       5. configure_martin_layers   — configure new Martin layers + repair all existing Martin layers
 
     configure_cog_layers and configure_martin_layers each include a repair phase
     that ensures all layers in the database are correct, not just newly configured
@@ -2994,7 +3079,7 @@ namespace :cartodb do
     Accepts all environment variables from the sub-tasks:
       CARTODB_S3_BUCKET, CARTODB_VECTORS_S3_PREFIX, CARTODB_TABLES_S3_PREFIX,
       CARTODB_EXPORT_DIR, CARTODB_IMPORT_SCHEMA, CARTODB_NONSPATIAL_SCHEMA,
-      S3_BUCKET, COG_PREFIX, FORCE
+      S3_BUCKET, COG_PREFIX, FORCE, SITE_SCOPE_AUTH_CONFIG_JSON
 
     Usage:
       rake cartodb:migrate_tables CARTODB_S3_BUCKET=resilienceatlas
@@ -3002,6 +3087,7 @@ namespace :cartodb do
   DESC
   task migrate_tables: [
     "cartodb:import_tables",
+    "cartodb:apply_site_scope_auth_config",
     "cartodb:update_layer_references",
     "cartodb:configure_cog_layers",
     "cartodb:configure_martin_layers"
