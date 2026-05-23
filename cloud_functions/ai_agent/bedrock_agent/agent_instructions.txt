@@ -70,7 +70,7 @@ Users refer to things by **name** (e.g. "thresholds site scope", "Ecoregions cat
 
 | What you need | Tool to call |
 |---|---|
-| `site_scope_id` | `get_site_scopes` (no param) → match on `name` or `subdomain` |
+| `site_scope_id` | `get_site_scopes(keyword="...")` → match on `name` or `subdomain` |
 | `layer_group_id` | `get_site_scopes(site_scope_id=...)` → match on `name` |
 | `layer_id` | `get_layers(keyword=...)` → match on `name` or `slug` |
 
@@ -95,7 +95,8 @@ This rule applies even if the user says "add", "put", "include", "show" — inte
 When **creating a brand-new layer**, follow these steps:
 
 1. **Retrieve context first**: Call `retrieve_context` with a relevant query to find similar working layers and provider documentation before building any layer_config. If `retrieve_context` reports the knowledge base is unavailable, skip it and proceed.
-2. **Identify the site scope**: ALWAYS call `get_site_scopes` (without site_scope_id) to look up the numeric site scope ID from the name the user provides. Never ask the user for a numeric ID.
+2. **Identify the site scope**: ALWAYS call `get_site_scopes(keyword="<user's site scope name>")` without `site_scope_id` to look up the numeric site scope ID from the name or subdomain the user provides. Never ask the user for a numeric ID.
+  Use `include_details=true` only when you specifically need the full site scope object for inspection or editing; otherwise keep the concise default response.
 3. **Identify the layer group** (if a category is mentioned): Call `get_site_scopes(site_scope_id=...)` to look up the `layer_group_id` from the category name.
 4. **Create the category/group if needed**: If the requested category/group is not present, call `create_layer_group` before creating or updating the layer.
 5. **Validate the configuration**: Verify all required fields are present before calling `create_layer`.

@@ -39,7 +39,11 @@ paths:
       operationId: get_site_scopes
       summary: List site scopes, or list layer groups for a specific scope
       description: |
-        Without site_scope_id: returns all site scopes [{id, name, subdomain}].
+        Without site_scope_id: returns site scopes [{id, name, subdomain}] by default.
+        Prefer passing keyword with the user-provided scope name or subdomain so the
+        result set is small and directly matchable.
+        If you need the full site scope object for inspection or editing workflows,
+        set include_details=true.
         ALWAYS call this first (without site_scope_id) to resolve a site scope name to its
         numeric ID before creating layers or querying layer groups.
         Never ask the user for a numeric site scope ID — look it up here.
@@ -55,6 +59,12 @@ paths:
             schema:
               type: object
               properties:
+                keyword:
+                  type: string
+                  description: Optional site scope search term; matches translated name or subdomain
+                include_details:
+                  type: boolean
+                  description: Optional. When true in site-scope list mode, return full site scope objects instead of only id/name/subdomain
                 site_scope_id:
                   type: integer
                   description: If provided, return layer groups for this scope instead of listing all site scopes

@@ -178,6 +178,16 @@ RSpec.describe "API Admin Layers", type: :request do
             expect(response_json["data"].pluck("id")).to eq([site_scope_1.id])
           end
         end
+
+        context "when searching by subdomain keyword" do
+          let!(:site_scope_1) { create :site_scope, name: "SBTN Thresholds", subdomain: "thresholds" }
+          let!(:site_scope_2) { create :site_scope, name: "Forest Atlas", subdomain: "forest" }
+          let(:keyword) { "threshold" }
+
+          it "returns site scopes matched by subdomain" do
+            expect(response_json["data"].pluck("id")).to eq([site_scope_1.id])
+          end
+        end
       end
     end
   end

@@ -348,10 +348,12 @@ def _validate_zoom(zoom_min, zoom_max) -> str | None:
 def handle_get_site_scopes(params: dict, auth: AuthContext) -> str:
     """List site scopes OR list layer groups for a specific scope.
 
-    Without site_scope_id: returns all site scopes [{id, name, subdomain}].
+    Without site_scope_id: returns site scopes [{id, name, subdomain}].
     With site_scope_id: returns layer groups [{id, name, layers_count}] for that scope.
     """
     site_scope_id = params.get("site_scope_id")
+    keyword = params.get("keyword")
+    include_details = str(params.get("include_details", "")).lower() in {"1", "true", "yes"}
 
     if site_scope_id:
         # ── Layer groups mode ────────────────────────────────────────────────
@@ -374,11 +376,43 @@ def handle_get_site_scopes(params: dict, auth: AuthContext) -> str:
         return json.dumps(summary, ensure_ascii=False)
     else:
         # ── Site scopes list mode ────────────────────────────────────────────
-        result = rails_get("/api/admin/layers/site_scopes")
+        request_params = {"keyword": keyword} if keyword else None
+        result = rails_get("/api/admin/layers/site_scopes", params=request_params)
         all_scopes = result.get("data", [])
         if not auth.is_superadmin and auth.allowed_site_scope_ids is not None:
             all_scopes = [s for s in all_scopes if str(s.get("id")) in auth.allowed_site_scope_ids]
-        return json.dumps(all_scopes, ensure_ascii=False)
+
+        if include_details:
+            return json.dumps(all_scopes, ensure_ascii=False)
+
+        summary = [
+            {
+                "id": scope.get("id"),
+                "name": scope.get("name"),
+                "subdomain": scope.get("subdomain"),
+            }
+            for scope in all_scopes
+        ]
+
+        if keyword:
+            keyword_lower = keyword.strip().lower()
+
+            def rank(scope: dict) -> tuple[int, str, str, int]:
+                name = (scope.get("name") or "").lower()
+                subdomain = (scope.get("subdomain") or "").lower()
+                if keyword_lower in {name, subdomain}:
+                    score = 0
+                elif name.startswith(keyword_lower) or subdomain.startswith(keyword_lower):
+                    score = 1
+                elif keyword_lower in name or keyword_lower in subdomain:
+                    score = 2
+                else:
+                    score = 3
+                return (score, name, subdomain, int(scope.get("id") or 0))
+
+            summary = sorted(summary, key=rank)
+
+        return json.dumps(summary, ensure_ascii=False)
 
 
 def handle_create_layer_group(params: dict, auth: AuthContext) -> str:

@@ -5,7 +5,7 @@
   "workflows": {
     "create_cog_layer": {
       "steps": [
-        "1. Resolve the target site scope with get_site_scopes. Do not ask the user for a numeric ID.",
+        "1. Resolve the target site scope with get_site_scopes(keyword=...). Do not ask the user for a numeric ID.",
         "2. Resolve the target layer group with get_site_scopes(site_scope_id=...). If it does not exist, create it with create_layer_group before creating the layer.",
         "3. Use retrieve_context to find a current working COG example unless you are debugging an existing layer.",
         "4. Build layer_config JSON with body.source set to the s3:// URI (preferred) or body.url set to a full TiTiler tile URL when necessary.",
@@ -15,7 +15,7 @@
     },
     "create_martin_vector_layer": {
       "steps": [
-        "1. Resolve site scope and layer group IDs with get_site_scopes; never ask the user for numeric IDs. If the requested category/group is missing, create it with create_layer_group.",
+        "1. Resolve site scope and layer group IDs with get_site_scopes(keyword=...) and get_site_scopes(site_scope_id=...); never ask the user for numeric IDs. If the requested category/group is missing, create it with create_layer_group.",
         "2. Import the vector file with import_vector_table and capture the returned table_name.",
         "3. For joins between non-spatial and geometry tables, inspect both tables with get_tables and create a view with create_vector_view before creating the layer.",
         "4. Build layer_config with body.source='ra_vector_tile' and body.params.table='<table_name_or_view>'. Prefer this over direct table sources for newly imported data.",
@@ -52,7 +52,7 @@
     "slug must be globally unique across ALL layers. Check for conflicts before creating.",
     "interaction_config is required — minimum value is '{}'.",
     "layer_config must be valid JSON. Always validate JSON before sending.",
-    "Always link to a site_scope via site_scope_id parameter and resolve it with get_site_scopes.",
+    "Always link to a site_scope via site_scope_id parameter and resolve it with get_site_scopes(keyword=...).",
     "For martin layers, always import the vector table first using the vector_tables/import endpoint.",
     "For COG layers, the S3 bucket is public-read — use s3:// URIs.",
     "Set zoom_min and zoom_max explicitly; current validation requires values in the 0..24 range and zoom_max >= zoom_min.",

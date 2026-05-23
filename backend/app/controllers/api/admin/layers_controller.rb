@@ -54,9 +54,16 @@ class Api::Admin::LayersController < Api::Admin::ApiController
   end
 
   def site_scopes
-    @site_scopes = SiteScope.where(site_scope_translations: {locale: I18n.locale}).order(name: :asc)
-    @site_scopes = @site_scopes.ransack(translations_name_i_cont: params[:keyword]).result if params[:keyword].present?
-    render json: {success: true, message: "List of all Site Scopes", data: @site_scopes.as_json}, status: :ok
+    @site_scopes = SiteScope.with_translations(I18n.locale).order(:id)
+    if params[:keyword].present?
+      @site_scopes = @site_scopes.ransack(translations_name_or_subdomain_i_cont: params[:keyword]).result
+    end
+
+    site_scopes = @site_scopes.to_a.sort_by do |site_scope|
+      [site_scope.name.to_s.downcase, site_scope.subdomain.to_s.downcase, site_scope.id]
+    end
+
+    render json: {success: true, message: "List of all Site Scopes", data: site_scopes.as_json}, status: :ok
   end
 
   private
