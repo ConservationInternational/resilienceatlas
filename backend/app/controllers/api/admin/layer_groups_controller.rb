@@ -3,23 +3,19 @@
 class Api::Admin::LayerGroupsController < Api::Admin::ApiController
   # GET /api/admin/layer_groups?site_scope_id=1
   def index
-    layer_groups = LayerGroup.includes(:layers, :super_group).order(:order, :name)
+    layer_groups = LayerGroup.with_translations(I18n.locale).includes(:layers, :super_group).order(:order, :id)
     layer_groups = layer_groups.where(site_scope_id: params[:site_scope_id]) if params[:site_scope_id].present?
     layer_groups = layer_groups.where(super_group_id: params[:super_group_id]) if params[:super_group_id].present?
     layer_groups = layer_groups.where(layer_group_type: params[:layer_group_type]) if params[:layer_group_type].present?
 
     if params[:keyword].present?
-      keyword = "%#{params[:keyword].to_s.downcase}%"
-      layer_groups = layer_groups.where(
-        "LOWER(layer_groups.name) LIKE :keyword OR LOWER(COALESCE(layer_groups.slug, '')) LIKE :keyword",
-        keyword: keyword
-      )
+      layer_groups = layer_groups.ransack(translations_name_or_slug_i_cont: params[:keyword]).result
     end
 
     render json: {
       success: true,
       message: "List of Layer Groups",
-      data: serialize_layer_groups(layer_groups)
+      data: serialize_layer_groups(sort_layer_groups(layer_groups))
     }, status: :ok
   end
 
@@ -70,6 +66,12 @@ class Api::Admin::LayerGroupsController < Api::Admin::ApiController
 
   def serialize_layer_groups(layer_groups)
     layer_groups.map { |layer_group| serialize_layer_group(layer_group) }
+  end
+
+  def sort_layer_groups(layer_groups)
+    layer_groups.to_a.sort_by do |layer_group|
+      [layer_group.order || Float::INFINITY, layer_group.name.to_s.downcase, layer_group.id]
+    end
   end
 
   def serialize_layer_group(layer_group)

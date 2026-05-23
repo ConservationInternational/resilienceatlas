@@ -19,6 +19,18 @@ RSpec.describe "API Admin Layer Groups", type: :request do
       expect(response_json["data"].map { |group| group["id"] }).to eq([matching_group.id])
       expect(response_json["data"].first["name"]).to eq("Ecoregions")
     end
+
+    it "filters layer groups by translated name keyword" do
+      site_scope = create(:site_scope)
+      matching_group = create(:layer_group, site_scope: site_scope, name: "Ecoregions")
+      create(:layer_group, site_scope: site_scope, name: "Habitats")
+
+      get "/api/admin/layer_groups", params: {site_scope_id: site_scope.id, keyword: "eco"}, headers: headers
+
+      expect(response).to have_http_status(:ok)
+      expect(response_json["success"]).to eq(true)
+      expect(response_json["data"].map { |group| group["id"] }).to eq([matching_group.id])
+    end
   end
 
   describe "POST /api/admin/layer_groups" do
