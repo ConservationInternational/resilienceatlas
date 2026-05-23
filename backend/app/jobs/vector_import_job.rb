@@ -18,14 +18,13 @@ class VectorImportJob
 
   def perform(data_import_id)
     di = DataImport.find(data_import_id)
-    layer = di.importable
-    raise ArgumentError, "importable must be a Layer" unless layer.is_a?(Layer)
+    import_target = di.importable
 
     di.update!(status: "processing", started_at: Time.current)
 
     s3_key = di.s3_key
     file_name = di.file_name.presence || File.basename(s3_key)
-    table_name = "imported_#{layer.slug.gsub(/[^a-z0-9_]/, "_")}"
+    table_name = resolved_table_name(import_target, s3_key, file_name)
 
     work_dir = Rails.root.join("tmp", "imports", data_import_id.to_s)
     FileUtils.mkdir_p(work_dir)
@@ -43,21 +42,25 @@ class VectorImportJob
 
       # 4. Build interaction_config from PostGIS column names
       conn = ActiveRecord::Base.connection
-      ic = LayerInteractionConfigBuilder.for_martin(table_name, conn, TARGET_SCHEMA)
+      row_count = conn.select_value("SELECT COUNT(*) FROM \"#{TARGET_SCHEMA}\".\"#{table_name}\"").to_i
 
-      # 5. Update the Layer record
-      # Use the ra_vector_tile function source so Martin serves the layer
-      # immediately without needing a restart to discover the new table.
-      new_config = {"body" => {"source" => "ra_vector_tile", "params" => {"table" => table_name}}}
-      update_attrs = {
-        layer_provider: "martin",
-        layer_config: new_config.to_json
-      }
-      update_attrs[:interaction_config] = ic.to_json if ic
-      layer.update_columns(**update_attrs)
+      if import_target.is_a?(Layer)
+        ic = LayerInteractionConfigBuilder.for_martin(table_name, conn, TARGET_SCHEMA)
+
+        # Use the ra_vector_tile function source so Martin serves the layer
+        # immediately without needing a restart to discover the new table.
+        new_config = {"body" => {"source" => "ra_vector_tile", "params" => {"table" => table_name}}}
+        update_attrs = {
+          layer_provider: "martin",
+          layer_config: new_config.to_json
+        }
+        update_attrs[:interaction_config] = ic.to_json if ic
+        import_target.update_columns(**update_attrs)
+      end
 
       di.update!(
         status: "complete",
+        rows_imported: row_count,
         completed_at: Time.current
       )
       # update_columns bypasses after_commit, so bust both the layer-usage and
@@ -137,5 +140,19 @@ class VectorImportJob
     user = cfg[:username]
     password = cfg[:password]
     "host=#{host} port=#{port} dbname=#{dbname} user=#{user} password=#{password}"
+  end
+
+  def resolved_table_name(import_target, s3_key, file_name)
+    return "imported_#{import_target.slug.gsub(/[^a-z0-9_]/, "_")}" if import_target.is_a?(Layer)
+
+    derived = s3_key.to_s[%r{\Astaging/([^/]+)/}, 1].to_s
+    derived = if derived.present?
+      derived.gsub(/[^a-z0-9_]/, "_").downcase
+    else
+      File.basename(file_name.to_s, File.extname(file_name.to_s)).gsub(/[^a-z0-9_]/i, "_").downcase
+    end
+
+    derived = derived.slice(0, 54).presence || "layer"
+    "imported_#{derived}"
   end
 end

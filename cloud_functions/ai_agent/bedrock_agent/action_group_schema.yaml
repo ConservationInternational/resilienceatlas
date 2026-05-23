@@ -62,6 +62,50 @@ paths:
         "200":
           description: Array of site scopes [{id,name,subdomain}] (no param) or layer groups [{id,name,layers_count}] (with site_scope_id)
 
+  /create_layer_group:
+    post:
+      operationId: create_layer_group
+      summary: Create a new site-scope layer group or top-level category
+      description: |
+        Creates a layer group in a specific site scope. Use this when the user asks to place
+        a layer into a category/group that does not already exist.
+        For a top-level category, omit super_group_id and use layer_group_type="category".
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [site_scope_id, name]
+              properties:
+                site_scope_id:
+                  type: integer
+                  description: ID of the site scope that should own this layer group
+                name:
+                  type: string
+                  description: Human-readable layer group/category name
+                slug:
+                  type: string
+                  description: Optional URL-safe slug. Auto-derived from name if omitted.
+                layer_group_type:
+                  type: string
+                  enum: [group, category, subcategory, subgroup]
+                  default: category
+                super_group_id:
+                  type: integer
+                  description: Optional parent layer group ID for nested groups
+                category:
+                  type: string
+                order:
+                  type: integer
+                info:
+                  type: string
+                icon_class:
+                  type: string
+      responses:
+        "200":
+          description: Created layer group/category metadata
+
   /get_layers:
     post:
       operationId: get_layers
@@ -190,6 +234,9 @@ paths:
                 site_scope_id:
                   type: integer
                   description: Site scope this layer belongs to — used for authorization. Required for staff/contributor users.
+                layer_group_id:
+                  type: integer
+                  description: Optional layer group/category to attach the layer to
                 name:
                   type: string
                 layer_config:

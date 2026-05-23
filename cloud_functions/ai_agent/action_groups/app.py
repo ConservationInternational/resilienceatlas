@@ -1,9 +1,10 @@
 """
 Action Groups Lambda for Bedrock Agent
-Handles all agent tool calls (9 endpoints):
+Handles all agent tool calls (10 endpoints):
   - retrieve_context       RAG similarity search
   - get_site_scopes        List site scopes; or list layer groups for a scope (site_scope_id param)
   - get_layers             List layers; or get full detail for one layer (layer_id/slug param)
+    - create_layer_group     Create a site-scope layer group/category
   - get_tables             List PostGIS tables; or describe one table (table_name param)
   - create_layer           POST /api/admin/layers
   - update_layer           PATCH /api/admin/layers/:id
@@ -356,22 +357,74 @@ def handle_get_site_scopes(params: dict, auth: AuthContext) -> str:
         # ── Layer groups mode ────────────────────────────────────────────────
         if not auth.can_access_site_scope(site_scope_id):
             return json.dumps({"success": False, "message": f"Access denied: not authorized for site scope {site_scope_id}."})
-        result = rails_get("/api/layer-groups", params={"site_scope": site_scope_id})
-        groups = result.get("data", result) if isinstance(result, dict) else result
-        if not isinstance(groups, list):
-            groups = []
+        result = rails_get("/api/admin/layer_groups", params={"site_scope_id": site_scope_id})
+        groups = result.get("data", []) if isinstance(result, dict) else []
         summary = [
-            {"id": g.get("id"), "name": g.get("name"), "layers_count": len(g.get("layers", []))}
+            {
+                "id": g.get("id"),
+                "name": g.get("name"),
+                "slug": g.get("slug"),
+                "layer_group_type": g.get("layer_group_type"),
+                "super_group_id": g.get("super_group_id"),
+                "super_group_name": g.get("super_group_name"),
+                "layers_count": g.get("layers_count", 0),
+            }
             for g in groups
         ]
         return json.dumps(summary, ensure_ascii=False)
     else:
         # ── Site scopes list mode ────────────────────────────────────────────
-        result = rails_get("/api/admin/layers", params={"collection": "site_scopes"})
+        result = rails_get("/api/admin/layers/site_scopes")
         all_scopes = result.get("data", [])
         if not auth.is_superadmin and auth.allowed_site_scope_ids is not None:
             all_scopes = [s for s in all_scopes if str(s.get("id")) in auth.allowed_site_scope_ids]
         return json.dumps(all_scopes, ensure_ascii=False)
+
+
+def handle_create_layer_group(params: dict, auth: AuthContext) -> str:
+    site_scope_id = params.get("site_scope_id")
+    name = params.get("name")
+
+    if not site_scope_id:
+        return json.dumps({"success": False, "message": "site_scope_id is required"})
+    if not name:
+        return json.dumps({"success": False, "message": "name is required"})
+    if err := auth.assert_can_mutate(site_scope_id):
+        return json.dumps({"success": False, "message": err})
+
+    body = {
+        "layer_group": {
+            "site_scope_id": site_scope_id,
+            "name": name,
+            "layer_group_type": params.get("layer_group_type") or "category",
+        }
+    }
+    for field in ("slug", "super_group_id", "category", "order", "info", "icon_class"):
+        value = params.get(field)
+        if value is not None:
+            body["layer_group"][field] = value
+
+    try:
+        result = rails_post("/api/admin/layer_groups", body)
+    except requests.HTTPError as exc:
+        err = _extract_rails_error(exc)
+        logger.warning(
+            "AGENT_AUDIT create_layer_group FAILED site_scope_id=%s name=%s http_status=%s message=%s",
+            site_scope_id,
+            name,
+            err.get("http_status"),
+            err.get("message"),
+        )
+        return json.dumps(err, ensure_ascii=False)
+
+    logger.info(
+        "AGENT_AUDIT create_layer_group site_scope_id=%s name=%s layer_group_type=%s result_id=%s",
+        site_scope_id,
+        name,
+        body["layer_group"]["layer_group_type"],
+        result.get("data", {}).get("id") if isinstance(result.get("data"), dict) else None,
+    )
+    return json.dumps(result, ensure_ascii=False)
 
 
 def handle_create_layer(params: dict, auth: AuthContext) -> str:
@@ -657,6 +710,7 @@ ACTION_HANDLERS = {
     "retrieve_context": handle_retrieve_context,
     "get_site_scopes": handle_get_site_scopes,
     "get_layers": handle_get_layers,
+    "create_layer_group": handle_create_layer_group,
     "get_tables": handle_get_tables,
     "create_layer": handle_create_layer,
     "update_layer": handle_update_layer,

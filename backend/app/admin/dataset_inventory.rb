@@ -1,6 +1,84 @@
 ActiveAdmin.register_page "Dataset Inventory" do
   menu label: "Dataset Inventory", parent: "Data", priority: 5
 
+  page_action :upload_data, method: :get do
+    @recent_cog_uploads = DataImport.where(import_type: "cog").order(created_at: :desc).limit(8)
+    @recent_vector_uploads = DataImport.where(import_type: "vector").order(created_at: :desc).limit(8)
+    render :upload_data
+  end
+
+  page_action :upload_cog, method: [:get, :post] do
+    if request.post?
+      s3_key = params[:s3_key].to_s.strip
+      file_name = params[:file_name].to_s.strip
+      file_size = params[:file_size_bytes].to_i
+
+      if s3_key.blank? || !s3_key.start_with?("cogs/")
+        redirect_to upload_cog_admin_dataset_inventory_path,
+          alert: "Invalid S3 key — must start with 'cogs/'"
+        return
+      end
+
+      s3_uri = "s3://#{ENV.fetch("S3_BUCKET", "resilienceatlas")}/#{s3_key}"
+
+      DataImport.create!(
+        importable: current_admin_user,
+        admin_user: current_admin_user,
+        file_name: file_name.presence || File.basename(s3_key),
+        s3_key: s3_key,
+        file_size_bytes: (file_size > 0) ? file_size : nil,
+        import_type: "cog",
+        status: "complete",
+        started_at: Time.current,
+        completed_at: Time.current
+      )
+
+      redirect_to admin_dataset_inventory_path(section: "s3"),
+        notice: "COG uploaded to #{s3_uri}. Update a layer manually to point at this URI."
+    else
+      redirect_to upload_data_admin_dataset_inventory_path(anchor: "cog-upload")
+    end
+  end
+
+  page_action :import_vector, method: [:get, :post] do
+    if request.post?
+      s3_key = params[:s3_key].to_s.strip
+      file_name = params[:file_name].to_s.strip
+      file_size = params[:file_size_bytes].to_i
+      table_name = params[:import_table_name].to_s
+        .gsub(/[^a-zA-Z0-9_]/, "_").downcase.slice(0, 54).presence
+
+      if table_name.blank?
+        redirect_to import_vector_admin_dataset_inventory_path,
+          alert: "A table name is required."
+        return
+      end
+
+      if s3_key.blank? || !s3_key.start_with?("staging/#{table_name}/")
+        redirect_to import_vector_admin_dataset_inventory_path,
+          alert: "Invalid S3 key for the chosen table name. Upload the file again."
+        return
+      end
+
+      di = DataImport.create!(
+        importable: current_admin_user,
+        admin_user: current_admin_user,
+        file_name: file_name.presence || File.basename(s3_key),
+        s3_key: s3_key,
+        file_size_bytes: (file_size > 0) ? file_size : nil,
+        import_type: "vector",
+        status: "pending"
+      )
+
+      VectorImportJob.perform_later(di.id)
+
+      redirect_to admin_dataset_inventory_path(section: "vector"),
+        notice: "Vector import queued into ra_vector.imported_#{table_name}. Update a layer manually after the import completes."
+    else
+      redirect_to upload_data_admin_dataset_inventory_path(anchor: "vector-upload")
+    end
+  end
+
   # ── Upload nonspatial CSV to ra_nonspatial schema ────────────────────────
   page_action :upload_nonspatial, method: :post do
     require "csv"
@@ -182,17 +260,11 @@ ActiveAdmin.register_page "Dataset Inventory" do
       end
 
       if section == "vector"
-        layer_opts = Layer.order(:id).pluck(:id, :slug)
         panel "Import New Vector File" do
-          para "Select the layer this file is for, then go to its upload page to upload a GeoPackage, GeoJSON, or zipped Shapefile. The file is stored in S3 and imported into the ra_vector schema by a background job."
-          text_node(
-            select_tag("vector_import_layer_id",
-              options_for_select([["— select a layer —", ""]] + layer_opts.map { |id, slug| ["#{id}: #{slug}", id] }),
-              style: "width:340px") +
-            " ".html_safe +
-            button_tag("→ Go to Import Page", type: "button", class: "button",
-              onclick: "var v=document.getElementById('vector_import_layer_id').value; if(v){window.location='/admin/layers/'+v+'/import_vector'}else{alert('Please select a layer first')}; return false;")
-          )
+          para "Upload a GeoPackage, GeoJSON, or zipped Shapefile directly to S3 and import it into the #{schema} schema without choosing a layer first. After the import completes, manually point any layer you want at the imported table."
+          para do
+            link_to "Open Shared Upload Page →", upload_data_admin_dataset_inventory_path(anchor: "vector-upload"), class: "button"
+          end
         end
 
         panel "Recent Vector Uploads" do
@@ -201,9 +273,11 @@ ActiveAdmin.register_page "Dataset Inventory" do
           if recent.any?
             table_for recent do
               column(:id)
-              column("Layer") do |di|
-                next unless di.importable
-                link_to di.importable.slug, admin_layer_path(di.importable_id)
+              column("Target") do |di|
+                data_import_target_link(di)
+              end
+              column("Imported Table") do |di|
+                inferred_vector_table_name(di) || "—"
               end
               column(:file_name)
               column("Size") { |di| di.formatted_file_size }
@@ -266,30 +340,11 @@ ActiveAdmin.register_page "Dataset Inventory" do
         end
       end
 
-      # ── Upload CSV → ra_nonspatial ────────────────────────────────────────
       panel "Upload CSV to #{schema}" do
-        para "Upload a plain .csv file to create or replace a table in the #{schema} schema. " \
-             "Column types are inferred automatically. Maximum file size: 50 MB."
-        # Build the form inline to avoid Arbre partial/route-helper issues.
-        form_html = [
-          %(<form action="/admin/dataset_inventory/upload_nonspatial" method="post" enctype="multipart/form-data">),
-          %(<input type="hidden" name="authenticity_token" value="#{ERB::Util.html_escape(form_authenticity_token)}">),
-          %(<div style="margin-bottom:12px">),
-          %(  <label for="ns_table_name" style="display:block;margin-bottom:4px;font-weight:bold">Table name</label>),
-          %(  <input type="text" name="table_name" id="ns_table_name" required maxlength="63" pattern="[a-zA-Z0-9_]+" style="width:280px" placeholder="e.g. my_attribute_table">),
-          %(  <span style="color:#666;font-size:0.85em">&nbsp;(letters, digits, underscores only)</span>),
-          %(</div>),
-          %(<div style="margin-bottom:12px">),
-          %(  <label for="ns_csv_file" style="display:block;margin-bottom:4px;font-weight:bold">CSV file (.csv, max 50 MB)</label>),
-          %(  <input type="file" name="csv_file" id="ns_csv_file" accept=".csv" required>),
-          %(</div>),
-          %(<p style="color:#c0392b;margin:8px 0 12px">),
-          %(  &#x26A0; This will drop and replace any existing table with the same name in #{ERB::Util.html_escape(schema)}.),
-          %(</p>),
-          %(<input type="submit" value="Upload CSV" class="button">),
-          %(</form>)
-        ].join.html_safe
-        text_node form_html
+        para "Use the shared upload page to create or replace a nonspatial table in the #{schema} schema. Column types are inferred automatically. Maximum file size: 50 MB."
+        para do
+          link_to "Open Shared Upload Page →", upload_data_admin_dataset_inventory_path(anchor: "nonspatial-upload"), class: "button"
+        end
       end
 
     when "s3"
@@ -331,17 +386,11 @@ ActiveAdmin.register_page "Dataset Inventory" do
         end
       end
 
-      cog_layer_opts = Layer.order(:id).pluck(:id, :slug)
-      panel "Upload New COG for a Layer" do
-        para "Select the layer this COG is for, then go to its upload page. The file will be uploaded directly to S3 via multipart upload and the layer config will be updated immediately."
-        text_node(
-          select_tag("cog_upload_layer_id",
-            options_for_select([["— select a layer —", ""]] + cog_layer_opts.map { |id, slug| ["#{id}: #{slug}", id] }),
-            style: "width:340px") +
-          " ".html_safe +
-          button_tag("→ Go to Upload Page", type: "button", class: "button",
-            onclick: "var v=document.getElementById('cog_upload_layer_id').value; if(v){window.location='/admin/layers/'+v+'/upload_cog'}else{alert('Please select a layer first')}; return false;")
-        )
+      panel "Upload New COG" do
+        para "Upload a Cloud-Optimized GeoTIFF directly to S3 without choosing a layer first. After it finishes, manually update whatever layer should point at the new S3 URI."
+        para do
+          link_to "Open Shared Upload Page →", upload_data_admin_dataset_inventory_path(anchor: "cog-upload"), class: "button"
+        end
       end
 
       panel "Recent COG Uploads" do
@@ -350,9 +399,8 @@ ActiveAdmin.register_page "Dataset Inventory" do
         if recent.any?
           table_for recent do
             column(:id)
-            column("Layer") do |di|
-              next unless di.importable
-              link_to di.importable.slug, admin_layer_path(di.importable_id)
+            column("Target") do |di|
+              data_import_target_link(di)
             end
             column(:file_name)
             column("Size") { |di| di.formatted_file_size }

@@ -1,0 +1,285 @@
+<%= content_for :title, "Upload Data" %>
+
+<div class="admin-page-header">
+  <h2>Upload Data</h2>
+  <p>Use this page to upload new vector datasets, Cloud-Optimized GeoTIFFs, or nonspatial CSV tables without choosing a layer first. After upload or import, update the target layer manually.</p>
+  <p>
+    <a href="#vector-upload" class="button">Vector</a>
+    <a href="#cog-upload" class="button">COG</a>
+    <a href="#nonspatial-upload" class="button">Nonspatial CSV</a>
+  </p>
+</div>
+
+<div class="panel" id="vector-upload">
+  <h3>Import Vector Dataset</h3>
+  <p>Upload a GeoPackage, GeoJSON, or zipped Shapefile. The file is stored in S3, then imported into <code>ra_vector</code> by a background job.</p>
+  <p>After the import completes, update the target layer manually so it uses <code>ra_vector_tile</code> with the imported table name shown below.</p>
+  <ul>
+    <li><strong>GeoPackage (.gpkg)</strong> — preferred format</li>
+    <li><strong>GeoJSON (.geojson / .json)</strong> — single file</li>
+    <li><strong>Shapefile (.zip)</strong> — zip all components into a single archive</li>
+  </ul>
+
+  <p>
+    <label for="dataset-vector-table-name" style="display:block;margin-bottom:4px;font-weight:bold">Table name suffix</label>
+    <input type="text" id="dataset-vector-table-name" maxlength="54" pattern="[a-zA-Z0-9_]+" placeholder="e.g. mangrove_extent_2026" style="width:280px">
+    <span style="color:#666;font-size:0.9em">letters, digits, underscores only; the imported table will be <code id="dataset-vector-target-table">imported_</code></span>
+  </p>
+
+  <% if @recent_vector_uploads.present? %>
+    <table>
+      <thead><tr><th>ID</th><th>Target</th><th>Imported Table</th><th>File</th><th>Status</th><th></th></tr></thead>
+      <tbody>
+        <% @recent_vector_uploads.each do |di| %>
+          <tr>
+            <td><%= di.id %></td>
+            <td><%= data_import_target_link(di) %></td>
+            <td><%= inferred_vector_table_name(di) || "—" %></td>
+            <td><%= di.file_name %></td>
+            <td><span class="status_tag status_<%= di.status %>"><%= di.status %></span></td>
+            <td><%= link_to "Details", admin_data_import_path(di) %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% end %>
+
+  <div id="uppy-dashboard-vector"></div>
+  <p id="dataset-vector-upload-warning" style="display:none;color:#c0392b"></p>
+
+  <%= form_tag import_vector_admin_dataset_inventory_path, method: :post, id: "dataset-vector-finalize-form" do %>
+    <%= hidden_field_tag :s3_key, "", id: "dataset-vector-s3-key" %>
+    <%= hidden_field_tag :file_name, "", id: "dataset-vector-file-name" %>
+    <%= hidden_field_tag :file_size_bytes, "0", id: "dataset-vector-file-size" %>
+    <%= hidden_field_tag :import_table_name, "", id: "dataset-vector-import-table-name" %>
+    <%= submit_tag "Queue Import Job", id: "dataset-vector-submit-btn", class: "button", disabled: true %>
+  <% end %>
+</div>
+
+<div class="panel" id="cog-upload">
+  <h3>Upload Cloud-Optimized GeoTIFF (COG)</h3>
+  <p>Upload a COG directly to S3. No layer configuration will be changed automatically.</p>
+  <p>After the upload finishes, update the target layer manually so <code>layer_provider</code> is <code>cog</code> and <code>layer_config.body.source</code> points at the uploaded S3 URI.</p>
+
+  <% if @recent_cog_uploads.present? %>
+    <table>
+      <thead><tr><th>ID</th><th>Target</th><th>File</th><th>Size</th><th>Status</th><th></th></tr></thead>
+      <tbody>
+        <% @recent_cog_uploads.each do |di| %>
+          <tr>
+            <td><%= di.id %></td>
+            <td><%= data_import_target_link(di) %></td>
+            <td><%= di.file_name %></td>
+            <td><%= di.formatted_file_size %></td>
+            <td><span class="status_tag status_<%= di.status %>"><%= di.status %></span></td>
+            <td><%= link_to "Details", admin_data_import_path(di) %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% end %>
+
+  <div id="uppy-dashboard-cog"></div>
+
+  <%= form_tag upload_cog_admin_dataset_inventory_path, method: :post, id: "dataset-cog-finalize-form" do %>
+    <%= hidden_field_tag :s3_key, "", id: "dataset-cog-s3-key" %>
+    <%= hidden_field_tag :file_name, "", id: "dataset-cog-file-name" %>
+    <%= hidden_field_tag :file_size_bytes, "0", id: "dataset-cog-file-size" %>
+    <%= submit_tag "Finish Upload", id: "dataset-cog-submit-btn", class: "button", disabled: true %>
+  <% end %>
+</div>
+
+<div class="panel" id="nonspatial-upload">
+  <h3>Upload Nonspatial CSV</h3>
+  <p>Upload a plain <code>.csv</code> file to create or replace a table in <code><%= DatasetInventoryService::NONSPATIAL_SCHEMA %></code>. Column types are inferred automatically.</p>
+  <p style="color:#c0392b"><strong>Warning:</strong> this will drop and replace any existing table with the same name.</p>
+
+  <%= form_tag upload_nonspatial_admin_dataset_inventory_path, method: :post, multipart: true, style: "margin: 0;" do %>
+    <fieldset class="inputs">
+      <ol>
+        <li class="string input">
+          <label for="table_name">Table name <span style="color:#888;font-weight:normal">(alphanumeric + underscore, max 63 chars)</span></label>
+          <%= text_field_tag :table_name, nil,
+              id: "table_name",
+              placeholder: "e.g. dhs_indicators_gh",
+              required: true,
+              pattern: "[a-zA-Z0-9_]+",
+              maxlength: 63,
+              style: "width:280px" %>
+        </li>
+        <li class="file input">
+          <label for="csv_file">CSV file <span style="color:#888;font-weight:normal">(.csv, max 50 MB)</span></label>
+          <%= file_field_tag :csv_file, id: "csv_file", accept: ".csv", required: true %>
+        </li>
+      </ol>
+    </fieldset>
+    <fieldset class="actions">
+      <ol>
+        <li class="action input_action">
+          <%= submit_tag "Upload CSV", class: "button" %>
+        </li>
+      </ol>
+    </fieldset>
+  <% end %>
+</div>
+
+<link rel="stylesheet" href="https://releases.transloadit.com/uppy/v3.27.3/uppy.min.css">
+<script src="https://releases.transloadit.com/uppy/v3.27.3/uppy.min.js"></script>
+
+<script>
+(function() {
+  const MULTIPART_BASE = "/api/v1/uploads/multipart";
+  const CSRF = document.querySelector('meta[name="csrf-token"]')?.content || "";
+  const vectorAllowed = [".gpkg", ".geojson", ".json", ".zip"];
+  const tableNameInput = document.getElementById("dataset-vector-table-name");
+  const preview = document.getElementById("dataset-vector-target-table");
+  const warning = document.getElementById("dataset-vector-upload-warning");
+  const vectorSubmitBtn = document.getElementById("dataset-vector-submit-btn");
+  const hiddenTableName = document.getElementById("dataset-vector-import-table-name");
+
+  function sanitizeTableName(value) {
+    return value.toLowerCase().replace(/[^a-z0-9_]/g, "_").slice(0, 54);
+  }
+
+  function syncTablePreview() {
+    const sanitized = sanitizeTableName(tableNameInput.value);
+    preview.textContent = sanitized ? `imported_${sanitized}` : "imported_";
+
+    if (hiddenTableName.value && hiddenTableName.value !== sanitized) {
+      warning.textContent = "Table name changed after the upload completed. Upload the file again before submitting.";
+      warning.style.display = "block";
+      vectorSubmitBtn.disabled = true;
+    } else {
+      warning.style.display = "none";
+    }
+  }
+
+  tableNameInput.addEventListener("input", syncTablePreview);
+  syncTablePreview();
+
+  const vectorUppy = new Uppy.Core({
+    restrictions: { maxNumberOfFiles: 1, allowedFileTypes: vectorAllowed }
+  });
+
+  vectorUppy.use(Uppy.Dashboard, {
+    inline: true,
+    target: "#uppy-dashboard-vector",
+    note: "Upload a GeoPackage, GeoJSON, or zipped Shapefile"
+  });
+
+  vectorUppy.use(Uppy.AwsS3Multipart, {
+    companionUrl: false,
+    async createMultipartUpload(file) {
+      const tableName = sanitizeTableName(tableNameInput.value);
+
+      if (!tableName) {
+        window.alert("Enter a table name before uploading.");
+        throw new Error("Missing table name");
+      }
+
+      const resp = await fetch(MULTIPART_BASE, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-CSRF-Token": CSRF },
+        body: JSON.stringify({
+          filename: file.name,
+          type: file.type || "application/octet-stream",
+          metadata: { prefix: `staging/${tableName}`, size: file.size }
+        })
+      });
+      return resp.json();
+    },
+    async signPart(file, { uploadId, key, partNumber }) {
+      const resp = await fetch(
+        `${MULTIPART_BASE}/${uploadId}?key=${encodeURIComponent(key)}&partNumbers[]=${partNumber}`,
+        { headers: { "X-CSRF-Token": CSRF } }
+      );
+      const data = await resp.json();
+      return { url: data.presignedUrls[partNumber] };
+    },
+    async listParts() { return []; },
+    async completeMultipartUpload(file, { uploadId, key, parts }) {
+      const resp = await fetch(`${MULTIPART_BASE}/${uploadId}/complete`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-CSRF-Token": CSRF },
+        body: JSON.stringify({ key, parts })
+      });
+      return resp.json();
+    },
+    async abortMultipartUpload(file, { uploadId, key }) {
+      await fetch(`${MULTIPART_BASE}/${uploadId}?key=${encodeURIComponent(key)}`, {
+        method: "DELETE",
+        headers: { "X-CSRF-Token": CSRF }
+      });
+    }
+  });
+
+  vectorUppy.on("upload-success", (file, response) => {
+    const tableName = sanitizeTableName(tableNameInput.value);
+    const key = response.uploadURL?.replace(/^s3:\/\/[^/]+\//, "") || file.meta?.key || "";
+
+    document.getElementById("dataset-vector-s3-key").value = key;
+    document.getElementById("dataset-vector-file-name").value = file.name;
+    document.getElementById("dataset-vector-file-size").value = file.size;
+    hiddenTableName.value = tableName;
+    warning.style.display = "none";
+    vectorSubmitBtn.disabled = false;
+  });
+
+  const cogUppy = new Uppy.Core({
+    restrictions: { maxNumberOfFiles: 1, allowedFileTypes: [".tif", ".tiff"] }
+  });
+
+  cogUppy.use(Uppy.Dashboard, {
+    inline: true,
+    target: "#uppy-dashboard-cog",
+    note: "Upload a single Cloud-Optimized GeoTIFF (.tif / .tiff)"
+  });
+
+  cogUppy.use(Uppy.AwsS3Multipart, {
+    companionUrl: false,
+    async createMultipartUpload(file) {
+      const resp = await fetch(MULTIPART_BASE, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-CSRF-Token": CSRF },
+        body: JSON.stringify({
+          filename: file.name,
+          type: file.type || "image/tiff",
+          metadata: { prefix: "cogs", size: file.size }
+        })
+      });
+      return resp.json();
+    },
+    async signPart(file, { uploadId, key, partNumber }) {
+      const resp = await fetch(
+        `${MULTIPART_BASE}/${uploadId}?key=${encodeURIComponent(key)}&partNumbers[]=${partNumber}`,
+        { headers: { "X-CSRF-Token": CSRF } }
+      );
+      const data = await resp.json();
+      return { url: data.presignedUrls[partNumber] };
+    },
+    async listParts() { return []; },
+    async completeMultipartUpload(file, { uploadId, key, parts }) {
+      const resp = await fetch(`${MULTIPART_BASE}/${uploadId}/complete`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-CSRF-Token": CSRF },
+        body: JSON.stringify({ key, parts })
+      });
+      return resp.json();
+    },
+    async abortMultipartUpload(file, { uploadId, key }) {
+      await fetch(`${MULTIPART_BASE}/${uploadId}?key=${encodeURIComponent(key)}`, {
+        method: "DELETE",
+        headers: { "X-CSRF-Token": CSRF }
+      });
+    }
+  });
+
+  cogUppy.on("upload-success", (file, response) => {
+    const key = response.uploadURL?.replace(/^s3:\/\/[^/]+\//, "") || file.meta?.key || "";
+    document.getElementById("dataset-cog-s3-key").value = key;
+    document.getElementById("dataset-cog-file-name").value = file.name;
+    document.getElementById("dataset-cog-file-size").value = file.size;
+    document.getElementById("dataset-cog-submit-btn").disabled = false;
+  });
+})();
+</script>

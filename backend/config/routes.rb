@@ -36,6 +36,7 @@ Rails.application.routes.draw do
           get :site_scopes
         end
       end
+      resources :layer_groups, only: [:index, :create]
       resources :vector_tables, only: [:index, :show] do
         member do
           get :statistics

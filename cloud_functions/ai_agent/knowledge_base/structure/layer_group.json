@@ -8,21 +8,26 @@
     "slug": "URL-safe identifier for the group, unique per site_scope.",
     "site_scope_id": "Foreign key to SiteScope. Required.",
     "super_group_id": "Optional. Foreign key to parent LayerGroup for nesting.",
-    "layer_group_type": "Controls display mode. Common values: 'radio' (only one active at a time), 'checkbox' (multiple active), null (default folder).",
+    "layer_group_type": "Controls display mode and hierarchy. Supported values in current admin flows: 'group', 'category', 'subcategory', 'subgroup'.",
     "category": "Optional grouping category label for the group.",
     "active": "Boolean. Default active state on page load.",
     "order": "Integer display order within the parent group.",
     "icon_class": "Optional CSS icon class for the group icon."
   },
+  "admin_api": {
+    "list": "GET /api/admin/layer_groups?site_scope_id=<id>",
+    "create": "POST /api/admin/layer_groups with body: {\"layer_group\": {\"site_scope_id\": <id>, \"name\": \"Ecoregions\", \"layer_group_type\": \"category\"}}"
+  },
   "linking_layers": {
-    "description": "When creating a layer, pass site_scope_id and layer_group_id. The admin API creates the Agrupation automatically, and the agent create_layer action accepts these as top-level parameters.",
+    "description": "When creating or updating a layer, pass site_scope_id and layer_group_id. The admin API creates the Agrupation automatically, and the agent passes layer_group_id inside the nested layer payload.",
     "endpoint": "POST /api/admin/layers with body: {\"site_scope_id\": <id>, \"layer\": {\"layer_group_id\": <group_id>, ...other fields}}"
   },
   "how_to_find_groups": "Use get_site_scopes(site_scope_id=...) to list groups for the selected site scope. Prefer that over scraping IDs from the admin UI.",
   "usage_notes": [
     "A layer can belong to multiple layer groups (via multiple Agrupation records), but this is uncommon.",
-    "If the correct layer group does not exist, one must be created in ActiveAdmin first.",
+    "If the correct layer group does not exist, create it with create_layer_group or POST /api/admin/layer_groups before assigning the layer.",
+    "For a top-level category, omit super_group_id and use layer_group_type='category'.",
     "The super_group_id creates nesting — sub-groups appear nested under their parent in the sidebar.",
-    "layer_group_type 'radio' is common for basemap-style groups where only one layer should be active."
+    "When layer_group_id is supplied, the admin layer create/update flow links to that explicit group instead of defaulting to 'New uploads'."
   ]
 }

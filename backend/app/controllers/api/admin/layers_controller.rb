@@ -28,7 +28,7 @@ class Api::Admin::LayersController < Api::Admin::ApiController
   def create
     Layer.transaction do
       @layer = Layer.create!(layer_params)
-      Api::Admin::LayersManager.new(@layer, params[:site_scope_id]).link_layer_group if params[:site_scope_id].present?
+      link_layer_group_assignment if layer_group_assignment_requested?
       render json: {success: true, message: "Layer Created Successfully", data: @layer.as_json}, status: :ok
     end
   end
@@ -41,7 +41,7 @@ class Api::Admin::LayersController < Api::Admin::ApiController
   def update
     Layer.transaction do
       @layer.update!(layer_params)
-      Api::Admin::LayersManager.new(@layer, params[:site_scope_id]).link_layer_group if params[:site_scope_id].present?
+      link_layer_group_assignment if layer_group_assignment_requested?
       render json: {success: true, message: "Layer Updated Successfully", data: @layer.as_json}, status: :ok
     end
   end
@@ -75,5 +75,21 @@ class Api::Admin::LayersController < Api::Admin::ApiController
 
   def page
     params.fetch(:page, 1)
+  end
+
+  def layer_group_assignment_requested?
+    params[:site_scope_id].present? || requested_layer_group_id.present?
+  end
+
+  def link_layer_group_assignment
+    Api::Admin::LayersManager.new(
+      @layer,
+      params[:site_scope_id],
+      layer_group_id: requested_layer_group_id
+    ).link_layer_group
+  end
+
+  def requested_layer_group_id
+    params[:layer_group_id].presence || params.dig(:layer, :layer_group_id).presence
   end
 end

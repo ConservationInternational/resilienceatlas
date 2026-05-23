@@ -87,4 +87,41 @@ module DatasetInventoryHelper
       ])
     end
   end
+
+  def data_import_target_link(data_import)
+    importable = data_import.importable
+
+    case importable
+    when Layer
+      link_to importable.slug, admin_layer_path(importable)
+    when AdminUser
+      content_tag(:span, "Standalone upload", title: "Not assigned to a layer")
+    when nil
+      content_tag(:em, "—")
+    else
+      link_to "#{data_import.importable_type} ##{data_import.importable_id}",
+        polymorphic_path([:admin, importable])
+    end
+  rescue StandardError
+    content_tag(:span, data_import.importable_type.presence || "Unknown")
+  end
+
+  def inferred_vector_table_name(data_import)
+    return unless data_import.type_vector?
+
+    if data_import.importable.is_a?(Layer)
+      suffix = data_import.importable.slug.to_s.gsub(/[^a-z0-9_]/, "_")
+    else
+      suffix = data_import.s3_key.to_s[%r{\Astaging/([^/]+)/}, 1]
+      suffix = suffix.to_s.gsub(/[^a-z0-9_]/, "_").downcase
+
+      if suffix.blank?
+        basename = File.basename(data_import.file_name.to_s, File.extname(data_import.file_name.to_s))
+        suffix = basename.gsub(/[^a-z0-9_]/i, "_").downcase
+      end
+    end
+
+    suffix = suffix.slice(0, 54)
+    suffix.present? ? "imported_#{suffix}" : nil
+  end
 end
