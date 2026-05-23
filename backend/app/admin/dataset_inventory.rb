@@ -1,142 +1,6 @@
 ActiveAdmin.register_page "Dataset Inventory" do
   menu label: "Dataset Inventory", parent: "Data", priority: 5
 
-  page_action :upload_data, method: :get do
-    @recent_cog_uploads = DataImport.where(import_type: "cog").order(created_at: :desc).limit(8)
-    @recent_vector_uploads = DataImport.where(import_type: "vector").order(created_at: :desc).limit(8)
-    render :upload_data
-  end
-
-  page_action :upload_cog, method: [:get, :post] do
-    if request.post?
-      s3_key = params[:s3_key].to_s.strip
-      file_name = params[:file_name].to_s.strip
-      file_size = params[:file_size_bytes].to_i
-
-      if s3_key.blank? || !s3_key.start_with?("cogs/")
-        redirect_to admin_dataset_inventory_upload_cog_path,
-          alert: "Invalid S3 key — must start with 'cogs/'"
-        return
-      end
-
-      s3_uri = "s3://#{ENV.fetch("S3_BUCKET", "resilienceatlas")}/#{s3_key}"
-
-      DataImport.create!(
-        importable: current_admin_user,
-        admin_user: current_admin_user,
-        file_name: file_name.presence || File.basename(s3_key),
-        s3_key: s3_key,
-        file_size_bytes: (file_size > 0) ? file_size : nil,
-        import_type: "cog",
-        status: "complete",
-        started_at: Time.current,
-        completed_at: Time.current
-      )
-
-      redirect_to admin_dataset_inventory_path(section: "s3"),
-        notice: "COG uploaded to #{s3_uri}. Update a layer manually to point at this URI."
-    else
-      redirect_to admin_dataset_inventory_upload_data_path(anchor: "cog-upload")
-    end
-  end
-
-  page_action :import_vector, method: [:get, :post] do
-    if request.post?
-      s3_key = params[:s3_key].to_s.strip
-      file_name = params[:file_name].to_s.strip
-      file_size = params[:file_size_bytes].to_i
-      table_name = params[:import_table_name].to_s
-        .gsub(/[^a-zA-Z0-9_]/, "_").downcase.slice(0, 54).presence
-
-      if table_name.blank?
-        redirect_to admin_dataset_inventory_import_vector_path,
-          alert: "A table name is required."
-        return
-      end
-
-      if s3_key.blank? || !s3_key.start_with?("staging/#{table_name}/")
-        redirect_to admin_dataset_inventory_import_vector_path,
-          alert: "Invalid S3 key for the chosen table name. Upload the file again."
-        return
-      end
-
-      di = DataImport.create!(
-        importable: current_admin_user,
-        admin_user: current_admin_user,
-        file_name: file_name.presence || File.basename(s3_key),
-        s3_key: s3_key,
-        file_size_bytes: (file_size > 0) ? file_size : nil,
-        import_type: "vector",
-        status: "pending"
-      )
-
-      VectorImportJob.perform_later(di.id)
-
-      redirect_to admin_dataset_inventory_path(section: "vector"),
-        notice: "Vector import queued into ra_vector.imported_#{table_name}. Update a layer manually after the import completes."
-    else
-      redirect_to admin_dataset_inventory_upload_data_path(anchor: "vector-upload")
-    end
-  end
-
-  # ── Upload nonspatial CSV to ra_nonspatial schema ────────────────────────
-  page_action :upload_nonspatial, method: :post do
-    require "csv"
-    require "tempfile"
-
-    table_name = params[:table_name].to_s
-      .gsub(/[^a-zA-Z0-9_]/, "_").downcase.slice(0, 63).presence
-    csv_file = params[:csv_file]
-
-    if table_name.blank? || csv_file.blank?
-      redirect_to admin_dataset_inventory_path(section: "nonspatial"),
-        alert: "Table name and CSV file are required."
-      return
-    end
-
-    if csv_file.size > 50.megabytes
-      redirect_to admin_dataset_inventory_path(section: "nonspatial"),
-        alert: "File too large (max 50 MB). For larger files use the rake cartodb:import_tables task."
-      return
-    end
-
-    nonspatial_schema = DatasetInventoryService::NONSPATIAL_SCHEMA
-    ar_conn = ActiveRecord::Base.connection
-
-    begin
-      col_types = CsvColumnTypeInferrer.infer(csv_file.path, limit: 2_000)
-      raise "No columns detected in the CSV file." if col_types.blank?
-
-      q_schema = ar_conn.quote_table_name(nonspatial_schema)
-      q_table = ar_conn.quote_table_name(table_name)
-      ar_conn.execute("CREATE SCHEMA IF NOT EXISTS #{q_schema}")
-      ar_conn.execute("DROP TABLE IF EXISTS #{q_schema}.#{q_table}")
-      col_defs = col_types.map { |c, t| "#{ar_conn.quote_column_name(c)} #{t}" }.join(", ")
-      ar_conn.execute("CREATE TABLE #{q_schema}.#{q_table} (#{col_defs})")
-
-      raw_conn = ar_conn.raw_connection
-      File.open(csv_file.path, "rb") do |f|
-        raw_conn.copy_data(
-          "COPY #{q_schema}.#{q_table} FROM STDIN WITH (FORMAT csv, HEADER true, ENCODING 'UTF8', NULL '')"
-        ) do
-          while (chunk = f.read(65_536))
-            raw_conn.put_copy_data(chunk)
-          end
-        end
-      end
-
-      row_count = ar_conn.select_value("SELECT COUNT(*) FROM #{q_schema}.#{q_table}").to_i
-      ar_conn.execute("ANALYZE #{q_schema}.#{q_table}")
-      DatasetInventoryService.invalidate_all_caches!
-
-      redirect_to admin_dataset_inventory_path(section: "nonspatial"),
-        notice: "Loaded #{helpers.number_with_delimiter(row_count)} rows into #{nonspatial_schema}.#{table_name}."
-    rescue => e
-      redirect_to admin_dataset_inventory_path(section: "nonspatial"),
-        alert: "Upload failed: #{e.message.truncate(300)}"
-    end
-  end
-
   # ── Refresh cached inventory data ────────────────────────────────────────────
   page_action :refresh_cache, method: :post do
     DatasetInventoryService.invalidate_all_caches!
@@ -259,38 +123,7 @@ ActiveAdmin.register_page "Dataset Inventory" do
         end
       end
 
-      if section == "vector"
-        panel "Import New Vector File" do
-          para "Upload a GeoPackage, GeoJSON, or zipped Shapefile directly to S3 and import it into the #{schema} schema without choosing a layer first. After the import completes, manually point any layer you want at the imported table."
-          para do
-            link_to "Open Shared Upload Page →", admin_dataset_inventory_upload_data_path(anchor: "vector-upload"), class: "button"
-          end
-        end
-
-        panel "Recent Vector Uploads" do
-          recent = DataImport.where(import_type: "vector")
-            .order(created_at: :desc).limit(8)
-          if recent.any?
-            table_for recent do
-              column(:id)
-              column("Target") do |di|
-                data_import_target_link(di)
-              end
-              column("Imported Table") do |di|
-                inferred_vector_table_name(di) || "—"
-              end
-              column(:file_name)
-              column("Size") { |di| di.formatted_file_size }
-              column(:status) { |di| status_tag di.status }
-              column("At") { |di| di.created_at.strftime("%Y-%m-%d %H:%M") }
-              column("") { |di| link_to "Details", admin_data_import_path(di) }
-            end
-            text_node link_to "View all imports →", admin_data_imports_path(q: {import_type_eq: "vector"})
-          else
-            para "No vector imports recorded yet."
-          end
-        end
-      else
+      if section == "raster"
         panel "About Raster Tables" do
           para "Raster tables in the #{DatasetInventoryService::RASTER_SCHEMA} schema are populated via the CartoDB migration rake task " \
                "(rake cartodb:import_tables). There is no admin upload interface for raster tables."
@@ -340,13 +173,6 @@ ActiveAdmin.register_page "Dataset Inventory" do
         end
       end
 
-      panel "Upload CSV to #{schema}" do
-        para "Use the shared upload page to create or replace a nonspatial table in the #{schema} schema. Column types are inferred automatically. Maximum file size: 50 MB."
-        para do
-          link_to "Open Shared Upload Page →", admin_dataset_inventory_upload_data_path(anchor: "nonspatial-upload"), class: "button"
-        end
-      end
-
     when "s3"
       result = svc.s3_cogs(page: page, per_page: per_page, sort: sort, dir: dir, q: name_q, lq: layer_q)
       prefix_label = ENV["COG_PREFIX"].presence || "cogs/"
@@ -383,13 +209,6 @@ ActiveAdmin.register_page "Dataset Inventory" do
             end
           end
           text_node inventory_pagination(result, base)
-        end
-      end
-
-      panel "Upload New COG" do
-        para "Upload a Cloud-Optimized GeoTIFF directly to S3 without choosing a layer first. After it finishes, manually update whatever layer should point at the new S3 URI."
-        para do
-          link_to "Open Shared Upload Page →", admin_dataset_inventory_upload_data_path(anchor: "cog-upload"), class: "button"
         end
       end
 
