@@ -6,7 +6,7 @@ import tileLayer from './tile-layer-ol';
 import wmsLayer from './wms-layer-ol';
 import wmtsLayer from './wmts-layer-ol';
 import VectorTileLayer from 'ol/layer/VectorTile';
-import { toLonLat } from 'ol/proj';
+import { toLonLat, transformExtent } from 'ol/proj';
 
 class PluginOpenLayers {
   constructor(map) {
@@ -170,21 +170,37 @@ class PluginOpenLayers {
     return this;
   }
 
-  fitMapToLayer = (layerModel) => {
-    const bounds = layerModel.get('mapLayerBounds');
-    if (!bounds) return;
+  fitMapToLayer = async (layerModel) => {
+    let bounds = layerModel.get('mapLayerBounds');
 
-    // bounds is [[lat1,lng1],[lat2,lng2]] (Leaflet convention from backend)
+    // If bounds weren't cached on load, try to fetch them now
+    if (!bounds) {
+      const getBoundsMethod = this.getLayerBoundsByProvider(layerModel.provider);
+      if (!getBoundsMethod) return;
+      try {
+        bounds = await getBoundsMethod.call(this, layerModel);
+      } catch {
+        return;
+      }
+      if (!bounds) return;
+      layerModel.set('mapLayerBounds', bounds);
+    }
+
+    // bounds is [[lat1,lng1],[lat2,lng2]] (Leaflet convention: [[south,west],[north,east]])
     const [[lat1, lng1], [lat2, lng2]] = bounds;
+
+    // Clamp latitudes to valid Web Mercator range — EPSG:3857 can't represent ±90°
+    // and transformExtent would produce ±Infinity → NaN map center.
+    const MAX_LAT = 85.051129;
+    const clampLat = (lat) => Math.max(-MAX_LAT, Math.min(MAX_LAT, lat));
+
     const extent = [
       Math.min(lng1, lng2),
-      Math.min(lat1, lat2),
+      clampLat(Math.min(lat1, lat2)),
       Math.max(lng1, lng2),
-      Math.max(lat1, lat2),
+      clampLat(Math.max(lat1, lat2)),
     ];
 
-    // Transform from EPSG:4326 to map projection (EPSG:3857)
-    const { transformExtent } = require('ol/proj');
     const projectedExtent = transformExtent(extent, 'EPSG:4326', 'EPSG:3857');
 
     this.map.getView().fit(projectedExtent, {

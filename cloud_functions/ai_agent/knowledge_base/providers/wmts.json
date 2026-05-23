@@ -10,9 +10,9 @@
       "matrixSet": "Tile matrix set identifier. Use 'EPSG:3857' or 'GoogleMapsCompatible' for Web Mercator (most common).",
       "format": "Image MIME type, e.g. 'image/png' or 'image/jpeg'.",
       "style": "Style name. Default: 'default'.",
-      "projection": "EPSG code string, default 'EPSG:3857'.",
-      "resolutions": "Optional array of custom resolution values.",
-      "matrixIds": "Optional array of custom matrix IDs."
+      "projection": "EPSG code string, default 'EPSG:3857'. The current frontend derives a standard Web Mercator tile grid from this projection.",
+      "resolutions": "Documentary only for now. The current OpenLayers adapter computes the standard 22-level Web Mercator resolutions and does not read custom values from layer_config.",
+      "matrixIds": "Documentary only for now. The current OpenLayers adapter computes matrix IDs 0..21 and does not read custom values from layer_config."
     }
   },
   "examples": [
@@ -26,8 +26,9 @@
     }
   ],
   "notes": [
-    "matrixSet 'EPSG:3857' and 'GoogleMapsCompatible' are equivalent for most purposes.",
+    "matrixSet 'EPSG:3857' and 'GoogleMapsCompatible' are equivalent for most Web Mercator services.",
     "WMTS services often document the tile URL template in their GetCapabilities response.",
-    "If the service uses RESTful KVP URLs, use the full URL template in the 'url' field."
+    "If the service uses RESTful KVP URLs, use the full URL template in the 'url' field.",
+    "interaction_config is still required on the Layer record even if the WMTS tiles have no popup behavior; use '{}' unless a custom popup config exists."
   ]
 }

@@ -20,6 +20,7 @@ from botocore.exceptions import ClientError
 
 # GitHub's OIDC provider URL and thumbprint
 GITHUB_OIDC_URL = "https://token.actions.githubusercontent.com"
+GITHUB_OIDC_HOST = GITHUB_OIDC_URL.removeprefix("https://")
 # This is GitHub's OIDC thumbprint - it rarely changes
 # See: https://github.blog/changelog/2023-06-27-github-actions-update-on-oidc-integration-with-aws/
 GITHUB_OIDC_THUMBPRINT = "6938fd4d98bab03faadb97b34396831e3780aea1"
@@ -65,7 +66,7 @@ def create_oidc_provider(iam_client):
         if e.response['Error']['Code'] == 'EntityAlreadyExists':
             # Provider already exists, get its ARN
             account_id = boto3.client('sts').get_caller_identity()['Account']
-            arn = f"arn:aws:iam::{account_id}:oidc-provider/token.actions.githubusercontent.com"
+            arn = f"arn:aws:iam::{account_id}:oidc-provider/{GITHUB_OIDC_HOST}"
             print(f"⚠️ OIDC provider already exists: {arn}")
             return arn
         else:
@@ -81,16 +82,16 @@ def create_trust_policy(account_id, github_org, github_repo):
             {
                 "Effect": "Allow",
                 "Principal": {
-                    "Federated": f"arn:aws:iam::{account_id}:oidc-provider/token.actions.githubusercontent.com"
+                    "Federated": f"arn:aws:iam::{account_id}:oidc-provider/{GITHUB_OIDC_HOST}"
                 },
                 "Action": "sts:AssumeRoleWithWebIdentity",
                 "Condition": {
                     "StringEquals": {
-                        "token.actions.githubusercontent.com:aud": "sts.amazonaws.com"
+                        f"{GITHUB_OIDC_HOST}:aud": "sts.amazonaws.com"
                     },
                     "StringLike": {
                         # Allow from specific repo, any branch/environment
-                        "token.actions.githubusercontent.com:sub": f"repo:{github_org}/{github_repo}:*"
+                        f"{GITHUB_OIDC_HOST}:sub": f"repo:{github_org}/{github_repo}:*"
                     }
                 }
             }
@@ -212,6 +213,7 @@ def create_deployment_policy(route53_zone_id):
                 ],
                 "Resource": [
                     "arn:aws:cloudformation:*:*:stack/titiler-cogs-*/*",
+                    "arn:aws:cloudformation:*:*:stack/earth-engine-*/*",
                     "arn:aws:cloudformation:*:*:stack/aws-sam-cli-managed-default/*"
                 ]
             },
@@ -244,7 +246,8 @@ def create_deployment_policy(route53_zone_id):
                     "lambda:InvokeFunction"
                 ],
                 "Resource": [
-                    "arn:aws:lambda:*:*:function:titiler-cogs-*"
+                    "arn:aws:lambda:*:*:function:titiler-cogs-*",
+                    "arn:aws:lambda:*:*:function:earth-engine-*"
                 ]
             },
             {
@@ -279,7 +282,8 @@ def create_deployment_policy(route53_zone_id):
                     "iam:UntagRole"
                 ],
                 "Resource": [
-                    "arn:aws:iam::*:role/titiler-cogs-*"
+                    "arn:aws:iam::*:role/titiler-cogs-*",
+                    "arn:aws:iam::*:role/earth-engine-*"
                 ]
             },
             {
@@ -366,8 +370,33 @@ def create_deployment_policy(route53_zone_id):
                 ],
                 "Resource": [
                     "arn:aws:ecr:*:*:repository/titiler-cogs-*",
-                    "arn:aws:ecr:*:*:repository/*titilercogsfunction*"
+                    "arn:aws:ecr:*:*:repository/*titilercogsfunction*",
+                    "arn:aws:ecr:*:*:repository/earth-engine-*",
+                    "arn:aws:ecr:*:*:repository/*histogramfunction*",
+                    "arn:aws:ecr:*:*:repository/*rasterinteractionfunction*",
+                    "arn:aws:ecr:*:*:repository/*downloadimagefunction*"
                 ]
+            },
+            {
+                # Bootstrapping script does not know specific Bedrock agent IDs,
+                # so agent-management permissions are scoped at the service level.
+                "Sid": "BedrockAgentManagement",
+                "Effect": "Allow",
+                "Action": [
+                    "bedrock:GetAgent",
+                    "bedrock:UpdateAgent",
+                    "bedrock:PrepareAgent",
+                    "bedrock:ListAgentVersions",
+                    "bedrock:ListAgentActionGroups",
+                    "bedrock:GetAgentActionGroup",
+                    "bedrock:UpdateAgentActionGroup",
+                    "bedrock:CreateAgentAlias",
+                    "bedrock:GetAgentAlias",
+                    "bedrock:ListAgentAliases",
+                    "bedrock:UpdateAgentAlias",
+                    "bedrock:DeleteAgentAlias"
+                ],
+                "Resource": "*"
             }
         ]
     }
@@ -397,7 +426,7 @@ def create_iam_role(iam_client, role_name, trust_policy, permissions_policy):
             PolicyName='GitHubActionsDeploymentPolicy',
             PolicyDocument=json.dumps(permissions_policy)
         )
-        print(f"✅ Attached deployment policy to role")
+        print("✅ Attached deployment policy to role")
 
         return role_arn
 
@@ -413,7 +442,7 @@ def create_iam_role(iam_client, role_name, trust_policy, permissions_policy):
                     RoleName=role_name,
                     PolicyDocument=json.dumps(trust_policy)
                 )
-                print(f"✅ Updated trust policy for role")
+                print("✅ Updated trust policy for role")
             except ClientError as update_error:
                 print(f"⚠️ Could not update trust policy: {update_error}")
 
@@ -424,7 +453,7 @@ def create_iam_role(iam_client, role_name, trust_policy, permissions_policy):
                     PolicyName='GitHubActionsDeploymentPolicy',
                     PolicyDocument=json.dumps(permissions_policy)
                 )
-                print(f"✅ Updated deployment policy for role")
+                print("✅ Updated deployment policy for role")
             except ClientError as update_error:
                 print(f"⚠️ Could not update permissions policy: {update_error}")
 
@@ -511,7 +540,7 @@ def main(profile=None, github_org="ConservationInternational", github_repo="resi
 
     print("\n📋 Trust Policy allows:")
     print(f"  - Repository: {github_org}/{github_repo}")
-    print(f"  - All branches and environments")
+    print("  - All branches and environments")
 
     print("\n📋 Permissions granted:")
     print("  - S3: Upload/download deployment packages")

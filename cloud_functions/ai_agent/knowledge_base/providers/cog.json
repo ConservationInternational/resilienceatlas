@@ -5,14 +5,18 @@
   "layer_provider": "cog",
   "layer_config_schema": {
     "body": {
-      "source": "S3 URI of the COG file, e.g. s3://bucket/path/file.tif. Use this OR url.",
-      "url": "Pre-built TiTiler tile URL template including {z}/{x}/{y}. Use this OR source.",
+      "source": "Canonical single-COG source. Use an s3:// URI, e.g. s3://bucket/path/file.tif.",
+      "sources": "Optional array of s3:// URIs for multi-source COG layers. When present, the frontend builds one TiTiler-backed tile layer per source and groups them.",
+      "url": "Optional pre-built TiTiler tile URL template including {z}/{x}/{y}. Prefer source/sources for managed layers; use url only when the full TiTiler URL is already known.",
       "colormap_name": "Named colormap string, e.g. 'viridis', 'plasma', 'rdylgn'. Mutually exclusive with colormap.",
-      "colormap": "Custom colormap. Two formats: (1) gradient object: {'0':[r,g,b,a],'128':[r,g,b,a],'255':[r,g,b,a]} with rescale param, or (2) interval array: [[[lo,hi],[r,g,b,a]],...] without rescale.",
-      "rescale": "Array [min,max] for value-to-color mapping. Required with gradient colormap format.",
+      "colormap": "Custom colormap. Two formats are supported: (1) gradient object {'0':[r,g,b,a],...} used with rescale, or (2) interval array [[[lo,hi],[r,g,b,a]], ...]. For interval arrays, do NOT also set rescale because TiTiler would normalize away the raw class values.",
+      "rescale": "Array [min,max] for value-to-color mapping. Use with gradient colormaps and named colormaps. Omit for interval-array colormaps.",
       "bidx": "Band index (1-based integer). E.g. 1 for first band.",
       "nodata": "Value to treat as transparent, e.g. -9999 or 0.",
-      "clip_geometry": "GeoJSON geometry to clip the tile output."
+      "clip_geometry": "Optional GeoJSON geometry to clip the tile output before rendering.",
+      "options": {
+        "tileSize": "Optional tile size. Defaults to 256 in the frontend."
+      }
     }
   },
   "examples": [
@@ -25,6 +29,11 @@
       "layer_config": "{\"body\":{\"source\":\"s3://ra-data/rasters/landcover.tif\",\"colormap\":[[[1,1],[34,139,34,255]],[[2,2],[139,69,19,255]],[[3,3],[0,0,255,255]]]}}"
     },
     {
+      "description": "COG layer with clipped rendering and canonical point-query interaction",
+      "layer_config": "{\"body\":{\"source\":\"s3://ra-data/rasters/anomaly_2024.tif\",\"colormap_name\":\"rdylgn\",\"rescale\":[-100,100],\"clip_geometry\":{\"type\":\"Polygon\",\"coordinates\":[[[0,0],[1,0],[1,1],[0,1],[0,0]]]}}}",
+      "interaction_config": "{\"output\":[{\"column\":\"values.0\",\"property\":\"Value\",\"type\":\"number\"}],\"config\":{\"url\":\"{{titilerUrl}}/cog/point/{{lng}}/{{lat}}?url={{cogUrl}}\"}}"
+    },
+    {
       "description": "COG with pre-built TiTiler URL",
       "layer_config": "{\"body\":{\"url\":\"https://tiles.example.com/tiles/WebMercatorQuad/{z}/{x}/{y}?url=https://bucket.s3.amazonaws.com/file.tif&colormap_name=viridis\"}}"
     }
@@ -33,6 +42,8 @@
     "COG files must be accessible from TiTiler — use public S3 objects or pre-signed URLs.",
     "The S3 data bucket is public-read; use s3://bucket/path format for source.",
     "TiTiler automatically handles reprojection and tiling.",
-    "For new raster layers, always upload to S3 first and get the s3:// URI."
+    "For new raster layers, always upload to S3 first and get the s3:// URI.",
+    "interaction_config is required on Layer records. For COG layers, the canonical managed config uses the TiTiler point-query template with {{titilerUrl}} and {{cogUrl}} placeholders.",
+    "For analysis-capable COG layers, current validation allows analysis_type 'histogram' or 'categorical'."
   ]
 }

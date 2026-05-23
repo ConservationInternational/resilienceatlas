@@ -5,9 +5,10 @@
   "layer_provider": "martin",
   "layer_config_schema": {
     "body": {
-      "source": "Martin source name — PostGIS table name or function name, e.g. 'ra_vector_tile' or 'my_imported_table'.",
-      "params": "Query parameters appended to the tile URL. For ra_vector_tile function: {\"table\": \"imported_table_name\"}.",
+      "source": "Martin source name — PostGIS table name or function name. For newly imported tables and views, prefer the stable function source 'ra_vector_tile'.",
+      "params": "Query parameters appended to the tile URL. Canonical managed pattern: {\"table\": \"imported_table_name_or_view\"} when source='ra_vector_tile'.",
       "styles": "Styling object keyed by MVT layer name (usually the table name). Each value is a style rule object.",
+      "colorRamp": "Optional graduated style applied across the layer using a numeric property. When present it is used instead of styles in the frontend.",
       "options": {
         "interactive": "Boolean, default true. Enables popups on click.",
         "maxNativeZoom": "Max zoom level tiles are fetched at, default 14."
@@ -58,6 +59,11 @@
         "3. Create the layer with source='ra_vector_tile' and params.table='v_my_join'."
       ],
       "layer_config": "{\"body\":{\"source\":\"ra_vector_tile\",\"params\":{\"table\":\"v_sbtn_thresholds\"},\"colorRamp\":{\"property\":\"soil_erosion_threshold\",\"breaks\":[0.2,0.5,1,2,3,5,7,10,14,18,25,35],\"colors\":[\"#440154\",\"#481769\",\"#472c7a\",\"#3b528b\",\"#2d718e\",\"#21908d\",\"#27ad81\",\"#4dc36a\",\"#7fd34e\",\"#b8de29\",\"#d8e219\",\"#ece51c\",\"#fde725\"],\"default\":\"#aaaaaa\"},\"options\":{\"interactive\":true,\"maxNativeZoom\":8}}}"
+    },
+    {
+      "description": "Martin layer with canonical generated popup config",
+      "layer_config": "{\"body\":{\"source\":\"ra_vector_tile\",\"params\":{\"table\":\"priority_landscapes\"},\"styles\":{\"priority_landscapes\":{\"fillColor\":\"#f39c12\",\"fillOpacity\":0.65,\"color\":\"#d35400\",\"weight\":1}}}}",
+      "interaction_config": "{\"output\":[{\"column\":\"name\",\"property\":\"Name\"},{\"column\":\"status\",\"property\":\"Status\"}]}"
     }
   ],
   "notes": [
@@ -65,6 +71,8 @@
     "Use the vector_tables/import API endpoint to import a vector file and get a table_name before creating a martin layer.",
     "For layers that join a non-spatial table with geometry, call create_vector_view to create a view in ra_vector first, then use ra_vector_tile with params.table pointing to that view. NEVER put raw SQL in body.source — Martin URL-encodes the source in the tile URL path, causing 404 errors.",
     "Style keys must match the MVT layer name (usually the PostGIS table name).",
-    "For interactive popups, ensure interaction_config is also set on the layer."
+    "For interactive popups, ensure interaction_config is also set on the layer.",
+    "The backend import flow automatically generates interaction_config from table columns, excluding geometry and housekeeping fields.",
+    "For analysis-capable non-COG layers, current validation only allows analysis_type 'histogram'."
   ]
 }

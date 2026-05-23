@@ -117,25 +117,86 @@ module CartodbRakeHelpers
 
   # Build a TiTiler colormap from CSS stops.
   #
-  # For "linear" (default) mode: returns a 0-255 indexed gradient hash
-  #   {"key" => [r,g,b,a]} that TiTiler interpolates after rescaling.
+  # For "linear" (default) mode: returns a fine-grained interval array that
+  #   approximates CSS linear interpolation.  Transparent stops (nodata
+  #   sentinels like stop(0,transparent)) are kept as exact single intervals
+  #   so they are never blended with adjacent colours.  Coloured segments are
+  #   subdivided into a small number of steps to keep the URL short.
   #
   # For "discrete" or "exact" mode: returns an explicit interval array
-  #   [[[lower, upper], [r,g,b,a]], ...] that TiTiler applies directly to
-  #   raw pixel values without any rescaling.
+  #   [[[lower, upper], [r,g,b,a]], ...] applied directly to raw pixel values.
   def self.build_titiler_colormap(stops, mode: "linear", default_rgba: nil)
     return nil if stops.blank?
 
     if %w[discrete exact].include?(mode.to_s.downcase)
       build_interval_colormap(stops, exact: mode.to_s.downcase == "exact", default_rgba: default_rgba)
     else
-      build_gradient_colormap(stops)
+      build_fine_interval_colormap(stops, default_rgba: default_rgba)
     end
   end
 
-  # Gradient colormap for linear/default mode.
+  # Fine-grained interval colormap for linear mode.
+  #
+  # Approximates CSS linear interpolation by subdividing each coloured segment
+  # into a small number of sub-intervals with linearly interpolated RGBA values.
+  # Transparent stop endpoints are kept as exact single intervals — this is
+  # critical for layers like CHIRPS where stop(0,transparent) masks ocean
+  # pixels and must never bleed into adjacent coloured values.
+  #
+  # Step count is capped at MAX_GRADIENT_STEPS (6) to keep the colormap JSON
+  # short enough for URL embedding.  At typical tile zoom levels 6 steps per
+  # gradient segment is visually indistinguishable from a true linear ramp.
+  MAX_GRADIENT_STEPS = 6
+
+  def self.build_fine_interval_colormap(stops, default_rgba: nil)
+    sorted = stops.sort_by { |s| s[:value] }
+    colormap = []
+
+    if default_rgba && sorted.any?
+      colormap << [[-32768, sorted.first[:value]], default_rgba]
+    end
+
+    sorted.each_with_index do |stop, i|
+      rgba = parse_hex_color(stop[:color])
+      next unless rgba
+
+      lower_val = stop[:value]
+
+      if i + 1 < sorted.length
+        next_stop = sorted[i + 1]
+        upper_val = next_stop[:value]
+        next_rgba = parse_hex_color(next_stop[:color])
+        range = upper_val - lower_val
+
+        if rgba == [0, 0, 0, 0] || next_rgba.nil? || next_rgba == [0, 0, 0, 0] || range <= 0
+          # Transparent endpoint or degenerate range: single exact interval.
+          colormap << [[lower_val, upper_val], rgba]
+        else
+          n_steps = MAX_GRADIENT_STEPS
+          step = range / n_steps.to_f
+          n_steps.times do |j|
+            t = j.to_f / n_steps
+            sub_lower = lower_val + j * step
+            sub_upper = lower_val + (j + 1) * step
+            interp_rgba = rgba.zip(next_rgba).map { |c1, c2|
+              (c1 + (c2 - c1) * t).round.clamp(0, 255)
+            }
+            colormap << [[sub_lower, sub_upper], interp_rgba]
+          end
+        end
+      else
+        colormap << [[lower_val, lower_val + 1], rgba]
+      end
+    end
+
+    colormap.presence
+  end
+
+  # Gradient colormap (legacy, kept for reference).
   # Normalises stop values to 0-255 key space; TiTiler interpolates between
   # defined keys after rescaling raw pixel values with the rescale parameter.
+  # NOT used for CSS translation — interior transparent stops cannot be
+  # represented precisely in the 0-255 key space.
   def self.build_gradient_colormap(stops)
     values = stops.map { |stop| stop[:value] }
     min = values.min
@@ -236,8 +297,8 @@ module CartodbRakeHelpers
     result["mode"] = mode if mode.present?
 
     if stops.any?
-      min = stops.map { |stop| stop[:value] }.min
-      max = stops.map { |stop| stop[:value] }.max
+      stops.map { |stop| stop[:value] }.min
+      stops.map { |stop| stop[:value] }.max
 
       # For linear (gradient) mode: if the lowest or highest stop is transparent
       # it is a nodata sentinel, not a real gradient endpoint.  Keeping it inflates
@@ -270,12 +331,8 @@ module CartodbRakeHelpers
       end
 
       result["colormap"] = build_titiler_colormap(stops, mode: effective_mode, default_rgba: default_rgba)
-      # Gradient colormaps (linear mode) require rescale to normalise pixel
-      # values into the 0-255 key space.  Interval colormaps (discrete/exact)
-      # use raw pixel values directly, so rescale must NOT be set.
-      unless %w[discrete exact].include?(effective_mode)
-        result["rescale"] = "#{min},#{max}" if min && max
-      end
+      # All colormap modes now produce interval arrays using raw pixel values;
+      # no rescale parameter is needed.
     end
 
     result.compact
@@ -431,6 +488,30 @@ module CartodbRakeHelpers
       result = result.gsub(/(\w)(#{kw})\b/i) { "#{$1} #{$2}" }
     end
     result
+  end
+
+  # Fix "SELECT  FROM schema.table" patterns where strip_cartodb_columns has
+  # removed the sole column (the_geom) from a subquery SELECT, leaving only
+  # whitespace between SELECT and FROM.  Replaces the missing column with the
+  # table's actual geometry column as reported by geometry_columns.
+  def self.fix_empty_subquery_selects(sql, schema, ar_conn)
+    return sql if sql.blank?
+
+    sql.gsub(/\bSELECT(\s+)(FROM\s+(?:"?#{Regexp.escape(schema)}"?\.)?"?(\w+)"?\b)/i) do
+      space = $1
+      from_part = $2
+      tbl = $3.downcase
+      geom = begin
+        ar_conn.execute(
+          "SELECT f_geometry_column FROM geometry_columns " \
+          "WHERE f_table_schema = #{ar_conn.quote(schema)} " \
+          "AND f_table_name = #{ar_conn.quote(tbl)} LIMIT 1"
+        ).first&.dig("f_geometry_column")
+      rescue
+        nil
+      end
+      geom ? "SELECT #{geom} #{from_part}" : "SELECT#{space}#{from_part}"
+    end
   end
 
   # Schema-qualify unqualified table names in FROM/JOIN clauses using a per-table
@@ -600,25 +681,57 @@ module CartodbRakeHelpers
     return view_sql if parts.size <= 1
 
     result_parts = parts.map do |part|
+      # Strip any geometry references for tables not in this branch's FROM clause.
+      # CartoDB sometimes referenced geometry from a table that only appears in a
+      # different UNION branch (e.g. `sagcot_1.geom` in `SELECT … FROM vs_countries`).
+      # After schema-qualification those become invalid 3-part identifiers; remove
+      # them here so the correct geometry can be injected below.
+      branch_tables = CartodbRakeHelpers.extract_table_names_from_sql(part)
+      working_part = part.dup
+      orphan_stripped = false
+      geom_map.each do |tbl, gcol|
+        next if branch_tables.include?(tbl)
+        esc_tbl = Regexp.escape(tbl)
+        esc_col = Regexp.escape(gcol)
+        esc_sch = Regexp.escape(schema)
+        [
+          /\b#{esc_sch}\.#{esc_tbl}\.#{esc_col}\b[ \t]*,[ \t]*/i,
+          /[ \t]*,[ \t]*\b#{esc_sch}\.#{esc_tbl}\.#{esc_col}\b/i,
+          /\b#{esc_sch}\.#{esc_tbl}\.#{esc_col}\b/i,
+          /\b#{esc_tbl}\.#{esc_col}\b[ \t]*,[ \t]*/i,
+          /[ \t]*,[ \t]*\b#{esc_tbl}\.#{esc_col}\b/i,
+          /\b#{esc_tbl}\.#{esc_col}\b/i
+        ].each do |re|
+          next unless working_part.match?(re)
+          working_part = working_part.gsub(re, "")
+          orphan_stripped = true
+        end
+      end
+      if orphan_stripped
+        working_part.gsub!(/\bSELECT\s*,/i, "SELECT")
+        working_part.gsub!(/,\s*\bFROM\b/i, " FROM")
+        working_part.gsub!(/[ \t]*,[ \t]*,[ \t]*/m, ", ")
+      end
+
       # Does this branch already SELECT a known geometry column?
       already_has_geom = geom_col_names.any? do |col|
-        part.match?(/\bSELECT\b.*\b#{Regexp.escape(col)}\b/im)
+        working_part.match?(/\bSELECT\b.*\b#{Regexp.escape(col)}\b/im)
       end
-      next part if already_has_geom
+      next working_part if already_has_geom
 
       # Find the geometry reference for this branch's primary FROM table.
       geom_ref = nil
       table_names.each do |tbl|
         next unless geom_map[tbl]
-        next unless part.match?(/\b(?:FROM|JOIN)\s+(?:#{Regexp.escape(schema)}\.)?#{Regexp.escape(tbl)}\b/i)
-        m = part.match(/\b(?:FROM|JOIN)\s+(?:#{Regexp.escape(schema)}\.)?#{Regexp.escape(tbl)}\s+(?:AS\s+)?([a-zA-Z_]\w*)\b/i)
+        next unless working_part.match?(/\b(?:FROM|JOIN)\s+(?:#{Regexp.escape(schema)}\.)?#{Regexp.escape(tbl)}\b/i)
+        m = working_part.match(/\b(?:FROM|JOIN)\s+(?:#{Regexp.escape(schema)}\.)?#{Regexp.escape(tbl)}\s+(?:AS\s+)?([a-zA-Z_]\w*)\b/i)
         geom_ref = (m && !m[1].match?(SQL_KEYWORD_RE)) \
           ? "#{m[1]}.#{geom_map[tbl]}" \
           : geom_map[tbl]
         break
       end
       geom_ref ||= "NULL::geometry"
-      inject_geometry_into_select(part, geom_ref)
+      inject_geometry_into_select(working_part, geom_ref)
     end
 
     result = result_parts.first.to_s
@@ -2541,6 +2654,13 @@ namespace :cartodb do
           raw_sql, p2_schema_map
         )
 
+        # Fix any "SELECT  FROM table" patterns left by strip_cartodb_columns
+        # having removed the_geom as the sole column of a subquery SELECT (e.g.
+        # `st_intersects((select the_geom from t where ...))` → `select  from t`).
+        view_sql = CartodbRakeHelpers.fix_empty_subquery_selects(
+          view_sql, target_schema, ar_conn
+        )
+
         # CartoDB always used `the_geom`, but GPKG-imported PostGIS tables may
         # use a different column name (e.g. `geom`, `wkb_geometry`, `wkt_geom`).
         # Rename any `alias.the_geom` references to the actual column name first.
@@ -2559,14 +2679,19 @@ namespace :cartodb do
           # Strip any stale the_geom refs that fix_the_geom_references could not
           # rename (e.g. refs on a non-geometry joined table like dhs_indicators).
           view_sql = CartodbRakeHelpers.strip_the_geom_refs(view_sql)
-          geom_ref = CartodbRakeHelpers.find_geometry_column_ref(
-            raw_sql, target_schema, imported_list, ar_conn
-          )
-          if geom_ref
-            view_sql = CartodbRakeHelpers.inject_geometry_into_select(view_sql, geom_ref)
-          else
-            puts "Layer ##{layer.id} (#{layer.slug}): ⚠ no geometry table found — view upgrade skipped"
-            upgrade_to_view = false
+          # For UNION queries, geometry injection is deferred to balance_union_geometry
+          # which handles each branch independently.  Injecting here would bind the
+          # geometry of one branch's table into all branches via the outermost SELECT.
+          unless view_sql.match?(/\bUNION\b/i)
+            geom_ref = CartodbRakeHelpers.find_geometry_column_ref(
+              raw_sql, target_schema, imported_list, ar_conn
+            )
+            if geom_ref
+              view_sql = CartodbRakeHelpers.inject_geometry_into_select(view_sql, geom_ref)
+            else
+              puts "Layer ##{layer.id} (#{layer.slug}): ⚠ no geometry table found — view upgrade skipped"
+              upgrade_to_view = false
+            end
           end
         end
       end
@@ -2605,8 +2730,8 @@ namespace :cartodb do
             # Show the actual columns available in each source table so the
             # underlying source_sql can be corrected in the database.
             if (m = e.message.match(/column ([\w."]+) does not exist/i))
-              missing_ref = m[1].gsub('"', "")
-              tbl_alias   = missing_ref.include?(".") ? missing_ref.split(".").first : nil
+              missing_ref = m[1].delete('"')
+              tbl_alias = missing_ref.include?(".") ? missing_ref.split(".").first : nil
               imported_list.each do |tbl|
                 next if tbl_alias && !view_sql.match?(
                   /\b(?:FROM|JOIN)\s+(?:"?#{Regexp.escape(target_schema)}"?\.)?"?#{Regexp.escape(tbl)}"?\s+(?:AS\s+)?"?#{Regexp.escape(tbl_alias)}"?\b/i
@@ -2701,8 +2826,6 @@ namespace :cartodb do
               # Object-format buckets: fix if any bucket is missing its color
               current_legend["bucket"].any? { |b| b["color"].blank? }
             else
-              # Simple string-array format already has colors — leave it alone.
-              # Everything else needs a usable choropleth legend.
               !(current_legend["type"] == "choropleth" &&
                 current_legend["bucket"].is_a?(Array) &&
                 current_legend["bucket"].first.is_a?(String))

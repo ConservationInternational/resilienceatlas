@@ -2,7 +2,7 @@
   "id": "doc::structure::site_scope",
   "title": "SiteScope — Atlas Instance Configuration",
   "description": "A SiteScope represents a distinct Resilience Atlas instance (e.g. a country, theme, or program). Each site scope has its own subdomain, layers, layer groups, and settings.",
-  "list_endpoint": "GET /api/admin/layers?collection=site_scopes (use the site_scopes collection on layers endpoint)",
+  "list_endpoint": "Agent tool: get_site_scopes (preferred). Raw admin API fallback: GET /api/admin/layers?collection=site_scopes.",
   "key_fields": {
     "id": "Integer primary key. Always use this to link layers and scope_datasets.",
     "name": "Display name (translated). E.g. 'Resilience Atlas', 'LDN Uganda'.",
@@ -25,7 +25,7 @@
     "site_scope_id is passed as a top-level param: POST /api/admin/layers with {\"site_scope_id\": <id>, \"layer\": {...}}.",
     "Scope datasets are linked to a site_scope via site_scope_id.",
     "Layer groups belong to a single site_scope.",
-    "To find the correct site_scope_id, use GET /api/admin/layers?collection=site_scopes or check the admin UI."
+    "To find the correct site_scope_id, use get_site_scopes. Do not ask the user for a numeric ID unless there is no resolvable name."
   ],
-  "how_to_find_site_scope_id": "Use the layers endpoint site_scopes collection: GET /api/admin/layers?collection=site_scopes. Returns [{id, name, subdomain}]. The main default site is id=1."
+  "how_to_find_site_scope_id": "Use get_site_scopes. It returns [{id, name, subdomain}]. The main default site is typically id=1 in existing environments, but the agent should still resolve by name rather than hard-coding IDs."
 }

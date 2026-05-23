@@ -25,14 +25,15 @@
   },
   "layer_analysis_fields": {
     "analysis_suitable": "Boolean on Layer. Must be true for analysis endpoint inclusion.",
-    "analysis_type": "Enum: 'histogram', 'categorical', 'text'. Determines how results are displayed.",
+    "analysis_type": "Layer enum includes 'histogram', 'categorical', 'text', but current validation is stricter: COG layers may use 'histogram' or 'categorical'; non-COG layers may only use 'histogram' when analysis_suitable=true.",
     "analysis_query": "Template query string for the analysis computation.",
     "analysis_body": "JSON object with additional analysis parameters.",
     "analysis_text_template": "Handlebars-style template for text analysis results."
   },
   "notes": [
     "The agent should NOT create or modify Models/Indicators — these are seeded by data engineers.",
-    "When creating an analysis-capable layer, set analysis_suitable: true and analysis_type appropriately.",
-    "The analysis panel reads layers with analysis_suitable=true from the active site scope."
+    "When creating an analysis-capable layer, set analysis_suitable: true and choose analysis_type according to the provider-specific validation rules.",
+    "The analysis panel reads layers with analysis_suitable=true from the active site scope.",
+    "Do not assume that historical 'text' analysis examples are currently accepted by model validation."
   ]
 }

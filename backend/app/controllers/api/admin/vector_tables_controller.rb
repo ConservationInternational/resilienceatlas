@@ -99,6 +99,7 @@ class Api::Admin::VectorTablesController < Api::Admin::ApiController
     return render json: {success: false, message: "column is required"}, status: :bad_request unless column
 
     validate_table_name!(table_name)
+    validate_column_name!(column)
 
     conn = ActiveRecord::Base.connection
 
@@ -133,8 +134,8 @@ class Api::Admin::VectorTablesController < Api::Admin::ApiController
       }, status: :unprocessable_entity
     end
 
-    qualified = "#{conn.quote_table_name(found_schema)}.#{conn.quote_table_name(table_name)}"
-    quoted_col = conn.quote_column_name(column)
+    qualified = qualified_table_name(conn, found_schema, table_name)
+    quoted_col = quoted_column_name(conn, column)
 
     stats = conn.select_one(<<~SQL)
       SELECT
@@ -247,6 +248,20 @@ class Api::Admin::VectorTablesController < Api::Admin::ApiController
     unless name.match?(/\A[a-z][a-z0-9_]{0,62}\z/)
       raise ArgumentError, "table_name must start with a lowercase letter and contain only lowercase letters, digits, and underscores (max 63 chars)"
     end
+  end
+
+  def validate_column_name!(name)
+    unless name.match?(/\A[a-z_][a-z0-9_]{0,62}\z/)
+      raise ArgumentError, "column must start with a lowercase letter or underscore and contain only lowercase letters, digits, and underscores (max 63 chars)"
+    end
+  end
+
+  def qualified_table_name(conn, schema_name, table_name)
+    "#{conn.quote_table_name(schema_name)}.#{conn.quote_table_name(table_name)}"
+  end
+
+  def quoted_column_name(conn, column_name)
+    conn.quote_column_name(column_name)
   end
 
   def derive_table_name(s3_uri)
