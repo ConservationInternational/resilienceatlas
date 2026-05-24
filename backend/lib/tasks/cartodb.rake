@@ -276,11 +276,27 @@ module CartodbRakeHelpers
 
       lower_val = stop[:value]
 
+      # Handle per-stop "exact" flag: create a single-value interval
+      # Example: stop(0, transparent, exact) should match ONLY value 0
+      if stop[:exact]
+        # Create a very narrow interval [value, value+epsilon) to match only this value.
+        # Using 0.001 as epsilon to ensure it doesn't overlap with adjacent stops.
+        colormap << [[lower_val, lower_val + 0.001], rgba]
+        next
+      end
+
       if i + 1 < sorted.length
         next_stop = sorted[i + 1]
         upper_val = next_stop[:value]
         next_rgba = parse_hex_color(next_stop[:color])
         range = upper_val - lower_val
+
+        # If the NEXT stop is exact, don't interpolate into it - just create
+        # a single interval up to (but not including) the exact stop.
+        if next_stop[:exact]
+          colormap << [[lower_val, upper_val], rgba]
+          next
+        end
 
         if rgba == [0, 0, 0, 0] || next_rgba.nil? || next_rgba == [0, 0, 0, 0] || range <= 0
           # Transparent endpoint or degenerate range: single exact interval.
@@ -367,8 +383,12 @@ module CartodbRakeHelpers
       next unless rgba
 
       lower = stop[:value]
-      upper = if exact
-        lower + 1
+      
+      # Per-stop exact flag takes precedence over global exact mode
+      is_exact = stop[:exact] || exact
+      
+      upper = if is_exact
+        lower + 0.001  # Very small epsilon for exact matches
       elsif i + 1 < sorted.length
         sorted[i + 1][:value]
       else
