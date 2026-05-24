@@ -137,16 +137,25 @@ class Api::Admin::VectorTablesController < Api::Admin::ApiController
     qualified = qualified_table_name(conn, found_schema, table_name)
     quoted_col = quoted_column_name(conn, column)
 
-    stats = conn.select_one(<<~SQL)
-      SELECT
-        MIN(#{quoted_col}::float)    AS min,
-        MAX(#{quoted_col}::float)    AS max,
-        AVG(#{quoted_col}::float)    AS mean,
-        STDDEV(#{quoted_col}::float) AS std,
-        COUNT(*)                     AS total_count,
-        COUNT(*) FILTER (WHERE #{quoted_col} IS NULL) AS null_count
-      FROM #{qualified}
-    SQL
+    stats = conn.select_one(ActiveRecord::Base.sanitize_sql_array([
+      <<~SQL,
+        SELECT
+          MIN(%s::float)    AS min,
+          MAX(%s::float)    AS max,
+          AVG(%s::float)    AS mean,
+          STDDEV(%s::float) AS std,
+          COUNT(*)                     AS total_count,
+          COUNT(*) FILTER (WHERE %s IS NULL) AS null_count
+        FROM %s.%s
+      SQL
+      Arel.sql(quoted_col),
+      Arel.sql(quoted_col),
+      Arel.sql(quoted_col),
+      Arel.sql(quoted_col),
+      Arel.sql(quoted_col),
+      Arel.sql(conn.quote_table_name(found_schema)),
+      Arel.sql(conn.quote_table_name(table_name))
+    ]))
 
     lo = stats["min"]&.to_f
     hi = stats["max"]&.to_f
@@ -157,15 +166,24 @@ class Api::Admin::VectorTablesController < Api::Admin::ApiController
       [{min: lo, max: hi, count: stats["total_count"].to_i - stats["null_count"].to_i}]
     else
       bucket_width = (hi - lo) / bins
-      conn.select_all(<<~SQL).map do |row|
-        SELECT
-          width_bucket(#{quoted_col}::float, #{lo}, #{hi + 1e-10}, #{bins}) AS bucket,
-          COUNT(*) AS cnt
-        FROM #{qualified}
-        WHERE #{quoted_col} IS NOT NULL
-        GROUP BY bucket
-        ORDER BY bucket
-      SQL
+      conn.select_all(ActiveRecord::Base.sanitize_sql_array([
+        <<~SQL,
+          SELECT
+            width_bucket(%s::float, ?, ? , ?) AS bucket,
+            COUNT(*) AS cnt
+          FROM %s.%s
+          WHERE %s IS NOT NULL
+          GROUP BY bucket
+          ORDER BY bucket
+        SQL
+        Arel.sql(quoted_col),
+        lo,
+        hi + 1e-10,
+        bins,
+        Arel.sql(conn.quote_table_name(found_schema)),
+        Arel.sql(conn.quote_table_name(table_name)),
+        Arel.sql(quoted_col)
+      ])).map do |row|
         b = row["bucket"].to_i
         {min: (lo + (b - 1) * bucket_width).round(6), max: (lo + b * bucket_width).round(6), count: row["cnt"].to_i}
       end

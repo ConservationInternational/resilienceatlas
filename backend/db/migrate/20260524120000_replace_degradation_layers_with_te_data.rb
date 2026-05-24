@@ -34,6 +34,9 @@ class ReplaceDegradationLayersWithTeData < ActiveRecord::Migration[7.2]
   TE_SOC_GROUP_SLUG = "soil-organic-carbon"
 
   def up
+    # Ensure the unique index exists (required for ON CONFLICT in upsert_translation)
+    ensure_layer_group_translations_unique_index
+
     now = Time.now.utc.strftime("%Y-%m-%d %H:%M:%S")
 
     # ── 1. Find the "Degradation" category in the main scope ─────────────────
@@ -207,6 +210,27 @@ class ReplaceDegradationLayersWithTeData < ActiveRecord::Migration[7.2]
       "SELECT id FROM site_scopes WHERE subdomain = 'trendsearth' LIMIT 1"
     ).first
     result ? result["id"].to_i : nil
+  end
+
+  # Ensures the unique index on (layer_group_id, locale) exists, required for ON CONFLICT
+  def ensure_layer_group_translations_unique_index
+    index_name = "index_layer_group_translations_on_layer_group_id_and_locale"
+    
+    # Check if index already exists
+    index_exists = execute(<<-SQL.squish).first
+      SELECT 1
+      FROM pg_indexes
+      WHERE tablename = 'layer_group_translations'
+        AND indexname = '#{index_name}'
+    SQL
+
+    unless index_exists
+      Rails.logger.info "#{self.class.name}: Creating missing unique index on layer_group_translations..."
+      execute(<<-SQL.squish)
+        CREATE UNIQUE INDEX IF NOT EXISTS #{index_name}
+        ON layer_group_translations (layer_group_id, locale)
+      SQL
+    end
   end
 
   # Removes all direct children (subcategories) and grandchildren (subgroups)
