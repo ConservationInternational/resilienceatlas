@@ -1,4 +1,5 @@
 = semantic_form_for [:admin, resource], builder: ActiveAdmin::FormBuilder do |f|
+  - site_scope_options = SiteScope.with_translations.map { |scope| [scope.name, scope.id] }.uniq(&:first)
   = f.semantic_errors :homepage_sections, :base
   = f.inputs "Translated fields" do
     = f.translated_inputs switch_locale: false do |ff|
@@ -8,7 +9,7 @@
       = ff.input :subtitle
       = ff.input :credits
   = f.inputs "Common fields" do
-    = f.input :site_scope
+    = f.input :site_scope, as: :select, collection: site_scope_options
     = f.input :credits_url
     == render "admin/shared/image_with_thumbnail", blob: :background_image, f: f, required: true
 

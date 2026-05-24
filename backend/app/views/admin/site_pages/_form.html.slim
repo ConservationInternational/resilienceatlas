@@ -1,4 +1,5 @@
 = semantic_form_for [:admin, resource], builder: ActiveAdmin::FormBuilder do |f|
+  - site_scope_options = SiteScope.with_translations.map { |scope| [scope.name, scope.id] }.uniq(&:first)
   = f.semantic_errors
   = f.inputs "Translated fields" do
     = f.translated_inputs switch_locale: false do |ff|
@@ -9,7 +10,7 @@
         = ff.rich_text_area :body
 
   = f.inputs "Page details" do
-    = f.input :site_scope
+    = f.input :site_scope, as: :select, collection: site_scope_options
     = f.input :priority
     = f.input :slug
   = f.actions do

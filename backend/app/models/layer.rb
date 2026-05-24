@@ -57,7 +57,8 @@
 #
 
 require "zip"
-require "open-uri"
+require "net/http"
+require "tempfile"
 
 class Layer < ApplicationRecord
   WHITELIST_ATTRIBUTES = %i[
@@ -265,15 +266,15 @@ class Layer < ApplicationRecord
     end
 
     layer_url = download_path.to_s if download_path
-    layer_url += "&q=#{download_query}" if download_query
-    layer_url += "&format=#{file_format}" if download_format
+    layer_url += "&q=#{CGI.escape(download_query)}" if download_query
+    layer_url += "&format=#{CGI.escape(file_format)}" if download_format
 
     zipfile = zipfile_name(subdomain)
 
     return false if !download?
     return zipfile if File.exist?(zipfile) && date_valid?(subdomain)
 
-    layer_file = URI.parse(layer_url.to_s).open if layer_url
+    layer_file = fetch_remote_file(layer_url) if layer_url
 
     ::Zip::OutputStream.open(zipfile) do |zip|
       if layer_file
@@ -330,5 +331,41 @@ class Layer < ApplicationRecord
 
   def pdf_file_name
     "#{name.parameterize}.pdf"
+  end
+
+  # Fetches a remote file while validating every hop against ALLOWED_DOWNLOAD_HOSTS,
+  # preventing SSRF via open redirects (replaces open-uri which follows redirects blindly).
+  def fetch_remote_file(url, max_redirects: 5)
+    current_url = url
+    hops = 0
+
+    loop do
+      uri = URI.parse(current_url)
+      raise ArgumentError, "Only HTTP(S) URLs are allowed" unless uri.is_a?(URI::HTTP) || uri.is_a?(URI::HTTPS)
+      unless ALLOWED_DOWNLOAD_HOSTS.any? { |h| uri.host&.end_with?(h) }
+        raise ArgumentError, "Blocked request to disallowed host: #{uri.host}"
+      end
+
+      http = Net::HTTP.new(uri.host, uri.port)
+      http.use_ssl = uri.is_a?(URI::HTTPS)
+      http.open_timeout = 15
+      http.read_timeout = 60
+
+      response = http.get(uri.request_uri)
+
+      if response.is_a?(Net::HTTPRedirection)
+        raise ArgumentError, "Too many redirects fetching remote file" if (hops += 1) > max_redirects
+        current_url = response["Location"]
+      elsif response.is_a?(Net::HTTPSuccess)
+        tmp = Tempfile.new(["layer_download", ".bin"])
+        tmp.binmode
+        tmp.write(response.body)
+        tmp.flush
+        tmp.rewind
+        return tmp
+      else
+        raise "Remote file server returned HTTP #{response.code}"
+      end
+    end
   end
 end

@@ -138,14 +138,15 @@ module PageHelpers
   end
 
   # Fill a Trix rich-text editor by polling until the editor object is initialised.
-  # Uses the hidden-input ID convention Rails derives from the field name.
+  # Looks up the rendered hidden input first because ActionText appends a
+  # model-specific suffix to the actual DOM ID used by the editor.
   def fill_trix(input_name, content)
-    input_id = input_name.tr("[", "_").delete("]").chomp("_")
     deadline = Time.now + 10
     loop do
       ready = page.evaluate_script(
         "(function() { " \
-        "var el = document.querySelector('trix-editor[input=\"#{input_id}\"]'); " \
+        "var input = document.querySelector('input[type=\"hidden\"][name=\"#{input_name}\"]'); " \
+        "var el = input && document.querySelector('trix-editor[input=\"' + input.id + '\"]'); " \
         "return !!(el && el.editor); " \
         "})()"
       )
@@ -155,7 +156,11 @@ module PageHelpers
       sleep 0.2
     end
     page.execute_script(
-      "document.querySelector('trix-editor[input=\"#{input_id}\"]').editor.loadHTML(#{content.to_json})"
+      "(function() { " \
+      "var input = document.querySelector('input[type=\"hidden\"][name=\"#{input_name}\"]'); " \
+      "var editor = input && document.querySelector('trix-editor[input=\"' + input.id + '\"]'); " \
+      "editor.editor.loadHTML(#{content.to_json}); " \
+      "})()"
     )
   end
 

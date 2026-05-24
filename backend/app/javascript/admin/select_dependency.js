@@ -1,4 +1,5 @@
 import $ from "jquery";
+import { addRequiredFlagToInput, removeRequiredFlagFromInput } from "admin/input_functions";
 
 // Set up fields for already existing sections at has many Admin container
 function initSelectDependencyFields() {
@@ -10,10 +11,12 @@ function initSelectDependencyFields() {
 }
 
 // Set up fields for newly added section at has many Admin container
-function updateLastHasManyDynamicFields() {
-    let $lastContainer = $("a.button.has_many_remove").last().closest("fieldset.has_many_fields").find(".select-dependency-container");
-    toggleSelectDependencyFields($lastContainer);
-    attachSelectDependencyListener($lastContainer);
+function updateLastHasManyDynamicFields(event, fieldset) {
+    let $container = $(fieldset).find(".select-dependency-container").first();
+    if (!$container.length) return;
+
+    toggleSelectDependencyFields($container);
+    attachSelectDependencyListener($container);
 }
 
 // Attach listener to selected field which change will trigger setting up visible/hidden fields

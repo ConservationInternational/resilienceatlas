@@ -1,4 +1,4 @@
-# Replaces the existing subcategories of the main site scope's "Stressors and Shocks" >
+# Replaces the existing subcategories of the main site scope's "Stressors and Shocks"
 # "Degradation" category with two new subcategories:
 #
 # 1. "SDG Indicator 15.3.1" – contains the layers from the Trends.Earth site scope's
@@ -104,7 +104,7 @@ class ReplaceDegradationLayersWithTeData < ActiveRecord::Migration[7.2]
 
     add_layers_from_te_group(TE_SDG_GROUP_SLUG, te_scope_id, sdg_id)
     add_layers_from_te_group(TE_LPD_GROUP_SLUG, te_scope_id, prod_id)
-    add_layers_from_te_group(TE_LC_GROUP_SLUG,  te_scope_id, lc_id)
+    add_layers_from_te_group(TE_LC_GROUP_SLUG, te_scope_id, lc_id)
     add_layers_from_te_group(TE_SOC_GROUP_SLUG, te_scope_id, soc_id)
   end
 

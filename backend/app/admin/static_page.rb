@@ -64,7 +64,8 @@ ActiveAdmin.register StaticPage::Base do
                 row :image_credits
                 row :image_credits_url
                 row :text do |record|
-                  ActionText::Content.new(record.text)
+                  translation = record.translations.find { |item| item.locale.to_s == I18n.locale.to_s } || record.translations.first
+                  ActionText::Content.new(translation&.text.to_s).to_plain_text if translation&.text.present?
                 end
               end
             elsif section.section_type == "items"
@@ -76,7 +77,8 @@ ActiveAdmin.register StaticPage::Base do
                     end
                     row :title
                     row :description do |record|
-                      ActionText::Content.new(record.description)
+                      translation = record.translations.find { |entry| entry.locale.to_s == I18n.locale.to_s } || record.translations.first
+                      ActionText::Content.new(translation&.description.to_s).to_plain_text if translation&.description.present?
                     end
                   end
                 end
@@ -87,7 +89,8 @@ ActiveAdmin.register StaticPage::Base do
                   attributes_table_for reference do
                     row :slug
                     row :text do |record|
-                      ActionText::Content.new(record.text)
+                      translation = record.translations.find { |item| item.locale.to_s == I18n.locale.to_s } || record.translations.first
+                      ActionText::Content.new(translation&.text.to_s).to_plain_text if translation&.text.present?
                     end
                   end
                 end

@@ -94,11 +94,16 @@ class VectorImportJob
   end
 
   def ogr2ogr_import!(local_path, table_name)
-    db_url = build_pg_url
+    cfg = ActiveRecord::Base.connection_db_config.configuration_hash
+    # Pass the DB password via PGPASSWORD env var so it does not appear in
+    # /proc/<pid>/cmdline or process listings (CWE-312).
+    pg_env = {"PGPASSWORD" => cfg[:password].to_s}
+    conn_str = "PG:host=#{cfg[:host] || "localhost"} port=#{cfg[:port] || 5432} " \
+               "dbname=#{cfg[:database]} user=#{cfg[:username]}"
     cmd = [
       "ogr2ogr",
       "-f", "PostgreSQL",
-      "PG:#{db_url}",
+      conn_str,
       local_path,
       "-nln", "#{TARGET_SCHEMA}.#{table_name}",
       "-nlt", "PROMOTE_TO_MULTI",
@@ -107,7 +112,7 @@ class VectorImportJob
       "--config", "OGR_TRUNCATE", "YES"
     ]
 
-    stdout, stderr, status = Open3.capture3(*cmd)
+    stdout, stderr, status = Open3.capture3(pg_env, *cmd)
     unless status.success?
       raise "ogr2ogr failed (exit #{status.exitstatus}):\n#{stderr}"
     end
@@ -126,21 +131,13 @@ class VectorImportJob
       idx_name = "idx_#{table_name}_#{col}"[0, 63]
       conn.execute(
         "CREATE INDEX IF NOT EXISTS #{conn.quote_table_name(idx_name)} " \
-        "ON \"#{TARGET_SCHEMA}\".\"#{table_name}\" " \
-        "USING GIST (\"#{col}\")"
+        "ON #{conn.quote_table_name(TARGET_SCHEMA)}.#{conn.quote_table_name(table_name)} " \
+        "USING GIST (#{conn.quote_column_name(col)})"
       )
     end
   end
 
-  def build_pg_url
-    cfg = ActiveRecord::Base.connection_db_config.configuration_hash
-    host = cfg[:host] || "localhost"
-    port = cfg[:port] || 5432
-    dbname = cfg[:database]
-    user = cfg[:username]
-    password = cfg[:password]
-    "host=#{host} port=#{port} dbname=#{dbname} user=#{user} password=#{password}"
-  end
+  # build_pg_url removed: password is now passed via PGPASSWORD env var in ogr2ogr_import!
 
   def resolved_table_name(import_target, s3_key, file_name)
     return "imported_#{import_target.slug.gsub(/[^a-z0-9_]/, "_")}" if import_target.is_a?(Layer)

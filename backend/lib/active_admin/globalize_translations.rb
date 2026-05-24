@@ -54,15 +54,18 @@ module ActiveAdmin
           # Inline JavaScript for tab switching (guaranteed to work without external JS)
           inline_js = template.content_tag(:script) do
             <<-JS.html_safe
-              function switchTranslationTab(container, targetLocale) {
+              function switchTranslationTab(container, targetLocale, clickEvent) {
                 // Update active tab
                 var tabs = container.querySelectorAll('ul.locale-selector a');
                 tabs.forEach(function(t) {
                   t.classList.remove('active');
                   t.parentElement.classList.remove('active');
                 });
-                event.target.classList.add('active');
-                event.target.parentElement.classList.add('active');
+                var activeTab = clickEvent && clickEvent.target;
+                if (!activeTab) return;
+
+                activeTab.classList.add('active');
+                activeTab.parentElement.classList.add('active');
                 
                 // Show/hide fieldsets
                 var fieldsets = container.querySelectorAll('fieldset.locale');
@@ -90,7 +93,7 @@ module ActiveAdmin
                   template.content_tag(:a, locale_label(locale),
                     href: "#",
                     class: a_class,
-                    onclick: "switchTranslationTab(this.closest('.activeadmin-translations'), '#{locale}'); return false;")
+                    onclick: "switchTranslationTab(this.closest('.activeadmin-translations'), '#{locale}', event); return false;")
                 end
               end
             end.join.html_safe

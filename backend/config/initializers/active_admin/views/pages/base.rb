@@ -21,8 +21,9 @@ module ActiveAdmin
               text_node(meta(name: name, content: content))
             end
 
-            # Ensure importmap is loaded for Rails UJS support
             text_node javascript_importmap_tags
+            text_node javascript_importmap_module_preload_tags(Rails.application.importmap, entry_point: "active_admin")
+            text_node javascript_import_module_tag("active_admin")
 
             active_admin_application.javascripts.each do |path|
               # -------- MONKEY PATCH -----------
@@ -42,10 +43,7 @@ module ActiveAdmin
         end
 
         def insert_importmap_for(path)
-          # For active_admin.js, add a module import since importmap is already loaded
-          if path == "active_admin.js"
-            return '<script type="module">import "active_admin"</script>'.html_safe
-          end
+          return if path == "active_admin.js"
 
           javascript_include_tag path if path.is_a?(String) && path&.match?(URI::DEFAULT_PARSER.make_regexp)
         end

@@ -1021,7 +1021,13 @@ module CartodbRakeHelpers
 
     # Stroke / line properties
     path_opts["color"] = base_props["line-color"] if base_props["line-color"].present?
-    path_opts["weight"] = base_props["line-width"].to_f if base_props["line-width"].present?
+    # Stroke weight: use explicit value, or CartoDB default (1 px) when a
+    # stroke colour is declared but no width is specified.
+    if base_props["line-width"].present?
+      path_opts["weight"] = base_props["line-width"].to_f
+    elsif base_props["line-color"].present?
+      path_opts["weight"] = 1.0
+    end
     path_opts["opacity"] = base_props["line-opacity"].to_f if base_props["line-opacity"].present?
 
     # Fill opacity from base rule
@@ -1117,8 +1123,17 @@ module CartodbRakeHelpers
     # When a layer has ONLY conditional rules and no base rule, CartoDB renders
     # non-matching features as completely transparent.  Set an explicit invisible
     # base so OL doesn't apply its own default (blue fill) to those features.
+    # Do NOT override weight if any conditional rules specify line-color — those
+    # rules will provide their own stroke styling (weight defaults to 1.0).
     if path_opts["conditions"]&.any? && (path_opts.keys - ["conditions"]).empty?
-      path_opts = {"fill" => false, "fillOpacity" => 0, "weight" => 0}.merge(path_opts)
+      # Check if any conditional rules have line-color (they would provide stroke)
+      has_conditional_stroke = path_opts["conditions"].any? do |cond|
+        cond.key?("color") || cond.key?("weight")
+      end
+      
+      invisible_base = {"fill" => false, "fillOpacity" => 0}
+      invisible_base["weight"] = 0 unless has_conditional_stroke
+      path_opts = invisible_base.merge(path_opts)
     end
 
     path_opts

@@ -27,6 +27,15 @@ class Api::Admin::VectorViewsController < Api::Admin::ApiController
   DANGEROUS_KEYWORDS_RE = /\b(INSERT|UPDATE|DELETE|DROP|CREATE|ALTER|TRUNCATE|
     EXECUTE|COPY|GRANT|REVOKE|CALL|DO|SET|PERFORM|REFRESH)\b/xi
 
+  # PostgreSQL built-ins that can read server-side files, open external DB
+  # connections, or perform I/O even inside a SELECT statement.
+  DANGEROUS_FUNCTIONS_RE = /\b(pg_read_file|pg_read_binary_file|pg_ls_dir|
+    pg_ls_waldir|pg_stat_file|pg_sleep|dblink|dblink_exec|dblink_open|
+    dblink_fetch|dblink_close|dblink_cancel_query|dblink_get_connections|
+    dblink_get_result|dblink_send_query|dblink_get_notify|
+    lo_import|lo_export|copy_from|copy_to|
+    pg_logical_emit_message)\b/xi
+
   # GET /api/admin/vector_views
   # Lists all views in the ra_vector schema (name, geometry column, row count).
   def index
@@ -149,6 +158,10 @@ class Api::Admin::VectorViewsController < Api::Admin::ApiController
 
     if DANGEROUS_KEYWORDS_RE.match?(stripped)
       raise ArgumentError, "SQL contains disallowed keywords. Only SELECT statements are permitted."
+    end
+
+    if DANGEROUS_FUNCTIONS_RE.match?(stripped)
+      raise ArgumentError, "SQL contains disallowed server-side functions."
     end
 
     # Check that all FROM/JOIN schema references are in managed schemas
