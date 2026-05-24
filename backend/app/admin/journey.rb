@@ -87,7 +87,8 @@ ActiveAdmin.register Journey do
           controller.visible(journey_step, :content) do
             row :content do |record|
               translation = record.translations.find { |item| item.locale.to_s == I18n.locale.to_s } || record.translations.first
-              ActionText::Content.new(translation&.content.to_s).to_plain_text if translation&.content.present?
+              content_html = translation&.content.presence || record.content&.body&.to_html
+              ActionText::Content.new(content_html).to_plain_text if content_html.present?
             end
           end
           controller.visible(journey_step, :chapter_number) { row :chapter_number }
