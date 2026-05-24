@@ -4,6 +4,25 @@
 
 import $ from "jquery";
 
+function recomputePositions(parent) {
+  const inputName = parent.getAttribute("data-sortable");
+  if (!inputName) return;
+
+  let position = parseInt(parent.getAttribute("data-sortable-start") || "0", 10);
+
+  parent.querySelectorAll(":scope > fieldset").forEach(function (fieldset) {
+    const destroyInput = fieldset.querySelector(":scope > ol > .input > [name$='[_destroy]']");
+    const sortableInput = fieldset.querySelector(`:scope > ol > .input > [name$='[${inputName}]']`);
+
+    if (!sortableInput) return;
+
+    sortableInput.value = destroyInput && destroyInput.checked ? "" : String(position);
+    if (!(destroyInput && destroyInput.checked)) {
+      position += 1;
+    }
+  });
+}
+
 function triggerHasManyEvent(parent, eventName, detail, jQueryArgs) {
   const nativeEvent = new CustomEvent(eventName, {
     bubbles: true,
@@ -48,6 +67,7 @@ document.addEventListener("click", function (event) {
   const newFieldset = wrapper.content.firstElementChild;
   parent.insertBefore(newFieldset, target);
 
+  recomputePositions(parent);
   triggerHasManyEvent(parent, "has_many_add:after", { fieldset: newFieldset, parent: parent }, [newFieldset, parent]);
 });
 
@@ -66,5 +86,20 @@ document.addEventListener("click", function (event) {
     fieldset.style.display = "none";
   } else {
     fieldset.remove();
+  }
+
+  const parent = target.closest(".has_many_container");
+  if (parent) {
+    recomputePositions(parent);
+  }
+});
+
+document.addEventListener("change", function (event) {
+  const target = event.target;
+  if (!(target instanceof Element) || !target.matches(".has_many_container[data-sortable] [name$='[_destroy]']")) return;
+
+  const parent = target.closest(".has_many_container");
+  if (parent) {
+    recomputePositions(parent);
   }
 });

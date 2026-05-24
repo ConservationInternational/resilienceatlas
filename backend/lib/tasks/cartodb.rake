@@ -1130,7 +1130,7 @@ module CartodbRakeHelpers
       has_conditional_stroke = path_opts["conditions"].any? do |cond|
         cond.key?("color") || cond.key?("weight")
       end
-      
+
       invisible_base = {"fill" => false, "fillOpacity" => 0}
       invisible_base["weight"] = 0 unless has_conditional_stroke
       path_opts = invisible_base.merge(path_opts)
