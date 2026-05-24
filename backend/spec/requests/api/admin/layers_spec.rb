@@ -5,6 +5,8 @@ RSpec.describe "API Admin Layers", type: :request do
 
   before { stub_const("ENV", ENV.to_hash.merge("RESILIENCE_API_KEY" => token)) }
 
+  before { SiteScope.delete_all }
+
   path "/api/admin/layers" do
     get "List of layers" do
       tags "Layer"

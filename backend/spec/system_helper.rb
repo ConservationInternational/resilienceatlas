@@ -68,6 +68,17 @@ puts "[SYSTEM_TEST] JavaScript driver: #{Capybara.javascript_driver}"
 RSpec.configure do |config|
   config.include PageHelpers, type: :system
 
+  config.prepend_before(:each, type: :system) do
+    tables = ActiveRecord::Base.connection.tables - %w[ar_internal_metadata schema_migrations spatial_ref_sys]
+
+    ActiveRecord::Base.connection.disable_referential_integrity do
+      tables.each do |table|
+        quoted_table = ActiveRecord::Base.connection.quote_table_name(table)
+        ActiveRecord::Base.connection.execute("TRUNCATE TABLE #{quoted_table} RESTART IDENTITY CASCADE")
+      end
+    end
+  end
+
   # Prevent rspec-rails 7.x from overriding Capybara's current_driver on every first try.
   # rspec-rails SystemExampleGroup#initialize registers a class-level before hook:
   #   driven_by(DEFAULT_DRIVER) unless @driver

@@ -1,6 +1,11 @@
 require "swagger_helper"
 
 RSpec.describe "API V1 Sites", type: :request do
+  before do
+    SitePage.delete_all
+    SiteScope.delete_all
+  end
+
   path "/api/sites" do
     get "Get list of all site scopes" do
       tags "SiteScope"

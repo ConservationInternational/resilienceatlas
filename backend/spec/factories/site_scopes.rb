@@ -23,7 +23,8 @@ FactoryBot.define do
   factory :site_scope do
     sequence(:name) do |n|
       Faker::Config.random = Random.new(n)
-      "#{Faker::Name.name} #{n}"
+      generated_name = Faker::Name.name
+      SiteScope.exists?(name: generated_name) ? "#{generated_name} #{n}" : generated_name
     end
     sequence(:color) do |n|
       Faker::Config.random = Random.new(n)
@@ -31,7 +32,8 @@ FactoryBot.define do
     end
     sequence(:subdomain) do |n|
       Faker::Config.random = Random.new(n)
-      "#{Faker::Internet.domain_word}-#{n}"
+      generated_subdomain = Faker::Internet.domain_word
+      SiteScope.exists?(subdomain: generated_subdomain) ? "#{generated_subdomain}-#{n}" : generated_subdomain
     end
     has_analysis { false }
     password_protected { false }

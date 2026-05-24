@@ -29,7 +29,8 @@ ActiveAdmin.register SitePage do
     attributes_table :id, :site_scope, :title, :priority, :slug do
       row "Body" do |site_page|
         translation = site_page.translations.find { |record| record.locale.to_s == I18n.locale.to_s } || site_page.translations.first
-        ActionText::Content.new(translation&.body.to_s).to_plain_text if translation&.body.present?
+        body_html = translation&.body.presence || site_page.body&.body&.to_html
+        ActionText::Content.new(body_html).to_plain_text if body_html.present?
       end
     end
   end

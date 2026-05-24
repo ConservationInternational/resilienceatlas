@@ -1,6 +1,8 @@
 require "swagger_helper"
 
 RSpec.describe "API V1 Models", type: :request do
+  before { SiteScope.delete_all }
+
   path "/api/models" do
     get "Get list of models" do
       tags "Model"

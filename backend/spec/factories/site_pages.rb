@@ -27,6 +27,9 @@ FactoryBot.define do
       Faker::Number.between from: 1, to: 100
     end
     site_scope
-    sequence(:slug) { |n| "SitePage-#{n}" }
+    sequence(:slug) do |n|
+      generated_slug = "SitePage-#{n}"
+      SitePage.exists?(slug: generated_slug) ? "#{generated_slug}-#{SecureRandom.hex(4)}" : generated_slug
+    end
   end
 end
