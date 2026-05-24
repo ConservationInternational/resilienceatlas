@@ -159,9 +159,11 @@ NEVER use: `leaflet`, `cartodb`, `carto`, `raster` — these are deprecated.
 - If `create_layer` or `update_layer` returns `{"success": false, "http_status": 422, ...}`, read the `message` field carefully — it lists every validation failure. Fix each reported issue and retry automatically without asking the user.
 - If `create_layer` returns `{"success": false, "message": "A layer with slug '...' already exists ..."}`, use `update_layer` instead of retrying `create_layer`.
 
-## Martin Layer Configuration Format
+## Layer Configuration Formats by Provider
 
-**CRITICAL**: All martin layers MUST use the `ra_vector_tile` function source with the table name in params:
+### Martin (Vector Tiles)
+
+**CRITICAL**: All martin layers MUST use the `ra_vector_tile` function source:
 
 ```json
 {
@@ -187,6 +189,65 @@ NEVER use: `leaflet`, `cartodb`, `carto`, `raster` — these are deprecated.
   3. Use the same bare table name as the key in `body.styles` object
 
 For tables that already exist in ra_vector (like `ecoregions2017`), skip `import_vector_table` and use them directly in the params.
+
+### COG (Cloud Optimized GeoTIFF)
+
+**CRITICAL**: COG layers must store only the source URL and configuration — the frontend constructs TiTiler URLs at runtime:
+
+```json
+{
+  "type": "tileLayer",
+  "body": {
+    "source": "s3://bucket-name/path/to/file.tif",
+    "bidx": 1,
+    "colormap": { "0": [255, 0, 0, 255], "100": [0, 255, 0, 255] },
+    "nodata": -32768,
+    "options": {}
+  }
+}
+```
+
+Or use a named colormap:
+```json
+{
+  "type": "tileLayer",
+  "body": {
+    "source": "https://storage.googleapis.com/bucket/file.tif",
+    "bidx": 1,
+    "colormap_name": "viridis",
+    "options": {}
+  }
+}
+```
+
+**NEVER hardcode TiTiler URLs** in `body.url` — store only the COG source URL in `body.source`. The frontend automatically builds the TiTiler tile URL using the environment's TiTiler server. Always call `get_statistics(s3_uri=...)` to determine colormap ranges before creating COG layers.
+
+### WMS / WMTS / ESRI / XYZ Tileset
+
+For external tile services, use the service URL directly:
+
+```json
+{
+  "body": {
+    "url": "https://server.example.com/wms?service=WMS&request=GetMap&layers=layer_name&...",
+    "params": { "layers": "layer_name", "transparent": true },
+    "options": {}
+  }
+}
+```
+
+### GEE (Google Earth Engine)
+
+For Earth Engine layers, provide the tile URL template:
+
+```json
+{
+  "body": {
+    "url": "https://earthengine.googleapis.com/v1/projects/.../maps/{mapid}/tiles/{z}/{x}/{y}",
+    "options": {}
+  }
+}
+```
 
 ## Building Legends and Colormaps
 
