@@ -134,7 +134,6 @@ class Api::Admin::VectorTablesController < Api::Admin::ApiController
       }, status: :unprocessable_entity
     end
 
-    qualified = qualified_table_name(conn, found_schema, table_name)
     quoted_col = quoted_column_name(conn, column)
 
     stats = conn.select_one(ActiveRecord::Base.sanitize_sql_array([
