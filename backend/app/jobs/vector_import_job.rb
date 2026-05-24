@@ -104,18 +104,18 @@ class VectorImportJob
     # Pass the DB password via PGPASSWORD env var so it does not appear in
     # /proc/<pid>/cmdline or process listings (CWE-312).
     pg_env = {"PGPASSWORD" => cfg[:password].to_s}
-    
+
     # Build connection string with properly escaped values to prevent command injection
     host = (cfg[:host] || "localhost").to_s.gsub(/[^a-zA-Z0-9._-]/, "")
     port = (cfg[:port] || 5432).to_s.gsub(/[^0-9]/, "")
     dbname = cfg[:database].to_s.gsub(/[^a-zA-Z0-9_-]/, "")
     username = cfg[:username].to_s.gsub(/[^a-zA-Z0-9_-]/, "")
-    
+
     conn_str = "PG:host=#{host} port=#{port} dbname=#{dbname} user=#{username}"
-    
+
     # Validate table name to prevent injection (should already be validated, but double-check)
     safe_table_name = table_name.to_s.gsub(/[^a-z0-9_]/, "_")
-    
+
     cmd = [
       "ogr2ogr",
       "-f", "PostgreSQL",

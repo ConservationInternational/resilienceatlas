@@ -215,7 +215,7 @@ class ReplaceDegradationLayersWithTeData < ActiveRecord::Migration[7.2]
   # Ensures the unique index on (layer_group_id, locale) exists, required for ON CONFLICT
   def ensure_layer_group_translations_unique_index
     index_name = "index_layer_group_translations_on_layer_group_id_and_locale"
-    
+
     # Check if index already exists
     index_exists = execute(<<-SQL.squish).first
       SELECT 1

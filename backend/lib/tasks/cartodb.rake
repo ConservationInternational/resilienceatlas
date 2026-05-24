@@ -383,10 +383,10 @@ module CartodbRakeHelpers
       next unless rgba
 
       lower = stop[:value]
-      
+
       # Per-stop exact flag takes precedence over global exact mode
       is_exact = stop[:exact] || exact
-      
+
       upper = if is_exact
         lower + 0.001  # Very small epsilon for exact matches
       elsif i + 1 < sorted.length
