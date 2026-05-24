@@ -57,12 +57,19 @@ table (e.g. `ra_vector.ecoregions2017`):
 1. Use `get_tables(table_name=...)` on BOTH tables to find the correct join key columns and geometry column name.
 2. Call `create_vector_view` with a name starting with `v_` and a bare SELECT that performs the join.
    The SELECT must include the geometry column from the ra_vector table.
-3. Use `ra_vector_tile` as the source and `{"table": "<view_name>"}` as params in layer_config:
+3. Use `ra_vector_tile` as the source and the view name (without schema prefix) in params:
    ```json
-   { "body": { "source": "ra_vector_tile", "params": { "table": "v_my_view" }, ... } }
+   {
+     "body": {
+       "source": "ra_vector_tile",
+       "params": { "table": "v_my_view" },
+       "styles": { "v_my_view": { "fill": "#color", ... } }
+     }
+   }
    ```
-Putting raw SQL in `body.source` will cause 404 errors because Martin URL-encodes the source in the
-tile URL path (`/{source}/{z}/{x}/{y}`).
+
+Putting raw SQL in `body.source` or using schema-qualified names like `ra_vector.table_name` will cause 
+404 errors because Martin URL-encodes the source in the tile URL path (`/{source}/{z}/{x}/{y}`).
 
 ## IDs — Always Look Up, Never Ask
 
@@ -151,6 +158,35 @@ NEVER use: `leaflet`, `cartodb`, `carto`, `raster` — these are deprecated.
 - **zoom_min and zoom_max**: always set both explicitly. Use `zoom_min=0, zoom_max=18` as safe defaults. The database default is 100 which will fail validation. Values must be integers between 0 and 24 inclusive.
 - If `create_layer` or `update_layer` returns `{"success": false, "http_status": 422, ...}`, read the `message` field carefully — it lists every validation failure. Fix each reported issue and retry automatically without asking the user.
 - If `create_layer` returns `{"success": false, "message": "A layer with slug '...' already exists ..."}`, use `update_layer` instead of retrying `create_layer`.
+
+## Martin Layer Configuration Format
+
+**CRITICAL**: All martin layers MUST use the `ra_vector_tile` function source with the table name in params:
+
+```json
+{
+  "body": {
+    "source": "ra_vector_tile",
+    "params": { "table": "table_name_without_schema" },
+    "styles": {
+      "table_name_without_schema": {
+        "fill": "#3388ff",
+        "fill-opacity": 0.6,
+        "stroke": "#ffffff",
+        "stroke-width": 1
+      }
+    },
+    "options": { "interactive": true, "maxNativeZoom": 14 }
+  }
+}
+```
+
+**NEVER use schema-qualified names** like `ra_vector.table_name` or just `table_name` as the source — this causes 404 tile errors. Always:
+  1. Set `body.source` to `"ra_vector_tile"` (the PostgreSQL function)
+  2. Set `body.params.table` to the bare table/view name (e.g., `"ecoregions2017"`, `"v_sbtn_thresholds"`)
+  3. Use the same bare table name as the key in `body.styles` object
+
+For tables that already exist in ra_vector (like `ecoregions2017`), skip `import_vector_table` and use them directly in the params.
 
 ## Building Legends and Colormaps
 
