@@ -42,7 +42,13 @@ class VectorImportJob
 
       # 4. Build interaction_config from PostGIS column names
       conn = ActiveRecord::Base.connection
-      row_count = conn.select_value("SELECT COUNT(*) FROM \"#{TARGET_SCHEMA}\".\"#{table_name}\"").to_i
+      row_count = conn.select_value(
+        ActiveRecord::Base.sanitize_sql_array([
+          "SELECT COUNT(*) FROM %s.%s",
+          Arel.sql(conn.quote_table_name(TARGET_SCHEMA)),
+          Arel.sql(conn.quote_table_name(table_name))
+        ])
+      ).to_i
 
       if import_target.is_a?(Layer)
         ic = LayerInteractionConfigBuilder.for_martin(table_name, conn, TARGET_SCHEMA)
@@ -98,14 +104,24 @@ class VectorImportJob
     # Pass the DB password via PGPASSWORD env var so it does not appear in
     # /proc/<pid>/cmdline or process listings (CWE-312).
     pg_env = {"PGPASSWORD" => cfg[:password].to_s}
-    conn_str = "PG:host=#{cfg[:host] || "localhost"} port=#{cfg[:port] || 5432} " \
-               "dbname=#{cfg[:database]} user=#{cfg[:username]}"
+    
+    # Build connection string with properly escaped values to prevent command injection
+    host = (cfg[:host] || "localhost").to_s.gsub(/[^a-zA-Z0-9._-]/, "")
+    port = (cfg[:port] || 5432).to_s.gsub(/[^0-9]/, "")
+    dbname = cfg[:database].to_s.gsub(/[^a-zA-Z0-9_-]/, "")
+    username = cfg[:username].to_s.gsub(/[^a-zA-Z0-9_-]/, "")
+    
+    conn_str = "PG:host=#{host} port=#{port} dbname=#{dbname} user=#{username}"
+    
+    # Validate table name to prevent injection (should already be validated, but double-check)
+    safe_table_name = table_name.to_s.gsub(/[^a-z0-9_]/, "_")
+    
     cmd = [
       "ogr2ogr",
       "-f", "PostgreSQL",
       conn_str,
       local_path,
-      "-nln", "#{TARGET_SCHEMA}.#{table_name}",
+      "-nln", "#{TARGET_SCHEMA}.#{safe_table_name}",
       "-nlt", "PROMOTE_TO_MULTI",
       "-t_srs", "EPSG:4326",
       "-overwrite",
