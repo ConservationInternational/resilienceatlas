@@ -30,6 +30,7 @@ RSpec.describe "API V1 Layer", type: :request do
       tags "Layer"
       consumes "application/json"
       produces "application/zip"
+      security [bearerAuth: []]
       parameter name: :id, in: :path, type: :integer, description: "Layer ID"
       parameter name: :download_path, in: :query, type: :string, description: "Url to the file download", required: false
       parameter name: :file_format, in: :query, type: :string, description: "File format (pdf, kml, jpg, txt, etc..)", required: false
@@ -38,6 +39,8 @@ RSpec.describe "API V1 Layer", type: :request do
       let(:default_site_scope) { create :site_scope, id: 1, name: "Resilience Atlas" }
       let(:layer_group) { create :layer_group, site_scope: default_site_scope }
       let(:source) { create :source }
+      let(:user) { create :user }
+      let(:Authorization) { auth_token_for user }
       let(:layer) { create :layer, download: true, layer_groups: [layer_group], sources: [source] }
       let(:stub_layer_zip) { "#{Rails.root}/downloads/#{layer.name.parameterize}-date-#{DateTime.now.to_date.to_s.parameterize}-main.zip" }
       let(:id) { layer.id }
