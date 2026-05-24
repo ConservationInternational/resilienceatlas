@@ -34,7 +34,6 @@ class Admin::AiChatController < ApplicationController
       agent_id: BEDROCK_AGENT_ID,
       agent_alias_id: BEDROCK_AGENT_ALIAS_ID,
       session_id: session_id,
-      memory_id: current_memory_id,
       enable_trace: true,
       input_text: user_message,
       session_state: {
@@ -112,18 +111,6 @@ class Admin::AiChatController < ApplicationController
 
   def reset
     session.delete(:bedrock_session_id)
-    # Clear Bedrock's stored session summaries for this user so the next
-    # conversation starts with a truly blank slate.
-    begin
-      bedrock = Aws::BedrockAgentRuntime::Client.new(region: BEDROCK_REGION)
-      bedrock.delete_agent_memory(
-        agent_id: BEDROCK_AGENT_ID,
-        agent_alias_id: BEDROCK_AGENT_ALIAS_ID,
-        memory_id: current_memory_id
-      )
-    rescue => e
-      Rails.logger.warn "AI chat: could not clear agent memory for #{current_memory_id}: #{e.message}"
-    end
     render json: {success: true}
   end
 
@@ -131,12 +118,6 @@ class Admin::AiChatController < ApplicationController
 
   def current_session_id
     session[:bedrock_session_id] ||= SecureRandom.uuid
-  end
-
-  # Stable per-user identifier for Bedrock's cross-session memory.
-  # Keeps memory isolated to each admin user without exposing PII to AWS.
-  def current_memory_id
-    "admin_user_#{current_admin_user.id}"
   end
 
   # Saves the user prompt and agent response to the database for UI history.
