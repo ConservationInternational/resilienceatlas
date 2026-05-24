@@ -9,8 +9,8 @@ import type { RootState } from 'state/types';
 
 export const useSiteScopeContentReady = (): boolean => {
   const siteLoaded = useSelector((state: RootState) => state.site.loaded);
-  const passwordProtected = useSelector(
-    (state: RootState) => Boolean(state.site.password_protected),
+  const passwordProtected = useSelector((state: RootState) =>
+    Boolean(state.site.password_protected),
   );
   const checking = useSelector(isSiteScopeAuthChecking);
   const requiresAuthentication = useSelector(siteScopeRequiresAuthentication);

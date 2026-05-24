@@ -52,10 +52,23 @@ RSpec.describe "Admin: Site Pages", type: :system do
       # Wait for Trix editor to be in DOM, then fill via JS
       # (fill_in_rich_text_area is unreliable for Globalize-translated ActionText fields)
       find(".locale-en trix-editor, .locale.active trix-editor", wait: 10)
-      sleep 0.5 # Wait for Trix custom element initialization
+      # Poll until the Trix editor object is initialised (rAF may be throttled in headless Chrome)
+      deadline = Time.now + 10
+      loop do
+        ready = page.evaluate_script(
+          "(function() { " \
+          "var el = document.querySelector(\".locale-en trix-editor, .locale.active trix-editor\"); " \
+          "return !!(el && el.editor); " \
+          "})()"
+        )
+        break if ready
+        raise "Trix editor not initialised after 10 seconds" if Time.now > deadline
+
+        sleep 0.2
+      end
       page.execute_script(<<~JS, "<p>New body</p>")
         var editor = document.querySelector(".locale-en trix-editor, .locale.active trix-editor");
-        if (editor && editor.editor) editor.editor.loadHTML(arguments[0]);
+        editor.editor.loadHTML(arguments[0]);
       JS
       fill_in "site_page[priority]", with: "100"
       fill_in "site_page[slug]", with: "new-site-page"

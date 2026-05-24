@@ -139,7 +139,7 @@ ActiveAdmin.register DataImport do
 
     def handle_cog_upload(file)
       s3_key = upload_to_s3(file, "cogs")
-      s3_uri = "s3://#{ENV.fetch('S3_BUCKET', 'resilienceatlas')}/#{s3_key}"
+      s3_uri = "s3://#{ENV.fetch("S3_BUCKET", "resilienceatlas")}/#{s3_key}"
 
       DataImport.create!(
         importable: current_admin_user,

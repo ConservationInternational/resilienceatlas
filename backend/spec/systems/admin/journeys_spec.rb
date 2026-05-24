@@ -110,7 +110,7 @@ RSpec.describe "Admin: Journeys", type: :system do
       attach_file "journey[background_image]", Rails.root.join("spec/fixtures/files/picture.jpg")
       # landing journey step
       click_on "Add New Journey step"
-      expect(page).to have_css("fieldset.has-many-toggle-collapse", minimum: 1, wait: 10)
+      expect(page).to have_css(".has_many_container fieldset.has_many_fields", minimum: 1, wait: 10)
       page.execute_script("document.querySelectorAll('.section-hidden').forEach(function(el){ el.classList.remove('section-hidden') })")
       sleep 0.2
       fill_in "journey[journey_steps_attributes][0][translations_attributes][0][title]", with: "New step title"
@@ -120,13 +120,13 @@ RSpec.describe "Admin: Journeys", type: :system do
       attach_file "journey[journey_steps_attributes][0][background_image]", Rails.root.join("spec/fixtures/files/picture.jpg")
       # embed journey step
       click_on "Add New Journey step"
-      expect(page).to have_css("fieldset.has-many-toggle-collapse", minimum: 2, wait: 10)
+      expect(page).to have_css(".has_many_container fieldset.has_many_fields", minimum: 2, wait: 10)
       page.execute_script("document.querySelectorAll('.section-hidden').forEach(function(el){ el.classList.remove('section-hidden') })")
       sleep 0.2
       select "embed", from: "journey[journey_steps_attributes][1][step_type]"
       fill_in "journey[journey_steps_attributes][1][translations_attributes][0][title]", with: "New embed step title"
       fill_in "journey[journey_steps_attributes][1][translations_attributes][0][subtitle]", with: "New embed step subtitle"
-      fill_in_rich_text_area "journey[journey_steps_attributes][1][translations_attributes][0][content]", with: "New step content"
+      fill_trix "journey[journey_steps_attributes][1][translations_attributes][0][content]", "New step content"
       fill_in "journey[journey_steps_attributes][1][translations_attributes][0][source]", with: "New step source"
       fill_in "journey[journey_steps_attributes][1][mask_sql]", with: "New step mask_sql"
       fill_in "journey[journey_steps_attributes][1][map_url]", with: "http://map-test.test"
@@ -184,7 +184,7 @@ RSpec.describe "Admin: Journeys", type: :system do
       # embed journey step - expand the section first
       page.execute_script("document.querySelectorAll('.section-hidden').forEach(function(el){ el.classList.remove('section-hidden') })")
       sleep 0.2
-      fill_in_rich_text_area "journey[journey_steps_attributes][0][translations_attributes][0][content]", with: "Update step content"
+      fill_trix "journey[journey_steps_attributes][0][translations_attributes][0][content]", "Update step content"
       fill_in "journey[journey_steps_attributes][0][translations_attributes][0][source]", with: "Update step source"
       fill_in "journey[journey_steps_attributes][0][mask_sql]", with: "Update step mask_sql"
       fill_in "journey[journey_steps_attributes][0][map_url]", with: "http://map-test.test"

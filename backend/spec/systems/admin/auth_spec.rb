@@ -23,21 +23,21 @@ RSpec.describe "Admin: Auth", type: :system do
         it "sees correct items at navigation" do
           login_as admin_user
 
-          expect(page).to have_text("Dashboard")
-          expect(page).to have_text("Admin Users")
-          expect(page).to have_text("Categories")
-          expect(page).to have_text("Indicators")
-          expect(page).to have_text("Journeys")
-          expect(page).to have_text("Languages")
-          expect(page).to have_text("Layer Groups")
-          expect(page).to have_text("Layers")
-          expect(page).to have_text("Map Menu Entries")
-          expect(page).to have_text("Models")
-          expect(page).to have_text("Site Pages")
-          expect(page).to have_text("Site Scopes")
-          expect(page).to have_text("Sources")
-          expect(page).to have_text("User Downloads")
-          expect(page).to have_text("Users")
+          expect(page).to have_selector("a", text: "Dashboard", visible: false)
+          expect(page).to have_selector("a", text: "Admin Users", visible: false)
+          expect(page).to have_selector("a", text: "Categories", visible: false)
+          expect(page).to have_selector("a", text: "Indicators", visible: false)
+          expect(page).to have_selector("a", text: "Journeys", visible: false)
+          expect(page).to have_selector("a", text: "Languages", visible: false)
+          expect(page).to have_selector("a", text: "Layer Groups", visible: false)
+          expect(page).to have_selector("a", text: "Layers", visible: false)
+          expect(page).to have_selector("a", text: "Map Menu Entries", visible: false)
+          expect(page).to have_selector("a", text: "Models", visible: false)
+          expect(page).to have_selector("a", text: "Site Pages", visible: false)
+          expect(page).to have_selector("a", text: "Site Scopes", visible: false)
+          expect(page).to have_selector("a", text: "Sources", visible: false)
+          expect(page).to have_selector("a", text: "User Downloads", visible: false)
+          expect(page).to have_selector("a", text: "Users", visible: false)
         end
       end
 
@@ -47,21 +47,21 @@ RSpec.describe "Admin: Auth", type: :system do
         it "sees correct items at navigation" do
           login_as admin_user
 
-          expect(page).to have_text("Dashboard")
-          expect(page).not_to have_text("Admin Users")
-          expect(page).to have_text("Categories")
-          expect(page).not_to have_text("Indicators")
-          expect(page).not_to have_text("Journeys")
-          expect(page).not_to have_text("Languages")
-          expect(page).to have_text("Layer Groups")
-          expect(page).to have_text("Layers")
-          expect(page).not_to have_text("Map Menu Entries")
-          expect(page).not_to have_text("Models")
-          expect(page).not_to have_text("Site Pages")
-          expect(page).not_to have_text("Site Scopes")
-          expect(page).not_to have_text("Sources")
-          expect(page).not_to have_text("User Downloads")
-          expect(page).not_to have_text("Users")
+          expect(page).to have_selector("a", text: "Dashboard", visible: false)
+          expect(page).not_to have_selector("a", text: "Admin Users", visible: false)
+          expect(page).to have_selector("a", text: "Categories", visible: false)
+          expect(page).not_to have_selector("a", text: "Indicators", visible: false)
+          expect(page).not_to have_selector("a", text: "Journeys", visible: false)
+          expect(page).not_to have_selector("a", text: "Languages", visible: false)
+          expect(page).to have_selector("a", text: "Layer Groups", visible: false)
+          expect(page).to have_selector("a", text: "Layers", visible: false)
+          expect(page).not_to have_selector("a", text: "Map Menu Entries", visible: false)
+          expect(page).not_to have_selector("a", text: "Models", visible: false)
+          expect(page).not_to have_selector("a", text: "Site Pages", visible: false)
+          expect(page).not_to have_selector("a", text: "Site Scopes", visible: false)
+          expect(page).not_to have_selector("a", text: "Sources", visible: false)
+          expect(page).not_to have_selector("a", text: "User Downloads", visible: false)
+          expect(page).not_to have_selector("a", text: "Users", visible: false)
         end
       end
     end

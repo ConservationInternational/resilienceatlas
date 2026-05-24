@@ -19,7 +19,9 @@ class Api::Admin::LayersManager
   attr_accessor :layer, :site_scope_id, :layer_group_id
 
   def resolve_layer_group
-    explicit_layer_group || default_layer_group
+    return explicit_layer_group if layer_group_id.present?
+
+    default_layer_group
   end
 
   def explicit_layer_group

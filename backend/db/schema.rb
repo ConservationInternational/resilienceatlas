@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_05_21_120000) do
+ActiveRecord::Schema[7.2].define(version: 2026_05_22_100000) do
   create_schema "ra_app"
   create_schema "tiger"
   create_schema "tiger_data"
@@ -417,7 +417,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_05_21_120000) do
     t.boolean "locate_layer", default: false
     t.string "icon_class"
     t.boolean "published", default: true
-    t.integer "zoom_max", default: 100
+    t.integer "zoom_max", default: 24
     t.integer "zoom_min", default: 0
     t.integer "dashboard_order"
     t.boolean "download", default: false

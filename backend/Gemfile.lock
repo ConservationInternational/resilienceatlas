@@ -800,7 +800,7 @@ DEPENDENCIES
   slim-rails (~> 3.6)
   sparkpost_rails!
   sprockets-rails (~> 3.5)
-  standard (~> 1.45)
+  standard (~> 1.50)
   super_diff (~> 0.12)
   terser (~> 1.2)
   web-console (~> 4.2)

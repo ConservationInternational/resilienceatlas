@@ -96,12 +96,12 @@ RSpec.describe "Admin: Layers", type: :system do
       safe_fill_in "layer[translations_attributes][0][legend]", with: "New legend"
       select "wms", from: "layer[layer_provider]"
       fill_in "layer[layer_config]", with: '{"url": "https://example.com/wms"}'
-      fill_in "layer[opacity]", with: "30.0"
+      fill_in "layer[opacity]", with: "0.3"
       fill_in "layer[zindex]", with: "10000"
       fill_in "layer[order]", with: "2"
-      fill_in "layer[zoom_max]", with: "1000"
-      fill_in "layer[zoom_min]", with: "200"
-      fill_in "layer[interaction_config]", with: "New interaction_config"
+      fill_in "layer[zoom_max]", with: "10"
+      fill_in "layer[zoom_min]", with: "2"
+      fill_in "layer[interaction_config]", with: '{"type":"New interaction_config"}'
       check "layer[analysis_suitable]"
       select "histogram", from: "layer[analysis_type]"
       fill_in "layer[translations_attributes][0][analysis_text_template]", with: "New analysis_text_template"
@@ -126,11 +126,10 @@ RSpec.describe "Admin: Layers", type: :system do
       expect(page).to have_text("New data_units")
       expect(page).to have_text("New legend")
       expect(page).to have_text("wms")
-      expect(page).to have_text("30.0")
+      expect(page).to have_text("0.3")
       expect(page).to have_text("10000")
       expect(page).to have_text("2")
-      expect(page).to have_text("1000")
-      expect(page).to have_text("200")
+      expect(page).to have_text("10")
       expect(page).to have_text("New interaction_config")
       expect(page).to have_text("histogram")
       expect(page).to have_text("New analysis_query")
@@ -152,7 +151,7 @@ RSpec.describe "Admin: Layers", type: :system do
       fill_in "layer[translations_attributes][0][legend]", with: "New legend"
       select "cog", from: "layer[layer_provider]"
       fill_in "layer[layer_config]", with: '{"type": "raster", "tiles": ["https://example.com/{z}/{x}/{y}.tif"]}'
-      fill_in "layer[interaction_config]", with: "New interaction_config"
+      fill_in "layer[interaction_config]", with: '{"type":"New interaction_config"}'
       fill_in "layer[dashboard_order]", with: "80"
 
       click_on "Create Layer"

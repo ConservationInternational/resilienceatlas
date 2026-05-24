@@ -137,6 +137,28 @@ module PageHelpers
     end
   end
 
+  # Fill a Trix rich-text editor by polling until the editor object is initialised.
+  # Uses the hidden-input ID convention Rails derives from the field name.
+  def fill_trix(input_name, content)
+    input_id = input_name.gsub("[", "_").gsub("]", "").chomp("_")
+    deadline = Time.now + 10
+    loop do
+      ready = page.evaluate_script(
+        "(function() { " \
+        "var el = document.querySelector('trix-editor[input=\"#{input_id}\"]'); " \
+        "return !!(el && el.editor); " \
+        "})()"
+      )
+      break if ready
+      raise "Trix editor for '#{input_name}' was not initialised after 10 seconds" if Time.now > deadline
+
+      sleep 0.2
+    end
+    page.execute_script(
+      "document.querySelector('trix-editor[input=\"#{input_id}\"]').editor.loadHTML(#{content.to_json})"
+    )
+  end
+
   private
 
   def wait_for(timeout: 10, &block)

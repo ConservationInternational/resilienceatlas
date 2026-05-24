@@ -54,6 +54,7 @@ RSpec.describe "API V1 Journeys", type: :request do
         context "with locale" do
           before do
             I18n.with_locale(:en) { journey.update! title: "Title EN" }
+            journey.reload
             I18n.with_locale(:es) { journey.update! title: "Title ES" }
           end
 

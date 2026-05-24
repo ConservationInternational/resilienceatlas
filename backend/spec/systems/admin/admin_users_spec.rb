@@ -2,7 +2,8 @@ require "system_helper"
 
 RSpec.describe "Admin: Admin Users", type: :system do
   let!(:admin_user) do
-    create :admin_user, email: "admin@example.com", password: "SuperSecret6", password_confirmation: "SuperSecret6"
+    create :admin_user, email: "admin@example.com", password: "SuperSecret6", password_confirmation: "SuperSecret6",
+           role: :superadmin
   end
 
   before { login_as admin_user }

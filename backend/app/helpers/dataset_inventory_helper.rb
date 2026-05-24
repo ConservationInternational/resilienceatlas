@@ -102,7 +102,7 @@ module DatasetInventoryHelper
       link_to "#{data_import.importable_type} ##{data_import.importable_id}",
         polymorphic_path([:admin, importable])
     end
-  rescue StandardError
+  rescue
     content_tag(:span, data_import.importable_type.presence || "Unknown")
   end
 

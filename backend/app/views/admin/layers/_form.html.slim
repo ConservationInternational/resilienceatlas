@@ -27,6 +27,10 @@
           span.inline-hint JSON configuration for layer legend display
           span.label-note  (JSON)
           = ff.text_area :legend, rows: 8, class: "json-editor-textarea", data: { preview_type: "legend" }
+        li.input.string
+          = ff.label :analysis_text_template
+          span.inline-hint Sentence displayed as analysis result. Use {{attributeName}} to inject values.
+          = ff.text_field :analysis_text_template
     = f.inputs "Metadata sources" do
       = f.input :sources, as: :select, collection: Source.with_translations.all.map { |s| ["#{s.source_type} - Ref: #{s.reference_short}", s.id] }, label: "Select sources:", multiple: true
     = f.inputs "Data download" do
@@ -83,14 +87,7 @@
         = f.label :analysis_suitable
         span.inline-hint Enable spatial analysis for this layer
         = f.check_box :analysis_suitable, data: {if: "checked", action: "show", target: ".analysis-query-input"}
-      = f.inputs "Analysis text (translated)", class: "analysis-query-input" do
-        = f.translated_inputs switch_locale: false do |ff|
-          = ff.input :id, as: :hidden
-          = ff.input :locale, as: :hidden
-          li.input.string
-            = ff.label :analysis_text_template
-            span.inline-hint Sentence displayed as analysis result. Use {{attributeName}} to inject values.
-            = ff.text_field :analysis_text_template
+
       li.input.select.analysis-query-input
         = f.label :analysis_type
         span.inline-hint COG: 'histogram' or 'categorical'. Others: 'histogram' only

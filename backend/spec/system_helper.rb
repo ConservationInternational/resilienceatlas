@@ -68,6 +68,16 @@ puts "[SYSTEM_TEST] JavaScript driver: #{Capybara.javascript_driver}"
 RSpec.configure do |config|
   config.include PageHelpers, type: :system
 
+  # Prevent rspec-rails 7.x from overriding Capybara's current_driver on every first try.
+  # rspec-rails SystemExampleGroup#initialize registers a class-level before hook:
+  #   driven_by(DEFAULT_DRIVER) unless @driver
+  # For Rails 7.2+, DEFAULT_DRIVER = :selenium_chrome_headless.
+  # Global prepend_before runs before class-level before hooks, so setting @driver
+  # truthy here causes rspec-rails' hook to skip driven_by(:selenium_chrome_headless).
+  config.prepend_before(:each, type: :system) do
+    @driver ||= :cuprite
+  end
+
   # Override default Capybara session cleanup to prevent selenium driver errors
   config.append_after(:each, type: :system) do
     # Manually reset sessions to avoid RSpec trying to cleanup non-existent drivers

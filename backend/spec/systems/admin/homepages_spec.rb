@@ -83,7 +83,7 @@ RSpec.describe "Admin: Homepages", type: :system do
 
       # homepage sections - click to add and expand the new section
       click_on "Add New Homepage section"
-      expect(page).to have_css("fieldset.has-many-toggle-collapse", minimum: 1, wait: 10)
+      expect(page).to have_css(".has_many_container fieldset.has_many_fields", minimum: 1, wait: 10)
       page.execute_script("document.querySelectorAll('.section-hidden').forEach(function(el){ el.classList.remove('section-hidden') })")
       sleep 0.3
 
