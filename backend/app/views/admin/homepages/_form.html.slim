@@ -28,7 +28,7 @@
       = ff.inputs (ff.object.new_record? ? "New Section" : ff.object.title.to_s), class: "inputs has-many-toggle-collapse" do
         div class="has-many-section section-hidden"
           = ff.inputs "Translated fields" do
-            - ff.translated_inputs switch_locale: false do |fff|
+            = ff.translated_inputs switch_locale: false do |fff|
               - fff.input :id, as: :hidden
               - fff.input :locale, as: :hidden
               - fff.input :title

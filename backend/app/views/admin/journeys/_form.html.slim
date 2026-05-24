@@ -20,7 +20,7 @@
         div class="has-many-section section-hidden select-dependency-container"
           - ff.input :step_type, as: :select, collection: JourneyStep.step_types.keys, input_html: {class: "select-dependency-controller"}
           = ff.inputs "Translated fields" do
-            - ff.translated_inputs switch_locale: false do |fff|
+            = ff.translated_inputs switch_locale: false do |fff|
               - fff.input :id, as: :hidden
               - fff.input :locale, as: :hidden
               == render "field_section", key: :title do
@@ -34,8 +34,8 @@
               == render "field_section", key: :source do
                 - fff.input :source
               == render "field_section", key: :content do
-                - fff.inputs "Content" do
-                  - fff.rich_text_area :content
+                = fff.inputs "Content" do
+                  = fff.rich_text_area :content
           = ff.inputs "Common fields" do
             == render "field_section", key: :chapter_number do
               - ff.input :chapter_number

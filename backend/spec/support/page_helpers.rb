@@ -140,7 +140,7 @@ module PageHelpers
   # Fill a Trix rich-text editor by polling until the editor object is initialised.
   # Uses the hidden-input ID convention Rails derives from the field name.
   def fill_trix(input_name, content)
-    input_id = input_name.gsub("[", "_").gsub("]", "").chomp("_")
+    input_id = input_name.tr("[", "_").delete("]").chomp("_")
     deadline = Time.now + 10
     loop do
       ready = page.evaluate_script(

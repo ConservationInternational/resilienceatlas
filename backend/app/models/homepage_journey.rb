@@ -12,7 +12,7 @@ class HomepageJourney < ApplicationRecord
   # Always include basic globalize support if available
   # This ensures create_translation_table! is available for migrations
   if defined?(Globalize)
-    translates :title, :subtitle, touch: true, fallbacks_for_empty_translations: true
+    translates :title, touch: true, fallbacks_for_empty_translations: true
   end
 
   has_one :homepage, dependent: :nullify

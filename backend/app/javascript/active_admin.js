@@ -1,11 +1,15 @@
-// Import and start Rails UJS for ActiveAdmin
+// Import and start Rails UJS for ActiveAdmin (guard against double-start from application.js)
 import Rails from "@rails/ujs"
-Rails.start()
+if (!window._rails_loaded) {
+  Rails.start()
+}
+import "trix"
 
 console.log('[ActiveAdmin] JavaScript module loaded');
 
 // Import admin JavaScript modules (pinned via importmap)
 import "admin/json_editor"
+import "admin/has_many_handler"
 import "admin/select_dependency"
 import "admin/checkbox_dependency"
 import "admin/has_many_collapsable"

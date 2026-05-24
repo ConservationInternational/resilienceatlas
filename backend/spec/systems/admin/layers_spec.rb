@@ -106,7 +106,7 @@ RSpec.describe "Admin: Layers", type: :system do
       select "histogram", from: "layer[analysis_type]"
       fill_in "layer[translations_attributes][0][analysis_text_template]", with: "New analysis_text_template"
       fill_in "layer[analysis_query]", with: "New analysis_query"
-      fill_in "layer[analysis_body]", with: "New analysis_body"
+      fill_in "layer[analysis_body]", with: '{"url":"New analysis_body"}'
       check "layer[timeline]"
       fill_in "layer[timeline_steps]", with: "2000-01-01,2000-01-02,2000-01-03"
       fill_in "layer[timeline_start_date]", with: "2000-01-01"

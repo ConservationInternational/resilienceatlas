@@ -1,3 +1,5 @@
+import $ from "jquery";
+
 // Set up fields for already existing sections at has many Admin container
 function initSelectDependencyFields() {
     $(".select-dependency-container").each((index, value) => {

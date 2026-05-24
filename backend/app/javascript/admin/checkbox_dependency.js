@@ -1,3 +1,5 @@
+import $ from "jquery";
+
 function initCheckboxDependentFields() {
     $('*[data-if="checked"]').each((index, value) => {
         let $this = $(value);

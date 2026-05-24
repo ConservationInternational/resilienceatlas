@@ -1,7 +1,7 @@
 = f.semantic_fields_for :section_paragraph, f.object.section_paragraph || f.object.build_section_paragraph do |ff|
   = ff.semantic_errors
   = ff.inputs "Translated fields" do
-    - ff.translated_inputs switch_locale: false do |fff|
+    = ff.translated_inputs switch_locale: false do |fff|
       - fff.input :id, as: :hidden
       - fff.input :locale, as: :hidden
       - fff.input :image_credits

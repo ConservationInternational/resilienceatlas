@@ -1,3 +1,5 @@
+import $ from "jquery";
+
 // Active Admin Globalize Translations JavaScript
 // Custom replacement for activeadmin-globalize gem
 

@@ -1,3 +1,5 @@
+import $ from "jquery";
+
 // Enable collapsing for all existing has_many Admin sections
 function initHasManySections() {
     $(".has-many-collapsed fieldset.has_many_fields").each((index, value) => {

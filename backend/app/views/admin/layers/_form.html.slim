@@ -1,5 +1,5 @@
 = semantic_form_for [:admin, resource], builder: ActiveAdmin::FormBuilder do |f|
-  = f.semantic_errors
+  = f.semantic_errors :timeline_steps, :analysis_type
   / Config element passes frontend URL to admin preview JavaScript
   div#layer-preview-config data-frontend-url=ENV.fetch('FRONTEND_URL', '') style="display:none"
   = f.inputs "Layer metadata" do

@@ -110,7 +110,7 @@ RSpec.describe "Admin: Journeys", type: :system do
       attach_file "journey[background_image]", Rails.root.join("spec/fixtures/files/picture.jpg")
       # landing journey step
       click_on "Add New Journey step"
-      expect(page).to have_css(".has_many_container fieldset.has_many_fields", minimum: 1, wait: 10)
+      expect(page).to have_css("fieldset.has-many-toggle-collapse", minimum: 1, wait: 10, visible: false)
       page.execute_script("document.querySelectorAll('.section-hidden').forEach(function(el){ el.classList.remove('section-hidden') })")
       sleep 0.2
       fill_in "journey[journey_steps_attributes][0][translations_attributes][0][title]", with: "New step title"
@@ -120,7 +120,7 @@ RSpec.describe "Admin: Journeys", type: :system do
       attach_file "journey[journey_steps_attributes][0][background_image]", Rails.root.join("spec/fixtures/files/picture.jpg")
       # embed journey step
       click_on "Add New Journey step"
-      expect(page).to have_css(".has_many_container fieldset.has_many_fields", minimum: 2, wait: 10)
+      expect(page).to have_css("fieldset.has-many-toggle-collapse", minimum: 2, wait: 10, visible: false)
       page.execute_script("document.querySelectorAll('.section-hidden').forEach(function(el){ el.classList.remove('section-hidden') })")
       sleep 0.2
       select "embed", from: "journey[journey_steps_attributes][1][step_type]"
