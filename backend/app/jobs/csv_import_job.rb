@@ -49,7 +49,6 @@ class CsvImportJob
         ) do
           File.foreach(local_path, encoding: "UTF-8") { |line| raw_conn.put_copy_data(line) }
         end
-
         row_count = conn.select_value(
           "SELECT COUNT(*) FROM #{conn.quote_table_name(temp_table)}"
         ).to_i
@@ -106,4 +105,3 @@ class CsvImportJob
     )
   end
 end
-

@@ -2245,7 +2245,7 @@ namespace :cartodb do
         # - Categorical data (e.g., land cover classes) needs nearest-neighbor to avoid
         #   interpolation between discrete values which causes visual artifacts.
         # - Continuous data can use bilinear (TiTiler default).
-        body["resampling_method"] = (layer.analysis_type == "categorical" ? "nearest" : "bilinear")
+        body["resampling_method"] = layer.analysis_type == "categorical" ? "nearest" : "bilinear"
 
         # Extract clip geometry for ST_CLIP layers (boundary polygon stored for TiTiler)
         if source_sql.match?(/\bst_clip\s*\(/i)
@@ -2364,7 +2364,7 @@ namespace :cartodb do
             # - Categorical data (e.g., land cover classes) needs nearest-neighbor to avoid
             #   interpolation between discrete values which causes visual artifacts.
             # - Continuous data can use bilinear (TiTiler default).
-            config["body"]["resampling_method"] = (layer.analysis_type == "categorical" ? "nearest" : "bilinear")
+            config["body"]["resampling_method"] = layer.analysis_type == "categorical" ? "nearest" : "bilinear"
             migration["style"] = style
             changed = true
             cog_styles_updated += 1

@@ -9,7 +9,7 @@ class Api::Admin::ScopeDatasetsController < Api::Admin::ApiController
     scope = scope.for_site_scope(params[:site_scope_id]) if params[:site_scope_id].present?
     scope = scope.ordered
     # Omit the large :data column in list view — use show for full record
-    per_page = [[params[:per_page].to_i, 1].max, 500].min.nonzero? || 100
+    per_page = params[:per_page].to_i.clamp(1, 500).nonzero? || 100
     records = scope.select(
       :id, :site_scope_id, :slug, :name, :description, :data_type,
       :group_key, :variant_label, :dimension, :dimension_config,
