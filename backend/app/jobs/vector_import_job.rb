@@ -115,13 +115,14 @@ class VectorImportJob
 
     # Validate table name to prevent injection (should already be validated, but double-check)
     safe_table_name = table_name.to_s.gsub(/[^a-z0-9_]/, "_")
+    qualified_table = "#{TARGET_SCHEMA}.#{safe_table_name}"
 
     cmd = [
       "ogr2ogr",
       "-f", "PostgreSQL",
       conn_str,
       local_path,
-      "-nln", "#{TARGET_SCHEMA}.#{safe_table_name}",
+      "-nln", qualified_table,
       "-nlt", "PROMOTE_TO_MULTI",
       "-t_srs", "EPSG:4326",
       "-overwrite",

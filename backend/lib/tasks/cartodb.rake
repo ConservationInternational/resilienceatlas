@@ -2241,6 +2241,11 @@ namespace :cartodb do
         # Parse the band number from the CartoDB SQL (ST_CLIP band argument);
         # falls back to 1, which is what CartoDB rendered when no band was given.
         body["bidx"] = CartodbRakeHelpers.extract_raster_band_from_sql(source_sql) if style["colormap"].present?
+        # Set resampling method based on analysis type:
+        # - Categorical data (e.g., land cover classes) needs nearest-neighbor to avoid
+        #   interpolation between discrete values which causes visual artifacts.
+        # - Continuous data can use bilinear (TiTiler default).
+        body["resampling_method"] = (layer.analysis_type == "categorical" ? "nearest" : "bilinear")
 
         # Extract clip geometry for ST_CLIP layers (boundary polygon stored for TiTiler)
         if source_sql.match?(/\bst_clip\s*\(/i)
@@ -2355,6 +2360,11 @@ namespace :cartodb do
             # Parse band from CartoDB SQL (ST_CLIP band arg); falls back to 1.
             # Use ||= so an explicitly-overridden bidx in the config is preserved.
             config["body"]["bidx"] ||= CartodbRakeHelpers.extract_raster_band_from_sql(source_sql)
+            # Set resampling method based on analysis type:
+            # - Categorical data (e.g., land cover classes) needs nearest-neighbor to avoid
+            #   interpolation between discrete values which causes visual artifacts.
+            # - Continuous data can use bilinear (TiTiler default).
+            config["body"]["resampling_method"] = (layer.analysis_type == "categorical" ? "nearest" : "bilinear")
             migration["style"] = style
             changed = true
             cog_styles_updated += 1
