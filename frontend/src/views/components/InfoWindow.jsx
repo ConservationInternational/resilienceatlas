@@ -66,7 +66,9 @@ export default class InfoWindow extends Component {
               {source && (
                 <div
                   dangerouslySetInnerHTML={{
-                    __html: DOMPurify.sanitize(source, { ALLOWED_TAGS: ['a', 'b', 'strong', 'em', 'i', 'p', 'br', 'span'] }),
+                    __html: DOMPurify.sanitize(source, {
+                      ALLOWED_TAGS: ['a', 'b', 'strong', 'em', 'i', 'p', 'br', 'span'],
+                    }),
                   }}
                 />
               )}

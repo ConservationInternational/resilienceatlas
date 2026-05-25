@@ -30,7 +30,7 @@ export const TextChart: FC<TextChartProps> = ({
       return null;
     }
 
-      const raw = Object.keys(data.rows[0]).reduce((res, key) => {
+    const raw = Object.keys(data.rows[0]).reduce((res, key) => {
       if (!res) return null;
       let value: string | number = data.rows[0][key];
       if (typeof value === 'number') {

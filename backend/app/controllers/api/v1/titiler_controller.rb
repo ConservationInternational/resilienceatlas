@@ -133,7 +133,7 @@ module Api
         rescue Net::OpenTimeout, Net::ReadTimeout => e
           Rails.logger.error "[TitilerController] Timeout: #{e.message}"
           render json: {error: "Request to TiTiler timed out"}, status: :gateway_timeout
-        rescue StandardError => e
+        rescue => e
           Rails.logger.error "[TitilerController] Error: #{e.message}"
           render json: {error: "Failed to fetch data from TiTiler"}, status: :internal_server_error
         end
@@ -164,7 +164,7 @@ module Api
         rescue Net::OpenTimeout, Net::ReadTimeout => e
           Rails.logger.error "[TitilerController] Timeout: #{e.message}"
           render json: {error: "Request to TiTiler timed out"}, status: :gateway_timeout
-        rescue StandardError => e
+        rescue => e
           Rails.logger.error "[TitilerController] Error: #{e.message}"
           render json: {error: "Failed to fetch data from TiTiler"}, status: :internal_server_error
         end
@@ -176,6 +176,8 @@ module Api
         /\As3\.amazonaws\.com\z/,
         /\A[\w-]+\.s3\.amazonaws\.com\z/,
         /\A[\w-]+\.s3\.[\w-]+\.amazonaws\.com\z/,
+        /\Astorage\.googleapis\.com\z/,
+        /\A[\w.-]+\.storage\.googleapis\.com\z/,
         /\Atitiler\.resilienceatlas\.org\z/,
         /\A[\w-]+\.titiler\.resilienceatlas\.org\z/,
         /\Alocalhost(:\d+)?\z/

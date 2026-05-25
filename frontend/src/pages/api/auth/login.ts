@@ -1,7 +1,8 @@
 import axios from 'axios';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
-const BACKEND_URL = process.env.INTERNAL_API_HOST || process.env.NEXT_PUBLIC_API_HOST || 'http://localhost:3001';
+const BACKEND_URL =
+  process.env.INTERNAL_API_HOST || process.env.NEXT_PUBLIC_API_HOST || 'http://localhost:3001';
 const COOKIE_MAX_AGE = 7 * 24 * 60 * 60; // 7 days
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -32,7 +33,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(200).json({ success: true });
   } catch (err: unknown) {
     const status = (err as { response?: { status?: number } })?.response?.status ?? 500;
-    const message = (err as { response?: { data?: { error?: string } } })?.response?.data?.error ?? 'Authentication failed';
+    const message =
+      (err as { response?: { data?: { error?: string } } })?.response?.data?.error ??
+      'Authentication failed';
     return res.status(status).json({ error: message });
   }
 }

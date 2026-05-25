@@ -28,7 +28,7 @@ class Api::HealthController < ApplicationController
     database_status = begin
       ActiveRecord::Base.connection.execute("SELECT 1")
       "healthy"
-    rescue StandardError => e
+    rescue => e
       Rails.logger.error "[HealthCheck] database unhealthy: #{e.message}"
       "unhealthy"
     end
@@ -37,7 +37,7 @@ class Api::HealthController < ApplicationController
       begin
         Rails.cache.read("health_check")
         "healthy"
-      rescue StandardError => e
+      rescue => e
         Rails.logger.error "[HealthCheck] redis unhealthy: #{e.message}"
         "unhealthy"
       end
