@@ -2,6 +2,16 @@ import React from 'react';
 import type { Element } from 'html-react-parser';
 import parse, { domToReact } from 'html-react-parser';
 
+const isSafeHref = (href: string | undefined): boolean => {
+  if (!href) return false;
+  try {
+    const url = new URL(href, typeof window !== 'undefined' ? window.location.href : 'https://example.com');
+    return url.protocol === 'https:' || url.protocol === 'http:' || url.protocol === 'mailto:';
+  } catch {
+    return false;
+  }
+};
+
 const CustomHtmlRenderer = ({
   content,
   className,
@@ -15,8 +25,9 @@ const CustomHtmlRenderer = ({
     replace: (domNode: Element) => {
       if (domNode.name === 'a') {
         const { attribs, children } = domNode;
+        const safeHref = isSafeHref(attribs.href) ? attribs.href : '#';
         return (
-          <a href={attribs.href} target="_blank" rel="noopener noreferrer">
+          <a href={safeHref} target="_blank" rel="noopener noreferrer">
             {domToReact(children as Parameters<typeof domToReact>[0])}
           </a>
         );

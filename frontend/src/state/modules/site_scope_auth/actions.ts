@@ -76,8 +76,9 @@ export const authenticateWithSiteScope = (siteScope, username, password) => (dis
   })
     .then(({ data }) => {
       if (data.authenticated && data.token) {
-        // Store the token in localStorage
-        localStorage.setItem(`site_scope_token_${siteScope}`, data.token);
+        // Store the token in sessionStorage (cleared when the tab closes,
+        // shorter-lived than localStorage and still isolated per origin)
+        sessionStorage.setItem(`site_scope_token_${siteScope}`, data.token);
 
         dispatch({
           type: SITE_SCOPE_AUTH_SUCCESS,
@@ -110,7 +111,7 @@ export const authenticateWithSiteScope = (siteScope, username, password) => (dis
 // Get stored token for site scope
 export const getSiteScopeToken = (siteScope = subdomain) => {
   if (typeof window !== 'undefined') {
-    return localStorage.getItem(`site_scope_token_${siteScope}`);
+    return sessionStorage.getItem(`site_scope_token_${siteScope}`);
   }
   return null;
 };
@@ -118,7 +119,7 @@ export const getSiteScopeToken = (siteScope = subdomain) => {
 // Clear stored token for site scope
 export const clearSiteScopeToken = (siteScope = subdomain) => {
   if (typeof window !== 'undefined') {
-    localStorage.removeItem(`site_scope_token_${siteScope}`);
+    sessionStorage.removeItem(`site_scope_token_${siteScope}`);
   }
 };
 

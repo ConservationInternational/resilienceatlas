@@ -1,6 +1,4 @@
-import { AUTH_TOKEN } from 'utilities/constants';
-
-import { PORT, get, post, patch } from '../../utils/api';
+import { get, post, patch } from '../../utils/api';
 import type { ILoginForm, ISignupForm, IEditProfileForm } from './utils';
 import { getUserToken } from './selectors';
 
@@ -48,31 +46,30 @@ export const userDataLoaded = (data) => ({
 });
 
 // Actions
-export const signin = ({ email, password }: ILoginForm) =>
-  post(URL_LOGIN, { data: { email, password }, baseURL: PORT })
-    .then((response) => response.data)
-    .then((data) => {
-      if (data.error || !data.auth_token) {
-        throw new FormSubmissionError({ _error: data.error });
-      }
-
-      return data.auth_token;
-    });
+export const signin = async ({ email, password }: ILoginForm): Promise<void> => {
+  const res = await fetch('/api/auth/login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password }),
+  });
+  const data = await res.json();
+  if (!res.ok) {
+    throw new FormSubmissionError({ _error: data.error });
+  }
+};
 
 export const signup = (values: ISignupForm) =>
-  post(URL_SIGNUP, { data: { user: values }, baseURL: PORT })
+  post(URL_SIGNUP, { data: { user: values } })
     .then((response) => response.data)
     .then((data) => {
       if (data.status !== 'created') {
         throw new FormSubmissionError(data);
       }
-
       return data;
     });
 
 export const loadUserData = () => (dispatch, getState) =>
   get(URL_USER_DATA, {
-    baseURL: PORT,
     headers: {
       Authorization: `Bearer ${getUserToken(getState())}`,
     },
@@ -83,7 +80,6 @@ export const loadUserData = () => (dispatch, getState) =>
 export const editProfile = (values: IEditProfileForm, authToken: string) =>
   patch(URL_USER_DATA, {
     data: { user: values },
-    baseURL: PORT,
     headers: {
       Authorization: `Bearer ${authToken}`,
     },
@@ -103,14 +99,12 @@ export const editProfile = (values: IEditProfileForm, authToken: string) =>
     }
   });
 
-export const login = (auth_token) => (dispatch) => {
-  localStorage.setItem(AUTH_TOKEN, auth_token);
-
+export const login = (auth_token: string) => (dispatch) => {
+  // Token is held in Redux memory only — never written to localStorage.
   dispatch(userLoggedIn(auth_token));
 };
 
-export const logout = () => (dispatch) => {
-  localStorage.removeItem(AUTH_TOKEN);
-
+export const logout = () => async (dispatch) => {
+  await fetch('/api/auth/logout', { method: 'POST' });
   dispatch(userLoggedOut());
 };

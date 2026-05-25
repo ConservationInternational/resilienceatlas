@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
-import DangerousHTML from 'react-dangerous-html';
+import DOMPurify from 'dompurify';
 import { clickable } from 'utilities';
 import { T } from '@transifex/react';
 
@@ -63,7 +63,13 @@ export default class InfoWindow extends Component {
               <T _str="Source" />
             </h4>
             <div className="source">
-              {source && <DangerousHTML html={source} />}
+              {source && (
+                <div
+                  dangerouslySetInnerHTML={{
+                    __html: DOMPurify.sanitize(source, { ALLOWED_TAGS: ['a', 'b', 'strong', 'em', 'i', 'p', 'br', 'span'] }),
+                  }}
+                />
+              )}
               {link && (
                 <a className="link" target="_blank" rel="noopener noreferrer" href={link}>
                   {link}

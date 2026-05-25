@@ -10,7 +10,7 @@ import { T } from '@transifex/react';
 
 import { wrapper } from 'state/store';
 import * as ga from 'utilities/ga';
-import { getToken, login } from 'state/modules/user';
+import { login } from 'state/modules/user';
 import TOUR_STEPS from 'constants/tour-steps';
 
 import { Badge, Navigation } from 'views/components/MapTour';
@@ -141,13 +141,18 @@ const ResilienceApp = ({ Component, ...rest }: AppPropsWithLayout) => {
       }),
   );
 
-  // Getting user from local storage
+  // Rehydrate auth from HttpOnly session cookie (token never touches localStorage)
   useEffect(() => {
-    const token = getToken();
-
-    if (token) {
-      appStore.dispatch(login(token));
-    }
+    fetch('/api/auth/session')
+      .then((r) => r.json())
+      .then(({ authenticated, token }) => {
+        if (authenticated && token) {
+          appStore.dispatch(login(token));
+        }
+      })
+      .catch(() => {
+        // No session or network error — user is not authenticated
+      });
   }, [appStore]);
 
   // Google Analytics
