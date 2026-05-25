@@ -9,12 +9,18 @@ class Api::Admin::ScopeDatasetsController < Api::Admin::ApiController
     scope = scope.for_site_scope(params[:site_scope_id]) if params[:site_scope_id].present?
     scope = scope.ordered
     # Omit the large :data column in list view — use show for full record
+    per_page = [[params[:per_page].to_i, 1].max, 500].min.nonzero? || 100
     records = scope.select(
       :id, :site_scope_id, :slug, :name, :description, :data_type,
       :group_key, :variant_label, :dimension, :dimension_config,
       :schema_config, :chart_config, :display_order, :created_at, :updated_at
-    )
-    render json: {success: true, message: "List of Scope Datasets", data: records.as_json}, status: :ok
+    ).paginate(page: params[:page].presence || 1, per_page: per_page)
+    render json: {
+      success: true,
+      message: "List of Scope Datasets",
+      data: records.as_json,
+      meta: {current_page: records.current_page, total_pages: records.total_pages, total_entries: records.total_entries}
+    }, status: :ok
   end
 
   # GET /api/admin/scope_datasets/:id

@@ -28,16 +28,18 @@ class Api::HealthController < ApplicationController
     database_status = begin
       ActiveRecord::Base.connection.execute("SELECT 1")
       "healthy"
-    rescue => e
-      "unhealthy: #{e.message}"
+    rescue StandardError => e
+      Rails.logger.error "[HealthCheck] database unhealthy: #{e.message}"
+      "unhealthy"
     end
 
     redis_status = if defined?(Redis) && Rails.application.config.respond_to?(:cache_store)
       begin
         Rails.cache.read("health_check")
         "healthy"
-      rescue => e
-        "unhealthy: #{e.message}"
+      rescue StandardError => e
+        Rails.logger.error "[HealthCheck] redis unhealthy: #{e.message}"
+        "unhealthy"
       end
     else
       "not configured"

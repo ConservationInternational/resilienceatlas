@@ -1,8 +1,31 @@
 # COG Conversion - Cloud-Optimized GeoTIFF Converter
 
-Converts raw GeoTIFFs from S3 to Cloud-Optimized GeoTIFFs (COGs) using AWS Batch with GDAL 3.9.
+## 🔥 Quick Start - Fix Categorical Layer Noise
+
+**If you're seeing noise/color fringing on categorical layers (land cover, etc.):**
+
+The COGs were created with bilinear resampling, which interpolates between discrete pixel values. You need to regenerate them with nearest-neighbor resampling.
+
+**Quick fix:**
+```bash
+# Set environment
+export S3_BUCKET=resilienceatlas
+export AWS_PROFILE=resilienceatlas
+
+# Dry run first
+python regenerate_categorical_cogs.py --dry-run
+
+# Run regeneration
+python regenerate_categorical_cogs.py
+```
+
+📖 **Full documentation:** [CATEGORICAL_REGENERATION.md](CATEGORICAL_REGENERATION.md)
+
+---
 
 ## Overview
+
+Converts raw GeoTIFFs from S3 to Cloud-Optimized GeoTIFFs (COGs) using AWS Batch with GDAL 3.9.
 
 This tool:
 1. Lists all raw TIFFs in an S3 prefix (e.g., `cartodb_exports/rasters/`)

@@ -25,6 +25,12 @@ class Rack::Attack
     end
   end
 
+  # Limit any single IP to 5 POST attempts on the site-scope authenticate endpoint per 20 seconds.
+  # This stops brute-force attacks against password-protected site scopes.
+  throttle("api/site_scope/authenticate/ip", limit: 5, period: 20.seconds) do |req|
+    req.ip if req.path == "/api/v1/site-scope/authenticate" && req.post?
+  end
+
   # ── Response ─────────────────────────────────────────────────────────────────
   # Return a plain 429 with a short retry hint instead of raising an exception.
   self.throttled_responder = lambda do |env|

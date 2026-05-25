@@ -245,7 +245,7 @@ class Layer < ApplicationRecord
           Rails.logger.warn "Blocked non-HTTP download_path: #{download_path}"
           return false
         end
-        unless ALLOWED_DOWNLOAD_HOSTS.any? { |host| parsed.host&.end_with?(host) }
+        unless allowed_download_host?(parsed.host)
           Rails.logger.warn "Blocked download_path with disallowed host: #{parsed.host}"
           return false
         end
@@ -342,7 +342,7 @@ class Layer < ApplicationRecord
     loop do
       uri = URI.parse(current_url)
       raise ArgumentError, "Only HTTP(S) URLs are allowed" unless uri.is_a?(URI::HTTP) || uri.is_a?(URI::HTTPS)
-      unless ALLOWED_DOWNLOAD_HOSTS.any? { |h| uri.host&.end_with?(h) }
+      unless allowed_download_host?(uri.host)
         raise ArgumentError, "Blocked request to disallowed host: #{uri.host}"
       end
 
@@ -367,5 +367,12 @@ class Layer < ApplicationRecord
         raise "Remote file server returned HTTP #{response.code}"
       end
     end
+  end
+
+  # Returns true only when +host+ equals an entry in ALLOWED_DOWNLOAD_HOSTS
+  # or is a direct subdomain of one (e.g. "tiles.carto.com" matches "carto.com"
+  # but "evilcarto.com" does NOT).
+  def allowed_download_host?(host)
+    ALLOWED_DOWNLOAD_HOSTS.any? { |h| host == h || host&.end_with?(".#{h}") }
   end
 end

@@ -44,7 +44,7 @@ class Journey < ApplicationRecord
   validates :background_image, content_type: /\Aimage\/.*\z/
   validates :credits_url, url: true
 
-  after_save :at_least_one_step
+  validate :at_least_one_step
 
   accepts_nested_attributes_for :journey_steps, allow_destroy: true
 
@@ -63,9 +63,7 @@ class Journey < ApplicationRecord
   # Validation of presence of relation(s) which is updated via nested attributes and contains translated attributes needs to be done
   # after save, otherwise the old translations are loaded from database at time of validation and they overwrite the new ones before they get saved.
   def at_least_one_step
-    return if journey_steps.exists?
-
-    errors.add :journey_steps, :blank
-    raise ActiveRecord::Rollback
+    remaining = journey_steps.reject(&:marked_for_destruction?)
+    errors.add(:journey_steps, :blank) if remaining.empty?
   end
 end

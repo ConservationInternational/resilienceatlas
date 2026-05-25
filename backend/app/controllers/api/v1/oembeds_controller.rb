@@ -106,11 +106,10 @@ module Api
         st_texts = ["Not Found", "Unprocessable Entity", "Bad Request", "Forbidden"]
         st_index = st_codes.index(status)
         error_string = st_index ? st_texts[st_index] : "Internal Server Error"
-        json_error_string = %( {"error": "#{error_string}"} )
         if @format == "json"
-          render json: json_error_string, status: status and return
+          render json: {error: error_string}, status: status and return
         else
-          render xml: JSON.parse(json_error_string).to_xml(root: "oembed"), status: status and return
+          render xml: {error: error_string}.to_xml(root: "oembed"), status: status and return
         end
       end
     end

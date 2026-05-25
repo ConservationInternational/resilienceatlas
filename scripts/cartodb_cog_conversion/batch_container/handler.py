@@ -82,6 +82,7 @@ def process_single_tiff(event):
     dest_bucket = event.get('dest_bucket', source_bucket)
     dest_prefix = event.get('dest_prefix', 'cartodb-cogs/')
     compression = event.get('compression', 'LZW')
+    overview_resampling = event.get('overview_resampling', 'AVERAGE')  # NEAREST for categorical, AVERAGE/BILINEAR for continuous
     overwrite = event.get('overwrite', False)
     
     if not source_bucket or not source_key:
@@ -133,8 +134,8 @@ def process_single_tiff(event):
             logger.info(f"Downloaded {input_size} bytes")
             
             # Convert to COG using gdal_translate
-            logger.info(f"Converting to COG with {compression} compression...")
-            result = convert_to_cog(input_path, output_path, compression)
+            logger.info(f"Converting to COG with {compression} compression, {overview_resampling} resampling...")
+            result = convert_to_cog(input_path, output_path, compression, overview_resampling)
             
             if not result['success']:
                 return {
@@ -188,17 +189,26 @@ def process_single_tiff(event):
             }
 
 
-def convert_to_cog(input_path, output_path, compression='LZW'):
+def convert_to_cog(input_path, output_path, compression='LZW', overview_resampling='AVERAGE'):
     """
     Convert a GeoTIFF to Cloud-Optimized GeoTIFF using GDAL 3.9+.
     
     Uses native COG driver with optimal settings for cloud streaming.
+    
+    Args:
+        input_path: Path to input GeoTIFF
+        output_path: Path to output COG
+        compression: Compression method (LZW, DEFLATE, ZSTD, JPEG, WEBP, NONE)
+        overview_resampling: Resampling method for overviews (NEAREST, AVERAGE, BILINEAR, CUBIC)
+                            Use NEAREST for categorical/discrete data (land cover, zones)
+                            Use AVERAGE/BILINEAR for continuous data (temperature, precipitation)
     """
     # COG creation options for GDAL 3.1+ native COG driver
     # - COMPRESS: LZW, DEFLATE, ZSTD, JPEG, WEBP, NONE
     # - PREDICTOR: YES auto-selects best predictor for data type
     # - BLOCKSIZE: 512 is standard for COG (good balance of size/requests)
     # - OVERVIEWS: AUTO generates overviews automatically
+    # - OVERVIEW_RESAMPLING: Critical for categorical vs continuous data
     # - BIGTIFF: IF_SAFER handles files > 4GB automatically
     
     cmd = [
@@ -208,7 +218,7 @@ def convert_to_cog(input_path, output_path, compression='LZW'):
         '-co', 'PREDICTOR=YES',
         '-co', 'BLOCKSIZE=512',
         '-co', 'OVERVIEWS=IGNORE_EXISTING',
-        '-co', 'OVERVIEW_RESAMPLING=AVERAGE',
+        '-co', f'OVERVIEW_RESAMPLING={overview_resampling}',
         '-co', 'BIGTIFF=IF_SAFER',
         '-co', 'NUM_THREADS=ALL_CPUS',
         input_path,

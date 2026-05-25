@@ -23,7 +23,10 @@ module Api
           return render json: {error: "Missing required parameters: titilerUrl and cogUrl"}, status: :bad_request
         end
 
-        proxy_get_request(titiler_url, "/info", {url: cog_url})
+        validated_cog = validated_cog_url(cog_url)
+        return render json: {error: "Invalid cogUrl"}, status: :bad_request unless validated_cog
+
+        proxy_get_request(titiler_url, "/info", {url: validated_cog})
       end
 
       # POST /api/titiler/statistics
@@ -50,8 +53,11 @@ module Api
           return render json: {error: "Missing required parameters: titilerUrl and cogUrl"}, status: :bad_request
         end
 
+        validated_cog = validated_cog_url(cog_url)
+        return render json: {error: "Invalid cogUrl"}, status: :bad_request unless validated_cog
+
         # Build query params
-        query_params = {url: cog_url}
+        query_params = {url: validated_cog}
         query_params[:bidx] = params[:bidx] if params[:bidx].present?
         query_params[:categorical] = params[:categorical] if params[:categorical].present?
         query_params[:histogram_bins] = params[:histogram_bins] if params[:histogram_bins].present?
@@ -85,6 +91,9 @@ module Api
           return render json: {error: "Missing required parameters: titilerUrl, cogUrl, lon, lat"}, status: :bad_request
         end
 
+        validated_cog = validated_cog_url(cog_url)
+        return render json: {error: "Invalid cogUrl"}, status: :bad_request unless validated_cog
+
         # Validate coordinates
         lon_f = Float(lon, exception: false)
         lat_f = Float(lat, exception: false)
@@ -93,7 +102,7 @@ module Api
         end
 
         # Build query params
-        query_params = {url: cog_url}
+        query_params = {url: validated_cog}
         query_params[:bidx] = params[:bidx] if params[:bidx].present?
 
         proxy_get_request(titiler_url, "/point/#{lon_f}/#{lat_f}", query_params)
@@ -124,7 +133,7 @@ module Api
         rescue Net::OpenTimeout, Net::ReadTimeout => e
           Rails.logger.error "[TitilerController] Timeout: #{e.message}"
           render json: {error: "Request to TiTiler timed out"}, status: :gateway_timeout
-        rescue => e
+        rescue StandardError => e
           Rails.logger.error "[TitilerController] Error: #{e.message}"
           render json: {error: "Failed to fetch data from TiTiler"}, status: :internal_server_error
         end
@@ -155,9 +164,36 @@ module Api
         rescue Net::OpenTimeout, Net::ReadTimeout => e
           Rails.logger.error "[TitilerController] Timeout: #{e.message}"
           render json: {error: "Request to TiTiler timed out"}, status: :gateway_timeout
-        rescue => e
+        rescue StandardError => e
           Rails.logger.error "[TitilerController] Error: #{e.message}"
           render json: {error: "Failed to fetch data from TiTiler"}, status: :internal_server_error
+        end
+      end
+
+      # Allowed host patterns for COG (Cloud Optimized GeoTIFF) file URLs.
+      # Prevents SSRF by ensuring cogUrl only points to known storage/tile hosts.
+      COG_ALLOWED_HOSTS = [
+        /\As3\.amazonaws\.com\z/,
+        /\A[\w-]+\.s3\.amazonaws\.com\z/,
+        /\A[\w-]+\.s3\.[\w-]+\.amazonaws\.com\z/,
+        /\Atitiler\.resilienceatlas\.org\z/,
+        /\A[\w-]+\.titiler\.resilienceatlas\.org\z/,
+        /\Alocalhost(:\d+)?\z/
+      ].freeze
+
+      # Validates cogUrl against COG_ALLOWED_HOSTS. Returns the URL string
+      # unchanged when valid, or nil when blocked.
+      def validated_cog_url(url)
+        return nil if url.blank?
+
+        begin
+          uri = URI.parse(url)
+          return nil unless uri.is_a?(URI::HTTP) || uri.is_a?(URI::HTTPS)
+          return nil unless COG_ALLOWED_HOSTS.any? { |pattern| uri.host.to_s.match?(pattern) }
+
+          url
+        rescue URI::InvalidURIError
+          nil
         end
       end
 
