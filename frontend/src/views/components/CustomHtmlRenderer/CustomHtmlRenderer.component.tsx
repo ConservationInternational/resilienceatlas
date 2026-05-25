@@ -5,7 +5,10 @@ import parse, { domToReact } from 'html-react-parser';
 const isSafeHref = (href: string | undefined): boolean => {
   if (!href) return false;
   try {
-    const url = new URL(href, typeof window !== 'undefined' ? window.location.href : 'https://example.com');
+    const url = new URL(
+      href,
+      typeof window !== 'undefined' ? window.location.href : 'https://example.com',
+    );
     return url.protocol === 'https:' || url.protocol === 'http:' || url.protocol === 'mailto:';
   } catch {
     return false;

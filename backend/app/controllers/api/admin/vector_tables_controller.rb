@@ -33,7 +33,7 @@ class Api::Admin::VectorTablesController < Api::Admin::ApiController
     end
 
     render json: {success: true, data: data}, status: :ok
-  rescue StandardError => e
+  rescue => e
     render json: {success: false, message: e.message}, status: :internal_server_error
   end
 
@@ -84,7 +84,7 @@ class Api::Admin::VectorTablesController < Api::Admin::ApiController
         sample_rows: data[:rows]
       }
     }, status: :ok
-  rescue StandardError => e
+  rescue => e
     render json: {success: false, message: e.message}, status: :internal_server_error
   end
 
@@ -205,7 +205,7 @@ class Api::Admin::VectorTablesController < Api::Admin::ApiController
     }, status: :ok
   rescue ArgumentError => e
     render json: {success: false, message: e.message}, status: :unprocessable_entity
-  rescue StandardError => e
+  rescue => e
     render json: {success: false, message: e.message}, status: :internal_server_error
   end
 

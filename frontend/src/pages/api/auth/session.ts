@@ -1,7 +1,8 @@
 import axios from 'axios';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
-const BACKEND_URL = process.env.INTERNAL_API_HOST || process.env.NEXT_PUBLIC_API_HOST || 'http://localhost:3001';
+const BACKEND_URL =
+  process.env.INTERNAL_API_HOST || process.env.NEXT_PUBLIC_API_HOST || 'http://localhost:3001';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'GET') {

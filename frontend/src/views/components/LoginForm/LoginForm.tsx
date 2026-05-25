@@ -22,6 +22,15 @@ interface LoginFormError {
   user_authentication?: string;
 }
 
+/** Only allow relative paths to prevent open-redirect attacks. */
+const getSafeRedirect = (from: string | string[] | undefined): string => {
+  const candidate = Array.isArray(from) ? from[0] : from;
+  if (candidate && candidate.startsWith('/') && !candidate.startsWith('//')) {
+    return candidate;
+  }
+  return '/';
+};
+
 const LoginForm: FC = () => {
   const router = useRouter();
   const dispatch = useDispatch<AppDispatch>();
