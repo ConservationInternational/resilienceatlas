@@ -78,11 +78,14 @@ data "aws_iam_policy_document" "cloud_formation_role_policy_document" {
     actions = [
       "iam:CreateRole",
       "iam:DeleteRole",
+      "iam:UpdateRole",
       "iam:PutRolePolicy",
       "iam:DeleteRolePolicy",
       "iam:GetRole",
       "iam:DetachRolePolicy",
       "iam:TagRole",
+      "iam:UntagRole",
+      "iam:ListRoleTags",
       "iam:PassRole",
       "iam:AttachRolePolicy",
       "iam:CreateServiceLinkedRole"

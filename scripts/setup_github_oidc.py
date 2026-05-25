@@ -278,6 +278,7 @@ def create_deployment_policy(route53_zone_id):
                     "iam:GetRolePolicy",
                     "iam:ListRolePolicies",
                     "iam:ListAttachedRolePolicies",
+                    "iam:ListRoleTags",
                     "iam:TagRole",
                     "iam:UntagRole"
                 ],
