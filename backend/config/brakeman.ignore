@@ -70,73 +70,73 @@
       "note": ""
     },
     {
-      "warning_type": "SQL Injection",
-      "warning_code": 0,
-      "fingerprint": "13b70468e7f3dae9f5da2e155c1fcdc89a2574db5243509ec3f00163ac71c33b",
-      "check_name": "SQL",
-      "message": "Possible SQL injection",
-      "file": "app/jobs/vector_import_job.rb",
-      "line": 123,
-      "link": "https://brakemanscanner.org/docs/warning_types/sql_injection/",
-      "code": "ActiveRecord::Base.connection.execute(\"CREATE INDEX IF NOT EXISTS #{ActiveRecord::Base.connection.quote_table_name(\"idx_#{table_name}_#{col}\"[0, 63])} ON \\\"#{\"ra_vector\"}\\\".\\\"#{table_name}\\\" USING GIST (\\\"#{col}\\\")\")",
-      "render_path": null,
-      "location": {
-        "type": "method",
-        "class": "VectorImportJob",
-        "method": "create_spatial_index"
-      },
-      "user_input": "table_name",
-      "confidence": "Medium",
-      "cwe_id": [
-        89
-      ],
-      "note": "False positive: table and column identifiers are validated and quoted before interpolation."
-    },
-    {
       "warning_type": "Command Injection",
       "warning_code": 14,
-      "fingerprint": "3167dca553271b09cc50155d5741f0f7dde5a7e15df03e2add5d6173a7549f54",
+      "fingerprint": "c877d9aefadaf61ef970aaaf12ccfeb582fb8d9b11980c8c6890fd293da03ef0",
       "check_name": "Execute",
       "message": "Possible command injection",
       "file": "app/jobs/vector_import_job.rb",
-      "line": 104,
+      "line": 166,
       "link": "https://brakemanscanner.org/docs/warning_types/command_injection/",
-      "code": "Open3.capture3(\"ogr2ogr\", \"-f\", \"PostgreSQL\", \"PG:#{build_pg_url}\", local_path, \"-nln\", \"#{\"ra_vector\"}.#{table_name}\", \"-nlt\", \"PROMOTE_TO_MULTI\", \"-t_srs\", \"EPSG:4326\", \"-overwrite\", \"--config\", \"OGR_TRUNCATE\", \"YES\")",
+      "code": "Open3.capture3(\"PGPASSWORD\" => ActiveRecord::Base.connection_db_config.configuration_hash[:password].to_s, *[\"ogr2ogr\", \"-f\", \"PostgreSQL\", \"PG:host=#{(ActiveRecord::Base.connection_db_config.configuration_hash[:host] or \"localhost\").to_s.gsub(/[^a-zA-Z0-9._-]/, \"\")} port=#{(ActiveRecord::Base.connection_db_config.configuration_hash[:port] or 5432).to_s.gsub(/[^0-9]/, \"\")} dbname=#{ActiveRecord::Base.connection_db_config.configuration_hash[:database].to_s.gsub(/[^a-zA-Z0-9_-]/, \"\")} user=#{ActiveRecord::Base.connection_db_config.configuration_hash[:username].to_s.gsub(/[^a-zA-Z0-9_-]/, \"\")}\", local_path, \"-nln\", \"#{\"ra_vector\"}.#{table_name.to_s.gsub(/[^a-z0-9_]/, \"_\")}\", \"-nlt\", \"PROMOTE_TO_MULTI\", \"-t_srs\", \"EPSG:4326\", \"-overwrite\", \"--config\", \"OGR_TRUNCATE\", \"YES\"])",
       "render_path": null,
       "location": {
         "type": "method",
         "class": "VectorImportJob",
         "method": "ogr2ogr_import!"
       },
-      "user_input": "build_pg_url",
+      "user_input": "(ActiveRecord::Base.connection_db_config.configuration_hash[:host] or \"localhost\").to_s.gsub(/[^a-zA-Z0-9._-]/, \"\")",
       "confidence": "Medium",
       "cwe_id": [
         77
       ],
-      "note": "False positive: Open3.capture3 is called without a shell and arguments are passed as an array."
+      "note": "False positive: Open3.capture3 is invoked without a shell and command arguments are passed as an array."
     },
     {
       "warning_type": "SQL Injection",
       "warning_code": 0,
-      "fingerprint": "3949b7744f7f9535aa9365383c6a45d2d45391a788abd85ab2b8272b469aab35",
+      "fingerprint": "f7b3ef143467d5c3d9f49eabbebc62f834cd805a479f23c2f62a2ec170ae770f",
       "check_name": "SQL",
       "message": "Possible SQL injection",
-      "file": "app/jobs/vector_import_job.rb",
-      "line": 116,
+      "file": "app/jobs/csv_import_job.rb",
+      "line": 41,
       "link": "https://brakemanscanner.org/docs/warning_types/sql_injection/",
-      "code": "ActiveRecord::Base.connection.execute(\"SELECT f_geometry_column FROM geometry_columns WHERE f_table_schema = '#{\"ra_vector\"}' AND f_table_name = '#{table_name}'\")",
+      "code": "ActiveRecord::Base.connection.execute(\"CREATE TEMP TABLE #{ActiveRecord::Base.connection.quote_table_name(\"csv_staging_#{DataImport.find(data_import_id).id.to_i}\")} (#{CsvColumnTypeInferrer.infer(Rails.root.join(\"tmp\", \"imports\", data_import_id.to_s).join((DataImport.find(data_import_id).file_name or \"import.csv\")).to_s).map do\n \"#{ActiveRecord::Base.connection.quote_column_name(c)} #{t}\"\n end.join(\", \")}) ON COMMIT DROP\")",
       "render_path": null,
       "location": {
         "type": "method",
-        "class": "VectorImportJob",
-        "method": "create_spatial_index"
+        "class": "CsvImportJob",
+        "method": "perform"
       },
-      "user_input": "table_name",
-      "confidence": "Medium",
+      "user_input": "DataImport.find(data_import_id).file_name",
+      "confidence": "High",
       "cwe_id": [
         89
       ],
-      "note": "False positive: table_name is normalized to a safe identifier before this query runs."
+      "note": "False positive: table and column identifiers are quoted and inferred column types are constrained by CsvColumnTypeInferrer."
+    },
+    {
+      "warning_type": "File Access",
+      "warning_code": 16,
+      "fingerprint": "2d28c270fa5e30a781335c297e4849511d64b34b65abb2d774aa583f3bb67a41",
+      "check_name": "FileAccess",
+      "message": "Model attribute used in file name",
+      "file": "app/jobs/csv_import_job.rb",
+      "line": 50,
+      "link": "https://brakemanscanner.org/docs/warning_types/file_access/",
+      "code": "File.foreach(Rails.root.join(\"tmp\", \"imports\", data_import_id.to_s).join((DataImport.find(data_import_id).file_name or \"import.csv\")).to_s, :encoding => \"UTF-8\")",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "CsvImportJob",
+        "method": "perform"
+      },
+      "user_input": "DataImport.find(data_import_id).file_name",
+      "confidence": "Weak",
+      "cwe_id": [
+        22
+      ],
+      "note": "False positive: import files are read from an app-controlled temporary directory and the path is generated by the import pipeline."
     },
     {
       "warning_type": "Command Injection",
