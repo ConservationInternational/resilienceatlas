@@ -14,7 +14,7 @@ function buildSingleTitilerUrl(layerConfig, sourceOverride) {
   if (body.url && !sourceOverride) return body.url;
 
   const source = sourceOverride || body.source;
-  const { colormap, colormap_name, bidx, nodata, rescale } = body;
+  const { colormap, colormap_name, bidx, nodata, rescale, resampling_method } = body;
   if (!source) {
     console.error('[COG Layer OL] No source URL in layerConfig.body');
     return null;
@@ -23,6 +23,7 @@ function buildSingleTitilerUrl(layerConfig, sourceOverride) {
   const titilerBaseUrl = getTitilerBaseUrl();
   let tileUrl = `${titilerBaseUrl}/tiles/WebMercatorQuad/{z}/{x}/{y}?url=${encodeURIComponent(source)}`;
   if (bidx) tileUrl += `&bidx=${bidx}`;
+  if (resampling_method) tileUrl += `&resampling_method=${resampling_method}`;
   if (nodata !== undefined && nodata !== null) tileUrl += `&nodata=${nodata}`;
   // Interval colormaps (arrays) use raw pixel values directly in TiTiler.
   // Passing rescale alongside them would pre-normalise values to 0-255 and
