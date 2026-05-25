@@ -1,5 +1,4 @@
 import * as Yup from 'yup';
-import { AUTH_TOKEN } from 'utilities/constants';
 
 // LOGIN FORM //
 export interface ILoginForm {
@@ -87,4 +86,5 @@ export const ProfileSettingsSchema = Yup.object().shape({
 
 // Utils
 
-export const getToken = () => localStorage.getItem(AUTH_TOKEN);
+// NOTE: auth token is stored in an HttpOnly cookie and in Redux memory only.
+// Do not access it from localStorage.

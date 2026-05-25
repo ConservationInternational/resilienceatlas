@@ -3,6 +3,13 @@ import axios from 'axios';
 import type { GetServerSideProps } from 'next';
 import type { SharedURLData } from 'types/shared-url';
 
+/**
+ * Only allow relative paths as share destinations.
+ * Absolute URLs (https://evil.com) and non-path strings are rejected.
+ */
+const isSafeDestination = (dest: unknown): dest is string =>
+  typeof dest === 'string' && dest.startsWith('/') && !dest.startsWith('//');
+
 const SharePage: React.FC = () => null;
 
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
@@ -13,6 +20,9 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
 
     if (data) {
       const destination = data.data?.attributes?.body;
+      if (!isSafeDestination(destination)) {
+        return { redirect: { destination: '/404', permanent: false } };
+      }
       return {
         redirect: {
           destination,

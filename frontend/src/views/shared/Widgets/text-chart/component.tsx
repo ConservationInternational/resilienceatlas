@@ -1,5 +1,6 @@
 import type { FC } from 'react';
 import { useMemo } from 'react';
+import DOMPurify from 'dompurify';
 import { T, useT } from '@transifex/react';
 
 import InfoWindow from 'views/components/InfoWindow';
@@ -29,7 +30,7 @@ export const TextChart: FC<TextChartProps> = ({
       return null;
     }
 
-    return Object.keys(data.rows[0]).reduce((res, key) => {
+      const raw = Object.keys(data.rows[0]).reduce((res, key) => {
       if (!res) return null;
       let value: string | number = data.rows[0][key];
       if (typeof value === 'number') {
@@ -38,6 +39,10 @@ export const TextChart: FC<TextChartProps> = ({
       if (!value) return null;
       return res.replace(`{{${key}}}`, `<strong>${value}</strong>`);
     }, analysisTextTemplate);
+    if (!raw) return null;
+    return typeof window !== 'undefined'
+      ? DOMPurify.sanitize(raw, { ALLOWED_TAGS: ['strong', 'em', 'b', 'i', 'br', 'span'] })
+      : raw.replace(/<[^>]*>/g, '');
   }, [data, analysisTextTemplate]);
 
   return (

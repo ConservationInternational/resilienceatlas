@@ -18,6 +18,15 @@ import type { ISignupForm } from 'state/modules/user';
 
 type AppDispatch = ThunkDispatch<unknown, unknown, UnknownAction>;
 
+/** Only allow relative paths to prevent open-redirect attacks. */
+const getSafeRedirect = (from: string | string[] | undefined): string => {
+  const candidate = Array.isArray(from) ? from[0] : from;
+  if (candidate && candidate.startsWith('/') && !candidate.startsWith('//')) {
+    return candidate;
+  }
+  return '/';
+};
+
 const SignupForm: FC = () => {
   const router = useRouter();
   const dispatch = useDispatch<AppDispatch>();
@@ -36,12 +45,16 @@ const SignupForm: FC = () => {
   const onSubmit = async (data: ISignupForm) => {
     try {
       await signup(data);
-      const authToken = await signin({ email: data.email, password: data.password });
-      dispatch(login(authToken));
+      await signin({ email: data.email, password: data.password });
+      const sessionRes = await fetch('/api/auth/session');
+      const session = await sessionRes.json();
+      if (session.authenticated && session.token) {
+        dispatch(login(session.token));
+      }
 
       // Redirect to the page user came from, or home page
-      if (from && router.isReady) {
-        router.push(from as string);
+      if (router.isReady) {
+        router.push(getSafeRedirect(from));
       }
     } catch (err: unknown) {
       const error = err as { errors?: Record<string, string> };

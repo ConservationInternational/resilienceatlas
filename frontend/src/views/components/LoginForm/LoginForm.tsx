@@ -39,11 +39,15 @@ const LoginForm: FC = () => {
 
   const onSubmit = async (data: ILoginForm) => {
     try {
-      const authToken = await signin(data);
-      dispatch(login(authToken));
+      await signin(data);
+      const sessionRes = await fetch('/api/auth/session');
+      const session = await sessionRes.json();
+      if (session.authenticated && session.token) {
+        dispatch(login(session.token));
+      }
 
-      if (from && router.isReady) {
-        router.push(from as string);
+      if (router.isReady) {
+        router.push(getSafeRedirect(from));
       }
     } catch (err: unknown) {
       const error = err as { _error?: LoginFormError };

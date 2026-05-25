@@ -55,11 +55,23 @@ const nextConfig = {
             key: 'X-Content-Type-Options',
             value: 'nosniff',
           },
+          {
+            key: 'Strict-Transport-Security',
+            value: 'max-age=63072000; includeSubDomains; preload',
+          },
+          {
+            key: 'Referrer-Policy',
+            value: 'strict-origin-when-cross-origin',
+          },
+          {
+            key: 'Permissions-Policy',
+            value: 'camera=(), microphone=(), geolocation=()',
+          },
         ],
       },
       {
-        // Admin preview pages are embedded as iframes inside the Rails admin —
-        // omit X-Frame-Options and allow any origin via CSP frame-ancestors
+        // Admin preview pages are embedded as iframes inside the Rails admin.
+        // frame-ancestors is locked to known origins instead of wildcard (*).
         source: '/admin-preview/:path*',
         headers: [
           {
@@ -68,7 +80,7 @@ const nextConfig = {
           },
           {
             key: 'Content-Security-Policy',
-            value: "frame-ancestors *",
+            value: "frame-ancestors 'self' https://www.resilienceatlas.org https://staging.resilienceatlas.org",
           },
         ],
       },

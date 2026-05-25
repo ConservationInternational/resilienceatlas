@@ -42,10 +42,10 @@ const defaultConfig = createDefaultConfig();
 
 let axiosInstance = axios.create(defaultConfig);
 
-// Function to get site scope token from localStorage
+// Function to get site scope token from sessionStorage
 const getSiteScopeToken = (siteScope = subdomain) => {
   if (typeof window !== 'undefined') {
-    return localStorage.getItem(`site_scope_token_${siteScope}`);
+    return sessionStorage.getItem(`site_scope_token_${siteScope}`);
   }
   return null;
 };
@@ -122,7 +122,7 @@ export const makeRequest = (method: Method, url: string, options: AxiosRequestCo
       // This is a site scope authentication error
       // Clear the potentially invalid token
       if (siteScopeToken && typeof window !== 'undefined') {
-        localStorage.removeItem(`site_scope_token_${siteScope}`);
+        sessionStorage.removeItem(`site_scope_token_${siteScope}`);
       }
     }
 
