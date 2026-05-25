@@ -15,6 +15,9 @@ Environment variables:
     SOURCE_PREFIX: Source prefix for raw TIFFs
     COG_PREFIX: Destination prefix for COGs
     COMPRESSION: COG compression (LZW, DEFLATE, ZSTD)
+    OVERVIEW_RESAMPLING: Resampling for overviews (NEAREST, AVERAGE, BILINEAR, CUBIC)
+                        Use NEAREST for categorical data (land cover, zones)
+                        Use AVERAGE/BILINEAR for continuous data (temperature, precipitation)
     TIFF_KEYS: Comma-separated list of S3 keys to process
     MANIFEST_KEY: S3 key to a manifest file listing keys to process
     OVERWRITE: Whether to overwrite existing COGs (true/false)
@@ -126,6 +129,7 @@ def convert_to_cog(
     source_key: str,
     cog_prefix: str,
     compression: str = "LZW",
+    overview_resampling: str = "AVERAGE",
     overwrite: bool = False,
 ) -> dict:
     """
@@ -137,6 +141,9 @@ def convert_to_cog(
         source_key: S3 key of source TIFF
         cog_prefix: S3 prefix for output COGs
         compression: Compression algorithm (LZW, DEFLATE, ZSTD)
+        overview_resampling: Resampling method for overviews (NEAREST, AVERAGE, BILINEAR, CUBIC)
+                            Use NEAREST for categorical/discrete data (land cover, zones)
+                            Use AVERAGE/BILINEAR for continuous data (temperature, precipitation)
         overwrite: Whether to overwrite existing COGs
     
     Returns:
@@ -190,6 +197,7 @@ def convert_to_cog(
         cmd = [
             "gdal_translate",
             "-of", "COG",
+            "-co", f"OVERVIEW_RESAMPLING={overview_resampling}",
             "-co", f"COMPRESS={compression}",
             "-co", "BIGTIFF=IF_SAFER",
             "-co", "NUM_THREADS=ALL_CPUS",
@@ -293,12 +301,14 @@ def main():
     
     cog_prefix = os.environ.get("COG_PREFIX", "cartodb_exports/cogs/")
     compression = os.environ.get("COMPRESSION", "LZW")
+    overview_resampling = os.environ.get("OVERVIEW_RESAMPLING", "AVERAGE")  # NEAREST for categorical, AVERAGE for continuous
     overwrite = os.environ.get("OVERWRITE", "false").lower() == "true"
     
     info(f"Configuration:")
     info(f"  Bucket: {bucket}")
     info(f"  COG Prefix: {cog_prefix}")
     info(f"  Compression: {compression}")
+    info(f"  Overview Resampling: {overview_resampling}")
     info(f"  Overwrite: {overwrite}")
     
     # Get S3 client
@@ -331,6 +341,7 @@ def main():
                 source_key,
                 cog_prefix,
                 compression,
+                overview_resampling,
                 overwrite,
             )
             

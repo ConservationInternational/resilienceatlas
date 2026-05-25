@@ -30,7 +30,18 @@ class VectorImportJob
     FileUtils.mkdir_p(work_dir)
     local_path = work_dir.join(file_name).to_s
 
+    # Hold a session-level advisory lock keyed on the Layer ID while importing
+    # to prevent two jobs from clobbering the same table concurrently.
+    # The lock is released in the ensure block (or automatically when the
+    # PostgreSQL connection closes if the process is killed mid-job).
+    lock_layer_id = nil
+
     begin
+      if import_target.is_a?(Layer)
+        lock_layer_id = import_target.id
+        acquire_layer_lock!(lock_layer_id)
+      end
+
       # 1. Download from S3
       download_from_s3(s3_key, local_path)
 
@@ -73,13 +84,15 @@ class VectorImportJob
       # pg_tables caches explicitly now that the new table and layer config are live.
       DatasetInventoryService.invalidate_all_caches!
     rescue => e
+      Rails.logger.error "[VectorImportJob] #{e.class}: #{e.message}\n#{e.backtrace&.join("\n")}"
       di.update!(
         status: "failed",
-        error_message: "#{e.class}: #{e.message}\n#{e.backtrace&.first(10)&.join("\n")}",
+        error_message: "#{e.class}: #{e.message}",
         completed_at: Time.current
       )
       raise # re-raise so Sidekiq retry logic fires
     ensure
+      release_layer_lock(lock_layer_id) if lock_layer_id
       FileUtils.rm_rf(work_dir)
     end
   end
@@ -97,6 +110,27 @@ class VectorImportJob
     )
 
     client.get_object(bucket: bucket, key: s3_key, response_target: local_path)
+  end
+
+  # Acquires a session-level PG advisory lock keyed on +layer_id+.
+  # Raises if another session already holds the lock.
+  def acquire_layer_lock!(layer_id)
+    acquired = ActiveRecord::Base.connection.select_value(
+      ActiveRecord::Base.sanitize_sql_array(
+        ["SELECT CASE WHEN pg_try_advisory_lock(?) THEN 1 ELSE 0 END", layer_id]
+      )
+    ).to_i == 1
+    raise "Layer ##{layer_id} import already in progress. Job will be retried." unless acquired
+  end
+
+  # Releases the session-level advisory lock acquired by +acquire_layer_lock!+.
+  # Logs a warning (does not raise) so the ensure block always completes.
+  def release_layer_lock(layer_id)
+    ActiveRecord::Base.connection.execute(
+      ActiveRecord::Base.sanitize_sql_array(["SELECT pg_advisory_unlock(?)", layer_id])
+    )
+  rescue => e
+    Rails.logger.warn "[VectorImportJob] Failed to release advisory lock for Layer ##{layer_id}: #{e.message}"
   end
 
   def ogr2ogr_import!(local_path, table_name)
@@ -140,8 +174,11 @@ class VectorImportJob
     conn = ActiveRecord::Base.connection
 
     geom_cols = conn.execute(
-      "SELECT f_geometry_column FROM geometry_columns " \
-      "WHERE f_table_schema = '#{TARGET_SCHEMA}' AND f_table_name = '#{table_name}'"
+      ActiveRecord::Base.sanitize_sql_array([
+        "SELECT f_geometry_column FROM geometry_columns WHERE f_table_schema = ? AND f_table_name = ?",
+        TARGET_SCHEMA,
+        table_name
+      ])
     ).map { |r| r["f_geometry_column"] }
 
     geom_cols.each do |col|

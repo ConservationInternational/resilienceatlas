@@ -59,7 +59,7 @@ class Api::Admin::VectorViewsController < Api::Admin::ApiController
     SQL
 
     render json: {success: true, data: rows}, status: :ok
-  rescue => e
+  rescue StandardError => e
     render json: {success: false, message: e.message}, status: :internal_server_error
   end
 
@@ -109,7 +109,7 @@ class Api::Admin::VectorViewsController < Api::Admin::ApiController
     render json: {success: false, message: e.message}, status: :unprocessable_entity
   rescue ActiveRecord::StatementInvalid => e
     render json: {success: false, message: "SQL error: #{e.message}"}, status: :unprocessable_entity
-  rescue => e
+  rescue StandardError => e
     render json: {success: false, message: e.message}, status: :internal_server_error
   end
 
@@ -132,7 +132,7 @@ class Api::Admin::VectorViewsController < Api::Admin::ApiController
     render json: {success: true, message: "View '#{name}' dropped."}, status: :ok
   rescue ArgumentError => e
     render json: {success: false, message: e.message}, status: :unprocessable_entity
-  rescue => e
+  rescue StandardError => e
     render json: {success: false, message: e.message}, status: :internal_server_error
   end
 

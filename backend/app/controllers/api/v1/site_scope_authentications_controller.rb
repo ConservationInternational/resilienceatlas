@@ -96,7 +96,8 @@ module Api
         payload = decoded.first
 
         payload["site_scope_id"] == site_scope_id && payload["exp"] > Time.current.to_i
-      rescue JWT::DecodeError, JWT::ExpiredSignature
+      rescue JWT::DecodeError, JWT::ExpiredSignature => e
+        Rails.logger.warn "[SiteScopeAuth] Token validation failed (#{e.class}) from #{request.remote_ip}"
         false
       end
     end
