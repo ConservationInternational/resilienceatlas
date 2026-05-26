@@ -163,8 +163,8 @@ export function pathOptionsToStyle(pathOptions) {
     // Canvas crosshatch pattern: use fillColor as line colour at full opacity.
     const hatchColor = resolveColor(fillColor || color, 1);
     fillStyle = new Fill({ color: createHatchPattern(hatchColor) });
-  } else if (fill || fillOpacity > 0) {
-    fillStyle = new Fill({ color: resolveColor(fillColor || color, fillOpacity) });
+  } else if (fillColor && (fill || fillOpacity > 0)) {
+    fillStyle = new Fill({ color: resolveColor(fillColor, fillOpacity) });
   }
 
   return new Style({
