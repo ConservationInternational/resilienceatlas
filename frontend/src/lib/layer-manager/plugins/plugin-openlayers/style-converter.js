@@ -22,7 +22,9 @@ import Stroke from 'ol/style/Stroke';
 import Fill from 'ol/style/Fill';
 
 function hexToRgba(hex, opacity) {
-  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  // Expand 3-char shorthand (#FFF → #FFFFFF) before parsing
+  const expanded = hex.replace(/^#?([a-f\d])([a-f\d])([a-f\d])$/i, '#$1$1$2$2$3$3');
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(expanded);
   if (!result) return `rgba(0,0,0,${opacity ?? 1})`;
   return `rgba(${parseInt(result[1], 16)},${parseInt(result[2], 16)},${parseInt(result[3], 16)},${opacity ?? 1})`;
 }
