@@ -52,6 +52,7 @@ if (typeof window !== 'undefined') {
 // Maps layer_provider values to the plugin method keys used by PluginOpenLayers.method
 // Must match Layer::VALID_PROVIDERS in backend/app/models/layer.rb
 const PROVIDER_MAP: Record<string, string> = {
+  arcgis_feature: 'arcgis_feature',
   cog: 'cog',
   esri: 'arcgis',
   gee: 'gee',
@@ -126,6 +127,15 @@ function buildLayerConfig(provider: string, layerConfigJson: string): ProviderLa
         body: {
           url: (body.url as string) || (layerConfig.url as string),
           params: (body.params as Record<string, unknown>) || {},
+        },
+      };
+
+    case 'arcgis_feature':
+      return {
+        body: {
+          url: (body.url as string) || (layerConfig.url as string),
+          params: (body.params as Record<string, unknown>) || {},
+          options: (body.options as Record<string, unknown>) || {},
         },
       };
 

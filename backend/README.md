@@ -347,9 +347,13 @@ The `layer_provider` field determines how the layer is rendered:
 
 | Provider | Description | Example Use Case |
 |----------|-------------|------------------|
-| `cartodb` | CartoDB/CARTO vector tiles | Vector overlays, administrative boundaries |
-| `gee` | Google Earth Engine | Satellite imagery, global datasets |
+| `arcgis_feature` | ArcGIS FeatureServer | Vector features from ESRI services |
 | `cog` | Cloud Optimized GeoTIFF via TiTiler | Raster analysis layers from S3/GCS |
+| `esri` | ArcGIS MapServer/TileServer | Pre-rendered tile services from ESRI |
+| `gee` | Google Earth Engine | Satellite imagery, global datasets |
+| `martin` | PostGIS vector tiles | Vector overlays from PostgreSQL |
+| `wms` | OGC Web Map Service | Standards-based tile services |
+| `wmts` | OGC Web Map Tile Service | Tiled map services |
 | `xyz tileset` | Generic XYZ tile service | Pre-rendered tile caches |
 
 #### COG Layer Configuration

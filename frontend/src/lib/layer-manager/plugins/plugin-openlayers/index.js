@@ -1,6 +1,7 @@
 import cogLayer from './cog-layer-ol';
 import geeLayer from './gee-layer-ol';
 import esriLayer from './esri-layer-ol';
+import arcgisFeatureLayer from './arcgis-feature-layer-ol';
 import martinLayer from './martin-layer-ol';
 import tileLayer from './tile-layer-ol';
 import wmsLayer from './wms-layer-ol';
@@ -29,6 +30,8 @@ class PluginOpenLayers {
     esrifeatureservice: esriLayer,
     esrimapservice: esriLayer,
     esritileservice: esriLayer,
+    // ArcGIS FeatureServer (vector features)
+    arcgis_feature: arcgisFeatureLayer,
     // Named WMS provider
     wms: wmsLayer,
     // Named WMTS provider

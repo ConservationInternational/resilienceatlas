@@ -17,6 +17,7 @@ const provider = {
   gee: 'gee',
   martin: 'martin',
   esri: 'arcgis',
+  arcgis_feature: 'arcgis_feature',
   wms: 'wms',
   wmts: 'wmts',
 };
@@ -173,6 +174,14 @@ export const layer = new schema.Entity(
           body: {
             url: layerConfig?.body?.url || layerConfig?.url,
             params: layerConfig?.body?.params || {},
+          },
+        },
+        // ArcGIS FeatureServer (vector features)
+        arcgis_feature: {
+          body: {
+            url: layerConfig?.body?.url || layerConfig?.url,
+            params: layerConfig?.body?.params || {},
+            options: layerConfig?.body?.options || {},
           },
         },
         // OGC Web Map Service
