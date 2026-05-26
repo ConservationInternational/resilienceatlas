@@ -43,8 +43,8 @@
       li.input.select
         = f.label :layer_provider
         span.inline-hint Required. Determines tile source. All providers use layer_config (JSON).
-        = f.select :layer_provider, ["cog", "esri", "gee", "leaflet", "martin", "wms", "wmts", "xyz tileset"], {}, class: "select-dependency-controller"
-      span class="select-dependency-field" style="margin: 0 10px; font-size: small; display: block;" data-available-for=["xyz tileset", "cog", "gee", "martin", "wms", "wmts", "esri", "leaflet"]
+        = f.select :layer_provider, ["arcgis_feature", "cog", "esri", "gee", "leaflet", "martin", "wms", "wmts", "xyz tileset"], {}, class: "select-dependency-controller"
+      span class="select-dependency-field" style="margin: 0 10px; font-size: small; display: block;" data-available-for=["xyz tileset", "cog", "gee", "martin", "wms", "wmts", "esri", "arcgis_feature", "leaflet"]
         | If the layer has a timeline, {{year}}, {{month}} and {{day}} will be substituted.
       li.input.string
         = f.label :opacity
@@ -66,9 +66,9 @@
         = f.label :zoom_min
         span.inline-hint Minimum zoom level at which layer is visible (0-24, default: 0)
         = f.text_field :zoom_min
-      li.input.text.select-dependency-field data-available-for=["cog", "esri", "gee", "leaflet", "martin", "wms", "wmts", "xyz tileset"] data-required-for=["cog", "martin"]
+      li.input.text.select-dependency-field data-available-for=["cog", "esri", "arcgis_feature", "gee", "leaflet", "martin", "wms", "wmts", "xyz tileset"] data-required-for=["cog", "martin"]
         = f.label :layer_config
-        span.inline-hint Required for COG/Martin. Martin: {"source":"table_name","styles":{...}}. COG: {"body":{"url":"TiTiler URL"}}. WMS/WMTS: {"body":{"url":"...","layer":"..."}}. ESRI: {"body":{"url":"..."}}.
+        span.inline-hint Required for COG/Martin. Martin: {"source":"table_name","styles":{...}}. COG: {"body":{"url":"TiTiler URL"}}. WMS/WMTS: {"body":{"url":"...","layer":"..."}}. ESRI: {"body":{"url":"..."}}. ArcGIS Feature: {"body":{"url":"FeatureServer/0","params":{"where":"1=1","outFields":"*"}}}.
         span.label-note  (JSON)
         = f.text_area :layer_config, rows: 10, class: "json-editor-textarea"
     = f.inputs "Interactivity"

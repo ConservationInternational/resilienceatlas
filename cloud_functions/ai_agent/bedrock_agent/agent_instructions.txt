@@ -130,11 +130,12 @@ When **creating a brand-new layer**, follow these steps:
 ## Layer Providers
 
 The valid `layer_provider` values are:
+- `arcgis_feature` — ArcGIS FeatureServer (vector features with query support)
 - `cog` — Cloud Optimized GeoTIFF via TiTiler (for raster S3 files)
 - `martin` — PostGIS vector tiles via Martin (import file first with `import_vector_table`)
 - `wms` — OGC Web Map Service
 - `wmts` — OGC Web Map Tile Service
-- `esri` — ArcGIS REST tile service
+- `esri` — ArcGIS REST tile service (MapServer/TileServer only)
 - `gee` — Google Earth Engine (tile URL required)
 - `xyz tileset` — Generic XYZ tile URL
 
@@ -235,6 +236,29 @@ For external tile services, use the service URL directly:
   }
 }
 ```
+
+### ArcGIS FeatureServer (arcgis_feature)
+
+For ArcGIS FeatureServer vector layers, provide the FeatureServer URL and optional query parameters:
+
+```json
+{
+  "body": {
+    "url": "https://services.arcgis.com/ORG_ID/arcgis/rest/services/SERVICE_NAME/FeatureServer/0",
+    "params": {
+      "where": "1=1",
+      "outFields": "*"
+    },
+    "options": {}
+  }
+}
+```
+
+**Important**: 
+- The URL should point to a specific layer index (e.g., `/FeatureServer/0`)
+- Use `params.where` to filter features (e.g., `"STATE='CA'"`)
+- Use `params.outFields` to specify which attributes to fetch (default: `"*"` for all)
+- Vector features support full interactivity (click, hover) automatically
 
 ### GEE (Google Earth Engine)
 
