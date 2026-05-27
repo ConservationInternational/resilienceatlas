@@ -94,6 +94,10 @@ Rails.application.routes.draw do
       post "/titiler/statistics", to: "titiler#statistics"
       get "/titiler/point", to: "titiler#point"
 
+      # ArcGIS FeatureServer proxy - forwards /query requests server-side so
+      # that API tokens stored in layer_config are never exposed to the browser
+      get "/arcgis-feature-proxy/:id/query", to: "arcgis_feature_proxy#query"
+
       resources :photos, only: :create
       resources :feedbacks, only: :create
       resources :static_pages, only: :show

@@ -58,7 +58,7 @@
 
 class LayerSerializer < ActiveModel::Serializer
   attributes :name, :description, :slug, :layer_type, :zindex, :opacity, :active, :order,
-    :dashboard_order, :color, :info, :css, :query, :layer_config, :layer_provider,
+    :dashboard_order, :color, :info, :css, :query, :layer_provider,
     :published, :locate_layer, :icon_class, :legend, :zoom_max, :zoom_min, :download,
     :dataset_shortname, :dataset_source_url, :analysis_suitable, :analysis_query, :analysis_body,
     :analysis_type, :analysis_text_template, :interaction_config, :timeline, :timeline_steps, :timeline_start_date,
@@ -78,6 +78,24 @@ class LayerSerializer < ActiveModel::Serializer
   def agrupation
     return if layer_group.blank?
     object.agrupations.find { |r| r.layer_id == object.id && r.layer_group_id == layer_group.id }
+  end
+
+  def layer_config
+    raw = object.layer_config
+    return raw unless object.layer_provider == "arcgis_feature"
+
+    begin
+      config = JSON.parse(raw || "{}")
+    rescue JSON::ParserError
+      return raw
+    end
+
+    body = config["body"]
+    return raw unless body.is_a?(Hash) && body["token"].present?
+
+    body.delete("token")
+    body["useProxy"] = true
+    config.to_json
   end
 
   def timeline_steps
