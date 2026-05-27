@@ -132,12 +132,22 @@ function resolveConditions(pathOptions, props) {
   if (!conditions || !conditions.length) return base;
 
   let resolved = { ...base };
+  let fillColorResolved = Object.prototype.hasOwnProperty.call(base, 'fillColor');
   for (const condition of conditions) {
     const { when, ...overrides } = condition;
     if (evaluateWhen(when, props)) {
       resolved = { ...resolved, ...overrides };
+      if (Object.prototype.hasOwnProperty.call(overrides, 'fillColor')) fillColorResolved = true;
     }
   }
+
+  // When conditions are present but no condition (or base) provided a fillColor,
+  // suppress the fill. This matches CartoDB's behaviour: features that don't
+  // satisfy any rule are invisible rather than defaulting to the stroke colour.
+  if (!fillColorResolved) {
+    resolved.fill = false;
+  }
+
   return resolved;
 }
 
@@ -163,8 +173,8 @@ export function pathOptionsToStyle(pathOptions) {
     // Canvas crosshatch pattern: use fillColor as line colour at full opacity.
     const hatchColor = resolveColor(fillColor || color, 1);
     fillStyle = new Fill({ color: createHatchPattern(hatchColor) });
-  } else if (fillColor && (fill || fillOpacity > 0)) {
-    fillStyle = new Fill({ color: resolveColor(fillColor, fillOpacity) });
+  } else if (fill || fillOpacity > 0) {
+    fillStyle = new Fill({ color: resolveColor(fillColor || color, fillOpacity) });
   }
 
   return new Style({
