@@ -194,15 +194,12 @@ export default function api(apiAction: ApiAction, cb: Callback, meta: ApiMeta) {
           return;
         }
 
-        if (error.error) {
-          dispatch({
-            type: apiAction.FAIL,
-            meta,
-          });
-        } else {
-          // eslint-disable-next-line no-console
-          console.error(error);
-        }
+        // eslint-disable-next-line no-console
+        console.error(error);
+        dispatch({
+          type: apiAction.FAIL,
+          meta,
+        });
       });
   };
 }
