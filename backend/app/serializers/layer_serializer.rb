@@ -58,7 +58,7 @@
 
 class LayerSerializer < ActiveModel::Serializer
   attributes :name, :description, :slug, :layer_type, :zindex, :opacity, :active, :order,
-    :dashboard_order, :color, :info, :css, :query, :layer_provider,
+    :dashboard_order, :color, :info, :css, :query, :layer_config, :layer_provider,
     :published, :locate_layer, :icon_class, :legend, :zoom_max, :zoom_min, :download,
     :dataset_shortname, :dataset_source_url, :analysis_suitable, :analysis_query, :analysis_body,
     :analysis_type, :analysis_text_template, :interaction_config, :timeline, :timeline_steps, :timeline_start_date,
