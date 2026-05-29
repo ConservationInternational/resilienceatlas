@@ -94,8 +94,13 @@ namespace :boundaries do
       #   - "TopologyException: Self-intersection" for invalid source geometries.
       # ST_CollectionExtract(…, 3) then retains only polygon parts — clipping can
       # produce stray points/lines along tile edges.
+      #
+      # IMPORTANT: Use COALESCE fallback - if ST_Intersection produces empty geometry,
+      # use ST_MakeValid(original) instead. This prevents silently dropping countries
+      # with complex geometries or polar regions.
       web_mercator_bounds = "ST_MakeEnvelope(-180, -85.051129, 180, 85.051129, 4326)"
-      safe_geom = "ST_Multi(ST_CollectionExtract(ST_Intersection(ST_MakeValid(geom), #{web_mercator_bounds}), 3))"
+      clipped_geom = "ST_Multi(ST_CollectionExtract(ST_Intersection(ST_MakeValid(geom), #{web_mercator_bounds}), 3))"
+      safe_geom = "CASE WHEN ST_IsEmpty(#{clipped_geom}) THEN ST_Multi(ST_MakeValid(geom)) ELSE #{clipped_geom} END"
 
       insert_sql = case level
       when 0
@@ -103,6 +108,7 @@ namespace :boundaries do
           INSERT INTO admin_boundaries (name, iso_code, admin_level, parent_iso_code, geom, created_at, updated_at)
           SELECT "shapename", "shapegroup", 0, NULL, #{safe_geom}, NOW(), NOW()
           FROM #{temp_table}
+          WHERE geom IS NOT NULL AND NOT ST_IsEmpty(geom)
         SQL
       when 1
         <<~SQL
@@ -111,6 +117,7 @@ namespace :boundaries do
                  COALESCE("shapeid", "shapegroup" || '_' || "shapename"),
                  1, "shapegroup", #{safe_geom}, NOW(), NOW()
           FROM #{temp_table}
+          WHERE geom IS NOT NULL AND NOT ST_IsEmpty(geom)
         SQL
       when 2
         <<~SQL
@@ -119,6 +126,7 @@ namespace :boundaries do
                  COALESCE("shapeid", "shapegroup" || '_' || COALESCE("shapename", 'unknown')),
                  2, "shapegroup", #{safe_geom}, NOW(), NOW()
           FROM #{temp_table}
+          WHERE geom IS NOT NULL AND NOT ST_IsEmpty(geom)
         SQL
       end
 
