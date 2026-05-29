@@ -5,13 +5,13 @@ Regenerate categorical COGs with NEAREST resampling.
 This is a convenience script that:
 1. Queries the database for categorical layers
 2. Generates the list of TIFF keys
-3. Runs the batch conversion with OVERVIEW_RESAMPLING=NEAREST
+3. Calls manage_cog_conversion.py regenerate to submit AWS Batch jobs
 
 Usage:
     # Dry run (preview what would be done)
     python regenerate_categorical_cogs.py --dry-run
     
-    # Actually regenerate
+    # Actually regenerate via AWS Batch
     python regenerate_categorical_cogs.py
     
     # Regenerate specific layers only
@@ -19,12 +19,18 @@ Usage:
     
     # Test with just one file
     python regenerate_categorical_cogs.py --limit=1
+
+Environment variables:
+    S3_BUCKET: S3 bucket name (required)
+    AWS_PROFILE: AWS credentials profile (optional)
+    DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASSWORD: Database connection
 """
 
 import argparse
 import os
 import subprocess
 import sys
+import tempfile
 
 # Add the script directory to path so we can import from generate_categorical_tiff_list
 script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -39,7 +45,23 @@ except ImportError as e:
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Regenerate categorical COGs with NEAREST resampling"
+        description="Regenerate categorical COGs with NEAREST resampling",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Detection Methods:
+  By default, uses both analysis_type field AND colormap analysis.
+  Use --no-analysis-type to rely solely on colormap characteristics.
+  
+Examples:
+  # Standard: Use both detection methods
+  python regenerate_categorical_cogs.py --dry-run
+  
+  # Only colormap analysis (ignore analysis_type field)
+  python regenerate_categorical_cogs.py --no-analysis-type --dry-run
+  
+  # Stricter colormap detection
+  python regenerate_categorical_cogs.py --min-confidence=0.8
+        """
     )
     parser.add_argument(
         "--dry-run",
@@ -60,6 +82,17 @@ def main():
         default="cartodb_exports/rasters/",
         help="S3 prefix for source TIFFs"
     )
+    parser.add_argument(
+        "--no-analysis-type",
+        action="store_true",
+        help="Don't use analysis_type field, only colormap analysis"
+    )
+    parser.add_argument(
+        "--min-confidence",
+        type=float,
+        default=0.6,
+        help="Minimum confidence score for colormap detection (0.0-1.0, default: 0.6)"
+    )
     
     args = parser.parse_args()
     
@@ -78,6 +111,9 @@ def main():
     print("=" * 80)
     print(f"S3 Bucket: {s3_bucket}")
     print(f"Source Prefix: {args.source_prefix}")
+    print(f"Detection: {'Colormap only' if args.no_analysis_type else 'analysis_type + colormap'}")
+    if not args.no_analysis_type:
+        print(f"Min Confidence: {args.min_confidence}")
     print(f"Mode: {'DRY RUN' if args.dry_run else 'LIVE'}")
     if args.filter:
         print(f"Filter: {args.filter}")
@@ -87,7 +123,11 @@ def main():
     
     # Get categorical tables from database
     print("Querying database for categorical layers...")
-    tables = get_categorical_layer_tables()
+    use_analysis_type = not args.no_analysis_type
+    tables = get_categorical_layer_tables(
+        use_analysis_type=use_analysis_type,
+        min_confidence=args.min_confidence
+    )
     
     if not tables:
         print("ERROR: No categorical tables found")
@@ -113,69 +153,74 @@ def main():
     
     if args.dry_run:
         print("\n" + "=" * 80)
-        print("DRY RUN - would execute:")
+        print("DRY RUN - Would regenerate these files:")
         print("=" * 80)
-        print(f"S3_BUCKET={s3_bucket}")
-        print(f"OVERVIEW_RESAMPLING=NEAREST")
-        print(f"OVERWRITE=true")
-        print(f'TIFF_KEYS="{",".join(keys)}"')
-        print("python batch_container/batch_handler.py")
-        print("\nTo run for real, remove --dry-run flag")
+        for key in keys[:10]:
+            print(f"  {key}")
+        if len(keys) > 10:
+            print(f"  ... and {len(keys) - 10} more")
+        print()
+        print("To run for real, remove --dry-run flag")
         return
     
-    # Confirm before proceeding
-    print("\n" + "=" * 80)
-    print("WARNING: This will OVERWRITE existing COG files!")
-    print("=" * 80)
-    response = input(f"\nProceed with regenerating {len(keys)} COG file(s)? [y/N]: ")
+    # Write keys to temporary file for management script
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.txt', delete=False) as f:
+        keys_file = f.name
+        for key in keys:
+            f.write(f"{key}\n")
     
-    if response.lower() not in ['y', 'yes']:
-        print("Aborted.")
-        sys.exit(0)
+    print(f"\nKeys written to temporary file: {keys_file}")
     
-    # Set environment variables for batch handler
-    env = os.environ.copy()
-    env["S3_BUCKET"] = s3_bucket
-    env["OVERVIEW_RESAMPLING"] = "NEAREST"
-    env["OVERWRITE"] = "true"
-    env["TIFF_KEYS"] = ",".join(keys)
+    # Call manage_cog_conversion.py regenerate command
+    manage_script = os.path.join(script_dir, "manage_cog_conversion.py")
     
-    # Path to batch handler
-    batch_handler = os.path.join(script_dir, "batch_container", "batch_handler.py")
-    
-    if not os.path.exists(batch_handler):
-        print(f"ERROR: batch_handler.py not found at {batch_handler}")
+    if not os.path.exists(manage_script):
+        print(f"ERROR: manage_cog_conversion.py not found at {manage_script}")
         sys.exit(1)
     
-    print("\n" + "=" * 80)
-    print("Running batch conversion...")
-    print("=" * 80)
+    cmd = [
+        sys.executable,
+        manage_script,
+        "regenerate",
+        "--keys-file", keys_file,
+        "--overview-resampling", "NEAREST",
+        "--overwrite",
+    ]
     
-    # Run batch handler
+    print("\n" + "=" * 80)
+    print("Submitting AWS Batch jobs...")
+    print("=" * 80)
+    print(f"Command: {' '.join(cmd)}")
+    print()
+    
     try:
-        result = subprocess.run(
-            [sys.executable, batch_handler],
-            env=env,
-            check=False
-        )
-        
-        if result.returncode != 0:
-            print(f"\nERROR: Batch conversion failed with exit code {result.returncode}")
-            sys.exit(result.returncode)
+        result = subprocess.run(cmd, check=True)
         
         print("\n" + "=" * 80)
-        print("SUCCESS: Categorical COGs regenerated!")
+        print("SUCCESS: Batch jobs submitted!")
         print("=" * 80)
-        print(f"Regenerated {len(keys)} file(s) with OVERVIEW_RESAMPLING=NEAREST")
-        print("\nNext steps:")
+        print(f"Submitted jobs to regenerate {len(keys)} COG file(s)")
+        print(f"Overview resampling: NEAREST")
+        print("\nMonitor progress:")
+        print(f"  S3_BUCKET={s3_bucket} python manage_cog_conversion.py jobs")
+        print("\nAfter completion:")
         print("  1. Clear browser cache")
         print("  2. Reload staging site")
         print("  3. Check land cover layers at zoom 3-8")
         print("  4. Verify clean boundaries (no noise)")
         
+    except subprocess.CalledProcessError as e:
+        print(f"\nERROR: Failed to submit batch jobs (exit code {e.returncode})")
+        sys.exit(e.returncode)
     except KeyboardInterrupt:
         print("\n\nAborted by user.")
         sys.exit(1)
+    finally:
+        # Clean up temporary file
+        try:
+            os.unlink(keys_file)
+        except:
+            pass
 
 
 if __name__ == "__main__":
