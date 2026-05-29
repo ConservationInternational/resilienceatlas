@@ -370,8 +370,8 @@ Admin boundary polygons are served as vector tiles via Martin from the `admin_bo
 
 **CDN (CloudFront):**
 Martin tiles are cached via CloudFront: `Browser → CloudFront (SSL + caching) → ALB (HTTP) → Martin`.
-- Production: `https://tiles.resilienceatlas.org` (24h cache TTL)
-- Staging: `https://tiles.staging.resilienceatlas.org` (1h cache TTL)
+- Production: `https://martin.resilienceatlas.org` (24h cache TTL)
+- Staging: `https://martin.staging.resilienceatlas.org` (1h cache TTL)
 - CloudFormation template: `infrastructure/martin-cdn/template.yaml`
 - Deploy: `infrastructure/martin-cdn/deploy.sh --staging --profile resilienceatlas`
 - Invalidate cache: `scripts/invalidate-martin-cache.sh --staging --profile resilienceatlas`
