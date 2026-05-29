@@ -14,8 +14,12 @@
 # ra_app regardless of the calling session's search_path.
 class FixBoundaryTilesSchemaQualification < ActiveRecord::Migration[7.2]
   def up
+    # Drop the old public.boundary_tiles function
+    execute "DROP FUNCTION IF EXISTS public.boundary_tiles(integer, integer, integer, json);"
+    
+    # Create the updated function in ra_app schema with explicit table reference
     execute <<~SQL
-      CREATE OR REPLACE FUNCTION boundary_tiles(z integer, x integer, y integer, query_params json DEFAULT '{}')
+      CREATE OR REPLACE FUNCTION ra_app.boundary_tiles(z integer, x integer, y integer, query_params json DEFAULT '{}')
       RETURNS bytea AS $$
       DECLARE
         max_level integer;
@@ -60,14 +64,14 @@ class FixBoundaryTilesSchemaQualification < ActiveRecord::Migration[7.2]
       END;
       $$ LANGUAGE plpgsql STABLE PARALLEL SAFE;
 
-      COMMENT ON FUNCTION boundary_tiles IS
+      COMMENT ON FUNCTION ra_app.boundary_tiles IS
         'Martin function source: admin boundary vector tiles with zoom-dependent level filtering (linestring output)';
     SQL
   end
 
   def down
     execute <<~SQL
-      CREATE OR REPLACE FUNCTION boundary_tiles(z integer, x integer, y integer, query_params json DEFAULT '{}')
+      CREATE OR REPLACE FUNCTION public.boundary_tiles(z integer, x integer, y integer, query_params json DEFAULT '{}')
       RETURNS bytea AS $$
       DECLARE
         max_level integer;
@@ -107,7 +111,7 @@ class FixBoundaryTilesSchemaQualification < ActiveRecord::Migration[7.2]
       END;
       $$ LANGUAGE plpgsql STABLE PARALLEL SAFE;
 
-      COMMENT ON FUNCTION boundary_tiles IS
+      COMMENT ON FUNCTION public.boundary_tiles IS
         'Martin function source: admin boundary vector tiles with zoom-dependent level filtering (linestring output)';
     SQL
   end
