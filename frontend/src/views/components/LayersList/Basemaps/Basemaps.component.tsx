@@ -153,25 +153,29 @@ const Basemaps = ({
             </span>
           </div>
         </li>
-        {boundaries && translatedBoundaryStyles.map(({ label, value }) => (
-          <li key={value}>
-            <div className="panel-item-switch m-form-input--switch label-option">
-              <input
-                type="checkbox"
-                data-name={value}
-                className="panel-input-switch"
-                id={`boundary-style-${value}`}
-                checked={value === boundaryStyle}
-                onChange={() => {
-                  setBoundaryStyle(value);
-                }}
-              />
-              <label htmlFor={`boundary-style-${value}`} />
-              <span>{label}</span>
-            </div>
-          </li>
-        ))}
       </ul>
+      {boundaries && (
+        <ul className={cx('m-boundary-style-selectors', { 'is-active': opened })}>
+          {translatedBoundaryStyles.map(({ label, value }) => (
+            <li key={value}>
+              <div className="panel-item-switch m-form-input--switch label-option">
+                <input
+                  type="checkbox"
+                  data-name={value}
+                  className="panel-input-switch"
+                  id={`boundary-style-${value}`}
+                  checked={value === boundaryStyle}
+                  onChange={() => {
+                    setBoundaryStyle(value);
+                  }}
+                />
+                <label htmlFor={`boundary-style-${value}`} />
+                <span>{label}</span>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
     </li>
   );
 };
