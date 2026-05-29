@@ -233,6 +233,47 @@
 }
 
 // ------------------------------------------------------------------
+// Boundaries popover panel
+// ------------------------------------------------------------------
+.m-toolbar-boundaries-panel {
+  width: rem(220px);
+  padding: rem(12px) rem(14px);
+  background-color: $bg-color-1;
+}
+
+.m-toolbar-boundaries-list {
+  @extend %clean-lists;
+  display: flex;
+  flex-direction: column;
+  gap: rem(4px);
+}
+
+.m-toolbar-boundaries-option {
+  @extend %clean-button-or-input;
+  width: 100%;
+  padding: rem(10px) rem(12px);
+  cursor: pointer;
+  text-align: left;
+  font-family: $font-face-1;
+  font-size: rem(13px);
+  font-weight: 400;
+  color: $gray-medium;
+  line-height: 1.4;
+  border-radius: rem(4px);
+  transition: background-color 0.15s, color 0.15s;
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+  }
+
+  &.is-active {
+    background-color: rgba(0, 0, 0, 0.08);
+    color: $font-color-1;
+    font-weight: 500;
+  }
+}
+
+// ------------------------------------------------------------------
 // Mobile responsive
 // ------------------------------------------------------------------
 @media screen and (max-width: $breakpoint-mobile) {
@@ -246,6 +287,11 @@
   }
 
   .m-toolbar-labels-panel {
+    width: calc(100vw - 50px);
+    max-width: rem(260px);
+  }
+
+  .m-toolbar-boundaries-panel {
     width: calc(100vw - 50px);
     max-width: rem(260px);
   }
