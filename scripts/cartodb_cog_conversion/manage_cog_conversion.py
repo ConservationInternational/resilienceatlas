@@ -65,8 +65,10 @@ class Config:
         self.job_vcpus = int(os.environ.get("JOB_VCPUS", "2"))  # vCPUs per job
         self.job_memory = int(os.environ.get("JOB_MEMORY", "4096"))  # MB per job
         self.compression = os.environ.get("COMPRESSION", "LZW")
+        self.overview_resampling = os.environ.get("OVERVIEW_RESAMPLING", "AVERAGE")  # NEAREST for categorical, AVERAGE for continuous
         self.overwrite = os.environ.get("OVERWRITE", "false").lower() == "true"
         self.filename_filter = os.environ.get("FILENAME_FILTER", "")
+        self.keys_file = os.environ.get("KEYS_FILE", "")  # File containing specific keys to process
         # RASTER_TYPE: "public", "cdb_importer", or "both" (default)
         self.raster_type = os.environ.get("RASTER_TYPE", "both").lower()
         self.dry_run = os.environ.get("DRY_RUN", "false").lower() == "true"
@@ -278,6 +280,52 @@ def list_existing_cogs(config: Config) -> set[str]:
             f.write(f"{key}\n")
     
     return cogs
+
+
+def find_pending_conversions(
+    config: Config, 
+    tiffs: list[tuple[str, int]], 
+    cogs: set[str]
+) -> list[tuple[str, int]]:
+    """
+    Determine which TIFFs need conversion.
+    
+    Returns:
+        List of (source_key, size) tuples for pending conversions
+    """
+    info("Finding TIFFs pending conversion...", config)
+    
+    pending = []
+    
+    for source_key, size in tiffs:
+
+
+def load_keys_from_file(config: Config, keys_file: str) -> list[tuple[str, int]]:
+    """
+    Load specific S3 keys from a file.
+    
+    File format: one key per line, or tab-separated key<tab>size
+    
+    Returns:
+        List of (key, size) tuples
+    """
+    info(f"Loading keys from file: {keys_file}", config)
+    
+    keys = []
+    with open(keys_file) as f:
+        for line in f:
+            line = line.strip()
+            if not line or line.startswith("#"):
+                continue
+            
+            parts = line.split("\t")
+            key = parts[0]
+            size = int(parts[1]) if len(parts) > 1 else 0
+            
+            keys.append((key, size))
+    
+    info(f"Loaded {len(keys)} keys from file", config)
+    return keys
 
 
 def find_pending_conversions(
@@ -633,6 +681,7 @@ def ensure_job_definition(config: Config, image_uri: str) -> str:
         {"name": "S3_BUCKET", "value": config.s3_bucket},
         {"name": "COG_PREFIX", "value": config.cog_prefix},
         {"name": "COMPRESSION", "value": config.compression},
+        {"name": "OVERVIEW_RESAMPLING", "value": config.overview_resampling},
         {"name": "OVERWRITE", "value": str(config.overwrite).lower()},
     ]
     
@@ -768,6 +817,7 @@ def submit_batch_jobs(config: Config, pending: list[tuple[str, int]]) -> list[di
             containerOverrides={
                 "environment": [
                     {"name": "MANIFEST_KEY", "value": manifest_key},
+                    {"name": "OVERVIEW_RESAMPLING", "value": config.overview_resampling},
                     {"name": "OVERWRITE", "value": str(config.overwrite).lower()},
                 ]
             }
@@ -896,6 +946,39 @@ def cmd_convert(config: Config):
     submit_batch_jobs(config, pending)
 
 
+def cmd_regenerate(config: Config):
+    """Regenerate COGs from a specific list of keys (e.g., categorical layers with new resampling)."""
+    if not config.keys_file:
+        error("KEYS_FILE environment variable or --keys-file argument required", config)
+        sys.exit(1)
+    
+    if not os.path.exists(config.keys_file):
+        error(f"Keys file not found: {config.keys_file}", config)
+        sys.exit(1)
+    
+    # Load specific keys to process
+    keys = load_keys_from_file(config, config.keys_file)
+    
+    if not keys:
+        error("No keys found in file", config)
+        sys.exit(1)
+    
+    info(f"Regenerating {len(keys)} COG files", config)
+    info(f"Overview resampling: {config.overview_resampling}", config)
+    info(f"Overwrite: {config.overwrite}", config)
+    
+    if config.dry_run:
+        info("[DRY RUN] Would process:", config)
+        for key, _ in keys[:10]:
+            print(f"  {key}")
+        if len(keys) > 10:
+            print(f"  ... and {len(keys) - 10} more")
+        return
+    
+    # Submit batch jobs
+    submit_batch_jobs(config, keys)
+
+
 def cmd_jobs(config: Config):
     """Show status of batch jobs."""
     jobs = get_job_status(config)
@@ -982,25 +1065,35 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Environment Variables:
-  S3_BUCKET           S3 bucket name (required)
-  SOURCE_PREFIX       Source prefix for raw TIFFs (default: cartodb_exports/rasters/)
-  COG_PREFIX          Destination prefix for COGs (default: cogs/)
-  AWS_REGION          AWS region (default: us-east-1)
-  AWS_PROFILE         AWS credentials profile name
-  FILES_PER_JOB       Files to process per batch job (default: 50)
-  MAX_VCPUS           Maximum concurrent vCPUs (default: 16)
-  USE_SPOT            Use spot instances (default: true)
-  FILENAME_FILTER     Regex to filter filenames
-  DRY_RUN             Show what would run without executing (true/false)
+  S3_BUCKET             S3 bucket name (required)
+  SOURCE_PREFIX         Source prefix for raw TIFFs (default: cartodb_exports/rasters/)
+  COG_PREFIX            Destination prefix for COGs (default: cogs/)
+  AWS_REGION            AWS region (default: us-east-1)
+  AWS_PROFILE           AWS credentials profile name
+  FILES_PER_JOB         Files to process per batch job (default: 50)
+  MAX_VCPUS             Maximum concurrent vCPUs (default: 16)
+  OVERVIEW_RESAMPLING   Overview resampling: NEAREST, AVERAGE, BILINEAR, CUBIC (default: AVERAGE)
+  USE_SPOT              Use spot instances (default: true)
+  FILENAME_FILTER       Regex to filter filenames
+  KEYS_FILE             File with specific S3 keys to process (for regenerate command)
+  OVERWRITE             Overwrite existing COGs (true/false)
+  DRY_RUN               Show what would run without executing (true/false)
 
 Examples:
   # Initial setup
   S3_BUCKET=my-bucket python manage_cog_conversion.py setup
   S3_BUCKET=my-bucket python manage_cog_conversion.py deploy
   
-  # Check status and convert
+  # Check status and convert all pending
   S3_BUCKET=my-bucket python manage_cog_conversion.py status
   S3_BUCKET=my-bucket python manage_cog_conversion.py convert
+  
+  # Regenerate specific files with new resampling (e.g., categorical layers)
+  python generate_categorical_tiff_list.py --output=categorical_keys.txt
+  S3_BUCKET=my-bucket python manage_cog_conversion.py regenerate \\
+    --keys-file=categorical_keys.txt \\
+    --overview-resampling=NEAREST \\
+    --overwrite
   
   # Monitor jobs
   S3_BUCKET=my-bucket python manage_cog_conversion.py jobs
@@ -1012,6 +1105,27 @@ Examples:
     subparsers.add_parser("list", help="List all raw TIFFs")
     subparsers.add_parser("status", help="Show conversion status")
     subparsers.add_parser("convert", help="Submit batch jobs for pending conversions")
+    
+    # Regenerate command with options
+    regenerate_parser = subparsers.add_parser(
+        "regenerate", 
+        help="Regenerate specific COGs (e.g., categorical layers with new resampling)"
+    )
+    regenerate_parser.add_argument(
+        "--keys-file",
+        help="File containing S3 keys to regenerate (one per line)"
+    )
+    regenerate_parser.add_argument(
+        "--overview-resampling",
+        choices=["NEAREST", "AVERAGE", "BILINEAR", "CUBIC"],
+        help="Overview resampling method (NEAREST for categorical, AVERAGE for continuous)"
+    )
+    regenerate_parser.add_argument(
+        "--overwrite",
+        action="store_true",
+        help="Overwrite existing COGs"
+    )
+    
     subparsers.add_parser("jobs", help="Show status of batch jobs")
     subparsers.add_parser("setup", help="Set up AWS Batch infrastructure")
     subparsers.add_parser("deploy", help="Build and push Docker image")
@@ -1023,12 +1137,23 @@ Examples:
         sys.exit(1)
     
     config = Config()
+    
+    # Override config with command-line arguments (for regenerate command)
+    if args.command == "regenerate":
+        if hasattr(args, "keys_file") and args.keys_file:
+            config.keys_file = args.keys_file
+        if hasattr(args, "overview_resampling") and args.overview_resampling:
+            config.overview_resampling = args.overview_resampling
+        if hasattr(args, "overwrite") and args.overwrite:
+            config.overwrite = args.overwrite
+    
     config.validate()
     
     commands = {
         "list": cmd_list,
         "status": cmd_status,
         "convert": cmd_convert,
+        "regenerate": cmd_regenerate,
         "jobs": cmd_jobs,
         "setup": cmd_setup,
         "deploy": cmd_deploy,

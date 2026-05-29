@@ -6,7 +6,43 @@ Categorical raster layers (land cover, zones, etc.) show noise/color fringing wh
 
 ## Solution
 
-Regenerate categorical COGs with `OVERVIEW_RESAMPLING=NEAREST` to preserve discrete values in pyramid overviews.
+Regenerate categorical COGs with `OVERVIEW_RESAMPLING=NEAREST` to preserve discrete values in pyramid overviews. This uses the existing AWS Batch infrastructure to process files efficiently.
+
+## Detection Methods
+
+The script identifies categorical layers using two methods:
+
+### 1. analysis_type Field
+Checks the database `layers.analysis_type` field for value `'categorical'`.
+
+**Limitation:** Often not populated.
+
+### 2. Colormap Analysis (Automatic)
+Analyzes colormap characteristics to detect categorical data:
+
+- **Few stops** (< 20 discrete values)
+- **Integer values** (whole numbers like 0, 1, 2, not 0.123, 0.456)
+- **Exact flags** (CartoDB CSS `stop(value, color, exact)`)
+- **Sequential patterns** (0, 1, 2, 3... or 10, 20, 30...)
+
+Each characteristic contributes to a **confidence score** (0.0-1.0). Default threshold is 0.6.
+
+## Quick Start (Recommended)
+
+```bash
+# Set environment
+export S3_BUCKET=resilienceatlas
+export AWS_PROFILE=resilienceatlas
+
+# Preview what would be regenerated
+python regenerate_categorical_cogs.py --dry-run
+
+# Submit AWS Batch jobs
+python regenerate_categorical_cogs.py
+
+# Monitor job progress
+S3_BUCKET=resilienceatlas python manage_cog_conversion.py jobs
+```
 
 ## Scripts
 
@@ -14,7 +50,7 @@ Regenerate categorical COGs with `OVERVIEW_RESAMPLING=NEAREST` to preserve discr
 
 Queries the database to find all categorical layers and generates the list of S3 keys for their source TIFF files.
 
-**Usage:**
+**Basic Usage:**
 
 ```bash
 # Set database connection (if not using defaults)
@@ -37,14 +73,44 @@ python generate_categorical_tiff_list.py --format=lines --output=categorical_tif
 python generate_categorical_tiff_list.py --filter=land_cover
 ```
 
+**Colormap Analysis Options:**
+
+```bash
+# Only use colormap analysis (ignore analysis_type field)
+python generate_categorical_tiff_list.py --no-analysis-type --output=colormap_only.txt
+
+# Adjust confidence threshold
+python generate_categorical_tiff_list.py --min-confidence=0.8  # Stricter
+python generate_categorical_tiff_list.py --min-confidence=0.4  # More lenient
+
+# See detection details (stderr shows confidence scores and reasons)
+python generate_categorical_tiff_list.py --no-analysis-type 2>&1 | less
+```
+
 **Output example:**
 ```
 cartodb_exports/rasters/land_cover_2015.tif,cartodb_exports/rasters/land_cover_degradation.tif,...
 ```
 
+**Detection Output Example (stderr):**
+```
+Analyzing 245 COG layers...
+
+  ✓ Layer #123 (land-cover-2015): 1 table(s) [colormap (confidence=0.85: Very few stops (8); 8/8 exact flags; 8/8 integer values)]
+      - land_cover_2015
+  ✓ Layer #456 (urban-zones): 1 table(s) [analysis_type]
+      - urban_extent_zones
+
+Summary:
+  Categorical by analysis_type: 12
+  Categorical by colormap:      34
+  Total categorical layers:     46
+  Unique tables:                42
+```
+
 ### 2. regenerate_categorical_cogs.py
 
-Convenience script that combines database query + batch conversion.
+Convenience script that queries the database and submits AWS Batch jobs for regeneration.
 
 **Usage:**
 
@@ -56,7 +122,7 @@ export AWS_PROFILE=resilienceatlas  # if needed
 # Dry run (preview what would happen)
 python regenerate_categorical_cogs.py --dry-run
 
-# Regenerate all categorical COGs
+# Submit batch jobs to regenerate all categorical COGs
 python regenerate_categorical_cogs.py
 
 # Test with one file first
@@ -66,21 +132,63 @@ python regenerate_categorical_cogs.py --limit=1
 python regenerate_categorical_cogs.py --filter=land_cover
 ```
 
+**Advanced: Colormap Analysis Options**
+
+```bash
+# Only use colormap analysis (ignore analysis_type field)
+# Useful when analysis_type is not populated
+python regenerate_categorical_cogs.py --no-analysis-type --dry-run
+
+# Stricter colormap detection (fewer false positives)
+python regenerate_categorical_cogs.py --min-confidence=0.8
+
+# More lenient colormap detection (catch more categorical layers)
+python regenerate_categorical_cogs.py --min-confidence=0.4
+
+# See which layers are detected and why
+python generate_categorical_tiff_list.py --no-analysis-type 2>&1 | grep "confidence="
+```
+
 **What it does:**
 1. Queries database for layers with `analysis_type='categorical'`
 2. Extracts table names from layer configs
 3. Converts to S3 TIFF keys
-4. Runs batch_handler.py with `OVERVIEW_RESAMPLING=NEAREST`
+4. Writes keys to temporary file
+5. Calls `manage_cog_conversion.py regenerate` to submit AWS Batch jobs
+6. Jobs run asynchronously on AWS Batch infrastructure
 
-### 3. Manual Approach (batch_handler.py directly)
+### 3. Manual Approach (manage_cog_conversion.py)
 
-If you already have a list of specific files:
+If you already have a list of specific S3 keys to regenerate:
+
+```bash
+# Create a file with S3 keys (one per line)
+cat > my_keys.txt << EOF
+cartodb_exports/rasters/land_cover_2015.tif
+cartodb_exports/rasters/land_cover_degradation.tif
+cartodb_exports/rasters/urban_zones.tif
+EOF
+
+# Submit batch jobs
+export S3_BUCKET=resilienceatlas
+python manage_cog_conversion.py regenerate \
+  --keys-file=my_keys.txt \
+  --overview-resampling=NEAREST \
+  --overwrite
+
+# Monitor jobs
+S3_BUCKET=resilienceatlas python manage_cog_conversion.py jobs
+```
+
+### 4. Advanced: Direct batch_handler.py (Not Recommended)
+
+For local testing only (AWS Batch is preferred for production):
 
 ```bash
 export S3_BUCKET=resilienceatlas
 export OVERVIEW_RESAMPLING=NEAREST
 export OVERWRITE=true
-export TIFF_KEYS="cartodb_exports/rasters/land_cover_2015.tif,cartodb_exports/rasters/land_cover_degradation.tif"
+export TIFF_KEYS="cartodb_exports/rasters/land_cover_2015.tif"
 
 python batch_container/batch_handler.py
 ```
