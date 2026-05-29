@@ -37,9 +37,9 @@ function getBoundaryTileUrl(): string {
 
 function lineStyle(feature: FeatureLike): Style {
   const level = (feature.get('admin_level') as number) ?? 0;
-  const widths = [1.6, 1.0, 0.6];
-  const colors = ['#444', '#666', '#888'];
-  const opacities = [0.9, 0.7, 0.5];
+  const widths = [1.2, 0.8, 0.5];
+  const colors = ['#666', '#888', '#aaa'];
+  const opacities = [0.7, 0.6, 0.5];
   const idx = Math.min(level, 2);
   return new Style({
     stroke: new Stroke({
