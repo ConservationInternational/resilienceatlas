@@ -26,9 +26,11 @@ on_invalid: warn
 # Database connection — $DATABASE_URL is expanded from the container env.
 postgres:
   connection_string: ${DATABASE_URL}
-  # All vector layers are served through PostgreSQL function sources
-  # (ra_vector_tile, boundary_tiles, scope_dataset_tiles) — not direct table
-  # access. Disable table auto-discovery to avoid hundreds of timeout warnings
-  # at startup from scanning ra_vector, tiger, and other schemas.
+  # Explicitly include ra_app schema for function discovery
+  default_srid: 4326
+  pool_size: 20
+  # Scan these schemas for function sources
   auto_publish:
     tables: false
+    functions:
+      from_schemas: ra_app
