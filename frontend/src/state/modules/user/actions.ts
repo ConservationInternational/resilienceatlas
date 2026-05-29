@@ -15,7 +15,6 @@ export class FormSubmissionError extends Error {
   }
 }
 
-const URL_LOGIN = '/users/authenticate';
 const URL_SIGNUP = '/users/register';
 const URL_USER_DATA = '/users/me';
 

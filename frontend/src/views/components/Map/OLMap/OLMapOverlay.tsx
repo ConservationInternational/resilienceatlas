@@ -134,7 +134,7 @@ const OLMapOverlay: React.FC<OLMapOverlayProps> = ({ map, latlng, data, onReady,
         });
       }
     });
-  }, [latlng, data, children]);
+  }, [latlng, data, children, map]);
 
   return null;
 };
