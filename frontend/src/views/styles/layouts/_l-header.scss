@@ -426,24 +426,6 @@
   @extend %clearfix;
 }
 
-// Force white text for current navigation items with maximum specificity
-.nav-area.-resilience li a.nav-current-forced,
-.nav-area li a.nav-current-forced,
-a.nav-current-forced {
-  color: white !important;
-  background-color: #0089CC !important;
-  font-weight: 600 !important;
-}
-
-// Ensure hover state maintains the current styling
-.nav-area.-resilience li a.nav-current-forced:hover,
-.nav-area li a.nav-current-forced:hover,
-a.nav-current-forced:hover {
-  color: white !important;
-  background-color: #0089CC !important;
-  font-weight: 600 !important;
-}
-
 // Hide mobile menu toggle on desktop
 .mobile-menu-toggle {
   display: none;
