@@ -11,7 +11,7 @@
  * Z-index layering order (bottom to top):
  *   0: Basemap
  *   ≤1000: Data layers (capped at 1000)
- *   1050: Admin preview layers  
+ *   1050: Admin preview layers
  *   1100-1101: Admin boundaries (halo, line)
  *   1110: Label overlay
  *   1200: Scope geometry layers

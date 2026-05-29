@@ -36,7 +36,7 @@ const ArcGISFeatureLayerOL = (layerModel) => {
 
   return new Promise((resolve) => {
     const { body } = layerConfigParsed;
-    const { url, params: serviceParams = {}, options = {} } = body;
+    const { url, params: serviceParams = {} } = body;
 
     if (!url) {
       console.error('[ArcGIS Feature Layer OL] No url in layerConfig.body');
@@ -48,7 +48,7 @@ const ArcGISFeatureLayerOL = (layerModel) => {
 
     const vectorSource = new VectorSource({
       format: esriFormat,
-      url: (extent, resolution, projection) => {
+      url: (extent, _resolution, _projection) => {
         // Build query URL for tiled loading
         // ArcGIS REST API query endpoint expects specific parameters
         const baseParams = {
