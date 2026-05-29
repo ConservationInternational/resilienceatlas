@@ -163,14 +163,17 @@ Admin boundary lines are served via **Mapbox Streets V4 Vector Tiles API**, elim
 - Access token: Hardcoded in `frontend/src/views/components/Map/OLMap/boundaries.ts`
 
 **User Interface:**
-- Toggle boundaries on/off via map controls
-- Select boundary style: **Light** (for dark backgrounds/satellite) or **Dark** (for light backgrounds)
-- URL persistence: `?boundaries=true&boundaryStyle=light|dark`
+- Three mutually exclusive options (matching labels pattern):
+  - **Dark boundaries**: For light backgrounds
+  - **Light boundaries**: For dark backgrounds/satellite
+  - **No boundaries**: Boundaries disabled
+- URL persistence: `?boundaryStyle=dark|light` (omitted when 'none')
 
 **Implementation:**
 - Frontend: OpenLayers VectorTileLayer with custom styling
 - Filters: Admin source-layer only, excludes maritime boundaries
 - Styling: Halo + line two-layer pattern for visibility
+- Redux state: `map.boundaryStyle` ('dark' | 'light' | 'none')
 - Code: `frontend/src/views/components/Map/OLMap/boundaries.ts`
 
 **Benefits:**

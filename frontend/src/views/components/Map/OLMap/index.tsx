@@ -197,7 +197,7 @@ const OLMap = forwardRef<OLMapRef, OLMapProps>(
       boundaryLayersRef.current.forEach((l) => mapRef.current?.removeLayer(l));
       boundaryLayersRef.current = [];
 
-      if (!boundaries) return;
+      if (!boundaries || boundaryStyle === 'none') return;
 
       const layers = createBoundaryLayers(boundaryStyle);
       layers.forEach((l) => {

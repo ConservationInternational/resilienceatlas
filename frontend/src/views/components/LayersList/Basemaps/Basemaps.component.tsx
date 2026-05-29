@@ -50,22 +50,20 @@ const Basemaps = ({
       setLabels(correctLabels);
     }
 
-    const urlBoundaries = getRouterParam('boundaries');
-    if (urlBoundaries === 'true' && !boundaries) {
-      setBoundaries(true);
-    }
-
+    // Handle boundary style from URL
     const urlBoundaryStyle = getRouterParam('boundaryStyle') as (typeof BOUNDARY_STYLES)[number];
-    if (urlBoundaryStyle && urlBoundaryStyle !== boundaryStyle) {
-      setBoundaryStyle(urlBoundaryStyle);
+    const correctBoundaryStyle = urlBoundaryStyle || 'none';
+    
+    if (correctBoundaryStyle !== boundaryStyle) {
+      setBoundaryStyle(correctBoundaryStyle);
+      setBoundaries(correctBoundaryStyle !== 'none');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Run only once after mount
 
   useRouterValue('basemap', basemap, { onlyOnChange: true });
   useRouterValue('labels', labels, { onlyOnChange: true });
-  useRouterValue('boundaries', boundaries ? 'true' : null, { onlyOnChange: true });
-  useRouterValue('boundaryStyle', boundaries ? boundaryStyle : null, { onlyOnChange: true });
+  useRouterValue('boundaryStyle', boundaryStyle !== 'none' ? boundaryStyle : null, { onlyOnChange: true });
 
   const { getTogglerProps } = useTogglerButton(basemap, setBasemap);
 
@@ -136,46 +134,26 @@ const Basemaps = ({
         ))}
       </ul>
       <ul className={cx('m-boundaries-selectors', { 'is-active': opened })}>
-        <li>
-          <div className="panel-item-switch m-form-input--switch label-option">
-            <input
-              type="checkbox"
-              className="panel-input-switch"
-              id="boundaries-toggle"
-              checked={boundaries}
-              onChange={() => {
-                setBoundaries(!boundaries);
-              }}
-            />
-            <label htmlFor="boundaries-toggle" />
-            <span>
-              <T _str="Country boundaries" />
-            </span>
-          </div>
-        </li>
+        {translatedBoundaryStyles.map(({ label, value }) => (
+          <li key={value}>
+            <div className="panel-item-switch m-form-input--switch label-option">
+              <input
+                type="checkbox"
+                data-name={value}
+                className="panel-input-switch"
+                id={`boundary-${value}`}
+                checked={value === boundaryStyle}
+                onChange={() => {
+                  setBoundaryStyle(value);
+                  setBoundaries(value !== 'none');
+                }}
+              />
+              <label htmlFor={`boundary-${value}`} />
+              <span>{label}</span>
+            </div>
+          </li>
+        ))}
       </ul>
-      {boundaries && (
-        <ul className={cx('m-boundary-style-selectors', { 'is-active': opened })}>
-          {translatedBoundaryStyles.map(({ label, value }) => (
-            <li key={value}>
-              <div className="panel-item-switch m-form-input--switch label-option">
-                <input
-                  type="checkbox"
-                  data-name={value}
-                  className="panel-input-switch"
-                  id={`boundary-style-${value}`}
-                  checked={value === boundaryStyle}
-                  onChange={() => {
-                    setBoundaryStyle(value);
-                  }}
-                />
-                <label htmlFor={`boundary-style-${value}`} />
-                <span>{label}</span>
-              </div>
-            </li>
-          ))}
-        </ul>
-      )}
     </li>
   );
 };
