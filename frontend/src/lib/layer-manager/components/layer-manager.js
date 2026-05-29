@@ -81,7 +81,7 @@ class LayerManager extends PureComponent {
           child &&
           cloneElement(child, {
             layerManager: this.layerManager,
-            zIndex: child.props.zIndex || 1000 - i,
+            zIndex: Math.min(child.props.zIndex || 1000 - i, 1000),
           }),
       );
     }
@@ -93,7 +93,7 @@ class LayerManager extends PureComponent {
             <Layer
               key={spec.id}
               {...spec}
-              zIndex={spec.zIndex || 1000 - i}
+              zIndex={Math.min(spec.zIndex || 1000 - i, 1000)}
               layerManager={this.layerManager}
             />
           ))}
