@@ -241,35 +241,73 @@
   background-color: $bg-color-1;
 }
 
-.m-toolbar-boundaries-list {
-  @extend %clean-lists;
-  display: flex;
-  flex-direction: column;
-  gap: rem(4px);
+.m-toolbar-boundaries-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: rem(8px);
 }
 
 .m-toolbar-boundaries-option {
   @extend %clean-button-or-input;
   width: 100%;
-  padding: rem(10px) rem(12px);
   cursor: pointer;
-  text-align: left;
-  font-family: $font-face-1;
-  font-size: rem(13px);
-  font-weight: 400;
-  color: $gray-medium;
-  line-height: 1.4;
-  border-radius: rem(4px);
-  transition: background-color 0.15s, color 0.15s;
+  text-align: center;
 
-  &:hover {
-    background-color: rgba(0, 0, 0, 0.05);
+  &:hover span {
+    opacity: 0.85;
   }
 
-  &.is-active {
-    background-color: rgba(0, 0, 0, 0.08);
+  &.is-active span {
     color: $font-color-1;
     font-weight: 500;
+
+    &::before {
+      border-color: $font-color-1;
+    }
+  }
+
+  span {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: rem(4px);
+    font-family: $font-face-1;
+    font-size: rem(11px);
+    font-weight: 400;
+    color: $gray-medium;
+    line-height: 1.2;
+    background: none !important;
+    height: auto;
+    width: auto;
+    background-size: 0 !important;
+
+    &::before {
+      content: '';
+      display: block;
+      width: rem(52px);
+      height: rem(52px);
+      border-radius: 50%;
+      border: 2px solid rgba(0, 0, 0, 0.15);
+      background-position: center;
+      background-repeat: no-repeat;
+      background-size: cover;
+      transition: border-color 0.15s;
+    }
+
+    &.icon-boundary-dark::before {
+      background-color: #f5f5f5;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='52' height='52' viewBox='0 0 52 52'%3E%3Cpath d='M10 8 L20 10 L30 7 L40 12 L45 22 L40 32 L45 40 L38 48 L26 44 L14 48 L6 40 L8 28 L4 18 L8 10 Z' fill='none' stroke='%23666666' stroke-width='2' stroke-dasharray='3 2'/%3E%3C/svg%3E");
+    }
+
+    &.icon-boundary-light::before {
+      background-color: #2a2a2a;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='52' height='52' viewBox='0 0 52 52'%3E%3Cpath d='M10 8 L20 10 L30 7 L40 12 L45 22 L40 32 L45 40 L38 48 L26 44 L14 48 L6 40 L8 28 L4 18 L8 10 Z' fill='none' stroke='%23ffffff' stroke-width='2' stroke-dasharray='3 2'/%3E%3C/svg%3E");
+    }
+
+    &.icon-boundary-none::before {
+      background-color: #e8e8e8;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='52' height='52' viewBox='0 0 52 52'%3E%3C/svg%3E");
+    }
   }
 }
 
