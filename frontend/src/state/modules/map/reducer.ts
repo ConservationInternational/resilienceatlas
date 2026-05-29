@@ -47,7 +47,7 @@ export interface MapState {
 const initialState: MapState = {
   drawing: false,
   boundaries: false,
-  boundaryStyle: 'light',
+  boundaryStyle: 'none',
   // geojson: getRouterParam('geojson', JSON.parse),
   bounds: null,
   iso: getRouterParam('iso'),

@@ -32,7 +32,7 @@ function getBoundaryTileUrl(): string {
   return `https://api.mapbox.com/v4/mapbox.mapbox-streets-v8/{z}/{x}/{y}.mvt?access_token=${MAPBOX_ACCESS_TOKEN}`;
 }
 
-type BoundaryStyle = 'light' | 'dark';
+type BoundaryStyle = 'light' | 'dark' | 'none';
 
 function createStyleFunction(
   boundaryStyle: BoundaryStyle,

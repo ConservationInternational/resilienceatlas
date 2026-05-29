@@ -391,12 +391,13 @@ Admin boundary lines are now served via **Mapbox Streets V4 Vector Tiles API**, 
 - File: `frontend/src/views/components/Map/OLMap/boundaries.ts`
 - Creates two VectorTile layers (halo + line) using OpenLayers
 - Filters to `admin` source-layer only, excludes maritime boundaries
-- User-selectable light/dark styles:
-  - **Light style** (default): White/light borders (#ffffff, #eeeeee, #dddddd) for dark backgrounds/satellite
-  - **Dark style**: Dark borders (#666666, #888888, #aaaaaa) for light backgrounds
-- Redux state: `map.boundaryStyle` ('light' | 'dark')
-- UI control: Basemaps panel shows style selector when boundaries enabled
-- URL persistence: `?boundaries=true&boundaryStyle=light|dark`
+- User-selectable styles (three mutually exclusive options matching labels pattern):
+  - **Dark boundaries**: Dark borders (#666666, #888888, #aaaaaa) for light backgrounds
+  - **Light boundaries**: White/light borders (#ffffff, #eeeeee, #dddddd) for dark backgrounds/satellite
+  - **No boundaries**: Boundaries disabled
+- Redux state: `map.boundaryStyle` ('dark' | 'light' | 'none')
+- UI control: Basemaps panel with three radio-like checkbox options (same pattern as labels)
+- URL persistence: `?boundaryStyle=dark|light` (omitted when 'none')
 
 **Benefits over self-hosted Martin:**
 - ✅ Zero infrastructure maintenance (no PostgreSQL table, no import scripts, no Martin service for boundaries)
