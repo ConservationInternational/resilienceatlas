@@ -159,7 +159,7 @@ Admin boundary lines are served via **Mapbox Streets V4 Vector Tiles API**, elim
 **Data Source:**
 - Tileset: `mapbox.mapbox-streets-v8` (official Mapbox Streets)
 - API: `https://api.mapbox.com/v4/mapbox.mapbox-streets-v8/{z}/{x}/{y}.mvt?access_token={token}`
-- Source-layer: `admin` (admin_level 0-5: country, state, county, etc.)
+- Source-layer: `admin` (admin_level 0-2: countries, first-level divisions, second-level divisions)
 - Access token: Hardcoded in `frontend/src/views/components/Map/OLMap/boundaries.ts`
 
 **User Interface:**
