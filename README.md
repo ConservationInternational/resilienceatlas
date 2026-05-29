@@ -73,6 +73,11 @@
      backend rake boundaries:import
    ```
 
+   Or use the helper script, which detects local dev vs deployed staging/production and copies or mounts the files as needed:
+   ```bash
+   GEOBOUNDARIES_DIR=./boundaries bash ./scripts/setup_admin_boundaries.sh
+   ```
+
 ### Hybrid Development (Database in Docker, Apps Local)
 
 For faster development iteration, you can run only the database in Docker while running the frontend and backend locally:

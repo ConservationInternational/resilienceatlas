@@ -160,6 +160,7 @@ Located in `scripts/codedeploy/`:
 | Script | Description |
 |--------|-------------|
 | `setup_ldn_data.sh` | Downloads LDN datasets and geoBoundaries from S3, imports boundaries, dissolves geometries, and seeds the LDN scope. Run with `--profile <aws-profile>`. |
+| `setup_admin_boundaries.sh` | Imports only the geoBoundaries admin layers into `admin_boundaries`, in either local dev or deployed staging/production. |
 
 ### Management Scripts
 
