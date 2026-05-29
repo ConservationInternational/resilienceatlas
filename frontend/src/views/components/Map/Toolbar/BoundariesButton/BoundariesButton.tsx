@@ -45,21 +45,22 @@ const BoundariesButton: React.FC = () => {
             </svg>
           </PopoverButton>
           <PopoverPanel className="m-toolbar-item--panel m-toolbar-boundaries-panel">
-            <ul className="m-toolbar-boundaries-list">
+            <div className="m-toolbar-boundaries-grid">
               {BOUNDARY_OPTIONS.map(({ value, labelKey }) => (
-                <li key={value}>
-                  <button
-                    type="button"
-                    className={cx('m-toolbar-boundaries-option', {
-                      'is-active': boundaryStyle === value,
-                    })}
-                    onClick={() => handleSelect(value)}
-                  >
+                <button
+                  key={value}
+                  type="button"
+                  className={cx('m-toolbar-boundaries-option', {
+                    'is-active': boundaryStyle === value,
+                  })}
+                  onClick={() => handleSelect(value)}
+                >
+                  <span className={`icon-boundary-${value}`}>
                     <T _str={labelKey} />
-                  </button>
-                </li>
+                  </span>
+                </button>
               ))}
-            </ul>
+            </div>
           </PopoverPanel>
         </div>
       )}

@@ -383,8 +383,8 @@ Admin boundary lines are now served via **Mapbox Streets V4 Vector Tiles API**, 
 **Data Source:**
 - Tileset: `mapbox.mapbox-streets-v8` (official Mapbox Streets v8)
 - API Endpoint: `https://api.mapbox.com/v4/mapbox.mapbox-streets-v8/{z}/{x}/{y}.mvt?access_token={token}`
-- Source-layer: `admin` (contains admin boundaries with admin_level 0-5)
-- Feature properties: `admin_level` (0=country, 1=state, 2=county), `maritime`, `disputed`, `iso_3166_1`
+- Source-layer: `admin` (contains admin boundaries with admin_level 0-2)
+- Feature properties: `admin_level` (0=countries, 1=first-level divisions, 2=second-level divisions), `maritime`, `disputed`, `iso_3166_1`
 - Access token: Hardcoded in `frontend/src/views/components/Map/OLMap/boundaries.ts` (cigrp account)
 
 **Frontend Implementation:**

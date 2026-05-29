@@ -57,9 +57,10 @@ function createStyleFunction(
 
     // Skip maritime boundaries
     const maritime = feature.get('maritime');
-    if (maritime === 1) return null;
+    if (maritime === 1 || maritime === true) return null;
 
-    const level = (feature.get('admin_level') as number) ?? 0;
+    // Admin level: 0 (countries), 1 (first-level divisions), 2 (second-level divisions)
+    const level = (feature.get('admin_level') as number);
     const idx = Math.min(level, 2);
 
     // Zoom-dependent rendering would go here if needed
