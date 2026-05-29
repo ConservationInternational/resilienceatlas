@@ -214,7 +214,7 @@ const Header = ({
             <li className="journey-link">
               <Link
                 href="/journeys"
-                className={pathname.includes('/journeys') ? 'nav-current-forced' : ''}
+                className={pathname.includes('/journeys') ? 'is-current' : ''}
                 style={{
                   display: 'block',
                   padding: '10px',
@@ -237,7 +237,7 @@ const Header = ({
             >
               <Link
                 href="/map"
-                className={pathname.includes('/map') ? 'nav-current-forced' : ''}
+                className={pathname.includes('/map') ? 'is-current' : ''}
                 style={{
                   display: 'block',
                   padding: '10px',
@@ -259,7 +259,7 @@ const Header = ({
             <li>
               <Link
                 href="/about"
-                className={pathname.includes('/about') ? 'nav-current-forced' : ''}
+                className={pathname.includes('/about') ? 'is-current' : ''}
                 style={{
                   display: 'block',
                   padding: '10px',
@@ -281,7 +281,7 @@ const Header = ({
                 <li>
                   <Link
                     href="/me"
-                    className={pathname.includes('/me') ? 'nav-current-forced' : ''}
+                    className={pathname.includes('/me') ? 'is-current' : ''}
                     style={{
                       display: 'block',
                       padding: '10px',
@@ -309,7 +309,7 @@ const Header = ({
                 <li>
                   <Link
                     href="/login"
-                    className={pathname.includes('/login') ? 'nav-current-forced' : ''}
+                    className={pathname.includes('/login') ? 'is-current' : ''}
                     style={{
                       display: 'block',
                       padding: '10px',
@@ -329,7 +329,7 @@ const Header = ({
                 <li>
                   <Link
                     href="/register"
-                    className={pathname.includes('/register') ? 'nav-current-forced' : ''}
+                    className={pathname.includes('/register') ? 'is-current' : ''}
                     style={{
                       display: 'block',
                       padding: '10px',
@@ -399,7 +399,7 @@ const Header = ({
                   <li className="journey-link">
                     <Link
                       href="/journeys"
-                      className={pathname.includes('/journeys') ? 'nav-current-forced' : ''}
+                      className={pathname.includes('/journeys') ? 'is-current' : ''}
                       onClick={toggleMobileMenu}
                     >
                       <T _str="Journeys" />
