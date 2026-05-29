@@ -44,11 +44,11 @@ done
 if [[ "$ENV" == "staging" ]]; then
   STACK_NAME="martin-cdn-staging"
   FQDN="martin.staging.resilienceatlas.org"
-  CACHE_TTL=3600   # 1 hour for staging (faster iteration)
+  CACHE_TTL=86400   # 1 day for staging (balance testing & performance)
 else
   STACK_NAME="martin-cdn-production"
   FQDN="martin.resilienceatlas.org"
-  CACHE_TTL=86400  # 24 hours for production
+  CACHE_TTL=604800  # 7 days for production (boundaries rarely change)
 fi
 
 # Zone ID can come from CLI arg, env var, or we look it up
