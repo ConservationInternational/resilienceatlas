@@ -370,8 +370,8 @@ Admin boundary polygons are served as vector tiles via Martin from the `admin_bo
 
 **CDN (CloudFront):**
 Martin tiles are cached via CloudFront: `Browser → CloudFront (SSL + caching) → ALB (HTTP) → Martin`.
-- Production: `https://martin.resilienceatlas.org` (24h cache TTL)
-- Staging: `https://martin.staging.resilienceatlas.org` (1h cache TTL)
+- Production: `https://martin.resilienceatlas.org` (7 day cache TTL)
+- Staging: `https://martin.staging.resilienceatlas.org` (1 day cache TTL)
 - CloudFormation template: `infrastructure/martin-cdn/template.yaml`
 - Deploy: `infrastructure/martin-cdn/deploy.sh --staging --profile resilienceatlas`
 - Invalidate cache: `scripts/invalidate-martin-cache.sh --staging --profile resilienceatlas`
@@ -396,6 +396,22 @@ Martin tiles are cached via CloudFront: `Browser → CloudFront (SSL + caching) 
 - `rake boundaries:import` — Import GeoPackage files into admin_boundaries
 - `rake boundaries:status` — Show row counts by admin level
 - `rake boundaries:clear` — Truncate all boundary data
+
+**Running migrations on deployed environments (Docker Swarm):**
+```bash
+# Find the backend container
+BACKEND=$(docker ps --filter "name=resilienceatlas-staging_backend" --format "{{.ID}}" | head -1)
+
+# Run migrations
+docker exec $BACKEND bundle exec rake db:migrate
+
+# Or rollback
+docker exec $BACKEND bundle exec rake db:rollback STEP=1
+
+# Restart services to pick up database changes
+docker service update --force resilienceatlas-staging_martin
+docker service update --force resilienceatlas-staging_backend
+```
 
 **Local development:**
 ```bash
