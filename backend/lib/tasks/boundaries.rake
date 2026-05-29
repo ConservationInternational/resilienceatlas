@@ -88,10 +88,14 @@ namespace :boundaries do
 
       conn = ActiveRecord::Base.connection
 
-      # ST_Multi(ST_CollectionExtract(geom, 3)) ensures only polygon parts
-      # are kept — clipdst can produce GeometryCollections with stray
-      # points/lines along clipping edges.
-      safe_geom = "ST_Multi(ST_CollectionExtract(geom, 3))"
+      # Apply ST_MakeValid + clip to Web Mercator extent to prevent:
+      #   - "transform: tolerance condition error (-20)" for polar geometries
+      #     (e.g. Antarctica) that extend beyond ±85.051129°.
+      #   - "TopologyException: Self-intersection" for invalid source geometries.
+      # ST_CollectionExtract(…, 3) then retains only polygon parts — clipping can
+      # produce stray points/lines along tile edges.
+      web_mercator_bounds = "ST_MakeEnvelope(-180, -85.051129, 180, 85.051129, 4326)"
+      safe_geom = "ST_Multi(ST_CollectionExtract(ST_Intersection(ST_MakeValid(geom), #{web_mercator_bounds}), 3))"
 
       insert_sql = case level
       when 0
@@ -150,6 +154,7 @@ namespace :boundaries do
     puts ""
     puts "Verifying geometry quality..."
     web_mercator_env = "ST_MakeEnvelope(-180, -85.051129, 180, 85.051129, 4326)"
+    any_bad = false
     [0, 1, 2].each do |level|
       conn = ActiveRecord::Base.connection
       invalid = conn.select_value("SELECT count(*) FROM admin_boundaries WHERE admin_level = #{level} AND NOT ST_IsValid(geom)").to_i
@@ -161,7 +166,13 @@ namespace :boundaries do
         puts "  ADM#{level}: all geometries valid and within bounds"
       else
         puts "  WARNING ADM#{level}: #{status.join(", ")}"
+        any_bad = true
       end
+    end
+    if any_bad
+      puts ""
+      puts "WARNING: Bad geometries detected — running 'rake boundaries:repair' before"
+      puts "restarting Martin is strongly recommended to avoid HTTP 500 tile errors."
     end
 
     puts ""
@@ -170,6 +181,39 @@ namespace :boundaries do
     puts "  ADM1 (provinces/states): #{AdminBoundary.provinces.count}"
     puts "  ADM2 (districts):        #{AdminBoundary.districts.count}"
     puts "  Total:                   #{AdminBoundary.count}"
+    puts ""
+    puts "Next steps:"
+    puts "  1. Restart Martin:  docker service update --force <martin-service>"
+    puts "  2. Invalidate CDN:  scripts/invalidate-martin-cache.sh --staging  (or --production)"
+  end
+
+  desc "Repair invalid or out-of-bounds geometries in admin_boundaries (fixes Martin 500 tile errors). " \
+       "Run this against existing data imported before the ST_MakeValid fix was applied."
+  task repair: :environment do
+    web_mercator_bounds = "ST_MakeEnvelope(-180, -85.051129, 180, 85.051129, 4326)"
+    conn = ActiveRecord::Base.connection
+
+    bad = conn.select_value(
+      "SELECT count(*) FROM admin_boundaries " \
+      "WHERE NOT ST_IsValid(geom) OR NOT ST_CoveredBy(geom, #{web_mercator_bounds})"
+    ).to_i
+
+    if bad == 0
+      puts "All geometries are valid and within bounds — no repair needed."
+      next
+    end
+
+    puts "Repairing #{bad} geometries (ST_MakeValid + Web Mercator clip)..."
+    conn.execute(<<~SQL)
+      UPDATE admin_boundaries
+      SET geom = ST_Multi(ST_CollectionExtract(
+        ST_Intersection(ST_MakeValid(geom), #{web_mercator_bounds}),
+        3
+      ))
+      WHERE NOT ST_IsValid(geom)
+         OR NOT ST_CoveredBy(geom, #{web_mercator_bounds})
+    SQL
+    puts "Repair complete."
     puts ""
     puts "Next steps:"
     puts "  1. Restart Martin:  docker service update --force <martin-service>"
