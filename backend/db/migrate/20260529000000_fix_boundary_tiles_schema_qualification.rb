@@ -14,10 +14,10 @@
 # ra_app regardless of the calling session's search_path.
 class FixBoundaryTilesSchemaQualification < ActiveRecord::Migration[7.2]
   def up
-    # Drop the old public.boundary_tiles function
+    # Drop the old function in public schema
     execute "DROP FUNCTION IF EXISTS public.boundary_tiles(integer, integer, integer, json);"
     
-    # Create the updated function in ra_app schema with explicit table reference
+    # Create the function in ra_app schema with schema-qualified table reference
     execute <<~SQL
       CREATE OR REPLACE FUNCTION ra_app.boundary_tiles(z integer, x integer, y integer, query_params json DEFAULT '{}')
       RETURNS bytea AS $$

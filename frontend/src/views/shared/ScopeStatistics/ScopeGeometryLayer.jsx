@@ -99,7 +99,7 @@ const ScopeGeometryLayer = ({ map }) => {
     const layer = new VectorLayer({
       source,
       style: HIGHLIGHT_OL_STYLE,
-      zIndex: 1500,
+      zIndex: 1200,
       properties: { _systemLayer: true },
     });
     map.addLayer(layer);

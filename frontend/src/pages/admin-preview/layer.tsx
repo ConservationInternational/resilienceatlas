@@ -187,6 +187,7 @@ function buildLayerSpec(provider: string, layerConfigJson: string): LayerSpec | 
     layerConfig,
     opacity: 1,
     visibility: true,
+    zIndex: 1050,
   };
 }
 

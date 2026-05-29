@@ -7,6 +7,16 @@
  *
  * Martin serves MVT from the `boundary_tiles` function source at
  * /boundary_tiles/{z}/{x}/{y} with scale-dependent admin levels.
+ *
+ * Z-index layering order (bottom to top):
+ *   0: Basemap
+ *   ≤1000: Data layers (capped at 1000)
+ *   1050: Admin preview layers  
+ *   1100-1101: Admin boundaries (halo, line)
+ *   1110: Label overlay
+ *   1200: Scope geometry layers
+ *   2000-2001: Drawing manager
+ *   9999-10002: Map compare controls
  */
 import VectorTileLayer from 'ol/layer/VectorTile';
 import VectorTileSource from 'ol/source/VectorTile';
@@ -75,14 +85,14 @@ export function createBoundaryLayers(): VectorTileLayer[] {
   const haloLayer = new VectorTileLayer({
     source,
     style: haloStyle,
-    zIndex: 998,
+    zIndex: 1100,
     properties: { _systemLayer: true },
   });
 
   const lineLayer = new VectorTileLayer({
     source,
     style: lineStyle,
-    zIndex: 999,
+    zIndex: 1101,
     properties: { _systemLayer: true },
   });
 

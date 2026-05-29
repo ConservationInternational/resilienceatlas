@@ -181,7 +181,7 @@ const OLMap = forwardRef<OLMapRef, OLMapProps>(
       if (label?.url) {
         const layer = new TileLayer({
           source: new XYZ({ url: label.url, crossOrigin: 'anonymous' }),
-          zIndex: 1000,
+          zIndex: 1110,
           properties: { _systemLayer: true },
         });
         mapRef.current.addLayer(layer);
