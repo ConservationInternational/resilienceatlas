@@ -4,25 +4,32 @@ import { T, useLocale } from '@transifex/react';
 
 import { useRouterValue, useToggle, useTogglerButton, clickable, getRouterParam } from 'utilities';
 import { subdomain } from 'utilities/getSubdomain';
-import { getMapLabelOptions } from 'views/components/LayersList/Basemaps/constants';
-import type { BASEMAP_LABELS, MAP_LABELS } from 'views/components/LayersList/Basemaps/constants';
+import {
+  getMapLabelOptions,
+  getBoundaryStyleOptions,
+} from 'views/components/LayersList/Basemaps/constants';
+import type { BASEMAP_LABELS, MAP_LABELS, BOUNDARY_STYLES } from 'views/components/LayersList/Basemaps/constants';
 
 type BasemapsProps = {
   basemap: (typeof BASEMAP_LABELS)[number];
   labels: (typeof MAP_LABELS)[number];
   boundaries: boolean;
+  boundaryStyle: (typeof BOUNDARY_STYLES)[number];
   setBasemap: (basemap: (typeof BASEMAP_LABELS)[number]) => void;
   setLabels: (labels: (typeof MAP_LABELS)[number]) => void;
   setBoundaries: (boundaries: boolean) => void;
+  setBoundaryStyle: (boundaryStyle: (typeof BOUNDARY_STYLES)[number]) => void;
 };
 
 const Basemaps = ({
   basemap,
   labels,
   boundaries,
+  boundaryStyle,
   setBasemap,
   setLabels,
   setBoundaries,
+  setBoundaryStyle,
 }: BasemapsProps) => {
   const [opened, toggleOpened] = useToggle(false);
 
@@ -47,18 +54,26 @@ const Basemaps = ({
     if (urlBoundaries === 'true' && !boundaries) {
       setBoundaries(true);
     }
+
+    const urlBoundaryStyle = getRouterParam('boundaryStyle') as (typeof BOUNDARY_STYLES)[number];
+    if (urlBoundaryStyle && urlBoundaryStyle !== boundaryStyle) {
+      setBoundaryStyle(urlBoundaryStyle);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Run only once after mount
 
   useRouterValue('basemap', basemap, { onlyOnChange: true });
   useRouterValue('labels', labels, { onlyOnChange: true });
   useRouterValue('boundaries', boundaries ? 'true' : null, { onlyOnChange: true });
+  useRouterValue('boundaryStyle', boundaries ? boundaryStyle : null, { onlyOnChange: true });
 
   const { getTogglerProps } = useTogglerButton(basemap, setBasemap);
 
   const locale = useLocale();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const translatedLabels = useMemo(() => getMapLabelOptions(), [locale]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const translatedBoundaryStyles = useMemo(() => getBoundaryStyleOptions(), [locale]);
 
   return (
     <li>
@@ -138,6 +153,24 @@ const Basemaps = ({
             </span>
           </div>
         </li>
+        {boundaries && translatedBoundaryStyles.map(({ label, value }) => (
+          <li key={value}>
+            <div className="panel-item-switch m-form-input--switch label-option">
+              <input
+                type="checkbox"
+                data-name={value}
+                className="panel-input-switch"
+                id={`boundary-style-${value}`}
+                checked={value === boundaryStyle}
+                onChange={() => {
+                  setBoundaryStyle(value);
+                }}
+              />
+              <label htmlFor={`boundary-style-${value}`} />
+              <span>{label}</span>
+            </div>
+          </li>
+        ))}
       </ul>
     </li>
   );

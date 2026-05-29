@@ -51,6 +51,7 @@ export interface OLMapProps {
   basemap?: BasemapConfig;
   label?: LabelConfig;
   boundaries?: boolean;
+  boundaryStyle?: 'light' | 'dark';
   mapOptions?: MapOptions;
   events?: MapEvents;
   children?: (map: OlMap) => ReactNode;
@@ -67,6 +68,7 @@ const OLMap = forwardRef<OLMapRef, OLMapProps>(
       basemap,
       label,
       boundaries = false,
+      boundaryStyle = 'light',
       mapOptions = {},
       events = {},
       children,
@@ -197,7 +199,7 @@ const OLMap = forwardRef<OLMapRef, OLMapProps>(
 
       if (!boundaries) return;
 
-      const layers = createBoundaryLayers();
+      const layers = createBoundaryLayers(boundaryStyle);
       layers.forEach((l) => {
         l.set('_systemLayer', true);
         mapRef.current?.addLayer(l);
@@ -208,7 +210,7 @@ const OLMap = forwardRef<OLMapRef, OLMapProps>(
         layers.forEach((l) => mapRef.current?.removeLayer(l));
         boundaryLayersRef.current = [];
       };
-    }, [boundaries]);
+    }, [boundaries, boundaryStyle]);
 
     // Min/max zoom changes after init
     useEffect(() => {

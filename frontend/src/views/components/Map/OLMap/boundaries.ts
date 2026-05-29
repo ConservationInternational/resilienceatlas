@@ -1,12 +1,12 @@
 /**
- * Admin boundary vector tile layers served by Martin.
+ * Admin boundary vector tile layers served by Mapbox Streets V4 API.
  *
  * Renders ADM0/ADM1/ADM2 boundaries using OL VectorTile with two stacked layers:
- *   - halo layer: wide semi-transparent white line for contrast
+ *   - halo layer: wide semi-transparent line for contrast
  *   - line layer: main boundary lines
  *
- * Martin serves MVT from the `boundary_tiles` function source at
- * /boundary_tiles/{z}/{x}/{y} with scale-dependent admin levels.
+ * Mapbox Streets serves MVT from the V4 Vector Tiles API at
+ * /v4/mapbox.mapbox-streets-v8/{z}/{x}/{y}.mvt with admin source-layer.
  *
  * Z-index layering order (bottom to top):
  *   0: Basemap
@@ -25,73 +25,86 @@ import Style from 'ol/style/Style';
 import Stroke from 'ol/style/Stroke';
 import type { FeatureLike } from 'ol/Feature';
 
+const MAPBOX_ACCESS_TOKEN =
+  'pk.eyJ1IjoiY2lncnAiLCJhIjoiYTQ5YzVmYTk4YzM0ZWM4OTU1ZjQxMWI5ZDNiNTQ5M2IifQ.SBgo9jJftBDx4c5gX4wm3g';
+
 function getBoundaryTileUrl(): string {
-  const martinUrl = process.env.NEXT_PUBLIC_MARTIN_URL;
-  if (!martinUrl) {
-    // eslint-disable-next-line no-console
-    console.warn('NEXT_PUBLIC_MARTIN_URL is not set — boundary tiles will be unavailable');
-    return '';
-  }
-  return `${martinUrl}/boundary_tiles/{z}/{x}/{y}`;
+  return `https://api.mapbox.com/v4/mapbox.mapbox-streets-v8/{z}/{x}/{y}.mvt?access_token=${MAPBOX_ACCESS_TOKEN}`;
 }
 
-function lineStyle(feature: FeatureLike): Style {
-  const level = (feature.get('admin_level') as number) ?? 0;
-  const widths = [1.2, 0.8, 0.5];
-  const colors = ['#666', '#888', '#aaa'];
-  const opacities = [0.7, 0.6, 0.5];
-  const idx = Math.min(level, 2);
-  return new Style({
-    stroke: new Stroke({
-      color: `rgba(${hexToRgb(colors[idx])},${opacities[idx]})`,
-      width: widths[idx],
-    }),
-  });
-}
+type BoundaryStyle = 'light' | 'dark';
 
-function haloStyle(feature: FeatureLike): Style {
-  const level = (feature.get('admin_level') as number) ?? 0;
-  const widths = [2.5, 2.0, 1.0];
-  const opacities = [0.35, 0.25, 0.2];
-  const idx = Math.min(level, 2);
-  return new Style({
-    stroke: new Stroke({
-      color: `rgba(255,255,255,${opacities[idx]})`,
-      width: widths[idx],
-    }),
-  });
-}
+function createStyleFunction(
+  boundaryStyle: BoundaryStyle,
+  isHalo: boolean
+): (feature: FeatureLike) => Style | null {
+  // Light colors: for dark backgrounds/satellite imagery
+  // Dark colors: for light backgrounds
+  const lightColors = isHalo
+    ? { halo: ['#ffffff', '#eeeeee', '#dddddd'], line: ['#f0f0f0', '#e0e0e0', '#d0d0d0'] }
+    : { halo: ['#ffffff', '#eeeeee', '#dddddd'], line: ['#f0f0f0', '#e0e0e0', '#d0d0d0'] };
+  const darkColors = isHalo
+    ? { halo: ['#000000', '#222222', '#333333'], line: ['#666666', '#888888', '#aaaaaa'] }
+    : { halo: ['#000000', '#222222', '#333333'], line: ['#666666', '#888888', '#aaaaaa'] };
 
-function hexToRgb(hex: string): string {
-  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-  if (!result) return '0,0,0';
-  return `${parseInt(result[1], 16)},${parseInt(result[2], 16)},${parseInt(result[3], 16)}`;
+  const colors = boundaryStyle === 'light' ? lightColors : darkColors;
+  const colorSet = isHalo ? colors.halo : colors.line;
+
+  return (feature: FeatureLike): Style | null => {
+    // Filter to admin source-layer only
+    const sourceLayer = feature.get('layer');
+    if (sourceLayer !== 'admin') return null;
+
+    // Skip maritime boundaries
+    const maritime = feature.get('maritime');
+    if (maritime === 1) return null;
+
+    const level = (feature.get('admin_level') as number) ?? 0;
+    const idx = Math.min(level, 2);
+
+    // Zoom-dependent rendering would go here if needed
+    // For now, rely on Mapbox's tile content
+
+    const widths = isHalo ? [2.5, 2.0, 1.0] : [1.2, 0.8, 0.5];
+    const opacities = isHalo ? [0.35, 0.25, 0.2] : [0.7, 0.6, 0.5];
+
+    return new Style({
+      stroke: new Stroke({
+        color: `${colorSet[idx]}${Math.round(opacities[idx] * 255)
+          .toString(16)
+          .padStart(2, '0')}`,
+        width: widths[idx],
+      }),
+    });
+  };
 }
 
 /**
  * Returns [haloLayer, lineLayer] for admin boundary rendering.
- * Both share the same VectorTile source.
+ * Both share the same VectorTile source from Mapbox Streets.
+ *
+ * @param boundaryStyle - 'light' for light borders (dark backgrounds), 'dark' for dark borders (light backgrounds)
  */
-export function createBoundaryLayers(): VectorTileLayer[] {
+export function createBoundaryLayers(boundaryStyle: BoundaryStyle = 'light'): VectorTileLayer[] {
   const tileUrl = getBoundaryTileUrl();
   if (!tileUrl) return [];
 
   const source = new VectorTileSource({
     url: tileUrl,
     format: new MVT(),
-    maxZoom: 13,
+    maxZoom: 14,
   });
 
   const haloLayer = new VectorTileLayer({
     source,
-    style: haloStyle,
+    style: createStyleFunction(boundaryStyle, true),
     zIndex: 1100,
     properties: { _systemLayer: true },
   });
 
   const lineLayer = new VectorTileLayer({
     source,
-    style: lineStyle,
+    style: createStyleFunction(boundaryStyle, false),
     zIndex: 1101,
     properties: { _systemLayer: true },
   });

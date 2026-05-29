@@ -19,3 +19,17 @@ export const getMapLabelOptions = () =>
   ] as { label: string; value: (typeof MAP_LABELS)[number] }[];
 
 export const BASEMAP_LABELS = ['defaultmap', 'dark', 'satellite', 'topographic'] as const;
+
+export const BOUNDARY_STYLES = ['light', 'dark'] as const;
+
+export const getBoundaryStyleOptions = () =>
+  [
+    {
+      label: t('Light borders'),
+      value: 'light',
+    },
+    {
+      label: t('Dark borders'),
+      value: 'dark',
+    },
+  ] as { label: string; value: (typeof BOUNDARY_STYLES)[number] }[];

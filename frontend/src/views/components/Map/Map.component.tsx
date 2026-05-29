@@ -72,6 +72,7 @@ const MapView = (props: MapViewProps) => {
     basemap,
     labels,
     boundaries,
+    boundaryStyle,
     embed,
     drawing,
     onLoadingLayers,
@@ -205,6 +206,7 @@ const MapView = (props: MapViewProps) => {
       label={safeLabel}
       basemap={safeBasemap}
       boundaries={boundaries}
+      boundaryStyle={boundaryStyle}
       mapOptions={{
         ...(options?.map || {}),
         zoom: Number(query.zoom) || site?.zoom_level || 2,
