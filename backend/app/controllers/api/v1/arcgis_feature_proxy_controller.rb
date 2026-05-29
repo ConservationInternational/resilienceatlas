@@ -116,8 +116,8 @@ module Api
           if allowed.start_with?("*.")
             domain = Regexp.escape(allowed[2..])
             return url if host.match?(/\A[\w.-]+\.#{domain}\z/) || host == allowed[2..]
-          else
-            return url if host == allowed
+          elsif host == allowed
+            return url
           end
         end
 
