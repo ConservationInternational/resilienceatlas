@@ -43,11 +43,11 @@ done
 
 if [[ "$ENV" == "staging" ]]; then
   STACK_NAME="martin-cdn-staging"
-  FQDN="tiles.staging.resilienceatlas.org"
+  FQDN="martin.staging.resilienceatlas.org"
   CACHE_TTL=3600   # 1 hour for staging (faster iteration)
 else
   STACK_NAME="martin-cdn-production"
-  FQDN="tiles.resilienceatlas.org"
+  FQDN="martin.resilienceatlas.org"
   CACHE_TTL=86400  # 24 hours for production
 fi
 

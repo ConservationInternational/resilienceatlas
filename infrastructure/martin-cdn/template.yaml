@@ -4,7 +4,7 @@ Description: 'CloudFront CDN for Martin vector tile server (admin boundaries + u
 Parameters:
   FQDN:
     Type: String
-    Description: Fully qualified domain name, e.g. tiles.resilienceatlas.org
+    Description: Fully qualified domain name, e.g. martin.resilienceatlas.org
   ZoneId:
     Type: String
     Description: Route53 Hosted Zone ID for the domain (e.g. Z111111QQQQQQQ)

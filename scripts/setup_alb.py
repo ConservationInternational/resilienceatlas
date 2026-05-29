@@ -136,12 +136,16 @@ def create_target_groups(elbv2_client, vpc_id):
         {'name': 'staging', 'port': 3000, 'health_check_path': '/'},
         {'name': 'production', 'port': 4000, 'health_check_path': '/'},
         {'name': 'martin-staging', 'port': 4002, 'health_check_path': '/health'},
-        {'name': 'martin-prod', 'port': 3002, 'health_check_path': '/health'},
+        {'name': 'martin-production', 'port': 3002, 'health_check_path': '/health'},
     ]
     
     for env in environments:
         try:
-            tg_name = f"resilienceatlas-{env['name']}"
+            # Martin target groups don't have 'resilienceatlas-' prefix
+            if env['name'].startswith('martin-'):
+                tg_name = env['name']
+            else:
+                tg_name = f"resilienceatlas-{env['name']}"
             
             response = elbv2_client.create_target_group(
                 Name=tg_name,
@@ -184,7 +188,7 @@ def create_target_groups(elbv2_client, vpc_id):
 def create_load_balancer(elbv2_client, subnet_ids, security_group_id):
     """Create the Application Load Balancer."""
     try:
-        lb_name = 'resilienceatlas-alb'
+        lb_name = 'ALB-P-ResAtl-1'
         
         response = elbv2_client.create_load_balancer(
             Name=lb_name,
@@ -232,15 +236,15 @@ def add_martin_http_rules(elbv2_client, http_listener_arn, target_groups):
     """
     rules = [
         {
-            'priority': 50,
-            'host': 'tiles.staging.resilienceatlas.org',
+            'priority': 15,
+            'host': 'martin.staging.resilienceatlas.org',
             'tg_key': 'martin-staging',
             'label': 'Martin staging',
         },
         {
-            'priority': 60,
-            'host': 'tiles.resilienceatlas.org',
-            'tg_key': 'martin-prod',
+            'priority': 25,
+            'host': 'martin.resilienceatlas.org',
+            'tg_key': 'martin-production',
             'label': 'Martin production',
         },
     ]
@@ -250,82 +254,203 @@ def add_martin_http_rules(elbv2_client, http_listener_arn, target_groups):
         if not tg_arn or 'PENDING' in str(tg_arn):
             print(f"⚠️ Skipping {rule['label']} HTTP rule — target group not ready")
             continue
+        
+        # Try to find and modify existing rule at this priority
         try:
-            elbv2_client.create_rule(
-                ListenerArn=http_listener_arn,
-                Priority=rule['priority'],
-                Conditions=[
-                    {
-                        'Field': 'host-header',
-                        'Values': [rule['host']]
-                    }
-                ],
-                Actions=[
-                    {
-                        'Type': 'forward',
-                        'TargetGroupArn': tg_arn
-                    }
-                ]
-            )
-            print(f"✅ Added HTTP rule: {rule['host']} → {rule['label']} (priority {rule['priority']})")
-        except ClientError as e:
-            if e.response['Error']['Code'] == 'PriorityInUse':
-                print(f"⚠️ HTTP rule priority {rule['priority']} already exists for {rule['label']}")
+            existing_rules = elbv2_client.describe_rules(ListenerArn=http_listener_arn)
+            rule_arn = None
+            for existing_rule in existing_rules['Rules']:
+                if existing_rule.get('Priority') == str(rule['priority']):
+                    rule_arn = existing_rule['RuleArn']
+                    break
+            
+            if rule_arn:
+                # Modify existing rule
+                elbv2_client.modify_rule(
+                    RuleArn=rule_arn,
+                    Conditions=[
+                        {
+                            'Field': 'host-header',
+                            'Values': [rule['host']]
+                        }
+                    ],
+                    Actions=[
+                        {
+                            'Type': 'forward',
+                            'TargetGroupArn': tg_arn
+                        }
+                    ]
+                )
+                print(f"✅ Updated HTTP rule: {rule['host']} → {rule['label']} (priority {rule['priority']})")
             else:
-                print(f"❌ Error creating HTTP rule for {rule['label']}: {e}")
+                # Create new rule
+                elbv2_client.create_rule(
+                    ListenerArn=http_listener_arn,
+                    Priority=rule['priority'],
+                    Conditions=[
+                        {
+                            'Field': 'host-header',
+                            'Values': [rule['host']]
+                        }
+                    ],
+                    Actions=[
+                        {
+                            'Type': 'forward',
+                            'TargetGroupArn': tg_arn
+                        }
+                    ]
+                )
+                print(f"✅ Added HTTP rule: {rule['host']} → {rule['label']} (priority {rule['priority']})")
+        except ClientError as e:
+            print(f"❌ Error updating HTTP rule for {rule['label']}: {e}")
+
+
+def update_martin_https_rules(elbv2_client, https_listener_arn, target_groups):
+    """Update forwarding rules for Martin tile hosts on the HTTPS listener.
+    
+    Updates existing rules at priorities 15 and 25 to use the new martin subdomain.
+    """
+    rules = [
+        {
+            'priority': 15,
+            'host': 'martin.staging.resilienceatlas.org',
+            'tg_key': 'martin-staging',
+            'label': 'Martin staging',
+        },
+        {
+            'priority': 25,
+            'host': 'martin.resilienceatlas.org',
+            'tg_key': 'martin-production',
+            'label': 'Martin production',
+        },
+    ]
+    
+    for rule in rules:
+        tg_arn = target_groups.get(rule['tg_key'])
+        if not tg_arn or 'PENDING' in str(tg_arn):
+            print(f"⚠️ Skipping {rule['label']} HTTPS rule — target group not ready")
+            continue
+        
+        # Try to find and modify existing rule at this priority
+        try:
+            existing_rules = elbv2_client.describe_rules(ListenerArn=https_listener_arn)
+            rule_arn = None
+            for existing_rule in existing_rules['Rules']:
+                if existing_rule.get('Priority') == str(rule['priority']):
+                    rule_arn = existing_rule['RuleArn']
+                    break
+            
+            if rule_arn:
+                # Modify existing rule
+                elbv2_client.modify_rule(
+                    RuleArn=rule_arn,
+                    Conditions=[
+                        {
+                            'Field': 'host-header',
+                            'Values': [rule['host']]
+                        }
+                    ],
+                    Actions=[
+                        {
+                            'Type': 'forward',
+                            'TargetGroupArn': tg_arn
+                        }
+                    ]
+                )
+                print(f"✅ Updated HTTPS rule: {rule['host']} → {rule['label']} (priority {rule['priority']})")
+            else:
+                # Create new rule
+                elbv2_client.create_rule(
+                    ListenerArn=https_listener_arn,
+                    Priority=rule['priority'],
+                    Conditions=[
+                        {
+                            'Field': 'host-header',
+                            'Values': [rule['host']]
+                        }
+                    ],
+                    Actions=[
+                        {
+                            'Type': 'forward',
+                            'TargetGroupArn': tg_arn
+                        }
+                    ]
+                )
+                print(f"✅ Added HTTPS rule: {rule['host']} → {rule['label']} (priority {rule['priority']})")
+        except ClientError as e:
+            print(f"❌ Error updating HTTPS rule for {rule['label']}: {e}")
 
 
 def create_listeners(elbv2_client, lb_arn, target_groups):
-    """Create listeners with rules for domain-based routing."""
+    """Create or use existing listeners with rules for domain-based routing."""
     try:
-        # Create HTTP listener
-        response = elbv2_client.create_listener(
-            LoadBalancerArn=lb_arn,
-            Protocol='HTTP',
-            Port=80,
-            DefaultActions=[
-                {
-                    'Type': 'redirect',
-                    'RedirectConfig': {
-                        'Protocol': 'HTTPS',
-                        'Port': '443',
-                        'StatusCode': 'HTTP_301'
+        # Check for existing listeners first
+        print("🔍 Checking for existing listeners...")
+        listeners_response = elbv2_client.describe_listeners(LoadBalancerArn=lb_arn)
+        
+        http_listener_arn = None
+        https_listener_arn = None
+        
+        for listener in listeners_response.get('Listeners', []):
+            if listener['Protocol'] == 'HTTP' and listener['Port'] == 80:
+                http_listener_arn = listener['ListenerArn']
+                print(f"✅ Found existing HTTP listener: {http_listener_arn}")
+            elif listener['Protocol'] == 'HTTPS' and listener['Port'] == 443:
+                https_listener_arn = listener['ListenerArn']
+                print(f"✅ Found existing HTTPS listener: {https_listener_arn}")
+        
+        # Create HTTP listener only if it doesn't exist
+        if not http_listener_arn:
+            print("📝 Creating new HTTP listener...")
+            response = elbv2_client.create_listener(
+                LoadBalancerArn=lb_arn,
+                Protocol='HTTP',
+                Port=80,
+                DefaultActions=[
+                    {
+                        'Type': 'redirect',
+                        'RedirectConfig': {
+                            'Protocol': 'HTTPS',
+                            'Port': '443',
+                            'StatusCode': 'HTTP_301'
+                        }
                     }
-                }
-            ]
-        )
+                ]
+            )
 
+            # AWS returns 'Listeners' (list), not 'Listener' (dict)
+            if 'Listeners' not in response or not response['Listeners']:
+                print(f"❌ Unexpected response from create_listener (no 'Listeners' key or empty):\n{json.dumps(response, indent=2)}")
+                return None
 
-        # AWS returns 'Listeners' (list), not 'Listener' (dict)
-        if 'Listeners' not in response or not response['Listeners']:
-            print(f"❌ Unexpected response from create_listener (no 'Listeners' key or empty):\n{json.dumps(response, indent=2)}")
-            return None
+            http_listener_arn = response['Listeners'][0]['ListenerArn']
+            print(f"✅ Created HTTP listener (redirects to HTTPS): {http_listener_arn}")
 
-        http_listener_arn = response['Listeners'][0]['ListenerArn']
-        print(f"✅ Created HTTP listener (redirects to HTTPS): {http_listener_arn}")
-
-        # Add Martin forwarding rules on the HTTP listener.
-        # CloudFront connects to the ALB over HTTP (port 80) and sends the
-        # Host header.  These rules forward Martin hosts to the tile server
-        # target groups *before* the default HTTPS redirect fires.
+        # Add/update Martin forwarding rules on the HTTP listener
+        print("🔄 Updating Martin HTTP listener rules...")
         add_martin_http_rules(elbv2_client, http_listener_arn, target_groups)
 
-        # Create HTTPS listener (requires SSL certificate)
-        print("⚠️ HTTPS listener requires SSL certificate setup")
-        print("⚠️ You'll need to:")
-        print("   1. Request or import SSL certificates in AWS Certificate Manager")
-        print("   2. Create HTTPS listener manually with certificate ARN")
-        print("   3. Add listener rules for domain-based routing")
+        # Handle HTTPS listener
+        if https_listener_arn:
+            print("🔄 Updating Martin HTTPS listener rules...")
+            update_martin_https_rules(elbv2_client, https_listener_arn, target_groups)
+        else:
+            print("⚠️ HTTPS listener not found - requires SSL certificate setup")
+            print("⚠️ You'll need to:")
+            print("   1. Request or import SSL certificates in AWS Certificate Manager")
+            print("   2. Create HTTPS listener manually with certificate ARN")
+            print("   3. Add listener rules for domain-based routing")
 
-        # Return configuration for manual setup
+        # Return configuration
         return {
             'http_listener_arn': http_listener_arn,
-            'https_setup_required': True,
+            'https_listener_arn': https_listener_arn,
+            'https_setup_required': https_listener_arn is None,
             'target_groups': target_groups
         }
     
     except ClientError as e:
-        print(f"❌ Error creating listeners: {e}")
+        print(f"❌ Error managing listeners: {e}")
         return None
 
 def generate_https_listener_config(target_groups):
@@ -348,11 +473,11 @@ def generate_https_listener_config(target_groups):
         "listener_rules": [
             {
                 "priority": 50,
-                "description": "Route tiles.staging subdomain to Martin staging tile server",
+                "description": "Route martin.staging subdomain to Martin staging tile server",
                 "conditions": [
                     {
                         "field": "host-header",
-                        "values": ["tiles.staging.resilienceatlas.org"]
+                        "values": ["martin.staging.resilienceatlas.org"]
                     }
                 ],
                 "actions": [
@@ -364,17 +489,17 @@ def generate_https_listener_config(target_groups):
             },
             {
                 "priority": 60,
-                "description": "Route tiles subdomain to Martin production tile server",
+                "description": "Route martin subdomain to Martin production tile server",
                 "conditions": [
                     {
                         "field": "host-header",
-                        "values": ["tiles.resilienceatlas.org"]
+                        "values": ["martin.resilienceatlas.org"]
                     }
                 ],
                 "actions": [
                     {
                         "type": "forward",
-                        "target_group_arn": target_groups['martin-prod']
+                        "target_group_arn": target_groups['martin-production']
                     }
                 ]
             },
@@ -445,7 +570,7 @@ def main(profile=None, vpc_id=None):
         sys.exit(1)
     
     # Create listeners
-    print("\n👂 Creating listeners...")
+    print("\n👂 Managing listeners...")
     listener_config = create_listeners(clients['elbv2'], lb_arn, target_groups)
     if not listener_config:
         sys.exit(1)
@@ -486,22 +611,22 @@ def main(profile=None, vpc_id=None):
     print("   - staging.resilienceatlas.org")
     print("2. Create HTTPS listener with SSL certificates")
     print("3. Add listener rules for domain-based routing")
-    print("   - tiles.staging.resilienceatlas.org → Martin staging (priority 50)")
-    print("   - tiles.resilienceatlas.org → Martin production (priority 60)")
+    print("   - martin.staging.resilienceatlas.org → Martin staging (priority 15)")
+    print("   - martin.resilienceatlas.org → Martin production (priority 25)")
     print("   - staging.resilienceatlas.org → Staging app (priority 100)")
     print("   - resilienceatlas.org → Production app (priority 200)")
     print("4. Register EC2 instances with target groups:")
     print(f"   - Staging app → {target_groups['staging']}")
     print(f"   - Production app → {target_groups['production']}")
     print(f"   - Staging Martin → {target_groups['martin-staging']}")
-    print(f"   - Production Martin → {target_groups['martin-prod']}")
+    print(f"   - Production Martin → {target_groups['martin-production']}")
     print("5. Update Route53 records to point to ALB DNS name:")
-    print("   - tiles.staging.resilienceatlas.org → ALB")
-    print("   - tiles.resilienceatlas.org → ALB")
-    print("6. Request SSL certificate covering tiles.* subdomains (or wildcard *.resilienceatlas.org)")
+    print("   - martin.staging.resilienceatlas.org → ALB")
+    print("   - martin.resilienceatlas.org → ALB")
+    print("6. Request SSL certificate covering martin.* subdomains (or wildcard *.resilienceatlas.org)")
     print("7. Set GitHub repository variables:")
-    print("   - NEXT_PUBLIC_MARTIN_URL = https://tiles.staging.resilienceatlas.org")
-    print("   - PRODUCTION_NEXT_PUBLIC_MARTIN_URL = https://tiles.resilienceatlas.org")
+    print("   - NEXT_PUBLIC_MARTIN_URL = https://martin.staging.resilienceatlas.org")
+    print("   - PRODUCTION_NEXT_PUBLIC_MARTIN_URL = https://martin.resilienceatlas.org")
     
     print("\n🔧 Manual HTTPS Listener Setup Commands:")
     print("Use the AWS CLI or Console to create HTTPS listener with the configuration in alb_configuration.json")

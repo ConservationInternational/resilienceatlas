@@ -152,8 +152,8 @@ Browser → CloudFront (SSL + caching) → ALB (HTTP, host-header routing) → M
 
 | Environment | URL | Cache TTL |
 |-------------|-----|-----------|
-| Production  | `https://tiles.resilienceatlas.org` | 24 hours |
-| Staging     | `https://tiles.staging.resilienceatlas.org` | 1 hour |
+| Production  | `https://martin.resilienceatlas.org` | 24 hours |
+| Staging     | `https://martin.staging.resilienceatlas.org` | 1 hour |
 
 **Deploy/update the CDN stack:**
 ```bash
