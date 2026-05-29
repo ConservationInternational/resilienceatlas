@@ -364,9 +364,9 @@ npx cypress run --config baseUrl=http://localhost:3000
 - Automatic database refresh from production to staging on deploy (optional)
 - **Rollbar deployment tracking**: Automatically notifies Rollbar of deployments when `ROLLBAR_ACCESS_TOKEN` is configured
 
-### Boundary Data (Martin Vector Tiles)
+### Vector Tiles (Martin)
 
-Admin boundary polygons are served as vector tiles via Martin from the `admin_boundaries` table. Data source: geoBoundaries CGAZ GeoPackage files (ADM0/ADM1/ADM2). Full-resolution geometry is used at all zoom levels — `ST_AsMVTGeom` clips to the tile extent and quantizes coordinates to the MVT grid, keeping tiles compact without introducing shared-edge artifacts.
+[Martin](https://maplibre.org/martin/) is a Rust-based vector tile server that can serve PostGIS MVT functions and MBTiles files. Martin is used for serving vector data layers from the database.
 
 **CDN (CloudFront):**
 Martin tiles are cached via CloudFront: `Browser → CloudFront (SSL + caching) → ALB (HTTP) → Martin`.
@@ -375,27 +375,39 @@ Martin tiles are cached via CloudFront: `Browser → CloudFront (SSL + caching) 
 - CloudFormation template: `infrastructure/martin-cdn/template.yaml`
 - Deploy: `infrastructure/martin-cdn/deploy.sh --staging --profile resilienceatlas`
 - Invalidate cache: `scripts/invalidate-martin-cache.sh --staging --profile resilienceatlas`
-- After reimporting data: restart Martin, then invalidate the CDN cache
 
-**Importing on deployed environments:**
-1. Upload `.gpkg` files to server (e.g. `scp` to `/tmp/geoboundaries/`)
-2. Find the Docker network: `docker network ls | grep staging` (or `production`)
-3. Run import via one-off container:
-   ```bash
-   # Staging
-   docker run --rm -it \
-     --network resilienceatlas-staging_staging-network \
-     --env-file /opt/resilienceatlas-staging/.env.staging \
-     -v /tmp/geoboundaries:/data/geoboundaries:ro \
-     <BACKEND_IMAGE> \
-     bundle exec rake boundaries:import
-   ```
-4. Restart Martin: `docker service update --force resilienceatlas-staging_martin`
+### Boundary Data (Mapbox Streets Vector Tiles)
 
-**Available rake tasks:**
-- `rake boundaries:import` — Import GeoPackage files into admin_boundaries
-- `rake boundaries:status` — Show row counts by admin level
-- `rake boundaries:clear` — Truncate all boundary data
+Admin boundary lines are now served via **Mapbox Streets V4 Vector Tiles API**, eliminating the need for self-hosted boundary data infrastructure.
+
+**Data Source:**
+- Tileset: `mapbox.mapbox-streets-v8` (official Mapbox Streets v8)
+- API Endpoint: `https://api.mapbox.com/v4/mapbox.mapbox-streets-v8/{z}/{x}/{y}.mvt?access_token={token}`
+- Source-layer: `admin` (contains admin boundaries with admin_level 0-5)
+- Feature properties: `admin_level` (0=country, 1=state, 2=county), `maritime`, `disputed`, `iso_3166_1`
+- Access token: Hardcoded in `frontend/src/views/components/Map/OLMap/boundaries.ts` (cigrp account)
+
+**Frontend Implementation:**
+- File: `frontend/src/views/components/Map/OLMap/boundaries.ts`
+- Creates two VectorTile layers (halo + line) using OpenLayers
+- Filters to `admin` source-layer only, excludes maritime boundaries
+- User-selectable light/dark styles:
+  - **Light style** (default): White/light borders (#ffffff, #eeeeee, #dddddd) for dark backgrounds/satellite
+  - **Dark style**: Dark borders (#666666, #888888, #aaaaaa) for light backgrounds
+- Redux state: `map.boundaryStyle` ('light' | 'dark')
+- UI control: Basemaps panel shows style selector when boundaries enabled
+- URL persistence: `?boundaries=true&boundaryStyle=light|dark`
+
+**Benefits over self-hosted Martin:**
+- ✅ Zero infrastructure maintenance (no PostgreSQL table, no import scripts, no Martin service for boundaries)
+- ✅ Professional boundary data from Mapbox Streets
+- ✅ Vector tiles with proper transparency for overlay rendering
+- ✅ 200,000 requests/month free tier (likely sufficient for boundary overlays)
+- ✅ Global CDN caching built-in
+
+**Note:** Martin service still runs for potential future vector data layers, but is no longer used for admin boundaries.
+
+**Migration:** The `admin_boundaries` table and `boundary_tiles` PostgreSQL function were dropped in migration `20260529120000_drop_admin_boundaries.rb` after migration to Mapbox Streets.
 
 **Running migrations on deployed environments (Docker Swarm):**
 ```bash
@@ -408,16 +420,8 @@ docker exec $BACKEND bundle exec rake db:migrate
 # Or rollback
 docker exec $BACKEND bundle exec rake db:rollback STEP=1
 
-# Restart services to pick up database changes
-docker service update --force resilienceatlas-staging_martin
+# Restart services to pick up changes
 docker service update --force resilienceatlas-staging_backend
-```
-
-**Local development:**
-```bash
-docker compose -f docker-compose.dev.yml run --rm \
-  -v /path/to/gpkg/files:/data/geoboundaries:ro \
-  backend rake boundaries:import
 ```
 
 ## Error Tracking (Rollbar)

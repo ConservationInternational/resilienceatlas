@@ -64,20 +64,6 @@
    docker compose -f docker-compose.dev.yml exec backend bundle exec rails db:seed
    ```
 
-5. **Load Admin Boundaries**
-
-   Admin boundary data (used for the analysis panel country selector) is not included in seeds. Import from the GeoPackage files in the `boundaries/` directory:
-   ```bash
-   docker compose -f docker-compose.dev.yml run --rm \
-     -v ./boundaries:/data/geoboundaries:ro \
-     backend rake boundaries:import
-   ```
-
-   Or use the helper script, which detects local dev vs deployed staging/production and copies or mounts the files as needed:
-   ```bash
-   GEOBOUNDARIES_DIR=./boundaries bash ./scripts/setup_admin_boundaries.sh
-   ```
-
 ### Hybrid Development (Database in Docker, Apps Local)
 
 For faster development iteration, you can run only the database in Docker while running the frontend and backend locally:
@@ -136,11 +122,9 @@ docker compose -f docker-compose.test.yml run --rm --no-deps frontend-test ./bin
 docker compose -f docker-compose.test.yml up --abort-on-container-exit
 ```
 
-## Boundary Data (Martin Vector Tiles)
+## Vector Tiles (Martin)
 
-Admin boundary polygons are served as vector tiles via [Martin](https://maplibre.org/martin/) from the `admin_boundaries` table. The data comes from [geoBoundaries CGAZ](https://www.geoboundaries.org/) GeoPackage files and includes three admin levels (ADM0/ADM1/ADM2).
-
-Full-resolution geometry is used at all zoom levels — `ST_AsMVTGeom` clips to the tile extent and quantizes coordinates to the MVT grid, keeping tiles compact without introducing shared-edge artifacts.
+[Martin](https://maplibre.org/martin/) is a Rust-based vector tile server that can serve PostGIS MVT functions and MBTiles files. Martin is used for serving vector data layers from the database.
 
 ### CDN (CloudFront)
 
@@ -161,58 +145,40 @@ infrastructure/martin-cdn/deploy.sh --staging --profile resilienceatlas
 infrastructure/martin-cdn/deploy.sh --production --profile resilienceatlas
 ```
 
-**Invalidate cache** (after reimporting boundary data or changing tile sources):
+**Invalidate cache** (after changing tile sources or data):
 ```bash
 scripts/invalidate-martin-cache.sh --staging --profile resilienceatlas
-# Or invalidate only boundary tiles:
-scripts/invalidate-martin-cache.sh --staging --paths "/boundary_tiles/*" --profile resilienceatlas
+# Or invalidate specific paths:
+scripts/invalidate-martin-cache.sh --staging --paths "/your_tiles/*" --profile resilienceatlas
 ```
 
-### Importing Boundary Data (Deployed Environments)
+## Boundary Data (Mapbox Streets Vector Tiles)
 
-1. **Upload GeoPackage files** to the server (e.g. via `scp`):
-   ```bash
-   scp geoBoundariesCGAZ_ADM*.gpkg ubuntu@<server>:/tmp/geoboundaries/
-   ```
+Admin boundary lines are served via **Mapbox Streets V4 Vector Tiles API**, eliminating self-hosted boundary infrastructure.
 
-2. **Find the correct Docker network and backend image**:
-   ```bash
-   docker network ls | grep staging   # or grep production
-   docker ps | grep backend
-   ```
+**Data Source:**
+- Tileset: `mapbox.mapbox-streets-v8` (official Mapbox Streets)
+- API: `https://api.mapbox.com/v4/mapbox.mapbox-streets-v8/{z}/{x}/{y}.mvt?access_token={token}`
+- Source-layer: `admin` (admin_level 0-5: country, state, county, etc.)
+- Access token: Hardcoded in `frontend/src/views/components/Map/OLMap/boundaries.ts`
 
-3. **Run the import** via a one-off container with the data volume-mounted:
-   ```bash
-   # Staging example
-   docker run --rm -it \
-     --network resilienceatlas-staging_staging-network \
-     --env-file /opt/resilienceatlas-staging/.env.staging \
-     -v /tmp/geoboundaries:/data/geoboundaries:ro \
-     <BACKEND_IMAGE> \
-     bundle exec rake boundaries:import
-   ```
+**User Interface:**
+- Toggle boundaries on/off via map controls
+- Select boundary style: **Light** (for dark backgrounds/satellite) or **Dark** (for light backgrounds)
+- URL persistence: `?boundaries=true&boundaryStyle=light|dark`
 
-4. **Restart Martin** to pick up any function changes:
-   ```bash
-   docker service update --force resilienceatlas-staging_martin
-   ```
+**Implementation:**
+- Frontend: OpenLayers VectorTileLayer with custom styling
+- Filters: Admin source-layer only, excludes maritime boundaries
+- Styling: Halo + line two-layer pattern for visibility
+- Code: `frontend/src/views/components/Map/OLMap/boundaries.ts`
 
-### Available Rake Tasks
-
-| Task | Description |
-|------|-------------|
-| `rake boundaries:import` | Import GeoPackage files into admin_boundaries |
-| `rake boundaries:status` | Show row counts by admin level |
-| `rake boundaries:clear` | Truncate all boundary data |
-
-### Local Development
-
-```bash
-# With docker-compose.dev.yml running:
-docker compose -f docker-compose.dev.yml run --rm \
-  -v /path/to/gpkg/files:/data/geoboundaries:ro \
-  backend rake boundaries:import
-```
+**Benefits:**
+- Zero infrastructure maintenance (no database, imports, or tile server)
+- Professional boundary data from Mapbox
+- Vector tiles with transparency for proper overlay rendering
+- 200,000 requests/month free tier
+- Global CDN caching
 
 ## Documentation
 
