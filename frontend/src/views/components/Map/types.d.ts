@@ -1,4 +1,8 @@
-import type { MAP_LABELS, BASEMAP_LABELS } from 'views/components/LayersList/Basemaps/constants';
+import type {
+  MAP_LABELS,
+  BASEMAP_LABELS,
+  BOUNDARY_STYLES,
+} from 'views/components/LayersList/Basemaps/constants';
 import type { NextRouter } from 'next/router';
 
 // URL-serializable compare state (from getCompareURLState selector)
@@ -13,6 +17,7 @@ export interface MapViewProps {
   labels: (typeof MAP_LABELS)[number];
   basemap: (typeof BASEMAP_LABELS)[number];
   boundaries: boolean;
+  boundaryStyle: (typeof BOUNDARY_STYLES)[number];
   router: NextRouter;
   onLoadingLayers?: (loaded: boolean) => void;
   layers: {

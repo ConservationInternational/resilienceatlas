@@ -36,6 +36,7 @@ const makeMapStateToProps = () => {
     basemap: state.map.basemap,
     labels: state.map.labels,
     boundaries: state.map.boundaries,
+    boundaryStyle: state.map.boundaryStyle,
     layer_groups: state.layer_groups,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     activeLayers: getActives(state as any),

@@ -1,7 +1,10 @@
 import { getRouterParam } from 'utilities';
 import { createReducer } from '../../utils';
 import * as t from './actions';
-import type { MAP_LABELS } from 'views/components/LayersList/Basemaps/constants';
+import type {
+  MAP_LABELS,
+  BOUNDARY_STYLES,
+} from 'views/components/LayersList/Basemaps/constants';
 
 interface Bounds {
   _northEast: { lat: number; lng: number };
@@ -27,6 +30,7 @@ interface GeoJSONFeature {
 export interface MapState {
   labels: (typeof MAP_LABELS)[number];
   boundaries: boolean;
+  boundaryStyle: (typeof BOUNDARY_STYLES)[number];
   drawing: boolean;
   bounds: Bounds | null;
   iso: string | null;
@@ -43,6 +47,7 @@ export interface MapState {
 const initialState: MapState = {
   drawing: false,
   boundaries: false,
+  boundaryStyle: 'light',
   // geojson: getRouterParam('geojson', JSON.parse),
   bounds: null,
   iso: getRouterParam('iso'),
@@ -76,6 +81,11 @@ export default createReducer(initialState)({
   [t.SET_BOUNDARIES]: (state, { payload }) => ({
     ...state,
     boundaries: payload,
+  }),
+
+  [t.SET_BOUNDARY_STYLE]: (state, { payload }) => ({
+    ...state,
+    boundaryStyle: payload,
   }),
 
   [t.SET_BOUNDS]: (state, { payload }) => ({
