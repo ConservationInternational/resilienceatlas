@@ -425,6 +425,171 @@ docker exec $BACKEND bundle exec rake db:rollback STEP=1
 docker service update --force resilienceatlas-staging_backend
 ```
 
+## Layer Configuration
+
+### Overview
+
+Layers are configured via the Rails admin interface at `/admin/layers` or through the API. Each layer has a `layer_provider` field that determines the tile source type and a `layer_config` field (JSON) that contains provider-specific configuration.
+
+### Supported Layer Providers
+
+- **`arcgis_feature`** - ArcGIS FeatureServer layers with server-side API token proxy
+- **`cog`** - Cloud Optimized GeoTIFF via TiTiler
+- **`esri`** - ESRI tile services
+- **`gee`** - Google Earth Engine
+- **`leaflet`** - Generic Leaflet layers
+- **`martin`** - PostGIS vector tiles via Martin server
+- **`wms`** - Web Map Service
+- **`wmts`** - Web Map Tile Service
+- **`xyz tileset`** - XYZ tile services
+
+### ArcGIS Feature Layers (arcgis_feature)
+
+ArcGIS Feature layers support secure API token storage with server-side proxying to prevent token exposure.
+
+**Layer Config Structure:**
+```json
+{
+  "body": {
+    "url": "https://services.arcgis.com/your-org/arcgis/rest/services/YourService/FeatureServer/0",
+    "token": "your-arcgis-api-token-here",
+    "params": {
+      "where": "1=1",
+      "outFields": "*"
+    }
+  }
+}
+```
+
+**Configuration Fields:**
+- **`url`** (required): Full FeatureServer layer URL (e.g., `.../FeatureServer/0`)
+- **`token`** (optional): ArcGIS API token/key for authenticated services
+- **`params`** (optional): Default query parameters (where clause, output fields, etc.)
+
+**Security Features:**
+- ✅ **Server-side token storage**: Tokens never exposed to browser
+- ✅ **Automatic token filtering**: `LayerSerializer` removes token from API responses
+- ✅ **Proxy endpoint**: Requests routed through `/api/v1/arcgis-feature-proxy/:id/query`
+- ✅ **SSRF protection**: URLs validated against allowlist (*.arcgis.com + `ARCGIS_ALLOWED_HOSTS` env var)
+- ✅ **useProxy flag**: Auto-added to layer_config when token present
+
+**Backend Implementation:**
+- Controller: `backend/app/controllers/api/v1/arcgis_feature_proxy_controller.rb`
+- Serializer: `backend/app/serializers/layer_serializer.rb` (filters token from responses)
+- Route: `GET /api/v1/arcgis-feature-proxy/:id/query` (proxies to ArcGIS with token)
+
+**Example Admin Layer Config:**
+```json
+{
+  "body": {
+    "url": "https://services1.arcgis.com/abc123/arcgis/rest/services/ProtectedAreas/FeatureServer/0",
+    "token": "ABC123yourSecretTokenHere456",
+    "params": {
+      "where": "status='active'",
+      "outFields": "name,area,designation"
+    }
+  }
+}
+```
+
+**SSRF Protection Configuration:**
+To allow additional ArcGIS domains beyond *.arcgis.com, set the `ARCGIS_ALLOWED_HOSTS` environment variable:
+```bash
+# In backend/.env
+ARCGIS_ALLOWED_HOSTS=gis.example.com,*.myorg.gov
+```
+
+### Other Layer Types
+
+**COG (Cloud Optimized GeoTIFF):**
+```json
+{
+  "body": {
+    "url": "https://titiler.example.com/cog/tiles/{z}/{x}/{y}?url=https://storage.example.com/data.tif"
+  }
+}
+```
+
+**Martin (PostGIS Vector Tiles):**
+```json
+{
+  "source": "table_or_function_name",
+  "styles": {
+    "fill-color": "#ff0000",
+    "fill-opacity": 0.5
+  }
+}
+```
+
+**WMS/WMTS:**
+```json
+{
+  "body": {
+    "url": "https://example.com/wms",
+    "layer": "layer_name",
+    "params": {
+      "transparent": "true",
+      "format": "image/png"
+    }
+  }
+}
+```
+
+### Timeline Substitution
+
+For layers with temporal data, use placeholders in URLs that are automatically substituted:
+- `{{year}}` - Four-digit year (e.g., 2024)
+- `{{month}}` - Two-digit month (01-12)
+- `{{day}}` - Two-digit day (01-31)
+
+Example:
+```json
+{
+  "body": {
+    "url": "https://tiles.example.com/{{year}}/{{month}}/{z}/{x}/{y}.png"
+  }
+}
+```
+
+### Interactivity Configuration
+
+The `interaction_config` field controls map click popups. Set to disable or configure data queries:
+
+**Disable popups:**
+```json
+{
+  "output": [],
+  "enabled": false
+}
+```
+
+**COG point query:**
+```json
+{
+  "output": [
+    {"column": "values.0", "property": "Band 1"},
+    {"column": "values.1", "property": "NDVI"}
+  ],
+  "config": {
+    "url": "/api/titiler/point?titilerUrl={{titilerUrl}}&cogUrl={{cogUrl}}&lon={{lng}}&lat={{lat}}"
+  }
+}
+```
+
+Note: `{{titilerUrl}}` and `{{cogUrl}}` are auto-injected from environment variables.
+
+### Analysis Configuration
+
+For layers with spatial analysis capabilities, configure via:
+- **`analysis_suitable`** (boolean): Enable analysis for this layer
+- **`analysis_type`**: `histogram` or `categorical` (COG supports both, others histogram only)
+- **`analysis_query`**: API endpoint for statistics
+
+**Example (COG):**
+```
+/api/titiler/statistics?titilerUrl={{titilerUrl}}&cogUrl={{cogUrl}}
+```
+
 ## Error Tracking (Rollbar)
 
 ### Overview
