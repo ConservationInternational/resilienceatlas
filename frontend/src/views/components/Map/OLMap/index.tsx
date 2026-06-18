@@ -51,7 +51,7 @@ export interface OLMapProps {
   basemap?: BasemapConfig;
   label?: LabelConfig;
   boundaries?: boolean;
-  boundaryStyle?: 'light' | 'dark';
+  boundaryStyle?: 'light' | 'dark' | 'none';
   mapOptions?: MapOptions;
   events?: MapEvents;
   children?: (map: OlMap) => ReactNode;
