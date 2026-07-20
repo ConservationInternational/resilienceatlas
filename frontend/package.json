@@ -28,7 +28,7 @@
     "@transifex/react": "^7.1.5",
     "@turf/bbox-polygon": "^7.1.0",
     "@types/dompurify": "^3.0.5",
-    "axios": "^1.15.0",
+    "axios": "^1.18.1",
     "classnames": "^2.5.1",
     "date-fns": "^4.1.0",
     "dompurify": "^3.4.11",
