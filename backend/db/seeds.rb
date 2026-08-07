@@ -6,7 +6,7 @@ unless Rails.env.test?
   unless AdminUser.exists?(email: "admin@example.com")
     AdminUser.create!(email: "admin@example.com", password: "password123456", password_confirmation: "password123456")
   end
-  if SiteScope.all.size == 0
+  unless SiteScope.exists?(id: 1)
     SiteScope.create!(name: "Resilience Atlas", id: 1, header_theme: "Resilience", color: "#0089CC")
   end
 
@@ -195,8 +195,8 @@ unless Rails.env.test?
     if File.exist?(journeys_file)
       # Import journeys with custom handling for the at_least_one_step validation
       begin
-        # Temporarily disable the at_least_one_step callback
-        Journey.skip_callback(:save, :after, :at_least_one_step)
+        # Temporarily disable the at_least_one_step validation
+        Journey.skip_callback(:validate, :before, :at_least_one_step)
 
         content = File.read(journeys_file)
 
@@ -240,8 +240,8 @@ unless Rails.env.test?
           end
         end
 
-        # Re-enable the callback
-        Journey.set_callback(:save, :after, :at_least_one_step)
+        # Re-enable the validation
+        Journey.set_callback(:validate, :before, :at_least_one_step)
 
         # Now attach background images to the journeys
         puts "Attaching background images to journeys..."
@@ -284,8 +284,8 @@ unless Rails.env.test?
 
         puts "Journeys imported successfully from journeys.rb (#{Journey.count} journeys, #{JourneyStep.count} journey steps)"
       rescue => e
-        # Re-enable the callback even if there's an error
-        Journey.set_callback(:save, :after, :at_least_one_step)
+        # Re-enable the validation even if there's an error
+        Journey.set_callback(:validate, :before, :at_least_one_step)
         puts "Journey import failed: #{e.message}"
         puts "Trying direct load method..."
 

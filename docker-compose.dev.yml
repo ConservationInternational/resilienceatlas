@@ -60,6 +60,8 @@ services:
     volumes:
       - ./backend:/app
       - backend_bundle_cache:/usr/local/bundle
+      # Mount host AWS credentials so rake tasks can access S3
+      - ${HOME}/.aws:/root/.aws
       # Uncomment to mount geoBoundaries data for import:
       # - /path/to/geoboundaries:/data/geoboundaries:ro
     networks:
