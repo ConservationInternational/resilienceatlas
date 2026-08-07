@@ -47,6 +47,12 @@ gem "ffi", "~> 1.17"
 
 gem "cancancan", "~> 3.6"
 
+# Security: minimum versions required by CVE fixes
+gem "faraday", ">= 2.14.3"
+gem "websocket-driver", ">= 0.8.1"
+gem "net-imap", ">= 0.6.4.1"
+gem "json", ">= 2.19.9"
+
 gem "addressable", "~> 2.8"
 
 gem "rack-cors", "~> 2.0"
@@ -80,7 +86,7 @@ gem "ransack", "~> 4.3"
 gem "sidekiq", "~> 7.3"
 
 group :production, :staging do
-  gem "puma", "~> 6.5"
+  gem "puma", "~> 8.0"
   gem "redis", ">= 4.0.1"
   gem "aws-sdk-s3", "~> 1.160"
   gem "aws-sdk-bedrockagentruntime", "~> 1"
