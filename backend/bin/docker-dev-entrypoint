@@ -51,6 +51,20 @@ else
   fi
 fi
 
+# --- CartoDB migration (runs after seeding if S3 credentials are available) ---
+if [ -n "${CARTODB_S3_BUCKET}" ]; then
+  echo "CARTODB_S3_BUCKET is set, running rake cartodb:migrate_tables..."
+  bundle exec rake cartodb:migrate_tables \
+    CARTODB_S3_BUCKET="${CARTODB_S3_BUCKET}" \
+    CARTODB_VECTORS_S3_PREFIX="${CARTODB_VECTORS_S3_PREFIX:-cartodb_exports/vectors/}" \
+    CARTODB_TABLES_S3_PREFIX="${CARTODB_TABLES_S3_PREFIX:-cartodb_exports/non-spatial/}" \
+    || echo "Warning: cartodb:migrate_tables failed (layers will remain unpublished until fixed)"
+else
+  echo "CARTODB_S3_BUCKET not set — skipping rake cartodb:migrate_tables."
+  echo "  CartoDB-derived layers will remain unpublished."
+  echo "  To run: docker compose -f docker-compose.dev.yml run --rm backend bundle exec rake cartodb:migrate_tables CARTODB_S3_BUCKET=resilienceatlas"
+fi
+
 # --- Start server ---
 rm -f tmp/pids/server.pid
 exec bundle exec rails server -b 0.0.0.0

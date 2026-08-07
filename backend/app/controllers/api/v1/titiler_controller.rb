@@ -183,13 +183,22 @@ module Api
         /\Alocalhost(:\d+)?\z/
       ].freeze
 
-      # Validates cogUrl against COG_ALLOWED_HOSTS. Returns the URL string
-      # unchanged when valid, or nil when blocked.
+      # Validates cogUrl against COG_ALLOWED_HOSTS or an S3 bucket allowlist.
+      # Returns the URL string unchanged when valid, or nil when blocked.
       def validated_cog_url(url)
         return nil if url.blank?
 
         begin
           uri = URI.parse(url)
+
+          # Allow s3:// URIs — TiTiler accesses these directly via AWS SDK
+          if uri.scheme == "s3"
+            bucket = uri.host.to_s
+            allowed_buckets = (ENV["COG_ALLOWED_S3_BUCKETS"] || "resilienceatlas").split(",").map(&:strip)
+            return nil unless bucket.present? && allowed_buckets.include?(bucket)
+            return url
+          end
+
           return nil unless uri.is_a?(URI::HTTP) || uri.is_a?(URI::HTTPS)
           return nil unless COG_ALLOWED_HOSTS.any? { |pattern| uri.host.to_s.match?(pattern) }
 

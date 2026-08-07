@@ -14,6 +14,12 @@ class FixMissingBidxForMultibandCogLayers < ActiveRecord::Migration[7.2]
       return
     end
 
+    # Fresh database has no layers to fix; db:seed will handle initial setup
+    if Layer.count == 0
+      Rails.logger.info "FixMissingBidx: No layers found, skipping (initial seed will populate)"
+      return
+    end
+
     # Reset column caches so models reflect the current DB schema.
     # Earlier migrations in the same batch may have added/removed columns
     # (e.g. timeline_format was added then removed), leaving stale caches.

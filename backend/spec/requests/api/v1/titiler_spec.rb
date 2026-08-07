@@ -75,6 +75,37 @@ RSpec.describe "API V1 TiTiler Proxy", type: :request do
           run_test!
         end
       end
+
+      context "with s3:// COG URL" do
+        let(:s3_cog_url) { "s3://resilienceatlas/cogs/total_annual_rainfall.tif" }
+
+        before do
+          stub_request(:get, %r{#{valid_titiler_url}/info.*})
+            .to_return(
+              status: 200,
+              body: {bounds: [-180, -90, 180, 90]}.to_json,
+              headers: {"Content-Type" => "application/json"}
+            )
+        end
+
+        response "200", "Successfully retrieves COG info for s3:// URL" do
+          let(:titilerUrl) { valid_titiler_url }
+          let(:cogUrl) { s3_cog_url }
+
+          run_test! do |response|
+            expect(JSON.parse(response.body)).to have_key("bounds")
+          end
+        end
+
+        response "400", "Rejects s3:// URL from disallowed bucket" do
+          let(:titilerUrl) { valid_titiler_url }
+          let(:cogUrl) { "s3://malicious-bucket/evil.tif" }
+
+          run_test! do |response|
+            expect(JSON.parse(response.body)["error"]).to eq("Invalid cogUrl")
+          end
+        end
+      end
     end
   end
 

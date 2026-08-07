@@ -746,11 +746,20 @@ module CartodbRakeHelpers
   # of `view_sql`.  Handles both plain queries and CTEs (WITH ... AS (...) SELECT).
   # For CTEs the injection point is the SELECT that follows the last CTE definition.
   def self.inject_geometry_into_select(view_sql, geom_ref)
+    # When SELECT is followed by DISTINCT ON, geometry must go AFTER the clause.
+    distinct_on_pat = /\bSELECT\s+(DISTINCT\s+ON\s*\([^)]+\)\s*)/i
     if view_sql.match?(/\bWITH\b/i)
-      # CTE form: the outermost SELECT follows the closing ) of the last CTE.
-      view_sql.sub(/(\)\s*\n?\s*)(SELECT\s+)/im, "\\1SELECT #{geom_ref}, ")
+      if view_sql.match?(distinct_on_pat)
+        view_sql.sub(distinct_on_pat, "SELECT \\1#{geom_ref}, ")
+      else
+        view_sql.sub(/(\)\s*\n?\s*)(SELECT\s+)/im, "\\1SELECT #{geom_ref}, ")
+      end
     else
-      view_sql.sub(/\bSELECT\s+/i, "SELECT #{geom_ref}, ")
+      if view_sql.match?(distinct_on_pat)
+        view_sql.sub(distinct_on_pat, "SELECT \\1#{geom_ref}, ")
+      else
+        view_sql.sub(/\bSELECT\s+/i, "SELECT #{geom_ref}, ")
+      end
     end
   end
 
@@ -945,7 +954,75 @@ module CartodbRakeHelpers
     # ", alias.the_geom" — middle or last column
     result = result.gsub(/[ \t]*,[ \t]*#{pat}/i, "")
     # standalone (no commas left)
-    result.gsub(pat, "")
+    result = result.gsub(pat, "")
+
+    # Also strip the_geom_webmercator (CartoDB internal; never exists in PostGIS imports).
+    # Handles bare, aliased (t.col), function-wrapped (ST_collect(...) AS col), and AS aliases.
+    wm_pat = /(?:\w+\s*\([^)]*\bthe_geom_webmercator\b[^)]*\)|(?:\b\w+\.)?the_geom_webmercator)(?:\s+as\s+\w+)?/i
+    result = result.gsub(/#{wm_pat}[ \t]*,[ \t]*/i, "")
+    result = result.gsub(/[ \t]*,[ \t]*#{wm_pat}/i, "")
+    result = result.gsub(wm_pat, "")
+
+    # Also strip bare the_geom (unaliased) and function wrappers like ST_collect(the_geom).
+    # (?<![.\w]) ensures we don't re-match already-handled alias.the_geom remnants.
+    bare_pat = /(?:\b\w+\s*\([^)]*\bthe_geom\b(?!_)[^)]*\)|(?<![.\w])the_geom\b(?!_\w))(?:\s+as\s+\w+)?/i
+    result = result.gsub(/#{bare_pat}[ \t]*,[ \t]*/i, "")
+    result = result.gsub(/[ \t]*,[ \t]*#{bare_pat}/i, "")
+    result.gsub(bare_pat, "")
+  end
+
+  # Qualify an ambiguous unaliased column with the first non-geometry table alias that has it.
+  def self.qualify_ambiguous_column(sql, col, schema, table_names, ar_conn)
+    # Extract alias → table mappings from FROM/JOIN clauses
+    alias_map = {}
+    sql.scan(/(?:FROM|JOIN)\s+(?:"?#{Regexp.escape(schema)}"?\.)?"?(\w+)"?\s+(?:AS\s+)?(\w+)/i) do |tbl, ali|
+      alias_map[ali] = tbl.downcase
+    end
+    return sql if alias_map.empty?
+
+    # Find the first non-geometry table alias that has this column
+    qualifying_alias = alias_map.find do |_ali, tbl|
+      next false unless table_names.include?(tbl)
+      ar_conn.execute(
+        "SELECT 1 FROM information_schema.columns " \
+        "WHERE table_schema = #{ar_conn.quote(schema)} " \
+        "AND table_name = #{ar_conn.quote(tbl)} " \
+        "AND column_name = #{ar_conn.quote(col)} LIMIT 1"
+      ).ntuples > 0
+    rescue
+      false
+    end&.first
+
+    return sql unless qualifying_alias
+
+    # Replace bare unqualified `col` in SELECT with `alias.col`
+    sql.gsub(/(?<![.\w])#{Regexp.escape(col)}\b(?!\s*\()/i, "#{qualifying_alias}.#{col}")
+  end
+
+  # Fix DISTINCT ON placed mid-column-list (CartoDB stored it in wrong position)
+  # CartoDB queries sometimes store: SELECT col1, distinct on (x, y) col2, col3
+  # PostgreSQL requires:             SELECT DISTINCT ON (x, y) col1, col2, col3
+  # Uses parenthesis-depth tracking to find the correct outer SELECT with CTEs present.
+  def self.fix_distinct_on_position(sql)
+    match = sql.match(/,\s*(DISTINCT\s+ON\s*\([^)]+\))\s+/i)
+    return sql unless match
+
+    before = sql[0...match.begin(0)]
+    # Find the last SELECT at paren depth 0 (skips CTEs and subqueries)
+    last_select_pos = nil
+    depth = 0
+    before.each_char.with_index do |ch, i|
+      depth += 1 if ch == "("
+      depth -= 1 if ch == ")"
+      last_select_pos = i if depth == 0 && before[i..].match?(/\ASELECT\b/i)
+    end
+    return sql unless last_select_pos
+
+    kw_len = before[last_select_pos..].match(/\ASELECT\s*/i)[0].length
+    cols_before = before[(last_select_pos + kw_len)...match.begin(0)].strip
+    sql[0...last_select_pos] +
+      "SELECT #{match[1]} #{cols_before}, " +
+      sql[match.end(0)..]
   end
 
   # Extract a SQL query from a CartoDB-native layer_config JSON blob.
@@ -1142,17 +1219,10 @@ module CartodbRakeHelpers
 
     # When a layer has ONLY conditional rules and no base rule, CartoDB renders
     # non-matching features as completely transparent.  Set an explicit invisible
-    # base so OL doesn't apply its own default (blue fill) to those features.
-    # Do NOT override weight if any conditional rules specify line-color — those
-    # rules will provide their own stroke styling (weight defaults to 1.0).
+    # base so OL doesn't apply its own default (blue fill/stroke) to those features.
+    # The conditional rules' own color/weight override this for matching features.
     if path_opts["conditions"]&.any? && (path_opts.keys - ["conditions"]).empty?
-      # Check if any conditional rules have line-color (they would provide stroke)
-      has_conditional_stroke = path_opts["conditions"].any? do |cond|
-        cond.key?("color") || cond.key?("weight")
-      end
-
-      invisible_base = {"fill" => false, "fillOpacity" => 0}
-      invisible_base["weight"] = 0 unless has_conditional_stroke
+      invisible_base = {"fill" => false, "fillOpacity" => 0, "weight" => 0, "opacity" => 0, "color" => "transparent"}
       path_opts = invisible_base.merge(path_opts)
     end
 
@@ -1451,11 +1521,13 @@ namespace :cartodb do
       # ── 1. Discover available files ─────────────────────────────────────────
 
       # 1a. Vectors: .gpkg files from S3 vectors prefix
+      require "aws-sdk-s3"
+      s3_client = Aws::S3::Client.new(region: ENV.fetch("AWS_REGION", "us-east-1"))
+
       gpkg_basenames = if use_s3
         puts "Listing s3://#{s3_bucket}/#{vectors_prefix} ..."
-        list_output = `aws s3 ls "s3://#{s3_bucket}/#{vectors_prefix}" 2>&1`
-        abort "ERROR: aws s3 ls failed for vectors prefix:\n#{list_output}" unless $?.success?
-        files = list_output.scan(/(\S+\.gpkg)\s*$/).flatten
+        resp = s3_client.list_objects_v2(bucket: s3_bucket, prefix: vectors_prefix)
+        files = resp.contents.map { |o| File.basename(o.key) }.select { |f| f.end_with?(".gpkg") }
         puts "Found #{files.size} .gpkg file(s) at vectors prefix."
         files
       else
@@ -1465,13 +1537,13 @@ namespace :cartodb do
       # 1b. Non-spatial tables: .csv.gz from S3 tables prefix or local directory
       gz_basenames = if use_s3
         puts "Listing s3://#{s3_bucket}/#{tables_prefix} ..."
-        list_output = `aws s3 ls "s3://#{s3_bucket}/#{tables_prefix}" 2>&1`
-        if $?.success?
-          files = list_output.scan(/(\S+\.csv\.gz)\s*$/).flatten
+        begin
+          resp = s3_client.list_objects_v2(bucket: s3_bucket, prefix: tables_prefix)
+          files = resp.contents.map { |o| File.basename(o.key) }.select { |f| f.end_with?(".csv.gz") }
           puts "Found #{files.size} .csv.gz file(s) at tables prefix."
           files
-        else
-          puts "NOTE: Tables prefix not accessible (#{tables_prefix}): #{list_output.strip}"
+        rescue Aws::S3::Errors::ServiceError => e
+          puts "NOTE: Tables prefix not accessible (#{tables_prefix}): #{e.message}"
           puts "      Non-spatial table import will be skipped."
           []
         end
@@ -1583,8 +1655,12 @@ namespace :cartodb do
 
         local_path = File.join(tmpdir, basename)
         print "  Downloading from S3... "
-        unless system("aws s3 cp \"s3://#{s3_bucket}/#{vectors_prefix}#{basename}\" \"#{local_path}\"")
-          warn "  FAILED: S3 download failed."
+        begin
+          File.open(local_path, "wb") do |f|
+            s3_client.get_object(bucket: s3_bucket, key: "#{vectors_prefix}#{basename}") { |chunk| f.write(chunk) }
+          end
+        rescue Aws::S3::Errors::ServiceError => e
+          warn "  FAILED: S3 download failed: #{e.message}"
           failed_vectors << {table: tbl, file: basename, reason: "S3 download failed"}
           next
         end
@@ -1765,7 +1841,12 @@ namespace :cartodb do
       # Load manifest for better schema/table name inference
       manifest_path = if use_s3
         local_m = File.join(tmpdir, "tables.csv")
-        local_m if system("aws s3 cp \"s3://#{s3_bucket}/#{tables_prefix}tables.csv\" \"#{local_m}\" 2>/dev/null")
+        begin
+          File.open(local_m, "wb") { |f| s3_client.get_object(bucket: s3_bucket, key: "#{tables_prefix}tables.csv") { |chunk| f.write(chunk) } }
+          local_m
+        rescue Aws::S3::Errors::NoSuchKey, Aws::S3::Errors::ServiceError
+          nil
+        end
       elsif export_dir.present?
         File.join(export_dir, "tables.csv")
       end
@@ -1801,8 +1882,12 @@ namespace :cartodb do
         gz_path = if use_s3
           local_path = File.join(tmpdir, basename)
           print "  Downloading from S3... "
-          unless system("aws s3 cp \"s3://#{s3_bucket}/#{tables_prefix}#{basename}\" \"#{local_path}\"")
-            warn "FAILED."
+          begin
+            File.open(local_path, "wb") do |f|
+              s3_client.get_object(bucket: s3_bucket, key: "#{tables_prefix}#{basename}") { |chunk| f.write(chunk) }
+            end
+          rescue Aws::S3::Errors::ServiceError => e
+            warn "FAILED: #{e.message}"
             failed_tables << {file: basename, reason: "S3 download failed"}
             next
           end
@@ -2589,6 +2674,9 @@ namespace :cartodb do
             layer.query, table_schema_map
           )
 
+          # Fix DISTINCT ON placed mid-column-list (CartoDB stored it in wrong position)
+          view_sql = CartodbRakeHelpers.fix_distinct_on_position(view_sql)
+
           # CartoDB always used `the_geom`, but GPKG-imported PostGIS tables may
           # use a different column name (e.g. `geom`, `wkb_geometry`, `wkt_geom`).
           # Rename any `alias.the_geom` references to the actual column name first.
@@ -2641,16 +2729,38 @@ namespace :cartodb do
           if dry_run
             view_name
           else
+            view_result = primary_table
             begin
               ar_conn.execute(create_ddl)
               puts "  ✓ View created."
               view_count += 1
-              view_name
+              view_result = view_name
+            rescue ActiveRecord::StatementInvalid => e
+              if (e.cause.is_a?(PG::AmbiguousColumn) || e.message.include?("is ambiguous")) &&
+                  (col = e.message[/"([^"]+)" is ambiguous/, 1])
+                fixed = CartodbRakeHelpers.qualify_ambiguous_column(
+                  view_sql, col, target_schema, imported, ar_conn
+                )
+                if fixed != view_sql
+                  begin
+                    ar_conn.execute("CREATE OR REPLACE VIEW #{target_schema}.#{view_name} AS #{fixed}")
+                    puts "  ✓ View created (after qualifying ambiguous column '#{col}')."
+                    view_count += 1
+                    view_result = view_name
+                  rescue => e2
+                    warn "  ✗ View creation failed after retry: #{e2.message}"
+                  end
+                end
+              end
+              if view_result == primary_table
+                warn "  ✗ View creation failed: #{e.message}"
+                warn "    Falling back to direct table reference."
+              end
             rescue => e
               warn "  ✗ View creation failed: #{e.message}"
               warn "    Falling back to direct table reference."
-              primary_table
             end
+            view_result
           end
         else
           # Could not create a view — either simple single-table select, or
@@ -2840,6 +2950,9 @@ namespace :cartodb do
           raw_sql, p2_schema_map
         )
 
+        # Fix DISTINCT ON placed mid-column-list (CartoDB stored it in wrong position)
+        view_sql = CartodbRakeHelpers.fix_distinct_on_position(view_sql)
+
         # Fix any "SELECT  FROM table" patterns left by strip_cartodb_columns
         # having removed the_geom as the sole column of a subquery SELECT (e.g.
         # `st_intersects((select the_geom from t where ...))` → `select  from t`).
@@ -2912,6 +3025,32 @@ namespace :cartodb do
             martin_views_upgraded += 1
             # Publish the layer now that all tables are available
             layer.update_column(:published, true) unless layer.published?
+          rescue ActiveRecord::StatementInvalid => e
+            if e.cause.is_a?(PG::AmbiguousColumn) || e.message.include?("is ambiguous")
+              col = e.message[/"([^"]+)" is ambiguous/, 1]
+              fixed_sql = col ? CartodbRakeHelpers.qualify_ambiguous_column(view_sql, col, target_schema, imported_list, ar_conn) : view_sql
+              if fixed_sql != view_sql
+                begin
+                  ar_conn.execute("CREATE OR REPLACE VIEW #{target_schema}.#{view_name} AS #{fixed_sql}")
+                  puts "  ✓ View created (after qualifying ambiguous column '#{col}')."
+                  config["body"]["source"] = "ra_vector_tile"
+                  config["body"]["params"] = (config["body"]["params"] || {}).merge("table" => view_name)
+                  view_source = view_name
+                  source = "ra_vector_tile"
+                  migration_block["status"] = "configured"
+                  config["cartodb_migration"] = migration_block
+                  changed = true
+                  martin_views_upgraded += 1
+                  layer.update_column(:published, true) unless layer.published?
+                rescue => e2
+                  warn "Layer ##{layer.id}: ✗ View creation failed after retry: #{e2.message}"
+                end
+              else
+                warn "Layer ##{layer.id}: ✗ view creation failed: #{e.message}"
+              end
+            else
+              warn "Layer ##{layer.id}: ✗ view creation failed: #{e.message}"
+            end
           rescue PG::UndefinedColumn => e
             # Show the actual columns available in each source table so the
             # underlying source_sql can be corrected in the database.

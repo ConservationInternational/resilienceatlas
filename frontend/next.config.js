@@ -1,6 +1,9 @@
 const { locales } = require('./locales.config.json');
 
-const { NEXT_PUBLIC_TRANSIFEX_TOKEN, NEXT_PUBLIC_API_HOST } = process.env;
+const { NEXT_PUBLIC_TRANSIFEX_TOKEN, NEXT_PUBLIC_API_HOST, NEXT_PUBLIC_TITILER_URL } = process.env;
+
+// Resolved TiTiler URL used for the server-side tile proxy rewrite
+const TITILER_BASE_URL = NEXT_PUBLIC_TITILER_URL || 'https://staging.titiler.resilienceatlas.org';
 
 // Determine if we're in production based on API host
 const isProduction = NEXT_PUBLIC_API_HOST && NEXT_PUBLIC_API_HOST.includes('resilienceatlas.org');
@@ -97,6 +100,17 @@ const nextConfig = {
         source: '/journeys/:id/step',
         destination: '/journeys/:id/step/1',
         permanent: true,
+      },
+    ];
+  },
+  async rewrites() {
+    if (process.env.NODE_ENV !== 'development') return [];
+    return [
+      {
+        // Proxy TiTiler tile requests through Next.js to avoid CORS issues on
+        // subdomain origins (e.g. ldn.localhost:3000) during local development.
+        source: '/api/titiler-proxy/:path*',
+        destination: `${TITILER_BASE_URL}/:path*`,
       },
     ];
   },

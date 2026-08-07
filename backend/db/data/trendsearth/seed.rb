@@ -172,8 +172,9 @@ module TrendsEarthSeeder
     def reset_sequences
       puts "Resetting PostgreSQL sequences..."
       %w[site_scopes layer_groups layers agrupations sources].each do |table|
+        # is_called=false when table is empty so nextval returns 1, not 2
         ActiveRecord::Base.connection.execute(
-          "SELECT setval(pg_get_serial_sequence('#{table}', 'id'), COALESCE(MAX(id), 1)) FROM #{table}"
+          "SELECT setval(pg_get_serial_sequence('#{table}', 'id'), COALESCE(MAX(id), 1), MAX(id) IS NOT NULL) FROM #{table}"
         )
       end
     end

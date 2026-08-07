@@ -6,6 +6,8 @@
 # This migration drops the simplified columns if they exist (idempotent).
 class AddSimplifiedGeometryColumns < ActiveRecord::Migration[7.2]
   def up
+    return unless table_exists?(:admin_boundaries)
+
     execute <<~SQL
       DROP INDEX IF EXISTS index_admin_boundaries_on_geom_z5;
       DROP INDEX IF EXISTS index_admin_boundaries_on_geom_z0;

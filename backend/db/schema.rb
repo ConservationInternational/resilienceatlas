@@ -10,16 +10,13 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_05_24_120000) do
+ActiveRecord::Schema[7.2].define(version: 2026_06_18_000001) do
   create_schema "ra_app"
-  create_schema "tiger"
-  create_schema "tiger_data"
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "fuzzystrmatch"
   enable_extension "plpgsql"
   enable_extension "postgis"
-  enable_extension "postgis_tiger_geocoder"
   enable_extension "postgis_topology"
 
   create_table "action_text_rich_texts", force: :cascade do |t|
