@@ -4,7 +4,7 @@ Ruby on Rails backend powering [resilienceatlas.org](https://www.resilienceatlas
 
 ## Requirements
 
-- Ruby 3.4.8
+- Ruby 3.4.10
 - Rails 7.2.x
 - PostgreSQL 15 with PostGIS
 - Docker (recommended)

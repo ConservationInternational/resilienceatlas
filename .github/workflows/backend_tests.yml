@@ -31,7 +31,7 @@ jobs:
     - name: Setup Ruby
       uses: ruby/setup-ruby@v1
       with:
-        ruby-version: '3.4.8'
+        ruby-version: '3.4.10'
         bundler-cache: true
         working-directory: backend
     
@@ -119,7 +119,7 @@ jobs:
         # Generate content-based cache keys for better cache reuse
         echo "dockerfile-hash=$(sha256sum backend/Dockerfile | cut -d' ' -f1)" >> $GITHUB_OUTPUT
         echo "gemfile-hash=$(sha256sum backend/Gemfile backend/Gemfile.lock | sha256sum | cut -d' ' -f1)" >> $GITHUB_OUTPUT
-        echo "ruby-version=$(cat backend/.ruby-version 2>/dev/null || echo '3.4.8')" >> $GITHUB_OUTPUT
+        echo "ruby-version=$(cat backend/.ruby-version 2>/dev/null || echo '3.4.10')" >> $GITHUB_OUTPUT
         echo "date=$(date +%Y%m%d)" >> $GITHUB_OUTPUT
 
     - name: Cache Docker buildx layers
@@ -147,7 +147,7 @@ jobs:
       run: |
         # Pre-pull base images to warm the cache
         echo "🔥 Warming cache with base images..."
-        docker pull ruby:3.4.8-bookworm || echo "Could not pre-pull Ruby base image"
+        docker pull ruby:3.4.10-bookworm || echo "Could not pre-pull Ruby base image"
         docker pull postgis/postgis:15-3.3 || echo "Could not pre-pull PostGIS image"
         
         # Show current cache status

@@ -79,7 +79,7 @@ services:
     command: /app/bin/docker-dev-entrypoint
 
   frontend:
-    image: node:24.0.0-bullseye
+    image: node:24-bookworm
     working_dir: /app
     tty: true
     ports:

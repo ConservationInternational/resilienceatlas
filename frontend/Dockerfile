@@ -1,5 +1,5 @@
 # Base dependencies stage
-FROM node:24.0.0-bullseye AS base
+FROM node:24-bookworm AS base
 
 # Enable BuildKit inline cache
 ARG BUILDKIT_INLINE_CACHE=1
@@ -46,7 +46,7 @@ RUN --mount=type=cache,target=/root/.npm \
   && echo "✅ node_modules verified"
 
 # Development stage - for docker compose watch
-FROM node:24.0.0-bullseye AS development
+FROM node:24-bookworm AS development
 WORKDIR /app
 
 # Install curl for health checks
@@ -86,7 +86,7 @@ ENV PORT=3000
 CMD ["npm", "run", "dev"]
 
 # Test stage
-FROM node:24.0.0-bullseye AS test
+FROM node:24-bookworm AS test
 WORKDIR /app
 
 # Install curl for health checks
@@ -138,7 +138,7 @@ ENV PORT=3000
 CMD ["npm", "run", "dev"]
 
 # Rebuild the source code only when needed
-FROM node:24.0.0-bullseye AS builder
+FROM node:24-bookworm AS builder
 WORKDIR /app
 
 # Set build arguments
@@ -170,7 +170,7 @@ ENV NEXT_TELEMETRY_DISABLED=1
 RUN npm run build
 
 # Production image, copy all the files and run next
-FROM node:24.0.0-bullseye AS production
+FROM node:24-bookworm AS production
 WORKDIR /app
 
 ENV NODE_ENV=production

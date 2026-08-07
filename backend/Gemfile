@@ -1,6 +1,6 @@
 source "https://rubygems.org"
 
-ruby "3.4.8"
+ruby "3.4.10"
 
 # Pin psych explicitly to avoid "unresolved or ambiguous specs" warning.
 # Ruby 3.4 ships psych 5.2.2 as a default gem; bundler also installs 5.3.1

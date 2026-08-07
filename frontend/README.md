@@ -6,7 +6,7 @@ The front-end application of the Resilience Atlas platform is built using the fo
 
 - [React](https://reactjs.org/) v19.2.0 as a UI library
 - [Next.js](https://nextjs.org/) v16.1.1 as a framework  
-- [Node.js](https://nodejs.org/) v24.0.0 as the runtime
+- [Node.js](https://nodejs.org/) v24 as the runtime
 - [TypeScript](https://www.typescriptlang.org/) v5 for type safety
 - [Sass](https://sass-lang.com/) as a CSS language
 - [Foundation](https://get.foundation/) as a styles framework
@@ -17,12 +17,12 @@ The front-end application of the Resilience Atlas platform is built using the fo
 
 In order to start modifying the app, please make sure to correctly configure your workstation:
 
-1. Make sure you have [Node.js](https://nodejs.org/en/) v24.0.0 installed (see `.nvmrc`)
+1. Make sure you have [Node.js](https://nodejs.org/en/) v24 installed (see `.nvmrc`)
 2. (Optional) Install [NVM](https://github.com/nvm-sh/nvm) to manage your different Node.js versions
 3. (Optional) Use [Visual Studio Code](https://code.visualstudio.com/) as a text editor to benefit from automatic type checking
 4. Configure your text editor with the [Prettier](https://prettier.io/), [ESLint](https://eslint.org/) and [EditorConfig](https://editorconfig.org/) plugins
 5. (Optional) Configure your editor to "format [code] on save" with ESLint and Prettier
-6. Use the correct Node.js version for this app by running `nvm use`; if you didn't install NVM (step 2), then manually install Node.js v24.0.0
+6. Use the correct Node.js version for this app by running `nvm use`; if you didn't install NVM (step 2), then manually install Node.js v24
 7. Install the dependencies: `npm install` or `yarn`
 8. Create a `.env` file at the root of the project by copying `.env.example` and giving a value for each of the variables (see next section for details)
 9. Run the server: `npm run dev` or `yarn dev`
