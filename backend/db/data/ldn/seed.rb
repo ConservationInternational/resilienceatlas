@@ -924,9 +924,9 @@ module LdnSeeder
 
     # Methodology variants — S3 folder name → human label.
     SCOPE_DATASET_VARIANTS = {
-      "te" => {filename_mode: "Trends.Earth", label: "Trends.Earth"},
-      "fao-wocat" => {filename_mode: "FAO-WOCAT", label: "FAO-WOCAT"},
-      "jrc" => {filename_mode: "JRC", label: "JRC"}
+      "te" => {filename_mode: "Trends.Earth", label: "Trends.Earth", methodology: "trendsearth"},
+      "fao-wocat" => {filename_mode: "FAO-WOCAT", label: "FAO-WOCAT", methodology: "fao-wocat"},
+      "jrc" => {filename_mode: "JRC", label: "JRC", methodology: "jrc"}
     }.freeze
 
     # ── Dataset definitions ──
@@ -1239,7 +1239,7 @@ module LdnSeeder
         end
 
         import_stats_csvs(eco_stats_csv, country_eco_stats_csv)
-        persist_ecoregion_stats(variant_slug)
+        persist_ecoregion_stats(variant_info[:methodology])
 
         SCOPE_DATASET_DEFS.each do |group_key, defn|
           slug = "ldn-#{variant_slug}-#{group_key}"
