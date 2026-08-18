@@ -286,6 +286,40 @@ def _interpolate_colormap(stops, steps_per_segment=5):
     return intervals
 
 
+def _centered_diverging_colormap(
+    negative_colors, neutral_color, positive_colors, positive_breaks
+):
+    """Build mirrored integer intervals with an exact neutral value at zero."""
+    if len(negative_colors) != len(positive_colors):
+        raise ValueError("Diverging colormap sides must contain the same number of colors")
+    if len(positive_breaks) != len(positive_colors) + 1 or positive_breaks[0] != 0:
+        raise ValueError("Positive breaks must start at zero and bound every color")
+
+    data_max = positive_breaks[-1]
+    intervals = [((-32768, -data_max - 1), (0, 0, 0, 0))]
+
+    for color, break_index in zip(negative_colors, reversed(range(len(negative_colors)))):
+        intervals.append(
+            (
+                (-positive_breaks[break_index + 1], -positive_breaks[break_index] - 1),
+                color,
+            )
+        )
+
+    intervals.append(((0, 0), neutral_color))
+
+    for break_index, color in enumerate(positive_colors):
+        intervals.append(
+            (
+                (positive_breaks[break_index] + 1, positive_breaks[break_index + 1]),
+                color,
+            )
+        )
+
+    intervals.append(((data_max + 1, 32767), (0, 0, 0, 0)))
+    return intervals
+
+
 # SOC change: percentage change in soil organic carbon (-100% to +100%)
 _soc_stops = [
     (-100, (155, 39, 121, 255)),
@@ -297,23 +331,47 @@ _soc_stops = [
     (100,  (0, 101, 0, 255)),
 ]
 
-# LDN net change by unit: percentage × 100 (-10000 to +10000)
-_net_change_stops = [
-    (-10000, (155, 39, 121, 255)),
-    (-5000,  (196, 131, 155, 255)),
-    (-500,   (224, 187, 213, 255)),
-    (0,      (247, 247, 247, 255)),
-    (500,    (211, 236, 207, 255)),
-    (5000,   (127, 191, 123, 255)),
-    (10000,  (0, 101, 0, 255)),
+# LDN net change by unit: percentage × 100 (-10000 to +10000). These colors
+# match LDN_LEGENDS[:net_change_by_unit] in backend/db/data/ldn/seed.rb.
+_net_change_negative_colors = [
+    (155, 39, 121, 255),
+    (168, 75, 135, 255),
+    (181, 111, 149, 255),
+    (193, 131, 158, 255),
+    (196, 147, 155, 255),
+    (205, 163, 168, 255),
+    (212, 179, 181, 255),
+    (219, 195, 194, 255),
+    (224, 187, 213, 255),
+    (232, 205, 216, 255),
 ]
+_net_change_neutral_color = (247, 247, 247, 255)
+_net_change_positive_colors = [
+    (237, 243, 229, 255),
+    (225, 239, 218, 255),
+    (211, 236, 206, 255),
+    (192, 228, 181, 255),
+    (166, 217, 155, 255),
+    (141, 203, 130, 255),
+    (115, 188, 104, 255),
+    (90, 173, 79, 255),
+    (65, 158, 53, 255),
+    (0, 101, 0, 255),
+]
+_net_change_positive_breaks = [0, 167, 333, 500, 1625, 2750, 3875, 5000, 6667, 8333, 10000]
+_net_change_colormap = _centered_diverging_colormap(
+    _net_change_negative_colors,
+    _net_change_neutral_color,
+    _net_change_positive_colors,
+    _net_change_positive_breaks,
+)
 
 # Register all custom colormaps
 custom_cmap = default_cmap.register({
     # Continuous: SOC change (interpolated)
     "ra_soc_change": _interpolate_colormap(_soc_stops, steps_per_segment=5),
-    # Continuous: LDN net change by unit (interpolated)
-    "ra_net_change": _interpolate_colormap(_net_change_stops, steps_per_segment=5),
+    # Diverging LDN net change by unit with an exact neutral interval at zero
+    "ra_net_change": _net_change_colormap,
 })
 
 

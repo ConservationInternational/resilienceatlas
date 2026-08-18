@@ -17,7 +17,7 @@ import type {
 type BasemapsProps = {
   basemap: (typeof BASEMAP_LABELS)[number];
   labels: (typeof MAP_LABELS)[number];
-  boundaries: boolean;
+  _boundaries: boolean;
   boundaryStyle: (typeof BOUNDARY_STYLES)[number];
   setBasemap: (basemap: (typeof BASEMAP_LABELS)[number]) => void;
   setLabels: (labels: (typeof MAP_LABELS)[number]) => void;

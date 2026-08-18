@@ -164,6 +164,36 @@ class TestIsUrlAllowedGCS:
         assert is_url_allowed("https://storage.cloud.google.com/my-gcs-bucket/file.tif") is True
 
 
+class TestNetChangeColormap:
+    def test_is_zero_centered_and_matches_legend_colors(self):
+        opaque_intervals = [
+            interval
+            for interval in app_module._net_change_colormap
+            if interval[1][3] == 255
+        ]
+        expected_colors = [
+            "#9b2779", "#a84b87", "#b56f95", "#c1839e", "#c4939b",
+            "#cda3a8", "#d4b3b5", "#dbc3c2", "#e0bbd5", "#e8cdd8",
+            "#f7f7f7",
+            "#edf3e5", "#e1efda", "#d3ecce", "#c0e4b5", "#a6d99b",
+            "#8dcb82", "#73bc68", "#5aad4f", "#419e35", "#006500",
+        ]
+
+        assert len(opaque_intervals) == 21
+        assert opaque_intervals[10] == ((0, 0), (247, 247, 247, 255))
+        assert [
+            f"#{red:02x}{green:02x}{blue:02x}"
+            for _, (red, green, blue, _) in opaque_intervals
+        ] == expected_colors
+
+        negative_intervals = opaque_intervals[:10]
+        positive_intervals = opaque_intervals[11:]
+        for (negative_range, _), (positive_range, _) in zip(
+            negative_intervals, reversed(positive_intervals)
+        ):
+            assert negative_range == (-positive_range[1], -positive_range[0])
+
+
 # ──────────────────────────────────────────────────────────────────────────────
 # CORS headers on error responses
 # ──────────────────────────────────────────────────────────────────────────────
