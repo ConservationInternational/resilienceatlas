@@ -36,7 +36,7 @@ type BoundaryStyle = 'light' | 'dark' | 'none';
 
 function createStyleFunction(
   boundaryStyle: BoundaryStyle,
-  isHalo: boolean
+  isHalo: boolean,
 ): (feature: FeatureLike) => Style | null {
   // Light colors: for dark backgrounds/satellite imagery
   // Dark colors: for light backgrounds
@@ -60,7 +60,7 @@ function createStyleFunction(
     if (maritime === 1 || maritime === true) return null;
 
     // Admin level: 0 (countries), 1 (first-level divisions), 2 (second-level divisions)
-    const level = (feature.get('admin_level') as number);
+    const level = feature.get('admin_level') as number;
     const idx = Math.min(level, 2);
 
     // Zoom-dependent rendering would go here if needed

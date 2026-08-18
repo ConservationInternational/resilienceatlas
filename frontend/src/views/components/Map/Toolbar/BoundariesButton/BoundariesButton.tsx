@@ -36,7 +36,13 @@ const BoundariesButton: React.FC = () => {
             title="Change boundary style"
           >
             {/* Irregular dashed polygon resembling a country silhouette */}
-            <svg className="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+            <svg
+              className="icon"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.8"
+            >
               <path
                 d="M6 3L10 4L14 2L19 5L21 10L19 15L21 19L17 22L12 20L7 22L3 18L4 13L2 9L4 5Z"
                 strokeDasharray="3 2"
