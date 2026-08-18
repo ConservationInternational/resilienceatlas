@@ -372,6 +372,8 @@ custom_cmap = default_cmap.register({
     "ra_soc_change": _interpolate_colormap(_soc_stops, steps_per_segment=5),
     # Diverging LDN net change by unit with an exact neutral interval at zero
     "ra_net_change": _net_change_colormap,
+    # Versioned alias prevents stale browser and CDN tiles after style updates
+    "ra_net_change_v2": _net_change_colormap,
 })
 
 

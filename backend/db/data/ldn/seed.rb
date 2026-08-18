@@ -188,7 +188,7 @@ module LdnSeeder
 
   LDN_COLORMAPS = {
     gains_losses: {"-1" => [155, 39, 121, 255], "0" => [247, 247, 247, 255], "1" => [0, 101, 0, 255]},
-    net_change_by_unit: "ra_net_change"
+    net_change_by_unit: "ra_net_change_v2"
   }.freeze
 
   # ──────────────────────────────────────────────────────────────
@@ -1564,6 +1564,9 @@ module LdnSeeder
           ["DELETE FROM ra_nonspatial.ldn_ecoregion_stats WHERE methodology = ?", methodology]
         )
       )
+      if methodology == "trendsearth"
+        conn.execute("DELETE FROM ra_nonspatial.ldn_ecoregion_stats WHERE methodology = 'te'")
+      end
       conn.execute(<<~SQL)
         INSERT INTO ra_nonspatial.ldn_ecoregion_stats (
           methodology, eco_id, gains_km2, losses_km2, total_area_km2,

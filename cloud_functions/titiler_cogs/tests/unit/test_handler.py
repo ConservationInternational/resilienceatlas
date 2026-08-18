@@ -165,6 +165,9 @@ class TestIsUrlAllowedGCS:
 
 
 class TestNetChangeColormap:
+    def test_versioned_colormap_is_registered(self):
+        assert app_module.custom_cmap.get("ra_net_change_v2") == app_module._net_change_colormap
+
     def test_is_zero_centered_and_matches_legend_colors(self):
         opaque_intervals = [
             interval
