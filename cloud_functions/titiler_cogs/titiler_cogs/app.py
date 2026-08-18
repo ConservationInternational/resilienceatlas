@@ -287,34 +287,32 @@ def _interpolate_colormap(stops, steps_per_segment=5):
 
 
 def _centered_diverging_colormap(
-    negative_colors, neutral_color, positive_colors, positive_breaks
+    negative_colors, neutral_color, positive_colors, neutral_radius, positive_breaks
 ):
-    """Build mirrored integer intervals with an exact neutral value at zero."""
+    """Build mirrored integer intervals with a neutral class centered on zero."""
     if len(negative_colors) != len(positive_colors):
         raise ValueError("Diverging colormap sides must contain the same number of colors")
-    if len(positive_breaks) != len(positive_colors) + 1 or positive_breaks[0] != 0:
-        raise ValueError("Positive breaks must start at zero and bound every color")
+    if len(positive_breaks) != len(positive_colors):
+        raise ValueError("Positive breaks must bound every positive color")
+    if neutral_radius < 0 or positive_breaks[0] <= neutral_radius:
+        raise ValueError("Positive breaks must start above the neutral interval")
 
     data_max = positive_breaks[-1]
     intervals = [((-32768, -data_max - 1), (0, 0, 0, 0))]
 
-    for color, break_index in zip(negative_colors, reversed(range(len(negative_colors)))):
-        intervals.append(
-            (
-                (-positive_breaks[break_index + 1], -positive_breaks[break_index] - 1),
-                color,
-            )
-        )
+    positive_ranges = []
+    range_start = neutral_radius + 1
+    for range_end in positive_breaks:
+        positive_ranges.append((range_start, range_end))
+        range_start = range_end + 1
 
-    intervals.append(((0, 0), neutral_color))
+    for color, positive_range in zip(negative_colors, reversed(positive_ranges)):
+        intervals.append(((-positive_range[1], -positive_range[0]), color))
 
-    for break_index, color in enumerate(positive_colors):
-        intervals.append(
-            (
-                (positive_breaks[break_index] + 1, positive_breaks[break_index + 1]),
-                color,
-            )
-        )
+    intervals.append(((-neutral_radius, neutral_radius), neutral_color))
+
+    for positive_range, color in zip(positive_ranges, positive_colors):
+        intervals.append((positive_range, color))
 
     intervals.append(((data_max + 1, 32767), (0, 0, 0, 0)))
     return intervals
@@ -358,11 +356,15 @@ _net_change_positive_colors = [
     (65, 158, 53, 255),
     (0, 101, 0, 255),
 ]
-_net_change_positive_breaks = [0, 167, 333, 500, 1625, 2750, 3875, 5000, 6667, 8333, 10000]
+# Divide -10000..10000 into 21 approximately equal-width classes. The center
+# class spans -4.76%..+4.76%, with ten mirrored classes on either side.
+_net_change_neutral_radius = 476
+_net_change_positive_breaks = [1428, 2380, 3333, 4285, 5238, 6190, 7143, 8095, 9047, 10000]
 _net_change_colormap = _centered_diverging_colormap(
     _net_change_negative_colors,
     _net_change_neutral_color,
     _net_change_positive_colors,
+    _net_change_neutral_radius,
     _net_change_positive_breaks,
 )
 
@@ -370,7 +372,7 @@ _net_change_colormap = _centered_diverging_colormap(
 custom_cmap = default_cmap.register({
     # Continuous: SOC change (interpolated)
     "ra_soc_change": _interpolate_colormap(_soc_stops, steps_per_segment=5),
-    # Diverging LDN net change by unit with an exact neutral interval at zero
+    # Diverging LDN net change by unit with a neutral interval centered on zero
     "ra_net_change": _net_change_colormap,
     # Versioned alias prevents stale browser and CDN tiles after style updates
     "ra_net_change_v2": _net_change_colormap,

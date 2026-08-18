@@ -183,7 +183,7 @@ class TestNetChangeColormap:
         ]
 
         assert len(opaque_intervals) == 21
-        assert opaque_intervals[10] == ((0, 0), (247, 247, 247, 255))
+        assert opaque_intervals[10] == ((-476, 476), (247, 247, 247, 255))
         assert [
             f"#{red:02x}{green:02x}{blue:02x}"
             for _, (red, green, blue, _) in opaque_intervals
