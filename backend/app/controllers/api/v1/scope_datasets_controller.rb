@@ -136,15 +136,17 @@ module Api
           return
         end
 
-        unless table_exists_safely?("ecoregions2017")
+        unless table_exists_safely?("ra_vector.ldn_dissolved_geometries")
           render json: {rows: []}
           return
         end
 
         methodology = params[:methodology].presence
-        stats_available = methodology.present? && table_exists_safely?("ldn_ecoregion_stats")
+        stats_available = methodology.present? && table_exists_safely?("ra_nonspatial.ldn_ecoregion_stats")
 
-        sql = +"SELECT e.eco_id, e.eco_name, e.biome_name, e.realm"
+        sql = +"SELECT (e.properties->>'eco_id')::int AS eco_id,"
+        sql << " e.properties->>'ecoregion' AS eco_name,"
+        sql << " e.properties->>'biome' AS biome_name, e.properties->>'realm' AS realm"
         binds = []
 
         if stats_available
@@ -153,15 +155,16 @@ module Api
           sql << " s.gains_km2, s.losses_km2, s.delta_ldn_km2, s.ldn_pct"
         end
 
-        sql << " FROM ecoregions2017 e"
+        sql << " FROM ra_vector.ldn_dissolved_geometries e"
 
         if stats_available
-          sql << " LEFT JOIN ldn_ecoregion_stats s"
-          sql << " ON e.eco_id::int = s.eco_id AND s.methodology = ?"
+          sql << " LEFT JOIN ra_nonspatial.ldn_ecoregion_stats s"
+          sql << " ON (e.properties->>'eco_id')::int = s.eco_id AND s.methodology = ?"
           binds << methodology
         end
 
-        sql << " WHERE ST_Contains(e.the_geom, ST_SetSRID(ST_MakePoint(?, ?), 4326)) LIMIT 1"
+        sql << " WHERE e.dimension = 'ecoregion'"
+        sql << " AND ST_Covers(e.geom, ST_SetSRID(ST_MakePoint(?, ?), 4326)) LIMIT 1"
         binds.concat([lng, lat])
 
         result = ActiveRecord::Base.connection.select_one(
@@ -226,7 +229,8 @@ module Api
       end
 
       def table_exists_safely?(table_name)
-        ActiveRecord::Base.connection.table_exists?(table_name)
+        connection = ActiveRecord::Base.connection
+        connection.select_value("SELECT to_regclass(#{connection.quote(table_name)}) IS NOT NULL")
       rescue ActiveRecord::StatementInvalid
         false
       end

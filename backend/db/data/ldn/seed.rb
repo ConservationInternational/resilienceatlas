@@ -9,25 +9,22 @@
 # Or within rails console:
 #   load 'db/data/ldn/seed.rb'
 #
-# ── Ecoregion popup table requirements ───────────────────────────────────────
-# Layer popups show ecoregion metadata (eco_id, eco_name, biome, realm) via the
-# local Rails API backed by the `ecoregions2017` PostGIS table.
-#
-# To additionally show per-ecoregion LDN statistics, create and populate the
-# `ldn_ecoregion_stats` table in the application database.
+# ── Ecoregion popup data ─────────────────────────────────────────────────────
+# Run scripts/setup_ldn_data.sh for the complete loading workflow. The
+# ldn:build_dimensions task creates ra_vector.ldn_dissolved_geometries, while
+# the migration creates ra_nonspatial.ldn_ecoregion_stats and this seed
+# populates it from each methodology's ecoregion summary CSV.
 #
 # Source files (one per methodology, from the counterbalancing AWS pipeline):
 #   TrendsEarth_LDN_2000-2023_Trends.Earth_ecoregion_summary.csv
 #   TrendsEarth_LDN_2000-2023_FAO-WOCAT_ecoregion_summary.csv
 #   TrendsEarth_LDN_2000-2023_JRC_ecoregion_summary.csv
 #
-# The CSV files do NOT include a methodology column.  Before uploading, add a
-# `methodology` column to each CSV with values matching the dataset keys:
+# The CSV files do not include a methodology column. This seed assigns values
+# matching the dataset keys while loading each source file:
 #   'trendsearth'  (Trends.Earth CSV)
 #   'fao-wocat'    (FAO-WOCAT CSV)
 #   'jrc'          (JRC CSV)
-# Then combine all three into a single CSV and import the result into the local
-# `ldn_ecoregion_stats` table.
 #
 # Expected columns (matching the pipeline CSV output + added methodology):
 #   eco_id                              INTEGER
@@ -266,9 +263,9 @@ module LdnSeeder
       bucket: [
         "#9b2779", "#a84b87", "#b56f95", "#c1839e", "#c4939b",
         "#cda3a8", "#d4b3b5", "#dbc3c2", "#e0bbd5", "#e8cdd8",
-        "#f0dfdb", "#f7f7f7", "#edf3e5", "#d3ecce", "#c0e4b5",
-        "#a6d99b", "#8dcb82", "#73bc68", "#5aad4f", "#419e35",
-        "#006500"
+        "#f7f7f7",
+        "#edf3e5", "#e1efda", "#d3ecce", "#c0e4b5", "#a6d99b",
+        "#8dcb82", "#73bc68", "#5aad4f", "#419e35", "#006500"
       ],
       min: "-100%",
       mid: "Balanced",
@@ -1242,6 +1239,7 @@ module LdnSeeder
         end
 
         import_stats_csvs(eco_stats_csv, country_eco_stats_csv)
+        persist_ecoregion_stats(variant_slug)
 
         SCOPE_DATASET_DEFS.each do |group_key, defn|
           slug = "ldn-#{variant_slug}-#{group_key}"
@@ -1552,6 +1550,33 @@ module LdnSeeder
         copy_csv_to_table(conn, "_country_eco_stats", country_eco_stats_csv)
         puts "  Imported _country_eco_stats: #{conn.select_value("SELECT count(*) FROM _country_eco_stats")} rows"
       end
+    end
+
+    def persist_ecoregion_stats(methodology)
+      conn = ActiveRecord::Base.connection
+      unless conn.select_value("SELECT to_regclass('ra_nonspatial.ldn_ecoregion_stats') IS NOT NULL")
+        puts "  WARNING: ra_nonspatial.ldn_ecoregion_stats not found — run pending migrations first"
+        return
+      end
+
+      conn.execute(
+        ActiveRecord::Base.sanitize_sql_array(
+          ["DELETE FROM ra_nonspatial.ldn_ecoregion_stats WHERE methodology = ?", methodology]
+        )
+      )
+      conn.execute(<<~SQL)
+        INSERT INTO ra_nonspatial.ldn_ecoregion_stats (
+          methodology, eco_id, gains_km2, losses_km2, total_area_km2,
+          deg_to_deg_sqkm, deg_to_stable_sqkm, deg_to_imp_sqkm,
+          delta_ldn_km2, ldn_pct
+        )
+        SELECT
+          #{conn.quote(methodology)}, eco_id, gains_km2, losses_km2, total_area_km2,
+          deg_to_deg_sqkm, deg_to_stable_sqkm, deg_to_imp_sqkm,
+          delta_ldn_km2, ldn_pct
+        FROM _eco_stats
+      SQL
+      puts "  Refreshed ra_nonspatial.ldn_ecoregion_stats for #{methodology}"
     end
 
     # ── Helper: stream a local CSV into a table via COPY FROM STDIN ──
