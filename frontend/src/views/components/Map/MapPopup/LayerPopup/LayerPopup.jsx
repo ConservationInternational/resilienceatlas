@@ -107,6 +107,8 @@ const LayerPopup = ({
   }, [layer]);
 
   useEffect(() => {
+    const controller = new AbortController();
+
     if (layer && latlng && config && config.url) {
       dispatch({ type: FETCH.REQUEST });
 
@@ -123,7 +125,7 @@ const LayerPopup = ({
       };
 
       axios
-        .get(replace(config.url, urlParams), {})
+        .get(replace(config.url, urlParams), { signal: controller.signal })
         .then(({ data: responseData }) => {
           // For COGs column in interactionConfig should always be 'values[*]' or 'values.*'
           // Exception: when config.responseFormat === 'rows', treat the response as a
@@ -141,16 +143,22 @@ const LayerPopup = ({
             },
           });
         })
-        .catch(() => {
-          dispatch({ type: FETCH.FAIL });
+        .catch((error) => {
+          if (!axios.isCancel(error)) {
+            dispatch({ type: FETCH.FAIL });
+          }
         });
     }
 
-    return () => {
+    return () => controller.abort();
+  }, [cogParams, config, latlng, layer]);
+
+  useEffect(
+    () => () => {
       popup.remove();
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    },
+    [popup],
+  );
 
   if (!layer) {
     popup.remove();
@@ -160,6 +168,9 @@ const LayerPopup = ({
   // Get data from props or state
   const interaction = layersInteraction[layer.id] || {};
   const interactionState = state.interaction[layer.id] || {};
+  const interactionData = config?.url
+    ? interactionState.data
+    : interaction.data || interactionState.data;
 
   return (
     <div className="c-map-popup">
@@ -184,7 +195,7 @@ const LayerPopup = ({
       </header>
 
       <div className="popup-content">
-        {(interaction.data || interactionState.data) && (
+        {interactionData && (
           <table className="popup-table">
             <tbody>
               {(output || []).map((outputItem) => {
@@ -192,13 +203,8 @@ const LayerPopup = ({
                 const columnArray = column.split('.');
                 const value =
                   layer.type === 'cog' && config?.responseFormat !== 'rows'
-                    ? columnArray.map((column) =>
-                        get(interaction.data || interactionState.data, column),
-                      )
-                    : columnArray.reduce(
-                        (acc, c) => acc[c],
-                        interaction.data || interactionState.data,
-                      );
+                    ? columnArray.map((column) => get(interactionData, column))
+                    : columnArray.reduce((acc, c) => acc[c], interactionData);
                 return (
                   <tr className="dc" key={outputItem.property || outputItem.column}>
                     <td className="dt">{outputItem.property || outputItem.column}</td>
@@ -220,20 +226,14 @@ const LayerPopup = ({
           </table>
         )}
 
-        {state.loading && (!interaction.data || !interactionState.data) && config && config.url && (
+        {state.loading && !interactionData && config && config.url && (
           <div className="popup-loader">Loading</div>
         )}
 
-        {!state.loading &&
-          !interaction.data &&
-          !interactionState.data &&
-          config &&
-          config.url &&
+        {!state.loading && !interactionData && config && config.url &&
           'No data available'}
 
-        {!interaction.data &&
-          !interactionState.data &&
-          (!config || !config.url) &&
+        {!interactionData && (!config || !config.url) &&
           'No data available'}
       </div>
     </div>
