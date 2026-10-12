@@ -97,7 +97,7 @@
     "diff": "^4.0.4",
     "picomatch": ">=2.3.2",
     "js-yaml": "^5.0.0",
-    "brace-expansion": "^2.1.4",
+    "brace-expansion": "^2.1.7",
     "@cypress/request": "^4.0.1",
     "joi": ">=18.2.1",
     "follow-redirects": "^1.15.9",
