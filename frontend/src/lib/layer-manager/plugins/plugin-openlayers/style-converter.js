@@ -177,7 +177,8 @@ export function pathOptionsToStyle(pathOptions) {
     fillStyle = new Fill({ color: resolveColor(fillColor || color, fillOpacity) });
   }
 
-  const strokeStyle = weight > 0 ? new Stroke({ color: resolveColor(color, opacity), width: weight }) : null;
+  const strokeStyle =
+    weight > 0 ? new Stroke({ color: resolveColor(color, opacity), width: weight }) : null;
 
   // Return [] so OL skips the feature entirely when there is nothing to render
   if (!strokeStyle && !fillStyle) return [];
