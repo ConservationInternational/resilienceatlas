@@ -148,52 +148,6 @@ module CartodbRakeHelpers
     "s3://#{bucket}/#{normalized_prefix}#{table_name}.tif"
   end
 
-  def self.polygonal_wgs84_geometry_column?(conn, schema, table, column)
-    row = conn.select_one(
-      "SELECT type, srid FROM geometry_columns " \
-      "WHERE f_table_schema = #{conn.quote(schema)} " \
-      "AND f_table_name = #{conn.quote(table)} " \
-      "AND f_geometry_column = #{conn.quote(column)} " \
-      "LIMIT 1"
-    )
-
-    return false unless row
-
-    row["srid"].to_i == 4326 && row["type"].to_s.upcase.include?("POLYGON")
-  rescue => e
-    Rails.logger.warn "polygonal_wgs84_geometry_column?(#{schema}.#{table}.#{column}): #{e.message}"
-    false
-  end
-
-  def self.antimeridian_candidate_count(conn, q_table, column)
-    conn.select_value(
-      "SELECT count(*) FROM #{q_table} " \
-      "WHERE \"#{column}\" IS NOT NULL " \
-      "AND ST_XMax(ST_Envelope(\"#{column}\")) - ST_XMin(ST_Envelope(\"#{column}\")) > 180"
-    ).to_i
-  end
-
-  def self.antimeridian_normalization_sql(column)
-    "ST_Multi(ST_CollectionExtract(" \
-      "ST_WrapX(ST_ShiftLongitude(ST_MakeValid(\"#{column}\")), 180, -360), 3))"
-  end
-
-  def self.repair_antimeridian_geometries!(conn, schema:, table:, column:)
-    return 0 unless polygonal_wgs84_geometry_column?(conn, schema, table, column)
-
-    q_table = "\"#{schema}\".\"#{table}\""
-    candidate_count = antimeridian_candidate_count(conn, q_table, column)
-    return 0 if candidate_count.zero?
-
-    conn.execute(
-      "UPDATE #{q_table} SET \"#{column}\" = #{antimeridian_normalization_sql(column)} " \
-      "WHERE \"#{column}\" IS NOT NULL " \
-      "AND ST_XMax(ST_Envelope(\"#{column}\")) - ST_XMin(ST_Envelope(\"#{column}\")) > 180"
-    )
-
-    candidate_count
-  end
-
   def self.parse_hex_color(color)
     # Strip surrounding double-quotes (e.g. "#e31a1c" from some CSS)
     value = color.to_s.strip.gsub(/\A"|"\z/, "")
@@ -1778,35 +1732,22 @@ namespace :cartodb do
             )
             puts "done."
 
-            # ── Repair invalid geometries ──────────────────────────────────
-            # Invalid or corrupt geometries crash the PostGIS backend process
-            # when Martin runs ST_CurveToLine / ST_Transform / ST_AsMVTGeom,
-            # causing "connection closed" tile errors.
+            # ── Repair geometries ──────────────────────────────────────────
+            # Antimeridian-crossing rings render as bands across the whole map,
+            # and invalid geometries crash the PostGIS backend in ST_AsMVTGeom.
+            # See VectorGeometryRepair for details.
             begin
-              invalid_count = ar_conn.execute(
-                "SELECT count(*) FROM #{q_table} WHERE NOT ST_IsValid(\"#{col}\")"
-              ).first["count"].to_i
-              if invalid_count > 0
-                print "  Repairing #{invalid_count} invalid geometry(ies) in #{col}... "
-                ar_conn.execute(
-                  "UPDATE #{q_table} SET \"#{col}\" = ST_MakeValid(\"#{col}\") " \
-                  "WHERE NOT ST_IsValid(\"#{col}\")"
-                )
-                puts "done."
-              end
-
-              antimeridian_count = CartodbRakeHelpers.repair_antimeridian_geometries!(
-                ar_conn,
-                schema: target_schema,
-                table: tbl,
-                column: col
+              repaired = VectorGeometryRepair.repair_column!(
+                ar_conn, schema: target_schema, table: tbl, column: col
               )
-              if antimeridian_count > 0
-                print "  Normalizing #{antimeridian_count} antimeridian-spanning polygon(s) in #{col}... "
-                puts "done."
+              if repaired[:antimeridian] > 0
+                puts "  Normalized #{repaired[:antimeridian]} antimeridian-crossing polygon(s) in #{col}."
+              end
+              if repaired[:invalid] > 0
+                puts "  Repaired #{repaired[:invalid]} invalid geometry(ies) in #{col}."
               end
             rescue => e
-              warn "  WARNING: Could not repair invalid geometries in #{tbl}.#{col}: #{e.message.lines.first.strip}"
+              warn "  WARNING: Could not repair geometries in #{tbl}.#{col}: #{e.message.lines.first.strip}"
               # Reconnect if the PostgreSQL backend process was killed (e.g. OOM on large table)
               begin
                 ActiveRecord::Base.connection_pool.disconnect!
@@ -3251,10 +3192,11 @@ namespace :cartodb do
 
     Steps (run in order):
        1. import_tables             — download and import .gpkg / .csv.gz files from S3
-       2. apply_site_scope_auth_config — apply site-scope username/password config from env
-       3. update_layer_references   — parse SQL, classify raster vs vector, strip CartoDB columns
-       4. configure_cog_layers      — configure new COG layers + repair all existing COG layers
-       5. configure_martin_layers   — configure new Martin layers + repair all existing Martin layers
+       2. fix_invalid_geometries    — repair antimeridian-crossing / invalid geometries in all tables
+       3. apply_site_scope_auth_config — apply site-scope username/password config from env
+       4. update_layer_references   — parse SQL, classify raster vs vector, strip CartoDB columns
+       5. configure_cog_layers      — configure new COG layers + repair all existing COG layers
+       6. configure_martin_layers   — configure new Martin layers + repair all existing Martin layers
 
     configure_cog_layers and configure_martin_layers each include a repair phase
     that ensures all layers in the database are correct, not just newly configured
@@ -3271,6 +3213,7 @@ namespace :cartodb do
   DESC
   task migrate_tables: [
     "cartodb:import_tables",
+    "cartodb:fix_invalid_geometries",
     "cartodb:apply_site_scope_auth_config",
     "cartodb:update_layer_references",
     "cartodb:configure_cog_layers",
@@ -3359,16 +3302,17 @@ namespace :cartodb do
   # ---------------------------------------------------------------------------
 
   desc <<~DESC
-    Repair invalid geometries and antimeridian-spanning polygons in all tables
+    Repair antimeridian-crossing polygons and invalid geometries in all tables
     in the ra_vector schema.
 
+    Polygons whose rings jump from ~+180 to ~-180 longitude (common in global
+    datasets such as hotspots, KBAs, and protected areas) render as bands
+    across the whole map once tiled; they are split at the antimeridian.
     Invalid or corrupt geometries crash the PostGIS backend process when Martin
-    runs ST_CurveToLine / ST_Transform / ST_AsMVTGeom, causing "connection closed"
-    tile errors. Some WGS84 polygon layers also contain valid geometries whose
-    rings span more than 180 degrees of longitude, which can render as a seam
-    across the map after tiling. New imports via cartodb:import_tables repair
-    both cases automatically; this task is for tables imported before those
-    fixes were added.
+    runs ST_AsMVTGeom; they are repaired with ST_MakeValid.
+
+    Idempotent and run automatically by cartodb:migrate_tables, so tables that
+    import_tables skips because they already exist are repaired too.
 
     Optional:
       CARTODB_IMPORT_SCHEMA=<schema>  Schema to repair (default: ra_vector)
@@ -3380,11 +3324,14 @@ namespace :cartodb do
     target_schema = ENV.fetch("CARTODB_IMPORT_SCHEMA", "ra_vector")
     ar_conn = ActiveRecord::Base.connection
 
-    rows = ar_conn.execute(
-      "SELECT f_table_name, f_geometry_column " \
-      "FROM geometry_columns " \
-      "WHERE f_table_schema = '#{target_schema}' " \
-      "ORDER BY f_table_name, f_geometry_column"
+    # Only base tables can be updated; views inherit repaired geometries.
+    rows = ar_conn.select_all(
+      "SELECT gc.f_table_name, gc.f_geometry_column " \
+      "FROM geometry_columns gc " \
+      "JOIN pg_namespace n ON n.nspname = gc.f_table_schema " \
+      "JOIN pg_class c ON c.relnamespace = n.oid AND c.relname = gc.f_table_name " \
+      "WHERE gc.f_table_schema = #{ar_conn.quote(target_schema)} AND c.relkind = 'r' " \
+      "ORDER BY gc.f_table_name, gc.f_geometry_column"
     ).to_a
 
     if rows.empty?
@@ -3392,121 +3339,56 @@ namespace :cartodb do
       next
     end
 
-    puts "Checking #{rows.size} geometry column(s) in #{target_schema} for invalid or wrapped geometries...\n\n"
+    puts "Checking #{rows.size} geometry column(s) in #{target_schema} for antimeridian-crossing or invalid geometries...\n\n"
 
-    tables_fixed = 0
-    total_fixed = 0
-    tables_wrapped = 0
-    total_wrapped = 0
+    totals = {antimeridian: 0, invalid: 0}
+    tables_changed = 0
     failed = 0
 
     rows.each_with_index do |row, i|
       tbl = row["f_table_name"]
       col = row["f_geometry_column"]
-      q_table = "\"#{target_schema}\".\"#{tbl}\""
+      label = "[#{i + 1}/#{rows.size}] #{tbl}.#{col}"
 
-      begin
-        # Fast path: count then repair all at once (works for most tables)
-        invalid_count = ar_conn.execute(
-          "SELECT count(*) FROM #{q_table} WHERE NOT ST_IsValid(\"#{col}\")"
-        ).first["count"].to_i
-
-        if invalid_count > 0
-          print "  [#{i + 1}/#{rows.size}] #{tbl}.#{col}: #{invalid_count} invalid — repairing... "
-          ar_conn.execute(
-            "UPDATE #{q_table} SET \"#{col}\" = ST_MakeValid(\"#{col}\") " \
-            "WHERE NOT ST_IsValid(\"#{col}\")"
-          )
-          puts "done."
-          tables_fixed += 1
-          total_fixed += invalid_count
-        end
-
-        antimeridian_count = CartodbRakeHelpers.repair_antimeridian_geometries!(
-          ar_conn,
-          schema: target_schema,
-          table: tbl,
-          column: col
-        )
-        if antimeridian_count > 0
-          puts "  [#{i + 1}/#{rows.size}] #{tbl}.#{col}: normalized #{antimeridian_count} antimeridian-spanning polygon(s)."
-          tables_wrapped += 1
-          total_wrapped += antimeridian_count
-        end
+      repaired = begin
+        VectorGeometryRepair.repair_column!(ar_conn, schema: target_schema, table: tbl, column: col)
       rescue => e
-        # Fast path failed (likely OOM on a huge table). Reconnect then retry
-        # using ctid-batched updates so each transaction is small.
-        warn "  [#{i + 1}/#{rows.size}] #{tbl}.#{col}: full-table repair failed " \
-             "(#{e.message.lines.first.strip}) — retrying in batches..."
+        # Full-table update failed (likely OOM on a huge table). Reconnect and
+        # retry in small ctid batches so each statement stays small.
+        warn "  #{label}: full-table repair failed (#{e.message.lines.first.strip}) — retrying in batches..."
         begin
           ActiveRecord::Base.connection_pool.disconnect!
           ar_conn = ActiveRecord::Base.connection
-        rescue => re
-          warn "  WARNING: Reconnect failed: #{re.message.lines.first.strip}"
-          failed += 1
-          next
-        end
-
-        col_fixed = 0
-        batch_failed = false
-        loop do
-          n = ar_conn.execute(
-            "WITH batch AS ( " \
-            "  SELECT ctid FROM #{q_table} " \
-            "  WHERE NOT ST_IsValid(\"#{col}\") LIMIT 500 " \
-            ") " \
-            "UPDATE #{q_table} t " \
-            "SET \"#{col}\" = ST_MakeValid(t.\"#{col}\") " \
-            "FROM batch WHERE t.ctid = batch.ctid"
-          ).cmd_tuples
-          col_fixed += n
-          break if n == 0
+          VectorGeometryRepair.repair_column!(ar_conn, schema: target_schema, table: tbl, column: col, batch_size: 500)
         rescue => be
-          warn "  [#{i + 1}/#{rows.size}] #{tbl}.#{col}: batched retry also failed — " \
-               "#{be.message.lines.first.strip}"
-          batch_failed = true
+          warn "  #{label}: batched repair also failed — #{be.message.lines.first.strip}"
+          failed += 1
           begin
             ActiveRecord::Base.connection_pool.disconnect!
             ar_conn = ActiveRecord::Base.connection
           rescue; end
-          break
-        end
-
-        if batch_failed
-          failed += 1
-        else
-          if col_fixed > 0
-            puts "  [#{i + 1}/#{rows.size}] #{tbl}.#{col}: fixed #{col_fixed} invalid geometry(ies) via batches."
-            tables_fixed += 1
-            total_fixed += col_fixed
-          end
-
-          begin
-            antimeridian_count = CartodbRakeHelpers.repair_antimeridian_geometries!(
-              ar_conn,
-              schema: target_schema,
-              table: tbl,
-              column: col
-            )
-            if antimeridian_count > 0
-              puts "  [#{i + 1}/#{rows.size}] #{tbl}.#{col}: normalized #{antimeridian_count} antimeridian-spanning polygon(s)."
-              tables_wrapped += 1
-              total_wrapped += antimeridian_count
-            end
-          rescue => we
-            warn "  [#{i + 1}/#{rows.size}] #{tbl}.#{col}: antimeridian normalization failed — #{we.message.lines.first.strip}"
-            failed += 1
-          end
+          next
         end
       end
+
+      next if repaired.values.all?(&:zero?)
+
+      puts "  #{label}: normalized #{repaired[:antimeridian]} antimeridian-crossing, " \
+           "repaired #{repaired[:invalid]} invalid geometry(ies)."
+      tables_changed += 1
+      totals[:antimeridian] += repaired[:antimeridian]
+      totals[:invalid] += repaired[:invalid]
     end
 
     puts "\n#{"=" * 50}"
-    puts "  Tables repaired : #{tables_fixed}"
-    puts "  Geometries fixed: #{total_fixed}"
-    puts "  Tables normalized: #{tables_wrapped}"
-    puts "  Wrapped polygons : #{total_wrapped}"
-    puts "  Failed          : #{failed}"
+    puts "  Columns changed         : #{tables_changed}"
+    puts "  Antimeridian normalized : #{totals[:antimeridian]}"
+    puts "  Invalid repaired        : #{totals[:invalid]}"
+    puts "  Failed                  : #{failed}"
+    if totals[:antimeridian] > 0
+      puts "  Invalidate the Martin CDN cache so clients receive the repaired tiles:"
+      puts "    scripts/invalidate-martin-cache.sh --staging|--production --profile <aws-profile>"
+    end
   end
 
   # ---------------------------------------------------------------------------

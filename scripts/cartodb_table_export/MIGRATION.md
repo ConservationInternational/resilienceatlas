@@ -117,12 +117,14 @@ database `DATABASE_URL` points to in the container's environment.
 Runs the full import, auto-configuration, and repair pipeline in a single command:
 
 ```
-import_tables → update_layer_references → configure_cog_layers → configure_martin_layers
+import_tables → fix_invalid_geometries → apply_site_scope_auth_config → update_layer_references → configure_cog_layers → configure_martin_layers
 ```
 
 | Step | What it does |
 |------|-------------|
 | `import_tables` | Downloads `.gpkg` vectors and `.csv.gz` tables from S3 and imports them into the `ra_vector` schema |
+| `fix_invalid_geometries` | Splits antimeridian-crossing polygons and repairs invalid geometries in **all** `ra_vector` tables, including tables `import_tables` skipped because they already exist (see below) |
+| `apply_site_scope_auth_config` | Applies optional site-scope credentials from `SITE_SCOPE_AUTH_CONFIG_JSON` |
 | `update_layer_references` | Parses each layer's CartoDB SQL, records which tables are now available, identifies raster vs vector layers, and strips CartoDB-internal columns from the query |
 | `configure_cog_layers` | **Phase 1** — For newly-flagged raster layers: sets `layer_provider = "cog"`, builds `body.source` / `body.sources` pointing at the converted COGs on S3, translates CartoCSS stops to TiTiler colormap/rescale params, sets `interaction_config` for pixel value lookup, and publishes the layer. **Phase 2** — Repairs **all** existing COG layers: re-translates colormaps, rebuilds multi-table `body.sources`, backfills `body.clip_geometry` for ST_CLIP layers, and backfills `interaction_config`. |
 | `configure_martin_layers` | **Phase 1** — For newly-flagged vector layers: sets `layer_provider = "martin"`, builds `body.source = "<table>"`, translates CartoCSS to OpenLayers `PathOptions`, sets `interaction_config` from table columns, and publishes the layer when all tables are present. **Phase 2** — Repairs **all** existing Martin layers: strips any `ra_vector.` prefix from source IDs, backfills missing PathOptions styles, and rebuilds `interaction_config` from PostGIS table columns. |
@@ -253,13 +255,25 @@ docker service update --force resilienceatlas-staging_martin
 
 ### `rake cartodb:fix_invalid_geometries`
 
-Repairs invalid or corrupt geometries in all `ra_vector` tables using
-`ST_MakeValid`.  Invalid geometries crash the PostGIS backend when Martin calls
-`ST_AsMVTGeom`, producing silent tile errors.  `import_tables` repairs geometries
-automatically; this task backfills older imports.
+Repairs geometries in all `ra_vector` tables (shared logic in
+`backend/app/services/vector_geometry_repair.rb`, also used by `import_tables` and
+admin vector uploads):
+
+- **Antimeridian-crossing polygons** — rings that jump from ~+180° to ~-180°
+  longitude (common in global datasets such as biodiversity hotspots, KBAs, and
+  WDPA) render as horizontal bands across the whole map once tiled. Each such
+  polygon component is split at the antimeridian. Components that legitimately
+  span the globe (e.g. Antarctica) are left untouched.
+- **Invalid geometries** — repaired with `ST_MakeValid`; invalid geometries crash
+  the PostGIS backend when Martin calls `ST_AsMVTGeom`.
+
+The task is idempotent and runs automatically as part of `migrate_tables`. To repair
+existing data on a server without re-importing, run it directly, then invalidate the
+Martin CDN cache so browsers receive the repaired tiles:
 
 ```bash
 bundle exec rake cartodb:fix_invalid_geometries
+scripts/invalidate-martin-cache.sh --staging --profile resilienceatlas
 ```
 
 ---

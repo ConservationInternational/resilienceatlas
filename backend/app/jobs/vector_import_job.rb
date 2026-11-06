@@ -51,7 +51,12 @@ class VectorImportJob
       # 3. Create GiST spatial index (required for efficient tile queries)
       create_spatial_index(table_name)
 
-      # 4. Build interaction_config from PostGIS column names
+      # 4. Split antimeridian-crossing polygons and repair invalid geometries
+      VectorGeometryRepair.repair_table!(
+        ActiveRecord::Base.connection, schema: TARGET_SCHEMA, table: table_name
+      )
+
+      # 5. Build interaction_config from PostGIS column names
       conn = ActiveRecord::Base.connection
       row_count = conn.select_value(
         ActiveRecord::Base.sanitize_sql_array([
