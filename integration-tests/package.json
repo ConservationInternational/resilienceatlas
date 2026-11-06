@@ -9,12 +9,9 @@
   },
   "dependencies": {
     "axios": "^1.20.0"
-<<<<<<< HEAD
-=======
   },
   "overrides": {
     "follow-redirects": "^1.16.2"
->>>>>>> origin/main
   },
   "keywords": ["integration", "test", "api", "frontend", "backend"],
   "author": "Conservation International",
