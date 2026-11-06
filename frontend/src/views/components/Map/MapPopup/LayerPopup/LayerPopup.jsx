@@ -230,11 +230,9 @@ const LayerPopup = ({
           <div className="popup-loader">Loading</div>
         )}
 
-        {!state.loading && !interactionData && config && config.url &&
-          'No data available'}
+        {!state.loading && !interactionData && config && config.url && 'No data available'}
 
-        {!interactionData && (!config || !config.url) &&
-          'No data available'}
+        {!interactionData && (!config || !config.url) && 'No data available'}
       </div>
     </div>
   );
