@@ -20,8 +20,7 @@ function buildSingleTitilerUrl(layerConfig, sourceOverride) {
     return null;
   }
 
-  const titilerBaseUrl =
-    process.env.NEXT_PUBLIC_TITILER_TILES_URL || getTitilerBaseUrl();
+  const titilerBaseUrl = process.env.NEXT_PUBLIC_TITILER_TILES_URL || getTitilerBaseUrl();
   let tileUrl = `${titilerBaseUrl}/tiles/WebMercatorQuad/{z}/{x}/{y}?url=${encodeURIComponent(source)}`;
   if (bidx) tileUrl += `&bidx=${bidx}`;
   if (resampling_method) tileUrl += `&resampling_method=${resampling_method}`;
