@@ -203,7 +203,7 @@ GEM
     crack (1.0.0)
       bigdecimal
       rexml
-    crass (1.0.7)
+    crass (1.0.8)
     csv (3.3.5)
     cuprite (0.17)
       capybara (~> 3.0)
@@ -410,7 +410,8 @@ GEM
     loofah (2.25.2)
       crass (~> 1.0.2)
       nokogiri (>= 1.12.0)
-    mail (2.8.1)
+    mail (2.9.1)
+      logger
       mini_mime (>= 0.1.1)
       net-imap
       net-pop
@@ -620,7 +621,7 @@ GEM
       ffi (~> 1.12)
       logger
     ruby2_keywords (0.0.5)
-    rubyzip (3.2.2)
+    rubyzip (3.7.0)
     sassc (2.4.0)
       ffi (~> 1.9)
     sassc-rails (2.1.2)
@@ -754,6 +755,7 @@ DEPENDENCIES
   capybara (~> 3.40)
   chartkick (~> 5.0)
   connection_pool (~> 2.4)
+  crass (>= 1.0.8)
   cuprite (~> 0.15)
   devise (~> 5.0)
   dotenv-rails (~> 3.1)
@@ -772,6 +774,7 @@ DEPENDENCIES
   json-schema (~> 5.1)
   jwt (~> 3.2)
   letter_opener_web (~> 3.0)
+  mail (>= 2.9.1)
   net-imap (>= 0.6.4.1)
   ostruct (~> 0.6)
   pg (~> 1.5)
@@ -794,7 +797,7 @@ DEPENDENCIES
   rspec_junit_formatter (~> 0.6)
   rswag (~> 2.15)
   rswag-specs (~> 2.15)
-  rubyzip (~> 3.0)
+  rubyzip (~> 3.4)
   sassc-rails (~> 2.1)
   seed_dump (~> 3.3)
   shrine (~> 3.6)
