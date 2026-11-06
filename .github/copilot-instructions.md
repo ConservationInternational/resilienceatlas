@@ -39,6 +39,16 @@ Always reference these instructions first and fallback to search or bash command
 - **System tests**: `./bin/test system` - Browser tests with Chrome + Xvfb
 - **All tests**: `./bin/test all` - runs linting, security, audit, and RSpec tests
 
+### LDN Data Setup
+- **Canonical workflow**: Use `scripts/setup_ldn_data.sh`; do not run `ldn:build_dimensions` alone when setting up or refreshing the complete LDN scope.
+- The script auto-detects local Docker Compose or the running `resilienceatlas-staging`/`resilienceatlas-production` Docker Swarm stack.
+- It downloads LDN and boundary data, imports GeoPackages with host-side `ogr2ogr`, runs `rake ldn:build_dimensions`, copies the methodology CSVs into the backend container, and runs `db/data/ldn/seed.rb`.
+- `ldn:build_dimensions` populates `ra_vector.ldn_dissolved_geometries`; the LDN seed populates `ra_nonspatial.ldn_ecoregion_stats` used by ecoregion map popups.
+- Deploy the backend and run pending migrations before the setup script so `ra_nonspatial.ldn_ecoregion_stats` exists.
+- Full staging/production setup: `./scripts/setup_ldn_data.sh --profile <aws-profile>`.
+- Reuse existing host data without reimporting boundaries: `LDN_DATA_DIR=/path/to/ldn-data ./scripts/setup_ldn_data.sh --skip-download --skip-boundaries`.
+- See `scripts/README.md` for prerequisites, required files, and verification commands.
+
 #### Common Backend Test Issues (Fixed in #278)
 - **OEmbed Controller**: Fixed "undefined method 'host' for String" by adding proper exception handling
 - **File Upload Permissions**: Enhanced Docker container permission setup for photo uploads
