@@ -1,10 +1,7 @@
 import { getRouterParam } from 'utilities';
 import { createReducer } from '../../utils';
 import * as t from './actions';
-import type {
-  MAP_LABELS,
-  BOUNDARY_STYLES,
-} from 'views/components/LayersList/Basemaps/constants';
+import type { MAP_LABELS, BOUNDARY_STYLES } from 'views/components/LayersList/Basemaps/constants';
 
 interface Bounds {
   _northEast: { lat: number; lng: number };
