@@ -96,6 +96,7 @@
     },
     "diff": "^4.0.4",
     "picomatch": ">=2.3.2",
+    "minimatch": "^11.0.1",
     "sharp": "^0.35.5",
     "js-yaml": "^5.0.0",
     "brace-expansion": "^2.1.4",
@@ -110,7 +111,7 @@
     "mustache": "4.2.0",
     "node-fetch": "2.7.0",
     "underscore": "1.13.8",
-    "glob": "^10.4.5",
+    "glob": "^14.0.2",
     "inflight": "npm:@aspect-build/inflight@^1.0.0",
     "vector-tile": "npm:@mapbox/vector-tile@^2.0.4",
     "point-geometry": "npm:@mapbox/point-geometry@^1.1.0"
