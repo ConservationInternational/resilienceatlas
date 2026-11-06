@@ -8,12 +8,16 @@ import {
   getMapLabelOptions,
   getBoundaryStyleOptions,
 } from 'views/components/LayersList/Basemaps/constants';
-import type { BASEMAP_LABELS, MAP_LABELS, BOUNDARY_STYLES } from 'views/components/LayersList/Basemaps/constants';
+import type {
+  BASEMAP_LABELS,
+  MAP_LABELS,
+  BOUNDARY_STYLES,
+} from 'views/components/LayersList/Basemaps/constants';
 
 type BasemapsProps = {
   basemap: (typeof BASEMAP_LABELS)[number];
   labels: (typeof MAP_LABELS)[number];
-  boundaries: boolean;
+  _boundaries: boolean;
   boundaryStyle: (typeof BOUNDARY_STYLES)[number];
   setBasemap: (basemap: (typeof BASEMAP_LABELS)[number]) => void;
   setLabels: (labels: (typeof MAP_LABELS)[number]) => void;
@@ -24,7 +28,7 @@ type BasemapsProps = {
 const Basemaps = ({
   basemap,
   labels,
-  boundaries,
+  _boundaries,
   boundaryStyle,
   setBasemap,
   setLabels,
@@ -53,7 +57,7 @@ const Basemaps = ({
     // Handle boundary style from URL
     const urlBoundaryStyle = getRouterParam('boundaryStyle') as (typeof BOUNDARY_STYLES)[number];
     const correctBoundaryStyle = urlBoundaryStyle || 'none';
-    
+
     if (correctBoundaryStyle !== boundaryStyle) {
       setBoundaryStyle(correctBoundaryStyle);
       setBoundaries(correctBoundaryStyle !== 'none');
@@ -63,7 +67,9 @@ const Basemaps = ({
 
   useRouterValue('basemap', basemap, { onlyOnChange: true });
   useRouterValue('labels', labels, { onlyOnChange: true });
-  useRouterValue('boundaryStyle', boundaryStyle !== 'none' ? boundaryStyle : null, { onlyOnChange: true });
+  useRouterValue('boundaryStyle', boundaryStyle !== 'none' ? boundaryStyle : null, {
+    onlyOnChange: true,
+  });
 
   const { getTogglerProps } = useTogglerButton(basemap, setBasemap);
 
