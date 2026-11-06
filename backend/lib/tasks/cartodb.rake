@@ -3314,15 +3314,46 @@ namespace :cartodb do
     Idempotent and run automatically by cartodb:migrate_tables, so tables that
     import_tables skips because they already exist are repaired too.
 
+    If PostgreSQL crashes on a table (out of memory or a GEOS crash on a
+    pathological geometry), the task waits for the database to come back,
+    retries that table once in small batches, and otherwise records it as failed
+    and continues with the next table.
+
     Optional:
       CARTODB_IMPORT_SCHEMA=<schema>  Schema to repair (default: ra_vector)
+      TABLES=a,b                      Only repair these tables
+      SKIP_TABLES=a,b                 Skip these tables
+      START_AT=<table>                Resume from this table (alphabetical order)
+      DB_WAIT_SECONDS=<n>             Max wait for PostgreSQL to recover after a crash (default: 300)
 
     Usage:
       rake cartodb:fix_invalid_geometries
+      rake cartodb:fix_invalid_geometries TABLES=hotspots_2016_1
+      rake cartodb:fix_invalid_geometries START_AT=coralreefs_mdg SKIP_TABLES=conservation_atlas_pa_indonesia_poly
   DESC
   task fix_invalid_geometries: :environment do
     target_schema = ENV.fetch("CARTODB_IMPORT_SCHEMA", "ra_vector")
+    only_tables = ENV["TABLES"].to_s.split(",").map(&:strip).reject(&:empty?)
+    skip_tables = ENV["SKIP_TABLES"].to_s.split(",").map(&:strip).reject(&:empty?)
+    start_at = ENV["START_AT"].to_s.strip
+    db_wait_seconds = Integer(ENV.fetch("DB_WAIT_SECONDS", "300"))
     ar_conn = ActiveRecord::Base.connection
+
+    # After a backend crash PostgreSQL restarts (and under Docker Swarm the
+    # whole database task may be replaced, so its hostname briefly stops
+    # resolving). Poll until it accepts queries again.
+    wait_for_database = lambda do
+      deadline = Time.current + db_wait_seconds
+      loop do
+        ActiveRecord::Base.connection_pool.disconnect!
+        conn = ActiveRecord::Base.connection
+        conn.select_value("SELECT 1")
+        return conn
+      rescue => e
+        raise "PostgreSQL did not recover within #{db_wait_seconds}s: #{e.message.lines.first.strip}" if Time.current > deadline
+        sleep 10
+      end
+    end
 
     # Only base tables can be updated; views inherit repaired geometries.
     rows = ar_conn.select_all(
@@ -3333,9 +3364,12 @@ namespace :cartodb do
       "WHERE gc.f_table_schema = #{ar_conn.quote(target_schema)} AND c.relkind = 'r' " \
       "ORDER BY gc.f_table_name, gc.f_geometry_column"
     ).to_a
+    rows.select! { |r| only_tables.include?(r["f_table_name"]) } if only_tables.any?
+    rows.reject! { |r| skip_tables.include?(r["f_table_name"]) }
+    rows.select! { |r| r["f_table_name"] >= start_at } if start_at.present?
 
     if rows.empty?
-      puts "No geometry columns found in schema '#{target_schema}'.  Nothing to do."
+      puts "No matching geometry columns found in schema '#{target_schema}'.  Nothing to do."
       next
     end
 
@@ -3343,7 +3377,7 @@ namespace :cartodb do
 
     totals = {antimeridian: 0, invalid: 0}
     tables_changed = 0
-    failed = 0
+    failed_tables = []
 
     rows.each_with_index do |row, i|
       tbl = row["f_table_name"]
@@ -3353,20 +3387,14 @@ namespace :cartodb do
       repaired = begin
         VectorGeometryRepair.repair_column!(ar_conn, schema: target_schema, table: tbl, column: col)
       rescue => e
-        # Full-table update failed (likely OOM on a huge table). Reconnect and
-        # retry in small ctid batches so each statement stays small.
-        warn "  #{label}: full-table repair failed (#{e.message.lines.first.strip}) — retrying in batches..."
+        warn "  #{label}: repair failed (#{e.message.lines.first.strip}) — waiting for PostgreSQL, then retrying in batches..."
         begin
-          ActiveRecord::Base.connection_pool.disconnect!
-          ar_conn = ActiveRecord::Base.connection
-          VectorGeometryRepair.repair_column!(ar_conn, schema: target_schema, table: tbl, column: col, batch_size: 500)
+          ar_conn = wait_for_database.call
+          VectorGeometryRepair.repair_column!(ar_conn, schema: target_schema, table: tbl, column: col, batch_size: 50)
         rescue => be
-          warn "  #{label}: batched repair also failed — #{be.message.lines.first.strip}"
-          failed += 1
-          begin
-            ActiveRecord::Base.connection_pool.disconnect!
-            ar_conn = ActiveRecord::Base.connection
-          rescue; end
+          warn "  #{label}: batched repair also failed — #{be.message.lines.first.strip}. Skipping table."
+          failed_tables << tbl
+          ar_conn = wait_for_database.call
           next
         end
       end
@@ -3384,7 +3412,11 @@ namespace :cartodb do
     puts "  Columns changed         : #{tables_changed}"
     puts "  Antimeridian normalized : #{totals[:antimeridian]}"
     puts "  Invalid repaired        : #{totals[:invalid]}"
-    puts "  Failed                  : #{failed}"
+    puts "  Failed                  : #{failed_tables.size}"
+    if failed_tables.any?
+      puts "  Failed tables (PostgreSQL likely ran out of memory or crashed in GEOS):"
+      failed_tables.uniq.each { |t| puts "    - #{t}" }
+    end
     if totals[:antimeridian] > 0
       puts "  Invalidate the Martin CDN cache so clients receive the repaired tiles:"
       puts "    scripts/invalidate-martin-cache.sh --staging|--production --profile <aws-profile>"
