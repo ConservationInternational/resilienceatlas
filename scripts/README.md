@@ -159,8 +159,46 @@ Located in `scripts/codedeploy/`:
 
 | Script | Description |
 |--------|-------------|
-| `setup_ldn_data.sh` | Downloads LDN datasets and geoBoundaries from S3, imports boundaries, dissolves geometries, and seeds the LDN scope. Run with `--profile <aws-profile>`. |
+| `setup_ldn_data.sh` | Canonical LDN setup workflow for development and deployed Docker Swarm environments. Downloads source data, imports geometries, builds dimensions, and seeds the LDN scope and popup statistics. |
 | `setup_admin_boundaries.sh` | Imports only the geoBoundaries admin layers into `admin_boundaries`, in either local dev or deployed staging/production. |
+
+#### LDN Data Setup
+
+Use `setup_ldn_data.sh` rather than running the individual LDN rake task or seed directly. The script automatically detects local Docker Compose or the running `resilienceatlas-staging`/`resilienceatlas-production` Swarm stack and performs the complete workflow:
+
+1. Downloads the LDN GeoPackages, key CSVs, methodology statistics CSVs, and geoBoundaries data from S3.
+2. Imports the GeoPackages with host-side `ogr2ogr`.
+3. Runs `rake ldn:build_dimensions` in the backend container to populate `ra_vector.ldn_dissolved_geometries`.
+4. Copies the statistics CSVs into the backend container.
+5. Runs `db/data/ldn/seed.rb` to seed the LDN scope and populate `ra_nonspatial.ldn_ecoregion_stats` for map popups.
+
+Deploy the backend image and run its database migrations before running the script. The migration creates `ra_nonspatial.ldn_ecoregion_stats`; the setup script populates it.
+
+From the deployed repository directory on a Swarm host:
+
+```bash
+cd /opt/resilienceatlas-staging
+./scripts/setup_ldn_data.sh --profile <aws-profile>
+```
+
+To reuse files already downloaded into a host directory and leave existing admin boundaries unchanged:
+
+```bash
+cd /opt/resilienceatlas-staging
+LDN_DATA_DIR=/path/to/ldn-data \
+   ./scripts/setup_ldn_data.sh --skip-download --skip-boundaries
+```
+
+The directory supplied through `LDN_DATA_DIR` must contain both LDN GeoPackages, both key CSVs, and all methodology summary CSVs. `--skip-download` does not skip geometry import or seeding.
+
+Useful verification commands:
+
+```bash
+BACKEND=$(docker ps --filter "name=resilienceatlas-staging_backend" --format "{{.ID}}" | head -1)
+docker exec "$BACKEND" bundle exec rake ldn:geometry_status
+docker exec "$BACKEND" bundle exec rails runner \
+   'puts ActiveRecord::Base.connection.select_rows("SELECT methodology, COUNT(*) FROM ra_nonspatial.ldn_ecoregion_stats GROUP BY methodology ORDER BY methodology").map { |row| row.join(": ") }'
+```
 
 ### Management Scripts
 
