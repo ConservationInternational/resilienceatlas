@@ -14,7 +14,14 @@
 #    narrower.
 #
 # 2. Invalid geometries, which crash the PostGIS backend in ST_AsMVTGeom.
+#
+# GEOS validity checks on very large polygons can use more memory than the
+# database container allows, so the kernel OOM-kills the PostgreSQL backend.
+# Batched mode (batch_size + on_crash) contains that: see repair_column!.
 module VectorGeometryRepair
+  class TooManyCrashes < StandardError; end
+
+  CHECKS = %i[antimeridian invalid].freeze
   WGS84_SRID = 4326
   # Column types whose rows may contain polygons that can be normalized.
   ANTIMERIDIAN_COLUMN_TYPES = %w[MULTIPOLYGON GEOMETRY].freeze
@@ -28,50 +35,78 @@ module VectorGeometryRepair
 
   # Repairs every geometry column of a base table.
   #
-  # @return [Hash] { antimeridian: Integer, invalid: Integer } rows updated
-  def repair_table!(conn, schema:, table:, batch_size: nil)
-    geometry_columns(conn, schema, table).each_with_object({antimeridian: 0, invalid: 0}) do |col, totals|
-      result = repair_column!(conn, schema: schema, table: table, column: col["f_geometry_column"], batch_size: batch_size)
-      totals[:antimeridian] += result[:antimeridian]
-      totals[:invalid] += result[:invalid]
+  # @return [Hash] { antimeridian:, invalid:, skipped: } row counts
+  def repair_table!(conn, schema:, table:, **options)
+    geometry_columns(conn, schema, table).each_with_object(empty_result) do |col, totals|
+      result = repair_column!(conn, schema: schema, table: table, column: col["f_geometry_column"], **options)
+      totals.merge!(result) { |_key, a, b| a + b }
     end
   end
 
-  def repair_column!(conn, schema:, table:, column:, batch_size: nil)
+  # checks:      subset of CHECKS to run.
+  # batch_size:  process rows in fixed ctid slices of this size, so each
+  #              statement only evaluates geometry functions on those rows.
+  # on_crash:    called with the error when a statement kills the PostgreSQL
+  #              backend; must wait for the database to recover and return a
+  #              fresh connection. The failing slice is then retried row by
+  #              row, and rows that still crash are left unchanged and counted
+  #              as skipped. Requires batch_size.
+  # max_crashes: raise TooManyCrashes after this many crashes in one column,
+  #              so a pathological table cannot keep restarting the database.
+  def repair_column!(conn, schema:, table:, column:, checks: CHECKS, batch_size: nil, on_crash: nil, max_crashes: 5)
     info = column_info(conn, schema, table, column)
-    return {antimeridian: 0, invalid: 0} unless info
+    return empty_result unless info
 
-    {
-      antimeridian: repair_antimeridian!(conn, schema: schema, table: table, column: column, info: info, batch_size: batch_size),
-      invalid: repair_invalid!(conn, schema: schema, table: table, column: column, info: info, batch_size: batch_size)
-    }
-  end
-
-  def repair_antimeridian!(conn, schema:, table:, column:, info: nil, batch_size: nil)
-    info ||= column_info(conn, schema, table, column)
-    return 0 unless info && antimeridian_repairable?(info)
-
-    update_rows!(
-      conn,
-      q_table: quote_table(conn, schema, table),
-      set_sql: "#{conn.quote_column_name(column)} = #{antimeridian_normalization_sql(conn.quote_column_name(column))}",
-      where_sql: antimeridian_candidate_sql(conn.quote_column_name(column)),
-      batch_size: batch_size
-    )
-  end
-
-  def repair_invalid!(conn, schema:, table:, column:, info: nil, batch_size: nil)
-    info ||= column_info(conn, schema, table, column)
-    return 0 unless info
-
+    q_table = quote_table(conn, schema, table)
     q_col = conn.quote_column_name(column)
-    update_rows!(
-      conn,
-      q_table: quote_table(conn, schema, table),
-      set_sql: "#{q_col} = #{make_valid_sql(q_col, info["type"])}",
-      where_sql: "#{q_col} IS NOT NULL AND NOT ST_IsValid(#{q_col})",
-      batch_size: batch_size
-    )
+    steps = []
+    if checks.include?(:antimeridian) && antimeridian_repairable?(info)
+      steps << [:antimeridian, "#{q_col} = #{antimeridian_normalization_sql(q_col)}", antimeridian_candidate_sql(q_col)]
+    end
+    if checks.include?(:invalid)
+      steps << [:invalid, "#{q_col} = #{make_valid_sql(q_col, info["type"])}", "#{q_col} IS NOT NULL AND NOT ST_IsValid(#{q_col})"]
+    end
+
+    result = empty_result
+    crashes = 0
+    crash_handler = on_crash && lambda do |error|
+      crashes += 1
+      raise TooManyCrashes, "#{crashes} database crashes repairing #{q_table}.#{q_col}: #{error.message.lines.first.strip}" if crashes > max_crashes
+
+      conn = on_crash.call(error)
+    end
+
+    steps.each do |key, set_sql, where_sql|
+      updated, skipped = update_rows!(
+        -> { conn }, q_table: q_table, set_sql: set_sql, where_sql: where_sql,
+        batch_size: batch_size, on_crash: crash_handler
+      )
+      result[key] += updated
+      result[:skipped] += skipped
+    end
+    result
+  end
+
+  # After a backend crash PostgreSQL restarts (and under Docker Swarm the
+  # database task may be replaced, so its hostname briefly stops resolving).
+  # Polls until it accepts queries again and returns a fresh connection.
+  def wait_for_database(timeout: 300, interval: 10)
+    deadline = Time.current + timeout
+    begin
+      ActiveRecord::Base.connection_pool.disconnect!
+      conn = ActiveRecord::Base.connection
+      conn.select_value("SELECT 1")
+      conn
+    rescue => e
+      raise "PostgreSQL did not recover within #{timeout}s: #{e.message.lines.first.strip}" if Time.current > deadline
+
+      sleep interval
+      retry
+    end
+  end
+
+  def empty_result
+    {antimeridian: 0, invalid: 0, skipped: 0}
   end
 
   # True when the component's ring jumps across the antimeridian, i.e. it
@@ -134,26 +169,55 @@ module VectorGeometryRepair
     "#{conn.quote_table_name(schema)}.#{conn.quote_table_name(table)}"
   end
 
-  # Updates matching rows in one statement, or in ctid batches when
-  # batch_size is set (for tables too large to rewrite in one transaction).
-  def update_rows!(conn, q_table:, set_sql:, where_sql:, batch_size:)
+  # Returns [rows_updated, rows_skipped]. conn_ref returns the current
+  # connection, which on_crash may replace.
+  def update_rows!(conn_ref, q_table:, set_sql:, where_sql:, batch_size:, on_crash:)
     unless batch_size
-      return conn.exec_update("UPDATE #{q_table} SET #{set_sql} WHERE #{where_sql}")
+      return [conn_ref.call.exec_update("UPDATE #{q_table} SET #{set_sql} WHERE #{where_sql}"), 0]
     end
 
-    candidate_count = conn.select_value("SELECT count(*) FROM #{q_table} WHERE #{where_sql}").to_i
-    return 0 if candidate_count.zero?
-
+    # Listing ctids evaluates no geometry functions, so it cannot OOM. Rows
+    # get new ctids when updated, so they are never revisited.
+    ctids = conn_ref.call.select_values("SELECT ctid::text FROM #{q_table}")
     updated = 0
-    # Bound the loop in case a repaired row still matches the predicate.
-    ((candidate_count / batch_size) + 1).times do
-      n = conn.exec_update(
-        "UPDATE #{q_table} SET #{set_sql} " \
-        "WHERE ctid IN (SELECT ctid FROM #{q_table} WHERE #{where_sql} LIMIT #{Integer(batch_size)})"
-      )
-      updated += n
-      break if n < batch_size
+    skipped = 0
+
+    ctids.each_slice(Integer(batch_size)) do |slice|
+      updated += update_ctids!(conn_ref.call, q_table, set_sql, where_sql, slice)
+    rescue TooManyCrashes
+      raise
+    rescue => e
+      raise unless on_crash && crash?(e)
+
+      on_crash.call(e)
+      slice.each do |ctid|
+        updated += update_ctids!(conn_ref.call, q_table, set_sql, where_sql, [ctid])
+      rescue TooManyCrashes
+        raise
+      rescue => row_error
+        raise unless crash?(row_error)
+
+        on_crash.call(row_error)
+        skipped += 1
+      end
     end
-    updated
+    [updated, skipped]
+  end
+
+  def update_ctids!(conn, q_table, set_sql, where_sql, ctids)
+    tids = "ARRAY[#{ctids.map { |c| conn.quote(c) }.join(",")}]::tid[]"
+    conn.exec_update("UPDATE #{q_table} SET #{set_sql} WHERE ctid = ANY(#{tids}) AND (#{where_sql})")
+  end
+
+  # Lost connections (backend killed, database restarting) as opposed to
+  # ordinary SQL errors, which should propagate.
+  def crash?(error)
+    error.is_a?(ActiveRecord::ConnectionNotEstablished) ||
+      error.is_a?(ActiveRecord::ConnectionFailed) ||
+      error.is_a?(PG::ConnectionBad) ||
+      error.is_a?(PG::UnableToSend) ||
+      error.cause.is_a?(PG::ConnectionBad) ||
+      error.cause.is_a?(PG::UnableToSend) ||
+      error.message.match?(/server closed the connection|terminating connection|recovery mode|connecting with your hostname/i)
   end
 end

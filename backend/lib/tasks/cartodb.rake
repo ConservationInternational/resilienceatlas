@@ -1738,7 +1738,9 @@ namespace :cartodb do
             # See VectorGeometryRepair for details.
             begin
               repaired = VectorGeometryRepair.repair_column!(
-                ar_conn, schema: target_schema, table: tbl, column: col
+                ar_conn, schema: target_schema, table: tbl, column: col,
+                batch_size: 500,
+                on_crash: ->(_e) { ar_conn = VectorGeometryRepair.wait_for_database }
               )
               if repaired[:antimeridian] > 0
                 puts "  Normalized #{repaired[:antimeridian]} antimeridian-crossing polygon(s) in #{col}."
@@ -1746,12 +1748,13 @@ namespace :cartodb do
               if repaired[:invalid] > 0
                 puts "  Repaired #{repaired[:invalid]} invalid geometry(ies) in #{col}."
               end
+              if repaired[:skipped] > 0
+                warn "  WARNING: Skipped #{repaired[:skipped]} row(s) in #{col} that crashed PostgreSQL."
+              end
             rescue => e
               warn "  WARNING: Could not repair geometries in #{tbl}.#{col}: #{e.message.lines.first.strip}"
-              # Reconnect if the PostgreSQL backend process was killed (e.g. OOM on large table)
               begin
-                ActiveRecord::Base.connection_pool.disconnect!
-                ar_conn = ActiveRecord::Base.connection
+                ar_conn = VectorGeometryRepair.wait_for_database
               rescue => re
                 warn "  WARNING: Reconnect failed: #{re.message.lines.first.strip}"
               end
@@ -3314,21 +3317,26 @@ namespace :cartodb do
     Idempotent and run automatically by cartodb:migrate_tables, so tables that
     import_tables skips because they already exist are repaired too.
 
-    If PostgreSQL crashes on a table (out of memory or a GEOS crash on a
-    pathological geometry), the task waits for the database to come back,
-    retries that table once in small batches, and otherwise records it as failed
-    and continues with the next table.
+    Rows are processed in batches. If PostgreSQL crashes (out of memory or a
+    GEOS crash on a pathological geometry), the task waits for the database to
+    come back and retries the failing batch row by row; rows that still crash
+    are left unchanged and reported as skipped. A table that crashes the
+    database more than MAX_CRASHES times is abandoned and reported as failed.
 
     Optional:
       CARTODB_IMPORT_SCHEMA=<schema>  Schema to repair (default: ra_vector)
       TABLES=a,b                      Only repair these tables
       SKIP_TABLES=a,b                 Skip these tables
       START_AT=<table>                Resume from this table (alphabetical order)
+      CHECKS=antimeridian,invalid     Repairs to run (default: both)
+      BATCH_SIZE=<n>                  Rows per UPDATE (default: 500)
+      MAX_CRASHES=<n>                 Database crashes allowed per column (default: 3)
       DB_WAIT_SECONDS=<n>             Max wait for PostgreSQL to recover after a crash (default: 300)
 
     Usage:
       rake cartodb:fix_invalid_geometries
       rake cartodb:fix_invalid_geometries TABLES=hotspots_2016_1
+      rake cartodb:fix_invalid_geometries CHECKS=antimeridian
       rake cartodb:fix_invalid_geometries START_AT=coralreefs_mdg SKIP_TABLES=conservation_atlas_pa_indonesia_poly
   DESC
   task fix_invalid_geometries: :environment do
@@ -3337,23 +3345,13 @@ namespace :cartodb do
     skip_tables = ENV["SKIP_TABLES"].to_s.split(",").map(&:strip).reject(&:empty?)
     start_at = ENV["START_AT"].to_s.strip
     db_wait_seconds = Integer(ENV.fetch("DB_WAIT_SECONDS", "300"))
+    batch_size = Integer(ENV.fetch("BATCH_SIZE", "500"))
+    max_crashes = Integer(ENV.fetch("MAX_CRASHES", "3"))
+    checks = ENV.fetch("CHECKS", VectorGeometryRepair::CHECKS.join(",")).split(",").map { |c| c.strip.to_sym }
+    unknown_checks = checks - VectorGeometryRepair::CHECKS
+    abort "Unknown CHECKS: #{unknown_checks.join(", ")} (valid: #{VectorGeometryRepair::CHECKS.join(", ")})" if unknown_checks.any?
     ar_conn = ActiveRecord::Base.connection
-
-    # After a backend crash PostgreSQL restarts (and under Docker Swarm the
-    # whole database task may be replaced, so its hostname briefly stops
-    # resolving). Poll until it accepts queries again.
-    wait_for_database = lambda do
-      deadline = Time.current + db_wait_seconds
-      loop do
-        ActiveRecord::Base.connection_pool.disconnect!
-        conn = ActiveRecord::Base.connection
-        conn.select_value("SELECT 1")
-        return conn
-      rescue => e
-        raise "PostgreSQL did not recover within #{db_wait_seconds}s: #{e.message.lines.first.strip}" if Time.current > deadline
-        sleep 10
-      end
-    end
+    wait_for_database = -> { ar_conn = VectorGeometryRepair.wait_for_database(timeout: db_wait_seconds) }
 
     # Only base tables can be updated; views inherit repaired geometries.
     rows = ar_conn.select_all(
@@ -3375,7 +3373,7 @@ namespace :cartodb do
 
     puts "Checking #{rows.size} geometry column(s) in #{target_schema} for antimeridian-crossing or invalid geometries...\n\n"
 
-    totals = {antimeridian: 0, invalid: 0}
+    totals = VectorGeometryRepair.empty_result
     tables_changed = 0
     failed_tables = []
 
@@ -3385,36 +3383,37 @@ namespace :cartodb do
       label = "[#{i + 1}/#{rows.size}] #{tbl}.#{col}"
 
       repaired = begin
-        VectorGeometryRepair.repair_column!(ar_conn, schema: target_schema, table: tbl, column: col)
+        VectorGeometryRepair.repair_column!(
+          ar_conn, schema: target_schema, table: tbl, column: col, checks: checks,
+          batch_size: batch_size, max_crashes: max_crashes,
+          on_crash: lambda do |e|
+            warn "  #{label}: PostgreSQL crashed (#{e.message.lines.first.strip}) — waiting for it to recover..."
+            wait_for_database.call
+          end
+        )
       rescue => e
-        warn "  #{label}: repair failed (#{e.message.lines.first.strip}) — waiting for PostgreSQL, then retrying in batches..."
-        begin
-          ar_conn = wait_for_database.call
-          VectorGeometryRepair.repair_column!(ar_conn, schema: target_schema, table: tbl, column: col, batch_size: 50)
-        rescue => be
-          warn "  #{label}: batched repair also failed — #{be.message.lines.first.strip}. Skipping table."
-          failed_tables << tbl
-          ar_conn = wait_for_database.call
-          next
-        end
+        warn "  #{label}: repair failed — #{e.message.lines.first.strip}. Skipping table."
+        failed_tables << tbl
+        wait_for_database.call
+        next
       end
 
       next if repaired.values.all?(&:zero?)
 
       puts "  #{label}: normalized #{repaired[:antimeridian]} antimeridian-crossing, " \
-           "repaired #{repaired[:invalid]} invalid geometry(ies)."
+           "repaired #{repaired[:invalid]} invalid, skipped #{repaired[:skipped]} crashing geometry(ies)."
       tables_changed += 1
-      totals[:antimeridian] += repaired[:antimeridian]
-      totals[:invalid] += repaired[:invalid]
+      totals.merge!(repaired) { |_key, a, b| a + b }
     end
 
     puts "\n#{"=" * 50}"
     puts "  Columns changed         : #{tables_changed}"
     puts "  Antimeridian normalized : #{totals[:antimeridian]}"
     puts "  Invalid repaired        : #{totals[:invalid]}"
-    puts "  Failed                  : #{failed_tables.size}"
+    puts "  Rows skipped (crashed)  : #{totals[:skipped]}"
+    puts "  Failed tables           : #{failed_tables.size}"
     if failed_tables.any?
-      puts "  Failed tables (PostgreSQL likely ran out of memory or crashed in GEOS):"
+      puts "  Failed tables (PostgreSQL repeatedly ran out of memory or crashed in GEOS):"
       failed_tables.uniq.each { |t| puts "    - #{t}" }
     end
     if totals[:antimeridian] > 0

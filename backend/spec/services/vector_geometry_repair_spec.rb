@@ -38,7 +38,7 @@ RSpec.describe VectorGeometryRepair do
     it "splits antimeridian-crossing polygons and repairs invalid ones without touching other geometries" do
       result = described_class.repair_table!(conn, schema: schema, table: table, batch_size: batch_size)
 
-      expect(result).to eq(antimeridian: 2, invalid: 1)
+      expect(result).to eq(antimeridian: 2, invalid: 1, skipped: 0)
 
       expect(row("unsplit")).to include("valid" => true, "unchanged" => false, "max_part_width" => 10.0)
       expect(row("unsplit")["area"]).to be_within(1e-6).of(400)
@@ -56,10 +56,55 @@ RSpec.describe VectorGeometryRepair do
       described_class.repair_table!(conn, schema: schema, table: table, batch_size: batch_size)
 
       expect(described_class.repair_table!(conn, schema: schema, table: table, batch_size: batch_size))
-        .to eq(antimeridian: 0, invalid: 0)
+        .to eq(antimeridian: 0, invalid: 0, skipped: 0)
     end
   end
 
   it_behaves_like "a geometry repair", nil
   it_behaves_like "a geometry repair", 1
+  it_behaves_like "a geometry repair", 500
+
+  context "when a row crashes the database backend" do
+    let(:poison_ctid) { conn.select_value("SELECT ctid::text FROM #{schema}.#{table} WHERE name = 'bowtie'") }
+
+    before do
+      allow(conn).to receive(:exec_update).and_wrap_original do |original, sql, *args|
+        if sql.include?("'#{poison_ctid}'") && sql.include?("ST_MakeValid(\"geom\")")
+          raise ActiveRecord::ConnectionFailed, "PQconsumeInput() server closed the connection unexpectedly"
+        end
+
+        original.call(sql, *args)
+      end
+    end
+
+    it "retries the batch row by row and skips only the crashing row" do
+      crashes = []
+      result = described_class.repair_table!(
+        conn, schema: schema, table: table, batch_size: 500,
+        on_crash: lambda do |e|
+          crashes << e
+          conn
+        end
+      )
+
+      expect(result).to eq(antimeridian: 2, invalid: 0, skipped: 1)
+      expect(crashes.size).to eq(2)
+      expect(row("bowtie")).to include("valid" => false, "unchanged" => true)
+      expect(row("unsplit")["max_part_width"]).to eq(10.0)
+    end
+
+    it "gives up after max_crashes" do
+      expect {
+        described_class.repair_table!(
+          conn, schema: schema, table: table, batch_size: 500, max_crashes: 1, on_crash: ->(_e) { conn }
+        )
+      }.to raise_error(VectorGeometryRepair::TooManyCrashes)
+    end
+
+    it "propagates the error without on_crash" do
+      expect {
+        described_class.repair_table!(conn, schema: schema, table: table, batch_size: 500)
+      }.to raise_error(ActiveRecord::ConnectionFailed)
+    end
+  end
 end

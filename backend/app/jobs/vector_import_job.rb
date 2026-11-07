@@ -53,7 +53,7 @@ class VectorImportJob
 
       # 4. Split antimeridian-crossing polygons and repair invalid geometries
       VectorGeometryRepair.repair_table!(
-        ActiveRecord::Base.connection, schema: TARGET_SCHEMA, table: table_name
+        ActiveRecord::Base.connection, schema: TARGET_SCHEMA, table: table_name, batch_size: 500
       )
 
       # 5. Build interaction_config from PostGIS column names

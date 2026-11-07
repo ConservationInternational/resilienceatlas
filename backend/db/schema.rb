@@ -10,8 +10,9 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_06_18_000001) do
+ActiveRecord::Schema[7.2].define(version: 2026_08_18_120000) do
   create_schema "ra_app"
+  create_schema "ra_nonspatial"
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "fuzzystrmatch"
