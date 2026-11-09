@@ -12,6 +12,8 @@
 #    destroys its shape. Components that legitimately span the globe (e.g.
 #    Antarctica) are left alone because shifting them does not make them
 #    narrower.
+#    Already-split polygons with tiny longitude overshoots are clamped to
+#    +/-180 first, so projection cannot wrap individual vertices.
 #
 # 2. Invalid geometries, which crash the PostGIS backend in ST_AsMVTGeom.
 #
@@ -23,8 +25,10 @@ module VectorGeometryRepair
 
   CHECKS = %i[antimeridian invalid].freeze
   WGS84_SRID = 4326
+  LONGITUDE_TOLERANCE = 0.000001
   # Column types whose rows may contain polygons that can be normalized.
   ANTIMERIDIAN_COLUMN_TYPES = %w[MULTIPOLYGON GEOMETRY].freeze
+  LONGITUDE_COLUMN_TYPES = %w[POLYGON MULTIPOLYGON GEOMETRY].freeze
   COLLECTION_EXTRACT_TYPES = {
     "MULTIPOINT" => 1,
     "MULTILINESTRING" => 2,
@@ -60,8 +64,13 @@ module VectorGeometryRepair
     q_table = quote_table(conn, schema, table)
     q_col = conn.quote_column_name(column)
     steps = []
-    if checks.include?(:antimeridian) && antimeridian_repairable?(info)
-      steps << [:antimeridian, "#{q_col} = #{antimeridian_normalization_sql(q_col)}", antimeridian_candidate_sql(q_col)]
+    if checks.include?(:antimeridian) && info["srid"].to_i == WGS84_SRID
+      if LONGITUDE_COLUMN_TYPES.include?(info["type"].to_s.upcase)
+        steps << [:antimeridian, "#{q_col} = #{longitude_normalization_sql(q_col)}", longitude_roundoff_sql(q_col)]
+      end
+      if antimeridian_repairable?(info)
+        steps << [:antimeridian, "#{q_col} = #{antimeridian_normalization_sql(q_col)}", antimeridian_candidate_sql(q_col)]
+      end
     end
     if checks.include?(:invalid)
       steps << [:invalid, "#{q_col} = #{make_valid_sql(q_col, info["type"])}", "#{q_col} IS NOT NULL AND NOT ST_IsValid(#{q_col})"]
@@ -107,6 +116,47 @@ module VectorGeometryRepair
 
   def empty_result
     {antimeridian: 0, invalid: 0, skipped: 0}
+  end
+
+  def longitude_roundoff_sql(geom_sql)
+    "#{geom_sql} IS NOT NULL " \
+      "AND ST_GeometryType(#{geom_sql}) IN ('ST_Polygon', 'ST_MultiPolygon') " \
+      "AND ST_XMin(#{geom_sql}) >= #{-180 - LONGITUDE_TOLERANCE} " \
+      "AND ST_XMax(#{geom_sql}) <= #{180 + LONGITUDE_TOLERANCE} " \
+      "AND (ST_XMin(#{geom_sql}) < -180 OR ST_XMax(#{geom_sql}) > 180)"
+  end
+
+  # Already-split polygons can overshoot +/-180 by floating-point amounts.
+  # PROJ wraps those vertices across the world. Clamp only out-of-range X
+  # values; rebuilding rings avoids GEOS and preserves holes and precision.
+  def longitude_normalization_sql(q_col)
+    <<~SQL.squish
+      (WITH original AS (SELECT #{q_col} AS geom)
+       SELECT CASE WHEN ST_GeometryType((SELECT geom FROM original)) = 'ST_Polygon'
+        THEN ST_GeometryN(normalized.geom, 1) ELSE normalized.geom END
+       FROM (
+         SELECT ST_Collect(
+           CASE WHEN ST_XMin(part.geom) < -180 OR ST_XMax(part.geom) > 180
+           THEN (
+             WITH rings AS (
+               SELECT ring.path[1] AS ring_index,
+                 ST_MakeLine(ARRAY(
+                   SELECT ST_Translate(point.geom,
+                     LEAST(180, GREATEST(-180, ST_X(point.geom))) - ST_X(point.geom), 0)
+                   FROM ST_DumpPoints(ST_ExteriorRing(ring.geom)) point
+                   ORDER BY point.path
+                 )) AS geom
+               FROM ST_DumpRings(part.geom) ring
+             )
+             SELECT ST_MakePolygon(
+               (SELECT geom FROM rings WHERE ring_index = 0),
+               ARRAY(SELECT geom FROM rings WHERE ring_index > 0 ORDER BY ring_index)
+             )
+           ) ELSE part.geom END
+         ) AS geom
+         FROM ST_Dump((SELECT geom FROM original)) part
+       ) normalized)
+    SQL
   end
 
   # True when the component's ring jumps across the antimeridian, i.e. it

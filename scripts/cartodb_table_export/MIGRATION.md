@@ -263,7 +263,12 @@ admin vector uploads):
   longitude (common in global datasets such as biodiversity hotspots, KBAs, and
   WDPA) render as horizontal bands across the whole map once tiled. Each such
   polygon component is split at the antimeridian. Components that legitimately
-  span the globe (e.g. Antarctica) are left untouched.
+  span the globe (e.g. Antarctica) are left untouched. Already-split polygons can
+  also have coordinates slightly outside ±180° (for example `180.0000000916`).
+  Projection wraps those vertices across the world, producing similar bands.
+  The same check clamps these rounding overshoots to ±180° when the geometry's
+  longitude bounds are within `0.000001°` of the valid range. In-range coordinates,
+  latitudes, and holes are preserved; this step does not use GEOS validity repair.
 - **Invalid geometries** — repaired with `ST_MakeValid`; invalid geometries crash
   the PostGIS backend when Martin calls `ST_AsMVTGeom`.
 
@@ -275,6 +280,28 @@ Martin CDN cache so browsers receive the repaired tiles:
 bundle exec rake cartodb:fix_invalid_geometries
 scripts/invalidate-martin-cache.sh --staging --profile resilienceatlas
 ```
+
+Rows are updated in batches (`BATCH_SIZE`, default 500) so each statement only runs
+GEOS on a few rows. If a geometry exhausts the database container's memory and
+PostgreSQL is OOM-killed, the task waits for the database to recover
+(`DB_WAIT_SECONDS`, default 300), then retries that batch row by row. Rows that still
+crash are left unchanged and reported as skipped. A column that crashes the database
+more than `MAX_CRASHES` times (default 3) is abandoned and listed as failed.
+
+Other options: `TABLES=a,b`, `SKIP_TABLES=a,b`, `START_AT=<table>` (resume in
+alphabetical order) and `CHECKS=antimeridian` (normalize longitude rounding overshoots
+and split crossing polygons, without running the general invalid-geometry pass).
+Splitting genuinely crossing polygons still calls `ST_MakeValid` on those components.
+
+After deploying the repair code, existing data can be normalized without reimporting:
+
+```bash
+BACKEND=$(docker ps -q --filter label=com.docker.swarm.service.name=resilienceatlas-staging_backend --filter status=running | head -1)
+docker exec -it "$BACKEND" bundle exec rake cartodb:fix_invalid_geometries CHECKS=antimeridian BATCH_SIZE=500
+```
+
+Then invalidate the Martin CDN cache as shown above. A zero count only means no
+geometries matched the implemented checks; verify the affected layers after repair.
 
 ---
 

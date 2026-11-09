@@ -1743,7 +1743,7 @@ namespace :cartodb do
                 on_crash: ->(_e) { ar_conn = VectorGeometryRepair.wait_for_database }
               )
               if repaired[:antimeridian] > 0
-                puts "  Normalized #{repaired[:antimeridian]} antimeridian-crossing polygon(s) in #{col}."
+                puts "  Normalized #{repaired[:antimeridian]} antimeridian geometry(ies) in #{col}."
               end
               if repaired[:invalid] > 0
                 puts "  Repaired #{repaired[:invalid]} invalid geometry(ies) in #{col}."
@@ -3311,6 +3311,8 @@ namespace :cartodb do
     Polygons whose rings jump from ~+180 to ~-180 longitude (common in global
     datasets such as hotspots, KBAs, and protected areas) render as bands
     across the whole map once tiled; they are split at the antimeridian.
+    Tiny longitude overshoots in already-split polygons are clamped to +/-180
+    before projection can wrap their vertices to the opposite side of the world.
     Invalid or corrupt geometries crash the PostGIS backend process when Martin
     runs ST_AsMVTGeom; they are repaired with ST_MakeValid.
 
@@ -3400,7 +3402,7 @@ namespace :cartodb do
 
       next if repaired.values.all?(&:zero?)
 
-      puts "  #{label}: normalized #{repaired[:antimeridian]} antimeridian-crossing, " \
+      puts "  #{label}: normalized #{repaired[:antimeridian]} antimeridian, " \
            "repaired #{repaired[:invalid]} invalid, skipped #{repaired[:skipped]} crashing geometry(ies)."
       tables_changed += 1
       totals.merge!(repaired) { |_key, a, b| a + b }
