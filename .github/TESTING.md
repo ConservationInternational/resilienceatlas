@@ -173,7 +173,7 @@ docker-compose -f docker-compose.test.yml run --rm frontend-test \
 # Run Cypress E2E tests
 docker-compose -f docker-compose.test.yml up -d db-test backend-test frontend-test
 docker-compose -f docker-compose.test.yml run --rm cypress-chrome \
-  bash -c "npx cypress run --browser chrome"
+  bash -c "cypress run --browser chrome"
 ```
 
 ### Integration Tests
@@ -183,8 +183,12 @@ docker-compose -f docker-compose.test.yml run --rm cypress-chrome \
 docker-compose -f docker-compose.test.yml up -d
 # Wait for services to be healthy
 docker-compose -f docker-compose.test.yml run --rm cypress-chrome \
-  bash -c "npx cypress run --browser chrome"
+  bash -c "cypress run --browser chrome"
 ```
+
+The Cypress services share the frontend test service's `node_modules_test` volume
+so specs can import frontend dependencies. The included Cypress binary runs the
+tests; no separate dependency installation is needed in the Cypress container.
 
 ### Cleanup
 

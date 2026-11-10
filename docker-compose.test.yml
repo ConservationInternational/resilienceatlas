@@ -234,6 +234,7 @@ services:
       - CYPRESS_screenshotOnRunFailure=true
     volumes:
       - ./frontend:/app
+      - node_modules_test:/app/node_modules:ro
       - cypress_cache:/root/.cache/Cypress
       - ./frontend/cypress:/app/cypress
     networks:
@@ -258,6 +259,7 @@ services:
       - CYPRESS_screenshotOnRunFailure=true
     volumes:
       - ./frontend:/app
+      - node_modules_test:/app/node_modules:ro
       - cypress_cache:/root/.cache/Cypress
       - ./frontend/cypress:/app/cypress
     networks:

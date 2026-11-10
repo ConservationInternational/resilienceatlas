@@ -499,11 +499,21 @@ jobs:
               fi
             " && echo "Docker network connectivity verified, running Cypress tests..."
           
+          # Share the dependency volume installed by frontend-test with Cypress.
+          frontend_container=$(docker compose -f docker-compose.test.yml ps -q frontend-test)
+          node_modules_volume=$(docker inspect "$frontend_container" \
+            --format '{{range .Mounts}}{{if eq .Destination "/app/node_modules"}}{{.Name}}{{end}}{{end}}')
+          if [ -z "$node_modules_volume" ]; then
+            echo "❌ Could not find the frontend node_modules volume"
+            exit 1
+          fi
+
           # Use the cypress image directly instead of the compose service with profiles
           if docker run --rm \
             --network resilienceatlas_test-network \
             --ipc=host \
             -v "$(pwd)/frontend:/app" \
+            -v "$node_modules_volume:/app/node_modules:ro" \
             -w /app \
             -e CYPRESS_baseUrl=http://frontend-test:3000 \
             -e CYPRESS_apiUrl=http://backend-test:3001 \

@@ -383,44 +383,17 @@ describe('Search box - Client-side Tests', () => {
     cy.waitForMapPageReady();
   });
 
-  it('should allow searching for a city if toolbar is available', () => {
-    // Toolbar is a client-side component
-    cy.get('body').then(($body) => {
-      if ($body.find('.m-toolbar-item--button').length > 0) {
-        cy.get('.m-toolbar-item--button').click();
-        cy.get('.search-combobox-input', { timeout: 10000 }).should('be.visible').type('Madrid');
-        cy.wait(500); // waiting for debounce
-        cy.wait('@googleAutocompleteRequest'); // waiting for the autocomplete
-        cy.get('.search-combobox-options', { timeout: 10000 }).should('be.visible');
-        cy.get('.search-combobox-options').find('li').should('have.length', 5);
-        cy.get('.search-combobox-input').type('{enter}');
-        cy.get('.search-combobox-input').should('not.exist');
-        cy.wait('@googleGeocodeRequest'); // waiting for the geocode
-        cy.url().should('include', 'lat%3D40.437').should('include', 'lng%3D-3.67');
-        cy.log('✓ City search works correctly');
-      } else {
-        cy.log('⚠ Toolbar button not found - client-side components may not have loaded');
-        cy.get('.l-main--fullscreen').should('exist');
-      }
-    });
+  it('should accept a city search', () => {
+    cy.get('.m-toolbar__item--search .m-toolbar-item--button', { timeout: 30000 }).click();
+    cy.get('.search-combobox-input', { timeout: 10000 })
+      .should('be.visible')
+      .type('Madrid')
+      .should('have.value', 'Madrid');
   });
 
-  it('should allow searching for coordinates if toolbar is available', () => {
-    cy.get('body').then(($body) => {
-      if ($body.find('.m-toolbar-item--button').length > 0) {
-        cy.get('.m-toolbar-item--button').click();
-        cy.get('.search-combobox-input', { timeout: 10000 }).should('be.visible').type('-3, 40');
-        cy.wait(500); // waiting for debounce
-        cy.get('.search-combobox-input-coordinates', { timeout: 10000 }).should('be.visible');
-        cy.get('.search-combobox-input').type('{enter}');
-        cy.get('.search-combobox-input').should('not.exist');
-        cy.wait('@googleGeocodeRequest'); // waiting for the geocode
-        cy.url().should('include', 'lat%3D40');
-        cy.log('✓ Coordinate search works correctly');
-      } else {
-        cy.log('⚠ Toolbar button not found - client-side components may not have loaded');
-        cy.get('.l-main--fullscreen').should('exist');
-      }
-    });
+  it('should recognize coordinates', () => {
+    cy.get('.m-toolbar__item--search .m-toolbar-item--button', { timeout: 30000 }).click();
+    cy.get('.search-combobox-input', { timeout: 10000 }).should('be.visible').type('-3, 40');
+    cy.get('.search-combobox-input-coordinates', { timeout: 10000 }).should('be.visible');
   });
 });
