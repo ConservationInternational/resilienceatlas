@@ -1,0 +1,6 @@
+# Explicit constraints lock for the TiTiler Lambda build.
+# These versions are kept in sync with the direct dependency pins in requirements.txt.
+requests==2.34.2
+mangum==0.22.0
+titiler.application==2.4.0
+rollbar==1.5.0

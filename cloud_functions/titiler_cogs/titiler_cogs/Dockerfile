@@ -10,11 +10,11 @@ RUN dnf install -y gcc-c++ && dnf clean all
 # Upgrade pip
 RUN python -m pip install pip -U
 
-COPY requirements.txt ./
+COPY requirements.txt constraints.txt ./
 
-# Install dependencies directly to Lambda task root
-# Use --no-binary pydantic for better performance
-RUN python -m pip install -r requirements.txt -t ${LAMBDA_TASK_ROOT} --no-binary pydantic
+# Install dependencies directly to Lambda task root using an explicit constraints
+# lock so the production image does not drift across rebuilds.
+RUN python -m pip install -r requirements.txt -c constraints.txt -t ${LAMBDA_TASK_ROOT} --no-binary pydantic
 
 # Reduce package size - use Python for cleanup since findutils may not be in minimal lambda images
 RUN python -c '\

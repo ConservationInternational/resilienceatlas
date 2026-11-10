@@ -5,7 +5,7 @@ description: |
   caching strategies to ensure optimal development experience for the Resilience Atlas project.
 
   Key Features:
-  - Local Node.js 22.11.0 and Ruby 3.4.12 setup for rapid iteration
+  - Local Node.js 26.13.0 and Ruby 3.4.12 setup for rapid iteration
   - Pre-built Docker images with layered caching for consistent environments
   - Network resilience configuration for reliable dependency downloads
   - Environment file preparation and validation
@@ -29,7 +29,7 @@ description: |
 env:
   DOCKER_BUILDKIT: 1
   COMPOSE_DOCKER_CLI_BUILD: 1
-  NODE_VERSION: "22.11.0"
+  NODE_VERSION: "26.13.0"
   RUBY_VERSION: "3.4.12"
 
 steps:
@@ -246,7 +246,7 @@ steps:
       
       {
         echo "Pulling Node.js base image..."
-        docker pull node:${{ env.NODE_VERSION }}-bullseye || echo "Could not pre-pull Node image"
+        docker pull node:${{ env.NODE_VERSION }}-bookworm || echo "Could not pre-pull Node image"
       } &
       
       {

@@ -271,7 +271,7 @@ services:
 
   # Integration tests service
   integration-test:
-    image: node:22.11.0-alpine
+    image: node:26.13.0-alpine
     working_dir: /app
     environment:
       - FRONTEND_URL=http://frontend-test:3000
