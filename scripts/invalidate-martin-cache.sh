@@ -12,6 +12,9 @@
 # Without --paths, invalidates all cached content (/*).
 # By default, waits for the invalidation to complete before exiting.
 # Use --no-wait to return immediately after submitting.
+#
+# This clears CloudFront only. After changing PostGIS data, clear Martin's
+# in-memory tile cache first (for Swarm, restart the matching Martin service).
 
 set -euo pipefail
 
@@ -55,6 +58,8 @@ else
   STACK_NAME="martin-cdn-production"
 fi
 
+echo "This clears CloudFront only, not Martin's in-memory cache or browser caches."
+echo "After changing PostGIS data, restart resilienceatlas-${ENV}_martin on the Swarm host first."
 echo "Looking up CloudFront distribution for $STACK_NAME..."
 DIST_ID=$(aws cloudformation describe-stacks \
   --stack-name "$STACK_NAME" \
@@ -89,8 +94,9 @@ if [[ "$WAIT" == "true" ]]; then
     $PROFILE_ARG
   echo "Done. All edge locations have been cleared."
   echo ""
-  echo "Note: Tiles will be re-cached on first access — seeing 'Hit from cloudfront'"
-  echo "after this is expected and means CloudFront fetched a fresh copy from Martin."
+  echo "Note: 'Miss from cloudfront' means the request was not served from that edge's cache."
+  echo "'Hit from cloudfront' means a cached response was served, possibly re-cached after invalidation."
+  echo "Neither header alone confirms that Martin is serving corrected data."
 else
   echo ""
   echo "Check status with:"

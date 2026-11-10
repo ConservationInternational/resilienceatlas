@@ -273,13 +273,24 @@ admin vector uploads):
   the PostGIS backend when Martin calls `ST_AsMVTGeom`.
 
 The task is idempotent and runs automatically as part of `migrate_tables`. To repair
-existing data on a server without re-importing, run it directly, then invalidate the
-Martin CDN cache so browsers receive the repaired tiles:
+existing data on a server without re-importing, run it directly, clear Martin's
+in-memory tile cache, then invalidate CloudFront so it cannot refill from stale
+Martin tiles. On the staging Swarm host:
 
 ```bash
 bundle exec rake cartodb:fix_invalid_geometries
+docker service update --force resilienceatlas-staging_martin
+```
+
+Wait for the Martin service update to converge successfully, then run from a
+checkout with working AWS credentials:
+
+```bash
 scripts/invalidate-martin-cache.sh --staging --profile resilienceatlas
 ```
+
+Finally reload with the browser's network cache disabled. CloudFront invalidation
+does not clear Martin's in-memory cache or tiles already cached in a browser.
 
 Rows are updated in batches (`BATCH_SIZE`, default 500) so each statement only runs
 GEOS on a few rows. If a geometry exhausts the database container's memory and
@@ -300,7 +311,7 @@ BACKEND=$(docker ps -q --filter label=com.docker.swarm.service.name=resilienceat
 docker exec -it "$BACKEND" bundle exec rake cartodb:fix_invalid_geometries CHECKS=antimeridian BATCH_SIZE=500
 ```
 
-Then invalidate the Martin CDN cache as shown above. A zero count only means no
+Then restart Martin and invalidate the Martin CDN cache in that order as shown above. A zero count only means no
 geometries matched the implemented checks; verify the affected layers after repair.
 
 ---
