@@ -1,12 +1,16 @@
 class DataImport < ApplicationRecord
-  belongs_to :importable, polymorphic: true
+  belongs_to :importable, polymorphic: true, optional: true
   belongs_to :admin_user
 
   enum :status, {
     pending: "pending",
     processing: "processing",
     complete: "complete",
-    failed: "failed"
+    failed: "failed",
+    uploading: "uploading",
+    needs_input: "needs_input",
+    ready: "ready",
+    cancelled: "cancelled"
   }
 
   enum :import_type, {
@@ -17,6 +21,10 @@ class DataImport < ApplicationRecord
 
   validates :import_type, presence: true
   validates :status, presence: true
+
+  def managed_upload?
+    options["workflow"] == "spatial_upload"
+  end
 
   def duration
     return nil unless started_at && completed_at

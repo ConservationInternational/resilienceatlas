@@ -1,0 +1,109 @@
+<% content_for :title, "Upload New Data" %>
+<h2>Upload New Data</h2>
+<p>Upload, inspect, configure and preview a vector or raster dataset. New layers are unpublished drafts.
+  Replacements leave the current layer live until you confirm the preview.</p>
+<p>Vector: GeoPackage, GeoJSON, zipped Shapefile. Raster: GeoTIFF or COG, automatically converted to COG.
+  Maximum file size: <%= number_to_human_size(SpatialUploadLifecycle.max_bytes) %>.</p>
+<p>ZIP archives are additionally limited to <%= number_to_human_size(VectorUploadProcessor::MAX_ARCHIVE_BYTES) %>
+  compressed/expanded total and <%= number_to_human_size(VectorUploadProcessor::MAX_ARCHIVE_ENTRY_BYTES) %> per entry.
+  Replacing a source disables analysis until it is revalidated in the layer editor.</p>
+<p>Replacement uses the selected dataset in place of previous source URLs, multi-file composition and
+  source-specific clipping. Compatible styles and the existing legend are retained; review them in the preview.</p>
+<div id="spatial-upload" data-sessions-url="<%= api_data_uploads_path %>"
+     data-multipart-url="<%= api_multipart_uploads_path %>"
+     data-preview-url="<%= ENV.fetch("FRONTEND_URL", "http://localhost:3000").delete_suffix("/") %>/admin-preview/layer"
+     data-resume="<%= @resume&.id %>" data-layer-id="<%= @target_layer&.id %>">
+  <form id="upload-start">
+    <fieldset>
+      <legend>1. Choose data and destination</legend>
+      <label for="upload-type">Data type</label>
+      <select id="upload-type" required>
+        <option value="vector" <%= "selected" if params[:import_type] != "cog" %>>Vector</option>
+        <option value="cog" <%= "selected" if params[:import_type] == "cog" %>>Raster (GeoTIFF / COG)</option>
+      </select>
+      <label for="upload-mode">Destination</label>
+      <select id="upload-mode">
+        <% if @target_layer %>
+          <option value="replace">Replace <%= @target_layer.name %> (<%= @target_layer.slug %>)</option>
+        <% end %>
+        <option value="create">Create an unpublished layer</option>
+        <option value="dataset">Store dataset only</option>
+      </select>
+      <label for="upload-name">Layer name</label>
+      <input id="upload-name" type="text">
+      <label for="upload-slug">Layer slug (letters, digits, hyphens or underscores)</label>
+      <input id="upload-slug" type="text">
+      <label for="upload-file">File (reselect the same file to resume an interrupted transfer)</label>
+      <input id="upload-file" type="file" required accept=".gpkg,.geojson,.json,.zip">
+      <button type="submit" id="upload-transfer">Upload / resume</button>
+    </fieldset>
+  </form>
+  <progress id="upload-progress" value="0" max="100" aria-label="File transfer progress"></progress>
+  <p id="upload-status" role="status" aria-live="polite">Ready to select a file.</p>
+  <p id="upload-error" role="alert"></p>
+  <button type="button" id="upload-cancel" hidden>Cancel upload</button>
+  <button type="button" id="upload-retry" hidden>Retry processing</button>
+  <form id="upload-configure" hidden>
+    <fieldset>
+      <legend>2. Inspect and configure</legend>
+      <pre id="upload-metadata"></pre>
+      <label for="upload-crs">Source CRS override, only when missing (e.g. EPSG:4326)</label>
+      <input id="upload-crs" type="text" placeholder="EPSG:4326">
+      <label for="upload-sublayer">Vector sublayer (required when multiple are detected)</label>
+      <input id="upload-sublayer" type="text" list="upload-sublayers">
+      <datalist id="upload-sublayers"></datalist>
+      <div id="upload-vector-options">
+        <label for="upload-color">Vector color</label>
+        <input id="upload-color" type="color" value="#3388ff">
+        <label><input id="upload-replace-style" type="checkbox"> Replace existing vector styling with this color</label>
+        <label for="upload-popup">Popup field names, comma-separated (leave empty for none)</label>
+        <input id="upload-popup" type="text">
+      </div>
+      <div id="upload-raster-options">
+        <label for="upload-raster-kind">Raster interpretation / overview resampling</label>
+        <select id="upload-raster-kind">
+          <option value="continuous">Continuous</option>
+          <option value="categorical">Categorical</option>
+          <option value="rgb">RGB</option>
+        </select>
+        <label for="upload-bands">Band index, or three comma-separated RGB bands</label>
+        <input id="upload-bands" value="1" type="text">
+        <label for="upload-rescale">Display range (min,max; does not alter source values)</label>
+        <input id="upload-rescale" type="text" placeholder="0,100">
+        <label for="upload-nodata">Nodata display override (optional)</label>
+        <input id="upload-nodata" type="text">
+        <label for="upload-colormap">TiTiler colormap name (optional)</label>
+        <input id="upload-colormap" type="text">
+        <label for="upload-colormap-json">Categorical colormap JSON (optional, e.g. {"1":[255,0,0,255]})</label>
+        <textarea id="upload-colormap-json"></textarea>
+      </div>
+      <label for="upload-legend">Legend JSON (optional; existing legend is preserved unless supplied)</label>
+      <textarea id="upload-legend"></textarea>
+      <button type="submit">Apply configuration and preview</button>
+    </fieldset>
+  </form>
+  <section id="upload-preview" hidden>
+    <h3>3. Preview and confirm</h3>
+    <p>Click a vector feature to inspect its attributes, or click a raster to query pixel values.</p>
+    <iframe id="upload-map" title="Uploaded layer map preview" style="height:420px; width:100%; border:0"></iframe>
+    <pre id="upload-sample" aria-live="polite"></pre>
+    <label><input id="upload-confirm" type="checkbox"> I reviewed the preview and confirm this dataset / replacement.</label>
+    <button id="upload-finalize" type="button">Save dataset / layer</button>
+  </section>
+  <p><a id="upload-layer-link" hidden>Open layer</a></p>
+  <p><%= link_to "Start another upload", upload_admin_data_imports_path %></p>
+  <button id="upload-rollback" type="button" hidden>Roll back this replacement</button>
+  <noscript><p role="alert">JavaScript is required for multipart upload and map preview. Enable JavaScript and reload.</p></noscript>
+</div>
+<details>
+  <summary>Nonspatial CSV upload (existing workflow)</summary>
+  <p>This replaces an existing nonspatial table of the same name. Maximum 50 MB.</p>
+  <%= form_tag upload_file_admin_data_imports_path, method: :post, multipart: true do %>
+    <%= hidden_field_tag :upload_type, "nonspatial" %>
+    <%= label_tag :csv_table_name, "Table name" %>
+    <%= text_field_tag :table_name, nil, id: "csv_table_name", pattern: "[a-zA-Z0-9_]+", maxlength: 63, required: true %>
+    <%= label_tag :csv_file, "CSV file" %>
+    <%= file_field_tag :file, id: "csv_file", accept: ".csv", required: true %>
+    <%= submit_tag "Replace CSV table" %>
+  <% end %>
+</details>

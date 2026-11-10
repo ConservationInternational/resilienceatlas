@@ -216,33 +216,15 @@ class Api::Admin::VectorTablesController < Api::Admin::ApiController
     validate_s3_uri!(s3_uri)
     validate_table_name!(table_name)
 
-    gdal_path = build_gdal_path(s3_uri)
-    connection_string = build_pg_connection_string
-    pg_env = {"PGPASSWORD" => pg_password}
-
-    stdout, stderr, status = Open3.capture3(
-      pg_env,
-      "ogr2ogr",
-      "-f", "PostgreSQL",
-      connection_string,
-      gdal_path,
-      "-nln", table_name,
-      "-overwrite",
-      "-t_srs", "EPSG:4326",
-      "--config", "GDAL_HTTP_TIMEOUT", "30"
-    )
-
-    unless status.success?
-      Rails.logger.error("ogr2ogr import failed for #{s3_uri.inspect}: #{stderr.presence || stdout}")
-      return render json: {success: false, message: "Vector table import failed. Check server logs for details."}, status: :unprocessable_entity
-    end
-
-    result = query_table_metadata(table_name)
+    result = VectorApiImport.new(s3_uri, table_name,
+      options: params.permit(:sublayer, :source_crs).to_h).call
     render json: {success: true, data: result}, status: :ok
   rescue ActionController::ParameterMissing => e
     render json: {success: false, message: e.message}, status: :bad_request
   rescue ArgumentError => e
     render json: {success: false, message: e.message}, status: :unprocessable_entity
+  rescue UploadSelectionRequired => e
+    render json: {success: false, message: e.message, data: e.metadata}, status: :unprocessable_entity
   end
 
   private

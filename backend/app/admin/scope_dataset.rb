@@ -149,25 +149,30 @@ ActiveAdmin.register ScopeDataset do
   member_action :import_large_csv, method: [:get, :post] do
     if request.post?
       s3_key = params[:s3_key].to_s.strip
-      file_name = params[:file_name].to_s.strip
-      file_size = params[:file_size_bytes].to_i
+      params[:file_name].to_s.strip
+      params[:file_size_bytes].to_i
 
       if s3_key.blank? || !s3_key.start_with?("staging/")
         redirect_to resource_path, alert: "Invalid S3 key — must start with 'staging/'"
         return
       end
 
-      di = DataImport.create!(
-        importable: resource,
-        admin_user: current_admin_user,
-        file_name: file_name.presence || File.basename(s3_key),
-        s3_key: s3_key,
-        file_size_bytes: (file_size > 0) ? file_size : nil,
-        import_type: "csv",
-        status: "pending"
-      )
-
-      CsvImportJob.perform_later(di.id)
+      di = DataImport.find_by(s3_key: s3_key, admin_user: current_admin_user, import_type: "csv", status: "ready")
+      unless di && di.options["workflow"] == "legacy_csv" && di.metadata["transferred"]
+        redirect_to resource_path, alert: "Complete a CSV upload owned by your session first."
+        return
+      end
+      di.update!(importable: resource, status: "pending")
+      begin
+        job_id = CsvImportJob.perform_async(di.id)
+        raise "CSV worker did not accept the job" if job_id.blank?
+        di.update!(job_id: job_id)
+      rescue => e
+        Rails.logger.error "[CSV upload #{di.id}] Queue failed: #{e.message}"
+        di.update!(status: "failed", error_message: e.message, stage: "Queue failed")
+        redirect_to resource_path, alert: "CSV import could not be queued: #{e.message.truncate(300)}"
+        return
+      end
       redirect_to resource_path, notice: "CSV import queued (job ##{di.id}). Refresh to check status."
     else
       render :import_large_csv

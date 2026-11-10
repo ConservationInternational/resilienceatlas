@@ -97,7 +97,7 @@ module DatasetInventoryHelper
     when AdminUser
       content_tag(:span, "Standalone upload", title: "Not assigned to a layer")
     when nil
-      content_tag(:em, "—")
+      content_tag(:span, "Standalone dataset")
     else
       link_to "#{data_import.importable_type} ##{data_import.importable_id}",
         polymorphic_path([:admin, importable])
@@ -108,6 +108,7 @@ module DatasetInventoryHelper
 
   def inferred_vector_table_name(data_import)
     return unless data_import.type_vector?
+    return data_import.metadata["table"] if data_import.metadata["table"].present?
 
     if data_import.importable.is_a?(Layer)
       suffix = data_import.importable.slug.to_s.gsub(/[^a-z0-9_]/, "_")

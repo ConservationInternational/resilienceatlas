@@ -22,7 +22,12 @@ function buildSingleTitilerUrl(layerConfig, sourceOverride) {
 
   const titilerBaseUrl = process.env.NEXT_PUBLIC_TITILER_TILES_URL || getTitilerBaseUrl();
   let tileUrl = `${titilerBaseUrl}/tiles/WebMercatorQuad/{z}/{x}/{y}?url=${encodeURIComponent(source)}`;
-  if (bidx) tileUrl += `&bidx=${bidx}`;
+  if (bidx) {
+    const bands = Array.isArray(bidx) ? bidx : String(bidx).split(',');
+    bands.forEach((band) => {
+      tileUrl += `&bidx=${encodeURIComponent(band)}`;
+    });
+  }
   if (resampling_method) tileUrl += `&resampling_method=${resampling_method}`;
   if (nodata !== undefined && nodata !== null) tileUrl += `&nodata=${nodata}`;
   // Interval colormaps (arrays) use raw pixel values directly in TiTiler.

@@ -226,7 +226,7 @@ ActiveAdmin.register_page "Dashboard" do
               {label: "Total Storage Imported", value: formatted_size},
               {label: "Total Rows Imported", value: number_with_delimiter(total_rows)},
               {label: "Completed Imports", value: status_counts["complete"] || 0},
-              {label: "Pending / Processing", value: status_counts["pending"].to_i + status_counts["processing"].to_i},
+              {label: "In progress / Awaiting confirmation", value: %w[uploading pending processing needs_input ready].sum { |state| status_counts[state].to_i }},
               {label: "Failed Imports", value: status_counts["failed"] || 0}
             ] do
               column("") { |row| row[:label] }

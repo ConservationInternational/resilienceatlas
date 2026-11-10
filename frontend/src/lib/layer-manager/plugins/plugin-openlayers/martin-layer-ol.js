@@ -36,6 +36,7 @@ function buildColorRampStyle(colorRamp) {
       fillOpacity: 0.8,
       color: '#ffffff',
       weight: 0.3,
+      radius: 5,
       opacity: 0.5,
     });
   };

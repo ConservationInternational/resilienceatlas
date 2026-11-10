@@ -23,6 +23,9 @@ import { useState, useEffect, useCallback, type ReactElement } from 'react';
 import type { OLMapProps } from 'views/components/Map/OLMap/exports';
 import type { NextPageWithLayout } from 'pages/_app';
 import basemaps from 'views/utils/basemaps.json';
+import type Map from 'ol/Map';
+import { transformExtent, toLonLat } from 'ol/proj';
+import { unByKey } from 'ol/Observable';
 
 // OLMap uses browser APIs — must be client-side only
 const OLMap = dynamic<OLMapProps>(
@@ -157,6 +160,7 @@ function buildLayerConfig(provider: string, layerConfigJson: string): ProviderLa
       return {
         ...layerConfig,
         body: {
+          ...body,
           source,
           styles,
           options: {
@@ -196,6 +200,42 @@ interface LayerPreviewMessage {
   type: 'LAYER_PREVIEW';
   provider: string;
   layer_config: string;
+  bounds?: number[];
+}
+
+function PreviewInteractions({
+  map,
+  bounds,
+  adminOrigin,
+}: {
+  map: Map;
+  bounds: number[] | null;
+  adminOrigin: string | null;
+}) {
+  useEffect(() => {
+    if (bounds?.length === 4 && bounds.every(Number.isFinite)) {
+      map.getView().fit(transformExtent(bounds, 'EPSG:4326', 'EPSG:3857'), {
+        padding: [30, 30, 30, 30],
+        maxZoom: 14,
+      });
+    }
+    if (!adminOrigin) return;
+    const listener = map.on('singleclick', (event) => {
+      const properties =
+        map.forEachFeatureAtPixel(event.pixel, (feature) => feature.getProperties()) || {};
+      delete properties.geometry;
+      window.parent.postMessage(
+        {
+          type: 'LAYER_PREVIEW_SAMPLE',
+          properties,
+          coordinate: toLonLat(event.coordinate),
+        },
+        adminOrigin,
+      );
+    });
+    return () => unByKey(listener);
+  }, [map, bounds, adminOrigin]);
+  return null;
 }
 
 // ─── Page component ───────────────────────────────────────────────────────────
@@ -205,9 +245,11 @@ const LayerPreviewPage: NextPageWithLayout = () => {
   const [status, setStatus] = useState<'waiting' | 'ready' | 'error'>('waiting');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [adminOrigin, setAdminOrigin] = useState<string | null>(null);
+  const [bounds, setBounds] = useState<number[] | null>(null);
 
   const applyPreviewMessage = useCallback((msg: LayerPreviewMessage) => {
     const { provider, layer_config = '' } = msg;
+    setBounds(msg.bounds || null);
     setErrorMsg(null);
 
     if (!provider) {
@@ -255,7 +297,7 @@ const LayerPreviewPage: NextPageWithLayout = () => {
   // Listen for postMessage from admin iframe parent
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
-      if (adminOrigin && event.origin !== adminOrigin) return;
+      if (!adminOrigin || event.origin !== adminOrigin || event.source !== window.parent) return;
 
       if (event.data?.type === 'LAYER_PREVIEW') {
         applyPreviewMessage(event.data as LayerPreviewMessage);
@@ -263,8 +305,17 @@ const LayerPreviewPage: NextPageWithLayout = () => {
     };
 
     window.addEventListener('message', handleMessage);
+    if (adminOrigin) {
+      window.parent.postMessage({ type: 'LAYER_PREVIEW_READY' }, adminOrigin);
+    }
     return () => window.removeEventListener('message', handleMessage);
   }, [adminOrigin, applyPreviewMessage]);
+
+  useEffect(() => {
+    if (status === 'error' && adminOrigin) {
+      window.parent.postMessage({ type: 'LAYER_PREVIEW_ERROR', message: errorMsg }, adminOrigin);
+    }
+  }, [status, errorMsg, adminOrigin]);
 
   const basemapConfig = {
     url: basemaps.defaultmap.url,
@@ -293,9 +344,12 @@ const LayerPreviewPage: NextPageWithLayout = () => {
       >
         {(map) =>
           layerSpec && LayerManager && Layer && PluginOpenLayers ? (
-            <LayerManager map={map} plugin={PluginOpenLayers}>
-              <Layer {...layerSpec} />
-            </LayerManager>
+            <>
+              <PreviewInteractions map={map} bounds={bounds} adminOrigin={adminOrigin} />
+              <LayerManager map={map} plugin={PluginOpenLayers}>
+                <Layer {...layerSpec} />
+              </LayerManager>
+            </>
           ) : null
         }
       </OLMap>

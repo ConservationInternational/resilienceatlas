@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_08_18_120000) do
+ActiveRecord::Schema[7.2].define(version: 2026_11_10_150000) do
   create_schema "ra_app"
   create_schema "ra_nonspatial"
 
@@ -168,8 +168,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_08_18_120000) do
   end
 
   create_table "data_imports", force: :cascade do |t|
-    t.string "importable_type", null: false
-    t.bigint "importable_id", null: false
+    t.string "importable_type"
+    t.bigint "importable_id"
     t.bigint "admin_user_id", null: false
     t.string "file_name"
     t.string "s3_key"
@@ -182,6 +182,14 @@ ActiveRecord::Schema[7.2].define(version: 2026_08_18_120000) do
     t.datetime "completed_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.jsonb "options", default: {}, null: false
+    t.jsonb "metadata", default: {}, null: false
+    t.jsonb "previous_configuration", default: {}, null: false
+    t.datetime "target_updated_at"
+    t.text "upload_id"
+    t.string "job_id"
+    t.string "stage"
+    t.integer "attempts", default: 0, null: false
     t.index ["admin_user_id"], name: "index_data_imports_on_admin_user_id"
     t.index ["importable_type", "importable_id"], name: "index_data_imports_on_importable_type_and_importable_id"
     t.index ["status"], name: "index_data_imports_on_status"

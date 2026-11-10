@@ -20,6 +20,7 @@
 import Style from 'ol/style/Style';
 import Stroke from 'ol/style/Stroke';
 import Fill from 'ol/style/Fill';
+import CircleStyle from 'ol/style/Circle';
 
 function hexToRgba(hex, opacity) {
   // Expand 3-char shorthand (#FFF → #FFFFFF) before parsing
@@ -166,6 +167,7 @@ export function pathOptionsToStyle(pathOptions) {
     fillOpacity = 0.2,
     fill = true,
     fillPattern,
+    radius,
   } = pathOptions;
 
   let fillStyle = null;
@@ -186,6 +188,8 @@ export function pathOptionsToStyle(pathOptions) {
   return new Style({
     stroke: strokeStyle,
     fill: fillStyle,
+    image:
+      radius > 0 ? new CircleStyle({ radius, stroke: strokeStyle, fill: fillStyle }) : undefined,
   });
 }
 

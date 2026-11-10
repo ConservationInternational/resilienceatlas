@@ -1,0 +1,14 @@
+{
+  "type": "FeatureCollection",
+  "name": "roads",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {"name": "sample"},
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [[1, 2], [3, 4]]
+      }
+    }
+  ]
+}

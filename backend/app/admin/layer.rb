@@ -36,72 +36,17 @@ ActiveAdmin.register Layer do
   # ── COG Upload ──────────────────────────────────────────────────────────────
 
   member_action :upload_cog, method: [:get, :post] do
-    if request.post?
-      s3_key = params[:s3_key].to_s.strip
-      file_name = params[:file_name].to_s.strip
-      file_size = params[:file_size_bytes].to_i
-
-      if s3_key.blank? || !s3_key.start_with?("cogs/")
-        redirect_to resource_path, alert: "Invalid S3 key — must start with 'cogs/'"
-        return
-      end
-
-      s3_uri = "s3://#{ENV.fetch("S3_BUCKET", "resilienceatlas")}/#{s3_key}"
-      new_config = {"body" => {"source" => s3_uri}}
-
-      DataImport.transaction do
-        resource.update_columns(
-          layer_provider: "cog",
-          layer_config: new_config.to_json,
-          interaction_config: LayerInteractionConfigBuilder.for_cog.to_json
-        )
-        DataImport.create!(
-          importable: resource,
-          admin_user: current_admin_user,
-          file_name: file_name.presence || File.basename(s3_key),
-          s3_key: s3_key,
-          file_size_bytes: (file_size > 0) ? file_size : nil,
-          import_type: "cog",
-          status: "complete",
-          started_at: Time.current,
-          completed_at: Time.current
-        )
-      end
-
-      redirect_to resource_path, notice: "COG layer updated. S3 URI: #{s3_uri}"
-    else
-      render :upload_cog
-    end
+    authorize! :update, resource
+    redirect_to upload_admin_data_imports_path(layer_id: resource.id, import_type: "cog"),
+      notice: request.post? ? "Use the upload workspace to validate and confirm this replacement." : nil
   end
 
   # ── Vector Import ────────────────────────────────────────────────────────────
 
   member_action :import_vector, method: [:get, :post] do
-    if request.post?
-      s3_key = params[:s3_key].to_s.strip
-      file_name = params[:file_name].to_s.strip
-      file_size = params[:file_size_bytes].to_i
-
-      if s3_key.blank? || !s3_key.start_with?("staging/")
-        redirect_to resource_path, alert: "Invalid S3 key — must start with 'staging/'"
-        return
-      end
-
-      di = DataImport.create!(
-        importable: resource,
-        admin_user: current_admin_user,
-        file_name: file_name.presence || File.basename(s3_key),
-        s3_key: s3_key,
-        file_size_bytes: (file_size > 0) ? file_size : nil,
-        import_type: "vector",
-        status: "pending"
-      )
-
-      VectorImportJob.perform_later(di.id)
-      redirect_to resource_path, notice: "Vector import queued (job ##{di.id}). Refresh to check status."
-    else
-      render :import_vector
-    end
+    authorize! :update, resource
+    redirect_to upload_admin_data_imports_path(layer_id: resource.id, import_type: "vector"),
+      notice: request.post? ? "Use the upload workspace to validate and confirm this replacement." : nil
   end
 
   filter :slug

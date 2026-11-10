@@ -49,12 +49,32 @@ Rails.application.routes.draw do
       resources :vector_views, only: [:index, :create, :destroy]
     end
     scope module: :v1 do
+      resources :data_uploads, path: "uploads/sessions", only: [:create, :show] do
+        member do
+          post :process_file
+          patch :configure
+          post :verify
+          post :finalize
+          post :cancel
+          post :rollback
+          get "tiles/:z/:x/:y", action: :tile, as: :tile
+          get :point
+        end
+      end
       get "layer-groups", to: "layer_groups#index", as: "layer_groups"
       get "/layers", to: "layers#index", as: "layers"
       get "/layers/:id/downloads", to: "layers#download_attachments", as: "download_attachments"
 
       # S3 multipart upload coordination (used by Uppy in ActiveAdmin)
       scope "uploads/multipart" do
+        post "/", to: "uploads#create_multipart", as: :multipart_uploads
+        get "/:upload_id", to: "uploads#sign_parts"
+        get "/:upload_id/batch", to: "uploads#batch_sign_parts"
+        post "/:upload_id/complete", to: "uploads#complete_multipart"
+        delete "/:upload_id", to: "uploads#abort_multipart"
+      end
+      # Compatibility for existing scope-dataset upload pages/bookmarked clients.
+      scope "v1/uploads/multipart" do
         post "/", to: "uploads#create_multipart"
         get "/:upload_id", to: "uploads#sign_parts"
         get "/:upload_id/batch", to: "uploads#batch_sign_parts"

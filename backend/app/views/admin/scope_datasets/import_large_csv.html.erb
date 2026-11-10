@@ -41,7 +41,7 @@
 
 <script>
 (function() {
-  const MULTIPART_BASE = "/api/v1/uploads/multipart";
+  const MULTIPART_BASE = "<%= api_multipart_uploads_path %>";
   const CSRF = document.querySelector('meta[name="csrf-token"]')?.content || "";
 
   const uppy = new Uppy.Core({
@@ -66,7 +66,9 @@
           metadata: { prefix: "staging", size: file.size }
         })
       });
-      return resp.json();
+      const data = await resp.json();
+      if (!resp.ok) throw new Error(data.error || "Unable to start CSV upload");
+      return data;
     },
     async signPart(file, { uploadId, key, partNumber }) {
       const resp = await fetch(
@@ -74,16 +76,24 @@
         { headers: { "X-CSRF-Token": CSRF } }
       );
       const data = await resp.json();
+      if (!resp.ok) throw new Error(data.error || "Unable to sign CSV upload part");
       return { url: data.presignedUrls[partNumber] };
     },
-    async listParts() { return []; },
+    async listParts(file, { uploadId, key }) {
+      const resp = await fetch(`${MULTIPART_BASE}/${uploadId}?key=${encodeURIComponent(key)}&list=1`);
+      const data = await resp.json();
+      if (!resp.ok) throw new Error(data.error || "Unable to list CSV upload parts");
+      return data.parts;
+    },
     async completeMultipartUpload(file, { uploadId, key, parts }) {
       const resp = await fetch(`${MULTIPART_BASE}/${uploadId}/complete`, {
         method: "POST",
         headers: { "Content-Type": "application/json", "X-CSRF-Token": CSRF },
         body: JSON.stringify({ key, parts })
       });
-      return resp.json();
+      const data = await resp.json();
+      if (!resp.ok) throw new Error(data.error || "Unable to complete CSV upload");
+      return data;
     },
     async abortMultipartUpload(file, { uploadId, key }) {
       await fetch(`${MULTIPART_BASE}/${uploadId}?key=${encodeURIComponent(key)}`, {

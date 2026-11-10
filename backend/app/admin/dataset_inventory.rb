@@ -1,6 +1,10 @@
 ActiveAdmin.register_page "Dataset Inventory" do
   menu label: "Dataset Inventory", parent: "Data", priority: 5
 
+  action_item :upload do
+    link_to "Upload New Data", upload_admin_data_imports_path
+  end
+
   # ── Refresh cached inventory data ────────────────────────────────────────────
   page_action :refresh_cache, method: :post do
     DatasetInventoryService.invalidate_all_caches!
@@ -125,8 +129,8 @@ ActiveAdmin.register_page "Dataset Inventory" do
 
       if section == "raster"
         panel "About Raster Tables" do
-          para "Raster tables in the #{DatasetInventoryService::RASTER_SCHEMA} schema are populated via the CartoDB migration rake task " \
-               "(rake cartodb:import_tables). There is no admin upload interface for raster tables."
+          para "These are legacy PostGIS raster tables. New raster uploads are converted to Cloud-Optimized GeoTIFFs and appear under S3 COGs."
+          para link_to("Upload a raster", upload_admin_data_imports_path(import_type: "cog"))
         end
       end
 
