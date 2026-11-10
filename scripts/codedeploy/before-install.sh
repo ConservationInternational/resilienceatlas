@@ -18,6 +18,8 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "${SCRIPT_DIR}/common.sh"
 
+acquire_docker_lock
+
 log_info "BeforeInstall hook started"
 
 # Detect environment
@@ -149,11 +151,7 @@ if [ -n "$DISK_USAGE" ] && [ "$DISK_USAGE" -gt 85 ]; then
         fi
     done
     
-    # Also clean containerd content store (can accumulate failed pulls)
-    if [ -d "/var/lib/containerd/io.containerd.content.v1.content/ingest" ]; then
-        log_info "Cleaning up containerd ingest directory..."
-        rm -rf /var/lib/containerd/io.containerd.content.v1.content/ingest/* 2>/dev/null || true
-    fi
+    # Docker/containerd own their content stores; never delete ingest files.
 fi
 
 # Report final disk usage

@@ -35,6 +35,34 @@ log_error() {
     echo -e "${RED}[ERROR]${NC} $(date '+%Y-%m-%d %H:%M:%S') - $1"
 }
 
+# Staging and production share a Docker daemon, including its content store.
+# Keep the descriptor open until the hook exits; never remove the lock file.
+acquire_docker_lock() {
+    log_info "Waiting for the shared deployment Docker lock..."
+    if ! exec {DOCKER_LOCK_FD}>/var/lock/resilienceatlas-deploy.lock; then
+        log_error "Cannot open the shared deployment Docker lock"
+        return 1
+    fi
+    if ! flock --exclusive --timeout 300 "$DOCKER_LOCK_FD"; then
+        log_error "Could not acquire the shared deployment Docker lock within 300 seconds"
+        exec {DOCKER_LOCK_FD}>&-
+        return 1
+    fi
+    log_info "Acquired the shared deployment Docker lock"
+}
+
+pull_deployment_images() {
+    local image
+    # Serial pulls avoid overlapping extraction of shared layers in containerd.
+    for image in "$BACKEND_IMAGE" "$FRONTEND_IMAGE"; do
+        log_info "Pulling image: $image"
+        if ! docker pull "$image"; then
+            log_error "Failed to pull image from ECR: $image"
+            return 1
+        fi
+    done
+}
+
 # Detect environment from CodeDeploy deployment group or hostname
 detect_environment() {
     # First check CodeDeploy environment variable

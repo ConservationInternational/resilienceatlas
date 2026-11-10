@@ -14,6 +14,8 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "${SCRIPT_DIR}/common.sh"
 
+acquire_docker_lock
+
 log_info "AfterInstall hook (Swarm mode) started"
 
 # Detect environment
@@ -126,22 +128,7 @@ aws ecr get-login-password --region "${AWS_REGION:-us-east-1}" | \
 }
 log_success "Logged in to ECR"
 
-# Pull images in parallel for speed
-log_info "Pulling images in parallel..."
-docker pull "$BACKEND_IMAGE" &
-BACKEND_PULL_PID=$!
-docker pull "$FRONTEND_IMAGE" &
-FRONTEND_PULL_PID=$!
-
-# Wait for both pulls to complete
-wait $BACKEND_PULL_PID || {
-    log_error "Failed to pull backend image from ECR: $BACKEND_IMAGE"
-    exit 1
-}
-wait $FRONTEND_PULL_PID || {
-    log_error "Failed to pull frontend image from ECR: $FRONTEND_IMAGE"
-    exit 1
-}
+pull_deployment_images
 
 log_success "ECR images pulled successfully"
 

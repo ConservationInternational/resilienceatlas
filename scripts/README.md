@@ -289,6 +289,25 @@ The deployment process has been optimized to use pre-built Docker images stored 
    - No local Docker builds required (saves 15-25 minutes)
    - Images are cached for even faster subsequent pulls
 
+Staging and production share a Docker daemon on the EC2 host. The
+`BeforeInstall`, `AfterInstall`, and `ApplicationStart` hooks use the same
+host-level `flock` at `/var/lock/resilienceatlas-deploy.lock` so Docker cleanup
+cannot overlap another hook's image pulls. Each hook waits up to 300 seconds,
+then fails explicitly if the lock is still occupied. The lock is released
+automatically when the hook exits; do not delete the lock file.
+
+Backend and frontend images are pulled sequentially to avoid concurrent
+extraction of shared containerd layers. Cleanup must use Docker commands, never
+delete files directly from containerd's content or snapshot directories.
+
+Run the Docker-operation regression tests without contacting ECR or modifying
+the host Docker daemon:
+
+```bash
+docker run --rm -v "$PWD:/app:ro" -w /app ruby:3.4.12-bookworm \
+  bash scripts/codedeploy/tests/docker-operations.sh
+```
+
 ### Staging Deployment
 
 1. **Push to `staging`** triggers GitHub Actions workflow
@@ -411,7 +430,7 @@ sudo tail -f /var/log/aws/codedeploy-agent/codedeploy-agent.log
 ### View Deployment Script Logs
 ```bash
 ssh ubuntu@<instance-ip>
-sudo tail -f /opt/codedeploy-agent/deployment-root/*/logs/scripts.log
+sudo tail -f /opt/codedeploy-agent/deployment-root/<deployment-group-id>/<deployment-id>/logs/scripts.log
 ```
 
 ### View Application Logs

@@ -18,6 +18,8 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "${SCRIPT_DIR}/common.sh"
 
+acquire_docker_lock
+
 log_info "ApplicationStart hook (Swarm mode) started"
 
 # Detect environment
@@ -60,24 +62,12 @@ if [ -n "$ECR_REGISTRY" ] && [ -n "$BACKEND_IMAGE" ] && [ -n "$FRONTEND_IMAGE" ]
     log_info "Logging in to ECR registry: $ECR_REGISTRY"
     aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin "$ECR_REGISTRY"
     
-    # Pull images in parallel for faster deployment
-    log_info "Pulling images from ECR..."
-    docker pull "$BACKEND_IMAGE" &
-    BACKEND_PID=$!
-    docker pull "$FRONTEND_IMAGE" &
-    FRONTEND_PID=$!
-    
-    # Wait for both pulls to complete
-    if wait $BACKEND_PID && wait $FRONTEND_PID; then
-        log_success "Successfully pulled images from ECR"
-        
-        # Tag images for use in docker-compose (if needed)
-        docker tag "$BACKEND_IMAGE" "resilienceatlas-backend:${ENVIRONMENT}"
-        docker tag "$FRONTEND_IMAGE" "resilienceatlas-frontend:${ENVIRONMENT}"
-    else
-        log_error "Failed to pull images from ECR"
-        exit 1
-    fi
+    pull_deployment_images
+    log_success "Successfully pulled images from ECR"
+
+    # Tag images for use in docker-compose (if needed)
+    docker tag "$BACKEND_IMAGE" "resilienceatlas-backend:${ENVIRONMENT}"
+    docker tag "$FRONTEND_IMAGE" "resilienceatlas-frontend:${ENVIRONMENT}"
 else
     log_info "ECR images not configured - will use locally built images"
 fi
