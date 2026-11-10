@@ -1,0 +1,134 @@
+.data-upload-workspace {
+  max-width: 960px;
+  line-height: 1.5;
+
+  [hidden] {
+    display: none !important;
+  }
+
+  p {
+    margin: 0 0 16px;
+  }
+
+  form {
+    margin: 0 0 24px;
+  }
+
+  fieldset,
+  #upload-preview,
+  details {
+    box-sizing: border-box;
+    min-width: 0;
+    margin: 0 0 24px;
+    padding: 20px;
+    background: #fff;
+    border: 1px solid #d5dce1;
+    border-radius: 4px;
+  }
+
+  legend {
+    float: none;
+    width: auto;
+    padding: 0 8px;
+    font-size: 16px;
+    font-weight: bold;
+  }
+
+  label {
+    display: block;
+    float: none;
+    width: auto;
+    margin: 0 0 6px;
+    font-weight: bold;
+  }
+
+  input[type="text"],
+  input[type="file"],
+  select,
+  textarea {
+    display: block;
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 640px;
+    margin: 0 0 20px;
+    font: inherit;
+  }
+
+  input[type="text"],
+  select,
+  textarea {
+    padding: 8px 10px;
+  }
+
+  select {
+    height: auto;
+    min-height: 38px;
+  }
+
+  textarea {
+    min-height: 100px;
+    resize: vertical;
+  }
+
+  input[type="color"] {
+    display: block;
+    width: 64px;
+    height: 38px;
+    margin: 0 0 20px;
+  }
+
+  label:has(input[type="checkbox"]) {
+    margin-bottom: 20px;
+    font-weight: normal;
+  }
+
+  input[type="checkbox"] {
+    width: auto;
+    margin: 0 6px 0 0;
+    vertical-align: middle;
+  }
+
+  button,
+  input[type="submit"] {
+    display: inline-block;
+    max-width: 100%;
+    margin: 0 8px 12px 0;
+    white-space: normal;
+  }
+
+  progress {
+    display: block;
+    width: 100%;
+    max-width: 640px;
+    height: 20px;
+    margin: 0 0 12px;
+  }
+
+  #upload-error {
+    color: #a94442;
+    overflow-wrap: anywhere;
+  }
+
+  pre {
+    max-height: 320px;
+    padding: 12px;
+    overflow: auto;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    background: #f4f8fb;
+  }
+
+  summary {
+    margin-bottom: 16px;
+    cursor: pointer;
+    font-weight: bold;
+  }
+
+  @media (max-width: 600px) {
+    fieldset,
+    #upload-preview,
+    details {
+      padding: 12px;
+    }
+  }
+}

@@ -18,6 +18,7 @@
 @import 'activeadmin_addons/all';
 @import "admin/has_many_collapsable";
 @import "admin/ai_chat";
+@import "admin/data_upload";
 
 // Overriding any non-variable SASS must be done after the fact.
 // For example, to change the default status-tag color:

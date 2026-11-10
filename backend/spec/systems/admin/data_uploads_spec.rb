@@ -59,4 +59,40 @@ RSpec.describe "Admin data upload workspace", type: :system do
   ensure
     file&.close!
   end
+
+  it "stacks form controls without overlap at desktop and mobile widths" do
+    visit upload_admin_data_imports_path
+    expect(page).to have_css('#spatial-upload[data-initialized="true"]')
+    [1280, 390].each do |width|
+      page.current_window.resize_to(width, 900)
+      page.execute_script(<<~JS)
+        document.getElementById("upload-configure").hidden = false;
+        document.querySelector(".data-upload-workspace details").open = true;
+      JS
+      [
+        %w[upload-type upload-mode upload-name upload-slug upload-file upload-transfer],
+        %w[upload-crs upload-sublayer upload-color upload-replace-style upload-popup],
+        %w[upload-raster-kind upload-bands upload-rescale upload-nodata upload-colormap upload-colormap-json],
+        %w[csv_table_name csv_file]
+      ].each do |ids|
+        rectangles = page.evaluate_script(<<~JS)
+          #{ids.to_json}.map(id => {
+            const box = document.getElementById(id).getBoundingClientRect();
+            return {top: box.top, bottom: box.bottom, left: box.left, right: box.right};
+          })
+        JS
+        rectangles.each_cons(2) do |previous, following|
+          expect(following["top"]).to be > previous["bottom"]
+        end
+        rectangles.each do |box|
+          expect(box["left"]).to be >= 0
+          expect(box["right"]).to be <= width
+        end
+      end
+      expect(find("#upload-preview", visible: :all)).not_to be_visible
+      expect(find("#upload-cancel", visible: :all)).not_to be_visible
+    end
+  ensure
+    page.current_window.resize_to(1920, 1080)
+  end
 end
