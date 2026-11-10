@@ -1,7 +1,21 @@
 module Api
   module V1
     class ArcgisFeatureProxyController < ApiController
-      # GET /api/v1/arcgis-feature-proxy/:id/query
+      QUERY_PARAMETERS = %i[
+        f where objectIds time geometry geometryType inSR spatialRel distance
+        units relationParam outFields returnGeometry maxAllowableOffset
+        geometryPrecision outSR gdbVersion historicMoment returnDistinctValues
+        returnIdsOnly returnCountOnly returnExtentOnly orderByFields
+        groupByFieldsForStatistics outStatistics havingClause resultOffset
+        resultRecordCount resultType returnZ returnM returnTrueCurves
+        quantizationParameters sqlFormat datumTransformation returnCentroid
+        returnExceededLimitFeatures multipatchOption parameterValues rangeValues
+        featureEncoding defaultSR returnEnvelope cacheHint fullText
+        resultPaginationToken returnUniqueIdsOnly useUniqueIds returnQueryGeometry
+        timeReferenceUnknownClient
+      ].freeze
+
+      # GET /api/arcgis-feature-proxy/:id/query
       #
       # Proxies ArcGIS FeatureServer /query requests server-side so that API
       # tokens stored in layer_config are never exposed to the browser.
@@ -10,7 +24,7 @@ module Api
       #   id - Layer ID
       #
       # Query params:
-      #   All standard ArcGIS REST /query params are forwarded verbatim
+      #   Allowlisted scalar ArcGIS REST /query params are forwarded verbatim
       #   (f, geometry, geometryType, inSR, outSR, outFields, where,
       #    spatialRel, returnGeometry, etc.)
       #
@@ -49,9 +63,9 @@ module Api
           return render json: {error: "ArcGIS URL is not in the allowed hosts list"}, status: :bad_request
         end
 
-        # Forward all incoming query params except Rails routing internals,
-        # then append the token server-side if present.
-        forwarded_params = params.except(:controller, :action, :id).permit!.to_h
+        # ArcGIS structured values (geometry, statistics, etc.) are JSON strings.
+        # Authentication tokens come only from the server-side layer config.
+        forwarded_params = params.permit(*QUERY_PARAMETERS).to_h
         forwarded_params["token"] = token if token.present?
 
         proxy_arcgis_query(validated_url, forwarded_params)

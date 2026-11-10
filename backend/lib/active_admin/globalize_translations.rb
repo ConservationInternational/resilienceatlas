@@ -23,9 +23,17 @@ module ActiveAdmin
 
         # Include helper methods
         include TranslationMethods
+        before_validation :assign_stashed_translations
       end
 
       module TranslationMethods
+        def assign_stashed_translations
+          # Globalize stashes direct writes until after_save, too late for autosave validation.
+          globalize.stash.each do |locale, attributes|
+            translation_for(locale).assign_attributes(attributes) unless attributes.empty?
+          end
+        end
+
         def translation_names
           translations.map(&:locale).map do |locale|
             I18n.t("active_admin.globalize.language.#{locale}", default: locale.to_s.upcase)

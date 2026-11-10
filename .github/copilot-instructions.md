@@ -5,7 +5,7 @@ Always reference these instructions first and fallback to search or bash command
 ## Working Effectively
 
 ### Environment Setup
-- **CRITICAL**: Use Docker for all development - local Node.js and Ruby versions may not match requirements (Node.js 24.0.0, Ruby 3.4.8)
+- **CRITICAL**: Use Docker for all development - local Node.js and Ruby versions may not match requirements (Node.js 24.0.0, Ruby 3.4.12)
 - Environment files setup:
   ```bash
   cp .env.example .env
@@ -29,8 +29,8 @@ Always reference these instructions first and fallback to search or bash command
 - **All checks**: `./bin/test all` - runs lint, type-check, prettier, build sequentially
 - **Dev server**: `npm run dev` - starts in ~2 seconds on port 3000
 
-### Backend Development (Ruby on Rails 7.2.x + PostgreSQL + PostGIS)
-- **CRITICAL**: Must use Docker - Ruby 3.4.8 and specific gems required
+### Backend Development (Ruby on Rails 8.1.x + PostgreSQL + PostGIS)
+- **CRITICAL**: Must use Docker - Ruby 3.4.12 and specific gems required
 - **Dependencies**: `bundle install` - takes 2-5 minutes in Docker. NEVER CANCEL. Set timeout to 10+ minutes.
 - **Linting**: `./bin/test lint` - StandardRB code style checking
 - **Security**: `./bin/test security` - Brakeman security analysis  
@@ -119,7 +119,7 @@ Full validation should be done for major changes:
 
 ### Required Software Versions
 - **Node.js**: 24.0.0 (specified in frontend/.nvmrc and Dockerfile)
-- **Ruby**: 3.4.8 (specified in backend/.ruby-version and Gemfile)
+- **Ruby**: 3.4.12 (specified in backend/.ruby-version and Gemfile)
 - **PostgreSQL**: 15 with PostGIS 3.3 (from docker images)
 - **Docker**: Required for all development and testing
 

@@ -4,8 +4,8 @@ Ruby on Rails backend powering [resilienceatlas.org](https://www.resilienceatlas
 
 ## Requirements
 
-- Ruby 3.4.10
-- Rails 7.2.x
+- Ruby 3.4.12
+- Rails 8.1.x
 - PostgreSQL 15 with PostGIS
 - Docker (recommended)
 
@@ -20,6 +20,10 @@ docker compose -f docker-compose.dev.yml up -d db backend
 ```
 
 Backend available at http://localhost:3001, admin at http://localhost:3001/admin
+
+After updating dependencies, rebuild the backend image. Rails 8.1 currently uses
+the existing Rails 7.2 framework defaults to preserve application behavior.
+Model schema annotations use `bundle exec annotaterb models` (replacing `annotate`).
 
 **Default admin credentials:** `admin@example.com` / `password`
 
@@ -119,6 +123,14 @@ SWAGGER_DRY_RUN=0 rake rswag:specs:swaggerize
 ### Core API Endpoints
 
 #### Data Management
+
+The ArcGIS feature proxy (`GET /api/arcgis-feature-proxy/:id/query`) forwards
+only the scalar ArcGIS query parameters listed in the controller's
+`QUERY_PARAMETERS` allowlist, including map geometry, filters, pagination, and
+statistics. Structured ArcGIS values must be JSON-encoded strings, not nested
+query parameters. Unknown parameters are filtered by Rails strong parameters.
+Tokens are read exclusively from the layer's server-side configuration; client
+tokens are not forwarded.
 
 | Endpoint | Method | Description | Auth Required |
 |----------|--------|-------------|---------------|
