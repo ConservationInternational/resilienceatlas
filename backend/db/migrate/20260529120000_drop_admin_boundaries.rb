@@ -23,6 +23,6 @@ class DropAdminBoundaries < ActiveRecord::Migration[7.2]
   def down
     # Reverting this migration is not supported - use Mapbox Streets instead
     raise ActiveRecord::IrreversibleMigration,
-          'Cannot recreate admin_boundaries table - use Mapbox Streets V4 API instead'
+      "Cannot recreate admin_boundaries table - use Mapbox Streets V4 API instead"
   end
 end

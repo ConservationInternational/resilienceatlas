@@ -1,4 +1,5 @@
 require "rails_helper"
+require "tmpdir"
 
 RSpec.describe VectorUploadProcessor do
   let(:data_import) do
@@ -133,20 +134,19 @@ RSpec.describe VectorUploadProcessor do
   end
 
   it "rejects ZIP entries that attempt path traversal" do
-    work_dir = Rails.root.join("spec/fixtures/files/vector_upload_zip_spec")
-    FileUtils.mkdir_p(work_dir)
-    archive_path = work_dir.join("traversal.zip")
-    Zip::OutputStream.open(archive_path.to_s) do |zip|
-      zip.put_next_entry("../roads.shp")
-      zip.write("not a shapefile")
-    end
+    Dir.mktmpdir("vector-upload-zip-") do |dir|
+      work_dir = Pathname.new(dir)
+      archive_path = work_dir.join("traversal.zip")
+      Zip::OutputStream.open(archive_path.to_s) do |zip|
+        zip.put_next_entry("../roads.shp")
+        zip.write("not a shapefile")
+      end
 
-    processor = described_class.new(data_import, work_dir: work_dir, storage: double("storage"))
-    expect {
-      processor.send(:extract_shapefile_archive, archive_path)
-    }.to raise_error(ArgumentError, "ZIP upload contains a path traversal")
-  ensure
-    FileUtils.rm_rf(work_dir) if work_dir
+      processor = described_class.new(data_import, work_dir: work_dir, storage: double("storage"))
+      expect {
+        processor.send(:extract_shapefile_archive, archive_path)
+      }.to raise_error(ArgumentError, "ZIP upload contains a path traversal")
+    end
   end
 end
 

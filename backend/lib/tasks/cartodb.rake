@@ -708,12 +708,10 @@ module CartodbRakeHelpers
       else
         view_sql.sub(/(\)\s*\n?\s*)(SELECT\s+)/im, "\\1SELECT #{geom_ref}, ")
       end
+    elsif view_sql.match?(distinct_on_pat)
+      view_sql.sub(distinct_on_pat, "SELECT \\1#{geom_ref}, ")
     else
-      if view_sql.match?(distinct_on_pat)
-        view_sql.sub(distinct_on_pat, "SELECT \\1#{geom_ref}, ")
-      else
-        view_sql.sub(/\bSELECT\s+/i, "SELECT #{geom_ref}, ")
-      end
+      view_sql.sub(/\bSELECT\s+/i, "SELECT #{geom_ref}, ")
     end
   end
 

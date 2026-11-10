@@ -1,13 +1,14 @@
 require "spec_helper"
 require "ostruct"
 require "open3"
+require "tmpdir"
 require_relative "../../app/services/upload_command"
 require_relative "../../app/services/raster_upload_processor"
 
 RSpec.describe RasterUploadProcessor do
   let(:data_import) { OpenStruct.new(id: 42, import_type: "cog", options: {"raster_kind" => "continuous"}, metadata: {"existing" => true}) }
   let(:storage) { double("storage", bucket: "rasters") }
-  let(:work_dir) { Pathname.new(__dir__).join("raster-work-#{SecureRandom.uuid}") }
+  let(:work_dir) { Pathname.new(Dir.mktmpdir("raster-work-")) }
   let(:source_path) { work_dir.join("source ; not a command.tif") }
   let(:processor) { described_class.new(data_import, work_dir: work_dir, storage: storage) }
   let(:input_info) do
@@ -28,7 +29,6 @@ RSpec.describe RasterUploadProcessor do
   let(:commands) { [] }
 
   before do
-    FileUtils.mkdir_p(work_dir)
     File.write(source_path, "input raster")
     allow(UploadCommand).to receive(:run) do |*argv, **kwargs|
       commands << [argv, kwargs]
