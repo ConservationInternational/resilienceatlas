@@ -5,7 +5,7 @@ class Api::Admin::ScopeDatasetsController < Api::Admin::ApiController
 
   # GET /api/admin/scope_datasets?site_scope_id=1
   def index
-    scope = ScopeDataset.all
+    scope = ScopeDataset.accessible_by(current_ability, :read)
     scope = scope.for_site_scope(params[:site_scope_id]) if params[:site_scope_id].present?
     scope = scope.ordered
     # Omit the large :data column in list view — use show for full record
@@ -30,12 +30,15 @@ class Api::Admin::ScopeDatasetsController < Api::Admin::ApiController
 
   # POST /api/admin/scope_datasets
   def create
-    @scope_dataset = ScopeDataset.create!(scope_dataset_params)
+    @scope_dataset = ScopeDataset.new(scope_dataset_params)
+    authorize! :create, @scope_dataset
+    @scope_dataset.save!
     render json: {success: true, message: "Scope Dataset Created Successfully", data: @scope_dataset.as_json}, status: :ok
   end
 
   # PATCH /api/admin/scope_datasets/:id
   def update
+    authorize! :update, @scope_dataset
     @scope_dataset.update!(scope_dataset_update_params)
     render json: {success: true, message: "Scope Dataset Updated Successfully", data: @scope_dataset.as_json}, status: :ok
   end
@@ -44,6 +47,7 @@ class Api::Admin::ScopeDatasetsController < Api::Admin::ApiController
 
   def load_scope_dataset
     @scope_dataset = ScopeDataset.find(params[:id])
+    authorize! :read, @scope_dataset
   end
 
   # Full permitted params for create (data required by model validation)

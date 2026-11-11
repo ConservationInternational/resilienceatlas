@@ -128,7 +128,7 @@ function initializeSpatialUpload() {
       if (!file) throw new Error("Choose a file.");
       if (!session) {
         session = await json(base, "POST", {
-          import_type: el("type").value, mode: el("mode").value, layer_id: root.dataset.layerId,
+          import_type: el("type").value, mode: el("mode").value, layer_id: root.dataset.layerId, site_scope_id: el("site-scope").value,
           name: el("name").value, slug: el("slug").value, file_name: file.name, file_size_bytes: file.size
         });
         const url = new URL(window.location.href);

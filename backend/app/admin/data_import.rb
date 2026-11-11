@@ -13,6 +13,7 @@ ActiveAdmin.register DataImport do
     if @resume && (@resume.admin_user_id != current_admin_user.id || !@resume.managed_upload?)
       raise CanCan::AccessDenied
     end
+    Ability.new(current_admin_user).authorize_upload!(@resume, read_only: true) if @resume
     render :upload
   end
 
@@ -61,6 +62,7 @@ ActiveAdmin.register DataImport do
 
   # Retain the existing nonspatial form endpoint, independently of spatial uploads.
   collection_action :upload_file, method: :post do
+    raise CanCan::AccessDenied unless current_admin_user.superadmin?
     file = params[:file]
     unless params[:upload_type] == "nonspatial" && file.present?
       redirect_to upload_admin_data_imports_path, alert: "Use the upload workspace for vector and raster files."

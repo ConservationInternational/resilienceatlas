@@ -16,4 +16,8 @@ class ModelSerializer < ActiveModel::Serializer
   attributes :name, :description, :source, :query_analysis, :table_name
   has_many :site_scopes, each_serializer: SiteScopeSerializer
   has_many :indicators, each_serializer: IndicatorSerializer
+
+  def site_scopes
+    object.site_scopes.where(id: instance_options[:site_scope])
+  end
 end

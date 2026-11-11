@@ -9,6 +9,7 @@ import os
 from typing import Any
 
 import ee
+from shared.data_access import resource_authorized
 
 # Import shared utilities (copied into function directory during build)
 from shared.ee_utils import (
@@ -103,6 +104,9 @@ def handler(event: dict, context: Any) -> dict[str, Any]:
         
         if not asset_id:
             return error_response(400, "Missing required parameter: asset_id")
+        if not resource_authorized(asset_id, event.get("headers")):
+            logger.warning("Rejected unauthorized Earth Engine point request")
+            return error_response(403, "Asset is not approved for this request")
         
         if not point_str:
             return error_response(400, "Missing required parameter: point")
@@ -112,6 +116,10 @@ def handler(event: dict, context: Any) -> dict[str, Any]:
             point = json.loads(point_str)
             if not isinstance(point, list) or len(point) != 2:
                 raise ValueError("Point must be [longitude, latitude]")
+            if not all(isinstance(value, (int, float)) and not isinstance(value, bool) for value in point):
+                raise ValueError("Coordinates must be numbers")
+            if not -180 <= point[0] <= 180 or not -90 <= point[1] <= 90:
+                raise ValueError("Coordinates out of range")
         except (json.JSONDecodeError, ValueError) as e:
             return error_response(
                 400, 

@@ -1,5 +1,10 @@
 # TiTiler COGs - Dynamic Tile Server
 
+**Security:** a bucket whitelist is not authorization. Private sources require
+short-lived server signatures issued by the scope-authenticated Rails gateway.
+Do not use older direct-client/cache examples below for private data. Follow the
+[coordinated rollout and required secrets](../README.md#data-authorization-and-coordinated-rollout).
+
 ## What is TiTiler?
 
 [TiTiler](https://developmentseed.org/titiler/) is a dynamic tile server for Cloud Optimized GeoTIFFs (COGs). It renders map tiles on-the-fly from raster data stored in S3, eliminating the need to pre-generate tile pyramids.

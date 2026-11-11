@@ -1,13 +1,23 @@
 = semantic_form_for [:admin, resource], builder: ActiveAdmin::FormBuilder do |f|
   = f.semantic_errors :timeline_steps, :analysis_type
   / Config element passes frontend URL to admin preview JavaScript
-  div#layer-preview-config data-frontend-url=ENV.fetch('FRONTEND_URL', '') style="display:none"
+  - preview_scope = resource.persisted? ? resource.site_scopes.first : nil
+  - preview_query = preview_scope ? { site_scope: preview_scope.subdomain, admin_preview_token: AdminPreviewAccess.issue(resource, current_admin_user) }.to_query : nil
+  div#layer-preview-config data-frontend-url=ENV.fetch('FRONTEND_URL', '') data-preview-query=preview_query data-layer-id=(resource.id if resource.persisted?) data-backend-url=request.base_url style="display:none"
+  p Preview uses the saved data source. Save source changes as an unpublished draft before previewing; unsaved styling can be previewed immediately.
   = f.inputs "Layer metadata" do
+    - if resource.new_record? && !current_admin_user.superadmin?
+      li.input.select
+        = label_tag :site_scope_id, "Site scope"
+        = select_tag :site_scope_id, options_from_collection_for_select(current_admin_user.allowed_site_scopes, :id, :name), required: true
     li.input.string
       = f.label :slug
       span.inline-hint Required. Unique alphanumeric identifier with hyphens/underscores (e.g., 'rainfall-data' or 'crop_yield')
       = f.text_field :slug
-    = f.input :published
+    - unless current_admin_user.contributor?
+      = f.input :published
+    - if current_admin_user.superadmin?
+      = f.input :public_data, hint: "Explicitly approve underlying data for anonymous serving. Never enable for confidential data."
     = f.inputs "Translated fields" do
       = f.translated_inputs switch_locale: false do |ff|
         = ff.input :id, as: :hidden

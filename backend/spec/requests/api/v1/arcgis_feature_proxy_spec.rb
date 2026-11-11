@@ -3,7 +3,13 @@ require "rails_helper"
 RSpec.describe "ArcGIS feature proxy", type: :request do
   let(:arcgis_url) { "https://services.arcgis.com/example/arcgis/rest/services/Roads/FeatureServer/0" }
   let(:body) { {"url" => arcgis_url, "token" => "server-token"} }
-  let(:layer) { create(:layer, layer_provider: "arcgis_feature", layer_config: {"body" => body}.to_json) }
+  let(:scope) { create(:site_scope) }
+  before { host! "#{scope.subdomain}.example.org" }
+  let(:layer) do
+    create(:layer, published: true, layer_provider: "arcgis_feature", layer_config: {"body" => body}.to_json).tap do |record|
+      create(:agrupation, layer: record, layer_group: create(:layer_group, site_scope: scope))
+    end
+  end
   let(:endpoint) { "/api/arcgis-feature-proxy/#{layer.id}/query" }
   let(:features) { {"features" => []}.to_json }
 

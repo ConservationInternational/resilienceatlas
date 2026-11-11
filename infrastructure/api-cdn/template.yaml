@@ -56,7 +56,7 @@ Resources:
             - GET
             - HEAD
           Compress: true
-          CachePolicyId: !Ref ApiCachePolicy
+          CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad
           OriginRequestPolicyId: !Ref ApiOriginRequestPolicy
         CacheBehaviors:
           # Health check endpoint — bypass cache
@@ -219,14 +219,9 @@ Resources:
         Name: !Sub "${AWS::StackName}-ApiOriginRequestPolicy"
         Comment: "Forward Host + auth headers to ALB for API routing"
         CookiesConfig:
-          CookieBehavior: none
+          CookieBehavior: all
         HeadersConfig:
-          HeaderBehavior: whitelist
-          Headers:
-            - Host              # Required: ALB routes by Host header
-            - Origin            # Required: CORS preflight
-            - Site-Scope-Token  # Required: password-protected site scope auth
-            - Authorization     # Required: user auth (admin, downloads)
+          HeaderBehavior: allViewer
         QueryStringsConfig:
           QueryStringBehavior: all  # Forward all query params to origin
 

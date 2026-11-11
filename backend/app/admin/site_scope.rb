@@ -37,7 +37,8 @@ ActiveAdmin.register SiteScope do
   filter :latitude
   filter :longitude
 
-  member_action :duplicate, only: :show, method: :get do
+  member_action :duplicate, only: :show, method: :post do
+    authorize! :create, SiteScope
     n = resource.clone!
 
     redirect_to edit_admin_site_scope_path(n)
@@ -142,7 +143,7 @@ ActiveAdmin.register SiteScope do
     column :password_protected
 
     actions defaults: true do |site_scope|
-      link_to "Duplicate", duplicate_admin_site_scope_path(site_scope)
+      link_to "Duplicate", duplicate_admin_site_scope_path(site_scope), data: {method: :post} if authorized?(:create, SiteScope)
     end
   end
 

@@ -99,6 +99,7 @@ def cors_headers(origin: str = "*") -> dict[str, str]:
         "Access-Control-Allow-Headers": "Content-Type, Authorization",
         "Access-Control-Max-Age": "3600",
         "Content-Type": "application/json",
+        "Cache-Control": "private, no-store",
     }
 
 

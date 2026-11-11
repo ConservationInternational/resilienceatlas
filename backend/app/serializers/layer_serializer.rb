@@ -82,12 +82,19 @@ class LayerSerializer < ActiveModel::Serializer
 
   def layer_config
     raw = object.layer_config
+    if object.layer_provider == "gee"
+      config = JSON.parse(raw.presence || "{}")
+      config["body"] ||= {}
+      config["body"]["url"] = "/api/earth-engine/tiles/#{object.id}/{z}/{x}/{y}"
+      return config.to_json
+    end
     return raw unless object.layer_provider == "arcgis_feature"
 
     begin
       config = JSON.parse(raw || "{}")
     rescue JSON::ParserError
-      return raw
+      Rails.logger.error "[LayerSerializer] Invalid ArcGIS configuration for layer #{object.id}"
+      return "{}"
     end
 
     body = config["body"]
@@ -95,6 +102,23 @@ class LayerSerializer < ActiveModel::Serializer
 
     body.delete("token")
     body["useProxy"] = true
+    config.to_json
+  end
+
+  def analysis_query
+    return object.analysis_query unless object.layer_provider == "gee" && object.analysis_query.present?
+
+    "/api/earth-engine/histogram?layer_id=#{object.id}"
+  end
+
+  def interaction_config
+    return object.interaction_config unless object.layer_provider == "gee"
+
+    config = JSON.parse(object.interaction_config.presence || "{}")
+    if config.dig("config", "url").present?
+      query = config["config"]["url"].split("?", 2).last
+      config["config"]["url"] = "/api/earth-engine/raster?layer_id=#{object.id}&#{query}"
+    end
     config.to_json
   end
 

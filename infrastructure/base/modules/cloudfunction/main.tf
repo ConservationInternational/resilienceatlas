@@ -78,21 +78,13 @@ resource "google_cloudfunctions2_function" "function" {
   }
 }
 
-data "google_iam_policy" "noauth" {
-  binding {
-    role    = "roles/run.invoker"
-    members = [
-      "allUsers",
-    ]
-  }
-}
-
 resource "google_cloud_run_service_iam_policy" "noauth" {
   location = google_cloudfunctions2_function.function.location
   project  = google_cloudfunctions2_function.function.project
   service  = google_cloudfunctions2_function.function.service_config[0].service
 
-  policy_data = data.google_iam_policy.noauth.policy_data
+  # Retain the resource address so applying revokes the legacy allUsers grant.
+  policy_data = jsonencode({ version = 1, bindings = [] })
 
   depends_on = [
     google_cloudfunctions2_function.function,

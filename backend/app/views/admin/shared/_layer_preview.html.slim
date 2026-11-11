@@ -48,12 +48,48 @@ javascript:
         var query = (document.querySelector('textarea[name="layer[query]"]') || {}).value || '';
         var css = (document.querySelector('textarea[name="layer[css]"]') || {}).value || '';
         var layerConfig = (document.querySelector('textarea[name="layer[layer_config]"]') || {}).value || '';
+        if (layerConfig) {
+          var parsed = JSON.parse(layerConfig);
+          parsed.body = parsed.body || {};
+          if (['cog', 'gee', 'martin', 'arcgis_feature'].indexOf(provider) !== -1 &&
+              !configEl.dataset.previewQuery) {
+            throw new Error('Save this layer in an assigned site scope before previewing it.');
+          }
+          if (configEl.dataset.previewQuery) {
+            parsed.body.preview_query = configEl.dataset.previewQuery;
+            if (provider === 'martin') {
+              parsed.body.gateway_tile_url = configEl.dataset.backendUrl + '/api/layers/' +
+                configEl.dataset.layerId + '/tiles/{z}/{x}/{y}?' + configEl.dataset.previewQuery;
+            }
+            if (provider === 'gee') {
+              parsed.body.url = configEl.dataset.backendUrl + '/api/earth-engine/tiles/' +
+                configEl.dataset.layerId + '/{z}/{x}/{y}?' + configEl.dataset.previewQuery;
+            }
+          }
+          if (provider === 'arcgis_feature' && parsed.body.token) {
+            if (!configEl.dataset.layerId) throw new Error('Save this authenticated layer before previewing it.');
+            delete parsed.body.token;
+            parsed.body.url = configEl.dataset.backendUrl + '/api/arcgis-feature-proxy/' + configEl.dataset.layerId;
+            parsed.body.params = parsed.body.params || {};
+            new URLSearchParams(configEl.dataset.previewQuery).forEach(function(value, key) {
+              parsed.body.params[key] = value;
+            });
+          }
+          layerConfig = JSON.stringify(parsed);
+        }
         return { provider: provider, query: query, css: css, layer_config: layerConfig };
       }
 
       function sendLayerToIframe() {
         if (!previewIframe || !previewIframe.contentWindow) return;
-        var vals = getFormValues();
+        var vals;
+        try {
+          vals = getFormValues();
+        } catch (error) {
+          console.error('Layer preview configuration error:', error);
+          window.alert(error.message);
+          return;
+        }
         previewIframe.contentWindow.postMessage(
           {
             type: 'LAYER_PREVIEW',
@@ -96,15 +132,11 @@ javascript:
 
         if (!previewIframe) {
           var adminOrigin = encodeURIComponent(window.location.origin);
-          // Encode current form values in the URL so the iframe shows immediately on mount,
-          // avoiding the postMessage race condition.
-          var vals = getFormValues();
-          var layerData = '';
-          try { layerData = btoa(JSON.stringify({ type: 'LAYER_PREVIEW', provider: vals.provider, query: vals.query, css: vals.css, layer_config: vals.layer_config, carto_account: cartoAccount })); } catch(e) {}
-          var iframeSrc = frontendUrl + '/admin-preview/layer?adminOrigin=' + adminOrigin + (layerData ? '&data=' + layerData : '');
+          var iframeSrc = frontendUrl + '/admin-preview/layer?adminOrigin=' + adminOrigin;
           previewIframe = document.createElement('iframe');
           previewIframe.src = iframeSrc;
           previewIframe.className = 'layer-preview-iframe';
+          previewIframe.referrerPolicy = 'no-referrer';
           previewIframe.onload = function() { sendLayerToIframe(); };
           previewPanel.appendChild(previewIframe);
           attachFormListeners();
@@ -112,6 +144,14 @@ javascript:
           sendLayerToIframe();
         }
       };
+
+      window.addEventListener('message', function(event) {
+        if (previewIframe && event.source === previewIframe.contentWindow &&
+            event.origin === new URL(frontendUrl).origin && event.data &&
+            event.data.type === 'LAYER_PREVIEW_READY') {
+          sendLayerToIframe();
+        }
+      });
 
       previewContainer.appendChild(previewBtn);
       previewContainer.appendChild(previewPanel);

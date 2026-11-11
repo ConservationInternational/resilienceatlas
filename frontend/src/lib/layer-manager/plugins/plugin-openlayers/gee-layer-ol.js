@@ -1,16 +1,12 @@
 import { replace } from '../../utils/query';
 import TileLayer from 'ol/layer/Tile';
 import XYZ from 'ol/source/XYZ';
+import { scopeDataUrl } from 'utilities/scopeDataUrl';
 
 /**
  * GEE (Google Earth Engine) tile layer handler for OpenLayers.
  *
- * Phase 1: Uses the static tile URL from layerConfig.body.url directly.
- * Phase 5a will add a backend proxy (GET /api/v1/gee/tile-url?layer_id=) that
- * issues fresh URLs with 55-minute caching, replacing the static approach.
- *
- * The current GEE tile URLs from the DB already contain the access token baked in.
- * Token refresh via 403-retry will be wired in when the backend proxy is available.
+ * The API supplies a scope-authenticated gateway URL, not an Earth Engine token.
  *
  * Layers with a decodeFunction (e.g. SPARC visualizer layers) use a custom
  * tileLoadFunction that applies canvas-based pixel decoding to every tile.
@@ -63,7 +59,7 @@ const GEELayerOL = (layerModel) => {
       : undefined;
 
     const sourceOptions = {
-      url,
+      url: scopeDataUrl(url),
       crossOrigin: 'anonymous',
       tileSize: options.tileSize || 256,
     };

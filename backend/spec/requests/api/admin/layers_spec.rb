@@ -2,6 +2,14 @@ require "swagger_helper"
 
 RSpec.describe "API Admin Layers", type: :request do
   let(:token) { "SECRET_API_KEY" }
+  let(:actor) { create(:admin_user, role: "superadmin") }
+  let("X-Admin-User-Id") { actor.id.to_s }
+  before do |example|
+    parameters = example.metadata.dig(:operation, :parameters)
+    if parameters&.none? { |parameter| parameter[:name] == "X-Admin-User-Id" }
+      parameters.push({name: "X-Admin-User-Id", in: :header, schema: {type: :string}, required: true})
+    end
+  end
 
   before { stub_const("ENV", ENV.to_hash.merge("RESILIENCE_API_KEY" => token)) }
 

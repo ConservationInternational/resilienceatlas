@@ -12,5 +12,10 @@
 
 class CategorySerializer < ActiveModel::Serializer
   attributes :name, :slug, :description
-  has_many :indicators, each_serializer: ModelSerializer
+  has_many :indicators, each_serializer: IndicatorSerializer
+
+  def indicators
+    object.indicators.joins(models: :site_scopes)
+      .where(site_scopes: {id: instance_options[:site_scope]}).distinct
+  end
 end

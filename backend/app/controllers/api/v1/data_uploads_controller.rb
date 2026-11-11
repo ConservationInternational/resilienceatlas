@@ -3,7 +3,7 @@ require "aws-sdk-s3"
 module Api
   module V1
     class DataUploadsController < ApplicationController
-      before_action :authenticate_admin_user!
+      before_action :authenticate_admin_user!, unless: :upload_preview?
       before_action :find_upload, except: :create
       rescue_from ArgumentError, KeyError, JSON::ParserError, ActiveRecord::RecordInvalid, with: :invalid_upload
       rescue_from CanCan::AccessDenied do
@@ -19,7 +19,7 @@ module Api
 
       def create
         @upload = SpatialUploadLifecycle.create!(current_admin_user,
-          params.permit(:import_type, :file_name, :file_size_bytes, :mode, :layer_id,
+          params.permit(:import_type, :file_name, :file_size_bytes, :mode, :layer_id, :site_scope_id,
             :name, :slug, :raster_kind).to_h)
         render json: payload, status: :created
       end
@@ -78,32 +78,47 @@ module Api
       def tile
         raise ArgumentError, "Dataset not ready" unless @upload.ready? || @upload.complete?
         response = UploadTileService.new(@upload).tile(Integer(params[:z]), Integer(params[:x]), Integer(params[:y]))
+        self.response.cache_control.replace(no_store: true, private: true)
         send_data response.body, type: @upload.type_vector? ? "application/vnd.mapbox-vector-tile" : "image/png", disposition: "inline"
       end
 
       def point
         raise ArgumentError, "Dataset not ready" unless @upload.ready? || @upload.complete?
         response = UploadTileService.new(@upload).point(Float(params[:lon]), Float(params[:lat]))
+        self.response.cache_control.replace(no_store: true, private: true)
         render json: JSON.parse(response.body)
       end
 
       private
 
+      def upload_preview?
+        return false unless action_name == "tile"
+
+        @preview_upload = AdminPreviewAccess.resolve(params[:admin_preview_token], DataImport)
+        @preview_upload && @preview_upload.id.to_s == params[:id]
+      end
+
       def find_upload
-        @upload = DataImport.find(params[:id])
-        ability = Ability.new(current_admin_user)
-        raise CanCan::AccessDenied unless @upload.managed_upload? && @upload.admin_user_id == current_admin_user.id
-        raise CanCan::AccessDenied unless ability.can?(:manage, DataImport)
-        raise CanCan::AccessDenied if @upload.importable && !ability.can?(:update, @upload.importable)
+        @upload = @preview_upload || DataImport.find(params[:id])
+        actor = @preview_upload ? @preview_upload.admin_user : current_admin_user
+        raise CanCan::AccessDenied unless @upload.managed_upload?
+        Ability.new(actor).authorize_upload!(@upload, read_only: %w[show tile point].include?(action_name))
       end
 
       def payload
         @upload.reload
+        configuration = UploadLayerConfiguration.new(@upload).attributes if @upload.ready? || @upload.complete?
+        if configuration
+          config = JSON.parse(configuration.fetch(:layer_config))
+          config["body"] ||= {}
+          config["body"]["gateway_tile_url"] = "#{request.base_url}/api/uploads/sessions/#{@upload.id}/tiles/{z}/{x}/{y}?admin_preview_token=#{AdminPreviewAccess.issue(@upload, current_admin_user)}"
+          configuration[:layer_config] = config.to_json
+        end
         {id: @upload.id, status: @upload.status, stage: @upload.stage, file_name: @upload.file_name,
          file_size_bytes: @upload.file_size_bytes, import_type: @upload.import_type,
          metadata: @upload.metadata, options: @upload.options, error: @upload.error_message,
          upload_id: @upload.upload_id, key: @upload.s3_key,
-         configuration: (@upload.ready? || @upload.complete?) ? UploadLayerConfiguration.new(@upload).attributes : nil,
+         configuration: configuration,
          rollback_available: @upload.previous_configuration.present?,
          layer_url: @upload.importable.is_a?(Layer) ? admin_layer_path(@upload.importable) : nil}
       end

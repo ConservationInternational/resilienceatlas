@@ -9,7 +9,21 @@ ActiveAdmin.register LayerGroup do
     :site_scope_id, agrupations_attributes: [:layer_id, :id, :active, :_destroy],
     translations_attributes: [:id, :locale, :name, :info, :_destroy]
 
-  member_action :duplicate, only: :show, method: :get do
+  controller do
+    def save_resource(resource)
+      authorize! resource.new_record? ? :create : :update, resource
+      resource.agrupations.each do |assignment|
+        authorize! :update, assignment.layer
+      end
+      if resource.super_group_id.present? && resource.super_group.site_scope_id != resource.site_scope_id
+        raise CanCan::AccessDenied
+      end
+      super
+    end
+  end
+
+  member_action :duplicate, only: :show, method: :post do
+    authorize! :update, resource
     n = resource.clone!
 
     redirect_to edit_admin_layer_group_path(n)
@@ -29,10 +43,10 @@ ActiveAdmin.register LayerGroup do
       f.has_many :agrupations, allow_destroy: true do |deg|
         deg.input :layer,
           as: :select,
-          collection: Layer.with_translations.sort_by(&:name).map { |l| ["#{l.name} - id: #{l.id}", l.id] }
+          collection: Layer.accessible_by(current_ability, :update).with_translations.sort_by(&:name).map { |l| ["#{l.name} - id: #{l.id}", l.id] }
         deg.input :active
       end
-      f.input :site_scope
+      f.input :site_scope, collection: SiteScope.accessible_by(current_ability, :read)
     end
     f.inputs "Layer Group Details" do
       f.input :slug
@@ -49,7 +63,7 @@ ActiveAdmin.register LayerGroup do
             .sort_by(&:name)
             .map { |lg| ["#{lg.name} - #{lg.id}", lg.id] }
         end,
-        input_html: {"data-site-scope-groups": LayerGroup.with_translations.group_by(&:site_scope_id).transform_values { |groups|
+        input_html: {"data-site-scope-groups": LayerGroup.accessible_by(current_ability, :read).with_translations.group_by(&:site_scope_id).transform_values { |groups|
           groups.sort_by(&:name).map { |lg| {id: lg.id, name: "#{lg.name} - #{lg.id}"} }
         }.to_json}
       # f.input :icon_class
@@ -120,7 +134,7 @@ ActiveAdmin.register LayerGroup do
     column :order
     column :updated_at
     actions defaults: true do |layer_group|
-      link_to "Duplicate", duplicate_admin_layer_group_path(layer_group)
+      link_to "Duplicate", duplicate_admin_layer_group_path(layer_group), data: {method: :post} if authorized?(:update, layer_group)
     end
   end
 end

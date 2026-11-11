@@ -3,6 +3,15 @@ Transform: AWS::Serverless-2016-10-31
 Description: 'SAM Template for titiler-cogs using Python 3.14 (Amazon Linux 2023) with CloudFront CDN'
 
 Parameters:
+  DataGatewaySecret:
+    Type: String
+    NoEcho: true
+    MinLength: 32
+    Description: Shared signing secret used only by Rails and data services
+  PublicSourceUrls:
+    Type: String
+    Default: ''
+    Description: Comma-separated exact COG URIs explicitly approved for anonymous access
   FQDN:
     Type: String
     Description: Fully qualified domain name (www.example.com) to use for the Lambda function.
@@ -67,6 +76,8 @@ Resources:
             RestApiId: !Ref RestApiGateway
       Environment:
         Variables:
+          DATA_GATEWAY_SECRET: !Ref DataGatewaySecret
+          TITILER_PUBLIC_URLS: !Ref PublicSourceUrls
           CPL_VSIL_CURL_ALLOWED_EXTENSIONS: .tif,.TIF,.tiff
           GDAL_CACHEMAX: 200
           GDAL_DISABLE_READDIR_ON_OPEN: EMPTY_DIR
@@ -139,7 +150,7 @@ Resources:
             - GET
             - HEAD
           Compress: true
-          CachePolicyId: !Ref TileCachePolicy
+          CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad
           OriginRequestPolicyId: !Ref TileOriginRequestPolicy
         CacheBehaviors:
           # Health check - no caching
@@ -193,6 +204,7 @@ Resources:
             - Accept
             - Origin
             - Referer
+            - X-Data-Authorization
         QueryStringsConfig:
           QueryStringBehavior: all
 

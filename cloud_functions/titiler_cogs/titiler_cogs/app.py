@@ -1,6 +1,9 @@
 import logging
 import os
 import re
+import hashlib
+import hmac
+import time
 from urllib.parse import urlparse
 from mangum import Mangum
 from rio_tiler.colormap import cmap as default_cmap
@@ -223,6 +226,9 @@ class BucketWhitelistMiddleware(BaseHTTPMiddleware):
         url_param = request.query_params.get("url")
         if url_param:
             try:
+                if not resource_authorized(url_param, request.headers.get("x-data-authorization", "")):
+                    logging.warning("Rejected unauthorized COG source request")
+                    return JSONResponse(content={"detail": "Source is not approved for this request"}, status_code=403)
                 if not is_url_allowed(url_param):
                     return JSONResponse(
                         content={
@@ -240,6 +246,25 @@ class BucketWhitelistMiddleware(BaseHTTPMiddleware):
                 )
         
         return await call_next(request)
+
+
+def resource_authorized(resource: str, token: str) -> bool:
+    public = {value.strip() for value in os.environ.get("TITILER_PUBLIC_URLS", "").split(",") if value.strip()}
+    if resource in public:
+        return True
+    secret = os.environ.get("DATA_GATEWAY_SECRET", "")
+    if len(secret.encode()) < 32:
+        return False
+    try:
+        expires_text, digest = token.split(":", 1)
+        expires = int(expires_text)
+    except (ValueError, AttributeError):
+        return False
+    now = int(time.time())
+    if not now < expires <= now + 90 or not re.fullmatch(r"[a-f0-9]{64}", digest):
+        return False
+    expected = hmac.new(secret.encode(), f"{expires}\n{resource}".encode(), hashlib.sha256).hexdigest()
+    return hmac.compare_digest(expected, digest)
 
 
 # ──────────────────────────────────────────────────────────────
@@ -410,7 +435,7 @@ app.add_middleware(BucketWhitelistMiddleware)
 
 app.add_middleware(
 	CacheControlMiddleware,
-	cachecontrol="public, max-age=3600",
+	cachecontrol="private, no-store",
 	cachecontrol_max_http_code=400,
 	exclude_path={r"/healthz"},
 )

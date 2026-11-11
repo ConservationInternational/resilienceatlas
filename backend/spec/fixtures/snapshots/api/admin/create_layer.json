@@ -52,6 +52,7 @@
     "timeline_end_date": null,
     "timeline_default_date": null,
     "timeline_period": "yearly",
-    "analysis_type": "histogram"
+    "analysis_type": "histogram",
+    "public_data": false
   }
 }

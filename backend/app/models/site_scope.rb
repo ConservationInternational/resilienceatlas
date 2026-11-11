@@ -113,7 +113,7 @@ class SiteScope < ApplicationRecord
 
   # Check if a site scope requires authentication
   def requires_authentication?
-    password_protected? && username.present? && encrypted_password.present?
+    password_protected?
   end
 
   # Retrieve the viewable (decrypted) password for admin display

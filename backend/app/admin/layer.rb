@@ -7,29 +7,49 @@ ActiveAdmin.register Layer do
 
   includes :translations
 
-  permit_params :name, :slug, :published, :zindex, :order, :layer_config, :layer_provider, :opacity,
-    :legend, :zoom_max, :zoom_min, :dashboard_order, :source_id, :data_units, :analysis_suitable, :analysis_type,
-    :timeline, :timeline_steps, :timeline_start_date, :timeline_end_date, :timeline_default_date,
-    :timeline_period, :analysis_query, :analysis_body, :interaction_config, :processing, :download,
-    :description,
-    source_ids: [],
-    translations_attributes: [:id, :locale, :name, :legend, :data_units, :processing, :description, :analysis_text_template,
-      :_destroy]
+  permit_params do
+    attributes = [:name, :slug, :published, :zindex, :order, :layer_config, :layer_provider, :opacity,
+      :legend, :zoom_max, :zoom_min, :dashboard_order, :source_id, :data_units, :analysis_suitable, :analysis_type,
+      :timeline, :timeline_steps, :timeline_start_date, :timeline_end_date, :timeline_default_date,
+      :timeline_period, :analysis_query, :analysis_body, :interaction_config, :processing, :download,
+      :description,
+      source_ids: [],
+      translations_attributes: [:id, :locale, :name, :legend, :data_units, :processing, :description, :analysis_text_template,
+        :_destroy]]
+    attributes << :public_data if current_admin_user.superadmin?
+    attributes
+  end
 
   controller do
     def save_resource(resource)
+      resource.public_data = false unless current_admin_user.superadmin?
+      if resource.new_record? && !current_admin_user.superadmin?
+        scope = SiteScope.find(params[:site_scope_id])
+        raise CanCan::AccessDenied unless current_admin_user.allowed_site_scope_ids.include?(scope.id)
+
+        resource.published = false if current_admin_user.contributor?
+      else
+        authorize! :update, resource
+      end
       resource.timeline_steps = params["layer"]["timeline_steps"].to_s.split(",").map do |date|
         Date.strptime date.strip, "%Y-%m-%d"
       end
-      super
+      Layer.transaction do
+        saved = super
+        Api::Admin::LayersManager.new(resource, scope.id).link_layer_group if saved && scope
+        saved
+      end
     rescue Date::Error
       resource.errors.add :timeline_steps, "Invalid date format"
       false
     end
   end
 
-  member_action :duplicate, only: :show, method: :get do
+  member_action :duplicate, only: :show, method: :post do
+    authorize! :update, resource
+    authorize! :create, Layer
     n = resource.clone!
+    Api::Admin::LayersManager.new(n, resource.site_scopes.first&.id).link_layer_group
     redirect_to edit_admin_layer_path(n)
   end
 
@@ -58,11 +78,13 @@ ActiveAdmin.register Layer do
   filter :site_scopes, as: :select, collection: proc { SiteScope.with_translations.sort_by(&:name).map { |m| [m.name, m.id] } }
 
   member_action :publish, method: :put do
+    authorize! :update, resource
     resource.update! published: true
     redirect_to resource_path, notice: "Layer was published!"
   end
 
   member_action :unpublish, method: :put do
+    authorize! :update, resource
     resource.update! published: false
     redirect_to resource_path, notice: "Layer was marked as not published!"
   end
@@ -91,7 +113,7 @@ ActiveAdmin.register Layer do
     column :slug
     column :published
     actions defaults: true do |layer|
-      link_to "Duplicate", duplicate_admin_layer_path(layer)
+      link_to "Duplicate", duplicate_admin_layer_path(layer), data: {method: :post} if authorized?(:update, layer)
     end
   end
 
@@ -108,7 +130,7 @@ ActiveAdmin.register Layer do
       row :download
       row :layer_provider
       row :layer_config do |record|
-        render "admin/shared/json_display", json: record.layer_config if record.layer_config.present?
+        render "admin/shared/json_display", json: LayerSerializer.new(record).layer_config if record.layer_config.present?
       end
       row :opacity
       row :zindex

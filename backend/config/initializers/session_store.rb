@@ -2,6 +2,6 @@
 
 Rails.application.config.session_store :cookie_store,
   key: "_neptis_session",
-  secure: Rails.env.production?,  # HTTPS-only cookie in production
+  secure: Rails.env.production? || Rails.env.staging?,
   http_only: true,                 # Not accessible from JavaScript
   same_site: :lax                  # Prevents CSRF from cross-site requests

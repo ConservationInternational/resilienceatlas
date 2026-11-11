@@ -1,17 +1,29 @@
 import { fetchCogBounds, CANCELED } from '../../services/cog-service';
 import { replace } from '../../utils/query';
-import { getTitilerBaseUrl } from '../../../../utilities/environment';
+import { getApiBaseUrl, getTitilerBaseUrl } from '../../../../utilities/environment';
+import { scopeDataUrl } from '../../../../utilities/scopeDataUrl';
 import LayerGroup from 'ol/layer/Group';
 import TileLayer from 'ol/layer/Tile';
 import XYZ from 'ol/source/XYZ';
 
 /**
  * Build the TiTiler tile URL from layer config (identical logic to cog-layer-leaflet).
- * COG tiles go directly browser → TiTiler (bypassing Rails), CloudFront-cached.
+ * All source reads go through the scope-authorized Rails gateway.
  */
 function buildSingleTitilerUrl(layerConfig, sourceOverride) {
   const { body } = layerConfig;
-  if (body.url && !sourceOverride) return body.url;
+  if (body.gateway_tile_url) return body.gateway_tile_url;
+  if (body.url && !sourceOverride) {
+    const legacy = new URL(body.url);
+    const cogUrl = legacy.searchParams.get('url');
+    if (!cogUrl) throw new Error('Legacy COG configuration is missing its source URL.');
+    legacy.searchParams.delete('url');
+    return scopeDataUrl(
+      `${getApiBaseUrl()}/api/titiler/tiles/{z}/{x}/{y}?titilerUrl=${encodeURIComponent(
+        legacy.origin,
+      )}&cogUrl=${encodeURIComponent(cogUrl)}&${legacy.searchParams}&${body.preview_query || ''}`,
+    );
+  }
 
   const source = sourceOverride || body.source;
   const { colormap, colormap_name, bidx, nodata, rescale, resampling_method } = body;
@@ -20,12 +32,11 @@ function buildSingleTitilerUrl(layerConfig, sourceOverride) {
     return null;
   }
 
-  const titilerBaseUrl = process.env.NEXT_PUBLIC_TITILER_TILES_URL || getTitilerBaseUrl();
-  let tileUrl = `${titilerBaseUrl}/tiles/WebMercatorQuad/{z}/{x}/{y}?url=${encodeURIComponent(source)}`;
+  let tileUrl = `${getApiBaseUrl()}/api/titiler/tiles/{z}/{x}/{y}?titilerUrl=${encodeURIComponent(getTitilerBaseUrl())}&cogUrl=${encodeURIComponent(source)}`;
   if (bidx) {
     const bands = Array.isArray(bidx) ? bidx : String(bidx).split(',');
     bands.forEach((band) => {
-      tileUrl += `&bidx=${encodeURIComponent(band)}`;
+      tileUrl += `&bidx[]=${encodeURIComponent(band)}`;
     });
   }
   if (resampling_method) tileUrl += `&resampling_method=${resampling_method}`;
@@ -48,7 +59,7 @@ function buildSingleTitilerUrl(layerConfig, sourceOverride) {
   if (body.clip_geometry) {
     tileUrl += `&feature=${encodeURIComponent(JSON.stringify(body.clip_geometry))}`;
   }
-  return tileUrl;
+  return scopeDataUrl(`${tileUrl}&${body.preview_query || ''}`);
 }
 
 function buildTitilerUrls(layerConfig) {

@@ -2,6 +2,7 @@ require "net/http"
 require "uri"
 
 class UploadTileService
+  TileResponse = Data.define(:body, :code)
   def initialize(di)
     @di = di
   end
@@ -10,7 +11,9 @@ class UploadTileService
     limit = 2**z
     raise ArgumentError, "Invalid tile coordinates" unless z.between?(0, 22) && x.between?(0, limit - 1) && y.between?(0, limit - 1)
     if @di.type_vector?
-      get("/ra_vector_tile/#{z}/#{x}/#{y}", table: @di.metadata.fetch("table"))
+      query = {table: @di.metadata.fetch("table")}.to_json
+      sql = ActiveRecord::Base.sanitize_sql_array(["SELECT ra_app.private_ra_vector_tile(?, ?, ?, ?::json)", z, x, y, query])
+      TileResponse.new(body: ActiveRecord::Base.connection.select_value(sql), code: "200")
     else
       body = JSON.parse(UploadLayerConfiguration.new(@di).attributes.fetch(:layer_config)).fetch("body")
       query = body.slice("bidx", "rescale", "nodata", "colormap_name", "resampling_method").merge("url" => body.fetch("source"))
@@ -58,8 +61,10 @@ class UploadTileService
     end
     uri = URI("#{base.delete_suffix("/")}#{path}")
     uri.query = URI.encode_www_form(query)
+    request = Net::HTTP::Get.new(uri)
+    request["X-Data-Authorization"] = DataGatewaySignature.for(query[:url] || query["url"])
     response = Net::HTTP.start(uri.host, uri.port, use_ssl: uri.scheme == "https",
-      open_timeout: 10, read_timeout: 60) { |http| http.get(uri.request_uri) }
+      open_timeout: 10, read_timeout: 60) { |http| http.request(request) }
     raise IOError, "Tile service returned HTTP #{response.code}: #{response.body.to_s.first(300)}" unless response.is_a?(Net::HTTPSuccess)
     response
   end

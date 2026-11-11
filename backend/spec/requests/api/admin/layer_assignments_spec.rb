@@ -2,7 +2,8 @@ require "rails_helper"
 
 RSpec.describe "API Admin Layer Assignments", type: :request do
   let(:token) { "SECRET_API_KEY" }
-  let(:headers) { {"Authorization" => "Bearer #{token}"} }
+  let(:actor) { create(:admin_user, role: "superadmin") }
+  let(:headers) { {"Authorization" => "Bearer #{token}", "X-Admin-User-Id" => actor.id.to_s} }
 
   before { stub_const("ENV", ENV.to_hash.merge("RESILIENCE_API_KEY" => token)) }
 

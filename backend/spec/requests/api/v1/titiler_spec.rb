@@ -5,6 +5,18 @@ RSpec.describe "API V1 TiTiler Proxy", type: :request do
   let(:staging_titiler_url) { "https://staging.titiler.resilienceatlas.org" }
   let(:invalid_titiler_url) { "https://malicious-server.com" }
   let(:cog_url) { "https://storage.googleapis.com/bucket/layer.tif" }
+  let(:scope) { create(:site_scope) }
+
+  before do
+    host! "#{scope.subdomain}.example.org"
+    stub_const("ENV", ENV.to_h.merge("DATA_GATEWAY_SECRET" => "test-gateway-secret-32-characters-long"))
+    group = create(:layer_group, site_scope: scope)
+    [cog_url, "s3://resilienceatlas/cogs/total_annual_rainfall.tif"].each do |source|
+      layer = create(:layer, published: true, layer_provider: "cog",
+        layer_config: {body: {url: "#{valid_titiler_url}/tiles/{z}/{x}/{y}?url=#{CGI.escape(source)}"}}.to_json)
+      create(:agrupation, layer: layer, layer_group: group)
+    end
+  end
 
   path "/api/titiler/info" do
     get "Get COG metadata from TiTiler" do

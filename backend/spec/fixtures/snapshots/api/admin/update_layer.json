@@ -41,6 +41,7 @@
     "analysis_suitable": true,
     "analysis_query": "Cum veritatis sapiente exercitationem.",
     "analysis_type": "histogram",
+    "public_data": false,
     "layer_config": "{\"type\": \"raster\", \"source\": {\"tiles\": [\"https://example.com/tiles/{z}/{x}/{y}.png\"]}}",
     "analysis_body": "{\"url\": \"https://example.com/cog.tif\", \"geometry\": \"{{geometry}}\"}",
     "interaction_config": "{\"output\": [], \"enabled\": true}",

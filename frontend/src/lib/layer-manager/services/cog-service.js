@@ -96,7 +96,7 @@ export const fetchCogBounds = (layerModel) => {
   layerModel.set('cogBoundsRequest', cogBoundsRequestSource);
 
   const requests = cogUrls.map((cogUrl) => {
-    const infoUrl = `${apiBaseUrl}/api/titiler/info?titilerUrl=${encodeURIComponent(titilerBaseUrl)}&cogUrl=${encodeURIComponent(cogUrl)}`;
+    const infoUrl = `${apiBaseUrl}/api/titiler/info?titilerUrl=${encodeURIComponent(titilerBaseUrl)}&cogUrl=${encodeURIComponent(cogUrl)}&${layerModel.layerConfig?.body?.preview_query || ''}`;
     return get(infoUrl, { cancelToken: cogBoundsRequestSource.token }).then((res) => {
       if (res.status > 400) {
         console.error('[COG Service] Error fetching COG info:', res);

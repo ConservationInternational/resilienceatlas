@@ -225,6 +225,8 @@ jobs:
         NEXT_PUBLIC_TRANSIFEX_SECRET=${{ secrets.NEXT_PUBLIC_TRANSIFEX_SECRET }}
         NEXT_PUBLIC_GOOGLE_API_KEY=${{ secrets.NEXT_PUBLIC_GOOGLE_API_KEY }}
         RESILIENCE_API_KEY=${{ secrets.RESILIENCE_API_KEY }}
+        DATA_GATEWAY_SECRET=${{ secrets.DATA_GATEWAY_SECRET }}
+        EARTH_ENGINE_API_URL=${{ vars.EARTH_ENGINE_API_URL }}
         SPARKPOST_API_KEY=${{ secrets.SPARKPOST_API_KEY }}
         
         # Error tracking

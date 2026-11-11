@@ -49,6 +49,7 @@ def get_embedding(text: str) -> list[float]:
 
 def fetch_all_layers() -> list[dict]:
     headers = {"Authorization": f"Bearer {RAILS_API_KEY}"}
+    headers["X-Admin-User-Id"] = os.environ["ADMIN_API_SYSTEM_USER_ID"]
     all_layers = []
     page = 1
     while True:

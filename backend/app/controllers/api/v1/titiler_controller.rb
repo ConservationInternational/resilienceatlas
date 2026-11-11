@@ -1,6 +1,8 @@
 module Api
   module V1
     class TitilerController < ApiController
+      include SitesFilters
+      before_action :authorize_cog
       # Skip CSRF for statistics POST - this is a public proxy endpoint
       # The endpoint is protected by titiler_url validation (SSRF protection)
       skip_forgery_protection only: [:statistics]
@@ -108,7 +110,42 @@ module Api
         proxy_get_request(titiler_url, "/point/#{lon_f}/#{lat_f}", query_params)
       end
 
+      def tile
+        z, x, y = %i[z x y].map { |key| Integer(params[key], exception: false) }
+        unless z && x && y && z.between?(0, 22) && x.between?(0, 2**z - 1) && y.between?(0, 2**z - 1)
+          return render json: {error: "Invalid tile coordinates"}, status: :bad_request
+        end
+        query = params.permit(:colormap, :colormap_name, :nodata, :rescale, :resampling_method, :feature, bidx: []).to_h
+        query["bidx"] = params[:bidx] if params[:bidx].is_a?(String)
+        query["url"] = params[:cogUrl]
+        proxy_get_request(params[:titilerUrl], "/tiles/WebMercatorQuad/#{z}/#{x}/#{y}", query)
+      end
+
       private
+
+      def preview_layer
+        @preview_layer ||= AdminPreviewAccess.resolve(params[:admin_preview_token], Layer)
+      end
+
+      def authorized_preview?
+        preview_layer&.site_scopes&.exists?(id: @site_scope.id)
+      end
+
+      def authorize_cog
+        if params[:titilerUrl].blank? || params[:cogUrl].blank?
+          return render json: {error: "Missing required parameters: titilerUrl and cogUrl"}, status: :bad_request
+        end
+        unless validated_cog_url(params[:cogUrl])
+          return render json: {error: "Invalid cogUrl"}, status: :bad_request
+        end
+        requested = params[:cogUrl].to_s
+        layers = authorized_preview? ? [preview_layer] : Layer.fetch_all(layers_params).where(layer_provider: "cog")
+        allowed = layers.any? { |layer| LayerDataSources.cog_urls(layer).any? { |source| LayerDataSources.matches?(source, requested) } }
+        return if allowed
+
+        Rails.logger.warn "[TitilerController] Rejected source not published in scope #{@site_scope.id}"
+        render json: {error: "Source is not available in this scope"}, status: :forbidden
+      end
 
       # Proxy a GET request to TiTiler
       def proxy_get_request(titiler_url, path, query_params)
@@ -118,7 +155,7 @@ module Api
         end
 
         begin
-          query_string = query_params.map { |k, v| "#{k}=#{CGI.escape(v.to_s)}" }.join("&")
+          query_string = URI.encode_www_form(query_params)
           uri = URI.parse("#{validated_uri}#{path}?#{query_string}")
 
           http = Net::HTTP.new(uri.host, uri.port)
@@ -127,9 +164,11 @@ module Api
           http.read_timeout = 30
 
           request = Net::HTTP::Get.new(uri.request_uri)
+          request["X-Data-Authorization"] = DataGatewaySignature.for(query_params[:url] || query_params["url"])
           response = http.request(request)
 
-          render json: response.body, status: response.code.to_i
+          self.response.cache_control.replace(no_store: true, private: true)
+          render body: response.body, content_type: path.start_with?("/tiles/") ? "image/png" : "application/json", status: response.code.to_i
         rescue Net::OpenTimeout, Net::ReadTimeout => e
           Rails.logger.error "[TitilerController] Timeout: #{e.message}"
           render json: {error: "Request to TiTiler timed out"}, status: :gateway_timeout
@@ -156,6 +195,7 @@ module Api
           http.read_timeout = 60 # Statistics can take longer
 
           request = Net::HTTP::Post.new(uri.request_uri)
+          request["X-Data-Authorization"] = DataGatewaySignature.for(query_params[:url])
           request["Content-Type"] = "application/json"
           request.body = body
           response = http.request(request)
@@ -179,8 +219,7 @@ module Api
         /\Astorage\.googleapis\.com\z/,
         /\A[\w.-]+\.storage\.googleapis\.com\z/,
         /\Atitiler\.resilienceatlas\.org\z/,
-        /\A[\w-]+\.titiler\.resilienceatlas\.org\z/,
-        /\Alocalhost(:\d+)?\z/
+        /\A[\w-]+\.titiler\.resilienceatlas\.org\z/
       ].freeze
 
       # Validates cogUrl against COG_ALLOWED_HOSTS or an S3 bucket allowlist.
@@ -199,7 +238,8 @@ module Api
             return url
           end
 
-          return nil unless uri.is_a?(URI::HTTP) || uri.is_a?(URI::HTTPS)
+          return nil unless uri.is_a?(URI::HTTPS) && uri.port == 443
+          return nil if uri.userinfo || uri.query || uri.fragment
           return nil unless COG_ALLOWED_HOSTS.any? { |pattern| uri.host.to_s.match?(pattern) }
 
           url
@@ -216,13 +256,13 @@ module Api
 
         begin
           uri = URI.parse(url)
-          return nil unless uri.is_a?(URI::HTTP) || uri.is_a?(URI::HTTPS)
+          return nil unless uri.is_a?(URI::HTTPS) && uri.port == 443
+          return nil if uri.userinfo || uri.query || uri.fragment || !uri.path.in?(["", "/"])
 
           # Allow known TiTiler domains
           allowed_patterns = [
             /\Atitiler\.resilienceatlas\.org\z/,
-            /\A[\w-]+\.titiler\.resilienceatlas\.org\z/,  # staging.titiler.resilienceatlas.org, etc.
-            /\Alocalhost(:\d+)?\z/  # Development
+            /\A[\w-]+\.titiler\.resilienceatlas\.org\z/
           ]
 
           return nil unless allowed_patterns.any? { |pattern| uri.host.match?(pattern) }

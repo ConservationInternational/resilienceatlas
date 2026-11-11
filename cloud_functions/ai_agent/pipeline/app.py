@@ -111,6 +111,7 @@ def handler(event: dict, context: Any) -> dict:
                 sessionState={
                     # The pipeline is an automated process — grant superadmin scope
                     "sessionAttributes": {
+                        "admin_user_id": os.environ["ADMIN_API_SYSTEM_USER_ID"],
                         "admin_role": "superadmin",
                         "allowed_site_scope_ids": "*",
                     }

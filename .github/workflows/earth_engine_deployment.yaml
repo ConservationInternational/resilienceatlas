@@ -71,12 +71,15 @@ jobs:
       - name: Deploy to feature stack
         env:
           GEE_KEY_ARN: ${{ secrets.GEE_PRIVATE_KEY_SECRET_ARN }}
+          DATA_GATEWAY_SECRET: ${{ secrets.DATA_GATEWAY_SECRET }}
+          EE_PUBLIC_ASSET_IDS: ${{ vars.EE_PUBLIC_ASSET_IDS }}
         run: |
           OVERRIDES="FQDN=${{ steps.config.outputs.fqdn }} ZoneId=${{ secrets.ROUTE_53_ZONE_ID }}"
           [ -n "$GEE_KEY_ARN" ] && OVERRIDES="$OVERRIDES GeePrivateKeySecretArn=$GEE_KEY_ARN"
           OVERRIDES="$OVERRIDES RollbarAccessToken=${{ secrets.ROLLBAR_ACCESS_TOKEN }} RollbarEnvironment=staging"
           sam deploy --stack-name ${{ steps.config.outputs.stack_name }} \
             --parameter-overrides $OVERRIDES \
+              "DataGatewaySecret=$DATA_GATEWAY_SECRET" "PublicAssetIds=$EE_PUBLIC_ASSET_IDS" \
             --capabilities CAPABILITY_IAM \
             --region ${{ secrets.AWS_REGION }} \
             --s3-bucket ${{ steps.config.outputs.artifacts_bucket }} \
@@ -126,12 +129,15 @@ jobs:
       - name: Deploy to production
         env:
           GEE_KEY_ARN: ${{ secrets.GEE_PRIVATE_KEY_SECRET_ARN }}
+          DATA_GATEWAY_SECRET: ${{ secrets.DATA_GATEWAY_SECRET }}
+          EE_PUBLIC_ASSET_IDS: ${{ vars.EE_PUBLIC_ASSET_IDS }}
         run: |
           OVERRIDES="FQDN=${{ steps.config.outputs.fqdn }} ZoneId=${{ secrets.ROUTE_53_ZONE_ID }}"
           [ -n "$GEE_KEY_ARN" ] && OVERRIDES="$OVERRIDES GeePrivateKeySecretArn=$GEE_KEY_ARN"
           OVERRIDES="$OVERRIDES RollbarAccessToken=${{ secrets.ROLLBAR_ACCESS_TOKEN }} RollbarEnvironment=production"
           sam deploy --stack-name ${{ steps.config.outputs.stack_name }} \
             --parameter-overrides $OVERRIDES \
+              "DataGatewaySecret=$DATA_GATEWAY_SECRET" "PublicAssetIds=$EE_PUBLIC_ASSET_IDS" \
             --capabilities CAPABILITY_IAM \
             --region ${{ secrets.AWS_REGION }} \
             --s3-bucket ${{ steps.config.outputs.artifacts_bucket }} \

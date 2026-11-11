@@ -16,7 +16,7 @@ ActiveAdmin.register MapMenuEntry do
     column :label do |entry|
       # Indent based on ancestry depth to show hierarchy
       indent = "&nbsp;&nbsp;&nbsp;&nbsp;" * entry.depth
-      (indent + entry.label).html_safe
+      safe_join([indent.html_safe, entry.label])
     end
     column :link
     column :ancestry

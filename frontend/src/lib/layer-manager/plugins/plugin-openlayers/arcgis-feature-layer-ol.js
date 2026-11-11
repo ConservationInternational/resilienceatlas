@@ -4,6 +4,7 @@ import VectorSource from 'ol/source/Vector';
 import EsriJSON from 'ol/format/EsriJSON';
 import { tile as tileStrategy } from 'ol/loadingstrategy';
 import { createXYZ } from 'ol/tilegrid';
+import { scopeDataUrl } from '../../../../utilities/scopeDataUrl';
 
 /**
  * ArcGIS FeatureServer vector layer handler for OpenLayers.
@@ -70,7 +71,7 @@ const ArcGISFeatureLayerOL = (layerModel) => {
         };
 
         const queryString = new URLSearchParams(baseParams).toString();
-        return `${url}/query?${queryString}`;
+        return scopeDataUrl(`${url}/query?${queryString}`);
       },
       strategy: tileStrategy(
         createXYZ({

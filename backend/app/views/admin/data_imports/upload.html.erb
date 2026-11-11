@@ -28,8 +28,12 @@
           <option value="replace">Replace <%= @target_layer.name %> (<%= @target_layer.slug %>)</option>
         <% end %>
         <option value="create">Create an unpublished layer</option>
-        <option value="dataset">Store dataset only</option>
+        <% if current_admin_user.superadmin? %>
+          <option value="dataset">Store dataset only</option>
+        <% end %>
       </select>
+      <label for="upload-site-scope">Site scope for a new layer</label>
+      <%= select_tag :site_scope_id, options_from_collection_for_select(SiteScope.accessible_by(Ability.new(current_admin_user), :read), :id, :name), id: "upload-site-scope" %>
       <label for="upload-name">Layer name</label>
       <input id="upload-name" type="text">
       <label for="upload-slug">Layer slug (letters, digits, hyphens or underscores)</label>

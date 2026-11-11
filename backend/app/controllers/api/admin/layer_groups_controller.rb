@@ -3,7 +3,7 @@
 class Api::Admin::LayerGroupsController < Api::Admin::ApiController
   # GET /api/admin/layer_groups?site_scope_id=1
   def index
-    layer_groups = LayerGroup.with_translations(I18n.locale).includes(:layers, :super_group).order(:order, :id)
+    layer_groups = LayerGroup.accessible_by(current_ability, :read).with_translations(I18n.locale).includes(:layers, :super_group).order(:order, :id)
     layer_groups = layer_groups.where(site_scope_id: params[:site_scope_id]) if params[:site_scope_id].present?
     layer_groups = layer_groups.where(super_group_id: params[:super_group_id]) if params[:super_group_id].present?
     layer_groups = layer_groups.where(layer_group_type: params[:layer_group_type]) if params[:layer_group_type].present?
@@ -30,6 +30,12 @@ class Api::Admin::LayerGroupsController < Api::Admin::ApiController
     layer_group.assign_attributes(attrs.except(:site_scope_id, :slug))
     layer_group.site_scope_id = attrs[:site_scope_id]
     layer_group.slug = attrs[:slug]
+    authorized_scope!(layer_group.site_scope_id)
+    authorize! layer_group.new_record? ? :create : :update, layer_group
+    if layer_group.super_group_id.present?
+      parent = LayerGroup.find(layer_group.super_group_id)
+      raise CanCan::AccessDenied unless parent.site_scope_id == layer_group.site_scope_id
+    end
     layer_group.save!
 
     render json: {

@@ -1,6 +1,7 @@
 module Api
   module V1
     class ArcgisFeatureProxyController < ApiController
+      include SitesFilters
       QUERY_PARAMETERS = %i[
         f where objectIds time geometry geometryType inSR spatialRel distance
         units relationParam outFields returnGeometry maxAllowableOffset
@@ -37,7 +38,7 @@ module Api
       #   separated list of hostname patterns in the environment) plus a
       #   built-in default allowlist of *.arcgis.com subdomains.
       def query
-        layer = Layer.find_by(id: params[:id])
+        layer = authorized_preview? ? preview_layer : Layer.fetch_all(layers_params).find_by(id: params[:id])
         return render json: {error: "Layer not found"}, status: :not_found unless layer
 
         unless layer.layer_provider == "arcgis_feature"
@@ -66,12 +67,29 @@ module Api
         # ArcGIS structured values (geometry, statistics, etc.) are JSON strings.
         # Authentication tokens come only from the server-side layer config.
         forwarded_params = params.permit(*QUERY_PARAMETERS).to_h
+        defaults = body.fetch("params", {})
+        if defaults["where"].present?
+          forwarded_params["where"] = [defaults["where"], forwarded_params["where"].presence].compact.map { |clause| "(#{clause})" }.join(" AND ")
+        end
+        if defaults["outFields"].present? && defaults["outFields"] != "*"
+          forwarded_params["outFields"] = defaults["outFields"]
+        end
+        forwarded_params["f"] = "json"
         forwarded_params["token"] = token if token.present?
+        response.cache_control.replace(no_store: true, private: true)
 
         proxy_arcgis_query(validated_url, forwarded_params)
       end
 
       private
+
+      def preview_layer
+        @preview_layer ||= AdminPreviewAccess.resolve(params[:admin_preview_token], Layer)
+      end
+
+      def authorized_preview?
+        preview_layer && preview_layer.id.to_s == params[:id] && preview_layer.site_scopes.exists?(id: @site_scope.id)
+      end
 
       # Proxy a GET request to ArcGIS FeatureServer /query and relay the
       # response back to the browser.
@@ -87,8 +105,7 @@ module Api
         request = Net::HTTP::Get.new(uri.request_uri)
         response = http.request(request)
 
-        content_type = response["Content-Type"] || "application/json"
-        render body: response.body, content_type: content_type, status: response.code.to_i
+        render body: response.body, content_type: "application/json", status: response.code.to_i
       rescue Net::OpenTimeout, Net::ReadTimeout => e
         Rails.logger.error "[ArcgisFeatureProxyController] Timeout proxying layer #{params[:id]}: #{e.message}"
         render json: {error: "Request to ArcGIS timed out"}, status: :gateway_timeout
@@ -102,8 +119,7 @@ module Api
       # extend this by setting ARCGIS_ALLOWED_HOSTS to a comma-separated list
       # of additional hostnames (exact match or *.domain patterns).
       ARCGIS_DEFAULT_ALLOWED = [
-        /\A[\w.-]+\.arcgis\.com\z/,
-        /\Alocalhost(:\d+)?\z/
+        /\A[\w.-]+\.arcgis\.com\z/
       ].freeze
 
       # Validates an ArcGIS FeatureServer URL against the SSRF allowlist.
@@ -113,7 +129,8 @@ module Api
         return nil if url.blank?
 
         uri = URI.parse(url)
-        return nil unless uri.is_a?(URI::HTTP) || uri.is_a?(URI::HTTPS)
+        return nil unless uri.is_a?(URI::HTTPS) && uri.port == 443
+        return nil if uri.userinfo || uri.query || uri.fragment
 
         host = uri.host.to_s
 

@@ -246,3 +246,42 @@ class TestCorsOnErrorResponses:
             headers={"Origin": "https://evil.example.com"},
         )
         assert "access-control-allow-origin" not in resp.headers
+
+
+class TestSourceAuthorization:
+    @pytest.fixture()
+    def client(self, monkeypatch):
+        from starlette.testclient import TestClient
+        monkeypatch.setenv("DATA_GATEWAY_SECRET", "s" * 32)
+        monkeypatch.setenv("TITILER_PUBLIC_URLS", "")
+        return TestClient(app, raise_server_exceptions=False)
+
+    def test_allowed_bucket_does_not_grant_anonymous_access(self, client):
+        response = client.get("/info", params={"url": "s3://resilienceatlas/private.tif"})
+        assert response.status_code == 403
+        assert "not approved" in response.json()["detail"]
+
+    @pytest.mark.parametrize("method,path", [("get", "/info"), ("post", "/statistics")])
+    def test_body_url_cannot_bypass_query_authorization(self, client, method, path):
+        response = client.request(method, path, json={"url": "s3://resilienceatlas/private.tif"})
+        assert response.status_code == 422
+
+    def test_signatures_are_exact_short_lived_and_not_reusable_for_another_source(self, client):
+        import hashlib
+        import hmac
+        import time
+        source = "s3://resilienceatlas/private.tif"
+        expires = int(time.time()) + 60
+        digest = hmac.new(b"s" * 32, f"{expires}\n{source}".encode(), hashlib.sha256).hexdigest()
+        token = f"{expires}:{digest}"
+        assert app_module.resource_authorized(source, token)
+        response = client.get("/info", params={"url": "s3://resilienceatlas/other.tif"},
+                              headers={"X-Data-Authorization": token})
+        assert response.status_code == 403
+        assert not app_module.resource_authorized(source, f"{expires - 120}:{digest}")
+        assert not app_module.resource_authorized(source, f"{expires}:\N{SNOWMAN}")
+
+    def test_public_allowlist_matches_only_exact_sources(self, client, monkeypatch):
+        monkeypatch.setenv("TITILER_PUBLIC_URLS", "s3://resilienceatlas/public.tif")
+        assert app_module.resource_authorized("s3://resilienceatlas/public.tif", "")
+        assert not app_module.resource_authorized("s3://resilienceatlas/public.tif/other", "")

@@ -10,7 +10,7 @@ module Api
       end
 
       def show
-        journey = Journey.find params[:id]
+        journey = Journey.only_published.find params[:id]
         expires_in 1.hour, public: true, stale_while_revalidate: 5.minutes
         render json: journey, include: [:journey_steps]
       end

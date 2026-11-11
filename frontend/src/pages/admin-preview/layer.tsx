@@ -26,6 +26,7 @@ import basemaps from 'views/utils/basemaps.json';
 import type Map from 'ol/Map';
 import { transformExtent, toLonLat } from 'ol/proj';
 import { unByKey } from 'ol/Observable';
+import { getApiBaseUrl } from 'utilities/environment';
 
 // OLMap uses browser APIs — must be client-side only
 const OLMap = dynamic<OLMapProps>(
@@ -274,25 +275,17 @@ const LayerPreviewPage: NextPageWithLayout = () => {
     });
   }, []);
 
-  // Read URL query params on mount: adminOrigin for postMessage security,
-  // and ?data= for immediate layer preview (avoids postMessage race condition).
+  // Layer configuration is delivered only through the validated parent handshake.
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const origin = params.get('adminOrigin');
-    if (origin) setAdminOrigin(decodeURIComponent(origin));
-
-    const data = params.get('data');
-    if (data) {
-      try {
-        const msg = JSON.parse(atob(data));
-        if (msg?.type === 'LAYER_PREVIEW') {
-          applyPreviewMessage(msg as LayerPreviewMessage);
-        }
-      } catch {
-        // Ignore invalid base64 / JSON in URL
-      }
+    if (origin !== new URL(getApiBaseUrl()).origin) {
+      setErrorMsg('Untrusted preview parent origin');
+      setStatus('error');
+      return;
     }
-  }, [applyPreviewMessage]);
+    setAdminOrigin(origin);
+  }, []);
 
   // Listen for postMessage from admin iframe parent
   useEffect(() => {

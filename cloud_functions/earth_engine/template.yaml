@@ -3,6 +3,15 @@ Transform: AWS::Serverless-2016-10-31
 Description: 'SAM Template for Earth Engine functions - histogram, raster interaction, and download image'
 
 Parameters:
+  DataGatewaySecret:
+    Type: String
+    NoEcho: true
+    MinLength: 32
+    Description: Shared signing secret used only by Rails and data services
+  PublicAssetIds:
+    Type: String
+    Default: ''
+    Description: Comma-separated exact Earth Engine asset IDs explicitly approved for anonymous access
   FQDN:
     Type: String
     Description: Fully qualified domain name for the API (e.g., ee.resilienceatlas.org)
@@ -33,6 +42,8 @@ Globals:
     MemorySize: 512
     Environment:
       Variables:
+        DATA_GATEWAY_SECRET: !Ref DataGatewaySecret
+        EE_PUBLIC_ASSET_IDS: !Ref PublicAssetIds
         GEE_PRIVATE_KEY_SECRET_ARN: !Ref GeePrivateKeySecretArn
         ROLLBAR_ACCESS_TOKEN: !Ref RollbarAccessToken
         ROLLBAR_ENVIRONMENT: !Ref RollbarEnvironment
@@ -153,6 +164,11 @@ Resources:
     Type: AWS::Serverless::Api
     Properties:
       StageName: Prod
+      MethodSettings:
+        - ResourcePath: '/*'
+          HttpMethod: '*'
+          ThrottlingRateLimit: 10
+          ThrottlingBurstLimit: 20
       Cors:
         AllowOrigin: "'*'"
         AllowMethods: "'GET, POST, OPTIONS'"
@@ -199,7 +215,7 @@ Resources:
             - HEAD
             - OPTIONS
           Compress: true
-          CachePolicyId: !Ref ApiCachePolicy
+          CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad
           OriginRequestPolicyId: !Ref ApiOriginRequestPolicy
 
   # Cache policy - short TTL for dynamic API
@@ -241,6 +257,7 @@ Resources:
             - Content-Type
             - Origin
             - Referer
+            - X-Data-Authorization
         QueryStringsConfig:
           QueryStringBehavior: all
 

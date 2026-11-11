@@ -183,7 +183,7 @@ export const layer = new schema.Entity(
         arcgis_feature: {
           body: {
             url: layerConfig?.body?.useProxy
-              ? `${process.env.NEXT_PUBLIC_API_HOST || ''}/api/v1/arcgis-feature-proxy/${l.id}`
+              ? `${process.env.NEXT_PUBLIC_API_HOST || ''}/api/arcgis-feature-proxy/${l.id}`
               : layerConfig?.body?.url || layerConfig?.url,
             params: layerConfig?.body?.params || {},
             options: layerConfig?.body?.options || {},

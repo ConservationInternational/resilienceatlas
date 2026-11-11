@@ -2,9 +2,8 @@ module Api
   module V1
     class LayersController < ApiController
       before_action :authenticate_request, only: :download_attachments
-      before_action :set_layer, only: :download_attachments
-
       include SitesFilters
+      before_action :set_layer, only: :download_attachments
 
       def index
         @layers = Layer.fetch_all(layers_params).includes :agrupations, sources: :translations, layer_groups: [:translations, super_group: :translations]
@@ -28,7 +27,7 @@ module Api
       private
 
       def set_layer
-        @layer = Layer.find(params[:id])
+        @layer = Layer.fetch_all(layers_params).find(params[:id])
       end
     end
   end

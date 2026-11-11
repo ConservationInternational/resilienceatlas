@@ -1,7 +1,7 @@
 class ApplicationController < ActionController::Base
   # Prevent CSRF attacks by raising an exception.
   # For APIs, you may want to use :null_session instead.
-  protect_from_forgery with: :null_session, only: proc { |c| c.request.format.json? }
+  protect_from_forgery with: :exception
 
   before_action :check_subdomain, :get_subdomain
   after_action :set_csrf_cookie, :store_location

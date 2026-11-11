@@ -6,6 +6,7 @@ import get from 'lodash/get';
 import { replace } from 'lib/layer-manager';
 import { T } from '@transifex/react';
 import { getTitilerBaseUrl } from 'utilities/environment';
+import { scopeDataUrl } from 'utilities/scopeDataUrl';
 
 import createReducer from 'state/utils/createReducer';
 import { createApiAction } from 'state/utils/api';
@@ -125,7 +126,7 @@ const LayerPopup = ({
       };
 
       axios
-        .get(replace(config.url, urlParams), { signal: controller.signal })
+        .get(scopeDataUrl(replace(config.url, urlParams)), { signal: controller.signal })
         .then(({ data: responseData }) => {
           // For COGs column in interactionConfig should always be 'values[*]' or 'values.*'
           // Exception: when config.responseFormat === 'rows', treat the response as a

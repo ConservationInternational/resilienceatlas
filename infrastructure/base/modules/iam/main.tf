@@ -16,21 +16,43 @@ resource "aws_iam_user_policy" "pipeline_user_policy" {
 data "aws_iam_policy_document" "pipeline_user_policy_document" {
   statement {
     actions   = ["sts:AssumeRole"]
-    resources = ["*"]
-    condition {
-      test     = "StringEquals"
-      variable = "aws:ResourceTag/Role"
-      values   = ["pipeline-execution-role"]
-    }
-    effect = "Allow"
+    resources = [aws_iam_role.pipeline_role.arn]
+    effect    = "Allow"
   }
+}
+
+data "aws_caller_identity" "current" {}
+data "aws_partition" "current" {}
+
+resource "aws_iam_policy" "workload_boundary" {
+  name = "resilienceatlas-workload-boundary"
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect   = "Allow"
+        Action   = ["logs:CreateLogGroup", "logs:CreateLogStream", "logs:PutLogEvents"]
+        Resource = "arn:${data.aws_partition.current.partition}:logs:*:${data.aws_caller_identity.current.account_id}:log-group:/aws/lambda/resilienceatlas-*"
+      },
+      {
+        Effect   = "Allow"
+        Action   = ["s3:GetObject", "s3:PutObject", "s3:DeleteObject", "s3:ListBucket"]
+        Resource = [var.build_artifacts_bucket_arn, "${var.build_artifacts_bucket_arn}/*"]
+      },
+      {
+        Effect   = "Allow"
+        Action   = ["lambda:InvokeFunction"]
+        Resource = "arn:${data.aws_partition.current.partition}:lambda:*:${data.aws_caller_identity.current.account_id}:function:resilienceatlas-*"
+      }
+    ]
+  })
 }
 
 # Cloud Formation execution role
 resource "aws_iam_role" "cloud_formation_role" {
   name               = "resilience-atlas-CloudFormationExecutionRole"
   assume_role_policy = data.aws_iam_policy_document.cloud_formation_role_assume_role_policy_document.json
-  tags               = {
+  tags = {
     Role = "cloud-formation-execution-role"
   }
 }
@@ -57,14 +79,14 @@ data "aws_iam_policy_document" "cloud_formation_role_policy_document" {
     actions = [
       "cloudformation:*"
     ]
-    resources = ["*"]
+    resources = ["arn:${data.aws_partition.current.partition}:cloudformation:*:${data.aws_caller_identity.current.account_id}:stack/resilienceatlas-*/*"]
     effect    = "Allow"
   }
   statement {
     actions = [
       "lambda:*"
     ]
-    resources = ["*"]
+    resources = ["arn:${data.aws_partition.current.partition}:lambda:*:${data.aws_caller_identity.current.account_id}:function:resilienceatlas-*"]
     effect    = "Allow"
   }
   statement {
@@ -76,7 +98,6 @@ data "aws_iam_policy_document" "cloud_formation_role_policy_document" {
   }
   statement {
     actions = [
-      "iam:CreateRole",
       "iam:DeleteRole",
       "iam:UpdateRole",
       "iam:PutRolePolicy",
@@ -86,12 +107,30 @@ data "aws_iam_policy_document" "cloud_formation_role_policy_document" {
       "iam:TagRole",
       "iam:UntagRole",
       "iam:ListRoleTags",
-      "iam:PassRole",
-      "iam:AttachRolePolicy",
-      "iam:CreateServiceLinkedRole"
+      "iam:AttachRolePolicy"
     ]
-    resources = ["*"]
+    resources = ["arn:${data.aws_partition.current.partition}:iam::${data.aws_caller_identity.current.account_id}:role/resilienceatlas-workload/*"]
     effect    = "Allow"
+  }
+  statement {
+    actions   = ["iam:CreateRole"]
+    resources = ["arn:${data.aws_partition.current.partition}:iam::${data.aws_caller_identity.current.account_id}:role/resilienceatlas-workload/*"]
+    effect    = "Allow"
+    condition {
+      test     = "ArnEquals"
+      variable = "iam:PermissionsBoundary"
+      values   = [aws_iam_policy.workload_boundary.arn]
+    }
+  }
+  statement {
+    actions   = ["iam:PassRole"]
+    resources = ["arn:${data.aws_partition.current.partition}:iam::${data.aws_caller_identity.current.account_id}:role/resilienceatlas-workload/*"]
+    effect    = "Allow"
+    condition {
+      test     = "StringEquals"
+      variable = "iam:PassedToService"
+      values   = ["lambda.amazonaws.com"]
+    }
   }
   statement {
     actions = [
@@ -146,7 +185,7 @@ data "aws_iam_policy_document" "cloud_formation_role_policy_document" {
 resource "aws_iam_role" "pipeline_role" {
   name               = "resilience-atlas-PipelineExecutionRole"
   assume_role_policy = data.aws_iam_policy_document.pipeline_role_assume_role_policy_document.json
-  tags               = {
+  tags = {
     Role = "pipeline-execution-role"
   }
 }
@@ -173,6 +212,11 @@ data "aws_iam_policy_document" "pipeline_role_policy_document" {
     actions   = ["iam:PassRole"]
     resources = [aws_iam_role.cloud_formation_role.arn]
     effect    = "Allow"
+    condition {
+      test     = "StringEquals"
+      variable = "iam:PassedToService"
+      values   = ["cloudformation.amazonaws.com"]
+    }
   }
 
   statement {

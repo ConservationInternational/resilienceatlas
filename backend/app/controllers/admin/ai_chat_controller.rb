@@ -1,11 +1,4 @@
 class Admin::AiChatController < ApplicationController
-  # Skip CSRF verification for the JSON fetch endpoints in this controller.
-  # Security is provided by authenticate_admin_user! (Devise session auth) below.
-  # CSRF token mismatch caused InvalidAuthenticityToken because form_authenticity_token
-  # is rendered at page load but the session state can diverge between page load and
-  # the async fetch, especially with SameSite=Lax cookie_store sessions.
-  skip_before_action :verify_authenticity_token
-
   before_action :authenticate_admin_user!
   before_action :check_rate_limit, only: [:message]
 

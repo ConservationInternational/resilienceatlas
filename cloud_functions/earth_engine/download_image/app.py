@@ -9,6 +9,7 @@ import os
 from typing import Any
 
 import ee
+from shared.data_access import resource_authorized
 
 # Import shared utilities (copied into function directory during build)
 from shared.ee_utils import (
@@ -148,6 +149,13 @@ def handler(event: dict, context: Any) -> dict[str, Any]:
         
         if not asset_id:
             return error_response(400, "Missing required parameter: assetId")
+        if not resource_authorized(asset_id, event.get("headers")):
+            logger.warning("Rejected unauthorized Earth Engine download request")
+            return error_response(403, "Asset is not approved for this request")
+        if not geometry or len(json.dumps(geometry)) > 100_000:
+            return error_response(400, "A bounded geometry is required (maximum 100KB)")
+        if not isinstance(scale, (int, float)) or isinstance(scale, bool) or not 10 <= scale <= 100_000:
+            return error_response(400, "scale must be between 10 and 100000")
         
         # Initialize Earth Engine
         initialize_earth_engine()

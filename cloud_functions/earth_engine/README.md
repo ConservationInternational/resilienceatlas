@@ -2,6 +2,12 @@
 
 AWS Lambda functions for Google Earth Engine analysis, deployed via SAM (Serverless Application Model).
 
+**Security:** route browser requests through the scope-authenticated Rails gateway.
+Service-account asset reads require an exact-resource server signature or an
+explicit exact public-asset approval. Older direct-client and caching examples
+below do not authorize private data. Follow the
+[coordinated rollout and required secrets](../README.md#data-authorization-and-coordinated-rollout).
+
 ## Overview
 
 This module provides three Lambda functions for Earth Engine operations:

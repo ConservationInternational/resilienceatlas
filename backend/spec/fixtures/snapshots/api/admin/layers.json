@@ -57,7 +57,8 @@
       "timeline_end_date": "2022-08-10",
       "timeline_default_date": "2022-08-10",
       "timeline_period": "daily",
-      "analysis_type": "histogram"
+      "analysis_type": "histogram",
+      "public_data": false
     },
     {
       "name": "cum",
@@ -114,7 +115,8 @@
       "timeline_end_date": "2021-06-11",
       "timeline_default_date": "2021-06-11",
       "timeline_period": "yearly",
-      "analysis_type": "histogram"
+      "analysis_type": "histogram",
+      "public_data": false
     },
     {
       "name": "voluptatem",
@@ -171,7 +173,8 @@
       "timeline_end_date": "2022-11-27",
       "timeline_default_date": "2022-11-27",
       "timeline_period": "monthly",
-      "analysis_type": "histogram"
+      "analysis_type": "histogram",
+      "public_data": false
     }
   ],
   "meta_attributes": {

@@ -7,7 +7,11 @@ class Api::Admin::ApiController < ActionController::Base
   skip_before_action :verify_authenticity_token
 
   before_action :authenticate_api_token
+  before_action :authenticate_actor
 
+  rescue_from CanCan::AccessDenied do
+    render json: {success: false, message: "Not authorized"}, status: :forbidden
+  end
   rescue_from ActiveRecord::RecordNotFound, with: :render_record_not_found
   rescue_from ActiveRecord::RecordInvalid, with: :render_record_invalid
 
@@ -17,7 +21,8 @@ class Api::Admin::ApiController < ActionController::Base
 
   def authenticate_with_token
     authenticate_with_http_token do |auth_token, _options|
-      ActiveSupport::SecurityUtils.secure_compare(auth_token, ENV["RESILIENCE_API_KEY"].to_s)
+      configured = ENV["RESILIENCE_API_KEY"]
+      configured.present? && ActiveSupport::SecurityUtils.secure_compare(auth_token, configured)
     end
   end
 
@@ -26,6 +31,32 @@ class Api::Admin::ApiController < ActionController::Base
   end
 
   private
+
+  def authenticate_actor
+    @api_admin_user = AdminUser.find_by(id: request.headers["X-Admin-User-Id"].presence)
+    return if @api_admin_user
+
+    render json: {success: false, message: "An admin API actor is required"}, status: :unauthorized
+  end
+
+  def current_ability
+    @current_ability ||= Ability.new(@api_admin_user)
+  end
+
+  def authorize!(action, resource)
+    current_ability.authorize!(action, resource)
+  end
+
+  def require_superadmin!
+    raise CanCan::AccessDenied unless @api_admin_user.superadmin?
+  end
+
+  def authorized_scope!(id)
+    scope = SiteScope.find(id)
+    raise CanCan::AccessDenied unless @api_admin_user.superadmin? || @api_admin_user.allowed_site_scope_ids.include?(scope.id)
+
+    scope
+  end
 
   def render_record_not_found(exception)
     render json: {success: false, message: exception.message}, status: :not_found

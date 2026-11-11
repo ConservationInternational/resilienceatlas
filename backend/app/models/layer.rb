@@ -202,13 +202,13 @@ class Layer < ApplicationRecord
     else
       1
     end
-    layers = Layer.with_translations
+    layers = Layer.where(published: true).with_translations
     layers.site(site_scope)
   end
 
   def clone!
     new_layer = Layer.new
-    new_layer.assign_attributes attributes.except("id")
+    new_layer.assign_attributes attributes.except("id", "public_data")
     translations.each { |t| new_layer.translations.build t.attributes.except("id") }
     timestamp = DateTime.now.strftime("%Y%m%d%H%M%S")
     new_layer.name = "#{name} _copy_ #{timestamp}"
@@ -284,7 +284,7 @@ class Layer < ApplicationRecord
       end
 
       layer_attr = {}
-      layer_attr["layer"] = attributes
+      layer_attr["layer"] = attributes.merge("layer_config" => LayerSerializer.new(self).layer_config)
       layer_attr["sources"] = sources.map { |s| s.attributes } if sources.any?
 
       pdf_file = PdfFile.new(layer_attr, pdf_file_path, domain, site_name)

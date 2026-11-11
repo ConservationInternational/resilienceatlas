@@ -14,10 +14,8 @@
 # allowing all origins is safe.
 cors: true
 
-# Cache boundary tiles in the browser for 24 hours (86400 s), matching
-# the CloudFront CDN TTL.  Without this Martin defaults to max-age=3600
-# (1 hour), causing needless re-fetches when users return to the map.
-cache_control_max_age: 86400
+# Always recheck public approval at the origin, including after revocation.
+cache: disable
 
 # If a function source doesn't exist yet (e.g. migration hasn't run),
 # log a warning instead of aborting startup.
@@ -32,5 +30,8 @@ postgres:
   # Scan these schemas for function sources
   auto_publish:
     tables: false
-    functions:
-      from_schemas: ra_app
+    functions: false
+  functions:
+    ra_vector_tile:
+      schema: ra_app
+      function: ra_vector_tile

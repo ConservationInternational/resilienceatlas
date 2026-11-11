@@ -19,7 +19,19 @@ RSpec.describe "API V1 Layer", type: :request do
         run_test!
 
         it "matches snapshot", generate_swagger_example: true do
-          expect(response.body).to match_snapshot("api/v1/layers")
+          normalized = response.parsed_body
+          normalized["data"].each do |record|
+            attributes = record["attributes"]
+            next unless attributes["layer_provider"] == "gee"
+
+            config = JSON.parse(attributes["layer_config"])
+            expect(config.dig("body", "url")).to eq("/api/earth-engine/tiles/#{record["id"]}/{z}/{x}/{y}")
+            config["body"]["url"] = "/api/earth-engine/tiles/LAYER_ID/{z}/{x}/{y}"
+            attributes["layer_config"] = config.to_json
+            expect(attributes["analysis_query"]).to eq("/api/earth-engine/histogram?layer_id=#{record["id"]}")
+            attributes["analysis_query"] = "/api/earth-engine/histogram?layer_id=LAYER_ID"
+          end
+          expect(normalized.to_json).to match_snapshot("api/v1/layers")
         end
       end
     end

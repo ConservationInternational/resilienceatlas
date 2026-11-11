@@ -19,8 +19,10 @@ RSpec.describe "API V1 Models", type: :request do
       response "200", :success do
         run_test!
 
-        it "matches snapshot", generate_swagger_example: true do
-          expect(response.body).to match_snapshot("api/v1/models")
+        it "defaults to the current scope without including models from other scopes", generate_swagger_example: true do
+          expect(response_json["data"].pluck("id")).to match_array(models.map { |model| model.id.to_s })
+          scopes = response_json["included"].select { |record| record["type"] == "site_scopes" }
+          expect(scopes.pluck("id")).to eq([default_site_scope.id.to_s])
         end
 
         context "when filtered by site scope" do

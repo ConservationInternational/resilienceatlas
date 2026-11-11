@@ -57,6 +57,7 @@
     "timeline_default_date": "2022-11-27",
     "timeline_period": "monthly",
     "analysis_type": "histogram",
-    "site_scope_ids": []
+    "site_scope_ids": [],
+    "public_data": false
   }
 }

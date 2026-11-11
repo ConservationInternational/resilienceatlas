@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 class Api::Admin::VectorTablesController < Api::Admin::ApiController
+  before_action :require_superadmin!
   ALLOWED_EXTENSIONS = %w[.gpkg .geojson .json .kml .zip .shp].freeze
   MANAGED_SCHEMAS = [
     DatasetInventoryService::NONSPATIAL_SCHEMA,

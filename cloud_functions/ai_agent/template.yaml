@@ -3,6 +3,14 @@ Transform: AWS::Serverless-2016-10-31
 Description: 'SAM Template for Resilience Atlas AI Agent Lambdas'
 
 Parameters:
+  DataGatewaySecret:
+    Type: String
+    NoEcho: true
+    MinLength: 32
+    Description: Shared server-only signing secret for Rails and data services
+  AdminApiSystemUserId:
+    Type: String
+    Description: ID of a dedicated Rails superadmin service account for the pipeline and embedding sync
   RailsApiUrl:
     Type: String
     Description: Base URL of the Rails API (e.g. https://api.resilienceatlas.org)
@@ -70,7 +78,9 @@ Globals:
     Environment:
       Variables:
         RAILS_API_URL: !Ref RailsApiUrl
+        ADMIN_API_SYSTEM_USER_ID: !Ref AdminApiSystemUserId
         TITILER_URL: !Ref TitilerUrl
+        DATA_GATEWAY_SECRET: !Ref DataGatewaySecret
         RESILIENCE_API_KEY_SECRET_ARN: !Ref ResilienceApiKeySecretArn
         EMBEDDINGS_BUCKET: !Ref EmbeddingsBucket
         EMBEDDINGS_KEY: !Ref EmbeddingsKey

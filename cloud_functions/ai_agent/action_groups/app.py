@@ -9,14 +9,18 @@ Handles all agent tool calls (10 endpoints):
   - create_layer           POST /api/admin/layers
   - update_layer           PATCH /api/admin/layers/:id
   - import_vector_table    POST /api/admin/vector_tables/import
-  - create_vector_view     POST /api/admin/vector_views
+  - create_vector_view     Disabled; use reviewed database migrations
   - get_statistics         COG raster stats via TiTiler; or vector column stats via Rails
 
 Embeddings are loaded from S3 at cold start for fast RAG lookups.
 """
 import json
+import hashlib
+import hmac
 import logging
 import os
+import time
+from contextvars import ContextVar
 from typing import Any
 
 import boto3
@@ -84,8 +88,18 @@ def get_embedding(text: str) -> np.ndarray:
 
 # ── Rails API helpers ─────────────────────────────────────────────────────────
 
-def rails_headers() -> dict:
+_actor_id: ContextVar[str] = ContextVar("admin_user_id", default="")
+
+
+def _service_headers() -> dict:
     return {"Authorization": f"Bearer {RAILS_API_KEY}", "Content-Type": "application/json"}
+
+
+def rails_headers() -> dict:
+    actor_id = _actor_id.get()
+    if not actor_id:
+        raise PermissionError("An authenticated admin user is required")
+    return {**_service_headers(), "X-Admin-User-Id": actor_id}
 
 
 def rails_get(path: str, params: dict | None = None) -> dict:
@@ -129,7 +143,7 @@ class AuthContext:
     Valid roles: superadmin, admin, staff, contributor
     - superadmin: unrestricted (all site scopes, all actions)
     - admin:      full CRUD within assigned site scopes
-    - staff/contributor: CRUD within assigned site scopes; may not set published=true
+    - staff/contributor: create unpublished layers only within assigned site scopes
 
     If session_attributes are absent or carry an unknown role, all mutations are denied.
     """
@@ -139,14 +153,15 @@ class AuthContext:
     def __init__(self, session_attributes: dict):
         role = session_attributes.get("admin_role", "")
         self.role = role if role in self._VALID_ROLES else ""
+        self.admin_user_id = str(session_attributes.get("admin_user_id") or "")
         raw = session_attributes.get("allowed_site_scope_ids")
         if not self.role:
             # No valid session — deny all mutations
             self.allowed_site_scope_ids: set[str] | None = set()
-        elif raw is None or raw == "*":
+        elif self.is_superadmin:
             self.allowed_site_scope_ids = None  # None = all scopes
         else:
-            self.allowed_site_scope_ids = set(raw.split(",")) if raw else set()
+            self.allowed_site_scope_ids = set(raw.split(",")) if isinstance(raw, str) and raw != "*" else set()
 
     @property
     def is_superadmin(self) -> bool:
@@ -158,10 +173,10 @@ class AuthContext:
         return self.role in ("contributor", "staff")
 
     def can_access_site_scope(self, site_scope_id: str | int | None) -> bool:
-        if self.is_superadmin or self.allowed_site_scope_ids is None:
+        if self.is_superadmin:
             return True
         if site_scope_id is None:
-            return True  # unscoped operations are allowed
+            return False
         return str(site_scope_id) in self.allowed_site_scope_ids
 
     def assert_can_mutate(self, site_scope_id: str | int | None = None) -> str | None:
@@ -177,12 +192,14 @@ class AuthContext:
 
     def assert_can_update(self, site_scope_id: str | int | None = None) -> str | None:
         """Returns an error string if the user cannot update a layer in the given scope."""
+        if self.is_contributor:
+            return "Access denied: contributors and staff may only create unpublished layers."
         return self.assert_can_mutate(site_scope_id)
 
 
 # ── Action handlers ───────────────────────────────────────────────────────────
 
-def handle_retrieve_context(params: dict, _auth: AuthContext) -> str:
+def handle_retrieve_context(params: dict, auth: AuthContext) -> str:
     query = params.get("query", "")
     top_k = int(params.get("top_k", TOP_K))
     if not query:
@@ -207,6 +224,13 @@ def handle_retrieve_context(params: dict, _auth: AuthContext) -> str:
     results = []
     for i in top_indices:
         doc = documents[i]
+        if not auth.is_superadmin and doc["metadata"].get("type") == "layer":
+            try:
+                rails_get(f"/api/admin/layers/{doc['metadata']['layer_id']}")
+            except requests.HTTPError as exc:
+                if exc.response is not None and exc.response.status_code in (403, 404):
+                    continue
+                raise
         results.append({
             "id": doc["id"],
             "score": float(scores[i]),
@@ -256,7 +280,7 @@ def handle_get_layers(params: dict, auth: AuthContext) -> str:
 
         if not auth.is_superadmin:
             scope_ids = layer.get("site_scope_ids") or []
-            if scope_ids and not any(auth.can_access_site_scope(sid) for sid in scope_ids):
+            if not scope_ids or not all(auth.can_access_site_scope(sid) for sid in scope_ids):
                 return json.dumps({"success": False, "message": "Access denied: not authorized for this layer's site scope."})
         return json.dumps({
             "id": layer.get("id"),
@@ -416,6 +440,8 @@ def handle_get_site_scopes(params: dict, auth: AuthContext) -> str:
 
 
 def handle_create_layer_group(params: dict, auth: AuthContext) -> str:
+    if auth.is_contributor:
+        return json.dumps({"success": False, "message": "Access denied: contributors may only create unpublished layers."})
     site_scope_id = params.get("site_scope_id")
     name = params.get("name")
 
@@ -556,7 +582,7 @@ def handle_update_layer(params: dict, auth: AuthContext) -> str:
     params.pop("site_scope_id", None)
 
     # Fast-path: reject entirely if no valid role (avoids an unnecessary API fetch).
-    if not auth.role:
+    if not auth.role or auth.is_contributor:
         return json.dumps({"success": False, "message": "Access denied: no valid session. Use the admin chat interface."})
 
     # For non-superadmins: fetch the layer's real site scopes and verify access.
@@ -572,7 +598,7 @@ def handle_update_layer(params: dict, auth: AuthContext) -> str:
             raise
         scope_ids = (layer_resp.get("data") or {}).get("site_scope_ids") or []
         if scope_ids:
-            if not any(auth.can_access_site_scope(sid) for sid in scope_ids):
+            if not all(auth.can_access_site_scope(sid) for sid in scope_ids):
                 return json.dumps({
                     "success": False,
                     "message": f"Access denied: your account is not authorized for any site scope of layer {layer_id}.",
@@ -583,10 +609,6 @@ def handle_update_layer(params: dict, auth: AuthContext) -> str:
                 "success": False,
                 "message": f"Access denied: layer {layer_id} has no site scope assigned. Ask a superadmin to assign it first.",
             })
-
-    # Contributors/staff may not publish layers
-    if auth.is_contributor and params.get("published") is True:
-        params["published"] = False
 
     # Validate zoom constraints (Rails rejects zoom_min/zoom_max outside 0–24)
     zoom_err = _validate_zoom(params.get("zoom_min"), params.get("zoom_max"))
@@ -627,7 +649,7 @@ def handle_update_layer(params: dict, auth: AuthContext) -> str:
 
 
 def handle_import_vector_table(params: dict, auth: AuthContext) -> str:
-    if not auth.role:
+    if not auth.is_superadmin:
         return json.dumps({"success": False, "message": "Access denied: no valid session. Use the admin chat interface."})
     s3_uri = params.get("s3_uri")
     table_name = params.get("table_name")
@@ -641,12 +663,14 @@ def handle_import_vector_table(params: dict, auth: AuthContext) -> str:
     return json.dumps(result, ensure_ascii=False)
 
 
-def handle_get_tables(params: dict, _auth: AuthContext) -> str:
+def handle_get_tables(params: dict, auth: AuthContext) -> str:
     """List PostGIS tables OR get full details for one table.
 
     With table_name: returns columns, types, and sample rows for that table.
     Without table_name: lists all tables in managed schemas with row counts.
     """
+    if not auth.is_superadmin:
+        return json.dumps({"success": False, "message": "Access denied: raw table access requires a superadmin."})
     table_name = params.get("table_name")
 
     if table_name:
@@ -676,45 +700,32 @@ def handle_get_tables(params: dict, _auth: AuthContext) -> str:
         return json.dumps(summary, ensure_ascii=False)
 
 def handle_create_vector_view(params: dict, auth: AuthContext) -> str:
-    """Create (or replace) a PostgreSQL view in ra_vector from a SELECT query.
-
-    The view can then be served as MVT tiles via ra_vector_tile with
-    params.table = <view_name>.  Only use this when you need to join a
-    non-spatial table with a geometry table — do NOT put raw SQL into
-    layer_config.body.source.
-
-    Required params: name (must start with v_), sql (bare SELECT statement).
-    Optional: description.
-    """
-    if not auth.role:
-        return json.dumps({"success": False, "message": "Access denied: no valid session. Use the admin chat interface."})
-    name = params.get("name")
-    sql = params.get("sql")
-    if not name:
-        return json.dumps({"success": False, "message": "name is required (e.g. 'v_my_view')"})
-    if not sql:
-        return json.dumps({"success": False, "message": "sql is required (bare SELECT statement)"})
-    body: dict = {"name": name, "sql": sql}
-    if params.get("description"):
-        body["description"] = params["description"]
-    result = rails_post("/api/admin/vector_views", body)
-    logger.info("AGENT_AUDIT create_vector_view name=%s admin_role=%s", name, auth.role)
-    return json.dumps(result, ensure_ascii=False)
+    """Reject arbitrary SQL; database views require a reviewed migration."""
+    return json.dumps({"success": False, "message": "SQL view creation is disabled. Use a reviewed database migration."})
 
 
-def handle_get_statistics(params: dict, _auth: "AuthContext") -> str:
+def handle_get_statistics(params: dict, auth: "AuthContext") -> str:
     """Get data statistics (min/max/histogram) for a COG raster via TiTiler, or a vector
     table column via the Rails API.  Used to inform legend / colormap configuration."""
+    if not auth.is_superadmin:
+        return json.dumps({"success": False, "message": "Access denied: raw statistics require a superadmin."})
     s3_uri = params.get("s3_uri")
     table_name = params.get("table_name")
     column = params.get("column")
 
     if s3_uri:
+        secret = os.environ.get("DATA_GATEWAY_SECRET", "")
+        if len(secret.encode()) < 32:
+            logger.error("COG statistics require DATA_GATEWAY_SECRET (at least 32 bytes)")
+            return json.dumps({"success": False, "message": "COG statistics service authorization is not configured."})
+        expires = int(time.time()) + 60
+        signature = hmac.new(secret.encode(), f"{expires}\n{s3_uri}".encode(), hashlib.sha256).hexdigest()
         bidx = params.get("bidx", "1")
         try:
             resp = requests.get(
-                f"{TITILER_URL}/cog/statistics",
+                f"{TITILER_URL}/statistics",
                 params={"url": s3_uri, "bidx": str(bidx)},
+                headers={"X-Data-Authorization": f"{expires}:{signature}"},
                 timeout=60,
             )
             resp.raise_for_status()
@@ -811,7 +822,7 @@ def make_response(event: dict, body_text: str) -> dict:
 
 
 def handler(event: dict, context: Any) -> dict:
-    logger.info("Action group event: %s", json.dumps(event, default=str))
+    logger.info("Action group request: %s", event.get("function") or event.get("apiPath"))
 
     # API-schema groups send apiPath; function-based groups send function name
     api_path = event.get("apiPath", "")
@@ -830,11 +841,14 @@ def handler(event: dict, context: Any) -> dict:
         params = parse_parameters(event.get("parameters", []))
 
     auth = AuthContext(event.get("sessionAttributes", {}))
+    if not auth.role or not auth.admin_user_id:
+        return make_response(event, "Access denied: an authenticated admin user is required.")
 
     action_fn = ACTION_HANDLERS.get(handler_key)
     if action_fn is None:
         return make_response(event, f"Unknown action: {handler_key}")
 
+    actor_token = _actor_id.set(auth.admin_user_id)
     try:
         result_text = action_fn(params, auth)
         return make_response(event, result_text)
@@ -845,3 +859,5 @@ def handler(event: dict, context: Any) -> dict:
     except Exception as exc:
         logger.exception("Unexpected error in action %s", handler_key)
         return make_response(event, f"Error: {exc}")
+    finally:
+        _actor_id.reset(actor_token)

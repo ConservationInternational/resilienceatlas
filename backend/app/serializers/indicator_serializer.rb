@@ -18,4 +18,8 @@ class IndicatorSerializer < ActiveModel::Serializer
   attributes :name, :slug, :version, :position, :column_name, :operation
   has_many :models, each_serializer: ModelSerializer
   has_one :category, serializer: CategorySerializer
+
+  def models
+    object.models.joins(:site_scopes).where(site_scopes: {id: instance_options[:site_scope]}).distinct
+  end
 end

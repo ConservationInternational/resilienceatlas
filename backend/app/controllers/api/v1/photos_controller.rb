@@ -1,6 +1,6 @@
 module Api
   module V1
-    class PhotosController < ApiController
+    class PhotosController < ApplicationController
       before_action :authenticate_admin_user!
 
       def create

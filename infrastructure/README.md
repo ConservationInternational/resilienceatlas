@@ -6,6 +6,42 @@ tiler [TiTiler](https://developmentseed.org/titiler/) as a lambda function.
 
 It does not cover the infrastructure required for the frontend and backend applications.
 
+## Security rollout requirements
+
+See the [coordinated data authorization rollout](../cloud_functions/README.md#data-authorization-and-coordinated-rollout)
+before deploying these changes. Private API and raster responses must not be cached
+by CloudFront. Martin must expose only the explicitly configured guarded function,
+not automatic table/function discovery. Run the new Rails migration before starting
+that configuration and invalidate previously public tiles when approval is revoked.
+
+The data-store bucket uses `BucketOwnerEnforced` and blocks public policies and
+ACLs. Apply this to the actual live data buckets too, including buckets outside
+this Terraform state. Do not make a whole bucket public to restore map serving;
+use the authenticated gateways. Public website media needs a separately reviewed
+CDN origin/prefix policy rather than public listing or object ACLs.
+
+The legacy pipeline IAM user can assume only its specific pipeline role.
+CloudFormation-created workload roles must be under `/resilienceatlas-workload/`
+and carry the `resilienceatlas-workload-boundary` managed boundary. The deployer
+cannot remove/change that boundary or pass workload roles to services other than
+Lambda. Templates using the legacy execution role must specify both role path and
+boundary; review existing unbounded roles before applying. Current OIDC deployment
+roles are managed separately and require their own live permission review.
+
+The boundary allows only named workload log writes, artifact-bucket object access
+and prefixed Lambda invocation. It intentionally does not grant IAM, EE secrets,
+Bedrock or arbitrary data-bucket access. Operators must review and add exact
+resources/actions needed by each deployed workload to the boundary and its role
+policy; do not bypass the boundary to make a deployment succeed. Verify a Terraform
+plan and a nonproduction deployment before production; source validation is not a
+live IAM or S3-policy audit.
+
+The old GCP Cloud Run IAM policy now has no anonymous invokers. Existing resource
+addresses are retained so Terraform revokes the previous `allUsers` grant.
+The legacy root configuration still references retired function source directories;
+inventory and retire those live services separately if that configuration cannot
+be applied. Do not leave an obsolete public origin as a bypass around new gateways.
+
 ## Dependencies
 
 This deployment workflow relies on the coordination of different tools and services to work. If you wish to deploy it

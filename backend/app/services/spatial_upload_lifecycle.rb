@@ -1,6 +1,6 @@
 class SpatialUploadLifecycle
   EXTENSIONS = {"vector" => %w[.gpkg .geojson .json .zip], "cog" => %w[.tif .tiff]}.freeze
-  CONFIG_KEYS = %w[name slug source_crs sublayer raster_kind bidx rescale nodata colormap_name color legend popup_fields colormap replace_style].freeze
+  CONFIG_KEYS = %w[name slug source_crs sublayer raster_kind bidx rescale nodata colormap_name color legend popup_fields colormap replace_style site_scope_id].freeze
 
   def self.max_bytes
     Integer(ENV.fetch("UPLOAD_MAX_BYTES", 5.gigabytes.to_s))
@@ -19,6 +19,10 @@ class SpatialUploadLifecycle
     raise ArgumentError, "Invalid upload mode" unless %w[create replace dataset].include?(mode)
     target = (mode == "replace") ? Layer.find(attributes.fetch("layer_id")) : nil
     ability = Ability.new(user)
+    if !user.superadmin? && mode != "replace"
+      scope = SiteScope.find(attributes["site_scope_id"])
+      raise CanCan::AccessDenied unless mode == "create" && user.allowed_site_scope_ids.include?(scope.id)
+    end
     raise CanCan::AccessDenied unless ability.can?(:manage, DataImport)
     raise CanCan::AccessDenied if target && !ability.can?(:update, target)
     record = DataImport.new(admin_user: user, importable: target, import_type: type, status: "uploading",
@@ -55,6 +59,7 @@ class SpatialUploadLifecycle
     @di.with_lock do
       raise ArgumentError, "Wait until processing finishes" unless @di.ready? || @di.needs_input? || @di.failed?
       options = @di.options.merge(values.slice(*CONFIG_KEYS))
+      authorize_destination!(options)
       validate_configuration!(options)
       reprocess = %w[source_crs sublayer raster_kind].any? { |key| options[key].to_s != @di.options[key].to_s }
       @di.update!(options: options, metadata: @di.metadata.except("verified"),
@@ -67,6 +72,7 @@ class SpatialUploadLifecycle
       return @di.importable if @di.complete?
       raise ArgumentError, "Process and verify the preview first" unless @di.ready? && @di.metadata["verified"]
       validate_configuration!(@di.options)
+      authorize_destination!(@di.options)
       if @di.options["mode"] == "dataset"
         @di.update!(status: "complete", stage: "Dataset ready", completed_at: Time.current)
         return nil
@@ -78,12 +84,13 @@ class SpatialUploadLifecycle
           raise ArgumentError, "The layer changed since this upload began. Start a new replacement." unless layer.updated_at == @di.target_updated_at
           previous = UploadLayerConfiguration.snapshot(layer)
           # Source-dependent analysis must be revalidated for the replacement.
-          layer.update!(attributes.merge(analysis_suitable: false))
+          layer.update!(attributes.merge(analysis_suitable: false, public_data: false))
           @di.update!(previous_configuration: previous, target_updated_at: layer.updated_at)
         end
       else
         layer = Layer.create!(attributes.merge(name: @di.options.fetch("name"), slug: @di.options.fetch("slug"),
           published: false, timeline: false, analysis_suitable: false, opacity: 1))
+        Api::Admin::LayersManager.new(layer, @di.options["site_scope_id"]).link_layer_group
       end
       @di.update!(importable: layer, status: "complete", stage: "Layer saved", completed_at: Time.current)
       DatasetInventoryService.invalidate_all_caches!
@@ -95,6 +102,7 @@ class SpatialUploadLifecycle
     @di.with_lock do
       raise ArgumentError, "No replacement is available to roll back" unless @di.complete? && @di.previous_configuration.present? && @di.importable.is_a?(Layer)
       layer = @di.importable
+      Ability.new(@di.admin_user).authorize!(:update, layer)
       layer.with_lock do
         raise ArgumentError, "The layer changed after this replacement" unless layer.updated_at == @di.target_updated_at
         layer.update!(@di.previous_configuration)
@@ -109,6 +117,7 @@ class SpatialUploadLifecycle
       raise ArgumentError, "Layer name and slug are required" if options["name"].blank? || options["slug"].blank?
       raise ArgumentError, "Invalid layer slug" unless options["slug"].match?(/\A[a-zA-Z0-9]+(?:[-_][a-zA-Z0-9]+)*\z/)
     end
+
     if options["source_crs"].present? && !options["source_crs"].match?(/\AEPSG:\d{3,6}\z/i)
       raise ArgumentError, "Specify the source CRS as EPSG:<number>"
     end
@@ -146,5 +155,11 @@ class SpatialUploadLifecycle
         raise ArgumentError, "Existing color ramp requires missing field '#{property}'. Select Replace existing vector styling before previewing."
       end
     end
+  end
+
+  private
+
+  def authorize_destination!(options)
+    Ability.new(@di.admin_user).authorize_upload!(@di, options: options)
   end
 end

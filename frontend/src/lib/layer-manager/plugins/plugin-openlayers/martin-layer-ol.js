@@ -2,6 +2,8 @@ import { replace } from '../../utils/query';
 import VectorTileLayer from 'ol/layer/VectorTile';
 import VectorTileSource from 'ol/source/VectorTile';
 import MVT from 'ol/format/MVT';
+import { getApiBaseUrl } from '../../../../utilities/environment';
+import { scopeDataUrl } from '../../../../utilities/scopeDataUrl';
 import { buildVectorTileStyle, pathOptionsToStyle } from './style-converter';
 
 /**
@@ -52,9 +54,6 @@ function buildColorRampStyle(colorRamp) {
  *   mapboxStyle: Optional Mapbox GL style JSON (used instead of styles when present)
  */
 const MartinLayerOL = (layerModel) => {
-  const martinUrl = process.env.NEXT_PUBLIC_MARTIN_URL;
-  if (!martinUrl) throw new Error('NEXT_PUBLIC_MARTIN_URL is not configured.');
-
   const { layerConfig, params, sqlParams } = layerModel;
   const layerConfigParsed =
     layerConfig.parse === false
@@ -63,15 +62,10 @@ const MartinLayerOL = (layerModel) => {
 
   return new Promise((resolve) => {
     const { body } = layerConfigParsed;
-    const { source, styles, colorRamp, options = {}, params: martinParams } = body;
-
-    // Build the tile URL. For function sources (e.g. ra_vector_tile) the params
-    // are passed as a URL query string so Martin forwards them as query_params JSON.
-    const queryString =
-      martinParams && Object.keys(martinParams).length > 0
-        ? new URLSearchParams(martinParams).toString()
-        : '';
-    const tileUrl = `${martinUrl}/${source}/{z}/{x}/{y}${queryString ? '?' + queryString : ''}`;
+    const { styles, colorRamp, options = {} } = body;
+    const tileUrl =
+      body.gateway_tile_url ||
+      scopeDataUrl(`${getApiBaseUrl()}/api/layers/${layerModel.id}/tiles/{z}/{x}/{y}`);
 
     const vectorTileSource = new VectorTileSource({
       url: tileUrl,

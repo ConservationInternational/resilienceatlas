@@ -3,6 +3,7 @@ import { useMemo, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { getTitilerBaseUrl, getApiBaseUrl } from 'utilities/environment';
+import { scopeDataUrl } from 'utilities/scopeDataUrl';
 
 const sqlApi = 'https://cdb-cdn.resilienceatlas.org/user/ra/api/v2/sql';
 
@@ -33,7 +34,7 @@ export const useWidget = ({ slug, geojson }, { type, analysisQuery, analysisBody
 
       return {
         method: 'post',
-        url: parsedQuery,
+        url: scopeDataUrl(parsedQuery),
         data: {
           assetId,
           ...(isCOGLayer

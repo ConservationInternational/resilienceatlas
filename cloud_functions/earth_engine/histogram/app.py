@@ -9,6 +9,7 @@ import os
 from typing import Any
 
 import ee
+from shared.data_access import resource_authorized
 
 # Import shared utilities (copied into function directory during build)
 from shared.ee_utils import (
@@ -158,6 +159,13 @@ def handler(event: dict, context: Any) -> dict[str, Any]:
         
         if not asset_id:
             return error_response(400, "Missing required parameter: assetId")
+        if not resource_authorized(asset_id, event.get("headers")):
+            logger.warning("Rejected unauthorized Earth Engine histogram request")
+            return error_response(403, "Asset is not approved for this request")
+        if not isinstance(num_buckets, int) or isinstance(num_buckets, bool) or not 1 <= num_buckets <= 256:
+            return error_response(400, "numBuckets must be an integer between 1 and 256")
+        if len(json.dumps(geometry)) > 100_000:
+            return error_response(400, "Geometry is too large")
         
         if not geometry:
             return error_response(400, "Missing required parameter: geometry")

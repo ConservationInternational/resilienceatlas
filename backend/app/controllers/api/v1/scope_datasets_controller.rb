@@ -3,8 +3,6 @@ module Api
     class ScopeDatasetsController < ApiController
       include SitesFilters
 
-      skip_before_action :check_site_scope_authentication, only: [:index, :show, :intersecting_units, :geometry_bounds, :geometry_at_point, :ldn_ecoregion_at_point]
-
       def index
         datasets = ScopeDataset.for_site_scope(params[:site_scope])
           .ordered

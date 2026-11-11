@@ -8,7 +8,7 @@ Rails.application.routes.draw do
 
   # Sidekiq Web UI — constrained to authenticated AdminUsers
   require "sidekiq/web"
-  authenticate :admin_user do
+  authenticate :admin_user, ->(user) { user.superadmin? } do
     mount Sidekiq::Web => "/admin/sidekiq"
   end
 
@@ -64,6 +64,7 @@ Rails.application.routes.draw do
       get "layer-groups", to: "layer_groups#index", as: "layer_groups"
       get "/layers", to: "layers#index", as: "layers"
       get "/layers/:id/downloads", to: "layers#download_attachments", as: "download_attachments"
+      get "/layers/:id/tiles/:z/:x/:y", to: "vector_tiles#show"
 
       # S3 multipart upload coordination (used by Uppy in ActiveAdmin)
       scope "uploads/multipart" do
@@ -113,6 +114,10 @@ Rails.application.routes.draw do
       get "/titiler/info", to: "titiler#info"
       post "/titiler/statistics", to: "titiler#statistics"
       get "/titiler/point", to: "titiler#point"
+      get "/titiler/tiles/:z/:x/:y", to: "titiler#tile"
+      get "/earth-engine/:operation", to: "earth_engine#show"
+      post "/earth-engine/:operation", to: "earth_engine#create"
+      get "/earth-engine/tiles/:layer_id/:z/:x/:y", to: "earth_engine#tile"
 
       # ArcGIS FeatureServer proxy - forwards /query requests server-side so
       # that API tokens stored in layer_config are never exposed to the browser

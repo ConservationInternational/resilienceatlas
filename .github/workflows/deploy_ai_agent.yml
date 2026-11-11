@@ -130,6 +130,8 @@ jobs:
               RailsApiUrl="${{ secrets.RAILS_API_URL }}" \
               TitilerUrl="${{ github.ref == 'refs/heads/main' && 'https://titiler.resilienceatlas.org' || 'https://staging.titiler.resilienceatlas.org' }}" \
               ResilienceApiKeySecretArn="${{ vars.RESILIENCE_API_KEY_SECRET_ARN }}" \
+              AdminApiSystemUserId="${{ vars.ADMIN_API_SYSTEM_USER_ID }}" \
+              DataGatewaySecret="${{ secrets.DATA_GATEWAY_SECRET }}" \
               EmbeddingsBucket="${{ secrets.AI_EMBEDDINGS_BUCKET }}" \
               KbBucket="${{ secrets.AI_EMBEDDINGS_BUCKET }}" \
               BedrockAgentId="${{ secrets.BEDROCK_AGENT_ID }}" \

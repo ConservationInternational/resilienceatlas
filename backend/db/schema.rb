@@ -10,13 +10,13 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_11_10_150000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_11_143000) do
   create_schema "ra_app"
   create_schema "ra_nonspatial"
 
   # These are extensions that must be enabled in order to support this database
-  enable_extension "fuzzystrmatch"
   enable_extension "plpgsql"
+  enable_extension "fuzzystrmatch"
   enable_extension "postgis"
   enable_extension "postgis_topology"
 
@@ -450,6 +450,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_11_10_150000) do
     t.date "timeline_default_date"
     t.string "timeline_period"
     t.string "analysis_type"
+    t.boolean "public_data", default: false, null: false
     t.index ["layer_group_id"], name: "index_layers_on_layer_group_id"
     t.index ["slug"], name: "index_layers_on_slug"
   end
