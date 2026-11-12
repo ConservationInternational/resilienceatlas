@@ -1,5 +1,8 @@
 # Spatial upload workspace
 
+See the [remaining implementation and release work](./remaining-implementation-work.md)
+for the consolidated staging and deployment acceptance gates.
+
 ## Administrator workflow
 
 Open **Data > Data Uploads > Upload New Data**. The same workspace is linked from
@@ -43,9 +46,7 @@ The existing nonspatial CSV workflow remains in the workspace; it replaces the
 named table transactionally and is capped at 50 MB. Scope-dataset large CSV
 uploads retain their existing page and use the shared multipart coordinator.
 
-## Replacement and recovery
-
-### Tile configuration diagnostics
+## Tile configuration diagnostics
 
 Use **Map Content > Tile Security**, a layer's security panel, or the CSV export
 to inspect `config_diagnostics` when `invalid_provider_config` is reported.
@@ -62,6 +63,8 @@ restriction on either alias blocks shared public serving. Rendering still checks
 Configuration readiness does not establish that the object exists or is readable;
 verify anonymous tile delivery after deployment. No data migration or replay of
 grandfathering is needed for the S3 identity fix.
+
+## Replacement and recovery
 
 - Processing never overwrites the active table or object. Each output has a new
   table/key, so existing Martin/CDN/browser caches cannot mask replacements.

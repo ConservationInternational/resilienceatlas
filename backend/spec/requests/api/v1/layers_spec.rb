@@ -78,7 +78,7 @@ RSpec.describe "API V1 Layer", type: :request do
             original_body = response.body.b
             expect_any_instance_of(PdfFile).not_to receive(:generate_pdf_file)
 
-            get "/api/layers/#{id}/downloads", headers: {"Authorization" => Authorization}
+            get "/api/layers/#{id}/downloads", headers: {"Authorization" => self.Authorization}
 
             expect(response).to have_http_status(:ok)
             expect(response.body.b).to eq(original_body)
