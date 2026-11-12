@@ -88,6 +88,85 @@ RSpec.describe TileSecurityPolicy do
     expect(described_class.new(first).report.to_json).not_to include("secret", "storage.example")
   end
 
+  it "accepts existing S3 COG sources for publication and public cache eligibility" do
+    layer = attach_public(vector_layer(published: false, layer_provider: "cog",
+      layer_config: {body: {source: "s3://resilienceatlas/cogs/wheat.tif", colormap: [[[-32768, -1], [0, 0, 0, 0]]]}}.to_json))
+    expect(layer.update(published: true)).to be(true)
+    policy = described_class.new(layer)
+    expect(policy).to be_public_cache_eligible
+    expect(policy.source_key).to match(/\A[0-9a-f]{64}\z/)
+    expect(policy.report.fetch("config_diagnostics")).to be_empty
+    expect(TileRendererService.public_representation_valid?(layer)).to be(true)
+    expect(JSON.parse(LayerSerializer.new(layer).layer_config).dig("body", "public_tile_url")).to include("/api/public-tiles/#{layer.id}/")
+  end
+
+  it "shares restrictions between S3 and equivalent AWS HTTPS object aliases" do
+    layer = attach_public(vector_layer(layer_provider: "cog",
+      layer_config: '{"body":{"source":"s3://resilienceatlas/cogs/wheat.tif"}}'))
+    %w[
+      https://resilienceatlas.s3.amazonaws.com/cogs/wheat.tif
+      https://resilienceatlas.s3.us-east-1.amazonaws.com/cogs/wheat.tif
+      https://resilienceatlas.s3.dualstack.us-east-1.amazonaws.com/cogs/wheat.tif
+      https://s3.amazonaws.com/resilienceatlas/cogs/wheat.tif
+      https://s3.us-east-1.amazonaws.com/resilienceatlas/cogs/wheat.tif
+    ].each do |source|
+      other = attach_public(vector_layer(layer_provider: "cog", data_policy: "restricted",
+        layer_config: {body: {source: source}}.to_json))
+      expect(described_class.new(other).source_key).to eq(described_class.new(layer).source_key)
+      expect(described_class.new(layer).report.fetch("reasons")).to include("conflicting_source_alias")
+      expect(Layer.fetch_all(site_scope: layer.site_scopes.first.id)).not_to include(layer)
+      other.destroy!
+    end
+  end
+
+  it "resolves multi-source and legacy S3 configurations and their temporal aliases" do
+    source = "s3://resilienceatlas/cogs/wheat-{{year}}-{{month}}-{{day}}.tif"
+    layer = vector_layer(layer_provider: "cog", layer_config: {body: {sources: [source, "s3://resilienceatlas/cogs/other.tif"]}}.to_json)
+    expect(described_class.new(layer).dependency_keys.length).to eq(2)
+    expect(described_class.new(layer).report.fetch("config_diagnostics")).to be_empty
+    layer.update!(layer_config: {body: {source: source}}.to_json)
+    key = described_class.new(layer).source_key
+    legacy = "https://titiler.resilienceatlas.org/tiles/{z}/{x}/{y}?#{URI.encode_www_form("url" => source)}"
+    layer.update!(layer_config: {body: {url: legacy}}.to_json)
+    expect(described_class.new(layer).source_key).to eq(key)
+  end
+
+  it "keeps bucket restrictions enforced when a source identity can be resolved" do
+    stub_const("ENV", ENV.to_h.merge("COG_ALLOWED_S3_BUCKETS" => "resilienceatlas"))
+    layer = vector_layer(layer_provider: "cog", timeline: false,
+      layer_config: '{"body":{"source":"s3://unapproved-bucket/cogs/wheat.tif"}}')
+    expect(described_class.new(layer).source_key).to be_present
+    expect(TileRendererService.public_representation_valid?(layer)).to be(false)
+  end
+
+  {
+    "invalid_config_json" => "{private-token",
+    "invalid_config_shape" => "[]",
+    "invalid_body_shape" => '{"body":[]}',
+    "invalid_source_shape" => '{"body":{"sources":[42]}}',
+    "missing_cog_source" => '{"body":{}}',
+    "unsupported_source_scheme" => '{"body":{"source":"http://private.example/file.tif"}}',
+    "invalid_source_url" => '{"body":{"source":"s3://user:private-token@resilienceatlas/file.tif"}}'
+  }.each do |code, config|
+    it "reports #{code} without disclosing invalid configuration values" do
+      layer = vector_layer(published: false)
+      layer.assign_attributes(layer_provider: "cog", layer_config: config)
+      report = described_class.new(layer).report
+      expect(report.fetch("reasons")).to include("invalid_provider_config")
+      expect(report.fetch("config_diagnostics")).to include(include("code" => code, "message" => a_kind_of(String)))
+      expect(report.to_json).not_to include("private-token", "private.example")
+    end
+  end
+
+  it "explains unresolved Martin and Earth Engine sources and invalid analysis JSON" do
+    layer = vector_layer(published: false, layer_config: '{"body":{"source":"ra_vector_tile"}}')
+    expect(described_class.new(layer).config_diagnostics).to include(include("code" => "unresolved_martin_source"))
+    layer.update!(layer_provider: "gee", analysis_body: "{}", layer_config: '{"body":{"url":"https://ee.example/tiles"}}')
+    expect(described_class.new(layer).config_diagnostics).to include(include("code" => "unresolved_gee_source"))
+    layer.analysis_body = "{secret"
+    expect(described_class.new(layer).config_diagnostics).to include(include("code" => "invalid_analysis_json"))
+  end
+
   it "fails closed for malformed source shapes and unresolved GEE assets" do
     layer = vector_layer
     layer.update_column(:layer_config, '{"body":{"params":"invalid"}}')

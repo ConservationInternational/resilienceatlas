@@ -3,6 +3,13 @@
 <p><strong><%= report.fetch("status").humanize %></strong>:
   <%= report.fetch("reasons").map(&:humanize).join("; ").presence || "Local configuration ready; live access not verified." %>
 </p>
+<% if report.fetch("config_diagnostics").any? %>
+  <ul>
+    <% report.fetch("config_diagnostics").each do |diagnostic| %>
+      <li><strong><%= diagnostic.fetch("code") %></strong>: <%= diagnostic.fetch("message") %></li>
+    <% end %>
+  </ul>
+<% end %>
 <dl>
   <dt>Data policy</dt><dd><%= layer.data_policy %> (<%= layer.security_provenance %>)</dd>
   <dt>Source identity</dt><dd><%= report.fetch("source_key") %></dd>

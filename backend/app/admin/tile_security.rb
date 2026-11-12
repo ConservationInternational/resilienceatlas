@@ -82,12 +82,13 @@ ActiveAdmin.register_page "Tile Security" do
   page_action :export, method: :get do
     response.cache_control.replace(private: true, no_store: true)
     body = CSV.generate do |csv|
-      csv << %w[id slug provider publication data_policy status reasons version verification verified_at]
+      csv << %w[id slug provider publication data_policy status reasons version verification verified_at config_diagnostics]
       filtered_security_layers.each do |layer|
         report = security_report(layer)
         verification = security_verification(layer)
         values = [layer.id, layer.slug, layer.layer_provider, layer.published, layer.data_policy,
-          report["status"], report["reasons"].join(";"), report["version"], verification[:status], verification[:at]&.iso8601]
+          report["status"], report["reasons"].join(";"), report["version"], verification[:status], verification[:at]&.iso8601,
+          report.fetch("config_diagnostics").map { |diagnostic| "#{diagnostic.fetch("code")}: #{diagnostic.fetch("message")}" }.join("; ")]
         csv << values.map { |value| (value.is_a?(String) && value.match?(/\A[=+@\-\t\r\n]/)) ? "'#{value}" : value }
       end
     end
@@ -125,6 +126,9 @@ ActiveAdmin.register_page "Tile Security" do
         report = security_report(layer)
         status_tag report["status"]
         div report["reasons"].join(", ")
+        report.fetch("config_diagnostics").each do |diagnostic|
+          div "#{diagnostic.fetch("code")}: #{diagnostic.fetch("message")}"
+        end
       end
       column("Generation") { |layer| layer.tile_cache_version }
       column("Live verification") do |layer|

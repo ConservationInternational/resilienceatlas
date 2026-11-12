@@ -178,6 +178,9 @@ ActiveAdmin.register Layer do
       policy = TileSecurityPolicy.new(layer).report
       status_tag policy.fetch("status")
       div policy.fetch("reasons").join(", ")
+      policy.fetch("config_diagnostics").each do |diagnostic|
+        div "#{diagnostic.fetch("code")}: #{diagnostic.fetch("message")}"
+      end
     end
     column :data_policy
     actions defaults: true do |layer|

@@ -45,6 +45,24 @@ uploads retain their existing page and use the shared multipart coordinator.
 
 ## Replacement and recovery
 
+### Tile configuration diagnostics
+
+Use **Map Content > Tile Security**, a layer's security panel, or the CSV export
+to inspect `config_diagnostics` when `invalid_provider_config` is reported.
+Diagnostics distinguish malformed JSON/object shapes, missing COG sources,
+unsupported URL schemes, malformed URLs, and unresolved Martin/Earth Engine
+identities. They never include source URLs, credentials, or parser exception text.
+
+COG sources support both `s3://bucket/key.tif` and HTTPS. Keep existing S3
+configurations: TiTiler uses its IAM role to read private objects. Do not convert
+them to HTTPS or make a bucket public to clear a readiness error.
+S3 and equivalent standard AWS HTTPS object URLs share a policy identity, so a
+restriction on either alias blocks shared public serving. Rendering still checks
+`COG_ALLOWED_S3_BUCKETS` (default `resilienceatlas`) and the HTTPS host allowlist.
+Configuration readiness does not establish that the object exists or is readable;
+verify anonymous tile delivery after deployment. No data migration or replay of
+grandfathering is needed for the S3 identity fix.
+
 - Processing never overwrites the active table or object. Each output has a new
   table/key, so existing Martin/CDN/browser caches cannot mask replacements.
 - Compatible vector/raster configuration, metadata, translations, source and

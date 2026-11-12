@@ -64,7 +64,55 @@ class TileSecurityPolicy
     status = warnings.any? ? "warning" : "ready"
     status = "blocked" if blocks.any?
     {"status" => status, "reasons" => (blocks + warnings).uniq,
+     "config_diagnostics" => config_diagnostics,
      "source_key" => source_key, "version" => version, "public_cache_eligible" => blocks.empty?}
+  end
+
+  def config_diagnostics
+    config = JSON.parse(@layer.layer_config.presence || "{}")
+    return diagnostic("invalid_config_shape", "Layer config must be a JSON object.") unless config.is_a?(Hash)
+    body = config.fetch("body", config)
+    return diagnostic("invalid_body_shape", "Layer config body must be a JSON object.") unless body.is_a?(Hash)
+
+    case @layer.layer_provider
+    when "cog"
+      if (body.key?("source") && !body["source"].is_a?(String)) ||
+          (body.key?("sources") && (!body["sources"].is_a?(Array) || !body["sources"].all? { |source| source.is_a?(String) })) ||
+          (body.key?("url") && !body["url"].is_a?(String))
+        return diagnostic("invalid_source_shape", "COG source and url must be strings; sources must be an array of strings.")
+      end
+      sources = LayerDataSources.cog_urls(@layer)
+      return diagnostic("missing_cog_source", "Set body.source, body.sources, or the url query parameter in body.url.") if sources.empty? || sources.any?(&:blank?)
+      sources.each do |source|
+        uri = URI.parse(escape_temporal_templates(source))
+        unless uri.scheme.in?(%w[s3 https])
+          return diagnostic("unsupported_source_scheme", "COG sources must use s3:// or https://.")
+        end
+        unless canonical_url(source)
+          return diagnostic("invalid_source_url", "COG sources require a host and no embedded credentials; S3 sources also require an object key and no port, query or fragment.")
+        end
+      end
+    when "martin"
+      unless source_identity.present?
+        return diagnostic("unresolved_martin_source", "Set body.params.table or source to a valid table identifier, not a generic tile function.")
+      end
+    when "gee"
+      begin
+        JSON.parse(@layer.analysis_body.presence || "{}")
+      rescue JSON::ParserError
+        return diagnostic("invalid_analysis_json", "Analysis body must contain valid JSON to resolve the Earth Engine asset.")
+      end
+      unless source_identity.present?
+        return diagnostic("unresolved_gee_source", "Set an Earth Engine assetId/asset_id or a supported earthengine.googleapis.com map tile URL.")
+      end
+    else
+      return diagnostic("missing_provider_config", "Set a nonempty provider configuration object.") if config.empty?
+    end
+    []
+  rescue JSON::ParserError
+    diagnostic("invalid_config_json", "Layer config must contain valid JSON.")
+  rescue URI::InvalidURIError, ArgumentError
+    diagnostic("invalid_source_url", "A COG source or tile URL is malformed; check URL encoding and timeline placeholders.")
   end
 
   def reasons
@@ -101,11 +149,11 @@ class TileSecurityPolicy
   private
 
   def structurally_valid_config?
-    return source_identity.present? if SUPPORTED_PROVIDERS.include?(@layer.layer_provider)
-    config = JSON.parse(@layer.layer_config.presence || "{}")
-    config.is_a?(Hash) && config.present? && config.fetch("body", config).is_a?(Hash)
-  rescue JSON::ParserError
-    false
+    config_diagnostics.empty?
+  end
+
+  def diagnostic(code, message)
+    [{"code" => code, "message" => message}]
   end
 
   def diagnostic_warnings(blocks)
@@ -167,10 +215,31 @@ class TileSecurityPolicy
   end
 
   def canonical_url(value)
-    uri = URI.parse(value.gsub(/\{\{(year|month|day)\}\}/) { |token| token.gsub("{", "%7B").gsub("}", "%7D") })
+    uri = URI.parse(escape_temporal_templates(value))
+    if uri.scheme == "s3"
+      return unless uri.host&.match?(/\A[a-z0-9][a-z0-9.-]*\z/) && uri.path.present? && uri.path != "/" &&
+        uri.userinfo.nil? && uri.port.nil? && uri.query.nil? && uri.fragment.nil?
+
+      return "https://#{uri.host}.s3.amazonaws.com#{uri.path}"
+    end
     return unless uri.is_a?(URI::HTTPS) && uri.host.present? && uri.userinfo.nil?
     # Credentials never participate in alias identity: signed and unsigned aliases
     # for the same object must share restrictions.
-    "#{uri.scheme}://#{uri.host.downcase}#{(uri.port == 443) ? "" : ":#{uri.port}"}#{uri.path}"
+    host = uri.host.downcase
+    path = uri.path
+    if uri.port == 443
+      if (match = host.match(/\A(.+)\.s3(?:[.-](?:dualstack\.)?[a-z0-9-]+)?\.amazonaws\.com\z/))
+        host = "#{match[1]}.s3.amazonaws.com"
+      elsif host.match?(/\As3(?:[.-](?:dualstack\.)?[a-z0-9-]+)?\.amazonaws\.com\z/) &&
+          (match = path.match(%r{\A/([a-z0-9][a-z0-9.-]*)/(.+)\z}))
+        host = "#{match[1]}.s3.amazonaws.com"
+        path = "/#{match[2]}"
+      end
+    end
+    "#{uri.scheme}://#{host}#{(uri.port == 443) ? "" : ":#{uri.port}"}#{path}"
+  end
+
+  def escape_temporal_templates(value)
+    value.gsub(/\{\{(year|month|day)\}\}/) { |token| token.gsub("{", "%7B").gsub("}", "%7D") }
   end
 end

@@ -30,6 +30,17 @@ RSpec.describe "Admin tile security", type: :request do
     expect(response.body).not_to include("admin_preview_token")
   end
 
+  it "shows actionable redacted configuration diagnostics in the dashboard, layer panel and CSV" do
+    layer.update_columns(layer_provider: "cog", layer_config: '{"body":{"source":"http://confidential.example/secret.tif?token=private-token"}}')
+    sign_in admin
+    ["/admin/tile_security", "/admin/layers/#{layer.id}", "/admin/tile_security/export"].each do |path|
+      get path
+      expect(response).to have_http_status(:ok)
+      expect(response.body).to include("unsupported_source_scheme", "COG sources must use s3:// or https://.")
+    end
+    expect(response.body).not_to include("confidential.example", "private-token")
+  end
+
   it "filters verification evidence by the current generation, including exports" do
     TileSecurityVerification.create!(layer: layer, admin_user: admin, status: "passed",
       source_version: TileSecurityPolicy.new(layer.reload).version)

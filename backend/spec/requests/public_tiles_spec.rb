@@ -41,6 +41,28 @@ RSpec.describe "Public tile route", type: :request do
     expect(response.headers["Cache-Control"]).to include("no-store")
   end
 
+  it "serves an existing S3 COG with the real policy and denies its restricted HTTPS alias" do
+    allow_any_instance_of(TileSecurityPolicy).to receive(:public_cache_eligible?).and_call_original
+    allow_any_instance_of(TileSecurityPolicy).to receive(:version).and_call_original
+    allow_any_instance_of(TileSecurityPolicy).to receive(:source_key).and_call_original
+    cog = create(:layer, layer_provider: "cog", published: true, timeline: false,
+      layer_config: {body: {source: "s3://resilienceatlas/cogs/wheat.tif"}}.to_json)
+    create(:agrupation, layer: cog, layer_group: create(:layer_group))
+    cog.reload
+    allow(TileRendererService).to receive(:render).with(cog, z: 0, x: 0, y: 0, params: {}).and_return(tile)
+
+    get "/api/public-tiles/#{cog.id}/#{cog.tile_cache_version}/0/0/0"
+    expect(response).to have_http_status(:ok)
+    expect(response.headers["Cache-Control"]).to include("s-maxage=86400")
+
+    create(:layer, layer_provider: "cog", data_policy: "restricted", timeline: false,
+      layer_config: {body: {source: "https://resilienceatlas.s3.amazonaws.com/cogs/wheat.tif"}}.to_json)
+    expect(TileRendererService).not_to receive(:render)
+    get "/api/public-tiles/#{cog.id}/#{cog.reload.tile_cache_version}/0/0/0"
+    expect(response).to have_http_status(:not_found)
+    expect(response.headers["Cache-Control"]).to include("no-store")
+  end
+
   it "does not serve a layer that is no longer public-cache eligible" do
     allow_any_instance_of(TileSecurityPolicy).to receive(:public_cache_eligible?).and_return(false)
     expect(TileRendererService).not_to receive(:render)

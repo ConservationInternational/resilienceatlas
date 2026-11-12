@@ -4,6 +4,7 @@ import { replace } from 'lib/layer-manager';
 import { getRouterParam } from 'utilities';
 
 import { persisted_layer } from '../../schema';
+import { replaceTimelineLayerUrls } from 'utilities/replaceTimelineLayerUrls';
 
 export const URL_PERSISTED_KEYS = ['date', 'opacity', 'order', 'chartLimit'];
 
@@ -32,6 +33,7 @@ export const parseDates = (layer, defaultURLDate) => {
 
   const replaceDates = (str) => replace(str, getDateParams());
   const { layerConfig } = layer;
+  const dateLayerConfig = replaceTimelineLayerUrls(layerConfig, getDateParams());
 
   // Guard against undefined layerConfig
   if (!layerConfig) {
@@ -51,19 +53,12 @@ export const parseDates = (layer, defaultURLDate) => {
     cartocss: layer.cartocss && replaceDates(layer.cartocss),
     sql: layer.sql && replaceDates(layer.sql),
     layerConfig: {
-      ...layerConfig,
+      ...dateLayerConfig,
       body: {
-        ...(layerConfig.body || {}),
-        url: layerConfig?.body?.url && replaceDates(layerConfig.body.url),
-        public_tile_url:
-          layerConfig?.body?.public_tile_url && replaceDates(layerConfig.body.public_tile_url),
-        source: layerConfig?.body?.source && replaceDates(layerConfig.body.source),
-        sources: Array.isArray(layerConfig?.body?.sources)
-          ? layerConfig.body.sources.map((source) => replaceDates(source))
-          : layerConfig?.body?.sources,
+        ...(dateLayerConfig.body || {}),
         layers:
           layer.type === 'cartodb' &&
-          layerConfig?.body?.layers?.map((l) => ({
+          dateLayerConfig?.body?.layers?.map((l) => ({
             ...l,
             // Carto Layers
             options: l.options && {
