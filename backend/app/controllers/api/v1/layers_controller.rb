@@ -16,9 +16,7 @@ module Api
         zipped = @layer.zip_attachments(params, request.original_url.to_s, @site_name, @subdomain)
 
         if zipped
-          File.open(zipped, "r") do |f|
-            send_data f.read, type: "application/zip; charset=UTF-8;", filename: File.basename(zipped)
-          end
+          send_data zipped[:data], type: "application/zip; charset=UTF-8;", filename: zipped[:filename]
         else
           render json: {message: "No files for specified layer"}
         end

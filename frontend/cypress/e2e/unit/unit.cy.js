@@ -61,9 +61,7 @@ describe('absoluteOrRelativeUrlWithCurrentLocale', function () {
       expect(parsed.body.public_tile_url).to.eq(
         '/api/public-tiles/12/version/{z}/{x}/{y}?time=2023-12-31',
       );
-      expect(parsed.body.source).to.eq(
-        'https://storage.googleapis.com/data/ndvi-2023-12-31.tif',
-      );
+      expect(parsed.body.source).to.eq('https://storage.googleapis.com/data/ndvi-2023-12-31.tif');
       expect(parsed.body.sources[0]).to.eq(
         'https://storage.googleapis.com/data/ndvi-2023-12-31.tif',
       );

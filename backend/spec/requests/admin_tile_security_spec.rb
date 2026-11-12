@@ -12,6 +12,7 @@ RSpec.describe "Admin tile security", type: :request do
   it "shows scoped readiness and exports only authorized records" do
     secret = create(:layer, slug: "unrelated-confidential-layer")
     sign_in admin
+    expect(TileByteCache).not_to receive(:stats)
     get "/admin/tile_security"
     expect(response).to have_http_status(:ok)
     expect(response.body).to include(layer.slug)
@@ -28,6 +29,14 @@ RSpec.describe "Admin tile security", type: :request do
     expect(response).to have_http_status(:ok)
     expect(response.body).to include("Tile security and cache readiness")
     expect(response.body).not_to include("admin_preview_token")
+  end
+
+  it "exposes aggregate cache health to superadmins" do
+    sign_in superadmin
+    expect(TileByteCache).to receive(:stats).and_call_original
+    get "/admin/tile_security"
+    expect(response).to have_http_status(:ok)
+    expect(response.body).to include("Private tile cache health", "Redis available", "Counters cover this Rails process only")
   end
 
   it "shows actionable redacted configuration diagnostics in the dashboard, layer panel and CSV" do

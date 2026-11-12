@@ -66,9 +66,22 @@ RSpec.describe "API V1 Layer", type: :request do
 
           it "downloads file" do
             expect(File.exist?(stub_layer_zip)).to be_truthy
+            expect(response.media_type).to eq("application/zip")
+            expect(response.headers["Content-Disposition"]).to include(File.basename(stub_layer_zip))
+            expect(response.body.b).to eq(File.binread(stub_layer_zip))
             Zip::File.open(stub_layer_zip) do |zip_file|
               expect(zip_file.first.name).to eq(File.basename("#{layer.name.parameterize}.pdf"))
             end
+          end
+
+          it "serves the cached ZIP on a subsequent request" do
+            original_body = response.body.b
+            expect_any_instance_of(PdfFile).not_to receive(:generate_pdf_file)
+
+            get "/api/layers/#{id}/downloads", headers: {"Authorization" => Authorization}
+
+            expect(response).to have_http_status(:ok)
+            expect(response.body.b).to eq(original_body)
           end
         end
 

@@ -246,9 +246,6 @@ class Layer < ApplicationRecord
   def zip_attachments(options, domain, site_name = nil, subdomain = nil)
     site_name = site_name.present? ? site_name : "Conservation International"
 
-    # Sanitize subdomain to prevent path traversal
-    subdomain = subdomain.to_s.parameterize.presence
-
     download_path = options["download_path"] if options["download_path"].present?
     download_query = options["q"] if options["q"].present?
     download_format = options["with_format"] if options["with_format"].present?
@@ -289,7 +286,9 @@ class Layer < ApplicationRecord
     zipfile = zipfile_name(subdomain)
 
     return false if !download?
-    return zipfile if File.exist?(zipfile) && date_valid?(subdomain)
+    if File.exist?(zipfile) && date_valid?(subdomain)
+      return {data: File.binread(zipfile), filename: File.basename(zipfile)}
+    end
 
     layer_file = fetch_remote_file(layer_url) if layer_url
 
@@ -312,7 +311,7 @@ class Layer < ApplicationRecord
       File.delete(pdf_file_path)
     end
 
-    zipfile
+    {data: File.binread(zipfile), filename: File.basename(zipfile)}
   end
 
   # Invalidate the dataset inventory layer-usage cache whenever a layer changes,
@@ -381,7 +380,7 @@ class Layer < ApplicationRecord
   end
 
   def zipfile_name(subdomain)
-    "#{Rails.root}/downloads/#{name.parameterize}-date-#{DateTime.now.to_date.to_s.parameterize}-#{subdomain}.zip"
+    "#{Rails.root}/downloads/#{name.parameterize}-date-#{DateTime.now.to_date.to_s.parameterize}-#{subdomain.to_s.parameterize}.zip"
   end
 
   def pdf_file_path

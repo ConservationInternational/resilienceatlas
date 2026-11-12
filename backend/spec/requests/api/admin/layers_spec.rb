@@ -22,7 +22,12 @@ RSpec.describe "API Admin Layers", type: :request do
       expect(layer.fetch("security_provenance")).to eq("default_public")
       expect(layer.fetch("tile_cache_version")).to match(/\A[a-f0-9]{28,64}\z/)
       report = layer.fetch("tile_security")
-      expect(report.keys).to contain_exactly("status", "reasons", "source_key", "version", "public_cache_eligible")
+      expect(report.keys).to contain_exactly("status", "reasons", "config_diagnostics", "source_key", "version", "public_cache_eligible")
+      expect(report.fetch("config_diagnostics")).to be_an(Array)
+      report.fetch("config_diagnostics").each do |diagnostic|
+        expect(diagnostic.keys).to contain_exactly("code", "message")
+        expect(diagnostic.values).to all(be_a(String))
+      end
       expect(report.fetch("version")).to eq(layer.fetch("tile_cache_version"))
       expect(report.fetch("reasons")).to be_an(Array)
       expect(report.fetch("public_cache_eligible")).to be_in([true, false])

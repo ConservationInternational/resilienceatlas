@@ -140,6 +140,15 @@ ActiveAdmin.register_page "Tile Security" do
     para link_to("Previous", admin_tile_security_path(params.permit(:site_scope_id, :status).to_h.merge(page: page_number - 1))) if page_number > 1
     para link_to("Next", admin_tile_security_path(params.permit(:site_scope_id, :status).to_h.merge(page: page_number + 1))) if layers.size == 50
     if current_admin_user.superadmin?
+      panel "Private tile cache health" do
+        stats = TileByteCache.stats
+        para "Counters cover this Rails process only; Redis capacity and invalidation totals are deployment-wide."
+        para "Enabled: #{stats.fetch("enabled")}"
+        %w[counters capacity invalidations].each do |section|
+          h4 section.humanize
+          stats.fetch(section).each { |name, value| para "#{name.humanize}: #{value.nil? ? "unknown" : value}" }
+        end
+      end
       panel "Unreferenced vector sources (first 1000 relations)" do
         para "Informational inventory only; never auto-published."
         para TileSourceInventory.orphans(current_admin_user).join(", ")

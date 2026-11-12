@@ -63,6 +63,16 @@ RSpec.describe Layer, type: :model do
 
   it { is_expected.to be_valid }
 
+  describe "attachment ZIP paths" do
+    it "keeps parameterized layer and subdomain names inside the downloads directory" do
+      subject.name = "../../sensitive/file"
+      path = subject.send(:zipfile_name, "../../other/path")
+
+      expect(File.dirname(path)).to eq(Rails.root.join("downloads").to_s)
+      expect(File.basename(path)).to match(/\Asensitive-file-date-\d{4}-\d{2}-\d{2}-other-path\.zip\z/)
+    end
+  end
+
   it "should not be valid without slug" do
     subject.slug = nil
     expect(subject).not_to be_valid

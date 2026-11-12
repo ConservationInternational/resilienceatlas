@@ -9,7 +9,11 @@ RSpec.describe "API V1 Indicators", type: :request do
       parameter name: :locale, in: :query, type: :string, description: "Used language. Default: en", required: false
 
       let!(:indicators) { create_list :indicator, 3 }
-      let!(:scope) { create(:site_scope, id: 1) }
+      let!(:scope) do
+        create(:site_scope, id: 1).tap do
+          SiteScope.connection.reset_pk_sequence!(SiteScope.table_name)
+        end
+      end
       let!(:model) { create(:model, site_scopes: [scope], indicators: indicators) }
       let!(:foreign_model) { create(:model, site_scopes: [create(:site_scope)], indicators: [indicators.first]) }
       let!(:foreign_indicator) { create(:indicator, models: [foreign_model]) }
