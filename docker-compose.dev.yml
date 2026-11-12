@@ -55,6 +55,14 @@ services:
       - RAILS_ENV=development
       - MARTIN_URL=http://martin:3000
       - REDIS_URL=redis://redis:6379/0
+      - TILE_PUBLIC_CDN_URL=${TILE_PUBLIC_CDN_URL:-}
+      - TILE_ORIGIN_PROBE_URL=${TILE_ORIGIN_PROBE_URL:-}
+      - TILE_CLOUDFRONT_DISTRIBUTION_IDS=${TILE_CLOUDFRONT_DISTRIBUTION_IDS:-}
+      - TILE_CACHE_REDIS_URL=redis://tile-cache-redis:6379/0
+      - TILE_PUBLIC_CDN_URL=${TILE_PUBLIC_CDN_URL:-}
+      - TILE_ORIGIN_PROBE_URL=${TILE_ORIGIN_PROBE_URL:-}
+      - TILE_CLOUDFRONT_DISTRIBUTION_IDS=${TILE_CLOUDFRONT_DISTRIBUTION_IDS:-}
+      - TITILER_URL=${TITILER_URL:-https://titiler.resilienceatlas.org}
     env_file:
       - ./backend/.env
     volumes:
@@ -68,6 +76,8 @@ services:
       - app-network
     depends_on:
       db:
+        condition: service_healthy
+      tile-cache-redis:
         condition: service_healthy
     restart: unless-stopped
     healthcheck:
@@ -110,6 +120,18 @@ services:
     image: redis:7-alpine
     ports:
       - "6379:6379"
+    networks:
+      - app-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  tile-cache-redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--save", "", "--appendonly", "no", "--maxmemory", "256mb", "--maxmemory-policy", "allkeys-lru"]
     networks:
       - app-network
     restart: unless-stopped

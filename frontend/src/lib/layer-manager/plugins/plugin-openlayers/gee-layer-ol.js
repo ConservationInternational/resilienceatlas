@@ -2,6 +2,7 @@ import { replace } from '../../utils/query';
 import TileLayer from 'ol/layer/Tile';
 import XYZ from 'ol/source/XYZ';
 import { scopeDataUrl } from 'utilities/scopeDataUrl';
+import { getApiBaseUrl } from '../../../../utilities/environment';
 
 /**
  * GEE (Google Earth Engine) tile layer handler for OpenLayers.
@@ -23,8 +24,13 @@ const GEELayerOL = (layerModel) => {
   return new Promise((resolve) => {
     const { body } = layerConfigParsed;
     const { url, options = {} } = body;
+    const publicTileUrl = body.public_tile_url
+      ? body.public_tile_url.startsWith('https://')
+        ? body.public_tile_url
+        : `${getApiBaseUrl().replace(/\/$/, '')}${body.public_tile_url}`
+      : null;
 
-    if (!url) {
+    if (!publicTileUrl && !url) {
       console.error('[GEE Layer OL] No tile URL in layerConfig.body.url');
       resolve(null);
       return;
@@ -59,7 +65,7 @@ const GEELayerOL = (layerModel) => {
       : undefined;
 
     const sourceOptions = {
-      url: scopeDataUrl(url),
+      url: publicTileUrl || scopeDataUrl(url),
       crossOrigin: 'anonymous',
       tileSize: options.tileSize || 256,
     };

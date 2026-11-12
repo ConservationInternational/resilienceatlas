@@ -82,13 +82,7 @@ class LayerSerializer < ActiveModel::Serializer
 
   def layer_config
     raw = object.layer_config
-    if object.layer_provider == "gee"
-      config = JSON.parse(raw.presence || "{}")
-      config["body"] ||= {}
-      config["body"]["url"] = "/api/earth-engine/tiles/#{object.id}/{z}/{x}/{y}"
-      return config.to_json
-    end
-    return raw unless object.layer_provider == "arcgis_feature"
+    return raw unless %w[martin cog gee arcgis_feature].include?(object.layer_provider)
 
     begin
       config = JSON.parse(raw || "{}")
@@ -97,8 +91,30 @@ class LayerSerializer < ActiveModel::Serializer
       return "{}"
     end
 
-    body = config["body"]
-    return raw unless body.is_a?(Hash) && body["token"].present?
+    config["body"] ||= {} if object.layer_provider == "gee"
+    body = config["body"].is_a?(Hash) ? config["body"] : config
+    return raw unless body.is_a?(Hash)
+
+    if %w[martin cog gee].include?(object.layer_provider) &&
+        object.respond_to?(:tile_cache_version) &&
+        TileSecurityPolicy.new(object).public_cache_eligible? &&
+        TileRendererService.public_representation_valid?(object)
+      cog_sources = (object.layer_provider == "cog") ? LayerDataSources.cog_urls(object) : []
+      has_timeline_source = cog_sources.any? &&
+        cog_sources.all? { |source| source.match?(/\{\{(?:year|month|day)\}\}/) }
+      time_variant = (object.timeline? && has_timeline_source) ? "?time={{year}}-{{month}}-{{day}}" : ""
+      route = "/api/public-tiles/#{object.id}/#{object.tile_cache_version}/{z}/{x}/{y}#{time_variant}"
+      body["public_tile_url"] = tile_public_url(route)
+    else
+      body.delete("public_tile_url")
+    end
+
+    if object.layer_provider == "gee"
+      body["url"] = "/api/earth-engine/tiles/#{object.id}/{z}/{x}/{y}"
+      return config.to_json
+    end
+
+    return config.to_json unless object.layer_provider == "arcgis_feature" && body["token"].present?
 
     body.delete("token")
     body["useProxy"] = true
@@ -124,5 +140,20 @@ class LayerSerializer < ActiveModel::Serializer
 
   def timeline_steps
     Array.wrap(object.timeline_steps).sort
+  end
+
+  private
+
+  def tile_public_url(route)
+    origin = ENV["TILE_PUBLIC_CDN_URL"].presence
+    return route unless origin
+
+    uri = URI.parse(origin)
+    return route unless uri.is_a?(URI::HTTPS) && uri.port == 443 &&
+      uri.path.in?(["", "/"]) && uri.userinfo.nil? && uri.query.nil? && uri.fragment.nil?
+
+    "#{uri.scheme}://#{uri.host}#{route}"
+  rescue URI::InvalidURIError
+    route
   end
 end

@@ -458,3 +458,68 @@ curl -f http://localhost:3001/health
 # Database (staging only)
 docker compose -f docker-compose.swarm.staging.yml exec database pg_isready -U postgres
 ```
+
+### Tile-safe data imports
+
+CartoDB import/configuration/repair tasks, `ldn:build_dimensions`, layer
+restore/upgrade, and the Trends.Earth, thresholds and LDN seeds use the shared
+`TileSourceLifecycle`. Upload activation and rollback use it with immutable
+processor-generated sources. These changes do not publish contributor drafts.
+
+For standalone rake tasks or seed runners, supply an operator identity and a
+trustworthy input-content fingerprint (include SQL/view dependencies and all
+data files, not a timestamp):
+
+```bash
+docker compose -f docker-compose.dev.yml exec \
+  -e TILE_IMPORT_IDENTITY=operator:alice \
+  -e TILE_IMPORT_FINGERPRINT=sha256-of-reviewed-input-manifest \
+  -e TILE_IMPORT_DRY_RUN=1 backend bundle exec rake cartodb:import_tables
+```
+
+Remove `TILE_IMPORT_DRY_RUN=1` to execute. The LDN setup script computes a manifest
+fingerprint from its input files and implementation; it accepts the same
+environment overrides. It stages **before** host-side `ogr2ogr` writes and passes
+one durable run ID through its nested tasks/seeds.
+
+An in-place refresh with previously public tiles stops until **all** recorded
+`TileCacheInvalidation` rows are confirmed `completed`. Submit/poll these through
+the configured operator/admin invalidation workflow; `submitted` is not
+confirmation. Never mark them completed without actual CDN completion evidence.
+Then rerun the identical operation/manifest/identity. Without configured
+invalidation integration, use an operator handoff; there is no silent fallback.
+No previously cached sources means no invalidation barrier.
+
+`TileSourceImport` records preserve the manifest, identity, run ID, source
+digests, affected layers, generation changes and invalidation IDs. Failed,
+staged and reconciliation-required runs deny affected public sources. Resume a
+failed writer with the same manifest; the reconciliation job refuses activation
+until that writer has succeeded. An identical completed manifest is a no-op
+unless another import changed its source generation. Reconciliation checks local
+configuration/vector source existence, not live upstream/CDN health.
+
+The initial policy migration records a cutoff inventory. Where historical
+explicit revocations are known, set `TILE_SECURITY_RESTRICTED_LAYER_IDS=12,34`
+on the migration runner. The earlier `public_data=false` default contains no
+historical revocation provenance; review that ambiguity before migration.
+Restores discard imported approval/version state and preserve existing
+slug/source restrictions and protected-scope credentials.
+
+### Public tile CDN benchmark
+
+After staging CDN behavior is deployed and a public layer has been approved,
+measure its versioned route with 100 tiles. Choose coordinates known to contain
+tiles for the layer; for timeline COGs, pass an allowed time variant:
+
+```bash
+TILE_BENCHMARK_ZOOM=12 \
+TILE_BENCHMARK_START_X=2000 \
+TILE_BENCHMARK_START_Y=2000 \
+TILE_BENCHMARK_QUERY='time=2024-01-01' \
+  ./scripts/benchmark_public_tiles.sh \
+  'https://api.staging.resilienceatlas.org/api/public-tiles/123/CURRENT_VERSION'
+```
+
+The script warms a 10×10 tile range, checks the same 100 URLs again, and
+requires at least 95% CloudFront hits (and corresponding renderer-call
+reduction) on the measured pass. It does not deploy or invalidate anything.

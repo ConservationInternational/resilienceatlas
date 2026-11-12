@@ -5,7 +5,7 @@ ActiveAdmin.register Layer do
     para "Layers are the core map data layers. Each layer defines a data source (COG raster, Martin vector tiles, or other provider), display style, legend, zoom range, and associated metadata."
   end
 
-  includes :translations
+  includes :translations, :site_scopes
 
   permit_params do
     attributes = [:name, :slug, :published, :zindex, :order, :layer_config, :layer_provider, :opacity,
@@ -16,13 +16,28 @@ ActiveAdmin.register Layer do
       source_ids: [],
       translations_attributes: [:id, :locale, :name, :legend, :data_units, :processing, :description, :analysis_text_template,
         :_destroy]]
-    attributes << :public_data if current_admin_user.superadmin?
+    attributes << :data_policy if resource.new_record?
     attributes
   end
 
   controller do
+    def current_ability
+      @current_ability ||= Ability.new(current_admin_user)
+    end
+
+    rescue_from CanCan::AccessDenied do
+      Rails.logger.warn "[Tile security admin] Access denied"
+      head :forbidden
+    end
+
+    rescue_from ArgumentError do |error|
+      Rails.logger.warn "[Tile security admin] #{error.message}"
+      redirect_to(params[:id].present? ? admin_layer_path(params[:id]) : admin_layers_path, alert: error.message)
+    end
+
     def save_resource(resource)
-      resource.public_data = false unless current_admin_user.superadmin?
+      ArcgisAdminCredentials.apply(resource, replacement: params[:arcgis_credential],
+        clear: params[:clear_arcgis_credential] == "1")
       if resource.new_record? && !current_admin_user.superadmin?
         scope = SiteScope.find(params[:site_scope_id])
         raise CanCan::AccessDenied unless current_admin_user.allowed_site_scope_ids.include?(scope.id)
@@ -37,6 +52,11 @@ ActiveAdmin.register Layer do
       Layer.transaction do
         saved = super
         Api::Admin::LayersManager.new(resource, scope.id).link_layer_group if saved && scope
+        if saved
+          TileSecurityEvent.create!(layer: resource, admin_user: current_admin_user,
+            action: "save_layer", reason: "Layer saved in admin workspace",
+            details: {version: resource.tile_cache_version, data_policy: resource.data_policy})
+        end
         saved
       end
     rescue Date::Error
@@ -70,38 +90,80 @@ ActiveAdmin.register Layer do
   end
 
   filter :slug
-  filter :translations_name_eq, as: :select, label: "Name", collection: proc { Layer.with_translations.pluck(:name).map(&:to_s).sort }
+  filter :translations_name_eq, as: :select, label: "Name", collection: proc { Layer.accessible_by(current_ability, :read).with_translations.pluck(:name).map(&:to_s).sort }
   filter :layer_provider, as: :select
   filter :analysis_suitable
   filter :timeline
-  filter :layer_groups, as: :select, collection: proc { LayerGroup.with_translations.sort_by(&:name).map { |m| [m.name, m.id] } }
-  filter :site_scopes, as: :select, collection: proc { SiteScope.with_translations.sort_by(&:name).map { |m| [m.name, m.id] } }
+  filter :layer_groups, as: :select, collection: proc { LayerGroup.accessible_by(current_ability, :read).with_translations.sort_by(&:name).map { |m| [m.name, m.id] } }
+  filter :site_scopes, as: :select, collection: proc { SiteScope.accessible_by(current_ability, :read).with_translations.sort_by(&:name).map { |m| [m.name, m.id] } }
 
   member_action :publish, method: :put do
-    authorize! :update, resource
-    resource.update! published: true
+    TileSecurityManagement.new(current_admin_user).publish!(resource)
     redirect_to resource_path, notice: "Layer was published!"
   end
 
   member_action :unpublish, method: :put do
     authorize! :update, resource
-    resource.update! published: false
+    resource.with_lock do
+      resource.update! published: false
+      TileSecurityEvent.create!(layer: resource, admin_user: current_admin_user,
+        action: "unpublish", reason: "Unpublished by administrator", details: {})
+    end
     redirect_to resource_path, notice: "Layer was marked as not published!"
   end
 
-  action_item :publish, only: :show, priority: 0, if: -> { !resource.published? } do
+  member_action :security_policy, method: :post do
+    TileSecurityManagement.new(current_admin_user).set_policy!(resource,
+      policy: params.require(:data_policy), reason: params.require(:reason))
+    redirect_to resource_path, notice: "Data policy saved. Check pending CDN invalidations before considering revocation complete."
+  end
+
+  member_action :request_security_review, method: :post do
+    TileSecurityManagement.new(current_admin_user).request_review!(resource, reason: params.require(:reason))
+    redirect_to resource_path, notice: "Security review requested; access has not changed."
+  end
+
+  member_action :resolve_security_review, method: :post do
+    review = TileSecurityReview.where(layer: resource).find(params[:review_id])
+    TileSecurityManagement.new(current_admin_user).resolve_review!(review,
+      approve: params[:decision] == "approve", reason: params.require(:reason))
+    redirect_to resource_path, notice: "Review #{review.reload.status}."
+  end
+
+  member_action :refresh_preview, method: :post do
+    authorize! :read, resource
+    scope = resource.site_scopes.find_by(id: params[:site_scope_id]) || resource.site_scopes.first
+    raise ActiveRecord::RecordNotFound unless scope
+    response.cache_control.replace(private: true, no_store: true)
+    render json: {preview_query: {site_scope: scope.subdomain, admin_preview_token: AdminPreviewAccess.issue(resource, current_admin_user)}.to_query}
+  end
+
+  member_action :verify_security, method: :post do
+    verification = TileSecurityProbe.request!(resource, current_admin_user)
+    redirect_to resource_path, notice: "Public-access verification #{verification.status}. Preview credentials are not used."
+  end
+
+  member_action :submit_tile_invalidation, method: :post do
+    authorize! :update, resource
+    raise CanCan::AccessDenied unless current_admin_user.superadmin?
+    invalidation = TileCacheInvalidation.where(layer: resource).find(params[:invalidation_id])
+    TileCacheInvalidationJob.perform_async(invalidation.id)
+    redirect_to resource_path, notice: "Invalidation queued. Completion requires confirmation from CloudFront."
+  end
+
+  action_item :publish, only: :show, priority: 0, if: -> { !resource.published? && authorized?(:update, resource) } do
     link_to "Publish Layer", publish_admin_layer_path(resource), data: {method: :put}
   end
 
-  action_item :unpublish, only: :show, priority: 0, if: -> { resource.published? } do
+  action_item :unpublish, only: :show, priority: 0, if: -> { resource.published? && authorized?(:update, resource) } do
     link_to "Unpublish Layer", unpublish_admin_layer_path(resource), data: {method: :put}
   end
 
-  action_item :upload_cog, only: :show, priority: 1 do
+  action_item :upload_cog, only: :show, priority: 1, if: -> { authorized?(:update, resource) } do
     link_to "Upload COG", upload_cog_admin_layer_path(resource)
   end
 
-  action_item :import_vector, only: :show, priority: 2 do
+  action_item :import_vector, only: :show, priority: 2, if: -> { authorized?(:update, resource) } do
     link_to "Import Vector", import_vector_admin_layer_path(resource)
   end
 
@@ -112,12 +174,21 @@ ActiveAdmin.register Layer do
     column :name
     column :slug
     column :published
+    column "Security" do |layer|
+      policy = TileSecurityPolicy.new(layer).report
+      status_tag policy.fetch("status")
+      div policy.fetch("reasons").join(", ")
+    end
+    column :data_policy
     actions defaults: true do |layer|
       link_to "Duplicate", duplicate_admin_layer_path(layer), data: {method: :post} if authorized?(:update, layer)
     end
   end
 
   show do
+    panel "Tile security and cache readiness" do
+      render "admin/layers/security", layer: resource
+    end
     attributes_table do
       row :id
       row :slug

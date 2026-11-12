@@ -12,6 +12,10 @@ Rails.application.routes.draw do
     mount Sidekiq::Web => "/admin/sidekiq"
   end
 
+  Rails.application.config.after_initialize do
+    Rails.logger.info("[TileByteCache] #{TileByteCache.startup_state}")
+  end
+
   # Users
   get "/users/:id/profile/edit", to: "api/v1/users#edit", as: :edit_user
   patch "/users/:id/profile/update", to: "api/v1/users#update", as: :update_user
@@ -48,6 +52,7 @@ Rails.application.routes.draw do
       resources :scope_datasets, only: [:index, :show, :create, :update]
       resources :vector_views, only: [:index, :create, :destroy]
     end
+    get "public-tiles/:id/:version/:z/:x/:y", to: "v1/public_tiles#show", format: false
     scope module: :v1 do
       resources :data_uploads, path: "uploads/sessions", only: [:create, :show] do
         member do

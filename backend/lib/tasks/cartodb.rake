@@ -1359,6 +1359,8 @@ end
 # Rake namespace
 # ---------------------------------------------------------------------------
 
+require_relative "../tile_security_import_task"
+
 namespace :cartodb do
   desc <<~DESC
     Import CartoDB spatial vectors (.gpkg) and non-spatial tables (.csv.gz) from S3 into PostgreSQL.
@@ -3516,3 +3518,7 @@ namespace :cartodb do
     puts "Run `rake cartodb:migrate_tables` to import tables and update layer references."
   end
 end
+
+TileSecurityImportTask.wrap("cartodb:import_tables", "cartodb:apply_site_scope_auth_config",
+  "cartodb:update_layer_references", "cartodb:configure_cog_layers", "cartodb:configure_martin_layers",
+  "cartodb:create_spatial_indices", "cartodb:fix_invalid_geometries")

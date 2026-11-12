@@ -29,6 +29,12 @@ class SiteScope < ApplicationRecord
 
   has_one :homepage, dependent: :destroy
   has_many :layer_groups
+  after_save :refresh_tile_scope_policy, if: -> { (saved_changes.keys & %w[password_protected username encrypted_password]).any? }
+
+  def refresh_tile_scope_policy
+    TilePolicyLifecycle.refresh!(Layer.joins(:layer_groups).where(layer_groups: {site_scope_id: id}).distinct.to_a,
+      reason: "scope_protection_changed")
+  end
   has_many :site_pages
   has_many :scope_datasets, dependent: :destroy
 

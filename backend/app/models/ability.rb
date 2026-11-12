@@ -12,10 +12,13 @@ class Ability
 
     allowed_ids = @admin_user.allowed_site_scope_ids
     can :read, ActiveAdmin::Page, name: "Dashboard"
+    can :read, ActiveAdmin::Page, name: "Tile Security"
+    can [:export, :verify], ActiveAdmin::Page, name: "Tile Security"
     can [:read, :update], AdminUser, id: @admin_user.id
     can :read, SiteScope, id: allowed_ids
     can :read, LayerGroup, site_scope_id: allowed_ids
     can :read, Layer, id: authorized_layer_ids(allowed_ids)
+    can [:refresh_preview, :verify_security], Layer, id: authorized_layer_ids(allowed_ids)
     if @admin_user.admin?
       can :update, SiteScope, id: allowed_ids
       can :manage, Layer, id: authorized_layer_ids(allowed_ids)

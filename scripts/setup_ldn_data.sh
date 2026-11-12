@@ -241,6 +241,8 @@ get_host_db_dsn() {
 # In dev mode: docker compose run with optional volume mounts.
 backend_exec() {
   local env_args=()
+  [[ -n "${TILE_IMPORT_IDENTITY:-}" ]] && env_args+=("-e" "TILE_IMPORT_IDENTITY=$TILE_IMPORT_IDENTITY")
+  [[ -n "${TILE_IMPORT_RUN_ID:-}" ]] && env_args+=("-e" "TILE_IMPORT_RUN_ID=$TILE_IMPORT_RUN_ID")
   local vol_args=()
   local cmd_args=()
   local parsing_opts=true
@@ -737,6 +739,28 @@ main() {
     info "Skipping downloads (--skip-download)"
   fi
 
+  # Stage before the first database write. Pending invalidations deliberately
+  # stop the script; rerun the same manifest after operator confirmation.
+  TILE_IMPORT_IDENTITY="${TILE_IMPORT_IDENTITY:-operator:$(id -un)@$(hostname)}"
+  local fingerprint="${TILE_IMPORT_FINGERPRINT:-}"
+  if [[ -z "$fingerprint" ]]; then
+    fingerprint=$(
+      { find "$LDN_DATA_DIR" "$GEOBOUNDARIES_DIR" -type f \( -name '*.gpkg' -o -name '*.csv' \) -print0 |
+          sort -z | xargs -0 -r sha256sum
+        sha256sum "$REPO_ROOT/scripts/setup_ldn_data.sh" "$REPO_ROOT/backend/lib/tasks/ldn.rake" "$REPO_ROOT/backend/db/data/ldn/seed.rb"
+      } | sha256sum | cut -d ' ' -f1
+    )
+  fi
+  local staged
+  staged=$(backend_exec -e "TILE_IMPORT_OPERATION=setup_ldn_data" -e "TILE_IMPORT_FINGERPRINT=$fingerprint" \
+    -e "TILE_IMPORT_DRY_RUN=${TILE_IMPORT_DRY_RUN:-0}" -- bundle exec rake tile_security:stage)
+  printf '%s\n' "$staged"
+  [[ "${TILE_IMPORT_DRY_RUN:-0}" == "1" ]] && return 0
+  [[ "$staged" == *"TILE_IMPORT_STATUS=completed"* ]] && { info "Unchanged manifest; no database writes needed."; return 0; }
+  TILE_IMPORT_RUN_ID=$(printf '%s\n' "$staged" | sed -n 's/^TILE_IMPORT_RUN_ID=//p' | tail -1)
+  [[ -n "$TILE_IMPORT_RUN_ID" ]] || error "Import staging returned no durable run ID"
+  backend_exec -- bundle exec rake tile_security:begin_write
+
   if [[ "$SKIP_BOUNDARIES" == "false" ]]; then
     echo ""
     echo "── Step 3/5: Import boundaries ──"
@@ -752,6 +776,7 @@ main() {
   echo ""
   echo "── Step 5/5: Seed LDN site scope ──"
   seed_ldn_scope
+  backend_exec -- bundle exec rake tile_security:complete
 
   echo ""
   ok "All done! The LDN scope is now available."

@@ -503,4 +503,4 @@ module ThresholdsSeeder
 end
 
 # Run the seeder
-ThresholdsSeeder.run
+TileSourceLifecycle.seed!(__FILE__) { ThresholdsSeeder.run }

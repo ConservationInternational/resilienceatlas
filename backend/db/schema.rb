@@ -10,9 +10,10 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_11_143000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_12_091000) do
   create_schema "ra_app"
   create_schema "ra_nonspatial"
+  create_schema "tiger"
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -20,7 +21,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_11_143000) do
   enable_extension "postgis"
   enable_extension "postgis_topology"
 
-  create_table "action_text_rich_texts", force: :cascade do |t|
+  create_table "ra_app.action_text_rich_texts", force: :cascade do |t|
     t.string "name", null: false
     t.text "body"
     t.string "record_type", null: false
@@ -30,7 +31,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_11_143000) do
     t.index ["record_type", "record_id", "name"], name: "index_action_text_rich_texts_uniqueness", unique: true
   end
 
-  create_table "active_storage_attachments", force: :cascade do |t|
+  create_table "ra_app.active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
     t.bigint "record_id", null: false
@@ -40,7 +41,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_11_143000) do
     t.index ["record_type", "record_id", "name", "blob_id"], name: "index_active_storage_attachments_uniqueness", unique: true
   end
 
-  create_table "active_storage_blobs", force: :cascade do |t|
+  create_table "ra_app.active_storage_blobs", force: :cascade do |t|
     t.string "key", null: false
     t.string "filename", null: false
     t.string "content_type"
@@ -52,13 +53,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_11_143000) do
     t.index ["key"], name: "index_active_storage_blobs_on_key", unique: true
   end
 
-  create_table "active_storage_variant_records", force: :cascade do |t|
+  create_table "ra_app.active_storage_variant_records", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.string "variation_digest", null: false
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
   end
 
-  create_table "admin_boundaries", force: :cascade do |t|
+  create_table "ra_app.admin_boundaries", force: :cascade do |t|
     t.string "name"
     t.string "iso_code"
     t.integer "admin_level", default: 0, null: false
@@ -71,7 +72,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_11_143000) do
     t.index ["iso_code"], name: "index_admin_boundaries_on_iso_code"
   end
 
-  create_table "admin_user_site_scopes", force: :cascade do |t|
+  create_table "ra_app.admin_user_site_scopes", force: :cascade do |t|
     t.bigint "admin_user_id", null: false
     t.bigint "site_scope_id", null: false
     t.datetime "created_at", null: false
@@ -81,7 +82,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_11_143000) do
     t.index ["site_scope_id"], name: "index_admin_user_site_scopes_on_site_scope_id"
   end
 
-  create_table "admin_users", force: :cascade do |t|
+  create_table "ra_app.admin_users", force: :cascade do |t|
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
     t.string "reset_password_token"
@@ -114,7 +115,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_11_143000) do
     t.index ["unlock_token"], name: "index_admin_users_on_unlock_token", unique: true
   end
 
-  create_table "agrupations", force: :cascade do |t|
+  create_table "ra_app.agrupations", force: :cascade do |t|
     t.bigint "layer_id"
     t.bigint "layer_group_id"
     t.boolean "active", default: false
@@ -122,7 +123,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_11_143000) do
     t.index ["layer_id"], name: "index_agrupations_on_layer_id"
   end
 
-  create_table "ai_chat_messages", force: :cascade do |t|
+  create_table "ra_app.ai_chat_messages", force: :cascade do |t|
     t.bigint "admin_user_id", null: false
     t.string "bedrock_session_id", null: false
     t.string "role", null: false
@@ -134,13 +135,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_11_143000) do
     t.index ["bedrock_session_id"], name: "index_ai_chat_messages_on_bedrock_session_id"
   end
 
-  create_table "categories", force: :cascade do |t|
+  create_table "ra_app.categories", force: :cascade do |t|
     t.string "slug", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
 
-  create_table "category_translations", force: :cascade do |t|
+  create_table "ra_app.category_translations", force: :cascade do |t|
     t.bigint "category_id", null: false
     t.string "locale", null: false
     t.datetime "created_at", null: false
@@ -151,7 +152,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_11_143000) do
     t.index ["locale"], name: "index_category_translations_on_locale"
   end
 
-  create_table "ckeditor_assets", force: :cascade do |t|
+  create_table "ra_app.ckeditor_assets", force: :cascade do |t|
     t.string "data_file_name", null: false
     t.string "data_content_type"
     t.integer "data_file_size"
@@ -167,7 +168,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_11_143000) do
     t.index ["assetable_type", "type", "assetable_id"], name: "idx_ckeditor_assetable_type"
   end
 
-  create_table "data_imports", force: :cascade do |t|
+  create_table "ra_app.data_imports", force: :cascade do |t|
     t.string "importable_type"
     t.bigint "importable_id"
     t.bigint "admin_user_id", null: false
@@ -195,7 +196,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_11_143000) do
     t.index ["status"], name: "index_data_imports_on_status"
   end
 
-  create_table "feedback_fields", force: :cascade do |t|
+  create_table "ra_app.feedback_fields", force: :cascade do |t|
     t.bigint "feedback_id", null: false
     t.bigint "parent_id"
     t.string "feedback_field_type", null: false
@@ -207,13 +208,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_11_143000) do
     t.index ["parent_id"], name: "index_feedback_fields_on_parent_id"
   end
 
-  create_table "feedbacks", force: :cascade do |t|
+  create_table "ra_app.feedbacks", force: :cascade do |t|
     t.string "language", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
 
-  create_table "homepage_journey_translations", force: :cascade do |t|
+  create_table "ra_app.homepage_journey_translations", force: :cascade do |t|
     t.bigint "homepage_journey_id", null: false
     t.string "locale", null: false
     t.datetime "created_at", null: false
@@ -223,13 +224,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_11_143000) do
     t.index ["locale"], name: "index_homepage_journey_translations_on_locale"
   end
 
-  create_table "homepage_journeys", force: :cascade do |t|
+  create_table "ra_app.homepage_journeys", force: :cascade do |t|
     t.integer "position", default: 0, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
 
-  create_table "homepage_section_translations", force: :cascade do |t|
+  create_table "ra_app.homepage_section_translations", force: :cascade do |t|
     t.bigint "homepage_section_id", null: false
     t.string "locale", null: false
     t.datetime "created_at", null: false
@@ -242,7 +243,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_11_143000) do
     t.index ["locale"], name: "index_homepage_section_translations_on_locale"
   end
 
-  create_table "homepage_sections", force: :cascade do |t|
+  create_table "ra_app.homepage_sections", force: :cascade do |t|
     t.bigint "homepage_id", null: false
     t.string "button_url"
     t.string "image_position"
@@ -254,7 +255,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_11_143000) do
     t.index ["homepage_id"], name: "index_homepage_sections_on_homepage_id"
   end
 
-  create_table "homepage_translations", force: :cascade do |t|
+  create_table "ra_app.homepage_translations", force: :cascade do |t|
     t.bigint "homepage_id", null: false
     t.string "locale", null: false
     t.datetime "created_at", null: false
@@ -266,7 +267,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_11_143000) do
     t.index ["locale"], name: "index_homepage_translations_on_locale"
   end
 
-  create_table "homepages", force: :cascade do |t|
+  create_table "ra_app.homepages", force: :cascade do |t|
     t.bigint "homepage_journey_id"
     t.bigint "site_scope_id", null: false
     t.string "credits_url"
@@ -277,7 +278,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_11_143000) do
     t.index ["site_scope_id"], name: "index_homepages_on_site_scope_id", unique: true
   end
 
-  create_table "identities", force: :cascade do |t|
+  create_table "ra_app.identities", force: :cascade do |t|
     t.bigint "user_id"
     t.string "provider"
     t.string "uid"
@@ -286,7 +287,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_11_143000) do
     t.index ["user_id"], name: "index_identities_on_user_id"
   end
 
-  create_table "indicator_translations", force: :cascade do |t|
+  create_table "ra_app.indicator_translations", force: :cascade do |t|
     t.bigint "indicator_id", null: false
     t.string "locale", null: false
     t.datetime "created_at", null: false
@@ -296,7 +297,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_11_143000) do
     t.index ["locale"], name: "index_indicator_translations_on_locale"
   end
 
-  create_table "indicators", force: :cascade do |t|
+  create_table "ra_app.indicators", force: :cascade do |t|
     t.string "slug", null: false
     t.string "version"
     t.datetime "created_at", precision: nil, default: -> { "CURRENT_TIMESTAMP" }, null: false
@@ -308,12 +309,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_11_143000) do
     t.index ["slug"], name: "index_indicators_on_slug"
   end
 
-  create_table "indicators_models", id: false, force: :cascade do |t|
+  create_table "ra_app.indicators_models", id: false, force: :cascade do |t|
     t.bigint "indicator_id", null: false
     t.bigint "model_id", null: false
   end
 
-  create_table "journey_step_translations", force: :cascade do |t|
+  create_table "ra_app.journey_step_translations", force: :cascade do |t|
     t.bigint "journey_step_id", null: false
     t.string "locale", null: false
     t.datetime "created_at", null: false
@@ -328,7 +329,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_11_143000) do
     t.index ["locale"], name: "index_journey_step_translations_on_locale"
   end
 
-  create_table "journey_steps", force: :cascade do |t|
+  create_table "ra_app.journey_steps", force: :cascade do |t|
     t.string "step_type", null: false
     t.string "credits_url"
     t.string "mask_sql"
@@ -343,7 +344,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_11_143000) do
     t.index ["journey_id"], name: "index_journey_steps_on_journey_id"
   end
 
-  create_table "journey_translations", force: :cascade do |t|
+  create_table "ra_app.journey_translations", force: :cascade do |t|
     t.bigint "journey_id", null: false
     t.string "locale", null: false
     t.datetime "created_at", null: false
@@ -356,14 +357,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_11_143000) do
     t.index ["locale"], name: "index_journey_translations_on_locale"
   end
 
-  create_table "journeys", force: :cascade do |t|
+  create_table "ra_app.journeys", force: :cascade do |t|
     t.string "credits_url"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.boolean "published", default: false, null: false
   end
 
-  create_table "layer_group_translations", force: :cascade do |t|
+  create_table "ra_app.layer_group_translations", force: :cascade do |t|
     t.bigint "layer_group_id", null: false
     t.string "locale", null: false
     t.datetime "created_at", null: false
@@ -374,7 +375,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_11_143000) do
     t.index ["layer_group_id"], name: "index_layer_group_translations_on_layer_group_id"
   end
 
-  create_table "layer_groups", force: :cascade do |t|
+  create_table "ra_app.layer_groups", force: :cascade do |t|
     t.integer "super_group_id"
     t.string "slug"
     t.string "layer_group_type"
@@ -389,7 +390,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_11_143000) do
     t.index ["super_group_id"], name: "index_layer_groups_on_super_group_id"
   end
 
-  create_table "layer_translations", force: :cascade do |t|
+  create_table "ra_app.layer_translations", force: :cascade do |t|
     t.bigint "layer_id", null: false
     t.string "locale", null: false
     t.datetime "created_at", null: false
@@ -406,7 +407,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_11_143000) do
     t.index ["layer_id"], name: "index_layer_translations_on_layer_id"
   end
 
-  create_table "layers", force: :cascade do |t|
+  create_table "ra_app.layers", force: :cascade do |t|
     t.integer "layer_group_id"
     t.string "slug", null: false
     t.string "layer_type"
@@ -451,18 +452,24 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_11_143000) do
     t.string "timeline_period"
     t.string "analysis_type"
     t.boolean "public_data", default: false, null: false
+    t.string "data_policy", default: "public", null: false
+    t.string "tile_cache_version", null: false
+    t.string "security_provenance", default: "default_public", null: false
     t.index ["layer_group_id"], name: "index_layers_on_layer_group_id"
     t.index ["slug"], name: "index_layers_on_slug"
+    t.check_constraint "data_policy::text = ANY (ARRAY['public'::character varying, 'restricted'::character varying]::text[])", name: "layers_data_policy"
+    t.check_constraint "length(tile_cache_version::text) > 0", name: "layers_tile_cache_version"
+    t.check_constraint "security_provenance::text = ANY (ARRAY['default_public'::character varying, 'legacy_public'::character varying, 'explicit'::character varying]::text[])", name: "layers_security_provenance"
   end
 
-  create_table "layers_sources", id: false, force: :cascade do |t|
+  create_table "ra_app.layers_sources", id: false, force: :cascade do |t|
     t.integer "layer_id"
     t.integer "source_id"
     t.index ["layer_id"], name: "index_layers_sources_on_layer_id"
     t.index ["source_id"], name: "index_layers_sources_on_source_id"
   end
 
-  create_table "map_menu_entries", force: :cascade do |t|
+  create_table "ra_app.map_menu_entries", force: :cascade do |t|
     t.string "link"
     t.integer "position"
     t.datetime "created_at", null: false
@@ -471,7 +478,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_11_143000) do
     t.index ["ancestry"], name: "index_map_menu_entries_on_ancestry"
   end
 
-  create_table "map_menu_entry_translations", force: :cascade do |t|
+  create_table "ra_app.map_menu_entry_translations", force: :cascade do |t|
     t.bigint "map_menu_entry_id", null: false
     t.string "locale", null: false
     t.datetime "created_at", null: false
@@ -481,7 +488,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_11_143000) do
     t.index ["map_menu_entry_id"], name: "index_map_menu_entry_translations_on_map_menu_entry_id"
   end
 
-  create_table "model_translations", force: :cascade do |t|
+  create_table "ra_app.model_translations", force: :cascade do |t|
     t.bigint "model_id", null: false
     t.string "locale", null: false
     t.datetime "created_at", null: false
@@ -493,14 +500,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_11_143000) do
     t.index ["model_id"], name: "index_model_translations_on_model_id"
   end
 
-  create_table "models", force: :cascade do |t|
+  create_table "ra_app.models", force: :cascade do |t|
     t.datetime "created_at", precision: nil, default: -> { "CURRENT_TIMESTAMP" }, null: false
     t.datetime "updated_at", precision: nil, default: -> { "CURRENT_TIMESTAMP" }, null: false
     t.text "query_analysis"
     t.string "table_name"
   end
 
-  create_table "models_site_scopes", id: false, force: :cascade do |t|
+  create_table "ra_app.models_site_scopes", id: false, force: :cascade do |t|
     t.bigint "model_id", null: false
     t.bigint "site_scope_id", null: false
     t.index ["model_id", "site_scope_id"], name: "index_models_site_scopes_on_model_id_and_site_scope_id", unique: true
@@ -508,13 +515,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_11_143000) do
     t.index ["site_scope_id"], name: "index_models_site_scopes_on_site_scope_id"
   end
 
-  create_table "photos", force: :cascade do |t|
+  create_table "ra_app.photos", force: :cascade do |t|
     t.text "image_data"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
 
-  create_table "sbtn_thresholds", primary_key: "eco_id", id: :integer, default: nil, force: :cascade do |t|
+  create_table "ra_app.sbtn_thresholds", primary_key: "eco_id", id: :integer, default: nil, force: :cascade do |t|
     t.text "ecoregion"
     t.float "natural_land_baseline"
     t.float "natural_land_threshold"
@@ -530,7 +537,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_11_143000) do
     t.float "soc_exceedance"
   end
 
-  create_table "scope_dataset_geometries", force: :cascade do |t|
+  create_table "ra_app.scope_dataset_geometries", force: :cascade do |t|
     t.bigint "scope_dataset_id", null: false
     t.string "unit_id", null: false
     t.jsonb "properties", default: {}, null: false
@@ -542,7 +549,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_11_143000) do
     t.index ["scope_dataset_id"], name: "index_scope_dataset_geometries_on_scope_dataset_id"
   end
 
-  create_table "scope_datasets", force: :cascade do |t|
+  create_table "ra_app.scope_datasets", force: :cascade do |t|
     t.bigint "site_scope_id", null: false
     t.string "slug", null: false
     t.string "name", null: false
@@ -565,7 +572,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_11_143000) do
     t.index ["slug"], name: "index_scope_datasets_on_slug"
   end
 
-  create_table "share_urls", force: :cascade do |t|
+  create_table "ra_app.share_urls", force: :cascade do |t|
     t.string "uid"
     t.text "body"
     t.datetime "created_at", null: false
@@ -573,7 +580,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_11_143000) do
     t.index ["uid"], name: "index_share_urls_on_uid", unique: true
   end
 
-  create_table "site_page_translations", force: :cascade do |t|
+  create_table "ra_app.site_page_translations", force: :cascade do |t|
     t.bigint "site_page_id", null: false
     t.string "locale", null: false
     t.datetime "created_at", null: false
@@ -584,7 +591,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_11_143000) do
     t.index ["site_page_id"], name: "index_site_page_translations_on_site_page_id"
   end
 
-  create_table "site_pages", force: :cascade do |t|
+  create_table "ra_app.site_pages", force: :cascade do |t|
     t.integer "priority"
     t.integer "site_scope_id"
     t.datetime "created_at", null: false
@@ -594,7 +601,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_11_143000) do
     t.index ["slug"], name: "index_site_pages_on_slug", unique: true
   end
 
-  create_table "site_scope_translations", force: :cascade do |t|
+  create_table "ra_app.site_scope_translations", force: :cascade do |t|
     t.bigint "site_scope_id", null: false
     t.string "locale", null: false
     t.datetime "created_at", null: false
@@ -605,7 +612,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_11_143000) do
     t.index ["site_scope_id"], name: "index_site_scope_translations_on_site_scope_id"
   end
 
-  create_table "site_scopes", force: :cascade do |t|
+  create_table "ra_app.site_scopes", force: :cascade do |t|
     t.string "color"
     t.string "subdomain"
     t.boolean "has_analysis", default: false
@@ -634,7 +641,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_11_143000) do
     t.index ["subdomain"], name: "index_site_scopes_on_subdomain"
   end
 
-  create_table "source_translations", force: :cascade do |t|
+  create_table "ra_app.source_translations", force: :cascade do |t|
     t.bigint "source_id", null: false
     t.string "locale", null: false
     t.datetime "created_at", null: false
@@ -646,7 +653,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_11_143000) do
     t.index ["source_id"], name: "index_source_translations_on_source_id"
   end
 
-  create_table "sources", force: :cascade do |t|
+  create_table "ra_app.sources", force: :cascade do |t|
     t.string "source_type"
     t.string "url"
     t.string "contact_name"
@@ -659,7 +666,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_11_143000) do
     t.text "license_url"
   end
 
-  create_table "static_page_base_translations", force: :cascade do |t|
+  create_table "ra_app.static_page_base_translations", force: :cascade do |t|
     t.bigint "static_page_base_id", null: false
     t.string "locale", null: false
     t.datetime "created_at", null: false
@@ -670,7 +677,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_11_143000) do
     t.index ["static_page_base_id"], name: "index_static_page_base_translations_on_static_page_base_id"
   end
 
-  create_table "static_page_bases", force: :cascade do |t|
+  create_table "ra_app.static_page_bases", force: :cascade do |t|
     t.string "slug", null: false
     t.string "image_credits_url"
     t.datetime "created_at", null: false
@@ -678,7 +685,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_11_143000) do
     t.index ["slug"], name: "index_static_page_bases_on_slug", unique: true
   end
 
-  create_table "static_page_section_item_translations", force: :cascade do |t|
+  create_table "ra_app.static_page_section_item_translations", force: :cascade do |t|
     t.bigint "static_page_section_item_id", null: false
     t.string "locale", null: false
     t.datetime "created_at", null: false
@@ -689,7 +696,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_11_143000) do
     t.index ["static_page_section_item_id"], name: "index_fa4aaafd643913512d32f726a2d5386348fe26b9"
   end
 
-  create_table "static_page_section_items", force: :cascade do |t|
+  create_table "ra_app.static_page_section_items", force: :cascade do |t|
     t.bigint "section_id", null: false
     t.integer "position", null: false
     t.datetime "created_at", null: false
@@ -697,7 +704,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_11_143000) do
     t.index ["section_id"], name: "index_static_page_section_items_on_section_id"
   end
 
-  create_table "static_page_section_paragraph_translations", force: :cascade do |t|
+  create_table "ra_app.static_page_section_paragraph_translations", force: :cascade do |t|
     t.bigint "static_page_section_paragraph_id", null: false
     t.string "locale", null: false
     t.datetime "created_at", null: false
@@ -708,7 +715,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_11_143000) do
     t.index ["static_page_section_paragraph_id"], name: "index_f17c96ce33322e20078393ba2050031b69c21daa"
   end
 
-  create_table "static_page_section_paragraphs", force: :cascade do |t|
+  create_table "ra_app.static_page_section_paragraphs", force: :cascade do |t|
     t.bigint "section_id", null: false
     t.string "image_position", null: false
     t.string "image_credits_url"
@@ -717,7 +724,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_11_143000) do
     t.index ["section_id"], name: "index_static_page_section_paragraphs_on_section_id"
   end
 
-  create_table "static_page_section_reference_translations", force: :cascade do |t|
+  create_table "ra_app.static_page_section_reference_translations", force: :cascade do |t|
     t.bigint "static_page_section_reference_id", null: false
     t.string "locale", null: false
     t.datetime "created_at", null: false
@@ -727,7 +734,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_11_143000) do
     t.index ["static_page_section_reference_id"], name: "index_20a5e4f35f4caac5967f343864093a95839d0632"
   end
 
-  create_table "static_page_section_references", force: :cascade do |t|
+  create_table "ra_app.static_page_section_references", force: :cascade do |t|
     t.bigint "section_id", null: false
     t.string "slug"
     t.integer "position", null: false
@@ -736,7 +743,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_11_143000) do
     t.index ["section_id"], name: "index_static_page_section_references_on_section_id"
   end
 
-  create_table "static_page_section_translations", force: :cascade do |t|
+  create_table "ra_app.static_page_section_translations", force: :cascade do |t|
     t.bigint "static_page_section_id", null: false
     t.string "locale", null: false
     t.datetime "created_at", null: false
@@ -746,7 +753,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_11_143000) do
     t.index ["static_page_section_id"], name: "index_5003c0227599fab8954262af0e37841ad7785126"
   end
 
-  create_table "static_page_sections", force: :cascade do |t|
+  create_table "ra_app.static_page_sections", force: :cascade do |t|
     t.bigint "static_page_id", null: false
     t.integer "position", null: false
     t.string "slug"
@@ -758,7 +765,87 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_11_143000) do
     t.index ["static_page_id"], name: "index_static_page_sections_on_static_page_id"
   end
 
-  create_table "user_downloads", force: :cascade do |t|
+  create_table "ra_app.tile_cache_invalidations", force: :cascade do |t|
+    t.bigint "layer_id"
+    t.jsonb "paths", default: [], null: false
+    t.string "status", default: "pending", null: false
+    t.string "external_id"
+    t.jsonb "requests", default: {}, null: false
+    t.text "error_message"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["layer_id"], name: "index_tile_cache_invalidations_on_layer_id"
+  end
+
+  create_table "ra_app.tile_security_events", force: :cascade do |t|
+    t.bigint "layer_id"
+    t.bigint "admin_user_id"
+    t.string "action", null: false
+    t.text "reason", null: false
+    t.jsonb "details", default: {}, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["admin_user_id"], name: "index_tile_security_events_on_admin_user_id"
+    t.index ["layer_id"], name: "index_tile_security_events_on_layer_id"
+  end
+
+  create_table "ra_app.tile_security_reviews", force: :cascade do |t|
+    t.bigint "layer_id", null: false
+    t.bigint "admin_user_id", null: false
+    t.string "status", default: "pending", null: false
+    t.string "source_version", null: false
+    t.text "reason", null: false
+    t.text "resolution"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["admin_user_id"], name: "index_tile_security_reviews_on_admin_user_id"
+    t.index ["layer_id"], name: "index_tile_security_reviews_on_layer_id"
+  end
+
+  create_table "ra_app.tile_security_verifications", force: :cascade do |t|
+    t.bigint "layer_id", null: false
+    t.bigint "admin_user_id", null: false
+    t.string "source_version", null: false
+    t.string "status", default: "pending", null: false
+    t.jsonb "results", default: {}, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["admin_user_id"], name: "index_tile_security_verifications_on_admin_user_id"
+    t.index ["layer_id"], name: "index_tile_security_verifications_on_layer_id"
+  end
+
+  create_table "ra_app.tile_source_generations", force: :cascade do |t|
+    t.string "source_key", null: false
+    t.string "data_version", null: false
+    t.string "policy_version", null: false
+    t.string "fingerprint"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["source_key"], name: "index_tile_source_generations_on_source_key", unique: true
+  end
+
+  create_table "ra_app.tile_source_imports", force: :cascade do |t|
+    t.string "run_id", null: false
+    t.string "identity", null: false
+    t.string "operation", null: false
+    t.string "fingerprint", null: false
+    t.string "status", default: "staged", null: false
+    t.jsonb "source_keys", default: [], null: false
+    t.jsonb "layer_ids", default: [], null: false
+    t.jsonb "invalidation_ids", default: [], null: false
+    t.jsonb "summary", default: {}, null: false
+    t.boolean "in_place", default: true, null: false
+    t.boolean "global", default: false, null: false
+    t.text "error_message"
+    t.datetime "completed_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["operation", "fingerprint"], name: "index_tile_source_imports_on_operation_and_fingerprint"
+    t.index ["run_id"], name: "index_tile_source_imports_on_run_id", unique: true
+    t.index ["status"], name: "index_tile_source_imports_on_status"
+  end
+
+  create_table "ra_app.user_downloads", force: :cascade do |t|
     t.string "subdomain"
     t.integer "user_id"
     t.integer "layer_id"
@@ -766,7 +853,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_11_143000) do
     t.datetime "updated_at", null: false
   end
 
-  create_table "users", force: :cascade do |t|
+  create_table "ra_app.users", force: :cascade do |t|
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
     t.string "reset_password_token"
@@ -788,28 +875,28 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_11_143000) do
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
-  add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
-  add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
-  add_foreign_key "admin_user_site_scopes", "admin_users"
-  add_foreign_key "admin_user_site_scopes", "site_scopes"
-  add_foreign_key "agrupations", "layer_groups"
-  add_foreign_key "agrupations", "layers"
-  add_foreign_key "ai_chat_messages", "admin_users"
-  add_foreign_key "data_imports", "admin_users"
-  add_foreign_key "feedback_fields", "feedback_fields", column: "parent_id", on_delete: :cascade
-  add_foreign_key "feedback_fields", "feedbacks", on_delete: :cascade
-  add_foreign_key "homepage_sections", "homepages", on_delete: :cascade
-  add_foreign_key "homepages", "homepage_journeys", on_delete: :nullify
-  add_foreign_key "homepages", "site_scopes", on_delete: :cascade
-  add_foreign_key "identities", "users"
-  add_foreign_key "indicators", "categories"
-  add_foreign_key "journey_steps", "journeys", on_delete: :cascade
-  add_foreign_key "layer_group_translations", "layer_groups"
-  add_foreign_key "layer_translations", "layers"
-  add_foreign_key "scope_dataset_geometries", "scope_datasets"
-  add_foreign_key "scope_datasets", "site_scopes"
-  add_foreign_key "static_page_section_items", "static_page_sections", column: "section_id", on_delete: :cascade
-  add_foreign_key "static_page_section_paragraphs", "static_page_sections", column: "section_id", on_delete: :cascade
-  add_foreign_key "static_page_section_references", "static_page_sections", column: "section_id", on_delete: :cascade
-  add_foreign_key "static_page_sections", "static_page_bases", column: "static_page_id", on_delete: :cascade
+  add_foreign_key "ra_app.active_storage_attachments", "ra_app.active_storage_blobs", column: "blob_id"
+  add_foreign_key "ra_app.active_storage_variant_records", "ra_app.active_storage_blobs", column: "blob_id"
+  add_foreign_key "ra_app.admin_user_site_scopes", "ra_app.admin_users"
+  add_foreign_key "ra_app.admin_user_site_scopes", "ra_app.site_scopes"
+  add_foreign_key "ra_app.agrupations", "ra_app.layer_groups"
+  add_foreign_key "ra_app.agrupations", "ra_app.layers"
+  add_foreign_key "ra_app.ai_chat_messages", "ra_app.admin_users"
+  add_foreign_key "ra_app.data_imports", "ra_app.admin_users"
+  add_foreign_key "ra_app.feedback_fields", "ra_app.feedback_fields", column: "parent_id", on_delete: :cascade
+  add_foreign_key "ra_app.feedback_fields", "ra_app.feedbacks", on_delete: :cascade
+  add_foreign_key "ra_app.homepage_sections", "ra_app.homepages", on_delete: :cascade
+  add_foreign_key "ra_app.homepages", "ra_app.homepage_journeys", on_delete: :nullify
+  add_foreign_key "ra_app.homepages", "ra_app.site_scopes", on_delete: :cascade
+  add_foreign_key "ra_app.identities", "ra_app.users"
+  add_foreign_key "ra_app.indicators", "ra_app.categories"
+  add_foreign_key "ra_app.journey_steps", "ra_app.journeys", on_delete: :cascade
+  add_foreign_key "ra_app.layer_group_translations", "ra_app.layer_groups"
+  add_foreign_key "ra_app.layer_translations", "ra_app.layers"
+  add_foreign_key "ra_app.scope_dataset_geometries", "ra_app.scope_datasets"
+  add_foreign_key "ra_app.scope_datasets", "ra_app.site_scopes"
+  add_foreign_key "ra_app.static_page_section_items", "ra_app.static_page_sections", column: "section_id", on_delete: :cascade
+  add_foreign_key "ra_app.static_page_section_paragraphs", "ra_app.static_page_sections", column: "section_id", on_delete: :cascade
+  add_foreign_key "ra_app.static_page_section_references", "ra_app.static_page_sections", column: "section_id", on_delete: :cascade
+  add_foreign_key "ra_app.static_page_sections", "ra_app.static_page_bases", column: "static_page_id", on_delete: :cascade
 end

@@ -82,6 +82,32 @@ services:
       retries: 5
       start_period: 10s
 
+  tile-cache-redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--save", "", "--appendonly", "no", "--maxmemory", "128mb", "--maxmemory-policy", "allkeys-lru"]
+    networks:
+      - staging-network
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+      restart_policy:
+        condition: any
+        delay: 5s
+      resources:
+        limits:
+          memory: 256M
+        reservations:
+          memory: 64M
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
   backend:
     image: ${BACKEND_IMAGE}
     ports:
@@ -110,6 +136,11 @@ services:
       - ROLLBAR_ENV=staging
       - MARTIN_URL=http://martin:3000
       - REDIS_URL=redis://redis:6379/0
+      - TILE_CACHE_REDIS_URL=redis://tile-cache-redis:6379/0
+      - TILE_PUBLIC_CDN_URL=${TILE_PUBLIC_CDN_URL:-https://api.staging.resilienceatlas.org}
+      - TILE_ORIGIN_PROBE_URL=${TILE_ORIGIN_PROBE_URL:-}
+      - TILE_CLOUDFRONT_DISTRIBUTION_IDS=${TILE_CLOUDFRONT_DISTRIBUTION_IDS:-}
+      - TITILER_URL=${TITILER_URL:-https://staging.titiler.resilienceatlas.org}
       - S3_BUCKET=${S3_BUCKET}
       - AWS_REGION=${AWS_REGION}
       - BEDROCK_AGENT_ID=${BEDROCK_AGENT_ID}
@@ -119,6 +150,7 @@ services:
     depends_on:
       - database
       - redis
+      - tile-cache-redis
     deploy:
       mode: replicated
       replicas: 1
@@ -213,6 +245,9 @@ services:
       - ROLLBAR_ACCESS_TOKEN=${ROLLBAR_ACCESS_TOKEN}
       - ROLLBAR_ENV=staging
       - REDIS_URL=redis://redis:6379/0
+      - TILE_CLOUDFRONT_DISTRIBUTION_IDS=${TILE_CLOUDFRONT_DISTRIBUTION_IDS:-}
+      - TILE_PUBLIC_CDN_URL=${TILE_PUBLIC_CDN_URL:-https://api.staging.resilienceatlas.org}
+      - TILE_ORIGIN_PROBE_URL=${TILE_ORIGIN_PROBE_URL:-}
       - S3_BUCKET=${S3_BUCKET}
       - AWS_REGION=${AWS_REGION}
       - BACKEND_URL=${BACKEND_URL}

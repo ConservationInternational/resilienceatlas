@@ -68,6 +68,18 @@ class SpatialUploadLifecycle
   end
 
   def finalize!
+    return @di.importable if @di.complete? && !TileSourceImport.blocking.exists?(operation: "upload:#{@di.id}")
+    return activate_layer! if @di.options["mode"] == "dataset"
+    layer = nil
+    TileSourceLifecycle.run!(operation: "upload:#{@di.id}",
+      fingerprint: Digest::SHA256.hexdigest(JSON.generate(@di.metadata.slice("table", "source", "verified").merge("options" => @di.options))),
+      identity: "admin_user:#{@di.admin_user_id}", layers: [@di.importable].compact, in_place: false) do
+      layer = activate_layer!
+    end
+    layer
+  end
+
+  def activate_layer!
     @di.with_lock do
       return @di.importable if @di.complete?
       raise ArgumentError, "Process and verify the preview first" unless @di.ready? && @di.metadata["verified"]
@@ -84,7 +96,7 @@ class SpatialUploadLifecycle
           raise ArgumentError, "The layer changed since this upload began. Start a new replacement." unless layer.updated_at == @di.target_updated_at
           previous = UploadLayerConfiguration.snapshot(layer)
           # Source-dependent analysis must be revalidated for the replacement.
-          layer.update!(attributes.merge(analysis_suitable: false, public_data: false))
+          layer.update!(attributes.merge(analysis_suitable: false))
           @di.update!(previous_configuration: previous, target_updated_at: layer.updated_at)
         end
       else
@@ -99,6 +111,17 @@ class SpatialUploadLifecycle
   end
 
   def rollback!
+    result = nil
+    TileSourceLifecycle.run!(operation: "upload_rollback:#{@di.id}",
+      fingerprint: Digest::SHA256.hexdigest(JSON.generate(@di.previous_configuration)),
+      identity: "admin_user:#{@di.admin_user_id}", layers: [@di.importable].compact, in_place: false) do
+      result = restore_layer!
+      @di.importable
+    end
+    result
+  end
+
+  def restore_layer!
     @di.with_lock do
       raise ArgumentError, "No replacement is available to roll back" unless @di.complete? && @di.previous_configuration.present? && @di.importable.is_a?(Layer)
       layer = @di.importable

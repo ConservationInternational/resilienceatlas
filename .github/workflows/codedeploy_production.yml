@@ -218,6 +218,11 @@ jobs:
         PRODUCTION_BACKEND_URL=https://resilienceatlas.org
         PRODUCTION_FRONTEND_URL=https://resilienceatlas.org
         PRODUCTION_NEXT_PUBLIC_API_HOST=https://resilienceatlas.org
+        TILE_CACHE_REDIS_URL=redis://tile-cache-redis:6379/0
+        TILE_PUBLIC_CDN_URL=${{ vars.TILE_PUBLIC_CDN_URL || 'https://api.resilienceatlas.org' }}
+        TILE_ORIGIN_PROBE_URL=${{ vars.TILE_ORIGIN_PROBE_URL }}
+        TILE_CLOUDFRONT_DISTRIBUTION_IDS=${{ vars.TILE_CLOUDFRONT_DISTRIBUTION_IDS }}
+        PRODUCTION_TITILER_URL=${{ vars.TITILER_URL || 'https://titiler.resilienceatlas.org' }}
         
         # External services
         NEXT_PUBLIC_GOOGLE_ANALYTICS=${{ secrets.NEXT_PUBLIC_GOOGLE_ANALYTICS }}

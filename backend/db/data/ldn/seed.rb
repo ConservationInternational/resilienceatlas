@@ -1661,4 +1661,4 @@ module LdnSeeder
 end
 
 # Run the seeder
-LdnSeeder.run
+TileSourceLifecycle.seed!(__FILE__) { LdnSeeder.run }

@@ -15,6 +15,22 @@ RSpec.describe "API Admin Layers", type: :request do
 
   before { SiteScope.delete_all }
 
+  def security_checked_response
+    payload = response.parsed_body
+    Array.wrap(payload.fetch("data")).each do |layer|
+      expect(layer.fetch("data_policy")).to eq("public")
+      expect(layer.fetch("security_provenance")).to eq("default_public")
+      expect(layer.fetch("tile_cache_version")).to match(/\A[a-f0-9]{28,64}\z/)
+      report = layer.fetch("tile_security")
+      expect(report.keys).to contain_exactly("status", "reasons", "source_key", "version", "public_cache_eligible")
+      expect(report.fetch("version")).to eq(layer.fetch("tile_cache_version"))
+      expect(report.fetch("reasons")).to be_an(Array)
+      expect(report.fetch("public_cache_eligible")).to be_in([true, false])
+      layer.except!("data_policy", "security_provenance", "tile_cache_version", "tile_security")
+    end
+    payload.to_json
+  end
+
   path "/api/admin/layers" do
     get "List of layers" do
       tags "Layer"
@@ -34,7 +50,7 @@ RSpec.describe "API Admin Layers", type: :request do
         run_test!
 
         it "matches snapshot", generate_swagger_example: true do
-          expect(response.body).to match_snapshot("api/admin/layers")
+          expect(security_checked_response).to match_snapshot("api/admin/layers")
         end
       end
     end
@@ -65,7 +81,7 @@ RSpec.describe "API Admin Layers", type: :request do
         run_test!
 
         it "matches snapshot", generate_swagger_example: true do
-          expect(response.body).to match_snapshot("api/admin/create_layer")
+          expect(security_checked_response).to match_snapshot("api/admin/create_layer")
         end
       end
 
@@ -103,13 +119,22 @@ RSpec.describe "API Admin Layers", type: :request do
       it_behaves_like "with not found error"
 
       response "200", :success do
-        let(:layer_params) { {layer: build(:layer).attributes.except("updated_at", "created_at")} }
+        let(:layer_params) do
+          config = {body: {source: "https://storage.googleapis.com/resilienceatlas-public/test.tif"}}.to_json
+          {layer: build(:layer, layer_provider: "cog", layer_config: config).attributes.except("updated_at", "created_at")}
+        end
 
         run_test!
 
         it "matches snapshot", generate_swagger_example: true do
-          expect(response.body).to match_snapshot("api/admin/update_layer")
+          expect(security_checked_response).to match_snapshot("api/admin/update_layer")
         end
+      end
+
+      response "422", "Invalid published source" do
+        let(:layer_params) { {layer: {layer_provider: "cog", layer_config: {body: {source: "invalid"}}.to_json}} }
+
+        run_test!
       end
     end
 
@@ -131,7 +156,7 @@ RSpec.describe "API Admin Layers", type: :request do
         run_test!
 
         it "matches snapshot", generate_swagger_example: true do
-          expect(response.body).to match_snapshot("api/admin/get_layer")
+          expect(security_checked_response).to match_snapshot("api/admin/get_layer")
         end
       end
     end
@@ -154,7 +179,7 @@ RSpec.describe "API Admin Layers", type: :request do
         run_test!
 
         it "matches snapshot", generate_swagger_example: true do
-          expect(response.body).to match_snapshot("api/admin/delete_layer")
+          expect(security_checked_response).to match_snapshot("api/admin/delete_layer")
         end
       end
     end

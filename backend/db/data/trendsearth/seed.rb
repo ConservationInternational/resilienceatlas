@@ -772,4 +772,4 @@ module TrendsEarthSeeder
 end
 
 # Run the seeder
-TrendsEarthSeeder.run
+TileSourceLifecycle.seed!(__FILE__) { TrendsEarthSeeder.run }

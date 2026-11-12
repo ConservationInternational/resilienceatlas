@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: 'SAM Template for titiler-cogs using Python 3.14 (Amazon Linux 2023) with CloudFront CDN'
+Description: 'SAM template for the authenticated TiTiler origin; API CDN owns public tile caching'
 
 Parameters:
   DataGatewaySecret:
@@ -36,10 +36,6 @@ Parameters:
     AllowedValues:
       - 'true'
       - 'false'
-  CacheTTL:
-    Type: Number
-    Default: 86400
-    Description: Default cache TTL in seconds (default 24 hours)
   AllowedBuckets:
     Type: String
     Description: Comma-separated list of allowed bucket URIs with provider prefix (e.g., 's3://my-bucket,gs://my-gcs-bucket'). Required - set via TITILER_ALLOWED_BUCKETS GitHub variable.
@@ -115,7 +111,8 @@ Resources:
       CacheClusterEnabled: false
       StageName: Prod
 
-  # CloudFront Distribution for global edge caching
+  # Direct TiTiler access remains a pass-through. Only the API's
+  # /api/public-tiles/* behavior may use public edge caching.
   CloudFrontDistribution:
     Type: AWS::CloudFront::Distribution
     Properties:
@@ -150,7 +147,7 @@ Resources:
             - GET
             - HEAD
           Compress: true
-          CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad
+          CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad  # CachingDisabled
           OriginRequestPolicyId: !Ref TileOriginRequestPolicy
         CacheBehaviors:
           # Health check - no caching
@@ -165,29 +162,6 @@ Resources:
               - HEAD
             CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad  # CachingDisabled managed policy
             OriginRequestPolicyId: !Ref TileOriginRequestPolicy
-
-  # Custom cache policy for tiles - long TTL
-  TileCachePolicy:
-    Type: AWS::CloudFront::CachePolicy
-    Properties:
-      CachePolicyConfig:
-        Name: !Sub "${AWS::StackName}-TileCachePolicy"
-        Comment: "Cache policy for TiTiler tiles"
-        DefaultTTL: !Ref CacheTTL
-        MaxTTL: 604800  # 7 days max
-        MinTTL: 1
-        ParametersInCacheKeyAndForwardedToOrigin:
-          CookiesConfig:
-            CookieBehavior: none
-          HeadersConfig:
-            HeaderBehavior: whitelist
-            Headers:
-              - Accept
-              - Origin
-          QueryStringsConfig:
-            QueryStringBehavior: all  # All query params are part of cache key
-          EnableAcceptEncodingGzip: true
-          EnableAcceptEncodingBrotli: true
 
   # Origin request policy - forward necessary headers
   TileOriginRequestPolicy:

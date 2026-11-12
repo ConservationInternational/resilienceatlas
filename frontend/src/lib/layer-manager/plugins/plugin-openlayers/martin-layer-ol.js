@@ -63,7 +63,13 @@ const MartinLayerOL = (layerModel) => {
   return new Promise((resolve) => {
     const { body } = layerConfigParsed;
     const { styles, colorRamp, options = {} } = body;
+    const publicTileUrl = body.public_tile_url
+      ? body.public_tile_url.startsWith('https://')
+        ? body.public_tile_url
+        : `${getApiBaseUrl().replace(/\/$/, '')}${body.public_tile_url}`
+      : null;
     const tileUrl =
+      publicTileUrl ||
       body.gateway_tile_url ||
       scopeDataUrl(`${getApiBaseUrl()}/api/layers/${layerModel.id}/tiles/{z}/{x}/{y}`);
 

@@ -12,6 +12,12 @@ class Agrupation < ApplicationRecord
   belongs_to :layer
   belongs_to :layer_group
   validates_uniqueness_of :layer, scope: :layer_group
+  after_save :refresh_tile_policy
+  after_destroy :refresh_tile_policy
+
+  def refresh_tile_policy
+    TilePolicyLifecycle.refresh!([layer_id, saved_change_to_layer_id&.first].compact, reason: "scope_membership_changed")
+  end
 
   def self.ransackable_attributes(auth_object = nil)
     %w[id layer_id layer_group_id active]

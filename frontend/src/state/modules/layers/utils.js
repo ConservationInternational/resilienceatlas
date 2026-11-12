@@ -55,6 +55,12 @@ export const parseDates = (layer, defaultURLDate) => {
       body: {
         ...(layerConfig.body || {}),
         url: layerConfig?.body?.url && replaceDates(layerConfig.body.url),
+        public_tile_url:
+          layerConfig?.body?.public_tile_url && replaceDates(layerConfig.body.public_tile_url),
+        source: layerConfig?.body?.source && replaceDates(layerConfig.body.source),
+        sources: Array.isArray(layerConfig?.body?.sources)
+          ? layerConfig.body.sources.map((source) => replaceDates(source))
+          : layerConfig?.body?.sources,
         layers:
           layer.type === 'cartodb' &&
           layerConfig?.body?.layers?.map((l) => ({

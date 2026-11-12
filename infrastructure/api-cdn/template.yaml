@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: 'CloudFront CDN for Resilience Atlas API (JSON responses)'
+Description: 'CloudFront CDN for the Resilience Atlas API and versioned public tile route'
 
 Parameters:
   FQDN:
@@ -14,13 +14,8 @@ Parameters:
   BackendFQDN:
     Type: String
     Description: Backend hostname for ALB routing, e.g. resilienceatlas.org or staging.resilienceatlas.org
-  CacheTTL:
-    Type: Number
-    Default: 3600
-    Description: Default cache TTL in seconds (default 1 hour)
-
 Resources:
-  # CloudFront Distribution — caches API JSON responses at the edge
+  # Only the explicit /api/public-tiles/* behavior below is edge cached.
   CloudFrontDistribution:
     Type: AWS::CloudFront::Distribution
     Properties:
@@ -41,6 +36,21 @@ Resources:
             CustomOriginConfig:
               HTTPPort: 80
               OriginProtocolPolicy: http-only
+        CustomErrorResponses:
+          - ErrorCode: 400
+            ErrorCachingMinTTL: 0
+          - ErrorCode: 403
+            ErrorCachingMinTTL: 0
+          - ErrorCode: 404
+            ErrorCachingMinTTL: 0
+          - ErrorCode: 500
+            ErrorCachingMinTTL: 0
+          - ErrorCode: 502
+            ErrorCachingMinTTL: 0
+          - ErrorCode: 503
+            ErrorCachingMinTTL: 0
+          - ErrorCode: 504
+            ErrorCachingMinTTL: 0
         DefaultCacheBehavior:
           TargetOriginId: ALBOrigin
           ViewerProtocolPolicy: redirect-to-https
@@ -136,6 +146,21 @@ Resources:
               - HEAD
             CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad  # CachingDisabled
             OriginRequestPolicyId: !Ref ApiOriginRequestPolicy
+          # Only versioned, eligibility-checked public tiles may use edge caching.
+          - PathPattern: /api/public-tiles/*
+            TargetOriginId: ALBOrigin
+            ViewerProtocolPolicy: redirect-to-https
+            AllowedMethods:
+              - GET
+              - HEAD
+              - OPTIONS
+            CachedMethods:
+              - GET
+              - HEAD
+            Compress: true
+            CachePolicyId: !Ref PublicTilesCachePolicy
+            OriginRequestPolicyId: !Ref PublicTilesOriginRequestPolicy
+            ResponseHeadersPolicyId: !Ref PublicTilesCorsResponsePolicy
           - PathPattern: /api/titiler/*
             TargetOriginId: ALBOrigin
             ViewerProtocolPolicy: redirect-to-https
@@ -187,17 +212,15 @@ Resources:
             CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad  # CachingDisabled
             OriginRequestPolicyId: !Ref ApiOriginRequestPolicy
 
-  # Cache policy — cache key includes site_scope and locale query params
-  # Respects origin Cache-Control headers from Rails (expires_in directives)
-  ApiCachePolicy:
+  PublicTilesCachePolicy:
     Type: AWS::CloudFront::CachePolicy
     Properties:
       CachePolicyConfig:
-        Name: !Sub "${AWS::StackName}-ApiCachePolicy"
-        Comment: "Cache policy for API JSON — key includes site_scope + locale"
-        DefaultTTL: !Ref CacheTTL
-        MaxTTL: 86400    # 24 hours max
-        MinTTL: 0        # Respect origin no-cache directives
+        Name: !Sub "${AWS::StackName}-PublicTilesCachePolicy"
+        Comment: "Cache successful versioned public tiles for at most 24 hours"
+        DefaultTTL: 86400
+        MaxTTL: 86400
+        MinTTL: 0
         ParametersInCacheKeyAndForwardedToOrigin:
           CookiesConfig:
             CookieBehavior: none
@@ -206,10 +229,51 @@ Resources:
           QueryStringsConfig:
             QueryStringBehavior: whitelist
             QueryStrings:
-              - site_scope
-              - locale
+              - source_index
+              - time
           EnableAcceptEncodingGzip: true
           EnableAcceptEncodingBrotli: true
+
+  PublicTilesOriginRequestPolicy:
+    Type: AWS::CloudFront::OriginRequestPolicy
+    Properties:
+      OriginRequestPolicyConfig:
+        Name: !Sub "${AWS::StackName}-PublicTilesOriginRequestPolicy"
+        Comment: "Forward only public tile variants and Origin; never credentials or cookies"
+        CookiesConfig:
+          CookieBehavior: none
+        HeadersConfig:
+          HeaderBehavior: whitelist
+          Headers:
+            - Host
+            - Origin
+        QueryStringsConfig:
+          QueryStringBehavior: whitelist
+          QueryStrings:
+            - source_index
+            - time
+
+  PublicTilesCorsResponsePolicy:
+    Type: AWS::CloudFront::ResponseHeadersPolicy
+    Properties:
+      ResponseHeadersPolicyConfig:
+        Name: !Sub "${AWS::StackName}-PublicTilesCorsResponsePolicy"
+        Comment: "CORS for the public tile route"
+        CorsConfig:
+          AccessControlAllowCredentials: false
+          AccessControlAllowHeaders:
+            Items:
+              - "*"
+          AccessControlAllowMethods:
+            Items:
+              - GET
+              - HEAD
+              - OPTIONS
+          AccessControlAllowOrigins:
+            Items:
+              - "*"
+          AccessControlMaxAgeSec: 600
+          OriginOverride: true
 
   # Origin request policy — forward Host for ALB routing, plus auth headers
   ApiOriginRequestPolicy:

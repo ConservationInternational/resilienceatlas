@@ -16,18 +16,35 @@ module Api
         unless z && x && y && z.between?(0, 22) && x.between?(0, 2**z - 1) && y.between?(0, 2**z - 1)
           return render json: {error: "Invalid tile coordinates"}, status: :bad_request
         end
-        layer = authorized_preview? ? preview_layer : Layer.fetch_all(layers_params).where(layer_provider: "gee").find(params[:layer_id])
+        preview = authorized_preview?
+        layer = preview ? preview_layer : Layer.fetch_all(layers_params).where(layer_provider: "gee").find(params[:layer_id])
         raise ActiveRecord::RecordNotFound unless layer.layer_provider == "gee"
-        config = JSON.parse(layer.layer_config.presence || "{}")
-        template = config.dig("body", "url").to_s
-        uri = URI(template.gsub("{z}", z.to_s).gsub("{x}", x.to_s).gsub("{y}", y.to_s))
-        unless uri.is_a?(URI::HTTPS) && uri.host == "earthengine.googleapis.com" && uri.port == 443 && !uri.userinfo && !uri.fragment
-          Rails.logger.warn "[EarthEngineController] Rejected tile source for layer #{layer.id}"
-          return render json: {error: "Invalid Earth Engine tile source"}, status: :bad_request
+        unless restricted_tile_access_allowed?(layer, preview: preview)
+          response.cache_control.replace(no_store: true, private: true)
+          return render json: {error: "Tile is not available"}, status: :forbidden
         end
-        result = Net::HTTP.start(uri.host, uri.port, use_ssl: true, open_timeout: 10, read_timeout: 30) { |http| http.request(Net::HTTP::Get.new(uri)) }
+        if source_import_blocked?(layer)
+          response.cache_control.replace(no_store: true, private: true)
+          return render json: {error: "Tile source is being updated"}, status: :service_unavailable
+        end
+        policy = TileSecurityPolicy.new(layer)
+        cache_key = if policy.version.present?
+          TileByteCache.key(
+            class: "private",
+            layer_id: layer.id,
+            source_key: policy.source_key,
+            version: policy.version,
+            scope_id: @site_scope.id,
+            coordinates: [z, x, y],
+            representation: TileRendererService.saved_representation(layer)
+          )
+        end
+        rendered = TileByteCache.fetch(cache_key, bypass: preview) do
+          result = TileRendererService.render(layer, z: z, x: x, y: y)
+          {status: result.status, body: result.body, content_type: result.content_type}
+        end
         response.cache_control.replace(no_store: true, private: true)
-        render body: result.body, content_type: "image/png", status: result.code.to_i
+        render body: rendered[:body], content_type: rendered[:content_type], status: rendered[:status]
       rescue URI::InvalidURIError
         render json: {error: "Invalid Earth Engine tile source"}, status: :bad_request
       rescue Net::OpenTimeout, Net::ReadTimeout => e
@@ -46,6 +63,20 @@ module Api
           preview_layer.site_scopes.exists?(id: @site_scope.id)
       end
 
+      def source_import_blocked?(layer)
+        return false unless defined?(TileSourceImport) && TileSourceImport.table_exists?
+
+        key = TileSecurityPolicy.new(layer).source_key
+        TileSourceImport.blocking.any? { |run| run.blocks?(layer, key) }
+      end
+
+      def restricted_tile_access_allowed?(layer, preview: false)
+        return true if preview || (respond_to?(:current_admin_user, true) && current_admin_user&.superadmin?)
+        return true unless layer.respond_to?(:data_policy) && layer.data_policy == "restricted"
+
+        @site_scope&.requires_authentication?
+      end
+
       def proxy_request
         operation = params[:operation]
         unless %w[histogram raster download].include?(operation)
@@ -56,6 +87,14 @@ module Api
           return render json: {error: "Invalid method for operation"}, status: :method_not_allowed
         end
         layer = Layer.fetch_all(layers_params).where(layer_provider: "gee").find(params[:layer_id])
+        unless restricted_tile_access_allowed?(layer)
+          response.cache_control.replace(no_store: true, private: true)
+          return render json: {error: "Source is not available in this scope"}, status: :forbidden
+        end
+        if source_import_blocked?(layer)
+          response.cache_control.replace(no_store: true, private: true)
+          return render json: {error: "Tile source is being updated"}, status: :service_unavailable
+        end
         asset = params[:assetId].presence || params[:asset_id]
         configured = JSON.parse(layer.analysis_body.presence || "{}")["assetId"]
         interaction = JSON.parse(layer.interaction_config.presence || "{}")

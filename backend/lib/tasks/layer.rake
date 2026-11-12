@@ -1,3 +1,5 @@
+require_relative "../tile_security_import_task"
+
 namespace :layers do
   desc "Deletes layers and layer groups and import new ones."
   task import: :environment do
@@ -5,6 +7,12 @@ namespace :layers do
     answer = $stdin.gets.chomp
     puts answer
     if answer == "Y"
+      restrictions = Layer.where("data_policy = 'restricted' OR (security_provenance = 'explicit' AND NOT public_data)")
+        .pluck(:slug, :data_policy).to_h
+      restricted_sources = Layer.where(slug: restrictions.keys).filter_map { |layer| TileSecurityPolicy.new(layer).source_key }
+      protected_scopes = SiteScope.where(password_protected: true).to_h do |scope|
+        [scope.subdomain, scope.attributes.slice("username", "encrypted_password", "encrypted_viewable_password")]
+      end
       puts "Deleting layers..."
       Agrupation.delete_all
       Layer.delete_all
@@ -13,6 +21,17 @@ namespace :layers do
       puts "Importing new layers..."
       filename = "db/data/layers.rb"
       load(filename) if File.exist?(filename)
+      protected_scopes.each do |subdomain, credentials|
+        SiteScope.find_by(subdomain: subdomain)&.update_columns(credentials.merge("password_protected" => true))
+      end
+      # Backups are configuration, not trusted approval or generation state.
+      Layer.find_each do |layer|
+        restricted = restrictions.key?(layer.slug) || layer.data_policy == "restricted" ||
+          restricted_sources.include?(TileSecurityPolicy.new(layer).source_key)
+        layer.update_columns(public_data: false, tile_cache_version: SecureRandom.hex(16),
+          data_policy: restricted ? "restricted" : "public",
+          security_provenance: restricted ? "explicit" : "default_public")
+      end
       ActiveRecord::Base.connection.reset_pk_sequence!("layers")
       ActiveRecord::Base.connection.reset_pk_sequence!("layer_groups")
       ActiveRecord::Base.connection.reset_pk_sequence!("agrupations")
@@ -50,3 +69,5 @@ namespace :layers do
     puts "Downloads deleted."
   end
 end
+
+TileSecurityImportTask.wrap("layers:import", "layers:upgrade")

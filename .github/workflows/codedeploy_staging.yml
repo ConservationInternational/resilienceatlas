@@ -232,6 +232,11 @@ jobs:
         BACKEND_URL=https://staging.resilienceatlas.org
         FRONTEND_URL=https://staging.resilienceatlas.org
         NEXT_PUBLIC_API_HOST=https://staging.resilienceatlas.org
+        TILE_CACHE_REDIS_URL=redis://tile-cache-redis:6379/0
+        TILE_PUBLIC_CDN_URL=${{ vars.TILE_PUBLIC_CDN_URL || 'https://api.staging.resilienceatlas.org' }}
+        TILE_ORIGIN_PROBE_URL=${{ vars.TILE_ORIGIN_PROBE_URL }}
+        TILE_CLOUDFRONT_DISTRIBUTION_IDS=${{ vars.TILE_CLOUDFRONT_DISTRIBUTION_IDS }}
+        TITILER_URL=${{ vars.TITILER_URL || 'https://staging.titiler.resilienceatlas.org' }}
         
         # External services
         NEXT_PUBLIC_GOOGLE_ANALYTICS=${{ secrets.NEXT_PUBLIC_GOOGLE_ANALYTICS }}

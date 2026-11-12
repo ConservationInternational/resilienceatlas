@@ -90,6 +90,30 @@ javascript:
           window.alert(error.message);
           return;
         }
+
+        function refreshPreview() {
+          if (!configEl.dataset.refreshUrl) return Promise.resolve();
+          var csrf = document.querySelector('meta[name="csrf-token"]');
+          return fetch(configEl.dataset.refreshUrl, {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: { 'X-CSRF-Token': csrf ? csrf.content : '', 'Accept': 'application/json' }
+          }).then(function(response) {
+            if (!response.ok) throw new Error('Preview permission could not be refreshed. Reload the page or check scope access.');
+            return response.json();
+          }).then(function(payload) {
+            configEl.dataset.previewQuery = payload.preview_query;
+            sendLayerToIframe();
+          }).catch(function(error) {
+            console.error('Preview refresh failed:', error);
+            window.alert(error.message);
+          });
+        }
+
+        var refreshBtn = document.createElement('button');
+        refreshBtn.type = 'button';
+        refreshBtn.textContent = 'Refresh saved-source preview access';
+        refreshBtn.onclick = refreshPreview;
         previewIframe.contentWindow.postMessage(
           {
             type: 'LAYER_PREVIEW',
@@ -154,6 +178,7 @@ javascript:
       });
 
       previewContainer.appendChild(previewBtn);
+      if (configEl.dataset.refreshUrl) previewContainer.appendChild(refreshBtn);
       previewContainer.appendChild(previewPanel);
 
       var olEl = targetFieldset.querySelector('ol');

@@ -288,8 +288,10 @@ RSpec.describe Layer, type: :model do
     end
 
     it "clones basic attributes" do
-      expect(cloned_layer.attributes.except("id", "name", "slug", "created_at", "updated_at"))
-        .to eq(layer.attributes.except("id", "name", "slug", "created_at", "updated_at"))
+      expect(cloned_layer.attributes.except("id", "name", "slug", "created_at", "updated_at", "tile_cache_version"))
+        .to eq(layer.attributes.except("id", "name", "slug", "created_at", "updated_at", "tile_cache_version"))
+      expect(cloned_layer.tile_cache_version).to be_present
+      expect(cloned_layer.tile_cache_version).not_to eq(layer.tile_cache_version)
     end
 
     it "clones translations" do

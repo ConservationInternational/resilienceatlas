@@ -12,6 +12,21 @@ import XYZ from 'ol/source/XYZ';
  */
 function buildSingleTitilerUrl(layerConfig, sourceOverride) {
   const { body } = layerConfig;
+  const hasUnresolvedTimeline =
+    typeof body.public_tile_url === 'string' &&
+    /\{\{(?:year|month|day)\}\}/.test(body.public_tile_url);
+  if (body.public_tile_url && !hasUnresolvedTimeline) {
+    const url = body.public_tile_url.startsWith('https://')
+      ? body.public_tile_url
+      : `${getApiBaseUrl().replace(/\/$/, '')}${body.public_tile_url}`;
+    const sources = Array.isArray(body.sources) && body.sources.length > 0 ? body.sources : [];
+    if (sources.length > 1) {
+      const sourceIndex = sources.indexOf(sourceOverride);
+      const separator = url.includes('?') ? '&' : '?';
+      return `${url}${separator}source_index=${sourceIndex < 0 ? 0 : sourceIndex}`;
+    }
+    return url;
+  }
   if (body.gateway_tile_url) return body.gateway_tile_url;
   if (body.url && !sourceOverride) {
     const legacy = new URL(body.url);

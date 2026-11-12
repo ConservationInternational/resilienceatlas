@@ -3,7 +3,7 @@
   / Config element passes frontend URL to admin preview JavaScript
   - preview_scope = resource.persisted? ? resource.site_scopes.first : nil
   - preview_query = preview_scope ? { site_scope: preview_scope.subdomain, admin_preview_token: AdminPreviewAccess.issue(resource, current_admin_user) }.to_query : nil
-  div#layer-preview-config data-frontend-url=ENV.fetch('FRONTEND_URL', '') data-preview-query=preview_query data-layer-id=(resource.id if resource.persisted?) data-backend-url=request.base_url style="display:none"
+  div#layer-preview-config data-frontend-url=ENV.fetch('FRONTEND_URL', '') data-preview-query=preview_query data-layer-id=(resource.id if resource.persisted?) data-backend-url=request.base_url data-refresh-url=(refresh_preview_admin_layer_path(resource) if resource.persisted?) style="display:none"
   p Preview uses the saved data source. Save source changes as an unpublished draft before previewing; unsaved styling can be previewed immediately.
   = f.inputs "Layer metadata" do
     - if resource.new_record? && !current_admin_user.superadmin?
@@ -16,8 +16,10 @@
       = f.text_field :slug
     - unless current_admin_user.contributor?
       = f.input :published
-    - if current_admin_user.superadmin?
-      = f.input :public_data, hint: "Explicitly approve underlying data for anonymous serving. Never enable for confidential data."
+    - if resource.new_record?
+      = f.input :data_policy, as: :select, collection: [["Public by default", "public"], ["Restricted / confidential", "restricted"]], include_blank: false, hint: "Public eligibility does not publish drafts or remove scope protection. Restricted data never uses a shared public cache."
+    - elsif current_admin_user.superadmin?
+      p Data-policy overrides require a reason and are managed in the layer's security panel.
     = f.inputs "Translated fields" do
       = f.translated_inputs switch_locale: false do |ff|
         = ff.input :id, as: :hidden
@@ -80,7 +82,15 @@
         = f.label :layer_config
         span.inline-hint Required for COG/Martin. Martin: {"source":"table_name","styles":{...}}. COG: {"body":{"url":"TiTiler URL"}}. WMS/WMTS: {"body":{"url":"...","layer":"..."}}. ESRI: {"body":{"url":"..."}}. ArcGIS Feature: {"body":{"url":"FeatureServer/0","params":{"where":"1=1","outFields":"*"}}}.
         span.label-note  (JSON)
-        = f.text_area :layer_config, rows: 10, class: "json-editor-textarea"
+        = f.text_area :layer_config, value: (resource.layer_provider == "arcgis_feature" ? LayerSerializer.new(resource).layer_config : resource.layer_config), rows: 10, class: "json-editor-textarea"
+      - if resource.layer_provider == "arcgis_feature"
+        li.input.password
+          = label_tag :arcgis_credential, "Replace ArcGIS credential"
+          = password_field_tag :arcgis_credential, nil, autocomplete: "new-password"
+          span.inline-hint Leave blank to preserve the credential for the same source URL. Credentials are never filled into this form.
+        li.input.boolean
+          = check_box_tag :clear_arcgis_credential, "1"
+          = label_tag :clear_arcgis_credential, "Remove stored ArcGIS credential"
     = f.inputs "Interactivity"
       li.input.text
         = f.label :interaction_config

@@ -4,8 +4,17 @@ module Api
       include SitesFilters
 
       def show
-        layer = authorized_preview? ? preview_layer : Layer.fetch_all(layers_params).where(layer_provider: "martin").find(params[:id])
+        preview = authorized_preview?
+        layer = preview ? preview_layer : Layer.fetch_all(layers_params).where(layer_provider: "martin").find(params[:id])
         raise ActiveRecord::RecordNotFound unless layer.layer_provider == "martin"
+        unless restricted_tile_access_allowed?(layer, preview: preview)
+          response.cache_control.replace(no_store: true, private: true)
+          return render json: {error: "Tile is not available"}, status: :forbidden
+        end
+        if source_import_blocked?(layer)
+          response.cache_control.replace(no_store: true, private: true)
+          return render json: {error: "Tile source is being updated"}, status: :service_unavailable
+        end
         config = JSON.parse(layer.layer_config)
         body = config.fetch("body", config)
         source = body.fetch("source")
@@ -23,7 +32,22 @@ module Api
           return render json: {error: "Invalid tile coordinates"}, status: :bad_request
         end
         sql = ActiveRecord::Base.sanitize_sql_array(["SELECT #{function}(?, ?, ?, ?::json)", z, x, y, query.to_json])
-        tile = ActiveRecord::Base.connection.select_value(sql)
+        policy = TileSecurityPolicy.new(layer)
+        cache_key = if policy.version.present?
+          TileByteCache.key(
+            class: "private",
+            layer_id: layer.id,
+            source_key: policy.source_key,
+            version: policy.version,
+            scope_id: @site_scope.id,
+            function: function,
+            representation: query,
+            coordinates: [z, x, y]
+          )
+        end
+        tile = TileByteCache.fetch(cache_key, bypass: preview) do
+          {status: 200, body: ActiveRecord::Base.connection.select_value(sql).to_s}
+        end[:body]
         response.cache_control.replace(no_store: true, private: true)
         send_data tile, type: "application/vnd.mapbox-vector-tile", disposition: "inline"
       end
@@ -36,6 +60,20 @@ module Api
 
       def authorized_preview?
         preview_layer && preview_layer.id.to_s == params[:id] && preview_layer.site_scopes.exists?(id: @site_scope.id)
+      end
+
+      def source_import_blocked?(layer)
+        return false unless defined?(TileSourceImport) && TileSourceImport.table_exists?
+
+        key = TileSecurityPolicy.new(layer).source_key
+        TileSourceImport.blocking.any? { |run| run.blocks?(layer, key) }
+      end
+
+      def restricted_tile_access_allowed?(layer, preview: false)
+        return true if preview || (respond_to?(:current_admin_user, true) && current_admin_user&.superadmin?)
+        return true unless layer.respond_to?(:data_policy) && layer.data_policy == "restricted"
+
+        @site_scope&.requires_authentication?
       end
     end
   end

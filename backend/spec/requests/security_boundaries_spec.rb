@@ -4,6 +4,8 @@ RSpec.describe "Security boundaries", type: :request do
   before(:context) do
     require Rails.root.join("db/migrate/20261111143000_secure_public_tile_sources")
     SecurePublicTileSources.new.install_tile_functions
+    require Rails.root.join("db/migrate/20261112090000_add_tile_security_policy")
+    AddTileSecurityPolicy.new.install_public_guard
     ActiveRecord::Base.connection.execute("CREATE SCHEMA IF NOT EXISTS ra_vector")
     ActiveRecord::Base.connection.execute("CREATE TABLE ra_vector.security_test_points (id integer, geom geometry(Point,4326))")
     ActiveRecord::Base.connection.execute("INSERT INTO ra_vector.security_test_points VALUES (1, ST_SetSRID(ST_MakePoint(0,0),4326))")
@@ -149,13 +151,33 @@ RSpec.describe "Security boundaries", type: :request do
     expect(response).to have_http_status(:not_found)
   end
 
-  it "requires explicit approval for public database tiles" do
+  it "derives public access, preserves explicit revocation and protects restricted aliases" do
     sql = "SELECT public.ra_vector_tile(0,0,0,'{\"table\":\"security_test_points\"}'::json)"
+    TilePolicyLifecycle.refresh!([layer], reason: "security_boundary_test")
+    expect(layer.reload.public_data).to be true
+    expect(ActiveRecord::Base.connection.select_value(sql).bytesize).to be > 0
+
+    layer.update!(public_data: false)
+    expect(layer.reload.security_provenance).to eq("explicit")
     expect {
       ActiveRecord::Base.transaction(requires_new: true) { ActiveRecord::Base.connection.select_value(sql) }
     }.to raise_error(ActiveRecord::StatementInvalid, /not approved/)
     layer.update!(public_data: true)
     expect(ActiveRecord::Base.connection.select_value(sql).bytesize).to be > 0
+
+    restricted_alias = create(:layer, published: true, layer_provider: "martin", data_policy: "restricted",
+      layer_config: {body: {source: "ra_vector_tile", params: {table: "security_test_points"}}}.to_json)
+    other_group.layers << restricted_alias
+    TilePolicyLifecycle.refresh!([layer, restricted_alias], reason: "security_boundary_alias_test")
+    expect {
+      ActiveRecord::Base.transaction(requires_new: true) { ActiveRecord::Base.connection.select_value(sql) }
+    }.to raise_error(ActiveRecord::StatementInvalid, /not approved/)
+
+    restricted_alias.destroy!
+    TilePolicyLifecycle.refresh!([layer], reason: "security_boundary_alias_removed")
+    layer.update!(public_data: true)
+    expect(ActiveRecord::Base.connection.select_value(sql).bytesize).to be > 0
+
     other_group.layers << layer
     expect {
       ActiveRecord::Base.transaction(requires_new: true) { ActiveRecord::Base.connection.select_value(sql) }

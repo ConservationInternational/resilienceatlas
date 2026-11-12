@@ -15,6 +15,15 @@ ActiveAdmin.register SiteScope do
 
   # Log validation errors for debugging
   controller do
+    def save_resource(resource)
+      protection_changed = resource.persisted? && resource.will_save_change_to_password_protected?
+      if protection_changed && params[:confirm_security_impact] != "1"
+        resource.errors.add(:password_protected, "Confirm the security and cache impact before changing protection")
+        return false
+      end
+      super
+    end
+
     def create
       super do |success, failure|
         failure.html do
@@ -42,6 +51,10 @@ ActiveAdmin.register SiteScope do
     n = resource.clone!
 
     redirect_to edit_admin_site_scope_path(n)
+  end
+
+  action_item :tile_security, only: :show do
+    link_to "Layer security readiness", admin_tile_security_path(site_scope_id: resource.id)
   end
 
   form do |f|
@@ -76,6 +89,13 @@ ActiveAdmin.register SiteScope do
 
     f.inputs "Password Protection" do
       f.input :password_protected, as: :boolean, label: "Enable password protection"
+      if resource.persisted?
+        li do
+          text_node check_box_tag(:confirm_security_impact, "1")
+          text_node label_tag(:confirm_security_impact, "I reviewed affected layer/source aliases and understand cached public responses require invalidation when protection changes.")
+          text_node link_to("Review layer readiness", admin_tile_security_path(site_scope_id: resource.id))
+        end
+      end
       f.input :username, label: "Username (required if password protected)",
         hint: "Username for accessing this site scope"
 

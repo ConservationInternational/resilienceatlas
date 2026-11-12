@@ -87,7 +87,7 @@
         "info": null,
         "css": "Cum veritatis sapiente exercitationem.",
         "query": "Cum veritatis sapiente exercitationem.",
-        "layer_config": "{\"type\": \"raster\", \"source\": {\"tiles\": [\"https://example.com/tiles/{z}/{x}/{y}.png\"]}}",
+        "layer_config": "{\"type\":\"raster\",\"source\":{\"tiles\":[\"https://example.com/tiles/{z}/{x}/{y}.png\"]}}",
         "layer_provider": "cog",
         "published": true,
         "locate_layer": false,

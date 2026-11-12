@@ -45,6 +45,11 @@ services:
       - ROLLBAR_ENV=production
       - MARTIN_URL=http://martin:3000
       - REDIS_URL=redis://redis:6379/0
+      - TILE_CACHE_REDIS_URL=redis://tile-cache-redis:6379/0
+      - TILE_PUBLIC_CDN_URL=${TILE_PUBLIC_CDN_URL:-https://api.resilienceatlas.org}
+      - TILE_ORIGIN_PROBE_URL=${TILE_ORIGIN_PROBE_URL:-}
+      - TILE_CLOUDFRONT_DISTRIBUTION_IDS=${TILE_CLOUDFRONT_DISTRIBUTION_IDS:-}
+      - TITILER_URL=${PRODUCTION_TITILER_URL:-https://titiler.resilienceatlas.org}
       - S3_BUCKET=${S3_BUCKET}
       - AWS_REGION=${AWS_REGION}
       - BEDROCK_AGENT_ID=${BEDROCK_AGENT_ID}
@@ -154,6 +159,32 @@ services:
       retries: 5
       start_period: 10s
 
+  tile-cache-redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--save", "", "--appendonly", "no", "--maxmemory", "256mb", "--maxmemory-policy", "allkeys-lru"]
+    networks:
+      - prod-network
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+      restart_policy:
+        condition: any
+        delay: 5s
+      resources:
+        limits:
+          memory: 384M
+        reservations:
+          memory: 128M
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
   sidekiq:
     image: ${BACKEND_IMAGE}
     environment:
@@ -168,6 +199,9 @@ services:
       - ROLLBAR_ACCESS_TOKEN=${ROLLBAR_ACCESS_TOKEN}
       - ROLLBAR_ENV=production
       - REDIS_URL=redis://redis:6379/0
+      - TILE_CLOUDFRONT_DISTRIBUTION_IDS=${TILE_CLOUDFRONT_DISTRIBUTION_IDS:-}
+      - TILE_PUBLIC_CDN_URL=${TILE_PUBLIC_CDN_URL:-https://api.resilienceatlas.org}
+      - TILE_ORIGIN_PROBE_URL=${TILE_ORIGIN_PROBE_URL:-}
       - S3_BUCKET=${S3_BUCKET}
       - AWS_REGION=${AWS_REGION}
       - BACKEND_URL=${PRODUCTION_BACKEND_URL}

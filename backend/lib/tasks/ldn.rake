@@ -19,6 +19,8 @@
 
 LDN_DEFAULT_DATA_DIR = File.expand_path("../../db/data/ldn/../../../", __dir__)
 
+require_relative "../tile_security_import_task"
+
 namespace :ldn do
   desc "Build geometry table from raw GPKGs already imported via ogr2ogr (host-side)"
   task build_dimensions: :environment do
@@ -193,3 +195,5 @@ namespace :ldn do
     end
   end
 end
+
+TileSecurityImportTask.wrap("ldn:build_dimensions")

@@ -117,8 +117,33 @@ module Api
         end
         query = params.permit(:colormap, :colormap_name, :nodata, :rescale, :resampling_method, :feature, bidx: []).to_h
         query["bidx"] = params[:bidx] if params[:bidx].is_a?(String)
-        query["url"] = params[:cogUrl]
-        proxy_get_request(params[:titilerUrl], "/tiles/WebMercatorQuad/#{z}/#{x}/#{y}", query)
+        layer = @authorized_layer
+        policy = TileSecurityPolicy.new(layer)
+        cache_key = if policy.version.present?
+          TileByteCache.key(
+            class: "private",
+            layer_id: layer.id,
+            source_key: policy.source_key,
+            version: policy.version,
+            scope_id: @site_scope.id,
+            source: params[:cogUrl],
+            coordinates: [z, x, y],
+            representation: query
+          )
+        end
+        result = TileByteCache.fetch(cache_key) do
+          rendered = TileRendererService.render_cog_source(
+            titiler_url: params[:titilerUrl],
+            cog_url: params[:cogUrl],
+            z: z,
+            x: x,
+            y: y,
+            params: query
+          )
+          {status: rendered.status, body: rendered.body, content_type: rendered.content_type}
+        end
+        response.cache_control.replace(no_store: true, private: true)
+        render body: result[:body], content_type: result[:content_type], status: result[:status]
       end
 
       private
@@ -131,6 +156,20 @@ module Api
         preview_layer&.site_scopes&.exists?(id: @site_scope.id)
       end
 
+      def source_import_blocked?(layer)
+        return false unless defined?(TileSourceImport) && TileSourceImport.table_exists?
+
+        key = TileSecurityPolicy.new(layer).source_key
+        TileSourceImport.blocking.any? { |run| run.blocks?(layer, key) }
+      end
+
+      def restricted_tile_access_allowed?(layer, preview: false)
+        return true if preview || (respond_to?(:current_admin_user, true) && current_admin_user&.superadmin?)
+        return true unless layer.respond_to?(:data_policy) && layer.data_policy == "restricted"
+
+        @site_scope&.requires_authentication?
+      end
+
       def authorize_cog
         if params[:titilerUrl].blank? || params[:cogUrl].blank?
           return render json: {error: "Missing required parameters: titilerUrl and cogUrl"}, status: :bad_request
@@ -140,10 +179,23 @@ module Api
         end
         requested = params[:cogUrl].to_s
         layers = authorized_preview? ? [preview_layer] : Layer.fetch_all(layers_params).where(layer_provider: "cog")
-        allowed = layers.any? { |layer| LayerDataSources.cog_urls(layer).any? { |source| LayerDataSources.matches?(source, requested) } }
-        return if allowed
+        @authorized_layer = layers.find do |layer|
+          LayerDataSources.cog_urls(layer).any? { |source| LayerDataSources.matches?(source, requested) }
+        end
+        if @authorized_layer
+          unless restricted_tile_access_allowed?(@authorized_layer, preview: authorized_preview?)
+            response.cache_control.replace(no_store: true, private: true)
+            return render json: {error: "Source is not available in this scope"}, status: :forbidden
+          end
+          if source_import_blocked?(@authorized_layer)
+            response.cache_control.replace(no_store: true, private: true)
+            return render json: {error: "Tile source is being updated"}, status: :service_unavailable
+          end
+          return
+        end
 
         Rails.logger.warn "[TitilerController] Rejected source not published in scope #{@site_scope.id}"
+        response.cache_control.replace(no_store: true, private: true)
         render json: {error: "Source is not available in this scope"}, status: :forbidden
       end
 

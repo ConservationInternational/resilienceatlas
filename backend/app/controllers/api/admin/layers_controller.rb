@@ -47,7 +47,6 @@ class Api::Admin::LayersController < Api::Admin::ApiController
     authorize! :update, @layer
     authorize_assignment!
     Layer.transaction do
-      @layer.public_data = false unless @api_admin_user.superadmin?
       @layer.update!(layer_params)
       link_layer_group_assignment if layer_group_assignment_requested?
       render json: {success: true, message: "Layer Updated Successfully", data: safe_layer_json(@layer)}, status: :ok
@@ -79,7 +78,9 @@ class Api::Admin::LayersController < Api::Admin::ApiController
 
   def safe_layer_json(layer)
     config = (layer.layer_provider == "arcgis_feature") ? LayerSerializer.new(layer).layer_config : layer.layer_config
-    layer.as_json.merge("layer_config" => config)
+    attributes = layer.as_json.merge("layer_config" => config)
+    attributes["tile_security"] = TileSecurityPolicy.new(layer).report if layer.has_attribute?(:tile_cache_version)
+    attributes
   end
 
   def layer_params

@@ -1,0 +1,81 @@
+<% policy = TileSecurityPolicy.new(layer) %>
+<% report = policy.report %>
+<p><strong><%= report.fetch("status").humanize %></strong>:
+  <%= report.fetch("reasons").map(&:humanize).join("; ").presence || "Local configuration ready; live access not verified." %>
+</p>
+<dl>
+  <dt>Data policy</dt><dd><%= layer.data_policy %> (<%= layer.security_provenance %>)</dd>
+  <dt>Source identity</dt><dd><%= report.fetch("source_key") %></dd>
+  <dt>Current generation</dt><dd><%= report.fetch("version") %></dd>
+  <dt>Shared public tile cache eligible</dt><dd><%= report.fetch("public_cache_eligible") ? "Yes" : "No; authenticated gateway remains separate" %></dd>
+</dl>
+<% if (source_import = TileSourceImport.latest_for(layer)) %>
+  <h4>Latest relevant import</h4>
+  <dl>
+    <% source_import.safe_status.each do |name, value| %>
+      <dt><%= name.to_s.humanize %></dt><dd><%= value %></dd>
+    <% end %>
+  </dl>
+<% end %>
+<p>Preview success is not proof of public availability. Vector tile bytes can contain attributes not displayed by the map style.</p>
+<table>
+  <thead><tr><th>Scope</th><th>Catalogue / tiles</th><th>Other capabilities</th><th>Membership</th></tr></thead>
+  <tbody>
+  <% layer.site_scopes.distinct.each do |scope| %>
+    <tr>
+      <td><%= scope.name %></td>
+      <td><%= !layer.published? ? "Draft; preview only" : scope.password_protected? ? "Scope authentication required" : "Anonymous gateway access; configuration must be valid" %></td>
+      <td><%= [("Analysis configured" if layer.analysis_suitable?), ("Download enabled" if layer.download?)].compact.join("; ").presence || "Provider configuration determines available operations" %></td>
+      <td><% layer.layer_groups.where(site_scope_id: scope.id).each do |group| %>
+        <% if authorized?(:update, group) %><%= link_to group.name, edit_admin_layer_group_path(group) %><% else %><%= group.name %><% end %>
+      <% end %></td>
+    </tr>
+  <% end %>
+  </tbody>
+</table>
+<% if current_admin_user.superadmin? %>
+  <% aliases = policy.source_key.present? ? Layer.where.not(id: layer.id).select { |candidate| TileSecurityPolicy.new(candidate).source_key == policy.source_key } : [] %>
+  <p>Source aliases: <% aliases.each do |candidate| %><%= link_to candidate.slug, admin_layer_path(candidate) %> <% end %></p>
+  <p>Vector source columns (first 100; no sample values):
+    <%= TileSourceInventory.columns(layer, current_admin_user).map { |column| "#{column["column_name"]} (#{column["data_type"]})" }.join(", ") %>
+  </p>
+  <%= form_tag security_policy_admin_layer_path(layer) do %>
+    <%= label_tag :data_policy, "Explicit data policy" %>
+    <%= select_tag :data_policy, options_for_select([["Public (subject to serving checks)", "public"], ["Restricted / confidential", "restricted"]], layer.data_policy) %>
+    <%= label_tag :reason, "Reason for change" %><%= text_field_tag :reason, nil, required: true, maxlength: 1000 %>
+    <%= submit_tag "Save policy", data: {confirm: "This can change underlying data exposure. Review source aliases and pending invalidations."} %>
+  <% end %>
+<% elsif authorized?(:update, layer) %>
+  <%= form_tag request_security_review_admin_layer_path(layer) do %>
+    <%= label_tag :reason, "Request a superadmin review (does not change access)" %>
+    <%= text_field_tag :reason, nil, required: true, maxlength: 1000 %><%= submit_tag "Request review" %>
+  <% end %>
+<% end %>
+<h4>Review history</h4>
+<% TileSecurityReview.where(layer: layer).order(created_at: :desc).limit(10).each do |review| %>
+  <p><%= review.status %> - <%= review.reason %> - <%= review.resolution %></p>
+  <% if current_admin_user.superadmin? && review.status == "pending" %>
+    <%= form_tag resolve_security_review_admin_layer_path(layer) do %>
+      <%= hidden_field_tag :review_id, review.id %>
+      <%= select_tag :decision, options_for_select([["Approve public policy", "approve"], ["Reject request", "reject"]]) %>
+      <%= text_field_tag :reason, nil, required: true, placeholder: "Resolution reason" %><%= submit_tag "Resolve review" %>
+    <% end %>
+  <% end %>
+<% end %>
+<h4>Public verification</h4>
+<%= button_to "Verify anonymous tile access", verify_security_admin_layer_path(layer), method: :post %>
+<% TileSecurityVerification.where(layer: layer).order(created_at: :desc).limit(3).each do |verification| %>
+  <p><%= verification.created_at %>: <%= verification.source_version == policy.version ? verification.status : "stale" %> - <%= verification.results %></p>
+<% end %>
+<h4>CDN invalidations</h4>
+<% TileCacheInvalidation.where(layer: layer).order(created_at: :desc).limit(10).each do |invalidation| %>
+  <p><%= invalidation.status %>: <%= invalidation.created_at %> <%= invalidation.error_message %></p>
+  <% if current_admin_user.superadmin? && invalidation.status != "completed" %>
+    <%= button_to "Submit / check CloudFront invalidation", submit_tile_invalidation_admin_layer_path(layer), params: {invalidation_id: invalidation.id}, method: :post %>
+  <% end %>
+<% end %>
+<p>Without configured CloudFront invalidation credentials, use the documented operator handoff. Old public bytes may remain cached until completion.</p>
+<h4>Security events</h4>
+<% TileSecurityEvent.where(layer: layer).order(created_at: :desc).limit(10).each do |event| %>
+  <p><%= event.created_at %> <%= event.action %> - <%= event.reason %></p>
+<% end %>

@@ -131,6 +131,15 @@ class Layer < ApplicationRecord
 
   validates_presence_of :slug, :layer_provider, :interaction_config
   validates :timeline, inclusion: {in: [true, false]}
+  validates :data_policy, inclusion: {in: %w[public restricted]}
+  validates :security_provenance, inclusion: {in: %w[default_public legacy_public explicit]}
+  validates :tile_cache_version, presence: true
+
+  before_validation :prepare_tile_security_policy
+  validate :validate_tile_publication_transition
+  after_save :refresh_tile_security_policy
+  before_destroy :remember_tile_source_aliases
+  after_destroy :refresh_retired_tile_source
 
   # Slug format validation - must be URL-friendly
   # Allows alphanumeric characters, hyphens, and underscores (case-insensitive)
@@ -203,12 +212,20 @@ class Layer < ApplicationRecord
       1
     end
     layers = Layer.where(published: true).with_translations
-    layers.site(site_scope)
+    layers = layers.site(site_scope)
+    # SitesFilters verifies credentials before callers can resolve protected
+    # scopes. Public scopes must not expose confidential bytes through aliases,
+    # catalogue metadata, downloads or fallback provider gateways.
+    unless SiteScope.where(id: site_scope, password_protected: true).exists?
+      layers = layers.where.not(id: TileSecurityPolicy.anonymous_restricted_layer_ids(layers.to_a))
+    end
+    layers
   end
 
   def clone!
     new_layer = Layer.new
-    new_layer.assign_attributes attributes.except("id", "public_data")
+    new_layer.assign_attributes attributes.except("id", "public_data", "tile_cache_version")
+    new_layer.security_provenance = "default_public" if data_policy == "public" && public_data?
     translations.each { |t| new_layer.translations.build t.attributes.except("id") }
     timestamp = DateTime.now.strftime("%Y%m%d%H%M%S")
     new_layer.name = "#{name} _copy_ #{timestamp}"
@@ -304,6 +321,48 @@ class Layer < ApplicationRecord
   after_commit -> { DatasetInventoryService.invalidate_layer_cache! }
 
   private
+
+  def validate_tile_publication_transition
+    changed_source = (changes.keys & %w[layer_provider layer_config analysis_body]).any?
+    return unless persisted? && published?
+    return unless will_save_change_to_published? || changed_source
+    return unless TileSecurityPolicy::SUPPORTED_PROVIDERS.include?(layer_provider)
+    if TileSecurityPolicy.new(self).source_key.blank?
+      errors.add(:published, "requires a structurally valid saved tile source")
+    end
+  end
+
+  def prepare_tile_security_policy
+    return unless has_attribute?(:tile_cache_version)
+    @tile_policy_changed = new_record? || (changes.keys & (TilePolicyLifecycle::POLICY_FIELDS + ["tile_cache_version"])).any?
+    return unless @tile_policy_changed
+    remember_tile_source_aliases if persisted?
+    self.security_provenance = "explicit" if will_save_change_to_data_policy?
+    if persisted? && will_save_change_to_public_data? && public_data_change_to_be_saved == [true, false]
+      self.security_provenance = "explicit"
+    end
+    self.tile_cache_version = SecureRandom.hex(16)
+  end
+
+  def remember_tile_source_aliases
+    previous = self.class.find_by(id: id)
+    @previous_tile_alias_ids = previous ? TileSecurityPolicy.new(previous).aliases.map(&:id) : []
+  end
+
+  def refresh_tile_security_policy
+    return unless @tile_policy_changed
+    @tile_policy_changed = false
+    TilePolicyLifecycle.refresh!([self] + Array(@previous_tile_alias_ids), reason: "layer_configuration_changed")
+    refreshed = self.class.find(id)
+    self[:tile_cache_version] = refreshed.tile_cache_version
+    self[:public_data] = refreshed.public_data
+    clear_attribute_changes(%w[tile_cache_version public_data])
+  end
+
+  def refresh_retired_tile_source
+    TilePolicyLifecycle.invalidate!(self, reason: "layer_destroyed", previous_version: tile_cache_version)
+    TilePolicyLifecycle.refresh!(Array(@previous_tile_alias_ids), reason: "source_alias_destroyed")
+  end
 
   def zoom_max_greater_than_or_equal_to_zoom_min
     return unless zoom_min.present? && zoom_max.present?

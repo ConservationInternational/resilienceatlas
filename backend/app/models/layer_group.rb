@@ -24,6 +24,7 @@ class LayerGroup < ApplicationRecord
   has_many :sub_groups, class_name: "LayerGroup", foreign_key: :super_group_id, dependent: :nullify
   belongs_to :site_scope
   accepts_nested_attributes_for :agrupations, allow_destroy: true
+  after_save -> { TilePolicyLifecycle.refresh!(layers.to_a, reason: "group_scope_changed") }, if: :saved_change_to_site_scope_id?
 
   # Translation setup - protected against migration errors
   begin

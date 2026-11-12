@@ -45,12 +45,10 @@ if [[ "$ENV" == "staging" ]]; then
   STACK_NAME="api-cdn-staging"
   FQDN="api.staging.resilienceatlas.org"
   BACKEND_FQDN="staging.resilienceatlas.org"
-  CACHE_TTL=3600   # 1 hour for staging (faster iteration)
 else
   STACK_NAME="api-cdn-production"
   FQDN="api.resilienceatlas.org"
   BACKEND_FQDN="resilienceatlas.org"
-  CACHE_TTL=3600   # 1 hour for production (API data can change)
 fi
 
 # Zone ID can come from CLI arg, env var, or we look it up
@@ -72,7 +70,6 @@ echo "  Stack:        $STACK_NAME"
 echo "  FQDN:         $FQDN"
 echo "  Backend FQDN: $BACKEND_FQDN"
 echo "  ALB:          $ALB_DNS"
-echo "  Cache TTL:    ${CACHE_TTL}s"
 echo "  Zone ID:      $ZONE_ID"
 echo ""
 
@@ -84,7 +81,6 @@ aws cloudformation deploy \
     ZoneId="$ZONE_ID" \
     ALBDomainName="$ALB_DNS" \
     BackendFQDN="$BACKEND_FQDN" \
-    CacheTTL="$CACHE_TTL" \
   --region "$REGION" \
   --no-fail-on-empty-changeset \
   $PROFILE_ARG
@@ -102,4 +98,5 @@ echo ""
 echo "Done. Verify with:"
 echo "  curl -I https://$FQDN/api/health"
 echo ""
-echo "IMPORTANT: Update NEXT_PUBLIC_API_HOST to https://$FQDN in your deployment env vars."
+echo "Set TILE_PUBLIC_CDN_URL=https://$FQDN in the backend deployment to use this CDN for public tiles."
+echo "The frontend API host remains independently configured as NEXT_PUBLIC_API_HOST."

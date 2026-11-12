@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: 'SAM Template for Earth Engine functions - histogram, raster interaction, and download image'
+Description: 'SAM template for authenticated Earth Engine analysis; public tile caching is handled by the API CDN'
 
 Parameters:
   DataGatewaySecret:
@@ -31,11 +31,6 @@ Parameters:
     Type: String
     Default: 'production'
     Description: Rollbar environment name (e.g., 'production', 'staging')
-  CacheTTL:
-    Type: Number
-    Default: 3600
-    Description: Default cache TTL in seconds (default 1 hour)
-
 Globals:
   Function:
     Timeout: 30
@@ -175,7 +170,8 @@ Resources:
         AllowHeaders: "'Content-Type, Authorization'"
         MaxAge: "'3600'"
 
-  # CloudFront Distribution for global edge caching
+  # Earth Engine analysis and download routes are forwarded to their signed
+  # origin without edge caching. Public tile caching is a separate API behavior.
   CloudFrontDistribution:
     Type: AWS::CloudFront::Distribution
     Properties:
@@ -213,33 +209,9 @@ Resources:
           CachedMethods:
             - GET
             - HEAD
-            - OPTIONS
           Compress: true
           CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad
           OriginRequestPolicyId: !Ref ApiOriginRequestPolicy
-
-  # Cache policy - short TTL for dynamic API
-  ApiCachePolicy:
-    Type: AWS::CloudFront::CachePolicy
-    Properties:
-      CachePolicyConfig:
-        Name: !Sub "${AWS::StackName}-ApiCachePolicy"
-        Comment: "Cache policy for Earth Engine API"
-        DefaultTTL: !Ref CacheTTL
-        MaxTTL: 86400
-        MinTTL: 0
-        ParametersInCacheKeyAndForwardedToOrigin:
-          CookiesConfig:
-            CookieBehavior: none
-          HeadersConfig:
-            HeaderBehavior: whitelist
-            Headers:
-              - Accept
-              - Content-Type
-          QueryStringsConfig:
-            QueryStringBehavior: all
-          EnableAcceptEncodingGzip: true
-          EnableAcceptEncodingBrotli: true
 
   # Origin request policy
   ApiOriginRequestPolicy:
