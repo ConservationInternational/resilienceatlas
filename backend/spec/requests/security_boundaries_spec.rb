@@ -6,6 +6,8 @@ RSpec.describe "Security boundaries", type: :request do
     SecurePublicTileSources.new.install_tile_functions
     require Rails.root.join("db/migrate/20261112090000_add_tile_security_policy")
     AddTileSecurityPolicy.new.install_public_guard
+    require Rails.root.join("db/migrate/20261112100000_allow_mixed_scope_legacy_tiles")
+    AllowMixedScopeLegacyTiles.new.up
     ActiveRecord::Base.connection.execute("CREATE SCHEMA IF NOT EXISTS ra_vector")
     ActiveRecord::Base.connection.execute("CREATE TABLE ra_vector.security_test_points (id integer, geom geometry(Point,4326))")
     ActiveRecord::Base.connection.execute("INSERT INTO ra_vector.security_test_points VALUES (1, ST_SetSRID(ST_MakePoint(0,0),4326))")
@@ -179,6 +181,35 @@ RSpec.describe "Security boundaries", type: :request do
     expect(ActiveRecord::Base.connection.select_value(sql).bytesize).to be > 0
 
     other_group.layers << layer
+    expect {
+      ActiveRecord::Base.transaction(requires_new: true) { ActiveRecord::Base.connection.select_value(sql) }
+    }.to raise_error(ActiveRecord::StatementInvalid, /not approved/)
+  end
+
+  it "reconciles legacy mixed-scope layers for the public Martin guard without overriding later restrictions" do
+    other_group.layers << layer
+    layer.update_columns(security_provenance: "legacy_public", public_data: false)
+    old_version = layer.tile_cache_version
+    AllowMixedScopeLegacyTiles.new.up
+    expect(layer.reload.public_data).to be true
+    expect(layer.tile_cache_version).not_to eq(old_version)
+    sql = "SELECT public.ra_vector_tile(0,0,0,'{\"table\":\"security_test_points\"}'::json)"
+    expect(ActiveRecord::Base.connection.select_value(sql).bytesize).to be > 0
+    get "/api/layers", params: {site_scope: scope.subdomain}
+    expect(response.parsed_body.fetch("data").pluck("id")).to include(layer.id.to_s)
+
+    protected_alias = create(:layer, published: true, layer_provider: "martin",
+      layer_config: layer.layer_config)
+    other_group.layers << protected_alias
+    protected_alias.update_columns(security_provenance: "legacy_public")
+    expect {
+      ActiveRecord::Base.transaction(requires_new: true) { ActiveRecord::Base.connection.select_value(sql) }
+    }.to raise_error(ActiveRecord::StatementInvalid, /not approved/)
+    protected_alias.destroy!
+
+    layer.update!(data_policy: "restricted", public_data: false)
+    AllowMixedScopeLegacyTiles.new.up
+    expect(layer.reload.public_data).to be false
     expect {
       ActiveRecord::Base.transaction(requires_new: true) { ActiveRecord::Base.connection.select_value(sql) }
     }.to raise_error(ActiveRecord::StatementInvalid, /not approved/)

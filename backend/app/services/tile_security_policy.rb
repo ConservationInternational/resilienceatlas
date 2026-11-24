@@ -47,8 +47,8 @@ class TileSecurityPolicy
 
   def anonymous_source_restricted?
     @layer.data_policy == "restricted" ||
-      @layer.site_scopes.any?(&:password_protected?) ||
-      aliases.any? { |candidate| candidate.data_policy == "restricted" || candidate.site_scopes.any?(&:password_protected?) }
+      protected_membership_blocks?(@layer) ||
+      aliases.any? { |candidate| candidate.data_policy == "restricted" || protected_membership_blocks?(candidate) }
   end
 
   def self.anonymous_restricted_layer_ids(layers)
@@ -141,7 +141,7 @@ class TileSecurityPolicy
     codes << "invalid_provider_config" unless structurally_valid_config?
     scopes = @layer.site_scopes.distinct.to_a
     codes << "no_scope_assignment" if scopes.empty?
-    codes << "protected_membership_blocks_public_origin" if scopes.any?(&:password_protected?)
+    codes << "protected_membership_blocks_public_origin" if protected_membership_blocks?(@layer, scopes)
     codes << "cache_generation_missing" if version.blank?
     codes
   end
@@ -178,7 +178,12 @@ class TileSecurityPolicy
   end
 
   def restricted?(layer)
-    layer.data_policy != "public" || explicit_revocation?(layer) || layer.site_scopes.any?(&:password_protected?)
+    layer.data_policy != "public" || explicit_revocation?(layer) || protected_membership_blocks?(layer)
+  end
+
+  def protected_membership_blocks?(layer, scopes = layer.site_scopes.to_a)
+    scopes.any?(&:password_protected?) &&
+      !(layer.security_provenance == "legacy_public" && scopes.any? { |scope| !scope.password_protected? })
   end
 
   def source_identity

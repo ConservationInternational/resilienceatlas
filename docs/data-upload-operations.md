@@ -64,6 +64,14 @@ Configuration readiness does not establish that the object exists or is readable
 verify anonymous tile delivery after deployment. No data migration or replay of
 grandfathering is needed for the S3 identity fix.
 
+Published layers grandfathered as `legacy_public` remain eligible for public
+access when assigned to both a public site and a password-protected site.
+Removing their last public-site assignment restores the protected-site block.
+Explicit restrictions and restrictions on other layers sharing the same source
+still block public access. Other readiness checks, including provider support and
+valid source configuration, continue to apply. Run the mixed-scope policy migration
+to reconcile existing approvals and cache generations before deploying this change.
+
 ## Replacement and recovery
 
 - Processing never overwrites the active table or object. Each output has a new

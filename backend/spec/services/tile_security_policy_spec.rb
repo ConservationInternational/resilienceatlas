@@ -66,6 +66,39 @@ RSpec.describe TileSecurityPolicy do
     expect(layer).not_to be_public_data
   end
 
+  it "keeps grandfathered mixed-scope layers public while protecting explicit restrictions and protected-only aliases" do
+    layer = attach_public(vector_layer)
+    layer.update_columns(security_provenance: "legacy_public")
+    protected_scope = create(:site_scope, :password_protected)
+    membership = create(:agrupation, layer: layer, layer_group: create(:layer_group, site_scope: protected_scope))
+    layer.reload
+    expect(described_class.new(layer)).to be_public_cache_eligible
+    expect(layer).to be_public_data
+    expect(Layer.fetch_all(site_scope: layer.site_scopes.find_by!(password_protected: false).id)).to include(layer)
+
+    other = attach_public(vector_layer)
+    expect(described_class.new(other.reload).report["reasons"]).not_to include("conflicting_source_alias")
+    private_alias = vector_layer
+    create(:agrupation, layer: private_alias, layer_group: create(:layer_group, site_scope: protected_scope))
+    expect(described_class.new(layer.reload).report["reasons"]).to include("conflicting_source_alias")
+    private_alias.destroy!
+
+    layer.update!(data_policy: "restricted")
+    expect(described_class.new(layer).report["reasons"]).to include("restricted_data_policy")
+    expect(described_class.new(other.reload).report["reasons"]).to include("conflicting_source_alias")
+    membership.destroy!
+  end
+
+  it "stops grandfathered public access when the last public scope is removed" do
+    layer = attach_public(vector_layer)
+    layer.update_columns(security_provenance: "legacy_public")
+    public_membership = layer.agrupations.first
+    create(:agrupation, layer: layer, layer_group: create(:layer_group, site_scope: create(:site_scope, :password_protected)))
+    public_membership.destroy!
+    expect(described_class.new(layer.reload).report["reasons"]).to include("protected_membership_blocks_public_origin")
+    expect(layer).not_to be_public_data
+  end
+
   it "moves group scope and denies aliases of its source" do
     layer = attach_public(vector_layer)
     other = attach_public(vector_layer)
