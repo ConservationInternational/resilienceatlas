@@ -56,7 +56,7 @@ Resources:
       Architectures:
         - x86_64
       Description: 'Titiler: Dynamic tiler'
-      MemorySize: 1024
+      MemorySize: 2048
       Timeout: 30
       Policies:
         - S3ReadPolicy:

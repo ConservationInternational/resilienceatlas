@@ -82,6 +82,9 @@ Earth Engine also requires `GEE_PRIVATE_KEY_SECRET_ARN`, pointing to the Secrets
 Manager secret containing its service-account JSON. An empty ARN prevents AWS
 from creating the functions' IAM policies. SAM parameter values that may be empty
 must retain literal quotes around their values, including empty allowlists.
+TiTiler uses 2048 MiB to provide enough initialization CPU to stay within API
+Gateway's integration deadline; increasing only the Lambda timeout does not
+avoid cold-start gateway errors.
 
 The vector encoding migration rotates Martin layer URLs and records cache
 invalidations so previously cached PostgreSQL text-form `bytea` responses are not
