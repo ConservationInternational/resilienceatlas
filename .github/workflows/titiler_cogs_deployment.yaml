@@ -76,13 +76,13 @@ jobs:
         run: |
           sam deploy --stack-name ${{ steps.config.outputs.stack_name }} \
             --parameter-overrides \
-              FQDN=${{ steps.config.outputs.fqdn }} \
-              ZoneId=${{ secrets.ROUTE_53_ZONE_ID }} \
-              AllowedBuckets=${{ vars.TITILER_ALLOWED_BUCKETS }} \
-              DataGatewaySecret="$DATA_GATEWAY_SECRET" \
-              "ParameterKey=PublicSourceUrls,ParameterValue=$TITILER_PUBLIC_URLS" \
-              RollbarAccessToken=${{ secrets.ROLLBAR_ACCESS_TOKEN }} \
-              RollbarEnvironment=staging \
+              "ParameterKey=FQDN,ParameterValue=${{ steps.config.outputs.fqdn }}" \
+              "ParameterKey=ZoneId,ParameterValue=${{ secrets.ROUTE_53_ZONE_ID }}" \
+              "ParameterKey=AllowedBuckets,ParameterValue=\"${{ vars.TITILER_ALLOWED_BUCKETS }}\"" \
+              "ParameterKey=DataGatewaySecret,ParameterValue=$DATA_GATEWAY_SECRET" \
+              "ParameterKey=PublicSourceUrls,ParameterValue=\"$TITILER_PUBLIC_URLS\"" \
+              "ParameterKey=RollbarAccessToken,ParameterValue=\"${{ secrets.ROLLBAR_ACCESS_TOKEN }}\"" \
+              "ParameterKey=RollbarEnvironment,ParameterValue=staging" \
             --capabilities CAPABILITY_IAM \
             --region ${{ secrets.AWS_REGION }} \
             --s3-bucket ${{ steps.config.outputs.artifacts_bucket }} \
@@ -135,13 +135,13 @@ jobs:
         run: |
           sam deploy --stack-name ${{ steps.config.outputs.stack_name }} \
             --parameter-overrides \
-              FQDN=${{ steps.config.outputs.fqdn }} \
-              ZoneId=${{ secrets.ROUTE_53_ZONE_ID }} \
-              AllowedBuckets=${{ vars.TITILER_ALLOWED_BUCKETS }} \
-              DataGatewaySecret="$DATA_GATEWAY_SECRET" \
-              "ParameterKey=PublicSourceUrls,ParameterValue=$TITILER_PUBLIC_URLS" \
-              RollbarAccessToken=${{ secrets.ROLLBAR_ACCESS_TOKEN }} \
-              RollbarEnvironment=production \
+              "ParameterKey=FQDN,ParameterValue=${{ steps.config.outputs.fqdn }}" \
+              "ParameterKey=ZoneId,ParameterValue=${{ secrets.ROUTE_53_ZONE_ID }}" \
+              "ParameterKey=AllowedBuckets,ParameterValue=\"${{ vars.TITILER_ALLOWED_BUCKETS }}\"" \
+              "ParameterKey=DataGatewaySecret,ParameterValue=$DATA_GATEWAY_SECRET" \
+              "ParameterKey=PublicSourceUrls,ParameterValue=\"$TITILER_PUBLIC_URLS\"" \
+              "ParameterKey=RollbarAccessToken,ParameterValue=\"${{ secrets.ROLLBAR_ACCESS_TOKEN }}\"" \
+              "ParameterKey=RollbarEnvironment,ParameterValue=production" \
             --capabilities CAPABILITY_IAM \
             --region ${{ secrets.AWS_REGION }} \
             --s3-bucket ${{ steps.config.outputs.artifacts_bucket }} \

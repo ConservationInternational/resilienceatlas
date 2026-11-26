@@ -78,6 +78,10 @@ the same GitHub `DATA_GATEWAY_SECRET` for the web, TiTiler and Earth Engine
 deployments; do not put it in frontend variables or source code. Deploy the secured
 tilers as well as the web application. Optional `TITILER_PUBLIC_URLS` and
 `EE_PUBLIC_ASSET_IDS` may remain empty: Rails signs authorized requests.
+Earth Engine also requires `GEE_PRIVATE_KEY_SECRET_ARN`, pointing to the Secrets
+Manager secret containing its service-account JSON. An empty ARN prevents AWS
+from creating the functions' IAM policies. SAM parameter values that may be empty
+must retain literal quotes around their values, including empty allowlists.
 
 The vector encoding migration rotates Martin layer URLs and records cache
 invalidations so previously cached PostgreSQL text-form `bytea` responses are not

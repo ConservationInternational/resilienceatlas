@@ -68,9 +68,14 @@ jobs:
       - name: Build SAM template
         env:
           DATA_GATEWAY_SECRET: ${{ secrets.DATA_GATEWAY_SECRET }}
+          GEE_KEY_ARN: ${{ secrets.GEE_PRIVATE_KEY_SECRET_ARN }}
         run: |
           if [ "${#DATA_GATEWAY_SECRET}" -lt 32 ]; then
             echo "::error::Configure DATA_GATEWAY_SECRET (at least 32 bytes), matching the Rails deployment."
+            exit 1
+          fi
+          if [ -z "$GEE_KEY_ARN" ]; then
+            echo "::error::Configure GEE_PRIVATE_KEY_SECRET_ARN with the Secrets Manager ARN containing the Earth Engine service-account JSON."
             exit 1
           fi
           sam build --template ${{ env.SAM_TEMPLATE }}
@@ -81,12 +86,15 @@ jobs:
           DATA_GATEWAY_SECRET: ${{ secrets.DATA_GATEWAY_SECRET }}
           EE_PUBLIC_ASSET_IDS: ${{ vars.EE_PUBLIC_ASSET_IDS }}
         run: |
-          OVERRIDES="FQDN=${{ steps.config.outputs.fqdn }} ZoneId=${{ secrets.ROUTE_53_ZONE_ID }}"
-          [ -n "$GEE_KEY_ARN" ] && OVERRIDES="$OVERRIDES GeePrivateKeySecretArn=$GEE_KEY_ARN"
-          OVERRIDES="$OVERRIDES RollbarAccessToken=${{ secrets.ROLLBAR_ACCESS_TOKEN }} RollbarEnvironment=staging"
           sam deploy --stack-name ${{ steps.config.outputs.stack_name }} \
-            --parameter-overrides $OVERRIDES \
-              "DataGatewaySecret=$DATA_GATEWAY_SECRET" "ParameterKey=PublicAssetIds,ParameterValue=$EE_PUBLIC_ASSET_IDS" \
+            --parameter-overrides \
+              "ParameterKey=FQDN,ParameterValue=${{ steps.config.outputs.fqdn }}" \
+              "ParameterKey=ZoneId,ParameterValue=${{ secrets.ROUTE_53_ZONE_ID }}" \
+              "ParameterKey=GeePrivateKeySecretArn,ParameterValue=$GEE_KEY_ARN" \
+              "ParameterKey=RollbarAccessToken,ParameterValue=\"${{ secrets.ROLLBAR_ACCESS_TOKEN }}\"" \
+              "ParameterKey=RollbarEnvironment,ParameterValue=staging" \
+              "ParameterKey=DataGatewaySecret,ParameterValue=$DATA_GATEWAY_SECRET" \
+              "ParameterKey=PublicAssetIds,ParameterValue=\"$EE_PUBLIC_ASSET_IDS\"" \
             --capabilities CAPABILITY_IAM \
             --region ${{ secrets.AWS_REGION }} \
             --s3-bucket ${{ steps.config.outputs.artifacts_bucket }} \
@@ -133,9 +141,14 @@ jobs:
       - name: Build SAM template
         env:
           DATA_GATEWAY_SECRET: ${{ secrets.DATA_GATEWAY_SECRET }}
+          GEE_KEY_ARN: ${{ secrets.GEE_PRIVATE_KEY_SECRET_ARN }}
         run: |
           if [ "${#DATA_GATEWAY_SECRET}" -lt 32 ]; then
             echo "::error::Configure DATA_GATEWAY_SECRET (at least 32 bytes), matching the Rails deployment."
+            exit 1
+          fi
+          if [ -z "$GEE_KEY_ARN" ]; then
+            echo "::error::Configure GEE_PRIVATE_KEY_SECRET_ARN with the Secrets Manager ARN containing the Earth Engine service-account JSON."
             exit 1
           fi
           sam build --template ${{ env.SAM_TEMPLATE }}
@@ -146,12 +159,15 @@ jobs:
           DATA_GATEWAY_SECRET: ${{ secrets.DATA_GATEWAY_SECRET }}
           EE_PUBLIC_ASSET_IDS: ${{ vars.EE_PUBLIC_ASSET_IDS }}
         run: |
-          OVERRIDES="FQDN=${{ steps.config.outputs.fqdn }} ZoneId=${{ secrets.ROUTE_53_ZONE_ID }}"
-          [ -n "$GEE_KEY_ARN" ] && OVERRIDES="$OVERRIDES GeePrivateKeySecretArn=$GEE_KEY_ARN"
-          OVERRIDES="$OVERRIDES RollbarAccessToken=${{ secrets.ROLLBAR_ACCESS_TOKEN }} RollbarEnvironment=production"
           sam deploy --stack-name ${{ steps.config.outputs.stack_name }} \
-            --parameter-overrides $OVERRIDES \
-              "DataGatewaySecret=$DATA_GATEWAY_SECRET" "ParameterKey=PublicAssetIds,ParameterValue=$EE_PUBLIC_ASSET_IDS" \
+            --parameter-overrides \
+              "ParameterKey=FQDN,ParameterValue=${{ steps.config.outputs.fqdn }}" \
+              "ParameterKey=ZoneId,ParameterValue=${{ secrets.ROUTE_53_ZONE_ID }}" \
+              "ParameterKey=GeePrivateKeySecretArn,ParameterValue=$GEE_KEY_ARN" \
+              "ParameterKey=RollbarAccessToken,ParameterValue=\"${{ secrets.ROLLBAR_ACCESS_TOKEN }}\"" \
+              "ParameterKey=RollbarEnvironment,ParameterValue=production" \
+              "ParameterKey=DataGatewaySecret,ParameterValue=$DATA_GATEWAY_SECRET" \
+              "ParameterKey=PublicAssetIds,ParameterValue=\"$EE_PUBLIC_ASSET_IDS\"" \
             --capabilities CAPABILITY_IAM \
             --region ${{ secrets.AWS_REGION }} \
             --s3-bucket ${{ steps.config.outputs.artifacts_bucket }} \
