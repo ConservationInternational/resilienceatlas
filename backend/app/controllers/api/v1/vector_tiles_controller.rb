@@ -46,7 +46,7 @@ module Api
           )
         end
         tile = TileByteCache.fetch(cache_key, bypass: preview) do
-          {status: 200, body: ActiveRecord::Base.connection.select_value(sql).to_s}
+          {status: 200, body: TileRendererService.vector_tile(sql)}
         end[:body]
         response.cache_control.replace(no_store: true, private: true)
         send_data tile, type: "application/vnd.mapbox-vector-tile", disposition: "inline"

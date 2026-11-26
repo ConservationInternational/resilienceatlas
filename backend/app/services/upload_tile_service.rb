@@ -13,7 +13,7 @@ class UploadTileService
     if @di.type_vector?
       query = {table: @di.metadata.fetch("table")}.to_json
       sql = ActiveRecord::Base.sanitize_sql_array(["SELECT ra_app.private_ra_vector_tile(?, ?, ?, ?::json)", z, x, y, query])
-      TileResponse.new(body: ActiveRecord::Base.connection.select_value(sql), code: "200")
+      TileResponse.new(body: TileRendererService.vector_tile(sql), code: "200")
     else
       body = JSON.parse(UploadLayerConfiguration.new(@di).attributes.fetch(:layer_config)).fetch("body")
       query = body.slice("bidx", "rescale", "nodata", "colormap_name", "resampling_method").merge("url" => body.fetch("source"))

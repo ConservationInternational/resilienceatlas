@@ -233,6 +233,16 @@ RSpec.describe TileSecurityPolicy do
     expect(described_class.new(layer).report["reasons"]).not_to include("cache_route_not_active")
   end
 
+  it "warns when a COG cannot authenticate to its tiler without exposing the signing secret" do
+    layer = attach_public(vector_layer(layer_provider: "cog",
+      layer_config: '{"body":{"source":"s3://resilienceatlas/cogs/wheat.tif"}}'))
+    stub_const("ENV", ENV.to_h.merge("DATA_GATEWAY_SECRET" => "", "TILE_PUBLIC_CDN_URL" => "https://tiles.example.test"))
+    expect(described_class.new(layer).report).to include("status" => "warning", "reasons" => ["data_gateway_not_configured"])
+    ENV["DATA_GATEWAY_SECRET"] = "s" * 32
+    expect(described_class.new(layer).report["reasons"]).not_to include("data_gateway_not_configured")
+    expect(described_class.new(layer).report.to_json).not_to include("s" * 32)
+  end
+
   it "reports public alias exposure without revealing the alias identity or blocking ordinary aliases" do
     layer = attach_public(vector_layer)
     other = attach_public(vector_layer)

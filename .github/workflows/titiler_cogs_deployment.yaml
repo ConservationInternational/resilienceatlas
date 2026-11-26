@@ -35,6 +35,8 @@ jobs:
     environment: staging
     env:
       ENVIRONMENT: staging
+      DATA_GATEWAY_SECRET: ${{ secrets.DATA_GATEWAY_SECRET }}
+      TITILER_PUBLIC_URLS: ${{ vars.TITILER_PUBLIC_URLS }}
     steps:
       - name: Checkout the code
         uses: actions/checkout@v6
@@ -60,6 +62,13 @@ jobs:
         with:
           use-installer: true
 
+      - name: Validate data gateway secret
+        run: |
+          if [ "${#DATA_GATEWAY_SECRET}" -lt 32 ]; then
+            echo "::error::Configure DATA_GATEWAY_SECRET (at least 32 bytes), matching the Rails deployment."
+            exit 1
+          fi
+
       - name: Build SAM template
         run: sam build --template ${{ env.SAM_TEMPLATE }}
 
@@ -70,8 +79,8 @@ jobs:
               FQDN=${{ steps.config.outputs.fqdn }} \
               ZoneId=${{ secrets.ROUTE_53_ZONE_ID }} \
               AllowedBuckets=${{ vars.TITILER_ALLOWED_BUCKETS }} \
-              DataGatewaySecret="${{ secrets.DATA_GATEWAY_SECRET }}" \
-              PublicSourceUrls="${{ vars.TITILER_PUBLIC_URLS }}" \
+              DataGatewaySecret="$DATA_GATEWAY_SECRET" \
+              "ParameterKey=PublicSourceUrls,ParameterValue=$TITILER_PUBLIC_URLS" \
               RollbarAccessToken=${{ secrets.ROLLBAR_ACCESS_TOKEN }} \
               RollbarEnvironment=staging \
             --capabilities CAPABILITY_IAM \
@@ -87,6 +96,8 @@ jobs:
     environment: production
     env:
       ENVIRONMENT: production
+      DATA_GATEWAY_SECRET: ${{ secrets.DATA_GATEWAY_SECRET }}
+      TITILER_PUBLIC_URLS: ${{ vars.TITILER_PUBLIC_URLS }}
     steps:
       - name: Checkout the code
         uses: actions/checkout@v6
@@ -110,6 +121,13 @@ jobs:
         with:
           use-installer: true
 
+      - name: Validate data gateway secret
+        run: |
+          if [ "${#DATA_GATEWAY_SECRET}" -lt 32 ]; then
+            echo "::error::Configure DATA_GATEWAY_SECRET (at least 32 bytes), matching the Rails deployment."
+            exit 1
+          fi
+
       - name: Build resources
         run: sam build --template ${{ env.SAM_TEMPLATE }}
 
@@ -120,8 +138,8 @@ jobs:
               FQDN=${{ steps.config.outputs.fqdn }} \
               ZoneId=${{ secrets.ROUTE_53_ZONE_ID }} \
               AllowedBuckets=${{ vars.TITILER_ALLOWED_BUCKETS }} \
-              DataGatewaySecret="${{ secrets.DATA_GATEWAY_SECRET }}" \
-              PublicSourceUrls="${{ vars.TITILER_PUBLIC_URLS }}" \
+              DataGatewaySecret="$DATA_GATEWAY_SECRET" \
+              "ParameterKey=PublicSourceUrls,ParameterValue=$TITILER_PUBLIC_URLS" \
               RollbarAccessToken=${{ secrets.ROLLBAR_ACCESS_TOKEN }} \
               RollbarEnvironment=production \
             --capabilities CAPABILITY_IAM \

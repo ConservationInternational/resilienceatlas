@@ -24,8 +24,9 @@ module Api
           {status: rendered.status, body: rendered.body, content_type: rendered.content_type}
         end
 
+        minimum_bytes = (@layer.layer_provider == "martin") ? 0 : 1
         unless result[:status].to_i == 200 && result[:body].is_a?(String) &&
-            result[:body].bytesize.between?(1, TileByteCache::MAX_BYTES)
+            result[:body].bytesize.between?(minimum_bytes, TileByteCache::MAX_BYTES)
           status = (result[:status].to_i == 400) ? :bad_request : :bad_gateway
           return no_store_error(status, "Tile unavailable")
         end

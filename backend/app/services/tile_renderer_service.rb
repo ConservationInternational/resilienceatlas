@@ -58,6 +58,10 @@ class TileRendererService
     fetch_tile("#{titiler}/tiles/WebMercatorQuad/#{z}/#{x}/#{y}", query, cog_url, "image/png")
   end
 
+  def self.vector_tile(sql)
+    ActiveRecord::Base.connection.select_all(sql).cast_values.first
+  end
+
   def self.public_cache_key(layer, z:, x:, y:, params: {})
     policy = TileSecurityPolicy.new(layer)
     TileByteCache.key(
@@ -165,8 +169,8 @@ class TileRendererService
       query = {"table" => source}
     end
     sql = ActiveRecord::Base.sanitize_sql_array(["SELECT #{function}(?, ?, ?, ?::json)", z, x, y, query.to_json])
-    tile = ActiveRecord::Base.connection.select_value(sql)
-    return failure(404, "Tile not found") if tile.blank?
+    tile = vector_tile(sql)
+    return failure(404, "Tile not found") if tile.nil?
 
     Result.new(status: 200, body: tile, content_type: "application/vnd.mapbox-vector-tile")
   end
@@ -188,7 +192,7 @@ class TileRendererService
     return failure(400, "Invalid COG source") unless validated_cog_url(source)
 
     variants = body.slice(*COG_VARIANT_KEYS)
-    variants["feature"] ||= body["clip_geometry"]
+    variants["feature"] ||= body["clip_geometry"] if body["clip_geometry"].present?
     if body["url"].present?
       legacy_uri = URI.parse(uri_with_temporal_templates(body["url"]))
       legacy_query = URI.decode_www_form(legacy_uri.query.to_s).to_h

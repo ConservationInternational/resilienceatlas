@@ -158,6 +158,9 @@ class TileSecurityPolicy
 
   def diagnostic_warnings(blocks)
     codes = []
+    if @layer.layer_provider == "cog" && ENV["DATA_GATEWAY_SECRET"].to_s.bytesize < 32
+      codes << "data_gateway_not_configured"
+    end
     if source_key && aliases.any? { |candidate| self.class.new(candidate).local_reasons.empty? }
       codes << "shared_source_public_alias"
     end

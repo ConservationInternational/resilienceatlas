@@ -83,6 +83,26 @@ RSpec.describe "Public tile route", type: :request do
     expect(response.headers["Cache-Control"]).to include("no-store")
   end
 
+  it "renders an unclipped COG without inventing a null feature parameter" do
+    stub_const("ENV", ENV.to_h.merge("TITILER_URL" => "https://titiler.resilienceatlas.org",
+      "DATA_GATEWAY_SECRET" => "s" * 32))
+    source = "s3://resilienceatlas/cogs/wheat.tif"
+    colormap = [[[0, 100], [255, 0, 0, 255]]]
+    cog = create(:layer, layer_provider: "cog", timeline: false,
+      layer_config: {body: {source: source, bidx: 1, colormap: colormap}}.to_json)
+    png = "\x89PNG\r\n\x1a\n".b
+    upstream = stub_request(:get, "https://titiler.resilienceatlas.org/tiles/WebMercatorQuad/0/0/0")
+      .with(query: {"url" => source, "bidx" => "1", "colormap" => colormap.to_json},
+        headers: {"X-Data-Authorization" => /\A\d+:[a-f0-9]{64}\z/})
+      .to_return(status: 200, body: png)
+
+    get "/api/public-tiles/#{cog.id}/generation-1/0/0/0"
+
+    expect(response).to have_http_status(:ok)
+    expect(response.body.b).to eq(png)
+    expect(upstream).to have_been_requested.once
+  end
+
   it "rejects arbitrary query variants" do
     expect(TileRendererService).not_to receive(:render)
 

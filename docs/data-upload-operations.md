@@ -72,6 +72,19 @@ still block public access. Other readiness checks, including provider support an
 valid source configuration, continue to apply. Run the mixed-scope policy migration
 to reconcile existing approvals and cache generations before deploying this change.
 
+Configuration readiness is not a live rendering check. `data_gateway_not_configured`
+means the backend signing secret is missing or shorter than 32 bytes. Configure
+the same GitHub `DATA_GATEWAY_SECRET` for the web, TiTiler and Earth Engine
+deployments; do not put it in frontend variables or source code. Deploy the secured
+tilers as well as the web application. Optional `TITILER_PUBLIC_URLS` and
+`EE_PUBLIC_ASSET_IDS` may remain empty: Rails signs authorized requests.
+
+The vector encoding migration rotates Martin layer URLs and records cache
+invalidations so previously cached PostgreSQL text-form `bytea` responses are not
+reused. Vector tiles must contain binary MVT, not text beginning with `\x`.
+An empty vector tile is a valid HTTP 200 response for an area without features.
+Use live verification and a tile containing features to confirm actual rendering.
+
 ## Replacement and recovery
 
 - Processing never overwrites the active table or object. Each output has a new

@@ -188,7 +188,12 @@ jobs:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         BACKEND_IMAGE: ${{ steps.images.outputs.backend-image }}
         FRONTEND_IMAGE: ${{ steps.images.outputs.frontend-image }}
+        DATA_GATEWAY_SECRET: ${{ secrets.DATA_GATEWAY_SECRET }}
       run: |
+        if [ "${#DATA_GATEWAY_SECRET}" -lt 32 ]; then
+          echo "::error::Configure DATA_GATEWAY_SECRET (at least 32 bytes) for Rails, TiTiler and Earth Engine before deploying."
+          exit 1
+        fi
         # Generate .env.production with secrets from GitHub
         # This file is included in the deployment package and copied to the server
         cat > .env.production << EOF
@@ -230,7 +235,7 @@ jobs:
         NEXT_PUBLIC_TRANSIFEX_SECRET=${{ secrets.NEXT_PUBLIC_TRANSIFEX_SECRET }}
         NEXT_PUBLIC_GOOGLE_API_KEY=${{ secrets.NEXT_PUBLIC_GOOGLE_API_KEY }}
         RESILIENCE_API_KEY=${{ secrets.RESILIENCE_API_KEY }}
-        DATA_GATEWAY_SECRET=${{ secrets.DATA_GATEWAY_SECRET }}
+        DATA_GATEWAY_SECRET=$DATA_GATEWAY_SECRET
         EARTH_ENGINE_API_URL=${{ vars.EARTH_ENGINE_API_URL }}
         SPARKPOST_API_KEY=${{ secrets.SPARKPOST_API_KEY }}
         

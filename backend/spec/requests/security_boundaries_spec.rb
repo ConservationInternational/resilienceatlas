@@ -1,4 +1,5 @@
 require "rails_helper"
+require Rails.root.join("db/migrate/20261126060000_refresh_vector_tile_encoding")
 
 RSpec.describe "Security boundaries", type: :request do
   before(:context) do
@@ -144,13 +145,36 @@ RSpec.describe "Security boundaries", type: :request do
   it "serves authorized vector tiles but denies drafts and unrelated scopes" do
     get "/api/layers/#{layer.id}/tiles/0/0/0", params: {site_scope: scope.subdomain}
     expect(response).to have_http_status(:ok)
-    expect(response.body.bytesize).to be > 0
+    expect(response.body.getbyte(0)).to eq(0x1a)
     expect(response.media_type).to eq("application/vnd.mapbox-vector-tile")
     get "/api/layers/#{layer.id}/tiles/0/0/0", params: {site_scope: other_scope.subdomain}
     expect(response).to have_http_status(:unauthorized)
     layer.update!(published: false)
     get "/api/layers/#{layer.id}/tiles/0/0/0", params: {site_scope: scope.subdomain}
     expect(response).to have_http_status(:not_found)
+  end
+
+  it "serves the same binary MVT through public and upload routes, including empty public tiles" do
+    old_version = layer.reload.tile_cache_version
+    ActiveRecord::Migration.suppress_messages { RefreshVectorTileEncoding.new.up }
+    expect(layer.reload.tile_cache_version).not_to eq(old_version)
+    get "/api/public-tiles/#{layer.id}/#{old_version}/0/0/0"
+    expect(response).to have_http_status(:not_found)
+
+    sql = "SELECT public.ra_vector_tile(0,0,0,'{\"table\":\"security_test_points\"}'::json)"
+    expected = ActiveRecord::Base.connection.select_all(sql).cast_values.first
+    get "/api/public-tiles/#{layer.id}/#{layer.reload.tile_cache_version}/0/0/0"
+    expect(response).to have_http_status(:ok)
+    expect(response.body.b).to eq(expected)
+    expect(response.body.getbyte(0)).to eq(0x1a)
+
+    upload = DataImport.new(import_type: "vector", metadata: {"table" => "security_test_points"})
+    expect(UploadTileService.new(upload).tile(0, 0, 0).body).to eq(expected)
+
+    get "/api/public-tiles/#{layer.id}/#{layer.tile_cache_version}/2/0/0"
+    expect(response).to have_http_status(:ok)
+    expect(response.body).to be_empty
+    expect(response.headers["Cache-Control"]).to include("s-maxage=86400")
   end
 
   it "derives public access, preserves explicit revocation and protects restricted aliases" do
