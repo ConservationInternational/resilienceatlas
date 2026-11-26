@@ -3,5 +3,5 @@
 # Keep these exact-pinned for reproducible Lambda builds and to avoid silent drift.
 requests==2.34.2
 mangum==0.22.0
-titiler.application==2.4.0
+titiler.core==2.4.0
 rollbar==1.5.0

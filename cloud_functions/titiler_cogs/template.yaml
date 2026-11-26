@@ -72,7 +72,6 @@ Resources:
             RestApiId: !Ref RestApiGateway
       Environment:
         Variables:
-          PYTHONPROFILEIMPORTTIME: 1
           DATA_GATEWAY_SECRET: !Ref DataGatewaySecret
           TITILER_PUBLIC_URLS: !Ref PublicSourceUrls
           CPL_VSIL_CURL_ALLOWED_EXTENSIONS: .tif,.TIF,.tiff

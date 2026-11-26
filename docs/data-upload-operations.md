@@ -82,6 +82,9 @@ Earth Engine also requires `GEE_PRIVATE_KEY_SECRET_ARN`, pointing to the Secrets
 Manager secret containing its service-account JSON. An empty ARN prevents AWS
 from creating the functions' IAM policies. SAM parameter values that may be empty
 must retain literal quotes around their values, including empty allowlists.
+The COG-only Lambda installs `titiler.core`, not the full `titiler.application`
+bundle. The latter loads unused xarray/pandas/mosaic dependencies during cold
+initialization and can push first tile requests past the gateway deadline.
 
 The vector encoding migration rotates Martin layer URLs and records cache
 invalidations so previously cached PostgreSQL text-form `bytea` responses are not
