@@ -84,6 +84,9 @@ invalidations so previously cached PostgreSQL text-form `bytea` responses are no
 reused. Vector tiles must contain binary MVT, not text beginning with `\x`.
 An empty vector tile is a valid HTTP 200 response for an area without features.
 Use live verification and a tile containing features to confirm actual rendering.
+The encoding migration uses a bulk update and preserves existing access policy.
+Deployment validation waits for the expected Swarm images and rejects automatic
+rollbacks; a healthy previous backend is not evidence of a successful deployment.
 
 ## Replacement and recovery
 

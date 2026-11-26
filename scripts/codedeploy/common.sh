@@ -35,6 +35,34 @@ log_error() {
     echo -e "${RED}[ERROR]${NC} $(date '+%Y-%m-%d %H:%M:%S') - $1"
 }
 
+wait_for_service_update() {
+    local service="$1" expected_image="$2" state image attempt
+    if [ -z "$expected_image" ]; then
+        log_error "Expected deployment image is missing for $service"
+        return 1
+    fi
+    for ((attempt = 0; attempt < 60; attempt++)); do
+        state=$(docker service inspect "$service" --format '{{if .UpdateStatus}}{{.UpdateStatus.State}}{{end}}') || return 1
+        case "$state" in
+            rollback*|paused)
+                log_error "$service update failed: $state"
+                return 1
+                ;;
+            completed|"")
+                image=$(docker service inspect "$service" --format '{{.Spec.TaskTemplate.ContainerSpec.Image}}') || return 1
+                if [ "${image%%@*}" != "${expected_image%%@*}" ]; then
+                    log_error "$service is not running the expected deployment image"
+                    return 1
+                fi
+                return 0
+                ;;
+        esac
+        sleep 5
+    done
+    log_error "$service update did not complete within 300 seconds"
+    return 1
+}
+
 # Staging and production share a Docker daemon, including its content store.
 # Keep the descriptor open until the hook exits; never remove the lock file.
 acquire_docker_lock() {

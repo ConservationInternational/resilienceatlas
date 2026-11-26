@@ -86,7 +86,7 @@ if [ "$1" = "bundle" ] && [ "$2" = "exec" ]; then
   done
 
   echo "Running database migrations..."
-  bundle exec rails db:migrate 2>/dev/null || echo "Migration skipped or already up to date"
+  bundle exec rails db:migrate
   
   # Fix existing blobs that have missing files (requires database access)
   echo "Fixing any existing blobs with missing files..."

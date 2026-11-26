@@ -79,6 +79,12 @@ docker stack services "$STACK_NAME" 2>/dev/null || {
     exit 1
 }
 
+if ! wait_for_service_update "${STACK_NAME}_backend" "${BACKEND_IMAGE:-}" ||
+   ! wait_for_service_update "${STACK_NAME}_frontend" "${FRONTEND_IMAGE:-}"; then
+    log_error "Deployment did not converge to the expected images"
+    exit 1
+fi
+
 # Health check configuration - reduced for faster deployment
 # Swarm continues orchestrating even after this script exits
 MAX_ATTEMPTS=12

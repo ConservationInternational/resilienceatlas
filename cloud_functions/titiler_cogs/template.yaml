@@ -57,7 +57,7 @@ Resources:
         - x86_64
       Description: 'Titiler: Dynamic tiler'
       MemorySize: 1024
-      Timeout: 10
+      Timeout: 30
       Policies:
         - S3ReadPolicy:
             BucketName: trends.earth-private

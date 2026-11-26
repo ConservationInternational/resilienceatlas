@@ -155,9 +155,12 @@ RSpec.describe "Security boundaries", type: :request do
   end
 
   it "serves the same binary MVT through public and upload routes, including empty public tiles" do
+    restricted = create(:layer, layer_provider: "martin", data_policy: "restricted",
+      layer_config: {body: {source: "restricted_points"}}.to_json)
     old_version = layer.reload.tile_cache_version
     ActiveRecord::Migration.suppress_messages { RefreshVectorTileEncoding.new.up }
     expect(layer.reload.tile_cache_version).not_to eq(old_version)
+    expect(restricted.reload).to have_attributes(data_policy: "restricted", security_provenance: "explicit", public_data: false)
     get "/api/public-tiles/#{layer.id}/#{old_version}/0/0/0"
     expect(response).to have_http_status(:not_found)
 
