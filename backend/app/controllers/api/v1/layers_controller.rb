@@ -6,9 +6,10 @@ module Api
       before_action :set_layer, only: :download_attachments
 
       def index
-        @layers = Layer.fetch_all(layers_params).includes :agrupations, sources: :translations, layer_groups: [:translations, super_group: :translations]
+        @layers = Layer.fetch_all(layers_params).includes :agrupations, :site_scopes, sources: :translations, layer_groups: [:translations, super_group: :translations]
         response.cache_control.replace(private: true, no_store: true)
-        render json: @layers, meta: {total_layers: @layers.size}, include: ["layer_groups", "sources"], site_scope: layers_params[:site_scope].to_i
+        render json: @layers, meta: {total_layers: @layers.size}, include: ["layer_groups", "sources"],
+          site_scope: layers_params[:site_scope].to_i, tile_security_reports: TileSecurityPolicy.reports_for(@layers)
       end
 
       def download_attachments

@@ -1,6 +1,33 @@
 require "swagger_helper"
 
 RSpec.describe "API V1 Layer", type: :request do
+  it "batches catalog security checks while preserving shared-source revocations" do
+    scope = create(:site_scope, id: 1)
+    group = create(:layer_group, site_scope: scope)
+    config = ->(table) { {body: {source: "ra_vector_tile", params: {table: table}}}.to_json }
+    public_layer = create(:layer, layer_provider: "martin", layer_groups: [group],
+      layer_config: config.call("catalog_public"), timeline: false)
+    shared_layer = create(:layer, layer_provider: "martin", layer_groups: [group],
+      layer_config: config.call("catalog_shared"), timeline: false)
+    revoked = create(:layer, layer_provider: "martin", layer_groups: [group],
+      layer_config: config.call("catalog_shared"), timeline: false)
+    revoked.update!(public_data: false)
+    alias_queries = []
+    subscriber = ->(_name, _start, _finish, _id, payload) do
+      alias_queries << payload[:sql] if payload[:sql].include?('"layers"."layer_provider" =')
+    end
+    ActiveSupport::Notifications.subscribed(subscriber, "sql.active_record") do
+      get "/api/layers", params: {site_scope: scope.id}
+    end
+    expect(response).to have_http_status(:ok)
+    records = response.parsed_body.fetch("data").index_by { |record| record.fetch("id").to_i }
+    public_config = JSON.parse(records.fetch(public_layer.id).dig("attributes", "layer_config"))
+    shared_config = JSON.parse(records.fetch(shared_layer.id).dig("attributes", "layer_config"))
+    expect(public_config.dig("body", "public_tile_url")).to include("/api/public-tiles/#{public_layer.id}/")
+    expect(shared_config.dig("body", "public_tile_url")).to be_nil
+    expect(alias_queries).to be_empty
+  end
+
   path "/api/layers" do
     get "Get list of layers" do
       tags "Layer"

@@ -139,7 +139,7 @@ class TileSecurityPolicy
     codes << "public_origin_explicitly_revoked" if explicit_revocation?(@layer)
     codes << "unsupported_provider" unless SUPPORTED_PROVIDERS.include?(@layer.layer_provider)
     codes << "invalid_provider_config" unless structurally_valid_config?
-    scopes = @layer.site_scopes.distinct.to_a
+    scopes = @layer.site_scopes.to_a.uniq(&:id)
     codes << "no_scope_assignment" if scopes.empty?
     codes << "protected_membership_blocks_public_origin" if protected_membership_blocks?(@layer, scopes)
     codes << "cache_generation_missing" if version.blank?

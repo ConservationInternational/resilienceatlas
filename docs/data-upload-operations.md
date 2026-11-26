@@ -82,9 +82,6 @@ Earth Engine also requires `GEE_PRIVATE_KEY_SECRET_ARN`, pointing to the Secrets
 Manager secret containing its service-account JSON. An empty ARN prevents AWS
 from creating the functions' IAM policies. SAM parameter values that may be empty
 must retain literal quotes around their values, including empty allowlists.
-TiTiler uses 2048 MiB to provide enough initialization CPU to stay within API
-Gateway's integration deadline; increasing only the Lambda timeout does not
-avoid cold-start gateway errors.
 
 The vector encoding migration rotates Martin layer URLs and records cache
 invalidations so previously cached PostgreSQL text-form `bytea` responses are not
@@ -94,6 +91,9 @@ Use live verification and a tile containing features to confirm actual rendering
 The encoding migration uses a bulk update and preserves existing access policy.
 Deployment validation waits for the expected Swarm images and rejects automatic
 rollbacks; a healthy previous backend is not evidence of a successful deployment.
+The layer catalog batches security reports and reuses preloaded site memberships
+instead of scanning all source aliases for every serialized layer. This avoids
+catalog requests exhausting backend worker memory while preserving revocations.
 
 ## Replacement and recovery
 

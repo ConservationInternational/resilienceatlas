@@ -56,7 +56,7 @@ Resources:
       Architectures:
         - x86_64
       Description: 'Titiler: Dynamic tiler'
-      MemorySize: 2048
+      MemorySize: 1024
       Timeout: 30
       Policies:
         - S3ReadPolicy:
@@ -72,6 +72,7 @@ Resources:
             RestApiId: !Ref RestApiGateway
       Environment:
         Variables:
+          PYTHONPROFILEIMPORTTIME: 1
           DATA_GATEWAY_SECRET: !Ref DataGatewaySecret
           TITILER_PUBLIC_URLS: !Ref PublicSourceUrls
           CPL_VSIL_CURL_ALLOWED_EXTENSIONS: .tif,.TIF,.tiff

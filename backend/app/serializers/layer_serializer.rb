@@ -97,7 +97,7 @@ class LayerSerializer < ActiveModel::Serializer
 
     if %w[martin cog gee].include?(object.layer_provider) &&
         object.respond_to?(:tile_cache_version) &&
-        TileSecurityPolicy.new(object).public_cache_eligible? &&
+        public_tile_eligible? &&
         TileRendererService.public_representation_valid?(object)
       cog_sources = (object.layer_provider == "cog") ? LayerDataSources.cog_urls(object) : []
       has_timeline_source = cog_sources.any? &&
@@ -143,6 +143,13 @@ class LayerSerializer < ActiveModel::Serializer
   end
 
   private
+
+  def public_tile_eligible?
+    reports = instance_options[:tile_security_reports]
+    return reports.fetch(object.id).fetch("public_cache_eligible") if reports
+
+    TileSecurityPolicy.new(object).public_cache_eligible?
+  end
 
   def tile_public_url(route)
     origin = ENV["TILE_PUBLIC_CDN_URL"].presence
