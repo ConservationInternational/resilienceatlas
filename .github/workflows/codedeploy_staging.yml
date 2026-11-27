@@ -242,6 +242,7 @@ jobs:
         TILE_ORIGIN_PROBE_URL=${{ vars.TILE_ORIGIN_PROBE_URL }}
         TILE_CLOUDFRONT_DISTRIBUTION_IDS=${{ vars.TILE_CLOUDFRONT_DISTRIBUTION_IDS }}
         TITILER_URL=${{ vars.TITILER_URL || 'https://staging.titiler.resilienceatlas.org' }}
+        COG_ALLOWED_S3_BUCKETS=${{ vars.COG_ALLOWED_S3_BUCKETS || 'resilienceatlas,trends.earth-private' }}
         
         # External services
         NEXT_PUBLIC_GOOGLE_ANALYTICS=${{ secrets.NEXT_PUBLIC_GOOGLE_ANALYTICS }}

@@ -141,6 +141,7 @@ services:
       - TILE_ORIGIN_PROBE_URL=${TILE_ORIGIN_PROBE_URL:-}
       - TILE_CLOUDFRONT_DISTRIBUTION_IDS=${TILE_CLOUDFRONT_DISTRIBUTION_IDS:-}
       - TITILER_URL=${TITILER_URL:-https://staging.titiler.resilienceatlas.org}
+      - COG_ALLOWED_S3_BUCKETS=${COG_ALLOWED_S3_BUCKETS:-resilienceatlas,trends.earth-private}
       - S3_BUCKET=${S3_BUCKET}
       - AWS_REGION=${AWS_REGION}
       - BEDROCK_AGENT_ID=${BEDROCK_AGENT_ID}
@@ -247,6 +248,7 @@ services:
       - REDIS_URL=redis://redis:6379/0
       - TILE_CLOUDFRONT_DISTRIBUTION_IDS=${TILE_CLOUDFRONT_DISTRIBUTION_IDS:-}
       - TILE_PUBLIC_CDN_URL=${TILE_PUBLIC_CDN_URL:-https://api.staging.resilienceatlas.org}
+      - COG_ALLOWED_S3_BUCKETS=${COG_ALLOWED_S3_BUCKETS:-resilienceatlas,trends.earth-private}
       - TILE_ORIGIN_PROBE_URL=${TILE_ORIGIN_PROBE_URL:-}
       - S3_BUCKET=${S3_BUCKET}
       - AWS_REGION=${AWS_REGION}

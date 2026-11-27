@@ -18,6 +18,35 @@ RSpec.describe "API V1 TiTiler Proxy", type: :request do
     end
   end
 
+  it "serves an allowlisted LDN raster only after protected-scope authentication" do
+    source = "s3://trends.earth-private/counterbalancing/JRC/TrendsEarth_LDN_2000-2023_JRC_ecoregion_net_change_by_unit.tif"
+    stub_const("ENV", ENV.to_h.merge("COG_ALLOWED_S3_BUCKETS" => "resilienceatlas,trends.earth-private"))
+    protected_scope = create(:site_scope, :password_protected)
+    group = create(:layer_group, site_scope: protected_scope)
+    create(:layer, layer_provider: "cog", layer_groups: [group], timeline: false,
+      layer_config: {body: {source: source}}.to_json)
+    png = "\x89PNG\r\n\x1a\n".b + "ldn tile"
+    upstream = stub_request(:get, "#{staging_titiler_url}/tiles/WebMercatorQuad/3/5/3")
+      .with(query: hash_including("url" => source, "nodata" => "-32768.0", "colormap_name" => "ra_net_change_v2")) do |request|
+        expires, signature = request.headers.fetch("X-Data-Authorization").split(":", 2)
+        expected = OpenSSL::HMAC.hexdigest("SHA256", ENV.fetch("DATA_GATEWAY_SECRET"), "#{expires}\n#{source}")
+        expires.to_i > Time.current.to_i && signature == expected
+      end
+      .to_return(status: 200, body: png, headers: {"Content-Type" => "image/png"})
+    params = {site_scope: protected_scope.id, titilerUrl: staging_titiler_url, cogUrl: source,
+              nodata: "-32768", colormap_name: "ra_net_change_v2"}
+    get "/api/titiler/tiles/3/5/3", params: params
+    expect(response).to have_http_status(:unauthorized)
+    expect(upstream).not_to have_been_requested
+
+    token = JWT.encode({site_scope_id: protected_scope.id, exp: 1.hour.from_now.to_i},
+      Rails.application.secret_key_base, "HS256")
+    get "/api/titiler/tiles/3/5/3", params: params, headers: {"Site-Scope-Token" => token}
+    expect(response).to have_http_status(:ok)
+    expect(response.body.b).to eq(png)
+    expect(upstream).to have_been_requested.once
+  end
+
   path "/api/titiler/info" do
     get "Get COG metadata from TiTiler" do
       tags "TiTiler"

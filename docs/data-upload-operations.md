@@ -59,7 +59,14 @@ configurations: TiTiler uses its IAM role to read private objects. Do not conver
 them to HTTPS or make a bucket public to clear a readiness error.
 S3 and equivalent standard AWS HTTPS object URLs share a policy identity, so a
 restriction on either alias blocks shared public serving. Rendering still checks
-`COG_ALLOWED_S3_BUCKETS` (default `resilienceatlas`) and the HTTPS host allowlist.
+`COG_ALLOWED_S3_BUCKETS` and the HTTPS host allowlist. Swarm deployments default
+to `resilienceatlas,trends.earth-private`; standalone Rails defaults to
+`resilienceatlas`. Set the GitHub environment variable `COG_ALLOWED_S3_BUCKETS`
+to override the deployment allowlist. It must include `trends.earth-private`
+for LDN counterbalancing rasters. This permits signed source reads, not anonymous
+access: published layer membership and protected-site authentication still apply.
+TiTiler independently requires `s3://trends.earth-private` in
+`TITILER_ALLOWED_BUCKETS` and IAM permission to read that bucket.
 Configuration readiness does not establish that the object exists or is readable;
 verify anonymous tile delivery after deployment. No data migration or replay of
 grandfathering is needed for the S3 identity fix.
